@@ -31,6 +31,11 @@ function optionsFor(entry, extra = {}) {
   const catalog = readFileSync(resolve(ROOT, 'tool-descriptions.json'), 'utf8');
   const endpoints = readFileSync(resolve(ROOT, 'catalog/internal-endpoints.json'), 'utf8');
   const overlay = readFileSync(resolve(ROOT, 'catalog/endpoint-overlay.json'), 'utf8');
+  // Same treatment again for the contact filter-field catalogue: no endpoint serves it, the
+  // contacts screen builds it in the browser, and check_smart_lists needs the static half to
+  // tell an unknown field from a bad envelope. A bundle without it would silently stop making
+  // that distinction.
+  const filterFields = readFileSync(resolve(ROOT, 'catalog/contact-filter-fields.json'), 'utf8');
   return {
     entryPoints: [resolve(ROOT, entry)],
     bundle: true,
@@ -43,6 +48,8 @@ function optionsFor(entry, extra = {}) {
       __HAS_ENDPOINTS__: 'true',
       __ENDPOINT_CATALOG__: endpoints,
       __ENDPOINT_OVERLAY__: overlay,
+      __HAS_FILTER_FIELDS__: 'true',
+      __CONTACT_FILTER_FIELDS__: filterFields,
     },
     logLevel: 'warning',
     ...extra,

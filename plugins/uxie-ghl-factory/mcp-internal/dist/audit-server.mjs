@@ -41,6 +41,128 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
   mod
 ));
 
+// <define:__CONTACT_FILTER_FIELDS__>
+var define_CONTACT_FILTER_FIELDS_default;
+var init_define_CONTACT_FILTER_FIELDS = __esm({
+  "<define:__CONTACT_FILTER_FIELDS__>"() {
+    define_CONTACT_FILTER_FIELDS_default = {
+      staticFieldKeys: [
+        "active_campaign_id",
+        "active_community_groups",
+        "active_workflows_2",
+        "address_1",
+        "age",
+        "assigned_to",
+        "business_name",
+        "canceled_campaign_id",
+        "check_in_method",
+        "check_in_status",
+        "checked_in_at",
+        "checked_in_by",
+        "city",
+        "company_name",
+        "contact_name",
+        "contact_name_wildcard",
+        "country",
+        "created_by.sourceId",
+        "custom_fields.",
+        "date_added",
+        "date_of_birth",
+        "date_updated",
+        "dependent_canceled_status",
+        "dependent_finished_status",
+        "dependent_paused_status",
+        "dependent_status",
+        "dnd",
+        "email",
+        "event_id",
+        "event_type",
+        "facebook_id",
+        "finished_campaign_id",
+        "finished_workflows_2",
+        "first_name",
+        "followers",
+        "google_id",
+        "import_id",
+        "inbound_dnd_settings.all.status",
+        "instagram_id",
+        "is_first",
+        "is_last",
+        "is_valid_whatsapp",
+        "last_activity",
+        "last_appointment",
+        "last_conversation_message_type",
+        "last_email_clicked_date",
+        "last_email_opened_date",
+        "last_name",
+        "last_updated_by.sourceId",
+        "medium",
+        "offers",
+        "paused_campaign_id",
+        "phone",
+        "pipeline_id",
+        "pipeline_stage",
+        "pipeline_status",
+        "postal_code",
+        "products",
+        "registration_status",
+        "score",
+        "scoring_id_equal",
+        "scoring_id_not_equal",
+        "source",
+        "source_type",
+        "stage_id",
+        "state",
+        "status",
+        "tags",
+        "ticket_sold_recorded_at",
+        "ticket_type",
+        "ticket_type_filter",
+        "tikTokLeadId",
+        "timezone",
+        "type",
+        "utm_ad_group_id",
+        "utm_ad_id",
+        "utm_campaign",
+        "utm_campaign_id",
+        "utm_content",
+        "utm_fbclid",
+        "utm_gclid",
+        "utm_keyword",
+        "utm_matchtype",
+        "utm_medium",
+        "utm_session_source",
+        "utm_source",
+        "utm_term",
+        "valid_email",
+        "website"
+      ],
+      fieldAliases: [
+        "campaign_id",
+        "contact_name",
+        "date_of_birth",
+        "event_id",
+        "id",
+        "is_first",
+        "is_last",
+        "pipeline_id",
+        "pipeline_stage_id",
+        "score",
+        "status",
+        "ticket_id",
+        "utm_source"
+      ],
+      nestedJoinPaths: [
+        "attributions",
+        "campaigns",
+        "event_registrations",
+        "opportunities",
+        "scoring"
+      ]
+    };
+  }
+});
+
 // <define:__ENDPOINT_CATALOG__>
 var define_ENDPOINT_CATALOG_default;
 var init_define_ENDPOINT_CATALOG = __esm({
@@ -9658,7 +9780,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "check_smart_lists"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -9897,7 +10021,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
-          coveredBy: [],
+          coveredBy: [
+            "check_smart_lists"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -9914,7 +10040,14 @@ var init_define_ENDPOINT_CATALOG = __esm({
               name: "locationId"
             }
           ],
-          query: [],
+          query: [
+            {
+              name: "model",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
@@ -9926,6 +10059,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "services/marketplaceServices/OpportunityCustomFieldService.ts:9",
             "platform/20-api/custom-fields-and-values.md:122",
+            "platform/30-types/contact-filter-dsl.md:54",
             "workflows/10-anatomy/07-id-resolution.md:85",
             "workflows/10-anatomy/07-id-resolution.md:185",
             "workflows/70-research/ENDPOINTS.md:124"
@@ -49408,6 +49542,7 @@ var init_define_TOOL_CATALOG = __esm({
 var require_code = __commonJS({
   "node_modules/ajv/dist/compile/codegen/code.js"(exports) {
     "use strict";
+    init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
     init_define_TOOL_CATALOG();
@@ -49565,6 +49700,7 @@ var require_code = __commonJS({
 var require_scope = __commonJS({
   "node_modules/ajv/dist/compile/codegen/scope.js"(exports) {
     "use strict";
+    init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
     init_define_TOOL_CATALOG();
@@ -49713,6 +49849,7 @@ var require_scope = __commonJS({
 var require_codegen = __commonJS({
   "node_modules/ajv/dist/compile/codegen/index.js"(exports) {
     "use strict";
+    init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
     init_define_TOOL_CATALOG();
@@ -50436,6 +50573,7 @@ var require_codegen = __commonJS({
 var require_util = __commonJS({
   "node_modules/ajv/dist/compile/util.js"(exports) {
     "use strict";
+    init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
     init_define_TOOL_CATALOG();
@@ -50606,6 +50744,7 @@ var require_util = __commonJS({
 var require_names = __commonJS({
   "node_modules/ajv/dist/compile/names.js"(exports) {
     "use strict";
+    init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
     init_define_TOOL_CATALOG();
@@ -50648,6 +50787,7 @@ var require_names = __commonJS({
 var require_errors = __commonJS({
   "node_modules/ajv/dist/compile/errors.js"(exports) {
     "use strict";
+    init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
     init_define_TOOL_CATALOG();
@@ -50773,6 +50913,7 @@ var require_errors = __commonJS({
 var require_boolSchema = __commonJS({
   "node_modules/ajv/dist/compile/validate/boolSchema.js"(exports) {
     "use strict";
+    init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
     init_define_TOOL_CATALOG();
@@ -50827,6 +50968,7 @@ var require_boolSchema = __commonJS({
 var require_rules = __commonJS({
   "node_modules/ajv/dist/compile/rules.js"(exports) {
     "use strict";
+    init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
     init_define_TOOL_CATALOG();
@@ -50861,6 +51003,7 @@ var require_rules = __commonJS({
 var require_applicability = __commonJS({
   "node_modules/ajv/dist/compile/validate/applicability.js"(exports) {
     "use strict";
+    init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
     init_define_TOOL_CATALOG();
@@ -50887,6 +51030,7 @@ var require_applicability = __commonJS({
 var require_dataType = __commonJS({
   "node_modules/ajv/dist/compile/validate/dataType.js"(exports) {
     "use strict";
+    init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
     init_define_TOOL_CATALOG();
@@ -51074,6 +51218,7 @@ var require_dataType = __commonJS({
 var require_defaults = __commonJS({
   "node_modules/ajv/dist/compile/validate/defaults.js"(exports) {
     "use strict";
+    init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
     init_define_TOOL_CATALOG();
@@ -51114,6 +51259,7 @@ var require_defaults = __commonJS({
 var require_code2 = __commonJS({
   "node_modules/ajv/dist/vocabularies/code.js"(exports) {
     "use strict";
+    init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
     init_define_TOOL_CATALOG();
@@ -51250,6 +51396,7 @@ var require_code2 = __commonJS({
 var require_keyword = __commonJS({
   "node_modules/ajv/dist/compile/validate/keyword.js"(exports) {
     "use strict";
+    init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
     init_define_TOOL_CATALOG();
@@ -51371,6 +51518,7 @@ var require_keyword = __commonJS({
 var require_subschema = __commonJS({
   "node_modules/ajv/dist/compile/validate/subschema.js"(exports) {
     "use strict";
+    init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
     init_define_TOOL_CATALOG();
@@ -51457,6 +51605,7 @@ var require_subschema = __commonJS({
 var require_fast_deep_equal = __commonJS({
   "node_modules/fast-deep-equal/index.js"(exports, module) {
     "use strict";
+    init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
     init_define_TOOL_CATALOG();
@@ -51495,6 +51644,7 @@ var require_fast_deep_equal = __commonJS({
 var require_json_schema_traverse = __commonJS({
   "node_modules/json-schema-traverse/index.js"(exports, module) {
     "use strict";
+    init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
     init_define_TOOL_CATALOG();
@@ -51586,6 +51736,7 @@ var require_json_schema_traverse = __commonJS({
 var require_resolve = __commonJS({
   "node_modules/ajv/dist/compile/resolve.js"(exports) {
     "use strict";
+    init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
     init_define_TOOL_CATALOG();
@@ -51745,6 +51896,7 @@ var require_resolve = __commonJS({
 var require_validate = __commonJS({
   "node_modules/ajv/dist/compile/validate/index.js"(exports) {
     "use strict";
+    init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
     init_define_TOOL_CATALOG();
@@ -52256,6 +52408,7 @@ var require_validate = __commonJS({
 var require_validation_error = __commonJS({
   "node_modules/ajv/dist/runtime/validation_error.js"(exports) {
     "use strict";
+    init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
     init_define_TOOL_CATALOG();
@@ -52275,6 +52428,7 @@ var require_validation_error = __commonJS({
 var require_ref_error = __commonJS({
   "node_modules/ajv/dist/compile/ref_error.js"(exports) {
     "use strict";
+    init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
     init_define_TOOL_CATALOG();
@@ -52295,6 +52449,7 @@ var require_ref_error = __commonJS({
 var require_compile = __commonJS({
   "node_modules/ajv/dist/compile/index.js"(exports) {
     "use strict";
+    init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
     init_define_TOOL_CATALOG();
@@ -52541,6 +52696,7 @@ var require_data = __commonJS({
 var require_utils = __commonJS({
   "node_modules/fast-uri/lib/utils.js"(exports, module) {
     "use strict";
+    init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
     init_define_TOOL_CATALOG();
@@ -52857,6 +53013,7 @@ var require_utils = __commonJS({
 var require_schemes = __commonJS({
   "node_modules/fast-uri/lib/schemes.js"(exports, module) {
     "use strict";
+    init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
     init_define_TOOL_CATALOG();
@@ -53070,6 +53227,7 @@ var require_schemes = __commonJS({
 var require_fast_uri = __commonJS({
   "node_modules/fast-uri/index.js"(exports, module) {
     "use strict";
+    init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
     init_define_TOOL_CATALOG();
@@ -53365,6 +53523,7 @@ var require_fast_uri = __commonJS({
 var require_uri = __commonJS({
   "node_modules/ajv/dist/runtime/uri.js"(exports) {
     "use strict";
+    init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
     init_define_TOOL_CATALOG();
@@ -53379,6 +53538,7 @@ var require_uri = __commonJS({
 var require_core = __commonJS({
   "node_modules/ajv/dist/core.js"(exports) {
     "use strict";
+    init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
     init_define_TOOL_CATALOG();
@@ -53993,6 +54153,7 @@ var require_core = __commonJS({
 var require_id = __commonJS({
   "node_modules/ajv/dist/vocabularies/core/id.js"(exports) {
     "use strict";
+    init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
     init_define_TOOL_CATALOG();
@@ -54011,6 +54172,7 @@ var require_id = __commonJS({
 var require_ref = __commonJS({
   "node_modules/ajv/dist/vocabularies/core/ref.js"(exports) {
     "use strict";
+    init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
     init_define_TOOL_CATALOG();
@@ -54136,6 +54298,7 @@ var require_ref = __commonJS({
 var require_core2 = __commonJS({
   "node_modules/ajv/dist/vocabularies/core/index.js"(exports) {
     "use strict";
+    init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
     init_define_TOOL_CATALOG();
@@ -54160,6 +54323,7 @@ var require_core2 = __commonJS({
 var require_limitNumber = __commonJS({
   "node_modules/ajv/dist/vocabularies/validation/limitNumber.js"(exports) {
     "use strict";
+    init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
     init_define_TOOL_CATALOG();
@@ -54195,6 +54359,7 @@ var require_limitNumber = __commonJS({
 var require_multipleOf = __commonJS({
   "node_modules/ajv/dist/vocabularies/validation/multipleOf.js"(exports) {
     "use strict";
+    init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
     init_define_TOOL_CATALOG();
@@ -54226,6 +54391,7 @@ var require_multipleOf = __commonJS({
 var require_ucs2length = __commonJS({
   "node_modules/ajv/dist/runtime/ucs2length.js"(exports) {
     "use strict";
+    init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
     init_define_TOOL_CATALOG();
@@ -54255,6 +54421,7 @@ var require_ucs2length = __commonJS({
 var require_limitLength = __commonJS({
   "node_modules/ajv/dist/vocabularies/validation/limitLength.js"(exports) {
     "use strict";
+    init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
     init_define_TOOL_CATALOG();
@@ -54290,6 +54457,7 @@ var require_limitLength = __commonJS({
 var require_pattern = __commonJS({
   "node_modules/ajv/dist/vocabularies/validation/pattern.js"(exports) {
     "use strict";
+    init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
     init_define_TOOL_CATALOG();
@@ -54330,6 +54498,7 @@ var require_pattern = __commonJS({
 var require_limitProperties = __commonJS({
   "node_modules/ajv/dist/vocabularies/validation/limitProperties.js"(exports) {
     "use strict";
+    init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
     init_define_TOOL_CATALOG();
@@ -54362,6 +54531,7 @@ var require_limitProperties = __commonJS({
 var require_required = __commonJS({
   "node_modules/ajv/dist/vocabularies/validation/required.js"(exports) {
     "use strict";
+    init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
     init_define_TOOL_CATALOG();
@@ -54447,6 +54617,7 @@ var require_required = __commonJS({
 var require_limitItems = __commonJS({
   "node_modules/ajv/dist/vocabularies/validation/limitItems.js"(exports) {
     "use strict";
+    init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
     init_define_TOOL_CATALOG();
@@ -54479,6 +54650,7 @@ var require_limitItems = __commonJS({
 var require_equal = __commonJS({
   "node_modules/ajv/dist/runtime/equal.js"(exports) {
     "use strict";
+    init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
     init_define_TOOL_CATALOG();
@@ -54493,6 +54665,7 @@ var require_equal = __commonJS({
 var require_uniqueItems = __commonJS({
   "node_modules/ajv/dist/vocabularies/validation/uniqueItems.js"(exports) {
     "use strict";
+    init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
     init_define_TOOL_CATALOG();
@@ -54563,6 +54736,7 @@ var require_uniqueItems = __commonJS({
 var require_const = __commonJS({
   "node_modules/ajv/dist/vocabularies/validation/const.js"(exports) {
     "use strict";
+    init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
     init_define_TOOL_CATALOG();
@@ -54595,6 +54769,7 @@ var require_const = __commonJS({
 var require_enum = __commonJS({
   "node_modules/ajv/dist/vocabularies/validation/enum.js"(exports) {
     "use strict";
+    init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
     init_define_TOOL_CATALOG();
@@ -54647,6 +54822,7 @@ var require_enum = __commonJS({
 var require_validation = __commonJS({
   "node_modules/ajv/dist/vocabularies/validation/index.js"(exports) {
     "use strict";
+    init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
     init_define_TOOL_CATALOG();
@@ -54688,6 +54864,7 @@ var require_validation = __commonJS({
 var require_additionalItems = __commonJS({
   "node_modules/ajv/dist/vocabularies/applicator/additionalItems.js"(exports) {
     "use strict";
+    init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
     init_define_TOOL_CATALOG();
@@ -54744,6 +54921,7 @@ var require_additionalItems = __commonJS({
 var require_items = __commonJS({
   "node_modules/ajv/dist/vocabularies/applicator/items.js"(exports) {
     "use strict";
+    init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
     init_define_TOOL_CATALOG();
@@ -54804,6 +54982,7 @@ var require_items = __commonJS({
 var require_prefixItems = __commonJS({
   "node_modules/ajv/dist/vocabularies/applicator/prefixItems.js"(exports) {
     "use strict";
+    init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
     init_define_TOOL_CATALOG();
@@ -54824,6 +55003,7 @@ var require_prefixItems = __commonJS({
 var require_items2020 = __commonJS({
   "node_modules/ajv/dist/vocabularies/applicator/items2020.js"(exports) {
     "use strict";
+    init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
     init_define_TOOL_CATALOG();
@@ -54862,6 +55042,7 @@ var require_items2020 = __commonJS({
 var require_contains = __commonJS({
   "node_modules/ajv/dist/vocabularies/applicator/contains.js"(exports) {
     "use strict";
+    init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
     init_define_TOOL_CATALOG();
@@ -54959,6 +55140,7 @@ var require_contains = __commonJS({
 var require_dependencies = __commonJS({
   "node_modules/ajv/dist/vocabularies/applicator/dependencies.js"(exports) {
     "use strict";
+    init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
     init_define_TOOL_CATALOG();
@@ -55056,6 +55238,7 @@ var require_dependencies = __commonJS({
 var require_propertyNames = __commonJS({
   "node_modules/ajv/dist/vocabularies/applicator/propertyNames.js"(exports) {
     "use strict";
+    init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
     init_define_TOOL_CATALOG();
@@ -55102,6 +55285,7 @@ var require_propertyNames = __commonJS({
 var require_additionalProperties = __commonJS({
   "node_modules/ajv/dist/vocabularies/applicator/additionalProperties.js"(exports) {
     "use strict";
+    init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
     init_define_TOOL_CATALOG();
@@ -55211,6 +55395,7 @@ var require_additionalProperties = __commonJS({
 var require_properties = __commonJS({
   "node_modules/ajv/dist/vocabularies/applicator/properties.js"(exports) {
     "use strict";
+    init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
     init_define_TOOL_CATALOG();
@@ -55272,6 +55457,7 @@ var require_properties = __commonJS({
 var require_patternProperties = __commonJS({
   "node_modules/ajv/dist/vocabularies/applicator/patternProperties.js"(exports) {
     "use strict";
+    init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
     init_define_TOOL_CATALOG();
@@ -55349,6 +55535,7 @@ var require_patternProperties = __commonJS({
 var require_not = __commonJS({
   "node_modules/ajv/dist/vocabularies/applicator/not.js"(exports) {
     "use strict";
+    init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
     init_define_TOOL_CATALOG();
@@ -55383,6 +55570,7 @@ var require_not = __commonJS({
 var require_anyOf = __commonJS({
   "node_modules/ajv/dist/vocabularies/applicator/anyOf.js"(exports) {
     "use strict";
+    init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
     init_define_TOOL_CATALOG();
@@ -55403,6 +55591,7 @@ var require_anyOf = __commonJS({
 var require_oneOf = __commonJS({
   "node_modules/ajv/dist/vocabularies/applicator/oneOf.js"(exports) {
     "use strict";
+    init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
     init_define_TOOL_CATALOG();
@@ -55464,6 +55653,7 @@ var require_oneOf = __commonJS({
 var require_allOf = __commonJS({
   "node_modules/ajv/dist/vocabularies/applicator/allOf.js"(exports) {
     "use strict";
+    init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
     init_define_TOOL_CATALOG();
@@ -55494,6 +55684,7 @@ var require_allOf = __commonJS({
 var require_if = __commonJS({
   "node_modules/ajv/dist/vocabularies/applicator/if.js"(exports) {
     "use strict";
+    init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
     init_define_TOOL_CATALOG();
@@ -55566,6 +55757,7 @@ var require_if = __commonJS({
 var require_thenElse = __commonJS({
   "node_modules/ajv/dist/vocabularies/applicator/thenElse.js"(exports) {
     "use strict";
+    init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
     init_define_TOOL_CATALOG();
@@ -55587,6 +55779,7 @@ var require_thenElse = __commonJS({
 var require_applicator = __commonJS({
   "node_modules/ajv/dist/vocabularies/applicator/index.js"(exports) {
     "use strict";
+    init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
     init_define_TOOL_CATALOG();
@@ -55638,6 +55831,7 @@ var require_applicator = __commonJS({
 var require_format = __commonJS({
   "node_modules/ajv/dist/vocabularies/format/format.js"(exports) {
     "use strict";
+    init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
     init_define_TOOL_CATALOG();
@@ -55731,6 +55925,7 @@ var require_format = __commonJS({
 var require_format2 = __commonJS({
   "node_modules/ajv/dist/vocabularies/format/index.js"(exports) {
     "use strict";
+    init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
     init_define_TOOL_CATALOG();
@@ -55745,6 +55940,7 @@ var require_format2 = __commonJS({
 var require_metadata = __commonJS({
   "node_modules/ajv/dist/vocabularies/metadata.js"(exports) {
     "use strict";
+    init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
     init_define_TOOL_CATALOG();
@@ -55771,6 +55967,7 @@ var require_metadata = __commonJS({
 var require_draft7 = __commonJS({
   "node_modules/ajv/dist/vocabularies/draft7.js"(exports) {
     "use strict";
+    init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
     init_define_TOOL_CATALOG();
@@ -55796,6 +55993,7 @@ var require_draft7 = __commonJS({
 var require_types = __commonJS({
   "node_modules/ajv/dist/vocabularies/discriminator/types.js"(exports) {
     "use strict";
+    init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
     init_define_TOOL_CATALOG();
@@ -55813,6 +56011,7 @@ var require_types = __commonJS({
 var require_discriminator = __commonJS({
   "node_modules/ajv/dist/vocabularies/discriminator/index.js"(exports) {
     "use strict";
+    init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
     init_define_TOOL_CATALOG();
@@ -56078,6 +56277,7 @@ var require_json_schema_draft_07 = __commonJS({
 var require_ajv = __commonJS({
   "node_modules/ajv/dist/ajv.js"(exports, module) {
     "use strict";
+    init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
     init_define_TOOL_CATALOG();
@@ -56151,6 +56351,7 @@ var require_ajv = __commonJS({
 var require_formats = __commonJS({
   "node_modules/ajv-formats/dist/formats.js"(exports) {
     "use strict";
+    init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
     init_define_TOOL_CATALOG();
@@ -56357,6 +56558,7 @@ var require_formats = __commonJS({
 var require_limit = __commonJS({
   "node_modules/ajv-formats/dist/limit.js"(exports) {
     "use strict";
+    init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
     init_define_TOOL_CATALOG();
@@ -56432,6 +56634,7 @@ var require_limit = __commonJS({
 var require_dist = __commonJS({
   "node_modules/ajv-formats/dist/index.js"(exports, module) {
     "use strict";
+    init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
     init_define_TOOL_CATALOG();
@@ -56474,46 +56677,55 @@ var require_dist = __commonJS({
 });
 
 // stdio-audit.mjs
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
 
 // node_modules/@modelcontextprotocol/sdk/dist/esm/server/mcp.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
 
 // node_modules/@modelcontextprotocol/sdk/dist/esm/server/index.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
 
 // node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
 
 // node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-compat.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod/v3/errors.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod/v3/locales/en.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod/v3/ZodError.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod/v3/helpers/util.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -56874,6 +57086,7 @@ function getErrorMap() {
 }
 
 // node_modules/zod/v3/helpers/parseUtil.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -56986,11 +57199,13 @@ var isValid = (x) => x.status === "valid";
 var isAsync = (x) => typeof Promise !== "undefined" && x instanceof Promise;
 
 // node_modules/zod/v3/types.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod/v3/helpers/errorUtil.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -60404,6 +60619,7 @@ var preprocessType = ZodEffects.createWithPreprocess;
 var pipelineType = ZodPipeline.create;
 
 // node_modules/zod/v4/mini/external.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -60686,11 +60902,13 @@ __export(core_exports2, {
   util: () => util_exports,
   version: () => version
 });
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod/v4/core/core.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -60771,11 +60989,13 @@ function config(newConfig) {
 }
 
 // node_modules/zod/v4/core/parse.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod/v4/core/errors.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -60847,6 +61067,7 @@ __export(util_exports, {
   uint8ArrayToHex: () => uint8ArrayToHex,
   unwrapMessage: () => unwrapMessage
 });
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -61707,11 +61928,13 @@ var _safeDecodeAsync = (_Err) => async (schema2, value, _ctx) => {
 var safeDecodeAsync = /* @__PURE__ */ _safeDecodeAsync($ZodRealError);
 
 // node_modules/zod/v4/core/schemas.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod/v4/core/checks.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -61779,6 +62002,7 @@ __export(regexes_exports, {
   uuid7: () => uuid7,
   xid: () => xid
 });
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -62427,6 +62651,7 @@ var $ZodCheckOverwrite = /* @__PURE__ */ $constructor("$ZodCheckOverwrite", (ins
 });
 
 // node_modules/zod/v4/core/doc.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -62466,6 +62691,7 @@ var Doc = class {
 };
 
 // node_modules/zod/v4/core/versions.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -64624,11 +64850,13 @@ __export(locales_exports, {
   zhCN: () => zh_CN_default,
   zhTW: () => zh_TW_default
 });
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod/v4/locales/ar.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -64739,6 +64967,7 @@ function ar_default() {
 }
 
 // node_modules/zod/v4/locales/az.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -64848,6 +65077,7 @@ function az_default() {
 }
 
 // node_modules/zod/v4/locales/be.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -65008,6 +65238,7 @@ function be_default() {
 }
 
 // node_modules/zod/v4/locales/bg.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -65132,6 +65363,7 @@ function bg_default() {
 }
 
 // node_modules/zod/v4/locales/ca.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -65244,6 +65476,7 @@ function ca_default() {
 }
 
 // node_modules/zod/v4/locales/cs.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -65359,6 +65592,7 @@ function cs_default() {
 }
 
 // node_modules/zod/v4/locales/da.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -65478,6 +65712,7 @@ function da_default() {
 }
 
 // node_modules/zod/v4/locales/de.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -65590,6 +65825,7 @@ function de_default() {
 }
 
 // node_modules/zod/v4/locales/el.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -65703,6 +65939,7 @@ function el_default() {
 }
 
 // node_modules/zod/v4/locales/en.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -65819,6 +66056,7 @@ function en_default2() {
 }
 
 // node_modules/zod/v4/locales/eo.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -65932,6 +66170,7 @@ function eo_default() {
 }
 
 // node_modules/zod/v4/locales/es.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -66068,6 +66307,7 @@ function es_default() {
 }
 
 // node_modules/zod/v4/locales/fa.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -66186,6 +66426,7 @@ function fa_default() {
 }
 
 // node_modules/zod/v4/locales/fi.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -66302,6 +66543,7 @@ function fi_default() {
 }
 
 // node_modules/zod/v4/locales/fr.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -66431,6 +66673,7 @@ function fr_default() {
 }
 
 // node_modules/zod/v4/locales/fr-CA.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -66542,6 +66785,7 @@ function fr_CA_default() {
 }
 
 // node_modules/zod/v4/locales/he.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -66740,6 +66984,7 @@ function he_default() {
 }
 
 // node_modules/zod/v4/locales/hr.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -66866,6 +67111,7 @@ function hr_default() {
 }
 
 // node_modules/zod/v4/locales/hu.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -66978,6 +67224,7 @@ function hu_default() {
 }
 
 // node_modules/zod/v4/locales/hy.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -67129,6 +67376,7 @@ function hy_default() {
 }
 
 // node_modules/zod/v4/locales/id.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -67239,6 +67487,7 @@ function id_default() {
 }
 
 // node_modules/zod/v4/locales/is.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -67352,6 +67601,7 @@ function is_default() {
 }
 
 // node_modules/zod/v4/locales/it.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -67464,6 +67714,7 @@ function it_default() {
 }
 
 // node_modules/zod/v4/locales/ja.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -67575,6 +67826,7 @@ function ja_default() {
 }
 
 // node_modules/zod/v4/locales/ka.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -67691,11 +67943,13 @@ function ka_default() {
 }
 
 // node_modules/zod/v4/locales/kh.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod/v4/locales/km.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -67815,6 +68069,7 @@ function kh_default() {
 }
 
 // node_modules/zod/v4/locales/ko.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -67930,6 +68185,7 @@ function ko_default() {
 }
 
 // node_modules/zod/v4/locales/lt.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -68137,6 +68393,7 @@ function lt_default() {
 }
 
 // node_modules/zod/v4/locales/mk.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -68250,6 +68507,7 @@ function mk_default() {
 }
 
 // node_modules/zod/v4/locales/ms.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -68361,6 +68619,7 @@ function ms_default() {
 }
 
 // node_modules/zod/v4/locales/nl.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -68475,6 +68734,7 @@ function nl_default() {
 }
 
 // node_modules/zod/v4/locales/no.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -68587,6 +68847,7 @@ function no_default() {
 }
 
 // node_modules/zod/v4/locales/ota.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -68700,6 +68961,7 @@ function ota_default() {
 }
 
 // node_modules/zod/v4/locales/ps.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -68818,6 +69080,7 @@ function ps_default() {
 }
 
 // node_modules/zod/v4/locales/pl.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -68931,6 +69194,7 @@ function pl_default() {
 }
 
 // node_modules/zod/v4/locales/pt.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -69043,6 +69307,7 @@ function pt_default() {
 }
 
 // node_modules/zod/v4/locales/ro.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -69166,6 +69431,7 @@ function ro_default() {
 }
 
 // node_modules/zod/v4/locales/ru.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -69326,6 +69592,7 @@ function ru_default() {
 }
 
 // node_modules/zod/v4/locales/sl.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -69439,6 +69706,7 @@ function sl_default() {
 }
 
 // node_modules/zod/v4/locales/sv.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -69553,6 +69821,7 @@ function sv_default() {
 }
 
 // node_modules/zod/v4/locales/ta.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -69667,6 +69936,7 @@ function ta_default() {
 }
 
 // node_modules/zod/v4/locales/th.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -69781,6 +70051,7 @@ function th_default() {
 }
 
 // node_modules/zod/v4/locales/tr.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -69890,11 +70161,13 @@ function tr_default() {
 }
 
 // node_modules/zod/v4/locales/ua.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod/v4/locales/uk.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -70012,6 +70285,7 @@ function ua_default() {
 }
 
 // node_modules/zod/v4/locales/ur.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -70126,6 +70400,7 @@ function ur_default() {
 }
 
 // node_modules/zod/v4/locales/uz.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -70240,6 +70515,7 @@ function uz_default() {
 }
 
 // node_modules/zod/v4/locales/vi.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -70352,6 +70628,7 @@ function vi_default() {
 }
 
 // node_modules/zod/v4/locales/zh-CN.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -70465,6 +70742,7 @@ function zh_CN_default() {
 }
 
 // node_modules/zod/v4/locales/zh-TW.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -70576,6 +70854,7 @@ function zh_TW_default() {
 }
 
 // node_modules/zod/v4/locales/yo.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -70687,6 +70966,7 @@ function yo_default() {
 }
 
 // node_modules/zod/v4/core/registries.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -70740,6 +71020,7 @@ function registry() {
 var globalRegistry = globalThis.__zod_globalRegistry;
 
 // node_modules/zod/v4/core/api.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -71782,6 +72063,7 @@ function _stringFormat(Class2, format, fnOrRegex, _params = {}) {
 }
 
 // node_modules/zod/v4/core/to-json-schema.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -72144,6 +72426,7 @@ var createStandardJSONSchemaMethod = (schema2, io, processors = {}) => (params) 
 };
 
 // node_modules/zod/v4/core/json-schema-processors.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -72691,6 +72974,7 @@ function toJSONSchema(input, params) {
 }
 
 // node_modules/zod/v4/core/json-schema-generator.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -72770,16 +73054,19 @@ var JSONSchemaGenerator = class {
 
 // node_modules/zod/v4/core/json-schema.js
 var json_schema_exports = {};
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod/v4/mini/parse.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod/v4/mini/schemas.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -72973,6 +73260,7 @@ function getLiteralValue(schema2) {
 }
 
 // node_modules/@modelcontextprotocol/sdk/dist/esm/types.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -73219,6 +73507,7 @@ __export(external_exports, {
   xid: () => xid2,
   xor: () => xor
 });
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -73393,6 +73682,7 @@ __export(schemas_exports2, {
   xid: () => xid2,
   xor: () => xor
 });
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -73430,6 +73720,7 @@ __export(checks_exports2, {
   trim: () => _trim,
   uppercase: () => _uppercase
 });
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -73446,6 +73737,7 @@ __export(iso_exports2, {
   duration: () => duration2,
   time: () => time2
 });
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -73479,11 +73771,13 @@ function duration2(params) {
 }
 
 // node_modules/zod/v4/classic/parse.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod/v4/classic/errors.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -74831,6 +75125,7 @@ function preprocess(fn, schema2) {
 }
 
 // node_modules/zod/v4/classic/compat.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -74860,6 +75155,7 @@ var ZodFirstPartyTypeKind2;
 })(ZodFirstPartyTypeKind2 || (ZodFirstPartyTypeKind2 = {}));
 
 // node_modules/zod/v4/classic/from-json-schema.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -75351,6 +75647,7 @@ __export(coerce_exports2, {
   number: () => number3,
   string: () => string3
 });
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -76905,6 +77202,7 @@ var UrlElicitationRequiredError = class extends McpError {
 };
 
 // node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/interfaces.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -76913,16 +77211,19 @@ function isTerminal(status) {
 }
 
 // node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-json-schema-compat.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod-to-json-schema/dist/esm/index.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod-to-json-schema/dist/esm/Options.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -76960,6 +77261,7 @@ var getDefaultOptions = (options) => typeof options === "string" ? {
 };
 
 // node_modules/zod-to-json-schema/dist/esm/Refs.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -76984,6 +77286,7 @@ var getRefs = (options) => {
 };
 
 // node_modules/zod-to-json-schema/dist/esm/errorMessages.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -77003,6 +77306,7 @@ function setResponseValueAndErrors(res, key, value, errorMessage, refs) {
 }
 
 // node_modules/zod-to-json-schema/dist/esm/getRelativePath.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -77016,16 +77320,19 @@ var getRelativePath = (pathA, pathB) => {
 };
 
 // node_modules/zod-to-json-schema/dist/esm/parseDef.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod-to-json-schema/dist/esm/selectParser.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/any.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -77045,6 +77352,7 @@ function parseAnyDef(refs) {
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/array.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -77072,6 +77380,7 @@ function parseArrayDef(def, refs) {
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/bigint.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -77121,6 +77430,7 @@ function parseBigintDef(def, refs) {
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/boolean.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -77131,6 +77441,7 @@ function parseBooleanDef() {
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/branded.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -77139,6 +77450,7 @@ function parseBrandedDef(_def, refs) {
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/catch.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -77147,6 +77459,7 @@ var parseCatchDef = (def, refs) => {
 };
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/date.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -77209,6 +77522,7 @@ var integerDateParser = (def, refs) => {
 };
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/default.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -77220,6 +77534,7 @@ function parseDefaultDef(_def, refs) {
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/effects.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -77228,6 +77543,7 @@ function parseEffectsDef(_def, refs) {
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/enum.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -77239,6 +77555,7 @@ function parseEnumDef(def) {
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/intersection.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -77284,6 +77601,7 @@ function parseIntersectionDef(def, refs) {
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/literal.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -77307,16 +77625,19 @@ function parseLiteralDef(def, refs) {
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/map.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/record.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/string.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -77722,6 +78043,7 @@ function parseMapDef(def, refs) {
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/nativeEnum.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -77739,6 +78061,7 @@ function parseNativeEnumDef(def) {
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/never.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -77752,6 +78075,7 @@ function parseNeverDef(refs) {
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/null.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -77765,11 +78089,13 @@ function parseNullDef(refs) {
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/nullable.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/union.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -77873,6 +78199,7 @@ function parseNullableDef(def, refs) {
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/number.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -77925,6 +78252,7 @@ function parseNumberDef(def, refs) {
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/object.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -77998,6 +78326,7 @@ function safeIsOptional(schema2) {
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/optional.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -78020,6 +78349,7 @@ var parseOptionalDef = (def, refs) => {
 };
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/pipeline.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -78043,6 +78373,7 @@ var parsePipelineDef = (def, refs) => {
 };
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/promise.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -78051,6 +78382,7 @@ function parsePromiseDef(def, refs) {
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/set.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -78074,6 +78406,7 @@ function parseSetDef(def, refs) {
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/tuple.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -78105,6 +78438,7 @@ function parseTupleDef(def, refs) {
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/undefined.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -78115,6 +78449,7 @@ function parseUndefinedDef(refs) {
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/unknown.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -78123,6 +78458,7 @@ function parseUnknownDef(refs) {
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/readonly.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -78263,11 +78599,13 @@ var addMeta = (def, refs, jsonSchema) => {
 };
 
 // node_modules/zod-to-json-schema/dist/esm/parseTypes.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod-to-json-schema/dist/esm/zodToJsonSchema.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -79329,6 +79667,7 @@ function mergeCapabilities(base, additional) {
 }
 
 // node_modules/@modelcontextprotocol/sdk/dist/esm/validation/ajv-provider.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -79400,6 +79739,7 @@ var AjvJsonSchemaValidator = class {
 };
 
 // node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/server.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -79616,6 +79956,7 @@ var ExperimentalServerTasks = class {
 };
 
 // node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/helpers.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -80034,6 +80375,7 @@ var Server = class extends Protocol {
 };
 
 // node_modules/@modelcontextprotocol/sdk/dist/esm/server/completable.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -80051,11 +80393,13 @@ var McpZodTypeKind;
 })(McpZodTypeKind || (McpZodTypeKind = {}));
 
 // node_modules/@modelcontextprotocol/sdk/dist/esm/shared/uriTemplate.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
 
 // node_modules/@modelcontextprotocol/sdk/dist/esm/shared/toolNameValidation.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -80117,6 +80461,7 @@ function validateAndWarnToolName(name) {
 }
 
 // node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/mcp-server.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -80135,6 +80480,7 @@ var ExperimentalMcpServerTasks = class {
 };
 
 // node_modules/zod/index.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -80932,12 +81278,14 @@ var EMPTY_COMPLETION_RESULT = {
 };
 
 // node_modules/@modelcontextprotocol/sdk/dist/esm/server/stdio.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
 import process3 from "node:process";
 
 // node_modules/@modelcontextprotocol/sdk/dist/esm/shared/stdio.js
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -81034,6 +81382,7 @@ import { fileURLToPath as fileURLToPath2 } from "node:url";
 import { dirname as dirname4, resolve as resolve3 } from "node:path";
 
 // core/tools.mjs
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -81043,6 +81392,7 @@ import { dirname as dirname2, resolve as resolve2, join as join3, isAbsolute as 
 import { createHash as createHash5 } from "node:crypto";
 
 // core/errors.mjs
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -81313,6 +81663,7 @@ function fromHttp(status, body) {
 }
 
 // core/auth.mjs
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -81430,6 +81781,7 @@ function requireAiCredentials(creds) {
 }
 
 // core/location-binding.mjs
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -81630,11 +81982,13 @@ function checkLocationBinding({ tool, args, allowed, legacyLocationsEnvSet = fal
 }
 
 // core/audit-gateway.mjs
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
 
 // core/audit-capabilities.mjs
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -82709,6 +83063,7 @@ function makeAuditGateway({ gateways, locationId, limiter: limiter2, circuit: ci
 }
 
 // core/gateway.mjs
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -83041,6 +83396,7 @@ function makeGateway({ tokenFile, loc, rail = "jwt", fetchImpl = fetch, sleepImp
 }
 
 // core/workflow-runtime-window.mjs
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -84027,6 +84383,7 @@ function pickStats(json2, workflowId) {
 }
 
 // core/audit-configuration.mjs
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -85285,16 +85642,19 @@ async function getAiConfigurationBundle({ auditGateway, input } = {}) {
 }
 
 // ../skills/create-ghl-workflow/engine/orchestrate.mjs
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
 
 // ../skills/create-ghl-workflow/engine/compiler.mjs
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
 
 // ../skills/create-ghl-workflow/engine/ir.mjs
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -85569,6 +85929,7 @@ function checkOpportunityAssociation(norm3, oppTriggerTypes) {
 }
 
 // ../skills/create-ghl-workflow/engine/opp-shapes.mjs
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -85711,6 +86072,7 @@ function checkAgainstRulebook(field, ref) {
 }
 
 // ../skills/create-ghl-workflow/engine/goghl.mjs
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -85839,11 +86201,13 @@ function checkGoghlSyntax(templates, ctx = {}) {
 }
 
 // ../skills/create-ghl-workflow/engine/webhook-rail.mjs
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
 
 // ../skills/create-ghl-workflow/engine/webhook-mergetags.mjs
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -85928,6 +86292,7 @@ function webhookUrlsFor(loc, triggerBodies) {
 }
 
 // ../skills/create-ghl-workflow/engine/step-outputs.mjs
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -85996,6 +86361,7 @@ function checkStepOutputRefs(templates, ctx = {}) {
 }
 
 // ../skills/create-ghl-workflow/engine/settings.mjs
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -86146,6 +86512,7 @@ function normalizeSettings(settings, ctx = {}) {
 }
 
 // ../skills/create-ghl-workflow/engine/terminals.mjs
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -86175,6 +86542,7 @@ function fillInputTriggerParams(templates) {
 }
 
 // ../skills/create-ghl-workflow/engine/step-notes.mjs
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -86189,6 +86557,7 @@ function stepNotesToComments(notes, ctx = {}) {
 }
 
 // ../skills/create-ghl-workflow/engine/contact-field-shapes.mjs
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -86246,11 +86615,13 @@ function lintContactFieldTemplates(templates, stepIds, warn) {
 }
 
 // ../skills/create-ghl-workflow/engine/required-fields.mjs
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
 
 // ../skills/create-ghl-workflow/engine/text-rules.mjs
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -148635,6 +149006,7 @@ function isSupplied(type, key, attrs) {
 }
 
 // ../skills/create-ghl-workflow/engine/action-schema.mjs
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -148824,6 +149196,7 @@ async function fetchActionSchema(call, loc) {
 }
 
 // ../skills/create-ghl-workflow/engine/enforce.mjs
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -148951,6 +149324,7 @@ function enforceTemplates(templates, catalog, ctx) {
 }
 
 // ../skills/create-ghl-workflow/engine/graph-refs.mjs
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -149017,6 +149391,7 @@ GHL grades this a WARNING \u2014 the builder's panel shows "0 Errors" while the 
 }
 
 // ../skills/create-ghl-workflow/engine/ui-defaults.mjs
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -149047,6 +149422,7 @@ function applyUiDefaults(templates, catalog, ctx) {
 }
 
 // ../skills/create-ghl-workflow/engine/ifelse-vocab.mjs
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -149132,6 +149508,7 @@ Fix the condition (see catalog.ifElseConditions), or pass skipIfElseVocab: true 
 }
 
 // ../skills/create-ghl-workflow/engine/merge-tags.mjs
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -149340,6 +149717,7 @@ Author tags from the picker inventory (search_merge_tags / catalog mergeTags), o
 }
 
 // ../skills/create-ghl-workflow/engine/goto-loops.mjs
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -151257,6 +151635,7 @@ function compile(ir, ctx) {
 }
 
 // ../skills/create-ghl-workflow/engine/preflight.mjs
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -151337,6 +151716,7 @@ async function runReadinessChecks(plan, { call, loc }) {
 }
 
 // ../skills/create-ghl-workflow/engine/sticky-notes.mjs
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -151411,6 +151791,7 @@ function planStickyNoteOp(op, { loc, wid, skipStickyCheck } = {}) {
 var STICKY_OPS = /* @__PURE__ */ new Set(["addStickyNote", "updateStickyNote"]);
 
 // ../skills/create-ghl-workflow/engine/idgen.mjs
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -151431,6 +151812,7 @@ function makeDeterministicIdGen(seed) {
 }
 
 // ../skills/create-ghl-workflow/engine/catalog.mjs
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -151504,6 +151886,7 @@ function loadCatalog() {
 }
 
 // ../skills/create-ghl-workflow/engine/entities.mjs
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -151682,6 +152065,7 @@ function registryResolvers(raw = {}) {
 }
 
 // ../skills/create-ghl-workflow/engine/tags.mjs
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -151746,6 +152130,7 @@ function missingTags(requiredNames, existingNames) {
 }
 
 // ../skills/create-ghl-workflow/engine/lints/opportunity.mjs
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -151856,6 +152241,7 @@ function lintOpportunityWrites(templates, { pipelines = null, lostReasons = null
 }
 
 // ../skills/create-ghl-workflow/engine/lints/trigger-rows.mjs
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -151904,6 +152290,7 @@ function lintTriggerRows(triggers, catalog) {
 }
 
 // ../skills/create-ghl-workflow/engine/resolve.mjs
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -152127,11 +152514,13 @@ function resolveIR(ir, r) {
 }
 
 // ../skills/create-ghl-workflow/engine/edit.mjs
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
 
 // ../skills/create-ghl-workflow/engine/template-normalize.mjs
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -152172,6 +152561,7 @@ function normalizeStoredAttributes2(template, ctx, opts) {
 }
 
 // ../skills/create-ghl-workflow/engine/lints/entry-step.mjs
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -153065,6 +153455,7 @@ function replaceTagInTriggerConditions(conditions, oldTag, newTag) {
 }
 
 // ../skills/create-ghl-workflow/engine/marketplace.mjs
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -153174,6 +153565,7 @@ function buildMarketplaceIndex({ assets, modules, legs } = {}) {
 }
 
 // ../skills/create-ghl-workflow/engine/asset-preflight.mjs
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -153222,6 +153614,7 @@ async function validateAssets(call, loc, { templates, triggers, companyId } = {}
 }
 
 // ../skills/create-ghl-workflow/engine/server-validation.mjs
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -153243,6 +153636,7 @@ function describeServerFindings(parsed) {
 }
 
 // ../skills/create-ghl-workflow/engine/graph-rules.mjs
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -153400,6 +153794,7 @@ Fix the structure, or pass skipWorkflowRules (true, or ['${live[0].rule}']) if y
 }
 
 // ../skills/create-ghl-workflow/engine/graph-context-rules.mjs
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -153520,6 +153915,7 @@ function checkGraphContextRules(templates, { warn, skipGraphContextRules } = {})
 }
 
 // ../skills/create-ghl-workflow/engine/field-caps.mjs
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -154160,6 +154556,7 @@ function sortKeysDeep(o) {
 }
 
 // ../skills/create-ghl-workflow/engine/edit-driver.mjs
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -154849,6 +155246,7 @@ function applyOps(templates, ops, { ctx, idGen }) {
 }
 
 // ../skills/create-ghl-workflow/engine/digest.mjs
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -154976,6 +155374,7 @@ function digestWorkflow({ doc, triggers = [], stickyNotes = [], include = [] } =
 }
 
 // core/read-cache.mjs
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -155024,6 +155423,7 @@ function readCache(state2) {
 }
 
 // core/agent-logs.mjs
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -155260,11 +155660,13 @@ var walkSessions = async (gw, body, { maxRows = 1e3, maxHops = 200 } = {}) => {
 };
 
 // ../skills/create-ghl-workflow/engine/lints/runner.mjs
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
 
 // ../skills/create-ghl-workflow/engine/lints/publish-rules.mjs
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -155309,6 +155711,7 @@ function lintPublishRules(templates) {
 }
 
 // ../skills/create-ghl-workflow/engine/lints/name-length.mjs
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -155339,6 +155742,7 @@ function lintNameLength(templates, triggers) {
 }
 
 // ../skills/create-ghl-workflow/engine/lints/hygiene.mjs
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -155526,6 +155930,7 @@ var HYGIENE_RULES = [
 ];
 
 // ../skills/create-ghl-workflow/engine/lints/doctrine.mjs
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -155718,6 +156123,7 @@ function runLints(doc, {
 }
 
 // ../skills/ghl-workflow-fast-forward/engine/ff.mjs
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -155776,6 +156182,7 @@ function makeFF({ gw }) {
 }
 
 // ../skills/ghl-memberships/engine/api.mjs
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -156112,12 +156519,14 @@ async function probeDuration(filePath) {
 }
 
 // ../skills/ghl-memberships/engine/course-builder.mjs
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
 import { isAbsolute, resolve } from "node:path";
 
 // ../skills/ghl-memberships/engine/assessments.mjs
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -156214,6 +156623,7 @@ var Assessments = class {
 };
 
 // ../skills/ghl-memberships/engine/credentials.mjs
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -156369,6 +156779,7 @@ function isoEndOfToday() {
 }
 
 // ../skills/ghl-memberships/engine/members.mjs
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -156993,11 +157404,13 @@ async function buildCourse({
 }
 
 // ../engines/ai/convai-compiler.mjs
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
 
 // ../engines/ai/convai-ir.mjs
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -157478,11 +157891,13 @@ function compileConvaiUpdateFromRecord(current, partialIr, { agentId, locationId
 }
 
 // ../engines/ai/voiceai-compiler.mjs
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
 
 // ../engines/ai/voiceai-ir.mjs
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -157933,11 +158348,13 @@ function compileVoiceAiUpdate(fullIr, { agentId, locationId } = {}) {
 }
 
 // ../engines/ai/studio-compiler.mjs
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
 
 // ../engines/ai/studio-ir.mjs
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -158076,6 +158493,7 @@ function compileSuperAgentCreate({ buildPrompt, name } = {}, { locationId, compa
 }
 
 // ../engines/ai/driver.mjs
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -158308,6 +158726,7 @@ async function executeAgentUpdate({ plan, gw } = {}) {
 }
 
 // core/ai-studio.mjs
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -158761,6 +159180,20 @@ var scoreEndpoint = (e, terms, verbs = intentVerbs(terms)) => {
   if (kind === "write" && !verbs.mutating) score -= 40;
   if (endpointWords(e).reach === "refused") score -= 60;
   return score;
+};
+var FILTER_FIELDS = null;
+var staticFilterFields = () => {
+  if (FILTER_FIELDS) return FILTER_FIELDS;
+  if (true) {
+    FILTER_FIELDS = define_CONTACT_FILTER_FIELDS_default;
+    return FILTER_FIELDS;
+  }
+  try {
+    FILTER_FIELDS = JSON.parse(readFileSync3(resolve2(HERE, "../catalog/contact-filter-fields.json"), "utf8"));
+  } catch {
+    FILTER_FIELDS = null;
+  }
+  return FILTER_FIELDS;
 };
 var endpointStub = (e) => {
   const w = endpointWords(e);
@@ -164771,14 +165204,15 @@ var TOOLS2 = [
   // prevent this.
   {
     name: "check_smart_lists",
-    description: `${describe3("check_smart_lists", "Audit smart lists for filters the contacts screen will silently discard \u2014 risk: read")}. Reads every smart list on a sub-account and reports which ones render as the WHOLE ACCOUNT despite storing a filter. Three ways that happens, none of them visible to an API read-back: \`filterSpecs.filters\` nested only one level (the screen throws it away), an empty filters array (the Copy/Save-as path produces these \u2014 it carries name, columns and sort but no filter), and a leaf condition sitting where the screen expects a group. It does NOT judge whether each filter's FIELD exists in the account's filter-field catalogue: the screen drops unknown fields down the same code path with the same whole-account result, and no endpoint this project knows serves that catalogue, so the fields found are reported for a human to read instead. Read-only: it creates nothing and changes nothing, which matters here because a smart list cannot be deleted through the API at all.`,
+    description: `${describe3("check_smart_lists", "Audit smart lists for filters the contacts screen will silently discard \u2014 risk: read")}. Reads every smart list on a sub-account and reports which ones render as the WHOLE ACCOUNT despite storing a filter. Three ways that happens, none of them visible to an API read-back: \`filterSpecs.filters\` nested only one level (the screen throws it away), an empty filters array (the Copy/Save-as path produces these \u2014 it carries name, columns and sort but no filter), a leaf condition sitting where the screen expects a group, and a filter naming a FIELD the account does not offer \u2014 a deleted custom field breaks a list that worked yesterday, and the symptom is identical to bad nesting, so each row says WHICH of the two it found rather than a bare verdict. No endpoint serves the field catalogue: the contacts screen assembles it in the browser from a static list in its own chunk plus the account's custom fields, so this reproduces that union and reads the account half live. Read-only: it creates nothing and changes nothing, which matters here because a smart list cannot be deleted through the API at all.`,
     inputSchema: schema({
       locationId: external_exports.string(),
       listId: external_exports.string().optional()
     }),
     capabilities: [
       { method: "GET", path: "/contacts/smartlist/search" },
-      { method: "GET", path: "/contacts/smartlist/{id}" }
+      { method: "GET", path: "/contacts/smartlist/{id}" },
+      { method: "GET", path: "/locations/{locationId}/customFields" }
     ],
     handler: async (args, deps) => guard(async () => {
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
@@ -164786,20 +165220,49 @@ var TOOLS2 = [
       const classify2 = (spec) => {
         const filters = spec?.filters;
         if (!Array.isArray(filters) || filters.length === 0) {
-          return { verdict: "renders-everything", reason: `filterSpecs.filters is empty \u2014 this is what the screen's Copy/Save-as path produces, and it means "show every contact", not "not configured yet".` };
+          return { verdict: "renders-everything", cause: "empty-filter", reason: `filterSpecs.filters is empty \u2014 this is what the screen's Copy/Save-as path produces, and it means "show every contact", not "not configured yet".` };
         }
         const outerGroups = filters.filter(isGroup);
         if (outerGroups.length !== filters.length) {
-          return { verdict: "renders-everything", reason: "a leaf condition sits at the top level of filterSpecs.filters; the screen expects groups there." };
+          return { verdict: "renders-everything", cause: "leaf-at-top", reason: "a leaf condition sits at the top level of filterSpecs.filters; the screen expects groups there." };
         }
         const oneLevel = outerGroups.filter((g) => g.filters.length && !g.filters.every(isGroup));
         if (oneLevel.length) {
           return {
             verdict: "renders-everything",
+            cause: "one-level-nesting",
             reason: "filterSpecs.filters is nested ONE level \u2014 a group holding leaf conditions directly. The store accepts it, it reads back byte-identical and /contacts/search/2 returns the right rows, but the contacts screen discards it at load and renders the whole account. It needs an outer group whose children are GROUPS, with the conditions inside those."
           };
         }
-        return { verdict: "ok", reason: null };
+        return { verdict: "ok", reason: null, cause: null };
+      };
+      const statics = staticFilterFields();
+      const known = /* @__PURE__ */ new Set([
+        ...statics?.staticFieldKeys ?? [],
+        ...statics?.fieldAliases ?? [],
+        ...statics?.nestedJoinPaths ?? []
+      ]);
+      known.add("score");
+      const EXCLUDED_TYPES = /* @__PURE__ */ new Set(["FILE_UPLOAD", "SIGNATURE"]);
+      let fieldsUsable = Boolean(statics?.staticFieldKeys?.length);
+      let hasTextboxList = false;
+      if (fieldsUsable) {
+        const cf = await gw.call("GET", `/locations/${encodeURIComponent(args.locationId)}/customFields?model=contact`);
+        if (!cf.ok) {
+          fieldsUsable = false;
+        } else {
+          for (const f of cf.json?.customFields ?? []) {
+            if (!f?.id || EXCLUDED_TYPES.has(f.dataType)) continue;
+            known.add(`custom_fields.${f.id}`);
+            if (f.dataType === "TEXTBOX_LIST") hasTextboxList = true;
+          }
+        }
+      }
+      const judgeField = (name) => {
+        if (known.has(name)) return "known";
+        if (!fieldsUsable) return "unverified";
+        if (hasTextboxList && String(name).startsWith("custom_fields.")) return "unverified";
+        return "unknown";
       };
       const leaves = (node, out = []) => {
         if (!node) return out;
@@ -164820,14 +165283,27 @@ var TOOLS2 = [
         }
         const list = r.json?.smartList ?? r.json ?? {};
         const spec = list.filterSpecs ?? {};
-        const { verdict, reason } = classify2(spec);
+        let { verdict, reason, cause } = classify2(spec);
         const fields = [...new Set(leaves({ filters: spec.filters ?? [] }).map((l) => l.field ?? l.uiMeta?.fieldAlias).filter(Boolean))];
+        const graded = fields.map((f) => ({ field: f, status: judgeField(f) }));
+        const unknown2 = graded.filter((g) => g.status === "unknown").map((g) => g.field);
+        if (unknown2.length && verdict === "renders-everything") {
+          reason += ` ALSO: ${unknown2.length === 1 ? "this field is" : "these fields are"} not in the account's filter-field catalogue (${unknown2.join(", ")}), which breaks the list on its own. Correcting the nesting alone will NOT fix it.`;
+          cause = `${cause}+unknown-field`;
+        }
+        if (unknown2.length && verdict === "ok") {
+          verdict = "renders-everything";
+          cause = "unknown-field";
+          reason = `the shape is right, but ${unknown2.length === 1 ? "this field is" : "these fields are"} not in this account's filter-field catalogue: ${unknown2.join(", ")}. The contacts screen drops a filter it does not recognise and renders the whole account, keeping a removedCount it never shows. A deleted custom field does this to a list that worked yesterday. The nesting is NOT the problem here.`;
+        }
         return {
           id,
           name: list.listName ?? name ?? null,
           verdict,
+          ...cause ? { cause } : {},
           ...reason ? { reason } : {},
           filterFields: fields,
+          ...graded.some((g) => g.status !== "known") ? { fieldStatus: graded } : {},
           conditions: leaves({ filters: spec.filters ?? [] }).length,
           sharedWith: list.sharedWith ?? null
         };
@@ -164836,12 +165312,16 @@ var TOOLS2 = [
       if (args.listId) {
         rows = [await inspect(args.listId, null)];
       } else {
-        const q3 = new URLSearchParams({ locationId: args.locationId, globals: "true", transform: "true" });
+        const q3 = new URLSearchParams({ locationId: args.locationId, userId: gw.uid, transform: "true" });
         const search = await gw.call("GET", `/contacts/smartlist/search?${q3}`);
         if (!search.ok) return fromHttp(search.status, search.json);
-        const roster = search.json?.smartLists ?? search.json?.lists ?? search.json?.data ?? [];
+        const roster = search.json?.smartLists ?? [];
         if (!Array.isArray(roster) || roster.length === 0) {
-          return ok({ checked: 0, lists: [], note: "No smart lists on this sub-account. An empty roster here while other locations answer normally means they were deleted, not that the read failed." });
+          return ok({
+            checked: 0,
+            lists: [],
+            note: "No smart lists are visible to THIS user on this sub-account. That is not proof there are none: the roster is scoped to the calling user, so a list owned by someone else does not appear here even though it reads back in full by id. Pass listId to check one directly."
+          });
         }
         for (const row of roster) {
           const id = row._id ?? row.id;
@@ -164856,13 +165336,13 @@ var TOOLS2 = [
         lists: rows,
         ...broken.length ? { warning: `${broken.length} list(s) store a filter the contacts screen will discard, and render the ENTIRE account to the operator. Every API check agrees they are fine \u2014 this is only visible structurally. Fixing one is a PUT of filterSpecs with the conditions unchanged and the nesting corrected; the PUT merges, so nothing else is touched.` } : {},
         note: "A row count is NOT the signal: it is correct either way, which is what makes this class expensive.",
-        // Said out loud so a clean verdict is not over-read. The screen drops a filter whose FIELD
-        // it does not recognise through the same code path, with the same whole-account result, and
-        // that is invisible from the nesting. Checking it needs the account's filter-field
-        // catalogue, and no endpoint this project knows serves one — so the fields are reported and
-        // not judged. Inventing an allowlist would flag working custom-field filters as broken,
-        // which is a worse answer than an honest gap.
-        notChecked: `whether each filter's field exists in this account's filter-field catalogue. The contacts screen drops filters naming a field it does not know, with the same whole-account result as bad nesting, and it keeps a removedCount it never shows. Read filterFields above against the fields the account actually offers. A verdict of "ok" here means the SHAPE is right, not that every field in it resolves.`
+        // The field half IS checked now, but it rests on a static list mined from one build of the
+        // contacts app, and on `score` being allowed unconditionally. Both are stated rather than
+        // assumed away: a stale static list would flag a real field, which is the false positive
+        // this tool must never produce quietly.
+        fieldCatalogue: fieldsUsable ? `checked against ${known.size} known keys \u2014 a static list mined from contactsApp build ${statics?.minedFromBuild ?? "2490"} plus this account's own contact custom fields, read live. The set is per ACCOUNT and per BUILD: deleting a custom field, or GHL retiring a static key in a newer chunk, invalidates a stored filter that used to work. Re-derive rather than trusting a cached answer, and re-mine the static half when the drift watch reports contactsApp has moved.` : `NOT CHECKED \u2014 the static filter-field list or this account's custom fields could not be read, so only the filter SHAPE was judged. A verdict of "ok" here means the envelope is right, not that every field resolves.`,
+        ...fieldsUsable ? {} : { notChecked: "field validity" },
+        scoreCaveat: "`score` is treated as valid without checking. It is only a real field when the account has a PUBLISHED score profile, and nothing here reads that \u2014 flagging it would risk breaking a working filter."
       });
     }, args)
   }
@@ -164882,6 +165362,7 @@ function registerTools(server2, deps, tools = TOOLS2) {
 }
 
 // core/audit-profile.mjs
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -164917,6 +165398,7 @@ function toolsForProfile(profile, tools = TOOLS2) {
 }
 
 // core/instructions.mjs
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -164936,6 +165418,7 @@ A description that says proof: external-receipt-required means THIS RAIL HAS NEV
 LIVE-PROVEN. A live canary is required before its output may be published as an audit finding.`;
 
 // core/audit-readonly.mjs
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
@@ -164987,6 +165470,7 @@ function readOnlyGateway(gateway) {
 }
 
 // core/token-renewal.mjs
+init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();

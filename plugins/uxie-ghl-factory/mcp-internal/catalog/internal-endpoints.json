@@ -9611,7 +9611,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "check_smart_lists"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -9850,7 +9852,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
-      "coveredBy": [],
+      "coveredBy": [
+        "check_smart_lists"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -9867,7 +9871,14 @@
           "name": "locationId"
         }
       ],
-      "query": [],
+      "query": [
+        {
+          "name": "model",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
       "body": null,
       "returns": null,
       "confidence": {
@@ -9879,6 +9890,7 @@
       "sources": [
         "services/marketplaceServices/OpportunityCustomFieldService.ts:9",
         "platform/20-api/custom-fields-and-values.md:122",
+        "platform/30-types/contact-filter-dsl.md:54",
         "workflows/10-anatomy/07-id-resolution.md:85",
         "workflows/10-anatomy/07-id-resolution.md:185",
         "workflows/70-research/ENDPOINTS.md:124"

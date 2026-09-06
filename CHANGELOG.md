@@ -11,6 +11,42 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [0.59.2] — 2026-09-07
+
+The smart-list audit was reporting clean accounts as empty, and it now checks the field half.
+
+### Fixed
+
+- **`check_smart_lists` reported "no smart lists" on an account holding seven.** Its roster read
+  omitted `userId`, which the route requires. Omitted WITHOUT `globals` it answers 422; omitted WITH
+  `globals=true` — the spelling the corpus documented — it answers **200 and an empty array**, while
+  every one of those lists reads back in full by id. An audit tool that says "clean" when six of
+  seven lists render the whole account is worse than no tool, and on the strength of that empty
+  answer I had already told a colleague their probe lists were deleted. They were not. The read now
+  sends `userId`, and an empty roster claims only what it establishes: that this user owns none,
+  not that none exist.
+
+### Added
+
+- **The field check the previous release could only name.** No endpoint serves the filter-field
+  catalogue — the contacts screen assembles it in the browser — so the static half (89 keys plus 13
+  aliases and 5 join paths, mined from contactsApp build 2490) is synced from the corpus and
+  embedded in the bundle, and the account half is read live from its contact custom fields.
+  `FILE_UPLOAD` and `SIGNATURE` fields are excluded exactly as the builder excludes them. A filter
+  naming a field the account does not offer is now caught — that is what a deleted custom field does
+  to a list that worked yesterday.
+- **Each row says WHICH failure it found**, because an unknown field and a flattened envelope produce
+  the identical symptom and an operator told only "renders everything" fixes the wrong one. A list
+  with both says both, and says that correcting the nesting alone will not fix it.
+- Two things stay deliberately unjudged and are stated in the output: `score`, which is only real
+  when the account has a published score profile that nothing here reads, and an unresolved
+  `custom_fields.*` on an account holding a TEXTBOX_LIST field, whose option ids the customFields
+  endpoint returns as plain strings with no ids. Both would be false positives, and a false
+  "renders everything" sends someone to break a list that works.
+
+  Live-fired on the sandbox: 7 lists checked, 6 caught, and the one that passes is the one the
+  session that mapped this surface had verified in a browser.
+
 ## [0.59.1] — 2026-09-07
 
 The smart-list audit states the one failure mode it cannot check, rather than letting a clean

@@ -317,6 +317,20 @@ const scoreEndpoint = (e, terms, verbs = intentVerbs(terms)) => {
   return score;
 };
 
+// The contact filter-field catalogue. NO ENDPOINT SERVES THIS — the contacts screen assembles it in
+// the browser on every page load, from a static list compiled into its own chunk plus the account's
+// own custom fields. The static half is mined into the corpus and synced into catalog/; the
+// per-account half is read live. Bundled via a define for the same reason the endpoint catalogue is:
+// dist/ ships with no sibling catalog/.
+let FILTER_FIELDS = null;
+const staticFilterFields = () => {
+  if (FILTER_FIELDS) return FILTER_FIELDS;
+  if (typeof __HAS_FILTER_FIELDS__ !== 'undefined') { FILTER_FIELDS = __CONTACT_FILTER_FIELDS__; return FILTER_FIELDS; }
+  try { FILTER_FIELDS = JSON.parse(readFileSync(resolve(HERE, '../catalog/contact-filter-fields.json'), 'utf8')); }
+  catch { FILTER_FIELDS = null; }
+  return FILTER_FIELDS;
+};
+
 // What the agent sees BEFORE it spends a turn on describe_endpoint. `callSites` is gone: 211 of the
 // 235 rows carry the same value, so it never discriminated between two candidates while occupying
 // the most budget-sensitive payload on the rail. What replaces it is what a caller actually picks
@@ -6982,12 +6996,14 @@ export const TOOLS = [
       + 'despite storing a filter. Three ways that happens, none of them visible to an API read-back: '
       + '`filterSpecs.filters` nested only one level (the screen throws it away), an empty filters '
       + 'array (the Copy/Save-as path produces these — it carries name, columns and sort but no '
-      + 'filter), and a leaf condition sitting where the screen expects a group. It does NOT judge '
-      + 'whether each filter\'s FIELD exists in the account\'s filter-field catalogue: the screen '
-      + 'drops unknown fields down the same code path with the same whole-account result, and no '
-      + 'endpoint this project knows serves that catalogue, so the fields found are reported for a '
-      + 'human to read instead. Read-only: it creates nothing and changes nothing, which matters '
-      + 'here because a smart list cannot be deleted through the API at all.',
+      + 'filter), a leaf condition sitting where the screen expects a group, and a filter naming a '
+      + 'FIELD the account does not offer — a deleted custom field breaks a list that worked '
+      + 'yesterday, and the symptom is identical to bad nesting, so each row says WHICH of the two '
+      + 'it found rather than a bare verdict. No endpoint serves the field catalogue: the contacts '
+      + 'screen assembles it in the browser from a static list in its own chunk plus the account\'s '
+      + 'custom fields, so this reproduces that union and reads the account half live. Read-only: it '
+      + 'creates nothing and changes nothing, which matters here because a smart list cannot be '
+      + 'deleted through the API at all.',
     inputSchema: schema({
       locationId: z.string(),
       listId: z.string().optional(),
@@ -6995,6 +7011,7 @@ export const TOOLS = [
     capabilities: [
       { method: 'GET', path: '/contacts/smartlist/search' },
       { method: 'GET', path: '/contacts/smartlist/{id}' },
+      { method: 'GET', path: '/locations/{locationId}/customFields' },
     ],
     handler: async (args, deps) => guard(async () => {
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
@@ -7005,25 +7022,70 @@ export const TOOLS = [
       const classify = (spec) => {
         const filters = spec?.filters;
         if (!Array.isArray(filters) || filters.length === 0) {
-          return { verdict: 'renders-everything', reason: 'filterSpecs.filters is empty — this is what the screen\'s Copy/Save-as path produces, and it means "show every contact", not "not configured yet".' };
+          return { verdict: 'renders-everything', cause: 'empty-filter', reason: 'filterSpecs.filters is empty — this is what the screen\'s Copy/Save-as path produces, and it means "show every contact", not "not configured yet".' };
         }
         const outerGroups = filters.filter(isGroup);
         if (outerGroups.length !== filters.length) {
-          return { verdict: 'renders-everything', reason: 'a leaf condition sits at the top level of filterSpecs.filters; the screen expects groups there.' };
+          return { verdict: 'renders-everything', cause: 'leaf-at-top', reason: 'a leaf condition sits at the top level of filterSpecs.filters; the screen expects groups there.' };
         }
         // Two levels: every outer group's children must themselves be groups.
         const oneLevel = outerGroups.filter((g) => g.filters.length && !g.filters.every(isGroup));
         if (oneLevel.length) {
           return {
             verdict: 'renders-everything',
+            cause: 'one-level-nesting',
             reason: 'filterSpecs.filters is nested ONE level — a group holding leaf conditions directly. '
               + 'The store accepts it, it reads back byte-identical and /contacts/search/2 returns the right '
               + 'rows, but the contacts screen discards it at load and renders the whole account. It needs an '
               + 'outer group whose children are GROUPS, with the conditions inside those.',
           };
         }
-        return { verdict: 'ok', reason: null };
+        return { verdict: 'ok', reason: null, cause: null };
       };
+      // THE ACCOUNT'S OWN HALF of the field catalogue. custom_fields.<customFieldId> for every
+      // contact custom field, minus the two dataTypes the builder excludes — a filter naming a
+      // FILE_UPLOAD or SIGNATURE field is dropped exactly like one naming a field that does not
+      // exist.
+      const statics = staticFilterFields();
+      const known = new Set([
+        ...(statics?.staticFieldKeys ?? []),
+        ...(statics?.fieldAliases ?? []),
+        ...(statics?.nestedJoinPaths ?? []),
+      ]);
+      // `score` is known only when the account has a PUBLISHED score profile, and nothing here can
+      // check that. Treating it as unknown would flag a working filter, so it is always allowed —
+      // the same reasoning that keeps this whole check conservative.
+      known.add('score');
+      const EXCLUDED_TYPES = new Set(['FILE_UPLOAD', 'SIGNATURE']);
+      let fieldsUsable = Boolean(statics?.staticFieldKeys?.length);
+      let hasTextboxList = false;
+      if (fieldsUsable) {
+        const cf = await gw.call('GET', `/locations/${encodeURIComponent(args.locationId)}/customFields?model=contact`);
+        if (!cf.ok) {
+          // Without the account half, a custom_fields.<id> filter cannot be judged at all. Degrade
+          // to shape-only rather than flag every one of them.
+          fieldsUsable = false;
+        } else {
+          for (const f of (cf.json?.customFields ?? [])) {
+            if (!f?.id || EXCLUDED_TYPES.has(f.dataType)) continue;
+            known.add(`custom_fields.${f.id}`);
+            if (f.dataType === 'TEXTBOX_LIST') hasTextboxList = true;
+          }
+        }
+      }
+      // A TEXTBOX_LIST field contributes one key per OPTION, spelled with the option id, and
+      // contributes none for itself. This endpoint returns picklistOptions as plain strings with no
+      // ids, so those keys cannot be enumerated from here — meaning an unresolved custom_fields.*
+      // on an account that HAS a TEXTBOX_LIST field might be a perfectly good option key. It is
+      // reported as unverified rather than unknown, because a false "renders everything" sends
+      // somebody to fix a list that works.
+      const judgeField = (name) => {
+        if (known.has(name)) return 'known';
+        if (!fieldsUsable) return 'unverified';
+        if (hasTextboxList && String(name).startsWith('custom_fields.')) return 'unverified';
+        return 'unknown';
+      };
+
       const leaves = (node, out = []) => {
         if (!node) return out;
         if (isGroup(node)) { for (const c of node.filters) leaves(c, out); return out; }
@@ -7044,12 +7106,32 @@ export const TOOLS = [
         }
         const list = r.json?.smartList ?? r.json ?? {};
         const spec = list.filterSpecs ?? {};
-        const { verdict, reason } = classify(spec);
+        let { verdict, reason, cause } = classify(spec);
         const fields = [...new Set(leaves({ filters: spec.filters ?? [] }).map((l) => l.field ?? l.uiMeta?.fieldAlias).filter(Boolean))];
+        const graded = fields.map((f) => ({ field: f, status: judgeField(f) }));
+        const unknown = graded.filter((g) => g.status === 'unknown').map((g) => g.field);
+        // An unknown FIELD and a flattened ENVELOPE produce the identical symptom — a full-account
+        // render — so the two are reported separately. Told only "renders everything", an operator
+        // rewrites the nesting on a list whose nesting was never the problem.
+        // BOTH problems at once is a real state — one of the sandbox probes has a flattened envelope
+        // AND a field that does not exist — and reporting only the envelope would have someone fix
+        // the nesting and find the list still showing everything.
+        if (unknown.length && verdict === 'renders-everything') {
+          reason += ` ALSO: ${unknown.length === 1 ? 'this field is' : 'these fields are'} not in the account's filter-field catalogue (${unknown.join(', ')}), which breaks the list on its own. Correcting the nesting alone will NOT fix it.`;
+          cause = `${cause}+unknown-field`;
+        }
+        if (unknown.length && verdict === 'ok') {
+          verdict = 'renders-everything';
+          cause = 'unknown-field';
+          reason = `the shape is right, but ${unknown.length === 1 ? 'this field is' : 'these fields are'} not in this account's filter-field catalogue: ${unknown.join(', ')}. `
+            + 'The contacts screen drops a filter it does not recognise and renders the whole account, keeping a removedCount it never shows. '
+            + 'A deleted custom field does this to a list that worked yesterday. The nesting is NOT the problem here.';
+        }
         return {
           id, name: list.listName ?? name ?? null,
-          verdict, ...(reason ? { reason } : {}),
+          verdict, ...(cause ? { cause } : {}), ...(reason ? { reason } : {}),
           filterFields: fields,
+          ...(graded.some((g) => g.status !== 'known') ? { fieldStatus: graded } : {}),
           conditions: leaves({ filters: spec.filters ?? [] }).length,
           sharedWith: list.sharedWith ?? null,
         };
@@ -7059,14 +7141,29 @@ export const TOOLS = [
       if (args.listId) {
         rows = [await inspect(args.listId, null)];
       } else {
-        const q = new URLSearchParams({ locationId: args.locationId, globals: 'true', transform: 'true' });
+        // userId IS REQUIRED, and its absence is not an error you can see. Without it and WITHOUT
+        // `globals`, the route answers 422. Without it and WITH `globals=true` — the spelling the
+        // corpus documents — it answers 200 and an EMPTY ARRAY while the account holds lists that
+        // read back in full by id. This tool shipped with that exact query and reported a clean
+        // account for one holding seven lists, which is the worst possible answer from an audit.
+        // Proven on the sandbox 2026-09-07: userId present returns 7 with or without `globals`,
+        // absent returns 0 with it and 422 without.
+        const q = new URLSearchParams({ locationId: args.locationId, userId: gw.uid, transform: 'true' });
         const search = await gw.call('GET', `/contacts/smartlist/search?${q}`);
         if (!search.ok) return fromHttp(search.status, search.json);
-        const roster = search.json?.smartLists ?? search.json?.lists ?? search.json?.data ?? [];
+        const roster = search.json?.smartLists ?? [];
         if (!Array.isArray(roster) || roster.length === 0) {
-          // An empty roster on ONE location beside working ones elsewhere is a deletion, not an
-          // outage — worth saying, because the natural reading is that the call failed.
-          return ok({ checked: 0, lists: [], note: 'No smart lists on this sub-account. An empty roster here while other locations answer normally means they were deleted, not that the read failed.' });
+          // NOT read as deletion. The roster is scoped to the CALLING user, so a list another user
+          // owns is invisible here while still being readable by id — and an empty answer is what a
+          // missing userId used to produce. Say what was actually established, which is only that
+          // this credential owns none.
+          return ok({
+            checked: 0,
+            lists: [],
+            note: 'No smart lists are visible to THIS user on this sub-account. That is not proof there are none: '
+              + 'the roster is scoped to the calling user, so a list owned by someone else does not appear here '
+              + 'even though it reads back in full by id. Pass listId to check one directly.',
+          });
         }
         for (const row of roster) {
           const id = row._id ?? row.id;
@@ -7083,17 +7180,15 @@ export const TOOLS = [
           ? { warning: `${broken.length} list(s) store a filter the contacts screen will discard, and render the ENTIRE account to the operator. Every API check agrees they are fine — this is only visible structurally. Fixing one is a PUT of filterSpecs with the conditions unchanged and the nesting corrected; the PUT merges, so nothing else is touched.` }
           : {}),
         note: 'A row count is NOT the signal: it is correct either way, which is what makes this class expensive.',
-        // Said out loud so a clean verdict is not over-read. The screen drops a filter whose FIELD
-        // it does not recognise through the same code path, with the same whole-account result, and
-        // that is invisible from the nesting. Checking it needs the account's filter-field
-        // catalogue, and no endpoint this project knows serves one — so the fields are reported and
-        // not judged. Inventing an allowlist would flag working custom-field filters as broken,
-        // which is a worse answer than an honest gap.
-        notChecked: 'whether each filter\'s field exists in this account\'s filter-field catalogue. '
-          + 'The contacts screen drops filters naming a field it does not know, with the same '
-          + 'whole-account result as bad nesting, and it keeps a removedCount it never shows. Read '
-          + 'filterFields above against the fields the account actually offers. A verdict of "ok" '
-          + 'here means the SHAPE is right, not that every field in it resolves.',
+        // The field half IS checked now, but it rests on a static list mined from one build of the
+        // contacts app, and on `score` being allowed unconditionally. Both are stated rather than
+        // assumed away: a stale static list would flag a real field, which is the false positive
+        // this tool must never produce quietly.
+        fieldCatalogue: fieldsUsable
+          ? `checked against ${known.size} known keys — a static list mined from contactsApp build ${statics?.minedFromBuild ?? '2490'} plus this account's own contact custom fields, read live. The set is per ACCOUNT and per BUILD: deleting a custom field, or GHL retiring a static key in a newer chunk, invalidates a stored filter that used to work. Re-derive rather than trusting a cached answer, and re-mine the static half when the drift watch reports contactsApp has moved.`
+          : 'NOT CHECKED — the static filter-field list or this account\'s custom fields could not be read, so only the filter SHAPE was judged. A verdict of "ok" here means the envelope is right, not that every field resolves.',
+        ...(fieldsUsable ? {} : { notChecked: 'field validity' }),
+        scoreCaveat: '`score` is treated as valid without checking. It is only a real field when the account has a PUBLISHED score profile, and nothing here reads that — flagging it would risk breaking a working filter.',
       });
     }, args),
   },
