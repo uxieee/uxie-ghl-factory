@@ -11,3 +11,7 @@ node scripts/check-type-catalog.mjs
 # Every generated artefact (type-cards, source, catalogue, manifests, dist) must match a
 # regeneration — a release cut from stale copies is the failure this repo keeps re-learning.
 node scripts/check-generated-freshness.mjs
+# Every `example:` pointer in the shipped catalogue must resolve from where the catalogue ships.
+# The script has existed since the type-catalogue work and was wired into nothing, so a broken
+# pointer could reach a release unread.
+node scripts/check-example-pointers.mjs
