@@ -11,6 +11,48 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [0.60.0] — 2026-09-07
+
+A typed create for smart lists, built so the caller cannot produce the one shape that breaks them.
+
+### Added
+
+- **`create_smart_list`** — the 73rd tool, and the first write on this surface. A smart list's
+  `filterSpecs.filters` has to be nested **two levels** (an outer group whose children are groups),
+  and one level fewer — the envelope `POST /contacts/search/2` takes, and the one any reasonable
+  caller writes — is accepted with a `201`, reads back byte-identical, returns the correct rows from
+  the search endpoint, and is then **discarded by the contacts screen at load**, which renders every
+  contact on the account. No response and no read-back tells the two apart. So the tool never takes
+  an envelope: it takes flat `conditions` (or `groups`) and builds the nesting itself.
+- **Two hard refusals, both for inputs that create an invisibly-broken list.** An empty filter means
+  "show every contact" on this surface rather than "not configured yet" — it is what the screen's own
+  Copy/Save-as path produces — and a filter naming a field outside the account's filter-field
+  catalogue is dropped at render for the identical symptom. Neither is written.
+- **A count differential before the write.** `POST /contacts/search/2` with `pageLimit: 0` and
+  `includeTotal: true`, against an unfiltered control, so the preview reports *matched vs account
+  total* instead of a bare success. A filter matching the account total is called out as not
+  filtering.
+- **A structural read-back.** After the create the record is re-read on a separate request and the
+  stored envelope re-judged with the same classifier `check_smart_lists` audits with. The result says
+  plainly what it does not prove: only a browser settles what the operator sees.
+
+### Changed
+
+- **The nesting rule now lives in one place**, `core/smart-lists.mjs`, shared by the builder and the
+  auditor. Two tools holding two copies of it is how this surface goes wrong twice — the auditor
+  blessing a shape the builder does not emit, or the reverse — and neither disagreement would appear
+  in any API response. Round-trip tests assert that what the builder writes, the auditor calls healthy.
+- **Reach:** `POST /contacts/smartlist/`, `POST /contacts/search/2` and the contact `customFields`
+  read are `proven` rather than `source-only`, and `GET /knowledge-base/associated-entities` likewise.
+
+### Proof
+
+Live-fired on the designated test sub-account: `TEST-CAP-smartlist-01` and `-02` created, both read
+back byte-identical with the canonical nesting and classified `ok`, differential 5 matched against an
+account total of 237; the unknown-field and empty-filter inputs both refused with nothing written.
+The render itself is **not** proven — the browser available here has no session — and the corpus page
+and the tool result both say so rather than implying the API check settles it. 21 new tests, 1174 green.
+
 ## [0.59.3] — 2026-09-07
 
 A blank user id was as silent as a missing one, and is now refused.
