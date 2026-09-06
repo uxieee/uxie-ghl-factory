@@ -104,6 +104,30 @@ layers became reachable, and each was a live failure on a write the tests report
 - Conversation AI agents `0az8xPNSEFlf25Hd6xoh` and `Itl3RL2G6LMjCprqcluI` (both mode off, unrouted)
 - Probe driver + ledger: the session scratchpad (`probe057*.mjs`, `probe057-ledger.json`)
 
+## 🔴 Do NOT commit a regenerated endpoint catalogue yet — it LOSES AI Studio rows
+
+Twice today the `knowledge/` post-commit hook ran `plugin/ npm run sync` and rewrote four
+generated files in this working tree (`catalog/internal-endpoints{,.source}.json`,
+`dist/{server,audit-server}.mjs`), each time marked "M — commit it with your work". Both times I
+reverted them rather than let them ride into 0.57.0, because the diff is not additive.
+
+Measured on the second run (999 → 1023 rows): **65 added, 52 removed, 32 of the removals
+`/vibe-ai/*`** — the AI Studio surface shipped in 0.56.0. It is not a clean re-key. Of eight
+sampled removals only three have a de-prefixed twin (`/vibe-ai/projects/{projectId}` →
+`/projects/{projectId}`); the other five — including `GET /vibe-ai/projects`, `GET /vibe-ai/folders`,
+`GET /vibe-ai/banners/active` and both DELETEs — have **no replacement row at all**. Only 8
+`/vibe-ai/*` rows survive. Committing that would ship an AI Studio catalogue with holes and orphan
+every overlay key that addresses those paths.
+
+The wanted rows in the same diff are real (16 snapshot rows from the concurrent snapshot mapping,
+plus the forms rows). So this needs a deliberate pass by whoever owns the AI Studio rows — read
+every removed row, decide re-key vs loss, fix the extractor or the overlay keys — and it must not
+be done as a side effect of a release. Until then: **revert the four generated files whenever the
+hook rewrites them**, and cut 0.57.0 from the artefacts already committed at 0.56.1.
+
+Note this also means `npm run release` will regenerate and hit the same diff at step 3. Either fix
+the extractor first, or run the release with the catalogue step reviewed by hand.
+
 ## Carried in from another session — for the backlog, NOT fixed here
 
 A concurrent build session reports that the compiler maps IR `create_opportunity` to
