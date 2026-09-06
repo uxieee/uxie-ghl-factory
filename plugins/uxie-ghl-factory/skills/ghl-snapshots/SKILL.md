@@ -10,8 +10,13 @@ Agency-level captures of a sub-account's assets, used to stamp out new accounts.
 write half, `proven-live` 2026-09-07, recovered from the `snapshotsApp` remote's public source maps
 — 60 request builders in `service/SnapshotsService.ts`).
 
-**There is no typed tool for this surface yet.** Everything below goes through `raw_request`, and
-this skill exists because four of these calls do something other than what their name suggests.
+**Five typed tools now cover the surface** — `list_snapshots`, `get_snapshot_manifest`,
+`check_snapshot_conflicts`, `create_snapshot`, `refresh_snapshot` (0.61.0). Prefer them: they carry
+the four traps below, which `raw_request` does not. `create_snapshot` validates every id against the
+account's own manifest before writing and diffs the stored contents afterwards, and
+`refresh_snapshot` refuses to send an empty selection. Everything they do not cover still goes
+through `raw_request`, and this skill exists because four of these calls do something other than
+what their name suggests.
 Snapshots are **agency-scoped**: `?companyId=`, Bearer alone (`token-id` alone answers 401 on
 create). A mistake here is not confined to one sub-account.
 
@@ -64,8 +69,11 @@ row that said otherwise is corrected.
 
 ## What does not travel
 
-**Conversation AI has no snapshot category.** It is not among the 51 and it does not travel; a
-sub-account stamped from a snapshot needs its AI configured by hand. Check
+**A Conversation AI FLOW BOT does not travel**, so a sub-account stamped from a snapshot needs its
+flow bot configured by hand. ⚠️ Not because the category is missing — an earlier version of this
+line said that and it is wrong. `conversation_ai` IS one of the 51, and an account offers entries
+under it (2 on the test sub-account, measured 2026-09-07, alongside 4 `knowledge_bases` and 1
+`agent_studio`). That category holds **AI employees**; flow bots never appear in it. Check
 `platform/40-rules/snapshot-carry-matrix.md` before promising a rollout carries something — the
 matrix is per-asset and several answers are counter-intuitive.
 

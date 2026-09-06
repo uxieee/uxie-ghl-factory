@@ -9651,7 +9651,13 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "check_snapshot_conflicts",
+        "create_snapshot",
+        "get_snapshot_manifest",
+        "list_snapshots",
+        "refresh_snapshot"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -16829,7 +16835,9 @@
       "rail": "workflow",
       "kind": "write",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "create_snapshot"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -16867,7 +16875,9 @@
       "rail": "workflow",
       "kind": "write",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "refresh_snapshot"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -17036,7 +17046,9 @@
       "rail": "workflow",
       "kind": "write",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "check_snapshot_conflicts"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -17204,7 +17216,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "refused",
-      "coveredBy": [],
+      "coveredBy": [
+        "get_snapshot_manifest"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -17450,7 +17464,10 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
-      "coveredBy": [],
+      "coveredBy": [
+        "create_snapshot",
+        "get_snapshot_manifest"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -44293,7 +44310,9 @@
       "kind": "read",
       "note": "Details drawer, assets grouped by product category. Captured from the agency page's own session 2026-08-31; not yet proven through the plugin's credential.",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "create_snapshot"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -44656,7 +44675,9 @@
       "kind": "read",
       "note": "Agency snapshot list (type=own|imported|shared|templates). Captured from the agency Account Snapshots page's own browser session 2026-08-31; not yet proven through the plugin's location-user Bearer.",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "list_snapshots"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",

@@ -430,5 +430,5 @@ export function makeGateway({ tokenFile, loc, rail = 'jwt', fetchImpl = fetch, s
     return { hit: null, attempts: maxPolls, last };
   };
 
-  return { call, callWithMeta, stream, readBackUntil, loc, rail, uid: creds.uid, capabilities: { unauthenticatedRawUpload: true } };
+  return { call, callWithMeta, stream, readBackUntil, loc, rail, uid: creds.uid, companyId: creds.companyId ?? null, capabilities: { unauthenticatedRawUpload: true } };
 }
