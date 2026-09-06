@@ -48,7 +48,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
     define_ENDPOINT_CATALOG_default = {
       generated: "2026-09-06",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 1072,
+      count: 1064,
       endpoints: [
         {
           id: "workflows--actions-branches",
@@ -6180,46 +6180,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
         },
         {
           id: "forms--forms",
-          method: "GET",
-          url: "https://backend.leadconnectorhq.com/forms/{id}",
-          path: "/forms/{id}",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "read",
-          reach: "source-only",
-          coveredBy: [
-            "create_form",
-            "get_form",
-            "update_form_data"
-          ],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "forms",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "id"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "forms/40-rules/validators-and-quirks.md:52",
-            "forms/60-recipes/create-a-form-by-api.md:47"
-          ]
-        },
-        {
-          id: "forms--forms-patch",
           method: "PATCH",
           url: "https://backend.leadconnectorhq.com/forms/{id}",
           path: "/forms/{id}",
@@ -6250,7 +6210,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "forms/40-rules/validators-and-quirks.md:25",
             "forms/70-research/2026-09-06-forms-reverse-engineering.md:60"
           ]
         },
@@ -6289,11 +6248,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "forms/10-anatomy/form-object.md:71",
-            "forms/40-rules/validators-and-quirks.md:18",
-            "forms/40-rules/validators-and-quirks.md:52",
-            "forms/40-rules/validators-and-quirks.md:57",
-            "forms/60-recipes/create-a-form-by-api.md:27",
             "forms/70-research/2026-09-06-forms-reverse-engineering.md:14"
           ]
         },
@@ -6366,41 +6320,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "forms/10-anatomy/form-object.md:74",
-            "forms/40-rules/validators-and-quirks.md:80",
-            "forms/60-recipes/create-a-form-by-api.md:56",
             "forms/70-research/2026-09-06-forms-reverse-engineering.md:49"
-          ]
-        },
-        {
-          id: "forms--forms-folder",
-          method: "POST",
-          url: "https://backend.leadconnectorhq.com/forms/folder/",
-          path: "/forms/folder/",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "write",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "forms",
-          tree: "documented",
-          pathParams: [],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "forms/60-recipes/create-a-form-by-api.md:23"
           ]
         },
         {
@@ -6449,103 +6369,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/FormsService.ts:25",
-            "forms/40-rules/validators-and-quirks.md:68"
-          ]
-        },
-        {
-          id: "forms--forms-move-to-folder",
-          method: "POST",
-          url: "https://backend.leadconnectorhq.com/forms/move-to-folder",
-          path: "/forms/move-to-folder",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "write",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "forms",
-          tree: "documented",
-          pathParams: [],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "forms/40-rules/validators-and-quirks.md:71"
-          ]
-        },
-        {
-          id: "forms--forms-submissions",
-          method: "GET",
-          url: "https://backend.leadconnectorhq.com/forms/submissions",
-          path: "/forms/submissions",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "read",
-          reach: "source-only",
-          coveredBy: [
-            "list_form_submissions"
-          ],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "forms",
-          tree: "documented",
-          pathParams: [],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "forms/40-rules/validators-and-quirks.md:69"
-          ]
-        },
-        {
-          id: "forms--forms-submissions-count",
-          method: "GET",
-          url: "https://backend.leadconnectorhq.com/forms/submissions-count",
-          path: "/forms/submissions-count",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "read",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "forms",
-          tree: "documented",
-          pathParams: [],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "forms/40-rules/validators-and-quirks.md:70"
+            "services/marketplaceServices/FormsService.ts:25"
           ]
         },
         {
@@ -6576,7 +6400,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "forms/10-anatomy/form-object.md:70",
             "forms/70-research/2026-09-06-forms-reverse-engineering.md:55"
           ]
         },
@@ -10000,7 +9823,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "forms/40-rules/validators-and-quirks.md:86"
+            "forms/40-rules/validators-and-quirks.md:92"
           ]
         },
         {
@@ -17678,103 +17501,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "services/marketplaceServices/SurveysService.ts:20",
             "workflows/70-research/ENDPOINTS.md:150"
-          ]
-        },
-        {
-          id: "forms--surveys-duplicate",
-          method: "POST",
-          url: "https://backend.leadconnectorhq.com/surveys/duplicate/{id}",
-          path: "/surveys/duplicate/{id}",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "write",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "forms",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "id"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "forms/20-api/surveys-and-quizzes.md:31"
-          ]
-        },
-        {
-          id: "forms--surveys-folder",
-          method: "GET",
-          url: "https://backend.leadconnectorhq.com/surveys/folder",
-          path: "/surveys/folder",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "read",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "forms",
-          tree: "documented",
-          pathParams: [],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "forms/20-api/surveys-and-quizzes.md:31"
-          ]
-        },
-        {
-          id: "forms--surveys-move-to-folder",
-          method: "POST",
-          url: "https://backend.leadconnectorhq.com/surveys/move-to-folder",
-          path: "/surveys/move-to-folder",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "write",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "forms",
-          tree: "documented",
-          pathParams: [],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "forms/20-api/surveys-and-quizzes.md:31"
           ]
         },
         {
@@ -27763,7 +27489,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "ai-studio/_data/endpoints.json",
-            "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md"
+            "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md",
+            "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:32"
           ]
         },
         {
@@ -35272,6 +34999,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "forms/_data/endpoints.json",
             "forms/20-api/forms.md",
+            "forms/10-anatomy/form-object.md:73",
             "forms/20-api/forms.md:38",
             "forms/20-api/forms.md:82",
             "forms/20-api/forms.md:129"
@@ -35355,7 +35083,44 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "forms/_data/endpoints.json",
             "forms/20-api/forms.md",
             "forms/20-api/forms.md:35",
-            "forms/20-api/forms.md:69"
+            "forms/20-api/forms.md:69",
+            "forms/40-rules/validators-and-quirks.md:58",
+            "forms/60-recipes/create-a-form-by-api.md:52"
+          ]
+        },
+        {
+          id: "forms--forms-patch",
+          method: "PATCH",
+          url: "https://services.leadconnectorhq.com/forms/{id}",
+          path: "/forms/{id}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "forms",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "forms/40-rules/validators-and-quirks.md:31"
           ]
         },
         {
@@ -35396,6 +35161,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "forms/_data/endpoints.json",
             "forms/20-api/forms.md",
+            "forms/10-anatomy/form-object.md:77",
             "forms/20-api/forms.md:39",
             "forms/20-api/forms.md:100",
             "forms/20-api/forms.md:129"
@@ -35481,8 +35247,10 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "forms/_data/endpoints.json",
             "forms/20-api/forms.md",
+            "forms/10-anatomy/form-object.md:80",
             "forms/20-api/forms.md:36",
-            "forms/20-api/forms.md:75"
+            "forms/20-api/forms.md:75",
+            "forms/40-rules/validators-and-quirks.md:86"
           ]
         },
         {
@@ -35643,7 +35411,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "forms/_data/endpoints.json",
             "forms/20-api/folders.md",
-            "forms/20-api/folders.md:24"
+            "forms/20-api/folders.md:24",
+            "forms/60-recipes/create-a-form-by-api.md:28"
           ]
         },
         {
@@ -35768,7 +35537,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "forms/_data/endpoints.json",
             "forms/20-api/forms.md",
             "forms/20-api/forms.md:37",
-            "forms/20-api/forms.md:151"
+            "forms/20-api/forms.md:151",
+            "forms/40-rules/validators-and-quirks.md:74"
           ]
         },
         {
@@ -35845,7 +35615,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "forms/20-api/forms.md",
             "forms/20-api/folders.md:26",
             "forms/20-api/forms.md:41",
-            "forms/20-api/forms.md:145"
+            "forms/20-api/forms.md:145",
+            "forms/40-rules/validators-and-quirks.md:77"
           ]
         },
         {
@@ -36014,7 +35785,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "forms/_data/endpoints.json",
             "forms/20-api/forms.md",
             "forms/20-api/forms.md:47",
-            "forms/20-api/forms.md:159"
+            "forms/20-api/forms.md:159",
+            "forms/40-rules/validators-and-quirks.md:75"
           ]
         },
         {
@@ -36067,7 +35839,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "forms/_data/endpoints.json",
             "forms/20-api/forms.md",
-            "forms/20-api/forms.md:48"
+            "forms/20-api/forms.md:48",
+            "forms/40-rules/validators-and-quirks.md:76"
           ]
         },
         {
@@ -36153,6 +35926,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "forms/_data/endpoints.json",
             "forms/20-api/forms.md",
+            "forms/10-anatomy/form-object.md:76",
             "forms/20-api/forms.md:49"
           ]
         },
@@ -44966,7 +44740,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "forms/_data/endpoints.json",
             "forms/20-api/surveys-and-quizzes.md",
-            "forms/20-api/forms.md:94"
+            "forms/20-api/forms.md:94",
+            "forms/40-rules/validators-and-quirks.md:49"
           ]
         },
         {
@@ -47108,41 +46883,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/api/instagram-connected-accounts.ts:25"
-          ]
-        },
-        {
-          id: "ai-studio--prompt-enhance-post",
-          method: "POST",
-          url: "https://services.leadconnectorhq.com/workflow/generate-image-ai/{locationId}/prompt/enhance",
-          path: "/workflow/generate-image-ai/{locationId}/prompt/enhance",
-          origin: "https://services.leadconnectorhq.com",
-          rail: "ai",
-          kind: "write",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "ai-studio",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "locationId"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:32"
           ]
         }
       ]

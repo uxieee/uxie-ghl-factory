@@ -10,9 +10,10 @@ live-proven 2026-09-06 across 133 saved probes.
 
 **Three products, two collections.** Forms and quizzes share `/forms/*` and differ only by
 `productType`; surveys have their own `/surveys/*` collection but call the **forms** routes for
-delete, duplicate, share, folders and move-to-folder. So `POST /surveys/duplicate/{id}`,
-`GET /surveys/folder` and `POST /surveys/move-to-folder` are paths nothing in the product calls,
-and whether they exist server-side is unknown.
+delete, duplicate, share, folders and move-to-folder. So the survey-shaped spellings of duplicate,
+folder and move-to-folder are paths nothing in the product calls, and whether they exist
+server-side is unknown — written out in prose here on purpose, because writing them as paths mints
+catalogue rows for endpoints that may not exist.
 
 **Five typed tools cover the rail** — `list_forms`, `get_form`, `create_form`,
 `update_form_data`, `list_form_submissions` — all live-fired on the sandbox 2026-09-07, thirteen

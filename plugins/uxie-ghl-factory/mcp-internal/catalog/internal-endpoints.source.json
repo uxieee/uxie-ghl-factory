@@ -20,16 +20,16 @@
     {
       "tree": "documented",
       "dir": "corpus",
-      "capturedAt": "2026-09-06T20:07:46.922Z",
+      "capturedAt": "2026-09-06T20:18:44.981Z",
       "hash": "corpus",
-      "fileCount": 679,
-      "endpoints": 679
+      "fileCount": 670,
+      "endpoints": 670
     }
   ],
   "note": "SOURCE-DERIVED ONLY, merged from every mined front-end. `tree` on each row says which app calls it. The plugin owns kind/note/summary/reach/coveredBy and merges them at read time. A row proves a GHL front-end calls that path — not that your token reaches it, and not that calling it is safe.",
-  "discoveredCallSites": 1139,
-  "skippedCallSites": 277,
-  "count": 1064,
+  "discoveredCallSites": 1130,
+  "skippedCallSites": 275,
+  "count": 1056,
   "endpoints": [
     {
       "id": "workflows--actions-branches",
@@ -4700,32 +4700,6 @@
     },
     {
       "id": "forms--forms",
-      "method": "GET",
-      "origin": "https://backend.leadconnectorhq.com",
-      "path": "/forms/{id}",
-      "authRail": "bearer",
-      "transport": "json",
-      "responseMode": "json",
-      "extraHeaders": [],
-      "tree": "documented",
-      "operation": null,
-      "service": "forms",
-      "query": [],
-      "body": null,
-      "returns": null,
-      "confidence": {
-        "path": "documented",
-        "query": "none-observed",
-        "body": "unresolved",
-        "returns": "unresolved"
-      },
-      "sources": [
-        "forms/40-rules/validators-and-quirks.md:52",
-        "forms/60-recipes/create-a-form-by-api.md:47"
-      ]
-    },
-    {
-      "id": "forms--forms-patch",
       "method": "PATCH",
       "origin": "https://backend.leadconnectorhq.com",
       "path": "/forms/{id}",
@@ -4746,7 +4720,6 @@
         "returns": "unresolved"
       },
       "sources": [
-        "forms/40-rules/validators-and-quirks.md:25",
         "forms/70-research/2026-09-06-forms-reverse-engineering.md:60"
       ]
     },
@@ -4772,11 +4745,6 @@
         "returns": "unresolved"
       },
       "sources": [
-        "forms/10-anatomy/form-object.md:71",
-        "forms/40-rules/validators-and-quirks.md:18",
-        "forms/40-rules/validators-and-quirks.md:52",
-        "forms/40-rules/validators-and-quirks.md:57",
-        "forms/60-recipes/create-a-form-by-api.md:27",
         "forms/70-research/2026-09-06-forms-reverse-engineering.md:14"
       ]
     },
@@ -4827,35 +4795,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "forms/10-anatomy/form-object.md:74",
-        "forms/40-rules/validators-and-quirks.md:80",
-        "forms/60-recipes/create-a-form-by-api.md:56",
         "forms/70-research/2026-09-06-forms-reverse-engineering.md:49"
-      ]
-    },
-    {
-      "id": "forms--forms-folder",
-      "method": "POST",
-      "origin": "https://backend.leadconnectorhq.com",
-      "path": "/forms/folder/",
-      "authRail": "bearer",
-      "transport": "json",
-      "responseMode": "json",
-      "extraHeaders": [],
-      "tree": "documented",
-      "operation": null,
-      "service": "forms",
-      "query": [],
-      "body": null,
-      "returns": null,
-      "confidence": {
-        "path": "documented",
-        "query": "none-observed",
-        "body": "unresolved",
-        "returns": "unresolved"
-      },
-      "sources": [
-        "forms/60-recipes/create-a-form-by-api.md:23"
       ]
     },
     {
@@ -4891,83 +4831,7 @@
         "returns": "none-observed"
       },
       "sources": [
-        "services/marketplaceServices/FormsService.ts:25",
-        "forms/40-rules/validators-and-quirks.md:68"
-      ]
-    },
-    {
-      "id": "forms--forms-move-to-folder",
-      "method": "POST",
-      "origin": "https://backend.leadconnectorhq.com",
-      "path": "/forms/move-to-folder",
-      "authRail": "bearer",
-      "transport": "json",
-      "responseMode": "json",
-      "extraHeaders": [],
-      "tree": "documented",
-      "operation": null,
-      "service": "forms",
-      "query": [],
-      "body": null,
-      "returns": null,
-      "confidence": {
-        "path": "documented",
-        "query": "none-observed",
-        "body": "unresolved",
-        "returns": "unresolved"
-      },
-      "sources": [
-        "forms/40-rules/validators-and-quirks.md:71"
-      ]
-    },
-    {
-      "id": "forms--forms-submissions",
-      "method": "GET",
-      "origin": "https://backend.leadconnectorhq.com",
-      "path": "/forms/submissions",
-      "authRail": "bearer",
-      "transport": "json",
-      "responseMode": "json",
-      "extraHeaders": [],
-      "tree": "documented",
-      "operation": null,
-      "service": "forms",
-      "query": [],
-      "body": null,
-      "returns": null,
-      "confidence": {
-        "path": "documented",
-        "query": "none-observed",
-        "body": "unresolved",
-        "returns": "unresolved"
-      },
-      "sources": [
-        "forms/40-rules/validators-and-quirks.md:69"
-      ]
-    },
-    {
-      "id": "forms--forms-submissions-count",
-      "method": "GET",
-      "origin": "https://backend.leadconnectorhq.com",
-      "path": "/forms/submissions-count",
-      "authRail": "bearer",
-      "transport": "json",
-      "responseMode": "json",
-      "extraHeaders": [],
-      "tree": "documented",
-      "operation": null,
-      "service": "forms",
-      "query": [],
-      "body": null,
-      "returns": null,
-      "confidence": {
-        "path": "documented",
-        "query": "none-observed",
-        "body": "unresolved",
-        "returns": "unresolved"
-      },
-      "sources": [
-        "forms/40-rules/validators-and-quirks.md:70"
+        "services/marketplaceServices/FormsService.ts:25"
       ]
     },
     {
@@ -4992,7 +4856,6 @@
         "returns": "unresolved"
       },
       "sources": [
-        "forms/10-anatomy/form-object.md:70",
         "forms/70-research/2026-09-06-forms-reverse-engineering.md:55"
       ]
     },
@@ -7643,7 +7506,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "forms/40-rules/validators-and-quirks.md:86"
+        "forms/40-rules/validators-and-quirks.md:92"
       ]
     },
     {
@@ -13529,81 +13392,6 @@
       "sources": [
         "services/marketplaceServices/SurveysService.ts:20",
         "workflows/70-research/ENDPOINTS.md:150"
-      ]
-    },
-    {
-      "id": "forms--surveys-duplicate",
-      "method": "POST",
-      "origin": "https://backend.leadconnectorhq.com",
-      "path": "/surveys/duplicate/{id}",
-      "authRail": "bearer",
-      "transport": "json",
-      "responseMode": "json",
-      "extraHeaders": [],
-      "tree": "documented",
-      "operation": null,
-      "service": "forms",
-      "query": [],
-      "body": null,
-      "returns": null,
-      "confidence": {
-        "path": "documented",
-        "query": "none-observed",
-        "body": "unresolved",
-        "returns": "unresolved"
-      },
-      "sources": [
-        "forms/20-api/surveys-and-quizzes.md:31"
-      ]
-    },
-    {
-      "id": "forms--surveys-folder",
-      "method": "GET",
-      "origin": "https://backend.leadconnectorhq.com",
-      "path": "/surveys/folder",
-      "authRail": "bearer",
-      "transport": "json",
-      "responseMode": "json",
-      "extraHeaders": [],
-      "tree": "documented",
-      "operation": null,
-      "service": "forms",
-      "query": [],
-      "body": null,
-      "returns": null,
-      "confidence": {
-        "path": "documented",
-        "query": "none-observed",
-        "body": "unresolved",
-        "returns": "unresolved"
-      },
-      "sources": [
-        "forms/20-api/surveys-and-quizzes.md:31"
-      ]
-    },
-    {
-      "id": "forms--surveys-move-to-folder",
-      "method": "POST",
-      "origin": "https://backend.leadconnectorhq.com",
-      "path": "/surveys/move-to-folder",
-      "authRail": "bearer",
-      "transport": "json",
-      "responseMode": "json",
-      "extraHeaders": [],
-      "tree": "documented",
-      "operation": null,
-      "service": "forms",
-      "query": [],
-      "body": null,
-      "returns": null,
-      "confidence": {
-        "path": "documented",
-        "query": "none-observed",
-        "body": "unresolved",
-        "returns": "unresolved"
-      },
-      "sources": [
-        "forms/20-api/surveys-and-quizzes.md:31"
       ]
     },
     {
@@ -21179,7 +20967,8 @@
       "proof": "executed",
       "sources": [
         "ai-studio/_data/endpoints.json",
-        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md"
+        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md",
+        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:32"
       ]
     },
     {
@@ -27199,6 +26988,7 @@
       "sources": [
         "forms/_data/endpoints.json",
         "forms/20-api/forms.md",
+        "forms/10-anatomy/form-object.md:73",
         "forms/20-api/forms.md:38",
         "forms/20-api/forms.md:82",
         "forms/20-api/forms.md:129"
@@ -27260,7 +27050,34 @@
         "forms/_data/endpoints.json",
         "forms/20-api/forms.md",
         "forms/20-api/forms.md:35",
-        "forms/20-api/forms.md:69"
+        "forms/20-api/forms.md:69",
+        "forms/40-rules/validators-and-quirks.md:58",
+        "forms/60-recipes/create-a-form-by-api.md:52"
+      ]
+    },
+    {
+      "id": "forms--forms-patch",
+      "method": "PATCH",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/forms/{id}",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "forms",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "forms/40-rules/validators-and-quirks.md:31"
       ]
     },
     {
@@ -27289,6 +27106,7 @@
       "sources": [
         "forms/_data/endpoints.json",
         "forms/20-api/forms.md",
+        "forms/10-anatomy/form-object.md:77",
         "forms/20-api/forms.md:39",
         "forms/20-api/forms.md:100",
         "forms/20-api/forms.md:129"
@@ -27356,8 +27174,10 @@
       "sources": [
         "forms/_data/endpoints.json",
         "forms/20-api/forms.md",
+        "forms/10-anatomy/form-object.md:80",
         "forms/20-api/forms.md:36",
-        "forms/20-api/forms.md:75"
+        "forms/20-api/forms.md:75",
+        "forms/40-rules/validators-and-quirks.md:86"
       ]
     },
     {
@@ -27491,7 +27311,8 @@
       "sources": [
         "forms/_data/endpoints.json",
         "forms/20-api/folders.md",
-        "forms/20-api/folders.md:24"
+        "forms/20-api/folders.md:24",
+        "forms/60-recipes/create-a-form-by-api.md:28"
       ]
     },
     {
@@ -27585,7 +27406,8 @@
         "forms/_data/endpoints.json",
         "forms/20-api/forms.md",
         "forms/20-api/forms.md:37",
-        "forms/20-api/forms.md:151"
+        "forms/20-api/forms.md:151",
+        "forms/40-rules/validators-and-quirks.md:74"
       ]
     },
     {
@@ -27652,7 +27474,8 @@
         "forms/20-api/forms.md",
         "forms/20-api/folders.md:26",
         "forms/20-api/forms.md:41",
-        "forms/20-api/forms.md:145"
+        "forms/20-api/forms.md:145",
+        "forms/40-rules/validators-and-quirks.md:77"
       ]
     },
     {
@@ -27794,7 +27617,8 @@
         "forms/_data/endpoints.json",
         "forms/20-api/forms.md",
         "forms/20-api/forms.md:47",
-        "forms/20-api/forms.md:159"
+        "forms/20-api/forms.md:159",
+        "forms/40-rules/validators-and-quirks.md:75"
       ]
     },
     {
@@ -27842,7 +27666,8 @@
       "sources": [
         "forms/_data/endpoints.json",
         "forms/20-api/forms.md",
-        "forms/20-api/forms.md:48"
+        "forms/20-api/forms.md:48",
+        "forms/40-rules/validators-and-quirks.md:76"
       ]
     },
     {
@@ -27912,6 +27737,7 @@
       "sources": [
         "forms/_data/endpoints.json",
         "forms/20-api/forms.md",
+        "forms/10-anatomy/form-object.md:76",
         "forms/20-api/forms.md:49"
       ]
     },
@@ -34447,7 +34273,8 @@
       "sources": [
         "forms/_data/endpoints.json",
         "forms/20-api/surveys-and-quizzes.md",
-        "forms/20-api/forms.md:94"
+        "forms/20-api/forms.md:94",
+        "forms/40-rules/validators-and-quirks.md:49"
       ]
     },
     {
@@ -36089,31 +35916,6 @@
       },
       "sources": [
         "services/api/instagram-connected-accounts.ts:25"
-      ]
-    },
-    {
-      "id": "ai-studio--prompt-enhance-post",
-      "method": "POST",
-      "origin": "https://services.leadconnectorhq.com",
-      "path": "/workflow/generate-image-ai/{locationId}/prompt/enhance",
-      "authRail": "bearer+token-id",
-      "transport": "json",
-      "responseMode": "json",
-      "extraHeaders": [],
-      "tree": "documented",
-      "operation": null,
-      "service": "ai-studio",
-      "query": [],
-      "body": null,
-      "returns": null,
-      "confidence": {
-        "path": "documented",
-        "query": "none-observed",
-        "body": "unresolved",
-        "returns": "unresolved"
-      },
-      "sources": [
-        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:32"
       ]
     }
   ]

@@ -54,7 +54,7 @@ const KNOWN_HOST_DISAGREEMENTS = new Map([
   ['/ai-employees/employees/search', 'as above — the same live sweep resolved agents on the default rail'],
   ['/conversations-ai/employeeConfigs', 'the per-contact ConvAI pair ships as live-proven on its declared rail; the catalogue row is unverified'],
   ['/agent-studio/agents/agents-with-folders', 'get_ai_configuration_bundle calls this on the AI rail deliberately; the catalogue row says backend and is unverified'],
-  ['/forms/', 'the forms corpus states BOTH hosts serve every /forms/* path (forms/20-api/forms.md:21 — proven-live by differential, R18 live-20..22, 2026-09-06); the builder sends services, so the harvested row files there, while the entity sweep and the two workflow tools read it on the backend Bearer rail'],
+  ['/forms/', 'the forms corpus states BOTH hosts serve every /forms/* path (forms/20-api/forms.md:21 — proven-live by differential, R18 live-20..22, 2026-09-06). The surface settled on SERVICES as its one canonical spelling on 2026-09-07, which made this ledger entry cover MORE rows rather than fewer: the five typed forms tools and the entity sweep all dial the backend Bearer rail, live-fired end to end on the sandbox that day. Consolidating the corpus did not remove the disagreement — it is a spelling choice on one side and a proven rail on the other, and both are right'],
   ['/instagram/connected-accounts', 'the account-readiness pre-flight (preflight.mjs) live-proved this read on the backend Bearer rail, GROM AU 2026-08-22; the catalogue row says services and is unverified'],
 ]);
 const knownReason = (path) => {

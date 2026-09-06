@@ -11,6 +11,36 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [0.58.1] — 2026-09-07
+
+The forms surface settled on one canonical host, and the harvester learned that a page's stated
+base is about its own surface rather than every endpoint the page mentions.
+
+### Fixed
+
+- **Eight forms and survey endpoints shipped twice**, once per host, purely by which corpus page
+  recorded them. The surface owner settled the spelling at `services` (the rail the builder itself
+  sends on), and the duplicates collapse: catalogue 1072 → 1064. Three of the eight were survey
+  paths minted from a sentence saying nothing in the product calls them — the same shape as the
+  `GET /forms/{bad}` line fixed earlier, now reworded in prose on both the corpus page and the
+  `ghl-forms` skill. The skill-claims lint added in 0.58.0 caught the skill's copy of that fault on
+  its first real run, which is exactly what it is for.
+- **`POST /workflow/generate-image-ai/{locationId}/prompt/enhance` was on the wrong host.** It sat
+  under `services` because the page that documents it states a services base, while that page's own
+  text says the `/workflow` prefix IS the backend spelling. Corrected to backend.
+- A stated base could drag an unrelated endpoint onto the wrong host — a forms page naming
+  `POST /locations/{locationId}/customFields/` in passing moved it off backend. It happened twice
+  and only the loss guard caught it. The harvester now scopes a page's base to the segments its
+  surface's sidecar claims, but only where a mined tree already owns the prefix, so pages whose
+  surface has no sidecar keep correcting the mined host (the inbound-webhook rail is live-proven on
+  backend while the mined tree files it on services).
+
+### Changed
+
+- The `/forms/` host-parity ledger entry says why consolidating made it cover MORE rows, not fewer:
+  the corpus now spells every forms path `services` while all five typed forms tools dial the
+  proven backend Bearer rail. Both are right; the entry records that rather than hiding it.
+
 ## [0.58.0] — 2026-09-07
 
 A plugin improvement programme: the opportunity step that silently no-opped, a round-trip verifier
