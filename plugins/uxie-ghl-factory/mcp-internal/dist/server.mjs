@@ -46,9 +46,9 @@ var define_ENDPOINT_CATALOG_default;
 var init_define_ENDPOINT_CATALOG = __esm({
   "<define:__ENDPOINT_CATALOG__>"() {
     define_ENDPOINT_CATALOG_default = {
-      generated: "2026-09-04",
+      generated: "2026-09-06",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 1014,
+      count: 1081,
       endpoints: [
         {
           id: "workflows--actions-branches",
@@ -954,10 +954,10 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
-          id: "ai-usage--get-usage-limits-location",
+          id: "ai-usage--get-plan-location",
           method: "GET",
-          url: "https://backend.leadconnectorhq.com/ai-wrapper/usage/limits/location",
-          path: "/ai-wrapper/usage/limits/location",
+          url: "https://backend.leadconnectorhq.com/ai-wrapper/plan/location",
+          path: "/ai-wrapper/plan/location",
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
@@ -967,6 +967,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
+          operation: null,
           service: "ai-usage",
           tree: "documented",
           pathParams: [],
@@ -988,7 +989,80 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "ai-studio/_data/endpoints.json",
-            "ai-studio/20-api/projects.md"
+            "ai-studio/20-api/usage-and-plan-gating.md:46"
+          ]
+        },
+        {
+          id: "ai-studio--usage-policy",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/ai-wrapper/projects/{projectId}/usage/policy",
+          path: "/ai-wrapper/projects/{projectId}/usage/policy",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-studio",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "projectId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-studio/20-api/usage-and-plan-gating.md:47"
+          ]
+        },
+        {
+          id: "ai-usage--get-usage-limits-location",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/ai-wrapper/usage/limits/location",
+          path: "/ai-wrapper/usage/limits/location",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-usage",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-studio/_data/endpoints.json"
           ]
         },
         {
@@ -1005,6 +1079,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
+          operation: null,
           service: "ai-usage",
           tree: "documented",
           pathParams: [],
@@ -1025,8 +1100,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-studio/_data/endpoints.json",
-            "ai-studio/20-api/projects.md"
+            "ai-studio/_data/endpoints.json"
           ]
         },
         {
@@ -1043,6 +1117,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
+          operation: null,
           service: "ai-usage",
           tree: "documented",
           pathParams: [],
@@ -1063,8 +1138,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-studio/_data/endpoints.json",
-            "ai-studio/20-api/projects.md"
+            "ai-studio/_data/endpoints.json"
           ]
         },
         {
@@ -1081,6 +1155,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
+          operation: null,
           service: "ai-usage",
           tree: "documented",
           pathParams: [],
@@ -1101,8 +1176,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-studio/_data/endpoints.json",
-            "ai-studio/20-api/projects.md"
+            "ai-studio/_data/endpoints.json"
           ]
         },
         {
@@ -1119,6 +1193,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
+          operation: null,
           service: "ai-usage",
           tree: "documented",
           pathParams: [],
@@ -1139,8 +1214,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-studio/_data/endpoints.json",
-            "ai-studio/20-api/projects.md"
+            "ai-studio/_data/endpoints.json"
           ]
         },
         {
@@ -1157,6 +1231,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
+          operation: null,
           service: "ai-usage",
           tree: "documented",
           pathParams: [],
@@ -1177,8 +1252,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-studio/_data/endpoints.json",
-            "ai-studio/20-api/projects.md"
+            "ai-studio/_data/endpoints.json"
           ]
         },
         {
@@ -1195,6 +1269,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
+          operation: null,
           service: "ai-usage",
           tree: "documented",
           pathParams: [],
@@ -1215,8 +1290,45 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-studio/_data/endpoints.json",
-            "ai-studio/20-api/projects.md"
+            "ai-studio/_data/endpoints.json"
+          ]
+        },
+        {
+          id: "ai-usage--get-usage-v2-snapshots",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/ai-wrapper/usage/v2/snapshots",
+          path: "/ai-wrapper/usage/v2/snapshots",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-usage",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-studio/_data/endpoints.json"
           ]
         },
         {
@@ -1816,7 +1928,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "calendars/20-api/events-and-appointments.md:22",
             "calendars/20-api/events-and-appointments.md:53",
             "calendars/20-api/events-and-appointments.md:67",
-            "calendars/40-rules/deleting-a-calendar-deletes-its-appointments.md:42"
+            "calendars/40-rules/deleting-a-calendar-deletes-its-appointments.md:42",
+            "calendars/70-research/2026-09-02-calendar-events-differential.md:20",
+            "calendars/70-research/2026-09-02-calendar-events-differential.md:24"
           ]
         },
         {
@@ -2641,7 +2755,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "platform/20-api/smart-lists.md:91",
             "platform/30-types/contact-filter-dsl.md:4",
             "platform/30-types/contact-filter-dsl.md:12",
-            "platform/30-types/index.md:18"
+            "platform/30-types/index.md:18",
+            "workflows/50-runtime/forcing-and-removing-contacts.md:128"
           ]
         },
         {
@@ -3805,6 +3920,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
+          operation: null,
           service: "domain-connect",
           tree: "documented",
           pathParams: [],
@@ -3818,8 +3934,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-studio/_data/endpoints.json",
-            "ai-studio/20-api/projects.md"
+            "ai-studio/_data/endpoints.json"
           ]
         },
         {
@@ -3836,6 +3951,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
+          operation: null,
           service: "domain-connect",
           tree: "documented",
           pathParams: [],
@@ -3850,7 +3966,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "ai-studio/_data/endpoints.json",
-            "ai-studio/20-api/projects.md"
+            "ai-studio/20-api/publishing-and-domains.md:106"
           ]
         },
         {
@@ -3867,6 +3983,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
+          operation: null,
           service: "domain-connect",
           tree: "documented",
           pathParams: [],
@@ -3880,8 +3997,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-studio/_data/endpoints.json",
-            "ai-studio/20-api/projects.md"
+            "ai-studio/_data/endpoints.json"
           ]
         },
         {
@@ -3898,6 +4014,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
+          operation: null,
           service: "domain-connect",
           tree: "documented",
           pathParams: [],
@@ -3911,8 +4028,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-studio/_data/endpoints.json",
-            "ai-studio/20-api/projects.md"
+            "ai-studio/_data/endpoints.json"
           ]
         },
         {
@@ -3929,6 +4045,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
+          operation: null,
           service: "domain-connect",
           tree: "documented",
           pathParams: [],
@@ -3942,8 +4059,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-studio/_data/endpoints.json",
-            "ai-studio/20-api/projects.md"
+            "ai-studio/_data/endpoints.json"
           ]
         },
         {
@@ -3960,6 +4076,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
+          operation: null,
           service: "domain-connect",
           tree: "documented",
           pathParams: [],
@@ -3973,8 +4090,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-studio/_data/endpoints.json",
-            "ai-studio/20-api/projects.md"
+            "ai-studio/_data/endpoints.json"
           ]
         },
         {
@@ -3991,6 +4107,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
+          operation: null,
           service: "domains",
           tree: "documented",
           pathParams: [
@@ -4008,8 +4125,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-studio/_data/endpoints.json",
-            "ai-studio/20-api/projects.md"
+            "ai-studio/_data/endpoints.json"
           ]
         },
         {
@@ -4026,6 +4142,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
+          operation: null,
           service: "domains",
           tree: "documented",
           pathParams: [
@@ -4046,8 +4163,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-studio/_data/endpoints.json",
-            "ai-studio/20-api/projects.md"
+            "ai-studio/_data/endpoints.json"
           ]
         },
         {
@@ -4064,6 +4180,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
+          operation: null,
           service: "domains",
           tree: "documented",
           pathParams: [
@@ -4084,8 +4201,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-studio/_data/endpoints.json",
-            "ai-studio/20-api/projects.md"
+            "ai-studio/_data/endpoints.json"
           ]
         },
         {
@@ -4102,6 +4218,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
+          operation: null,
           service: "domains",
           tree: "documented",
           pathParams: [
@@ -4119,8 +4236,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-studio/_data/endpoints.json",
-            "ai-studio/20-api/projects.md"
+            "ai-studio/_data/endpoints.json"
           ]
         },
         {
@@ -6002,7 +6118,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          note: "Live-proven 2026-09-06 (knowledge corpus/forms). Needs locationId, skip, limit; type=form returns forms only \u2014 ANY other type value (or none) returns forms AND folders in one array. query= is a substring name search; parentId= filters to a folder. Rows carry no formData; GET /forms/{id} does. token-id or Bearer, services or backend \u2014 all reach. The full lifecycle (POST /forms/ create, POST /forms/{id} save {name, formData}, duplicate, restore-version, move-to-folder, folders) is proven in corpus/forms/20-api/forms.md but has no rows here yet: the builder is a separate SPA with a PUBLIC source map (sniffs/forms-2026-09-06/builder-app/tree/src) that the generator does not read \u2014 see plugin/STATUS-2026-09-06-forms-surface.md.",
+          reach: "proven",
           coveredBy: [
             "build_workflow",
             "edit_workflow",
@@ -6035,6 +6152,372 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "forms--forms",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/forms/{bad}",
+          path: "/forms/{bad}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "forms",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "bad"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "forms/40-rules/validators-and-quirks.md:95"
+          ]
+        },
+        {
+          id: "forms--forms-get",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/forms/{id}",
+          path: "/forms/{id}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "forms",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "forms/40-rules/validators-and-quirks.md:52",
+            "forms/60-recipes/create-a-form-by-api.md:47"
+          ]
+        },
+        {
+          id: "forms--forms-patch",
+          method: "PATCH",
+          url: "https://backend.leadconnectorhq.com/forms/{id}",
+          path: "/forms/{id}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "forms",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "forms/40-rules/validators-and-quirks.md:25",
+            "forms/70-research/2026-09-06-forms-reverse-engineering.md:60"
+          ]
+        },
+        {
+          id: "forms--forms-post",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/forms/{id}",
+          path: "/forms/{id}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "forms",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "forms/10-anatomy/form-object.md:71",
+            "forms/40-rules/validators-and-quirks.md:18",
+            "forms/40-rules/validators-and-quirks.md:52",
+            "forms/40-rules/validators-and-quirks.md:57",
+            "forms/60-recipes/create-a-form-by-api.md:27",
+            "forms/70-research/2026-09-06-forms-reverse-engineering.md:14"
+          ]
+        },
+        {
+          id: "forms--forms-put",
+          method: "PUT",
+          url: "https://backend.leadconnectorhq.com/forms/{id}",
+          path: "/forms/{id}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "forms",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "forms/70-research/2026-09-06-forms-reverse-engineering.md:60"
+          ]
+        },
+        {
+          id: "forms--forms-data",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/forms/data/{id}",
+          path: "/forms/data/{id}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "forms",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "forms/10-anatomy/form-object.md:74",
+            "forms/40-rules/validators-and-quirks.md:80",
+            "forms/60-recipes/create-a-form-by-api.md:56",
+            "forms/70-research/2026-09-06-forms-reverse-engineering.md:49"
+          ]
+        },
+        {
+          id: "forms--forms-folder",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/forms/folder",
+          path: "/forms/folder",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "forms",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "productType",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "forms/20-api/folders.md:17"
+          ]
+        },
+        {
+          id: "forms--forms-folder-post",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/forms/folder/",
+          path: "/forms/folder/",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "forms",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "forms/20-api/folders.md:19",
+            "forms/60-recipes/create-a-form-by-api.md:23"
+          ]
+        },
+        {
+          id: "forms--forms-folder-get",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/forms/folder/{folderId}",
+          path: "/forms/folder/{folderId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "forms",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "folderId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "forms/20-api/folders.md:18"
+          ]
+        },
+        {
+          id: "forms--forms-folder-post-post",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/forms/folder/{folderId}",
+          path: "/forms/folder/{folderId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "forms",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "folderId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "forms/20-api/folders.md:20"
+          ]
+        },
+        {
           id: "forms-service--get-form-by-id",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/forms/forms-list",
@@ -6042,8 +6525,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          note: "Live-probed 2026-08-25: the endpoint returned 422 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
-          reach: "source-only",
+          note: 'Live-proven 2026-09-06: formIds MUST be one comma-joined string (formIds=a,b) \u2014 repeated or bracketed params 422 "formIds must be a string"; locationId is rejected ("property locationId should not exist"). Returns list rows without formData. The row id says get-form-by-id but the by-id read is GET /forms/{id} (unknown id \u2192 400 "Form does not exist", not 404).',
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -6080,7 +6563,134 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/FormsService.ts:25"
+            "services/marketplaceServices/FormsService.ts:25",
+            "forms/40-rules/validators-and-quirks.md:68"
+          ]
+        },
+        {
+          id: "forms--forms-move-to-folder",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/forms/move-to-folder",
+          path: "/forms/move-to-folder",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "forms",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "forms/20-api/folders.md:21",
+            "forms/40-rules/validators-and-quirks.md:71"
+          ]
+        },
+        {
+          id: "forms--forms-submissions",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/forms/submissions",
+          path: "/forms/submissions",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "forms",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "forms/40-rules/validators-and-quirks.md:69"
+          ]
+        },
+        {
+          id: "forms--forms-submissions-count",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/forms/submissions-count",
+          path: "/forms/submissions-count",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "forms",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "forms/40-rules/validators-and-quirks.md:70"
+          ]
+        },
+        {
+          id: "forms--forms-themes",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/forms/themes",
+          path: "/forms/themes",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "forms",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "forms/10-anatomy/form-object.md:70",
+            "forms/70-research/2026-09-06-forms-reverse-engineering.md:55"
           ]
         },
         {
@@ -6682,6 +7292,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/marketplaceServices/FunnelsService.ts:11",
+            "ai-studio/10-anatomy/project.md:17",
             "funnels/20-api/funnels-api.md:74"
           ]
         },
@@ -8740,8 +9351,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "platform/20-api/smart-lists.md:25",
             "platform/20-api/smart-lists.md:112",
-            "workflows/20-api/03-endpoints.md:344",
-            "workflows/20-api/smart-lists.md:69"
+            "workflows/20-api/03-endpoints.md:345",
+            "workflows/20-api/smart-lists.md:69",
+            "workflows/70-research/ENDPOINTS.md:77"
           ]
         },
         {
@@ -9430,24 +10042,22 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
-          id: "typed--create_custom_field_folder--locations-customFields",
-          method: "POST",
+          id: "forms--locations-custom-fields",
+          method: "PUT",
           url: "https://backend.leadconnectorhq.com/locations/{locationId}/customFields",
           path: "/locations/{locationId}/customFields",
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          reach: "proven",
-          coveredBy: [
-            "create_custom_field_folder"
-          ],
+          reach: "source-only",
+          coveredBy: [],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: "create_custom_field_folder",
-          tree: "typed-tool",
+          service: "forms",
+          tree: "documented",
           pathParams: [
             {
               name: "locationId"
@@ -9457,13 +10067,50 @@ var init_define_ENDPOINT_CATALOG = __esm({
           body: null,
           returns: null,
           confidence: {
-            path: "proven",
+            path: "documented",
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
           },
           sources: [
-            "capability-manifest.json (create_custom_field_folder)"
+            "forms/00-overview/forms-surveys-quizzes.md:25"
+          ]
+        },
+        {
+          id: "forms--locations-custom-fields-post",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/locations/{locationId}/customFields/",
+          path: "/locations/{locationId}/customFields/",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [
+            "create_custom_field_folder"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "forms",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "forms/40-rules/validators-and-quirks.md:86"
           ]
         },
         {
@@ -9477,7 +10124,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           summary: "One custom field by id: {customField:{id, model, name, fieldKey, dataType, documentType, parentId (folder), description, standard, scopes, \u2026}}. Proven 2026-08-31.",
           note: "The read-back for filing (parentId) and for description \u2014 both stored and returned. dataType is IMMUTABLE after creation: a PUT changing it answers success and the read-back keeps the old type; retype = delete, then create (the old KEY blocks the name until deleted).",
           reach: "proven",
-          coveredBy: [],
+          coveredBy: [
+            "edit_workflow"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -9505,6 +10154,46 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "platform/20-api/custom-fields-and-values.md:41",
             "platform/70-research/2026-08-31-certification-snapshot-and-field-probes.md:77"
+          ]
+        },
+        {
+          id: "forms--locations-custom-fields-get",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/locations/{locationId}/customFields/{id}",
+          path: "/locations/{locationId}/customFields/{id}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [
+            "edit_workflow"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "forms",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "forms/60-recipes/create-a-form-by-api.md:18"
           ]
         },
         {
@@ -10632,6 +11321,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "services/marketplaceServices/LocationsService.ts:15",
             "services/marketplaceServices/SubLocationsService.ts:14",
+            "ai-studio/_data/endpoints.json",
             "workflows/70-research/ENDPOINTS.md:155"
           ]
         },
@@ -13077,13 +13767,13 @@ var init_define_ENDPOINT_CATALOG = __esm({
           pathParams: [],
           query: [
             {
-              name: "location_id",
+              name: "version",
               type: "string",
               required: false,
               source: "documented"
             },
             {
-              name: "version",
+              name: "location_id",
               type: "string",
               required: false,
               source: "documented"
@@ -13099,6 +13789,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "states/app.ts:854",
+            "ai-studio/_data/endpoints.json",
+            "ai-studio/10-anatomy/embedding-and-credentials.md:51",
+            "ai-studio/10-anatomy/the-chat-and-version-model.md:25",
             "workflows/20-api/version-history.md:76"
           ]
         },
@@ -15543,7 +16236,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "workflows/20-api/03-endpoints.md:355"
+            "workflows/20-api/03-endpoints.md:356"
           ]
         },
         {
@@ -16337,6 +17030,717 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "platform--snapshot-update",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/snapshots-appengine/snapshot/{snapshotId}/update",
+          path: "/snapshots-appengine/snapshot/{snapshotId}/update",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "platform",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "snapshotId"
+            }
+          ],
+          query: [
+            {
+              name: "companyId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "platform/20-api/snapshots-authoring.md:105"
+          ]
+        },
+        {
+          id: "platform--v2-snapshots",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/snapshots-appengine/v2/snapshots",
+          path: "/snapshots-appengine/v2/snapshots",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "platform",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "companyId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "platform/20-api/snapshots-authoring.md:33"
+          ]
+        },
+        {
+          id: "platform--snapshots-refresh",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/snapshots-appengine/v2/snapshots/{snapshotId}/refresh",
+          path: "/snapshots-appengine/v2/snapshots/{snapshotId}/refresh",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "platform",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "snapshotId"
+            }
+          ],
+          query: [
+            {
+              name: "companyId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "platform/20-api/snapshots-authoring.md:91"
+          ]
+        },
+        {
+          id: "platform--snapshots-assets-status",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/snapshots/{snapshotId}/assets-status",
+          path: "/snapshots/{snapshotId}/assets-status",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          note: "Load-wizard step 2 counter. Captured from the agency page's own session 2026-08-31; not yet proven through the plugin's credential.",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "platform",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "snapshotId"
+            }
+          ],
+          query: [
+            {
+              name: "companyId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "platform/20-api/snapshots-authoring.md:115"
+          ]
+        },
+        {
+          id: "platform--snapshots-assets-status-patch",
+          method: "PATCH",
+          url: "https://backend.leadconnectorhq.com/snapshots/{snapshotId}/assets-status",
+          path: "/snapshots/{snapshotId}/assets-status",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "platform",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "snapshotId"
+            }
+          ],
+          query: [
+            {
+              name: "companyId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "platform/20-api/snapshots-authoring.md:117"
+          ]
+        },
+        {
+          id: "platform--snapshots-assets-status-post",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/snapshots/{snapshotId}/assets-status",
+          path: "/snapshots/{snapshotId}/assets-status",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "platform",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "snapshotId"
+            }
+          ],
+          query: [
+            {
+              name: "companyId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "platform/20-api/snapshots-authoring.md:116"
+          ]
+        },
+        {
+          id: "platform--snapshots-conflicts",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/snapshots/{snapshotId}/conflicts",
+          path: "/snapshots/{snapshotId}/conflicts",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "platform",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "snapshotId"
+            }
+          ],
+          query: [
+            {
+              name: "companyId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "platform/20-api/snapshots-authoring.md:140"
+          ]
+        },
+        {
+          id: "platform--snapshots-snapshot-preferences",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/snapshots/{snapshotId}/snapshot-preferences",
+          path: "/snapshots/{snapshotId}/snapshot-preferences",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "platform",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "snapshotId"
+            }
+          ],
+          query: [
+            {
+              name: "companyId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "platform/20-api/snapshots-authoring.md:129"
+          ]
+        },
+        {
+          id: "platform--snapshots-snapshot-preferences-post",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/snapshots/{snapshotId}/snapshot-preferences",
+          path: "/snapshots/{snapshotId}/snapshot-preferences",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "platform",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "snapshotId"
+            }
+          ],
+          query: [
+            {
+              name: "companyId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "platform/20-api/snapshots-authoring.md:130"
+          ]
+        },
+        {
+          id: "platform--snapshots-update",
+          method: "PATCH",
+          url: "https://backend.leadconnectorhq.com/snapshots/{snapshotId}/update",
+          path: "/snapshots/{snapshotId}/update",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "platform",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "snapshotId"
+            }
+          ],
+          query: [
+            {
+              name: "companyId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "platform/20-api/snapshots-authoring.md:106"
+          ]
+        },
+        {
+          id: "platform--assets-asset-names",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/snapshots/assets/asset-names",
+          path: "/snapshots/assets/asset-names",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "platform",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "companyId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "platform/20-api/snapshots-authoring.md:72"
+          ]
+        },
+        {
+          id: "platform--snapshots-create",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/snapshots/create",
+          path: "/snapshots/create",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "platform",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "companyId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "platform/20-api/snapshots-authoring.md:34"
+          ]
+        },
+        {
+          id: "platform--location-assets-assets-list",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/snapshots/location-assets/{snapshotId}/assets-list",
+          path: "/snapshots/location-assets/{snapshotId}/assets-list",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "platform",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "snapshotId"
+            }
+          ],
+          query: [
+            {
+              name: "companyId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "platform/20-api/snapshots-authoring.md:176"
+          ]
+        },
+        {
+          id: "platform--snapshots-pre-fetch-assets",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/snapshots/preFetchAssets/{locationId}",
+          path: "/snapshots/preFetchAssets/{locationId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "platform",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "platform/20-api/snapshots-authoring.md:178"
+          ]
+        },
+        {
+          id: "platform--snapshots-snapshot-ipp-assets",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/snapshots/snapshot-ipp-assets/{locationId}",
+          path: "/snapshots/snapshot-ipp-assets/{locationId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "platform",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [
+            {
+              name: "companyId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "platform/20-api/snapshots-authoring.md:73"
+          ]
+        },
+        {
+          id: "platform--snapshot-versions-summary",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/snapshots/snapshot-versions/{snapshotId}/{versionId}/summary",
+          path: "/snapshots/snapshot-versions/{snapshotId}/{versionId}/summary",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "platform",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "snapshotId"
+            },
+            {
+              name: "versionId"
+            }
+          ],
+          query: [
+            {
+              name: "companyId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "platform/20-api/snapshots-authoring.md:177"
+          ]
+        },
+        {
+          id: "platform--v2-pre-fetch-assets",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/snapshots/v2/preFetchAssets/{locationId}",
+          path: "/snapshots/v2/preFetchAssets/{locationId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "platform",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [
+            {
+              name: "companyId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "assetType",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "platform/20-api/snapshots-authoring.md:74"
+          ]
+        },
+        {
           id: "template-service--get-email-snippets-paginated",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/snippets/{locationId}",
@@ -16479,7 +17883,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          note: "Live-proven 2026-09-06: {surveys:[], total}; same params as GET /forms. POST /surveys/ {locationId, name, source} creates a survey PRE-SEEDED with one slide (a form starts at formData {}). /surveys/* does NOT mirror /forms/* path for path (corrected 2026-09-07 from a full call-site extraction of the builder SPA): the survey app uses /surveys/\u2026 only for list, create, read, save, image, restore-version, themes and theme-style, and calls the /forms/\u2026 routes for delete, duplicate, share, folder create/read/list/rename and move-to-folder. So /surveys/duplicate/{id}, /surveys/folder and /surveys/move-to-folder are paths nothing in the product calls \u2014 untested, existence unknown. Corpus: knowledge/corpus/forms/20-api/surveys-and-quizzes.md.",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -16540,7 +17945,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          note: "Live-proven 2026-09-06: {survey:{\u2026, formData:{form, slides[]}}}. Survey save is POST /surveys/{id} {name, formData} (source-derived from the builder SPA; not executed).",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -16570,6 +17976,103 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "services/marketplaceServices/SurveysService.ts:20",
             "workflows/70-research/ENDPOINTS.md:150"
+          ]
+        },
+        {
+          id: "forms--surveys-duplicate",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/surveys/duplicate/{id}",
+          path: "/surveys/duplicate/{id}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "forms",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "forms/20-api/surveys-and-quizzes.md:31"
+          ]
+        },
+        {
+          id: "forms--surveys-folder",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/surveys/folder",
+          path: "/surveys/folder",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "forms",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "forms/20-api/surveys-and-quizzes.md:31"
+          ]
+        },
+        {
+          id: "forms--surveys-move-to-folder",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/surveys/move-to-folder",
+          path: "/surveys/move-to-folder",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "forms",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "forms/20-api/surveys-and-quizzes.md:31"
           ]
         },
         {
@@ -16917,6 +18420,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
+          operation: null,
           service: "ai-studio",
           tree: "documented",
           pathParams: [],
@@ -16943,8 +18447,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-studio/_data/endpoints.json",
-            "ai-studio/20-api/projects.md"
+            "ai-studio/_data/endpoints.json"
           ]
         },
         {
@@ -16963,6 +18466,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
+          operation: null,
           service: "ai-studio",
           tree: "documented",
           pathParams: [],
@@ -16989,8 +18493,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-studio/_data/endpoints.json",
-            "ai-studio/20-api/projects.md"
+            "ai-studio/_data/endpoints.json"
           ]
         },
         {
@@ -17007,10 +18510,24 @@ var init_define_ENDPOINT_CATALOG = __esm({
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
+          operation: null,
           service: "ai-studio",
           tree: "documented",
           pathParams: [],
-          query: [],
+          query: [
+            {
+              name: "alt_id",
+              type: "string",
+              required: true,
+              source: "documented"
+            },
+            {
+              name: "alt_type",
+              type: "string",
+              required: true,
+              source: "documented"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
@@ -17020,8 +18537,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-studio/_data/endpoints.json",
-            "ai-studio/20-api/projects.md"
+            "ai-studio/_data/endpoints.json"
           ]
         },
         {
@@ -17038,6 +18554,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
+          operation: null,
           service: "ai-studio",
           tree: "documented",
           pathParams: [
@@ -17068,8 +18585,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-studio/_data/endpoints.json",
-            "ai-studio/20-api/projects.md"
+            "ai-studio/_data/endpoints.json"
           ]
         },
         {
@@ -17086,6 +18602,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
+          operation: null,
           service: "ai-studio",
           tree: "documented",
           pathParams: [
@@ -17093,7 +18610,20 @@ var init_define_ENDPOINT_CATALOG = __esm({
               name: "folderId"
             }
           ],
-          query: [],
+          query: [
+            {
+              name: "alt_id",
+              type: "string",
+              required: true,
+              source: "documented"
+            },
+            {
+              name: "alt_type",
+              type: "string",
+              required: true,
+              source: "documented"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
@@ -17103,8 +18633,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-studio/_data/endpoints.json",
-            "ai-studio/20-api/projects.md"
+            "ai-studio/_data/endpoints.json"
           ]
         },
         {
@@ -17124,6 +18653,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
+          operation: null,
           service: "ai-studio",
           tree: "documented",
           pathParams: [],
@@ -17151,7 +18681,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "ai-studio/_data/endpoints.json",
-            "ai-studio/20-api/projects.md"
+            "ai-studio/40-rules/constraints.md:46"
           ]
         },
         {
@@ -17170,10 +18700,24 @@ var init_define_ENDPOINT_CATALOG = __esm({
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
+          operation: null,
           service: "ai-studio",
           tree: "documented",
           pathParams: [],
-          query: [],
+          query: [
+            {
+              name: "alt_id",
+              type: "string",
+              required: true,
+              source: "documented"
+            },
+            {
+              name: "alt_type",
+              type: "string",
+              required: true,
+              source: "documented"
+            }
+          ],
           body: "{name, description, alt_id, alt_type}",
           returns: null,
           confidence: {
@@ -17184,7 +18728,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "ai-studio/_data/endpoints.json",
-            "ai-studio/20-api/projects.md"
+            "ai-studio/10-anatomy/project.md:68",
+            "ai-studio/40-rules/constraints.md:16",
+            "ai-studio/70-research/2026-09-04-ai-studio-surface-map.md:74"
           ]
         },
         {
@@ -17201,6 +18747,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
+          operation: null,
           service: "ai-studio",
           tree: "documented",
           pathParams: [
@@ -17231,12 +18778,11 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-studio/_data/endpoints.json",
-            "ai-studio/20-api/projects.md"
+            "ai-studio/_data/endpoints.json"
           ]
         },
         {
-          id: "ai-studio--get-projects--documented",
+          id: "ai-studio--get-projects-get",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/vibe-ai/projects/{projectId}",
           path: "/vibe-ai/projects/{projectId}",
@@ -17262,6 +18808,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
+          operation: null,
           service: "ai-studio",
           tree: "documented",
           pathParams: [
@@ -17293,7 +18840,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "ai-studio/_data/endpoints.json",
-            "ai-studio/20-api/projects.md"
+            "ai-studio/40-rules/constraints.md:61",
+            "ai-studio/40-rules/constraints.md:120"
           ]
         },
         {
@@ -17313,6 +18861,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
+          operation: null,
           service: "ai-studio",
           tree: "documented",
           pathParams: [
@@ -17320,7 +18869,20 @@ var init_define_ENDPOINT_CATALOG = __esm({
               name: "projectId"
             }
           ],
-          query: [],
+          query: [
+            {
+              name: "alt_id",
+              type: "string",
+              required: true,
+              source: "documented"
+            },
+            {
+              name: "alt_type",
+              type: "string",
+              required: true,
+              source: "documented"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
@@ -17331,7 +18893,11 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "ai-studio/_data/endpoints.json",
-            "ai-studio/20-api/projects.md"
+            "ai-studio/00-overview/index.md:68",
+            "ai-studio/10-anatomy/project.md:72",
+            "ai-studio/10-anatomy/the-chat-and-version-model.md:20",
+            "ai-studio/20-api/chat-generation.md:13",
+            "ai-studio/60-recipes/run-one-generation.md:31"
           ]
         },
         {
@@ -17350,6 +18916,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
+          operation: null,
           service: "ai-studio",
           tree: "documented",
           pathParams: [
@@ -17357,7 +18924,20 @@ var init_define_ENDPOINT_CATALOG = __esm({
               name: "projectId"
             }
           ],
-          query: [],
+          query: [
+            {
+              name: "alt_id",
+              type: "string",
+              required: true,
+              source: "documented"
+            },
+            {
+              name: "alt_type",
+              type: "string",
+              required: true,
+              source: "documented"
+            }
+          ],
           body: "{message_id, alt_id, alt_type}",
           returns: null,
           confidence: {
@@ -17368,7 +18948,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "ai-studio/_data/endpoints.json",
-            "ai-studio/20-api/projects.md"
+            "ai-studio/20-api/chat-generation.md:78"
           ]
         },
         {
@@ -17385,6 +18965,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
+          operation: null,
           service: "ai-studio",
           tree: "documented",
           pathParams: [
@@ -17392,7 +18973,20 @@ var init_define_ENDPOINT_CATALOG = __esm({
               name: "projectId"
             }
           ],
-          query: [],
+          query: [
+            {
+              name: "alt_id",
+              type: "string",
+              required: true,
+              source: "documented"
+            },
+            {
+              name: "alt_type",
+              type: "string",
+              required: true,
+              source: "documented"
+            }
+          ],
           body: "{domain, action: add|remove|set_primary|clear_primary, alt_id, alt_type}",
           returns: null,
           confidence: {
@@ -17403,7 +18997,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "ai-studio/_data/endpoints.json",
-            "ai-studio/20-api/projects.md"
+            "ai-studio/20-api/publishing-and-domains.md:62"
           ]
         },
         {
@@ -17420,6 +19014,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
+          operation: null,
           service: "ai-studio",
           tree: "documented",
           pathParams: [
@@ -17427,7 +19022,20 @@ var init_define_ENDPOINT_CATALOG = __esm({
               name: "projectId"
             }
           ],
-          query: [],
+          query: [
+            {
+              name: "alt_id",
+              type: "string",
+              required: true,
+              source: "documented"
+            },
+            {
+              name: "alt_type",
+              type: "string",
+              required: true,
+              source: "documented"
+            }
+          ],
           body: "{changes[], commit_message}",
           returns: null,
           confidence: {
@@ -17437,8 +19045,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-studio/_data/endpoints.json",
-            "ai-studio/20-api/projects.md"
+            "ai-studio/_data/endpoints.json"
           ]
         },
         {
@@ -17455,6 +19062,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
+          operation: null,
           service: "ai-studio",
           tree: "documented",
           pathParams: [
@@ -17462,7 +19070,20 @@ var init_define_ENDPOINT_CATALOG = __esm({
               name: "projectId"
             }
           ],
-          query: [],
+          query: [
+            {
+              name: "alt_id",
+              type: "string",
+              required: true,
+              source: "documented"
+            },
+            {
+              name: "alt_type",
+              type: "string",
+              required: true,
+              source: "documented"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
@@ -17472,8 +19093,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-studio/_data/endpoints.json",
-            "ai-studio/20-api/projects.md"
+            "ai-studio/_data/endpoints.json"
           ]
         },
         {
@@ -17492,6 +19112,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
+          operation: null,
           service: "ai-studio",
           tree: "documented",
           pathParams: [
@@ -17523,7 +19144,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "ai-studio/_data/endpoints.json",
-            "ai-studio/20-api/projects.md"
+            "ai-studio/40-rules/constraints.md:61",
+            "ai-studio/60-recipes/run-one-generation.md:55"
           ]
         },
         {
@@ -17540,6 +19162,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
+          operation: null,
           service: "ai-studio",
           tree: "documented",
           pathParams: [
@@ -17547,7 +19170,20 @@ var init_define_ENDPOINT_CATALOG = __esm({
               name: "projectId"
             }
           ],
-          query: [],
+          query: [
+            {
+              name: "alt_id",
+              type: "string",
+              required: true,
+              source: "documented"
+            },
+            {
+              name: "alt_type",
+              type: "string",
+              required: true,
+              source: "documented"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
@@ -17558,7 +19194,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "ai-studio/_data/endpoints.json",
-            "ai-studio/20-api/projects.md"
+            "ai-studio/20-api/folders.md:23"
           ]
         },
         {
@@ -17575,6 +19211,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
+          operation: null,
           service: "ai-studio",
           tree: "documented",
           pathParams: [
@@ -17582,7 +19219,20 @@ var init_define_ENDPOINT_CATALOG = __esm({
               name: "projectId"
             }
           ],
-          query: [],
+          query: [
+            {
+              name: "alt_id",
+              type: "string",
+              required: true,
+              source: "documented"
+            },
+            {
+              name: "alt_type",
+              type: "string",
+              required: true,
+              source: "documented"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
@@ -17592,8 +19242,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-studio/_data/endpoints.json",
-            "ai-studio/20-api/projects.md"
+            "ai-studio/_data/endpoints.json"
           ]
         },
         {
@@ -17610,6 +19259,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
+          operation: null,
           service: "ai-studio",
           tree: "documented",
           pathParams: [
@@ -17644,7 +19294,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "ai-studio/_data/endpoints.json",
-            "ai-studio/20-api/projects.md"
+            "ai-studio/40-rules/constraints.md:137"
           ]
         },
         {
@@ -17661,6 +19311,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           transport: "multipart",
           responseMode: "json",
           extraHeaders: [],
+          operation: null,
           service: "ai-studio",
           tree: "documented",
           pathParams: [
@@ -17668,7 +19319,20 @@ var init_define_ENDPOINT_CATALOG = __esm({
               name: "projectId"
             }
           ],
-          query: [],
+          query: [
+            {
+              name: "alt_id",
+              type: "string",
+              required: true,
+              source: "documented"
+            },
+            {
+              name: "alt_type",
+              type: "string",
+              required: true,
+              source: "documented"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
@@ -17678,8 +19342,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-studio/_data/endpoints.json",
-            "ai-studio/20-api/projects.md"
+            "ai-studio/_data/endpoints.json"
           ]
         },
         {
@@ -17696,6 +19359,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
+          operation: null,
           service: "ai-studio",
           tree: "documented",
           pathParams: [
@@ -17703,7 +19367,20 @@ var init_define_ENDPOINT_CATALOG = __esm({
               name: "projectId"
             }
           ],
-          query: [],
+          query: [
+            {
+              name: "alt_id",
+              type: "string",
+              required: true,
+              source: "documented"
+            },
+            {
+              name: "alt_type",
+              type: "string",
+              required: true,
+              source: "documented"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
@@ -17714,7 +19391,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "ai-studio/_data/endpoints.json",
-            "ai-studio/20-api/projects.md"
+            "ai-studio/40-rules/constraints.md:31"
           ]
         },
         {
@@ -17733,6 +19410,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
+          operation: null,
           service: "ai-studio",
           tree: "documented",
           pathParams: [
@@ -17740,7 +19418,20 @@ var init_define_ENDPOINT_CATALOG = __esm({
               name: "projectId"
             }
           ],
-          query: [],
+          query: [
+            {
+              name: "alt_id",
+              type: "string",
+              required: true,
+              source: "documented"
+            },
+            {
+              name: "alt_type",
+              type: "string",
+              required: true,
+              source: "documented"
+            }
+          ],
           body: "{version_id}",
           returns: null,
           confidence: {
@@ -17750,8 +19441,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-studio/_data/endpoints.json",
-            "ai-studio/20-api/projects.md"
+            "ai-studio/_data/endpoints.json"
           ]
         },
         {
@@ -17768,41 +19458,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
-          service: "ai-studio",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "projectId"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "documented",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "ai-studio/_data/endpoints.json",
-            "ai-studio/20-api/projects.md"
-          ]
-        },
-        {
-          id: "ai-studio--get-projects-remix-status",
-          method: "GET",
-          url: "https://backend.leadconnectorhq.com/vibe-ai/projects/{projectId}/remix-status",
-          path: "/vibe-ai/projects/{projectId}/remix-status",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "read",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
+          operation: null,
           service: "ai-studio",
           tree: "documented",
           pathParams: [
@@ -17834,7 +19490,55 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "ai-studio/_data/endpoints.json",
-            "ai-studio/20-api/projects.md"
+            "ai-studio/10-anatomy/project.md:84"
+          ]
+        },
+        {
+          id: "ai-studio--get-projects-remix-status",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/vibe-ai/projects/{projectId}/remix-status",
+          path: "/vibe-ai/projects/{projectId}/remix-status",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-studio",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "projectId"
+            }
+          ],
+          query: [
+            {
+              name: "alt_id",
+              type: "string",
+              required: true,
+              source: "documented"
+            },
+            {
+              name: "alt_type",
+              type: "string",
+              required: true,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-studio/_data/endpoints.json"
           ]
         },
         {
@@ -17853,6 +19557,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
+          operation: null,
           service: "ai-studio",
           tree: "documented",
           pathParams: [
@@ -17883,8 +19588,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-studio/_data/endpoints.json",
-            "ai-studio/20-api/projects.md"
+            "ai-studio/_data/endpoints.json"
           ]
         },
         {
@@ -17903,6 +19607,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
+          operation: null,
           service: "ai-studio",
           tree: "documented",
           pathParams: [
@@ -17934,7 +19639,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "ai-studio/_data/endpoints.json",
-            "ai-studio/20-api/projects.md"
+            "ai-studio/50-runtime/index.md:30"
           ]
         },
         {
@@ -17953,6 +19658,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
+          operation: null,
           service: "ai-studio",
           tree: "documented",
           pathParams: [
@@ -17960,7 +19666,20 @@ var init_define_ENDPOINT_CATALOG = __esm({
               name: "projectId"
             }
           ],
-          query: [],
+          query: [
+            {
+              name: "alt_id",
+              type: "string",
+              required: true,
+              source: "documented"
+            },
+            {
+              name: "alt_type",
+              type: "string",
+              required: true,
+              source: "documented"
+            }
+          ],
           body: null,
           returns: "202 {status: provisioning}",
           confidence: {
@@ -17970,8 +19689,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "documented"
           },
           sources: [
-            "ai-studio/_data/endpoints.json",
-            "ai-studio/20-api/projects.md"
+            "ai-studio/_data/endpoints.json"
           ]
         },
         {
@@ -17988,6 +19706,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
+          operation: null,
           service: "ai-studio",
           tree: "documented",
           pathParams: [
@@ -17995,7 +19714,20 @@ var init_define_ENDPOINT_CATALOG = __esm({
               name: "projectId"
             }
           ],
-          query: [],
+          query: [
+            {
+              name: "alt_id",
+              type: "string",
+              required: true,
+              source: "documented"
+            },
+            {
+              name: "alt_type",
+              type: "string",
+              required: true,
+              source: "documented"
+            }
+          ],
           body: null,
           returns: "{alive}",
           confidence: {
@@ -18005,8 +19737,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "documented"
           },
           sources: [
-            "ai-studio/_data/endpoints.json",
-            "ai-studio/20-api/projects.md"
+            "ai-studio/_data/endpoints.json"
           ]
         },
         {
@@ -18025,6 +19756,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
+          operation: null,
           service: "ai-studio",
           tree: "documented",
           pathParams: [
@@ -18055,8 +19787,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-studio/_data/endpoints.json",
-            "ai-studio/20-api/projects.md"
+            "ai-studio/_data/endpoints.json"
           ]
         },
         {
@@ -18075,6 +19806,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
+          operation: null,
           service: "ai-studio",
           tree: "documented",
           pathParams: [
@@ -18082,7 +19814,20 @@ var init_define_ENDPOINT_CATALOG = __esm({
               name: "projectId"
             }
           ],
-          query: [],
+          query: [
+            {
+              name: "alt_id",
+              type: "string",
+              required: true,
+              source: "documented"
+            },
+            {
+              name: "alt_type",
+              type: "string",
+              required: true,
+              source: "documented"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
@@ -18092,8 +19837,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-studio/_data/endpoints.json",
-            "ai-studio/20-api/projects.md"
+            "ai-studio/_data/endpoints.json"
           ]
         },
         {
@@ -18110,6 +19854,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
+          operation: null,
           service: "ai-studio",
           tree: "documented",
           pathParams: [
@@ -18144,7 +19889,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "ai-studio/_data/endpoints.json",
-            "ai-studio/20-api/projects.md"
+            "ai-studio/40-rules/constraints.md:79"
           ]
         },
         {
@@ -18161,6 +19906,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
+          operation: null,
           service: "ai-studio",
           tree: "documented",
           pathParams: [
@@ -18191,8 +19937,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "documented"
           },
           sources: [
-            "ai-studio/_data/endpoints.json",
-            "ai-studio/20-api/projects.md"
+            "ai-studio/_data/endpoints.json"
           ]
         },
         {
@@ -18209,6 +19954,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
+          operation: null,
           service: "ai-studio",
           tree: "documented",
           pathParams: [
@@ -18216,7 +19962,20 @@ var init_define_ENDPOINT_CATALOG = __esm({
               name: "projectId"
             }
           ],
-          query: [],
+          query: [
+            {
+              name: "alt_id",
+              type: "string",
+              required: true,
+              source: "documented"
+            },
+            {
+              name: "alt_type",
+              type: "string",
+              required: true,
+              source: "documented"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
@@ -18226,8 +19985,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-studio/_data/endpoints.json",
-            "ai-studio/20-api/projects.md"
+            "ai-studio/_data/endpoints.json"
           ]
         },
         {
@@ -18244,6 +20002,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
+          operation: null,
           service: "ai-studio",
           tree: "documented",
           pathParams: [
@@ -18251,7 +20010,20 @@ var init_define_ENDPOINT_CATALOG = __esm({
               name: "projectId"
             }
           ],
-          query: [],
+          query: [
+            {
+              name: "alt_id",
+              type: "string",
+              required: true,
+              source: "documented"
+            },
+            {
+              name: "alt_type",
+              type: "string",
+              required: true,
+              source: "documented"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
@@ -18261,8 +20033,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-studio/_data/endpoints.json",
-            "ai-studio/20-api/projects.md"
+            "ai-studio/_data/endpoints.json"
           ]
         },
         {
@@ -18279,6 +20050,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
+          operation: null,
           service: "ai-studio",
           tree: "documented",
           pathParams: [
@@ -18286,7 +20058,20 @@ var init_define_ENDPOINT_CATALOG = __esm({
               name: "projectId"
             }
           ],
-          query: [],
+          query: [
+            {
+              name: "alt_id",
+              type: "string",
+              required: true,
+              source: "documented"
+            },
+            {
+              name: "alt_type",
+              type: "string",
+              required: true,
+              source: "documented"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
@@ -18296,8 +20081,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-studio/_data/endpoints.json",
-            "ai-studio/20-api/projects.md"
+            "ai-studio/_data/endpoints.json"
           ]
         },
         {
@@ -18316,6 +20100,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
+          operation: null,
           service: "ai-studio",
           tree: "documented",
           pathParams: [
@@ -18323,7 +20108,20 @@ var init_define_ENDPOINT_CATALOG = __esm({
               name: "projectId"
             }
           ],
-          query: [],
+          query: [
+            {
+              name: "alt_id",
+              type: "string",
+              required: true,
+              source: "documented"
+            },
+            {
+              name: "alt_type",
+              type: "string",
+              required: true,
+              source: "documented"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
@@ -18333,8 +20131,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-studio/_data/endpoints.json",
-            "ai-studio/20-api/projects.md"
+            "ai-studio/_data/endpoints.json"
           ]
         },
         {
@@ -18353,6 +20150,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
+          operation: null,
           service: "ai-studio",
           tree: "documented",
           pathParams: [
@@ -18384,7 +20182,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "ai-studio/_data/endpoints.json",
-            "ai-studio/20-api/projects.md"
+            "ai-studio/20-api/chat-generation.md:152",
+            "ai-studio/60-recipes/run-one-generation.md:20"
           ]
         },
         {
@@ -18401,6 +20200,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
+          operation: null,
           service: "ai-studio",
           tree: "documented",
           pathParams: [
@@ -18434,8 +20234,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-studio/_data/endpoints.json",
-            "ai-studio/20-api/projects.md"
+            "ai-studio/_data/endpoints.json"
           ]
         },
         {
@@ -18452,6 +20251,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
+          operation: null,
           service: "ai-studio",
           tree: "documented",
           pathParams: [
@@ -18462,7 +20262,20 @@ var init_define_ENDPOINT_CATALOG = __esm({
               name: "versionId"
             }
           ],
-          query: [],
+          query: [
+            {
+              name: "alt_id",
+              type: "string",
+              required: true,
+              source: "documented"
+            },
+            {
+              name: "alt_type",
+              type: "string",
+              required: true,
+              source: "documented"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
@@ -18472,8 +20285,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-studio/_data/endpoints.json",
-            "ai-studio/20-api/projects.md"
+            "ai-studio/_data/endpoints.json"
           ]
         },
         {
@@ -18490,6 +20302,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
+          operation: null,
           service: "ai-studio",
           tree: "documented",
           pathParams: [
@@ -18500,7 +20313,20 @@ var init_define_ENDPOINT_CATALOG = __esm({
               name: "versionId"
             }
           ],
-          query: [],
+          query: [
+            {
+              name: "alt_id",
+              type: "string",
+              required: true,
+              source: "documented"
+            },
+            {
+              name: "alt_type",
+              type: "string",
+              required: true,
+              source: "documented"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
@@ -18510,8 +20336,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-studio/_data/endpoints.json",
-            "ai-studio/20-api/projects.md"
+            "ai-studio/_data/endpoints.json"
           ]
         },
         {
@@ -18528,6 +20353,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
+          operation: null,
           service: "ai-studio",
           tree: "documented",
           pathParams: [
@@ -18535,7 +20361,20 @@ var init_define_ENDPOINT_CATALOG = __esm({
               name: "projectId"
             }
           ],
-          query: [],
+          query: [
+            {
+              name: "alt_id",
+              type: "string",
+              required: true,
+              source: "documented"
+            },
+            {
+              name: "alt_type",
+              type: "string",
+              required: true,
+              source: "documented"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
@@ -18545,8 +20384,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-studio/_data/endpoints.json",
-            "ai-studio/20-api/projects.md"
+            "ai-studio/_data/endpoints.json"
           ]
         },
         {
@@ -18584,6 +20422,41 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "capability-manifest.json (create_voiceai_agent)"
+          ]
+        },
+        {
+          id: "forms--widget-form",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/widget/form/{id}",
+          path: "/widget/form/{id}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "forms",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "forms/30-types/standard-elements.md:91"
           ]
         },
         {
@@ -19074,7 +20947,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/BaseService.ts:30"
+            "services/BaseService.ts:30",
+            "workflows/20-api/03-endpoints.md:181"
           ]
         },
         {
@@ -19248,11 +21122,11 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "workflows/20-api/03-endpoints.md:369"
+            "workflows/20-api/03-endpoints.md:370"
           ]
         },
         {
-          id: "workflows--workflow-get",
+          id: "workflows--workflow-get-get",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/workflow/{locationId}/{wid}",
           path: "/workflow/{locationId}/{wid}",
@@ -19304,7 +21178,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "workflows/00-overview/10-caveats.md:138",
             "workflows/10-anatomy/04-workflow-anatomy.md:40",
             "workflows/10-anatomy/07-id-resolution.md:204",
-            "workflows/30-types/steps/if_else.md:34"
+            "workflows/30-types/steps/if_else.md:34",
+            "workflows/40-rules/09-gotchas.md:386"
           ]
         },
         {
@@ -19350,7 +21225,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "workflows/00-overview/10-caveats.md:141",
             "workflows/10-anatomy/04-workflow-anatomy.md:25",
             "workflows/10-anatomy/04-workflow-anatomy.md:416",
-            "workflows/10-anatomy/04-workflow-anatomy.md:566"
+            "workflows/10-anatomy/04-workflow-anatomy.md:566",
+            "workflows/10-anatomy/06-fields-glossary.md:133",
+            "workflows/40-rules/09-gotchas.md:49"
           ]
         },
         {
@@ -19393,7 +21270,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "workflows/00-overview/10-caveats.md:140",
             "workflows/10-anatomy/04-workflow-anatomy.md:25",
             "workflows/10-anatomy/04-workflow-anatomy.md:415",
-            "workflows/10-anatomy/04-workflow-anatomy.md:484"
+            "workflows/10-anatomy/04-workflow-anatomy.md:484",
+            "workflows/30-types/steps/if_else.md:33"
           ]
         },
         {
@@ -20875,7 +22753,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/AutoSaveSettingsService.ts:27",
-            "workflows/20-api/03-endpoints.md:295",
+            "workflows/20-api/03-endpoints.md:296",
             "workflows/20-api/version-history.md:75",
             "workflows/70-research/ENDPOINT-SWEEP-2026-08-25.md:68"
           ]
@@ -21299,7 +23177,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/api/workflow-overview.service.ts:260",
-            "workflows/20-api/03-endpoints.md:296",
+            "workflows/20-api/03-endpoints.md:297",
             "workflows/70-research/ENDPOINT-SWEEP-2026-08-25.md:71"
           ]
         },
@@ -21502,9 +23380,10 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "services/ErrorNotificationService.ts:33",
             "_shared/unexplored-surfaces.md:96",
-            "workflows/20-api/03-endpoints.md:297",
+            "workflows/20-api/03-endpoints.md:298",
             "workflows/50-runtime/error-notifications.md:34",
-            "workflows/50-runtime/error-notifications.md:47"
+            "workflows/50-runtime/error-notifications.md:47",
+            "workflows/50-runtime/error-notifications.md:49"
           ]
         },
         {
@@ -21706,7 +23585,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "workflows/20-api/03-endpoints.md:370"
+            "workflows/20-api/03-endpoints.md:371"
           ]
         },
         {
@@ -23071,7 +24950,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "_shared/schema-harvest.md:72",
             "workflows/00-overview/10-caveats.md:142",
             "workflows/10-anatomy/04-workflow-anatomy.md:452",
-            "workflows/10-anatomy/workflow-json-schema.md:26"
+            "workflows/10-anatomy/workflow-json-schema.md:26",
+            "workflows/10-anatomy/workflow-json-schema.md:281"
           ]
         },
         {
@@ -23117,7 +24997,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "workflows/10-anatomy/04-workflow-anatomy.md:429",
             "workflows/10-anatomy/04-workflow-anatomy.md:566",
             "workflows/10-anatomy/05-build-flow.md:24",
-            "workflows/20-api/trigger-create.md:11"
+            "workflows/20-api/trigger-create.md:11",
+            "workflows/30-types/triggers/affiliate_created.md:63"
           ]
         },
         {
@@ -23870,7 +25751,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/WorkflowAISettingsService.ts:19",
-            "workflows/20-api/03-endpoints.md:294",
+            "workflows/20-api/03-endpoints.md:295",
             "workflows/70-research/ENDPOINT-SWEEP-2026-08-25.md:67"
           ]
         },
@@ -23978,7 +25859,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "services/api/workflow-settings.ts:13",
             "services/api/workflow-settings.ts:57",
-            "workflows/20-api/03-endpoints.md:293",
+            "workflows/20-api/03-endpoints.md:294",
             "workflows/70-research/ENDPOINT-SWEEP-2026-08-25.md:66"
           ]
         },
@@ -25939,7 +27820,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
-          id: "brand-kit--get-brand-boards-list",
+          id: "brand-kit--get-brand-boards",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/workflow/generate-image-ai/{locationId}/brand-boards",
           path: "/workflow/generate-image-ai/{locationId}/brand-boards",
@@ -25952,6 +27833,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
+          operation: null,
           service: "brand-kit",
           tree: "documented",
           pathParams: [
@@ -25961,14 +27843,15 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           query: [],
           body: null,
-          returns: null,
+          returns: "{brandBoards, totalCount}",
           confidence: {
             path: "documented",
-            query: "unresolved",
+            query: "documented",
             body: "unresolved",
-            returns: "unresolved"
+            returns: "documented"
           },
           sources: [
+            "ai-studio/_data/endpoints.json",
             "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md"
           ]
         },
@@ -26041,7 +27924,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
-          id: "brand-kit--get-brand-voices-list",
+          id: "brand-kit--get-brand-voices",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/workflow/generate-image-ai/{locationId}/brand-voices",
           path: "/workflow/generate-image-ai/{locationId}/brand-voices",
@@ -26054,6 +27937,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
+          operation: null,
           service: "brand-kit",
           tree: "documented",
           pathParams: [
@@ -26063,14 +27947,15 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           query: [],
           body: null,
-          returns: null,
+          returns: "{brandVoices, totalCount, traceId}",
           confidence: {
             path: "documented",
-            query: "unresolved",
+            query: "documented",
             body: "unresolved",
-            returns: "unresolved"
+            returns: "documented"
           },
           sources: [
+            "ai-studio/_data/endpoints.json",
             "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md"
           ]
         },
@@ -26151,6 +28036,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
+          operation: null,
           service: "brand-kit",
           tree: "documented",
           pathParams: [
@@ -26159,15 +28045,16 @@ var init_define_ENDPOINT_CATALOG = __esm({
             }
           ],
           query: [],
-          body: null,
+          body: "{prompt}",
           returns: null,
           confidence: {
             path: "documented",
-            query: "unresolved",
-            body: "unresolved",
+            query: "documented",
+            body: "documented",
             returns: "unresolved"
           },
           sources: [
+            "ai-studio/_data/endpoints.json",
             "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md"
           ]
         },
@@ -26333,7 +28220,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "services/CustomWebhookService.ts:99",
             "workflows/10-anatomy/07-id-resolution.md:207",
-            "workflows/20-api/03-endpoints.md:298"
+            "workflows/20-api/03-endpoints.md:299"
           ]
         },
         {
@@ -27231,7 +29118,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:651",
             "services/McpConnectionService.ts:154",
             "services/marketplaceServices/WorkflowMarketplaceService.ts:392",
-            "workflows/20-api/03-endpoints.md:343",
+            "workflows/20-api/03-endpoints.md:344",
             "workflows/70-research/ENDPOINTS.md:242"
           ]
         },
@@ -28364,7 +30251,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "workflows/50-runtime/11-runtime-logs.md:37",
             "workflows/50-runtime/11-runtime-logs.md:113",
             "workflows/50-runtime/11-runtime-logs.md:241",
-            "workflows/50-runtime/forcing-and-removing-contacts.md:50"
+            "workflows/50-runtime/forcing-and-removing-contacts.md:50",
+            "workflows/50-runtime/observed-query-shapes.md:19"
           ]
         },
         {
@@ -28520,6 +30408,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           note: "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source. Wants BOTH locationId and workflowId. Discovered iteratively: the endpoint names ONE missing key at a time, so a single probe round under-reports what it needs.",
           reach: "source-only",
           coveredBy: [
+            "edit_workflow",
             "fast_forward_contacts",
             "get_workflow_logs",
             "get_workflow_runtime_window",
@@ -28557,10 +30446,11 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/marketplaceServices/WorkflowMarketplaceService.ts:181",
-            "workflows/20-api/03-endpoints.md:353",
+            "workflows/20-api/03-endpoints.md:354",
             "workflows/50-runtime/11-runtime-logs.md:145",
             "workflows/50-runtime/11-runtime-logs.md:242",
-            "workflows/70-research/ENDPOINTS.md:193"
+            "workflows/70-research/ENDPOINTS.md:193",
+            "workflows/70-research/RAIL.md:101"
           ]
         },
         {
@@ -29245,7 +31135,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/marketplaceServices/WorkflowMarketplaceService.ts:212",
-            "workflows/20-api/03-endpoints.md:354",
+            "workflows/20-api/03-endpoints.md:355",
             "workflows/50-runtime/11-runtime-logs.md:189",
             "workflows/50-runtime/11-runtime-logs.md:245",
             "workflows/50-runtime/observed-query-shapes.md:60"
@@ -29312,7 +31202,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "workflows/50-runtime/11-runtime-logs.md:159",
             "workflows/50-runtime/11-runtime-logs.md:243",
             "workflows/50-runtime/observed-query-shapes.md:43",
-            "workflows/70-research/ENDPOINTS.md:195"
+            "workflows/70-research/ENDPOINTS.md:195",
+            "workflows/70-research/VERSIONS-STATS-LOGS.md:549"
           ]
         },
         {
@@ -29558,7 +31449,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/api/sticky-notes.ts:23",
-            "workflows/20-api/03-endpoints.md:352",
+            "workflows/20-api/03-endpoints.md:353",
             "workflows/70-research/SETTINGS-NOTES.md:265"
           ]
         },
@@ -30857,7 +32748,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "ai-agents/20-api/12-ai-agents-api.md:54",
             "ai-agents/20-api/12-ai-agents-api.md:207",
             "ai-agents/20-api/12-ai-agents-api.md:220",
-            "ai-agents/20-api/12-ai-agents-api.md:222"
+            "ai-agents/20-api/12-ai-agents-api.md:222",
+            "ai-agents/20-api/12-ai-agents-api.md:315",
+            "ai-agents/20-api/12-ai-agents-api.md:343"
           ]
         },
         {
@@ -30926,7 +32819,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "ai-agents/20-api/12-ai-agents-api.md:80",
             "ai-agents/20-api/12-ai-agents-api.md:84",
             "ai-agents/20-api/12-ai-agents-api.md:111",
-            "ai-agents/20-api/12-ai-agents-api.md:263"
+            "ai-agents/20-api/12-ai-agents-api.md:263",
+            "ai-agents/20-api/12-ai-agents-api.md:313",
+            "ai-agents/20-api/12-ai-agents-api.md:336"
           ]
         },
         {
@@ -31074,7 +32969,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "ai-agents/20-api/conversation-ai-boundary.md:77",
             "ai-agents/30-types/conversation-ai-actions.md:46",
             "workflows/30-types/triggers/conv_ai_autonomous_trigger.md:110",
-            "workflows/30-types/triggers/conv_ai_autonomous_trigger.md:265"
+            "workflows/30-types/triggers/conv_ai_autonomous_trigger.md:265",
+            "workflows/70-research/2026-08-26-flow-bot-probe.md:138"
           ]
         },
         {
@@ -31172,7 +33068,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "ai-agents/20-api/12-ai-agents-api.md:54",
             "ai-agents/20-api/12-ai-agents-api.md:74",
             "ai-agents/20-api/12-ai-agents-api.md:84",
-            "ai-agents/20-api/12-ai-agents-api.md:313"
+            "ai-agents/20-api/12-ai-agents-api.md:313",
+            "ai-agents/20-api/12-ai-agents-api.md:334",
+            "ask-ai/30-types/skills/crm-conversation-ai.md:23"
           ]
         },
         {
@@ -31688,6 +33586,45 @@ var init_define_ENDPOINT_CATALOG = __esm({
           service: "ai-agents",
           tree: "documented",
           pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/conversation-ai-boundary.md:82",
+            "ai-studio/60-recipes/run-one-generation.md:26"
+          ]
+        },
+        {
+          id: "ai-studio--brand-boards",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/brand-boards/",
+          path: "/brand-boards/",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-studio",
+          tree: "documented",
+          pathParams: [],
           query: [],
           body: null,
           returns: null,
@@ -31698,46 +33635,16 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/conversation-ai-boundary.md:82"
+            "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:42"
           ]
         },
         {
-          id: "brand-kit--post-boards-create",
-          method: "POST",
-          url: "https://services.leadconnectorhq.com/brand-boards/",
-          path: "/brand-boards/",
-          origin: "https://services.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "write",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          service: "brand-kit",
-          tree: "documented",
-          pathParams: [],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "unresolved",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md"
-          ]
-        },
-        {
-          id: "brand-kit--get-boards",
+          id: "ai-studio--brand-boards-get",
           method: "GET",
           url: "https://services.leadconnectorhq.com/brand-boards/{locationId}",
           path: "/brand-boards/{locationId}",
           origin: "https://services.leadconnectorhq.com",
-          rail: "workflow",
+          rail: "ai",
           kind: "read",
           reach: "source-only",
           coveredBy: [],
@@ -31745,7 +33652,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
-          service: "brand-kit",
+          operation: null,
+          service: "ai-studio",
           tree: "documented",
           pathParams: [
             {
@@ -31757,21 +33665,21 @@ var init_define_ENDPOINT_CATALOG = __esm({
           returns: null,
           confidence: {
             path: "documented",
-            query: "unresolved",
+            query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
           },
           sources: [
-            "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md"
+            "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:41"
           ]
         },
         {
-          id: "brand-kit--delete-board",
+          id: "ai-studio--brand-boards-delete",
           method: "DELETE",
           url: "https://services.leadconnectorhq.com/brand-boards/{locationId}/{brandBoardId}",
           path: "/brand-boards/{locationId}/{brandBoardId}",
           origin: "https://services.leadconnectorhq.com",
-          rail: "workflow",
+          rail: "ai",
           kind: "destructive",
           reach: "source-only",
           coveredBy: [],
@@ -31779,7 +33687,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
-          service: "brand-kit",
+          operation: null,
+          service: "ai-studio",
           tree: "documented",
           pathParams: [
             {
@@ -31794,21 +33703,21 @@ var init_define_ENDPOINT_CATALOG = __esm({
           returns: null,
           confidence: {
             path: "documented",
-            query: "unresolved",
+            query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
           },
           sources: [
-            "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md"
+            "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:45"
           ]
         },
         {
-          id: "brand-kit--get-board",
+          id: "ai-studio--brand-boards-get-get",
           method: "GET",
           url: "https://services.leadconnectorhq.com/brand-boards/{locationId}/{brandBoardId}",
           path: "/brand-boards/{locationId}/{brandBoardId}",
           origin: "https://services.leadconnectorhq.com",
-          rail: "workflow",
+          rail: "ai",
           kind: "read",
           reach: "source-only",
           coveredBy: [],
@@ -31816,7 +33725,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
-          service: "brand-kit",
+          operation: null,
+          service: "ai-studio",
           tree: "documented",
           pathParams: [
             {
@@ -31831,21 +33741,21 @@ var init_define_ENDPOINT_CATALOG = __esm({
           returns: null,
           confidence: {
             path: "documented",
-            query: "unresolved",
+            query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
           },
           sources: [
-            "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md"
+            "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:43"
           ]
         },
         {
-          id: "brand-kit--post-board-update",
+          id: "ai-studio--brand-boards-post",
           method: "POST",
           url: "https://services.leadconnectorhq.com/brand-boards/{locationId}/{brandBoardId}",
           path: "/brand-boards/{locationId}/{brandBoardId}",
           origin: "https://services.leadconnectorhq.com",
-          rail: "workflow",
+          rail: "ai",
           kind: "write",
           reach: "source-only",
           coveredBy: [],
@@ -31853,7 +33763,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
-          service: "brand-kit",
+          operation: null,
+          service: "ai-studio",
           tree: "documented",
           pathParams: [
             {
@@ -31868,21 +33779,21 @@ var init_define_ENDPOINT_CATALOG = __esm({
           returns: null,
           confidence: {
             path: "documented",
-            query: "unresolved",
+            query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
           },
           sources: [
-            "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md"
+            "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:44"
           ]
         },
         {
-          id: "brand-kit--post-board-default",
+          id: "ai-studio--brand-boards-default",
           method: "POST",
           url: "https://services.leadconnectorhq.com/brand-boards/{locationId}/default",
           path: "/brand-boards/{locationId}/default",
           origin: "https://services.leadconnectorhq.com",
-          rail: "workflow",
+          rail: "ai",
           kind: "write",
           reach: "source-only",
           coveredBy: [],
@@ -31890,7 +33801,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
-          service: "brand-kit",
+          operation: null,
+          service: "ai-studio",
           tree: "documented",
           pathParams: [
             {
@@ -31902,21 +33814,21 @@ var init_define_ENDPOINT_CATALOG = __esm({
           returns: null,
           confidence: {
             path: "documented",
-            query: "unresolved",
+            query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
           },
           sources: [
-            "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md"
+            "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:46"
           ]
         },
         {
-          id: "brand-kit--post-boards-clone",
+          id: "ai-studio--brand-boards-clone",
           method: "POST",
           url: "https://services.leadconnectorhq.com/brand-boards/clone",
           path: "/brand-boards/clone",
           origin: "https://services.leadconnectorhq.com",
-          rail: "workflow",
+          rail: "ai",
           kind: "write",
           reach: "source-only",
           coveredBy: [],
@@ -31924,7 +33836,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
-          service: "brand-kit",
+          operation: null,
+          service: "ai-studio",
           tree: "documented",
           pathParams: [],
           query: [],
@@ -31932,21 +33845,21 @@ var init_define_ENDPOINT_CATALOG = __esm({
           returns: null,
           confidence: {
             path: "documented",
-            query: "unresolved",
+            query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
           },
           sources: [
-            "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md"
+            "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:47"
           ]
         },
         {
-          id: "brand-kit--get-custom-colors",
+          id: "brand-kit--get-brand-boards-custom-colors",
           method: "GET",
           url: "https://services.leadconnectorhq.com/brand-boards/custom-colors/{locationId}",
           path: "/brand-boards/custom-colors/{locationId}",
           origin: "https://services.leadconnectorhq.com",
-          rail: "workflow",
+          rail: "ai",
           kind: "read",
           reach: "source-only",
           coveredBy: [],
@@ -31954,6 +33867,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
+          operation: null,
           service: "brand-kit",
           tree: "documented",
           pathParams: [
@@ -31963,24 +33877,25 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           query: [],
           body: null,
-          returns: null,
+          returns: "{customColors}",
           confidence: {
             path: "documented",
-            query: "unresolved",
+            query: "documented",
             body: "unresolved",
-            returns: "unresolved"
+            returns: "documented"
           },
           sources: [
+            "ai-studio/_data/endpoints.json",
             "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md"
           ]
         },
         {
-          id: "brand-kit--get-custom-fonts",
+          id: "brand-kit--get-brand-boards-custom-fonts",
           method: "GET",
           url: "https://services.leadconnectorhq.com/brand-boards/custom-fonts/{locationId}",
           path: "/brand-boards/custom-fonts/{locationId}",
           origin: "https://services.leadconnectorhq.com",
-          rail: "workflow",
+          rail: "ai",
           kind: "read",
           reach: "source-only",
           coveredBy: [],
@@ -31988,6 +33903,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
+          operation: null,
           service: "brand-kit",
           tree: "documented",
           pathParams: [
@@ -31997,24 +33913,25 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           query: [],
           body: null,
-          returns: null,
+          returns: "{customFonts}",
           confidence: {
             path: "documented",
-            query: "unresolved",
+            query: "documented",
             body: "unresolved",
-            returns: "unresolved"
+            returns: "documented"
           },
           sources: [
+            "ai-studio/_data/endpoints.json",
             "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md"
           ]
         },
         {
-          id: "brand-kit--post-locations-activity",
+          id: "ai-studio--locations-activity",
           method: "POST",
           url: "https://services.leadconnectorhq.com/brand-boards/locations/{locationId}/activity",
           path: "/brand-boards/locations/{locationId}/activity",
           origin: "https://services.leadconnectorhq.com",
-          rail: "workflow",
+          rail: "ai",
           kind: "write",
           reach: "source-only",
           coveredBy: [],
@@ -32022,7 +33939,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
-          service: "brand-kit",
+          operation: null,
+          service: "ai-studio",
           tree: "documented",
           pathParams: [
             {
@@ -32034,21 +33952,21 @@ var init_define_ENDPOINT_CATALOG = __esm({
           returns: null,
           confidence: {
             path: "documented",
-            query: "unresolved",
+            query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
           },
           sources: [
-            "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md"
+            "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:57"
           ]
         },
         {
-          id: "brand-kit--post-voices-create",
+          id: "ai-studio--brand-boards-voices",
           method: "POST",
           url: "https://services.leadconnectorhq.com/brand-boards/voices/",
           path: "/brand-boards/voices/",
           origin: "https://services.leadconnectorhq.com",
-          rail: "workflow",
+          rail: "ai",
           kind: "write",
           reach: "source-only",
           coveredBy: [],
@@ -32056,7 +33974,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
-          service: "brand-kit",
+          operation: null,
+          service: "ai-studio",
           tree: "documented",
           pathParams: [],
           query: [],
@@ -32064,21 +33983,22 @@ var init_define_ENDPOINT_CATALOG = __esm({
           returns: null,
           confidence: {
             path: "documented",
-            query: "unresolved",
+            query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
           },
           sources: [
-            "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md"
+            "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:49",
+            "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:100"
           ]
         },
         {
-          id: "brand-kit--get-voices",
+          id: "ai-studio--brand-boards-voices-get",
           method: "GET",
           url: "https://services.leadconnectorhq.com/brand-boards/voices/{locationId}",
           path: "/brand-boards/voices/{locationId}",
           origin: "https://services.leadconnectorhq.com",
-          rail: "workflow",
+          rail: "ai",
           kind: "read",
           reach: "source-only",
           coveredBy: [],
@@ -32086,7 +34006,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
-          service: "brand-kit",
+          operation: null,
+          service: "ai-studio",
           tree: "documented",
           pathParams: [
             {
@@ -32098,21 +34019,22 @@ var init_define_ENDPOINT_CATALOG = __esm({
           returns: null,
           confidence: {
             path: "documented",
-            query: "unresolved",
+            query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
           },
           sources: [
-            "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md"
+            "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:48",
+            "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:93"
           ]
         },
         {
-          id: "brand-kit--delete-voice",
+          id: "ai-studio--brand-boards-voices-delete",
           method: "DELETE",
           url: "https://services.leadconnectorhq.com/brand-boards/voices/{locationId}/{brandVoiceId}",
           path: "/brand-boards/voices/{locationId}/{brandVoiceId}",
           origin: "https://services.leadconnectorhq.com",
-          rail: "workflow",
+          rail: "ai",
           kind: "destructive",
           reach: "source-only",
           coveredBy: [],
@@ -32120,7 +34042,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
-          service: "brand-kit",
+          operation: null,
+          service: "ai-studio",
           tree: "documented",
           pathParams: [
             {
@@ -32135,21 +34058,21 @@ var init_define_ENDPOINT_CATALOG = __esm({
           returns: null,
           confidence: {
             path: "documented",
-            query: "unresolved",
+            query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
           },
           sources: [
-            "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md"
+            "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:52"
           ]
         },
         {
-          id: "brand-kit--get-voice",
+          id: "ai-studio--brand-boards-voices-get-get",
           method: "GET",
           url: "https://services.leadconnectorhq.com/brand-boards/voices/{locationId}/{brandVoiceId}",
           path: "/brand-boards/voices/{locationId}/{brandVoiceId}",
           origin: "https://services.leadconnectorhq.com",
-          rail: "workflow",
+          rail: "ai",
           kind: "read",
           reach: "source-only",
           coveredBy: [],
@@ -32157,7 +34080,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
-          service: "brand-kit",
+          operation: null,
+          service: "ai-studio",
           tree: "documented",
           pathParams: [
             {
@@ -32172,21 +34096,22 @@ var init_define_ENDPOINT_CATALOG = __esm({
           returns: null,
           confidence: {
             path: "documented",
-            query: "unresolved",
+            query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
           },
           sources: [
-            "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md"
+            "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:50",
+            "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:94"
           ]
         },
         {
-          id: "brand-kit--patch-voice",
+          id: "ai-studio--brand-boards-voices-patch",
           method: "PATCH",
           url: "https://services.leadconnectorhq.com/brand-boards/voices/{locationId}/{brandVoiceId}",
           path: "/brand-boards/voices/{locationId}/{brandVoiceId}",
           origin: "https://services.leadconnectorhq.com",
-          rail: "workflow",
+          rail: "ai",
           kind: "write",
           reach: "source-only",
           coveredBy: [],
@@ -32194,7 +34119,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
-          service: "brand-kit",
+          operation: null,
+          service: "ai-studio",
           tree: "documented",
           pathParams: [
             {
@@ -32209,21 +34135,21 @@ var init_define_ENDPOINT_CATALOG = __esm({
           returns: null,
           confidence: {
             path: "documented",
-            query: "unresolved",
+            query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
           },
           sources: [
-            "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md"
+            "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:51"
           ]
         },
         {
-          id: "brand-kit--post-voice-default",
+          id: "ai-studio--voices-default",
           method: "POST",
           url: "https://services.leadconnectorhq.com/brand-boards/voices/{locationId}/default",
           path: "/brand-boards/voices/{locationId}/default",
           origin: "https://services.leadconnectorhq.com",
-          rail: "workflow",
+          rail: "ai",
           kind: "write",
           reach: "source-only",
           coveredBy: [],
@@ -32231,7 +34157,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
-          service: "brand-kit",
+          operation: null,
+          service: "ai-studio",
           tree: "documented",
           pathParams: [
             {
@@ -32243,21 +34170,21 @@ var init_define_ENDPOINT_CATALOG = __esm({
           returns: null,
           confidence: {
             path: "documented",
-            query: "unresolved",
+            query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
           },
           sources: [
-            "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md"
+            "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:53"
           ]
         },
         {
-          id: "brand-kit--post-voices-clone",
+          id: "ai-studio--voices-clone",
           method: "POST",
           url: "https://services.leadconnectorhq.com/brand-boards/voices/clone",
           path: "/brand-boards/voices/clone",
           origin: "https://services.leadconnectorhq.com",
-          rail: "workflow",
+          rail: "ai",
           kind: "write",
           reach: "source-only",
           coveredBy: [],
@@ -32265,7 +34192,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
-          service: "brand-kit",
+          operation: null,
+          service: "ai-studio",
           tree: "documented",
           pathParams: [],
           query: [],
@@ -32273,12 +34201,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
           returns: null,
           confidence: {
             path: "documented",
-            query: "unresolved",
+            query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
           },
           sources: [
-            "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md"
+            "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:54"
           ]
         },
         {
@@ -33487,6 +35415,975 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "restAgent.ts:304"
+          ]
+        },
+        {
+          id: "forms--submission-v2",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/form/submission/v2/{submissionId}",
+          path: "/form/submission/v2/{submissionId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "forms",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "submissionId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "forms/20-api/forms.md:163"
+          ]
+        },
+        {
+          id: "forms--forms-get-get",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/forms/",
+          path: "/forms/",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [
+            "build_workflow",
+            "edit_workflow",
+            "list_account_entities"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "forms",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "type",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "skip",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "limit",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "query",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "parentId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "forms/20-api/forms.md:33",
+            "forms/20-api/forms.md:54"
+          ]
+        },
+        {
+          id: "forms--forms-post-post",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/forms/",
+          path: "/forms/",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "forms",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "forms/20-api/forms.md:38",
+            "forms/20-api/forms.md:82",
+            "forms/20-api/forms.md:129"
+          ]
+        },
+        {
+          id: "forms--forms-delete",
+          method: "DELETE",
+          url: "https://services.leadconnectorhq.com/forms/{formId}",
+          path: "/forms/{formId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "forms",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "formId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "forms/20-api/forms.md:46"
+          ]
+        },
+        {
+          id: "forms--forms-get-get-get",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/forms/{formId}",
+          path: "/forms/{formId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "forms",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "formId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "forms/20-api/forms.md:35"
+          ]
+        },
+        {
+          id: "forms--forms-post-post-post",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/forms/{formId}",
+          path: "/forms/{formId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "forms",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "formId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "forms/20-api/forms.md:39"
+          ]
+        },
+        {
+          id: "forms--forms-get-get-get-get",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/forms/{id}",
+          path: "/forms/{id}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "forms",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "forms/20-api/forms.md:69"
+          ]
+        },
+        {
+          id: "forms--forms-post-post-post-post",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/forms/{id}",
+          path: "/forms/{id}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "forms",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "forms/20-api/forms.md:100",
+            "forms/20-api/forms.md:129"
+          ]
+        },
+        {
+          id: "forms--forms-count",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/forms/count",
+          path: "/forms/count",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "forms",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "forms/20-api/forms.md:34"
+          ]
+        },
+        {
+          id: "forms--forms-data-get",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/forms/data/{formId}",
+          path: "/forms/data/{formId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "forms",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "formId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "forms/20-api/forms.md:36"
+          ]
+        },
+        {
+          id: "forms--forms-data-get-get",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/forms/data/{id}",
+          path: "/forms/data/{id}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "forms",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "forms/20-api/forms.md:75"
+          ]
+        },
+        {
+          id: "forms--forms-default-colors",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/forms/default-colors",
+          path: "/forms/default-colors",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "forms",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "forms/20-api/forms.md:51"
+          ]
+        },
+        {
+          id: "forms--forms-duplicate",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/forms/duplicate/{formId}",
+          path: "/forms/duplicate/{formId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "forms",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "formId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "forms/20-api/forms.md:40"
+          ]
+        },
+        {
+          id: "forms--forms-duplicate-post",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/forms/duplicate/{id}",
+          path: "/forms/duplicate/{id}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "forms",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "forms/20-api/forms.md:131"
+          ]
+        },
+        {
+          id: "forms--forms-forms-list-get",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/forms/forms-list",
+          path: "/forms/forms-list",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          note: 'Live-proven 2026-09-06: formIds MUST be one comma-joined string (formIds=a,b) \u2014 repeated or bracketed params 422 "formIds must be a string"; locationId is rejected ("property locationId should not exist"). Returns list rows without formData. The row id says get-form-by-id but the by-id read is GET /forms/{id} (unknown id \u2192 400 "Form does not exist", not 404).',
+          reach: "proven",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "forms",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "live-probe"
+            },
+            {
+              name: "formIds",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "forms/20-api/forms.md:37",
+            "forms/20-api/forms.md:151"
+          ]
+        },
+        {
+          id: "forms--forms-image",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/forms/image",
+          path: "/forms/image",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "forms",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "forms/20-api/forms.md:44"
+          ]
+        },
+        {
+          id: "forms--forms-move-to-folder-post",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/forms/move-to-folder",
+          path: "/forms/move-to-folder",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "forms",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "forms/20-api/forms.md:41",
+            "forms/20-api/forms.md:145"
+          ]
+        },
+        {
+          id: "forms--forms-restore-version",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/forms/restore-version",
+          path: "/forms/restore-version",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "forms",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "forms/20-api/forms.md:42",
+            "forms/20-api/forms.md:138"
+          ]
+        },
+        {
+          id: "forms--forms-schedule-form-export",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/forms/schedule-form-export",
+          path: "/forms/schedule-form-export",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "forms",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "forms/20-api/forms.md:45"
+          ]
+        },
+        {
+          id: "forms--forms-share",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/forms/share/{formId}",
+          path: "/forms/share/{formId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "forms",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "formId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "forms/20-api/forms.md:43"
+          ]
+        },
+        {
+          id: "forms--forms-submissions-get",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/forms/submissions",
+          path: "/forms/submissions",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "forms",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "formId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "page",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "limit",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "forms/20-api/forms.md:47",
+            "forms/20-api/forms.md:159"
+          ]
+        },
+        {
+          id: "forms--forms-submissions-count-get",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/forms/submissions-count",
+          path: "/forms/submissions-count",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "forms",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "startAt",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "endAt",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "forms/20-api/forms.md:48"
+          ]
+        },
+        {
+          id: "forms--forms-theme-style",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/forms/theme-style/{themeId}",
+          path: "/forms/theme-style/{themeId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "forms",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "themeId"
+            }
+          ],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "forms/20-api/forms.md:50"
+          ]
+        },
+        {
+          id: "forms--forms-themes-get",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/forms/themes",
+          path: "/forms/themes",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "forms",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "forms/20-api/forms.md:49"
+          ]
+        },
+        {
+          id: "ai-studio--prompt-enhance",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/generate-image-ai/{locationId}/prompt/enhance",
+          path: "/generate-image-ai/{locationId}/prompt/enhance",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-studio",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:31"
           ]
         },
         {
@@ -41566,7 +44463,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "platform/20-api/snapshots.md:70"
+            "platform/20-api/snapshots.md:73"
           ]
         },
         {
@@ -41610,11 +44507,11 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "platform/20-api/snapshots.md:33"
+            "platform/20-api/snapshots.md:36"
           ]
         },
         {
-          id: "platform--snapshots-assets-status",
+          id: "platform--snapshots-assets-status-get",
           method: "GET",
           url: "https://services.leadconnectorhq.com/snapshots/{snapshotId}/assets-status",
           path: "/snapshots/{snapshotId}/assets-status",
@@ -41653,7 +44550,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "platform/20-api/snapshots.md:118"
+            "platform/20-api/snapshots.md:121"
           ]
         },
         {
@@ -41696,7 +44593,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "platform/20-api/snapshots.md:89"
+            "platform/20-api/snapshots.md:92"
           ]
         },
         {
@@ -41739,7 +44636,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "platform/20-api/snapshots.md:110"
+            "platform/20-api/snapshots.md:113"
           ]
         },
         {
@@ -41782,7 +44679,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "platform/20-api/snapshots.md:104"
+            "platform/20-api/snapshots.md:107"
           ]
         },
         {
@@ -41825,7 +44722,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "platform/20-api/snapshots.md:99"
+            "platform/20-api/snapshots.md:102"
           ]
         },
         {
@@ -41880,7 +44777,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "platform/20-api/snapshots.md:80"
+            "platform/20-api/snapshots.md:83"
           ]
         },
         {
@@ -41941,7 +44838,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "platform/20-api/snapshots.md:60"
+            "platform/20-api/snapshots.md:63"
           ]
         },
         {
@@ -42224,6 +45121,37 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "forms--surveys",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/surveys/",
+          path: "/surveys/",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "forms",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "forms/20-api/forms.md:94"
+          ]
+        },
+        {
           id: "memberships-courses--templates",
           method: "DELETE",
           url: "https://services.leadconnectorhq.com/templates/{id}",
@@ -42423,7 +45351,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "ai-agents/20-api/12-ai-agents-api.md:141",
             "ai-agents/20-api/12-ai-agents-api.md:148",
             "ai-agents/20-api/12-ai-agents-api.md:169",
-            "ai-agents/20-api/12-ai-agents-api.md:264"
+            "ai-agents/20-api/12-ai-agents-api.md:264",
+            "ai-agents/20-api/12-ai-agents-api.md:294",
+            "ai-agents/20-api/12-ai-agents-api.md:341"
           ]
         },
         {
@@ -42718,7 +45648,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "ai-agents/20-api/12-ai-agents-api.md:54",
             "ai-agents/20-api/12-ai-agents-api.md:137",
             "ai-agents/20-api/12-ai-agents-api.md:148",
-            "ai-agents/20-api/12-ai-agents-api.md:156"
+            "ai-agents/20-api/12-ai-agents-api.md:156",
+            "ai-agents/20-api/12-ai-agents-api.md:314",
+            "ai-agents/20-api/12-ai-agents-api.md:338"
           ]
         },
         {
@@ -44210,7 +47142,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "ai-agents/20-api/12-ai-agents-api.md:42",
             "ai-agents/20-api/12-ai-agents-api.md:143",
             "ai-agents/20-api/12-ai-agents-api.md:342",
-            "ai-agents/20-api/voice-ai-boundary.md:61"
+            "ai-agents/20-api/voice-ai-boundary.md:61",
+            "ai-agents/20-api/voice-ai-boundary.md:78"
           ]
         },
         {
@@ -44315,6 +47248,41 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/api/instagram-connected-accounts.ts:25"
+          ]
+        },
+        {
+          id: "ai-studio--prompt-enhance-post",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/workflow/generate-image-ai/{locationId}/prompt/enhance",
+          path: "/workflow/generate-image-ai/{locationId}/prompt/enhance",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-studio",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:32"
           ]
         }
       ]
@@ -44473,7 +47441,8 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           requiredQuery: [
             "locationId"
           ],
-          note: "Live-probed 2026-08-25: the endpoint returned 422 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source."
+          note: 'Live-proven 2026-09-06: formIds MUST be one comma-joined string (formIds=a,b) \u2014 repeated or bracketed params 422 "formIds must be a string"; locationId is rejected ("property locationId should not exist"). Returns list rows without formData. The row id says get-form-by-id but the by-id read is GET /forms/{id} (unknown id \u2192 400 "Form does not exist", not 404).',
+          reach: "proven"
         },
         "GET /funnels/funnel/list": {
           reach: "proven"
@@ -45210,6 +48179,18 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           reach: "source-only",
           summary: "Delete a Metrics dashboard layout.",
           note: "Never called during mapping; read-only sweep."
+        },
+        "GET /forms": {
+          reach: "proven",
+          note: "Live-proven 2026-09-06 (knowledge corpus/forms). Needs locationId, skip, limit; type=form returns forms only \u2014 ANY other type value (or none) returns forms AND folders in one array. query= is a substring name search; parentId= filters to a folder. Rows carry no formData; GET /forms/{id} does. token-id or Bearer, services or backend \u2014 all reach. The full lifecycle (POST /forms/ create, POST /forms/{id} save {name, formData}, duplicate, restore-version, move-to-folder, folders) is proven in corpus/forms/20-api/forms.md but has no rows here yet: the builder is a separate SPA with a PUBLIC source map (sniffs/forms-2026-09-06/builder-app/tree/src) that the generator does not read \u2014 see plugin/STATUS-2026-09-06-forms-surface.md."
+        },
+        "GET /surveys": {
+          reach: "proven",
+          note: "Live-proven 2026-09-06: {surveys:[], total}; same params as GET /forms. POST /surveys/ {locationId, name, source} creates a survey PRE-SEEDED with one slide (a form starts at formData {}). /surveys/* does NOT mirror /forms/* path for path (corrected 2026-09-07 from a full call-site extraction of the builder SPA): the survey app uses /surveys/\u2026 only for list, create, read, save, image, restore-version, themes and theme-style, and calls the /forms/\u2026 routes for delete, duplicate, share, folder create/read/list/rename and move-to-folder. So /surveys/duplicate/{id}, /surveys/folder and /surveys/move-to-folder are paths nothing in the product calls \u2014 untested, existence unknown. Corpus: knowledge/corpus/forms/20-api/surveys-and-quizzes.md."
+        },
+        "GET /surveys/{id}": {
+          reach: "proven",
+          note: "Live-proven 2026-09-06: {survey:{\u2026, formData:{form, slides[]}}}. Survey save is POST /surveys/{id} {name, formData} (source-derived from the builder SPA; not executed)."
         }
       }
     };
@@ -78147,9 +81128,9 @@ import { dirname as dirname4, resolve as resolve3 } from "node:path";
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
-import { readFileSync as readFileSync3, existsSync as existsSync3 } from "node:fs";
+import { readFileSync as readFileSync3, existsSync as existsSync3, writeFileSync as writeFileSync2, mkdirSync as mkdirSync2 } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { dirname as dirname2, resolve as resolve2, join as join3 } from "node:path";
+import { dirname as dirname2, resolve as resolve2, join as join3, isAbsolute as isAbsolute2 } from "node:path";
 import { createHash as createHash5 } from "node:crypto";
 
 // core/errors.mjs
@@ -78277,8 +81258,9 @@ var CODES = Object.freeze({
 var TOKENISH = /\bey[A-Za-z0-9._-]{20,}/g;
 var TOKENISH_SCAN = /\bey[A-Za-z0-9._-]{20,}/;
 var SECRET_LABEL = "(?:token(?:[-_ ]?id)?|(?:access|refresh|auth|id|oauth|csrf|xsrf)[-_ ]?token|authorization|proxy[-_ ]?authorization|jwt|api[-_ ]?(?:key|secret)|client[-_ ]?secret|secret[-_ ]?access[-_ ]?key|access[-_ ]?key|private[-_ ]?key|signing[-_ ]?key|password|credentials?|cookies?|set[-_ ]?cookie|session(?:[-_ ]?(?:id|token|key|secret|cookie|credentials?))?)";
-var LABELED_SECRET = new RegExp(`\\b(${SECRET_LABEL})\\s*([:=/])\\s*(?:Bearer\\s+)?([^\\s,;&#/]+)`, "gi");
-var LABELED_SECRET_SCAN = new RegExp(`\\b${SECRET_LABEL}\\s*[:=/]\\s*(?:Bearer\\s+)?[^\\s,;&#/]+`, "i");
+var NOT_DATA_ATTR = "(?<!\\bdata-[\\w-]*)";
+var LABELED_SECRET = new RegExp(`${NOT_DATA_ATTR}\\b(${SECRET_LABEL})\\s*([:=/])\\s*(?:Bearer\\s+)?([^\\s,;&#/]+)`, "gi");
+var LABELED_SECRET_SCAN = new RegExp(`${NOT_DATA_ATTR}\\b${SECRET_LABEL}\\s*[:=/]\\s*(?:Bearer\\s+)?[^\\s,;&#/]+`, "i");
 var BEARER_SECRET = /\bBearer\s+[A-Za-z0-9._-]{8,}/gi;
 var BEARER_SECRET_SCAN = /\bBearer\s+[A-Za-z0-9._-]{8,}/i;
 var SECRET_KEYS = /* @__PURE__ */ new Set([
@@ -148800,17 +151782,18 @@ function pathBindsCard(t, byId) {
   }
   return false;
 }
-function lintOpportunityWrites(templates, { pipelines = null, lostReasons = null } = {}) {
+function lintOpportunityWrites(templates, { pipelines = null, lostReasons = null, scope = null } = {}) {
   const out = [];
   const byId = /* @__PURE__ */ new Map();
   for (const t of templates ?? []) if (t && typeof t.id === "string") byId.set(t.id, t);
+  const inScope = (t) => !scope || scope.has(t?.id);
   const known = pipelines && {
     pipelineId: new Set(pipelines.map((p2) => p2.id)),
     pipelineStageId: new Set(pipelines.flatMap((p2) => (p2.stages ?? []).map((s) => s.id))),
     lostReasonId: lostReasons ? new Set(lostReasons.map((r) => r.id ?? r._id)) : null
   };
   for (const t of templates ?? []) {
-    if (!t || !OPP_TYPES.has(t.type)) continue;
+    if (!t || !OPP_TYPES.has(t.type) || !inScope(t)) continue;
     const a = t.attributes ?? {};
     const push = (code, severity, msg) => out.push({ stepId: t.id, name: t.name ?? t.id, type: t.type, code, severity, msg });
     if (t.type === "internal_update_opportunity" && !pathBindsCard(t, byId)) {
@@ -148890,7 +151873,7 @@ function lintTriggerRows(triggers, catalog) {
     if (!t) continue;
     const meta3 = catalog?.trigger?.(t.type);
     const rows = meta3?.filterRows ?? [];
-    const rowFor = (field) => rows.find((r) => r.value === field || r.field === field || r.id === field);
+    const rowsFor = (field) => rows.filter((r) => r.value === field || r.field === field || r.id === field);
     for (const c of t.conditions ?? []) {
       if (!c || typeof c !== "object") continue;
       const push = (code, severity, msg) => out.push({
@@ -148910,17 +151893,17 @@ function lintTriggerRows(triggers, catalog) {
           );
         }
       }
-      const row = rowFor(c.field);
-      if (!row) continue;
-      const menu = Array.isArray(row.operatorMenu) && row.operatorMenu.length ? row.operatorMenu : row.operator ? [row.operator] : null;
-      if (menu && typeof c.operator === "string" && !menu.includes(c.operator)) {
+      const matching = rowsFor(c.field);
+      if (!matching.length) continue;
+      const menu = [...new Set(matching.flatMap((r) => Array.isArray(r.operatorMenu) && r.operatorMenu.length ? r.operatorMenu : r.operator ? [r.operator] : []))];
+      if (menu.length && typeof c.operator === "string" && !menu.includes(c.operator)) {
         push(
           "TRIGGER_ROW_OPERATOR",
           "warning",
-          `condition '${c.field}' stores operator '${c.operator}' \u2014 the drawer's set for this row is [${menu.join(", ")}]; an off-menu operator saves clean and may never match`
+          `condition '${c.field}' stores operator '${c.operator}' \u2014 the drawer's set for this field is [${menu.join(", ")}]; an off-menu operator saves clean and may never match`
         );
       }
-      if (row.required === true && (c.value === void 0 || c.value === "" || Array.isArray(c.value) && !c.value.length)) {
+      if (matching.some((r) => r.required === true) && (c.value === void 0 || c.value === "" || Array.isArray(c.value) && !c.value.length)) {
         push("TRIGGER_ROW_EMPTY_VALUE", "warning", `required condition '${c.field}' has no value`);
       }
     }
@@ -149181,12 +152164,15 @@ var NORMALIZE_SKIP = /* @__PURE__ */ new Set([
   "loop",
   "workflow_goal"
 ]);
-function normalizeStoredAttributes2(template, ctx) {
+function normalizeStoredAttributes2(template, ctx, opts) {
   if (!template?.attributes || template.isMarketplaceAction === true || NORMALIZE_SKIP.has(template.type)) {
+    const novel = Array.isArray(opts?.novelKeys) ? opts.novelKeys : null;
+    if (novel && !novel.length) return { attributes: template?.attributes, warnings: [] };
+    const which = novel ? `the patch introduces key(s) [${novel.join(", ")}] the stored step did not carry, and they were merged as given` : "attributes were merged as given";
     return {
       attributes: template?.attributes,
       warnings: [
-        `MODIFY_NOT_NORMALISED: '${template?.name ?? template?.id}' (${template?.type}): attributes were merged as given \u2014 this type's author shape is not its wire shape (or it carries branch wiring), so it cannot be re-normalised from what is stored. Use retypeStep for a full recompile through the compiler, or author the complete wire shape yourself.`
+        `MODIFY_NOT_NORMALISED: '${template?.name ?? template?.id}' (${template?.type}): ${which} \u2014 this type's author shape is not its wire shape (or it carries branch wiring), so a new key cannot be normalised from what is stored. If the key is an AUTHOR-shape key (pipeline, stage, a lean opportunity field) it will be stored verbatim and move nothing: use retypeStep for a full recompile through the compiler, or author the complete wire shape yourself.`
       ]
     };
   }
@@ -149341,7 +152327,8 @@ function modifyStep(templates, stepId, attrPatch, stepPatch, ctx) {
     if (t.id !== stepId) return t;
     const merged = { ...t, ...stepPatch ?? {}, attributes: { ...t.attributes, ...attrPatch } };
     if (!ctx) return merged;
-    const { attributes, warnings } = normalizeStoredAttributes2(merged, ctx);
+    const novelKeys = Object.keys(attrPatch ?? {}).filter((k) => !(k in (t.attributes ?? {})));
+    const { attributes, warnings } = normalizeStoredAttributes2(merged, ctx, { novelKeys });
     for (const w of warnings) ctx.warn?.(w);
     return { ...merged, attributes: attributes ?? merged.attributes };
   });
@@ -149592,17 +152579,20 @@ function moveStep(templates, stepId, afterId) {
   if (Array.isArray(step.next))
     throw new Error(`moveStep: '${step.name ?? stepId}' is a container \u2014 moving a whole container subgraph is not supported (its branch children would keep pointing into the old scope). Rebuild it at the new position instead.`);
   const oldPred = templates.find((t) => t.next === stepId);
+  if (!oldPred)
+    throw new Error(`moveStep: '${step.name ?? stepId}' has no predecessor (it is the workflow's entry step) \u2014 the entry cannot be moved; put a new head in front of it with insertBefore instead.`);
   const stepOldNext = typeof step.next === "string" ? step.next : null;
   const anchorOldNext = typeof anchor.next === "string" ? anchor.next : null;
   const modified = /* @__PURE__ */ new Set();
   const out = templates.map((t) => {
-    if (oldPred && t.id === oldPred.id) {
+    if (t.id === oldPred.id) {
       modified.add(t.id);
       t = { ...t, next: stepOldNext };
     }
     if (t.id === afterId) {
       modified.add(t.id);
       t = { ...t, next: stepId };
+      if (stepOldNext === afterId) t.parentKey = oldPred.id;
     }
     if (t.id === stepId) {
       modified.add(t.id);
@@ -149610,14 +152600,23 @@ function moveStep(templates, stepId, afterId) {
       if (anchor.parent != null) t.parent = anchor.parent;
       else delete t.parent;
     }
+    if (stepOldNext && t.id === stepOldNext && t.id !== afterId) {
+      modified.add(t.id);
+      t = { ...t, parentKey: oldPred.id };
+    }
+    if (anchorOldNext && t.id === anchorOldNext && t.id !== stepId) {
+      modified.add(t.id);
+      t = { ...t, parentKey: stepId };
+    }
     return t;
   });
   return { templates: out, diff: { createdSteps: [], modifiedSteps: [...modified], deletedSteps: [] } };
 }
 function addBranch(templates, containerId, { name, conditions = [] }, idGen) {
   const container = requireStep(templates, containerId, "addBranch");
+  if (container.type === "conversationai_ai_splitter" && Array.isArray(container.next)) return addSplitterBranch(templates, container, { name, conditions }, idGen);
   if (container.nodeType !== "condition-node" || !Array.isArray(container.next))
-    throw new Error(`addBranch: '${container.name ?? containerId}' is not an if/else container (nodeType ${container.nodeType ?? "none"}) \u2014 addBranch takes the CONDITION NODE's id, not a branch entry or a linear step.`);
+    throw new Error(`addBranch: '${container.name ?? containerId}' is not an if/else container (nodeType ${container.nodeType ?? "none"}) \u2014 addBranch takes the CONDITION NODE's id (or an AI SPLITTER's id), not a branch entry or a linear step.`);
   const newId = idGen();
   const next = [...container.next];
   const branches = [...container.attributes?.branches || []];
@@ -149658,6 +152657,30 @@ function addBranch(templates, containerId, { name, conditions = [] }, idGen) {
   });
   out.push(newEntry);
   return { templates: out, diff: { createdSteps: [newId], modifiedSteps: modified, deletedSteps: [] } };
+}
+function addSplitterBranch(templates, container, { name, conditions = [] }, idGen) {
+  if (typeof name !== "string" || !name.trim())
+    throw new Error(`addBranch: a splitter branch needs a 'name' \u2014 the splitter routes on the branch name and its description; there is no condition row.`);
+  if (Array.isArray(conditions) && conditions.length)
+    throw new Error(`addBranch: '${container.name ?? container.id}' is an AI splitter \u2014 its branches carry no conditions (the LLM routes on the branch name against attributes.description). Drop 'conditions', or put the routing hint in the name.`);
+  const newId = idGen();
+  const next = [...container.next, newId];
+  const rows = [...container.attributes?.transitions ?? []];
+  rows.push({ id: newId, name, fields: {}, meta: {}, conditionType: "user-defined" });
+  const entry = {
+    id: newId,
+    type: "transition",
+    name,
+    cat: "transition",
+    parentKey: container.id,
+    parent: container.id,
+    order: next.length - 1,
+    attributes: {},
+    next: null
+  };
+  const out = templates.map((t) => t.id === container.id ? { ...t, next, attributes: { ...t.attributes, transitions: rows } } : t);
+  out.push(entry);
+  return { templates: out, diff: { createdSteps: [newId], modifiedSteps: [container.id], deletedSteps: [] } };
 }
 function deleteContainer(templates, containerId) {
   requireStep(templates, containerId, "deleteContainer");
@@ -149846,10 +152869,17 @@ function settingsFromDoc(doc) {
     statsView: doc.meta?.statsView ?? false
   };
 }
-function settingsCommitFields(fresh, patch, uid, opts = {}) {
+function settingsCommitFields(fresh, rawPatch, uid, opts = {}) {
+  const { name, ...patch } = rawPatch ?? {};
+  const out = {};
+  if (name !== void 0) {
+    if (typeof name !== "string" || !name.trim() || name.length > 100)
+      throw new IRError("SETTINGS_VALUE", `updateSettings: settings.name must be a non-empty string of at most 100 characters (the builder's cap) \u2014 got ${JSON.stringify(name)}`);
+    out.name = name;
+  }
   const unknown2 = Object.keys(patch).filter((k) => !KNOWN_SETTINGS_KEYS.has(k));
   if (unknown2.length && opts.skipSettingsCheck !== true)
-    throw new IRError("SETTINGS_KEY", `updateSettings: unknown settings key(s) [${unknown2.join(", ")}] \u2014 known: ${[...KNOWN_SETTINGS_KEYS].join(", ")}`);
+    throw new IRError("SETTINGS_KEY", `updateSettings: unknown settings key(s) [${unknown2.join(", ")}] \u2014 known: name, ${[...KNOWN_SETTINGS_KEYS].join(", ")}`);
   const merged = { ...settingsFromDoc(fresh), ...patch };
   if (typeof patch.workflowNote === "string" && fresh.workflowNote?.content !== void 0 && patch.workflowNote !== fresh.workflowNote.content)
     merged.workflowNote = { ...fresh.workflowNote, content: patch.workflowNote, updatedBy: uid, updatedAt: (opts.now ? new Date(opts.now) : /* @__PURE__ */ new Date()).toISOString() };
@@ -149861,7 +152891,7 @@ function settingsCommitFields(fresh, patch, uid, opts = {}) {
     senderRuleAdvisory: !("senderAddress" in patch)
   });
   const { statsView, ...top } = body;
-  const out = { ...top };
+  Object.assign(out, top);
   if ("statsView" in patch || fresh.meta?.statsView !== void 0) out.meta = { ...fresh.meta ?? {}, statsView };
   return out;
 }
@@ -150474,7 +153504,7 @@ function findAfterCreateRace(list) {
   }
   return out;
 }
-var isContainer = (t) => !!t && (t.cat === "multi-path" || t.attributes?.cat === "multi-path" || Array.isArray(t.next));
+var BRANCH_HEAD_MEASURED_UNOFFERED = /* @__PURE__ */ new Set(["conversationai_book_appointment"]);
 function splitterBranchLeadsWithContainer(list) {
   const byId = new Map(list.map((t) => [t.id, t]));
   const out = [];
@@ -150483,8 +153513,8 @@ function splitterBranchLeadsWithContainer(list) {
     for (const entryId of t.next) {
       const entry = byId.get(entryId);
       const head = entry && typeof entry.next === "string" ? byId.get(entry.next) : null;
-      if (!isContainer(head)) continue;
-      out.push(`splitter '${t.name ?? t.id}' branch '${entry.name ?? entry.id}' leads directly with '${head.name ?? head.id}' (${head.type}), a multipath container \u2014 GHL never offers a branch whose first step is a container, so this branch is never chosen no matter how well the conversation matches it. Put one simple step (add_notes, update_contact_field, conversationai_continue, \u2026) at the head of the branch, before the container.`);
+      if (!head || !BRANCH_HEAD_MEASURED_UNOFFERED.has(head.type)) continue;
+      out.push(`splitter '${t.name ?? t.id}' branch '${entry.name ?? entry.id}' leads directly with '${head.name ?? head.id}' (${head.type}). In the one measured case (sandbox, 2026-08-30) a branch whose first step was a booking node was never chosen across four matching conversations, and fired on the next message once a simple step (add_notes, update_contact_field, conversationai_continue, \u2026) was placed at the head of the branch. Heuristic, not a platform rule \u2014 a branch leading with a nested splitter IS chosen live \u2014 so verify against a real run before restructuring.`);
     }
   }
   return out;
@@ -150496,6 +153526,33 @@ function checkGraphContextRules(templates, { warn, skipGraphContextRules } = {})
   for (const f of findings) warn?.(`GRAPH_CONTEXT: ${f}`);
   return findings;
 }
+
+// ../skills/create-ghl-workflow/engine/field-caps.mjs
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_OVERLAY();
+init_define_TOOL_CATALOG();
+var FIELD_CAPS = Object.freeze({
+  conversationai_objective: Object.freeze({ instructions: 1e3 }),
+  conversationai_ai_message: Object.freeze({ message: 600 }),
+  conversationai_book_appointment: Object.freeze({ promptInstructions: 500 }),
+  conversationai_ai_splitter: Object.freeze({ description: 500 })
+});
+function checkFieldCaps(templates, { scope = null } = {}) {
+  const out = [];
+  for (const t of templates ?? []) {
+    if (!t || typeof t !== "object") continue;
+    if (scope && !scope.has(t.id)) continue;
+    const caps = FIELD_CAPS[t.type];
+    if (!caps) continue;
+    for (const [field, cap] of Object.entries(caps)) {
+      const v = t.attributes?.[field];
+      if (typeof v !== "string" || v.length <= cap) continue;
+      out.push({ stepId: t.id, name: t.name ?? t.id, type: t.type, field, length: v.length, cap });
+    }
+  }
+  return out;
+}
+var describeCap = (f) => `'${f.name}' (${f.type}) ${f.field} is ${f.length} characters; the builder's cap is ${f.cap}. The server stores it verbatim and the round-trip reads clean; the builder shows an error badge and the drawer refuses to save.`;
 
 // ../skills/create-ghl-workflow/engine/orchestrate.mjs
 function missingRequiredFields(step) {
@@ -150757,6 +153814,7 @@ async function orchestrate(ir, gw, opts = {}) {
     built.autoSaveBody?.workflowData?.templates,
     { warn: (m) => report.warnings.push(m), skipGraphContextRules: opts.skipGraphContextRules }
   );
+  for (const f of checkFieldCaps(built.autoSaveBody?.workflowData?.templates)) report.warnings.push(`FIELD_CAP: ${describeCap(f)}`);
   const assetCheck = await validateAssets(call, loc, {
     templates: built.autoSaveBody?.workflowData?.templates,
     triggers: built.triggerBodies,
@@ -151226,6 +154284,7 @@ function partitionOps(ops) {
   const stepOps = [], triggerOps = [], settingsOps = [], stickyOps = [];
   for (const raw of ops ?? []) {
     const op = { ...raw, op: canonicalOpName(raw?.op) };
+    checkOpShape(op);
     (TRIGGER_OPS.has(op.op) ? triggerOps : SETTINGS_OPS.has(op.op) ? settingsOps : STICKY_OPS.has(op.op) ? stickyOps : stepOps).push(op);
     if (op.op === "replaceTag" && op.triggers !== false) triggerOps.push({ op: "replaceTagInTriggers", oldTag: op.oldTag, newTag: op.newTag });
     if (op.op === "replaceFieldId" && op.triggers !== false) triggerOps.push({ op: "replaceFieldIdInTriggers", oldId: op.oldId, newId: op.newId });
@@ -151282,13 +154341,27 @@ function translateActiveToStatus(requestedActive, storedActive) {
   if (requestedActive === void 0 || requestedActive === storedActive) return void 0;
   return requestedActive ? "published" : "draft";
 }
+function requestedTriggerFields(patch = {}, body = {}) {
+  const out = {};
+  for (const k of ["type", "name", "masterType", "targetActionId"]) if (patch[k] !== void 0) out[k] = body[k];
+  if (patch.target !== void 0) out.targetActionId = body.targetActionId;
+  if (patch.conditions !== void 0) out.conditions = patch.conditions;
+  else if (patch.filters !== void 0) out.conditions = body.conditions;
+  return out;
+}
 function planTriggerOps(triggerOps, { ctx, wid, uid, existing = [], workflowStatus } = {}) {
   const loc = ctx.loc;
   const targetStatus = workflowStatus === "published" ? "published" : "draft";
-  return (triggerOps ?? []).flatMap((op) => {
+  return (triggerOps ?? []).flatMap((raw) => {
+    const op = { ...raw, op: canonicalOpName(raw?.op) };
+    checkOpShape(op);
     switch (op.op) {
-      case "addTrigger":
-        return { op: op.op, method: "POST", path: `/workflow/${loc}/trigger`, body: { ...buildTrigger(op.trigger, ctx, wid, refMapFrom(ctx?.externalRefs)), status: targetStatus } };
+      case "addTrigger": {
+        const { conditions: verbatim, ...authored } = op.trigger;
+        const built = buildTrigger(authored, ctx, wid, refMapFrom(ctx?.externalRefs));
+        const body = { ...built, ...verbatim !== void 0 ? { conditions: verbatim } : {}, status: targetStatus };
+        return { op: op.op, method: "POST", path: `/workflow/${loc}/trigger`, body, requested: requestedTriggerFields(op.trigger, body) };
+      }
       case "deleteTrigger": {
         const t = resolveTrigger(op, existing);
         guardFlowEntry(op, t, ctx);
@@ -151317,7 +154390,15 @@ function planTriggerOps(triggerOps, { ctx, wid, uid, existing = [], workflowStat
           const conditions = replaceTagInTriggerConditions(t.conditions, op.oldTag, op.newTag);
           if (!conditions) return [];
           const tid = t.id ?? t._id;
-          return [{ op: op.op, method: "PUT", path: `/workflow/${loc}/trigger/${tid}`, triggerId: tid, body: { ...t, conditions, id: tid, _id: t._id ?? tid } }];
+          return [{
+            op: op.op,
+            method: "PUT",
+            path: `/workflow/${loc}/trigger/${tid}`,
+            triggerId: tid,
+            body: { ...t, conditions, id: tid, _id: t._id ?? tid },
+            requested: { conditions },
+            before: { date_updated: t.date_updated ?? null, updatedAt: t.updatedAt ?? null }
+          }];
         });
       }
       case "replaceFieldIdInTriggers": {
@@ -151325,7 +154406,15 @@ function planTriggerOps(triggerOps, { ctx, wid, uid, existing = [], workflowStat
           const conditions = replaceFieldIdInTriggerConditions(t.conditions, op.oldId, op.newId);
           if (!conditions) return [];
           const tid = t.id ?? t._id;
-          return [{ op: op.op, method: "PUT", path: `/workflow/${loc}/trigger/${tid}`, triggerId: tid, body: { ...t, conditions, id: tid, _id: t._id ?? tid } }];
+          return [{
+            op: op.op,
+            method: "PUT",
+            path: `/workflow/${loc}/trigger/${tid}`,
+            triggerId: tid,
+            body: { ...t, conditions, id: tid, _id: t._id ?? tid },
+            requested: { conditions },
+            before: { date_updated: t.date_updated ?? null, updatedAt: t.updatedAt ?? null }
+          }];
         });
       }
       case "modifyTrigger": {
@@ -151335,12 +154424,13 @@ function planTriggerOps(triggerOps, { ctx, wid, uid, existing = [], workflowStat
         const requestedActive = op.trigger?.active;
         const storedActive = t.active ?? false;
         const status = translateActiveToStatus(requestedActive, storedActive);
+        const verbatimConditions = op.trigger?.conditions;
         const merged = buildTrigger(
           {
             type: op.trigger?.type ?? t.type,
             name: op.trigger?.name ?? t.name,
             masterType: op.trigger?.masterType ?? t.masterType,
-            filters: op.trigger?.filters ?? t.conditions ?? [],
+            filters: verbatimConditions !== void 0 ? [] : op.trigger?.filters ?? t.conditions ?? [],
             // NEVER force-activate: a modify that doesn't mention `active` preserves whatever
             // the live trigger already had. There is a standing project rule against enabling
             // anything found off. (`status` above, not this `active` field, is what actually
@@ -151365,12 +154455,34 @@ function planTriggerOps(triggerOps, { ctx, wid, uid, existing = [], workflowStat
           refMapFrom(ctx?.externalRefs)
         );
         delete merged.status;
+        const body = {
+          ...t,
+          ...merged,
+          ...verbatimConditions !== void 0 ? { conditions: verbatimConditions } : {},
+          id: tid,
+          _id: t._id ?? tid,
+          ...status !== void 0 ? { status } : {}
+        };
+        const requested = requestedTriggerFields(op.trigger, body, t);
+        const unchanged = Object.entries(requested).every(([k, v]) => JSON.stringify(v) === JSON.stringify(t[k])) && status === void 0;
+        if (unchanged) {
+          return {
+            op: op.op,
+            noop: true,
+            triggerId: tid,
+            requested,
+            reason: `every requested value (${Object.keys(requested).join(", ")}) already matches the stored trigger '${t.name ?? tid}' \u2014 no PUT sent`
+          };
+        }
         return {
           op: op.op,
           method: "PUT",
           path: `/workflow/${loc}/trigger/${tid}`,
           triggerId: tid,
-          body: { ...t, ...merged, id: tid, _id: t._id ?? tid, ...status !== void 0 ? { status } : {} }
+          body,
+          requested,
+          // The pre-write row, so a round trip can assert the server's own date_updated MOVED.
+          before: { date_updated: t.date_updated ?? null, updatedAt: t.updatedAt ?? null }
         };
       }
       default:
@@ -151385,15 +154497,15 @@ function compileSubgraph(node, ctx) {
   );
   const tpls = out._templates;
   const head = tpls.find((t) => (t.parentKey === null || t.parentKey === void 0) && t.parent == null) ?? tpls[0];
-  const isContainer2 = Array.isArray(head.next);
+  const isContainer = Array.isArray(head.next);
   const entry = { ...head };
   delete entry.order;
   delete entry.parentKey;
   delete entry.parent;
-  if (!isContainer2) delete entry.next;
-  if (!isContainer2 && tpls.length !== 1)
+  if (!isContainer) delete entry.next;
+  if (!isContainer && tpls.length !== 1)
     throw new Error(`edit-add: '${node.type}' compiled to ${tpls.length} templates but its entry has no branch array \u2014 unsupported shape`);
-  return { entry, templates: [entry, ...tpls.filter((t) => t.id !== head.id)], isContainer: isContainer2, refMap: out._refMap };
+  return { entry, templates: [entry, ...tpls.filter((t) => t.id !== head.id)], isContainer, refMap: out._refMap };
 }
 var empty = () => ({ createdSteps: [], modifiedSteps: [], deletedSteps: [] });
 function mergeDiff(a, b) {
@@ -151437,6 +154549,36 @@ var OP_REQUIRED_ARGS = {
   replaceInAttributes: ["path", "find", "replace"],
   repairParentKeys: []
 };
+var OP_ACCEPTED_ARGS = {
+  appendStep: ["step"],
+  insertAfter: ["step", "afterId", "attachTailTo"],
+  insertBefore: ["step", "beforeId", "attachTailTo"],
+  appendToBranch: ["step", "branchEntryId", "branchRef", "containerId", "branch"],
+  deleteStep: ["stepId"],
+  modifyStep: ["stepId", "attrPatch", "stepPatch"],
+  retypeStep: ["stepId", "step"],
+  renameStep: ["stepId", "name"],
+  setStepDisabled: ["stepId", "disabled"],
+  disableStepsByType: ["type", "disabled"],
+  moveStep: ["stepId", "afterId"],
+  addBranch: ["containerId", "name", "conditions"],
+  deleteContainer: ["containerId"],
+  replaceTag: ["oldTag", "newTag", "triggers"],
+  replaceFieldId: ["oldId", "newId", "triggers"],
+  replaceInAttributes: ["type", "path", "find", "replace"],
+  repairParentKeys: [],
+  addStepNote: ["stepId", "text"],
+  duplicateStep: ["stepId", "afterId"],
+  // trigger ops (planTriggerOps) — `name`/`type` at the top level are the MATCHER, never the edit
+  addTrigger: ["trigger"],
+  deleteTrigger: ["triggerId", "name", "type"],
+  modifyTrigger: ["triggerId", "name", "type", "trigger"],
+  duplicateTrigger: ["triggerId", "name", "type", "newName"],
+  // settings + sticky notes
+  updateSettings: ["settings"],
+  addStickyNote: ["note"],
+  updateStickyNote: ["noteId", "note"]
+};
 var OP_ARG_ALIASES = {
   node: "step",
   newStep: "step",
@@ -151452,6 +154594,43 @@ var OP_ARG_ALIASES = {
   label: "name",
   title: "name"
 };
+var OP_KEY_HINTS = {
+  modifyStep: {
+    attributes: "you passed 'attributes' \u2014 modifyStep takes 'attrPatch' (a patch merged over the step's attributes); 'attributes' was silently discarded on 0.47\u20130.56 and the engine PUT an unmodified document (R-115)",
+    name: "you passed 'name' \u2014 modifyStep never touches the step's name; use renameStep {stepId, name}, or modifyStep's stepPatch: {name} for a rename in the same op",
+    step: "you passed 'step' \u2014 modifyStep takes 'attrPatch' (and optionally 'stepPatch'); a whole new step is retypeStep {stepId, step}"
+  },
+  insertBefore: { stepId: "you passed 'stepId' \u2014 insertBefore takes 'beforeId' (the step the new one goes in front of)" },
+  insertAfter: { stepId: "you passed 'stepId' \u2014 insertAfter takes 'afterId' (the step the new one goes after)" },
+  modifyTrigger: {
+    conditions: "you passed 'conditions' at the op's top level \u2014 modifyTrigger reads ONLY 'trigger': put stored-shape rows in trigger.conditions (sent verbatim) or author rows in trigger.filters (expanded like a create). Left here, nothing would change and the PUT would re-send the stored record (R-67, R-96: eight dead rails on one account)",
+    filters: "you passed 'filters' at the op's top level \u2014 put them in trigger.filters; nothing would change otherwise",
+    status: "you passed 'status' \u2014 activation is authored as trigger.active (true|false); the engine translates it to the trigger's status field (R-80)",
+    active: "you passed 'active' at the op's top level \u2014 put it in trigger.active",
+    targetActionId: "you passed 'targetActionId' at the op's top level \u2014 put it in trigger.targetActionId",
+    target: "you passed 'target' at the op's top level \u2014 put it in trigger.target",
+    newName: "you passed 'newName' \u2014 modifyTrigger renames through trigger.name (newName belongs to duplicateTrigger)",
+    id: "you passed 'id' \u2014 this op takes 'triggerId'"
+  },
+  deleteTrigger: { id: "you passed 'id' \u2014 this op takes 'triggerId'" },
+  duplicateTrigger: { id: "you passed 'id' \u2014 this op takes 'triggerId'" },
+  addTrigger: {
+    conditions: "you passed 'conditions' at the op's top level \u2014 put them in trigger.conditions (stored shape, sent verbatim) or trigger.filters",
+    filters: "you passed 'filters' at the op's top level \u2014 put them in trigger.filters"
+  }
+};
+var MODIFY_TRIGGER_PATCH_KEYS = [
+  "type",
+  "name",
+  "masterType",
+  "filters",
+  "conditions",
+  "active",
+  "target",
+  "targetActionId",
+  "convTriggerBotId",
+  "marketplace"
+];
 var OP_NAME_ALIASES = {
   updateStep: "modifyStep",
   patchStep: "modifyStep",
@@ -151463,7 +154642,10 @@ var OP_NAME_ALIASES = {
   insert: "insertAfter",
   rename: "renameStep",
   disableStep: "setStepDisabled",
-  move: "moveStep"
+  move: "moveStep",
+  // addBranch handles an AI splitter natively (edit.mjs addSplitterBranch); the name the rails
+  // asked for is accepted as a spelling of it.
+  addSplitterBranch: "addBranch"
 };
 var STEP_OP_NAMES = Object.keys(OP_REQUIRED_ARGS);
 var opDistance = (a, b) => {
@@ -151474,24 +154656,67 @@ var opDistance = (a, b) => {
   return d[a.length][b.length];
 };
 var canonicalOpName = (name) => OP_NAME_ALIASES[name] ?? name;
+function checkTriggerOpShape(op) {
+  if (op.op === "modifyTrigger") {
+    if (op.triggerId && (op.name !== void 0 || op.type !== void 0)) {
+      throw new Error(`modifyTrigger: a top-level 'name'/'type' is the MATCHER used to find the trigger when no triggerId is given \u2014 with triggerId '${op.triggerId}' it is ignored, and a caller who meant it as the NEW name got a verified rename that never happened (R-101). Put the new value in trigger.name / trigger.type, or drop triggerId and match by name.`);
+    }
+    const patch = op.trigger;
+    if (!patch || typeof patch !== "object" || Array.isArray(patch) || !Object.keys(patch).length) {
+      throw new Error(`modifyTrigger: nothing to change \u2014 pass 'trigger' with the fields to write, e.g. { "op":"modifyTrigger", "triggerId":"\u2026", "trigger": { "name": "\u2026", "filters": [ \u2026 ] } }. Accepted trigger keys: ${MODIFY_TRIGGER_PATCH_KEYS.join(", ")}.`);
+    }
+    if (patch.status !== void 0) {
+      throw new Error(`modifyTrigger: trigger.status is not an authored field \u2014 activation is trigger.active (true|false), which the engine translates into the trigger's status rail (R-80).`);
+    }
+    const bad = Object.keys(patch).filter((k) => !MODIFY_TRIGGER_PATCH_KEYS.includes(k));
+    if (bad.length) {
+      throw new Error(`modifyTrigger: unknown key(s) inside trigger [${bad.map((k) => `trigger.${k}`).join(", ")}] \u2014 refused rather than dropped, because a dropped key re-sends the stored record and reports success (R-96). trigger accepts: ${MODIFY_TRIGGER_PATCH_KEYS.join(", ")}. A trigger-type-specific setting such as customTriggerType lives in a CONDITION ROW: send it through trigger.conditions (stored shape) or trigger.filters.`);
+    }
+    if (patch.filters !== void 0 && patch.conditions !== void 0) {
+      throw new Error("modifyTrigger: pass either trigger.filters (author shape, expanded like a create) or trigger.conditions (stored shape, sent verbatim) \u2014 not both; they are two spellings of the same rows.");
+    }
+  }
+  if (op.op === "addTrigger") {
+    const t = op.trigger;
+    if (!t || typeof t !== "object" || Array.isArray(t))
+      throw new Error("addTrigger needs a 'trigger' object: { type, name, filters | conditions, \u2026 }");
+    if (t.status !== void 0)
+      throw new Error("addTrigger: trigger.status is not authored \u2014 a new trigger's status follows the target workflow's own status.");
+    if (t.filters !== void 0 && t.conditions !== void 0)
+      throw new Error("addTrigger: pass either trigger.filters (author shape) or trigger.conditions (stored shape, verbatim) \u2014 not both.");
+  }
+}
 function checkOpShape(op) {
+  const accepted = OP_ACCEPTED_ARGS[op?.op];
   const required2 = OP_REQUIRED_ARGS[op?.op];
-  if (!required2) return;
+  if (!accepted && !required2) return;
   if (op.op === "appendToBranch" && !op.branchEntryId && !op.branchRef && !(op.containerId && op.branch)) {
     const aliased = Object.keys(op).find((k) => OP_ARG_ALIASES[k] === "branchEntryId");
     throw new Error(
       (aliased ? `you passed '${aliased}' \u2014 this op takes 'branchEntryId'. ` : "") + `edit op 'appendToBranch' needs ONE anchor: branchEntryId (a branch entry id), branchRef (a branch ref authored earlier in this call), or containerId + branch (display name, __branchKey__, or id).`
     );
   }
-  const missing = required2.filter((k) => op[k] === void 0);
-  if (!missing.length) return;
-  const suggestions = missing.map((want) => {
-    const wrong = Object.keys(op).find((k) => OP_ARG_ALIASES[k] === want);
-    return wrong ? `you passed '${wrong}' \u2014 this op takes '${want}'` : null;
-  }).filter(Boolean);
-  throw new Error(
-    `edit op '${op.op}' is missing required argument(s) [${missing.join(", ")}]` + (suggestions.length ? ` \u2014 ${suggestions.join("; ")}` : "") + `. '${op.op}' takes: ${required2.join(", ")}.`
-  );
+  const hints = OP_KEY_HINTS[op.op] ?? {};
+  const missing = (required2 ?? []).filter((k) => op[k] === void 0);
+  const unknown2 = accepted ? Object.keys(op).filter((k) => k !== "op" && !accepted.includes(k)) : [];
+  if (missing.length || unknown2.length) {
+    const named = [];
+    for (const k of unknown2) {
+      const alias = OP_ARG_ALIASES[k];
+      if (hints[k]) named.push(hints[k]);
+      else if (alias && (accepted ?? required2).includes(alias)) named.push(`you passed '${k}' \u2014 this op takes '${alias}'`);
+    }
+    const parts = [];
+    if (missing.length) parts.push(`is missing required argument(s) [${missing.join(", ")}]`);
+    if (unknown2.length) parts.push(`carries unknown key(s) [${unknown2.join(", ")}]`);
+    const req = required2 ?? [];
+    const optional2 = (accepted ?? []).filter((k) => !req.includes(k));
+    const signature = req.length || optional2.length ? `takes: ${req.length ? req.join(", ") : "(nothing required)"}${optional2.length ? ` (optional: ${optional2.join(", ")})` : ""}` : "takes no arguments";
+    throw new Error(
+      `edit op '${op.op}' ${parts.join(" and ")}` + (named.length ? ` \u2014 ${named.join("; ")}` : "") + `. '${op.op}' ${signature}.` + (unknown2.length ? " An unconsumed key is never dropped silently here: a write that ignores part of the op reports success while changing nothing (R-96)." : "")
+    );
+  }
+  checkTriggerOpShape(op);
 }
 var requireStepFor = (templates, id, op) => {
   const hit = (templates ?? []).find((t) => t.id === id);
@@ -154131,7 +157356,12 @@ function uiSaveViolations(body, botType) {
 var FATAL_FOR_FLOW_BOT = /* @__PURE__ */ new Set(["toneEmpty", "errorMaxTones", "selectChannel"]);
 function compileConvaiAgent(ir, { locationId, warn, allowUiUnsaveable } = {}) {
   const norm3 = parseConvaiIR(ir);
-  const body = buildCreateBody(norm3, { locationId });
+  const rawBody = buildCreateBody(norm3, { locationId });
+  const body = applyBotTypeCleanup(rawBody);
+  for (const k of Object.keys(rawBody)) {
+    if (k in body || norm3[k] === void 0) continue;
+    warn?.(`BOT_TYPE_KEY: '${k}' is not accepted for botType '${body.botType}' and was dropped \u2014 the server refuses the whole create otherwise ("${k} is only allowed when bot type is FLOW_BUILDER_BOT").`);
+  }
   const violations = uiSaveViolations(body, body.botType);
   const fatal = body.botType === "FLOW_BUILDER_BOT" ? violations.filter((x) => FATAL_FOR_FLOW_BOT.has(x.rule)) : [];
   if (fatal.length && allowUiUnsaveable !== true) {
@@ -154180,8 +157410,11 @@ var SERVER_KEYS = /* @__PURE__ */ new Set([
   "employeeType",
   "errors",
   "isDeleted",
-  "rootParentAgentId"
+  "rootParentAgentId",
+  "workingHours",
+  "steps"
 ]);
+var EMPTY_OBJECT_REFUSED_KEYS = ["summary", "emailSettings"];
 function applyBotTypeCleanup(body) {
   const b = { ...body };
   if (b.botType !== "FLOW_BUILDER_BOT") for (const k of FLOW_ONLY_KEYS) delete b[k];
@@ -154211,6 +157444,8 @@ function compileConvaiUpdateFromRecord(current, partialIr, { agentId, locationId
   const norm3 = parseConvaiPartialIR(partialIr);
   const body = {};
   for (const [k, v] of Object.entries(current)) if (!SERVER_KEYS.has(k) && k !== "name") body[k] = v;
+  const isEmptyObject = (v) => v !== null && typeof v === "object" && !Array.isArray(v) && Object.keys(v).length === 0;
+  for (const k of EMPTY_OBJECT_REFUSED_KEYS) if (body[k] === null || isEmptyObject(body[k])) delete body[k];
   body.locationId = locationId ?? current.locationId;
   body.employeeName = current.employeeName ?? current.name;
   const setKeys = /* @__PURE__ */ new Set(["locationId"]);
@@ -154226,6 +157461,7 @@ function compileConvaiUpdateFromRecord(current, partialIr, { agentId, locationId
   }
   body.actions = null;
   setKeys.add("actions");
+  const writeOnlyKeys = ["actions"];
   const cleaned = applyBotTypeCleanup(body);
   const collateralKeys = Object.keys(cleaned).filter((k) => !setKeys.has(k));
   return {
@@ -154233,7 +157469,8 @@ function compileConvaiUpdateFromRecord(current, partialIr, { agentId, locationId
     path: `/ai-employees/employees/${agentId}`,
     body: cleaned,
     authHeader: AUTH_HEADER,
-    collateralKeys
+    collateralKeys,
+    writeOnlyKeys
   };
 }
 
@@ -155838,22 +159075,81 @@ async function customCodePreflight({ gw, loc, templates, touchedIds, strict, ski
   }
   return { tests, refusal: null };
 }
-async function assetPreflightFor({ gw, loc, templates, triggers, companyId, touchedIds, ignoreAssetErrors, warnings }) {
-  const assetPreflight = await validateAssets((m, p2, b) => gw.call(m, p2, b), loc, { templates, triggers, companyId });
+var idsBeingReplaced = (ops = []) => new Set(ops.flatMap((o) => [o?.oldId, o?.oldTag, o?.find]).filter((v) => typeof v === "string" && v));
+async function assetPreflightFor({ gw, loc, templates, triggers, companyId, touchedIds, ignoreAssetErrors, warnings, ops = [] }) {
+  const verdict = await validateAssets((m, p2, b) => gw.call(m, p2, b), loc, { templates, triggers, companyId });
+  const assetPreflight = { phase: "pre-write", ...verdict };
   for (const w of assetPreflight.warnings ?? []) warnings.push(`asset: ${describeFinding(w)}`);
   const blocking = [];
   for (const e of assetPreflight.errors ?? []) {
     if (e.stepId && !touchedIds.has(e.stepId)) warnings.push(`asset (pre-existing, untouched by this edit): ${describeFinding(e)}`);
     else blocking.push(e);
   }
+  if (blocking.length && ignoreAssetErrors === true) {
+    const replacing = idsBeingReplaced(ops);
+    const stillOld = blocking.filter((e) => e.assetId && replacing.has(e.assetId));
+    if (stillOld.length) {
+      return { assetPreflight, refusal: withFailureData(fail(
+        CODES.VALIDATION_FAILED,
+        `ignoreAssetErrors refused: GHL still reports ${stillOld.length} reference(s) to an id this edit is REPLACING \u2014 ` + stillOld.map(describeFinding).join("; ") + ". The candidate document still carries the old id, so the replace op did not reach it.",
+        "This is the R-96 shape: an asset error naming the very reference you are fixing means the fix has not landed in the candidate document. Check the op (replaceInAttributes path / replaceFieldId / replaceTag) reaches the field, preview without confirm to read data.preview.assetPreflight, and do not hatch past it. Nothing was written."
+      ), { assetPreflight, warnings }) };
+    }
+  }
   if (blocking.length && ignoreAssetErrors !== true) {
     return { assetPreflight, refusal: withFailureData(fail(
       CODES.VALIDATION_FAILED,
       `GHL rejected ${blocking.length} asset reference(s) in this edit before any write: ` + blocking.map(describeFinding).join("; "),
-      "Create the missing objects, correct the references, or pass ignoreAssetErrors:true to write the edit anyway. Nothing was written."
+      "Create the missing objects or correct the references. ignoreAssetErrors:true writes the edit anyway and is for a reference you KNOW is about to exist \u2014 if the error names the reference this edit is meant to fix, the fix has not landed and hatching past it hides a failed re-point (R-96). This verdict describes the document BEFORE the write (phase: pre-write); a confirmed write re-checks the persisted document. Nothing was written."
     ), { assetPreflight, warnings }) };
   }
   return { assetPreflight, refusal: null };
+}
+async function assetPostcheck({ gw, loc, templates, triggers, companyId, touchedIds, warnings }) {
+  const verdict = await validateAssets((m, p2, b) => gw.call(m, p2, b), loc, { templates, triggers, companyId });
+  const persisting = (verdict.errors ?? []).filter((e) => !e.stepId || touchedIds.has(e.stepId));
+  for (const e of persisting) {
+    warnings.push(`ASSET_ERROR_PERSISTS_AFTER_WRITE: ${describeFinding(e)} \u2014 GHL still reports this on the PERSISTED document. If this is the reference you meant to fix, the fix did not land: re-read with export_workflow and compare.`);
+  }
+  return { phase: "post-write", ...verdict, persisting };
+}
+function writeResultFile(path, data2) {
+  if (typeof path !== "string" || !isAbsolute2(path)) {
+    return { failure: fail(CODES.VALIDATION_FAILED, "writeTo must be an absolute file path.", 'Pass e.g. "/Users/you/project/.ghl/export.json".') };
+  }
+  const text = JSON.stringify(scrubSecrets(data2), null, 1);
+  mkdirSync2(dirname2(path), { recursive: true });
+  writeFileSync2(path, text, { mode: 384 });
+  return { writtenTo: path, bytes: Buffer.byteLength(text) };
+}
+function readTemplatesFile(path) {
+  if (typeof path !== "string" || !isAbsolute2(path)) {
+    return { failure: fail(CODES.VALIDATION_FAILED, "templatesPath must be an absolute file path.", "Pass the file export_workflow wrote (writeTo), or any JSON holding the templates array.") };
+  }
+  let parsed;
+  try {
+    parsed = JSON.parse(readFileSync3(path, "utf8"));
+  } catch (e) {
+    return { failure: fail(CODES.VALIDATION_FAILED, `templatesPath could not be read as JSON: ${e.message}`, "Point it at an export_workflow file or a JSON file holding the templates array.") };
+  }
+  const templates = Array.isArray(parsed) ? parsed : Array.isArray(parsed?.templates) ? parsed.templates : Array.isArray(parsed?.workflowData?.templates) ? parsed.workflowData.templates : Array.isArray(parsed?.workflow?.workflowData?.templates) ? parsed.workflow.workflowData.templates : null;
+  if (!templates) {
+    return { failure: fail(CODES.VALIDATION_FAILED, "templatesPath holds no templates array.", "Accepted shapes: a bare array, {templates}, a workflow GET body {workflowData:{templates}}, or an export_workflow file {workflow:{workflowData:{templates}}}.") };
+  }
+  return { templates };
+}
+function fieldCapGate({ templates, scope, allowOverCap, warnings }) {
+  const findings = checkFieldCaps(templates, { scope });
+  if (!findings.length) return { findings, refusal: null };
+  if (allowOverCap === true) {
+    for (const f of findings) warnings.push(`FIELD_CAP (allowOverCap): ${describeCap(f)}`);
+    return { findings, refusal: null };
+  }
+  return { findings, refusal: withFailureData(fail(
+    CODES.VALIDATION_FAILED,
+    `${findings.length} field(s) exceed the builder's character cap: ${findings.map(describeCap).join("; ")}`,
+    "Shorten the value to the cap (describe_step_type shows caps per type), or pass allowOverCap:true to write it anyway \u2014 the server will store it and the builder will flag it. Nothing was written."
+  ), { fieldCaps: findings, warnings }) };
 }
 async function readinessFor({ gw, loc, templates, touchedIds, triggerTypes = [], settings = {}, catalog, warnings }) {
   try {
@@ -155887,7 +159183,9 @@ function editPreview(ops, beforeTemplates, templates, diff, triggerPlan, neededT
     idsAdded: [...afterIds].filter((id) => !beforeIds.has(id)),
     idsRemoved: [...beforeIds].filter((id) => !afterIds.has(id)),
     diff,
-    triggerChanges: triggerPlan.map(({ op, method, path, triggerId }) => ({ op, method, path, ...triggerId ? { triggerId } : {} })),
+    // A NOOP entry is a modifyTrigger whose every requested value already matches the store —
+    // shown, never sent (D-67: a no-op PUT "verified" a write that never happened).
+    triggerChanges: triggerPlan.map(({ op, method, path, triggerId, noop, reason, requested }) => noop ? { op, triggerId, noop: true, reason, requested } : { op, method, path, ...triggerId ? { triggerId } : {}, ...requested ? { requested } : {} }),
     requiresPublish,
     publishInstruction: triggerPublishInstruction(triggerPlan, workflowStatus, { committed: false }),
     tagsReferenced: neededTags,
@@ -155983,12 +159281,32 @@ function verifyTriggerRoundTrip(expectations, actualTriggers, beforeTriggers = [
       }
     }
     const mismatches = actual ? expectedSubsetMismatches(expected, actual) : [];
+    const requested = request.requested && actual ? expectedSubsetMismatches(request.requested, actual) : [];
+    for (const m of requested) if (!mismatches.some((x) => x.path === m.path)) mismatches.push({ ...m, requestedByCaller: true });
+    let dateUpdated = null;
+    if (actual && request.before && (request.before.date_updated || request.before.updatedAt)) {
+      const before = request.before.date_updated ?? request.before.updatedAt;
+      const after = actual.date_updated ?? actual.updatedAt ?? null;
+      dateUpdated = { before, after, moved: after != null && after !== before };
+      if (!dateUpdated.moved) {
+        mismatches.push({
+          path: "date_updated",
+          expected: `a stamp later than ${before}`,
+          actual: after,
+          note: "the server stamps date_updated on every write it applies; an unmoved stamp after a 200 means the PUT changed nothing (D-67)"
+        });
+      }
+    } else if (actual && request.before) {
+      dateUpdated = { before: null, after: actual.date_updated ?? actual.updatedAt ?? null, moved: null, note: "pre-write row carried no date_updated \u2014 the moved-stamp check could not run" };
+    }
     return {
       op: request.op,
       triggerId: request.triggerId ?? returnedId ?? triggerIdOf(actual),
       matchSource,
       persisted: Boolean(actual) && mismatches.length === 0,
-      mismatches
+      mismatches,
+      ...request.requested ? { requested: request.requested } : {},
+      ...dateUpdated ? { dateUpdated } : {}
     };
   });
   return { roundTrip: checks.every((check2) => check2.persisted), checks };
@@ -156429,8 +159747,9 @@ var TOOLS2 = [
           "Review data.preview.changingKeys and data.preview.collateralKeys, then repeat with confirm:true."
         ), { preview });
       }
+      const writeOnly = new Set(plan.writeOnlyKeys ?? []);
       const expected = {};
-      for (const k of changingKeys) expected[k] = plan.body[k];
+      for (const k of changingKeys) if (!writeOnly.has(k)) expected[k] = plan.body[k];
       const report = await executeAgentUpdate({
         plan: { update: { method: "PUT", path, body: plan.body }, collateralKeys: plan.collateralKeys, before: record2, expected },
         gw
@@ -156935,10 +160254,12 @@ var TOOLS2 = [
   },
   {
     name: "export_workflow",
-    description: describe3("export_workflow", "Export the full workflow body, triggers and sticky notes."),
+    description: describe3("export_workflow", "Export the full workflow body, triggers and sticky notes.") + " stepIds narrows workflowData.templates to those steps (triggers and notes untouched); writeTo writes the full, scrubbed export to an absolute path and returns a summary \u2014 a 110-step flow exceeds the inline result cap.",
     inputSchema: schema({
       locationId: external_exports.string(),
-      workflowId: external_exports.string()
+      workflowId: external_exports.string(),
+      stepIds: external_exports.array(external_exports.string()).optional(),
+      writeTo: external_exports.string().optional()
     }),
     capabilities: [
       { method: "GET", path: "/workflow/{loc}/{wid}" },
@@ -156970,11 +160291,39 @@ var TOOLS2 = [
         for (const key of keys) if (Array.isArray(payload?.[key])) return payload[key];
         return [];
       };
-      return ok({
-        workflow: body.json,
+      let workflow = body.json;
+      const allTemplates = Array.isArray(workflow?.workflowData?.templates) ? workflow.workflowData.templates : null;
+      if (Array.isArray(args.stepIds) && args.stepIds.length && allTemplates) {
+        const wanted = new Set(args.stepIds);
+        const missing = args.stepIds.filter((id) => !allTemplates.some((t) => t?.id === id));
+        workflow = {
+          ...workflow,
+          workflowData: { ...workflow.workflowData, templates: allTemplates.filter((t) => wanted.has(t?.id)) },
+          exportFilter: { stepIds: args.stepIds, totalSteps: allTemplates.length, ...missing.length ? { missing } : {} }
+        };
+      }
+      const result = {
+        workflow,
         triggers: asArray(triggers.json, "triggers", "data"),
         stickyNotes: asArray(notes.json, "data", "notes")
-      });
+      };
+      if (args.writeTo) {
+        const written = writeResultFile(args.writeTo, result);
+        if (written.failure) return written.failure;
+        return ok({
+          ...written,
+          workflowId: args.workflowId,
+          name: workflow?.name ?? null,
+          status: workflow?.status ?? null,
+          version: workflow?.version ?? null,
+          stepCount: workflow?.workflowData?.templates?.length ?? null,
+          triggerCount: result.triggers.length,
+          stickyNoteCount: result.stickyNotes.length,
+          ...workflow?.exportFilter ? { exportFilter: workflow.exportFilter } : {},
+          note: "Full export written to writeTo (scrubbed). repair_workflow accepts this file as templatesPath."
+        });
+      }
+      return ok(result);
     }, args)
   },
   {
@@ -156999,7 +160348,10 @@ var TOOLS2 = [
       allEnrollments: external_exports.boolean().default(false),
       maxEnrollmentPages: external_exports.number().int().positive().default(50),
       // Opt-in enrollment totals ({ total, finished }) from the cache endpoint.
-      enrollmentTotals: external_exports.boolean().default(false)
+      enrollmentTotals: external_exports.boolean().default(false),
+      // Write the full result to this ABSOLUTE path (scrubbed like the inline result) and return a
+      // summary instead — a busy flow's log read exceeds the tool-result cap (backlog 27).
+      writeTo: external_exports.string().optional()
     }),
     capabilities: [
       { method: "GET", path: "/workflows/logs/v2" },
@@ -157112,7 +160464,20 @@ var TOOLS2 = [
         const af = r?.meta?.actionFrom;
         return af == null || typeof af === "object" && Object.keys(af).length === 0;
       };
+      const OBJECTIVE_WRITE_FAILED = /field update failed/i;
+      const objectiveWriteFailed = (r) => {
+        if (r?.type !== "conversationai_objective") return false;
+        const msg = (r?.meta?.actionFrom ?? r?.actionFrom)?.response?.msg;
+        return typeof msg === "string" && OBJECTIVE_WRITE_FAILED.test(msg);
+      };
       const labelledLogs = Array.isArray(rawLogs) ? rawLogs.map((r) => {
+        if (objectiveWriteFailed(r)) {
+          return {
+            ...r,
+            objectiveWriteFailed: true,
+            objectiveWriteNote: "the objective was met but the Conversation AI service REFUSED the field write and moved on (allowPartialSuccess) \u2014 the field keeps its old value; a platform transient seen in bursts on every account, not tied to the field, the contact or the wording. Read the field before trusting it."
+          };
+        }
         if (PREMIUM_ACTION_TYPES.has(r?.type) && r?.status === "success" && emptyActionFrom(r)) {
           return {
             ...r,
@@ -157129,11 +160494,13 @@ var TOOLS2 = [
         };
       }) : rawLogs;
       const externalRemovals = Array.isArray(labelledLogs) ? labelledLogs.filter((r) => r?.removalOrigin === "external-api").length : 0;
-      return ok({
+      const objectiveWriteFailures = Array.isArray(labelledLogs) ? labelledLogs.filter((r) => r?.objectiveWriteFailed).length : 0;
+      const result = {
         logs: labelledLogs,
         // Counted separately because the roster cannot tell them apart: it says `finished` for a
         // completed run AND for one an outside call ended.
         ...externalRemovals ? { externalRemovals } : {},
+        ...objectiveWriteFailures ? { objectiveWriteFailures } : {},
         perStepCounts: counts.json?.counts ?? counts.json ?? [],
         enrollments,
         // Only meaningful when the caller asked for the full walk; undefined keeps
@@ -157142,7 +160509,21 @@ var TOOLS2 = [
         ...rateLimited ? { rateLimited: true } : {},
         ...enrollmentStats ? { enrollmentStats } : {},
         note: 'added_to_workflow in logs is the ONLY proof a trigger fired. Rows flagged isLifecycleRow are GHL-generated, not authored steps \u2014 do not correlate them to workflowData.templates. A roster status of "finished" means the contact LEFT the workflow, which covers both completing it and being removed from it \u2014 it is not a completion signal.'
-      });
+      };
+      if (args.writeTo) {
+        const written = writeResultFile(args.writeTo, result);
+        if (written.failure) return written.failure;
+        return ok({
+          ...written,
+          logCount: Array.isArray(labelledLogs) ? labelledLogs.length : null,
+          enrollmentCount: enrollments.length,
+          ...objectiveWriteFailures ? { objectiveWriteFailures } : {},
+          ...externalRemovals ? { externalRemovals } : {},
+          ...args.allEnrollments ? { enrollmentsComplete, enrollmentPages: pages } : {},
+          note: "Full result written to writeTo (scrubbed). Re-read the file for the rows; this summary carries the counts only."
+        });
+      }
+      return ok(result);
     }, args)
   },
   {
@@ -157564,8 +160945,13 @@ var TOOLS2 = [
         }
       };
       const out = [];
+      const NO_STATS_TYPES = /* @__PURE__ */ new Set(["conv_ai_trigger", "conv_ai_autonomous_trigger"]);
       for (const trig of triggers) {
         const item = { id: trig.id, name: trig.name, type: trig.type, active: trig.active ?? null };
+        if (NO_STATS_TYPES.has(trig.type)) {
+          item.noStats = true;
+          item.note = `${trig.type} keeps no attempt stats (every account reads 0 even after a proven fire). Proof of a fire is the added_to_workflow enrolment row: get_workflow_logs with contactId, or its enrollments roster.`;
+        }
         const c = await gw.call("GET", `/workflows/trigger/logs/count-by-triggerId?${new URLSearchParams({ ...base, triggerId: trig.id, recordId: "" })}`);
         const row = Array.isArray(c.json) ? c.json[0] ?? null : null;
         item.attempted = Number(row?.total ?? 0);
@@ -157598,7 +160984,7 @@ var TOOLS2 = [
       return ok({
         window: { fromDate, toDate, days: args.days ?? 30 },
         triggers: out,
-        note: "Same endpoints as the builder's trigger Stats modal. contactId is the attempt's recordId; actualValue/expectedValue are the filter comparison that decided qualified. Seven trigger types keep no stats: mailgun_email_event, opportunity_decay, call_status, custom_date_reminder, customer_appointment, birthday_reminder, task_due_date_reminder."
+        note: "Same endpoints as the builder's trigger Stats modal. contactId is the attempt's recordId; actualValue/expectedValue are the filter comparison that decided qualified. Nine trigger types keep no stats: mailgun_email_event, opportunity_decay, call_status, custom_date_reminder, customer_appointment, birthday_reminder, task_due_date_reminder, and the two Conversation-AI types conv_ai_trigger and conv_ai_autonomous_trigger (flagged noStats per trigger) \u2014 for those, an added_to_workflow enrolment row in get_workflow_logs is the only proof of a fire."
       });
     }, args)
   },
@@ -158425,7 +161811,7 @@ var TOOLS2 = [
   },
   {
     name: "edit_workflow",
-    description: describe3("edit_workflow", "Preview or confirmation-gate edits to an existing workflow through the canonical edit engine. Confirmed step edits use only the plain workflow PUT and are round-trip verified. Guard hatches, each named by the guard that refuses: allowGotoLoops, deadBranchAcknowledged, allowDanglingParentKeys, allowDanglingStepRefs. Ops \u2014 steps: appendStep, insertAfter, insertBefore, appendToBranch (anchor: branchEntryId | containerId+branch | branchRef), deleteStep, modifyStep (attrPatch/stepPatch; re-normalised through the compiler), retypeStep (full attributes), renameStep, setStepDisabled, disableStepsByType, moveStep, addBranch, deleteContainer, repairParentKeys, addStepNote, duplicateStep, replaceTag, replaceFieldId, replaceInAttributes; triggers: addTrigger, modifyTrigger (target = a live step id or unique name), deleteTrigger, duplicateTrigger; settings: updateSettings; notes: addStickyNote, updateStickyNote. Names in steps and triggers resolve to ids against the account (ignoreUnresolved to bypass). Runs the same pre-write validation ladder as build_workflow: workflow + graph-context rules, GHL's asset-reference validator (hatch: ignoreAssetErrors), the custom-code sandbox test on custom_code steps this edit touches (skipCustomCodeTest / strictCustomCode), account-readiness signals, and a builder-required-field check on the persisted document."),
+    description: describe3("edit_workflow", "Preview or confirmation-gate edits to an existing workflow through the canonical edit engine. Confirmed step edits use only the plain workflow PUT and are round-trip verified. Guard hatches, each named by the guard that refuses: allowGotoLoops, deadBranchAcknowledged, allowDanglingParentKeys, allowDanglingStepRefs, allowOverCap. OP KEYS ARE STRICT: an unknown key on any op refuses the whole call by name (a dropped key once re-sent the stored record and verified clean \u2014 R-96). Ops \u2014 steps: appendStep, insertAfter, insertBefore, appendToBranch (anchor: branchEntryId | containerId+branch | branchRef), deleteStep, modifyStep (attrPatch/stepPatch \u2014 never `attributes`, never `name`; re-normalised through the compiler), retypeStep (full attributes), renameStep, setStepDisabled, disableStepsByType, moveStep, addBranch (if/else, or an AI splitter: alias addSplitterBranch), deleteContainer, repairParentKeys, addStepNote, duplicateStep, replaceTag, replaceFieldId, replaceInAttributes; triggers: addTrigger, modifyTrigger {triggerId|name, trigger:{name?, filters? (author rows) | conditions? (stored rows, sent verbatim), active?, target?|targetActionId?}} \u2014 a top-level conditions/name/status is refused, not ignored; a patch that changes nothing is a NOOP, not a write; the verifier holds the store to what YOU asked for and to the server's own date_updated stamp; deleteTrigger, duplicateTrigger; settings: updateSettings (Settings-tab keys plus `name`); notes: addStickyNote, updateStickyNote. Names in steps and triggers resolve to ids against the account (ignoreUnresolved to bypass). Runs the same pre-write validation ladder as build_workflow: workflow + graph-context rules, GHL's asset-reference validator (hatch: ignoreAssetErrors), the custom-code sandbox test on custom_code steps this edit touches (skipCustomCodeTest / strictCustomCode), account-readiness signals, and a builder-required-field check on the persisted document."),
     inputSchema: schema({
       locationId: external_exports.string(),
       workflowId: external_exports.string(),
@@ -158449,6 +161835,9 @@ var TOOLS2 = [
       // The build path's validate_assets hatch (orchestrate.mjs opts.ignoreAssetErrors): write the
       // edit even though GHL's own reference validator rejected an asset reference this edit touches.
       ignoreAssetErrors: external_exports.boolean().default(false),
+      // Measured field caps (field-caps.mjs) refuse an over-length value on a touched step; this
+      // writes it anyway and keeps a FIELD_CAP warning.
+      allowOverCap: external_exports.boolean().default(false),
       // The build path's custom-code sandbox pre-flight switches, same names and defaults as
       // build_workflow: strict → a failing sandbox run refuses the edit instead of warning.
       strictCustomCode: external_exports.boolean().default(false),
@@ -158471,6 +161860,11 @@ var TOOLS2 = [
       { method: "GET", path: "/forms/" },
       { method: "GET", path: "/workflow/{loc}/{wid}" },
       { method: "GET", path: "/workflow/{loc}/trigger" },
+      // Read ONLY when a deleteStep/deleteContainer op targets a PUBLISHED workflow: contacts
+      // parked on a deleted step are ejected (backlog 23), so the preview counts them first.
+      { method: "GET", path: "/workflows/status/search/count-per-step" },
+      // Read ONLY for a replaceFieldId op: both ids must resolve on THIS account (backlog 29).
+      { method: "GET", path: "/locations/{loc}/customFields/{id}" },
       // Marketplace index — read ONLY when an op carries marketplace:true.
       { method: "GET", path: "/workflows-marketplace/location/{loc}/assets" },
       { method: "GET", path: "/marketplace/core/search/module" },
@@ -158609,9 +162003,43 @@ var TOOLS2 = [
         for (const u of resolved.unresolved) warnings.push(`UNRESOLVED (ignored): ${u.where} '${u.name}'`);
       }
       const { stepOps, triggerOps, settingsOps, stickyOps } = partitionOps(editOps);
+      for (const op of stepOps.filter((o) => o.op === "replaceFieldId")) {
+        const lookups = await Promise.all([op.newId, op.oldId].map(async (id) => {
+          const r = await gw.call("GET", `/locations/${locationPath}/customFields/${encodeURIComponent(id)}`);
+          const f = r?.json?.customField ?? r?.json;
+          return { id, ok: r?.ok === true && f && typeof f === "object", fieldKey: f?.fieldKey ?? null, dataType: f?.dataType ?? null };
+        }));
+        const [next, prev] = lookups;
+        if (!next.ok && args.ignoreUnresolved !== true) {
+          return fail(
+            CODES.UNRESOLVED_DEPS,
+            `replaceFieldId: the NEW id '${op.newId}' does not resolve on this account (GET /locations/{loc}/customFields/{id}). ` + (prev.ok ? `The old id resolves to ${prev.fieldKey ?? prev.id} (${prev.dataType ?? "?"}). ` : "") + "Field ids differ per account even for standard fields, so a cloned reference can look right and write nothing.",
+            "Look the field up with list_account_entities or GET /locations/{loc}/customFields/search?model=all on THIS account and use its id, or pass ignoreUnresolved:true to write the foreign id anyway."
+          );
+        }
+        if (!next.ok) warnings.push(`UNRESOLVED (ignored): replaceFieldId newId '${op.newId}' does not resolve on this account`);
+        else warnings.push(`replaceFieldId: '${op.oldId}'${prev.ok ? ` (${prev.fieldKey ?? "?"})` : " (does not resolve here)"} \u2192 '${op.newId}' (${next.fieldKey ?? "?"}, ${next.dataType ?? "?"})`);
+      }
       const settingsPatch = mergeSettingsOps(settingsOps);
       const stickyPlan = stickyOps.map((op) => planStickyNoteOp(op, { loc: args.locationId, wid: args.workflowId }));
       const { templates, diff } = applyOps(beforeTemplates, stepOps, { ctx, idGen });
+      let parkedOnDeletedSteps = [];
+      if (fresh.status === "published" && diff.deletedSteps?.length) {
+        const counts = await safeGatewayCall(() => gw.call(
+          "GET",
+          `/workflows/status/search/count-per-step?${new URLSearchParams({ workflowId: args.workflowId, locationId: args.locationId })}`
+        ));
+        const rows = !counts.threw && counts.value?.ok ? counts.value.json?.counts ?? counts.value.json ?? [] : null;
+        if (!Array.isArray(rows)) {
+          warnings.push("DELETE_PARKED_UNKNOWN: could not read contacts-per-step, so the number of contacts parked on the deleted step(s) is unknown; read get_contacts_at_step before confirming.");
+        } else {
+          const byStep = new Map(rows.map((r) => [r?.currentStepId ?? r?.stepId, Number(r?.total ?? r?.count ?? 0)]));
+          parkedOnDeletedSteps = diff.deletedSteps.map((id) => ({ stepId: id, name: beforeTemplates.find((t) => t.id === id)?.name ?? id, parked: byStep.get(id) ?? 0 })).filter((r) => r.parked > 0);
+          for (const r of parkedOnDeletedSteps) {
+            warnings.push(`DELETE_EJECTS_PARKED_CONTACTS: ${r.parked} contact(s) are parked on '${r.name}' (${r.stepId}); deleting it ends their run (step_was_deleted_by_user) and an autonomous trigger will not re-fire for them in that session. Move them first (fast_forward_contacts / get_contacts_at_step), or accept the ejection.`);
+          }
+        }
+      }
       ctx.externalRefs = externalRefsOf(templates);
       let existingTriggers = [];
       if (triggerOps.length || rulesNeedTriggers(templates, ctx.catalog?.workflowRules)) {
@@ -158652,6 +162080,9 @@ var TOOLS2 = [
       );
       checkGraphContextRules(templates, { warn: ctx.warn });
       const schemaViolations = await editSchemaViolations(gw, locationPath, templates, existingTriggers, args.ops, marketplaceRaw.assets);
+      for (const v of schemaViolations) warnings.push(`SCHEMA: '${v.step ?? v.stepId}' (${v.type}): ${(v.messages ?? []).join("; ")}`);
+      const caps = fieldCapGate({ templates, scope: editTouchedIds, allowOverCap: args.allowOverCap, warnings });
+      if (caps.refusal) return caps.refusal;
       const triggerPlan = planTriggerOps(triggerOps, {
         ctx,
         wid: args.workflowId,
@@ -158662,6 +162093,9 @@ var TOOLS2 = [
         // follows the target workflow, not a hardcoded default — see edit-driver.mjs).
         workflowStatus: fresh.status
       });
+      for (const r of triggerPlan) {
+        if (r.noop) warnings.push(`TRIGGER_NOOP: ${r.op} on ${r.triggerId} \u2014 ${r.reason}. If you expected a change, the value you sent equals what is stored; nothing will be written for this op.`);
+      }
       let assetPreflight = null;
       let readiness = [];
       if (opsWriteAttributes || triggerOps.length) {
@@ -158673,7 +162107,8 @@ var TOOLS2 = [
           companyId: fresh.companyId,
           touchedIds: editTouchedIds,
           ignoreAssetErrors: args.ignoreAssetErrors,
-          warnings
+          warnings,
+          ops: editOps
         });
         if (assets.refusal) return assets.refusal;
         assetPreflight = assets.assetPreflight;
@@ -158710,6 +162145,7 @@ var TOOLS2 = [
         preview.settings = Object.fromEntries(Object.keys(settingsPatch).map((k) => [k, k === "statsView" ? commitBody.meta?.statsView ?? false : commitBody[k]]));
       }
       if (stickyPlan.length) preview.stickyNotes = stickyPlan.map(({ op, method, path, body }) => ({ op, method, path, color: body.color, chars: body.content?.length }));
+      if (parkedOnDeletedSteps.length) preview.parkedOnDeletedSteps = parkedOnDeletedSteps;
       if (assetPreflight) preview.assetPreflight = assetPreflight;
       if (customCodeTests.length) preview.customCodeTests = customCodeTests;
       if (readiness.length) preview.readiness = readiness;
@@ -158731,7 +162167,11 @@ var TOOLS2 = [
         writes: [],
         tags: { planned: tagsToCreate.length, created: [] },
         stepCommitted: false,
-        triggerWrites: { planned: triggerPlan.length, applied: 0 },
+        triggerWrites: {
+          planned: triggerPlan.filter((r) => !r.noop).length,
+          applied: 0,
+          noops: triggerPlan.filter((r) => r.noop).map(({ op, triggerId, reason }) => ({ op, triggerId, reason }))
+        },
         stickyNotes: { planned: stickyPlan.length, applied: 0, ids: [] },
         verification: {
           attempted: false,
@@ -158805,6 +162245,7 @@ var TOOLS2 = [
       }
       const triggerExpectations = [];
       for (const request of triggerPlan) {
+        if (request.noop) continue;
         const responseCall = await attemptWrite(
           "trigger_write",
           () => gw.call(request.method, request.path, request.body)
@@ -158849,8 +162290,8 @@ var TOOLS2 = [
           return partialFailure(
             fail(
               CODES.ENGINE_ABORT,
-              "One or more acknowledged trigger writes did not persist on round-trip verification.",
-              "Inspect data.partialProgress.verification.triggers and the live trigger list before retrying."
+              "One or more acknowledged trigger writes did not persist on round-trip verification: the store disagrees with what the CALLER asked for, or the server's own date_updated stamp did not move after the 200.",
+              "Read data.partialProgress.verification.triggers.checks[].mismatches (path, expected, actual; `requestedByCaller` marks a field you named; `date_updated` means the PUT changed nothing). Re-read the trigger with export_workflow before retrying \u2014 a retry of a PUT is safe, a retry of an add duplicates the trigger."
             ),
             "trigger_round_trip_verify",
             "Trigger configuration is unverified, so this edit must not be published.",
@@ -158898,11 +162339,22 @@ var TOOLS2 = [
       const verify = verifyEditRoundTrip(stripNullNext(templates), beforeTemplates, stripNullNext(gotTemplates));
       const touchedIds = editTouchedIds;
       const intentFindings = [
-        ...lintOpportunityWrites(gotTemplates.filter((t) => touchedIds.has(t.id))),
+        ...lintOpportunityWrites(gotTemplates, { scope: touchedIds }),
         ...lintTriggerRows(roundTripTriggers, ctx.catalog)
       ];
       verify.intent = intentFindings;
       verify.missingRequired = persistedMissingRequired(gotTemplates, touchedIds, warnings);
+      if (assetPreflight) {
+        verify.assetPreflightAfter = await assetPostcheck({
+          gw,
+          loc: args.locationId,
+          templates: gotTemplates,
+          triggers: roundTripTriggers,
+          companyId: fresh.companyId,
+          touchedIds,
+          warnings
+        });
+      }
       const intentErrors = intentFindings.filter((f) => f.severity === "error");
       partialProgress.verification.completed = true;
       partialProgress.verification.roundTrip = verify.roundTrip;
@@ -158965,9 +162417,14 @@ var TOOLS2 = [
     inputSchema: schema({
       locationId: external_exports.string(),
       workflowId: external_exports.string(),
-      templates: external_exports.array(external_exports.object({}).passthrough()),
+      // Either inline, or read from an ABSOLUTE path (an export_workflow writeTo file, a raw
+      // workflow GET body, {templates}, or a bare array) — a finished flow bot is above what a
+      // client passes inline (backlog 21).
+      templates: external_exports.array(external_exports.object({}).passthrough()).optional(),
+      templatesPath: external_exports.string().optional(),
       // The build path's hatches, same names and defaults as build_workflow / edit_workflow.
       ignoreAssetErrors: external_exports.boolean().default(false),
+      allowOverCap: external_exports.boolean().default(false),
       strictCustomCode: external_exports.boolean().default(false),
       skipCustomCodeTest: external_exports.boolean().default(false),
       // Optimistic concurrency: a repair is written against a document the caller has already
@@ -159004,11 +162461,19 @@ var TOOLS2 = [
       const locationPath = encodeURIComponent(args.locationId);
       const warnings = [];
       const warn = (message) => warnings.push(message);
+      if (args.templatesPath !== void 0) {
+        if (Array.isArray(args.templates)) {
+          return fail(CODES.VALIDATION_FAILED, "pass either templates (inline) or templatesPath (a file) \u2014 not both.", "Drop one of them.");
+        }
+        const read = readTemplatesFile(args.templatesPath);
+        if (read.failure) return read.failure;
+        args = { ...args, templates: read.templates };
+      }
       if (!Array.isArray(args.templates) || !args.templates.length) {
         return fail(
           CODES.ENGINE_ABORT,
           "templates must be a non-empty array of step objects.",
-          "Pass the full workflowData.templates you want stored. To empty a workflow, delete its steps with edit_workflow."
+          "Pass the full workflowData.templates you want stored (inline, or via templatesPath). To empty a workflow, delete its steps with edit_workflow."
         );
       }
       const badIds = args.templates.filter((t) => !t || typeof t !== "object" || typeof t.id !== "string" || !t.id);
@@ -159089,11 +162554,14 @@ var TOOLS2 = [
         );
       }
       checkGraphContextRules(args.templates, { warn });
+      const caps = fieldCapGate({ templates: args.templates, scope: touchedIds, allowOverCap: args.allowOverCap, warnings });
+      if (caps.refusal) return caps.refusal;
       let schemaViolations = [];
       let assetPreflight = null;
       let readiness = [];
       if (touchedIds.size) {
         schemaViolations = await schemaViolationsFor(gw, locationPath, args.templates, existingTriggers, null);
+        for (const v of schemaViolations) warnings.push(`SCHEMA: '${v.step ?? v.stepId}' (${v.type}): ${(v.messages ?? []).join("; ")}`);
         const assets = await assetPreflightFor({
           gw,
           loc: args.locationId,
@@ -159140,8 +162608,19 @@ var TOOLS2 = [
       }
       const gotTemplates = recordsFrom2(roundTripResponse.json?.workflowData?.templates);
       const verify = verifyEditRoundTrip(stripNullNext(args.templates), beforeTemplates, stripNullNext(gotTemplates));
-      verify.intent = lintOpportunityWrites(gotTemplates.filter((t) => touchedIds.has(t.id)));
+      verify.intent = lintOpportunityWrites(gotTemplates, { scope: touchedIds });
       verify.missingRequired = persistedMissingRequired(gotTemplates, touchedIds, warnings);
+      if (assetPreflight) {
+        verify.assetPreflightAfter = await assetPostcheck({
+          gw,
+          loc: args.locationId,
+          templates: gotTemplates,
+          triggers: existingTriggers,
+          companyId: fresh.companyId,
+          touchedIds,
+          warnings
+        });
+      }
       const intentErrors = verify.intent.filter((f) => f.severity === "error");
       const data2 = {
         workflowId: args.workflowId,
@@ -159486,7 +162965,8 @@ var TOOLS2 = [
           remediation: near.length ? `Did you mean: ${near.join(", ")}?` : "Use search_step_types to find the right slug."
         };
       }
-      return { ok: true, data: card };
+      const caps = FIELD_CAPS[card.type];
+      return { ok: true, data: caps ? { ...card, caps, capsNote: "Character caps measured live (the server stores an over-length value verbatim; the builder flags it). edit_workflow and repair_workflow refuse an over-cap value on a step they touch unless allowOverCap:true." } : card };
     })
   },
   // spends a read fetching them.
@@ -160204,6 +163684,13 @@ var TOOLS2 = [
             "Pass body as an object \u2014 the gateway serializes it for you. A pre-serialized JSON string is accepted and parsed back, but a non-JSON string has no valid encoding on these endpoints, which all take JSON."
           );
         }
+      }
+      if (method === "POST" && /^\/workflow\/[^/?]+\/trigger\/?(?:\?|$)/.test(args.path) && body && typeof body === "object" && !Array.isArray(body) && Object.hasOwn(body, "workflow_id") && !Object.hasOwn(body, "workflowId")) {
+        return fail(
+          CODES.VALIDATION_FAILED,
+          "trigger POST carries a root `workflow_id` and no `workflowId` \u2014 the create route binds from camelCase `workflowId` only, so this would return 200 with an id and mint an ORPHAN trigger attached to no workflow (R-95).",
+          'Send the WRITE shape: root `workflowId` (camelCase) plus `actions:[{workflow_id, type:"add_to_workflow"}]`, `location_id`, `company_age`, `status` matching the workflow \u2014 or use edit_workflow addTrigger, which builds that envelope. To edit an EXISTING trigger use PUT /workflow/{loc}/trigger/{id}, which does take the stored shape.'
+        );
       }
       if (method !== "GET" && args.confirm !== true) {
         return withFailureData(
@@ -160987,7 +164474,7 @@ env var not on that command line. Do not retry the refused call until the bindin
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
-import { renameSync, writeFileSync as writeFileSync2, chmodSync, existsSync as existsSync4, readFileSync as readFileSync4 } from "node:fs";
+import { renameSync, writeFileSync as writeFileSync3, chmodSync, existsSync as existsSync4, readFileSync as readFileSync4 } from "node:fs";
 import { dirname as dirname3, join as join4 } from "node:path";
 var BACKEND5 = "https://backend.leadconnectorhq.com";
 var REFRESH_PATH = "/oauth/2/login/current";
@@ -161096,14 +164583,14 @@ function writeTokenFile({ tokenFile, bearer, tokenId, firebaseKey, refreshToken 
     if (keepRt === void 0) keepRt = lineOf(raw, "refresh-token");
   }
   const tmp = `${tokenFile}.tmp-${process.pid}-${Date.now()}`;
-  writeFileSync2(tmp, formatTokenFile({ bearer, tokenId: keepTid, firebaseKey: keepKey ?? null, refreshToken: keepRt ?? null }), { mode: 384 });
+  writeFileSync3(tmp, formatTokenFile({ bearer, tokenId: keepTid, firebaseKey: keepKey ?? null, refreshToken: keepRt ?? null }), { mode: 384 });
   chmodSync(tmp, 384);
   renameSync(tmp, tokenFile);
 }
 function writeAgencyJsonIfAbsent({ tokenFile, companyId, nowMs = Date.now(), source = "token-renewal" }) {
   const path = join4(dirname3(tokenFile), "agency.json");
   if (existsSync4(path)) return false;
-  writeFileSync2(path, `${JSON.stringify({ companyId, source, capturedAt: new Date(nowMs).toISOString() }, null, 2)}
+  writeFileSync3(path, `${JSON.stringify({ companyId, source, capturedAt: new Date(nowMs).toISOString() }, null, 2)}
 `, { mode: 384 });
   return true;
 }

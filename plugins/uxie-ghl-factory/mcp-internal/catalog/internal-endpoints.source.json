@@ -1,5 +1,5 @@
 {
-  "generated": "2026-09-04",
+  "generated": "2026-09-06",
   "trees": [
     {
       "tree": "workflow-builder",
@@ -20,16 +20,16 @@
     {
       "tree": "documented",
       "dir": "corpus",
-      "capturedAt": "2026-09-03T09:05:39.180Z",
+      "capturedAt": "2026-09-06T18:28:36.205Z",
       "hash": "corpus",
-      "fileCount": 535,
-      "endpoints": 612
+      "fileCount": 682,
+      "endpoints": 682
     }
   ],
   "note": "SOURCE-DERIVED ONLY, merged from every mined front-end. `tree` on each row says which app calls it. The plugin owns kind/note/summary/reach/coveredBy and merges them at read time. A row proves a GHL front-end calls that path — not that your token reaches it, and not that calling it is safe.",
-  "discoveredCallSites": 995,
-  "skippedCallSites": 263,
-  "count": 999,
+  "discoveredCallSites": 1142,
+  "skippedCallSites": 277,
+  "count": 1067,
   "endpoints": [
     {
       "id": "workflows--actions-branches",
@@ -714,15 +714,16 @@
       ]
     },
     {
-      "id": "ai-usage--get-usage-limits-location",
+      "id": "ai-usage--get-plan-location",
       "method": "GET",
       "origin": "https://backend.leadconnectorhq.com",
-      "path": "/ai-wrapper/usage/limits/location",
+      "path": "/ai-wrapper/plan/location",
       "authRail": "bearer",
       "transport": "json",
       "responseMode": "json",
       "extraHeaders": [],
       "tree": "documented",
+      "operation": null,
       "service": "ai-usage",
       "query": [
         {
@@ -732,6 +733,68 @@
           "source": "documented"
         }
       ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "note": "productEnabled + effectivePlanCode",
+      "proof": "executed",
+      "sources": [
+        "ai-studio/_data/endpoints.json",
+        "ai-studio/20-api/usage-and-plan-gating.md:46"
+      ]
+    },
+    {
+      "id": "ai-studio--usage-policy",
+      "method": "GET",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/ai-wrapper/projects/{projectId}/usage/policy",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-studio",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-studio/20-api/usage-and-plan-gating.md:47"
+      ]
+    },
+    {
+      "id": "ai-usage--get-usage-limits-location",
+      "method": "GET",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/ai-wrapper/usage/limits/location",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-usage",
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
       "confidence": {
         "path": "documented",
         "query": "documented",
@@ -741,8 +804,7 @@
       "note": "R18: Bearer OR token-id, either alone",
       "proof": "executed",
       "sources": [
-        "ai-studio/_data/endpoints.json",
-        "ai-studio/20-api/projects.md"
+        "ai-studio/_data/endpoints.json"
       ]
     },
     {
@@ -755,6 +817,7 @@
       "responseMode": "json",
       "extraHeaders": [],
       "tree": "documented",
+      "operation": null,
       "service": "ai-usage",
       "query": [
         {
@@ -764,6 +827,8 @@
           "source": "documented"
         }
       ],
+      "body": null,
+      "returns": null,
       "confidence": {
         "path": "documented",
         "query": "documented",
@@ -772,8 +837,7 @@
       },
       "proof": "observed",
       "sources": [
-        "ai-studio/_data/endpoints.json",
-        "ai-studio/20-api/projects.md"
+        "ai-studio/_data/endpoints.json"
       ]
     },
     {
@@ -786,6 +850,7 @@
       "responseMode": "json",
       "extraHeaders": [],
       "tree": "documented",
+      "operation": null,
       "service": "ai-usage",
       "query": [
         {
@@ -795,6 +860,8 @@
           "source": "documented"
         }
       ],
+      "body": null,
+      "returns": null,
       "confidence": {
         "path": "documented",
         "query": "documented",
@@ -803,8 +870,7 @@
       },
       "proof": "executed",
       "sources": [
-        "ai-studio/_data/endpoints.json",
-        "ai-studio/20-api/projects.md"
+        "ai-studio/_data/endpoints.json"
       ]
     },
     {
@@ -817,6 +883,7 @@
       "responseMode": "json",
       "extraHeaders": [],
       "tree": "documented",
+      "operation": null,
       "service": "ai-usage",
       "query": [
         {
@@ -826,6 +893,8 @@
           "source": "documented"
         }
       ],
+      "body": null,
+      "returns": null,
       "confidence": {
         "path": "documented",
         "query": "documented",
@@ -834,8 +903,7 @@
       },
       "proof": "observed",
       "sources": [
-        "ai-studio/_data/endpoints.json",
-        "ai-studio/20-api/projects.md"
+        "ai-studio/_data/endpoints.json"
       ]
     },
     {
@@ -848,6 +916,7 @@
       "responseMode": "json",
       "extraHeaders": [],
       "tree": "documented",
+      "operation": null,
       "service": "ai-usage",
       "query": [
         {
@@ -857,6 +926,8 @@
           "source": "documented"
         }
       ],
+      "body": null,
+      "returns": null,
       "confidence": {
         "path": "documented",
         "query": "documented",
@@ -865,8 +936,7 @@
       },
       "proof": "executed",
       "sources": [
-        "ai-studio/_data/endpoints.json",
-        "ai-studio/20-api/projects.md"
+        "ai-studio/_data/endpoints.json"
       ]
     },
     {
@@ -879,6 +949,7 @@
       "responseMode": "json",
       "extraHeaders": [],
       "tree": "documented",
+      "operation": null,
       "service": "ai-usage",
       "query": [
         {
@@ -888,6 +959,8 @@
           "source": "documented"
         }
       ],
+      "body": null,
+      "returns": null,
       "confidence": {
         "path": "documented",
         "query": "documented",
@@ -896,8 +969,7 @@
       },
       "proof": "observed",
       "sources": [
-        "ai-studio/_data/endpoints.json",
-        "ai-studio/20-api/projects.md"
+        "ai-studio/_data/endpoints.json"
       ]
     },
     {
@@ -910,6 +982,7 @@
       "responseMode": "json",
       "extraHeaders": [],
       "tree": "documented",
+      "operation": null,
       "service": "ai-usage",
       "query": [
         {
@@ -919,6 +992,8 @@
           "source": "documented"
         }
       ],
+      "body": null,
+      "returns": null,
       "confidence": {
         "path": "documented",
         "query": "documented",
@@ -928,8 +1003,40 @@
       "note": "params locationId + product=ai-studio",
       "proof": "executed",
       "sources": [
-        "ai-studio/_data/endpoints.json",
-        "ai-studio/20-api/projects.md"
+        "ai-studio/_data/endpoints.json"
+      ]
+    },
+    {
+      "id": "ai-usage--get-usage-v2-snapshots",
+      "method": "GET",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/ai-wrapper/usage/v2/snapshots",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-usage",
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "proof": "executed",
+      "sources": [
+        "ai-studio/_data/endpoints.json"
       ]
     },
     {
@@ -1360,7 +1467,9 @@
         "calendars/20-api/events-and-appointments.md:22",
         "calendars/20-api/events-and-appointments.md:53",
         "calendars/20-api/events-and-appointments.md:67",
-        "calendars/40-rules/deleting-a-calendar-deletes-its-appointments.md:42"
+        "calendars/40-rules/deleting-a-calendar-deletes-its-appointments.md:42",
+        "calendars/70-research/2026-09-02-calendar-events-differential.md:20",
+        "calendars/70-research/2026-09-02-calendar-events-differential.md:24"
       ]
     },
     {
@@ -1961,7 +2070,8 @@
         "platform/20-api/smart-lists.md:91",
         "platform/30-types/contact-filter-dsl.md:4",
         "platform/30-types/contact-filter-dsl.md:12",
-        "platform/30-types/index.md:18"
+        "platform/30-types/index.md:18",
+        "workflows/50-runtime/forcing-and-removing-contacts.md:128"
       ]
     },
     {
@@ -2824,8 +2934,11 @@
       "responseMode": "json",
       "extraHeaders": [],
       "tree": "documented",
+      "operation": null,
       "service": "domain-connect",
       "query": [],
+      "body": null,
+      "returns": null,
       "confidence": {
         "path": "documented",
         "query": "documented",
@@ -2834,8 +2947,7 @@
       },
       "proof": "observed",
       "sources": [
-        "ai-studio/_data/endpoints.json",
-        "ai-studio/20-api/projects.md"
+        "ai-studio/_data/endpoints.json"
       ]
     },
     {
@@ -2848,8 +2960,11 @@
       "responseMode": "json",
       "extraHeaders": [],
       "tree": "documented",
+      "operation": null,
       "service": "domain-connect",
       "query": [],
+      "body": null,
+      "returns": null,
       "confidence": {
         "path": "documented",
         "query": "documented",
@@ -2860,7 +2975,7 @@
       "proof": "executed",
       "sources": [
         "ai-studio/_data/endpoints.json",
-        "ai-studio/20-api/projects.md"
+        "ai-studio/20-api/publishing-and-domains.md:106"
       ]
     },
     {
@@ -2873,8 +2988,11 @@
       "responseMode": "json",
       "extraHeaders": [],
       "tree": "documented",
+      "operation": null,
       "service": "domain-connect",
       "query": [],
+      "body": null,
+      "returns": null,
       "confidence": {
         "path": "documented",
         "query": "documented",
@@ -2883,8 +3001,7 @@
       },
       "proof": "observed",
       "sources": [
-        "ai-studio/_data/endpoints.json",
-        "ai-studio/20-api/projects.md"
+        "ai-studio/_data/endpoints.json"
       ]
     },
     {
@@ -2897,8 +3014,11 @@
       "responseMode": "json",
       "extraHeaders": [],
       "tree": "documented",
+      "operation": null,
       "service": "domain-connect",
       "query": [],
+      "body": null,
+      "returns": null,
       "confidence": {
         "path": "documented",
         "query": "documented",
@@ -2908,8 +3028,7 @@
       "note": "requires host + cnameValue",
       "proof": "executed",
       "sources": [
-        "ai-studio/_data/endpoints.json",
-        "ai-studio/20-api/projects.md"
+        "ai-studio/_data/endpoints.json"
       ]
     },
     {
@@ -2922,8 +3041,11 @@
       "responseMode": "json",
       "extraHeaders": [],
       "tree": "documented",
+      "operation": null,
       "service": "domain-connect",
       "query": [],
+      "body": null,
+      "returns": null,
       "confidence": {
         "path": "documented",
         "query": "documented",
@@ -2932,8 +3054,7 @@
       },
       "proof": "observed",
       "sources": [
-        "ai-studio/_data/endpoints.json",
-        "ai-studio/20-api/projects.md"
+        "ai-studio/_data/endpoints.json"
       ]
     },
     {
@@ -2946,8 +3067,11 @@
       "responseMode": "json",
       "extraHeaders": [],
       "tree": "documented",
+      "operation": null,
       "service": "domain-connect",
       "query": [],
+      "body": null,
+      "returns": null,
       "confidence": {
         "path": "documented",
         "query": "documented",
@@ -2956,8 +3080,7 @@
       },
       "proof": "observed",
       "sources": [
-        "ai-studio/_data/endpoints.json",
-        "ai-studio/20-api/projects.md"
+        "ai-studio/_data/endpoints.json"
       ]
     },
     {
@@ -2970,8 +3093,11 @@
       "responseMode": "json",
       "extraHeaders": [],
       "tree": "documented",
+      "operation": null,
       "service": "domains",
       "query": [],
+      "body": null,
+      "returns": null,
       "confidence": {
         "path": "documented",
         "query": "documented",
@@ -2980,8 +3106,7 @@
       },
       "proof": "observed",
       "sources": [
-        "ai-studio/_data/endpoints.json",
-        "ai-studio/20-api/projects.md"
+        "ai-studio/_data/endpoints.json"
       ]
     },
     {
@@ -2994,8 +3119,11 @@
       "responseMode": "json",
       "extraHeaders": [],
       "tree": "documented",
+      "operation": null,
       "service": "domains",
       "query": [],
+      "body": null,
+      "returns": null,
       "confidence": {
         "path": "documented",
         "query": "documented",
@@ -3004,8 +3132,7 @@
       },
       "proof": "observed",
       "sources": [
-        "ai-studio/_data/endpoints.json",
-        "ai-studio/20-api/projects.md"
+        "ai-studio/_data/endpoints.json"
       ]
     },
     {
@@ -3018,8 +3145,11 @@
       "responseMode": "json",
       "extraHeaders": [],
       "tree": "documented",
+      "operation": null,
       "service": "domains",
       "query": [],
+      "body": null,
+      "returns": null,
       "confidence": {
         "path": "documented",
         "query": "documented",
@@ -3028,8 +3158,7 @@
       },
       "proof": "observed",
       "sources": [
-        "ai-studio/_data/endpoints.json",
-        "ai-studio/20-api/projects.md"
+        "ai-studio/_data/endpoints.json"
       ]
     },
     {
@@ -3042,8 +3171,11 @@
       "responseMode": "json",
       "extraHeaders": [],
       "tree": "documented",
+      "operation": null,
       "service": "domains",
       "query": [],
+      "body": null,
+      "returns": null,
       "confidence": {
         "path": "documented",
         "query": "documented",
@@ -3053,8 +3185,7 @@
       "trap": "{domainId} is a Mongo ObjectId, NOT a hostname",
       "proof": "executed",
       "sources": [
-        "ai-studio/_data/endpoints.json",
-        "ai-studio/20-api/projects.md"
+        "ai-studio/_data/endpoints.json"
       ]
     },
     {
@@ -4561,6 +4692,280 @@
       ]
     },
     {
+      "id": "forms--forms",
+      "method": "GET",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/forms/{bad}",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "forms",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "forms/40-rules/validators-and-quirks.md:95"
+      ]
+    },
+    {
+      "id": "forms--forms-get",
+      "method": "GET",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/forms/{id}",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "forms",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "forms/40-rules/validators-and-quirks.md:52",
+        "forms/60-recipes/create-a-form-by-api.md:47"
+      ]
+    },
+    {
+      "id": "forms--forms-patch",
+      "method": "PATCH",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/forms/{id}",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "forms",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "forms/40-rules/validators-and-quirks.md:25",
+        "forms/70-research/2026-09-06-forms-reverse-engineering.md:60"
+      ]
+    },
+    {
+      "id": "forms--forms-post",
+      "method": "POST",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/forms/{id}",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "forms",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "forms/10-anatomy/form-object.md:71",
+        "forms/40-rules/validators-and-quirks.md:18",
+        "forms/40-rules/validators-and-quirks.md:52",
+        "forms/40-rules/validators-and-quirks.md:57",
+        "forms/60-recipes/create-a-form-by-api.md:27",
+        "forms/70-research/2026-09-06-forms-reverse-engineering.md:14"
+      ]
+    },
+    {
+      "id": "forms--forms-put",
+      "method": "PUT",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/forms/{id}",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "forms",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "forms/70-research/2026-09-06-forms-reverse-engineering.md:60"
+      ]
+    },
+    {
+      "id": "forms--forms-data",
+      "method": "GET",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/forms/data/{id}",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "forms",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "forms/10-anatomy/form-object.md:74",
+        "forms/40-rules/validators-and-quirks.md:80",
+        "forms/60-recipes/create-a-form-by-api.md:56",
+        "forms/70-research/2026-09-06-forms-reverse-engineering.md:49"
+      ]
+    },
+    {
+      "id": "forms--forms-folder",
+      "method": "GET",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/forms/folder",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "forms",
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "productType",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "forms/20-api/folders.md:17"
+      ]
+    },
+    {
+      "id": "forms--forms-folder-post",
+      "method": "POST",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/forms/folder/",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "forms",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "forms/20-api/folders.md:19",
+        "forms/60-recipes/create-a-form-by-api.md:23"
+      ]
+    },
+    {
+      "id": "forms--forms-folder-get",
+      "method": "GET",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/forms/folder/{folderId}",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "forms",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "forms/20-api/folders.md:18"
+      ]
+    },
+    {
+      "id": "forms--forms-folder-post-post",
+      "method": "POST",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/forms/folder/{folderId}",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "forms",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "forms/20-api/folders.md:20"
+      ]
+    },
+    {
       "id": "forms-service--get-form-by-id",
       "method": "GET",
       "origin": "https://backend.leadconnectorhq.com",
@@ -4593,7 +4998,110 @@
         "returns": "none-observed"
       },
       "sources": [
-        "services/marketplaceServices/FormsService.ts:25"
+        "services/marketplaceServices/FormsService.ts:25",
+        "forms/40-rules/validators-and-quirks.md:68"
+      ]
+    },
+    {
+      "id": "forms--forms-move-to-folder",
+      "method": "POST",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/forms/move-to-folder",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "forms",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "forms/20-api/folders.md:21",
+        "forms/40-rules/validators-and-quirks.md:71"
+      ]
+    },
+    {
+      "id": "forms--forms-submissions",
+      "method": "GET",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/forms/submissions",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "forms",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "forms/40-rules/validators-and-quirks.md:69"
+      ]
+    },
+    {
+      "id": "forms--forms-submissions-count",
+      "method": "GET",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/forms/submissions-count",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "forms",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "forms/40-rules/validators-and-quirks.md:70"
+      ]
+    },
+    {
+      "id": "forms--forms-themes",
+      "method": "GET",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/forms/themes",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "forms",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "forms/10-anatomy/form-object.md:70",
+        "forms/70-research/2026-09-06-forms-reverse-engineering.md:55"
       ]
     },
     {
@@ -5077,6 +5585,7 @@
       },
       "sources": [
         "services/marketplaceServices/FunnelsService.ts:11",
+        "ai-studio/10-anatomy/project.md:17",
         "funnels/20-api/funnels-api.md:74"
       ]
     },
@@ -6693,8 +7202,9 @@
       "sources": [
         "platform/20-api/smart-lists.md:25",
         "platform/20-api/smart-lists.md:112",
-        "workflows/20-api/03-endpoints.md:344",
-        "workflows/20-api/smart-lists.md:69"
+        "workflows/20-api/03-endpoints.md:345",
+        "workflows/20-api/smart-lists.md:69",
+        "workflows/70-research/ENDPOINTS.md:77"
       ]
     },
     {
@@ -7192,6 +7702,56 @@
       ]
     },
     {
+      "id": "forms--locations-custom-fields",
+      "method": "PUT",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/locations/{locationId}/customFields",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "forms",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "forms/00-overview/forms-surveys-quizzes.md:25"
+      ]
+    },
+    {
+      "id": "forms--locations-custom-fields-post",
+      "method": "POST",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/locations/{locationId}/customFields/",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "forms",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "forms/40-rules/validators-and-quirks.md:86"
+      ]
+    },
+    {
       "id": "platform--locations-custom-fields-get-get",
       "method": "GET",
       "origin": "https://backend.leadconnectorhq.com",
@@ -7215,6 +7775,31 @@
       "sources": [
         "platform/20-api/custom-fields-and-values.md:41",
         "platform/70-research/2026-08-31-certification-snapshot-and-field-probes.md:77"
+      ]
+    },
+    {
+      "id": "forms--locations-custom-fields-get",
+      "method": "GET",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/locations/{locationId}/customFields/{id}",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "forms",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "forms/60-recipes/create-a-form-by-api.md:18"
       ]
     },
     {
@@ -8030,6 +8615,7 @@
       "sources": [
         "services/marketplaceServices/LocationsService.ts:15",
         "services/marketplaceServices/SubLocationsService.ts:14",
+        "ai-studio/_data/endpoints.json",
         "workflows/70-research/ENDPOINTS.md:155"
       ]
     },
@@ -9724,13 +10310,13 @@
       "service": null,
       "query": [
         {
-          "name": "location_id",
+          "name": "version",
           "type": "string",
           "required": false,
           "source": "documented"
         },
         {
-          "name": "version",
+          "name": "location_id",
           "type": "string",
           "required": false,
           "source": "documented"
@@ -9746,6 +10332,9 @@
       },
       "sources": [
         "states/app.ts:854",
+        "ai-studio/_data/endpoints.json",
+        "ai-studio/10-anatomy/embedding-and-credentials.md:51",
+        "ai-studio/10-anatomy/the-chat-and-version-model.md:25",
         "workflows/20-api/version-history.md:76"
       ]
     },
@@ -11700,7 +12289,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "workflows/20-api/03-endpoints.md:355"
+        "workflows/20-api/03-endpoints.md:356"
       ]
     },
     {
@@ -12308,6 +12897,555 @@
       ]
     },
     {
+      "id": "platform--snapshot-update",
+      "method": "POST",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/snapshots-appengine/snapshot/{snapshotId}/update",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "platform",
+      "query": [
+        {
+          "name": "companyId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "platform/20-api/snapshots-authoring.md:105"
+      ]
+    },
+    {
+      "id": "platform--v2-snapshots",
+      "method": "POST",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/snapshots-appengine/v2/snapshots",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "platform",
+      "query": [
+        {
+          "name": "companyId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "platform/20-api/snapshots-authoring.md:33"
+      ]
+    },
+    {
+      "id": "platform--snapshots-refresh",
+      "method": "POST",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/snapshots-appengine/v2/snapshots/{snapshotId}/refresh",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "platform",
+      "query": [
+        {
+          "name": "companyId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "platform/20-api/snapshots-authoring.md:91"
+      ]
+    },
+    {
+      "id": "platform--snapshots-assets-status",
+      "method": "GET",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/snapshots/{snapshotId}/assets-status",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "platform",
+      "query": [
+        {
+          "name": "companyId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "platform/20-api/snapshots-authoring.md:115"
+      ]
+    },
+    {
+      "id": "platform--snapshots-assets-status-patch",
+      "method": "PATCH",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/snapshots/{snapshotId}/assets-status",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "platform",
+      "query": [
+        {
+          "name": "companyId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "platform/20-api/snapshots-authoring.md:117"
+      ]
+    },
+    {
+      "id": "platform--snapshots-assets-status-post",
+      "method": "POST",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/snapshots/{snapshotId}/assets-status",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "platform",
+      "query": [
+        {
+          "name": "companyId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "platform/20-api/snapshots-authoring.md:116"
+      ]
+    },
+    {
+      "id": "platform--snapshots-conflicts",
+      "method": "POST",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/snapshots/{snapshotId}/conflicts",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "platform",
+      "query": [
+        {
+          "name": "companyId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "platform/20-api/snapshots-authoring.md:140"
+      ]
+    },
+    {
+      "id": "platform--snapshots-snapshot-preferences",
+      "method": "GET",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/snapshots/{snapshotId}/snapshot-preferences",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "platform",
+      "query": [
+        {
+          "name": "companyId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "platform/20-api/snapshots-authoring.md:129"
+      ]
+    },
+    {
+      "id": "platform--snapshots-snapshot-preferences-post",
+      "method": "POST",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/snapshots/{snapshotId}/snapshot-preferences",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "platform",
+      "query": [
+        {
+          "name": "companyId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "platform/20-api/snapshots-authoring.md:130"
+      ]
+    },
+    {
+      "id": "platform--snapshots-update",
+      "method": "PATCH",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/snapshots/{snapshotId}/update",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "platform",
+      "query": [
+        {
+          "name": "companyId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "platform/20-api/snapshots-authoring.md:106"
+      ]
+    },
+    {
+      "id": "platform--assets-asset-names",
+      "method": "GET",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/snapshots/assets/asset-names",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "platform",
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "companyId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "platform/20-api/snapshots-authoring.md:72"
+      ]
+    },
+    {
+      "id": "platform--snapshots-create",
+      "method": "POST",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/snapshots/create",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "platform",
+      "query": [
+        {
+          "name": "companyId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "platform/20-api/snapshots-authoring.md:34"
+      ]
+    },
+    {
+      "id": "platform--location-assets-assets-list",
+      "method": "GET",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/snapshots/location-assets/{snapshotId}/assets-list",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "platform",
+      "query": [
+        {
+          "name": "companyId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "platform/20-api/snapshots-authoring.md:176"
+      ]
+    },
+    {
+      "id": "platform--snapshots-pre-fetch-assets",
+      "method": "GET",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/snapshots/preFetchAssets/{locationId}",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "platform",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "platform/20-api/snapshots-authoring.md:178"
+      ]
+    },
+    {
+      "id": "platform--snapshots-snapshot-ipp-assets",
+      "method": "GET",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/snapshots/snapshot-ipp-assets/{locationId}",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "platform",
+      "query": [
+        {
+          "name": "companyId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "platform/20-api/snapshots-authoring.md:73"
+      ]
+    },
+    {
+      "id": "platform--snapshot-versions-summary",
+      "method": "GET",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/snapshots/snapshot-versions/{snapshotId}/{versionId}/summary",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "platform",
+      "query": [
+        {
+          "name": "companyId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "platform/20-api/snapshots-authoring.md:177"
+      ]
+    },
+    {
+      "id": "platform--v2-pre-fetch-assets",
+      "method": "GET",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/snapshots/v2/preFetchAssets/{locationId}",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "platform",
+      "query": [
+        {
+          "name": "companyId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "assetType",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "platform/20-api/snapshots-authoring.md:74"
+      ]
+    },
+    {
       "id": "template-service--get-email-snippets-paginated",
       "method": "GET",
       "origin": "https://backend.leadconnectorhq.com",
@@ -12496,6 +13634,81 @@
       "sources": [
         "services/marketplaceServices/SurveysService.ts:20",
         "workflows/70-research/ENDPOINTS.md:150"
+      ]
+    },
+    {
+      "id": "forms--surveys-duplicate",
+      "method": "POST",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/surveys/duplicate/{id}",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "forms",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "forms/20-api/surveys-and-quizzes.md:31"
+      ]
+    },
+    {
+      "id": "forms--surveys-folder",
+      "method": "GET",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/surveys/folder",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "forms",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "forms/20-api/surveys-and-quizzes.md:31"
+      ]
+    },
+    {
+      "id": "forms--surveys-move-to-folder",
+      "method": "POST",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/surveys/move-to-folder",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "forms",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "forms/20-api/surveys-and-quizzes.md:31"
       ]
     },
     {
@@ -12712,6 +13925,7 @@
       "responseMode": "json",
       "extraHeaders": [],
       "tree": "documented",
+      "operation": null,
       "service": "ai-studio",
       "query": [
         {
@@ -12727,6 +13941,8 @@
           "source": "documented"
         }
       ],
+      "body": null,
+      "returns": null,
       "confidence": {
         "path": "documented",
         "query": "documented",
@@ -12736,8 +13952,7 @@
       "note": "returned null on every probe",
       "proof": "executed",
       "sources": [
-        "ai-studio/_data/endpoints.json",
-        "ai-studio/20-api/projects.md"
+        "ai-studio/_data/endpoints.json"
       ]
     },
     {
@@ -12750,6 +13965,7 @@
       "responseMode": "json",
       "extraHeaders": [],
       "tree": "documented",
+      "operation": null,
       "service": "ai-studio",
       "query": [
         {
@@ -12765,6 +13981,8 @@
           "source": "documented"
         }
       ],
+      "body": null,
+      "returns": null,
       "confidence": {
         "path": "documented",
         "query": "documented",
@@ -12773,8 +13991,7 @@
       },
       "proof": "executed",
       "sources": [
-        "ai-studio/_data/endpoints.json",
-        "ai-studio/20-api/projects.md"
+        "ai-studio/_data/endpoints.json"
       ]
     },
     {
@@ -12787,8 +14004,24 @@
       "responseMode": "json",
       "extraHeaders": [],
       "tree": "documented",
+      "operation": null,
       "service": "ai-studio",
-      "query": [],
+      "query": [
+        {
+          "name": "alt_id",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        },
+        {
+          "name": "alt_type",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
       "confidence": {
         "path": "documented",
         "query": "documented",
@@ -12798,8 +14031,7 @@
       "note": "folder name is NOT rewritten",
       "proof": "executed",
       "sources": [
-        "ai-studio/_data/endpoints.json",
-        "ai-studio/20-api/projects.md"
+        "ai-studio/_data/endpoints.json"
       ]
     },
     {
@@ -12812,6 +14044,7 @@
       "responseMode": "json",
       "extraHeaders": [],
       "tree": "documented",
+      "operation": null,
       "service": "ai-studio",
       "query": [
         {
@@ -12827,6 +14060,8 @@
           "source": "documented"
         }
       ],
+      "body": null,
+      "returns": null,
       "confidence": {
         "path": "documented",
         "query": "documented",
@@ -12836,8 +14071,7 @@
       "note": "not executed - nothing is deleted",
       "proof": "observed",
       "sources": [
-        "ai-studio/_data/endpoints.json",
-        "ai-studio/20-api/projects.md"
+        "ai-studio/_data/endpoints.json"
       ]
     },
     {
@@ -12850,8 +14084,24 @@
       "responseMode": "json",
       "extraHeaders": [],
       "tree": "documented",
+      "operation": null,
       "service": "ai-studio",
-      "query": [],
+      "query": [
+        {
+          "name": "alt_id",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        },
+        {
+          "name": "alt_type",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
       "confidence": {
         "path": "documented",
         "query": "documented",
@@ -12860,8 +14110,7 @@
       },
       "proof": "executed",
       "sources": [
-        "ai-studio/_data/endpoints.json",
-        "ai-studio/20-api/projects.md"
+        "ai-studio/_data/endpoints.json"
       ]
     },
     {
@@ -12874,6 +14123,7 @@
       "responseMode": "json",
       "extraHeaders": [],
       "tree": "documented",
+      "operation": null,
       "service": "ai-studio",
       "query": [
         {
@@ -12889,6 +14139,7 @@
           "source": "documented"
         }
       ],
+      "body": null,
       "returns": "array of project",
       "confidence": {
         "path": "documented",
@@ -12899,7 +14150,7 @@
       "proof": "executed",
       "sources": [
         "ai-studio/_data/endpoints.json",
-        "ai-studio/20-api/projects.md"
+        "ai-studio/40-rules/constraints.md:46"
       ]
     },
     {
@@ -12912,9 +14163,24 @@
       "responseMode": "json",
       "extraHeaders": [],
       "tree": "documented",
+      "operation": null,
       "service": "ai-studio",
-      "query": [],
+      "query": [
+        {
+          "name": "alt_id",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        },
+        {
+          "name": "alt_type",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        }
+      ],
       "body": "{name, description, alt_id, alt_type}",
+      "returns": null,
       "confidence": {
         "path": "documented",
         "query": "documented",
@@ -12925,7 +14191,9 @@
       "proof": "executed",
       "sources": [
         "ai-studio/_data/endpoints.json",
-        "ai-studio/20-api/projects.md"
+        "ai-studio/10-anatomy/project.md:68",
+        "ai-studio/40-rules/constraints.md:16",
+        "ai-studio/70-research/2026-09-04-ai-studio-surface-map.md:74"
       ]
     },
     {
@@ -12938,6 +14206,7 @@
       "responseMode": "json",
       "extraHeaders": [],
       "tree": "documented",
+      "operation": null,
       "service": "ai-studio",
       "query": [
         {
@@ -12953,6 +14222,8 @@
           "source": "documented"
         }
       ],
+      "body": null,
+      "returns": null,
       "confidence": {
         "path": "documented",
         "query": "documented",
@@ -12962,12 +14233,11 @@
       "note": "not executed - nothing is deleted",
       "proof": "observed",
       "sources": [
-        "ai-studio/_data/endpoints.json",
-        "ai-studio/20-api/projects.md"
+        "ai-studio/_data/endpoints.json"
       ]
     },
     {
-      "id": "ai-studio--get-projects--documented",
+      "id": "ai-studio--get-projects-get",
       "method": "GET",
       "origin": "https://backend.leadconnectorhq.com",
       "path": "/vibe-ai/projects/{projectId}",
@@ -12976,6 +14246,7 @@
       "responseMode": "json",
       "extraHeaders": [],
       "tree": "documented",
+      "operation": null,
       "service": "ai-studio",
       "query": [
         {
@@ -12991,6 +14262,8 @@
           "source": "documented"
         }
       ],
+      "body": null,
+      "returns": null,
       "confidence": {
         "path": "documented",
         "query": "documented",
@@ -13000,7 +14273,8 @@
       "proof": "executed",
       "sources": [
         "ai-studio/_data/endpoints.json",
-        "ai-studio/20-api/projects.md"
+        "ai-studio/40-rules/constraints.md:61",
+        "ai-studio/40-rules/constraints.md:120"
       ]
     },
     {
@@ -13013,8 +14287,24 @@
       "responseMode": "json",
       "extraHeaders": [],
       "tree": "documented",
+      "operation": null,
       "service": "ai-studio",
-      "query": [],
+      "query": [
+        {
+          "name": "alt_id",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        },
+        {
+          "name": "alt_type",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
       "confidence": {
         "path": "documented",
         "query": "documented",
@@ -13025,7 +14315,11 @@
       "proof": "observed",
       "sources": [
         "ai-studio/_data/endpoints.json",
-        "ai-studio/20-api/projects.md"
+        "ai-studio/00-overview/index.md:68",
+        "ai-studio/10-anatomy/project.md:72",
+        "ai-studio/10-anatomy/the-chat-and-version-model.md:20",
+        "ai-studio/20-api/chat-generation.md:13",
+        "ai-studio/60-recipes/run-one-generation.md:31"
       ]
     },
     {
@@ -13038,9 +14332,24 @@
       "responseMode": "json",
       "extraHeaders": [],
       "tree": "documented",
+      "operation": null,
       "service": "ai-studio",
-      "query": [],
+      "query": [
+        {
+          "name": "alt_id",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        },
+        {
+          "name": "alt_type",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        }
+      ],
       "body": "{message_id, alt_id, alt_type}",
+      "returns": null,
       "confidence": {
         "path": "documented",
         "query": "documented",
@@ -13050,7 +14359,7 @@
       "proof": "observed",
       "sources": [
         "ai-studio/_data/endpoints.json",
-        "ai-studio/20-api/projects.md"
+        "ai-studio/20-api/chat-generation.md:78"
       ]
     },
     {
@@ -13063,9 +14372,24 @@
       "responseMode": "json",
       "extraHeaders": [],
       "tree": "documented",
+      "operation": null,
       "service": "ai-studio",
-      "query": [],
+      "query": [
+        {
+          "name": "alt_id",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        },
+        {
+          "name": "alt_type",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        }
+      ],
       "body": "{domain, action: add|remove|set_primary|clear_primary, alt_id, alt_type}",
+      "returns": null,
       "confidence": {
         "path": "documented",
         "query": "documented",
@@ -13076,7 +14400,7 @@
       "proof": "observed",
       "sources": [
         "ai-studio/_data/endpoints.json",
-        "ai-studio/20-api/projects.md"
+        "ai-studio/20-api/publishing-and-domains.md:62"
       ]
     },
     {
@@ -13089,9 +14413,24 @@
       "responseMode": "json",
       "extraHeaders": [],
       "tree": "documented",
+      "operation": null,
       "service": "ai-studio",
-      "query": [],
+      "query": [
+        {
+          "name": "alt_id",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        },
+        {
+          "name": "alt_type",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        }
+      ],
       "body": "{changes[], commit_message}",
+      "returns": null,
       "confidence": {
         "path": "documented",
         "query": "documented",
@@ -13100,8 +14439,7 @@
       },
       "proof": "executed",
       "sources": [
-        "ai-studio/_data/endpoints.json",
-        "ai-studio/20-api/projects.md"
+        "ai-studio/_data/endpoints.json"
       ]
     },
     {
@@ -13114,8 +14452,24 @@
       "responseMode": "json",
       "extraHeaders": [],
       "tree": "documented",
+      "operation": null,
       "service": "ai-studio",
-      "query": [],
+      "query": [
+        {
+          "name": "alt_id",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        },
+        {
+          "name": "alt_type",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
       "confidence": {
         "path": "documented",
         "query": "documented",
@@ -13124,8 +14478,7 @@
       },
       "proof": "observed",
       "sources": [
-        "ai-studio/_data/endpoints.json",
-        "ai-studio/20-api/projects.md"
+        "ai-studio/_data/endpoints.json"
       ]
     },
     {
@@ -13138,6 +14491,7 @@
       "responseMode": "json",
       "extraHeaders": [],
       "tree": "documented",
+      "operation": null,
       "service": "ai-studio",
       "query": [
         {
@@ -13153,6 +14507,7 @@
           "source": "documented"
         }
       ],
+      "body": null,
       "returns": "whole codebase with content",
       "confidence": {
         "path": "documented",
@@ -13163,7 +14518,8 @@
       "proof": "executed",
       "sources": [
         "ai-studio/_data/endpoints.json",
-        "ai-studio/20-api/projects.md"
+        "ai-studio/40-rules/constraints.md:61",
+        "ai-studio/60-recipes/run-one-generation.md:55"
       ]
     },
     {
@@ -13176,8 +14532,24 @@
       "responseMode": "json",
       "extraHeaders": [],
       "tree": "documented",
+      "operation": null,
       "service": "ai-studio",
-      "query": [],
+      "query": [
+        {
+          "name": "alt_id",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        },
+        {
+          "name": "alt_type",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
       "confidence": {
         "path": "documented",
         "query": "documented",
@@ -13187,7 +14559,7 @@
       "proof": "executed",
       "sources": [
         "ai-studio/_data/endpoints.json",
-        "ai-studio/20-api/projects.md"
+        "ai-studio/20-api/folders.md:23"
       ]
     },
     {
@@ -13200,8 +14572,24 @@
       "responseMode": "json",
       "extraHeaders": [],
       "tree": "documented",
+      "operation": null,
       "service": "ai-studio",
-      "query": [],
+      "query": [
+        {
+          "name": "alt_id",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        },
+        {
+          "name": "alt_type",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
       "confidence": {
         "path": "documented",
         "query": "documented",
@@ -13210,8 +14598,7 @@
       },
       "proof": "executed",
       "sources": [
-        "ai-studio/_data/endpoints.json",
-        "ai-studio/20-api/projects.md"
+        "ai-studio/_data/endpoints.json"
       ]
     },
     {
@@ -13224,6 +14611,7 @@
       "responseMode": "json",
       "extraHeaders": [],
       "tree": "documented",
+      "operation": null,
       "service": "ai-studio",
       "query": [
         {
@@ -13239,6 +14627,8 @@
           "source": "documented"
         }
       ],
+      "body": null,
+      "returns": null,
       "confidence": {
         "path": "documented",
         "query": "documented",
@@ -13249,7 +14639,7 @@
       "proof": "executed",
       "sources": [
         "ai-studio/_data/endpoints.json",
-        "ai-studio/20-api/projects.md"
+        "ai-studio/40-rules/constraints.md:137"
       ]
     },
     {
@@ -13262,8 +14652,24 @@
       "responseMode": "json",
       "extraHeaders": [],
       "tree": "documented",
+      "operation": null,
       "service": "ai-studio",
-      "query": [],
+      "query": [
+        {
+          "name": "alt_id",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        },
+        {
+          "name": "alt_type",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
       "confidence": {
         "path": "documented",
         "query": "documented",
@@ -13273,8 +14679,7 @@
       "note": "multipart field `file`, query ?type=",
       "proof": "observed",
       "sources": [
-        "ai-studio/_data/endpoints.json",
-        "ai-studio/20-api/projects.md"
+        "ai-studio/_data/endpoints.json"
       ]
     },
     {
@@ -13287,8 +14692,24 @@
       "responseMode": "json",
       "extraHeaders": [],
       "tree": "documented",
+      "operation": null,
       "service": "ai-studio",
-      "query": [],
+      "query": [
+        {
+          "name": "alt_id",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        },
+        {
+          "name": "alt_type",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
       "confidence": {
         "path": "documented",
         "query": "documented",
@@ -13299,7 +14720,7 @@
       "proof": "executed",
       "sources": [
         "ai-studio/_data/endpoints.json",
-        "ai-studio/20-api/projects.md"
+        "ai-studio/40-rules/constraints.md:31"
       ]
     },
     {
@@ -13312,9 +14733,24 @@
       "responseMode": "json",
       "extraHeaders": [],
       "tree": "documented",
+      "operation": null,
       "service": "ai-studio",
-      "query": [],
+      "query": [
+        {
+          "name": "alt_id",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        },
+        {
+          "name": "alt_type",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        }
+      ],
       "body": "{version_id}",
+      "returns": null,
       "confidence": {
         "path": "documented",
         "query": "documented",
@@ -13324,8 +14760,7 @@
       "note": "outward-facing; not executed",
       "proof": "observed",
       "sources": [
-        "ai-studio/_data/endpoints.json",
-        "ai-studio/20-api/projects.md"
+        "ai-studio/_data/endpoints.json"
       ]
     },
     {
@@ -13338,8 +14773,24 @@
       "responseMode": "json",
       "extraHeaders": [],
       "tree": "documented",
+      "operation": null,
       "service": "ai-studio",
-      "query": [],
+      "query": [
+        {
+          "name": "alt_id",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        },
+        {
+          "name": "alt_type",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
       "confidence": {
         "path": "documented",
         "query": "documented",
@@ -13350,7 +14801,7 @@
       "proof": "executed",
       "sources": [
         "ai-studio/_data/endpoints.json",
-        "ai-studio/20-api/projects.md"
+        "ai-studio/10-anatomy/project.md:84"
       ]
     },
     {
@@ -13363,6 +14814,7 @@
       "responseMode": "json",
       "extraHeaders": [],
       "tree": "documented",
+      "operation": null,
       "service": "ai-studio",
       "query": [
         {
@@ -13378,6 +14830,8 @@
           "source": "documented"
         }
       ],
+      "body": null,
+      "returns": null,
       "confidence": {
         "path": "documented",
         "query": "documented",
@@ -13387,8 +14841,7 @@
       "note": "404 when never remixed - it is a log lookup",
       "proof": "executed",
       "sources": [
-        "ai-studio/_data/endpoints.json",
-        "ai-studio/20-api/projects.md"
+        "ai-studio/_data/endpoints.json"
       ]
     },
     {
@@ -13401,6 +14854,7 @@
       "responseMode": "json",
       "extraHeaders": [],
       "tree": "documented",
+      "operation": null,
       "service": "ai-studio",
       "query": [
         {
@@ -13416,6 +14870,8 @@
           "source": "documented"
         }
       ],
+      "body": null,
+      "returns": null,
       "confidence": {
         "path": "documented",
         "query": "documented",
@@ -13425,8 +14881,7 @@
       "trap": "returns soft-deleted rows; filter `deleted`",
       "proof": "executed",
       "sources": [
-        "ai-studio/_data/endpoints.json",
-        "ai-studio/20-api/projects.md"
+        "ai-studio/_data/endpoints.json"
       ]
     },
     {
@@ -13439,6 +14894,7 @@
       "responseMode": "json",
       "extraHeaders": [],
       "tree": "documented",
+      "operation": null,
       "service": "ai-studio",
       "query": [
         {
@@ -13454,6 +14910,8 @@
           "source": "documented"
         }
       ],
+      "body": null,
+      "returns": null,
       "confidence": {
         "path": "documented",
         "query": "documented",
@@ -13463,7 +14921,7 @@
       "proof": "executed",
       "sources": [
         "ai-studio/_data/endpoints.json",
-        "ai-studio/20-api/projects.md"
+        "ai-studio/50-runtime/index.md:30"
       ]
     },
     {
@@ -13476,8 +14934,23 @@
       "responseMode": "json",
       "extraHeaders": [],
       "tree": "documented",
+      "operation": null,
       "service": "ai-studio",
-      "query": [],
+      "query": [
+        {
+          "name": "alt_id",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        },
+        {
+          "name": "alt_type",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        }
+      ],
+      "body": null,
       "returns": "202 {status: provisioning}",
       "confidence": {
         "path": "documented",
@@ -13487,8 +14960,7 @@
       },
       "proof": "executed",
       "sources": [
-        "ai-studio/_data/endpoints.json",
-        "ai-studio/20-api/projects.md"
+        "ai-studio/_data/endpoints.json"
       ]
     },
     {
@@ -13501,8 +14973,23 @@
       "responseMode": "json",
       "extraHeaders": [],
       "tree": "documented",
+      "operation": null,
       "service": "ai-studio",
-      "query": [],
+      "query": [
+        {
+          "name": "alt_id",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        },
+        {
+          "name": "alt_type",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        }
+      ],
+      "body": null,
       "returns": "{alive}",
       "confidence": {
         "path": "documented",
@@ -13512,8 +14999,7 @@
       },
       "proof": "executed",
       "sources": [
-        "ai-studio/_data/endpoints.json",
-        "ai-studio/20-api/projects.md"
+        "ai-studio/_data/endpoints.json"
       ]
     },
     {
@@ -13526,6 +15012,7 @@
       "responseMode": "json",
       "extraHeaders": [],
       "tree": "documented",
+      "operation": null,
       "service": "ai-studio",
       "query": [
         {
@@ -13541,6 +15028,8 @@
           "source": "documented"
         }
       ],
+      "body": null,
+      "returns": null,
       "confidence": {
         "path": "documented",
         "query": "documented",
@@ -13550,8 +15039,7 @@
       "trap": "array of {name,...} with NO values; the write takes a map",
       "proof": "executed",
       "sources": [
-        "ai-studio/_data/endpoints.json",
-        "ai-studio/20-api/projects.md"
+        "ai-studio/_data/endpoints.json"
       ]
     },
     {
@@ -13564,8 +15052,24 @@
       "responseMode": "json",
       "extraHeaders": [],
       "tree": "documented",
+      "operation": null,
       "service": "ai-studio",
-      "query": [],
+      "query": [
+        {
+          "name": "alt_id",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        },
+        {
+          "name": "alt_type",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
       "confidence": {
         "path": "documented",
         "query": "documented",
@@ -13575,8 +15079,7 @@
       "trap": "MERGES despite being a PUT",
       "proof": "executed",
       "sources": [
-        "ai-studio/_data/endpoints.json",
-        "ai-studio/20-api/projects.md"
+        "ai-studio/_data/endpoints.json"
       ]
     },
     {
@@ -13589,6 +15092,7 @@
       "responseMode": "json",
       "extraHeaders": [],
       "tree": "documented",
+      "operation": null,
       "service": "ai-studio",
       "query": [
         {
@@ -13604,6 +15108,8 @@
           "source": "documented"
         }
       ],
+      "body": null,
+      "returns": null,
       "confidence": {
         "path": "documented",
         "query": "documented",
@@ -13613,7 +15119,7 @@
       "proof": "executed",
       "sources": [
         "ai-studio/_data/endpoints.json",
-        "ai-studio/20-api/projects.md"
+        "ai-studio/40-rules/constraints.md:79"
       ]
     },
     {
@@ -13626,6 +15132,7 @@
       "responseMode": "json",
       "extraHeaders": [],
       "tree": "documented",
+      "operation": null,
       "service": "ai-studio",
       "query": [
         {
@@ -13641,6 +15148,7 @@
           "source": "documented"
         }
       ],
+      "body": null,
       "returns": "{prerender_enabled}",
       "confidence": {
         "path": "documented",
@@ -13650,8 +15158,7 @@
       },
       "proof": "executed",
       "sources": [
-        "ai-studio/_data/endpoints.json",
-        "ai-studio/20-api/projects.md"
+        "ai-studio/_data/endpoints.json"
       ]
     },
     {
@@ -13664,8 +15171,24 @@
       "responseMode": "json",
       "extraHeaders": [],
       "tree": "documented",
+      "operation": null,
       "service": "ai-studio",
-      "query": [],
+      "query": [
+        {
+          "name": "alt_id",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        },
+        {
+          "name": "alt_type",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
       "confidence": {
         "path": "documented",
         "query": "documented",
@@ -13674,8 +15197,7 @@
       },
       "proof": "executed",
       "sources": [
-        "ai-studio/_data/endpoints.json",
-        "ai-studio/20-api/projects.md"
+        "ai-studio/_data/endpoints.json"
       ]
     },
     {
@@ -13688,8 +15210,24 @@
       "responseMode": "json",
       "extraHeaders": [],
       "tree": "documented",
+      "operation": null,
       "service": "ai-studio",
-      "query": [],
+      "query": [
+        {
+          "name": "alt_id",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        },
+        {
+          "name": "alt_type",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
       "confidence": {
         "path": "documented",
         "query": "documented",
@@ -13698,8 +15236,7 @@
       },
       "proof": "executed",
       "sources": [
-        "ai-studio/_data/endpoints.json",
-        "ai-studio/20-api/projects.md"
+        "ai-studio/_data/endpoints.json"
       ]
     },
     {
@@ -13712,8 +15249,24 @@
       "responseMode": "json",
       "extraHeaders": [],
       "tree": "documented",
+      "operation": null,
       "service": "ai-studio",
-      "query": [],
+      "query": [
+        {
+          "name": "alt_id",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        },
+        {
+          "name": "alt_type",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
       "confidence": {
         "path": "documented",
         "query": "documented",
@@ -13723,8 +15276,7 @@
       "note": "sets starred_at timestamp",
       "proof": "executed",
       "sources": [
-        "ai-studio/_data/endpoints.json",
-        "ai-studio/20-api/projects.md"
+        "ai-studio/_data/endpoints.json"
       ]
     },
     {
@@ -13737,8 +15289,24 @@
       "responseMode": "json",
       "extraHeaders": [],
       "tree": "documented",
+      "operation": null,
       "service": "ai-studio",
-      "query": [],
+      "query": [
+        {
+          "name": "alt_id",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        },
+        {
+          "name": "alt_type",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
       "confidence": {
         "path": "documented",
         "query": "documented",
@@ -13748,8 +15316,7 @@
       "note": "no body; outward-facing; not executed",
       "proof": "observed",
       "sources": [
-        "ai-studio/_data/endpoints.json",
-        "ai-studio/20-api/projects.md"
+        "ai-studio/_data/endpoints.json"
       ]
     },
     {
@@ -13762,6 +15329,7 @@
       "responseMode": "json",
       "extraHeaders": [],
       "tree": "documented",
+      "operation": null,
       "service": "ai-studio",
       "query": [
         {
@@ -13777,6 +15345,8 @@
           "source": "documented"
         }
       ],
+      "body": null,
+      "returns": null,
       "confidence": {
         "path": "documented",
         "query": "documented",
@@ -13786,7 +15356,8 @@
       "proof": "executed",
       "sources": [
         "ai-studio/_data/endpoints.json",
-        "ai-studio/20-api/projects.md"
+        "ai-studio/20-api/chat-generation.md:152",
+        "ai-studio/60-recipes/run-one-generation.md:20"
       ]
     },
     {
@@ -13799,6 +15370,7 @@
       "responseMode": "json",
       "extraHeaders": [],
       "tree": "documented",
+      "operation": null,
       "service": "ai-studio",
       "query": [
         {
@@ -13814,6 +15386,8 @@
           "source": "documented"
         }
       ],
+      "body": null,
+      "returns": null,
       "confidence": {
         "path": "documented",
         "query": "documented",
@@ -13823,8 +15397,7 @@
       "note": "404 {error: version not found}",
       "proof": "executed",
       "sources": [
-        "ai-studio/_data/endpoints.json",
-        "ai-studio/20-api/projects.md"
+        "ai-studio/_data/endpoints.json"
       ]
     },
     {
@@ -13837,8 +15410,24 @@
       "responseMode": "json",
       "extraHeaders": [],
       "tree": "documented",
+      "operation": null,
       "service": "ai-studio",
-      "query": [],
+      "query": [
+        {
+          "name": "alt_id",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        },
+        {
+          "name": "alt_type",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
       "confidence": {
         "path": "documented",
         "query": "documented",
@@ -13848,8 +15437,7 @@
       "note": "300s client timeout",
       "proof": "observed",
       "sources": [
-        "ai-studio/_data/endpoints.json",
-        "ai-studio/20-api/projects.md"
+        "ai-studio/_data/endpoints.json"
       ]
     },
     {
@@ -13862,8 +15450,24 @@
       "responseMode": "json",
       "extraHeaders": [],
       "tree": "documented",
+      "operation": null,
       "service": "ai-studio",
-      "query": [],
+      "query": [
+        {
+          "name": "alt_id",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        },
+        {
+          "name": "alt_type",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
       "confidence": {
         "path": "documented",
         "query": "documented",
@@ -13872,8 +15476,7 @@
       },
       "proof": "observed",
       "sources": [
-        "ai-studio/_data/endpoints.json",
-        "ai-studio/20-api/projects.md"
+        "ai-studio/_data/endpoints.json"
       ]
     },
     {
@@ -13886,8 +15489,24 @@
       "responseMode": "json",
       "extraHeaders": [],
       "tree": "documented",
+      "operation": null,
       "service": "ai-studio",
-      "query": [],
+      "query": [
+        {
+          "name": "alt_id",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        },
+        {
+          "name": "alt_type",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
       "confidence": {
         "path": "documented",
         "query": "documented",
@@ -13897,8 +15516,32 @@
       "trap": "keyed on message_id, NOT a version id",
       "proof": "executed",
       "sources": [
-        "ai-studio/_data/endpoints.json",
-        "ai-studio/20-api/projects.md"
+        "ai-studio/_data/endpoints.json"
+      ]
+    },
+    {
+      "id": "forms--widget-form",
+      "method": "GET",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/widget/form/{id}",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "forms",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "forms/30-types/standard-elements.md:91"
       ]
     },
     {
@@ -14272,7 +15915,8 @@
         "returns": "none-observed"
       },
       "sources": [
-        "services/BaseService.ts:30"
+        "services/BaseService.ts:30",
+        "workflows/20-api/03-endpoints.md:181"
       ]
     },
     {
@@ -14388,11 +16032,11 @@
         "returns": "unresolved"
       },
       "sources": [
-        "workflows/20-api/03-endpoints.md:369"
+        "workflows/20-api/03-endpoints.md:370"
       ]
     },
     {
-      "id": "workflows--workflow-get",
+      "id": "workflows--workflow-get-get",
       "method": "GET",
       "origin": "https://backend.leadconnectorhq.com",
       "path": "/workflow/{locationId}/{wid}",
@@ -14416,7 +16060,8 @@
         "workflows/00-overview/10-caveats.md:138",
         "workflows/10-anatomy/04-workflow-anatomy.md:40",
         "workflows/10-anatomy/07-id-resolution.md:204",
-        "workflows/30-types/steps/if_else.md:34"
+        "workflows/30-types/steps/if_else.md:34",
+        "workflows/40-rules/09-gotchas.md:386"
       ]
     },
     {
@@ -14444,7 +16089,9 @@
         "workflows/00-overview/10-caveats.md:141",
         "workflows/10-anatomy/04-workflow-anatomy.md:25",
         "workflows/10-anatomy/04-workflow-anatomy.md:416",
-        "workflows/10-anatomy/04-workflow-anatomy.md:566"
+        "workflows/10-anatomy/04-workflow-anatomy.md:566",
+        "workflows/10-anatomy/06-fields-glossary.md:133",
+        "workflows/40-rules/09-gotchas.md:49"
       ]
     },
     {
@@ -14472,7 +16119,8 @@
         "workflows/00-overview/10-caveats.md:140",
         "workflows/10-anatomy/04-workflow-anatomy.md:25",
         "workflows/10-anatomy/04-workflow-anatomy.md:415",
-        "workflows/10-anatomy/04-workflow-anatomy.md:484"
+        "workflows/10-anatomy/04-workflow-anatomy.md:484",
+        "workflows/30-types/steps/if_else.md:33"
       ]
     },
     {
@@ -15544,7 +17192,7 @@
       },
       "sources": [
         "services/AutoSaveSettingsService.ts:27",
-        "workflows/20-api/03-endpoints.md:295",
+        "workflows/20-api/03-endpoints.md:296",
         "workflows/20-api/version-history.md:75",
         "workflows/70-research/ENDPOINT-SWEEP-2026-08-25.md:68"
       ]
@@ -15846,7 +17494,7 @@
       },
       "sources": [
         "services/api/workflow-overview.service.ts:260",
-        "workflows/20-api/03-endpoints.md:296",
+        "workflows/20-api/03-endpoints.md:297",
         "workflows/70-research/ENDPOINT-SWEEP-2026-08-25.md:71"
       ]
     },
@@ -16001,9 +17649,10 @@
       "sources": [
         "services/ErrorNotificationService.ts:33",
         "_shared/unexplored-surfaces.md:96",
-        "workflows/20-api/03-endpoints.md:297",
+        "workflows/20-api/03-endpoints.md:298",
         "workflows/50-runtime/error-notifications.md:34",
-        "workflows/50-runtime/error-notifications.md:47"
+        "workflows/50-runtime/error-notifications.md:47",
+        "workflows/50-runtime/error-notifications.md:49"
       ]
     },
     {
@@ -16150,7 +17799,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "workflows/20-api/03-endpoints.md:370"
+        "workflows/20-api/03-endpoints.md:371"
       ]
     },
     {
@@ -17151,7 +18800,8 @@
         "_shared/schema-harvest.md:72",
         "workflows/00-overview/10-caveats.md:142",
         "workflows/10-anatomy/04-workflow-anatomy.md:452",
-        "workflows/10-anatomy/workflow-json-schema.md:26"
+        "workflows/10-anatomy/workflow-json-schema.md:26",
+        "workflows/10-anatomy/workflow-json-schema.md:281"
       ]
     },
     {
@@ -17184,7 +18834,8 @@
         "workflows/10-anatomy/04-workflow-anatomy.md:429",
         "workflows/10-anatomy/04-workflow-anatomy.md:566",
         "workflows/10-anatomy/05-build-flow.md:24",
-        "workflows/20-api/trigger-create.md:11"
+        "workflows/20-api/trigger-create.md:11",
+        "workflows/30-types/triggers/affiliate_created.md:63"
       ]
     },
     {
@@ -17761,7 +19412,7 @@
       },
       "sources": [
         "services/WorkflowAISettingsService.ts:19",
-        "workflows/20-api/03-endpoints.md:294",
+        "workflows/20-api/03-endpoints.md:295",
         "workflows/70-research/ENDPOINT-SWEEP-2026-08-25.md:67"
       ]
     },
@@ -17849,7 +19500,7 @@
       "sources": [
         "services/api/workflow-settings.ts:13",
         "services/api/workflow-settings.ts:57",
-        "workflows/20-api/03-endpoints.md:293",
+        "workflows/20-api/03-endpoints.md:294",
         "workflows/70-research/ENDPOINT-SWEEP-2026-08-25.md:66"
       ]
     },
@@ -19449,7 +21100,7 @@
       ]
     },
     {
-      "id": "brand-kit--get-brand-boards-list",
+      "id": "brand-kit--get-brand-boards",
       "method": "GET",
       "origin": "https://backend.leadconnectorhq.com",
       "path": "/workflow/generate-image-ai/{locationId}/brand-boards",
@@ -19458,18 +21109,23 @@
       "responseMode": "json",
       "extraHeaders": [],
       "tree": "documented",
+      "operation": null,
       "service": "brand-kit",
       "query": [],
+      "body": null,
+      "returns": "{brandBoards, totalCount}",
       "confidence": {
         "path": "documented",
-        "query": "unresolved",
+        "query": "documented",
         "body": "unresolved",
-        "returns": "unresolved"
+        "returns": "documented"
       },
+      "note": "the LIST endpoint the catalogue was missing",
+      "proof": "executed",
       "sources": [
+        "ai-studio/_data/endpoints.json",
         "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md"
-      ],
-      "note": "the LIST endpoint the catalogue was missing; returns {brandBoards,totalCount}"
+      ]
     },
     {
       "id": "backend--fetch-brand-board-by-id",
@@ -19527,7 +21183,7 @@
       ]
     },
     {
-      "id": "brand-kit--get-brand-voices-list",
+      "id": "brand-kit--get-brand-voices",
       "method": "GET",
       "origin": "https://backend.leadconnectorhq.com",
       "path": "/workflow/generate-image-ai/{locationId}/brand-voices",
@@ -19536,18 +21192,22 @@
       "responseMode": "json",
       "extraHeaders": [],
       "tree": "documented",
+      "operation": null,
       "service": "brand-kit",
       "query": [],
+      "body": null,
+      "returns": "{brandVoices, totalCount, traceId}",
       "confidence": {
         "path": "documented",
-        "query": "unresolved",
+        "query": "documented",
         "body": "unresolved",
-        "returns": "unresolved"
+        "returns": "documented"
       },
+      "proof": "executed",
       "sources": [
+        "ai-studio/_data/endpoints.json",
         "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md"
-      ],
-      "note": "the LIST endpoint the catalogue was missing; returns {brandVoices,totalCount}"
+      ]
     },
     {
       "id": "backend--fetch-brand-voice-by-id",
@@ -19609,18 +21269,23 @@
       "responseMode": "json",
       "extraHeaders": [],
       "tree": "documented",
+      "operation": null,
       "service": "brand-kit",
       "query": [],
+      "body": "{prompt}",
+      "returns": null,
       "confidence": {
         "path": "documented",
-        "query": "unresolved",
-        "body": "unresolved",
+        "query": "documented",
+        "body": "documented",
         "returns": "unresolved"
       },
+      "note": "answers 400 'prompt is required' on an empty body; WITHOUT the /workflow prefix the backend route 404s",
+      "proof": "executed",
       "sources": [
+        "ai-studio/_data/endpoints.json",
         "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md"
-      ],
-      "trap": "CORRECTION: the path needs the /workflow prefix; without it 404. 400 if `prompt` is missing/empty"
+      ]
     },
     {
       "id": "ivrservice--get-numbers-mapping",
@@ -19760,7 +21425,7 @@
       "sources": [
         "services/CustomWebhookService.ts:99",
         "workflows/10-anatomy/07-id-resolution.md:207",
-        "workflows/20-api/03-endpoints.md:298"
+        "workflows/20-api/03-endpoints.md:299"
       ]
     },
     {
@@ -20513,7 +22178,7 @@
         "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:651",
         "services/McpConnectionService.ts:154",
         "services/marketplaceServices/WorkflowMarketplaceService.ts:392",
-        "workflows/20-api/03-endpoints.md:343",
+        "workflows/20-api/03-endpoints.md:344",
         "workflows/70-research/ENDPOINTS.md:242"
       ]
     },
@@ -21448,7 +23113,8 @@
         "workflows/50-runtime/11-runtime-logs.md:37",
         "workflows/50-runtime/11-runtime-logs.md:113",
         "workflows/50-runtime/11-runtime-logs.md:241",
-        "workflows/50-runtime/forcing-and-removing-contacts.md:50"
+        "workflows/50-runtime/forcing-and-removing-contacts.md:50",
+        "workflows/50-runtime/observed-query-shapes.md:19"
       ]
     },
     {
@@ -21599,10 +23265,11 @@
       },
       "sources": [
         "services/marketplaceServices/WorkflowMarketplaceService.ts:181",
-        "workflows/20-api/03-endpoints.md:353",
+        "workflows/20-api/03-endpoints.md:354",
         "workflows/50-runtime/11-runtime-logs.md:145",
         "workflows/50-runtime/11-runtime-logs.md:242",
-        "workflows/70-research/ENDPOINTS.md:193"
+        "workflows/70-research/ENDPOINTS.md:193",
+        "workflows/70-research/RAIL.md:101"
       ]
     },
     {
@@ -22251,7 +23918,7 @@
       },
       "sources": [
         "services/marketplaceServices/WorkflowMarketplaceService.ts:212",
-        "workflows/20-api/03-endpoints.md:354",
+        "workflows/20-api/03-endpoints.md:355",
         "workflows/50-runtime/11-runtime-logs.md:189",
         "workflows/50-runtime/11-runtime-logs.md:245",
         "workflows/50-runtime/observed-query-shapes.md:60"
@@ -22308,7 +23975,8 @@
         "workflows/50-runtime/11-runtime-logs.md:159",
         "workflows/50-runtime/11-runtime-logs.md:243",
         "workflows/50-runtime/observed-query-shapes.md:43",
-        "workflows/70-research/ENDPOINTS.md:195"
+        "workflows/70-research/ENDPOINTS.md:195",
+        "workflows/70-research/VERSIONS-STATS-LOGS.md:549"
       ]
     },
     {
@@ -22517,7 +24185,7 @@
       },
       "sources": [
         "services/api/sticky-notes.ts:23",
-        "workflows/20-api/03-endpoints.md:352",
+        "workflows/20-api/03-endpoints.md:353",
         "workflows/70-research/SETTINGS-NOTES.md:265"
       ]
     },
@@ -23474,7 +25142,9 @@
         "ai-agents/20-api/12-ai-agents-api.md:54",
         "ai-agents/20-api/12-ai-agents-api.md:207",
         "ai-agents/20-api/12-ai-agents-api.md:220",
-        "ai-agents/20-api/12-ai-agents-api.md:222"
+        "ai-agents/20-api/12-ai-agents-api.md:222",
+        "ai-agents/20-api/12-ai-agents-api.md:315",
+        "ai-agents/20-api/12-ai-agents-api.md:343"
       ]
     },
     {
@@ -23527,7 +25197,9 @@
         "ai-agents/20-api/12-ai-agents-api.md:80",
         "ai-agents/20-api/12-ai-agents-api.md:84",
         "ai-agents/20-api/12-ai-agents-api.md:111",
-        "ai-agents/20-api/12-ai-agents-api.md:263"
+        "ai-agents/20-api/12-ai-agents-api.md:263",
+        "ai-agents/20-api/12-ai-agents-api.md:313",
+        "ai-agents/20-api/12-ai-agents-api.md:336"
       ]
     },
     {
@@ -23645,7 +25317,8 @@
         "ai-agents/20-api/conversation-ai-boundary.md:77",
         "ai-agents/30-types/conversation-ai-actions.md:46",
         "workflows/30-types/triggers/conv_ai_autonomous_trigger.md:110",
-        "workflows/30-types/triggers/conv_ai_autonomous_trigger.md:265"
+        "workflows/30-types/triggers/conv_ai_autonomous_trigger.md:265",
+        "workflows/70-research/2026-08-26-flow-bot-probe.md:138"
       ]
     },
     {
@@ -23723,7 +25396,9 @@
         "ai-agents/20-api/12-ai-agents-api.md:54",
         "ai-agents/20-api/12-ai-agents-api.md:74",
         "ai-agents/20-api/12-ai-agents-api.md:84",
-        "ai-agents/20-api/12-ai-agents-api.md:313"
+        "ai-agents/20-api/12-ai-agents-api.md:313",
+        "ai-agents/20-api/12-ai-agents-api.md:334",
+        "ask-ai/30-types/skills/crm-conversation-ai.md:23"
       ]
     },
     {
@@ -24103,6 +25778,39 @@
       "tree": "documented",
       "operation": null,
       "service": "ai-agents",
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/conversation-ai-boundary.md:82",
+        "ai-studio/60-recipes/run-one-generation.md:26"
+      ]
+    },
+    {
+      "id": "ai-studio--brand-boards",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/brand-boards/",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-studio",
       "query": [],
       "body": null,
       "returns": null,
@@ -24113,386 +25821,414 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/conversation-ai-boundary.md:82"
+        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:42"
       ]
     },
     {
-      "id": "brand-kit--post-boards-create",
-      "method": "POST",
-      "origin": "https://services.leadconnectorhq.com",
-      "path": "/brand-boards/",
-      "authRail": "ai",
-      "transport": "json",
-      "responseMode": "json",
-      "extraHeaders": [],
-      "tree": "documented",
-      "service": "brand-kit",
-      "query": [],
-      "confidence": {
-        "path": "documented",
-        "query": "unresolved",
-        "body": "unresolved",
-        "returns": "unresolved"
-      },
-      "sources": [
-        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md"
-      ]
-    },
-    {
-      "id": "brand-kit--get-boards",
+      "id": "ai-studio--brand-boards-get",
       "method": "GET",
       "origin": "https://services.leadconnectorhq.com",
       "path": "/brand-boards/{locationId}",
-      "authRail": "ai",
+      "authRail": "bearer+token-id",
       "transport": "json",
       "responseMode": "json",
       "extraHeaders": [],
       "tree": "documented",
-      "service": "brand-kit",
+      "operation": null,
+      "service": "ai-studio",
       "query": [],
+      "body": null,
+      "returns": null,
       "confidence": {
         "path": "documented",
-        "query": "unresolved",
+        "query": "none-observed",
         "body": "unresolved",
         "returns": "unresolved"
       },
       "sources": [
-        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md"
+        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:41"
       ]
     },
     {
-      "id": "brand-kit--delete-board",
+      "id": "ai-studio--brand-boards-delete",
       "method": "DELETE",
       "origin": "https://services.leadconnectorhq.com",
       "path": "/brand-boards/{locationId}/{brandBoardId}",
-      "authRail": "ai",
+      "authRail": "bearer+token-id",
       "transport": "json",
       "responseMode": "json",
       "extraHeaders": [],
       "tree": "documented",
-      "service": "brand-kit",
+      "operation": null,
+      "service": "ai-studio",
       "query": [],
+      "body": null,
+      "returns": null,
       "confidence": {
         "path": "documented",
-        "query": "unresolved",
+        "query": "none-observed",
         "body": "unresolved",
         "returns": "unresolved"
       },
       "sources": [
-        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md"
+        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:45"
       ]
     },
     {
-      "id": "brand-kit--get-board",
+      "id": "ai-studio--brand-boards-get-get",
       "method": "GET",
       "origin": "https://services.leadconnectorhq.com",
       "path": "/brand-boards/{locationId}/{brandBoardId}",
-      "authRail": "ai",
+      "authRail": "bearer+token-id",
       "transport": "json",
       "responseMode": "json",
       "extraHeaders": [],
       "tree": "documented",
-      "service": "brand-kit",
+      "operation": null,
+      "service": "ai-studio",
       "query": [],
+      "body": null,
+      "returns": null,
       "confidence": {
         "path": "documented",
-        "query": "unresolved",
+        "query": "none-observed",
         "body": "unresolved",
         "returns": "unresolved"
       },
       "sources": [
-        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md"
-      ],
-      "note": "full shape: colors, fonts, logos, folderId, meta"
+        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:43"
+      ]
     },
     {
-      "id": "brand-kit--post-board-update",
+      "id": "ai-studio--brand-boards-post",
       "method": "POST",
       "origin": "https://services.leadconnectorhq.com",
       "path": "/brand-boards/{locationId}/{brandBoardId}",
-      "authRail": "ai",
+      "authRail": "bearer+token-id",
       "transport": "json",
       "responseMode": "json",
       "extraHeaders": [],
       "tree": "documented",
-      "service": "brand-kit",
+      "operation": null,
+      "service": "ai-studio",
       "query": [],
+      "body": null,
+      "returns": null,
       "confidence": {
         "path": "documented",
-        "query": "unresolved",
+        "query": "none-observed",
         "body": "unresolved",
         "returns": "unresolved"
       },
       "sources": [
-        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md"
-      ],
-      "note": "update is POST, not PATCH"
+        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:44"
+      ]
     },
     {
-      "id": "brand-kit--post-board-default",
+      "id": "ai-studio--brand-boards-default",
       "method": "POST",
       "origin": "https://services.leadconnectorhq.com",
       "path": "/brand-boards/{locationId}/default",
-      "authRail": "ai",
+      "authRail": "bearer+token-id",
       "transport": "json",
       "responseMode": "json",
       "extraHeaders": [],
       "tree": "documented",
-      "service": "brand-kit",
+      "operation": null,
+      "service": "ai-studio",
       "query": [],
+      "body": null,
+      "returns": null,
       "confidence": {
         "path": "documented",
-        "query": "unresolved",
+        "query": "none-observed",
         "body": "unresolved",
         "returns": "unresolved"
       },
       "sources": [
-        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md"
+        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:46"
       ]
     },
     {
-      "id": "brand-kit--post-boards-clone",
+      "id": "ai-studio--brand-boards-clone",
       "method": "POST",
       "origin": "https://services.leadconnectorhq.com",
       "path": "/brand-boards/clone",
-      "authRail": "ai",
+      "authRail": "bearer+token-id",
       "transport": "json",
       "responseMode": "json",
       "extraHeaders": [],
       "tree": "documented",
-      "service": "brand-kit",
+      "operation": null,
+      "service": "ai-studio",
       "query": [],
+      "body": null,
+      "returns": null,
       "confidence": {
         "path": "documented",
-        "query": "unresolved",
+        "query": "none-observed",
         "body": "unresolved",
         "returns": "unresolved"
       },
       "sources": [
-        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md"
+        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:47"
       ]
     },
     {
-      "id": "brand-kit--get-custom-colors",
+      "id": "brand-kit--get-brand-boards-custom-colors",
       "method": "GET",
       "origin": "https://services.leadconnectorhq.com",
       "path": "/brand-boards/custom-colors/{locationId}",
-      "authRail": "ai",
+      "authRail": "bearer+token-id",
       "transport": "json",
       "responseMode": "json",
       "extraHeaders": [],
       "tree": "documented",
+      "operation": null,
       "service": "brand-kit",
       "query": [],
+      "body": null,
+      "returns": "{customColors}",
       "confidence": {
         "path": "documented",
-        "query": "unresolved",
+        "query": "documented",
         "body": "unresolved",
-        "returns": "unresolved"
+        "returns": "documented"
       },
+      "proof": "executed",
       "sources": [
+        "ai-studio/_data/endpoints.json",
         "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md"
       ]
     },
     {
-      "id": "brand-kit--get-custom-fonts",
+      "id": "brand-kit--get-brand-boards-custom-fonts",
       "method": "GET",
       "origin": "https://services.leadconnectorhq.com",
       "path": "/brand-boards/custom-fonts/{locationId}",
-      "authRail": "ai",
+      "authRail": "bearer+token-id",
       "transport": "json",
       "responseMode": "json",
       "extraHeaders": [],
       "tree": "documented",
+      "operation": null,
       "service": "brand-kit",
       "query": [],
+      "body": null,
+      "returns": "{customFonts}",
       "confidence": {
         "path": "documented",
-        "query": "unresolved",
+        "query": "documented",
         "body": "unresolved",
-        "returns": "unresolved"
+        "returns": "documented"
       },
+      "proof": "executed",
       "sources": [
+        "ai-studio/_data/endpoints.json",
         "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md"
       ]
     },
     {
-      "id": "brand-kit--post-locations-activity",
+      "id": "ai-studio--locations-activity",
       "method": "POST",
       "origin": "https://services.leadconnectorhq.com",
       "path": "/brand-boards/locations/{locationId}/activity",
-      "authRail": "ai",
+      "authRail": "bearer+token-id",
       "transport": "json",
       "responseMode": "json",
       "extraHeaders": [],
       "tree": "documented",
-      "service": "brand-kit",
+      "operation": null,
+      "service": "ai-studio",
       "query": [],
+      "body": null,
+      "returns": null,
       "confidence": {
         "path": "documented",
-        "query": "unresolved",
+        "query": "none-observed",
         "body": "unresolved",
         "returns": "unresolved"
       },
       "sources": [
-        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md"
+        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:57"
       ]
     },
     {
-      "id": "brand-kit--post-voices-create",
+      "id": "ai-studio--brand-boards-voices",
       "method": "POST",
       "origin": "https://services.leadconnectorhq.com",
       "path": "/brand-boards/voices/",
-      "authRail": "ai",
+      "authRail": "bearer+token-id",
       "transport": "json",
       "responseMode": "json",
       "extraHeaders": [],
       "tree": "documented",
-      "service": "brand-kit",
+      "operation": null,
+      "service": "ai-studio",
       "query": [],
+      "body": null,
+      "returns": null,
       "confidence": {
         "path": "documented",
-        "query": "unresolved",
+        "query": "none-observed",
         "body": "unresolved",
         "returns": "unresolved"
       },
       "sources": [
-        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md"
-      ],
-      "note": "needs only {locationId}; everything else server-defaulted"
+        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:49",
+        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:100"
+      ]
     },
     {
-      "id": "brand-kit--get-voices",
+      "id": "ai-studio--brand-boards-voices-get",
       "method": "GET",
       "origin": "https://services.leadconnectorhq.com",
       "path": "/brand-boards/voices/{locationId}",
-      "authRail": "ai",
+      "authRail": "bearer+token-id",
       "transport": "json",
       "responseMode": "json",
       "extraHeaders": [],
       "tree": "documented",
-      "service": "brand-kit",
+      "operation": null,
+      "service": "ai-studio",
       "query": [],
+      "body": null,
+      "returns": null,
       "confidence": {
         "path": "documented",
-        "query": "unresolved",
+        "query": "none-observed",
         "body": "unresolved",
         "returns": "unresolved"
       },
       "sources": [
-        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md"
-      ],
-      "note": "same data as the backend route, on the services rail"
+        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:48",
+        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:93"
+      ]
     },
     {
-      "id": "brand-kit--delete-voice",
+      "id": "ai-studio--brand-boards-voices-delete",
       "method": "DELETE",
       "origin": "https://services.leadconnectorhq.com",
       "path": "/brand-boards/voices/{locationId}/{brandVoiceId}",
-      "authRail": "ai",
+      "authRail": "bearer+token-id",
       "transport": "json",
       "responseMode": "json",
       "extraHeaders": [],
       "tree": "documented",
-      "service": "brand-kit",
+      "operation": null,
+      "service": "ai-studio",
       "query": [],
+      "body": null,
+      "returns": null,
       "confidence": {
         "path": "documented",
-        "query": "unresolved",
+        "query": "none-observed",
         "body": "unresolved",
         "returns": "unresolved"
       },
       "sources": [
-        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md"
+        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:52"
       ]
     },
     {
-      "id": "brand-kit--get-voice",
+      "id": "ai-studio--brand-boards-voices-get-get",
       "method": "GET",
       "origin": "https://services.leadconnectorhq.com",
       "path": "/brand-boards/voices/{locationId}/{brandVoiceId}",
-      "authRail": "ai",
+      "authRail": "bearer+token-id",
       "transport": "json",
       "responseMode": "json",
       "extraHeaders": [],
       "tree": "documented",
-      "service": "brand-kit",
+      "operation": null,
+      "service": "ai-studio",
       "query": [],
+      "body": null,
+      "returns": null,
       "confidence": {
         "path": "documented",
-        "query": "unresolved",
+        "query": "none-observed",
         "body": "unresolved",
         "returns": "unresolved"
       },
       "sources": [
-        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md"
+        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:50",
+        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:94"
       ]
     },
     {
-      "id": "brand-kit--patch-voice",
+      "id": "ai-studio--brand-boards-voices-patch",
       "method": "PATCH",
       "origin": "https://services.leadconnectorhq.com",
       "path": "/brand-boards/voices/{locationId}/{brandVoiceId}",
-      "authRail": "ai",
+      "authRail": "bearer+token-id",
       "transport": "json",
       "responseMode": "json",
       "extraHeaders": [],
       "tree": "documented",
-      "service": "brand-kit",
+      "operation": null,
+      "service": "ai-studio",
       "query": [],
+      "body": null,
+      "returns": null,
       "confidence": {
         "path": "documented",
-        "query": "unresolved",
+        "query": "none-observed",
         "body": "unresolved",
         "returns": "unresolved"
       },
       "sources": [
-        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md"
-      ],
-      "trap": "TRAP: requires brandName+targetAudience+customerPainPoints at TOP level but stores them only inside `answers`; `answers` is REPLACED and key-whitelisted"
-    },
-    {
-      "id": "brand-kit--post-voice-default",
-      "method": "POST",
-      "origin": "https://services.leadconnectorhq.com",
-      "path": "/brand-boards/voices/{locationId}/default",
-      "authRail": "ai",
-      "transport": "json",
-      "responseMode": "json",
-      "extraHeaders": [],
-      "tree": "documented",
-      "service": "brand-kit",
-      "query": [],
-      "confidence": {
-        "path": "documented",
-        "query": "unresolved",
-        "body": "unresolved",
-        "returns": "unresolved"
-      },
-      "sources": [
-        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md"
+        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:51"
       ]
     },
     {
-      "id": "brand-kit--post-voices-clone",
+      "id": "ai-studio--voices-default",
       "method": "POST",
       "origin": "https://services.leadconnectorhq.com",
-      "path": "/brand-boards/voices/clone",
-      "authRail": "ai",
+      "path": "/brand-boards/voices/{locationId}/default",
+      "authRail": "bearer+token-id",
       "transport": "json",
       "responseMode": "json",
       "extraHeaders": [],
       "tree": "documented",
-      "service": "brand-kit",
+      "operation": null,
+      "service": "ai-studio",
       "query": [],
+      "body": null,
+      "returns": null,
       "confidence": {
         "path": "documented",
-        "query": "unresolved",
+        "query": "none-observed",
         "body": "unresolved",
         "returns": "unresolved"
       },
       "sources": [
-        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md"
+        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:53"
+      ]
+    },
+    {
+      "id": "ai-studio--voices-clone",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/brand-boards/voices/clone",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-studio",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:54"
       ]
     },
     {
@@ -25448,6 +27184,762 @@
       },
       "sources": [
         "restAgent.ts:304"
+      ]
+    },
+    {
+      "id": "forms--submission-v2",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/form/submission/v2/{submissionId}",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "forms",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "forms/20-api/forms.md:163"
+      ]
+    },
+    {
+      "id": "forms--forms-get-get",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/forms/",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "forms",
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "skip",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "limit",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "parentId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "forms/20-api/forms.md:33",
+        "forms/20-api/forms.md:54"
+      ]
+    },
+    {
+      "id": "forms--forms-post-post",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/forms/",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "forms",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "forms/20-api/forms.md:38",
+        "forms/20-api/forms.md:82",
+        "forms/20-api/forms.md:129"
+      ]
+    },
+    {
+      "id": "forms--forms-delete",
+      "method": "DELETE",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/forms/{formId}",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "forms",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "forms/20-api/forms.md:46"
+      ]
+    },
+    {
+      "id": "forms--forms-get-get-get",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/forms/{formId}",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "forms",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "forms/20-api/forms.md:35"
+      ]
+    },
+    {
+      "id": "forms--forms-post-post-post",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/forms/{formId}",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "forms",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "forms/20-api/forms.md:39"
+      ]
+    },
+    {
+      "id": "forms--forms-get-get-get-get",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/forms/{id}",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "forms",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "forms/20-api/forms.md:69"
+      ]
+    },
+    {
+      "id": "forms--forms-post-post-post-post",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/forms/{id}",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "forms",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "forms/20-api/forms.md:100",
+        "forms/20-api/forms.md:129"
+      ]
+    },
+    {
+      "id": "forms--forms-count",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/forms/count",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "forms",
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "forms/20-api/forms.md:34"
+      ]
+    },
+    {
+      "id": "forms--forms-data-get",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/forms/data/{formId}",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "forms",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "forms/20-api/forms.md:36"
+      ]
+    },
+    {
+      "id": "forms--forms-data-get-get",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/forms/data/{id}",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "forms",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "forms/20-api/forms.md:75"
+      ]
+    },
+    {
+      "id": "forms--forms-default-colors",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/forms/default-colors",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "forms",
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "forms/20-api/forms.md:51"
+      ]
+    },
+    {
+      "id": "forms--forms-duplicate",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/forms/duplicate/{formId}",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "forms",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "forms/20-api/forms.md:40"
+      ]
+    },
+    {
+      "id": "forms--forms-duplicate-post",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/forms/duplicate/{id}",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "forms",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "forms/20-api/forms.md:131"
+      ]
+    },
+    {
+      "id": "forms--forms-forms-list-get",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/forms/forms-list",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "forms",
+      "query": [
+        {
+          "name": "formIds",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "forms/20-api/forms.md:37",
+        "forms/20-api/forms.md:151"
+      ]
+    },
+    {
+      "id": "forms--forms-image",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/forms/image",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "forms",
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "forms/20-api/forms.md:44"
+      ]
+    },
+    {
+      "id": "forms--forms-move-to-folder-post",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/forms/move-to-folder",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "forms",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "forms/20-api/forms.md:41",
+        "forms/20-api/forms.md:145"
+      ]
+    },
+    {
+      "id": "forms--forms-restore-version",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/forms/restore-version",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "forms",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "forms/20-api/forms.md:42",
+        "forms/20-api/forms.md:138"
+      ]
+    },
+    {
+      "id": "forms--forms-schedule-form-export",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/forms/schedule-form-export",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "forms",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "forms/20-api/forms.md:45"
+      ]
+    },
+    {
+      "id": "forms--forms-share",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/forms/share/{formId}",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "forms",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "forms/20-api/forms.md:43"
+      ]
+    },
+    {
+      "id": "forms--forms-submissions-get",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/forms/submissions",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "forms",
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "formId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "page",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "limit",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "forms/20-api/forms.md:47",
+        "forms/20-api/forms.md:159"
+      ]
+    },
+    {
+      "id": "forms--forms-submissions-count-get",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/forms/submissions-count",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "forms",
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "startAt",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "endAt",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "forms/20-api/forms.md:48"
+      ]
+    },
+    {
+      "id": "forms--forms-theme-style",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/forms/theme-style/{themeId}",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "forms",
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "forms/20-api/forms.md:50"
+      ]
+    },
+    {
+      "id": "forms--forms-themes-get",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/forms/themes",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "forms",
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "forms/20-api/forms.md:49"
+      ]
+    },
+    {
+      "id": "ai-studio--prompt-enhance",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/generate-image-ai/{locationId}/prompt/enhance",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-studio",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:31"
       ]
     },
     {
@@ -31440,7 +33932,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "platform/20-api/snapshots.md:70"
+        "platform/20-api/snapshots.md:73"
       ]
     },
     {
@@ -31472,11 +33964,11 @@
         "returns": "unresolved"
       },
       "sources": [
-        "platform/20-api/snapshots.md:33"
+        "platform/20-api/snapshots.md:36"
       ]
     },
     {
-      "id": "platform--snapshots-assets-status",
+      "id": "platform--snapshots-assets-status-get",
       "method": "GET",
       "origin": "https://services.leadconnectorhq.com",
       "path": "/snapshots/{snapshotId}/assets-status",
@@ -31504,7 +33996,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "platform/20-api/snapshots.md:118"
+        "platform/20-api/snapshots.md:121"
       ]
     },
     {
@@ -31536,7 +34028,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "platform/20-api/snapshots.md:89"
+        "platform/20-api/snapshots.md:92"
       ]
     },
     {
@@ -31568,7 +34060,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "platform/20-api/snapshots.md:110"
+        "platform/20-api/snapshots.md:113"
       ]
     },
     {
@@ -31600,7 +34092,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "platform/20-api/snapshots.md:104"
+        "platform/20-api/snapshots.md:107"
       ]
     },
     {
@@ -31632,7 +34124,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "platform/20-api/snapshots.md:99"
+        "platform/20-api/snapshots.md:102"
       ]
     },
     {
@@ -31676,7 +34168,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "platform/20-api/snapshots.md:80"
+        "platform/20-api/snapshots.md:83"
       ]
     },
     {
@@ -31726,7 +34218,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "platform/20-api/snapshots.md:60"
+        "platform/20-api/snapshots.md:63"
       ]
     },
     {
@@ -31932,6 +34424,31 @@
       ]
     },
     {
+      "id": "forms--surveys",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/surveys/",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "forms",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "forms/20-api/forms.md:94"
+      ]
+    },
+    {
       "id": "memberships-courses--templates",
       "method": "DELETE",
       "origin": "https://services.leadconnectorhq.com",
@@ -32081,7 +34598,9 @@
         "ai-agents/20-api/12-ai-agents-api.md:141",
         "ai-agents/20-api/12-ai-agents-api.md:148",
         "ai-agents/20-api/12-ai-agents-api.md:169",
-        "ai-agents/20-api/12-ai-agents-api.md:264"
+        "ai-agents/20-api/12-ai-agents-api.md:264",
+        "ai-agents/20-api/12-ai-agents-api.md:294",
+        "ai-agents/20-api/12-ai-agents-api.md:341"
       ]
     },
     {
@@ -32317,7 +34836,9 @@
         "ai-agents/20-api/12-ai-agents-api.md:54",
         "ai-agents/20-api/12-ai-agents-api.md:137",
         "ai-agents/20-api/12-ai-agents-api.md:148",
-        "ai-agents/20-api/12-ai-agents-api.md:156"
+        "ai-agents/20-api/12-ai-agents-api.md:156",
+        "ai-agents/20-api/12-ai-agents-api.md:314",
+        "ai-agents/20-api/12-ai-agents-api.md:338"
       ]
     },
     {
@@ -33458,7 +35979,8 @@
         "ai-agents/20-api/12-ai-agents-api.md:42",
         "ai-agents/20-api/12-ai-agents-api.md:143",
         "ai-agents/20-api/12-ai-agents-api.md:342",
-        "ai-agents/20-api/voice-ai-boundary.md:61"
+        "ai-agents/20-api/voice-ai-boundary.md:61",
+        "ai-agents/20-api/voice-ai-boundary.md:78"
       ]
     },
     {
@@ -33538,6 +36060,31 @@
       },
       "sources": [
         "services/api/instagram-connected-accounts.ts:25"
+      ]
+    },
+    {
+      "id": "ai-studio--prompt-enhance-post",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/workflow/generate-image-ai/{locationId}/prompt/enhance",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-studio",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:32"
       ]
     }
   ]

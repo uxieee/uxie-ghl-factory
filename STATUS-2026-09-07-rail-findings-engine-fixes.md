@@ -104,29 +104,47 @@ layers became reachable, and each was a live failure on a write the tests report
 - Conversation AI agents `0az8xPNSEFlf25Hd6xoh` and `Itl3RL2G6LMjCprqcluI` (both mode off, unrouted)
 - Probe driver + ledger: the session scratchpad (`probe057*.mjs`, `probe057-ledger.json`)
 
-## 🔴 Do NOT commit a regenerated endpoint catalogue yet — it LOSES AI Studio rows
+## The endpoint catalogue regenerates LOSSLESSLY again — root cause fixed, guarded
 
-Twice today the `knowledge/` post-commit hook ran `plugin/ npm run sync` and rewrote four
-generated files in this working tree (`catalog/internal-endpoints{,.source}.json`,
-`dist/{server,audit-server}.mjs`), each time marked "M — commit it with your work". Both times I
-reverted them rather than let them ride into 0.57.0, because the diff is not additive.
+The sync that `npm run release` runs at step 3 was dropping 52 rows (32 of them `/vibe-ai/*`).
+Root cause, found with the snapshot session: the AI Studio rows had been merged into
+`knowledge/catalog/internal-endpoints.documented.json` BY HAND on 2026-09-04 from
+`corpus/ai-studio/_data/endpoints.json`, a sidecar the harvester never read, so the next honest
+harvester run (the snapshot session's, 2026-09-07) minted only what the pages carry. A second,
+smaller defect: eleven AI Studio pages write `/projects/{id}/…` with no `Base:` line, and those
+minted as ten root-level rows nothing serves (two of them routes the pages record as 405).
 
-Measured on the second run (999 → 1023 rows): **65 added, 52 removed, 32 of the removals
-`/vibe-ai/*`** — the AI Studio surface shipped in 0.56.0. It is not a clean re-key. Of eight
-sampled removals only three have a de-prefixed twin (`/vibe-ai/projects/{projectId}` →
-`/projects/{projectId}`); the other five — including `GET /vibe-ai/projects`, `GET /vibe-ai/folders`,
-`GET /vibe-ai/banners/active` and both DELETEs — have **no replacement row at all**. Only 8
-`/vibe-ai/*` rows survive. Committing that would ship an AI Studio catalogue with holes and orphan
-every overlay key that addresses those paths.
+Fixed in `knowledge/` (commit named in the summary below):
 
-The wanted rows in the same diff are real (16 snapshot rows from the concurrent snapshot mapping,
-plus the forms rows). So this needs a deliberate pass by whoever owns the AI Studio rows — read
-every removed row, decide re-key vs loss, fix the extractor or the overlay keys — and it must not
-be done as a side effect of a release. Until then: **revert the four generated files whenever the
-hook rewrites them**, and cut 0.57.0 from the artefacts already committed at 0.56.1.
+- `scripts/harvest-documented-endpoints.mjs` reads every `corpus/<surface>/_data/endpoints.json`
+  FIRST (bases carry `service` + scope `query`; rows carry proof/body/returns/note/trap), then the
+  pages attach their line references. A base-less page's relative path is resolved against the
+  surface's sidecar bases: a match becomes a source of that row, a miss is skipped BY NAME
+  (`GET /projects/{projectId}/chat` and `…/versions`, both 405 per the pages, are now skipped
+  instead of minted). Every skipped candidate is printed, not the first eight.
+- The four brand-kit rows and `POST /workflow/generate-image-ai/{locationId}/prompt/enhance`, which
+  the 70-research page proves in a form no line parser reads (a Base|Path table, `…` tails), are
+  declared in the sidecar with the page as their source.
+- **Loss guard, twice.** The harvester and `scripts/merge-endpoint-catalogs.mjs` (the one `npm run
+  sync` and the release call) diff against the artefact on disk before writing; any row that would
+  vanish is printed by name and the write is REFUSED. `--allow-removals` (or
+  `CATALOG_ALLOW_REMOVALS=1` under `npm run sync`) is the deliberate-correction override. Both
+  proven with a seeded row: exit 1 and the plugin copy untouched without the flag, written with it.
+- `scripts/check-privacy.mjs` was crashing (`spawnSync git ENOBUFS`) because the NUL-joined file
+  list of a 9 MB sniffs tree overflowed Node's 1 MB default; `maxBuffer` raised, `npm test` runs.
 
-Note this also means `npm run release` will regenerate and hit the same diff at step 3. Either fix
-the extractor first, or run the release with the catalogue step reviewed by hand.
+Result, diffed on every axis: documented tree 680 → 682 rows, zero removed; merged source 1067;
+compiled plugin catalogue **1078 rows, 40 `/vibe-ai/*`, 28 snapshot, 40 forms**. Against the
+0.56.1 catalogue it is +68 / −1, and the one removal is `POST /locations/{locationId}/customFields`
+absorbed: the forms corpus now documents the same call with a trailing slash and that row carries
+`coveredBy: create_custom_field_folder`. Field-level changes were read row by row: 17 ids and 4
+`service` values re-keyed to the sidecar's per-base service (the plugin overlay joins on
+`METHOD path`, so nothing detaches), 5 `authRail` values now follow the base's credential, and 16
+rows gained `proof`. The regenerated files ship with 0.57.0.
+
+Left for the forms owner (not mine): `GET /forms/{bad}` is a real row minted from a 400-probe line
+(`forms/40-rules/validators-and-quirks.md:95`), and `/forms/{id}` and `/forms/{formId}` are the same
+route twice under two parameter names. Told the forms session.
 
 ## Carried in from another session — for the backlog, NOT fixed here
 
