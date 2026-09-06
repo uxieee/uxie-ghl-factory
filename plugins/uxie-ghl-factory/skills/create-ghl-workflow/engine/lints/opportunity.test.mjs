@@ -186,3 +186,19 @@ test('a self-pointing or dangling parentKey neither throws nor loops', () => {
   // Duplicate ids and a non-string parentKey.
   assert.doesNotThrow(() => lintOpportunityWrites([update('u', 42), update('u', { id: 'x' }), create('c', ['a'])]));
 });
+
+// D-85 / D-89 (2026-09-06, two accounts): the edit and repair verifiers handed this lint ONLY the
+// touched steps. The path walk then hit a missing parent on its first hop and reported
+// OPP_WRITE_UNBOUND_PATH for a step sitting directly under find_opportunity → Opportunity Found —
+// the very pattern the message recommends — while the runtime log showed it updating the card.
+// `scope` restricts REPORTING; the walk always sees the whole document.
+test('scope: the walk sees the whole document while only scoped steps are reported', () => {
+  const doc = [finder('f'), found('f'), notFound('f'), update('u', 'f-found')];
+  assert.deepEqual(unbound(lintOpportunityWrites(doc, { scope: new Set(['u']) })), [], 'bound through Found, reported for u');
+  // The old call shape — the touched SUBSET as the whole input — is exactly the false positive.
+  assert.equal(unbound(lintOpportunityWrites(doc.filter((t) => t.id === 'u'))).length, 1, 'the subset-only call reproduces the old false positive');
+  // A genuinely unbound update stays reported when in scope, and is silent when out of scope.
+  const bare = [{ id: 'w', type: 'wait', name: 'Wait', parentKey: null, attributes: {}, next: 'u' }, update('u', 'w')];
+  assert.equal(unbound(lintOpportunityWrites(bare, { scope: new Set(['u']) })).length, 1);
+  assert.deepEqual(lintOpportunityWrites(bare, { scope: new Set(['w']) }), []);
+});

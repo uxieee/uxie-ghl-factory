@@ -102,8 +102,10 @@ test('modifyTrigger on a conv_ai_autonomous_trigger forwards the stored targetAc
     id: 'tr1', _id: 'tr1', type: 'conv_ai_autonomous_trigger', name: 'Custom trigger',
     active: true, conditions: [], targetActionId: 'step-xyz',
   }];
+  // A real change (the name), so a PUT is planned: a patch that changes nothing plans a NOOP
+  // since the strictness pass (edit-op-strictness.test.mjs) and carries no body at all.
   const r = planTriggerOps(
-    [{ op: 'modifyTrigger', triggerId: 'tr1', trigger: { filters: [] } }],
+    [{ op: 'modifyTrigger', triggerId: 'tr1', trigger: { name: 'Custom trigger, renamed', filters: [] } }],
     { ctx: c, wid: WID, uid: 'UID', existing: ex },
   )[0];
   assert.equal(r.body.targetActionId, 'step-xyz',
@@ -205,15 +207,20 @@ test('modifyTrigger translates active:true→false (a genuine change) into statu
 test('modifyTrigger allows an explicit active value that MATCHES the stored trigger — a harmless no-op echo, and sends NO status write for it', () => {
   const ex = [{ id: 'tr1', _id: 'tr1', type: 'contact_tag', name: 'VIP added', active: true, conditions: [] }];
   const r = plan1({ op: 'modifyTrigger', triggerId: 'tr1', trigger: { active: true, filters: [] } }, ex);
-  assert.equal(r.body.active, true, 'echoing the current value back must not be refused — only a genuine CHANGE is');
-  assert.equal('status' in r.body, false, 'matching the stored value is not a change — it must not provoke a status write at all');
+  // Since the strictness pass a patch that changes nothing is planned as a NOOP — no PUT at all,
+  // so no status write can ride it. (D-67: a no-op PUT "verified" a write that never happened.)
+  assert.equal(r.noop, true, 'echoing the current value back must not be refused — it is simply nothing to send');
+  assert.equal(r.method, undefined, 'matching the stored value is not a change — no PUT, hence no status write');
 });
 
 test('modifyTrigger on a stored trigger with no active flag at all defaults to OFF, not ON, and sends no status write', () => {
   const ex = [{ id: 'tr1', _id: 'tr1', type: 'contact_tag', name: 'VIP added', conditions: [] }];
+  // Nothing changes here either (stored conditions [] ≡ filters []), so the plan is a NOOP with no
+  // body; the "no status write" promise holds by construction. The default-OFF rule itself is
+  // pinned by the `active: true` → status:"published" test below (true !== absent-as-false).
   const r = plan1({ op: 'modifyTrigger', triggerId: 'tr1', trigger: { filters: [] } }, ex);
-  assert.equal(r.body.active, false);
-  assert.equal('status' in r.body, false, 'active being absent everywhere is not a change — it must not provoke a status write');
+  assert.equal(r.noop, true);
+  assert.equal(r.method, undefined, 'active being absent everywhere is not a change — no PUT, no status write');
 });
 
 // The opposite corner (review round 1): the op REQUESTS active:true while the STORED trigger

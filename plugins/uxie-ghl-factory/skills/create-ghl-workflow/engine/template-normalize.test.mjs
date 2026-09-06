@@ -65,3 +65,33 @@ test('modifyStep through applyOps applies the normalisation', () => {
   const { templates } = applyOps(stored, [{ op: 'modifyStep', stepId: 'w', attrPatch: { window: { condition: 'when', start: '09:00', end: '17:00' } } }], { ctx: ctx(), idGen: makeSeededIdGen('m') });
   assert.deepEqual(templates[0].attributes.window.days, [0, 1, 2, 3, 4, 5, 6]);
 });
+
+// Backlog 6 (D-85, D-89): MODIFY_NOT_NORMALISED fired on EVERY modifyStep of a goto, an
+// opportunity step or a custom_code step — 100% noise, and a correct edit was indistinguishable
+// from a suspect one. The warning now keys off the keys the patch INTRODUCED.
+test('a same-shape patch on a skipped type (goto targetNodeId, opportunity rows) is silent', () => {
+  const stored = [
+    { id: 'g', type: 'goto', name: 'Jump', next: null, parentKey: null, order: 0, attributes: { targetNodeId: 'a', type: 'goto' } },
+    { id: 'o', type: 'internal_update_opportunity', name: 'Move', next: null, parentKey: 'g', order: 1,
+      attributes: { allowBackward: false, __customInputFields__: [{ filterField: 'pipelineStageId', value: 'st1' }], __customInputs__: {} } },
+  ];
+  const warns = [];
+  const c = { ...ctx(), warn: (w) => warns.push(w) };
+  applyOps(stored, [
+    { op: 'modifyStep', stepId: 'g', attrPatch: { targetNodeId: 'b' } },
+    { op: 'modifyStep', stepId: 'o', attrPatch: { __customInputFields__: [{ filterField: 'pipelineStageId', value: 'st2' }] } },
+  ], { ctx: c, idGen: makeSeededIdGen('q') });
+  assert.deepEqual(warns.filter((w) => /MODIFY_NOT_NORMALISED/.test(w)), [], warns.join('\n'));
+});
+
+test('a patch that INTRODUCES a key on a skipped type warns and names the key', () => {
+  const stored = [{ id: 'o', type: 'internal_update_opportunity', name: 'Move', next: null, parentKey: null, order: 0,
+    attributes: { allowBackward: false, __customInputFields__: [], __customInputs__: {} } }];
+  const warns = [];
+  const c = { ...ctx(), warn: (w) => warns.push(w) };
+  applyOps(stored, [{ op: 'modifyStep', stepId: 'o', attrPatch: { stage: 'Booked' } }], { ctx: c, idGen: makeSeededIdGen('r') });
+  const hit = warns.find((w) => /MODIFY_NOT_NORMALISED/.test(w));
+  assert.ok(hit, warns.join('\n'));
+  assert.match(hit, /introduces key\(s\) \[stage\]/);
+  assert.match(hit, /retypeStep/);
+});

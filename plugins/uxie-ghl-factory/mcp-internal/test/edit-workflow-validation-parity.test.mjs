@@ -235,3 +235,80 @@ test('the preview already carries the pre-flight verdicts, before anything is wr
   assert.equal(result.data.preview.customCodeTests.length, 1);
   assert.deepEqual(calls.filter((c) => c.method === 'PUT'), [], 'the preview wrote nothing');
 });
+
+// ── Backlog 3 + 4 (R-96): the pre-flight is named as PRE-write, and re-run POST-write ────────
+// Eight trigger re-points on one account reported ok while the asset pre-flight kept naming the
+// OLD reference on every call. It was right every time — the write had not landed — and was
+// read as a stale cache and hatched past with ignoreAssetErrors. Two guards: the verdict says
+// which document it describes, and a hatch that would suppress an error on the very id the edit
+// is replacing is refused.
+test('a hatched write re-runs the reference validator on the PERSISTED document and names an error that survived', async () => {
+  const { gw, calls } = gateway([AI_STEP()], { assetVerdict: { errors: [USER_GONE('s1')], warnings: [] } });
+  const result = await run(gw, { confirm: true, ignoreAssetErrors: true, ops: [{ op: 'modifyStep', stepId: 's1', attrPatch: { message: 'new' } }] });
+  assert.equal(result.ok, true);
+  assert.equal(result.data.assetPreflight.phase, 'pre-write');
+  assert.equal(result.data.verify.assetPreflightAfter.phase, 'post-write');
+  assert.equal(result.data.verify.assetPreflightAfter.persisting.length, 1);
+  assert.ok(result.data.warnings.some((w) => /^ASSET_ERROR_PERSISTS_AFTER_WRITE/.test(w) && /user not found/.test(w)), result.data.warnings.join('\n'));
+  assert.equal(calls.filter((c) => c.path === '/workflow/LOC/validate-assets').length, 2, 'once before the write, once over the stored document');
+});
+
+test('ignoreAssetErrors is REFUSED when the flagged asset id is one this edit is replacing — the error IS the failed re-point', async () => {
+  const step = AI_STEP({ attributes: { type: 'conversationai_ai_message', message: 'assign to u1 please', waitForReply: true } });
+  const { gw, calls } = gateway([step], { assetVerdict: { errors: [USER_GONE('s1')], warnings: [] } });
+  const result = await run(gw, {
+    confirm: true, ignoreAssetErrors: true,
+    ops: [{ op: 'replaceInAttributes', type: 'conversationai_ai_message', path: 'message', find: 'u1', replace: 'u2' }],
+  });
+  assert.equal(result.ok, false);
+  assert.equal(result.code, 'VALIDATION_FAILED');
+  assert.match(result.detail, /ignoreAssetErrors refused/);
+  assert.match(result.detail, /REPLACING/);
+  assert.match(result.remediation, /R-96/);
+  assert.deepEqual(calls.filter((c) => c.method === 'PUT'), [], 'nothing written');
+});
+
+test('the refusal wording for a plain asset error names the phase and the hatch risk', async () => {
+  const { gw } = gateway([AI_STEP()], { assetVerdict: { errors: [USER_GONE('s1')], warnings: [] } });
+  const result = await run(gw, { confirm: true, ops: [{ op: 'modifyStep', stepId: 's1', attrPatch: { message: 'new' } }] });
+  assert.equal(result.ok, false);
+  assert.match(result.remediation, /pre-write/);
+  assert.match(result.remediation, /hides a failed re-point/);
+});
+
+// ── Backlog 15 + 25: measured field caps are REFUSED before the write, and named on the card ──
+// A 550-char promptInstructions, 640-char splitter description and 640-char ai_message each
+// committed with `verify.roundTrip: true`; only `schemaViolations` said anything, and it was not
+// read. The four measured caps now refuse on a touched step (hatch: allowOverCap), every schema
+// violation also lands in `warnings`, and describe_step_type carries the caps.
+test('an over-cap value on a touched step is refused before any write, naming the cap and allowOverCap', async () => {
+  const { gw, calls } = gateway([AI_STEP()]);
+  const result = await run(gw, { confirm: true, ops: [{ op: 'modifyStep', stepId: 's1', attrPatch: { message: 'm'.repeat(601) } }] });
+  assert.equal(result.ok, false);
+  assert.equal(result.code, 'VALIDATION_FAILED');
+  assert.match(result.detail, /601 characters; the builder's cap is 600/);
+  assert.match(result.remediation, /allowOverCap/);
+  assert.equal(result.data.fieldCaps[0].field, 'message');
+  assert.deepEqual(calls.filter((c) => c.method === 'PUT'), [], 'nothing written');
+});
+
+test('allowOverCap writes the value and keeps a FIELD_CAP warning; an untouched over-cap step is not this caller\'s debt', async () => {
+  const { gw } = gateway([AI_STEP()]);
+  const hatched = await run(gw, { confirm: true, allowOverCap: true, ops: [{ op: 'modifyStep', stepId: 's1', attrPatch: { message: 'm'.repeat(601) } }] });
+  assert.equal(hatched.ok, true, JSON.stringify(hatched));
+  assert.ok(hatched.data.warnings.some((w) => /^FIELD_CAP \(allowOverCap\)/.test(w)), hatched.data.warnings.join('\n'));
+  const long = AI_STEP({ attributes: { type: 'conversationai_ai_message', message: 'm'.repeat(700), waitForReply: true } });
+  const other = await run(gateway([long, SMS_STEP]).gw, { confirm: true, ops: [{ op: 'modifyStep', stepId: 'sms1', attrPatch: { body: 'new' } }] });
+  assert.equal(other.ok, true, JSON.stringify(other));
+});
+
+test('describe_step_type carries the measured caps for the four flow-bot types', async () => {
+  const describe = TOOLS.find((t) => t.name === 'describe_step_type');
+  const r = await describe.handler({ type: 'conversationai_book_appointment' }, deps({}));
+  assert.equal(r.ok, true);
+  assert.deepEqual(r.data.caps, { promptInstructions: 500 });
+  assert.match(r.data.capsNote, /allowOverCap/);
+  const sms = await describe.handler({ type: 'sms' }, deps({}));
+  assert.equal(sms.ok, true);
+  assert.equal(sms.data.caps, undefined, 'no measured cap → no caps key');
+});

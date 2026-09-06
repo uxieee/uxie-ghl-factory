@@ -128,8 +128,15 @@ export const CODES = Object.freeze({
 const TOKENISH = /\bey[A-Za-z0-9._-]{20,}/g;
 const TOKENISH_SCAN = /\bey[A-Za-z0-9._-]{20,}/;
 const SECRET_LABEL = '(?:token(?:[-_ ]?id)?|(?:access|refresh|auth|id|oauth|csrf|xsrf)[-_ ]?token|authorization|proxy[-_ ]?authorization|jwt|api[-_ ]?(?:key|secret)|client[-_ ]?secret|secret[-_ ]?access[-_ ]?key|access[-_ ]?key|private[-_ ]?key|signing[-_ ]?key|password|credentials?|cookies?|set[-_ ]?cookie|session(?:[-_ ]?(?:id|token|key|secret|cookie|credentials?))?)';
-const LABELED_SECRET = new RegExp(`\\b(${SECRET_LABEL})\\s*([:=/])\\s*(?:Bearer\\s+)?([^\\s,;&#/]+)`, 'gi');
-const LABELED_SECRET_SCAN = new RegExp(`\\b${SECRET_LABEL}\\s*[:=/]\\s*(?:Bearer\\s+)?[^\\s,;&#/]+`, 'i');
+// An HTML `data-*` ATTRIBUTE NAME is not a credential label. GHL's step HTML carries
+// `data-cv-token="true">{{message.body}}` (a custom-value marker the builder writes), and the
+// labelled rule read `token="true"` as a secret: export_workflow returned `<redacted>` in place
+// of the visitor's message, silently, and a clone built from that export lost it (R-98: two
+// handover tasks). The exemption is narrow — a label that is the tail of a `data-…` attribute
+// name — and only for the LABELLED rule: the JWT and `Bearer …` rules still scan every string.
+const NOT_DATA_ATTR = '(?<!\\bdata-[\\w-]*)';
+const LABELED_SECRET = new RegExp(`${NOT_DATA_ATTR}\\b(${SECRET_LABEL})\\s*([:=/])\\s*(?:Bearer\\s+)?([^\\s,;&#/]+)`, 'gi');
+const LABELED_SECRET_SCAN = new RegExp(`${NOT_DATA_ATTR}\\b${SECRET_LABEL}\\s*[:=/]\\s*(?:Bearer\\s+)?[^\\s,;&#/]+`, 'i');
 const BEARER_SECRET = /\bBearer\s+[A-Za-z0-9._-]{8,}/gi;
 const BEARER_SECRET_SCAN = /\bBearer\s+[A-Za-z0-9._-]{8,}/i;
 const SECRET_KEYS = new Set([

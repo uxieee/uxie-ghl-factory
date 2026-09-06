@@ -406,8 +406,13 @@ const NON_FORM_KEYS = ['skipIfAlreadyFilled', 'botInitialMessage', 'steps', 'not
 // had to be done by hand (R-21; the record shape re-read live 2026-09-02). `isDeleted` is the same
 // class and is NOT covered by `deleted`.
 // `rootParentAgentId` is minted by the UI's Duplicate and is likewise read-only (R-59).
+// `workingHours` and `steps` are READ-ONLY PROJECTIONS the GET returns and the PUT's DTO refuses
+// outright — `422 "property workingHours should not exist"` — so a read-merge-write that echoed
+// them could not write ANY agent whose GET carried them (R-143, D-68: every agent-level edit on
+// an agent with `workingHours: null` failed; the mode switch in backlog 28 failed the same way).
+// The raw recipe that works strips exactly these two alongside the keys already listed here.
 const SERVER_KEYS = new Set(['id', '_id', 'dateAdded', 'dateUpdated', 'createdAt', 'updatedAt', 'deleted', 'traceId',
-  'employeeType', 'errors', 'isDeleted', 'rootParentAgentId']);
+  'employeeType', 'errors', 'isDeleted', 'rootParentAgentId', 'workingHours', 'steps']);
 
 export function applyBotTypeCleanup(body) {
   const b = { ...body };

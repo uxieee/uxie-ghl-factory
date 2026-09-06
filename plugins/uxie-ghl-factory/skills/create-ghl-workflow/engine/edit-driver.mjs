@@ -139,6 +139,10 @@ export function partitionOps(ops) {
   const stepOps = [], triggerOps = [], settingsOps = [], stickyOps = [];
   for (const raw of ops ?? []) {
     const op = { ...raw, op: canonicalOpName(raw?.op) };
+    // The ONE choke point every caller (the MCP tool and the edit CLI) passes through, so a
+    // wrong key on ANY op — step, trigger, settings, sticky — refuses the whole call before a
+    // single write. applyOp re-checks step ops; that is harmless and keeps the bare function safe.
+    checkOpShape(op);
     (TRIGGER_OPS.has(op.op) ? triggerOps : SETTINGS_OPS.has(op.op) ? settingsOps : STICKY_OPS.has(op.op) ? stickyOps : stepOps).push(op);
     // Find & Replace (tag mode) spans BOTH documents like the UI's "Replace All": the step op
     // rewrites templates; a derived trigger op rewrites every trigger condition carrying the tag.
@@ -257,10 +261,27 @@ function translateActiveToStatus(requestedActive, storedActive) {
 // mcp-internal/core/tools.mjs's edit_workflow (`fresh.status`) and scripts/edit.mjs
 // (also `fresh.status`). Missing/unrecognised values default to 'draft' — the safe choice for
 // a caller not yet updated, and consistent with buildTrigger's own historical default.
+// The read-back fields a trigger op asked for, keyed as the STORED row spells them. Scalars come
+// from the built body (a `target` ref resolves onto `targetActionId`); stored-shape `conditions`
+// are the caller's own rows; authored `filters` are held to their expansion on the body, since
+// that is what the wire carries. `active` is deliberately absent — it is a server projection of
+// `status`, verified on its own path (tools.mjs triggerSemanticExpectation).
+function requestedTriggerFields(patch = {}, body = {}) {
+  const out = {};
+  for (const k of ['type', 'name', 'masterType', 'targetActionId']) if (patch[k] !== undefined) out[k] = body[k];
+  if (patch.target !== undefined) out.targetActionId = body.targetActionId;
+  if (patch.conditions !== undefined) out.conditions = patch.conditions;
+  else if (patch.filters !== undefined) out.conditions = body.conditions;
+  return out;
+}
+
 export function planTriggerOps(triggerOps, { ctx, wid, uid, existing = [], workflowStatus } = {}) {
   const loc = ctx.loc;
   const targetStatus = workflowStatus === 'published' ? 'published' : 'draft';
-  return (triggerOps ?? []).flatMap((op) => {
+  return (triggerOps ?? []).flatMap((raw) => {
+    const op = { ...raw, op: canonicalOpName(raw?.op) };
+    // Re-checked here as well as in partitionOps, so the bare planner is as strict as the tool.
+    checkOpShape(op);
     switch (op.op) {
       case 'addTrigger':
         // buildTrigger is the SAME corpus-traced shape the create path posts: the full
@@ -277,7 +298,17 @@ export function planTriggerOps(triggerOps, { ctx, wid, uid, existing = [], workf
         // to create a DEAD trigger — status:'draft' with nothing that would ever flip it,
         // since publishing (the only known activation path) does not re-run on a workflow
         // that is already published.
-        return { op: op.op, method: 'POST', path: `/workflow/${loc}/trigger`, body: { ...buildTrigger(op.trigger, ctx, wid, refMapFrom(ctx?.externalRefs)), status: targetStatus } };
+        {
+          const { conditions: verbatim, ...authored } = op.trigger;
+          const built = buildTrigger(authored, ctx, wid, refMapFrom(ctx?.externalRefs));
+          // STORED-SHAPE rows (each carrying its own title/type/operator, as export_workflow
+          // returns them) go on the wire verbatim: this is how a trigger is cloned across
+          // workflows without re-authoring its rows, and the shape the per-trigger PUT already
+          // takes. Ignoring the key would post a trigger with conditions:[] — an R-95 orphan's
+          // quieter cousin.
+          const body = { ...built, ...(verbatim !== undefined ? { conditions: verbatim } : {}), status: targetStatus };
+          return { op: op.op, method: 'POST', path: `/workflow/${loc}/trigger`, body, requested: requestedTriggerFields(op.trigger, body) };
+        }
       case 'deleteTrigger': {
         const t = resolveTrigger(op, existing);
         guardFlowEntry(op, t, ctx);
@@ -310,7 +341,8 @@ export function planTriggerOps(triggerOps, { ctx, wid, uid, existing = [], workf
           const conditions = replaceTagInTriggerConditions(t.conditions, op.oldTag, op.newTag);
           if (!conditions) return [];
           const tid = t.id ?? t._id;
-          return [{ op: op.op, method: 'PUT', path: `/workflow/${loc}/trigger/${tid}`, triggerId: tid, body: { ...t, conditions, id: tid, _id: t._id ?? tid } }];
+          return [{ op: op.op, method: 'PUT', path: `/workflow/${loc}/trigger/${tid}`, triggerId: tid, body: { ...t, conditions, id: tid, _id: t._id ?? tid },
+            requested: { conditions }, before: { date_updated: t.date_updated ?? null, updatedAt: t.updatedAt ?? null } }];
         });
       }
       case 'replaceFieldIdInTriggers': {
@@ -318,7 +350,8 @@ export function planTriggerOps(triggerOps, { ctx, wid, uid, existing = [], workf
           const conditions = replaceFieldIdInTriggerConditions(t.conditions, op.oldId, op.newId);
           if (!conditions) return [];
           const tid = t.id ?? t._id;
-          return [{ op: op.op, method: 'PUT', path: `/workflow/${loc}/trigger/${tid}`, triggerId: tid, body: { ...t, conditions, id: tid, _id: t._id ?? tid } }];
+          return [{ op: op.op, method: 'PUT', path: `/workflow/${loc}/trigger/${tid}`, triggerId: tid, body: { ...t, conditions, id: tid, _id: t._id ?? tid },
+            requested: { conditions }, before: { date_updated: t.date_updated ?? null, updatedAt: t.updatedAt ?? null } }];
         });
       }
       case 'modifyTrigger': {
@@ -341,10 +374,14 @@ export function planTriggerOps(triggerOps, { ctx, wid, uid, existing = [], workf
         // The update PUT wants the FULL trigger object with edits, not a patch. Rebuild
         // through buildTrigger so an edited filter gets the same expansion a fresh create
         // gets, then re-seat the server's identity/envelope fields over the top.
+        // STORED-SHAPE rows (trigger.conditions) bypass expandFilter and go on the wire verbatim —
+        // this is R-67's proven hand recipe, typed. Author rows (trigger.filters) are expanded
+        // like a create. Neither given: the stored rows are re-sent unchanged.
+        const verbatimConditions = op.trigger?.conditions;
         const merged = buildTrigger(
           { type: op.trigger?.type ?? t.type, name: op.trigger?.name ?? t.name,
             masterType: op.trigger?.masterType ?? t.masterType,
-            filters: op.trigger?.filters ?? t.conditions ?? [],
+            filters: verbatimConditions !== undefined ? [] : (op.trigger?.filters ?? t.conditions ?? []),
             // NEVER force-activate: a modify that doesn't mention `active` preserves whatever
             // the live trigger already had. There is a standing project rule against enabling
             // anything found off. (`status` above, not this `active` field, is what actually
@@ -374,8 +411,26 @@ export function planTriggerOps(triggerOps, { ctx, wid, uid, existing = [], workf
         // genuine write, not an echo. Strip it — this PUT sends `status` if, and only if,
         // `status` above says a change was actually requested.
         delete merged.status;
-        return { op: op.op, method: 'PUT', path: `/workflow/${loc}/trigger/${tid}`, triggerId: tid,
-          body: { ...t, ...merged, id: tid, _id: t._id ?? tid, ...(status !== undefined ? { status } : {}) } };
+        const body = { ...t, ...merged, ...(verbatimConditions !== undefined ? { conditions: verbatimConditions } : {}),
+          id: tid, _id: t._id ?? tid, ...(status !== undefined ? { status } : {}) };
+        // WHAT THE CALLER ASKED FOR, field by field, as it will read back. The verifier holds the
+        // store to THIS — not to the engine's intent, which is how an ignored key passed
+        // verification for a month (R-96: "did what I decided to send arrive" is the wrong
+        // question; "did what the caller asked for happen" is the right one).
+        const requested = requestedTriggerFields(op.trigger, body, t);
+        // D-67: two engine-reported successes, zero writes. When every requested value already
+        // matches the stored row there is nothing to send; a PUT here would stamp date_updated
+        // (R-96) or not (D-67) and either way "verify" a change that never happened. Planned as a
+        // NOOP the caller can see, never as a write.
+        const unchanged = Object.entries(requested).every(([k, v]) => JSON.stringify(v) === JSON.stringify(t[k]))
+          && status === undefined;
+        if (unchanged) {
+          return { op: op.op, noop: true, triggerId: tid, requested,
+            reason: `every requested value (${Object.keys(requested).join(', ')}) already matches the stored trigger '${t.name ?? tid}' — no PUT sent` };
+        }
+        return { op: op.op, method: 'PUT', path: `/workflow/${loc}/trigger/${tid}`, triggerId: tid, body, requested,
+          // The pre-write row, so a round trip can assert the server's own date_updated MOVED.
+          before: { date_updated: t.date_updated ?? null, updatedAt: t.updatedAt ?? null } };
       }
       default: throw new Error(`unknown trigger op: ${JSON.stringify(op.op)}`);
     }
@@ -505,6 +560,45 @@ const OP_REQUIRED_ARGS = {
   repairParentKeys: [],
 };
 
+// EVERY key an op may carry. A key outside this list is refused BY NAME with the accepted list —
+// never dropped. Four live findings, one mechanism: `modifyTrigger` with `conditions` at the
+// op's top level (R-67, R-96 — 8 dead rails on one account, recurring a day later on another),
+// `modifyTrigger` with a top-level `name` meant as the NEW name (R-101 — the top-level `name` is
+// the MATCHER), `modifyTrigger` with `status` (R-80), and `modifyStep` with `attributes` instead
+// of `attrPatch` (R-115). In each the engine consumed nothing, re-sent the stored record, and its
+// own verifier compared that record against itself and passed. An unconsumed key must read like
+// the caller bug it is, BEFORE anything is written.
+const OP_ACCEPTED_ARGS = {
+  appendStep: ['step'],
+  insertAfter: ['step', 'afterId', 'attachTailTo'],
+  insertBefore: ['step', 'beforeId', 'attachTailTo'],
+  appendToBranch: ['step', 'branchEntryId', 'branchRef', 'containerId', 'branch'],
+  deleteStep: ['stepId'],
+  modifyStep: ['stepId', 'attrPatch', 'stepPatch'],
+  retypeStep: ['stepId', 'step'],
+  renameStep: ['stepId', 'name'],
+  setStepDisabled: ['stepId', 'disabled'],
+  disableStepsByType: ['type', 'disabled'],
+  moveStep: ['stepId', 'afterId'],
+  addBranch: ['containerId', 'name', 'conditions'],
+  deleteContainer: ['containerId'],
+  replaceTag: ['oldTag', 'newTag', 'triggers'],
+  replaceFieldId: ['oldId', 'newId', 'triggers'],
+  replaceInAttributes: ['type', 'path', 'find', 'replace'],
+  repairParentKeys: [],
+  addStepNote: ['stepId', 'text'],
+  duplicateStep: ['stepId', 'afterId'],
+  // trigger ops (planTriggerOps) — `name`/`type` at the top level are the MATCHER, never the edit
+  addTrigger: ['trigger'],
+  deleteTrigger: ['triggerId', 'name', 'type'],
+  modifyTrigger: ['triggerId', 'name', 'type', 'trigger'],
+  duplicateTrigger: ['triggerId', 'name', 'type', 'newName'],
+  // settings + sticky notes
+  updateSettings: ['settings'],
+  addStickyNote: ['note'],
+  updateStickyNote: ['noteId', 'note'],
+};
+
 // Keys people reach for that mean something else here. `node` is by far the common one:
 // the IR calls these things nodes everywhere EXCEPT the edit ops, which call them steps.
 const OP_ARG_ALIASES = {
@@ -513,12 +607,52 @@ const OP_ARG_ALIASES = {
   branchId: 'branchEntryId', container: 'containerId',
   newName: 'name', stepName: 'name', label: 'name', title: 'name',
 };
+// Per-op corrections for keys whose right home depends on the op. Each names the key the caller
+// reached for and where the value actually goes; the generic alias table above cannot express
+// "stepId means beforeId HERE" without breaking the ops where stepId is the right key.
+const OP_KEY_HINTS = {
+  modifyStep: {
+    attributes: "you passed 'attributes' — modifyStep takes 'attrPatch' (a patch merged over the step's attributes); "
+      + "'attributes' was silently discarded on 0.47–0.56 and the engine PUT an unmodified document (R-115)",
+    name: "you passed 'name' — modifyStep never touches the step's name; use renameStep {stepId, name}, or "
+      + "modifyStep's stepPatch: {name} for a rename in the same op",
+    step: "you passed 'step' — modifyStep takes 'attrPatch' (and optionally 'stepPatch'); a whole new step is retypeStep {stepId, step}",
+  },
+  insertBefore: { stepId: "you passed 'stepId' — insertBefore takes 'beforeId' (the step the new one goes in front of)" },
+  insertAfter: { stepId: "you passed 'stepId' — insertAfter takes 'afterId' (the step the new one goes after)" },
+  modifyTrigger: {
+    conditions: "you passed 'conditions' at the op's top level — modifyTrigger reads ONLY 'trigger': put stored-shape rows in "
+      + "trigger.conditions (sent verbatim) or author rows in trigger.filters (expanded like a create). Left here, "
+      + 'nothing would change and the PUT would re-send the stored record (R-67, R-96: eight dead rails on one account)',
+    filters: "you passed 'filters' at the op's top level — put them in trigger.filters; nothing would change otherwise",
+    status: "you passed 'status' — activation is authored as trigger.active (true|false); the engine translates it to the "
+      + "trigger's status field (R-80)",
+    active: "you passed 'active' at the op's top level — put it in trigger.active",
+    targetActionId: "you passed 'targetActionId' at the op's top level — put it in trigger.targetActionId",
+    target: "you passed 'target' at the op's top level — put it in trigger.target",
+    newName: "you passed 'newName' — modifyTrigger renames through trigger.name (newName belongs to duplicateTrigger)",
+    id: "you passed 'id' — this op takes 'triggerId'",
+  },
+  deleteTrigger: { id: "you passed 'id' — this op takes 'triggerId'" },
+  duplicateTrigger: { id: "you passed 'id' — this op takes 'triggerId'" },
+  addTrigger: {
+    conditions: "you passed 'conditions' at the op's top level — put them in trigger.conditions (stored shape, sent verbatim) or trigger.filters",
+    filters: "you passed 'filters' at the op's top level — put them in trigger.filters",
+  },
+};
+// The patch keys modifyTrigger consumes. Anything else inside `trigger` is refused — the
+// silent-drop this guards against is exactly the R-96 mechanism one level down.
+const MODIFY_TRIGGER_PATCH_KEYS = ['type', 'name', 'masterType', 'filters', 'conditions', 'active', 'target',
+  'targetActionId', 'convTriggerBotId', 'marketplace'];
 
 // Names people reach for that mean an op here. Accepted silently — each is unambiguous.
 const OP_NAME_ALIASES = {
   updateStep: 'modifyStep', patchStep: 'modifyStep', update: 'modifyStep', editStep: 'modifyStep',
   removeStep: 'deleteStep', addStep: 'appendStep', append: 'appendStep', insert: 'insertAfter',
   rename: 'renameStep', disableStep: 'setStepDisabled', move: 'moveStep',
+  // addBranch handles an AI splitter natively (edit.mjs addSplitterBranch); the name the rails
+  // asked for is accepted as a spelling of it.
+  addSplitterBranch: 'addBranch',
 };
 const STEP_OP_NAMES = Object.keys(OP_REQUIRED_ARGS);
 const opDistance = (a, b) => {
@@ -530,9 +664,55 @@ const opDistance = (a, b) => {
 };
 export const canonicalOpName = (name) => OP_NAME_ALIASES[name] ?? name;
 
+// The trigger-op rules that are not a key list. Each one is a live finding.
+function checkTriggerOpShape(op) {
+  if (op.op === 'modifyTrigger') {
+    // R-101: `{op:'modifyTrigger', triggerId, name:'New name'}` — the top-level `name` is the
+    // MATCHER (resolveTrigger), so with a triggerId it was silently ignored and the "rename"
+    // verified clean. Two selectors at once is never what a caller means.
+    if (op.triggerId && (op.name !== undefined || op.type !== undefined)) {
+      throw new Error(`modifyTrigger: a top-level 'name'/'type' is the MATCHER used to find the trigger when no `
+        + `triggerId is given — with triggerId '${op.triggerId}' it is ignored, and a caller who meant it as the NEW `
+        + `name got a verified rename that never happened (R-101). Put the new value in trigger.name / trigger.type, `
+        + 'or drop triggerId and match by name.');
+    }
+    const patch = op.trigger;
+    if (!patch || typeof patch !== 'object' || Array.isArray(patch) || !Object.keys(patch).length) {
+      throw new Error(`modifyTrigger: nothing to change — pass 'trigger' with the fields to write, e.g. `
+        + `{ "op":"modifyTrigger", "triggerId":"…", "trigger": { "name": "…", "filters": [ … ] } }. `
+        + `Accepted trigger keys: ${MODIFY_TRIGGER_PATCH_KEYS.join(', ')}.`);
+    }
+    if (patch.status !== undefined) {
+      throw new Error(`modifyTrigger: trigger.status is not an authored field — activation is trigger.active (true|false), `
+        + "which the engine translates into the trigger's status rail (R-80).");
+    }
+    const bad = Object.keys(patch).filter((k) => !MODIFY_TRIGGER_PATCH_KEYS.includes(k));
+    if (bad.length) {
+      throw new Error(`modifyTrigger: unknown key(s) inside trigger [${bad.map((k) => `trigger.${k}`).join(', ')}] — `
+        + `refused rather than dropped, because a dropped key re-sends the stored record and reports success (R-96). `
+        + `trigger accepts: ${MODIFY_TRIGGER_PATCH_KEYS.join(', ')}. A trigger-type-specific setting such as `
+        + 'customTriggerType lives in a CONDITION ROW: send it through trigger.conditions (stored shape) or trigger.filters.');
+    }
+    if (patch.filters !== undefined && patch.conditions !== undefined) {
+      throw new Error("modifyTrigger: pass either trigger.filters (author shape, expanded like a create) or "
+        + 'trigger.conditions (stored shape, sent verbatim) — not both; they are two spellings of the same rows.');
+    }
+  }
+  if (op.op === 'addTrigger') {
+    const t = op.trigger;
+    if (!t || typeof t !== 'object' || Array.isArray(t))
+      throw new Error("addTrigger needs a 'trigger' object: { type, name, filters | conditions, … }");
+    if (t.status !== undefined)
+      throw new Error("addTrigger: trigger.status is not authored — a new trigger's status follows the target workflow's own status.");
+    if (t.filters !== undefined && t.conditions !== undefined)
+      throw new Error('addTrigger: pass either trigger.filters (author shape) or trigger.conditions (stored shape, verbatim) — not both.');
+  }
+}
+
 export function checkOpShape(op) {
+  const accepted = OP_ACCEPTED_ARGS[op?.op];
   const required = OP_REQUIRED_ARGS[op?.op];
-  if (!required) return;   // unknown ops fall through to the dispatch default
+  if (!accepted && !required) return;   // unknown ops fall through to the dispatch default
   // appendToBranch takes ONE of three anchors, so it cannot be expressed as a required-key list.
   if (op.op === 'appendToBranch' && !op.branchEntryId && !op.branchRef && !(op.containerId && op.branch)) {
     // Keep the alias coaching: `branchEntryId` left OP_REQUIRED_ARGS when the anchor became a
@@ -544,18 +724,37 @@ export function checkOpShape(op) {
       + `branch ref authored earlier in this call), or containerId + branch (display name, `
       + `__branchKey__, or id).`);
   }
-  const missing = required.filter((k) => op[k] === undefined);
-  if (!missing.length) return;
-  const suggestions = missing
-    .map((want) => {
-      const wrong = Object.keys(op).find((k) => OP_ARG_ALIASES[k] === want);
-      return wrong ? `you passed '${wrong}' — this op takes '${want}'` : null;
-    })
-    .filter(Boolean);
-  throw new Error(
-    `edit op '${op.op}' is missing required argument(s) [${missing.join(', ')}]`
-    + (suggestions.length ? ` — ${suggestions.join('; ')}` : '')
-    + `. '${op.op}' takes: ${required.join(', ')}.`);
+  // Missing REQUIRED keys and UNKNOWN keys are reported together, because they are usually the
+  // same mistake seen from two sides (`node` instead of `step`). Per-op hints come before the
+  // generic alias table: a wrong key on the right op is the R-96 / R-101 / R-115 mechanism, and
+  // it must be named, not merely counted.
+  const hints = OP_KEY_HINTS[op.op] ?? {};
+  const missing = (required ?? []).filter((k) => op[k] === undefined);
+  const unknown = accepted ? Object.keys(op).filter((k) => k !== 'op' && !accepted.includes(k)) : [];
+  if (missing.length || unknown.length) {
+    const named = [];
+    for (const k of unknown) {
+      const alias = OP_ARG_ALIASES[k];
+      if (hints[k]) named.push(hints[k]);
+      else if (alias && (accepted ?? required).includes(alias)) named.push(`you passed '${k}' — this op takes '${alias}'`);
+    }
+    const parts = [];
+    if (missing.length) parts.push(`is missing required argument(s) [${missing.join(', ')}]`);
+    if (unknown.length) parts.push(`carries unknown key(s) [${unknown.join(', ')}]`);
+    const req = required ?? [];
+    const optional = (accepted ?? []).filter((k) => !req.includes(k));
+    const signature = req.length || optional.length
+      ? `takes: ${req.length ? req.join(', ') : '(nothing required)'}${optional.length ? ` (optional: ${optional.join(', ')})` : ''}`
+      : 'takes no arguments';
+    throw new Error(
+      `edit op '${op.op}' ${parts.join(' and ')}`
+      + (named.length ? ` — ${named.join('; ')}` : '')
+      + `. '${op.op}' ${signature}.`
+      + (unknown.length
+        ? ' An unconsumed key is never dropped silently here: a write that ignores part of the op reports success while changing nothing (R-96).'
+        : ''));
+  }
+  checkTriggerOpShape(op);
 }
 
 const requireStepFor = (templates, id, op) => {

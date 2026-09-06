@@ -283,7 +283,7 @@ if (dryRun) {
     console.log('templates:', templates.length, 'steps (was', (fresh.workflowData.templates ?? []).length + ')');
   }
   if (settingsPatch) console.log('settings:', JSON.stringify(Object.fromEntries(Object.keys(settingsPatch).map((k) => [k, k === 'statsView' ? body.meta?.statsView : body[k]]))));
-  for (const r of plan) console.log(`trigger: ${r.method} ${r.path}`, r.body ? JSON.stringify(r.body).slice(0, 200) : '');
+  for (const r of plan) console.log(r.noop ? `trigger: NOOP ${r.op} ${r.triggerId} — ${r.reason}` : `trigger: ${r.method} ${r.path}`, r.body ? JSON.stringify(r.body).slice(0, 200) : '');
   for (const r of stickyPlan) console.log(`sticky note: ${r.op} ${r.method} ${r.path}`, JSON.stringify(r.body).slice(0, 200));
   // A new/duplicated trigger's own POST carries status matching the target workflow (see
   // planTriggerOps), so on a PUBLISHED workflow it lands active immediately — no separate
@@ -326,6 +326,10 @@ for (const r of stickyPlan) {
 
 let triggerFailed = false;
 for (const r of plan) {
+  // A modifyTrigger whose every requested value already matches the store is planned as a NOOP
+  // (edit-driver.mjs): nothing to send, and a no-op PUT would only "verify" a write that never
+  // happened (D-67). Say so and move on.
+  if (r.noop) { console.log(`${r.op}: NOOP ${r.triggerId} — ${r.reason}`); continue; }
   const res = await call(r.method, r.path, r.body);
   console.log(`${r.op}: ${r.method} ${r.path.split('?')[0]} → ${res.status} ${res.ok ? 'OK' : 'FAIL'}`);
   if (!res.ok) { triggerFailed = true;

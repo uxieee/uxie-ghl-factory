@@ -82,3 +82,17 @@ test('settingsFromDoc mirrors what the Settings drawer loads', () => {
   assert.equal(s.statsView, true); assert.equal(s.window.start, '08:00'); assert.equal(s.eventStartDate, '');
   assert.deepEqual(Object.keys(settingsCommitFields(fresh(), {}, 'U')).sort(), ['allowMultiple', 'allowMultipleOpportunity', 'autoMarkAsRead', 'eventStartDate', 'removeContactFromLastStep', 'scheduledPauseDates', 'senderAddress', 'stopOnResponse', 'timezone', 'window', 'workflowNote']);
 });
+
+// ED-09 (backlog 20): the engine could not rename a workflow — updateSettings had no `name` key —
+// while a whole-record PUT with `name` changed renames cleanly. `name` rides the same PUT.
+test('updateSettings carries `name` as the top-level rename, capped at the builder\'s 100 characters', () => {
+  const fresh = { _id: 'W', name: 'Old', status: 'draft', version: 1, allowMultiple: true, allowMultipleOpportunity: true, stopOnResponse: false, autoMarkAsRead: false, timezone: 'account' };
+  const body = editCommitBody(fresh, [{ id: 's', type: 'sms', name: 'S', next: null, parentKey: null, order: 0, attributes: { body: 'x' } }],
+    { createdSteps: [], modifiedSteps: [], deletedSteps: [] }, 'UID', { settingsPatch: mergeSettingsOps([{ op: 'updateSettings', settings: { name: 'AI Flow - Front Desk (v2.4)' } }]) });
+  assert.equal(body.name, 'AI Flow - Front Desk (v2.4)');
+  assert.equal(body.stopOnResponse, false, 'a name-only patch leaves the Settings-tab keys as stored');
+  assert.throws(() => editCommitBody(fresh, [], { createdSteps: [], modifiedSteps: [], deletedSteps: [] }, 'UID',
+    { settingsPatch: { name: 'x'.repeat(101) } }), /at most 100 characters/);
+  assert.throws(() => editCommitBody(fresh, [], { createdSteps: [], modifiedSteps: [], deletedSteps: [] }, 'UID',
+    { settingsPatch: { name: '   ' } }), /non-empty/);
+});

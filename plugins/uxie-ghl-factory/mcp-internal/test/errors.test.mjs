@@ -139,3 +139,19 @@ test('401 stays TOKEN_EXPIRED and tells the AGENT to re-capture, itself, once', 
   assert.match(r.remediation, /ONE re-capture per failure/);
   assert.doesNotMatch(r.remediation, /^Run \//);
 });
+
+// R-98 (backlog 11): GHL step HTML carries `data-cv-token="true">{{message.body}}` — a builder
+// marker, not a credential. The labelled-secret rule read `token="true"` as a secret and
+// export_workflow returned `<redacted>` where the visitor's message belonged; a clone built from
+// that export silently lost it. A `data-*` attribute NAME is exempt from the labelled rule only.
+test('an HTML data-* attribute whose name ends in a secret label is not scrubbed; real labels still are', () => {
+  const html = '<span data-cv-token="true">{{message.body}}</span><p data-token-id="x">{{contact.first_name}}</p>';
+  assert.equal(scrubSecrets({ html }).html, html);
+  assert.equal(containsSecrets({ html }), false);
+  // the labelled rule still bites outside an attribute name
+  assert.match(scrubSecrets({ s: 'token=abc123def' }).s, /<redacted>/);
+  assert.match(scrubSecrets({ s: 'x-api-key: sk_live_abcdef' }).s, /<redacted>/);
+  assert.equal(containsSecrets({ s: 'x-api-key: sk_live_abcdef' }), true);
+  // and a JWT inside a data attribute is still caught by the token-shape rule
+  assert.match(scrubSecrets({ s: `<a data-token="ey${'a'.repeat(30)}">` }).s, /<redacted>/);
+});

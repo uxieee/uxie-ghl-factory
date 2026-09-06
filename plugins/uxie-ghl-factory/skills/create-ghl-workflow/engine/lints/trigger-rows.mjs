@@ -12,7 +12,11 @@ export function lintTriggerRows(triggers, catalog) {
     if (!t) continue;
     const meta = catalog?.trigger?.(t.type);
     const rows = meta?.filterRows ?? [];
-    const rowFor = (field) => rows.find((r) => r.value === field || r.field === field || r.id === field);
+    // ALL rows for a field, not the first. A drawer offers the same field under several rows
+    // when each row is one operator — `contact.tags` is "Has tag" (index-of-true) AND "Doesn't
+    // have tag" (index-of-false), two catalogue rows with one `value`. Reading only the first
+    // flagged the UI's own "Doesn't have tag" as off-menu on every customer_reply trigger (R-74).
+    const rowsFor = (field) => rows.filter((r) => r.value === field || r.field === field || r.id === field);
     for (const c of t.conditions ?? []) {
       if (!c || typeof c !== 'object') continue;
       const push = (code, severity, msg) => out.push({
@@ -25,17 +29,17 @@ export function lintTriggerRows(triggers, catalog) {
             + '500s on this shape and a stored one never matches');
         }
       }
-      const row = rowFor(c.field);
-      if (!row) continue;
-      const menu = Array.isArray(row.operatorMenu) && row.operatorMenu.length
-        ? row.operatorMenu
-        : (row.operator ? [row.operator] : null);
-      if (menu && typeof c.operator === 'string' && !menu.includes(c.operator)) {
+      const matching = rowsFor(c.field);
+      if (!matching.length) continue;
+      const menu =[...new Set(matching.flatMap((r) => (Array.isArray(r.operatorMenu) && r.operatorMenu.length
+        ? r.operatorMenu
+        : (r.operator ? [r.operator] : []))))];
+      if (menu.length && typeof c.operator === 'string' && !menu.includes(c.operator)) {
         push('TRIGGER_ROW_OPERATOR', 'warning',
-          `condition '${c.field}' stores operator '${c.operator}' — the drawer's set for this row is `
+          `condition '${c.field}' stores operator '${c.operator}' — the drawer's set for this field is `
           + `[${menu.join(', ')}]; an off-menu operator saves clean and may never match`);
       }
-      if (row.required === true && (c.value === undefined || c.value === '' || (Array.isArray(c.value) && !c.value.length))) {
+      if (matching.some((r) => r.required === true) && (c.value === undefined || c.value === '' || (Array.isArray(c.value) && !c.value.length))) {
         push('TRIGGER_ROW_EMPTY_VALUE', 'warning', `required condition '${c.field}' has no value`);
       }
     }

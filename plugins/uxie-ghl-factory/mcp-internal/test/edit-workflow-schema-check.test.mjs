@@ -77,13 +77,24 @@ const deps = (gw) => ({ makeGw: () => gw, state: {} });
 const overCap = 'x'.repeat(614);
 const modify = { op: 'modifyStep', stepId: 's1', attrPatch: { message: overCap } };
 
-test('an over-cap prompt is named in the PREVIEW, before anything is written', async () => {
+// Since the 2026-09-06 rail findings (backlog 15, 25) a MEASURED cap (field-caps.mjs) REFUSES
+// the write on a touched step; allowOverCap:true is the hatch, and the schema layer below still
+// reports what the builder would show. Four caps were crossed silently in one week under the old
+// "it commits, read schemaViolations" doctrine — nobody read the block.
+test('an over-cap prompt is REFUSED before anything is written, and named in the PREVIEW when hatched', async () => {
   const { gw, calls } = gateway();
-  const result = await editTool().handler(
+  const refused = await editTool().handler(
     { locationId: 'LOC', workflowId: 'WID', acknowledgeDrift: true, ops: [modify] }, deps(gw));
+  assert.equal(refused.ok, false);
+  assert.equal(refused.code, 'VALIDATION_FAILED');
+  assert.match(refused.detail, /614 characters; the builder's cap is 600/);
+  assert.match(refused.remediation, /allowOverCap/);
 
+  const result = await editTool().handler(
+    { locationId: 'LOC', workflowId: 'WID', acknowledgeDrift: true, allowOverCap: true, ops: [modify] }, deps(gw));
   assert.equal(result.ok, false, 'a preview never commits');
   assert.equal(result.code, 'CONFIRM_REQUIRED');
+  assert.ok(result.data.warnings.some((w) => /^SCHEMA: /.test(w) && /Maximum 600/.test(w)), 'every schema violation also lands in warnings');
   const violations = result.data?.preview?.schemaViolations ?? [];
   assert.equal(violations.length, 1, 'the builder would show exactly one error');
   assert.match(violations[0].messages.join(' '), /Maximum 600 characters are allowed/);
@@ -91,12 +102,13 @@ test('an over-cap prompt is named in the PREVIEW, before anything is written', a
   assert.deepEqual(calls.filter((c) => c.method === 'PUT'), [], 'the preview wrote nothing');
 });
 
-test('the committed result carries the builder headline the round-trip cannot see', async () => {
+test('the committed (hatched) result carries the builder headline the round-trip cannot see', async () => {
   const { gw } = gateway();
   const result = await editTool().handler(
-    { locationId: 'LOC', workflowId: 'WID', acknowledgeDrift: true, confirm: true, ops: [modify] }, deps(gw));
+    { locationId: 'LOC', workflowId: 'WID', acknowledgeDrift: true, confirm: true, allowOverCap: true, ops: [modify] }, deps(gw));
 
-  assert.equal(result.ok, true, 'the server accepts an over-cap value, so the edit still commits');
+  assert.equal(result.ok, true, 'the server accepts an over-cap value, so a HATCHED edit still commits');
+  assert.ok(result.data.warnings.some((w) => /^FIELD_CAP \(allowOverCap\)/.test(w)));
   assert.equal(result.data.verify.roundTrip, true, 'and it round-trips clean — that is the whole point');
   assert.equal(result.data.schemaHeadline, 'Resolve 1 Errors');
   assert.match(result.data.schemaViolations[0].messages.join(' '), /Maximum 600 characters are allowed/);
@@ -108,9 +120,10 @@ test('a value inside the cap is clean, and the check is fail-open when the catal
     { locationId: 'LOC', workflowId: 'WID', acknowledgeDrift: true, confirm: true, ops: [inCap] }, deps(gateway().gw));
   assert.equal(ok.data.schemaViolations.length, 0, '600 is inclusive');
 
-  // An unreachable catalog must never become a new way for a working edit to fail.
+  // An unreachable catalog must never become a new way for a working edit to fail. (The static
+  // cap gate is hatched here so the schema layer's fail-open is what is under test.)
   const down = await editTool().handler(
-    { locationId: 'LOC', workflowId: 'WID', acknowledgeDrift: true, confirm: true, ops: [modify] }, deps(gateway({ assetsOk: false }).gw));
+    { locationId: 'LOC', workflowId: 'WID', acknowledgeDrift: true, confirm: true, allowOverCap: true, ops: [modify] }, deps(gateway({ assetsOk: false }).gw));
   assert.equal(down.ok, true);
   assert.deepEqual(down.data.schemaViolations, []);
 });

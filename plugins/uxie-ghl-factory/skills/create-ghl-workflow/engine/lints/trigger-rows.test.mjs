@@ -25,3 +25,18 @@ test('no catalog at all still runs the universal string check and never throws',
   assert.deepEqual(lintTriggerRows(null, catalog), []);
   assert.deepEqual(lintTriggerRows([null, {}], catalog), []);
 });
+
+// R-74 (backlog 8): `contact.tags` is TWO catalogue rows with one value — "Has tag"
+// (index-of-true) and "Doesn't have tag" (index-of-false). Reading only the first row flagged the
+// UI's own "Doesn't have tag" as off-menu on every customer_reply trigger.
+test('a field that appears as several rows unions their operators — index-of-false on a tag row is on-menu', () => {
+  const twoRows = { trigger: () => ({ filterRows: [
+    { label: 'Has tag', value: 'contact.tags', type: 'select', id: 'has-tag', operator: 'index-of-true' },
+    { label: 'Doesn\'t have tag', value: 'contact.tags', type: 'select', id: 'doesnot-have-tag', operator: 'index-of-false' },
+  ] }) };
+  assert.deepEqual(lintTriggerRows(trg('customer_reply', [{ field: 'contact.tags', operator: 'index-of-false', value: 'vip', type: 'tags' }]), twoRows), []);
+  assert.deepEqual(lintTriggerRows(trg('customer_reply', [{ field: 'contact.tags', operator: 'index-of-true', value: 'vip', type: 'tags' }]), twoRows), []);
+  const off = lintTriggerRows(trg('customer_reply', [{ field: 'contact.tags', operator: 'contains', value: 'vip', type: 'tags' }]), twoRows);
+  assert.deepEqual(codes(off), ['TRIGGER_ROW_OPERATOR']);
+  assert.match(off[0].msg, /\[index-of-true, index-of-false\]/);
+});

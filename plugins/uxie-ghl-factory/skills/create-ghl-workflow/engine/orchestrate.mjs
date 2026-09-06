@@ -38,6 +38,7 @@ import { validateAssets, describeFinding } from './asset-preflight.mjs';
 import { parseServerValidation, describeServerFindings } from './server-validation.mjs';
 import { checkWorkflowRules } from './graph-rules.mjs';
 import { checkGraphContextRules } from './graph-context-rules.mjs';
+import { checkFieldCaps, describeCap } from './field-caps.mjs';
 import { stripNullNext, fillInputTriggerParams } from './terminals.mjs';
 
 const BASE = 'https://backend.leadconnectorhq.com';
@@ -314,6 +315,10 @@ export async function orchestrate(ir, gw, opts = {}) {
   // every other math step). Both are result:'warning' in GHL, so both warn and neither aborts.
   checkGraphContextRules(built.autoSaveBody?.workflowData?.templates,
     { warn: (m) => report.warnings.push(m), skipGraphContextRules: opts.skipGraphContextRules });
+  // Measured field caps (field-caps.mjs): the server stores an over-length value verbatim and
+  // the round-trip reads clean; only the builder objects. Warned here — the build path's own
+  // schema layer (action-schema) is the general check; this names the four caps crossed live.
+  for (const f of checkFieldCaps(built.autoSaveBody?.workflowData?.templates)) report.warnings.push(`FIELD_CAP: ${describeCap(f)}`);
 
   const assetCheck = await validateAssets(call, loc, {
     templates: built.autoSaveBody?.workflowData?.templates,
