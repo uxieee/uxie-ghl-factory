@@ -12,10 +12,13 @@ import { parseIR } from './ir.mjs';
 // creates when there is none.
 //
 // The engine used to compile that intent to `internal_create_opportunity` — a picker-invisible
-// helper with no validator that ONLY creates, and answers `400 duplicate opportunity` at runtime
-// for any contact that already has a card. The step saved, published and round-tripped clean, so
-// nothing caught it; one client build had 31 such steps retyped by hand (2026-09-06). These tests
-// pin the emitted shape against the harvested example so it cannot drift back.
+// helper with no validator that ONLY creates, and answers `400 OPPORTUNITY_NO_DUPLICATE` at
+// runtime for any contact that already has a card — recorded as a SKIPPED step, not a failed run,
+// which is why the step saved, published and round-tripped clean and nothing caught it; one client
+// build had 31 such steps retyped by hand (2026-09-06). Both halves are now runtime-proven by
+// differential on the test sub-account (2026-09-07): the upsert updated one card in place, the
+// helper refused on the same contact in the same minute. These tests pin the emitted shape against
+// the harvested example so it cannot drift back.
 
 const baseCtx = (over = {}) => ({ loc: 'LOC', cid: 'CID', uid: 'UID', companyAge: 27, idGen: makeSeededIdGen('a'), catalog: loadCatalog(), ...over });
 const spec = (attributes, type = 'create_opportunity') => ({

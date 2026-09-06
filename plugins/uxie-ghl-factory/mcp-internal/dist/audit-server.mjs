@@ -150019,7 +150019,7 @@ function createOpportunityAttributes(a, ref, ctx) {
   if (strictOnly.length)
     throw new IRError(
       "OPP_STRICT_ONLY_ATTR",
-      `create_opportunity '${ref}' sets [${strictOnly.join(", ")}], which only the create-only helper accepts. The builder's Create/Update Opportunity action has no top-level slot for them \u2014 they would round-trip clean and never be written. Either drop them, or author the step as type 'create_opportunity_strict' (which emits internal_create_opportunity and does NOT update an existing card: it fails 400 duplicate opportunity when one exists).`
+      `create_opportunity '${ref}' sets [${strictOnly.join(", ")}], which only the create-only helper accepts. The builder's Create/Update Opportunity action has no top-level slot for them \u2014 they would round-trip clean and never be written. Either drop them, or author the step as type 'create_opportunity_strict' (which emits internal_create_opportunity and does NOT update an existing card: the runtime answers 400 OPPORTUNITY_NO_DUPLICATE and marks the step SKIPPED, so the run walks on and nothing is written).`
     );
   const bad = Object.keys(a).filter((k) => !UPSERT_OPP_AUTHOR_KEYS.has(k));
   if (bad.length)
