@@ -224,3 +224,24 @@ test('a list with BOTH a flattened envelope and a dead field says so', async () 
   assert.equal(r.data.lists[0].cause, 'one-level-nesting+unknown-field');
   assert.match(r.data.lists[0].reason, /Correcting the nesting alone will NOT fix it/);
 });
+
+test('a blank or missing user id is REFUSED, never reported as an empty account', async () => {
+  // `userId=` answers 200 with an empty array exactly as an absent one does — the shape a caller
+  // hits when a variable is undefined rather than absent, which slips past any "did I include
+  // userId" check. gw.uid is null whenever the token carries no authClassId.
+  for (const uid of [null, undefined, '', '   ']) {
+    const gw = { ...gwFor([{ id: 'a', listName: 'X', filterSpecs: CANONICAL }]), uid };
+    const r = await tool.handler({ locationId: 'LOC' }, { state: {}, makeGw: () => gw });
+    assert.equal(r.ok, false, `uid ${JSON.stringify(uid)} must refuse`);
+    assert.equal(r.code, 'VALIDATION_FAILED');
+    assert.match(r.remediation, /report a clean account for one full of broken lists/);
+  }
+});
+
+test('checking ONE list by id still works without a user id', async () => {
+  // The detail read is not user-scoped, so the escape hatch the refusal points at must actually work.
+  const gw = { ...gwFor([{ id: 'a', listName: 'X', filterSpecs: CANONICAL }]), uid: null };
+  const r = await tool.handler({ locationId: 'LOC', listId: 'a' }, { state: {}, makeGw: () => gw });
+  assert.equal(r.ok, true);
+  assert.equal(r.data.lists[0].verdict, 'ok');
+});

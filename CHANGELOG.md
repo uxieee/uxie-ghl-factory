@@ -11,6 +11,22 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [0.59.3] — 2026-09-07
+
+A blank user id was as silent as a missing one, and is now refused.
+
+### Fixed
+
+- **`check_smart_lists` guards the empty `userId` case, not just the absent one.** 0.59.2 fixed the
+  missing parameter; the session that mapped the surface then measured the full matrix and found
+  `userId=` answers `200` with an empty array too — the shape a caller hits when a variable is
+  undefined rather than absent, and one that slips past any "did I include userId" check. The
+  server-side trigger is `globals=true`, which converts the missing-parameter 422 into an empty
+  success. This tool takes the value from the credential, and that is `null` whenever the token
+  carries no `authClassId`, so the case was reachable. It now refuses with a named error instead of
+  reporting a clean account, and points at the escape hatch that works without a user id — checking
+  one list by id, since the detail read is not user-scoped.
+
 ## [0.59.2] — 2026-09-07
 
 The smart-list audit reported clean accounts as empty, and now checks the field half too.
