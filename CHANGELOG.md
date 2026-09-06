@@ -52,6 +52,22 @@ commit bodies carry the detail.
   the skill's canonical build entry died with a `ReferenceError` before it read anything. Found by
   using it.
 
+### Added — gates
+
+- **A skill-claims lint.** Skills are hand-written prose telling an agent which endpoint to call,
+  and nothing checked those claims against the catalogue shipped beside them — while the catalogue
+  is regenerated from the corpus on every knowledge commit and the skills are not. Every
+  `METHOD /path` token in `skills/**/*.md` must now resolve to a catalogue row (parameter spelling,
+  `:id` style and trailing slashes normalised). It runs under `npm test`, so under `pretest` and
+  the release suite, with no new hook. 99 distinct claims, 15 unmatched today, each recorded with
+  a reason and a class: PROSE (notation, not an endpoint), RELATIVE (real, written against a base
+  the section states), PUBLIC_API (a different rail), and UNCATALOGUED — five claims that look real
+  and have no row, each either a wrong skill or a corpus page we owe. That last count is pinned so
+  it cannot grow quietly, the allowance list is checked for rot, and the scan asserts it actually
+  read something so it cannot pass by finding nothing.
+- `scripts/check-example-pointers.mjs` has existed since the type-catalogue work and was wired into
+  nothing. It now runs in `pre-push`.
+
 ### Changed
 
 - The capabilities index and the workflow-specialist catalogue now say which opportunity action is
