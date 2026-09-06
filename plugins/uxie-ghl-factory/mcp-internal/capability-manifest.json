@@ -1248,5 +1248,10 @@
     "tool": "check_smart_lists",
     "method": "GET",
     "path": "/contacts/smartlist/{id}"
+  },
+  {
+    "tool": "check_smart_lists",
+    "method": "GET",
+    "path": "/locations/{locationId}/customFields"
   }
 ]

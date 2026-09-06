@@ -14,7 +14,7 @@
 // end asserts exactly that, so a generator that writes somewhere the gate does not read is
 // caught here and not at push time.
 import { execFileSync, spawnSync } from 'node:child_process';
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync, copyFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -32,6 +32,7 @@ const GENERATED = [
   'plugins/uxie-ghl-factory/skills/create-ghl-workflow/catalog/type-cards.json',
   'plugins/uxie-ghl-factory/mcp-internal/catalog/internal-endpoints.source.json',
   'plugins/uxie-ghl-factory/mcp-internal/catalog/internal-endpoints.json',
+  'plugins/uxie-ghl-factory/mcp-internal/catalog/contact-filter-fields.json',
   'plugins/uxie-ghl-factory/mcp-internal/capability-manifest.json',
   'plugins/uxie-ghl-factory/mcp-internal/audit-capability-manifest.json',
   'plugins/uxie-ghl-factory/mcp-internal/dist/server.mjs',
@@ -60,6 +61,13 @@ const hasKnowledge = existsSync(join(KNOWLEDGE, 'scripts'));
 if (hasKnowledge) {
   run('type-cards  ← knowledge/corpus/workflows/30-types', 'node', [join(KNOWLEDGE, 'scripts/build-type-catalog.mjs')]);
   run('source      ← knowledge/catalog (stitched + delivered)', 'node', [join(KNOWLEDGE, 'scripts/merge-endpoint-catalogs.mjs')]);
+  // The contact filter-field catalogue is not served by any endpoint — the contacts screen
+  // assembles it in the browser from a static list compiled into its chunk plus the account's own
+  // custom fields. The static half is mined into the corpus and copied here because the plugin
+  // ships standalone; the per-account half is read live by check_smart_lists.
+  copyFileSync(join(KNOWLEDGE, 'corpus/platform/_data/contact-filter-fields.json'),
+    join(MCP, 'catalog/contact-filter-fields.json'));
+  if (!quiet) console.log('sync: filter-fields ← knowledge/corpus/platform/_data');
 } else if (!quiet) {
   console.log('sync: knowledge/ not present — type-cards and source left as shipped');
 }
