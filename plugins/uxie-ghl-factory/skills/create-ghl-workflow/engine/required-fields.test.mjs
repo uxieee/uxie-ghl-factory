@@ -11,6 +11,11 @@ import { compile } from './compiler.mjs';
 import { loadCatalog } from './catalog.mjs';
 import { makeSeededIdGen } from './idgen.mjs';
 import { CATALOG_CORRECTIONS, TRIGGER_CORRECTIONS, REQUIRED_FIELDS, enforceRequiredFields, requiredKeysFor, isSupplied } from './required-fields.mjs';
+import { readFileSync } from 'node:fs';
+import { resolve, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+// The catalog stores `example` as a path relative to the SKILL root, not to engine/.
+const SKILL = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 import CATALOG_DATA from './catalog.data.json' with { type: 'json' };
 
 const ctx = () => ({ loc: 'LOC', cid: 'CID', uid: 'UID', companyAge: 27, idGen: makeSeededIdGen('a'), catalog: loadCatalog() });
@@ -775,4 +780,48 @@ test('a blocking objective compiles end to end and carries closingMessage + tags
   assert.equal(a.proceedIfNotMet, true);
   assert.equal(a.closingMessage, 'Handing this off to the team.');
   assert.equal(a.tags, '');
+});
+
+// ─────────────────────────────────────────────────────────────────────────────────────────
+// Why the catalog's own `requiredFields` is NOT enforced, pinned as a measurement.
+//
+// The tempting next move on this file is always the same: 312 types declare requiredFields,
+// only 9 are attested, so promote the declared set — to the throw tier, or to the warn tier
+// as a "safe" compromise. This test exists so that move is refused by evidence rather than
+// by argument, and so the refusal cannot rot into folklore.
+//
+// The veto is each type's OWN verified-live capture. A capture is a workflow that runs in
+// GHL, so a declaration its capture violates is not a requirement.
+// ─────────────────────────────────────────────────────────────────────────────────────────
+test('the catalog\'s declared requiredFields contradicts its own captures, so it stays advisory', () => {
+  const steps = JSON.parse(readFileSync(new URL('./catalog.data.json', import.meta.url), 'utf8')).steps;
+  let noCapture = 0; const satisfies = []; const violates = [];
+  for (const [type, meta] of Object.entries(steps)) {
+    const declared = meta.requiredFields ?? [];
+    if (!declared.length) continue;
+    const path = meta.example;
+    if (typeof path !== 'string') { noCapture += 1; continue; }
+    let attrs;
+    try { attrs = JSON.parse(readFileSync(resolve(SKILL, path), 'utf8')).attributes; }
+    catch { noCapture += 1; continue; }
+    if (!attrs || typeof attrs !== 'object') { noCapture += 1; continue; }
+    const missing = declared.filter((f) => {
+      const v = f.split('.').reduce((a, k) => (a == null ? undefined : a[k]), attrs);
+      return v === undefined || v === null || v === '' || (Array.isArray(v) && v.length === 0);
+    });
+    (missing.length ? violates : satisfies).push(type);
+  }
+  // The numbers are the argument. If a future capture lands, these move — read the diff and
+  // decide, do not just re-baseline: a violation rate falling toward zero would mean the
+  // declaration has become trustworthy and this whole policy is worth revisiting.
+  assert.ok(violates.length >= 15,
+    `only ${violates.length} captures contradict their declared requiredFields. If this has fallen `
+    + 'substantially, the marketplace declaration may have become a real requirement set and the '
+    + 'advisory-only policy in required-fields.mjs should be re-examined rather than assumed.');
+  assert.ok(violates.length > satisfies.length * 0.5,
+    'the violation rate has changed shape; re-read the measurement in required-fields.mjs');
+  // The specific ones that make the point: mutually exclusive variants declared together.
+  assert.ok(violates.includes('custom_webhook'), 'custom_webhook declares both body.rawData and body.keyValueData');
+  assert.ok(violates.includes('goto'), 'goto declares placement, which the engine has never emitted');
+  assert.ok(noCapture > 200, 'most declaring types still have no capture to veto them');
 });
