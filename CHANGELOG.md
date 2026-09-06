@@ -29,7 +29,10 @@ then the convenience ops and tool notes. Every item names the finding it came fr
   the rename verified clean and never happened), `modifyTrigger` with `status` (R-80), and
   `modifyStep` with `attributes` instead of `attrPatch` (R-115). In each the engine consumed
   nothing, re-sent the stored record, and its verifier compared that record against itself.
-  `triggerId` together with a top-level `name`/`type` is refused as ambiguous.
+  `triggerId` together with a top-level `name`/`type` is refused as ambiguous. **Only an op's
+  TOP-LEVEL keys are checked**: `stepId` on `modifyStep`, `step.attributes` inside
+  `appendStep`/`insertBefore`/`insertAfter`/`retypeStep`, and `trigger.filters` stay exactly as
+  they were — nothing that used the documented shapes breaks.
 - **`modifyTrigger` takes `trigger.conditions` in the STORED shape, verbatim** — R-67's proven hand
   recipe, typed — or `trigger.filters` (author rows, expanded like a create); never both. A patch
   whose every value already matches the store is planned as a **NOOP**: shown in the preview with
