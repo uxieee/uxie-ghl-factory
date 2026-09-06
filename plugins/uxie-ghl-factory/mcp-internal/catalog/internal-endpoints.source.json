@@ -20,16 +20,16 @@
     {
       "tree": "documented",
       "dir": "corpus",
-      "capturedAt": "2026-09-06T18:28:36.205Z",
+      "capturedAt": "2026-09-06T18:45:21.391Z",
       "hash": "corpus",
-      "fileCount": 682,
-      "endpoints": 682
+      "fileCount": 677,
+      "endpoints": 677
     }
   ],
   "note": "SOURCE-DERIVED ONLY, merged from every mined front-end. `tree` on each row says which app calls it. The plugin owns kind/note/summary/reach/coveredBy and merges them at read time. A row proves a GHL front-end calls that path — not that your token reaches it, and not that calling it is safe.",
-  "discoveredCallSites": 1142,
+  "discoveredCallSites": 1137,
   "skippedCallSites": 277,
-  "count": 1067,
+  "count": 1062,
   "endpoints": [
     {
       "id": "workflows--actions-branches",
@@ -4693,31 +4693,6 @@
     },
     {
       "id": "forms--forms",
-      "method": "GET",
-      "origin": "https://backend.leadconnectorhq.com",
-      "path": "/forms/{bad}",
-      "authRail": "bearer",
-      "transport": "json",
-      "responseMode": "json",
-      "extraHeaders": [],
-      "tree": "documented",
-      "operation": null,
-      "service": "forms",
-      "query": [],
-      "body": null,
-      "returns": null,
-      "confidence": {
-        "path": "documented",
-        "query": "none-observed",
-        "body": "unresolved",
-        "returns": "unresolved"
-      },
-      "sources": [
-        "forms/40-rules/validators-and-quirks.md:95"
-      ]
-    },
-    {
-      "id": "forms--forms-get",
       "method": "GET",
       "origin": "https://backend.leadconnectorhq.com",
       "path": "/forms/{id}",
@@ -27212,7 +27187,7 @@
       ]
     },
     {
-      "id": "forms--forms-get-get",
+      "id": "forms--forms-get",
       "method": "GET",
       "origin": "https://services.leadconnectorhq.com",
       "path": "/forms/",
@@ -27305,7 +27280,7 @@
       "id": "forms--forms-delete",
       "method": "DELETE",
       "origin": "https://services.leadconnectorhq.com",
-      "path": "/forms/{formId}",
+      "path": "/forms/{id}",
       "authRail": "bearer+token-id",
       "transport": "json",
       "responseMode": "json",
@@ -27327,10 +27302,10 @@
       ]
     },
     {
-      "id": "forms--forms-get-get-get",
+      "id": "forms--forms-get-get",
       "method": "GET",
       "origin": "https://services.leadconnectorhq.com",
-      "path": "/forms/{formId}",
+      "path": "/forms/{id}",
       "authRail": "bearer+token-id",
       "transport": "json",
       "responseMode": "json",
@@ -27348,38 +27323,14 @@
         "returns": "unresolved"
       },
       "sources": [
-        "forms/20-api/forms.md:35"
+        "forms/20-api/forms.md:35",
+        "forms/20-api/forms.md:69"
       ]
     },
     {
       "id": "forms--forms-post-post-post",
       "method": "POST",
       "origin": "https://services.leadconnectorhq.com",
-      "path": "/forms/{formId}",
-      "authRail": "bearer+token-id",
-      "transport": "json",
-      "responseMode": "json",
-      "extraHeaders": [],
-      "tree": "documented",
-      "operation": null,
-      "service": "forms",
-      "query": [],
-      "body": null,
-      "returns": null,
-      "confidence": {
-        "path": "documented",
-        "query": "none-observed",
-        "body": "unresolved",
-        "returns": "unresolved"
-      },
-      "sources": [
-        "forms/20-api/forms.md:39"
-      ]
-    },
-    {
-      "id": "forms--forms-get-get-get-get",
-      "method": "GET",
-      "origin": "https://services.leadconnectorhq.com",
       "path": "/forms/{id}",
       "authRail": "bearer+token-id",
       "transport": "json",
@@ -27398,31 +27349,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "forms/20-api/forms.md:69"
-      ]
-    },
-    {
-      "id": "forms--forms-post-post-post-post",
-      "method": "POST",
-      "origin": "https://services.leadconnectorhq.com",
-      "path": "/forms/{id}",
-      "authRail": "bearer+token-id",
-      "transport": "json",
-      "responseMode": "json",
-      "extraHeaders": [],
-      "tree": "documented",
-      "operation": null,
-      "service": "forms",
-      "query": [],
-      "body": null,
-      "returns": null,
-      "confidence": {
-        "path": "documented",
-        "query": "none-observed",
-        "body": "unresolved",
-        "returns": "unresolved"
-      },
-      "sources": [
+        "forms/20-api/forms.md:39",
         "forms/20-api/forms.md:100",
         "forms/20-api/forms.md:129"
       ]
@@ -27463,31 +27390,6 @@
       "id": "forms--forms-data-get",
       "method": "GET",
       "origin": "https://services.leadconnectorhq.com",
-      "path": "/forms/data/{formId}",
-      "authRail": "bearer+token-id",
-      "transport": "json",
-      "responseMode": "json",
-      "extraHeaders": [],
-      "tree": "documented",
-      "operation": null,
-      "service": "forms",
-      "query": [],
-      "body": null,
-      "returns": null,
-      "confidence": {
-        "path": "documented",
-        "query": "none-observed",
-        "body": "unresolved",
-        "returns": "unresolved"
-      },
-      "sources": [
-        "forms/20-api/forms.md:36"
-      ]
-    },
-    {
-      "id": "forms--forms-data-get-get",
-      "method": "GET",
-      "origin": "https://services.leadconnectorhq.com",
       "path": "/forms/data/{id}",
       "authRail": "bearer+token-id",
       "transport": "json",
@@ -27506,6 +27408,7 @@
         "returns": "unresolved"
       },
       "sources": [
+        "forms/20-api/forms.md:36",
         "forms/20-api/forms.md:75"
       ]
     },
@@ -27545,31 +27448,6 @@
       "id": "forms--forms-duplicate",
       "method": "POST",
       "origin": "https://services.leadconnectorhq.com",
-      "path": "/forms/duplicate/{formId}",
-      "authRail": "bearer+token-id",
-      "transport": "json",
-      "responseMode": "json",
-      "extraHeaders": [],
-      "tree": "documented",
-      "operation": null,
-      "service": "forms",
-      "query": [],
-      "body": null,
-      "returns": null,
-      "confidence": {
-        "path": "documented",
-        "query": "none-observed",
-        "body": "unresolved",
-        "returns": "unresolved"
-      },
-      "sources": [
-        "forms/20-api/forms.md:40"
-      ]
-    },
-    {
-      "id": "forms--forms-duplicate-post",
-      "method": "POST",
-      "origin": "https://services.leadconnectorhq.com",
       "path": "/forms/duplicate/{id}",
       "authRail": "bearer+token-id",
       "transport": "json",
@@ -27588,6 +27466,7 @@
         "returns": "unresolved"
       },
       "sources": [
+        "forms/20-api/forms.md:40",
         "forms/20-api/forms.md:131"
       ]
     },
@@ -27737,7 +27616,7 @@
       "id": "forms--forms-share",
       "method": "POST",
       "origin": "https://services.leadconnectorhq.com",
-      "path": "/forms/share/{formId}",
+      "path": "/forms/share/{id}",
       "authRail": "bearer+token-id",
       "transport": "json",
       "responseMode": "json",
