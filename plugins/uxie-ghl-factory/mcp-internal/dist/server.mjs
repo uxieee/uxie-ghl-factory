@@ -2762,10 +2762,10 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "services/api/contact-service.ts:36",
             "platform/20-api/smart-lists.md:91",
-            "platform/20-api/smart-lists.md:150",
-            "platform/30-types/contact-filter-dsl.md:4",
-            "platform/30-types/contact-filter-dsl.md:12",
-            "platform/30-types/index.md:18"
+            "platform/20-api/smart-lists.md:155",
+            "platform/20-api/smart-lists.md:163",
+            "platform/20-api/smart-lists.md:184",
+            "platform/30-types/contact-filter-dsl.md:4"
           ]
         },
         {
@@ -2830,7 +2830,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "platform/20-api/smart-lists.md:27",
             "platform/20-api/smart-lists.md:71",
-            "platform/20-api/smart-lists.md:205"
+            "platform/20-api/smart-lists.md:239"
           ]
         },
         {
@@ -2866,7 +2866,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "platform/20-api/smart-lists.md:57",
-            "platform/20-api/smart-lists.md:159"
+            "platform/20-api/smart-lists.md:193"
           ]
         },
         {
@@ -2913,8 +2913,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "platform/20-api/smart-lists.md:26",
             "platform/20-api/smart-lists.md:46",
             "platform/20-api/smart-lists.md:47",
-            "platform/20-api/smart-lists.md:147",
-            "platform/20-api/smart-lists.md:156"
+            "platform/20-api/smart-lists.md:181",
+            "platform/20-api/smart-lists.md:190"
           ]
         },
         {
@@ -3009,7 +3009,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "platform/20-api/smart-lists.md:25",
             "platform/20-api/smart-lists.md:38",
-            "platform/20-api/smart-lists.md:157"
+            "platform/20-api/smart-lists.md:191"
           ]
         },
         {
@@ -6147,7 +6147,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           coveredBy: [
             "build_workflow",
             "edit_workflow",
-            "list_account_entities"
+            "list_account_entities",
+            "list_forms"
           ],
           rawCallable: true,
           transport: "json",
@@ -6184,7 +6185,11 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "create_form",
+            "get_form",
+            "update_form_data"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -6256,7 +6261,10 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "write",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "create_form",
+            "update_form_data"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -6331,7 +6339,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "get_form"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -6597,7 +6607,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "list_form_submissions"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -9339,7 +9351,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "platform/20-api/smart-lists.md:25",
-            "platform/20-api/smart-lists.md:185",
+            "platform/20-api/smart-lists.md:219",
             "workflows/20-api/03-endpoints.md:345",
             "workflows/20-api/smart-lists.md:69",
             "workflows/70-research/ENDPOINTS.md:77"
@@ -9417,8 +9429,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "platform/20-api/smart-lists.md:26",
-            "platform/20-api/smart-lists.md:157",
-            "platform/20-api/smart-lists.md:195"
+            "platform/20-api/smart-lists.md:191",
+            "platform/20-api/smart-lists.md:229"
           ]
         },
         {
@@ -9456,7 +9468,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "platform/20-api/smart-lists.md:155",
+            "platform/20-api/smart-lists.md:189",
             "workflows/20-api/smart-lists.md:73",
             "workflows/70-research/ENDPOINTS.md:81"
           ]
@@ -35275,7 +35287,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           coveredBy: [
             "build_workflow",
             "edit_workflow",
-            "list_account_entities"
+            "list_account_entities",
+            "list_forms"
           ],
           rawCallable: true,
           transport: "json",
@@ -35345,7 +35358,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "ai",
           kind: "write",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "create_form"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -35413,7 +35428,11 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "ai",
           kind: "read",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "create_form",
+            "get_form",
+            "update_form_data"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -35449,7 +35468,10 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "ai",
           kind: "write",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "create_form",
+            "update_form_data"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -35486,7 +35508,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "ai",
           kind: "read",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "list_forms"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -35524,7 +35548,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "ai",
           kind: "read",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "get_form"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -35848,7 +35874,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "ai",
           kind: "read",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "list_form_submissions"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -49178,6 +49206,116 @@ var init_define_TOOL_CATALOG = __esm({
         rows: [
           "ai-studio--post-projects-unpublish",
           "ai-studio--get-projects--documented"
+        ]
+      },
+      list_forms: {
+        description: "List forms in a sub-account \u2014 proof: live-runtime (2026-09-06); risk: read",
+        risk: "read",
+        proof: "live-runtime (2026-09-06)",
+        proofFloor: "live-runtime (2026-09-06)",
+        proofRows: [
+          "forms-list",
+          "forms-count"
+        ],
+        proofFloorRows: [
+          "forms-list",
+          "forms-count"
+        ],
+        riskRows: [
+          "forms-list",
+          "forms-count"
+        ],
+        rows: [
+          "forms-list",
+          "forms-count"
+        ]
+      },
+      get_form: {
+        description: "Read one form and its stored document \u2014 proof: live-runtime (2026-09-06); risk: read",
+        risk: "read",
+        proof: "live-runtime (2026-09-06)",
+        proofFloor: "live-runtime (2026-09-06)",
+        proofRows: [
+          "forms-detail",
+          "forms-public-data"
+        ],
+        proofFloorRows: [
+          "forms-detail",
+          "forms-public-data"
+        ],
+        riskRows: [
+          "forms-detail",
+          "forms-public-data"
+        ],
+        rows: [
+          "forms-detail",
+          "forms-public-data"
+        ]
+      },
+      create_form: {
+        description: "Create a form and save its document \u2014 proof: live-runtime (2026-09-06); risk: write",
+        risk: "write",
+        proof: "live-runtime (2026-09-06)",
+        proofFloor: "live-runtime (2026-09-06)",
+        proofRows: [
+          "forms-create",
+          "forms-save",
+          "forms-detail"
+        ],
+        proofFloorRows: [
+          "forms-create",
+          "forms-save",
+          "forms-detail"
+        ],
+        riskRows: [
+          "forms-create",
+          "forms-save",
+          "forms-detail"
+        ],
+        rows: [
+          "forms-create",
+          "forms-save",
+          "forms-detail"
+        ]
+      },
+      update_form_data: {
+        description: "Edit a form's stored document safely \u2014 proof: live-runtime (2026-09-06); risk: write",
+        risk: "write",
+        proof: "live-runtime (2026-09-06)",
+        proofFloor: "live-runtime (2026-09-06)",
+        proofRows: [
+          "forms-detail",
+          "forms-save"
+        ],
+        proofFloorRows: [
+          "forms-detail",
+          "forms-save"
+        ],
+        riskRows: [
+          "forms-detail",
+          "forms-save"
+        ],
+        rows: [
+          "forms-detail",
+          "forms-save"
+        ]
+      },
+      list_form_submissions: {
+        description: "List form submissions \u2014 proof: live-runtime (2026-09-06); risk: read",
+        risk: "read",
+        proof: "live-runtime (2026-09-06)",
+        proofFloor: "live-runtime (2026-09-06)",
+        proofRows: [
+          "forms-submissions"
+        ],
+        proofFloorRows: [
+          "forms-submissions"
+        ],
+        riskRows: [
+          "forms-submissions"
+        ],
+        rows: [
+          "forms-submissions"
         ]
       }
     };
@@ -164193,6 +164331,343 @@ var TOOLS2 = [
         publishedVersionId: back.published_version_id,
         appliedVerified: back.published_at === null,
         note: "Unpublish journals NOTHING in Firestore \u2014 this read-back is the only evidence it happened."
+      });
+    }, args)
+  },
+  // ── forms ────────────────────────────────────────────────────────────────────────────────────
+  //
+  // The surface was mapped and live-proven on 2026-09-06 (corpus/forms/**, 133 saved probes) and
+  // until now reached an agent only through raw_request, which carries none of the four traps that
+  // make this collection hostile:
+  //
+  //   1. The save is a whole-document REPLACE. Keys you do not send are gone. There is no PATCH —
+  //      PUT and PATCH both 404 — so every edit is read-modify-write or it is data loss.
+  //   2. A save issued right after the create answers `404 Form does not exist or is deleted`,
+  //      seven times out of seven. The replica needs ~5s. A human in the builder never sees it.
+  //   3. Reads lag writes by ~4s, so an immediate read-back returns the PREVIOUS document and a
+  //      naive verifier reports success on a write that has not landed.
+  //   4. Two keys are renamed on write (`formAction.redirect_url` → `redirectUrl`,
+  //      `style.ac_branding` → `acBranding`), so a field-by-field read-back comparison that does
+  //      not know this reports a mismatch on a correct write.
+  //
+  // Nothing inside `formData` is validated by the server — an invented key is stored and read back
+  // — and `GET /forms/data/{id}` answers with NO credentials, so everything in the document is
+  // public. There is no draft state: a form is live at its widget URL the moment it exists.
+  {
+    name: "list_forms",
+    description: `${describe3("list_forms", "List forms in a sub-account \u2014 risk: read")}. Lists forms with their ids, names and folder. \`type: "form"\` returns forms only \u2014 ANY other value, including omitting it, returns forms AND folders in one array, because \`type\` selects the row kind rather than the productType. Quizzes live on this collection too (productType "quiz"); surveys do not. Offset paging via skip/limit. \`query\` is a case-insensitive substring match on the name. The count endpoint counts forms PLUS folders, so it will not agree with the number of rows here.`,
+    inputSchema: schema({
+      locationId: external_exports.string(),
+      query: external_exports.string().optional(),
+      parentId: external_exports.string().optional(),
+      includeFolders: external_exports.boolean().default(false),
+      skip: external_exports.number().default(0),
+      limit: external_exports.number().default(20)
+    }),
+    capabilities: [
+      { method: "GET", path: "/forms/" },
+      { method: "GET", path: "/forms/count" }
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+      const q3 = new URLSearchParams({
+        locationId: args.locationId,
+        skip: String(args.skip ?? 0),
+        limit: String(args.limit ?? 20)
+      });
+      if (args.includeFolders !== true) q3.set("type", "form");
+      if (args.query) q3.set("query", args.query);
+      if (args.parentId) q3.set("parentId", args.parentId);
+      const r = await gw.call("GET", `/forms/?${q3}`);
+      if (!r.ok) return fromHttp(r.status, r.json);
+      const rows = (r.json?.forms ?? []).map((f) => ({
+        id: f._id ?? f.id,
+        name: f.name,
+        productType: f.productType ?? null,
+        parentId: f.parentId ?? null,
+        source: f.source ?? null,
+        version: f.version ?? null,
+        updatedAt: f.updatedAt ?? f.dateUpdated ?? null,
+        versions: Array.isArray(f.versionHistory) ? f.versionHistory.length : null
+      }));
+      return ok({
+        total: r.json?.total ?? rows.length,
+        returned: rows.length,
+        forms: rows,
+        note: "List rows carry no formData \u2014 read one with get_form to see the document."
+      });
+    }, args)
+  },
+  {
+    name: "get_form",
+    description: `${describe3("get_form", "Read one form and its stored document \u2014 risk: read")}. Returns the form record plus the whole \`formData\` document \u2014 the fields, the submit action, styling and every key the builder ever wrote. An unknown id answers 400 "Form does not exist", NOT 404. Everything in formData is world-readable through the widget rail, so treat it as public. Pass publicView:true to read exactly what the widget renders instead.`,
+    inputSchema: schema({
+      locationId: external_exports.string(),
+      formId: external_exports.string(),
+      publicView: external_exports.boolean().default(false)
+    }),
+    capabilities: [
+      { method: "GET", path: "/forms/{id}" },
+      { method: "GET", path: "/forms/data/{id}" }
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+      const id = encodeURIComponent(args.formId);
+      const r = await gw.call("GET", args.publicView === true ? `/forms/data/${id}` : `/forms/${id}`);
+      if (!r.ok) {
+        if (r.status === 400 && /does not exist/i.test(JSON.stringify(r.json ?? ""))) {
+          return fail(
+            CODES.VALIDATION_FAILED,
+            `no form with id ${args.formId} on this sub-account`,
+            "GHL answers 400 (not 404) for an unknown form id. Run list_forms to find the right one."
+          );
+        }
+        return fromHttp(r.status, r.json);
+      }
+      const form = r.json?.form ?? r.json ?? {};
+      if (args.publicView === true) {
+        return ok({
+          formId: args.formId,
+          name: r.json?.name ?? null,
+          publicDocument: form,
+          note: "This is the widget's own read \u2014 it answers with NO credentials, so anything here is public."
+        });
+      }
+      const fields = form.formData?.form?.fields ?? [];
+      return ok({
+        formId: form._id ?? args.formId,
+        name: form.name,
+        productType: form.productType ?? null,
+        parentId: form.parentId ?? null,
+        version: form.version ?? null,
+        versionHistory: Array.isArray(form.versionHistory) ? form.versionHistory.length : null,
+        fieldTags: fields.map((f) => f.tag).filter(Boolean),
+        formData: form.formData ?? {}
+      });
+    }, args)
+  },
+  {
+    name: "create_form",
+    description: `${describe3("create_form", "Create a form and save its document \u2014 risk: write")}. Preview by default; confirm:true writes. Runs the whole proven sequence: create, WAIT for the replica (a save sent immediately answers 404 "Form does not exist or is deleted", seven times out of seven), save the document, then poll a read-back until the tags you sent come back. A form is LIVE at its public widget URL the moment it exists \u2014 there is no draft state \u2014 and everything in formData is world-readable, so never put anything private in it.`,
+    inputSchema: schema({
+      locationId: external_exports.string(),
+      name: external_exports.string(),
+      fields: external_exports.array(external_exports.record(external_exports.any())).optional(),
+      formAction: external_exports.record(external_exports.any()).optional(),
+      style: external_exports.record(external_exports.any()).optional(),
+      parentId: external_exports.string().optional(),
+      source: external_exports.string().default("landing_page"),
+      confirm: external_exports.boolean().default(false)
+    }),
+    capabilities: [
+      { method: "POST", path: "/forms/" },
+      { method: "POST", path: "/forms/{id}" },
+      { method: "GET", path: "/forms/{id}" }
+    ],
+    handler: async (args, deps) => guard(async () => {
+      if (typeof args.name !== "string" || args.name.trim() === "") {
+        return fail(CODES.VALIDATION_FAILED, "name must be a non-empty string", "Pass the form name.");
+      }
+      const fields = args.fields ?? [];
+      const untagged = fields.map((f, i) => f && typeof f.tag === "string" && f.tag ? null : i).filter((i) => i !== null);
+      if (untagged.length) {
+        return fail(
+          CODES.VALIDATION_FAILED,
+          `fields[${untagged.join(", ")}] have no 'tag'`,
+          "Every element needs a tag: it is the field key the widget renders and the read-back compares on. Standard fields use their name (first_name, email, phone); a custom-field question uses the custom field id."
+        );
+      }
+      const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+      const document = {
+        form: {
+          fields,
+          ...args.formAction ? { formAction: args.formAction } : {},
+          ...args.style ? { style: args.style } : {}
+        }
+      };
+      const preview = {
+        creates: { name: args.name, productType: "form", source: args.source ?? "landing_page", parentId: args.parentId ?? null },
+        document,
+        fieldTags: fields.map((f) => f.tag),
+        warning: "The form is PUBLIC the moment it is created \u2014 there is no draft state, and formData is readable with no credentials."
+      };
+      if (args.confirm !== true) {
+        return withFailureData(
+          fail(
+            CODES.CONFIRM_REQUIRED,
+            "Form create preview is ready; no write was sent.",
+            "Repeat with confirm:true to create it."
+          ),
+          { preview }
+        );
+      }
+      const created = await gw.call("POST", "/forms/", {
+        locationId: args.locationId,
+        name: args.name,
+        productType: "form",
+        source: args.source ?? "landing_page",
+        ...args.parentId ? { parentId: args.parentId } : {}
+      });
+      if (!created.ok) return fromHttp(created.status, created.json);
+      const formId = created.json?.form?._id ?? created.json?._id ?? created.json?.id ?? null;
+      if (!formId) {
+        return withFailureData(
+          fail(
+            CODES.ENGINE_ABORT,
+            "Form create returned 2xx but no form id.",
+            "Run list_forms before retrying \u2014 a retry would create a second form."
+          ),
+          { preview, response: created.json ?? null }
+        );
+      }
+      const saved = await gw.readBackUntil(async () => {
+        const s = await gw.call("POST", `/forms/${encodeURIComponent(formId)}`, { name: args.name, formData: document });
+        return s.ok ? s : null;
+      }, { pollMs: 3e3, maxPolls: 4 });
+      if (!saved.hit) {
+        return withFailureData(
+          fail(
+            CODES.ENGINE_ABORT,
+            `The form was created (${formId}) but every save attempt failed.`,
+            "The form exists and is EMPTY. Do not create another \u2014 call update_form_data on this id."
+          ),
+          { formId, preview, attempts: saved.attempts }
+        );
+      }
+      const want = fields.map((f) => f.tag).filter(Boolean);
+      const back = await gw.readBackUntil(async () => {
+        const g = await gw.call("GET", `/forms/${encodeURIComponent(formId)}`);
+        const got = (g.json?.form?.formData?.form?.fields ?? []).map((f) => f.tag).filter(Boolean);
+        return want.every((t) => got.includes(t)) ? got : null;
+      }, { pollMs: 2e3, maxPolls: 4 });
+      return ok({
+        formId,
+        verified: Boolean(back.hit),
+        readBackAttempts: back.attempts,
+        fieldTags: back.hit ?? want,
+        widgetUrl: `https://api.leadconnectorhq.com/widget/form/${formId}`,
+        ...back.hit ? {} : { note: `Saved, but the document had not appeared after ${back.attempts} read-backs. Reads lag writes by seconds \u2014 read it again with get_form before assuming it is wrong.` }
+      });
+    }, args)
+  },
+  {
+    name: "update_form_data",
+    description: `${describe3("update_form_data", "Edit a form's stored document safely \u2014 risk: write")}. Preview by default; confirm:true writes. THE SAVE IS A WHOLE-DOCUMENT REPLACE and there is no PATCH \u2014 PUT and PATCH both 404 \u2014 so this reads the current document first, merges your change into it and writes the whole thing back. The preview shows exactly which top-level keys of \`formData.form\` would change. Two keys are renamed by the server on write (formAction.redirect_url \u2192 redirectUrl, style.ac_branding \u2192 acBranding), so the read-back compares on the names GHL stores, not the ones you sent.`,
+    inputSchema: schema({
+      locationId: external_exports.string(),
+      formId: external_exports.string(),
+      fields: external_exports.array(external_exports.record(external_exports.any())).optional(),
+      formAction: external_exports.record(external_exports.any()).optional(),
+      style: external_exports.record(external_exports.any()).optional(),
+      name: external_exports.string().optional(),
+      confirm: external_exports.boolean().default(false)
+    }),
+    capabilities: [
+      { method: "GET", path: "/forms/{id}" },
+      { method: "POST", path: "/forms/{id}" }
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const patch = ["fields", "formAction", "style"].filter((k) => args[k] !== void 0);
+      if (!patch.length && args.name === void 0) {
+        return fail(
+          CODES.VALIDATION_FAILED,
+          "nothing to change",
+          "Pass at least one of fields, formAction, style or name."
+        );
+      }
+      const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+      const id = encodeURIComponent(args.formId);
+      const current = await gw.call("GET", `/forms/${id}`);
+      if (!current.ok) {
+        if (current.status === 400 && /does not exist/i.test(JSON.stringify(current.json ?? ""))) {
+          return fail(
+            CODES.VALIDATION_FAILED,
+            `no form with id ${args.formId} on this sub-account`,
+            "GHL answers 400 (not 404) for an unknown form id."
+          );
+        }
+        return fromHttp(current.status, current.json);
+      }
+      const form = current.json?.form ?? {};
+      const before = form.formData?.form ?? {};
+      const after = { ...before };
+      for (const k of patch) after[k] = args[k];
+      const name = args.name ?? form.name;
+      const preview = {
+        formId: args.formId,
+        name,
+        changes: patch.map((k) => ({
+          key: k,
+          from: k === "fields" ? `${(before.fields ?? []).length} element(s)` : before[k] === void 0 ? "(absent)" : "present",
+          to: k === "fields" ? `${(args.fields ?? []).length} element(s)` : "replaced"
+        })),
+        ...args.name !== void 0 && args.name !== form.name ? { rename: { from: form.name, to: args.name } } : {},
+        preservedKeys: Object.keys(before).filter((k) => !patch.includes(k)),
+        note: "Keys under preservedKeys are re-sent verbatim. Without that they would be DELETED \u2014 the save replaces the document."
+      };
+      if (args.confirm !== true) {
+        return withFailureData(
+          fail(
+            CODES.CONFIRM_REQUIRED,
+            "Form update preview is ready; no write was sent.",
+            "Repeat with confirm:true to apply it."
+          ),
+          { preview }
+        );
+      }
+      const saved = await gw.call("POST", `/forms/${id}`, {
+        name,
+        formData: { ...form.formData ?? {}, form: after }
+      });
+      if (!saved.ok) return fromHttp(saved.status, saved.json);
+      const RENAMED = { redirect_url: "redirectUrl", ac_branding: "acBranding" };
+      const stored = (obj) => Object.fromEntries(Object.entries(obj ?? {}).map(([k, v]) => [RENAMED[k] ?? k, v]));
+      const wantTags = (args.fields ?? after.fields ?? []).map((f) => f.tag).filter(Boolean);
+      const wantAction = args.formAction ? Object.keys(stored(args.formAction)) : [];
+      const back = await gw.readBackUntil(async () => {
+        const g = await gw.call("GET", `/forms/${id}`);
+        const doc = g.json?.form?.formData?.form ?? {};
+        const tags = (doc.fields ?? []).map((f) => f.tag).filter(Boolean);
+        const tagsOk = wantTags.every((t) => tags.includes(t));
+        const actionOk = wantAction.every((k) => (doc.formAction ?? {})[k] !== void 0);
+        return tagsOk && actionOk ? { tags, formAction: doc.formAction ?? null } : null;
+      }, { pollMs: 2e3, maxPolls: 4 });
+      return ok({
+        formId: args.formId,
+        verified: Boolean(back.hit),
+        readBackAttempts: back.attempts,
+        fieldTags: back.hit?.tags ?? wantTags,
+        preservedKeys: preview.preservedKeys,
+        ...back.hit ? {} : { note: `Saved, but the change had not appeared after ${back.attempts} read-backs. Reads lag writes by seconds \u2014 read it again with get_form before re-sending.` }
+      });
+    }, args)
+  },
+  {
+    name: "list_form_submissions",
+    description: `${describe3("list_form_submissions", "List form submissions \u2014 risk: read")}. Submissions for one form, or for the whole sub-account when formId is omitted. This endpoint pages with \`page\`, NOT \`skip\` \u2014 sending skip is a 422. The separate count endpoint takes a date range and refuses formId, so a per-form count is the length of these rows.`,
+    inputSchema: schema({
+      locationId: external_exports.string(),
+      formId: external_exports.string().optional(),
+      page: external_exports.number().default(1),
+      limit: external_exports.number().default(20)
+    }),
+    capabilities: [{ method: "GET", path: "/forms/submissions" }],
+    handler: async (args, deps) => guard(async () => {
+      const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+      const q3 = new URLSearchParams({
+        locationId: args.locationId,
+        page: String(args.page ?? 1),
+        limit: String(args.limit ?? 20)
+      });
+      if (args.formId) q3.set("formId", args.formId);
+      const r = await gw.call("GET", `/forms/submissions?${q3}`);
+      if (!r.ok) return fromHttp(r.status, r.json);
+      const rows = r.json?.submissions ?? r.json?.data ?? [];
+      return ok({
+        page: args.page ?? 1,
+        returned: Array.isArray(rows) ? rows.length : 0,
+        meta: r.json?.meta ?? null,
+        submissions: rows
       });
     }, args)
   }

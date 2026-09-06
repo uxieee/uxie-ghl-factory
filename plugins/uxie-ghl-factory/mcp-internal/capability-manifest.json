@@ -1188,5 +1188,55 @@
     "tool": "unpublish_studio_site",
     "method": "GET",
     "path": "/vibe-ai/projects/{projectId}"
+  },
+  {
+    "tool": "list_forms",
+    "method": "GET",
+    "path": "/forms/"
+  },
+  {
+    "tool": "list_forms",
+    "method": "GET",
+    "path": "/forms/count"
+  },
+  {
+    "tool": "get_form",
+    "method": "GET",
+    "path": "/forms/{id}"
+  },
+  {
+    "tool": "get_form",
+    "method": "GET",
+    "path": "/forms/data/{id}"
+  },
+  {
+    "tool": "create_form",
+    "method": "POST",
+    "path": "/forms/"
+  },
+  {
+    "tool": "create_form",
+    "method": "POST",
+    "path": "/forms/{id}"
+  },
+  {
+    "tool": "create_form",
+    "method": "GET",
+    "path": "/forms/{id}"
+  },
+  {
+    "tool": "update_form_data",
+    "method": "GET",
+    "path": "/forms/{id}"
+  },
+  {
+    "tool": "update_form_data",
+    "method": "POST",
+    "path": "/forms/{id}"
+  },
+  {
+    "tool": "list_form_submissions",
+    "method": "GET",
+    "path": "/forms/submissions"
   }
 ]
