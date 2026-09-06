@@ -165497,7 +165497,7 @@ var TOOLS2 = [
         conditions: leaves({ filters: storedSpec?.filters ?? [] }).length,
         differential,
         ...unverified.length ? { unverifiedFields: unverified } : {},
-        verification: 'The record stored and its envelope is the shape the contacts screen requires. That is as far as an API can go: a discarded filter reads back byte-identical, so ONLY opening the list in a browser proves what the operator sees. Open it and check the Filters control shows a count and no "unsaved changes" banner.',
+        verification: 'The record stored, and its envelope is the shape the contacts screen requires. That envelope is RENDER-PROVEN: a list built this way showed 5 of 239 contacts with "Filters (1)" and no banner, while the same filter written one level flatter showed all 239 \u2014 measured in a browser against that control 2026-09-07. So the nesting is not what you need to check. What an API still cannot tell you is whether YOUR filter selects the contacts you meant: compare the matched count below against what you expected, and if it matters, open the list and confirm the Filters control shows a count with no "unsaved changes" banner.',
         removal: "No delete exists on this rail. Remove it from the interface if it is not wanted."
       });
     }, args)

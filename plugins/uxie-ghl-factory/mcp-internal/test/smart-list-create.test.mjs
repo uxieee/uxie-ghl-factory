@@ -230,7 +230,11 @@ test('the read-back is judged structurally, and says what it does NOT prove', as
   assert.equal(r.data.readBack, true);
   assert.equal(r.data.storedShape, 'ok');
   assert.equal(r.data.filterSpecsIdentical, true);
-  assert.match(r.data.verification, /ONLY opening the list in a browser/);
+  // The envelope is render-proven against a control (5 of 239 vs all 239 one level flatter), so the
+  // result must NOT send an operator off to re-check the nesting — it must point at the only thing
+  // still open, which is whether their own filter selects the contacts they meant.
+  assert.match(r.data.verification, /RENDER-PROVEN/);
+  assert.match(r.data.verification, /whether YOUR filter selects the contacts you meant/);
 });
 
 test('a server that rewrote the envelope raises an alarm instead of reporting success', async () => {
