@@ -6982,9 +6982,12 @@ export const TOOLS = [
       + 'despite storing a filter. Three ways that happens, none of them visible to an API read-back: '
       + '`filterSpecs.filters` nested only one level (the screen throws it away), an empty filters '
       + 'array (the Copy/Save-as path produces these — it carries name, columns and sort but no '
-      + 'filter), and a filter naming a field the account\'s catalogue does not know. Read-only: it '
-      + 'creates nothing and changes nothing, which matters here because a smart list cannot be '
-      + 'deleted through the API at all.',
+      + 'filter), and a leaf condition sitting where the screen expects a group. It does NOT judge '
+      + 'whether each filter\'s FIELD exists in the account\'s filter-field catalogue: the screen '
+      + 'drops unknown fields down the same code path with the same whole-account result, and no '
+      + 'endpoint this project knows serves that catalogue, so the fields found are reported for a '
+      + 'human to read instead. Read-only: it creates nothing and changes nothing, which matters '
+      + 'here because a smart list cannot be deleted through the API at all.',
     inputSchema: schema({
       locationId: z.string(),
       listId: z.string().optional(),
@@ -7080,6 +7083,17 @@ export const TOOLS = [
           ? { warning: `${broken.length} list(s) store a filter the contacts screen will discard, and render the ENTIRE account to the operator. Every API check agrees they are fine — this is only visible structurally. Fixing one is a PUT of filterSpecs with the conditions unchanged and the nesting corrected; the PUT merges, so nothing else is touched.` }
           : {}),
         note: 'A row count is NOT the signal: it is correct either way, which is what makes this class expensive.',
+        // Said out loud so a clean verdict is not over-read. The screen drops a filter whose FIELD
+        // it does not recognise through the same code path, with the same whole-account result, and
+        // that is invisible from the nesting. Checking it needs the account's filter-field
+        // catalogue, and no endpoint this project knows serves one — so the fields are reported and
+        // not judged. Inventing an allowlist would flag working custom-field filters as broken,
+        // which is a worse answer than an honest gap.
+        notChecked: 'whether each filter\'s field exists in this account\'s filter-field catalogue. '
+          + 'The contacts screen drops filters naming a field it does not know, with the same '
+          + 'whole-account result as bad nesting, and it keeps a removedCount it never shows. Read '
+          + 'filterFields above against the fields the account actually offers. A verdict of "ok" '
+          + 'here means the SHAPE is right, not that every field in it resolves.',
       });
     }, args),
   },

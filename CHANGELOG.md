@@ -11,6 +11,19 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [0.59.1] — 2026-09-07
+
+### Changed
+
+- **`check_smart_lists` now says what it does not check.** There is a fourth way a list renders the
+  whole account: the contacts screen drops any filter whose FIELD is not in that account's
+  filter-field catalogue, down the same code path, with the same result, and it keeps a
+  `removedCount` it never shows. That is invisible from the nesting, and no endpoint this project
+  knows serves the catalogue it would need — so the tool reports the fields it found and states in
+  its output that a verdict of "ok" means the SHAPE is right, not that every field resolves.
+  Inventing an allowlist would have flagged working custom-field filters as broken, which is a
+  worse answer than a named gap.
+
 ## [0.59.0] — 2026-09-07
 
 A read-only audit for the smart-list failure that no read-back can catch.
