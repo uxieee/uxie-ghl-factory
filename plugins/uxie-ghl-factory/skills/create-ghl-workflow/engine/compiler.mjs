@@ -368,9 +368,17 @@ function refuseUnresolvedOppNames(a, ref, stepType, ctx) {
 //
 // The engine used to compile this intent to `internal_create_opportunity`, a picker-invisible
 // helper with no validator and no upsert semantics: it CREATES, always, and answers
-// `400 duplicate opportunity` at runtime the moment the contact already has a card. Nothing in
+// `400 OPPORTUNITY_NO_DUPLICATE` at runtime the moment the contact already has a card. Nothing in
 // build, publish or round-trip saw it — the step saves, verifies, and silently no-ops for every
 // returning contact. One client build had 31 such steps retyped by hand (2026-09-06).
+//
+// Measured end to end on the test sub-account 2026-09-07, one contact, both step types:
+// create_opportunity created a card and then UPDATED THE SAME ID on a second run (value and stage
+// both moved, createdAt unchanged, still one card); internal_create_opportunity on that same
+// contact answered 400 OPPORTUNITY_NO_DUPLICATE with meta.existingId naming that card, and the log
+// row reads `status: "skipped"`, `isSkipped: true`, `needRetry: false`. The run does NOT fail —
+// which is why nothing ever surfaced it. Anything asserting this step ran must look for `skipped`,
+// not for the absence of an error.
 //
 // The two switches are the drawer's, and they are mutually exclusive there:
 //   allowBackward → allow_backward  "allow opportunity to move to any previous stage in pipeline"
@@ -404,7 +412,7 @@ function createOpportunityAttributes(a, ref, ctx) {
       + `helper accepts. The builder's Create/Update Opportunity action has no top-level slot for `
       + `them — they would round-trip clean and never be written. Either drop them, or author the `
       + `step as type 'create_opportunity_strict' (which emits internal_create_opportunity and `
-      + `does NOT update an existing card: it fails 400 duplicate opportunity when one exists).`);
+      + `does NOT update an existing card: the runtime answers 400 OPPORTUNITY_NO_DUPLICATE and marks the step SKIPPED, so the run walks on and nothing is written).`);
   const bad = Object.keys(a).filter((k) => !UPSERT_OPP_AUTHOR_KEYS.has(k));
   if (bad.length)
     throw new IRError('UNKNOWN_ATTR',

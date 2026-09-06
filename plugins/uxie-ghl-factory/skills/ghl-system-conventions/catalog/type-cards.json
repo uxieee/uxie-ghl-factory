@@ -7361,7 +7361,7 @@
    "family": "steps",
    "title": "create_opportunity",
    "status": "source-derived",
-   "lastVerified": "2026-08-22",
+   "lastVerified": "2026-09-07",
    "summary": "Create or update an opportunity record on a pipeline+stage for the running contact.",
    "meta": {
     "Section": "`opportunity`",
@@ -7451,7 +7451,7 @@
     }
    ],
    "validator": "`createOpportunityActionValidator` (length 642, result level `warning`). Per `sniffs/bundle/validators.json::createOpportunityActionValidator`:",
-   "notes": "- **`pipeline_id` format varies.** Older pipelines use MongoIDs (e.g. `\"SEAZf6sVqvfQdFbdecZO\"`), newer use UUIDs. The validator accepts both — the publish endpoint's `resource: \"pipeline\"` lookup resolves either.",
+   "notes": "- **`pipeline_id` format varies.** Older pipelines use MongoIDs (e.g. `\"PIPELINE_ID\"`), newer use UUIDs. The validator accepts both — the publish endpoint's `resource: \"pipeline\"` lookup resolves either.",
    "hasCanonicalExample": true
   },
   {
@@ -10464,7 +10464,7 @@
    "family": "steps",
    "title": "internal_create_opportunity",
    "status": "source-derived",
-   "lastVerified": "2026-08-22",
+   "lastVerified": "2026-09-07",
    "summary": "Internal helper that creates an opportunity. Used by AI-driven and migration paths — different attribute shape from the user-facing [`create_opportunity`](./create_opportunity.md).",
    "meta": {
     "Section": "Not registered in `registry-parsed.json` (internal helper, not picker-visible)",
