@@ -11,6 +11,30 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [0.60.1] — 2026-09-07
+
+The create-only opportunity helper skips on a duplicate; it does not fail the run.
+
+### Fixed
+
+- **`create_opportunity_strict`'s refusal text was wrong about the consequence.** It said the
+  create-only helper "fails 400 duplicate opportunity when one exists". Runtime differential on the
+  designated test sub-account says otherwise: the call does answer `400 OPPORTUNITY_NO_DUPLICATE`
+  (with `meta.existingId` naming the card already on the contact), but the workflow records the step
+  as `status: "skipped"`, `isSkipped: true`, `needRetry: false`, and the contact walks on to the end
+  of the run. Nothing is marked failed and no error notification fires. That is precisely why 31
+  mis-typed steps in a client build stayed invisible — there was no failure to find. The message,
+  the compiler comments and both type cards now say *skipped*, and note that anything asserting the
+  step ran must look for `skipped` rather than for the absence of an error.
+
+### Proof
+
+- **`create_opportunity` is an upsert — measured, no longer inferred from a display name.** Two
+  published workflows differing only in the value and stage their step writes, both fired at one
+  contact: same opportunity id, `createdAt` unchanged, value 111 → 222, stage New Lead → Engaged,
+  still one card, read back through the public API on a separate rail. The create-only helper on that
+  same contact in the same minute refused. Two step types, one contact, opposite outcomes.
+
 ## [0.60.0] — 2026-09-07
 
 A typed create for smart lists, built so the caller cannot produce the one shape that breaks them.
