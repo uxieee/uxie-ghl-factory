@@ -13,7 +13,7 @@ commit bodies carry the detail.
 
 ## [0.59.2] — 2026-09-07
 
-The smart-list audit was reporting clean accounts as empty, and it now checks the field half.
+The smart-list audit reported clean accounts as empty, and now checks the field half too.
 
 ### Fixed
 
