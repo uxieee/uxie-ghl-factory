@@ -11,6 +11,28 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [0.59.0] — 2026-09-07
+
+A read-only audit for the smart-list failure that no read-back can catch.
+
+### Added
+
+- **`check_smart_lists`** — reads every smart list on a sub-account and reports which ones render
+  as the WHOLE ACCOUNT despite storing a filter. `filterSpecs.filters` must be nested two levels;
+  a one-level shape (which is exactly what `POST /contacts/search/2` takes, and what any reasonable
+  caller writes) is accepted with a 201, reads back byte-identical, returns the correct rows from
+  the search endpoint, and is then discarded by the contacts screen at load. Five lists across three
+  client accounts were in that state on 2026-09-07 while every API check agreed they were fine. The
+  tool also catches an empty filters array (the Copy/Save-as path produces these: it carries name,
+  columns and sort but no filter) and reads a `400 "Invalid SmartList id"` as DELETED, because this
+  surface never answers 404 and reading its 400 as a bad argument blames the caller for someone
+  else's deletion.
+  Read-only on purpose: a smart list **cannot be deleted through the API** — `DELETE` is 404,
+  `PUT {deleted:true}` is refused, and the `/lists/dynamic` delete answers 200 while the record
+  survives in the projection the contacts screen reads. So a create is permanent and its tool needs
+  the operator's word. The classifier is pinned against both shapes exactly as the corpus records
+  them, the canonical one taken from a list a human built in the interface.
+
 ## [0.58.2] — 2026-09-07
 
 One rule, promoted to where every agent sees it.

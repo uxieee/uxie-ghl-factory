@@ -1397,5 +1397,27 @@
     "rows": [
       "forms-submissions"
     ]
+  },
+  "check_smart_lists": {
+    "description": "Audit smart lists for filters the contacts screen will silently discard — proof: live-runtime (2026-09-07); risk: read",
+    "risk": "read",
+    "proof": "live-runtime (2026-09-07)",
+    "proofFloor": "live-runtime (2026-09-07)",
+    "proofRows": [
+      "smartlist-search",
+      "smartlist-detail"
+    ],
+    "proofFloorRows": [
+      "smartlist-search",
+      "smartlist-detail"
+    ],
+    "riskRows": [
+      "smartlist-search",
+      "smartlist-detail"
+    ],
+    "rows": [
+      "smartlist-search",
+      "smartlist-detail"
+    ]
   }
 }

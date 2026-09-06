@@ -6954,6 +6954,135 @@ export const TOOLS = [
       });
     }, args),
   },
+  // ── smart lists ──────────────────────────────────────────────────────────────────────────────
+  //
+  // READ ONLY, deliberately. A smart list create is effectively PERMANENT — `DELETE
+  // /contacts/smartlist/{id}` is 404 no-such-route, `PUT {deleted:true}` is refused 422, and
+  // `DELETE /lists/dynamic/{loc}/{id}` answers 200 while the record survives in the projection the
+  // contacts screen actually reads. Removal is UI-only. So the write half needs the operator's
+  // word, and what this tool does instead is find the lists that are ALREADY broken.
+  //
+  // WHY IT EXISTS. `filterSpecs.filters` must be nested TWO levels — an outer group whose children
+  // are groups, leaves inside those. A one-level shape (a single group holding leaves directly,
+  // which is exactly what POST /contacts/search/2 takes and what any reasonable caller writes) is
+  // accepted with a 201, reads back byte-identical, returns the right rows from the search
+  // endpoint, and is DISCARDED by the contacts screen at load. The list then renders the ENTIRE
+  // account: header count is the account total, untagged contacts at the top. Five lists across
+  // three client accounts were in that state on 2026-09-07 and every API check agreed they were
+  // fine.
+  //
+  // That is a failure class no read-back can catch, so it is caught structurally here instead: the
+  // stored shape is compared against the one a human built in the UI. The corpus page's own create
+  // example still shows the one-level shape, which is the best argument that prose does not
+  // prevent this.
+  {
+    name: 'check_smart_lists',
+    description: `${describe('check_smart_lists', 'Audit smart lists for filters the contacts screen will silently discard — risk: read')}. `
+      + 'Reads every smart list on a sub-account and reports which ones render as the WHOLE ACCOUNT '
+      + 'despite storing a filter. Three ways that happens, none of them visible to an API read-back: '
+      + '`filterSpecs.filters` nested only one level (the screen throws it away), an empty filters '
+      + 'array (the Copy/Save-as path produces these — it carries name, columns and sort but no '
+      + 'filter), and a filter naming a field the account\'s catalogue does not know. Read-only: it '
+      + 'creates nothing and changes nothing, which matters here because a smart list cannot be '
+      + 'deleted through the API at all.',
+    inputSchema: schema({
+      locationId: z.string(),
+      listId: z.string().optional(),
+    }),
+    capabilities: [
+      { method: 'GET', path: '/contacts/smartlist/search' },
+      { method: 'GET', path: '/contacts/smartlist/{id}' },
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+
+      // The canonical nesting, from a list a human built in the UI and read straight back. A leaf
+      // is a condition; a group is {group, filters[]}. Depth is what the screen keys on.
+      const isGroup = (n) => n && typeof n === 'object' && Array.isArray(n.filters);
+      const classify = (spec) => {
+        const filters = spec?.filters;
+        if (!Array.isArray(filters) || filters.length === 0) {
+          return { verdict: 'renders-everything', reason: 'filterSpecs.filters is empty — this is what the screen\'s Copy/Save-as path produces, and it means "show every contact", not "not configured yet".' };
+        }
+        const outerGroups = filters.filter(isGroup);
+        if (outerGroups.length !== filters.length) {
+          return { verdict: 'renders-everything', reason: 'a leaf condition sits at the top level of filterSpecs.filters; the screen expects groups there.' };
+        }
+        // Two levels: every outer group's children must themselves be groups.
+        const oneLevel = outerGroups.filter((g) => g.filters.length && !g.filters.every(isGroup));
+        if (oneLevel.length) {
+          return {
+            verdict: 'renders-everything',
+            reason: 'filterSpecs.filters is nested ONE level — a group holding leaf conditions directly. '
+              + 'The store accepts it, it reads back byte-identical and /contacts/search/2 returns the right '
+              + 'rows, but the contacts screen discards it at load and renders the whole account. It needs an '
+              + 'outer group whose children are GROUPS, with the conditions inside those.',
+          };
+        }
+        return { verdict: 'ok', reason: null };
+      };
+      const leaves = (node, out = []) => {
+        if (!node) return out;
+        if (isGroup(node)) { for (const c of node.filters) leaves(c, out); return out; }
+        if (typeof node === 'object' && (node.field || node.uiMeta?.fieldAlias)) out.push(node);
+        return out;
+      };
+
+      const inspect = async (id, name) => {
+        const r = await gw.call('GET', `/contacts/smartlist/${encodeURIComponent(id)}`);
+        if (!r.ok) {
+          // 400 "Invalid SmartList id" is what a UI-DELETED list answers. This surface never
+          // returns 404, so reading the 400 as a malformed argument reports a bad request when the
+          // truth is that somebody removed the list.
+          if (r.status === 400) {
+            return { id, name, verdict: 'gone', reason: 'the id answers 400 "Invalid SmartList id" — on this surface that means DELETED from the interface, not a malformed id. There is no 404 here.' };
+          }
+          return { id, name, verdict: 'unreadable', reason: `detail read answered ${r.status}` };
+        }
+        const list = r.json?.smartList ?? r.json ?? {};
+        const spec = list.filterSpecs ?? {};
+        const { verdict, reason } = classify(spec);
+        const fields = [...new Set(leaves({ filters: spec.filters ?? [] }).map((l) => l.field ?? l.uiMeta?.fieldAlias).filter(Boolean))];
+        return {
+          id, name: list.listName ?? name ?? null,
+          verdict, ...(reason ? { reason } : {}),
+          filterFields: fields,
+          conditions: leaves({ filters: spec.filters ?? [] }).length,
+          sharedWith: list.sharedWith ?? null,
+        };
+      };
+
+      let rows = [];
+      if (args.listId) {
+        rows = [await inspect(args.listId, null)];
+      } else {
+        const q = new URLSearchParams({ locationId: args.locationId, globals: 'true', transform: 'true' });
+        const search = await gw.call('GET', `/contacts/smartlist/search?${q}`);
+        if (!search.ok) return fromHttp(search.status, search.json);
+        const roster = search.json?.smartLists ?? search.json?.lists ?? search.json?.data ?? [];
+        if (!Array.isArray(roster) || roster.length === 0) {
+          // An empty roster on ONE location beside working ones elsewhere is a deletion, not an
+          // outage — worth saying, because the natural reading is that the call failed.
+          return ok({ checked: 0, lists: [], note: 'No smart lists on this sub-account. An empty roster here while other locations answer normally means they were deleted, not that the read failed.' });
+        }
+        for (const row of roster) {
+          const id = row._id ?? row.id;
+          if (!id) continue;
+          rows.push(await inspect(id, row.listName ?? row.name));
+        }
+      }
+      const broken = rows.filter((r) => r.verdict === 'renders-everything');
+      return ok({
+        checked: rows.length,
+        rendersEverything: broken.length,
+        lists: rows,
+        ...(broken.length
+          ? { warning: `${broken.length} list(s) store a filter the contacts screen will discard, and render the ENTIRE account to the operator. Every API check agrees they are fine — this is only visible structurally. Fixing one is a PUT of filterSpecs with the conditions unchanged and the nesting corrected; the PUT merges, so nothing else is touched.` }
+          : {}),
+        note: 'A row count is NOT the signal: it is correct either way, which is what makes this class expensive.',
+      });
+    }, args),
+  },
 ];
 
 export function registerTools(server, deps, tools = TOOLS) {
