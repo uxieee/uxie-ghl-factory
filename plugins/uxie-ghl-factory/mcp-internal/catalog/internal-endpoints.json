@@ -1,7 +1,7 @@
 {
   "generated": "2026-09-06",
   "note": "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path — not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-  "count": 1064,
+  "count": 1069,
   "endpoints": [
     {
       "id": "workflows--actions-branches",
@@ -1794,6 +1794,147 @@
       ]
     },
     {
+      "id": "calendars--calendars-put",
+      "method": "PUT",
+      "url": "https://backend.leadconnectorhq.com/calendars/{calendarId}",
+      "path": "/calendars/{calendarId}",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "calendars",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "calendarId"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "calendars/40-rules/calendar-put-replaces-it-does-not-merge.md:23"
+      ]
+    },
+    {
+      "id": "calendars--calendars-free-slots",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/calendars/{calendarId}/free-slots",
+      "path": "/calendars/{calendarId}/free-slots",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "calendars",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "calendarId"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "calendars/40-rules/calendar-put-replaces-it-does-not-merge.md:47"
+      ]
+    },
+    {
+      "id": "calendars--calendars-get",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/calendars/{id}",
+      "path": "/calendars/{id}",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "calendars",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "id"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "calendars/40-rules/calendar-put-replaces-it-does-not-merge.md:45"
+      ]
+    },
+    {
+      "id": "calendars--calendars-put-put",
+      "method": "PUT",
+      "url": "https://backend.leadconnectorhq.com/calendars/{id}",
+      "path": "/calendars/{id}",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "calendars",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "id"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "calendars/40-rules/calendar-put-replaces-it-does-not-merge.md:4",
+        "calendars/40-rules/index.md:19"
+      ]
+    },
+    {
       "id": "calendar-service--get-calendar-configuration",
       "method": "GET",
       "url": "https://backend.leadconnectorhq.com/calendars/configuration/location/{locationId}",
@@ -1893,6 +2034,37 @@
         "calendars/40-rules/deleting-a-calendar-deletes-its-appointments.md:42",
         "calendars/70-research/2026-09-02-calendar-events-differential.md:20",
         "calendars/70-research/2026-09-02-calendar-events-differential.md:24"
+      ]
+    },
+    {
+      "id": "calendars--events-appointments",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/calendars/events/appointments",
+      "path": "/calendars/events/appointments",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "calendars",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "calendars/40-rules/calendar-put-replaces-it-does-not-merge.md:66"
       ]
     },
     {
@@ -2714,11 +2886,11 @@
       },
       "sources": [
         "services/api/contact-service.ts:36",
-        "platform/20-api/smart-lists.md:91",
-        "platform/20-api/smart-lists.md:149",
-        "platform/20-api/smart-lists.md:200",
-        "platform/30-types/contact-filter-dsl.md:4",
-        "platform/30-types/contact-filter-dsl.md:12"
+        "platform/20-api/smart-lists.md:95",
+        "platform/20-api/smart-lists.md:103",
+        "platform/20-api/smart-lists.md:163",
+        "platform/20-api/smart-lists.md:214",
+        "platform/30-types/contact-filter-dsl.md:4"
       ]
     },
     {
@@ -2783,7 +2955,7 @@
       "sources": [
         "platform/20-api/smart-lists.md:27",
         "platform/20-api/smart-lists.md:71",
-        "platform/20-api/smart-lists.md:270"
+        "platform/20-api/smart-lists.md:284"
       ]
     },
     {
@@ -2819,7 +2991,7 @@
       },
       "sources": [
         "platform/20-api/smart-lists.md:57",
-        "platform/20-api/smart-lists.md:224"
+        "platform/20-api/smart-lists.md:238"
       ]
     },
     {
@@ -2868,9 +3040,9 @@
         "platform/20-api/smart-lists.md:26",
         "platform/20-api/smart-lists.md:46",
         "platform/20-api/smart-lists.md:47",
-        "platform/20-api/smart-lists.md:170",
-        "platform/20-api/smart-lists.md:197",
-        "platform/20-api/smart-lists.md:207"
+        "platform/20-api/smart-lists.md:184",
+        "platform/20-api/smart-lists.md:211",
+        "platform/20-api/smart-lists.md:221"
       ]
     },
     {
@@ -2906,7 +3078,7 @@
       },
       "sources": [
         "platform/20-api/smart-lists.md:28",
-        "platform/20-api/smart-lists.md:96"
+        "platform/20-api/smart-lists.md:110"
       ]
     },
     {
@@ -2967,8 +3139,8 @@
       "sources": [
         "platform/20-api/smart-lists.md:25",
         "platform/20-api/smart-lists.md:38",
-        "platform/20-api/smart-lists.md:206",
-        "platform/20-api/smart-lists.md:222"
+        "platform/20-api/smart-lists.md:220",
+        "platform/20-api/smart-lists.md:236"
       ]
     },
     {
@@ -6171,7 +6343,7 @@
       ]
     },
     {
-      "id": "forms--forms-post",
+      "id": "calendars--forms",
       "method": "POST",
       "url": "https://backend.leadconnectorhq.com/forms/{id}",
       "path": "/forms/{id}",
@@ -6188,7 +6360,7 @@
       "responseMode": "json",
       "extraHeaders": [],
       "operation": null,
-      "service": "forms",
+      "service": "calendars",
       "tree": "documented",
       "pathParams": [
         {
@@ -6205,6 +6377,7 @@
         "returns": "unresolved"
       },
       "sources": [
+        "calendars/40-rules/calendar-put-replaces-it-does-not-merge.md:80",
         "forms/70-research/2026-09-06-forms-reverse-engineering.md:14"
       ]
     },
@@ -9017,8 +9190,8 @@
       },
       "sources": [
         "platform/20-api/smart-lists.md:25",
-        "platform/20-api/smart-lists.md:206",
-        "platform/20-api/smart-lists.md:250",
+        "platform/20-api/smart-lists.md:220",
+        "platform/20-api/smart-lists.md:264",
         "workflows/20-api/03-endpoints.md:345",
         "workflows/20-api/smart-lists.md:69",
         "workflows/70-research/ENDPOINTS.md:77"
@@ -9096,8 +9269,8 @@
       },
       "sources": [
         "platform/20-api/smart-lists.md:26",
-        "platform/20-api/smart-lists.md:222",
-        "platform/20-api/smart-lists.md:260"
+        "platform/20-api/smart-lists.md:236",
+        "platform/20-api/smart-lists.md:274"
       ]
     },
     {
@@ -9135,7 +9308,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "platform/20-api/smart-lists.md:220",
+        "platform/20-api/smart-lists.md:234",
         "workflows/20-api/smart-lists.md:73",
         "workflows/70-research/ENDPOINTS.md:81"
       ]

@@ -122,3 +122,17 @@ test('the tool is read-only — it declares no write capability', async () => {
   // write half needs the operator's word.
   assert.deepEqual(tool.capabilities.map((c) => c.method), ['GET', 'GET']);
 });
+
+test('a clean verdict states what it did NOT check', async () => {
+  // The screen drops a filter naming an unknown FIELD through the same code path, with the same
+  // whole-account result, and that is invisible from the nesting. No endpoint this project knows
+  // serves the account's filter-field catalogue, so the honest move is to report the fields and
+  // say they were not judged — an invented allowlist would flag working custom-field filters as
+  // broken, which is worse than a named gap.
+  const r = await run([{ id: 'a', listName: 'Tagged', filterSpecs: CANONICAL }]);
+  assert.equal(r.data.lists[0].verdict, 'ok');
+  assert.match(r.data.notChecked, /filter-field catalogue/);
+  assert.match(r.data.notChecked, /the SHAPE is right, not that every field in it resolves/);
+  // and the fields are handed over for a human to read
+  assert.deepEqual(r.data.lists[0].filterFields, ['tags']);
+});

@@ -48,7 +48,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
     define_ENDPOINT_CATALOG_default = {
       generated: "2026-09-06",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 1064,
+      count: 1069,
       endpoints: [
         {
           id: "workflows--actions-branches",
@@ -1841,6 +1841,147 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "calendars--calendars-put",
+          method: "PUT",
+          url: "https://backend.leadconnectorhq.com/calendars/{calendarId}",
+          path: "/calendars/{calendarId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "calendars",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "calendarId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "calendars/40-rules/calendar-put-replaces-it-does-not-merge.md:23"
+          ]
+        },
+        {
+          id: "calendars--calendars-free-slots",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/calendars/{calendarId}/free-slots",
+          path: "/calendars/{calendarId}/free-slots",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "calendars",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "calendarId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "calendars/40-rules/calendar-put-replaces-it-does-not-merge.md:47"
+          ]
+        },
+        {
+          id: "calendars--calendars-get",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/calendars/{id}",
+          path: "/calendars/{id}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "calendars",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "calendars/40-rules/calendar-put-replaces-it-does-not-merge.md:45"
+          ]
+        },
+        {
+          id: "calendars--calendars-put-put",
+          method: "PUT",
+          url: "https://backend.leadconnectorhq.com/calendars/{id}",
+          path: "/calendars/{id}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "calendars",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "calendars/40-rules/calendar-put-replaces-it-does-not-merge.md:4",
+            "calendars/40-rules/index.md:19"
+          ]
+        },
+        {
           id: "calendar-service--get-calendar-configuration",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/calendars/configuration/location/{locationId}",
@@ -1940,6 +2081,37 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "calendars/40-rules/deleting-a-calendar-deletes-its-appointments.md:42",
             "calendars/70-research/2026-09-02-calendar-events-differential.md:20",
             "calendars/70-research/2026-09-02-calendar-events-differential.md:24"
+          ]
+        },
+        {
+          id: "calendars--events-appointments",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/calendars/events/appointments",
+          path: "/calendars/events/appointments",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "calendars",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "calendars/40-rules/calendar-put-replaces-it-does-not-merge.md:66"
           ]
         },
         {
@@ -2761,11 +2933,11 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/api/contact-service.ts:36",
-            "platform/20-api/smart-lists.md:91",
-            "platform/20-api/smart-lists.md:149",
-            "platform/20-api/smart-lists.md:200",
-            "platform/30-types/contact-filter-dsl.md:4",
-            "platform/30-types/contact-filter-dsl.md:12"
+            "platform/20-api/smart-lists.md:95",
+            "platform/20-api/smart-lists.md:103",
+            "platform/20-api/smart-lists.md:163",
+            "platform/20-api/smart-lists.md:214",
+            "platform/30-types/contact-filter-dsl.md:4"
           ]
         },
         {
@@ -2830,7 +3002,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "platform/20-api/smart-lists.md:27",
             "platform/20-api/smart-lists.md:71",
-            "platform/20-api/smart-lists.md:270"
+            "platform/20-api/smart-lists.md:284"
           ]
         },
         {
@@ -2866,7 +3038,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "platform/20-api/smart-lists.md:57",
-            "platform/20-api/smart-lists.md:224"
+            "platform/20-api/smart-lists.md:238"
           ]
         },
         {
@@ -2915,9 +3087,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "platform/20-api/smart-lists.md:26",
             "platform/20-api/smart-lists.md:46",
             "platform/20-api/smart-lists.md:47",
-            "platform/20-api/smart-lists.md:170",
-            "platform/20-api/smart-lists.md:197",
-            "platform/20-api/smart-lists.md:207"
+            "platform/20-api/smart-lists.md:184",
+            "platform/20-api/smart-lists.md:211",
+            "platform/20-api/smart-lists.md:221"
           ]
         },
         {
@@ -2953,7 +3125,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "platform/20-api/smart-lists.md:28",
-            "platform/20-api/smart-lists.md:96"
+            "platform/20-api/smart-lists.md:110"
           ]
         },
         {
@@ -3014,8 +3186,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "platform/20-api/smart-lists.md:25",
             "platform/20-api/smart-lists.md:38",
-            "platform/20-api/smart-lists.md:206",
-            "platform/20-api/smart-lists.md:222"
+            "platform/20-api/smart-lists.md:220",
+            "platform/20-api/smart-lists.md:236"
           ]
         },
         {
@@ -6218,7 +6390,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
-          id: "forms--forms-post",
+          id: "calendars--forms",
           method: "POST",
           url: "https://backend.leadconnectorhq.com/forms/{id}",
           path: "/forms/{id}",
@@ -6235,7 +6407,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: "forms",
+          service: "calendars",
           tree: "documented",
           pathParams: [
             {
@@ -6252,6 +6424,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
+            "calendars/40-rules/calendar-put-replaces-it-does-not-merge.md:80",
             "forms/70-research/2026-09-06-forms-reverse-engineering.md:14"
           ]
         },
@@ -9064,8 +9237,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "platform/20-api/smart-lists.md:25",
-            "platform/20-api/smart-lists.md:206",
-            "platform/20-api/smart-lists.md:250",
+            "platform/20-api/smart-lists.md:220",
+            "platform/20-api/smart-lists.md:264",
             "workflows/20-api/03-endpoints.md:345",
             "workflows/20-api/smart-lists.md:69",
             "workflows/70-research/ENDPOINTS.md:77"
@@ -9143,8 +9316,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "platform/20-api/smart-lists.md:26",
-            "platform/20-api/smart-lists.md:222",
-            "platform/20-api/smart-lists.md:260"
+            "platform/20-api/smart-lists.md:236",
+            "platform/20-api/smart-lists.md:274"
           ]
         },
         {
@@ -9182,7 +9355,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "platform/20-api/smart-lists.md:220",
+            "platform/20-api/smart-lists.md:234",
             "workflows/20-api/smart-lists.md:73",
             "workflows/70-research/ENDPOINTS.md:81"
           ]
@@ -164598,7 +164771,7 @@ var TOOLS2 = [
   // prevent this.
   {
     name: "check_smart_lists",
-    description: `${describe3("check_smart_lists", "Audit smart lists for filters the contacts screen will silently discard \u2014 risk: read")}. Reads every smart list on a sub-account and reports which ones render as the WHOLE ACCOUNT despite storing a filter. Three ways that happens, none of them visible to an API read-back: \`filterSpecs.filters\` nested only one level (the screen throws it away), an empty filters array (the Copy/Save-as path produces these \u2014 it carries name, columns and sort but no filter), and a filter naming a field the account's catalogue does not know. Read-only: it creates nothing and changes nothing, which matters here because a smart list cannot be deleted through the API at all.`,
+    description: `${describe3("check_smart_lists", "Audit smart lists for filters the contacts screen will silently discard \u2014 risk: read")}. Reads every smart list on a sub-account and reports which ones render as the WHOLE ACCOUNT despite storing a filter. Three ways that happens, none of them visible to an API read-back: \`filterSpecs.filters\` nested only one level (the screen throws it away), an empty filters array (the Copy/Save-as path produces these \u2014 it carries name, columns and sort but no filter), and a leaf condition sitting where the screen expects a group. It does NOT judge whether each filter's FIELD exists in the account's filter-field catalogue: the screen drops unknown fields down the same code path with the same whole-account result, and no endpoint this project knows serves that catalogue, so the fields found are reported for a human to read instead. Read-only: it creates nothing and changes nothing, which matters here because a smart list cannot be deleted through the API at all.`,
     inputSchema: schema({
       locationId: external_exports.string(),
       listId: external_exports.string().optional()
@@ -164682,7 +164855,14 @@ var TOOLS2 = [
         rendersEverything: broken.length,
         lists: rows,
         ...broken.length ? { warning: `${broken.length} list(s) store a filter the contacts screen will discard, and render the ENTIRE account to the operator. Every API check agrees they are fine \u2014 this is only visible structurally. Fixing one is a PUT of filterSpecs with the conditions unchanged and the nesting corrected; the PUT merges, so nothing else is touched.` } : {},
-        note: "A row count is NOT the signal: it is correct either way, which is what makes this class expensive."
+        note: "A row count is NOT the signal: it is correct either way, which is what makes this class expensive.",
+        // Said out loud so a clean verdict is not over-read. The screen drops a filter whose FIELD
+        // it does not recognise through the same code path, with the same whole-account result, and
+        // that is invisible from the nesting. Checking it needs the account's filter-field
+        // catalogue, and no endpoint this project knows serves one — so the fields are reported and
+        // not judged. Inventing an allowlist would flag working custom-field filters as broken,
+        // which is a worse answer than an honest gap.
+        notChecked: `whether each filter's field exists in this account's filter-field catalogue. The contacts screen drops filters naming a field it does not know, with the same whole-account result as bad nesting, and it keeps a removedCount it never shows. Read filterFields above against the fields the account actually offers. A verdict of "ok" here means the SHAPE is right, not that every field in it resolves.`
       });
     }, args)
   }
