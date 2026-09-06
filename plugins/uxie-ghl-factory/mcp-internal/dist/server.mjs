@@ -36667,7 +36667,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
