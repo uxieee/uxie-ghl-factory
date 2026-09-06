@@ -152,6 +152,24 @@ then the convenience ops and tool notes. Every item names the finding it came fr
 
 ### Changed
 
+- **Three endpoints shipped twice, and the corpus's own proof never reached the catalogue.** The
+  adoption guard compares a typed tool's declared path against the catalogue, and its `normalize`
+  stripped parameter names but not the query string — so the six capabilities that carry required
+  query switches (`…/categories?product_id=…`, `…/apply-theme/{id}?template_id=…` and four more)
+  matched no row: each lost its `coveredBy` on the real row AND was adopted a second time as a
+  `typed-tool` twin. An agent that found the source-only twin was told nothing covered a path a
+  shipped tool calls on every run. Query stripped; 1076 → 1070 rows, zero duplicates, and six rows
+  gained `coveredBy` (172 covered, up from 168). Three memberships rows now read `source-only`
+  where a duplicate twin used to read `proven` — the coverage that decides what an agent calls is
+  unchanged, and the memberships host contradiction behind it is a probe, not an assertion.
+  Separately, a `_data/endpoints.json` sidecar records per row whether its author EXECUTED the
+  call or only OBSERVED it in the app's request builders, and the build dropped that field
+  entirely: 43 executed rows shipped indistinguishable from paths nobody has called. `proof` is
+  carried through and promotes `reach` to `proven` (never to `proven-live`, which stays reserved
+  for a dated overlay note; the hand-curated overlay still outranks it). 936 → 893 source-only.
+  `search_endpoints` now always states `reach`, so "known to be unreached" is no longer
+  indistinguishable from "nobody has looked". Three new tests pin all of it: no duplicate row, no
+  silently unmatched capability, and the promotion ladder.
 - **The endpoint catalogue regenerates losslessly again.** `knowledge/`'s harvester never read the
   AI Studio sidecar its 40 `/vibe-ai/*` rows had been hand-merged from, so any regeneration — the
   release's own step 3 included — dropped 52 rows. It now reads every `_data/endpoints.json` first,

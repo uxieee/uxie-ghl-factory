@@ -331,7 +331,11 @@ const endpointStub = (e) => {
     ...(w.summary ? { summary: w.summary } : {}),
     ...(e.coveredBy?.length ? { coveredBy: e.coveredBy } : {}),
     ...(w.note ? { note: w.note } : {}),
-    ...(w.reach && w.reach !== 'source-only' ? { reach: w.reach } : {}),
+    // ALWAYS, including `source-only`. Hiding it meant the 936 unproven rows looked identical to
+    // a row nobody had annotated yet, so an agent could not tell "we know this is unreached" from
+    // "nobody has looked". `proof` rides along when the corpus recorded one.
+    reach: w.reach ?? 'source-only',
+    ...(e.proof ? { proof: e.proof } : {}),
     ...(e.rawCallable === false ? { rawCallable: false } : {}),
   };
 };

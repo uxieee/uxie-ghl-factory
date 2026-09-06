@@ -56,6 +56,57 @@ test('the compiled catalogue is the source artefact plus adopted typed-tool rows
   }
 });
 
+test('one row per endpoint — no method+origin+path ships twice', () => {
+  // Three endpoints shipped TWICE (2026-09-07): a source-only row from the corpus and a
+  // `typed-tool` twin marked proven. The adoption guard compares a capability's path against the
+  // catalogue, and `normalize` stripped parameter NAMES but not the QUERY STRING — so the six
+  // capabilities that carry required query switches matched nothing, lost their `coveredBy` on the
+  // real row, and were adopted as duplicates. An agent reading the source-only twin was told
+  // nothing covered a path a shipped tool calls on every run.
+  const seen = new Map();
+  const dupes = [];
+  for (const e of catalog.endpoints) {
+    const key = `${e.method} ${e.origin}${e.path}`;
+    if (seen.has(key)) dupes.push(`${key}  (${seen.get(key).tree} + ${e.tree})`);
+    seen.set(key, e);
+  }
+  assert.deepEqual(dupes, []);
+});
+
+test('every typed-tool capability is matched to a row or adopted — none silently unmatched', () => {
+  // The other half of the same defect: a capability that matches no row must become an adopted
+  // row, never vanish. Compares the way the build does, query stripped.
+  const norm = (p) => String(p).split('?')[0].replace(/\{[A-Za-z0-9_]+\}/g, '{p}').replace(/\/$/, '');
+  const rows = new Set(catalog.endpoints.map((e) => `${e.method} ${norm(e.path)}`));
+  const manifest = read('capability-manifest.json');
+  const orphans = manifest
+    .map((c) => ({ ...c, key: `${c.method} ${norm(c.path.replace(/\{loc\}/g, '{locationId}').replace(/\{wid\}/g, '{workflowId}'))}` }))
+    .filter((c) => !rows.has(c.key))
+    .map((c) => `${c.tool}: ${c.method} ${c.path}`);
+  assert.deepEqual(orphans, []);
+});
+
+test('sidecar proof promotes reach exactly as far as it is allowed to', () => {
+  // `proof: executed` means the surface author called it live and read writes back on a separate
+  // request; `observed` means it was read out of the app's request builders and never called.
+  // Executed promotes to `proven`. It must NOT reach `proven-live`, which is reserved for a dated
+  // overlay note this build can point at. Observed promotes nothing.
+  // Keyed with the ORIGIN: several endpoints exist on both hosts (the sidecar declares
+  // backend for /ai-wrapper while the harvester's prefix table files a page-scraped twin on
+  // services), and a key without the host silently compares one against the other.
+  const byKey = new Map(catalog.endpoints.map((e) => [`${e.method} ${e.origin}${e.path}`, e]));
+  for (const row of source.endpoints) {
+    const e = byKey.get(`${row.method} ${row.origin}${row.path}`);
+    if (!e || !row.proof) continue;
+    assert.equal(e.proof, row.proof, `${row.method} ${row.path} lost its proof in the build`);
+    const curated = overlay[`${row.method} ${row.path}`]?.reach;
+    if (curated) { assert.equal(e.reach, curated, 'the hand-curated overlay must outrank sidecar proof'); continue; }
+    assert.equal(e.reach, row.proof === 'executed' ? 'proven' : 'source-only',
+      `${row.method} ${row.path} carries proof:${row.proof} and reach:${e.reach}`);
+  }
+  assert.ok(catalog.endpoints.some((e) => e.proof === 'executed'), 'no executed rows reached the catalogue at all');
+});
+
 test('every overlay key resolves to a row', () => {
   // When the miner corrects a path, the overlay key attached to it orphans. That is intended and
   // must be LOUD: a corrected path is exactly when a human should re-check the note on it.

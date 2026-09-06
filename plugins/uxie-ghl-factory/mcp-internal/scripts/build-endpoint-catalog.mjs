@@ -37,7 +37,13 @@ const manifest = JSON.parse(readFileSync(MANIFEST, 'utf8'));
 
 // One canonical notation for the join. Typed tools write {loc}/{wid}; the miner writes
 // {locationId}/{workflowId}. Comparing them literally is why the old join matched 17 of 158.
-const normalize = (p) => String(p).replace(/\{[A-Za-z0-9_]+\}/g, '{p}').replace(/\/$/, '');
+// A capability's path is written the way the TOOL calls it, which includes the query switches the
+// endpoint requires (`/categories?product_id={productId}&posts=true`). A catalogue row's path never
+// carries a query. Comparing them without stripping it meant the six query-bearing capabilities
+// matched no row: each lost its `coveredBy` on the real row AND was adopted a second time as a
+// `typed-tool` twin, so three endpoints shipped TWICE — once source-only, once proven — and an
+// agent reading the source-only twin was told nothing covers a path a shipped tool calls every run.
+const normalize = (p) => String(p).split('?')[0].replace(/\{[A-Za-z0-9_]+\}/g, '{p}').replace(/\/$/, '');
 
 const coverage = new Map();
 for (const row of manifest) {
@@ -86,7 +92,21 @@ const endpoints = source.endpoints.map((row) => {
     kind: extra.kind ?? (row.method === 'GET' ? 'read' : row.method === 'DELETE' ? 'destructive' : 'write'),
     ...(extra.summary ? { summary: extra.summary } : {}),
     ...(extra.note ? { note: extra.note } : {}),
-    reach: extra.reach ?? 'source-only',
+    // PROOF, and what it is allowed to promote.
+    //
+    // A `_data/endpoints.json` sidecar records per row whether the surface's author EXECUTED the
+    // call (writes read back on a separate request) or only OBSERVED it in the app's request
+    // builders. That is the strongest evidence the corpus carries, and the build used to drop it
+    // on the floor: 43 executed rows shipped as `source-only`, indistinguishable from a path
+    // nobody has ever called.
+    //
+    // Precedence is deliberate. The overlay is hand-curated by someone who probed the endpoint on
+    // a live account, so it always wins. Below it, `executed` promotes to `proven`. It does NOT
+    // promote to `proven-live`: that tier is reserved for a dated overlay note, because the
+    // sidecar's claim is an author's assertion this code cannot verify. `observed` promotes
+    // nothing — it was read out of a bundle and never called.
+    ...(row.proof ? { proof: row.proof } : {}),
+    reach: extra.reach ?? (row.proof === 'executed' ? 'proven' : 'source-only'),
     coveredBy: covered,
     rawCallable: rawCallable(row),
     transport: row.transport,
