@@ -20,7 +20,7 @@
     {
       "tree": "documented",
       "dir": "corpus",
-      "capturedAt": "2026-09-06T19:38:57.995Z",
+      "capturedAt": "2026-09-06T19:56:26.581Z",
       "hash": "corpus",
       "fileCount": 677,
       "endpoints": 677
@@ -2068,10 +2068,10 @@
       "sources": [
         "services/api/contact-service.ts:36",
         "platform/20-api/smart-lists.md:91",
-        "platform/20-api/smart-lists.md:155",
-        "platform/20-api/smart-lists.md:163",
-        "platform/20-api/smart-lists.md:184",
-        "platform/30-types/contact-filter-dsl.md:4"
+        "platform/20-api/smart-lists.md:149",
+        "platform/20-api/smart-lists.md:200",
+        "platform/30-types/contact-filter-dsl.md:4",
+        "platform/30-types/contact-filter-dsl.md:12"
       ]
     },
     {
@@ -2123,7 +2123,7 @@
       "sources": [
         "platform/20-api/smart-lists.md:27",
         "platform/20-api/smart-lists.md:71",
-        "platform/20-api/smart-lists.md:239"
+        "platform/20-api/smart-lists.md:270"
       ]
     },
     {
@@ -2149,7 +2149,7 @@
       },
       "sources": [
         "platform/20-api/smart-lists.md:57",
-        "platform/20-api/smart-lists.md:193"
+        "platform/20-api/smart-lists.md:224"
       ]
     },
     {
@@ -2184,8 +2184,9 @@
         "platform/20-api/smart-lists.md:26",
         "platform/20-api/smart-lists.md:46",
         "platform/20-api/smart-lists.md:47",
-        "platform/20-api/smart-lists.md:181",
-        "platform/20-api/smart-lists.md:190"
+        "platform/20-api/smart-lists.md:170",
+        "platform/20-api/smart-lists.md:197",
+        "platform/20-api/smart-lists.md:207"
       ]
     },
     {
@@ -2263,7 +2264,8 @@
       "sources": [
         "platform/20-api/smart-lists.md:25",
         "platform/20-api/smart-lists.md:38",
-        "platform/20-api/smart-lists.md:191"
+        "platform/20-api/smart-lists.md:206",
+        "platform/20-api/smart-lists.md:222"
       ]
     },
     {
@@ -7181,7 +7183,8 @@
       },
       "sources": [
         "platform/20-api/smart-lists.md:25",
-        "platform/20-api/smart-lists.md:219",
+        "platform/20-api/smart-lists.md:206",
+        "platform/20-api/smart-lists.md:250",
         "workflows/20-api/03-endpoints.md:345",
         "workflows/20-api/smart-lists.md:69",
         "workflows/70-research/ENDPOINTS.md:77"
@@ -7236,8 +7239,8 @@
       },
       "sources": [
         "platform/20-api/smart-lists.md:26",
-        "platform/20-api/smart-lists.md:191",
-        "platform/20-api/smart-lists.md:229"
+        "platform/20-api/smart-lists.md:222",
+        "platform/20-api/smart-lists.md:260"
       ]
     },
     {
@@ -7262,7 +7265,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "platform/20-api/smart-lists.md:189",
+        "platform/20-api/smart-lists.md:220",
         "workflows/20-api/smart-lists.md:73",
         "workflows/70-research/ENDPOINTS.md:81"
       ]
