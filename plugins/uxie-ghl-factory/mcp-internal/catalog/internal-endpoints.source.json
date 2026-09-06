@@ -20,7 +20,7 @@
     {
       "tree": "documented",
       "dir": "corpus",
-      "capturedAt": "2026-09-06T18:45:21.391Z",
+      "capturedAt": "2026-09-06T19:04:48.550Z",
       "hash": "corpus",
       "fileCount": 677,
       "endpoints": 677
@@ -2123,7 +2123,7 @@
       "sources": [
         "platform/20-api/smart-lists.md:27",
         "platform/20-api/smart-lists.md:71",
-        "platform/20-api/smart-lists.md:132"
+        "platform/20-api/smart-lists.md:148"
       ]
     },
     {
@@ -2207,7 +2207,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "platform/20-api/smart-lists.md:28"
+        "platform/20-api/smart-lists.md:28",
+        "platform/20-api/smart-lists.md:96"
       ]
     },
     {
@@ -7176,7 +7177,7 @@
       },
       "sources": [
         "platform/20-api/smart-lists.md:25",
-        "platform/20-api/smart-lists.md:112",
+        "platform/20-api/smart-lists.md:128",
         "workflows/20-api/03-endpoints.md:345",
         "workflows/20-api/smart-lists.md:69",
         "workflows/70-research/ENDPOINTS.md:77"
@@ -7231,7 +7232,7 @@
       },
       "sources": [
         "platform/20-api/smart-lists.md:26",
-        "platform/20-api/smart-lists.md:122"
+        "platform/20-api/smart-lists.md:138"
       ]
     },
     {

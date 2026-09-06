@@ -48,7 +48,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
     define_ENDPOINT_CATALOG_default = {
       generated: "2026-09-06",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 1076,
+      count: 1070,
       endpoints: [
         {
           id: "workflows--actions-branches",
@@ -961,7 +961,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          proof: "executed",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -1035,7 +1036,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          proof: "executed",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -1073,6 +1075,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
+          proof: "observed",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -1111,7 +1114,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          proof: "executed",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -1149,6 +1153,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
+          proof: "observed",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -1187,7 +1192,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          proof: "executed",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -1225,6 +1231,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
+          proof: "observed",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -1263,7 +1270,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          proof: "executed",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -1301,7 +1309,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          proof: "executed",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -2821,7 +2830,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "platform/20-api/smart-lists.md:27",
             "platform/20-api/smart-lists.md:71",
-            "platform/20-api/smart-lists.md:132"
+            "platform/20-api/smart-lists.md:148"
           ]
         },
         {
@@ -2937,7 +2946,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "platform/20-api/smart-lists.md:28"
+            "platform/20-api/smart-lists.md:28",
+            "platform/20-api/smart-lists.md:96"
           ]
         },
         {
@@ -3914,6 +3924,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
+          proof: "observed",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -3945,7 +3956,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          proof: "executed",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -3977,6 +3989,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
+          proof: "observed",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -4008,7 +4021,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          proof: "executed",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -4039,6 +4053,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
+          proof: "observed",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -4070,6 +4085,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
+          proof: "observed",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -4101,6 +4117,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
+          proof: "observed",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -4136,6 +4153,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "destructive",
+          proof: "observed",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -4174,6 +4192,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
+          proof: "observed",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -4212,7 +4231,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          proof: "executed",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -9315,7 +9335,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "platform/20-api/smart-lists.md:25",
-            "platform/20-api/smart-lists.md:112",
+            "platform/20-api/smart-lists.md:128",
             "workflows/20-api/03-endpoints.md:345",
             "workflows/20-api/smart-lists.md:69",
             "workflows/70-research/ENDPOINTS.md:77"
@@ -9393,7 +9413,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "platform/20-api/smart-lists.md:26",
-            "platform/20-api/smart-lists.md:122"
+            "platform/20-api/smart-lists.md:138"
           ]
         },
         {
@@ -12605,7 +12625,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "list_courses"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -12642,43 +12664,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "memberships-courses/70-research/2026-07-18-internal-api-recon.md:52"
-          ]
-        },
-        {
-          id: "typed--list_courses--locations-categories",
-          method: "GET",
-          url: "https://backend.leadconnectorhq.com/membership/locations/{locationId}/categories",
-          path: "/membership/locations/{locationId}/categories",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "read",
-          reach: "proven",
-          coveredBy: [
-            "list_courses"
-          ],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "list_courses",
-          tree: "typed-tool",
-          pathParams: [
-            {
-              name: "locationId"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "proven",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "capability-manifest.json (list_courses)"
           ]
         },
         {
@@ -12765,7 +12750,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "build_course"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -12805,46 +12792,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "memberships-courses/20-api/build-api.md:305"
-          ]
-        },
-        {
-          id: "typed--build_course--certificate-attachments-products",
-          method: "GET",
-          url: "https://backend.leadconnectorhq.com/membership/locations/{locationId}/certificate-attachments/products/{productId}",
-          path: "/membership/locations/{locationId}/certificate-attachments/products/{productId}",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "read",
-          reach: "proven",
-          coveredBy: [
-            "build_course"
-          ],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "build_course",
-          tree: "typed-tool",
-          pathParams: [
-            {
-              name: "locationId"
-            },
-            {
-              name: "productId"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "proven",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "capability-manifest.json (build_course)"
           ]
         },
         {
@@ -13104,43 +13051,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
-          id: "typed--list_courses--locations-products",
-          method: "GET",
-          url: "https://backend.leadconnectorhq.com/membership/locations/{locationId}/products",
-          path: "/membership/locations/{locationId}/products",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "read",
-          reach: "proven",
-          coveredBy: [
-            "list_courses"
-          ],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "list_courses",
-          tree: "typed-tool",
-          pathParams: [
-            {
-              name: "locationId"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "proven",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "capability-manifest.json (list_courses)"
-          ]
-        },
-        {
           id: "memberships-courses--locations-products-post",
           method: "POST",
           url: "https://backend.leadconnectorhq.com/membership/locations/{locationId}/products",
@@ -13263,7 +13173,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "write",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "build_course"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -13297,86 +13209,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "memberships-courses/20-api/build-api.md:145"
-          ]
-        },
-        {
-          id: "typed--build_course--products-apply-theme",
-          method: "PUT",
-          url: "https://backend.leadconnectorhq.com/membership/locations/{locationId}/products/apply-theme/{productId}",
-          path: "/membership/locations/{locationId}/products/apply-theme/{productId}",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "write",
-          reach: "proven",
-          coveredBy: [
-            "build_course"
-          ],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "build_course",
-          tree: "typed-tool",
-          pathParams: [
-            {
-              name: "locationId"
-            },
-            {
-              name: "productId"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "proven",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "capability-manifest.json (build_course)"
-          ]
-        },
-        {
-          id: "typed--build_course--products-user-progress",
-          method: "GET",
-          url: "https://backend.leadconnectorhq.com/membership/locations/{locationId}/products/user-progress/{productId}",
-          path: "/membership/locations/{locationId}/products/user-progress/{productId}",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "read",
-          reach: "proven",
-          coveredBy: [
-            "build_course"
-          ],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "build_course",
-          tree: "typed-tool",
-          pathParams: [
-            {
-              name: "locationId"
-            },
-            {
-              name: "productId"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "proven",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "capability-manifest.json (build_course)"
           ]
         },
         {
@@ -18379,7 +18211,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          proof: "executed",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -18423,7 +18256,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          proof: "executed",
+          reach: "proven",
           coveredBy: [
             "list_studio_sites"
           ],
@@ -18469,7 +18303,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          reach: "source-only",
+          proof: "executed",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -18513,6 +18348,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "destructive",
+          proof: "observed",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -18561,7 +18397,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          reach: "source-only",
+          proof: "executed",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -18609,7 +18446,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          proof: "executed",
+          reach: "proven",
           coveredBy: [
             "find_ghl_site",
             "list_studio_sites"
@@ -18657,7 +18495,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          reach: "source-only",
+          proof: "executed",
+          reach: "proven",
           coveredBy: [
             "create_studio_site"
           ],
@@ -18706,6 +18545,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "destructive",
+          proof: "observed",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -18754,7 +18594,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          proof: "executed",
+          reach: "proven",
           coveredBy: [
             "answer_studio_question",
             "cancel_studio_generation",
@@ -18817,6 +18658,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
+          proof: "observed",
           reach: "source-only",
           coveredBy: [
             "answer_studio_question",
@@ -18873,6 +18715,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
+          proof: "observed",
           reach: "source-only",
           coveredBy: [
             "cancel_studio_generation"
@@ -18924,6 +18767,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
+          proof: "observed",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -18973,7 +18817,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          reach: "source-only",
+          proof: "executed",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -19021,6 +18866,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
+          proof: "observed",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -19069,7 +18915,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          proof: "executed",
+          reach: "proven",
           coveredBy: [
             "read_studio_site_content"
           ],
@@ -19121,7 +18968,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          reach: "source-only",
+          proof: "executed",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -19170,7 +19018,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          reach: "source-only",
+          proof: "executed",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -19218,7 +19067,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          proof: "executed",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -19270,6 +19120,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
+          proof: "observed",
           reach: "source-only",
           coveredBy: [],
           rawCallable: false,
@@ -19318,7 +19169,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          reach: "source-only",
+          proof: "executed",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -19367,6 +19219,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
+          proof: "observed",
           reach: "source-only",
           coveredBy: [
             "publish_studio_site"
@@ -19417,7 +19270,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          reach: "source-only",
+          proof: "executed",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -19466,7 +19320,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          proof: "executed",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -19514,7 +19369,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          proof: "executed",
+          reach: "proven",
           coveredBy: [
             "get_studio_site"
           ],
@@ -19564,7 +19420,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          proof: "executed",
+          reach: "proven",
           coveredBy: [
             "get_studio_preview"
           ],
@@ -19615,7 +19472,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          reach: "source-only",
+          proof: "executed",
+          reach: "proven",
           coveredBy: [
             "get_studio_preview"
           ],
@@ -19665,7 +19523,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          reach: "source-only",
+          proof: "executed",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -19713,7 +19572,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          proof: "executed",
+          reach: "proven",
           coveredBy: [
             "set_studio_secrets"
           ],
@@ -19763,7 +19623,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          reach: "source-only",
+          proof: "executed",
+          reach: "proven",
           coveredBy: [
             "set_studio_secrets"
           ],
@@ -19813,7 +19674,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "destructive",
-          reach: "source-only",
+          proof: "executed",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -19865,7 +19727,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          proof: "executed",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -19913,7 +19776,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          reach: "source-only",
+          proof: "executed",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -19961,7 +19825,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          reach: "source-only",
+          proof: "executed",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -20009,7 +19874,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          reach: "source-only",
+          proof: "executed",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -20057,6 +19923,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
+          proof: "observed",
           reach: "source-only",
           coveredBy: [
             "unpublish_studio_site"
@@ -20107,7 +19974,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          proof: "executed",
+          reach: "proven",
           coveredBy: [
             "generate_studio_site"
           ],
@@ -20159,7 +20027,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          proof: "executed",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -20210,6 +20079,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
+          proof: "observed",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -20261,6 +20131,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
+          proof: "observed",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -20312,7 +20183,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          reach: "source-only",
+          proof: "executed",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -20350,43 +20222,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "ai-studio/_data/endpoints.json"
-          ]
-        },
-        {
-          id: "typed--create_voiceai_agent--voice-ai-agents",
-          method: "PUT",
-          url: "https://backend.leadconnectorhq.com/voice-ai/agents/{agentId}",
-          path: "/voice-ai/agents/{agentId}",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "write",
-          reach: "proven",
-          coveredBy: [
-            "create_voiceai_agent"
-          ],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "create_voiceai_agent",
-          tree: "typed-tool",
-          pathParams: [
-            {
-              name: "agentId"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "proven",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "capability-manifest.json (create_voiceai_agent)"
           ]
         },
         {
@@ -27792,7 +27627,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          proof: "executed",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -27896,7 +27732,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          proof: "executed",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -27995,7 +27832,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          reach: "source-only",
+          proof: "executed",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -33826,7 +33664,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "source-only",
+          proof: "executed",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -33862,7 +33701,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "source-only",
+          proof: "executed",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -38882,7 +38722,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "ai",
           kind: "read",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "list_courses"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -39436,7 +39278,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "ai",
           kind: "read",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "build_course"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -41187,7 +41031,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "ai",
           kind: "read",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "list_courses"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -41406,7 +41252,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "ai",
           kind: "write",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "build_course"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -42213,7 +42061,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "ai",
           kind: "read",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "build_course"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -45664,7 +45514,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "ai",
           kind: "write",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "create_voiceai_agent"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -45930,7 +45782,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "ai",
           kind: "write",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "create_voiceai_agent"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -158593,7 +158447,11 @@ var endpointStub = (e) => {
     ...w.summary ? { summary: w.summary } : {},
     ...e.coveredBy?.length ? { coveredBy: e.coveredBy } : {},
     ...w.note ? { note: w.note } : {},
-    ...w.reach && w.reach !== "source-only" ? { reach: w.reach } : {},
+    // ALWAYS, including `source-only`. Hiding it meant the 936 unproven rows looked identical to
+    // a row nobody had annotated yet, so an agent could not tell "we know this is unreached" from
+    // "nobody has looked". `proof` rides along when the corpus recorded one.
+    reach: w.reach ?? "source-only",
+    ...e.proof ? { proof: e.proof } : {},
     ...e.rawCallable === false ? { rawCallable: false } : {}
   };
 };
