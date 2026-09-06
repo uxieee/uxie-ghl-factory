@@ -1,11 +1,11 @@
 // Transport-blind tool definitions. Descriptions are pulled from the generated
 // tool-description catalog so proof status and risk reach the agent verbatim.
-import { readFileSync, existsSync } from 'node:fs';
+import { readFileSync, existsSync, writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { dirname, resolve, join } from 'node:path';
+import { dirname, resolve, join, isAbsolute } from 'node:path';
 import { createHash } from 'node:crypto';
 import { z } from 'zod';
-import { ok, fail, fromHttp, CODES, containsSecrets } from './errors.mjs';
+import { ok, fail, fromHttp, CODES, containsSecrets, scrubSecrets } from './errors.mjs';
 import { authStatus, DEFAULT_TOKEN_FILE, readCredentials } from './auth.mjs';
 import { checkLocationBinding } from './location-binding.mjs';
 import { makeAuditCircuit, makeAuditGateway, makeAuditLimiter } from './audit-gateway.mjs';
@@ -39,6 +39,7 @@ import {
 import { planStickyNoteOp } from '../../skills/create-ghl-workflow/engine/sticky-notes.mjs';
 import { lintContactFieldTemplates } from '../../skills/create-ghl-workflow/engine/contact-field-shapes.mjs';
 import { lintOpportunityWrites } from '../../skills/create-ghl-workflow/engine/lints/opportunity.mjs';
+import { FIELD_CAPS, checkFieldCaps, describeCap } from '../../skills/create-ghl-workflow/engine/field-caps.mjs';
 import { lintTriggerRows } from '../../skills/create-ghl-workflow/engine/lints/trigger-rows.mjs';
 import { searchMergeTags } from '../../skills/create-ghl-workflow/engine/merge-tags.mjs';
 import { digestWorkflow, fingerprintWorkflow } from '../../skills/create-ghl-workflow/engine/digest.mjs';
@@ -733,23 +734,122 @@ async function customCodePreflight({ gw, loc, templates, touchedIds, strict, ski
 // a finding with no stepId is attributed to the document as a whole, which this write is
 // replacing, so it blocks. Fail-open inside validateAssets: an unreachable endpoint reports
 // `skipped` and the write proceeds.
-async function assetPreflightFor({ gw, loc, templates, triggers, companyId, touchedIds, ignoreAssetErrors, warnings }) {
-  const assetPreflight = await validateAssets((m, p, b) => gw.call(m, p, b), loc, { templates, triggers, companyId });
+//
+// The verdict is stamped `phase: 'pre-write'`: it describes the CANDIDATE document, before the
+// write. R-96 misread a correct, persistent pre-write error as a stale cache and hatched past it
+// with ignoreAssetErrors — the reference it complained about was exactly the one the (silently
+// dropped) op was meant to fix. Two guards follow from that: the phase is named, and the hatch
+// is refused when the flagged asset id is one this edit's own ops are REPLACING (replaceFieldId /
+// replaceTag / replaceInAttributes old values) — that is precisely the case where the error is
+// real and the write is the fix, so suppressing it would hide a failed re-point.
+const idsBeingReplaced = (ops = []) => new Set(ops.flatMap((o) => [o?.oldId, o?.oldTag, o?.find]).filter((v) => typeof v === 'string' && v));
+async function assetPreflightFor({ gw, loc, templates, triggers, companyId, touchedIds, ignoreAssetErrors, warnings, ops = [] }) {
+  const verdict = await validateAssets((m, p, b) => gw.call(m, p, b), loc, { templates, triggers, companyId });
+  const assetPreflight = { phase: 'pre-write', ...verdict };
   for (const w of assetPreflight.warnings ?? []) warnings.push(`asset: ${describeFinding(w)}`);
   const blocking = [];
   for (const e of assetPreflight.errors ?? []) {
     if (e.stepId && !touchedIds.has(e.stepId)) warnings.push(`asset (pre-existing, untouched by this edit): ${describeFinding(e)}`);
     else blocking.push(e);
   }
+  if (blocking.length && ignoreAssetErrors === true) {
+    const replacing = idsBeingReplaced(ops);
+    const stillOld = blocking.filter((e) => e.assetId && replacing.has(e.assetId));
+    if (stillOld.length) {
+      return { assetPreflight, refusal: withFailureData(fail(
+        CODES.VALIDATION_FAILED,
+        `ignoreAssetErrors refused: GHL still reports ${stillOld.length} reference(s) to an id this edit is REPLACING — `
+          + stillOld.map(describeFinding).join('; ')
+          + '. The candidate document still carries the old id, so the replace op did not reach it.',
+        'This is the R-96 shape: an asset error naming the very reference you are fixing means the fix has not landed in '
+          + 'the candidate document. Check the op (replaceInAttributes path / replaceFieldId / replaceTag) reaches the field, '
+          + 'preview without confirm to read data.preview.assetPreflight, and do not hatch past it. Nothing was written.',
+      ), { assetPreflight, warnings }) };
+    }
+  }
   if (blocking.length && ignoreAssetErrors !== true) {
     return { assetPreflight, refusal: withFailureData(fail(
       CODES.VALIDATION_FAILED,
       `GHL rejected ${blocking.length} asset reference(s) in this edit before any write: `
         + blocking.map(describeFinding).join('; '),
-      'Create the missing objects, correct the references, or pass ignoreAssetErrors:true to write the edit anyway. Nothing was written.',
+      'Create the missing objects or correct the references. ignoreAssetErrors:true writes the edit anyway and is for a '
+        + 'reference you KNOW is about to exist — if the error names the reference this edit is meant to fix, the fix has '
+        + 'not landed and hatching past it hides a failed re-point (R-96). This verdict describes the document BEFORE the '
+        + 'write (phase: pre-write); a confirmed write re-checks the persisted document. Nothing was written.',
     ), { assetPreflight, warnings }) };
   }
   return { assetPreflight, refusal: null };
+}
+
+// The POST-WRITE check: GHL's reference validator run again over the PERSISTED document, so a
+// caller can tell "the pre-write verdict was stale" from "the error is still there". An error
+// that survives the write on a step this call touched (or on the document as a whole) is the
+// R-96 signal, surfaced as a warning and as `assetErrorsPersist` — never an abort, because the
+// write has already happened and an abort would misreport that. Fail-open like the pre-check.
+async function assetPostcheck({ gw, loc, templates, triggers, companyId, touchedIds, warnings }) {
+  const verdict = await validateAssets((m, p, b) => gw.call(m, p, b), loc, { templates, triggers, companyId });
+  const persisting = (verdict.errors ?? []).filter((e) => !e.stepId || touchedIds.has(e.stepId));
+  for (const e of persisting) {
+    warnings.push(`ASSET_ERROR_PERSISTS_AFTER_WRITE: ${describeFinding(e)} — GHL still reports this on the PERSISTED document. `
+      + 'If this is the reference you meant to fix, the fix did not land: re-read with export_workflow and compare.');
+  }
+  return { phase: 'post-write', ...verdict, persisting };
+}
+
+// LARGE DOCUMENTS (backlog 21, 27). A finished flow bot is ~90 KB / 120 steps: above what an MCP
+// client passes inline as a tool argument, and its export and log reads exceed the tool-result
+// cap and land as files anyway. So the read tools can WRITE their result to a caller-named file
+// (scrubbed exactly like the inline result), and repair_workflow can READ its templates from one
+// — an export_workflow file, a raw workflow GET body, or a bare templates array. The path must
+// be absolute: this is a local stdio server acting for its own user, and a relative path would
+// resolve against wherever the server happened to start.
+function writeResultFile(path, data) {
+  if (typeof path !== 'string' || !isAbsolute(path)) {
+    return { failure: fail(CODES.VALIDATION_FAILED, 'writeTo must be an absolute file path.', 'Pass e.g. "/Users/you/project/.ghl/export.json".') };
+  }
+  const text = JSON.stringify(scrubSecrets(data), null, 1);
+  mkdirSync(dirname(path), { recursive: true });
+  writeFileSync(path, text, { mode: 0o600 });
+  return { writtenTo: path, bytes: Buffer.byteLength(text) };
+}
+function readTemplatesFile(path) {
+  if (typeof path !== 'string' || !isAbsolute(path)) {
+    return { failure: fail(CODES.VALIDATION_FAILED, 'templatesPath must be an absolute file path.', 'Pass the file export_workflow wrote (writeTo), or any JSON holding the templates array.') };
+  }
+  let parsed;
+  try { parsed = JSON.parse(readFileSync(path, 'utf8')); } catch (e) {
+    return { failure: fail(CODES.VALIDATION_FAILED, `templatesPath could not be read as JSON: ${e.message}`, 'Point it at an export_workflow file or a JSON file holding the templates array.') };
+  }
+  const templates = Array.isArray(parsed) ? parsed
+    : Array.isArray(parsed?.templates) ? parsed.templates
+      : Array.isArray(parsed?.workflowData?.templates) ? parsed.workflowData.templates
+        : Array.isArray(parsed?.workflow?.workflowData?.templates) ? parsed.workflow.workflowData.templates
+          : null;
+  if (!templates) {
+    return { failure: fail(CODES.VALIDATION_FAILED, 'templatesPath holds no templates array.', 'Accepted shapes: a bare array, {templates}, a workflow GET body {workflowData:{templates}}, or an export_workflow file {workflow:{workflowData:{templates}}}.') };
+  }
+  return { templates };
+}
+
+// MEASURED FIELD CAPS (field-caps.mjs), enforced BEFORE the write on the steps this call touches.
+// Four caps were crossed in one week on the rails, each committed with `verify.roundTrip: true`
+// and found later in the builder (backlog 15, 25). The server accepts the value; the builder
+// shows an error badge and the drawer refuses to save. Refused by default; `allowOverCap:true`
+// writes anyway and keeps the finding as a FIELD_CAP warning. The general per-field layer is
+// still the live action schema (schemaViolations) — this table covers only what was measured.
+function fieldCapGate({ templates, scope, allowOverCap, warnings }) {
+  const findings = checkFieldCaps(templates, { scope });
+  if (!findings.length) return { findings, refusal: null };
+  if (allowOverCap === true) {
+    for (const f of findings) warnings.push(`FIELD_CAP (allowOverCap): ${describeCap(f)}`);
+    return { findings, refusal: null };
+  }
+  return { findings, refusal: withFailureData(fail(
+    CODES.VALIDATION_FAILED,
+    `${findings.length} field(s) exceed the builder's character cap: ${findings.map(describeCap).join('; ')}`,
+    'Shorten the value to the cap (describe_step_type shows caps per type), or pass allowOverCap:true to write it '
+      + 'anyway — the server will store it and the builder will flag it. Nothing was written.',
+  ), { fieldCaps: findings, warnings }) };
 }
 
 // The G15 account-readiness advisory: will the channels the touched steps (and any trigger types
@@ -794,7 +894,11 @@ function editPreview(ops, beforeTemplates, templates, diff, triggerPlan, neededT
     idsAdded: [...afterIds].filter((id) => !beforeIds.has(id)),
     idsRemoved: [...beforeIds].filter((id) => !afterIds.has(id)),
     diff,
-    triggerChanges: triggerPlan.map(({ op, method, path, triggerId }) => ({ op, method, path, ...(triggerId ? { triggerId } : {}) })),
+    // A NOOP entry is a modifyTrigger whose every requested value already matches the store —
+    // shown, never sent (D-67: a no-op PUT "verified" a write that never happened).
+    triggerChanges: triggerPlan.map(({ op, method, path, triggerId, noop, reason, requested }) => (noop
+      ? { op, triggerId, noop: true, reason, requested }
+      : { op, method, path, ...(triggerId ? { triggerId } : {}), ...(requested ? { requested } : {}) })),
     requiresPublish,
     publishInstruction: triggerPublishInstruction(triggerPlan, workflowStatus, { committed: false }),
     tagsReferenced: neededTags,
@@ -940,12 +1044,39 @@ function verifyTriggerRoundTrip(expectations, actualTriggers, beforeTriggers = [
       }
     }
     const mismatches = actual ? expectedSubsetMismatches(expected, actual) : [];
+    // WHAT THE CALLER ASKED FOR, held against the store — not what the engine decided to send.
+    // R-96's verifier passed eight no-op writes because it compared the engine's own (empty)
+    // intent against an unchanged record. `request.requested` is the caller's fields as they
+    // must read back (edit-driver.mjs requestedTriggerFields); a store that disagrees with ANY
+    // of them is a failed write, whatever the PUT body said.
+    const requested = request.requested && actual ? expectedSubsetMismatches(request.requested, actual) : [];
+    for (const m of requested) if (!mismatches.some((x) => x.path === m.path)) mismatches.push({ ...m, requestedByCaller: true });
+    // THE TAMPER-EVIDENT FIELD. The server stamps `date_updated` itself on every accepted
+    // write and ignores the client's value (D-67, measured: a PUT carrying the old stamp read
+    // back with a new one). A value that matches what was sent proves nothing — it may never
+    // have differed. An UNMOVED stamp after an acknowledged PUT proves the write never landed
+    // (D-67: two "persisted: true" reports, zero writes). Checked whenever the pre-write row
+    // carried a stamp; a roster without one reports the check as unavailable, never as passed.
+    let dateUpdated = null;
+    if (actual && request.before && (request.before.date_updated || request.before.updatedAt)) {
+      const before = request.before.date_updated ?? request.before.updatedAt;
+      const after = actual.date_updated ?? actual.updatedAt ?? null;
+      dateUpdated = { before, after, moved: after != null && after !== before };
+      if (!dateUpdated.moved) {
+        mismatches.push({ path: 'date_updated', expected: `a stamp later than ${before}`, actual: after,
+          note: 'the server stamps date_updated on every write it applies; an unmoved stamp after a 200 means the PUT changed nothing (D-67)' });
+      }
+    } else if (actual && request.before) {
+      dateUpdated = { before: null, after: actual.date_updated ?? actual.updatedAt ?? null, moved: null, note: 'pre-write row carried no date_updated — the moved-stamp check could not run' };
+    }
     return {
       op: request.op,
       triggerId: request.triggerId ?? returnedId ?? triggerIdOf(actual),
       matchSource,
       persisted: Boolean(actual) && mismatches.length === 0,
       mismatches,
+      ...(request.requested ? { requested: request.requested } : {}),
+      ...(dateUpdated ? { dateUpdated } : {}),
     };
   });
   return { roundTrip: checks.every((check) => check.persisted), checks };
@@ -2010,10 +2141,13 @@ export const TOOLS = [
   },
   {
     name: 'export_workflow',
-    description: describe('export_workflow', 'Export the full workflow body, triggers and sticky notes.'),
+    description: describe('export_workflow', 'Export the full workflow body, triggers and sticky notes.')
+      + ' stepIds narrows workflowData.templates to those steps (triggers and notes untouched); writeTo writes the full, scrubbed export to an absolute path and returns a summary — a 110-step flow exceeds the inline result cap.',
     inputSchema: schema({
       locationId: z.string(),
       workflowId: z.string(),
+      stepIds: z.array(z.string()).optional(),
+      writeTo: z.string().optional(),
     }),
     capabilities: [
       { method: 'GET', path: '/workflow/{loc}/{wid}' },
@@ -2051,11 +2185,34 @@ export const TOOLS = [
         for (const key of keys) if (Array.isArray(payload?.[key])) return payload[key];
         return [];
       };
-      return ok({
-        workflow: body.json,
+      let workflow = body.json;
+      const allTemplates = Array.isArray(workflow?.workflowData?.templates) ? workflow.workflowData.templates : null;
+      if (Array.isArray(args.stepIds) && args.stepIds.length && allTemplates) {
+        const wanted = new Set(args.stepIds);
+        const missing = args.stepIds.filter((id) => !allTemplates.some((t) => t?.id === id));
+        workflow = {
+          ...workflow,
+          workflowData: { ...workflow.workflowData, templates: allTemplates.filter((t) => wanted.has(t?.id)) },
+          exportFilter: { stepIds: args.stepIds, totalSteps: allTemplates.length, ...(missing.length ? { missing } : {}) },
+        };
+      }
+      const result = {
+        workflow,
         triggers: asArray(triggers.json, 'triggers', 'data'),
         stickyNotes: asArray(notes.json, 'data', 'notes'),
-      });
+      };
+      if (args.writeTo) {
+        const written = writeResultFile(args.writeTo, result);
+        if (written.failure) return written.failure;
+        return ok({
+          ...written,
+          workflowId: args.workflowId, name: workflow?.name ?? null, status: workflow?.status ?? null, version: workflow?.version ?? null,
+          stepCount: workflow?.workflowData?.templates?.length ?? null, triggerCount: result.triggers.length, stickyNoteCount: result.stickyNotes.length,
+          ...(workflow?.exportFilter ? { exportFilter: workflow.exportFilter } : {}),
+          note: 'Full export written to writeTo (scrubbed). repair_workflow accepts this file as templatesPath.',
+        });
+      }
+      return ok(result);
     }, args),
   },
   {
@@ -2081,6 +2238,9 @@ export const TOOLS = [
       maxEnrollmentPages: z.number().int().positive().default(50),
       // Opt-in enrollment totals ({ total, finished }) from the cache endpoint.
       enrollmentTotals: z.boolean().default(false),
+      // Write the full result to this ABSOLUTE path (scrubbed like the inline result) and return a
+      // summary instead — a busy flow's log read exceeds the tool-result cap (backlog 27).
+      writeTo: z.string().optional(),
     }),
     capabilities: [
       { method: 'GET', path: '/workflows/logs/v2' },
@@ -2251,8 +2411,29 @@ export const TOOLS = [
         const af = r?.meta?.actionFrom;
         return af == null || (typeof af === 'object' && Object.keys(af).length === 0);
       };
+      // A conversationai_objective row whose actionFrom.response.msg says "Objective met but field
+      // update failed - proceeding due to allowPartialSuccess" is the ONLY trace of a write the
+      // Conversation AI service refused: the flow moves on as if met, the chat shows nothing, and
+      // the field keeps its old value. It happens in short bursts on every account and every
+      // field type (D-86, D-90: 10/108 rows on one account, 2/45 on another, over a week). Labelled
+      // per row and counted at the top so a run's "written" fields can be trusted, or not.
+      const OBJECTIVE_WRITE_FAILED = /field update failed/i;
+      const objectiveWriteFailed = (r) => {
+        if (r?.type !== 'conversationai_objective') return false;
+        const msg = (r?.meta?.actionFrom ?? r?.actionFrom)?.response?.msg;
+        return typeof msg === 'string' && OBJECTIVE_WRITE_FAILED.test(msg);
+      };
       const labelledLogs = Array.isArray(rawLogs)
         ? rawLogs.map((r) => {
+          if (objectiveWriteFailed(r)) {
+            return {
+              ...r,
+              objectiveWriteFailed: true,
+              objectiveWriteNote: 'the objective was met but the Conversation AI service REFUSED the field write and moved on '
+                + '(allowPartialSuccess) — the field keeps its old value; a platform transient seen in bursts on every account, '
+                + 'not tied to the field, the contact or the wording. Read the field before trusting it.',
+            };
+          }
           if (PREMIUM_ACTION_TYPES.has(r?.type) && r?.status === 'success' && emptyActionFrom(r)) {
             return {
               ...r,
@@ -2278,11 +2459,13 @@ export const TOOLS = [
         ? labelledLogs.filter((r) => r?.removalOrigin === 'external-api').length
         : 0;
 
-      return ok({
+      const objectiveWriteFailures = Array.isArray(labelledLogs) ? labelledLogs.filter((r) => r?.objectiveWriteFailed).length : 0;
+      const result = {
         logs: labelledLogs,
         // Counted separately because the roster cannot tell them apart: it says `finished` for a
         // completed run AND for one an outside call ended.
         ...(externalRemovals ? { externalRemovals } : {}),
+        ...(objectiveWriteFailures ? { objectiveWriteFailures } : {}),
         perStepCounts: counts.json?.counts ?? counts.json ?? [],
         enrollments,
         // Only meaningful when the caller asked for the full walk; undefined keeps
@@ -2295,7 +2478,18 @@ export const TOOLS = [
             + 'correlate them to workflowData.templates. '
             + 'A roster status of "finished" means the contact LEFT the workflow, which covers '
             + 'both completing it and being removed from it — it is not a completion signal.',
-      });
+      };
+      if (args.writeTo) {
+        const written = writeResultFile(args.writeTo, result);
+        if (written.failure) return written.failure;
+        return ok({
+          ...written, logCount: Array.isArray(labelledLogs) ? labelledLogs.length : null, enrollmentCount: enrollments.length,
+          ...(objectiveWriteFailures ? { objectiveWriteFailures } : {}), ...(externalRemovals ? { externalRemovals } : {}),
+          ...(args.allEnrollments ? { enrollmentsComplete, enrollmentPages: pages } : {}),
+          note: 'Full result written to writeTo (scrubbed). Re-read the file for the rows; this summary carries the counts only.',
+        });
+      }
+      return ok(result);
     }, args),
   },
   {
@@ -2707,8 +2901,17 @@ export const TOOLS = [
       const base = { locationId: args.locationId, dateType: 'custom', fromDate: String(fromDate), toDate: String(toDate) };
       const parseMaybeJson = (v) => { if (typeof v !== 'string') return v ?? null; try { return JSON.parse(v); } catch { return v; } };
       const out = [];
+      // Conversation-AI triggers keep NO attempt stats: 0 attempts on every account, minutes after
+      // a demonstrable fire (R-150, D-84, 2026-09-06). The only proof of a conv-AI fire is the
+      // `added_to_workflow` enrolment row in get_workflow_logs. Flagged per trigger so a zero
+      // here is never read as "the trigger did not fire".
+      const NO_STATS_TYPES = new Set(['conv_ai_trigger', 'conv_ai_autonomous_trigger']);
       for (const trig of triggers) {
         const item = { id: trig.id, name: trig.name, type: trig.type, active: trig.active ?? null };
+        if (NO_STATS_TYPES.has(trig.type)) {
+          item.noStats = true;
+          item.note = `${trig.type} keeps no attempt stats (every account reads 0 even after a proven fire). Proof of a fire is the added_to_workflow enrolment row: get_workflow_logs with contactId, or its enrollments roster.`;
+        }
         const c = await gw.call('GET', `/workflows/trigger/logs/count-by-triggerId?${new URLSearchParams({ ...base, triggerId: trig.id, recordId: '' })}`);
         const row = Array.isArray(c.json) ? (c.json[0] ?? null) : null;
         item.attempted = Number(row?.total ?? 0); item.matched = Number(row?.matched ?? 0); item.unmatched = Math.max(0, item.attempted - item.matched);
@@ -2734,7 +2937,7 @@ export const TOOLS = [
       }
       return ok({
         window: { fromDate, toDate, days: args.days ?? 30 }, triggers: out,
-        note: 'Same endpoints as the builder\'s trigger Stats modal. contactId is the attempt\'s recordId; actualValue/expectedValue are the filter comparison that decided qualified. Seven trigger types keep no stats: mailgun_email_event, opportunity_decay, call_status, custom_date_reminder, customer_appointment, birthday_reminder, task_due_date_reminder.',
+        note: 'Same endpoints as the builder\'s trigger Stats modal. contactId is the attempt\'s recordId; actualValue/expectedValue are the filter comparison that decided qualified. Nine trigger types keep no stats: mailgun_email_event, opportunity_decay, call_status, custom_date_reminder, customer_appointment, birthday_reminder, task_due_date_reminder, and the two Conversation-AI types conv_ai_trigger and conv_ai_autonomous_trigger (flagged noStats per trigger) — for those, an added_to_workflow enrolment row in get_workflow_logs is the only proof of a fire.',
       });
     }, args),
   },
@@ -3595,14 +3798,15 @@ export const TOOLS = [
     description: describe('edit_workflow', 'Preview or confirmation-gate edits to an existing workflow through the canonical edit engine. '
       + 'Confirmed step edits use only the plain workflow PUT and are round-trip verified. '
       + 'Guard hatches, each named by the guard that refuses: allowGotoLoops, deadBranchAcknowledged, '
-      + 'allowDanglingParentKeys, allowDanglingStepRefs. '
+      + 'allowDanglingParentKeys, allowDanglingStepRefs, allowOverCap. '
+      + 'OP KEYS ARE STRICT: an unknown key on any op refuses the whole call by name (a dropped key once re-sent the stored record and verified clean — R-96). '
       + 'Ops — steps: appendStep, insertAfter, insertBefore, appendToBranch (anchor: branchEntryId | '
-      + 'containerId+branch | branchRef), deleteStep, modifyStep (attrPatch/stepPatch; re-normalised '
+      + 'containerId+branch | branchRef), deleteStep, modifyStep (attrPatch/stepPatch — never `attributes`, never `name`; re-normalised '
       + 'through the compiler), retypeStep (full attributes), renameStep, setStepDisabled, '
-      + 'disableStepsByType, moveStep, addBranch, deleteContainer, repairParentKeys, addStepNote, '
+      + 'disableStepsByType, moveStep, addBranch (if/else, or an AI splitter: alias addSplitterBranch), deleteContainer, repairParentKeys, addStepNote, '
       + 'duplicateStep, replaceTag, replaceFieldId, replaceInAttributes; triggers: addTrigger, '
-      + 'modifyTrigger (target = a live step id or unique name), deleteTrigger, duplicateTrigger; '
-      + 'settings: updateSettings; notes: addStickyNote, updateStickyNote. '
+      + 'modifyTrigger {triggerId|name, trigger:{name?, filters? (author rows) | conditions? (stored rows, sent verbatim), active?, target?|targetActionId?}} — a top-level conditions/name/status is refused, not ignored; a patch that changes nothing is a NOOP, not a write; the verifier holds the store to what YOU asked for and to the server\'s own date_updated stamp; deleteTrigger, duplicateTrigger; '
+      + 'settings: updateSettings (Settings-tab keys plus `name`); notes: addStickyNote, updateStickyNote. '
       + 'Names in steps and triggers resolve to ids against the account (ignoreUnresolved to bypass). '
       + 'Runs the same pre-write validation ladder as build_workflow: workflow + graph-context rules, '
       + "GHL's asset-reference validator (hatch: ignoreAssetErrors), the custom-code sandbox test on "
@@ -3631,6 +3835,9 @@ export const TOOLS = [
       // The build path's validate_assets hatch (orchestrate.mjs opts.ignoreAssetErrors): write the
       // edit even though GHL's own reference validator rejected an asset reference this edit touches.
       ignoreAssetErrors: z.boolean().default(false),
+      // Measured field caps (field-caps.mjs) refuse an over-length value on a touched step; this
+      // writes it anyway and keeps a FIELD_CAP warning.
+      allowOverCap: z.boolean().default(false),
       // The build path's custom-code sandbox pre-flight switches, same names and defaults as
       // build_workflow: strict → a failing sandbox run refuses the edit instead of warning.
       strictCustomCode: z.boolean().default(false),
@@ -3653,6 +3860,11 @@ export const TOOLS = [
       { method: 'GET', path: '/forms/' },
       { method: 'GET', path: '/workflow/{loc}/{wid}' },
       { method: 'GET', path: '/workflow/{loc}/trigger' },
+      // Read ONLY when a deleteStep/deleteContainer op targets a PUBLISHED workflow: contacts
+      // parked on a deleted step are ejected (backlog 23), so the preview counts them first.
+      { method: 'GET', path: '/workflows/status/search/count-per-step' },
+      // Read ONLY for a replaceFieldId op: both ids must resolve on THIS account (backlog 29).
+      { method: 'GET', path: '/locations/{loc}/customFields/{id}' },
       // Marketplace index — read ONLY when an op carries marketplace:true.
       { method: 'GET', path: '/workflows-marketplace/location/{loc}/assets' },
       { method: 'GET', path: '/marketplace/core/search/module' },
@@ -3829,12 +4041,62 @@ export const TOOLS = [
         for (const u of resolved.unresolved) warnings.push(`UNRESOLVED (ignored): ${u.where} '${u.name}'`);
       }
       const { stepOps, triggerOps, settingsOps, stickyOps } = partitionOps(editOps);
+      // THE CLONE TRAP (backlog 29, D-86). Field ids — STANDARD fields included — differ per
+      // account: `contact.last_name` is one id on account A and another on account B, and both
+      // resolve through GET /locations/{loc}/customFields/{id} (dataType STANDARD_FIELD). A
+      // cloned objective can therefore carry a foreign id that "works" until the write is refused
+      // inside the Conversation AI service, silently. So a replaceFieldId's NEW id must resolve on
+      // THIS account before anything is written; the old one is reported for the record. Hatch:
+      // ignoreUnresolved, the same switch the name resolver uses.
+      for (const op of stepOps.filter((o) => o.op === 'replaceFieldId')) {
+        const lookups = await Promise.all([op.newId, op.oldId].map(async (id) => {
+          const r = await gw.call('GET', `/locations/${locationPath}/customFields/${encodeURIComponent(id)}`);
+          const f = r?.json?.customField ?? r?.json;
+          return { id, ok: r?.ok === true && f && typeof f === 'object', fieldKey: f?.fieldKey ?? null, dataType: f?.dataType ?? null };
+        }));
+        const [next, prev] = lookups;
+        if (!next.ok && args.ignoreUnresolved !== true) {
+          return fail(
+            CODES.UNRESOLVED_DEPS,
+            `replaceFieldId: the NEW id '${op.newId}' does not resolve on this account (GET /locations/{loc}/customFields/{id}). `
+              + (prev.ok ? `The old id resolves to ${prev.fieldKey ?? prev.id} (${prev.dataType ?? '?'}). ` : '')
+              + 'Field ids differ per account even for standard fields, so a cloned reference can look right and write nothing.',
+            'Look the field up with list_account_entities or GET /locations/{loc}/customFields/search?model=all on THIS account and use its id, or pass ignoreUnresolved:true to write the foreign id anyway.',
+          );
+        }
+        if (!next.ok) warnings.push(`UNRESOLVED (ignored): replaceFieldId newId '${op.newId}' does not resolve on this account`);
+        else warnings.push(`replaceFieldId: '${op.oldId}'${prev.ok ? ` (${prev.fieldKey ?? '?'})` : ' (does not resolve here)'} → '${op.newId}' (${next.fieldKey ?? '?'}, ${next.dataType ?? '?'})`);
+      }
       // Settings-tab keys (updateSettings ops) — merged over the stored document at commit.
       const settingsPatch = mergeSettingsOps(settingsOps);
       // Sticky notes — a SEPARATE resource (POST/PATCH /workflows/sticky-note); planned now so a bad
       // note fails the preview, written after the step commit and trigger writes.
       const stickyPlan = stickyOps.map((op) => planStickyNoteOp(op, { loc: args.locationId, wid: args.workflowId }));
       const { templates, diff } = applyOps(beforeTemplates, stepOps, { ctx, idGen });
+      // PARKED CONTACTS ON A DELETED STEP ARE EJECTED (backlog 23, D-83): the run ends with
+      // `step_was_deleted_by_user`, and an autonomous trigger does not re-fire for them in that
+      // session. Counted BEFORE the confirm gate on a PUBLISHED workflow only (a draft has no
+      // runs) — one GET, the same count-per-step read get_workflow_logs makes — so the preview
+      // says who is about to be thrown out, by step, while the delete can still be reconsidered.
+      let parkedOnDeletedSteps = [];
+      if (fresh.status === 'published' && diff.deletedSteps?.length) {
+        const counts = await safeGatewayCall(() => gw.call('GET',
+          `/workflows/status/search/count-per-step?${new URLSearchParams({ workflowId: args.workflowId, locationId: args.locationId })}`));
+        const rows = !counts.threw && counts.value?.ok ? (counts.value.json?.counts ?? counts.value.json ?? []) : null;
+        if (!Array.isArray(rows)) {
+          warnings.push('DELETE_PARKED_UNKNOWN: could not read contacts-per-step, so the number of contacts parked on the deleted step(s) is unknown; read get_contacts_at_step before confirming.');
+        } else {
+          const byStep = new Map(rows.map((r) => [r?.currentStepId ?? r?.stepId, Number(r?.total ?? r?.count ?? 0)]));
+          parkedOnDeletedSteps = diff.deletedSteps
+            .map((id) => ({ stepId: id, name: beforeTemplates.find((t) => t.id === id)?.name ?? id, parked: byStep.get(id) ?? 0 }))
+            .filter((r) => r.parked > 0);
+          for (const r of parkedOnDeletedSteps) {
+            warnings.push(`DELETE_EJECTS_PARKED_CONTACTS: ${r.parked} contact(s) are parked on '${r.name}' (${r.stepId}); deleting it ends their run `
+              + '(step_was_deleted_by_user) and an autonomous trigger will not re-fire for them in that session. Move them first '
+              + '(fast_forward_contacts / get_contacts_at_step), or accept the ejection.');
+          }
+        }
+      }
       // Trigger ops are planned AFTER the step ops land, so a trigger `target` resolves against
       // the POST-EDIT roster — it can point at a step this same call just created.
       ctx.externalRefs = externalRefsOf(templates);
@@ -3901,6 +4163,11 @@ export const TOOLS = [
       // Advisory and fail-open, matching the build path: an unreachable catalog must not become a
       // new way for a working edit to die.
       const schemaViolations = await editSchemaViolations(gw, locationPath, templates, existingTriggers, args.ops, marketplaceRaw.assets);
+      // Every schema violation ALSO lands in the warnings channel: on the rails three silent caps
+      // showed up only inside this block while the top-level result read ok (backlog 25).
+      for (const v of schemaViolations) warnings.push(`SCHEMA: '${v.step ?? v.stepId}' (${v.type}): ${(v.messages ?? []).join('; ')}`);
+      const caps = fieldCapGate({ templates, scope: editTouchedIds, allowOverCap: args.allowOverCap, warnings });
+      if (caps.refusal) return caps.refusal;
       const triggerPlan = planTriggerOps(triggerOps, {
         ctx,
         wid: args.workflowId,
@@ -3911,6 +4178,9 @@ export const TOOLS = [
         // follows the target workflow, not a hardcoded default — see edit-driver.mjs).
         workflowStatus: fresh.status,
       });
+      for (const r of triggerPlan) {
+        if (r.noop) warnings.push(`TRIGGER_NOOP: ${r.op} on ${r.triggerId} — ${r.reason}. If you expected a change, the value you sent equals what is stored; nothing will be written for this op.`);
+      }
 
       // Asset pre-flight (validate_assets) + account readiness (G15) — see the shared helpers.
       // Gated on the same op class as the schema check: only an op that can introduce an asset
@@ -3923,7 +4193,7 @@ export const TOOLS = [
           gw, loc: args.locationId, templates,
           triggers: [...existingTriggers, ...triggerPlan.map((request) => request.body).filter(Boolean)],
           companyId: fresh.companyId, touchedIds: editTouchedIds,
-          ignoreAssetErrors: args.ignoreAssetErrors, warnings,
+          ignoreAssetErrors: args.ignoreAssetErrors, warnings, ops: editOps,
         });
         if (assets.refusal) return assets.refusal;
         assetPreflight = assets.assetPreflight;
@@ -3953,6 +4223,7 @@ export const TOOLS = [
           .map((k) => [k, k === 'statsView' ? (commitBody.meta?.statsView ?? false) : commitBody[k]]));
       }
       if (stickyPlan.length) preview.stickyNotes = stickyPlan.map(({ op, method, path, body }) => ({ op, method, path, color: body.color, chars: body.content?.length }));
+      if (parkedOnDeletedSteps.length) preview.parkedOnDeletedSteps = parkedOnDeletedSteps;
       // The ported build-path pre-flight verdicts, visible while the edit can still be changed.
       if (assetPreflight) preview.assetPreflight = assetPreflight;
       if (customCodeTests.length) preview.customCodeTests = customCodeTests;
@@ -3982,7 +4253,10 @@ export const TOOLS = [
         writes: [],
         tags: { planned: tagsToCreate.length, created: [] },
         stepCommitted: false,
-        triggerWrites: { planned: triggerPlan.length, applied: 0 },
+        triggerWrites: {
+          planned: triggerPlan.filter((r) => !r.noop).length, applied: 0,
+          noops: triggerPlan.filter((r) => r.noop).map(({ op, triggerId, reason }) => ({ op, triggerId, reason })),
+        },
         stickyNotes: { planned: stickyPlan.length, applied: 0, ids: [] },
         verification: {
           attempted: false,
@@ -4063,6 +4337,9 @@ export const TOOLS = [
 
       const triggerExpectations = [];
       for (const request of triggerPlan) {
+        // Planned as a NOOP by edit-driver.mjs: every requested value already matches the store.
+        // Nothing is sent and nothing is verified — the preview and the warning already say so.
+        if (request.noop) continue;
         const responseCall = await attemptWrite(
           'trigger_write',
           () => gw.call(request.method, request.path, request.body),
@@ -4114,8 +4391,8 @@ export const TOOLS = [
           return partialFailure(
             fail(
               CODES.ENGINE_ABORT,
-              'One or more acknowledged trigger writes did not persist on round-trip verification.',
-              'Inspect data.partialProgress.verification.triggers and the live trigger list before retrying.',
+              'One or more acknowledged trigger writes did not persist on round-trip verification: the store disagrees with what the CALLER asked for, or the server\'s own date_updated stamp did not move after the 200.',
+              'Read data.partialProgress.verification.triggers.checks[].mismatches (path, expected, actual; `requestedByCaller` marks a field you named; `date_updated` means the PUT changed nothing). Re-read the trigger with export_workflow before retrying — a retry of a PUT is safe, a retry of an add duplicates the trigger.',
             ),
             'trigger_round_trip_verify',
             'Trigger configuration is unverified, so this edit must not be published.',
@@ -4183,12 +4460,23 @@ export const TOOLS = [
       // a step this edit wrote is a live-but-wrong document, and reporting ok is how eight dead
       // stage moves shipped.
       const touchedIds = editTouchedIds;
+      // The WHOLE persisted document, scoped to the touched steps for REPORTING: the path rule walks
+      // parentKey up to the binder and needs every step to do it (D-85/D-89 false positive).
       const intentFindings = [
-        ...lintOpportunityWrites(gotTemplates.filter((t) => touchedIds.has(t.id))),
+        ...lintOpportunityWrites(gotTemplates, { scope: touchedIds }),
         ...lintTriggerRows(roundTripTriggers, ctx.catalog),
       ];
       verify.intent = intentFindings;
       verify.missingRequired = persistedMissingRequired(gotTemplates, touchedIds, warnings);
+      // The reference validator AGAIN, over what is now STORED — same gate as the pre-check, so
+      // the network shape grows only where the pre-check already ran. A pre-write error that is
+      // still here after the write is not a stale cache; it is the write not having landed.
+      if (assetPreflight) {
+        verify.assetPreflightAfter = await assetPostcheck({
+          gw, loc: args.locationId, templates: gotTemplates, triggers: roundTripTriggers,
+          companyId: fresh.companyId, touchedIds, warnings,
+        });
+      }
       const intentErrors = intentFindings.filter((f) => f.severity === 'error');
       partialProgress.verification.completed = true;
       partialProgress.verification.roundTrip = verify.roundTrip;
@@ -4262,9 +4550,14 @@ export const TOOLS = [
     inputSchema: schema({
       locationId: z.string(),
       workflowId: z.string(),
-      templates: z.array(z.object({}).passthrough()),
+      // Either inline, or read from an ABSOLUTE path (an export_workflow writeTo file, a raw
+      // workflow GET body, {templates}, or a bare array) — a finished flow bot is above what a
+      // client passes inline (backlog 21).
+      templates: z.array(z.object({}).passthrough()).optional(),
+      templatesPath: z.string().optional(),
       // The build path's hatches, same names and defaults as build_workflow / edit_workflow.
       ignoreAssetErrors: z.boolean().default(false),
+      allowOverCap: z.boolean().default(false),
       strictCustomCode: z.boolean().default(false),
       skipCustomCodeTest: z.boolean().default(false),
       // Optimistic concurrency: a repair is written against a document the caller has already
@@ -4302,9 +4595,17 @@ export const TOOLS = [
       const warnings = [];
       const warn = (message) => warnings.push(message);
 
+      if (args.templatesPath !== undefined) {
+        if (Array.isArray(args.templates)) {
+          return fail(CODES.VALIDATION_FAILED, 'pass either templates (inline) or templatesPath (a file) — not both.', 'Drop one of them.');
+        }
+        const read = readTemplatesFile(args.templatesPath);
+        if (read.failure) return read.failure;
+        args = { ...args, templates: read.templates };
+      }
       if (!Array.isArray(args.templates) || !args.templates.length) {
         return fail(CODES.ENGINE_ABORT, 'templates must be a non-empty array of step objects.',
-          'Pass the full workflowData.templates you want stored. To empty a workflow, delete its steps with edit_workflow.');
+          'Pass the full workflowData.templates you want stored (inline, or via templatesPath). To empty a workflow, delete its steps with edit_workflow.');
       }
       const badIds = args.templates.filter((t) => !t || typeof t !== 'object' || typeof t.id !== 'string' || !t.id);
       if (badIds.length) {
@@ -4373,12 +4674,16 @@ export const TOOLS = [
           'The document was rejected before any request was sent — nothing was written.');
       }
       checkGraphContextRules(args.templates, { warn });
+      // Measured field caps on the steps this repair changed (see fieldCapGate).
+      const caps = fieldCapGate({ templates: args.templates, scope: touchedIds, allowOverCap: args.allowOverCap, warnings });
+      if (caps.refusal) return caps.refusal;
       // The rest of the ladder, gated on the diff: an unchanged document sends nothing new.
       let schemaViolations = [];
       let assetPreflight = null;
       let readiness = [];
       if (touchedIds.size) {
         schemaViolations = await schemaViolationsFor(gw, locationPath, args.templates, existingTriggers, null);
+        for (const v of schemaViolations) warnings.push(`SCHEMA: '${v.step ?? v.stepId}' (${v.type}): ${(v.messages ?? []).join('; ')}`);
         const assets = await assetPreflightFor({
           gw, loc: args.locationId, templates: args.templates, triggers: existingTriggers,
           companyId: fresh.companyId, touchedIds, ignoreAssetErrors: args.ignoreAssetErrors, warnings,
@@ -4428,8 +4733,15 @@ export const TOOLS = [
       // edit_workflow; an intent error on a step this write wrote is a live-but-wrong document.
       // Trigger rows are not linted here: a repair writes no triggers, so any finding there
       // would be legacy debt.
-      verify.intent = lintOpportunityWrites(gotTemplates.filter((t) => touchedIds.has(t.id)));
+      verify.intent = lintOpportunityWrites(gotTemplates, { scope: touchedIds });
       verify.missingRequired = persistedMissingRequired(gotTemplates, touchedIds, warnings);
+      // Post-write reference re-check, same gate as the pre-check (see edit_workflow).
+      if (assetPreflight) {
+        verify.assetPreflightAfter = await assetPostcheck({
+          gw, loc: args.locationId, templates: gotTemplates, triggers: existingTriggers,
+          companyId: fresh.companyId, touchedIds, warnings,
+        });
+      }
       const intentErrors = verify.intent.filter((f) => f.severity === 'error');
       const data = {
         workflowId: args.workflowId,
@@ -4861,7 +5173,14 @@ export const TOOLS = [
           remediation: near.length ? `Did you mean: ${near.join(', ')}?` : 'Use search_step_types to find the right slug.',
         };
       }
-      return { ok: true, data: card };
+      // MEASURED character caps ride on the card (field-caps.mjs). The catalog's own field rows do
+      // not carry them — only the builder's live action schema does — and four of them were crossed
+      // silently in one week on the rails (backlog 25). edit_workflow/repair_workflow refuse an
+      // over-cap value on a touched step (hatch: allowOverCap).
+      const caps = FIELD_CAPS[card.type];
+      return { ok: true, data: caps
+        ? { ...card, caps, capsNote: 'Character caps measured live (the server stores an over-length value verbatim; the builder flags it). edit_workflow and repair_workflow refuse an over-cap value on a step they touch unless allowOverCap:true.' }
+        : card };
     }),
   },
   // spends a read fetching them.
@@ -5585,6 +5904,23 @@ export const TOOLS = [
             + 'encoding on these endpoints, which all take JSON.',
           );
         }
+      }
+
+      // R-95 (backlog 10): `POST /workflow/{loc}/trigger` binds the trigger to its workflow from a
+      // camelCase root `workflowId` ONLY. The STORED shape (what export_workflow returns and the
+      // per-trigger PUT takes) carries snake `workflow_id`, and a POST of that shape returns 200
+      // with a fresh id that is attached to nothing — invisible in the builder, absent from every
+      // list, unreachable by id. Four orphans were minted on a client account before the cause was
+      // found. Refused here, before the confirm gate, because there is no legitimate version of
+      // this call: the fix is the key name.
+      if (method === 'POST' && /^\/workflow\/[^/?]+\/trigger\/?(?:\?|$)/.test(args.path)
+          && body && typeof body === 'object' && !Array.isArray(body)
+          && Object.hasOwn(body, 'workflow_id') && !Object.hasOwn(body, 'workflowId')) {
+        return fail(
+          CODES.VALIDATION_FAILED,
+          'trigger POST carries a root `workflow_id` and no `workflowId` — the create route binds from camelCase `workflowId` only, so this would return 200 with an id and mint an ORPHAN trigger attached to no workflow (R-95).',
+          'Send the WRITE shape: root `workflowId` (camelCase) plus `actions:[{workflow_id, type:"add_to_workflow"}]`, `location_id`, `company_age`, `status` matching the workflow — or use edit_workflow addTrigger, which builds that envelope. To edit an EXISTING trigger use PUT /workflow/{loc}/trigger/{id}, which does take the stored shape.',
+        );
       }
 
       if (method !== 'GET' && args.confirm !== true) {

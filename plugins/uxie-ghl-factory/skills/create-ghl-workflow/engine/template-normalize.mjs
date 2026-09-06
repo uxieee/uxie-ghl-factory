@@ -17,15 +17,28 @@ export const NORMALIZE_SKIP = new Set([
   'if_else', 'transition', 'workflow_split', 'ai_decision', 'goto', 'loop', 'workflow_goal',
 ]);
 
-export function normalizeStoredAttributes(template, ctx) {
+// `opts.novelKeys` — the attribute keys the patch INTRODUCED (absent from the stored attributes
+// before the merge). When the caller supplies it, a skipped type warns ONLY for novel keys: a
+// patch that overwrites keys the stored wire shape already carries (a goto's targetNodeId, an
+// opportunity step's __customInputFields__) is a same-shape edit and needs no recompile. The
+// unconditional warning fired on every goto / opportunity / custom_code modifyStep — 100% noise
+// (backlog 6, D-85/D-89) — and a correct edit was indistinguishable from a suspect one. Without
+// `opts` (a caller that does not know the patch) the warning stays unconditional.
+export function normalizeStoredAttributes(template, ctx, opts) {
   if (!template?.attributes || template.isMarketplaceAction === true || NORMALIZE_SKIP.has(template.type)) {
+    const novel = Array.isArray(opts?.novelKeys) ? opts.novelKeys : null;
+    if (novel && !novel.length) return { attributes: template?.attributes, warnings: [] };
+    const which = novel
+      ? `the patch introduces key(s) [${novel.join(', ')}] the stored step did not carry, and they were merged as given`
+      : 'attributes were merged as given';
     return {
       attributes: template?.attributes,
       warnings: [
-        `MODIFY_NOT_NORMALISED: '${template?.name ?? template?.id}' (${template?.type}): attributes were `
-        + `merged as given — this type's author shape is not its wire shape (or it carries branch wiring), `
-        + `so it cannot be re-normalised from what is stored. Use retypeStep for a full recompile through `
-        + `the compiler, or author the complete wire shape yourself.`,
+        `MODIFY_NOT_NORMALISED: '${template?.name ?? template?.id}' (${template?.type}): ${which} — this type's `
+        + `author shape is not its wire shape (or it carries branch wiring), so a new key cannot be normalised from `
+        + `what is stored. If the key is an AUTHOR-shape key (pipeline, stage, a lean opportunity field) it will be `
+        + `stored verbatim and move nothing: use retypeStep for a full recompile through the compiler, or author the `
+        + `complete wire shape yourself.`,
       ],
     };
   }

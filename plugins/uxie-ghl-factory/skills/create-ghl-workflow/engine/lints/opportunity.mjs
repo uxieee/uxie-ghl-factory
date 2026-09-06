@@ -56,17 +56,25 @@ function pathBindsCard(t, byId) {
   return false;
 }
 
-export function lintOpportunityWrites(templates, { pipelines = null, lostReasons = null } = {}) {
+// `scope`: report only these step ids, while still walking the WHOLE document. The path rule
+// (OPP_WRITE_UNBOUND_PATH) walks parentKey UP from the write to find its binder, so it needs
+// every step in the workflow, not the touched subset. Handing it the subset — which the edit and
+// repair verifiers did — made every update step's walk hit a missing parent on the first hop and
+// report "nothing on its path binds a card" for a step sitting directly under
+// find_opportunity → Opportunity Found, the canonical pattern the warning itself recommends
+// (D-85, D-89, 2026-09-06: two accounts, the step demonstrably updating the card by id).
+export function lintOpportunityWrites(templates, { pipelines = null, lostReasons = null, scope = null } = {}) {
   const out = [];
   const byId = new Map();
   for (const t of templates ?? []) if (t && typeof t.id === 'string') byId.set(t.id, t);
+  const inScope = (t) => !scope || scope.has(t?.id);
   const known = pipelines && {
     pipelineId: new Set(pipelines.map((p) => p.id)),
     pipelineStageId: new Set(pipelines.flatMap((p) => (p.stages ?? []).map((s) => s.id))),
     lostReasonId: lostReasons ? new Set(lostReasons.map((r) => r.id ?? r._id)) : null,
   };
   for (const t of templates ?? []) {
-    if (!t || !OPP_TYPES.has(t.type)) continue;
+    if (!t || !OPP_TYPES.has(t.type) || !inScope(t)) continue;
     const a = t.attributes ?? {};
     const push = (code, severity, msg) => out.push({ stepId: t.id, name: t.name ?? t.id, type: t.type, code, severity, msg });
 

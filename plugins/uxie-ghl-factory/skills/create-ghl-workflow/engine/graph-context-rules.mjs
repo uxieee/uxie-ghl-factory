@@ -144,15 +144,23 @@ function findAfterCreateRace(list) {
   return out;
 }
 
-// A SPLITTER BRANCH THAT LEADS WITH A CONTAINER IS NEVER OFFERED. Proven live (GROM sandbox,
-// 2026-08-30): a branch wired directly to a conversationai_book_appointment — itself a multipath
-// container — was never once chosen across four conversations whose wording matched its label
-// almost verbatim, and two rewrites of the splitter's description changed nothing. The cause is
-// structural, not prompting: nesting a container directly under a splitter branch means GHL never
-// offers that branch. One add_notes inserted at the head of the branch and it fired on the very
-// next message; every branch that DOES get chosen begins with a simple step.
-const isContainer = (t) =>
-  !!t && (t.cat === 'multi-path' || t.attributes?.cat === 'multi-path' || Array.isArray(t.next));
+// A SPLITTER BRANCH THAT LEADS WITH A BOOKING NODE WAS NEVER OFFERED — in the one measured case.
+// Measured live (GROM sandbox, 2026-08-30): a branch wired directly to a
+// conversationai_book_appointment was never once chosen across four conversations whose wording
+// matched its label almost verbatim, and two rewrites of the splitter's description changed
+// nothing. One add_notes inserted at the head of the branch and it fired on the very next message.
+//
+// The rule used to say "a branch whose first step is ANY container is never offered". That is
+// FALSE, and it was disproved twice on a live client account (R-113, R-131, 2026-09-04): agent
+// span traces show a splitter choosing a branch whose first step is a NESTED SPLITTER, then the
+// nested splitter choosing its own branch, then the booking landing — repeatedly, on real
+// patients, every day. The over-broad wording fired on every edit of every flow bot, trained
+// readers to ignore GRAPH_CONTEXT, and bought add_notes furniture on branches that never needed
+// it. So the rule is narrowed to the head type that was actually measured, and its wording no
+// longer claims a mechanism it cannot prove. Whether other container heads (find_opportunity,
+// if_else, a multipath wait) are offered is UNMEASURED; do not widen this again without a
+// controlled probe (one splitter, one branch per head type, driven by a real conversation).
+const BRANCH_HEAD_MEASURED_UNOFFERED = new Set(['conversationai_book_appointment']);
 
 function splitterBranchLeadsWithContainer(list) {
   const byId = new Map(list.map((t) => [t.id, t]));
@@ -162,12 +170,13 @@ function splitterBranchLeadsWithContainer(list) {
     for (const entryId of t.next) {
       const entry = byId.get(entryId);
       const head = entry && typeof entry.next === 'string' ? byId.get(entry.next) : null;
-      if (!isContainer(head)) continue;
+      if (!head || !BRANCH_HEAD_MEASURED_UNOFFERED.has(head.type)) continue;
       out.push(`splitter '${t.name ?? t.id}' branch '${entry.name ?? entry.id}' leads directly `
-        + `with '${head.name ?? head.id}' (${head.type}), a multipath container — GHL never offers a `
-        + `branch whose first step is a container, so this branch is never chosen no matter how well `
-        + `the conversation matches it. Put one simple step (add_notes, update_contact_field, `
-        + `conversationai_continue, …) at the head of the branch, before the container.`);
+        + `with '${head.name ?? head.id}' (${head.type}). In the one measured case (sandbox, 2026-08-30) a branch `
+        + `whose first step was a booking node was never chosen across four matching conversations, and fired `
+        + `on the next message once a simple step (add_notes, update_contact_field, conversationai_continue, …) `
+        + `was placed at the head of the branch. Heuristic, not a platform rule — a branch leading with a nested `
+        + `splitter IS chosen live — so verify against a real run before restructuring.`);
     }
   }
   return out;

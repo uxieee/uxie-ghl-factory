@@ -438,3 +438,98 @@ test('editCommitBody: a REAL leaked name still fails closed, and names the offen
       && /retypeStep/.test(e.message),
   );
 });
+
+// ── D-15 / D-64 (backlog 12): moveStep must move the parentKey back-pointers with the edges ──
+// GHL's save validator refuses a document whose `next` and `parentKey` disagree
+// (INVALID_STRUCTURE), so a reorder that re-linked `next` only never committed — the preview
+// looked clean and nothing landed. Every reorder on the rails was done as deleteStep +
+// insertBefore instead.
+const parentKeysConsistent = (templates) => {
+  for (const t of templates) {
+    const pred = templates.find((p) => p.next === t.id);
+    if (pred && t.parentKey !== pred.id) return `'${t.id}' parentKey=${t.parentKey} but predecessor is '${pred.id}'`;
+  }
+  return null;
+};
+
+test('moveStep backward (s3 after s1) keeps every parentKey consistent with its predecessor', () => {
+  const { templates } = moveStep(chain(), 's3', 's1');
+  const byId = Object.fromEntries(templates.map((t) => [t.id, t]));
+  assert.equal(byId.s3.parentKey, 's1');
+  assert.equal(byId.s2.parentKey, 's3', 'the step that used to follow the anchor now follows the moved step');
+  assert.equal(parentKeysConsistent(templates), null);
+});
+
+test('moveStep forward onto its own successor (s2 after s3) re-parents the anchor onto the old predecessor', () => {
+  const { templates } = moveStep(chain(), 's2', 's3');
+  const byId = Object.fromEntries(templates.map((t) => [t.id, t]));
+  assert.equal(byId.s1.next, 's3');
+  assert.equal(byId.s3.parentKey, 's1');
+  assert.equal(byId.s3.next, 's2');
+  assert.equal(byId.s2.parentKey, 's3');
+  assert.equal(byId.s2.next, null);
+  assert.equal(parentKeysConsistent(templates), null);
+});
+
+test('moveStep refuses to move the entry step, naming insertBefore', () => {
+  assert.throws(() => moveStep(chain(), 's1', 's2'), /entry step.*insertBefore/s);
+});
+
+// ── Deposit S17 negatives (backlog 18): addBranch on an AI SPLITTER ─────────────────────────
+const splitter = () => [
+  { id: 'sp', type: 'conversationai_ai_splitter', name: 'Route', cat: 'multi-path', order: 0, parentKey: null, next: ['t0', 't1'],
+    attributes: { description: 'route', type: 'conversationai_ai_splitter', cat: 'multi-path', convertToMultipath: true, __customInputs__: {},
+      transitions: [
+        { id: 't0', name: 'No condition met', fields: {}, meta: { __branchKey__: 'k0' }, conditionType: 'pre-defined' },
+        { id: 't1', name: 'Wanting to book', fields: {}, meta: {}, conditionType: 'user-defined' } ] } },
+  { id: 't0', type: 'transition', name: 'No condition met', cat: 'transition', parentKey: 'sp', parent: 'sp', order: 0, attributes: {}, next: null },
+  { id: 't1', type: 'transition', name: 'Wanting to book', cat: 'transition', parentKey: 'sp', parent: 'sp', order: 1, attributes: {}, next: null },
+];
+
+test('addBranch on a conversationai_ai_splitter appends a user-defined transition row + node, last, with the compiler\'s shape', () => {
+  _n = 0;
+  const { templates, diff } = addBranch(splitter(), 'sp', { name: 'Just asking if confirmed' }, seqId);
+  const sp = templates.find((t) => t.id === 'sp');
+  assert.deepEqual(sp.next, ['t0', 't1', 'gen1']);
+  assert.deepEqual(sp.attributes.transitions[2], { id: 'gen1', name: 'Just asking if confirmed', fields: {}, meta: {}, conditionType: 'user-defined' });
+  const entry = templates.find((t) => t.id === 'gen1');
+  assert.deepEqual(entry, { id: 'gen1', type: 'transition', name: 'Just asking if confirmed', cat: 'transition', parentKey: 'sp', parent: 'sp', order: 2, attributes: {}, next: null });
+  assert.deepEqual(diff, { createdSteps: ['gen1'], modifiedSteps: ['sp'], deletedSteps: [] });
+  // conditions are not part of a splitter branch — refused, not silently stored
+  assert.throws(() => addBranch(splitter(), 'sp', { name: 'X', conditions: [{ a: 1 }] }, seqId), /carry no conditions/);
+  assert.throws(() => addBranch(splitter(), 'sp', { name: '' }, seqId), /needs a 'name'/);
+});
+
+import { applyOps as applyOpsDriver } from './edit-driver.mjs';
+import { loadCatalog as loadCatalogForSplitter } from './catalog.mjs';
+import { makeSeededIdGen as seededIdGenForSplitter } from './idgen.mjs';
+test('the new splitter branch is reachable by name for appendToBranch, and addSplitterBranch is accepted as the op name', () => {
+  const ctx = () => ({ loc: 'LOC', cid: 'CID', uid: 'UID', companyAge: 0, idGen: seededIdGenForSplitter('sc'), catalog: loadCatalogForSplitter(), warn: () => {} });
+  const makeSeededIdGen = seededIdGenForSplitter;
+  const applyOps = applyOpsDriver;
+  const { templates } = applyOps(splitter(), [
+    { op: 'addSplitterBranch', containerId: 'sp', name: 'Wants more info' },
+    { op: 'appendToBranch', containerId: 'sp', branch: 'Wants more info', step: { kind: 'action', type: 'add_notes', name: 'Note', attributes: { html: 'asked' } } },
+  ], { ctx: ctx(), idGen: makeSeededIdGen('sb') });
+  const sp = templates.find((t) => t.id === 'sp');
+  const newId = sp.next[2];
+  const entry = templates.find((t) => t.id === newId);
+  assert.equal(entry.type, 'transition');
+  const note = templates.find((t) => t.type === 'add_notes');
+  assert.equal(entry.next, note.id);
+  assert.equal(note.parentKey, newId);
+});
+
+// ── Backlog 5: replaceInAttributes already reaches NESTED paths — pinned so it stays so ──────
+test('replaceInAttributes reaches __customInputFields__[].value and branches[].segments[].conditions[].conditionValue', () => {
+  const stored = [
+    { id: 'o', type: 'internal_update_opportunity', name: 'Move', attributes: { __customInputFields__: [{ filterField: 'pipelineStageId', value: 'OLDSTAGE' }] } },
+    { id: 'c', type: 'if_else', name: 'Branch', attributes: { branches: [{ id: 'b', segments: [{ conditions: [{ conditionSubType: 'x', conditionValue: 'OLDSTAGE' }] }] }] } },
+  ];
+  const r1 = edit.replaceInAttributes(stored, { path: '__customInputFields__[].value', find: 'OLDSTAGE', replace: 'NEWSTAGE' });
+  assert.equal(r1.templates[0].attributes.__customInputFields__[0].value, 'NEWSTAGE');
+  assert.equal(r1.replaced, 1);
+  const r2 = edit.replaceInAttributes(stored, { path: 'branches[].segments[].conditions[].conditionValue', find: 'OLDSTAGE', replace: 'NEWSTAGE' });
+  assert.equal(r2.templates[1].attributes.branches[0].segments[0].conditions[0].conditionValue, 'NEWSTAGE');
+  assert.deepEqual(r2.diff.modifiedSteps, ['c']);
+});

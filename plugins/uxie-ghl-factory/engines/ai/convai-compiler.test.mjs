@@ -596,3 +596,23 @@ test('compileConvaiUpdateFromRecord: strips the read-only keys GHL returns and t
   assert.equal(body.cancelEnabled, true);
   assert.deepEqual(body.knowledgeBaseIds, ['KB1']);
 });
+
+// R-143 / D-68 / backlog 28: the PUT's DTO refuses `workingHours` and `steps` outright
+// (`422 "property workingHours should not exist"`), so a read-merge-write that echoed them could
+// not write ANY agent whose GET carried them — every agent-level edit and the autoPilot mode
+// switch failed the same way. They are server projections and never ride the body.
+test('compileConvaiUpdateFromRecord strips workingHours and steps (null or not) so the PUT is never 422d on them', () => {
+  const current = {
+    id: 'A1', name: 'Zoe', botType: 'FLOW_BUILDER_BOT', locationId: 'LOC', cancelEnabled: true, rescheduleEnabled: true,
+    autoPilot: false, workingHours: null, steps: [{ id: 's' }], knowledgeBaseIds: ['KB1'],
+  };
+  const out = compileConvaiUpdateFromRecord(current, { knowledgeBaseIds: ['KB2'] }, { agentId: 'A1', locationId: 'LOC' });
+  assert.equal('workingHours' in out.body, false);
+  assert.equal('steps' in out.body, false);
+  assert.deepEqual(out.body.knowledgeBaseIds, ['KB2']);
+  assert.equal(out.body.employeeName, 'Zoe');
+  assert.ok(out.collateralKeys.includes('cancelEnabled'));
+  assert.equal(out.collateralKeys.includes('workingHours'), false, 'a key never sent cannot be collateral');
+  const withHours = compileConvaiUpdateFromRecord({ ...current, workingHours: { mon: [] } }, { knowledgeBaseIds: ['KB2'] }, { agentId: 'A1', locationId: 'LOC' });
+  assert.equal('workingHours' in withHours.body, false);
+});

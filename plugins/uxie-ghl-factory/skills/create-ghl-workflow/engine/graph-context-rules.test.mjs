@@ -141,8 +141,45 @@ test('a splitter branch whose head is a container warns — GHL never offers tha
     { id: 'bt1', type: 'transition', name: 'Appointment Booked', cat: 'transition', parentKey: 'ba', parent: 'ba', order: 0, attributes: {}, next: null },
     { id: 'bt2', type: 'transition', name: 'Appointment Not booked', cat: 'transition', parentKey: 'ba', parent: 'ba', order: 1, attributes: {}, next: null },
   ], { warn: (m) => warns.push(m) });
-  assert.ok(warns.some((w) => /GRAPH_CONTEXT/.test(w) && /never/.test(w) && /Wants to book/.test(w)
-    && /Book appt/.test(w) && /simple step/.test(w)), warns.join('\n'));
+  assert.ok(warns.some((w) => /GRAPH_CONTEXT/.test(w) && /never chosen/.test(w) && /Wants to book/.test(w)
+    && /Book appt/.test(w) && /simple step/.test(w) && /Heuristic, not a platform rule/.test(w)), warns.join('\n'));
+});
+
+// R-113 / R-131 (a live client account, 2026-09-04): the rule used to fire on ANY container head and
+// say "never chosen no matter how well the conversation matches". Agent span traces showed a
+// splitter choosing a branch whose first step is a NESTED SPLITTER, then that splitter choosing
+// its own branch, then the booking landing — on real patients, repeatedly. The claim was false,
+// the warning fired on every edit of every flow bot, and it bought add_notes furniture on branches
+// that never needed it. The rule is now scoped to the one head type that was measured.
+test('a splitter branch that leads with a NESTED SPLITTER is silent — that shape is chosen live (R-113, R-131)', () => {
+  const warns = [];
+  checkGraphContextRules([
+    { id: 'sp', type: 'conversationai_ai_splitter', name: 'Route what they want', cat: 'multi-path', order: 0, parentKey: null,
+      next: ['tr0', 'tr1'], attributes: { description: 'route by intent', cat: 'multi-path' } },
+    { id: 'tr0', type: 'transition', name: 'No condition met', cat: 'transition', parentKey: 'sp', parent: 'sp', order: 0, attributes: {}, next: null },
+    { id: 'tr1', type: 'transition', name: 'Booking, times, or changing one', cat: 'transition', parentKey: 'sp', parent: 'sp', order: 1, attributes: {}, next: 'sp2' },
+    { id: 'sp2', type: 'conversationai_ai_splitter', name: 'New booking, a change, or a question?', cat: 'multi-path', order: 0, parentKey: 'tr1', parent: 'tr1',
+      next: ['t20', 't21'], attributes: { description: 'which kind', cat: 'multi-path' } },
+    { id: 't20', type: 'transition', name: 'No condition met', cat: 'transition', parentKey: 'sp2', parent: 'sp2', order: 0, attributes: {}, next: null },
+    { id: 't21', type: 'transition', name: 'Wanting to book', cat: 'transition', parentKey: 'sp2', parent: 'sp2', order: 1, attributes: {}, next: 'note' },
+    { id: 'note', type: 'add_notes', name: 'Log', parentKey: 't21', parent: 't21', order: 0, attributes: { note: 'x' }, next: null },
+  ], { warn: (m) => warns.push(m) });
+  assert.deepEqual(warns.filter((w) => /leads directly/.test(w)), [], warns.join('\n'));
+});
+
+test('other container heads (if_else, find_opportunity, a multipath wait) are UNMEASURED and stay silent', () => {
+  const warns = [];
+  checkGraphContextRules([
+    { id: 'sp', type: 'conversationai_ai_splitter', name: 'Route', cat: 'multi-path', order: 0, parentKey: null,
+      next: ['tr0', 'tr1'], attributes: { description: 'route', cat: 'multi-path' } },
+    { id: 'tr0', type: 'transition', name: 'No condition met', cat: 'transition', parentKey: 'sp', parent: 'sp', order: 0, attributes: {}, next: null },
+    { id: 'tr1', type: 'transition', name: 'Has a card?', cat: 'transition', parentKey: 'sp', parent: 'sp', order: 1, attributes: {}, next: 'f' },
+    { id: 'f', type: 'find_opportunity', name: 'Find the card', cat: 'multi-path', parentKey: 'tr1', parent: 'tr1', order: 0,
+      next: ['ff', 'fn'], attributes: { transitions: [] } },
+    { id: 'ff', type: 'transition', name: 'Opportunity Found', cat: 'transition', parentKey: 'f', parent: 'f', order: 0, attributes: {}, next: null },
+    { id: 'fn', type: 'transition', name: 'Opportunity Not Found', cat: 'transition', parentKey: 'f', parent: 'f', order: 1, attributes: {}, next: null },
+  ], { warn: (m) => warns.push(m) });
+  assert.deepEqual(warns.filter((w) => /leads directly/.test(w)), [], warns.join('\n'));
 });
 
 test('a splitter branch that leads with a simple step is silent, even with a container below it', () => {

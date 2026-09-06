@@ -47,6 +47,10 @@ function editGateway({
   triggerPostResponseIds,
   triggerPostPersistedIds,
   persistTransform = (body) => body,
+  // What the server actually STORES for a per-trigger PUT, given the body. The default stores
+  // the body verbatim. R-96's class is a PUT that is acknowledged and date-stamped while a field
+  // silently keeps its old value — `(body, stored) => ({ ...body, name: stored.name })`.
+  triggerPersistTransform = (body) => body,
   // Simulates `active` as a SERVER-MANAGED PROJECTION independent of what a per-trigger PUT's
   // body says (measured 2026-08-28) — the real value on read-back can diverge from whatever
   // this fixture's PUT handler was sent, e.g. because something unrelated (a publish
@@ -116,7 +120,11 @@ function editGateway({
         if (!ignoredTriggerWrites.includes('PUT')) {
           currentTriggers = currentTriggers.map((trigger) => {
             if ((trigger.id ?? trigger._id) !== triggerId) return trigger;
-            const stored = structuredClone(body);
+            const stored = triggerPersistTransform(structuredClone(body), trigger);
+            // The server stamps date_updated ITSELF on every write it applies and ignores the
+            // client's value (D-67, measured). Only a row that already carried a stamp gets a
+            // new one here, so fixtures without the field keep behaving as before.
+            if (trigger.date_updated !== undefined) stored.date_updated = new Date(Date.parse(trigger.date_updated) + 60_000).toISOString();
             // Measured 2026-08-28: `active` projects the PUT body's own `status` field when
             // present ('draft'->false, 'published'->true); an ABSENT status (a pure content
             // modifyTrigger, or replaceTagInTriggers) leaves `active` UNCHANGED from before
@@ -1066,4 +1074,141 @@ test('a matching expectedVersion proceeds', async () => {
     ops: [{ op: 'renameStep', stepId: 's1', name: 'X' }],
   }, deps(gw));
   assert.equal(res.ok, true, JSON.stringify(res).slice(0, 200));
+});
+
+// ── THE VERIFIER READS THE STORE, NOT THE INTENT (backlog 1, 2, 13, 16) ─────────────────────
+// R-96: eight modifyTrigger calls reported `persisted: true, mismatches: []` while every
+// condition stayed as it was — the op's key was never consumed, the engine PUT the stored record
+// back, and the verifier compared its own (empty) intent against an unchanged store. R-101: the
+// same for a rename. D-67: a write that was reported clean while the server's own date_updated
+// stamp never moved. Three findings, one rule: hold the store to what the CALLER asked for, and
+// treat an unmoved server stamp after a 200 as "nothing was written".
+const stampedTrigger = () => ({
+  id: 'tr-old', _id: 'tr-old', type: 'contact_tag', name: 'Old name', active: true,
+  date_updated: '2026-09-01T10:00:00.000Z',
+  conditions: [{ field: 'tagsAdded', operator: 'index-of-true', value: 'old', title: 'Tag Added', type: 'tags' }],
+  actions: [{ workflow_id: 'WID', type: 'add_to_workflow' }], workflow_id: 'WID',
+});
+
+test('D-67: a modifyTrigger whose PUT the server silently dropped fails verification on the UNMOVED date_updated stamp AND the caller-requested field', async () => {
+  const { gw } = editGateway({ triggers: [stampedTrigger()], ignoredTriggerWrites: ['PUT'] });
+  const result = await editTool().handler({
+    locationId: 'LOC', workflowId: 'WID', confirm: true,
+    ops: [{ op: 'modifyTrigger', triggerId: 'tr-old', trigger: { name: 'Renamed' } }],
+  }, deps(gw));
+  assert.equal(result.ok, false);
+  assert.equal(result.code, 'ENGINE_ABORT');
+  const check = result.data.partialProgress.verification.triggers.checks[0];
+  assert.equal(check.persisted, false);
+  assert.deepEqual(check.requested, { name: 'Renamed' });
+  assert.ok(check.mismatches.some((m) => m.path === 'name' && m.expected === 'Renamed' && m.actual === 'Old name'), JSON.stringify(check.mismatches));
+  assert.ok(check.mismatches.some((m) => m.path === 'date_updated' && /D-67/.test(m.note)), JSON.stringify(check.mismatches));
+  assert.equal(check.dateUpdated.moved, false);
+  assert.equal(check.dateUpdated.before, '2026-09-01T10:00:00.000Z');
+  assert.match(result.remediation, /date_updated/);
+});
+
+test('R-96: a PUT the server ACCEPTS and date-stamps while keeping the old value for the requested field is a failed write, flagged requestedByCaller', async () => {
+  const { gw } = editGateway({
+    triggers: [stampedTrigger()],
+    triggerPersistTransform: (body, stored) => ({ ...body, conditions: stored.conditions }),
+  });
+  const rows = [{ field: 'tagsAdded', operator: 'index-of-true', value: 'new', title: 'Tag Added', type: 'tags' }];
+  const result = await editTool().handler({
+    locationId: 'LOC', workflowId: 'WID', confirm: true,
+    ops: [{ op: 'modifyTrigger', triggerId: 'tr-old', trigger: { conditions: rows } }],
+  }, deps(gw));
+  assert.equal(result.ok, false);
+  const check = result.data.partialProgress.verification.triggers.checks[0];
+  assert.equal(check.persisted, false);
+  assert.equal(check.dateUpdated.moved, true, 'the stamp moved — the server accepted the PUT — and that alone must not count as proof');
+  assert.ok(check.mismatches.some((m) => /^conditions/.test(m.path) && m.expected === 'new'), JSON.stringify(check.mismatches));
+});
+
+test('a modifyTrigger that genuinely lands verifies clean, reports the moved stamp and what was requested', async () => {
+  const { gw, calls, currentTriggers } = editGateway({ triggers: [stampedTrigger()] });
+  const result = await editTool().handler({
+    locationId: 'LOC', workflowId: 'WID', confirm: true,
+    ops: [{ op: 'modifyTrigger', triggerId: 'tr-old', trigger: { name: 'Renamed', filters: [{ field: 'tagsAdded', value: 'new' }] } }],
+  }, deps(gw));
+  assert.equal(result.ok, true, JSON.stringify(result));
+  const check = result.data.partialProgress.verification.triggers.checks[0];
+  assert.equal(check.persisted, true);
+  assert.deepEqual(check.mismatches, []);
+  assert.equal(check.dateUpdated.moved, true);
+  assert.equal(check.requested.name, 'Renamed');
+  assert.equal(check.requested.conditions[0].value, 'new');
+  assert.equal(currentTriggers()[0].name, 'Renamed');
+  assert.equal(calls.filter((c) => c.method === 'PUT' && c.path === '/workflow/LOC/trigger/tr-old').length, 1);
+});
+
+test('a modifyTrigger whose values already match the store is a NOOP: no PUT, a TRIGGER_NOOP warning, visible in the preview', async () => {
+  const preview = await editTool().handler({
+    locationId: 'LOC', workflowId: 'WID',
+    ops: [{ op: 'modifyTrigger', triggerId: 'tr-old', trigger: { name: 'Old name' } }],
+  }, deps(editGateway({ triggers: [stampedTrigger()] }).gw));
+  assert.equal(preview.code, 'CONFIRM_REQUIRED');
+  assert.deepEqual(preview.data.preview.triggerChanges[0], { op: 'modifyTrigger', triggerId: 'tr-old', noop: true, reason: preview.data.preview.triggerChanges[0].reason, requested: { name: 'Old name' } });
+  assert.match(preview.data.preview.triggerChanges[0].reason, /already matches/);
+  assert.ok(preview.data.warnings.some((w) => /^TRIGGER_NOOP/.test(w)), preview.data.warnings.join('\n'));
+
+  const { gw, calls } = editGateway({ triggers: [stampedTrigger()] });
+  const result = await editTool().handler({
+    locationId: 'LOC', workflowId: 'WID', confirm: true,
+    ops: [{ op: 'modifyTrigger', triggerId: 'tr-old', trigger: { name: 'Old name' } }],
+  }, deps(gw));
+  assert.equal(result.ok, true, JSON.stringify(result));
+  assert.equal(result.data.triggerChangesApplied, 0);
+  assert.equal(result.data.partialProgress.triggerWrites.noops.length, 1);
+  assert.equal(calls.filter((c) => c.method === 'PUT').length, 0, 'nothing was sent');
+});
+
+test('the R-96 op shape itself — `conditions` at the op top level — is refused BEFORE any write, naming trigger.conditions', async () => {
+  const { gw, calls } = editGateway({ triggers: [stampedTrigger()] });
+  const result = await editTool().handler({
+    locationId: 'LOC', workflowId: 'WID', confirm: true,
+    ops: [{ op: 'modifyTrigger', triggerId: 'tr-old', conditions: [{ field: 'tagsAdded', value: 'new' }] }],
+  }, deps(gw));
+  assert.equal(result.ok, false);
+  assert.match(result.detail, /trigger\.conditions/);
+  assert.match(result.detail, /R-96/);
+  assert.equal(calls.filter((c) => c.method !== 'GET').length, 0, 'refused before a single write');
+  // R-101's shape: triggerId + a top-level name meant as the new name.
+  const renamed = await editTool().handler({
+    locationId: 'LOC', workflowId: 'WID', confirm: true,
+    ops: [{ op: 'modifyTrigger', triggerId: 'tr-old', name: 'Renamed' }],
+  }, deps(editGateway({ triggers: [stampedTrigger()] }).gw));
+  assert.equal(renamed.ok, false);
+  assert.match(renamed.detail, /MATCHER/);
+  assert.match(renamed.detail, /trigger\.name/);
+});
+
+// D-89 (2026-09-06, two accounts): a modifyStep on an update_opportunity sitting directly under
+// find_opportunity → Opportunity Found reported OPP_WRITE_UNBOUND_PATH after the write, while the
+// runtime log showed the step updating the card by id. The verifier handed the lint only the
+// touched steps, so the path walk could not see the binder one hop up.
+test('the post-write intent lint sees the WHOLE document: an update under Opportunity Found is not reported unbound', async () => {
+  const templates = [
+    { id: 'f', type: 'find_opportunity', name: 'Find the card', cat: 'multi-path', parentKey: null, order: 0, next: ['ff', 'fn'],
+      attributes: { transitions: [
+        { id: 'ff', name: 'Opportunity Found', meta: { __branchKey__: 'predefined_Opportunity Found' } },
+        { id: 'fn', name: 'Opportunity Not Found', meta: { __branchKey__: 'predefined_Opportunity Not Found' } } ] } },
+    { id: 'ff', type: 'transition', name: 'Opportunity Found', cat: 'transition', parentKey: 'f', parent: 'f', order: 0, attributes: {}, next: 'u' },
+    { id: 'fn', type: 'transition', name: 'Opportunity Not Found', cat: 'transition', parentKey: 'f', parent: 'f', order: 1, attributes: {}, next: null },
+    { id: 'u', type: 'internal_update_opportunity', name: 'Copy interest to the card', parentKey: 'ff', parent: 'ff', order: 0, next: null,
+      attributes: { allowBackward: false, __customInputs__: {}, __customInputFields__: [
+        { filterField: 'pipelineId', value: 'pipe1234567890abcdef', dataType: 'TEXT' },
+        { filterField: 'pipelineStageId', value: 'stage1234567890abcde', dataType: 'TEXT' } ] } },
+  ];
+  const { gw } = editGateway({ initial: workflow({ templates }) });
+  const result = await editTool().handler({
+    locationId: 'LOC', workflowId: 'WID', confirm: true, acknowledgeDrift: true,
+    ops: [{ op: 'modifyStep', stepId: 'u', attrPatch: { __customInputFields__: [
+      { filterField: 'pipelineId', value: 'pipe1234567890abcdef', dataType: 'TEXT' },
+      { filterField: 'pipelineStageId', value: 'stage1234567890abcde', dataType: 'TEXT' },
+      { filterField: 'name', value: '{{custom_values.offer_name}} - {{contact.name}}', dataType: 'TEXT' } ] } }],
+  }, deps(gw));
+  assert.equal(result.ok, true, JSON.stringify(result));
+  assert.deepEqual(result.data.verify.intent.filter((f) => f.code === 'OPP_WRITE_UNBOUND_PATH'), []);
+  assert.deepEqual(result.data.warnings.filter((w) => /MODIFY_NOT_NORMALISED/.test(w)), [], 'a same-shape row overwrite is not a suspect edit');
 });

@@ -762,6 +762,16 @@
   {
     "tool": "edit_workflow",
     "method": "GET",
+    "path": "/workflows/status/search/count-per-step"
+  },
+  {
+    "tool": "edit_workflow",
+    "method": "GET",
+    "path": "/locations/{loc}/customFields/{id}"
+  },
+  {
+    "tool": "edit_workflow",
+    "method": "GET",
     "path": "/workflows-marketplace/location/{loc}/assets"
   },
   {

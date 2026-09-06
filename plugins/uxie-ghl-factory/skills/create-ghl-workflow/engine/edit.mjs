@@ -211,7 +211,10 @@ export function modifyStep(templates, stepId, attrPatch, stepPatch, ctx) {
     // that names only the keys the author cares about still lands as a complete drawer shape.
     // Without a ctx (a caller that has no catalog) this stays the raw merge it always was.
     if (!ctx) return merged;
-    const { attributes, warnings } = normalizeStoredAttributes(merged, ctx);
+    // Keys the patch INTRODUCED. A skipped type (opportunity, goto, custom_code, …) warns only for
+    // these; overwriting keys the wire shape already carries is a same-shape edit (backlog 6).
+    const novelKeys = Object.keys(attrPatch ?? {}).filter((k) => !(k in (t.attributes ?? {})));
+    const { attributes, warnings } = normalizeStoredAttributes(merged, ctx, { novelKeys });
     for (const w of warnings) ctx.warn?.(w);
     return { ...merged, attributes: attributes ?? merged.attributes };
   });
@@ -639,17 +642,37 @@ export function moveStep(templates, stepId, afterId) {
   if (Array.isArray(step.next))
     throw new Error(`moveStep: '${step.name ?? stepId}' is a container — moving a whole container subgraph is not supported (its branch children would keep pointing into the old scope). Rebuild it at the new position instead.`);
   const oldPred = templates.find((t) => t.next === stepId);
+  // The workflow's ENTRY step has no predecessor; moving it would make its old successor the
+  // new entry, which must also land at templates[0] (lints/entry-step.mjs). Refused rather than
+  // half-done: use insertBefore on the old root to put a new head in front of it instead.
+  if (!oldPred)
+    throw new Error(`moveStep: '${step.name ?? stepId}' has no predecessor (it is the workflow's entry step) — the entry cannot be moved; put a new head in front of it with insertBefore instead.`);
   const stepOldNext = typeof step.next === 'string' ? step.next : null;
   const anchorOldNext = typeof anchor.next === 'string' ? anchor.next : null;
   const modified = new Set();
+  // Every `next` edge that moves takes its `parentKey` with it — parentKey is the stored
+  // BACK-pointer to the same edge, and GHL's save validator rejects the document
+  // (INVALID_STRUCTURE, next/parentKey mismatch) when the two disagree. The op used to re-link
+  // `next` only, so nothing ever committed and the preview looked clean (D-15, D-64: every
+  // reorder on the rails was done as deleteStep + insertBefore instead).
   const out = templates.map((t) => {
-    if (oldPred && t.id === oldPred.id) { modified.add(t.id); t = { ...t, next: stepOldNext }; }
-    if (t.id === afterId) { modified.add(t.id); t = { ...t, next: stepId }; }
+    if (t.id === oldPred.id) { modified.add(t.id); t = { ...t, next: stepOldNext }; }
+    if (t.id === afterId) {
+      modified.add(t.id);
+      t = { ...t, next: stepId };
+      // moving a step FORWARD onto its own successor: the anchor's predecessor is now the
+      // moved step's old predecessor
+      if (stepOldNext === afterId) t.parentKey = oldPred.id;
+    }
     if (t.id === stepId) {
       modified.add(t.id);
       t = { ...t, next: anchorOldNext, parentKey: afterId };
       if (anchor.parent != null) t.parent = anchor.parent; else delete t.parent;
     }
+    // the step that used to follow the moved one now follows the moved one's old predecessor
+    if (stepOldNext && t.id === stepOldNext && t.id !== afterId) { modified.add(t.id); t = { ...t, parentKey: oldPred.id }; }
+    // the step that used to follow the anchor now follows the moved step
+    if (anchorOldNext && t.id === anchorOldNext && t.id !== stepId) { modified.add(t.id); t = { ...t, parentKey: stepId }; }
     return t;
   });
   return { templates: out, diff: { createdSteps: [], modifiedSteps: [...modified], deletedSteps: [] } };
@@ -661,9 +684,10 @@ export function moveStep(templates, stepId, afterId) {
 // every branch-entry's sibling[]/order kept in sync. `idGen` mints the new step id.
 export function addBranch(templates, containerId, { name, conditions = [] }, idGen) {
   const container = requireStep(templates, containerId, 'addBranch');
+  if (container.type === 'conversationai_ai_splitter' && Array.isArray(container.next)) return addSplitterBranch(templates, container, { name, conditions }, idGen);
   if (container.nodeType !== 'condition-node' || !Array.isArray(container.next))
     throw new Error(`addBranch: '${container.name ?? containerId}' is not an if/else container (nodeType `
-      + `${container.nodeType ?? 'none'}) — addBranch takes the CONDITION NODE's id, not a branch entry or a linear step.`);
+      + `${container.nodeType ?? 'none'}) — addBranch takes the CONDITION NODE's id (or an AI SPLITTER's id), not a branch entry or a linear step.`);
   const newId = idGen();
   const next = [...container.next];
   const branches = [...(container.attributes?.branches || [])];
@@ -696,6 +720,34 @@ export function addBranch(templates, containerId, { name, conditions = [] }, idG
   });
   out.push(newEntry);
   return { templates: out, diff: { createdSteps: [newId], modifiedSteps: modified, deletedSteps: [] } };
+}
+
+// Add an intent branch to a Conversation-AI SPLITTER. Mirrors the compiler's splitter shape
+// (compiler.mjs): one `attributes.transitions[]` row `{id, name, fields:{}, meta:{},
+// conditionType:'user-defined'}` plus its own `type:'transition'` node under the container; the
+// LLM routes on the branch NAME (against attributes.description), so `conditions` are not part
+// of this shape and are refused rather than stored somewhere they would never be read. New
+// branches go LAST — "No condition met" stays first, as the compiler emits it. Until this
+// existed every new intent on a live flow bot was a hand-authored full-document PUT (Deposit
+// S17 negatives, 2026-09-05), the most error-prone edit on the rails.
+function addSplitterBranch(templates, container, { name, conditions = [] }, idGen) {
+  if (typeof name !== 'string' || !name.trim())
+    throw new Error(`addBranch: a splitter branch needs a 'name' — the splitter routes on the branch name and its description; there is no condition row.`);
+  if (Array.isArray(conditions) && conditions.length)
+    throw new Error(`addBranch: '${container.name ?? container.id}' is an AI splitter — its branches carry no conditions (the LLM routes on the branch name against attributes.description). Drop 'conditions', or put the routing hint in the name.`);
+  const newId = idGen();
+  const next = [...container.next, newId];
+  const rows = [...(container.attributes?.transitions ?? [])];
+  rows.push({ id: newId, name, fields: {}, meta: {}, conditionType: 'user-defined' });
+  const entry = {
+    id: newId, type: 'transition', name, cat: 'transition',
+    parentKey: container.id, parent: container.id, order: next.length - 1, attributes: {}, next: null,
+  };
+  const out = templates.map((t) => (t.id === container.id
+    ? { ...t, next, attributes: { ...t.attributes, transitions: rows } }
+    : t));
+  out.push(entry);
+  return { templates: out, diff: { createdSteps: [newId], modifiedSteps: [container.id], deletedSteps: [] } };
 }
 
 // Delete a whole container (if_else / workflow_split / finder) and EVERYTHING under it —
@@ -1006,10 +1058,21 @@ export function settingsFromDoc(doc) {
 }
 
 /** Stored settings ⊕ patch → the top-level keys for the commit body (+ meta.statsView merge). */
-export function settingsCommitFields(fresh, patch, uid, opts = {}) {
+export function settingsCommitFields(fresh, rawPatch, uid, opts = {}) {
+  // The workflow's NAME rides the same top-level PUT as the Settings tab and is edited the same
+  // way (ED-09: a whole-record PUT with `name` changed renames; the rename rail is a separate
+  // endpoint that bumps `version`, R-66). Builder cap 1–100 characters (R-58): the API stores a
+  // longer name, the drawer then refuses to save it.
+  const { name, ...patch } = rawPatch ?? {};
+  const out = {};
+  if (name !== undefined) {
+    if (typeof name !== 'string' || !name.trim() || name.length > 100)
+      throw new IRError('SETTINGS_VALUE', `updateSettings: settings.name must be a non-empty string of at most 100 characters (the builder's cap) — got ${JSON.stringify(name)}`);
+    out.name = name;
+  }
   const unknown = Object.keys(patch).filter((k) => !KNOWN_SETTINGS_KEYS.has(k));
   if (unknown.length && opts.skipSettingsCheck !== true)
-    throw new IRError('SETTINGS_KEY', `updateSettings: unknown settings key(s) [${unknown.join(', ')}] — known: ${[...KNOWN_SETTINGS_KEYS].join(', ')}`);
+    throw new IRError('SETTINGS_KEY', `updateSettings: unknown settings key(s) [${unknown.join(', ')}] — known: name, ${[...KNOWN_SETTINGS_KEYS].join(', ')}`);
   const merged = { ...settingsFromDoc(fresh), ...patch };
   // the stored note keeps its authorship; a NEW/changed note is stamped by this edit
   if (typeof patch.workflowNote === 'string' && fresh.workflowNote?.content !== undefined && patch.workflowNote !== fresh.workflowNote.content)
@@ -1019,7 +1082,7 @@ export function settingsCommitFields(fresh, patch, uid, opts = {}) {
     senderRuleAdvisory: !('senderAddress' in patch),
   });
   const { statsView, ...top } = body;
-  const out = { ...top };
+  Object.assign(out, top);
   if ('statsView' in patch || fresh.meta?.statsView !== undefined) out.meta = { ...(fresh.meta ?? {}), statsView };
   return out;
 }
