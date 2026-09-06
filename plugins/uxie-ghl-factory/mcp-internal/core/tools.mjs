@@ -1606,8 +1606,12 @@ export const TOOLS = [
           'Agent update preview is ready; no write was made.',
           'Review data.preview.changingKeys and data.preview.collateralKeys, then repeat with confirm:true.'), { preview });
       }
+      // WRITE-ONLY keys are excluded from the read-back comparison: `actions` is sent as null the
+      // way the UI sends it, and the record always reads back the real list — holding it to the
+      // null reported a mismatch on every successful update (live-proven 2026-09-07).
+      const writeOnly = new Set(plan.writeOnlyKeys ?? []);
       const expected = {};
-      for (const k of changingKeys) expected[k] = plan.body[k];
+      for (const k of changingKeys) if (!writeOnly.has(k)) expected[k] = plan.body[k];
       const report = await executeAgentUpdate({
         plan: { update: { method: 'PUT', path, body: plan.body }, collateralKeys: plan.collateralKeys, before: record, expected },
         gw,

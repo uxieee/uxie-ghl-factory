@@ -342,7 +342,20 @@ const FATAL_FOR_FLOW_BOT = new Set(['toneEmpty', 'errorMaxTones', 'selectChannel
 
 export function compileConvaiAgent(ir, { locationId, warn, allowUiUnsaveable } = {}) {
   const norm = parseConvaiIR(ir);
-  const body = buildCreateBody(norm, { locationId });
+  // THE SAME BOT-TYPE CLEANUP THE UPDATE PATH RUNS. It existed here only on update, so the CREATE
+  // sent `tones` for a PROMPT_BASED_BOT and the server refused the whole call:
+  // `422 "tones is only allowed when bot type is FLOW_BUILDER_BOT"` — every prompt-bot creation
+  // through this tool failed (live, designated test sub-account, 2026-09-07). buildCreateBody
+  // fills defaults for the full field set, so the filter has to run after it, exactly as on update.
+  const rawBody = buildCreateBody(norm, { locationId });
+  const body = applyBotTypeCleanup(rawBody);
+  // Dropped keys are NAMED, never silently removed — the same doctrine the edit ops follow. A
+  // caller who authored tones on a prompt bot asked for something this bot type cannot carry.
+  for (const k of Object.keys(rawBody)) {
+    if (k in body || norm[k] === undefined) continue;
+    warn?.(`BOT_TYPE_KEY: '${k}' is not accepted for botType '${body.botType}' and was dropped — `
+      + `the server refuses the whole create otherwise ("${k} is only allowed when bot type is FLOW_BUILDER_BOT").`);
+  }
   const violations = uiSaveViolations(body, body.botType);
   const fatal = body.botType === 'FLOW_BUILDER_BOT' ? violations.filter((x) => FATAL_FOR_FLOW_BOT.has(x.rule)) : [];
   if (fatal.length && allowUiUnsaveable !== true) {
@@ -414,6 +427,11 @@ const NON_FORM_KEYS = ['skipIfAlreadyFilled', 'botInitialMessage', 'steps', 'not
 const SERVER_KEYS = new Set(['id', '_id', 'dateAdded', 'dateUpdated', 'createdAt', 'updatedAt', 'deleted', 'traceId',
   'employeeType', 'errors', 'isDeleted', 'rootParentAgentId', 'workingHours', 'steps']);
 
+// Keys the GET returns as `{}` when unconfigured and the PUT then refuses field by field. See
+// compileConvaiUpdateFromRecord for the measurement; `promptId` is not here because it is a real
+// id the write rail accepts.
+const EMPTY_OBJECT_REFUSED_KEYS = ['summary', 'emailSettings'];
+
 export function applyBotTypeCleanup(body) {
   const b = { ...body };
   if (b.botType !== 'FLOW_BUILDER_BOT') for (const k of FLOW_ONLY_KEYS) delete b[k];
@@ -448,6 +466,17 @@ export function compileConvaiUpdateFromRecord(current, partialIr, { agentId, loc
   const norm = parseConvaiPartialIR(partialIr);
   const body = {};
   for (const [k, v] of Object.entries(current)) if (!SERVER_KEYS.has(k) && k !== 'name') body[k] = v;
+  // AN EMPTY NESTED OBJECT IS THE SERVER'S "UNSET", AND THE PUT REFUSES IT BACK. The GET returns
+  // `summary: {}` and `emailSettings: {}` on an agent that has neither configured; echo either one
+  // and the DTO validates its INNER fields and 422s ("summary.enabled must be a boolean value",
+  // "summary.minimumMessages must be an integer number", …). Live-proven on the designated test
+  // sub-account 2026-09-07: the identical PUT succeeds with the two empty objects dropped, and the
+  // read-back shows them still `{}` with every collateral field intact — so dropping them resets
+  // nothing. Same class as `workingHours` above, one level in: a key whose stored STATE the write
+  // rail cannot accept. Only an EMPTY one is dropped; a configured summary still round-trips, and
+  // a caller that sets one still sends it.
+  const isEmptyObject = (v) => v !== null && typeof v === 'object' && !Array.isArray(v) && Object.keys(v).length === 0;
+  for (const k of EMPTY_OBJECT_REFUSED_KEYS) if (body[k] === null || isEmptyObject(body[k])) delete body[k];
   body.locationId = locationId ?? current.locationId;
   body.employeeName = current.employeeName ?? current.name;
 
@@ -457,8 +486,16 @@ export function compileConvaiUpdateFromRecord(current, partialIr, { agentId, loc
   }
   if (norm.name !== undefined) { body.employeeName = norm.name; setKeys.add('employeeName'); }
   // Actions are their own resource; the record PUT always sends null, as the UI does.
+  // WRITE-ONLY: the server stores the real action list and the re-read returns `[]` (or the
+  // actions), never the `null` we sent — so holding the read-back to that null reports
+  // `mismatches: ["actions"]` on every successful update. Live-proven on the designated test
+  // sub-account 2026-09-07: a PUT that demonstrably wrote `personality` was reported
+  // AGENT_VERIFY_MISMATCH purely on this key. Same class as the trigger POST's camelCase
+  // `workflowId`, which is likewise a write shape absent from the read shape. It stays out of
+  // `expected` and out of `collateralKeys` — nothing about it can be verified from this record.
   body.actions = null;
   setKeys.add('actions');
+  const writeOnlyKeys = ['actions'];
 
   const cleaned = applyBotTypeCleanup(body);
   const collateralKeys = Object.keys(cleaned).filter((k) => !setKeys.has(k));
@@ -468,6 +505,7 @@ export function compileConvaiUpdateFromRecord(current, partialIr, { agentId, loc
     body: cleaned,
     authHeader: AUTH_HEADER,
     collateralKeys,
+    writeOnlyKeys,
   };
 }
 
