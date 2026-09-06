@@ -11,6 +11,22 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [0.58.2] — 2026-09-07
+
+One rule, promoted to where every agent sees it.
+
+### Added
+
+- **"Assume replace, not merge" is now in the MCP server instructions.** Three unrelated rails were
+  found doing it independently: `POST /forms/{id}` deletes every key absent from the body and has no
+  PATCH; `PUT /calendars/{id}` reset `openHours` to `{}` for a body that named only the slot fields;
+  the public update-calendar and update-pipeline rails do the same, which the pipeline-specialist
+  skill had already recorded from a client build in July. The damage is always to a field the caller
+  never mentioned, so a read-back that checks only what was sent reports success on it — which is
+  why this sits beside the existing "a 200 is not proof" paragraph rather than in a skill. The
+  calendar half is proven in `knowledge/corpus/calendars/40-rules/`; the forms half in
+  `knowledge/corpus/forms/40-rules/`.
+
 ## [0.58.1] — 2026-09-07
 
 The forms surface settled on one canonical host, and the harvester learned that a page's stated
