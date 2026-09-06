@@ -145,7 +145,8 @@
       "requiredQuery": [
         "locationId"
       ],
-      "note": "Live-probed 2026-08-25: the endpoint returned 422 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source."
+      "note": "Live-proven 2026-09-06: formIds MUST be one comma-joined string (formIds=a,b) — repeated or bracketed params 422 \"formIds must be a string\"; locationId is rejected (\"property locationId should not exist\"). Returns list rows without formData. The row id says get-form-by-id but the by-id read is GET /forms/{id} (unknown id → 400 \"Form does not exist\", not 404).",
+      "reach": "proven"
     },
     "GET /funnels/funnel/list": {
       "reach": "proven"
@@ -882,6 +883,18 @@
       "reach": "source-only",
       "summary": "Delete a Metrics dashboard layout.",
       "note": "Never called during mapping; read-only sweep."
+    },
+    "GET /forms": {
+      "reach": "proven",
+      "note": "Live-proven 2026-09-06 (knowledge corpus/forms). Needs locationId, skip, limit; type=form returns forms only — ANY other type value (or none) returns forms AND folders in one array. query= is a substring name search; parentId= filters to a folder. Rows carry no formData; GET /forms/{id} does. token-id or Bearer, services or backend — all reach. The full lifecycle (POST /forms/ create, POST /forms/{id} save {name, formData}, duplicate, restore-version, move-to-folder, folders) is proven in corpus/forms/20-api/forms.md but has no rows here yet: the builder is a separate SPA with a PUBLIC source map (sniffs/forms-2026-09-06/builder-app/tree/src) that the generator does not read — see plugin/STATUS-2026-09-06-forms-surface.md."
+    },
+    "GET /surveys": {
+      "reach": "proven",
+      "note": "Live-proven 2026-09-06: {surveys:[], total}; same params as GET /forms. POST /surveys/ {locationId, name, source} creates a survey PRE-SEEDED with one slide (a form starts at formData {}). /surveys/* does NOT mirror /forms/* path for path (corrected 2026-09-07 from a full call-site extraction of the builder SPA): the survey app uses /surveys/… only for list, create, read, save, image, restore-version, themes and theme-style, and calls the /forms/… routes for delete, duplicate, share, folder create/read/list/rename and move-to-folder. So /surveys/duplicate/{id}, /surveys/folder and /surveys/move-to-folder are paths nothing in the product calls — untested, existence unknown. Corpus: knowledge/corpus/forms/20-api/surveys-and-quizzes.md."
+    },
+    "GET /surveys/{id}": {
+      "reach": "proven",
+      "note": "Live-proven 2026-09-06: {survey:{…, formData:{form, slides[]}}}. Survey save is POST /surveys/{id} {name, formData} (source-derived from the builder SPA; not executed)."
     }
   }
 }
