@@ -146,8 +146,9 @@ then the convenience ops and tool notes. Every item names the finding it came fr
 - Backlog 7 (a trigger that only DELETE stops, R-80): not reproducible from the corpus; the
   `status` rail is live-proven elsewhere and the account-specific case is recorded, not fixed.
 - Backlog 31 (`PUT /contacts/{id}` with `{"phone": ""}` answers 200 and changes nothing; `null`
-  clears): a catalogue note for the endpoint overlay, deferred — that file has uncommitted forms
-  work from another session at the time of this release.
+  clears): recorded, not annotated — the catalogue has no row for that endpoint (no mined
+  front-end calls it and no corpus page documents it), so the note has nowhere to attach until
+  a contacts surface is captured.
 
 ### Changed
 
