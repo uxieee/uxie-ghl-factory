@@ -890,7 +890,7 @@
     },
     "GET /surveys": {
       "reach": "proven",
-      "note": "Live-proven 2026-09-06: {surveys:[], total}; same params as GET /forms. POST /surveys/ {locationId, name, source} creates a survey PRE-SEEDED with one slide (a form starts at formData {}). /surveys/* mirrors /forms/* path for path."
+      "note": "Live-proven 2026-09-06: {surveys:[], total}; same params as GET /forms. POST /surveys/ {locationId, name, source} creates a survey PRE-SEEDED with one slide (a form starts at formData {}). /surveys/* does NOT mirror /forms/* path for path (corrected 2026-09-07 from a full call-site extraction of the builder SPA): the survey app uses /surveys/… only for list, create, read, save, image, restore-version, themes and theme-style, and calls the /forms/… routes for delete, duplicate, share, folder create/read/list/rename and move-to-folder. So /surveys/duplicate/{id}, /surveys/folder and /surveys/move-to-folder are paths nothing in the product calls — untested, existence unknown. Corpus: knowledge/corpus/forms/20-api/surveys-and-quizzes.md."
     },
     "GET /surveys/{id}": {
       "reach": "proven",
