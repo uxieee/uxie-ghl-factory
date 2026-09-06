@@ -134,17 +134,24 @@ Fixed in `knowledge/` (commit named in the summary below):
   list of a 9 MB sniffs tree overflowed Node's 1 MB default; `maxBuffer` raised, `npm test` runs.
 
 Result, diffed on every axis: documented tree 680 → 682 rows, zero removed; merged source 1067;
-compiled plugin catalogue **1078 rows, 40 `/vibe-ai/*`, 28 snapshot, 40 forms**. Against the
-0.56.1 catalogue it is +68 / −1, and the one removal is `POST /locations/{locationId}/customFields`
+compiled plugin catalogue **1076 rows, 40 `/vibe-ai/*`, 28 snapshot, 34 forms**. Against the
+0.56.1 catalogue it is +66 / −1, and the one removal is `POST /locations/{locationId}/customFields`
 absorbed: the forms corpus now documents the same call with a trailing slash and that row carries
 `coveredBy: create_custom_field_folder`. Field-level changes were read row by row: 17 ids and 4
 `service` values re-keyed to the sidecar's per-base service (the plugin overlay joins on
 `METHOD path`, so nothing detaches), 5 `authRail` values now follow the base's credential, and 16
 rows gained `proof`. The regenerated files ship with 0.57.0.
 
-Left for the forms owner (not mine): `GET /forms/{bad}` is a real row minted from a 400-probe line
-(`forms/40-rules/validators-and-quirks.md:95`), and `/forms/{id}` and `/forms/{formId}` are the same
-route twice under two parameter names. Told the forms session.
+The forms session then corrected its pages (knowledge b8ce834: the `GET /forms/{bad}` 400-probe
+line and six `{formId}` spellings of `{id}` routes); the re-harvest was the guard's first real use —
+refused, all seven named, then removed with `--allow-removals`. 1078 → 1076.
+
+Carried in from that session, NOT shipped here: on a client account it proved
+`PUT /membership/locations/{loc}/offers/{id}` with `{visibility:"published"}` is the offer PUBLISH
+call and a MERGE (title/type/currency/products untouched), `POST …/offers` on backend creates,
+`GET …/user-purchase/no-of-users-purchasedOffer/{offerId}` → `{userCount}` proves a grant attached,
+and the asset pre-flight refuses a DRAFT offer id in `membership_grant_offer`. Belongs on the
+memberships-courses corpus page + an overlay note; the receipts live in that client's build log.
 
 ## Carried in from another session — for the backlog, NOT fixed here
 

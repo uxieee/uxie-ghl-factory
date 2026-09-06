@@ -48,7 +48,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
     define_ENDPOINT_CATALOG_default = {
       generated: "2026-09-06",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 1081,
+      count: 1076,
       endpoints: [
         {
           id: "workflows--actions-branches",
@@ -6153,41 +6153,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
         },
         {
           id: "forms--forms",
-          method: "GET",
-          url: "https://backend.leadconnectorhq.com/forms/{bad}",
-          path: "/forms/{bad}",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "read",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "forms",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "bad"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "forms/40-rules/validators-and-quirks.md:95"
-          ]
-        },
-        {
-          id: "forms--forms-get",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/forms/{id}",
           path: "/forms/{id}",
@@ -35453,7 +35418,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
-          id: "forms--forms-get-get",
+          id: "forms--forms-get",
           method: "GET",
           url: "https://services.leadconnectorhq.com/forms/",
           path: "/forms/",
@@ -35561,8 +35526,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
         {
           id: "forms--forms-delete",
           method: "DELETE",
-          url: "https://services.leadconnectorhq.com/forms/{formId}",
-          path: "/forms/{formId}",
+          url: "https://services.leadconnectorhq.com/forms/{id}",
+          path: "/forms/{id}",
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "destructive",
@@ -35577,7 +35542,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           tree: "documented",
           pathParams: [
             {
-              name: "formId"
+              name: "id"
             }
           ],
           query: [],
@@ -35594,10 +35559,10 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
-          id: "forms--forms-get-get-get",
+          id: "forms--forms-get-get",
           method: "GET",
-          url: "https://services.leadconnectorhq.com/forms/{formId}",
-          path: "/forms/{formId}",
+          url: "https://services.leadconnectorhq.com/forms/{id}",
+          path: "/forms/{id}",
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
@@ -35612,7 +35577,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           tree: "documented",
           pathParams: [
             {
-              name: "formId"
+              name: "id"
             }
           ],
           query: [],
@@ -35625,82 +35590,13 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "forms/20-api/forms.md:35"
+            "forms/20-api/forms.md:35",
+            "forms/20-api/forms.md:69"
           ]
         },
         {
           id: "forms--forms-post-post-post",
           method: "POST",
-          url: "https://services.leadconnectorhq.com/forms/{formId}",
-          path: "/forms/{formId}",
-          origin: "https://services.leadconnectorhq.com",
-          rail: "ai",
-          kind: "write",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "forms",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "formId"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "forms/20-api/forms.md:39"
-          ]
-        },
-        {
-          id: "forms--forms-get-get-get-get",
-          method: "GET",
-          url: "https://services.leadconnectorhq.com/forms/{id}",
-          path: "/forms/{id}",
-          origin: "https://services.leadconnectorhq.com",
-          rail: "ai",
-          kind: "read",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "forms",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "id"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "forms/20-api/forms.md:69"
-          ]
-        },
-        {
-          id: "forms--forms-post-post-post-post",
-          method: "POST",
           url: "https://services.leadconnectorhq.com/forms/{id}",
           path: "/forms/{id}",
           origin: "https://services.leadconnectorhq.com",
@@ -35730,6 +35626,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
+            "forms/20-api/forms.md:39",
             "forms/20-api/forms.md:100",
             "forms/20-api/forms.md:129"
           ]
@@ -35775,41 +35672,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
         {
           id: "forms--forms-data-get",
           method: "GET",
-          url: "https://services.leadconnectorhq.com/forms/data/{formId}",
-          path: "/forms/data/{formId}",
-          origin: "https://services.leadconnectorhq.com",
-          rail: "ai",
-          kind: "read",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "forms",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "formId"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "forms/20-api/forms.md:36"
-          ]
-        },
-        {
-          id: "forms--forms-data-get-get",
-          method: "GET",
           url: "https://services.leadconnectorhq.com/forms/data/{id}",
           path: "/forms/data/{id}",
           origin: "https://services.leadconnectorhq.com",
@@ -35839,6 +35701,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
+            "forms/20-api/forms.md:36",
             "forms/20-api/forms.md:75"
           ]
         },
@@ -35883,41 +35746,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
         {
           id: "forms--forms-duplicate",
           method: "POST",
-          url: "https://services.leadconnectorhq.com/forms/duplicate/{formId}",
-          path: "/forms/duplicate/{formId}",
-          origin: "https://services.leadconnectorhq.com",
-          rail: "ai",
-          kind: "write",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "forms",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "formId"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "forms/20-api/forms.md:40"
-          ]
-        },
-        {
-          id: "forms--forms-duplicate-post",
-          method: "POST",
           url: "https://services.leadconnectorhq.com/forms/duplicate/{id}",
           path: "/forms/duplicate/{id}",
           origin: "https://services.leadconnectorhq.com",
@@ -35947,6 +35775,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
+            "forms/20-api/forms.md:40",
             "forms/20-api/forms.md:131"
           ]
         },
@@ -36132,8 +35961,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
         {
           id: "forms--forms-share",
           method: "POST",
-          url: "https://services.leadconnectorhq.com/forms/share/{formId}",
-          path: "/forms/share/{formId}",
+          url: "https://services.leadconnectorhq.com/forms/share/{id}",
+          path: "/forms/share/{id}",
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "write",
@@ -36148,7 +35977,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           tree: "documented",
           pathParams: [
             {
-              name: "formId"
+              name: "id"
             }
           ],
           query: [],
