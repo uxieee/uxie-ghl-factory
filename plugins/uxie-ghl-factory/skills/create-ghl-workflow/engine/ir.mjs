@@ -67,7 +67,13 @@ const KIND_BY_TYPE = { if_else: 'if_else', workflow_split: 'split', ai_decision:
 // therefore reached the wire as a dead top-level key: the step saves, round-trips clean, renders
 // half-empty and moves nothing (F5-09 / T1-1, eight client workflows on 2026-08-28). One spelling
 // from here on. `kind:'raw'` opts out — a raw template is the author's responsibility end to end.
-const WIRE_TYPE_ALIASES = { internal_update_opportunity: 'update_opportunity', internal_create_opportunity: 'create_opportunity' };
+// `internal_create_opportunity` maps to the STRICT lean name, not to `create_opportunity`.
+// Those are two different GHL actions: `create_opportunity` is the builder's Create/Update
+// (upsert) action, and `internal_create_opportunity` is a picker-invisible helper that only ever
+// creates and answers 400 on a contact that already has a card. Collapsing the wire name onto the
+// lean one made the upsert unreachable and every "create an opportunity" intent a create-only
+// step (2026-09-06: 31 steps on one client build retyped by hand).
+const WIRE_TYPE_ALIASES = { internal_update_opportunity: 'update_opportunity', internal_create_opportunity: 'create_opportunity_strict' };
 
 // Reject any node-level key the compiler will not read. Attribute keys already had this
 // (ATTR_KEY); node keys did not, which is how `kind:'find_opportunity'`, a typo'd
@@ -309,7 +315,7 @@ export function parseIR(ir, { externalRefs } = {}) {
 // can't prove (trigger-identity if/else, goto convergence). Lexical per-scope
 // only — no propagation across goto edges (v1 limitation, see the spec).
 export const REQUIRES_OPPORTUNITY = new Set(['update_opportunity', 'internal_update_opportunity']);
-export const CREATES_OPPORTUNITY = new Set(['create_opportunity', 'internal_create_opportunity']);
+export const CREATES_OPPORTUNITY = new Set(['create_opportunity', 'create_opportunity_strict', 'internal_create_opportunity']);
 
 export function checkOpportunityAssociation(norm, oppTriggerTypes) {
   const rootAssoc = norm.triggers.length > 0 && norm.triggers.every((t) => oppTriggerTypes.has(t.type));

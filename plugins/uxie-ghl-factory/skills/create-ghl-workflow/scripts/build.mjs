@@ -11,7 +11,7 @@
 // The agent MUST use this instead of hand-assembling API calls, so dependency
 // pre-creation and name resolution can never be skipped.
 import { readFileSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dirname, join, resolve } from 'node:path';
 import { homedir } from 'node:os';
 const HERE = dirname(fileURLToPath(import.meta.url));

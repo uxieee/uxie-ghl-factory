@@ -252,7 +252,11 @@ test('build_workflow keeps a downstream abort as ENGINE_ABORT when ignored depen
     graph: [{
       ref: 'create-opportunity',
       kind: 'action',
-      type: 'create_opportunity',
+      // The create-only helper, which is what `create_opportunity` compiled to before it was
+      // pointed at the builder's real Create/Update action. It carries no GHL validator, so a step
+      // with an unresolved pipeline still compiles — which is what this test needs in order to
+      // reach the DOWNSTREAM create failure it is actually about.
+      type: 'create_opportunity_strict',
       name: 'Create opportunity',
       attributes: { name: 'Deal', pipeline: 'Ghost pipeline', status: 'open' },
     }],
@@ -266,6 +270,28 @@ test('build_workflow keeps a downstream abort as ENGINE_ABORT when ignored depen
   assert.equal(result.code, 'ENGINE_ABORT', 'the create failure, not the ignored dependency, caused this abort');
   assert.match(result.detail, /create failed: 500/);
   assert.equal(result.data.unresolved[0].name, 'Ghost pipeline');
+});
+
+test('an opportunity step whose pipeline never resolved is refused by GHL\'s own guard, not built blind', () => {
+  // The safety `create_opportunity` gained by compiling to the action GHL actually validates:
+  // before this, the type mapped to the create-only internal helper, which has NO validator, so a
+  // pipeline-less step compiled clean, published clean and no-opped at runtime. It is now refused
+  // at compile by GHL's own mined guard, and `ignoreUnresolved` does not buy past it: enforcement
+  // is a separate gate and build_workflow deliberately exposes no skipEnforcement input.
+  return buildTool().handler(
+    { locationId: 'LOC', spec: {
+      name: 'Forced unresolved workflow',
+      triggers: [],
+      graph: [{ ref: 'c', kind: 'action', type: 'create_opportunity', name: 'Create opportunity',
+        attributes: { name: 'Deal', pipeline: 'Ghost pipeline', status: 'open' } }],
+    }, ignoreUnresolved: true },
+    deps(buildGateway({ createFails: true }).gw),
+  ).then((r) => {
+    assert.equal(r.ok, false);
+    assert.equal(r.code, 'ENGINE_ABORT');
+    assert.match(r.detail, /ENFORCEMENT/);
+    assert.match(r.detail, /pipeline_id/);
+  });
 });
 
 test('build_workflow returns observed dependency resources when transport fails before workflow creation', async () => {

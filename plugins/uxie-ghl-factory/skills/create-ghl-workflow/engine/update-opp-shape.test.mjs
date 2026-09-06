@@ -105,9 +105,13 @@ test("update_opportunity name-path monetaryValue emits valueFieldType 'numerical
 // The builder-native shape is { value:180 (number), valueFieldType:'numerical',
 // dataType:'NUMERICAL' }. The engine used to emit String(a.value) — assert it now emits
 // a NUMBER across BOTH the create and update paths, and that string fields are untouched.
+// `create_opportunity_strict` — the create-only internal helper. It owns the
+// __customInputFields__ shape these tests pin. The author-facing `create_opportunity` is the
+// builder's Create/Update action and emits flat snake_case attributes instead; its own shape is
+// pinned in create-opportunity-upsert.test.mjs.
 const oppCreate = (attributes) => ({
   triggers: [{ type: 'contact_tag', name: 'T', filters: [] }],
-  graph: [{ ref: 'c', kind: 'action', type: 'create_opportunity', name: 'Create',
+  graph: [{ ref: 'c', kind: 'action', type: 'create_opportunity_strict', name: 'Create',
     attributes: { pipelineId: 'P', stageId: 'S', ...attributes } }],
 });
 const createFieldOf = (spec, ff) => {
@@ -116,7 +120,7 @@ const createFieldOf = (spec, ff) => {
   return opp.attributes.__customInputFields__.find((x) => x.filterField === ff);
 };
 
-test('create_opportunity monetaryValue compiles to the builder-native shape (numeric value + numerical + NUMERICAL)', () => {
+test('create_opportunity_strict monetaryValue compiles to the builder-native shape (numeric value + numerical + NUMERICAL)', () => {
   const mv = createFieldOf(oppCreate({ name: 'Deal', value: 180 }), 'monetaryValue');
   assert.ok(mv, 'monetaryValue field emitted');
   assert.equal(mv.value, 180);
@@ -125,14 +129,14 @@ test('create_opportunity monetaryValue compiles to the builder-native shape (num
   assert.equal(mv.dataType, 'NUMERICAL');
 });
 
-test('create_opportunity monetaryValue authored as a numeric STRING still emits a number', () => {
+test('create_opportunity_strict monetaryValue authored as a numeric STRING still emits a number', () => {
   const mv = createFieldOf(oppCreate({ value: '2000' }), 'monetaryValue');
   assert.equal(mv.value, 2000);
   assert.equal(typeof mv.value, 'number');
   assert.equal(mv.valueFieldType, 'numerical');
 });
 
-test('create_opportunity name (string field) keeps string value + dataType TEXT, never coerced', () => {
+test('create_opportunity_strict name (string field) keeps string value + dataType TEXT, never coerced', () => {
   const nm = createFieldOf(oppCreate({ name: '2024 Deal', value: 180 }), 'name');
   assert.equal(nm.value, '2024 Deal');
   assert.equal(typeof nm.value, 'string');
@@ -191,10 +195,10 @@ test('update_opportunity lostReasonId compiles field-for-field to the harvested 
   assert.deepEqual(lr, HARVESTED_LOST_REASON);
 });
 
-test('create_opportunity lostReasonId compiles to the same harvested shape', () => {
+test('create_opportunity_strict lostReasonId compiles to the same harvested shape', () => {
   const built = compile({
     triggers: [{ type: 'contact_tag', name: 'T', filters: [] }],
-    graph: [{ ref: 'c', kind: 'action', type: 'create_opportunity', name: 'Create',
+    graph: [{ ref: 'c', kind: 'action', type: 'create_opportunity_strict', name: 'Create',
       attributes: { pipelineId: 'P', stageId: 'S', status: 'lost', lostReasonId: '<lostReasonId>' } }],
   }, baseCtx());
   const opp = built.autoSaveBody.workflowData.templates.find((t) => t.attributes?.__customInputFields__);
@@ -234,11 +238,11 @@ test('lostReasonId fails closed on the updates[] path as well as the name path',
   );
 });
 
-test('create_opportunity lostReasonId fails closed too (status defaults to open)', () => {
+test('create_opportunity_strict lostReasonId fails closed too (status defaults to open)', () => {
   assert.throws(
     () => compile({
       triggers: [{ type: 'contact_tag', name: 'T', filters: [] }],
-      graph: [{ ref: 'c', kind: 'action', type: 'create_opportunity', name: 'Create',
+      graph: [{ ref: 'c', kind: 'action', type: 'create_opportunity_strict', name: 'Create',
         attributes: { pipelineId: 'P', stageId: 'S', lostReasonId: 'LR1' } }],
     }, baseCtx()),
     (e) => e.code === 'OPP_LOST_REASON_NO_LOST_STATUS' && /status is 'open', not 'lost'/.test(e.message),

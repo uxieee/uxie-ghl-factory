@@ -161,9 +161,27 @@ export const CATALOG_CORRECTIONS = {
       + 'wire is refused (`UNRESOLVED_NAME`) because GHL stores the word and the step then moves nothing.',
   },
   internal_create_opportunity: {
-    reason: 'same wire/lean split as internal_update_opportunity',
-    docNote: 'Author as **`create_opportunity`** (lean keys: `pipeline`/`stage` names on the build path, ids on '
-      + 'the edit path, plus `name`, `status`, `value`…). `internal_create_opportunity` is accepted as an alias.',
+    reason: 'the wire/lean split, plus the correction of 2026-09-07: this type is NOT what "create an '
+      + 'opportunity" means. GHL\'s own description of it says the action WILL NOT EXECUTE when the contact '
+      + 'already has an opportunity in the same pipeline, so authoring it for a create-or-update intent '
+      + 'silently no-ops for every returning contact',
+    docNote: 'Author as **`create_opportunity_strict`** — and only when you mean CREATE-ONLY. GHL\'s own '
+      + 'description: "If duplicate opportunities are disabled and an opportunity already exists in the same '
+      + 'pipeline, the action will not execute." It has no validator, so a bad shape saves and no-ops. For the '
+      + 'ordinary "create an opportunity" intent author **`create_opportunity`**, which compiles to the '
+      + 'builder\'s own Create/Update action and UPDATES the contact\'s existing card instead of failing.',
+  },
+  create_opportunity: {
+    reason: 'the picker calls this "Create/Update Opportunity" (locale key create_update_opportunity) and the '
+      + 'engine used to compile the intent to internal_create_opportunity instead, which only creates '
+      + '(2026-09-06: 31 steps on one client build retyped by hand)',
+    docNote: 'The UPSERT, and the default for "create an opportunity": it updates the running contact\'s '
+      + 'existing card in that pipeline and creates only when there is none. Author camelCase lean keys — '
+      + '`pipeline`/`stage` NAMES on the build path (the resolver turns them into ids) or `pipelineId`/`stageId` '
+      + 'on the edit path, plus `name`, `source`, `status`, `value`, `lostReasonId`, and the two drawer '
+      + 'switches `allowBackward` (move to an earlier stage) and `allowMultiple` (make a second card instead of '
+      + 'updating — the opt-OUT of the upsert). They are mutually exclusive. `pipelineId` is required: GHL\'s '
+      + 'validator emits `pipeline_required` without one.',
   },
   // 🔴 The generated keys for this node are WRONG. Authoring the documented
   // `reactivate: false` was accepted, persisted as an unknown key, and left the

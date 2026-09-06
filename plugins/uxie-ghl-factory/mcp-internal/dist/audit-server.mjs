@@ -2762,10 +2762,10 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "services/api/contact-service.ts:36",
             "platform/20-api/smart-lists.md:91",
+            "platform/20-api/smart-lists.md:150",
             "platform/30-types/contact-filter-dsl.md:4",
             "platform/30-types/contact-filter-dsl.md:12",
-            "platform/30-types/index.md:18",
-            "workflows/50-runtime/forcing-and-removing-contacts.md:128"
+            "platform/30-types/index.md:18"
           ]
         },
         {
@@ -2830,7 +2830,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "platform/20-api/smart-lists.md:27",
             "platform/20-api/smart-lists.md:71",
-            "platform/20-api/smart-lists.md:148"
+            "platform/20-api/smart-lists.md:205"
           ]
         },
         {
@@ -2865,7 +2865,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "platform/20-api/smart-lists.md:57"
+            "platform/20-api/smart-lists.md:57",
+            "platform/20-api/smart-lists.md:159"
           ]
         },
         {
@@ -2911,7 +2912,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "platform/20-api/smart-lists.md:26",
             "platform/20-api/smart-lists.md:46",
-            "platform/20-api/smart-lists.md:47"
+            "platform/20-api/smart-lists.md:47",
+            "platform/20-api/smart-lists.md:147",
+            "platform/20-api/smart-lists.md:156"
           ]
         },
         {
@@ -3005,7 +3008,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "platform/20-api/smart-lists.md:25",
-            "platform/20-api/smart-lists.md:38"
+            "platform/20-api/smart-lists.md:38",
+            "platform/20-api/smart-lists.md:157"
           ]
         },
         {
@@ -9335,7 +9339,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "platform/20-api/smart-lists.md:25",
-            "platform/20-api/smart-lists.md:128",
+            "platform/20-api/smart-lists.md:185",
             "workflows/20-api/03-endpoints.md:345",
             "workflows/20-api/smart-lists.md:69",
             "workflows/70-research/ENDPOINTS.md:77"
@@ -9413,11 +9417,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "platform/20-api/smart-lists.md:26",
-            "platform/20-api/smart-lists.md:138"
+            "platform/20-api/smart-lists.md:157",
+            "platform/20-api/smart-lists.md:195"
           ]
         },
         {
-          id: "workflows--lists-dynamic-delete",
+          id: "platform--lists-dynamic-delete",
           method: "DELETE",
           url: "https://backend.leadconnectorhq.com/lists/dynamic/{locationId}/{smartListId}",
           path: "/lists/dynamic/{locationId}/{smartListId}",
@@ -9431,7 +9436,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: "workflows",
+          service: "platform",
           tree: "documented",
           pathParams: [
             {
@@ -9451,6 +9456,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
+            "platform/20-api/smart-lists.md:155",
             "workflows/20-api/smart-lists.md:73",
             "workflows/70-research/ENDPOINTS.md:81"
           ]
@@ -85133,7 +85139,7 @@ var SCOPE_OWNERS = {
   target: ["goto"]
 };
 var KIND_BY_TYPE = { if_else: "if_else", workflow_split: "split", ai_decision: "ai_decision", goto: "goto" };
-var WIRE_TYPE_ALIASES = { internal_update_opportunity: "update_opportunity", internal_create_opportunity: "create_opportunity" };
+var WIRE_TYPE_ALIASES = { internal_update_opportunity: "update_opportunity", internal_create_opportunity: "create_opportunity_strict" };
 var KNOWN_TOP_KEYS = /* @__PURE__ */ new Set([
   "name",
   "triggers",
@@ -85317,7 +85323,7 @@ function parseIR(ir, { externalRefs } = {}) {
   return { ...ir, triggers };
 }
 var REQUIRES_OPPORTUNITY = /* @__PURE__ */ new Set(["update_opportunity", "internal_update_opportunity"]);
-var CREATES_OPPORTUNITY = /* @__PURE__ */ new Set(["create_opportunity", "internal_create_opportunity"]);
+var CREATES_OPPORTUNITY = /* @__PURE__ */ new Set(["create_opportunity", "create_opportunity_strict", "internal_create_opportunity"]);
 function checkOpportunityAssociation(norm3, oppTriggerTypes) {
   const rootAssoc = norm3.triggers.length > 0 && norm3.triggers.every((t) => oppTriggerTypes.has(t.type));
   const walk2 = (nodes, assoc) => {
@@ -147832,8 +147838,12 @@ var CATALOG_CORRECTIONS = {
     docNote: "Author as **`update_opportunity`**: `pipeline`/`stage` NAMES on the build path (the resolver turns them into ids) or `pipelineId`/`stageId` on the edit path, plus `status`, `allowBackward`, `updates[]`. `internal_update_opportunity` is accepted as an alias and compiles identically; a NAME that reaches the wire is refused (`UNRESOLVED_NAME`) because GHL stores the word and the step then moves nothing."
   },
   internal_create_opportunity: {
-    reason: "same wire/lean split as internal_update_opportunity",
-    docNote: "Author as **`create_opportunity`** (lean keys: `pipeline`/`stage` names on the build path, ids on the edit path, plus `name`, `status`, `value`\u2026). `internal_create_opportunity` is accepted as an alias."
+    reason: `the wire/lean split, plus the correction of 2026-09-07: this type is NOT what "create an opportunity" means. GHL's own description of it says the action WILL NOT EXECUTE when the contact already has an opportunity in the same pipeline, so authoring it for a create-or-update intent silently no-ops for every returning contact`,
+    docNote: 'Author as **`create_opportunity_strict`** \u2014 and only when you mean CREATE-ONLY. GHL\'s own description: "If duplicate opportunities are disabled and an opportunity already exists in the same pipeline, the action will not execute." It has no validator, so a bad shape saves and no-ops. For the ordinary "create an opportunity" intent author **`create_opportunity`**, which compiles to the builder\'s own Create/Update action and UPDATES the contact\'s existing card instead of failing.'
+  },
+  create_opportunity: {
+    reason: 'the picker calls this "Create/Update Opportunity" (locale key create_update_opportunity) and the engine used to compile the intent to internal_create_opportunity instead, which only creates (2026-09-06: 31 steps on one client build retyped by hand)',
+    docNote: "The UPSERT, and the default for \"create an opportunity\": it updates the running contact's existing card in that pipeline and creates only when there is none. Author camelCase lean keys \u2014 `pipeline`/`stage` NAMES on the build path (the resolver turns them into ids) or `pipelineId`/`stageId` on the edit path, plus `name`, `source`, `status`, `value`, `lostReasonId`, and the two drawer switches `allowBackward` (move to an earlier stage) and `allowMultiple` (make a second card instead of updating \u2014 the opt-OUT of the upsert). They are mutually exclusive. `pipelineId` is required: GHL's validator emits `pipeline_required` without one."
   },
   // 🔴 The generated keys for this node are WRONG. Authoring the documented
   // `reactivate: false` was accepted, persisted as an unknown key, and left the
@@ -149165,6 +149175,7 @@ var DEDICATED_ATTRIBUTES = [
   [(n) => n.type === "voice_ai_outbound_call", (n) => voiceAiOutboundCallAttributes(n.attributes ?? {})],
   [(n) => n.type === "internal_notification", (n, ctx) => internalNotificationAttributes(n.attributes ?? {}, ctx)],
   [(n) => n.type === "create_opportunity", (n, ctx) => createOpportunityAttributes(n.attributes ?? {}, n.ref, ctx)],
+  [(n) => n.type === "create_opportunity_strict", (n, ctx) => createOpportunityStrictAttributes(n.attributes ?? {}, n.ref, ctx)],
   [(n) => n.type === "update_opportunity", (n, ctx) => updateOpportunityAttributes(n.attributes ?? {}, n.ref, ctx)]
 ];
 function attributesFor(node, ctx) {
@@ -149336,18 +149347,101 @@ function refuseUnresolvedOppNames(a, ref, stepType, ctx) {
   }
   throw new IRError("UNRESOLVED_NAME", detail);
 }
+var UPSERT_OPP_AUTHOR_KEYS = /* @__PURE__ */ new Set([
+  "pipelineId",
+  "stageId",
+  "status",
+  "name",
+  "source",
+  "value",
+  "lostReasonId",
+  "allowBackward",
+  "allowMultiple",
+  "pipeline",
+  "stage",
+  "lostReason"
+  // pre-resolve name path (resolve.mjs → *Id)
+]);
+var UPSERT_OPP_ALIASES = {
+  pipelineStageId: "stageId",
+  stage_id: "stageId",
+  pipeline_stage_id: "stageId",
+  pipeline_id: "pipelineId",
+  monetaryValue: "value",
+  monetary_value: "value",
+  opportunity_name: "name",
+  opportunity_source: "source",
+  opportunity_status: "status",
+  allow_backward: "allowBackward",
+  allow_multiple: "allowMultiple"
+};
+var STRICT_ONLY_OPP_KEYS = /* @__PURE__ */ new Set(["forecastExpectedCloseDate", "forecastProbability"]);
+var OPP_STATUSES = /* @__PURE__ */ new Set(["open", "won", "lost", "abandoned"]);
 function createOpportunityAttributes(a, ref, ctx) {
   refuseUnresolvedOppNames(a, ref, "create_opportunity", ctx);
+  const strictOnly = Object.keys(a).filter((k) => STRICT_ONLY_OPP_KEYS.has(k));
+  if (strictOnly.length)
+    throw new IRError(
+      "OPP_STRICT_ONLY_ATTR",
+      `create_opportunity '${ref}' sets [${strictOnly.join(", ")}], which only the create-only helper accepts. The builder's Create/Update Opportunity action has no top-level slot for them \u2014 they would round-trip clean and never be written. Either drop them, or author the step as type 'create_opportunity_strict' (which emits internal_create_opportunity and does NOT update an existing card: it fails 400 duplicate opportunity when one exists).`
+    );
+  const bad = Object.keys(a).filter((k) => !UPSERT_OPP_AUTHOR_KEYS.has(k));
+  if (bad.length)
+    throw new IRError(
+      "UNKNOWN_ATTR",
+      `create_opportunity '${ref}' has unknown attribute key(s) [${bad.join(", ")}]${bad.some((k) => UPSERT_OPP_ALIASES[k]) ? ` \u2014 did you mean ${bad.filter((k) => UPSERT_OPP_ALIASES[k]).map((k) => `'${UPSERT_OPP_ALIASES[k]}' (not '${k}')`).join(", ")}?` : ""}. Author keys: ${[...UPSERT_OPP_AUTHOR_KEYS].join(", ")}. You author camelCase; the wire shape is snake_case (stageId \u2192 pipeline_stage_id). An ignored key compiles to a step that saves, round-trips clean, and writes nothing.`
+    );
+  if (a.pipelineId == null && a.pipeline == null)
+    throw new IRError(
+      "OPP_NO_PIPELINE",
+      `create_opportunity '${ref}' has no pipelineId. GHL's createOpportunityActionValidator emits 'pipeline_required' without one and the builder renders the step with an error badge.`
+    );
+  if (a.status != null && !/\{\{/.test(String(a.status)) && !OPP_STATUSES.has(String(a.status).toLowerCase()))
+    throw new IRError(
+      "OPP_BAD_STATUS",
+      `create_opportunity '${ref}' sets status '${a.status}'. GHL's Status enum is ${[...OPP_STATUSES].join(" | ")}.`
+    );
+  if (a.lostReasonId != null && String(a.status ?? "").toLowerCase() !== "lost")
+    throw new IRError(
+      "OPP_LOST_REASON_NO_LOST_STATUS",
+      `create_opportunity '${ref}' sets 'lostReasonId' but its status is ${a.status == null ? "unset" : `'${a.status}'`}, not 'lost'. GHL only accepts a lost reason on an opportunity being marked LOST \u2014 the builder disables the picker until then and DELETES the entry when it isn't, so this step would save and drop the reason.`
+    );
+  if (a.stageId == null)
+    ctx?.warn?.(`OPP_NO_STAGE: create_opportunity '${ref}' has no stageId. That is valid for a step that only updates an existing card (status, value, name), but when no opportunity exists yet the runtime needs a stage to create one. Author stageId unless this step is deliberately update-only.`);
+  const out = {
+    type: "create_opportunity",
+    pipeline_id: a.pipelineId,
+    // The builder writes all four of these on every save, empty string when unset, and the
+    // captured corpus rows carry them at 100%. Matching that exactly keeps a round-trip clean.
+    pipeline_stage_id: a.stageId ?? "",
+    opportunity_name: a.name ?? "",
+    opportunity_source: a.source ?? "",
+    opportunity_status: a.status ?? "open",
+    monetary_value: a.value == null ? "" : String(a.value),
+    fields: []
+  };
+  if (a.lostReasonId != null) out.lostReasonId = a.lostReasonId;
+  if (a.allowBackward === true && a.allowMultiple === true)
+    throw new IRError(
+      "OPP_BACKWARD_AND_MULTIPLE",
+      `create_opportunity '${ref}' sets allowBackward and allowMultiple together. The builder's own handlers clear one when the other is switched on: 'move to an earlier stage' acts on the existing card, 'allow duplicates' refuses to touch it and makes a second one.`
+    );
+  if (a.allowBackward != null) out.allow_backward = a.allowBackward === true;
+  if (a.allowMultiple != null) out.allow_multiple = a.allowMultiple === true;
+  return out;
+}
+function createOpportunityStrictAttributes(a, ref, ctx) {
+  refuseUnresolvedOppNames(a, ref, "create_opportunity_strict", ctx);
   const bad = Object.keys(a).filter((k) => !CREATE_OPP_AUTHOR_KEYS.has(k));
   if (bad.length)
     throw new IRError(
       "UNKNOWN_ATTR",
-      `create_opportunity '${ref}' has unknown attribute key(s) [${bad.join(", ")}]${bad.some((k) => CREATE_OPP_ALIASES[k]) ? ` \u2014 did you mean ${bad.filter((k) => CREATE_OPP_ALIASES[k]).map((k) => `'${CREATE_OPP_ALIASES[k]}' (not '${k}')`).join(", ")}?` : ""}. Author keys: ${[...CREATE_OPP_AUTHOR_KEYS].join(", ")}. NOTE the asymmetry \u2014 you author 'stageId', which compiles to the filterField 'pipelineStageId'. An ignored key compiles to a step that saves, round-trips clean, and creates an opportunity with no pipeline.`
+      `create_opportunity_strict '${ref}' has unknown attribute key(s) [${bad.join(", ")}]${bad.some((k) => CREATE_OPP_ALIASES[k]) ? ` \u2014 did you mean ${bad.filter((k) => CREATE_OPP_ALIASES[k]).map((k) => `'${CREATE_OPP_ALIASES[k]}' (not '${k}')`).join(", ")}?` : ""}. Author keys: ${[...CREATE_OPP_AUTHOR_KEYS].join(", ")}. NOTE the asymmetry \u2014 you author 'stageId', which compiles to the filterField 'pipelineStageId'. An ignored key compiles to a step that saves, round-trips clean, and creates an opportunity with no pipeline.`
     );
   if (a.stageId != null && a.pipelineId == null)
     throw new IRError(
       "OPP_STAGE_NO_PIPELINE",
-      `create_opportunity '${ref}' sets stageId without pipelineId. GHL scopes the stage picker to a pipeline, so a stage-only step renders DISABLED in the builder and never runs. Always author pipelineId alongside stageId.`
+      `create_opportunity_strict '${ref}' sets stageId without pipelineId. GHL scopes the stage picker to a pipeline, so a stage-only step renders DISABLED in the builder and never runs. Always author pipelineId alongside stageId.`
     );
   const f = [];
   if (a.name != null) f.push(oppField("name", a.name, "TEXT", "string"));
@@ -149358,7 +149452,7 @@ function createOpportunityAttributes(a, ref, ctx) {
   if (a.value != null) f.push(oppField("monetaryValue", a.value, "NUMERICAL", "numerical"));
   if (a.forecastExpectedCloseDate != null) f.push(stdOppField("forecastExpectedCloseDate", a.forecastExpectedCloseDate));
   if (a.forecastProbability != null) f.push(stdOppField("forecastProbability", a.forecastProbability));
-  enforceLostReasonPrerequisite(f, ref, "create_opportunity");
+  enforceLostReasonPrerequisite(f, ref, "create_opportunity_strict");
   for (const field of f) checkOppFieldShape(field, { ref, warn: ctx?.warn });
   return { pipelineId: a.pipelineId, type: "internal_create_opportunity", __customInputFields__: f, __customInputs__: {} };
 }
@@ -149719,7 +149813,7 @@ function normalizeStoredAttributes(template, ctx) {
 }
 function typeFor(node) {
   if (node.kind === "wait") return "wait";
-  if (node.type === "create_opportunity") return "internal_create_opportunity";
+  if (node.type === "create_opportunity_strict") return "internal_create_opportunity";
   if (node.type === "update_opportunity") return "internal_update_opportunity";
   return node.type;
 }
@@ -151733,7 +151827,7 @@ function resolveIR(ir, r) {
   walk(ir.graph, (n) => {
     const a = n.attributes ?? {};
     const type = n.type;
-    if (type === "create_opportunity" || type === "update_opportunity" || type === "find_opportunity") {
+    if (type === "create_opportunity" || type === "create_opportunity_strict" || type === "update_opportunity" || type === "find_opportunity") {
       if (a.pipeline && !a.pipelineId) a.pipelineId = need(r.pipelineId(a.pipeline), `${type}.pipeline`, a.pipeline);
       if (a.stage && !a.stageId) a.stageId = need(r.stageId(a.stage, a.pipeline), `${type}.stage`, a.stage);
       if (a.lostReason && !a.lostReasonId) a.lostReasonId = need(r.lostReasonId(a.lostReason), `${type}.lostReason`, a.lostReason);
