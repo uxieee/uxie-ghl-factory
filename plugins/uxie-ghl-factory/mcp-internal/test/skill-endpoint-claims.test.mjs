@@ -51,12 +51,25 @@ const ALLOW = new Map(Object.entries({
   'GET /categories':                           'RELATIVE — memberships, under the /membership/locations/{locationId} base its section states',
   'POST /posts':                               'RELATIVE — memberships community posts, under the same /membership/locations/{locationId} base',
   'GET /workflows':                            'PUBLIC_API — the documented rest.gohighlevel.com list route, not an internal one',
-  'DELETE /funnels/funnel/delete/{}':          'UNCATALOGUED — the catalogue carries POST /funnels/funnel/delete with no id segment; one of the two is wrong and neither has been re-probed',
-  'PUT /voice-ai/actions/{}':                  'UNCATALOGUED — the catalogue has POST/GET on /voice-ai/actions and its children but no PUT by id',
-  'PUT /calendars/events/appointments/{}':     'UNCATALOGUED — no calendars appointment-update row exists at all',
-  'POST /contacts/{}/workflow/{}':             'UNCATALOGUED — the add-contact-to-workflow route has no row',
-  'POST /knowledge-base':                      'UNCATALOGUED — the create route; the catalogue has only /knowledge-base/{knowledgeBaseId} and /all',
+  'DELETE /funnels/funnel/delete/{}':          'PROSE — the funnels page states this route 404s, as NEGATIVE knowledge; re-probed 2026-09-07 and it answers the router\'s own "Cannot DELETE …", while the catalogued POST /funnels/funnel/delete answers 422 "userId should not be empty". The skill is right and the catalogue is right',
 }));
+
+// The other four UNCATALOGUED entries were DRAINED on 2026-09-07 rather than re-explained. Each was
+// probed with ids that do not exist, so nothing was written, and each turned out to be a real route
+// the catalogue simply lacked — a corpus gap, which is what that class was always supposed to mean:
+//
+//   PUT  /voice-ai/actions/{id}                403 "You are not authorised to access this action!"
+//                                              once agentId and locationId are in the BODY
+//   PUT  /calendars/events/appointments/{id}   404 "Please provide a valid calendar event ID"
+//   POST /contacts/{id}/workflow/{wid}         400 "Contact with id … not found"
+//   POST /knowledge-base/                      403 "LocationId is missing in body", then 422 naming
+//                                              the required fields — the TRAILING SLASH is
+//                                              load-bearing; without it, 404 with an empty body
+//
+// Every one of those answers names an ARGUMENT or a RECORD. None is the router's "Cannot <METHOD>
+// …", which is what a genuinely absent route returns here and what the funnels DELETE above does
+// return. That distinction is the whole method: a 404 is evidence about the arguments, not proof a
+// route is missing.
 
 const TOKEN = /\b(GET|POST|PUT|PATCH|DELETE|SSE)\s+(\/[A-Za-z{:][^\s|`)>,;\]]*)/g;
 

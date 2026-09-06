@@ -170,7 +170,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
     define_ENDPOINT_CATALOG_default = {
       generated: "2026-09-06",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 1069,
+      count: 1073,
       endpoints: [
         {
           id: "workflows--actions-branches",
@@ -1958,7 +1958,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "calendars/20-api/events-and-appointments.md:24",
-            "calendars/20-api/events-and-appointments.md:76",
+            "calendars/20-api/events-and-appointments.md:85",
             "calendars/40-rules/appointment-status-semantics.md:19"
           ]
         },
@@ -2198,8 +2198,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "calendars/20-api/events-and-appointments.md:22",
-            "calendars/20-api/events-and-appointments.md:53",
-            "calendars/20-api/events-and-appointments.md:67",
+            "calendars/20-api/events-and-appointments.md:62",
+            "calendars/20-api/events-and-appointments.md:76",
             "calendars/40-rules/deleting-a-calendar-deletes-its-appointments.md:42",
             "calendars/70-research/2026-09-02-calendar-events-differential.md:20",
             "calendars/70-research/2026-09-02-calendar-events-differential.md:24"
@@ -2234,6 +2234,42 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "calendars/40-rules/calendar-put-replaces-it-does-not-merge.md:66"
+          ]
+        },
+        {
+          id: "calendars--events-appointments-put",
+          method: "PUT",
+          url: "https://backend.leadconnectorhq.com/calendars/events/appointments/{eventId}",
+          path: "/calendars/events/appointments/{eventId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "calendars",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "eventId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "calendars/20-api/events-and-appointments.md:25",
+            "calendars/20-api/events-and-appointments.md:28"
           ]
         },
         {
@@ -2423,7 +2459,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "memberships-courses/20-api/endpoints.md:94"
+            "memberships-courses/20-api/endpoints.md:112"
           ]
         },
         {
@@ -2522,7 +2558,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "memberships-courses/20-api/endpoints.md:97"
+            "memberships-courses/20-api/endpoints.md:115"
           ]
         },
         {
@@ -2591,7 +2627,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "memberships-courses/20-api/endpoints.md:97"
+            "memberships-courses/20-api/endpoints.md:115"
           ]
         },
         {
@@ -2914,8 +2950,46 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "calendars/20-api/events-and-appointments.md:23",
-            "calendars/20-api/events-and-appointments.md:54",
-            "calendars/20-api/events-and-appointments.md:68"
+            "calendars/20-api/events-and-appointments.md:63",
+            "calendars/20-api/events-and-appointments.md:77"
+          ]
+        },
+        {
+          id: "workflows--contacts-workflow",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/contacts/{contactId}/workflow/{workflowId}",
+          path: "/contacts/{contactId}/workflow/{workflowId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "contactId"
+            },
+            {
+              name: "workflowId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/50-runtime/forcing-and-removing-contacts.md:30"
           ]
         },
         {
@@ -2950,7 +3024,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "workflows/50-runtime/forcing-and-removing-contacts.md:133"
+            "workflows/50-runtime/forcing-and-removing-contacts.md:149"
           ]
         },
         {
@@ -3057,11 +3131,11 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/api/contact-service.ts:36",
-            "platform/20-api/smart-lists.md:120",
-            "platform/20-api/smart-lists.md:128",
-            "platform/20-api/smart-lists.md:188",
-            "platform/20-api/smart-lists.md:239",
-            "platform/30-types/contact-filter-dsl.md:4"
+            "platform/20-api/smart-lists.md:105",
+            "platform/20-api/smart-lists.md:153",
+            "platform/20-api/smart-lists.md:161",
+            "platform/20-api/smart-lists.md:221",
+            "platform/20-api/smart-lists.md:272"
           ]
         },
         {
@@ -3127,8 +3201,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "platform/20-api/smart-lists.md:27",
-            "platform/20-api/smart-lists.md:96",
-            "platform/20-api/smart-lists.md:309"
+            "platform/20-api/smart-lists.md:129",
+            "platform/20-api/smart-lists.md:342"
           ]
         },
         {
@@ -3164,7 +3238,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "platform/20-api/smart-lists.md:82",
-            "platform/20-api/smart-lists.md:263"
+            "platform/20-api/smart-lists.md:296"
           ]
         },
         {
@@ -3214,9 +3288,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "platform/20-api/smart-lists.md:26",
             "platform/20-api/smart-lists.md:71",
             "platform/20-api/smart-lists.md:72",
-            "platform/20-api/smart-lists.md:209",
-            "platform/20-api/smart-lists.md:236",
-            "platform/20-api/smart-lists.md:246"
+            "platform/20-api/smart-lists.md:242",
+            "platform/20-api/smart-lists.md:269",
+            "platform/20-api/smart-lists.md:279"
           ]
         },
         {
@@ -3252,7 +3326,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "platform/20-api/smart-lists.md:28",
-            "platform/20-api/smart-lists.md:135"
+            "platform/20-api/smart-lists.md:168"
           ]
         },
         {
@@ -3314,8 +3388,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "platform/20-api/smart-lists.md:25",
             "platform/20-api/smart-lists.md:38",
             "platform/20-api/smart-lists.md:45",
-            "platform/20-api/smart-lists.md:245",
-            "platform/20-api/smart-lists.md:261"
+            "platform/20-api/smart-lists.md:278",
+            "platform/20-api/smart-lists.md:294"
           ]
         },
         {
@@ -3913,7 +3987,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "memberships-courses/20-api/endpoints.md:95"
+            "memberships-courses/20-api/endpoints.md:113"
           ]
         },
         {
@@ -3948,7 +4022,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "memberships-courses/20-api/endpoints.md:95"
+            "memberships-courses/20-api/endpoints.md:113"
           ]
         },
         {
@@ -9365,8 +9439,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "platform/20-api/smart-lists.md:25",
-            "platform/20-api/smart-lists.md:245",
-            "platform/20-api/smart-lists.md:289",
+            "platform/20-api/smart-lists.md:278",
+            "platform/20-api/smart-lists.md:322",
             "workflows/20-api/03-endpoints.md:345",
             "workflows/20-api/smart-lists.md:69",
             "workflows/70-research/ENDPOINTS.md:77"
@@ -9444,8 +9518,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "platform/20-api/smart-lists.md:26",
-            "platform/20-api/smart-lists.md:261",
-            "platform/20-api/smart-lists.md:299"
+            "platform/20-api/smart-lists.md:294",
+            "platform/20-api/smart-lists.md:332"
           ]
         },
         {
@@ -9483,7 +9557,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "platform/20-api/smart-lists.md:259",
+            "platform/20-api/smart-lists.md:292",
             "workflows/20-api/smart-lists.md:73",
             "workflows/70-research/ENDPOINTS.md:81"
           ]
@@ -10890,7 +10964,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "memberships-courses/20-api/endpoints.md:96"
+            "memberships-courses/20-api/endpoints.md:114"
           ]
         },
         {
@@ -12417,7 +12491,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "memberships-courses/20-api/endpoints.md:55"
+            "memberships-courses/20-api/endpoints.md:73"
           ]
         },
         {
@@ -12452,7 +12526,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "memberships-courses/20-api/endpoints.md:52"
+            "memberships-courses/20-api/endpoints.md:70"
           ]
         },
         {
@@ -12487,7 +12561,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "memberships-courses/20-api/endpoints.md:54"
+            "memberships-courses/20-api/endpoints.md:72"
           ]
         },
         {
@@ -12518,7 +12592,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "memberships-courses/20-api/endpoints.md:70"
+            "memberships-courses/20-api/endpoints.md:88"
           ]
         },
         {
@@ -12549,7 +12623,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "memberships-courses/20-api/endpoints.md:56"
+            "memberships-courses/20-api/endpoints.md:74"
           ]
         },
         {
@@ -13358,7 +13432,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "memberships-courses/20-api/endpoints.md:57"
+            "memberships-courses/20-api/endpoints.md:75"
           ]
         },
         {
@@ -13588,7 +13662,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "memberships-courses/20-api/endpoints.md:83"
+            "memberships-courses/20-api/endpoints.md:101"
           ]
         },
         {
@@ -14970,7 +15044,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "memberships-courses/20-api/endpoints.md:96"
+            "memberships-courses/20-api/endpoints.md:114"
           ]
         },
         {
@@ -16030,7 +16104,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "memberships-courses/20-api/endpoints.md:96"
+            "memberships-courses/20-api/endpoints.md:114"
           ]
         },
         {
@@ -30005,7 +30079,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "workflows/50-runtime/11-runtime-logs.md:37",
             "workflows/50-runtime/11-runtime-logs.md:113",
             "workflows/50-runtime/11-runtime-logs.md:241",
-            "workflows/50-runtime/forcing-and-removing-contacts.md:50",
+            "workflows/50-runtime/forcing-and-removing-contacts.md:66",
             "workflows/50-runtime/observed-query-shapes.md:19"
           ]
         },
@@ -31496,7 +31570,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:348",
+            "ai-agents/20-api/12-ai-agents-api.md:360",
             "ai-agents/20-api/agent-deployment-routing.md:25",
             "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:95"
           ]
@@ -32137,7 +32211,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:212"
+            "ai-agents/20-api/12-ai-agents-api.md:224"
           ]
         },
         {
@@ -32181,7 +32255,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:214"
+            "ai-agents/20-api/12-ai-agents-api.md:226"
           ]
         },
         {
@@ -32231,7 +32305,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:211"
+            "ai-agents/20-api/12-ai-agents-api.md:223"
           ]
         },
         {
@@ -32262,7 +32336,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:224"
+            "ai-agents/20-api/12-ai-agents-api.md:236"
           ]
         },
         {
@@ -32307,9 +32381,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:209",
-            "ai-agents/20-api/12-ai-agents-api.md:216",
-            "ai-agents/20-api/12-ai-agents-api.md:345"
+            "ai-agents/20-api/12-ai-agents-api.md:221",
+            "ai-agents/20-api/12-ai-agents-api.md:228",
+            "ai-agents/20-api/12-ai-agents-api.md:357"
           ]
         },
         {
@@ -32346,8 +32420,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:208",
-            "ai-agents/20-api/12-ai-agents-api.md:216"
+            "ai-agents/20-api/12-ai-agents-api.md:220",
+            "ai-agents/20-api/12-ai-agents-api.md:228"
           ]
         },
         {
@@ -32389,7 +32463,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:213"
+            "ai-agents/20-api/12-ai-agents-api.md:225"
           ]
         },
         {
@@ -32426,7 +32500,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:344"
+            "ai-agents/20-api/12-ai-agents-api.md:356"
           ]
         },
         {
@@ -32468,7 +32542,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:210"
+            "ai-agents/20-api/12-ai-agents-api.md:222"
           ]
         },
         {
@@ -32500,11 +32574,11 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:54",
-            "ai-agents/20-api/12-ai-agents-api.md:207",
-            "ai-agents/20-api/12-ai-agents-api.md:220",
-            "ai-agents/20-api/12-ai-agents-api.md:222",
-            "ai-agents/20-api/12-ai-agents-api.md:315",
-            "ai-agents/20-api/12-ai-agents-api.md:343"
+            "ai-agents/20-api/12-ai-agents-api.md:219",
+            "ai-agents/20-api/12-ai-agents-api.md:232",
+            "ai-agents/20-api/12-ai-agents-api.md:234",
+            "ai-agents/20-api/12-ai-agents-api.md:327",
+            "ai-agents/20-api/12-ai-agents-api.md:355"
           ]
         },
         {
@@ -32537,7 +32611,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:216"
+            "ai-agents/20-api/12-ai-agents-api.md:228"
           ]
         },
         {
@@ -32573,9 +32647,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "ai-agents/20-api/12-ai-agents-api.md:80",
             "ai-agents/20-api/12-ai-agents-api.md:84",
             "ai-agents/20-api/12-ai-agents-api.md:111",
-            "ai-agents/20-api/12-ai-agents-api.md:263",
-            "ai-agents/20-api/12-ai-agents-api.md:313",
-            "ai-agents/20-api/12-ai-agents-api.md:336"
+            "ai-agents/20-api/12-ai-agents-api.md:275",
+            "ai-agents/20-api/12-ai-agents-api.md:325",
+            "ai-agents/20-api/12-ai-agents-api.md:348"
           ]
         },
         {
@@ -32678,7 +32752,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:77",
-            "ai-agents/20-api/12-ai-agents-api.md:337"
+            "ai-agents/20-api/12-ai-agents-api.md:349"
           ]
         },
         {
@@ -32822,8 +32896,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "ai-agents/20-api/12-ai-agents-api.md:54",
             "ai-agents/20-api/12-ai-agents-api.md:74",
             "ai-agents/20-api/12-ai-agents-api.md:84",
-            "ai-agents/20-api/12-ai-agents-api.md:313",
-            "ai-agents/20-api/12-ai-agents-api.md:334",
+            "ai-agents/20-api/12-ai-agents-api.md:325",
+            "ai-agents/20-api/12-ai-agents-api.md:346",
             "ask-ai/30-types/skills/crm-conversation-ai.md:23"
           ]
         },
@@ -32900,7 +32974,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:76",
             "ai-agents/20-api/12-ai-agents-api.md:84",
-            "ai-agents/20-api/12-ai-agents-api.md:335"
+            "ai-agents/20-api/12-ai-agents-api.md:347"
           ]
         },
         {
@@ -32975,7 +33049,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:337"
+            "ai-agents/20-api/12-ai-agents-api.md:349"
           ]
         },
         {
@@ -34877,7 +34951,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/knowledge-base.md:126"
+            "ai-agents/20-api/knowledge-base.md:215"
           ]
         },
         {
@@ -34912,7 +34986,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/knowledge-base.md:127"
+            "ai-agents/20-api/knowledge-base.md:216"
           ]
         },
         {
@@ -34957,7 +35031,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:82",
-            "ai-agents/20-api/knowledge-base.md:125"
+            "ai-agents/20-api/knowledge-base.md:214"
           ]
         },
         {
@@ -34988,7 +35062,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/knowledge-base.md:124"
+            "ai-agents/20-api/knowledge-base.md:213"
           ]
         },
         {
@@ -35019,7 +35093,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/knowledge-base.md:123"
+            "ai-agents/20-api/knowledge-base.md:212"
           ]
         },
         {
@@ -36453,6 +36527,40 @@ var init_define_ENDPOINT_CATALOG = __esm({
         },
         {
           id: "ai-agents--knowledge-base",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/knowledge-base/",
+          path: "/knowledge-base/",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/knowledge-base.md:107",
+            "ai-agents/20-api/knowledge-base.md:116",
+            "ai-agents/20-api/knowledge-base.md:117",
+            "ai-agents/20-api/knowledge-base.md:236"
+          ]
+        },
+        {
+          id: "ai-agents--knowledge-base-delete",
           method: "DELETE",
           url: "https://services.leadconnectorhq.com/knowledge-base/{knowledgeBaseId}",
           path: "/knowledge-base/{knowledgeBaseId}",
@@ -36554,7 +36662,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "ai-agents/20-api/knowledge-base.md:60",
-            "ai-agents/20-api/knowledge-base.md:142"
+            "ai-agents/20-api/knowledge-base.md:231"
           ]
         },
         {
@@ -36662,8 +36770,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:281",
-            "ai-agents/20-api/knowledge-base.md:47"
+            "ai-agents/20-api/12-ai-agents-api.md:293",
+            "ai-agents/20-api/knowledge-base.md:47",
+            "ai-agents/20-api/knowledge-base.md:77",
+            "ai-agents/20-api/knowledge-base.md:91",
+            "ai-agents/20-api/knowledge-base.md:92",
+            "ai-agents/20-api/knowledge-base.md:129"
           ]
         },
         {
@@ -36684,7 +36796,20 @@ var init_define_ENDPOINT_CATALOG = __esm({
           service: "ai-agents",
           tree: "documented",
           pathParams: [],
-          query: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "knowledgeBaseId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
@@ -36694,7 +36819,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/knowledge-base.md:52"
+            "ai-agents/20-api/knowledge-base.md:52",
+            "ai-agents/20-api/knowledge-base.md:132"
           ]
         },
         {
@@ -36756,7 +36882,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:280",
+            "ai-agents/20-api/12-ai-agents-api.md:292",
             "ai-agents/20-api/conversation-ai-boundary.md:79",
             "ai-agents/20-api/knowledge-base.md:51",
             "ai-agents/20-api/knowledge-base.md:71"
@@ -36974,8 +37100,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:347",
-            "ai-agents/20-api/knowledge-base.md:82",
+            "ai-agents/20-api/12-ai-agents-api.md:359",
+            "ai-agents/20-api/knowledge-base.md:171",
             "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:19",
             "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:48"
           ]
@@ -37023,7 +37149,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "ai-agents/20-api/knowledge-base.md:53",
-            "ai-agents/20-api/knowledge-base.md:83",
+            "ai-agents/20-api/knowledge-base.md:131",
+            "ai-agents/20-api/knowledge-base.md:172",
             "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:49"
           ]
         },
@@ -37055,9 +37182,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:277",
-            "ai-agents/20-api/12-ai-agents-api.md:346",
-            "ai-agents/20-api/knowledge-base.md:148"
+            "ai-agents/20-api/12-ai-agents-api.md:289",
+            "ai-agents/20-api/12-ai-agents-api.md:358",
+            "ai-agents/20-api/knowledge-base.md:237"
           ]
         },
         {
@@ -37092,8 +37219,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:279",
-            "ai-agents/20-api/knowledge-base.md:152"
+            "ai-agents/20-api/12-ai-agents-api.md:291",
+            "ai-agents/20-api/knowledge-base.md:241"
           ]
         },
         {
@@ -37128,7 +37255,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/knowledge-base.md:149"
+            "ai-agents/20-api/knowledge-base.md:238"
           ]
         },
         {
@@ -37163,8 +37290,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:278",
-            "ai-agents/20-api/knowledge-base.md:150"
+            "ai-agents/20-api/12-ai-agents-api.md:290",
+            "ai-agents/20-api/knowledge-base.md:239"
           ]
         },
         {
@@ -37199,7 +37326,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/knowledge-base.md:151"
+            "ai-agents/20-api/knowledge-base.md:240"
           ]
         },
         {
@@ -45299,11 +45426,47 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:141",
-            "ai-agents/20-api/12-ai-agents-api.md:148",
-            "ai-agents/20-api/12-ai-agents-api.md:169",
-            "ai-agents/20-api/12-ai-agents-api.md:264",
-            "ai-agents/20-api/12-ai-agents-api.md:294",
-            "ai-agents/20-api/12-ai-agents-api.md:341"
+            "ai-agents/20-api/12-ai-agents-api.md:149",
+            "ai-agents/20-api/12-ai-agents-api.md:170",
+            "ai-agents/20-api/12-ai-agents-api.md:276",
+            "ai-agents/20-api/12-ai-agents-api.md:306",
+            "ai-agents/20-api/12-ai-agents-api.md:353"
+          ]
+        },
+        {
+          id: "ai-agents--voice-ai-actions-put",
+          method: "PUT",
+          url: "https://services.leadconnectorhq.com/voice-ai/actions/{actionId}",
+          path: "/voice-ai/actions/{actionId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "actionId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/12-ai-agents-api.md:142",
+            "ai-agents/20-api/12-ai-agents-api.md:172"
           ]
         },
         {
@@ -45562,7 +45725,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:142"
+            "ai-agents/20-api/12-ai-agents-api.md:143"
           ]
         },
         {
@@ -45597,10 +45760,10 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:54",
             "ai-agents/20-api/12-ai-agents-api.md:137",
-            "ai-agents/20-api/12-ai-agents-api.md:148",
-            "ai-agents/20-api/12-ai-agents-api.md:156",
-            "ai-agents/20-api/12-ai-agents-api.md:314",
-            "ai-agents/20-api/12-ai-agents-api.md:338"
+            "ai-agents/20-api/12-ai-agents-api.md:149",
+            "ai-agents/20-api/12-ai-agents-api.md:157",
+            "ai-agents/20-api/12-ai-agents-api.md:326",
+            "ai-agents/20-api/12-ai-agents-api.md:350"
           ]
         },
         {
@@ -45683,7 +45846,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:157"
+            "ai-agents/20-api/12-ai-agents-api.md:158"
           ]
         },
         {
@@ -45771,8 +45934,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:138",
-            "ai-agents/20-api/12-ai-agents-api.md:148",
-            "ai-agents/20-api/12-ai-agents-api.md:339",
+            "ai-agents/20-api/12-ai-agents-api.md:149",
+            "ai-agents/20-api/12-ai-agents-api.md:351",
             "ai-agents/20-api/voice-ai-boundary.md:58"
           ]
         },
@@ -45824,7 +45987,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:139",
-            "ai-agents/20-api/12-ai-agents-api.md:148"
+            "ai-agents/20-api/12-ai-agents-api.md:149"
           ]
         },
         {
@@ -46091,7 +46254,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:340"
+            "ai-agents/20-api/12-ai-agents-api.md:352"
           ]
         },
         {
@@ -46126,7 +46289,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:144"
+            "ai-agents/20-api/12-ai-agents-api.md:145"
           ]
         },
         {
@@ -46161,7 +46324,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:145"
+            "ai-agents/20-api/12-ai-agents-api.md:146"
           ]
         },
         {
@@ -46729,7 +46892,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:146",
+            "ai-agents/20-api/12-ai-agents-api.md:147",
             "ai-agents/20-api/logs-deployment-email.md:83",
             "ai-agents/20-api/voice-ai-boundary.md:69",
             "ai-agents/30-types/voice-ai-actions.md:65"
@@ -47094,8 +47257,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:42",
-            "ai-agents/20-api/12-ai-agents-api.md:143",
-            "ai-agents/20-api/12-ai-agents-api.md:342",
+            "ai-agents/20-api/12-ai-agents-api.md:144",
+            "ai-agents/20-api/12-ai-agents-api.md:354",
             "ai-agents/20-api/voice-ai-boundary.md:61",
             "ai-agents/20-api/voice-ai-boundary.md:78"
           ]
