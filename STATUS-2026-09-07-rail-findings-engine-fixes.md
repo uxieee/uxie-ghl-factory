@@ -3,9 +3,9 @@
 **Date:** 2026-09-07 · **Branch:** `engine/rail-findings-2026-09-06` (two commits on top of `main`
 at 0.56.1, NOT pushed) · **Input:** the 32-item engine backlog compiled from the four booking
 rails (three client sub-accounts and the GROM Sandbox; 28 Aug to 6 Sep 2026) · **Proof
-level:** unit and tool-level tests against fixtures that reproduce the live evidence; **no
-live-fire yet** — the live differential on the sandbox is owed before the "fixed" claims below are
-promoted to `proof: live-runtime`.
+level:** unit and tool-level tests, **plus a live differential on the sandbox 2026-09-07** — the
+EXECUTED/OBSERVED ledger is at the end of this file. The live pass found three further defects the
+tests could not, which are fixed and proven in the same run.
 
 ## What was DISPROVED by reading the code, before anything was changed
 
@@ -55,15 +55,72 @@ promoted to `proof: live-runtime`.
 
 Baseline before any change: engine 882 / 882, mcp 1101 / 1104 (the same three).
 
+## Live-fire, 2026-09-07 — EXECUTED vs OBSERVED
+
+Run from SOURCE on the branch (not the installed 0.56.1 bundle) through each tool's registered
+handler with the real gateway, against the GROM Sandbox with the Rail 3 session's clearance.
+Probe workflow `TEST-CAP-0.57.0 engine live-fire (2026-09-07)` (draft, never published) in its own
+folder. Every row is a DIFFERENTIAL — the same call with one variable changed, read back separately.
+
+| # | Claim | Executed | Observed | Verdict |
+|---|---|---|---|---|
+| L1 | The R-96 op shape is refused and writes NOTHING | `modifyTrigger` with top-level `conditions`, `confirm:true` | `ENGINE_ABORT` naming trigger.conditions/filters; export after: version, `date_updated` and conditions ALL unmoved | **PROVEN** |
+| L2 | The R-101 shape is refused | `modifyTrigger` triggerId + top-level `name` | `ENGINE_ABORT` "the MATCHER … got a verified rename that never happened" | **PROVEN** |
+| L3 | The R-115 shape is refused | `modifyStep` with `attributes` | `ENGINE_ABORT` naming attrPatch | **PROVEN** |
+| L4 | The right shape lands AND the stamp moves | `modifyTrigger` `trigger.conditions` (stored shape) | ok; stored value changed; `date_updated` 17:47:40 → 17:49:54; check carries `requested` + `dateUpdated.moved:true` | **PROVEN** |
+| L5 | A no-change re-send is a NOOP, not a write | the identical op again | ok, `triggerChangesApplied: 0`, one `noops` entry, `TRIGGER_NOOP` warning, `date_updated` UNMOVED | **PROVEN** |
+| L6 | `moveStep` produces a document GHL accepts | move the tail step up | ok, roundTrip true, chain reordered, **0 parentKey mismatches** (this is the shape that used to be refused `INVALID_STRUCTURE`) | **PROVEN** |
+| L7 | The entry step cannot be moved | `moveStep` on the root | `ENGINE_ABORT` naming insertBefore | **PROVEN** |
+| L8 | A measured cap refuses; the hatch writes | 640-char `conversationai_ai_message` | `VALIDATION_FAILED` "640 … cap is 600"; with `allowOverCap` the preview carries `FIELD_CAP` + two `SCHEMA:` warnings | **PROVEN** |
+| L9 | `addBranch` works on an AI SPLITTER | append a splitter, add a 4th branch, then `appendToBranch` by name | 3→4 branches, row `conditionType:"user-defined"`, node parented correctly, and the branch then leads to the appended step | **PROVEN** |
+| L10 | `replaceFieldId` refuses a foreign new id | real old id + nonexistent new id | `UNRESOLVED_DEPS` naming the old id's `fieldKey`; with two real ids it previews and reports both | **PROVEN** |
+| L11 | The file rails round-trip | `export_workflow` stepIds + writeTo → edit the file → `repair_workflow templatesPath` | narrowed to 1 step with `exportFilter.missing`; file written; repair applied the rename; relative path refused | **PROVEN** |
+| L12 | The R-95 orphan POST is refused | `raw_request` POST trigger with root `workflow_id` | `VALIDATION_FAILED` naming ORPHAN; **zero gateway calls sent**; the camelCase body passes | **PROVEN** |
+| L13 | GRAPH_CONTEXT no longer fires on a nested-splitter branch head | preview with a splitter under a branch | no `GRAPH_CONTEXT` warning | **PROVEN** |
+
+### What the live-fire found that the unit tests could not — three MORE defects, now fixed
+
+Stripping `workingHours`/`steps` was necessary but NOT sufficient. With that 422 gone the next
+layers became reachable, and each was a live failure on a write the tests reported as fine:
+
+1. **`summary` / `emailSettings` read back as `{}` and the PUT refuses them field by field**
+   ("summary.enabled must be a boolean value", …). An empty one is the server's "unset". Dropped;
+   proven by the identical PUT succeeding with them dropped, read-back leaving them `{}` and every
+   collateral field intact.
+2. **`actions` is WRITE-ONLY** — the PUT sends `null` as the UI does, the record reads back the real
+   list, so the verifier reported `AGENT_VERIFY_MISMATCH` on every successful update. Excluded from
+   the verified set. After both fixes `update_convai_agent` returns `verified: true,
+   confirmed: [personality, locationId]`, collateral unchanged.
+3. **`create_convai_agent` never ran `applyBotTypeCleanup`**, so it sent `tones` on a
+   `PROMPT_BASED_BOT` and the server refused the whole create — every prompt-bot creation through
+   that tool was failing. Fixed and proven: create now returns `verified: true` with 20+ confirmed
+   fields. Dropped keys are NAMED (`BOT_TYPE_KEY`), not silently removed.
+
+### Left in place on the sandbox (nothing deleted)
+
+- folder `6980504f-2c67-4ba4-842d-dce877edf988` "TEST-CAP-0.57.0 probes (2026-09-07)"
+- workflow `7fbb2603-a8e4-45e6-ae08-660c802cf68b` (draft, in that folder)
+- tags `probe-057-a`, `probe-057-b`, `probe-057-go`, `probe-057-changed`
+- Conversation AI agents `0az8xPNSEFlf25Hd6xoh` and `Itl3RL2G6LMjCprqcluI` (both mode off, unrouted)
+- Probe driver + ledger: the session scratchpad (`probe057*.mjs`, `probe057-ledger.json`)
+
+## Carried in from another session — for the backlog, NOT fixed here
+
+A concurrent build session reports that the compiler maps IR `create_opportunity` to
+`internal_create_opportunity`, which is CREATE-ONLY and fails `400 duplicate opportunity` whenever
+the contact already has a card — so every create-or-update intent silently no-ops at runtime and
+nothing in build, publish or round-trip catches it. They retyped 31 steps by hand to the
+user-facing `create_opportunity`. Receipt: that session's client build log, 2026-09-06 (outside this repo).
+This is the same reports-success-does-nothing family as the rest of this document and should be
+the next item picked up.
+
 ## Owed before this is called "fixed"
 
-1. **Live-fire on the sandbox** (`rW9hsvyrwCgaaySWzn6B`), by differential, one probe workflow:
-   `modifyTrigger` with the wrong shape → refused, nothing written (export unchanged);
-   `modifyTrigger` with `trigger.conditions` → read back changed AND `date_updated` moved;
-   a NOOP → no PUT (date_updated unmoved on purpose); a `moveStep` → PUT accepted (was
-   `INVALID_STRUCTURE`); `addBranch` on a splitter → renders in the builder and the branch is
-   chosen in a chat; an over-cap value → refused, then hatched; `update_convai_agent` on an agent
-   with `workingHours: null` → 200.
+1. ~~Live-fire on the sandbox~~ — **DONE 2026-09-07**, see the ledger above. Still owed from it:
+   the splitter branch was proven STRUCTURALLY (it renders and takes an appended step) but never
+   CHOSEN in a real conversation, and the parked-contact count (backlog 23) was not exercised
+   against a published workflow — I told the Rail 3 session this probe would never publish, and
+   kept to that. Both need a flow bot on a throwaway account.
 2. **Release.** `npm run release -- 0.57.0` refuses while `endpoint-overlay.json` is modified and
    uncommitted (another session's forms work). Either that session commits its overlay first, or
    the two are reconciled by hand — do not stash someone else's WIP. The CHANGELOG entry is dated
