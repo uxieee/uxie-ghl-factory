@@ -11,6 +11,27 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [0.60.2] — 2026-09-07
+
+`create_smart_list`'s envelope is render-proven, so its advice now points at what is actually open.
+
+### Changed
+
+- **The result's `verification` line no longer sends operators to re-check the nesting.** It said only
+  a browser could prove what the operator sees, which was true when the tool shipped and is no longer
+  the open question. Measured in a logged-in browser against a control on the designated test
+  sub-account: a list built by this tool showed **5 of 239** contacts with `Filters (1)` and no banner,
+  while the same filter written one level flatter showed **all 239** with an "unsaved changes" banner.
+  Same account, same user, same tag, same minute — only the nesting differed. The line now states the
+  envelope is render-proven and points at the one thing an API still cannot answer: whether the
+  operator's own filter selects the contacts they meant.
+
+### Proof
+
+- The negative case had to be written on the raw rail, because `create_smart_list` refuses to emit a
+  one-level envelope. That refusal is the tool's entire purpose, so obtaining the control meant
+  bypassing it deliberately. The broken list is left in place and named; there is no delete on this rail.
+
 ## [0.60.1] — 2026-09-07
 
 The create-only opportunity helper skips on a duplicate; it does not fail the run.
