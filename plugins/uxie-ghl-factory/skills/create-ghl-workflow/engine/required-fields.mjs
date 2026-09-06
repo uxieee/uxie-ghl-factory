@@ -18,6 +18,32 @@
 // (query-catalog prints it), and ONLY the entries below — each attested against a
 // committed capture or an observed builder error — are enforced.
 //
+// MEASURED 2026-09-07, which closes this as a question rather than leaving it a hunch.
+// Replaying every type's declared `requiredFields` against its own verified-live capture:
+//
+//     312  types declare requiredFields
+//     273  have no capture, so the declaration cannot be vetoed either way
+//      20  have a capture that SATISFIES the declaration
+//      19  have a capture that VIOLATES it            ← 19 of 39, a 49% false-positive rate
+//
+// Nineteen captures of workflows that demonstrably run in GHL break their own declared
+// requirements, and the pattern says why: the declaration is a VARIANT UNION, not a
+// requirement. `custom_webhook` declares both `body.rawData` and `body.keyValueData`,
+// which are mutually exclusive; `datetime_formatter` declares the full field set of both
+// its compare and format modes; `internal_notification` declares email, sms and whatsapp
+// bodies at once. A step satisfying one variant necessarily "violates" the union.
+//
+// So promoting the declared set is not merely risky, it is wrong roughly half the time —
+// and that holds for the WARN tier too, which is the tempting compromise. A warning that
+// fires on half of all step types is not a warning.
+//
+// THE CONSEQUENCE FOR ANYONE PICKING THIS UP: enforcement coverage cannot be widened by
+// mining. There is nothing left to mine — the bundle's 67 validators are already parsed
+// into the throw and warn tiers (69 types, 156 + 27 rules), and the marketplace schema is
+// a variant union. The only thing that extends coverage is a CAPTURE, one type at a time,
+// which is the canary programme described below. `required-fields.test.mjs` pins the
+// measurement above so this cannot be quietly re-litigated.
+//
 // EVIDENCE: research/ai-agents-internal/flow-builder-required-fields.md, live on AU
 // wdzEoUZnXO9tB3PPzcot 2026-07-25/26. Nine conversationai_* node types were built with
 // deliberately minimal attributes; the builder reported "Resolve 7 Errors" while the
