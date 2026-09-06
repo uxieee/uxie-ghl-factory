@@ -153332,6 +153332,12 @@ function missingRequiredFields(step) {
   if (!keys.length) return [];
   return keys.filter((k) => !isSupplied(step.type, k, step.attributes ?? {}));
 }
+function firedEnforcement(step, catalog) {
+  const rules = catalog?.step?.(step?.type)?.enforcement?.throw;
+  if (!rules?.length) return [];
+  const attrs = step.attributes ?? {};
+  return rules.filter((r) => fires(r, attrs)).map((r) => ({ field: r.field, guard: r.guard, support: r.support }));
+}
 var UPSTREAM_SECRET_KEY = /(?:authorization|token|jwt|api[-_ ]?(?:key|secret)|client[-_ ]?secret|password|credentials?|cookies?|session)/i;
 var UPSTREAM_TOKENISH = /\bey[A-Za-z0-9._-]{20,}/g;
 var UPSTREAM_BEARER = /\bBearer\s+[A-Za-z0-9._-]{8,}/gi;
@@ -153839,6 +153845,11 @@ async function orchestrate(ir, gw, opts = {}) {
     if (missingRequired.length) {
       issue2.missingRequired = missingRequired;
       issue2.note = "the builder renders this step with a red error badge and the workflow CANNOT be published \u2014 this does NOT show up as a dropped attribute because the key was never sent.";
+    }
+    const enforcementIssues = firedEnforcement(gt, catalog);
+    if (enforcementIssues.length) {
+      issue2.failsGhlGuard = enforcementIssues;
+      issue2.note = "GHL's OWN validator rule fires on the STORED step: the builder renders it with a red error badge and the workflow cannot be published. The attributes round-tripped, so no other check here sees it.";
     }
     if (Object.keys(issue2).length) report.verify.issues.push({ type: gt.type, id: gt.id, name: gt.name, ...issue2 });
     else if (st) report.verify.pass++;
