@@ -7148,6 +7148,19 @@ export const TOOLS = [
         // account for one holding seven lists, which is the worst possible answer from an audit.
         // Proven on the sandbox 2026-09-07: userId present returns 7 with or without `globals`,
         // absent returns 0 with it and 422 without.
+        // An EMPTY or missing userId is as silent as an absent one: `userId=` answers 200 with an
+        // empty array, and `gw.uid` is null whenever the token carries no authClassId. That is the
+        // shape a caller hits when a variable is undefined rather than absent, and it slips past any
+        // "did I include userId" check — so it is refused here instead of reported as an empty
+        // account. Measured on the sandbox 2026-09-07: userId= and a missing userId with
+        // globals=true both answer 200 + [] while the account holds seven lists.
+        if (typeof gw.uid !== 'string' || gw.uid.trim() === '') {
+          return fail(CODES.VALIDATION_FAILED,
+            'this credential carries no user id, and the roster read needs one',
+            'GET /contacts/smartlist/search answers 200 with an EMPTY list when userId is missing or blank, '
+            + 'so without it this tool would report a clean account for one full of broken lists. '
+            + 'Re-capture the token (uxie-ghl-factory:internal-connect), or pass listId to check one list directly.');
+        }
         const q = new URLSearchParams({ locationId: args.locationId, userId: gw.uid, transform: 'true' });
         const search = await gw.call('GET', `/contacts/smartlist/search?${q}`);
         if (!search.ok) return fromHttp(search.status, search.json);

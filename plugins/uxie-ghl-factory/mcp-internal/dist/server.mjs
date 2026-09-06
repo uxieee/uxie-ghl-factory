@@ -3055,10 +3055,10 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/api/contact-service.ts:36",
-            "platform/20-api/smart-lists.md:95",
-            "platform/20-api/smart-lists.md:103",
-            "platform/20-api/smart-lists.md:163",
-            "platform/20-api/smart-lists.md:214",
+            "platform/20-api/smart-lists.md:120",
+            "platform/20-api/smart-lists.md:128",
+            "platform/20-api/smart-lists.md:188",
+            "platform/20-api/smart-lists.md:239",
             "platform/30-types/contact-filter-dsl.md:4"
           ]
         },
@@ -3123,8 +3123,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "platform/20-api/smart-lists.md:27",
-            "platform/20-api/smart-lists.md:71",
-            "platform/20-api/smart-lists.md:284"
+            "platform/20-api/smart-lists.md:96",
+            "platform/20-api/smart-lists.md:309"
           ]
         },
         {
@@ -3159,8 +3159,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "platform/20-api/smart-lists.md:57",
-            "platform/20-api/smart-lists.md:238"
+            "platform/20-api/smart-lists.md:82",
+            "platform/20-api/smart-lists.md:263"
           ]
         },
         {
@@ -3207,11 +3207,11 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "platform/20-api/smart-lists.md:26",
-            "platform/20-api/smart-lists.md:46",
-            "platform/20-api/smart-lists.md:47",
-            "platform/20-api/smart-lists.md:184",
-            "platform/20-api/smart-lists.md:211",
-            "platform/20-api/smart-lists.md:221"
+            "platform/20-api/smart-lists.md:71",
+            "platform/20-api/smart-lists.md:72",
+            "platform/20-api/smart-lists.md:209",
+            "platform/20-api/smart-lists.md:236",
+            "platform/20-api/smart-lists.md:246"
           ]
         },
         {
@@ -3247,7 +3247,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "platform/20-api/smart-lists.md:28",
-            "platform/20-api/smart-lists.md:110"
+            "platform/20-api/smart-lists.md:135"
           ]
         },
         {
@@ -3308,8 +3308,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "platform/20-api/smart-lists.md:25",
             "platform/20-api/smart-lists.md:38",
-            "platform/20-api/smart-lists.md:220",
-            "platform/20-api/smart-lists.md:236"
+            "platform/20-api/smart-lists.md:45",
+            "platform/20-api/smart-lists.md:245",
+            "platform/20-api/smart-lists.md:261"
           ]
         },
         {
@@ -9359,8 +9360,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "platform/20-api/smart-lists.md:25",
-            "platform/20-api/smart-lists.md:220",
-            "platform/20-api/smart-lists.md:264",
+            "platform/20-api/smart-lists.md:245",
+            "platform/20-api/smart-lists.md:289",
             "workflows/20-api/03-endpoints.md:345",
             "workflows/20-api/smart-lists.md:69",
             "workflows/70-research/ENDPOINTS.md:77"
@@ -9438,8 +9439,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "platform/20-api/smart-lists.md:26",
-            "platform/20-api/smart-lists.md:236",
-            "platform/20-api/smart-lists.md:274"
+            "platform/20-api/smart-lists.md:261",
+            "platform/20-api/smart-lists.md:299"
           ]
         },
         {
@@ -9477,7 +9478,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "platform/20-api/smart-lists.md:234",
+            "platform/20-api/smart-lists.md:259",
             "workflows/20-api/smart-lists.md:73",
             "workflows/70-research/ENDPOINTS.md:81"
           ]
@@ -165317,6 +165318,13 @@ var TOOLS2 = [
       if (args.listId) {
         rows = [await inspect(args.listId, null)];
       } else {
+        if (typeof gw.uid !== "string" || gw.uid.trim() === "") {
+          return fail(
+            CODES.VALIDATION_FAILED,
+            "this credential carries no user id, and the roster read needs one",
+            "GET /contacts/smartlist/search answers 200 with an EMPTY list when userId is missing or blank, so without it this tool would report a clean account for one full of broken lists. Re-capture the token (uxie-ghl-factory:internal-connect), or pass listId to check one list directly."
+          );
+        }
         const q3 = new URLSearchParams({ locationId: args.locationId, userId: gw.uid, transform: "true" });
         const search = await gw.call("GET", `/contacts/smartlist/search?${q3}`);
         if (!search.ok) return fromHttp(search.status, search.json);
