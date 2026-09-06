@@ -41,13 +41,19 @@ test('the AI-rail tool set is discovered, not assumed', () => {
 // the host it uses, the tool is the operative truth and the catalogue row is the thing to revisit
 // — but a family is only listed here with a reason, and anything NOT listed fails.
 //
-// The memberships case is the clearest: the corpus contradicts itself. corpus/memberships-courses/
-// 20-api/endpoints.md:19 states services.leadconnectorhq.com "(production)", while the bundle's own
-// `membershipURL` constant (workflows/70-research/ENDPOINTS.md:28) and the 2026-07-18 recon page
-// both say backend.leadconnectorhq.com/membership — and the whole course lifecycle was proven live
-// on backend (build -> enrol -> learn -> assess -> grade -> collect -> revoke).
+// The memberships case looked like the clearest contradiction and turned out not to be one. The
+// corpus page named services, the bundle's `membershipURL` constant and the 2026-07-18 recon page
+// named backend, and the whole course lifecycle was proven live on backend — so the page was
+// corrected to call services UNPROVEN. A host differential on 2026-09-07 settled it the other way:
+// BOTH hosts front the surface and answer byte-identically, on Bearer alone, token-id alone or
+// both. The proof is a specific error rather than an empty list — a product id that does not exist
+// returns the memberships service's own {"error":true,"msg":"Product not found"} from each host,
+// where a route that does not exist returns the generic {"msg":"Not found"} on each. A host merely
+// swallowing the prefix could produce the generic answer; only the service produces the specific
+// one. So this entry is no longer a disagreement about WHICH host is right — both are — it is only
+// a note that the tools dial backend, which is what was proven end to end.
 const KNOWN_HOST_DISAGREEMENTS = new Map([
-  ['/membership/', 'live-proven on backend end-to-end (full course lifecycle); the corpus page states services and contradicts both the bundle constant and the recon page'],
+  ['/membership/', 'BOTH hosts are live — proven byte-identical by differential 2026-09-07, with a service-specific 404 against a generic-404 control. The tools dial backend, where the full course lifecycle was proven end to end; the catalogue rows naming services are also correct'],
   ['/certificates/', 'same family and same live proof as /membership/'],
   ['/hooks/inbound-webhook-request/', 'the inbound-webhook reference rail was live-proven on backend 2026-08-22 (server-assigned trigger id, bare-string PUT reply)'],
   ['/voice-ai/agents', 'a best-effort leg of the entity sweep; it answered on the default (backend) rail in a live build 2026-08-29'],
