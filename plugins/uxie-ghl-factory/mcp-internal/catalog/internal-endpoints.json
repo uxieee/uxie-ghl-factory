@@ -2857,8 +2857,10 @@
       "kind": "write",
       "summary": "Contact search. Treat its results as unverified — see the note.",
       "note": "Silently ignores a filter it does not understand and returns 200 with a plausible WRONG row -- always run a baseline and a KNOWN-ZERO control, never a single query. Filter FIELDS and OPERATORS are validated (422, and an invalid operator prints the whole 22-value enum); COLUMN keys are not. Fields are snake_case (first_name works, firstName 422s). On a keyword field eq/contains/match are exact SYNONYMS -- `contains` is NOT substring; only `wildcard` with an explicit * is partial. `active_workflows_2`/`finished_workflows_2` filter workflow membership; `finished_workflows` WITHOUT the _2 validates and silently matches nothing. includeTotal:true is what makes `total` appear, and pageLimit:0 returns the count alone.",
-      "reach": "source-only",
-      "coveredBy": [],
+      "reach": "proven",
+      "coveredBy": [
+        "create_smart_list"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -2933,8 +2935,10 @@
       "rail": "workflow",
       "kind": "write",
       "note": "Effectively PERMANENT: there is no delete on this rail (DELETE 404s, and PUT with deleted:true is refused 'property deleted should not exist'), so removal is UI-only. The validator is the documentation -- it rejects userId and name, and demands listName, a non-empty columns array of exactly {key,value,order}, and an object filterSpecs. filterSpecs:{} is ACCEPTED and creates a list that filters NOTHING.",
-      "reach": "source-only",
-      "coveredBy": [],
+      "reach": "proven",
+      "coveredBy": [
+        "create_smart_list"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -3006,7 +3010,8 @@
       "note": "Send NO locationId. The route works (live 2026-09-02) but 422s 'property locationId should not exist' the moment you add the usual location query param -- the same shape as /ai-employees/actions/search. `sharedWith` reads back as [] when unset and as a bare STRING when set.",
       "reach": "proven",
       "coveredBy": [
-        "check_smart_lists"
+        "check_smart_lists",
+        "create_smart_list"
       ],
       "rawCallable": true,
       "transport": "json",
@@ -9611,9 +9616,10 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "reach": "proven",
       "coveredBy": [
-        "check_smart_lists"
+        "check_smart_lists",
+        "create_smart_list"
       ],
       "rawCallable": true,
       "transport": "json",
@@ -9854,7 +9860,8 @@
       "kind": "read",
       "reach": "proven",
       "coveredBy": [
-        "check_smart_lists"
+        "check_smart_lists",
+        "create_smart_list"
       ],
       "rawCallable": true,
       "transport": "json",

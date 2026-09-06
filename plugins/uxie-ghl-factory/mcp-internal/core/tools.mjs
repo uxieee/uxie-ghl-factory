@@ -46,6 +46,17 @@ import { digestWorkflow, fingerprintWorkflow } from '../../skills/create-ghl-wor
 import { entityCapabilities } from '../../skills/create-ghl-workflow/engine/entities.mjs';
 import { readCache } from './read-cache.mjs';
 import {
+  baseKnownFields,
+  buildColumns,
+  buildFilterSpec,
+  classifyFilterSpec,
+  DEFAULT_COLUMN_KEYS,
+  DSL_COLUMN_MISTRANSLATIONS,
+  EXCLUDED_FIELD_TYPES,
+  isGroup,
+  leaves as filterLeaves,
+} from './smart-lists.mjs';
+import {
   digestSpans as digestAgentSpans,
   branchNameMap as agentLogBranchNames,
   parseMeta as parseAgentLogMeta,
@@ -6990,6 +7001,217 @@ export const TOOLS = [
   // example still shows the one-level shape, which is the best argument that prose does not
   // prevent this.
   {
+    name: 'create_smart_list',
+    description: `${describe('create_smart_list', 'Create a smart list whose filter the contacts screen will actually apply — risk: write')}. `
+      + 'Preview by default; confirm:true writes. You pass FLAT conditions and this builds the envelope: '
+      + '`filterSpecs.filters` has to be nested TWO levels (an outer group whose children are groups) '
+      + 'and the one-level shape any reasonable caller writes — the same one POST /contacts/search/2 '
+      + 'takes — is accepted with a 201, reads back byte-identical, and is then DISCARDED by the '
+      + 'contacts screen, which renders the entire account. Because no read-back can catch that, this '
+      + 'refuses to write a filter naming a field the account does not offer, checks the built envelope '
+      + 'with the same classifier check_smart_lists audits with, and runs a count differential through '
+      + 'the search endpoint first so you see how many contacts the filter matches against the account '
+      + 'total. Removal is UI-only: DELETE 404s on this rail and PUT {deleted:true} is refused.',
+    inputSchema: schema({
+      locationId: z.string(),
+      listName: z.string(),
+      conditions: z.array(z.record(z.any())).optional(),
+      groups: z.array(z.object({
+        match: z.enum(['AND', 'OR']).optional(),
+        conditions: z.array(z.record(z.any())),
+      })).optional(),
+      outerMatch: z.enum(['AND', 'OR']).default('OR'),
+      columns: z.array(z.string()).optional(),
+      confirm: z.boolean().default(false),
+    }),
+    capabilities: [
+      { method: 'POST', path: '/contacts/smartlist/' },
+      { method: 'GET', path: '/contacts/smartlist/{id}' },
+      { method: 'POST', path: '/contacts/search/2' },
+      { method: 'GET', path: '/locations/{locationId}/customFields' },
+    ],
+    handler: async (args, deps) => guard(async () => {
+      if (typeof args.listName !== 'string' || args.listName.trim() === '') {
+        return fail(CODES.VALIDATION_FAILED, 'listName must be a non-empty string',
+          'The field is `listName`, not `name` — `name` is refused outright by the DTO validator, and an empty string 422s.');
+      }
+      if (args.conditions && args.groups) {
+        return fail(CODES.VALIDATION_FAILED, 'pass either conditions or groups, not both',
+          'Use `conditions` for a single AND group. Use `groups` when you need several groups combined by outerMatch.');
+      }
+      const groups = args.groups?.length
+        ? args.groups
+        : (args.conditions?.length ? [{ match: 'AND', conditions: args.conditions }] : null);
+      if (!groups) {
+        return fail(CODES.VALIDATION_FAILED, 'a smart list needs at least one condition',
+          'An empty filter is not "unconfigured" on this surface — it means SHOW EVERY CONTACT, which is '
+          + 'exactly what the screen\'s broken Copy/Save-as path produces. Pass conditions, e.g. '
+          + '[{field:"tags", operator:"eq", value:["my-tag"], options:{minimumMatch:"all"}}].');
+      }
+      const allLeaves = groups.flatMap((g) => g.conditions ?? []);
+      if (!allLeaves.length) {
+        return fail(CODES.VALIDATION_FAILED, 'every group is empty', 'Each group needs at least one condition.');
+      }
+      const nameless = allLeaves.map((c, i) => (c && typeof c.field === 'string' && c.field ? null : i)).filter((i) => i !== null);
+      if (nameless.length) {
+        return fail(CODES.VALIDATION_FAILED, `condition(s) ${nameless.join(', ')} have no 'field'`,
+          'Every leaf needs a `field` from the contact filter DSL, e.g. "tags", "email", or "custom_fields.<customFieldId>".');
+      }
+
+      const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+
+      // THE FIELD CATALOGUE, rebuilt exactly as the browser builds it. No endpoint serves it: the
+      // contacts screen unions a static list compiled into its own chunk with the account's own
+      // custom fields, and DROPS any filter naming something outside that union — rendering the
+      // whole account and keeping a removedCount it never shows. On a create this is a refusal
+      // rather than a warning, because the resulting list looks correct through every API read.
+      const statics = staticFilterFields();
+      const known = baseKnownFields(statics);
+      let fieldsUsable = Boolean(statics?.staticFieldKeys?.length);
+      let hasTextboxList = false;
+      if (fieldsUsable) {
+        const cf = await gw.call('GET', `/locations/${encodeURIComponent(args.locationId)}/customFields?model=contact`);
+        if (!cf.ok) fieldsUsable = false;
+        else {
+          for (const f of (cf.json?.customFields ?? [])) {
+            if (!f?.id || EXCLUDED_FIELD_TYPES.has(f.dataType)) continue;
+            known.add(`custom_fields.${f.id}`);
+            if (f.dataType === 'TEXTBOX_LIST') hasTextboxList = true;
+          }
+        }
+      }
+      // A TEXTBOX_LIST field contributes one key per OPTION id and none for itself, and the
+      // customFields read returns picklistOptions as bare strings with no ids — so those keys
+      // cannot be enumerated here. Unverifiable, not wrong: it goes through with a warning rather
+      // than blocking a legitimate create.
+      const graded = [...new Set(allLeaves.map((c) => c.field))].map((field) => ({
+        field,
+        status: known.has(field) ? 'known'
+          : !fieldsUsable ? 'unverified'
+            : (hasTextboxList && field.startsWith('custom_fields.')) ? 'unverified'
+              : 'unknown',
+      }));
+      const unknownFields = graded.filter((g) => g.status === 'unknown').map((g) => g.field);
+      if (unknownFields.length) {
+        return withFailureData(
+          fail(CODES.VALIDATION_FAILED,
+            `${unknownFields.length === 1 ? 'this field is' : 'these fields are'} not in this account's filter-field catalogue: ${unknownFields.join(', ')}`,
+            'The contacts screen validates every stored filter against a set it assembles in the browser and '
+            + 'silently discards what it does not recognise — a list filtered only on an unknown field renders '
+            + 'the WHOLE account while reading back perfectly. Writing this would create exactly the state '
+            + 'check_smart_lists exists to find. Use a static key from the DSL, or custom_fields.<customFieldId> '
+            + 'for a field that exists on this account.'),
+          { fieldStatus: graded, knownKeyCount: known.size },
+        );
+      }
+      const unverified = graded.filter((g) => g.status === 'unverified').map((g) => g.field);
+
+      // BUILD the envelope. The caller never supplies it: handing over `filterSpecs` is how the
+      // one-level shape gets written, and it is the only thing on this surface that matters.
+      const columnKeys = args.columns?.length ? args.columns : ['name', 'email', 'phone', 'tags'];
+      const filterSpecs = buildFilterSpec({ groups, outerMatch: args.outerMatch ?? 'OR' });
+      const columns = buildColumns(columnKeys);
+      const mistranslated = columnKeys
+        .filter((k) => Object.hasOwn(DSL_COLUMN_MISTRANSLATIONS, k))
+        .map((k) => `${k} → ${DSL_COLUMN_MISTRANSLATIONS[k]}`);
+
+      // Self-check: the thing we built must satisfy the auditor. If this ever fires the builder and
+      // the classifier have drifted apart, which is the failure this surface invites.
+      const selfCheck = classifyFilterSpec(filterSpecs);
+      if (selfCheck.verdict !== 'ok') {
+        return withFailureData(
+          fail(CODES.ENGINE_ABORT, `the envelope this tool built does not pass its own classifier (${selfCheck.cause})`,
+            'This is a bug in create_smart_list, not in your input. Nothing was written.'),
+          { filterSpecs, selfCheck },
+        );
+      }
+
+      // THE DIFFERENTIAL, before the write. A filter matching the account total is not filtering,
+      // and that is the one symptom of this whole failure class you can see without a browser.
+      // pageLimit:0 returns the count alone. Note the envelope here is the SEARCH endpoint's — a
+      // single group holding leaves — which is deliberately NOT the one stored on the list.
+      const countMatching = async (body) => {
+        const r = await gw.call('POST', '/contacts/search/2', body);
+        return r.ok ? (r.json?.total ?? r.json?.count ?? null) : null;
+      };
+      const searchFilters = groups.map((g) => ({ group: (g.match ?? 'AND').toUpperCase(), filters: g.conditions }));
+      const matched = await countMatching({
+        filters: searchFilters, locationId: args.locationId, page: 1, pageLimit: 0, sort: [], includeTotal: true,
+      });
+      const accountTotal = await countMatching({
+        filters: [], locationId: args.locationId, page: 1, pageLimit: 0, sort: [], includeTotal: true,
+      });
+      const differential = {
+        matched, accountTotal,
+        ...(matched != null && accountTotal != null && matched === accountTotal && accountTotal > 0
+          ? { warning: 'the filter matches EVERY contact on the account — it is not narrowing anything. Check the condition before creating a list that looks broken to the operator.' }
+          : {}),
+        ...(matched === 0 ? { note: 'the filter matches nothing right now. That may be correct for a list meant to fill up later.' } : {}),
+        ...(matched == null ? { note: 'the search preflight did not answer, so the match count is unknown. The create is unaffected.' } : {}),
+      };
+
+      const body = { locationId: args.locationId, listName: args.listName, filterSpecs, columns };
+      const preview = {
+        creates: body,
+        nesting: 'TWO levels — outer group whose children are groups. This is the whole point of the tool.',
+        fieldStatus: graded,
+        differential,
+        ...(unverified.length ? { unverifiedFields: unverified, unverifiedNote: 'this account has a TEXTBOX_LIST custom field, whose option ids are valid filter keys but are not enumerable from the customFields read. These could not be confirmed either way.' } : {}),
+        ...(mistranslated.length ? { columnWarning: `these column keys are filter-DSL spellings and will not render as columns: ${mistranslated.join(', ')}. Columns use the contacts-screen ids (${DEFAULT_COLUMN_KEYS.join(', ')}); they do not affect filtering.` } : {}),
+        removal: 'There is no delete on this rail — DELETE 404s and PUT {deleted:true} is refused. The list can be removed from the interface.',
+      };
+      if (args.confirm !== true) {
+        return withFailureData(
+          fail(CODES.CONFIRM_REQUIRED, 'Smart list create preview is ready; no write was sent.',
+            'Repeat with confirm:true to create it.'),
+          { preview },
+        );
+      }
+
+      const created = await gw.call('POST', '/contacts/smartlist/', body);
+      if (!created.ok) return fromHttp(created.status, created.json);
+      const listId = created.json?.smartList?.id ?? created.json?.smartList?._id ?? created.json?.id ?? null;
+      if (!listId) {
+        return withFailureData(
+          fail(CODES.ENGINE_ABORT, 'the create returned 2xx but no smart list id.',
+            'Run check_smart_lists before retrying — a retry would create a second list, and there is no delete on this rail.'),
+          { preview, response: created.json ?? null },
+        );
+      }
+
+      // Read back on a SEPARATE request, and re-judge structurally. The read-back proves the record
+      // stored; it does NOT prove the screen applies it, because a discarded filter reads back
+      // byte-identical. The classifier is the only instrument short of a browser.
+      // NOTE the detail route REFUSES locationId — 422 ["property locationId should not exist"].
+      const back = await gw.readBackUntil(async () => {
+        const g = await gw.call('GET', `/contacts/smartlist/${encodeURIComponent(listId)}`);
+        return g.ok ? (g.json?.smartList ?? g.json) : null;
+      }, { pollMs: 1500, maxPolls: 3 });
+      const stored = back.hit ?? null;
+      const storedSpec = stored?.filterSpecs ?? null;
+      const verdict = storedSpec ? classifyFilterSpec(storedSpec) : null;
+      const identical = storedSpec ? JSON.stringify(storedSpec) === JSON.stringify(filterSpecs) : false;
+
+      return ok({
+        listId,
+        listName: stored?.listName ?? args.listName,
+        readBack: Boolean(stored),
+        readBackAttempts: back.attempts,
+        storedShape: verdict ? verdict.verdict : 'unread',
+        ...(verdict && verdict.verdict !== 'ok' ? { alarm: `the list was created and the shape it stored is BROKEN (${verdict.cause}): ${verdict.reason}` } : {}),
+        filterSpecsIdentical: identical,
+        ...(stored && !identical ? { note: 'the stored filterSpecs differs from what was sent — the server rewrote something. Compare before trusting the list.' } : {}),
+        conditions: filterLeaves({ filters: storedSpec?.filters ?? [] }).length,
+        differential,
+        ...(unverified.length ? { unverifiedFields: unverified } : {}),
+        verification: 'The record stored and its envelope is the shape the contacts screen requires. That is as far as an API can go: '
+          + 'a discarded filter reads back byte-identical, so ONLY opening the list in a browser proves what the operator sees. '
+          + 'Open it and check the Filters control shows a count and no "unsaved changes" banner.',
+        removal: 'No delete exists on this rail. Remove it from the interface if it is not wanted.',
+      });
+    }, args),
+  },
+  {
     name: 'check_smart_lists',
     description: `${describe('check_smart_lists', 'Audit smart lists for filters the contacts screen will silently discard — risk: read')}. `
       + 'Reads every smart list on a sub-account and reports which ones render as the WHOLE ACCOUNT '
@@ -7016,47 +7238,13 @@ export const TOOLS = [
     handler: async (args, deps) => guard(async () => {
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
 
-      // The canonical nesting, from a list a human built in the UI and read straight back. A leaf
-      // is a condition; a group is {group, filters[]}. Depth is what the screen keys on.
-      const isGroup = (n) => n && typeof n === 'object' && Array.isArray(n.filters);
-      const classify = (spec) => {
-        const filters = spec?.filters;
-        if (!Array.isArray(filters) || filters.length === 0) {
-          return { verdict: 'renders-everything', cause: 'empty-filter', reason: 'filterSpecs.filters is empty — this is what the screen\'s Copy/Save-as path produces, and it means "show every contact", not "not configured yet".' };
-        }
-        const outerGroups = filters.filter(isGroup);
-        if (outerGroups.length !== filters.length) {
-          return { verdict: 'renders-everything', cause: 'leaf-at-top', reason: 'a leaf condition sits at the top level of filterSpecs.filters; the screen expects groups there.' };
-        }
-        // Two levels: every outer group's children must themselves be groups.
-        const oneLevel = outerGroups.filter((g) => g.filters.length && !g.filters.every(isGroup));
-        if (oneLevel.length) {
-          return {
-            verdict: 'renders-everything',
-            cause: 'one-level-nesting',
-            reason: 'filterSpecs.filters is nested ONE level — a group holding leaf conditions directly. '
-              + 'The store accepts it, it reads back byte-identical and /contacts/search/2 returns the right '
-              + 'rows, but the contacts screen discards it at load and renders the whole account. It needs an '
-              + 'outer group whose children are GROUPS, with the conditions inside those.',
-          };
-        }
-        return { verdict: 'ok', reason: null, cause: null };
-      };
       // THE ACCOUNT'S OWN HALF of the field catalogue. custom_fields.<customFieldId> for every
       // contact custom field, minus the two dataTypes the builder excludes — a filter naming a
       // FILE_UPLOAD or SIGNATURE field is dropped exactly like one naming a field that does not
       // exist.
       const statics = staticFilterFields();
-      const known = new Set([
-        ...(statics?.staticFieldKeys ?? []),
-        ...(statics?.fieldAliases ?? []),
-        ...(statics?.nestedJoinPaths ?? []),
-      ]);
-      // `score` is known only when the account has a PUBLISHED score profile, and nothing here can
-      // check that. Treating it as unknown would flag a working filter, so it is always allowed —
-      // the same reasoning that keeps this whole check conservative.
-      known.add('score');
-      const EXCLUDED_TYPES = new Set(['FILE_UPLOAD', 'SIGNATURE']);
+      const known = baseKnownFields(statics);
+      const EXCLUDED_TYPES = EXCLUDED_FIELD_TYPES;
       let fieldsUsable = Boolean(statics?.staticFieldKeys?.length);
       let hasTextboxList = false;
       if (fieldsUsable) {
@@ -7086,12 +7274,7 @@ export const TOOLS = [
         return 'unknown';
       };
 
-      const leaves = (node, out = []) => {
-        if (!node) return out;
-        if (isGroup(node)) { for (const c of node.filters) leaves(c, out); return out; }
-        if (typeof node === 'object' && (node.field || node.uiMeta?.fieldAlias)) out.push(node);
-        return out;
-      };
+      const leaves = filterLeaves;
 
       const inspect = async (id, name) => {
         const r = await gw.call('GET', `/contacts/smartlist/${encodeURIComponent(id)}`);
@@ -7106,7 +7289,7 @@ export const TOOLS = [
         }
         const list = r.json?.smartList ?? r.json ?? {};
         const spec = list.filterSpecs ?? {};
-        let { verdict, reason, cause } = classify(spec);
+        let { verdict, reason, cause } = classifyFilterSpec(spec);
         const fields = [...new Set(leaves({ filters: spec.filters ?? [] }).map((l) => l.field ?? l.uiMeta?.fieldAlias).filter(Boolean))];
         const graded = fields.map((f) => ({ field: f, status: judgeField(f) }));
         const unknown = graded.filter((g) => g.status === 'unknown').map((g) => g.field);
