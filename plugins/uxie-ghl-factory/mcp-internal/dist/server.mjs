@@ -164609,6 +164609,15 @@ A 200 IS NOT PROOF the write applied. GHL stores unrecognised keys verbatim, and
 search endpoint returns 200 with a plausible WRONG row for a filter it does not understand. Read
 back on a separate request before reporting a result.
 
+WHERE A SURFACE WRITES THROUGH A WHOLE-OBJECT PUT OR POST, ASSUME REPLACE, NOT MERGE \u2014 and verify
+by reading back the fields you did NOT send. Proven on three unrelated rails: POST /forms/{id}
+stores whatever formData arrives and deletes every key absent from it (there is no PATCH);
+PUT /calendars/{id} reset openHours to {} for a body that named only the slot fields, and the
+calendar then answered 200, still read isActive and still rendered its booking widget while
+offering no slots; the public update-calendar and update-pipeline rails do the same. The damage is
+always to a field you never mentioned, so a read-back that checks only what you sent reports
+success on it. GET the object, mutate the whole document, send it back.
+
 A catalogue hit proves the GHL builder calls that path. It does not prove your token reaches it,
 and it does not prove calling it is safe.
 
