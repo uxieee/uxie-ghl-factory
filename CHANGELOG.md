@@ -13,6 +13,9 @@ commit bodies carry the detail.
 
 ## [0.59.1] — 2026-09-07
 
+The smart-list audit states the one failure mode it cannot check, rather than letting a clean
+verdict be read as more than it means.
+
 ### Changed
 
 - **`check_smart_lists` now says what it does not check.** There is a fourth way a list renders the
