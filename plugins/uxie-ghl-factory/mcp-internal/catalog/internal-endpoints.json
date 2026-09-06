@@ -2715,10 +2715,10 @@
       "sources": [
         "services/api/contact-service.ts:36",
         "platform/20-api/smart-lists.md:91",
-        "platform/20-api/smart-lists.md:150",
-        "platform/30-types/contact-filter-dsl.md:4",
-        "platform/30-types/contact-filter-dsl.md:12",
-        "platform/30-types/index.md:18"
+        "platform/20-api/smart-lists.md:155",
+        "platform/20-api/smart-lists.md:163",
+        "platform/20-api/smart-lists.md:184",
+        "platform/30-types/contact-filter-dsl.md:4"
       ]
     },
     {
@@ -2783,7 +2783,7 @@
       "sources": [
         "platform/20-api/smart-lists.md:27",
         "platform/20-api/smart-lists.md:71",
-        "platform/20-api/smart-lists.md:205"
+        "platform/20-api/smart-lists.md:239"
       ]
     },
     {
@@ -2819,7 +2819,7 @@
       },
       "sources": [
         "platform/20-api/smart-lists.md:57",
-        "platform/20-api/smart-lists.md:159"
+        "platform/20-api/smart-lists.md:193"
       ]
     },
     {
@@ -2866,8 +2866,8 @@
         "platform/20-api/smart-lists.md:26",
         "platform/20-api/smart-lists.md:46",
         "platform/20-api/smart-lists.md:47",
-        "platform/20-api/smart-lists.md:147",
-        "platform/20-api/smart-lists.md:156"
+        "platform/20-api/smart-lists.md:181",
+        "platform/20-api/smart-lists.md:190"
       ]
     },
     {
@@ -2962,7 +2962,7 @@
       "sources": [
         "platform/20-api/smart-lists.md:25",
         "platform/20-api/smart-lists.md:38",
-        "platform/20-api/smart-lists.md:157"
+        "platform/20-api/smart-lists.md:191"
       ]
     },
     {
@@ -6100,7 +6100,8 @@
       "coveredBy": [
         "build_workflow",
         "edit_workflow",
-        "list_account_entities"
+        "list_account_entities",
+        "list_forms"
       ],
       "rawCallable": true,
       "transport": "json",
@@ -6137,7 +6138,11 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "create_form",
+        "get_form",
+        "update_form_data"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -6209,7 +6214,10 @@
       "rail": "workflow",
       "kind": "write",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "create_form",
+        "update_form_data"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -6284,7 +6292,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "get_form"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -6550,7 +6560,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "list_form_submissions"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -9292,7 +9304,7 @@
       },
       "sources": [
         "platform/20-api/smart-lists.md:25",
-        "platform/20-api/smart-lists.md:185",
+        "platform/20-api/smart-lists.md:219",
         "workflows/20-api/03-endpoints.md:345",
         "workflows/20-api/smart-lists.md:69",
         "workflows/70-research/ENDPOINTS.md:77"
@@ -9370,8 +9382,8 @@
       },
       "sources": [
         "platform/20-api/smart-lists.md:26",
-        "platform/20-api/smart-lists.md:157",
-        "platform/20-api/smart-lists.md:195"
+        "platform/20-api/smart-lists.md:191",
+        "platform/20-api/smart-lists.md:229"
       ]
     },
     {
@@ -9409,7 +9421,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "platform/20-api/smart-lists.md:155",
+        "platform/20-api/smart-lists.md:189",
         "workflows/20-api/smart-lists.md:73",
         "workflows/70-research/ENDPOINTS.md:81"
       ]
@@ -35228,7 +35240,8 @@
       "coveredBy": [
         "build_workflow",
         "edit_workflow",
-        "list_account_entities"
+        "list_account_entities",
+        "list_forms"
       ],
       "rawCallable": true,
       "transport": "json",
@@ -35298,7 +35311,9 @@
       "rail": "ai",
       "kind": "write",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "create_form"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -35366,7 +35381,11 @@
       "rail": "ai",
       "kind": "read",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "create_form",
+        "get_form",
+        "update_form_data"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -35402,7 +35421,10 @@
       "rail": "ai",
       "kind": "write",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "create_form",
+        "update_form_data"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -35439,7 +35461,9 @@
       "rail": "ai",
       "kind": "read",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "list_forms"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -35477,7 +35501,9 @@
       "rail": "ai",
       "kind": "read",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "get_form"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -35801,7 +35827,9 @@
       "rail": "ai",
       "kind": "read",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "list_form_submissions"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",

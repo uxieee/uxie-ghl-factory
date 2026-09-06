@@ -6606,6 +6606,354 @@ export const TOOLS = [
     }, args),
   },
 
+  // ── forms ────────────────────────────────────────────────────────────────────────────────────
+  //
+  // The surface was mapped and live-proven on 2026-09-06 (corpus/forms/**, 133 saved probes) and
+  // until now reached an agent only through raw_request, which carries none of the four traps that
+  // make this collection hostile:
+  //
+  //   1. The save is a whole-document REPLACE. Keys you do not send are gone. There is no PATCH —
+  //      PUT and PATCH both 404 — so every edit is read-modify-write or it is data loss.
+  //   2. A save issued right after the create answers `404 Form does not exist or is deleted`,
+  //      seven times out of seven. The replica needs ~5s. A human in the builder never sees it.
+  //   3. Reads lag writes by ~4s, so an immediate read-back returns the PREVIOUS document and a
+  //      naive verifier reports success on a write that has not landed.
+  //   4. Two keys are renamed on write (`formAction.redirect_url` → `redirectUrl`,
+  //      `style.ac_branding` → `acBranding`), so a field-by-field read-back comparison that does
+  //      not know this reports a mismatch on a correct write.
+  //
+  // Nothing inside `formData` is validated by the server — an invented key is stored and read back
+  // — and `GET /forms/data/{id}` answers with NO credentials, so everything in the document is
+  // public. There is no draft state: a form is live at its widget URL the moment it exists.
+  {
+    name: 'list_forms',
+    description: `${describe('list_forms', 'List forms in a sub-account — risk: read')}. `
+      + 'Lists forms with their ids, names and folder. `type: "form"` returns forms only — ANY other '
+      + 'value, including omitting it, returns forms AND folders in one array, because `type` selects '
+      + 'the row kind rather than the productType. Quizzes live on this collection too '
+      + '(productType "quiz"); surveys do not. Offset paging via skip/limit. `query` is a '
+      + 'case-insensitive substring match on the name. The count endpoint counts forms PLUS folders, '
+      + 'so it will not agree with the number of rows here.',
+    inputSchema: schema({
+      locationId: z.string(),
+      query: z.string().optional(),
+      parentId: z.string().optional(),
+      includeFolders: z.boolean().default(false),
+      skip: z.number().default(0),
+      limit: z.number().default(20),
+    }),
+    capabilities: [
+      { method: 'GET', path: '/forms/' },
+      { method: 'GET', path: '/forms/count' },
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+      const q = new URLSearchParams({
+        locationId: args.locationId,
+        skip: String(args.skip ?? 0),
+        limit: String(args.limit ?? 20),
+      });
+      // Omitting `type` is what returns folders as well — that is the documented switch, not a
+      // separate endpoint.
+      if (args.includeFolders !== true) q.set('type', 'form');
+      if (args.query) q.set('query', args.query);
+      if (args.parentId) q.set('parentId', args.parentId);
+      const r = await gw.call('GET', `/forms/?${q}`);
+      if (!r.ok) return fromHttp(r.status, r.json);
+      const rows = (r.json?.forms ?? []).map((f) => ({
+        id: f._id ?? f.id,
+        name: f.name,
+        productType: f.productType ?? null,
+        parentId: f.parentId ?? null,
+        source: f.source ?? null,
+        version: f.version ?? null,
+        updatedAt: f.updatedAt ?? f.dateUpdated ?? null,
+        versions: Array.isArray(f.versionHistory) ? f.versionHistory.length : null,
+      }));
+      return ok({
+        total: r.json?.total ?? rows.length,
+        returned: rows.length,
+        forms: rows,
+        note: 'List rows carry no formData — read one with get_form to see the document.',
+      });
+    }, args),
+  },
+  {
+    name: 'get_form',
+    description: `${describe('get_form', 'Read one form and its stored document — risk: read')}. `
+      + 'Returns the form record plus the whole `formData` document — the fields, the submit action, '
+      + 'styling and every key the builder ever wrote. An unknown id answers 400 "Form does not '
+      + 'exist", NOT 404. Everything in formData is world-readable through the widget rail, so treat '
+      + 'it as public. Pass publicView:true to read exactly what the widget renders instead.',
+    inputSchema: schema({
+      locationId: z.string(),
+      formId: z.string(),
+      publicView: z.boolean().default(false),
+    }),
+    capabilities: [
+      { method: 'GET', path: '/forms/{id}' },
+      { method: 'GET', path: '/forms/data/{id}' },
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+      const id = encodeURIComponent(args.formId);
+      const r = await gw.call('GET', args.publicView === true ? `/forms/data/${id}` : `/forms/${id}`);
+      if (!r.ok) {
+        // GHL answers 400 for an id that does not exist on this collection. Passing that through
+        // as a bare 400 reads as "bad request" and sends a caller looking at their own arguments.
+        if (r.status === 400 && /does not exist/i.test(JSON.stringify(r.json ?? ''))) {
+          return fail(CODES.VALIDATION_FAILED, `no form with id ${args.formId} on this sub-account`,
+            'GHL answers 400 (not 404) for an unknown form id. Run list_forms to find the right one.');
+        }
+        return fromHttp(r.status, r.json);
+      }
+      const form = r.json?.form ?? r.json ?? {};
+      if (args.publicView === true) {
+        return ok({ formId: args.formId, name: r.json?.name ?? null, publicDocument: form,
+          note: 'This is the widget\'s own read — it answers with NO credentials, so anything here is public.' });
+      }
+      const fields = form.formData?.form?.fields ?? [];
+      return ok({
+        formId: form._id ?? args.formId,
+        name: form.name,
+        productType: form.productType ?? null,
+        parentId: form.parentId ?? null,
+        version: form.version ?? null,
+        versionHistory: Array.isArray(form.versionHistory) ? form.versionHistory.length : null,
+        fieldTags: fields.map((f) => f.tag).filter(Boolean),
+        formData: form.formData ?? {},
+      });
+    }, args),
+  },
+  {
+    name: 'create_form',
+    description: `${describe('create_form', 'Create a form and save its document — risk: write')}. `
+      + 'Preview by default; confirm:true writes. Runs the whole proven sequence: create, WAIT for the '
+      + 'replica (a save sent immediately answers 404 "Form does not exist or is deleted", seven times '
+      + 'out of seven), save the document, then poll a read-back until the tags you sent come back. '
+      + 'A form is LIVE at its public widget URL the moment it exists — there is no draft state — and '
+      + 'everything in formData is world-readable, so never put anything private in it.',
+    inputSchema: schema({
+      locationId: z.string(),
+      name: z.string(),
+      fields: z.array(z.record(z.any())).optional(),
+      formAction: z.record(z.any()).optional(),
+      style: z.record(z.any()).optional(),
+      parentId: z.string().optional(),
+      source: z.string().default('landing_page'),
+      confirm: z.boolean().default(false),
+    }),
+    capabilities: [
+      { method: 'POST', path: '/forms/' },
+      { method: 'POST', path: '/forms/{id}' },
+      { method: 'GET', path: '/forms/{id}' },
+    ],
+    handler: async (args, deps) => guard(async () => {
+      if (typeof args.name !== 'string' || args.name.trim() === '') {
+        return fail(CODES.VALIDATION_FAILED, 'name must be a non-empty string', 'Pass the form name.');
+      }
+      const fields = args.fields ?? [];
+      const untagged = fields.map((f, i) => (f && typeof f.tag === 'string' && f.tag ? null : i)).filter((i) => i !== null);
+      if (untagged.length) {
+        return fail(CODES.VALIDATION_FAILED, `fields[${untagged.join(', ')}] have no 'tag'`,
+          'Every element needs a tag: it is the field key the widget renders and the read-back compares on. '
+          + 'Standard fields use their name (first_name, email, phone); a custom-field question uses the custom field id.');
+      }
+      const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+      const document = {
+        form: {
+          fields,
+          ...(args.formAction ? { formAction: args.formAction } : {}),
+          ...(args.style ? { style: args.style } : {}),
+        },
+      };
+      const preview = {
+        creates: { name: args.name, productType: 'form', source: args.source ?? 'landing_page', parentId: args.parentId ?? null },
+        document,
+        fieldTags: fields.map((f) => f.tag),
+        warning: 'The form is PUBLIC the moment it is created — there is no draft state, and formData is readable with no credentials.',
+      };
+      if (args.confirm !== true) {
+        return withFailureData(
+          fail(CODES.CONFIRM_REQUIRED, 'Form create preview is ready; no write was sent.',
+            'Repeat with confirm:true to create it.'),
+          { preview },
+        );
+      }
+      const created = await gw.call('POST', '/forms/', {
+        locationId: args.locationId,
+        name: args.name,
+        productType: 'form',
+        source: args.source ?? 'landing_page',
+        ...(args.parentId ? { parentId: args.parentId } : {}),
+      });
+      if (!created.ok) return fromHttp(created.status, created.json);
+      const formId = created.json?.form?._id ?? created.json?._id ?? created.json?.id ?? null;
+      if (!formId) {
+        return withFailureData(
+          fail(CODES.ENGINE_ABORT, 'Form create returned 2xx but no form id.',
+            'Run list_forms before retrying — a retry would create a second form.'),
+          { preview, response: created.json ?? null },
+        );
+      }
+      // THE WAIT. Not defensive padding: seven of seven saves sent immediately after a create
+      // answered 404, and the identical bodies succeeded once the id was a minute old. The
+      // read-back primitive is the only sleep in this codebase, so the first save runs as its
+      // predicate rather than hand-rolling a timer.
+      const saved = await gw.readBackUntil(async () => {
+        const s = await gw.call('POST', `/forms/${encodeURIComponent(formId)}`, { name: args.name, formData: document });
+        return s.ok ? s : null;
+      }, { pollMs: 3000, maxPolls: 4 });
+      if (!saved.hit) {
+        return withFailureData(
+          fail(CODES.ENGINE_ABORT, `The form was created (${formId}) but every save attempt failed.`,
+            'The form exists and is EMPTY. Do not create another — call update_form_data on this id.'),
+          { formId, preview, attempts: saved.attempts },
+        );
+      }
+      // Reads lag writes by seconds; a single immediate read returns the PREVIOUS document, which
+      // is how a verifier reports success on a write that has not landed. Compare on tags.
+      const want = fields.map((f) => f.tag).filter(Boolean);
+      const back = await gw.readBackUntil(async () => {
+        const g = await gw.call('GET', `/forms/${encodeURIComponent(formId)}`);
+        const got = (g.json?.form?.formData?.form?.fields ?? []).map((f) => f.tag).filter(Boolean);
+        return want.every((t) => got.includes(t)) ? got : null;
+      }, { pollMs: 2000, maxPolls: 4 });
+      return ok({
+        formId,
+        verified: Boolean(back.hit),
+        readBackAttempts: back.attempts,
+        fieldTags: back.hit ?? want,
+        widgetUrl: `https://api.leadconnectorhq.com/widget/form/${formId}`,
+        ...(back.hit ? {} : { note: `Saved, but the document had not appeared after ${back.attempts} read-backs. Reads lag writes by seconds — read it again with get_form before assuming it is wrong.` }),
+      });
+    }, args),
+  },
+  {
+    name: 'update_form_data',
+    description: `${describe('update_form_data', 'Edit a form\'s stored document safely — risk: write')}. `
+      + 'Preview by default; confirm:true writes. THE SAVE IS A WHOLE-DOCUMENT REPLACE and there is no '
+      + 'PATCH — PUT and PATCH both 404 — so this reads the current document first, merges your change '
+      + 'into it and writes the whole thing back. The preview shows exactly which top-level keys of '
+      + '`formData.form` would change. Two keys are renamed by the server on write '
+      + '(formAction.redirect_url → redirectUrl, style.ac_branding → acBranding), so the read-back '
+      + 'compares on the names GHL stores, not the ones you sent.',
+    inputSchema: schema({
+      locationId: z.string(),
+      formId: z.string(),
+      fields: z.array(z.record(z.any())).optional(),
+      formAction: z.record(z.any()).optional(),
+      style: z.record(z.any()).optional(),
+      name: z.string().optional(),
+      confirm: z.boolean().default(false),
+    }),
+    capabilities: [
+      { method: 'GET', path: '/forms/{id}' },
+      { method: 'POST', path: '/forms/{id}' },
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const patch = ['fields', 'formAction', 'style'].filter((k) => args[k] !== undefined);
+      if (!patch.length && args.name === undefined) {
+        return fail(CODES.VALIDATION_FAILED, 'nothing to change',
+          'Pass at least one of fields, formAction, style or name.');
+      }
+      const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+      const id = encodeURIComponent(args.formId);
+      const current = await gw.call('GET', `/forms/${id}`);
+      if (!current.ok) {
+        if (current.status === 400 && /does not exist/i.test(JSON.stringify(current.json ?? ''))) {
+          return fail(CODES.VALIDATION_FAILED, `no form with id ${args.formId} on this sub-account`,
+            'GHL answers 400 (not 404) for an unknown form id.');
+        }
+        return fromHttp(current.status, current.json);
+      }
+      const form = current.json?.form ?? {};
+      const before = form.formData?.form ?? {};
+      const after = { ...before };
+      for (const k of patch) after[k] = args[k];
+      const name = args.name ?? form.name;
+      const preview = {
+        formId: args.formId,
+        name,
+        changes: patch.map((k) => ({
+          key: k,
+          from: k === 'fields' ? `${(before.fields ?? []).length} element(s)` : (before[k] === undefined ? '(absent)' : 'present'),
+          to: k === 'fields' ? `${(args.fields ?? []).length} element(s)` : 'replaced',
+        })),
+        ...(args.name !== undefined && args.name !== form.name ? { rename: { from: form.name, to: args.name } } : {}),
+        preservedKeys: Object.keys(before).filter((k) => !patch.includes(k)),
+        note: 'Keys under preservedKeys are re-sent verbatim. Without that they would be DELETED — the save replaces the document.',
+      };
+      if (args.confirm !== true) {
+        return withFailureData(
+          fail(CODES.CONFIRM_REQUIRED, 'Form update preview is ready; no write was sent.',
+            'Repeat with confirm:true to apply it.'),
+          { preview },
+        );
+      }
+      // The whole document, including every key we are not touching. This is the entire reason the
+      // tool exists: a bare POST of just the changed key silently deletes the rest.
+      const saved = await gw.call('POST', `/forms/${id}`, {
+        name,
+        formData: { ...(form.formData ?? {}), form: after },
+      });
+      if (!saved.ok) return fromHttp(saved.status, saved.json);
+      // GHL renames two keys on write. Comparing on the names we SENT would report a mismatch on a
+      // perfectly good save, which is how a verifier trains people to ignore it.
+      const RENAMED = { redirect_url: 'redirectUrl', ac_branding: 'acBranding' };
+      const stored = (obj) => Object.fromEntries(Object.entries(obj ?? {}).map(([k, v]) => [RENAMED[k] ?? k, v]));
+      const wantTags = (args.fields ?? after.fields ?? []).map((f) => f.tag).filter(Boolean);
+      const wantAction = args.formAction ? Object.keys(stored(args.formAction)) : [];
+      const back = await gw.readBackUntil(async () => {
+        const g = await gw.call('GET', `/forms/${id}`);
+        const doc = g.json?.form?.formData?.form ?? {};
+        const tags = (doc.fields ?? []).map((f) => f.tag).filter(Boolean);
+        const tagsOk = wantTags.every((t) => tags.includes(t));
+        const actionOk = wantAction.every((k) => (doc.formAction ?? {})[k] !== undefined);
+        return tagsOk && actionOk ? { tags, formAction: doc.formAction ?? null } : null;
+      }, { pollMs: 2000, maxPolls: 4 });
+      return ok({
+        formId: args.formId,
+        verified: Boolean(back.hit),
+        readBackAttempts: back.attempts,
+        fieldTags: back.hit?.tags ?? wantTags,
+        preservedKeys: preview.preservedKeys,
+        ...(back.hit ? {} : { note: `Saved, but the change had not appeared after ${back.attempts} read-backs. Reads lag writes by seconds — read it again with get_form before re-sending.` }),
+      });
+    }, args),
+  },
+  {
+    name: 'list_form_submissions',
+    description: `${describe('list_form_submissions', 'List form submissions — risk: read')}. `
+      + 'Submissions for one form, or for the whole sub-account when formId is omitted. This endpoint '
+      + 'pages with `page`, NOT `skip` — sending skip is a 422. The separate count endpoint takes a '
+      + 'date range and refuses formId, so a per-form count is the length of these rows.',
+    inputSchema: schema({
+      locationId: z.string(),
+      formId: z.string().optional(),
+      page: z.number().default(1),
+      limit: z.number().default(20),
+    }),
+    capabilities: [{ method: 'GET', path: '/forms/submissions' }],
+    handler: async (args, deps) => guard(async () => {
+      const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+      const q = new URLSearchParams({
+        locationId: args.locationId,
+        page: String(args.page ?? 1),
+        limit: String(args.limit ?? 20),
+      });
+      if (args.formId) q.set('formId', args.formId);
+      const r = await gw.call('GET', `/forms/submissions?${q}`);
+      if (!r.ok) return fromHttp(r.status, r.json);
+      const rows = r.json?.submissions ?? r.json?.data ?? [];
+      return ok({
+        page: args.page ?? 1,
+        returned: Array.isArray(rows) ? rows.length : 0,
+        meta: r.json?.meta ?? null,
+        submissions: rows,
+      });
+    }, args),
+  },
 ];
 
 export function registerTools(server, deps, tools = TOOLS) {

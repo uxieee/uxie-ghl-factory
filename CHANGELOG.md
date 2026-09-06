@@ -52,6 +52,28 @@ commit bodies carry the detail.
   the skill's canonical build entry died with a `ReferenceError` before it read anything. Found by
   using it.
 
+### Added — the forms rail, and two surface skills
+
+- **Five typed tools for forms** — `list_forms`, `get_form`, `create_form`, `update_form_data`,
+  `list_form_submissions`. The surface was mapped and live-proven on 2026-09-06 and until now
+  reached an agent only through `raw_request`, which carries none of its four traps: the save is a
+  whole-document REPLACE with no PATCH (so a bare write of one key deletes the rest of the form), a
+  save issued right after the create answers 404 seven times out of seven, reads lag writes by
+  seconds so an immediate read-back returns the previous document, and two keys are renamed by the
+  server on write. `update_form_data` reads-merges-writes and its preview names every key it is
+  preserving; `create_form` runs the save as a polled retry and verifies on field tags; `get_form`
+  turns GHL's 400-for-unknown-id into a named refusal instead of a bare bad-request.
+  **Live-fired on the sandbox 2026-09-07, 13 of 13 assertions**, including the one that matters: a
+  `formAction`-only edit left all three fields and the styling intact, where a raw write would have
+  destroyed them. Form `AhqijQSeEcorOhXiFxlj` left in place.
+- **`ghl-forms` and `ghl-snapshots` skills.** Forms documents the four traps, the no-draft-state
+  rule (a form is live at its widget URL the moment it exists), the world-readable document, and
+  the strict query shapes. Snapshots has no typed tool yet and the skill is why: four of its write
+  calls do something other than what their name suggests — `/snapshots/create` hangs where the
+  appengine create works, an empty `extras` on refresh silently discards the curation, a bad id
+  gives you a 200 and an empty snapshot, and the conflicts endpoint refuses the wizard's own key
+  names. Both skills' endpoint claims are checked by the new lint.
+
 ### Added — gates
 
 - **A skill-claims lint.** Skills are hand-written prose telling an agent which endpoint to call,
