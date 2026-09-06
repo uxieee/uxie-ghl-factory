@@ -11,6 +11,49 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [0.61.0] — 2026-09-07
+
+Typed tools for snapshots, four uncatalogued routes drained, and a test gate that was missing 962 tests.
+
+### Added
+
+- **Five snapshot tools** — `list_snapshots`, `get_snapshot_manifest`, `check_snapshot_conflicts`,
+  `create_snapshot`, `refresh_snapshot`. This surface is **agency-scoped**, so a mistake is not
+  confined to one sub-account, and three of its four traps are silent. `create_snapshot` uses the
+  appengine endpoint (the legacy one captures any category you omit *whole*), validates every id
+  against the account's own manifest before writing, and diffs the stored contents afterwards —
+  a bad id otherwise answers `200` and produces an EMPTY snapshot with nothing reported.
+  `refresh_snapshot` refuses an empty selection, which would re-capture the whole account and
+  silently replace a curated snapshot. `check_snapshot_conflicts` sends the key names the server
+  wants rather than the ones the wizard displays, which answer `400 ["Required","Required"]`.
+- **Four catalogue routes** our own skills named and the catalogue lacked, each probed with ids that
+  do not exist so nothing was written: `PUT /voice-ai/actions/{actionId}` (agentId and locationId go
+  in the **body**), `PUT /calendars/events/appointments/{eventId}`,
+  `POST /contacts/{contactId}/workflow/{workflowId}`, and `POST /knowledge-base/` — whose **trailing
+  slash is load-bearing**: without it the same request answers `404` with an empty body and reads as
+  "no create route". 1065 rows.
+
+### Fixed
+
+- **`npm test` never ran the skills' own suites.** It globbed `mcp-internal/test` only, so 962 tests
+  across 78 files — the compiler, the lints, memberships, fast-forward — were invisible to the
+  release gate, and a compiler regression could have shipped green. 1174 → 2149 tests.
+- **The agency id was unreachable.** `auth.mjs` parsed `companyId` from the JWT and the return
+  statement dropped it, and these tokens carry no such claim regardless. It now rides alongside
+  `uid`, and the snapshot tools resolve it from `GET /locations/{locationId}`.
+- **"There is no Conversation AI snapshot category" was wrong**, and the corpus contradicted itself
+  about it. Measured: `asset-names` returns 51 categories including `conversation_ai`, and the test
+  sub-account offers 2 of them. The operational conclusion holds — a flow bot still does not travel —
+  but the category exists and holds AI *employees*. The skill and both corpus pages now say so.
+
+### Changed
+
+- **The catalog's declared `requiredFields` stays advisory, now with a measurement behind it.**
+  Replaying every type's declaration against its own verified-live capture: 19 of 39 captures
+  *violate* their own declared requirements, a 49% false-positive rate, because the declaration is a
+  variant union rather than a requirement. Promoting it — even to the warn tier — would fire wrongly
+  on half of all step types. Enforcement coverage cannot be widened by mining; only by capture.
+
 ## [0.60.2] — 2026-09-07
 
 `create_smart_list`'s envelope is render-proven, so its advice now points at what is actually open.
