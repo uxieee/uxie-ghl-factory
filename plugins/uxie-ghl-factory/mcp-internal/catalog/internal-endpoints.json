@@ -36498,7 +36498,7 @@
       "origin": "https://services.leadconnectorhq.com",
       "rail": "ai",
       "kind": "read",
-      "reach": "source-only",
+      "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
