@@ -11,6 +11,149 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [0.57.0] — 2026-09-07
+
+The 2026-09-06 rail findings: 32 engine items compiled from four booking rails on four accounts
+(28 Aug to 6 Sep). The highest-value family first — **a write that reports success and does
+nothing** — then the two warnings that pushed people to rewrite working flows, then the caps,
+then the convenience ops and tool notes. Every item names the finding it came from. Receipt:
+`STATUS-2026-09-07-rail-findings-engine-fixes.md`.
+
+### Fixed — the reports-success-does-nothing family (backlog 1–4, 13, 16, 31, 32)
+
+- **Op keys are STRICT.** Every `edit_workflow` op accepts a fixed key set; an unknown key refuses
+  the whole call BY NAME, with the accepted list and, for the known mistakes, where the value goes.
+  Four live findings, one mechanism: `modifyTrigger` with `conditions` at the op's top level
+  (R-67, R-96 — eight dead rails on one account, recurring a day later on another), `modifyTrigger`
+  with a top-level `name` meant as the NEW name (R-101 — the top-level `name` is the MATCHER, so
+  the rename verified clean and never happened), `modifyTrigger` with `status` (R-80), and
+  `modifyStep` with `attributes` instead of `attrPatch` (R-115). In each the engine consumed
+  nothing, re-sent the stored record, and its verifier compared that record against itself.
+  `triggerId` together with a top-level `name`/`type` is refused as ambiguous.
+- **`modifyTrigger` takes `trigger.conditions` in the STORED shape, verbatim** — R-67's proven hand
+  recipe, typed — or `trigger.filters` (author rows, expanded like a create); never both. A patch
+  whose every value already matches the store is planned as a **NOOP**: shown in the preview with
+  the reason, warned `TRIGGER_NOOP`, not sent (D-67: a no-op PUT "verified" a write that never
+  happened). `addTrigger` takes `conditions` verbatim too, so a stored trigger can be cloned onto
+  another workflow without silently posting `conditions: []`.
+- **The trigger verifier reads the store, not the intent.** Each planned write records
+  `requested` — the fields the CALLER named, as they must read back — and the round trip holds the
+  store to them (`requestedByCaller` on a mismatch) and to the server's own `date_updated`, which
+  the server stamps itself on every write it applies and ignores from the client. An unmoved stamp
+  after a 200 is a `date_updated` mismatch: the PUT changed nothing. Every check reports
+  `dateUpdated {before, after, moved}`.
+- **The asset pre-flight says which document it describes**, `phase: 'pre-write'`, and is re-run
+  over the PERSISTED document after a write (`verify.assetPreflightAfter`, phase `post-write`); an
+  error that survives on a touched step warns `ASSET_ERROR_PERSISTS_AFTER_WRITE`. R-96 read a
+  correct, persistent pre-write error as a stale cache. **`ignoreAssetErrors` is refused** when the
+  flagged asset id is one this edit's own ops are REPLACING (`replaceFieldId` / `replaceTag` /
+  `replaceInAttributes` old values) — that is exactly the case where the error is real and the
+  write is the fix. The plain refusal names the phase and the risk instead of offering the hatch as
+  a third option.
+
+### Fixed — false warnings (backlog 17, 24, 6)
+
+- **`GRAPH_CONTEXT` "a branch leading with a container is never chosen" was FALSE.** Agent span
+  traces on a live client account show a splitter choosing a branch whose first step is a NESTED
+  SPLITTER, repeatedly, on real patients (R-113, R-131). The rule is narrowed to the one head type
+  that was measured (`conversationai_book_appointment`, sandbox 2026-08-30) and worded as a
+  heuristic to verify against a live run, not a platform rule.
+- **`OPP_WRITE_UNBOUND_PATH` fired on the canonical pattern it recommends.** The edit and repair
+  verifiers handed the lint only the touched steps, so its parentKey walk hit a missing parent on
+  the first hop for a step sitting directly under `find_opportunity → Opportunity Found` while the
+  runtime log showed it updating the card (D-85, D-89). The lint now walks the whole document and
+  reports only the touched steps (`scope`).
+- **`MODIFY_NOT_NORMALISED` fires only for keys a patch INTRODUCES** on a non-normalisable type.
+  Overwriting keys the wire shape already carries (a goto's `targetNodeId`, an opportunity step's
+  rows) is silent; the warning names the new keys.
+
+### Added — measured caps (backlog 15, 25)
+
+- **`engine/field-caps.mjs`**: the four caps crossed live and read back —
+  `conversationai_objective.instructions` 1000, `conversationai_ai_message.message` 600,
+  `conversationai_book_appointment.promptInstructions` 500, `conversationai_ai_splitter.description`
+  500 (D-68, D-74, D-81, D-88, R-144; `conversationai_continue` has none, 821 stored and ran).
+  `edit_workflow` and `repair_workflow` REFUSE an over-cap value on a step they touch
+  (`VALIDATION_FAILED`, length and cap named; hatch `allowOverCap:true` writes it and keeps a
+  `FIELD_CAP` warning); `build_workflow` warns; `describe_step_type` carries `caps` on the card.
+  Every live schema violation also lands in `warnings` as `SCHEMA: …`, not only inside
+  `schemaViolations` — three caps were crossed in one week because nobody read that block.
+
+### Added / Fixed — engine ops (backlog 12, 18, 20, 5, 8, 19)
+
+- **`moveStep` moves the `parentKey` back-pointers with the `next` edges.** GHL's save validator
+  refuses a document whose two disagree (`INVALID_STRUCTURE`), so no reorder through the engine
+  had ever committed while the preview looked clean (D-15, D-64). The entry step cannot be moved
+  (`insertBefore` is the door).
+- **`addBranch` on a `conversationai_ai_splitter`** appends a user-defined transition row plus its
+  `transition` node, last, in the compiler's shape; `addSplitterBranch` is an accepted spelling;
+  the new branch is an `appendToBranch` target by name. Every new intent on a live flow bot was a
+  hand-authored whole-document PUT before this (Deposit S17).
+- **`updateSettings.name`** renames the workflow (ED-09; builder cap 100 characters, R-58).
+- **Tag rows union their operators**: `contact.tags` is two catalogue rows with one value ("Has
+  tag" `index-of-true`, "Doesn't have tag" `index-of-false`); reading only the first flagged the
+  UI's own "Doesn't have tag" as off-menu on every `customer_reply` trigger (R-74).
+- `replaceInAttributes` already reached nested paths (`__customInputFields__[].value`,
+  `branches[].segments[].conditions[].conditionValue`); pinned by test, documented (backlog 5).
+- `insertBefore`/`insertAfter` with `stepId` name `beforeId`/`afterId` (backlog 19).
+
+### Added / Fixed — tools (backlog 14, 28, 11, 26, 10, 23, 29, 30, 21, 27)
+
+- **`update_convai_agent` strips `workingHours` and `steps`** from the read-merge-write body: the
+  PUT's DTO refuses them outright (`422 "property workingHours should not exist"`), so no agent
+  whose GET carried them could be edited, and the autoPilot mode switch failed the same way
+  (R-143, D-68, backlog 28).
+- **The secret scrubber no longer redacts HTML `data-*` attribute names.** GHL step HTML carries
+  `data-cv-token="true">{{message.body}}`; the labelled rule read `token="true"` as a credential and
+  `export_workflow` returned `<redacted>` where the visitor's message belonged — a clone built from
+  that export lost it (R-98). The JWT and `Bearer …` rules still scan every string.
+- **`get_trigger_logs` flags `conv_ai_trigger` / `conv_ai_autonomous_trigger` as `noStats`**: 0
+  attempts on every account minutes after a proven fire (R-150, D-84); the `added_to_workflow`
+  enrolment row in `get_workflow_logs` is the only proof of a conv-AI fire. The note lists nine
+  no-stats types.
+- **`raw_request` refuses a trigger POST carrying root `workflow_id` and no `workflowId`** — the
+  create route binds from camelCase `workflowId` only, so the stored shape returns 200 with an id
+  and mints an ORPHAN (R-95: four on a client account). The per-trigger PUT is untouched.
+- **`deleteStep`/`deleteContainer` on a PUBLISHED workflow counts the contacts parked on the
+  deleted steps first** (one `count-per-step` read) — `preview.parkedOnDeletedSteps` and a
+  `DELETE_EJECTS_PARKED_CONTACTS` warning: those runs end `step_was_deleted_by_user`, and an
+  autonomous trigger does not re-fire for them in that session (D-83).
+- **`replaceFieldId` resolves the NEW id on this account** (`GET /locations/{loc}/customFields/{id}`)
+  and refuses `UNRESOLVED_DEPS` when it does not — field ids differ per account, standard fields
+  included, so a cloned objective can carry a foreign id that "works" (D-86). Hatch:
+  `ignoreUnresolved`.
+- **`get_workflow_logs` labels a refused objective write** (`objectiveWriteFailed`, from
+  `actionFrom.response.msg` "Objective met but field update failed - proceeding due to
+  allowPartialSuccess") and counts them (`objectiveWriteFailures`) — the only trace of a write the
+  Conversation AI service dropped; a platform transient seen in bursts on every account (D-86,
+  D-90).
+- **Large documents go through files.** `export_workflow {stepIds?, writeTo?}`,
+  `get_workflow_logs {writeTo?}` (scrubbed, absolute path, summary returned), and
+  `repair_workflow {templatesPath}` (an export file, a raw GET body, `{templates}` or a bare
+  array). A 120-step flow bot is above the inline argument and result caps, which is why every
+  read-back on the rails was a file parse (ED-09, D-78, R-146).
+
+### Already true, recorded so nobody re-files them
+
+- Backlog 22 (a new root appended to the END of the templates array never runs): `edit_workflow`
+  and `repair_workflow` have refused `ENTRY_NOT_FIRST` since the entry-step lint; the finding was
+  about a hand PUT, which no guard sees.
+- Backlog 9 (the rename rail bumps `version`, R-66): that rail is a client-side script, not in the
+  plugin; nothing here gates on `version` after a rename.
+- Backlog 7 (a trigger that only DELETE stops, R-80): not reproducible from the corpus; the
+  `status` rail is live-proven elsewhere and the account-specific case is recorded, not fixed.
+- Backlog 31 (`PUT /contacts/{id}` with `{"phone": ""}` answers 200 and changes nothing; `null`
+  clears): a catalogue note for the endpoint overlay, deferred — that file has uncommitted forms
+  work from another session at the time of this release.
+
+### Changed
+
+- `edit_workflow`'s description and `references/editing.md` carry the strict-key contract, the
+  `modifyTrigger` shape, the NOOP rule, the caps, the file paths and the parked-contact warning.
+  Three schema-check tests that pinned "an over-cap value still commits" now pin the hatch.
+  `capability-manifest.json` regenerated (238 rows: `count-per-step` and `customFields/{id}` on
+  `edit_workflow`).
+
 ## [0.56.1] — 2026-09-04
 
 The fifteen AI Studio tools now carry **`proof: live-runtime (2026-09-04)`**, up from `documented`.

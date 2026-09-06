@@ -31,16 +31,55 @@ window patched without `days` comes back with the UI default, and the compiler's
 the op rather than only at commit. Types whose AUTHOR shape is not their WIRE shape (opportunity
 steps, marketplace steps, `email`, `custom_webhook`, `custom_code`) and containers (whose
 attributes carry branch wiring) cannot be re-derived from what is stored: those are merged as
-given and warn `MODIFY_NOT_NORMALISED`, naming `retypeStep` — a full attribute replacement through
-the compiler — as the door), `renameStep` (`{stepId,name}`), `retypeStep` (`{stepId,step}` — change what a step
-IS, see "Retyping a step" below), `moveStep`, `addBranch`
-(`{containerId,name,conditions}`),
+given, and warn `MODIFY_NOT_NORMALISED` only when the patch INTRODUCES a key the stored step did
+not carry — overwriting keys the wire shape already has (a goto's `targetNodeId`, an opportunity
+step's `__customInputFields__`) is a same-shape edit and is silent. The warning names the new
+keys and `retypeStep` — a full attribute replacement through the compiler — as the door),
+`renameStep` (`{stepId,name}`), `retypeStep` (`{stepId,step}` — change what a step
+IS, see "Retyping a step" below), `moveStep` (`{stepId, afterId}` — moves the `parentKey`
+back-pointers with the `next` edges, which GHL's save validator requires; the entry step cannot be
+moved, use `insertBefore`), `addBranch`
+(`{containerId,name,conditions}` on an if/else; on a `conversationai_ai_splitter` it appends a
+user-defined transition row plus its `transition` node, LAST, with no conditions — the LLM routes
+on the branch name against the splitter's description; `addSplitterBranch` is an accepted spelling;
+the new branch is then an `appendToBranch` target by `containerId` + `branch` name),
 `deleteContainer`, `setStepDisabled` (`{stepId,disabled}`), and `disableStepsByType`
 (`{type,disabled}`) — plus the trigger ops `addTrigger` / `modifyTrigger` / `deleteTrigger`
 (see "Editing TRIGGERS" below), and **`updateSettings`** (`{settings:{…}}` — the Settings tab's
 keys, merged over the stored values and validated by the same contract as `settings:` in a
-build: `window`, `timezone`, `stopOnResponse`, `senderAddress`, `workflowNote`, `statsView`…;
-a settings-only edit still commits with one PUT). Also `addStepNote` (`{stepId,text}` — the node's Notes popover; lands in `comments[]` newest-first) and `duplicateStep` (`{stepId, afterId?}` — "Copy action" → "Copy here": fresh-id copy after the source, notes not copied, disabled state travels; containers/goals/loops/gotos refused). Trigger side: `duplicateTrigger` (`{triggerId|name, newName?}` — "Copy Trigger": the stored trigger re-posted as "… (Copy)", matching the target workflow's own published/draft state (see "Editing TRIGGERS" below); webhook copies get a fresh `predeterminedId`). Find & Replace, tag mode: `replaceTag` (`{oldTag,newTag,triggers?}` — exact swap in tag arrays and tags-subtype if/else conditions, string replace in `customTags`, plus one PUT per trigger carrying the tag; the UI's text mode has no replace, so there is no text op). Find & Replace, FIELD-ID mode: `replaceFieldId` (`{oldId,newId,triggers?}` — a custom field's `dataType` is immutable, so converting a field's type means a NEW id and every reference must move: `fields[].field`, if/else `conditionSubType`, opportunity `__customInputFields__[].filterField`, plus one PUT per trigger whose conditions carry the id as `contact.<id>`, `id`, or `value`. Merge tags are deliberately untouched — they key off `fieldKey`, which the new field regenerates from its name). And `replaceInAttributes` (`{type?,path,find,replace}` — a literal string replace at ONE dotted attribute path, `[]` expanding an array level, optionally scoped to a step type; no regex and no path guessing, so a rename in an SMS body cannot silently rewrite a webhook URL). The disable operations use GHL's native top-level
+build: `window`, `timezone`, `stopOnResponse`, `senderAddress`, `workflowNote`, `statsView`…,
+plus **`name`**, the workflow's own name, capped at the builder's 100 characters;
+a settings-only edit still commits with one PUT).
+
+**Op keys are STRICT.** Every op accepts a fixed key set, and a key outside it refuses the whole
+call by name — with the accepted list and, where the mistake is a known one, where the value
+goes: `modifyStep` with `attributes` → `attrPatch`; `modifyStep` with `name` → `renameStep` or
+`stepPatch`; `insertBefore` with `stepId` → `beforeId`; `modifyTrigger` with a top-level
+`conditions` / `filters` / `status` / `active` → inside `trigger`. Four live findings share one
+mechanism (R-67, R-96, R-101, R-115): the engine consumed nothing, re-sent the stored record, and
+its own verifier compared that record against itself and passed — eight dead rails on one account.
+An unconsumed key is never dropped silently again.
+
+**Measured field caps refuse before the write.** `conversationai_objective.instructions` 1000,
+`conversationai_ai_message.message` 600, `conversationai_book_appointment.promptInstructions` 500,
+`conversationai_ai_splitter.description` 500 (engine/field-caps.mjs; each crossed live and read
+back, D-68/D-74/D-81/D-88/R-144). The server stores an over-length value verbatim and the
+round-trip reads clean; only the builder objects. An over-cap value on a step the edit touches is
+`VALIDATION_FAILED` naming the length and the cap; `allowOverCap:true` writes it and keeps a
+`FIELD_CAP` warning. `describe_step_type` carries the caps. Every schema violation the live action
+schema reports also lands in `warnings` as `SCHEMA: …`, not only in the `schemaViolations` block.
+
+**Large documents go through files.** `export_workflow {stepIds?, writeTo?}` narrows the templates
+and/or writes the scrubbed export to an absolute path; `get_workflow_logs {writeTo?}` the same;
+`repair_workflow {templatesPath}` reads the templates from that file (an export file, a raw
+workflow GET body, `{templates}` or a bare array). A 120-step flow bot is above what a client
+passes inline and above the tool-result cap, which is why every read-back on the rails was a
+file parse (ED-09, D-78, R-146).
+
+**Deleting a step on a PUBLISHED workflow counts who is parked on it first.** The preview carries
+`parkedOnDeletedSteps` and warns `DELETE_EJECTS_PARKED_CONTACTS`: those runs end with
+`step_was_deleted_by_user`, and an autonomous trigger does not re-fire for them in that session
+(D-83). Move them with `fast_forward_contacts` first, or accept the ejection. Also `addStepNote` (`{stepId,text}` — the node's Notes popover; lands in `comments[]` newest-first) and `duplicateStep` (`{stepId, afterId?}` — "Copy action" → "Copy here": fresh-id copy after the source, notes not copied, disabled state travels; containers/goals/loops/gotos refused). Trigger side: `duplicateTrigger` (`{triggerId|name, newName?}` — "Copy Trigger": the stored trigger re-posted as "… (Copy)", matching the target workflow's own published/draft state (see "Editing TRIGGERS" below); webhook copies get a fresh `predeterminedId`). Find & Replace, tag mode: `replaceTag` (`{oldTag,newTag,triggers?}` — exact swap in tag arrays and tags-subtype if/else conditions, string replace in `customTags`, plus one PUT per trigger carrying the tag; the UI's text mode has no replace, so there is no text op). Find & Replace, FIELD-ID mode: `replaceFieldId` (`{oldId,newId,triggers?}` — a custom field's `dataType` is immutable, so converting a field's type means a NEW id and every reference must move: `fields[].field`, if/else `conditionSubType`, opportunity `__customInputFields__[].filterField`, plus one PUT per trigger whose conditions carry the id as `contact.<id>`, `id`, or `value`. Merge tags are deliberately untouched — they key off `fieldKey`, which the new field regenerates from its name). And `replaceInAttributes` (`{type?,path,find,replace}` — a literal string replace at ONE dotted attribute path, `[]` expanding an array level, optionally scoped to a step type; no regex and no path guessing, so a rename in an SMS body cannot silently rewrite a webhook URL). The disable operations use GHL's native top-level
 `advanceCanvasMeta.isDisabled` flag, preserve the full step config, and commit only changed
 step IDs in `modifiedSteps`. Example — add an SMS, delete a step, and natively pause all
 internal notifications:
@@ -295,6 +334,27 @@ corpus-traced `buildTrigger` the create path uses:
 `deleteTrigger`/`modifyTrigger` take a `triggerId`, or a `name`/`type` matched against the
 live trigger list — an ambiguous match is a hard error, never a silent pick. `modifyTrigger`
 PUTs the full merged object (unspecified fields carry over from the live trigger).
+
+**What `modifyTrigger` reads, and what it refuses.** The edit lives in `trigger`:
+`{name?, type?, masterType?, filters? | conditions?, active?, target? | targetActionId?,
+convTriggerBotId?}`. `filters` are AUTHOR rows, expanded like a create; `conditions` are
+STORED-shape rows (each with its `title`/`type`/`operator`, as `export_workflow` returns them)
+and go on the wire verbatim — R-67's proven hand recipe, typed, and the way a trigger is cloned
+across workflows (`addTrigger` takes `conditions` verbatim too). Refused by name, never ignored:
+`conditions`/`filters`/`status`/`active` at the op's top level; `triggerId` together with a
+top-level `name` (the top-level `name` is the MATCHER — R-101's "rename" that verified clean and
+never happened); `trigger.status` (activation is `trigger.active`); an unknown key inside
+`trigger`; both `filters` and `conditions`. A patch whose every value already matches the store
+is planned as a **NOOP** — shown in the preview with the reason, warned `TRIGGER_NOOP`, and not
+sent (D-67: a no-op PUT "verified" a write that never happened).
+
+**The verifier reads the store, not the intent.** After the write the trigger is re-listed and
+held to `requested` — the fields YOU named, as they must read back — and to the server's own
+`date_updated`, which the server stamps itself on every write it applies (a client value is
+ignored). A field that reads back as before is a mismatch flagged `requestedByCaller`; an unmoved
+stamp is a mismatch on `date_updated` and means the PUT changed nothing. Either fails the call as
+`ENGINE_ABORT` with the paths, expected and actual, and the receipt carries `dateUpdated
+{before, after, moved}` on every check (R-96, D-67, backlog 2 and 13).
 
 Two things the engine handles that a hand-rolled POST gets wrong:
 
