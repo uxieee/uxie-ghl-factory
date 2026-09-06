@@ -42,6 +42,7 @@ export const DEDICATED_ATTRIBUTES = [
   [(n) => n.type === 'voice_ai_outbound_call', (n) => voiceAiOutboundCallAttributes(n.attributes ?? {})],
   [(n) => n.type === 'internal_notification', (n, ctx) => internalNotificationAttributes(n.attributes ?? {}, ctx)],
   [(n) => n.type === 'create_opportunity', (n, ctx) => createOpportunityAttributes(n.attributes ?? {}, n.ref, ctx)],
+  [(n) => n.type === 'create_opportunity_strict', (n, ctx) => createOpportunityStrictAttributes(n.attributes ?? {}, n.ref, ctx)],
   [(n) => n.type === 'update_opportunity', (n, ctx) => updateOpportunityAttributes(n.attributes ?? {}, n.ref, ctx)],
 ];
 
@@ -359,12 +360,121 @@ function refuseUnresolvedOppNames(a, ref, stepType, ctx) {
   throw new IRError('UNRESOLVED_NAME', detail);
 }
 
+// THE UPSERT. `create_opportunity` is the builder's own "Create/Update Opportunity" action
+// (`recovered-source/src/models/actions/CreateOpportunity.ts:26`, locale key
+// `create_update_opportunity`): if the running contact already has an opportunity in that
+// pipeline it UPDATES it, and only creates when there is none. That is what an author asking for
+// "create an opportunity" almost always means, and it is what the drawer offers.
+//
+// The engine used to compile this intent to `internal_create_opportunity`, a picker-invisible
+// helper with no validator and no upsert semantics: it CREATES, always, and answers
+// `400 duplicate opportunity` at runtime the moment the contact already has a card. Nothing in
+// build, publish or round-trip saw it — the step saves, verifies, and silently no-ops for every
+// returning contact. One client build had 31 such steps retyped by hand (2026-09-06).
+//
+// The two switches are the drawer's, and they are mutually exclusive there:
+//   allowBackward → allow_backward  "allow opportunity to move to any previous stage in pipeline"
+//   allowMultiple → allow_multiple  "allow duplicate opportunities" — the opt-OUT of the upsert
+// Both default false when absent, exactly as the drawer renders an undefined value.
+const UPSERT_OPP_AUTHOR_KEYS = new Set([
+  'pipelineId', 'stageId', 'status', 'name', 'source', 'value', 'lostReasonId',
+  'allowBackward', 'allowMultiple',
+  'pipeline', 'stage', 'lostReason',    // pre-resolve name path (resolve.mjs → *Id)
+]);
+const UPSERT_OPP_ALIASES = {
+  pipelineStageId: 'stageId', stage_id: 'stageId', pipeline_stage_id: 'stageId',
+  pipeline_id: 'pipelineId', monetaryValue: 'value', monetary_value: 'value',
+  opportunity_name: 'name', opportunity_source: 'source', opportunity_status: 'status',
+  allow_backward: 'allowBackward', allow_multiple: 'allowMultiple',
+};
+// Only the STRICT type carries these: they are top-level filterFields on the internal helper's
+// picker, and the legacy action has no slot for them — its extras live in `fields[]`, whose shape
+// no capture in this repo proves. Emitting a guess is how a step round-trips clean and drops a
+// value, so this refuses and names the alternative instead.
+const STRICT_ONLY_OPP_KEYS = new Set(['forecastExpectedCloseDate', 'forecastProbability']);
+
+const OPP_STATUSES = new Set(['open', 'won', 'lost', 'abandoned']);
+
 function createOpportunityAttributes(a, ref, ctx) {
   refuseUnresolvedOppNames(a, ref, 'create_opportunity', ctx);
-  const bad = Object.keys(a).filter((k) => !CREATE_OPP_AUTHOR_KEYS.has(k));
+  const strictOnly = Object.keys(a).filter((k) => STRICT_ONLY_OPP_KEYS.has(k));
+  if (strictOnly.length)
+    throw new IRError('OPP_STRICT_ONLY_ATTR',
+      `create_opportunity '${ref}' sets [${strictOnly.join(', ')}], which only the create-only `
+      + `helper accepts. The builder's Create/Update Opportunity action has no top-level slot for `
+      + `them — they would round-trip clean and never be written. Either drop them, or author the `
+      + `step as type 'create_opportunity_strict' (which emits internal_create_opportunity and `
+      + `does NOT update an existing card: it fails 400 duplicate opportunity when one exists).`);
+  const bad = Object.keys(a).filter((k) => !UPSERT_OPP_AUTHOR_KEYS.has(k));
   if (bad.length)
     throw new IRError('UNKNOWN_ATTR',
       `create_opportunity '${ref}' has unknown attribute key(s) [${bad.join(', ')}]${
+        bad.some((k) => UPSERT_OPP_ALIASES[k])
+          ? ` — did you mean ${bad.filter((k) => UPSERT_OPP_ALIASES[k]).map((k) => `'${UPSERT_OPP_ALIASES[k]}' (not '${k}')`).join(', ')}?`
+          : ''
+      }. Author keys: ${[...UPSERT_OPP_AUTHOR_KEYS].join(', ')}. You author camelCase; the wire `
+      + `shape is snake_case (stageId → pipeline_stage_id). An ignored key compiles to a step that `
+      + `saves, round-trips clean, and writes nothing.`);
+  // GHL's own validator refuses a step with no pipeline (`pipeline_required`), and the drawer's
+  // hasErrors getter agrees — `!this.attributes.pipeline_id` is its first clause.
+  //
+  // Keyed on "no pipeline was AUTHORED", not "no id resolved". An author who named a pipeline that
+  // the account does not have has already met refuseUnresolvedOppNames above, which throws — or
+  // warns and continues under the caller's deliberate `ignoreUnresolved` hatch. Throwing again
+  // here would revoke that hatch, and an unreachable hatch is its own defect class.
+  if (a.pipelineId == null && a.pipeline == null)
+    throw new IRError('OPP_NO_PIPELINE',
+      `create_opportunity '${ref}' has no pipelineId. GHL's createOpportunityActionValidator emits `
+      + `'pipeline_required' without one and the builder renders the step with an error badge.`);
+  if (a.status != null && !/\{\{/.test(String(a.status)) && !OPP_STATUSES.has(String(a.status).toLowerCase()))
+    throw new IRError('OPP_BAD_STATUS',
+      `create_opportunity '${ref}' sets status '${a.status}'. GHL's Status enum is `
+      + `${[...OPP_STATUSES].join(' | ')}.`);
+  if (a.lostReasonId != null && String(a.status ?? '').toLowerCase() !== 'lost')
+    throw new IRError('OPP_LOST_REASON_NO_LOST_STATUS',
+      `create_opportunity '${ref}' sets 'lostReasonId' but its status is `
+      + `${a.status == null ? 'unset' : `'${a.status}'`}, not 'lost'. GHL only accepts a lost `
+      + `reason on an opportunity being marked LOST — the builder disables the picker until then `
+      + `and DELETES the entry when it isn't, so this step would save and drop the reason.`);
+  // A stage-less step is legitimate here and NOT an error: this action updates, and a real
+  // captured example is a status-only move with no stage at all. But a CREATE needs one, so the
+  // ambiguity is worth a word rather than a refusal.
+  if (a.stageId == null)
+    ctx?.warn?.(`OPP_NO_STAGE: create_opportunity '${ref}' has no stageId. That is valid for a `
+      + `step that only updates an existing card (status, value, name), but when no opportunity `
+      + `exists yet the runtime needs a stage to create one. Author stageId unless this step is `
+      + `deliberately update-only.`);
+  const out = {
+    type: 'create_opportunity',
+    pipeline_id: a.pipelineId,
+    // The builder writes all four of these on every save, empty string when unset, and the
+    // captured corpus rows carry them at 100%. Matching that exactly keeps a round-trip clean.
+    pipeline_stage_id: a.stageId ?? '',
+    opportunity_name: a.name ?? '',
+    opportunity_source: a.source ?? '',
+    opportunity_status: a.status ?? 'open',
+    monetary_value: a.value == null ? '' : String(a.value),
+    fields: [],
+  };
+  if (a.lostReasonId != null) out.lostReasonId = a.lostReasonId;
+  // Emitted only when authored. The drawer treats undefined as false and the two are mutually
+  // exclusive in its handlers, so authoring both is a contradiction, not a preference.
+  if (a.allowBackward === true && a.allowMultiple === true)
+    throw new IRError('OPP_BACKWARD_AND_MULTIPLE',
+      `create_opportunity '${ref}' sets allowBackward and allowMultiple together. The builder's `
+      + `own handlers clear one when the other is switched on: 'move to an earlier stage' acts on `
+      + `the existing card, 'allow duplicates' refuses to touch it and makes a second one.`);
+  if (a.allowBackward != null) out.allow_backward = a.allowBackward === true;
+  if (a.allowMultiple != null) out.allow_multiple = a.allowMultiple === true;
+  return out;
+}
+
+function createOpportunityStrictAttributes(a, ref, ctx) {
+  refuseUnresolvedOppNames(a, ref, 'create_opportunity_strict', ctx);
+  const bad = Object.keys(a).filter((k) => !CREATE_OPP_AUTHOR_KEYS.has(k));
+  if (bad.length)
+    throw new IRError('UNKNOWN_ATTR',
+      `create_opportunity_strict '${ref}' has unknown attribute key(s) [${bad.join(', ')}]${
         bad.some((k) => CREATE_OPP_ALIASES[k])
           ? ` — did you mean ${bad.filter((k) => CREATE_OPP_ALIASES[k]).map((k) => `'${CREATE_OPP_ALIASES[k]}' (not '${k}')`).join(', ')}?`
           : ''
@@ -377,7 +487,7 @@ function createOpportunityAttributes(a, ref, ctx) {
   // scope them to.
   if (a.stageId != null && a.pipelineId == null)
     throw new IRError('OPP_STAGE_NO_PIPELINE',
-      `create_opportunity '${ref}' sets stageId without pipelineId. GHL scopes the stage `
+      `create_opportunity_strict '${ref}' sets stageId without pipelineId. GHL scopes the stage `
       + `picker to a pipeline, so a stage-only step renders DISABLED in the builder and `
       + `never runs. Always author pipelineId alongside stageId.`);
   const f = [];
@@ -389,7 +499,7 @@ function createOpportunityAttributes(a, ref, ctx) {
   if (a.value != null) f.push(oppField('monetaryValue', a.value, 'NUMERICAL', 'numerical'));
   if (a.forecastExpectedCloseDate != null) f.push(stdOppField('forecastExpectedCloseDate', a.forecastExpectedCloseDate));
   if (a.forecastProbability != null) f.push(stdOppField('forecastProbability', a.forecastProbability));
-  enforceLostReasonPrerequisite(f, ref, 'create_opportunity');
+  enforceLostReasonPrerequisite(f, ref, 'create_opportunity_strict');
   for (const field of f) checkOppFieldShape(field, { ref, warn: ctx?.warn });
   return { pipelineId: a.pipelineId, type: 'internal_create_opportunity', __customInputFields__: f, __customInputs__: {} };
 }
@@ -895,7 +1005,9 @@ export function normalizeStoredAttributes(template, ctx) {
 
 function typeFor(node) {
   if (node.kind === 'wait') return 'wait';
-  if (node.type === 'create_opportunity') return 'internal_create_opportunity';
+  // `create_opportunity` is the builder's own Create/Update action and keeps its own wire name.
+  // The create-only internal helper is reachable, but only by asking for it BY NAME.
+  if (node.type === 'create_opportunity_strict') return 'internal_create_opportunity';
   if (node.type === 'update_opportunity') return 'internal_update_opportunity';
   return node.type; // action / raw
 }

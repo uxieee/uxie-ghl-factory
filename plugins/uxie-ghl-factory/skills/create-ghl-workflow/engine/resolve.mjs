@@ -152,7 +152,10 @@ export function resolveIR(ir, r) {
     const a = n.attributes ?? {};
     const type = n.type;
     // opportunity steps: pipeline/stage names → ids
-    if (type === 'create_opportunity' || type === 'update_opportunity' || type === 'find_opportunity') {
+    // `create_opportunity_strict` resolves names exactly like `create_opportunity`: it is the
+    // same authoring surface pointed at the create-only internal helper. Leaving it out meant a
+    // pipeline NAME on a strict step never resolved and never even reported as unresolved.
+    if (type === 'create_opportunity' || type === 'create_opportunity_strict' || type === 'update_opportunity' || type === 'find_opportunity') {
       if (a.pipeline && !a.pipelineId) a.pipelineId = need(r.pipelineId(a.pipeline), `${type}.pipeline`, a.pipeline);
       if (a.stage && !a.stageId) a.stageId = need(r.stageId(a.stage, a.pipeline), `${type}.stage`, a.stage);
       // A lost reason is a nameable account object (entities.mjs). Without this the author had to

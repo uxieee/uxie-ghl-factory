@@ -108,7 +108,7 @@ Legend: ✅ verified-live (round-tripped against a live account) · ◐ bundle-d
 - ◐ `membership_revoke_offer` — attrs: `offer_id`
 
 ### opportunity
-- ✅ `create_opportunity` — attrs: `type`, `pipeline_id`, `opportunity_status`, `opportunity_name`, `opportunity_source`, `monetary_value`, `pipeline_stage_id`, `lostReasonId`, `allow_backward`, `allow_multiple`, `fields`
+- ✅ `create_opportunity` — attrs: `type`, `pipeline_id`, `opportunity_status`, `opportunity_name`, `opportunity_source`, `monetary_value`, `pipeline_stage_id`, `lostReasonId`, `allow_backward`, `allow_multiple`, `fields`. The UPSERT, and the default for "create an opportunity": it updates the running contact's existing card in that pipeline and creates only when there is none. Author camelCase lean keys — `pipeline`/`stage` NAMES on the build path (the resolver turns them into ids) or `pipelineId`/`stageId` on the edit path, plus `name`, `source`, `status`, `value`, `lostReasonId`, and the two drawer switches `allowBackward` (move to an earlier stage) and `allowMultiple` (make a second card instead of updating — the opt-OUT of the upsert). They are mutually exclusive. `pipelineId` is required: GHL's validator emits `pipeline_required` without one.
 - ✅ `remove_opportunity` — attrs: `type`, `opportunity_to_be_found`, `pipeline_id`
 
 ### other
@@ -123,7 +123,7 @@ Legend: ✅ verified-live (round-tripped against a live account) · ◐ bundle-d
 - ✅ `edit_conversation` — attrs: `read`, `type`, `__customInputs__`
 - ✅ `find_opportunity` — attrs: `sorting`, `type`, `__customInputFields__`, `__customInputs__`, `cat`, `convertToMultipath`, `transitions`, `__name__`; container → IR kind `find_opportunity (onFound/onNotFound)`
 - ✅ `find_or_create_contact` — attrs: `emailLabel`, `emailAddress`, `namePrefix`, `names`, `middleName`, `lastName`, `nameSuffix`, `organizationName`, `jobTitle`, `phoneLabel`, `phoneNumber`, `addressLabel` +8 more (see card); premium
-- ✅ `internal_create_opportunity` — attrs: `pipelineId`, `type`, `__customInputs__`, `__customInputFields__`. Author as **`create_opportunity`** (lean keys: `pipeline`/`stage` names on the build path, ids on the edit path, plus `name`, `status`, `value`…). `internal_create_opportunity` is accepted as an alias.
+- ✅ `internal_create_opportunity` — attrs: `pipelineId`, `type`, `__customInputs__`, `__customInputFields__`. Author as **`create_opportunity_strict`** — and only when you mean CREATE-ONLY. GHL's own description: "If duplicate opportunities are disabled and an opportunity already exists in the same pipeline, the action will not execute." It has no validator, so a bad shape saves and no-ops. For the ordinary "create an opportunity" intent author **`create_opportunity`**, which compiles to the builder's own Create/Update action and UPDATES the contact's existing card instead of failing.
 - ✅ `internal_update_opportunity` — attrs: `allowBackward`, `type`, `__customInputFields__`, `__customInputs__`. Author as **`update_opportunity`**: `pipeline`/`stage` NAMES on the build path (the resolver turns them into ids) or `pipelineId`/`stageId` on the edit path, plus `status`, `allowBackward`, `updates[]`. `internal_update_opportunity` is accepted as an alias and compiles identically; a NAME that reaches the wire is refused (`UNRESOLVED_NAME`) because GHL stores the word and the step then moves nothing.
 - ✅ `internal-add-contact-followers` — attrs: `users`, `type`, `__customInputs__`
 - ✅ `internal-add-opportunity-owner` — attrs: `user`, `onlyUnAssigned`, `type`, `__customInputs__`

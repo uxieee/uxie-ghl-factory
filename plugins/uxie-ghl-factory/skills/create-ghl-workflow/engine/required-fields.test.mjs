@@ -649,7 +649,7 @@ test('every dedicated-builder type with a coupled rule enforces it through compi
   const { loadCatalog } = await import('./catalog.mjs');
   const { makeSeededIdGen } = await import('./idgen.mjs');
 
-  assert.equal(DEDICATED_ATTRIBUTES.length, 9, 'a builder was added or removed — wire it and update this');
+  assert.equal(DEDICATED_ATTRIBUTES.length, 10, 'a builder was added or removed — wire it and update this');
 
   // One input per dedicated type that owns a coupled rule, chosen to trip that rule.
   const TRIPS = {

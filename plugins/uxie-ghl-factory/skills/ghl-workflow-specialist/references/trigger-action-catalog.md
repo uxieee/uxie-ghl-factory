@@ -100,7 +100,8 @@ instances across the same 326-workflow corpus. One example JSON per type lives a
 |---|---|---|---|
 | `update_contact_field` | Per-contact field write | `fields`, `actionType` | Deleted custom field → silent no-op. |
 | `add_contact_tag` / `remove_contact_tag` | Tag write | `tags`, `removeAll` | Tag matched by **name**; see trigger table for the rename risk shared with `contact_tag`. |
-| `create_opportunity` / `internal_create_opportunity` | Create an opportunity | `pipeline_id`, `pipeline_stage_id`, `monetary_value` | Two distinct shapes exist (public-style vs INTERNAL) — mirror a harvested example, don't blend them. |
+| `create_opportunity` | Create **or update** an opportunity | `pipeline_id`, `pipeline_stage_id`, `monetary_value` | The builder's own Create/Update action: it updates the contact's existing card in that pipeline and creates only when there is none. This is what "create an opportunity" means. |
+| `internal_create_opportunity` | Create-only helper | `pipelineId`, `__customInputFields__` | 🔴 NOT a substitute for the above. GHL: "if duplicate opportunities are disabled and an opportunity already exists in the same pipeline, the action will not execute" — it no-ops for every returning contact. Author it as `create_opportunity_strict` and only when you mean create-only. Different attribute shape; never blend the two. |
 | `find_contact` / `find_opportunity` / `lc_merge_contact` | Multi-path lookup/merge hybrid actions | `transitions[]`, `convertToMultipath` | INTERNAL, hybrid-container shape like `if_else`. |
 | `assign_user` | Assign/round-robin a rep | `user_list`, `traffic_split` | Deactivated users break assignment silently. |
 | `dnd_contact` | Set Do Not Disturb | `dnd_direction`, `specific_channels` | |

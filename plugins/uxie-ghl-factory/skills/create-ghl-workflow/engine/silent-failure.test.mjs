@@ -222,9 +222,16 @@ test('create_opportunity rejects the GHL-side key spellings instead of dropping 
     attributes: { pipeline_id: 'PID', pipeline_stage_id: 'SID', name: 'x' } }], 'UNKNOWN_ATTR');
 });
 
-test('create_opportunity rejects a stage without its pipeline', () => {
-  throws([{ ref: 'c', kind: 'action', type: 'create_opportunity', name: 'C',
+test('create_opportunity_strict rejects a stage without its pipeline', () => {
+  throws([{ ref: 'c', kind: 'action', type: 'create_opportunity_strict', name: 'C',
     attributes: { stageId: 'SID', name: 'x' } }], 'OPP_STAGE_NO_PIPELINE');
+});
+
+// The upsert refuses the same authoring mistake by the rule GHL's own validator states
+// ('pipeline_required'), which the builder's hasErrors getter checks first.
+test('create_opportunity refuses a step with no pipeline at all', () => {
+  throws([{ ref: 'c', kind: 'action', type: 'create_opportunity', name: 'C',
+    attributes: { stageId: 'SID', name: 'x' } }], 'OPP_NO_PIPELINE');
 });
 
 // attributes.__customInputFields__ is the EMITTED shape; find_opportunity reads

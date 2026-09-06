@@ -20,7 +20,7 @@
     {
       "tree": "documented",
       "dir": "corpus",
-      "capturedAt": "2026-09-06T19:04:48.550Z",
+      "capturedAt": "2026-09-06T19:21:27.743Z",
       "hash": "corpus",
       "fileCount": 677,
       "endpoints": 677
@@ -2068,10 +2068,10 @@
       "sources": [
         "services/api/contact-service.ts:36",
         "platform/20-api/smart-lists.md:91",
+        "platform/20-api/smart-lists.md:150",
         "platform/30-types/contact-filter-dsl.md:4",
         "platform/30-types/contact-filter-dsl.md:12",
-        "platform/30-types/index.md:18",
-        "workflows/50-runtime/forcing-and-removing-contacts.md:128"
+        "platform/30-types/index.md:18"
       ]
     },
     {
@@ -2123,7 +2123,7 @@
       "sources": [
         "platform/20-api/smart-lists.md:27",
         "platform/20-api/smart-lists.md:71",
-        "platform/20-api/smart-lists.md:148"
+        "platform/20-api/smart-lists.md:205"
       ]
     },
     {
@@ -2148,7 +2148,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "platform/20-api/smart-lists.md:57"
+        "platform/20-api/smart-lists.md:57",
+        "platform/20-api/smart-lists.md:159"
       ]
     },
     {
@@ -2182,7 +2183,9 @@
       "sources": [
         "platform/20-api/smart-lists.md:26",
         "platform/20-api/smart-lists.md:46",
-        "platform/20-api/smart-lists.md:47"
+        "platform/20-api/smart-lists.md:47",
+        "platform/20-api/smart-lists.md:147",
+        "platform/20-api/smart-lists.md:156"
       ]
     },
     {
@@ -2259,7 +2262,8 @@
       },
       "sources": [
         "platform/20-api/smart-lists.md:25",
-        "platform/20-api/smart-lists.md:38"
+        "platform/20-api/smart-lists.md:38",
+        "platform/20-api/smart-lists.md:157"
       ]
     },
     {
@@ -7177,7 +7181,7 @@
       },
       "sources": [
         "platform/20-api/smart-lists.md:25",
-        "platform/20-api/smart-lists.md:128",
+        "platform/20-api/smart-lists.md:185",
         "workflows/20-api/03-endpoints.md:345",
         "workflows/20-api/smart-lists.md:69",
         "workflows/70-research/ENDPOINTS.md:77"
@@ -7232,11 +7236,12 @@
       },
       "sources": [
         "platform/20-api/smart-lists.md:26",
-        "platform/20-api/smart-lists.md:138"
+        "platform/20-api/smart-lists.md:157",
+        "platform/20-api/smart-lists.md:195"
       ]
     },
     {
-      "id": "workflows--lists-dynamic-delete",
+      "id": "platform--lists-dynamic-delete",
       "method": "DELETE",
       "origin": "https://backend.leadconnectorhq.com",
       "path": "/lists/dynamic/{locationId}/{smartListId}",
@@ -7246,7 +7251,7 @@
       "extraHeaders": [],
       "tree": "documented",
       "operation": null,
-      "service": "workflows",
+      "service": "platform",
       "query": [],
       "body": null,
       "returns": null,
@@ -7257,6 +7262,7 @@
         "returns": "unresolved"
       },
       "sources": [
+        "platform/20-api/smart-lists.md:155",
         "workflows/20-api/smart-lists.md:73",
         "workflows/70-research/ENDPOINTS.md:81"
       ]

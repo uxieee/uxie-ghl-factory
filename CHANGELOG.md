@@ -11,6 +11,44 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [0.58.0] — 2026-09-07
+
+### Fixed — the reports-success-does-nothing family, continued
+
+- **`create_opportunity` compiled to a create-only action, so every create-or-update intent
+  silently no-opped for returning contacts.** The compiler mapped the IR type to
+  `internal_create_opportunity`, a picker-invisible helper whose own GHL description reads "if
+  duplicate opportunities are disabled and an opportunity already exists in the same pipeline, the
+  action will not execute" — and the IR then rewrote the wire name back onto the lean one, so the
+  builder's real **Create/Update Opportunity** action (`create_opportunity`, locale key
+  `create_update_opportunity`) was unreachable except through `kind:'raw'`. The step saved,
+  published and round-tripped clean; the failure was a `400 duplicate opportunity` at runtime that
+  nothing on the build path could see. One client build had 31 steps retyped by hand (2026-09-06).
+  `create_opportunity` now compiles to the builder's own upsert: flat snake_case attributes,
+  `allowBackward` / `allowMultiple` for the drawer's two mutually exclusive switches, `pipelineId`
+  required (GHL's validator emits `pipeline_required` without one), status checked against GHL's
+  Status enum, and `lostReasonId` refused unless the status is `lost`. A stage-less step is allowed
+  and warned, because it can only ever update. The create-only helper stays reachable by its own
+  name, `create_opportunity_strict`.
+  **Live-proven on the sandbox** (draft `8b9f2159-7cac-4f85-a0ed-e164cca5173b`, read back on a
+  separate request): GHL stored every emitted key verbatim, `allow_backward: true` persisted, asset
+  pre-flight returned 0 errors and 0 warnings, and the strict type kept its
+  `__customInputFields__` shape beside it. **Still owed:** the runtime differential — one contact
+  enrolled twice, the upsert moving the existing card where the strict step answers 400. That
+  needs a published workflow.
+- Because the type now compiles to the action GHL actually validates, an opportunity step whose
+  pipeline never resolved is **refused at compile** by GHL's own mined `pipeline_required` guard
+  instead of being built blind. `ignoreUnresolved` does not buy past it: enforcement is a separate
+  gate and `build_workflow` exposes no `skipEnforcement`.
+- **`scripts/build.mjs` crashed on every run** — `pathToFileURL` was used and never imported, so
+  the skill's canonical build entry died with a `ReferenceError` before it read anything. Found by
+  using it.
+
+### Changed
+
+- The capabilities index and the workflow-specialist catalogue now say which opportunity action is
+  which, and `internal_create_opportunity`'s entry carries GHL's own "will not execute" sentence.
+
 ## [0.57.0] — 2026-09-07
 
 The 2026-09-06 rail findings: 32 engine items compiled from four booking rails on four accounts
