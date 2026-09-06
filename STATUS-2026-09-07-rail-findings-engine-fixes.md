@@ -170,18 +170,19 @@ the next item picked up.
    CHOSEN in a real conversation, and the parked-contact count (backlog 23) was not exercised
    against a published workflow — I told the Rail 3 session this probe would never publish, and
    kept to that. Both need a flow bot on a throwaway account.
-2. **Release.** `npm run release -- 0.57.0` refuses while `endpoint-overlay.json` is modified and
-   uncommitted (another session's forms work). Either that session commits its overlay first, or
-   the two are reconciled by hand — do not stash someone else's WIP. The CHANGELOG entry is dated
-   2026-09-07; the release script requires the date to be the release day, so bump it if the
-   release slips.
-3. Backlog 31 (contacts `{"phone": ""}` no-op) is a one-line overlay note, deferred for the same
-   reason.
+2. **Release.** No longer blocked: the forms session committed its overlay work to main and it
+   was merged into this branch (a00e5ea); the tree is clean and `npm run freshness` is green.
+   The CHANGELOG entry is dated 2026-09-07; the release script requires the date to be the
+   release day, so bump it if the release slips.
+3. Backlog 31 (contacts `{"phone": ""}` no-op) cannot be an overlay note: the catalogue has no
+   `PUT /contacts/{contactId}` row (no front-end this project mined calls it, and no corpus page
+   documents it). It belongs on the `contacts-custom-objects` surface, which the corpus lists as
+   planned and never captured. Recorded here so the finding is not lost.
 
 ## Not touched, on purpose
 
-- `plugins/uxie-ghl-factory/mcp-internal/catalog/endpoint-overlay.json` (another session's
-  uncommitted work) and its `.bak-2026-09-06`.
+- `plugins/uxie-ghl-factory/mcp-internal/catalog/endpoint-overlay.json.bak-2026-09-06` (another
+  session's untracked backup).
 - `.review3-probe/` (untracked, pre-existing).
 - No client identifiers appear in any test or doc added here; the privacy gate ran clean on
   both commits.
