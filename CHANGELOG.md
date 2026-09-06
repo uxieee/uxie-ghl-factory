@@ -151,6 +151,14 @@ then the convenience ops and tool notes. Every item names the finding it came fr
 
 ### Changed
 
+- **The endpoint catalogue regenerates losslessly again.** `knowledge/`'s harvester never read the
+  AI Studio sidecar its 40 `/vibe-ai/*` rows had been hand-merged from, so any regeneration — the
+  release's own step 3 included — dropped 52 rows. It now reads every `_data/endpoints.json` first,
+  resolves base-less page paths against it, and both it and the merge that `npm run sync` runs
+  REFUSE to write when a row would vanish, naming each (`--allow-removals` to override). Catalogue
+  1011 → 1078 rows: the forms surface (40), the snapshot surface (28), the AI usage/domain rows and
+  the brand-kit list calls. `tool-host-parity` records `/forms/` as a both-hosts family (the forms
+  corpus proves it by differential); no tool changed host.
 - `edit_workflow`'s description and `references/editing.md` carry the strict-key contract, the
   `modifyTrigger` shape, the NOOP rule, the caps, the file paths and the parked-contact warning.
   Three schema-check tests that pinned "an over-cap value still commits" now pin the hatch.
