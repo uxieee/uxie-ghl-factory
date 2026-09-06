@@ -31,6 +31,7 @@ import { lintTriggerRows } from './lints/trigger-rows.mjs';
 import { buildResolvers, resolveIR } from './resolve.mjs';
 import { danglingParentKeys } from './edit.mjs';
 import { requiredKeysFor, isSupplied } from './required-fields.mjs';
+import { fires } from './enforce.mjs';
 import { fetchActionSchema, checkWorkflow } from './action-schema.mjs';
 import { buildMarketplaceIndex } from './marketplace.mjs';
 import { walkNodes } from './ir.mjs';
@@ -51,6 +52,23 @@ export function missingRequiredFields(step) {
   const keys = requiredKeysFor(step?.type);
   if (!keys.length) return [];
   return keys.filter((k) => !isSupplied(step.type, k, step.attributes ?? {}));
+}
+
+// The same question, asked of GHL's OWN mined guards rather than our attested table.
+//
+// `requiredKeysFor` knows nine types (all conversationai_*), because each one cost a live probe.
+// The compiler meanwhile refuses 69 types against `enforcement`, replayed from GHL's own publish
+// validators — and verify never asked. So a round trip could come back {pass:N, issues:[]} for a
+// step the builder renders with a red badge, on any of the sixty types the attested table has
+// never heard of. Reading the guards off the PERSISTED attributes also catches the case the
+// compiler cannot see: a field we sent that the server dropped.
+//
+// Throw-tier only. A warn-tier guard is advice at compile time and must not become a verify issue.
+export function firedEnforcement(step, catalog) {
+  const rules = catalog?.step?.(step?.type)?.enforcement?.throw;
+  if (!rules?.length) return [];
+  const attrs = step.attributes ?? {};
+  return rules.filter((r) => fires(r, attrs)).map((r) => ({ field: r.field, guard: r.guard, support: r.support }));
 }
 
 const UPSTREAM_SECRET_KEY = /(?:authorization|token|jwt|api[-_ ]?(?:key|secret)|client[-_ ]?secret|password|credentials?|cookies?|session)/i;
@@ -601,6 +619,14 @@ export async function orchestrate(ir, gw, opts = {}) {
       issue.missingRequired = missingRequired;
       issue.note = 'the builder renders this step with a red error badge and the workflow CANNOT be '
         + 'published — this does NOT show up as a dropped attribute because the key was never sent.';
+    }
+    // GHL's own guards, against what GHL stored. Covers the ~60 types the attested table does not.
+    const enforcementIssues = firedEnforcement(gt, catalog);
+    if (enforcementIssues.length) {
+      issue.failsGhlGuard = enforcementIssues;
+      issue.note = 'GHL\'s OWN validator rule fires on the STORED step: the builder renders it with a red '
+        + 'error badge and the workflow cannot be published. The attributes round-tripped, so no other '
+        + 'check here sees it.';
     }
     if (Object.keys(issue).length) report.verify.issues.push({ type: gt.type, id: gt.id, name: gt.name, ...issue });
     else if (st) report.verify.pass++;

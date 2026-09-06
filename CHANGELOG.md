@@ -40,6 +40,14 @@ commit bodies carry the detail.
   pipeline never resolved is **refused at compile** by GHL's own mined `pipeline_required` guard
   instead of being built blind. `ignoreUnresolved` does not buy past it: enforcement is a separate
   gate and `build_workflow` exposes no `skipEnforcement`.
+- **Round-trip verify was blind on 60 step types.** It asked only the attested required-field
+  table, which knows eight (all `conversationai_*`, each one paid for with a live probe), so a
+  workflow could come back `{pass: N, issues: []}` while the builder rendered a step with a red
+  error badge and refused to publish it. The compiler already refuses 49 types against GHL's own
+  mined publish validators; verify now replays those same throw-tier guards against what GHL
+  actually STORED and reports `failsGhlGuard`. Coverage goes from 8 types to 57, and reading the
+  guards off the read-back also catches a required field the server dropped after accepting it.
+  Warn-tier guards stay compile-time advice and never become verify issues.
 - **`scripts/build.mjs` crashed on every run** — `pathToFileURL` was used and never imported, so
   the skill's canonical build entry died with a `ReferenceError` before it read anything. Found by
   using it.
