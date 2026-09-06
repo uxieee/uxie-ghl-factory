@@ -13,6 +13,12 @@ commit bodies carry the detail.
 
 ## [0.58.0] — 2026-09-07
 
+A plugin improvement programme: the opportunity step that silently no-opped, a round-trip verifier
+that was blind on sixty step types, a typed rail for forms, live probe verdicts reaching the
+catalogue, and three gates that were built and never wired. Seven of the defects fixed here were
+found by the work itself rather than reported. Receipt:
+`STATUS-2026-09-07-plugin-improvement-programme.md`.
+
 ### Fixed — the reports-success-does-nothing family, continued
 
 - **`create_opportunity` compiled to a create-only action, so every create-or-update intent
