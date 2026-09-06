@@ -52,6 +52,19 @@ commit bodies carry the detail.
   the skill's canonical build entry died with a `ReferenceError` before it read anything. Found by
   using it.
 
+### Changed — reach stops being a guess on 76 rows
+
+- **Live probe verdicts now reach the catalogue.** `reach` came from a hand-maintained overlay and
+  nothing else, so 893 rows said `source-only` — indistinguishable from "nobody has looked". The
+  knowledge repo's probe has existed since 2026-08-25 and dead-ended in `sniffs/`; it now writes
+  `catalog/endpoint-reach.json`, which the build reads BELOW the overlay and ABOVE a sidecar's
+  `proof`. That precedence is the point: a human who probed beats a script that probed beats an
+  author's claim the code cannot verify. A read-only sweep of 302 rows on the sandbox promoted 70
+  to `proven` and 6 to `refused`, with zero demotions and zero rows added or removed.
+  **source-only 893 → 817.**
+- The 145 inconclusive answers promote nothing. Fifty-six are 422s where the endpoint named a query
+  key the probe did not send, which is a statement about the arguments, not about reach.
+
 ### Added — the forms rail, and two surface skills
 
 - **Five typed tools for forms** — `list_forms`, `get_form`, `create_form`, `update_form_data`,

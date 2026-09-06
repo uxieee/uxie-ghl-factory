@@ -31,6 +31,15 @@ const OUT = outArg >= 0 && process.argv[outArg + 1]
 
 const source = JSON.parse(readFileSync(SOURCE, 'utf8'));
 const overlay = JSON.parse(readFileSync(OVERLAY, 'utf8')).rows ?? {};
+// LIVE PROBE VERDICTS, keyed `METHOD originpath`. Written by knowledge's probe-endpoint-ledger,
+// which records a verdict only for a 2xx (proven) or a 401/403 (refused) — everything else is
+// inconclusive and deliberately absent. It ships in knowledge/ rather than here because the probe
+// that writes it lives there; a missing file simply contributes nothing.
+const REACH_LEDGER = resolve(HERE, '../../../../../knowledge/catalog/endpoint-reach.json');
+const probed = (() => {
+  try { return JSON.parse(readFileSync(REACH_LEDGER, 'utf8')).rows ?? {}; }
+  catch { return {}; }
+})();
 // Read the capability manifest rather than importing TOOLS: tools.mjs reads the catalogue this
 // script writes, so importing it here would make the build depend on its own output.
 const manifest = JSON.parse(readFileSync(MANIFEST, 'utf8'));
@@ -106,7 +115,13 @@ const endpoints = source.endpoints.map((row) => {
     // sidecar's claim is an author's assertion this code cannot verify. `observed` promotes
     // nothing — it was read out of a bundle and never called.
     ...(row.proof ? { proof: row.proof } : {}),
-    reach: extra.reach ?? (row.proof === 'executed' ? 'proven' : 'source-only'),
+    // PRECEDENCE, most authoritative first. The overlay is a human who probed the endpoint and
+    // wrote down what happened, so it always wins. Below it, a live probe verdict — measured, but
+    // by a script that only knows two answers. Below that, a sidecar author's `executed` claim,
+    // which this code cannot verify. Absent all three, the row is a guess and says so.
+    reach: extra.reach
+      ?? probed[`${row.method} ${row.origin}${row.path}`]?.reach
+      ?? (row.proof === 'executed' ? 'proven' : 'source-only'),
     coveredBy: covered,
     rawCallable: rawCallable(row),
     transport: row.transport,
