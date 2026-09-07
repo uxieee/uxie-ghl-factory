@@ -466,22 +466,34 @@ export async function buildCourse({
     }
 
     if (spec.enroll?.length && built.offerId) {
-      built.enrolled = [];
+      // `attach-offer-user` answers 200 "successfully queued" for an empty body (live-proven —
+      // see members.grantOffer), so what was ACCEPTED and what was ENROLLED are two different
+      // lists and this reports them as two. `granted` is what we sent; `enrolled` is what the
+      // user-progress read-back actually found, and only that one is a fact.
+      built.granted = [];
       for (const contactId of spec.enroll) {
         phase('offer_grant');
         await members.grantOffer({ contactId, offerId: built.offerId });
-        built.enrolled.push(contactId);
-        log(`+ granted access to contact ${contactId}`);
+        built.granted.push(contactId);
+        log(`+ grant queued for contact ${contactId} (accepted — not yet proof)`);
       }
       phase('enrollment_read', false);
+      let rows = [];
       try {
-        const rows = await members.waitForEnrollment(product.id, { timeoutMs: 25000 });
-        built.enrollmentConfirmed = rows.length;
-        log(`  enrollment confirmed: ${rows.length} member(s) in user-progress`);
-      } catch {
-        built.enrollmentConfirmed = null;
-        log('  enrollment not visible yet (grant is async — re-check user-progress)');
+        rows = await members.waitForEnrollment(product.id, { timeoutMs: 25000, expectContactIds: built.granted });
+      } catch (e) {
+        // The wait names which contacts are missing; keep that rather than a bare count.
+        rows = await members.productProgress(product.id).catch(() => []);
+        if (!Array.isArray(rows)) rows = [];
+        log(`  ⚠ ${e.message}`);
       }
+      const present = new Set((rows).map(r => String(r?.contactId)));
+      built.enrolled = built.granted.filter(id => present.has(String(id)));
+      built.enrollmentUnconfirmed = built.granted.filter(id => !present.has(String(id)));
+      built.enrollmentConfirmed = built.enrolled.length;
+      log(built.enrollmentUnconfirmed.length === 0
+        ? `  enrollment confirmed: ${built.enrolled.length} of ${built.granted.length} contact(s) present in user-progress`
+        : `  enrollment CONFIRMED for ${built.enrolled.length} of ${built.granted.length}; still absent: ${built.enrollmentUnconfirmed.join(', ')} — the grant returns 200 whether or not it lands, so re-check user-progress rather than trusting it`);
     }
 
     for (const chapter of built.chapters) {

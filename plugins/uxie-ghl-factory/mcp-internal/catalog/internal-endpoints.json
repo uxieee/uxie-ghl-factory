@@ -13280,7 +13280,9 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "write",
-      "reach": "proven",
+      "summary": "Grants a published offer to a contact, which is what puts them in the course. Body is `{contactId, offerId, source:'admin'}` -- SINGULAR contactId, and no locationId (the location comes from the sourceid header the gateway already sends). Async: the response is an enqueue ack.",
+      "note": "Its 200 CARRIES NO INFORMATION ABOUT THE PAYLOAD. Live-proven on the test sub-account 2026-09-07: an empty body `{}`, fabricated ids, and the wrong key names each return the identical `200 {ok:true, msg:\"The request to attach the offer to the user has been successfully queued\"}` a real grant returns. The control that makes that a measurement: a nonexistent sibling path answers `404 {\"msg\":\"Not found\"}`, so the 200 is this route replying and not a catch-all. Two operators have now sent `{locationId, offerId, contactIds:[...]}` or `userIds:[...]`, been told it was queued, and granted nothing. The ONLY proof a grant landed is `GET services.../membership/locations/{loc}/products/user-progress/{productId}` containing the contactId you granted -- and check for THAT contact, not for a non-empty list, which passes on a pre-existing member. Revoke is a different path: DELETE /membership/smart-list/user-offer-management with a body.",
+      "reach": "proven-live",
       "coveredBy": [
         "build_course"
       ],

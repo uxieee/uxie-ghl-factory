@@ -52,7 +52,32 @@ test('the compiled catalogue is the source artefact plus adopted typed-tool rows
     'compiled catalogue is stale — run `node scripts/build-endpoint-catalog.mjs`');
   for (const e of adopted) {
     assert.ok(e.coveredBy.length, `${e.id} was adopted from a tool but names none`);
-    assert.equal(e.reach, 'proven', `${e.id} is called by a shipped tool, so it is proven`);
+    // `proven` is the FLOOR, not the value: a shipped tool calls this path on every run, so it can
+    // never be weaker. It may be stronger — an overlay row is a human who probed the endpoint on a
+    // live account, and until 0.64.0 those rows were the only ones in the catalogue that could not
+    // carry one. Anything OTHER than those two is drift and still fails here.
+    const key = `${e.method} ${e.path}`;
+    assert.ok(['proven', 'proven-live'].includes(e.reach),
+      `${e.id} is called by a shipped tool, so it is proven or better — got ${e.reach}`);
+    if (e.reach !== 'proven') {
+      assert.equal(e.reach, overlay[key]?.reach,
+        `${e.id} claims ${e.reach} but no overlay row says so — a stronger verdict needs a human who probed it`);
+    }
+  }
+});
+
+test('an overlay row aimed at an adopted endpoint reaches it, rather than orphaning', () => {
+  // The gap this closes: adopted rows never consulted the overlay, so a curated trap note aimed at
+  // one silently orphaned — on exactly the rows where a note is worth most, because a shipped tool
+  // calls them every run. `attach-offer-user` is the case that found it: its 200 says
+  // "successfully queued" for an empty body, and nothing in the catalogue said so.
+  const adopted = catalog.endpoints.filter((e) => e.tree === 'typed-tool');
+  const annotated = adopted.filter((e) => overlay[`${e.method} ${e.path}`]);
+  assert.ok(annotated.length, 'no adopted row is annotated — if that is deliberate, delete this test');
+  for (const e of annotated) {
+    const o = overlay[`${e.method} ${e.path}`];
+    if (o.note) assert.equal(e.note, o.note, `${e.id} dropped its overlay note`);
+    if (o.summary) assert.equal(e.summary, o.summary, `${e.id} dropped its overlay summary`);
   }
 });
 
