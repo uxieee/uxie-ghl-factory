@@ -41,6 +41,82 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
   mod
 ));
 
+// <define:__BUILDER_VALIDATORS__>
+var define_BUILDER_VALIDATORS_default;
+var init_define_BUILDER_VALIDATORS = __esm({
+  "<define:__BUILDER_VALIDATORS__>"() {
+    define_BUILDER_VALIDATORS_default = {
+      addNotesValidator: 'addNotesValidator=n=>{const e=[],{attributes:t}=n;return t?((!t.html||!t.html.trim())&&e.push({message:translate("note_content_required"),result:"warning",field:"html"}),e):[]}',
+      addToAffiliateCampaignValidator: 'addToAffiliateCampaignValidator=n=>{const e=[],{attributes:t}=n;return t?(t.campaign_id||e.push({field:"campaign_id",message:translate("affiliate_campaign_required"),result:"warning"}),e):[]}',
+      addToAffiliateManagerValidator: "addToAffiliateManagerValidator=n=>[]",
+      addToWorkflowValidator: 'addToWorkflowValidator=n=>{const e=[],{attributes:t}=n;return t?((!t.workflow_id||!t.workflow_id.trim())&&e.push({message:translate("workflow_selection_required"),result:"warning",field:"workflow_id"}),e):[]}',
+      aiAppointmentBookValidator: 'aiAppointmentBookValidator=n=>{var a,i;const e=[],{attributes:t}=n;return t?(t.calendar_id||e.push({field:"calendar_id",message:translate("ai_appointment_calendar_required"),result:"warning"}),t.timeout_time||e.push({field:"timeout_time",message:translate("ai_appointment_timeout_required"),result:"warning"}),t.send_first_message&&(!t.template_id&&!((a=t.first_message)!=null&&a.length)&&e.push({field:"first_message",message:translate("ai_appointment_message_required"),result:"warning"}),t.first_message&&!isValidHandleBar(t.first_message)&&e.push({field:"first_message",message:translate("ai_appointment_message_invalid_vars"),result:"warning"})),t.no_confirmation_message&&t.send_success_message&&(!t.success_message_template_id&&!((i=t.success_message)!=null&&i.length)&&e.push({field:"success_message",message:translate("ai_appointment_success_message_required"),result:"warning"}),t.success_message&&!isValidHandleBar(t.success_message)&&e.push({field:"success_message",message:translate("ai_appointment_success_message_invalid_vars"),result:"warning"})),e):[]}',
+      appointmentStatusValidator: 'appointmentStatusValidator=n=>{const e=[],{attributes:t}=n;return t?(t.status_type||e.push({message:translate("appointment_status_required"),result:"warning",field:"status_type"}),e):[]}',
+      arrayFunctionsValidator: 'arrayFunctionsValidator=n=>{var a,i,r,s;const e=[],{attributes:t}=n;if(!t)return[];if(!t.action)return e.push({field:"action",message:translate("array_action_required"),result:"warning"}),e;if(t.action==="find"){const l=t.find;l!=null&&l.fromField||e.push({field:"find.fromField",message:translate("array_from_field_required"),result:"warning"}),(!((a=l==null?void 0:l.filters)!=null&&a.length)||emptyValues(l.filters))&&e.push({field:"find.filters",message:translate("array_filters_required"),result:"warning"})}if(t.action==="filter"){const l=t.filter;l!=null&&l.fromField||e.push({field:"filter.fromField",message:translate("array_from_field_required"),result:"warning"}),(!((i=l==null?void 0:l.filters)!=null&&i.length)||emptyValues(l.filters))&&e.push({field:"filter.filters",message:translate("array_filters_required"),result:"warning"})}if(t.action==="math_functions"){const l=t.math_functions;l!=null&&l.fromField||e.push({field:"math_functions.fromField",message:translate("array_from_field_required"),result:"warning"}),l!=null&&l.key||e.push({field:"math_functions.key",message:translate("array_key_required"),result:"warning"}),(r=l==null?void 0:l.operations)!=null&&r.length||e.push({field:"math_functions.operations",message:translate("array_operations_required"),result:"warning"})}if(t.action==="find_by_index"){const l=t.find_by_index;l!=null&&l.fromField||e.push({field:"find_by_index.fromField",message:translate("array_from_field_required"),result:"warning"}),((l==null?void 0:l.index)===void 0||(l==null?void 0:l.index)===null)&&e.push({field:"find_by_index.index",message:translate("array_index_required"),result:"warning"})}if(t.action==="line_items"){const l=t.line_items;l!=null&&l.fromField||e.push({field:"line_items.fromField",message:translate("array_from_field_required"),result:"warning"}),(!((s=l==null?void 0:l.fields)!=null&&s.length)||emptyValues(l.fields))&&e.push({field:"line_items.fields",message:translate("array_fields_required"),result:"warning"})}return e}',
+      assignToUserValidator: 'function assignToUserValidator(n){var a,i;const e=[],t=n.attributes;return t?(!((a=t==null?void 0:t.user_list)!=null&&a.length)&&!(t!=null&&t.customUserList)&&e.push({message:translate("user_list_required"),result:"warning",field:"user_list"}),(i=t.user_list)!=null&&i.length&&t.user_list.forEach(r=>{e.push({resource:"user",field:"user_list",value:r,result:"warning",message:translate("user_not_found")})}),e):[]}',
+      baseSmsValidator: 'baseSmsValidator=(n,e)=>{const{attributes:t}=n,a=[];if(!t)return[];const i=(t==null?void 0:t.template_id)&&(t==null?void 0:t.template_id)!=="none";if(i&&a.push({field:"template_id",resource:"sms_template",value:t.template_id,result:"warning"}),!i){const r=parseHTMLToBody(t.body||"");!(t.attachments&&t.attachments.length>0||t.urlAttachments&&t.urlAttachments.length>0)&&!r.trim()&&a.push({field:"body",message:e,result:"warning"}),r&&!isValidHandleBar(r)&&a.push({field:"body",message:translate("workflow.actions.common.issueInCustomVariables"),result:"warning"})}return a}',
+      callValidator: 'callValidator=n=>{const e=[],{attributes:t}=n;return t?((!t.timeout||t.timeout===0)&&e.push({message:translate("timeout_required"),result:"warning",field:"timeout"}),t.timeout&&(t.timeout<1||t.timeout>120)&&e.push({message:translate("timeout_must_be_between_1_and_120"),result:"warning",field:"timeout"}),e):[]}',
+      chatGPTValidator: 'chatGPTValidator=n=>{const e=[],{attributes:t}=n;if(!t)return[];if(t.promptText?isValidHandleBar(t.promptText)||e.push({field:"promptText",message:translate("chatgpt_prompt_invalid_vars"),result:"warning"}):e.push({field:"promptText",message:translate("chatgpt_prompt_required"),result:"warning"}),!t.temperature&&t.temperature!==0)e.push({field:"temperature",message:translate("chatgpt_temperature_required"),result:"warning"});else{const u=Number(t.temperature);(u<0||u>1)&&e.push({field:"temperature",message:translate("chatgpt_temperature_range"),result:"warning"})}t.event||e.push({field:"event",message:translate("chatgpt_event_required"),result:"warning"});const{message:a,length:i,from:r,to:s}=t.actionParams||{},l=t.actionType;return l==="translate_content"?(a||e.push({field:"actionParams.message",message:translate("chatgpt_message_required"),result:"warning"}),r||e.push({field:"actionParams.from",message:translate("chatgpt_from_language_required"),result:"warning"}),s||e.push({field:"actionParams.to",message:translate("chatgpt_to_language_required"),result:"warning"})):l==="summarize_text"?(a||e.push({field:"actionParams.message",message:translate("chatgpt_message_required"),result:"warning"}),i||e.push({field:"actionParams.length",message:translate("chatgpt_length_required"),result:"warning"})):l==="analyze_text_sentiment"&&(a||e.push({field:"actionParams.message",message:translate("chatgpt_message_required"),result:"warning"})),e}',
+      contactDNDValidator: 'contactDNDValidator=n=>{const e=[],{attributes:t}=n;return t?(t.dnd_contact||e.push({message:translate("dnd_type_required"),result:"warning",field:"dnd_contact"}),(t.dnd_contact==="enable_specific"||t.dnd_contact==="disable_specific")&&(!t.specific_channels||t.specific_channels.length===0)&&e.push({message:translate("at_least_one_channel_required"),result:"warning",field:"specific_channels"}),e):[]}',
+      contactTagValidator: 'contactTagValidator=n=>{const e=[],{attributes:t}=n;return t?(t.removeAll||(!t.tags||t.tags.length===0)&&!t.customTags&&e.push({message:translate("at_least_one_tag_required"),result:"warning",field:"tags"}),e):[]}',
+      copyContactToSubaccountValidator: 'copyContactToSubaccountValidator=n=>{const e=[],{attributes:t}=n;return t?((!t.newLocations||t.newLocations.length===0)&&e.push({message:translate("at_least_one_location_required"),result:"warning",field:"newLocations"}),e):[]}',
+      createOpportunityActionValidator: 'createOpportunityActionValidator=n=>{var t,a,i;const e=[];return(t=n.attributes)!=null&&t.pipeline_id?(e.push({resource:"pipeline",field:"pipeline_id",result:"warning",value:n.attributes.pipeline_id}),n.attributes.pipeline_stage_id&&e.push({resource:"pipeline_stage",field:"pipeline_stage_id",result:"warning",value:n.attributes.pipeline_stage_id,context:{pipelineId:n.attributes.pipeline_id}})):e.push({result:"warning",message:translate("pipeline_required"),field:"pipeline_id"}),(i=(a=n.attributes)==null?void 0:a.fields)==null||i.forEach(r=>{r.field&&e.push({resource:"opp_custom_field",field:r.field,result:"warning",value:r.value})}),e}',
+      createUpdateContactValidator: 'createUpdateContactValidator=n=>{var a,i;const e=[];if(!((i=(a=n.attributes)==null?void 0:a.fields)!=null&&i.length))return e.push({message:translate("at_least_one_field_required"),result:"warning",field:"fields"}),e;let t=!1;return n.attributes.fields.forEach(r=>{if(!r.field){e.push({message:translate("field_selection_required"),result:"warning",field:"field"});return}r.value!==!1&&!r.value&&r.date!=="currentDate"&&r.value!==0&&e.push({field:r.field,message:translate("missing_value_for_field"),result:"warning"}),(r.field==="email"||r.field==="phone")&&(t=!0),contactStandardFields.includes(r.field)||e.push({field:r.field,resource:"custom_field",result:"warning",value:r.value})}),t||e.push({message:translate("email_or_phone_required"),result:"warning",field:"fields"}),e}',
+      customCodeValidator: 'customCodeValidator=n=>{var a;const e=[],{attributes:t}=n;return t?((a=t.code)!=null&&a.length||e.push({field:"code",message:translate("custom_code_required"),result:"warning"}),isEmpty(t.output||{})&&e.push({field:"output",message:translate("custom_code_must_be_tested"),result:"warning"}),e):[]}',
+      customWebhookValidator: 'customWebhookValidator=n=>{const e=[],{attributes:t}=n;if(!t)return[];if((!t.url||!t.url.trim())&&e.push({message:translate("webhook_url_required"),result:"warning",field:"url"}),t.method||e.push({message:translate("http_method_required"),result:"warning",field:"method"}),t.event||e.push({message:translate("event_type_required"),result:"warning",field:"event"}),t.body)if(t.body.contentType==="application/json")if(!t.body.rawData||!t.body.rawData.trim())e.push({message:translate("request_body_required"),result:"warning",field:"body.rawData"});else try{JSON.parse(t.body.rawData)}catch{e.push({message:translate("invalid_json_format"),result:"warning",field:"body.rawData"})}else t.body.contentType==="application/x-www-form-urlencoded"&&t.body.keyValueData&&t.body.keyValueData.some(i=>{var r;return!((r=i.key)!=null&&r.trim())||i.value===void 0||i.value===null})&&e.push({message:translate("body_data_has_empty_fields"),result:"warning",field:"body.keyValueData"});if(t.headers&&t.headers.some(i=>{var r;return!((r=i.key)!=null&&r.trim())||i.value===void 0||i.value===null})&&e.push({message:translate("headers_has_empty_fields"),result:"warning",field:"headers"}),t.parameters&&t.parameters.some(i=>{var r;return!((r=i.key)!=null&&r.trim())||i.value===void 0||i.value===null})&&e.push({message:translate("parameters_has_empty_fields"),result:"warning",field:"parameters"}),t.authorization)switch(t.authorization.type){case"BEARER_TOKEN":t.authorization.data?t.authorization.data.token||e.push({message:translate("bearer_token_required"),result:"warning",field:"authorization.data.token"}):e.push({message:translate("bearer_token_required"),result:"warning",field:"authorization.data.token"});break;case"API_KEY":if(!t.authorization.data)e.push({message:translate("api_key_configuration_required"),result:"warning",field:"authorization.data"});else{const a=t.authorization.data;(!a.key||!a.value)&&e.push({message:translate("api_key_and_value_required"),result:"warning",field:"authorization.data"})}break;case"OAUTH2":t.authorization.data?t.authorization.data.tokenId||e.push({message:translate("oauth2_token_required"),result:"warning",field:"authorization.data.tokenId"}):e.push({message:translate("oauth2_token_required"),result:"warning",field:"authorization.data.tokenId"});break}if(t.saveResponse){const a=t.webhookResponse;(!(a!=null&&a.isSampleRequested)||a!=null&&a.status&&a.status>=400)&&e.push({message:translate("valid_sample_response_required"),result:"warning",field:"webhookResponse"})}return e}',
+      dateTimeFormatterValidator: 'dateTimeFormatterValidator=n=>{var a,i,r,s,l,u,p,m,b,k,x,q,A,T,j;const e=[],{attributes:t}=n;return t?t.action?(t.action.includes("format")&&((a=t.format)!=null&&a.type||e.push({field:"format.type",message:translate("datetime_format_type_required"),result:"warning"}),(i=t.format)!=null&&i.fromField||e.push({field:"format.fromField",message:translate("datetime_from_field_required"),result:"warning"}),(r=t.format)!=null&&r.fromFormat||e.push({field:"format.fromFormat",message:translate("datetime_from_format_required"),result:"warning"}),(s=t.format)!=null&&s.toFormat||e.push({field:"format.toFormat",message:translate("datetime_to_format_required"),result:"warning"}),((l=t.format)==null?void 0:l.fromField)==="_datepicker_"&&!((u=t.format)!=null&&u.fromFieldDatePicker)&&e.push({field:"format.fromFieldDatePicker",message:translate("datetime_date_picker_required"),result:"warning"})),t.action.includes("compare")&&((p=t.compare)!=null&&p.type||e.push({field:"compare.type",message:translate("datetime_compare_type_required"),result:"warning"}),(m=t.compare)!=null&&m.startDate||e.push({field:"compare.startDate",message:translate("datetime_start_date_required"),result:"warning"}),(b=t.compare)!=null&&b.startDateFormat||e.push({field:"compare.startDateFormat",message:translate("datetime_start_date_format_required"),result:"warning"}),(k=t.compare)!=null&&k.endDate||e.push({field:"compare.endDate",message:translate("datetime_end_date_required"),result:"warning"}),(x=t.compare)!=null&&x.endDateFormat||e.push({field:"compare.endDateFormat",message:translate("datetime_end_date_format_required"),result:"warning"}),((q=t.compare)==null?void 0:q.startDate)==="_datepicker_"&&!((A=t.compare)!=null&&A.startDatePicker)&&e.push({field:"compare.startDatePicker",message:translate("datetime_start_date_picker_required"),result:"warning"}),((T=t.compare)==null?void 0:T.endDate)==="_datepicker_"&&!((j=t.compare)!=null&&j.endDatePicker)&&e.push({field:"compare.endDatePicker",message:translate("datetime_end_date_picker_required"),result:"warning"})),e):(e.push({field:"action",message:translate("datetime_action_required"),result:"warning"}),e):(e.push({field:"action",message:translate("datetime_action_required"),result:"warning"}),e)}',
+      dripValidator: 'dripValidator=n=>{var l,u;const e=[],{attributes:t}=n;if(!t)return[];const a=1e4,i=10080;(t.batchSize<=0||t.batchSize>a)&&e.push({field:"batchSize",message:translate("drip_batch_size_invalid"),result:"warning"});const r=(l=t.interval)==null?void 0:l.value,s=(u=t.interval)==null?void 0:u.timeUnit;if(!r||r<=0)e.push({field:"interval.value",message:translate("drip_interval_required"),result:"warning"});else{const p=i/1440,m=i/60;s==="minutes"&&r>i?e.push({field:"interval.value",message:translate("drip_interval_minutes_max"),result:"warning"}):s==="hours"&&r>m?e.push({field:"interval.value",message:translate("drip_interval_hours_max"),result:"warning"}):s==="days"&&r>p&&e.push({field:"interval.value",message:translate("drip_interval_days_max"),result:"warning"})}return e}',
+      eventStartDateValidator: 'eventStartDateValidator=n=>{const e=[],{attributes:t}=n;return t?(t.event_start_type||e.push({field:"event_start_type",message:translate("event_start_type_required"),result:"warning"}),(t.value===""||t.value===void 0)&&e.push({field:"value",message:translate("event_start_value_required"),result:"warning"}),t.event_start_type==="custom_field"&&t.value&&(isValidHandleBar(t.value)||e.push({field:"value",message:translate("event_start_invalid_custom_variable"),result:"warning"})),e):[]}',
+      facebookConversionApiValidator: 'facebookConversionApiValidator=n=>{var i;const e=[],t=((i=n.extras)==null?void 0:i.locationId)||"",{attributes:a}=n;return(a==null?void 0:a.connection_type)==="AD_MANAGER"&&e.push(...facebookIntegrationValidator(t)),a!=null&&a.pixel_id||e.push({field:"pixel_id",result:"warning",message:translate("meta_dataset_id_required")}),e}',
+      facebookCustomAudienceValidator: 'facebookCustomAudienceValidator=n=>{var a,i,r;const e=[],t=((a=n.extras)==null?void 0:a.locationId)||"";return e.push(...facebookIntegrationValidator(t)),(i=n.attributes)!=null&&i.facebook_account_id?e.push({url:`${config$1.adPublishingURL}/facebook/ad-accounts/${n.attributes.facebook_account_id}?locationId=${t}`,method:"GET",absoluteUrl:!0,transformResponse:s=>{var u;return s.id===((u=n.attributes)==null?void 0:u.facebook_account_id)?[]:{field:"facebook_account_id",result:"warning",message:translate("facebook_account_not_found")}}}):e.push({field:"facebook_account_id",result:"warning",message:translate("facebook_account_required")}),(r=n.attributes)!=null&&r.facebook_custom_audience_id?e.push({url:`${config$1.adPublishingURL}/facebook/custom-audience?adAccountId=${n.attributes.facebook_account_id}&locationId=${t}&type=all&source=integration`,absoluteUrl:!0,method:"GET",transformResponse:s=>s.some(u=>{var p;return u.id===((p=n.attributes)==null?void 0:p.facebook_custom_audience_id)})?[]:{field:"facebook_custom_audience_id",result:"warning",message:translate("facebook_custom_audience_not_found")}}):e.push({field:"facebook_custom_audience_id",result:"warning",message:translate("facebook_custom_audience_required")}),e}',
+      findContactValidator: 'findContactValidator=n=>{var t,a;const e=[];return(a=(t=n.attributes)==null?void 0:t.fields)!=null&&a.length?(n.attributes.fields.forEach(i=>{if(!i.field){e.push({message:translate("field_selection_required"),result:"warning",field:"field"});return}i.value!==!1&&!i.value&&i.date!=="currentDate"&&i.value!==0&&e.push({field:i.field,message:translate("missing_value_for_field"),result:"warning"}),contactStandardFields.includes(i.field)||e.push({field:i.field,resource:"custom_field",result:"warning",value:i.value})}),e):(e.push({message:translate("at_least_one_field_required"),result:"warning",field:"fields"}),e)}',
+      goalActionValidator: 'goalActionValidator=n=>{var t;const e=[];return(t=n.attributes)==null||t.segments.forEach(a=>{a.conditions.forEach(i=>{var r;if(i.goal_condition===GoalCondition.EMAIL_EVENT){const s=i.extras;s&&"stepIds"in s&&s.stepIds.filter(u=>{var m;return((m=n.templates)==null?void 0:m.findIndex(b=>b.id===u))===-1}).length>0&&e.push({field:"stepIds",message:translate("email_steps_not_found"),result:"warning"})}else if(i.goal_condition===GoalCondition.LINK_CLICK){const s=i.extras;s&&"linkIds"in s&&s.linkIds.forEach(l=>{e.push({resource:"trigger_link",field:"extras.linkIds",result:"warning",value:l})})}else if(i.goal_condition===GoalCondition.APPOINTMENT_STATUS){const s=i.extras;s&&"calendarId"in s&&e.push({resource:"calendar",field:"extras.calendarId",result:"warning",value:s.calendarId})}else if(i.goal_condition===GoalCondition.PAYMENT_RECEIVED){const s=i.extras;s&&"globalProductIds"in s&&s.globalProductIds.forEach(l=>{e.push({resource:"global_product",field:"extras.globalProductIds",result:"warning",value:l})})}else if(i.goal_condition===GoalCondition.FORM_SUBMITTED){const s=i.extras;s&&"formIds"in s&&s.formIds.forEach(l=>{e.push({resource:"form",field:"extras.formIds",result:"warning",value:l})})}else if(i.goal_condition===GoalCondition.DOCUMENT_STATUS){const s=i.extras;s&&"templateId"in s&&s.templateId&&e.push({resource:"template_compilation",field:"extras.templateId",result:"warning",value:s.templateId})}else if(i.goal_condition===GoalCondition.INVOICE_PAID){const s=i.extras;s&&"invoiceStepId"in s&&s.invoiceStepId&&((r=n.templates)==null?void 0:r.findIndex(u=>u.id===s.invoiceStepId))===-1&&e.push({field:"invoiceStepId",message:translate("invoice_step_not_found"),result:"warning"})}})}),e}',
+      googleAdwordValidator: 'googleAdwordValidator=n=>{const e=[],{attributes:t}=n;if(!t)return[];if((!t.conversion_name||!t.conversion_name.trim())&&e.push({message:translate("conversion_name_required"),result:"warning",field:"conversion_name"}),t.conversion_value&&!t.conversion_value.startsWith("{{")){const a=parseFloat(t.conversion_value);(isNaN(a)||a<=0)&&e.push({message:translate("conversion_value_must_be_positive"),result:"warning",field:"conversion_value"})}return t.isCustomMappingEnabled&&(t.customMapping?t.customMapping.gclid||t.customMapping.gbraid||t.customMapping.wbraid||e.push({message:translate("at_least_one_click_id_required"),result:"warning",field:"customMapping"}):e.push({message:translate("custom_mapping_required"),result:"warning",field:"customMapping"})),e}',
+      googleAnalyticsValidator: 'googleAnalyticsValidator=n=>{const e=[],{attributes:t}=n;return t?(t.action_type==="google_analytics_4"&&((!t.measurement_id||!t.measurement_id.trim())&&e.push({message:translate("measurement_id_required"),result:"warning",field:"measurement_id"}),(!t.event||!t.event.trim())&&e.push({message:translate("event_name_required"),result:"warning",field:"event"}),(!t.api_secret||!t.api_secret.trim())&&e.push({message:translate("api_secret_required"),result:"warning",field:"api_secret"})),e):[]}',
+      googleSheetsIntegrationValidator: 'googleSheetsIntegrationValidator=n=>{const e=[],{account:t}=n.attributes??{};return t!=null&&t.id?e.push({url:`${config$1.integrationsURL}/google/connections?locationId=${n.extras.locationId}`,method:"GET",absoluteUrl:!0,headers:googleConnectionsHeaders(),transformResponse:a=>mapGoogleConnections(a==null?void 0:a.data).some(s=>(s.altId??s.id)===t.id)?[]:{field:"oAuthId",result:"warning",message:translate("google_integration_not_valid",{name:t.name||""})}}):e.push({field:"oAuthId",result:"warning",message:translate("select_google_account")}),e}',
+      gotoValidator: 'gotoValidator=n=>{const e=[],{attributes:t,parentNode:a,templates:i}=n;return t?(a!=null&&a.next&&e.push({message:translate("goto_must_be_at_end_of_branch"),result:"warning",field:"placement"}),t.targetNodeId&&(i!=null&&i.some(s=>s.id===t.targetNodeId)||e.push({message:translate("target_node_not_found"),result:"warning",field:"targetNodeId"})),e):[]}',
+      instagramDmValidator: 'instagramDmValidator=n=>socialMessageValidator(n,"ig")',
+      internalNotificationValidator: 'internalNotificationValidator=n=>{var a,i,r,s,l;const e=[],{attributes:t}=n;if(!t)return[];if(!t.type)return e.push({message:translate("notification_type_required"),result:"warning",field:"type"}),e;switch(t.type){case"email":t.email?t.email.template_id||((a=t.email.subject)!=null&&a.trim()||e.push({message:translate("email_subject_required"),result:"warning",field:"email.subject"}),(i=t.email.html)!=null&&i.trim()||e.push({message:translate("email_body_required"),result:"warning",field:"email.html"})):e.push({message:translate("email_configuration_required"),result:"warning",field:"email"});break;case"sms":t.sms?t.sms.template_id||(r=t.sms.body)!=null&&r.trim()||e.push({message:translate("sms_body_required"),result:"warning",field:"sms.body"}):e.push({message:translate("sms_configuration_required"),result:"warning",field:"sms"});break;case"whatsapp":t.whatsapp?t.whatsapp.template_id||(s=t.whatsapp.body)!=null&&s.trim()||e.push({message:translate("whatsapp_body_required"),result:"warning",field:"whatsapp.body"}):e.push({message:translate("whatsapp_configuration_required"),result:"warning",field:"whatsapp"});break;case"notification":t.notification?(l=t.notification.body)!=null&&l.trim()||e.push({message:translate("notification_message_required"),result:"warning",field:"notification.message"}):e.push({message:translate("notification_configuration_required"),result:"warning",field:"notification"});break}return e}',
+      ivrConnectCallValidator: 'ivrConnectCallValidator=n=>{var r,s,l;const e=[],{attributes:t}=n;if(!t)return[];const a=(((r=t.users)==null?void 0:r.length)||0)+(((s=t.customNumbers)==null?void 0:s.length)||0);return a===0&&e.push({field:"users",message:translate("ivr_connect_number_required"),result:"warning"}),a>10&&e.push({field:"users",message:translate("ivr_connect_max_numbers"),result:"warning"}),((l=t.customNumbers)==null?void 0:l.some(u=>!u.isValid))&&e.push({field:"customNumbers",message:translate("ivr_connect_invalid_number"),result:"warning"}),e}',
+      ivrGatherValidator: "ivrGatherValidator=n=>[]",
+      ivrHangupValidator: "ivrHangupValidator=n=>[]",
+      ivrRecordValidator: "ivrRecordValidator=n=>[]",
+      ivrSayValidator: 'ivrSayValidator=n=>{const e=[],{attributes:t}=n;return t?(t.loop||e.push({field:"loop",message:translate("ivr_loop_required"),result:"warning"}),t.widgetType==="say"&&(t.language||e.push({field:"language",message:translate("ivr_language_required"),result:"warning"}),t.message||e.push({field:"message",message:translate("ivr_message_required"),result:"warning"}),t.voice||e.push({field:"voice",message:translate("ivr_voice_required"),result:"warning"})),t.widgetType==="play"&&(t.audioUrl||e.push({field:"audioUrl",message:translate("ivr_audio_required"),result:"warning"})),e):[]}',
+      mathOperationValidator: 'mathOperationValidator=n=>{var l;const e=[],{attributes:t,templates:a}=n;if(!t)return[];t.selectField||e.push({field:"selectField",message:translate("math_select_field_required"),result:"warning"});const i=/\\{\\{math_operation\\.\\d+\\.result\\}\\}/.test(t.selectField??""),r=getMathOperationSourceTypeFromTemplates(t.selectField,a);return i&&!r&&e.push({field:"selectField",message:translate("math_source_action_deleted"),result:"warning"}),r&&t.selectFieldtype!==r&&e.push({field:"selectField",message:translate("math_input_field_type_changed"),result:"warning"}),t.selectField&&t.updateField&&!t.updateField.includes("custom_values")&&t.selectFieldtype!==t.updateFieldType&&["numerical","date"].includes(t.selectFieldtype)&&e.push({field:"updateField",message:translate("math_field_type_mismatch"),result:"warning"}),((l=t.operators)==null?void 0:l.find(u=>u.operator==="div"&&u.value===0))&&e.push({field:"operators",message:translate("math_division_by_zero"),result:"warning"}),e}',
+      membershipOfferValidator: 'membershipOfferValidator=n=>{const e=[],{attributes:t}=n;return t?(t.offer_id||e.push({field:"offer_id",message:translate("membership_offer_required"),result:"warning"}),e):[]}',
+      membershipRevokeOfferValidator: 'membershipRevokeOfferValidator=n=>{const e=[],{attributes:t}=n;return t?(t.offer_id||e.push({field:"offer_id",message:translate("membership_offer_required"),result:"warning"}),e):[]}',
+      messengerValidator: 'messengerValidator=n=>socialMessageValidator(n,"fb")',
+      numberFormatterValidator: 'numberFormatterValidator=n=>{var a,i,r,s,l,u,p,m,b,k,x,q,A,T,j,D,N,P,U,C,I,V,O,M,R,B,W,Y;const e=[],{attributes:t}=n;return t?t.action?(t.action==="string_to_number"&&((a=t.format)!=null&&a.fromField||e.push({field:"format.fromField",message:translate("number_from_field_required"),result:"warning"}),(r=(i=t.format)==null?void 0:i.options)!=null&&r.inputDecimalMark||e.push({field:"format.options.inputDecimalMark",message:translate("number_decimal_mark_required"),result:"warning"})),t.action==="string_to_formatted_number"&&((s=t.format)!=null&&s.fromField||e.push({field:"format.fromField",message:translate("number_from_field_required"),result:"warning"}),(u=(l=t.format)==null?void 0:l.options)!=null&&u.inputDecimalMark||e.push({field:"format.options.inputDecimalMark",message:translate("number_decimal_mark_required"),result:"warning"}),(m=(p=t.format)==null?void 0:p.options)!=null&&m.outputNumberFormat||e.push({field:"format.options.outputNumberFormat",message:translate("number_output_format_required"),result:"warning"})),t.action==="number_to_phone"&&((b=t.format)!=null&&b.fromField||e.push({field:"format.fromField",message:translate("number_from_field_required"),result:"warning"}),(q=(x=(k=t.format)==null?void 0:k.options)==null?void 0:x.phone)!=null&&q.format||e.push({field:"format.options.phone.format",message:translate("phone_format_required"),result:"warning"}),(j=(T=(A=t.format)==null?void 0:A.options)==null?void 0:T.phone)!=null&&j.countryCode||e.push({field:"format.options.phone.countryCode",message:translate("phone_country_code_required"),result:"warning"})),t.action==="number_to_currency"&&((D=t.format)!=null&&D.fromField||e.push({field:"format.fromField",message:translate("number_from_field_required"),result:"warning"}),(U=(P=(N=t.format)==null?void 0:N.options)==null?void 0:P.currency)!=null&&U.currencyLocale||e.push({field:"format.options.currency.currencyLocale",message:translate("currency_locale_required"),result:"warning"}),(V=(I=(C=t.format)==null?void 0:C.options)==null?void 0:I.currency)!=null&&V.currencyCode||e.push({field:"format.options.currency.currencyCode",message:translate("currency_code_required"),result:"warning"})),t.action==="random_number"&&(isValidNumeric((O=t.random)==null?void 0:O.min)||e.push({field:"random.min",message:translate("random_min_required"),result:"warning"}),isValidNumeric((M=t.random)==null?void 0:M.max)||e.push({field:"random.max",message:translate("random_max_required"),result:"warning"}),typeof((R=t.random)==null?void 0:R.max)=="number"&&typeof((B=t.random)==null?void 0:B.min)=="number"&&t.random.max<=t.random.min&&e.push({field:"random.max",message:translate("random_max_greater_than_min"),result:"warning"}),isValidNumeric((W=t.random)==null?void 0:W.decimalPlaces)||e.push({field:"random.decimalPlaces",message:translate("random_decimal_places_required"),result:"warning"}),typeof((Y=t.random)==null?void 0:Y.decimalPlaces)=="number"&&(t.random.decimalPlaces<0||t.random.decimalPlaces>3)&&e.push({field:"random.decimalPlaces",message:translate("random_decimal_places_range"),result:"warning"})),e):(e.push({field:"action",message:translate("number_action_required"),result:"warning"}),e):[]}',
+      removeAssignedUserValidator: "removeAssignedUserValidator=n=>[]",
+      removeFromWorkflowValidator: 'removeFromWorkflowValidator=n=>{const e=[],{attributes:t}=n;if(!t)return[];if(!t.allWorkflows){if("includeCurrent"in t)return e;(!t.workflow_id||Array.isArray(t.workflow_id)&&t.workflow_id.length===0)&&e.push({message:translate("workflow_selection_required"),result:"warning",field:"workflow_id"})}return e}',
+      removeOpportunityActionValidator: 'removeOpportunityActionValidator=n=>{var t,a,i;const e=[];return(t=n.attributes)!=null&&t.opportunity_to_be_found||e.push({result:"warning",message:translate("opportunity_to_be_found_required"),field:"opportunity_to_be_found"}),((a=n.attributes)==null?void 0:a.opportunity_to_be_found)==="all"&&!((i=n.attributes)!=null&&i.pipeline_id)&&e.push({result:"warning",message:translate("pipeline_required"),field:"pipeline_id"}),e}',
+      respondOnCommentValidator: 'respondOnCommentValidator=n=>{const e=[],{attributes:t}=n;if(!t)return[];const a=t.commentResponse||[];return a.length?a.filter(i=>!i.length).length&&e.push({field:"commentResponse",message:translate("respond_comment_empty"),result:"warning"}):e.push({field:"commentResponse",message:translate("respond_comment_required"),result:"warning"}),e}',
+      reviewRequestValidator: 'reviewRequestValidator=n=>{const e=[],{attributes:t}=n;return t?(t.review_type||e.push({message:translate("review_type_required"),result:"warning",field:"review_type"}),e):[]}',
+      sendEmailActionValidator: 'sendEmailActionValidator=n=>{var i;const{attributes:e}=n,t=[];if(!e)return[];const a=(e==null?void 0:e.template_id)&&(e==null?void 0:e.template_id)!=="none";return!a&&!((i=e==null?void 0:e.subject)!=null&&i.trim())&&t.push({field:"subject",message:translate("workflow.actions.sendEmail.subjectValidation"),result:"warning"}),a&&t.push({field:"template_id",resource:"email_template",value:e.template_id,result:"warning",context:{templatesource:e.templatesource}}),!a&&!cleanHTMLForEmail(e.html||"")&&t.push({field:"html",message:translate("email_body_required"),result:"warning"}),t}',
+      sendSmsActionValidator: 'sendSmsActionValidator=n=>baseSmsValidator(n,translate("sms_body_required"))',
+      sendToElizaValidator: "sendToElizaValidator=n=>[]",
+      slackMessageValidator: 'slackMessageValidator=n=>{var a;const e=[],{attributes:t}=n;return t?((!t.integration||!t.integration.id)&&e.push({message:translate("slack_integration_required"),result:"warning",field:"integration"}),(!t.action||!t.action.id)&&e.push({message:translate("slack_action_type_required"),result:"warning",field:"action"}),(!t.channel||!t.channel.id)&&e.push({message:translate("slack_channel_required"),result:"warning",field:"channel"}),(!t.text||!t.text.trim())&&e.push({message:translate("slack_message_required"),result:"warning",field:"text"}),((a=t.action)==null?void 0:a.id)==="direct-message"&&(!t.userSource||!t.userSource.id)&&e.push({message:translate("slack_user_source_required"),result:"warning",field:"userSource"}),e):[]}',
+      socialMessageValidator: 'socialMessageValidator=(n,e)=>{var i,r;const t=[],a=((i=n.extras)==null?void 0:i.locationId)||"";if(e==="ig"?t.push(...instagramIntegrationValidator()):t.push(...facebookIntegrationValidator(a)),t.push(...baseSmsValidator(n,translate(e==="fb"?"messenger_message_required":"instagram_message_required"))),(r=n.attributes)!=null&&r.body){const s=words(n.attributes.body).filter(l=>illegalWordsSms.includes(l.toLowerCase()));s.length>0&&t.push({field:"body",result:"warning",message:translate("sms_contains_illegal_words",{words:s.join(", ")})})}return t}',
+      stripeOneTimeChargeValidator: 'stripeOneTimeChargeValidator=n=>{const e=[],{attributes:t}=n;if(!t)return[];if(!t.amount||!t.amount.trim())e.push({message:translate("amount_required"),result:"warning",field:"amount"});else if(!t.amount.startsWith("{{")){const a=parseFloat(t.amount);(isNaN(a)||a<=0)&&e.push({message:translate("amount_must_be_positive"),result:"warning",field:"amount"})}return(!t.currency||!t.currency.trim())&&e.push({message:translate("currency_required"),result:"warning",field:"currency"}),(!t.stripe_customer_id||!t.stripe_customer_id.trim())&&e.push({message:translate("stripe_customer_id_required"),result:"warning",field:"stripe_customer_id"}),e}',
+      textFormatterValidator: 'textFormatterValidator=n=>{const e=[],{attributes:t}=n;return t?((!t.formatterType||!Object.values(TextFormatterTypes).includes(t.formatterType))&&e.push({field:"formatterType",message:translate("text_formatter_type_required"),result:"warning"}),(!t.field||t.field.length===0)&&e.push({field:"field",message:translate("text_formatter_field_required"),result:"warning"}),e):[]}',
+      updateAffiliateValidator: 'updateAffiliateValidator=n=>{const e=[],{attributes:t}=n;return t?(t.affiliate_state||e.push({field:"affiliate_state",message:translate("affiliate_state_required"),result:"warning"}),e):[]}',
+      updateContactFieldValidator: 'updateContactFieldValidator=n=>{var t,a,i;const e=[];return(a=(t=n.attributes)==null?void 0:t.fields)!=null&&a.length||e.push({message:translate("at_least_one_field_required"),result:"warning",field:"fields"}),(i=n.attributes)==null||i.fields.forEach(r=>{var l,u;const s=r.value;contactStandardFields.includes(r.field)||e.push({field:r.field,resource:"custom_field",result:"warning",value:((l=n.attributes)==null?void 0:l.actionType)==="update_field_data"?s:void 0}),((u=n.attributes)==null?void 0:u.actionType)==="update_field_data"&&r.date!=="currentDate"&&(r.value==null||r.value==="")&&e.push({field:r.field,message:translate("missing_value_for_field"),result:"warning"})}),e}',
+      updateCustomValueValidator: 'updateCustomValueValidator=n=>{const e=[],{attributes:t}=n;return t?((!t.custom_value_id||!t.custom_value_id.trim())&&e.push({message:translate("custom_value_selection_required"),result:"warning",field:"custom_value_id"}),t.custom_value_id&&e.push({resource:"custom_value",field:t.custom_value_id,result:"warning"}),(!t.new_value||!t.new_value.trim())&&e.push({message:translate("new_value_required"),result:"warning",field:"new_value"}),e):[]}',
+      validateAppointmentWait: 'function validateAppointmentWait(n){const e=[];return n.appointmentStartAfter?(n.appointmentStartAfter.when||e.push({field:"appointmentStartAfter.when",message:translate("wait_appointment_when_required")||"Please select when to wait (before/after/now)",result:"error"}),n.appointmentStartAfter.when!=="now"&&!n.appointmentStartAfter.value&&!n.appointmentStartAfter.distributed&&e.push({field:"appointmentStartAfter.value",message:translate("wait_appointment_time_required")||"Wait time value is required",result:"error"}),n.appointmentCondition||e.push({field:"appointmentCondition",message:translate("wait_appointment_condition_required")||"Please select what to do if the appointment time has passed",result:"warning"}),n.appointmentCondition==="specific-step"&&!n.appointmentSpecificStep&&e.push({field:"appointmentSpecificStep",message:translate("wait_appointment_step_required")||"Please select the step to move to",result:"error"}),e):(e.push({field:"appointmentStartAfter",message:translate("wait_appointment_config_required")||"Appointment wait configuration is required",result:"error"}),e)}',
+      validateConditionWait: 'function validateConditionWait(n){const e=[];if(!n.condition)return e.push({field:"condition",message:translate("wait_condition_required")||"Wait condition is required",result:"error"}),e;const t=n.condition.branches??[];if(t.length===0)return e.push({field:"condition.branches",message:translate("wait_condition_branch_required")||"At least one condition branch is required",result:"error"}),e;for(let a=0;a<t.length;a++){const r=t[a].segments??[];if(r.length===0){e.push({field:`condition.branches[${a}].segments`,message:translate("wait_condition_segment_required")||"At least one condition group is required",result:"error"});continue}for(let s=0;s<r.length;s++)(r[s].conditions??[]).length===0&&e.push({field:`condition.branches[${a}].segments[${s}].conditions`,message:translate("wait_condition_empty")||"At least one condition is required in each group",result:"error"})}return e}',
+      validateEmailEventWait: 'function validateEmailEventWait(n){const e=[];return(!n.emailEventSteps||n.emailEventSteps.length===0)&&e.push({field:"emailEventSteps",message:translate("wait_email_steps_required")||"At least one email step must be selected",result:"error"}),(!n.emailEventTypes||n.emailEventTypes.length===0)&&e.push({field:"emailEventTypes",message:translate("wait_email_events_required")||"At least one email event type must be selected",result:"error"}),e}',
+      validateLinkClickedWait: 'function validateLinkClickedWait(n){const e=[];return(!n.link||n.link.length===0)&&e.push({field:"link",message:translate("wait_link_required")||"At least one trigger link must be selected",result:"error"}),e}',
+      validateReplyWait: 'function validateReplyWait(n){const e=[];return(!n.reply||n.reply.length===0)&&e.push({field:"reply",message:translate("wait_reply_steps_required")||"At least one step must be selected to wait for reply",result:"error"}),e}',
+      validateTimeWait: 'function validateTimeWait(n){const e=[];return n.startAfter?(!n.window&&!n.startAfter.value&&e.push({field:"startAfter.value",message:translate("wait_time_value_required"),result:"warning"}),n.window&&(n.window.condition==="when"&&!n.window.start&&e.push({field:"window.start",message:translate("wait_window_start_required"),result:"error"}),n.window.condition==="when"&&!n.window.end&&e.push({field:"window.end",message:translate("wait_window_end_required"),result:"error"}),n.window.condition==="exact"&&!n.window.start&&e.push({field:"window.value",message:translate("wait_window_start_required"),result:"error"})),e):(e.push({field:"startAfter",message:translate("wait_time_required"),result:"error"}),e)}',
+      validateTimeout: 'function validateTimeout(n){const e=[];return n.startAfter&&n.startAfter.value===0&&e.push({field:"startAfter.value",message:translate("wait_timeout_zero")||"Timeout value should be greater than 0",result:"error"}),e}',
+      voicemailValidator: 'voicemailValidator=n=>{const e=[],{attributes:t}=n;return t?((!t.attachment||!t.attachment.url)&&e.push({message:translate("voicemail_attachment_required"),result:"warning",field:"attachment"}),e):[]}',
+      waitValidator: 'waitValidator=n=>{const e=[],{attributes:t}=n;if(!t)return[];t.name&&!isWithinLimits(t.name)&&e.push({field:"name",message:translate("wait_name_too_long")||"Wait step name is too long",result:"error"});const a=t.type;switch(a){case"time":e.push(...validateTimeWait(t));break;case"condition":e.push(...validateConditionWait(t));break;case"reply":e.push(...validateReplyWait(t));break;case"appointment":case"service_booking":case"overdue":e.push(...validateAppointmentWait(t));break;case"email_event":e.push(...validateEmailEventWait(t));break;case"link_clicked":e.push(...validateLinkClickedWait(t));break;default:a||e.push({field:"type",message:translate("wait_type_required")||"Wait type is required",result:"error"})}return t.convertToMultipath&&t.startAfter&&e.push(...validateTimeout(t)),e}',
+      webhookValidator: 'webhookValidator=n=>{const e=[],{attributes:t}=n;return t?((!t.url||!t.url.trim())&&e.push({message:translate("webhook_url_required"),result:"warning",field:"url"}),t.method||e.push({message:translate("http_method_required"),result:"warning",field:"method"}),t.customData&&t.customData.some(i=>{var r;return!((r=i.key)!=null&&r.trim())||i.value===void 0||i.value===null})&&e.push({message:translate("custom_data_has_empty_fields"),result:"warning",field:"customData"}),t.headers&&t.headers.some(i=>{var r;return!((r=i.key)!=null&&r.trim())||i.value===void 0||i.value===null})&&e.push({message:translate("headers_has_empty_fields"),result:"warning",field:"headers"}),e):[]}',
+      workflowSplitValidator: 'workflowSplitValidator=n=>{var a,i,r;const e=[],{attributes:t}=n;if(!t)return[];if((a=t.paths)!=null&&a.length||e.push({field:"paths",message:translate("split_paths_required"),result:"warning"}),t.condition===SplitCondition.RANDOM_SPLIT){let s=0;for(const l of t.paths||[])s+=((r=(i=t.extras)==null?void 0:i.weightDistribution)==null?void 0:r[l.id])||0;s=Math.round(s*10)/10,s!==100&&e.push({field:"paths",message:translate("split_weightage_must_equal_100"),result:"warning"})}return e}'
+    };
+  }
+});
+
 // <define:__CONTACT_FILTER_FIELDS__>
 var define_CONTACT_FILTER_FIELDS_default;
 var init_define_CONTACT_FILTER_FIELDS = __esm({
@@ -50792,6 +50868,7 @@ var init_define_TOOL_CATALOG = __esm({
 var require_code = __commonJS({
   "node_modules/ajv/dist/compile/codegen/code.js"(exports) {
     "use strict";
+    init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
@@ -50950,6 +51027,7 @@ var require_code = __commonJS({
 var require_scope = __commonJS({
   "node_modules/ajv/dist/compile/codegen/scope.js"(exports) {
     "use strict";
+    init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
@@ -51099,6 +51177,7 @@ var require_scope = __commonJS({
 var require_codegen = __commonJS({
   "node_modules/ajv/dist/compile/codegen/index.js"(exports) {
     "use strict";
+    init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
@@ -51823,6 +51902,7 @@ var require_codegen = __commonJS({
 var require_util = __commonJS({
   "node_modules/ajv/dist/compile/util.js"(exports) {
     "use strict";
+    init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
@@ -51994,6 +52074,7 @@ var require_util = __commonJS({
 var require_names = __commonJS({
   "node_modules/ajv/dist/compile/names.js"(exports) {
     "use strict";
+    init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
@@ -52037,6 +52118,7 @@ var require_names = __commonJS({
 var require_errors = __commonJS({
   "node_modules/ajv/dist/compile/errors.js"(exports) {
     "use strict";
+    init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
@@ -52163,6 +52245,7 @@ var require_errors = __commonJS({
 var require_boolSchema = __commonJS({
   "node_modules/ajv/dist/compile/validate/boolSchema.js"(exports) {
     "use strict";
+    init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
@@ -52218,6 +52301,7 @@ var require_boolSchema = __commonJS({
 var require_rules = __commonJS({
   "node_modules/ajv/dist/compile/rules.js"(exports) {
     "use strict";
+    init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
@@ -52253,6 +52337,7 @@ var require_rules = __commonJS({
 var require_applicability = __commonJS({
   "node_modules/ajv/dist/compile/validate/applicability.js"(exports) {
     "use strict";
+    init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
@@ -52280,6 +52365,7 @@ var require_applicability = __commonJS({
 var require_dataType = __commonJS({
   "node_modules/ajv/dist/compile/validate/dataType.js"(exports) {
     "use strict";
+    init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
@@ -52468,6 +52554,7 @@ var require_dataType = __commonJS({
 var require_defaults = __commonJS({
   "node_modules/ajv/dist/compile/validate/defaults.js"(exports) {
     "use strict";
+    init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
@@ -52509,6 +52596,7 @@ var require_defaults = __commonJS({
 var require_code2 = __commonJS({
   "node_modules/ajv/dist/vocabularies/code.js"(exports) {
     "use strict";
+    init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
@@ -52646,6 +52734,7 @@ var require_code2 = __commonJS({
 var require_keyword = __commonJS({
   "node_modules/ajv/dist/compile/validate/keyword.js"(exports) {
     "use strict";
+    init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
@@ -52768,6 +52857,7 @@ var require_keyword = __commonJS({
 var require_subschema = __commonJS({
   "node_modules/ajv/dist/compile/validate/subschema.js"(exports) {
     "use strict";
+    init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
@@ -52855,6 +52945,7 @@ var require_subschema = __commonJS({
 var require_fast_deep_equal = __commonJS({
   "node_modules/fast-deep-equal/index.js"(exports, module) {
     "use strict";
+    init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
@@ -52894,6 +52985,7 @@ var require_fast_deep_equal = __commonJS({
 var require_json_schema_traverse = __commonJS({
   "node_modules/json-schema-traverse/index.js"(exports, module) {
     "use strict";
+    init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
@@ -52986,6 +53078,7 @@ var require_json_schema_traverse = __commonJS({
 var require_resolve = __commonJS({
   "node_modules/ajv/dist/compile/resolve.js"(exports) {
     "use strict";
+    init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
@@ -53146,6 +53239,7 @@ var require_resolve = __commonJS({
 var require_validate = __commonJS({
   "node_modules/ajv/dist/compile/validate/index.js"(exports) {
     "use strict";
+    init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
@@ -53658,6 +53752,7 @@ var require_validate = __commonJS({
 var require_validation_error = __commonJS({
   "node_modules/ajv/dist/runtime/validation_error.js"(exports) {
     "use strict";
+    init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
@@ -53678,6 +53773,7 @@ var require_validation_error = __commonJS({
 var require_ref_error = __commonJS({
   "node_modules/ajv/dist/compile/ref_error.js"(exports) {
     "use strict";
+    init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
@@ -53699,6 +53795,7 @@ var require_ref_error = __commonJS({
 var require_compile = __commonJS({
   "node_modules/ajv/dist/compile/index.js"(exports) {
     "use strict";
+    init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
@@ -53946,6 +54043,7 @@ var require_data = __commonJS({
 var require_utils = __commonJS({
   "node_modules/fast-uri/lib/utils.js"(exports, module) {
     "use strict";
+    init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
@@ -54263,6 +54361,7 @@ var require_utils = __commonJS({
 var require_schemes = __commonJS({
   "node_modules/fast-uri/lib/schemes.js"(exports, module) {
     "use strict";
+    init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
@@ -54477,6 +54576,7 @@ var require_schemes = __commonJS({
 var require_fast_uri = __commonJS({
   "node_modules/fast-uri/index.js"(exports, module) {
     "use strict";
+    init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
@@ -54773,6 +54873,7 @@ var require_fast_uri = __commonJS({
 var require_uri = __commonJS({
   "node_modules/ajv/dist/runtime/uri.js"(exports) {
     "use strict";
+    init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
@@ -54788,6 +54889,7 @@ var require_uri = __commonJS({
 var require_core = __commonJS({
   "node_modules/ajv/dist/core.js"(exports) {
     "use strict";
+    init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
@@ -55403,6 +55505,7 @@ var require_core = __commonJS({
 var require_id = __commonJS({
   "node_modules/ajv/dist/vocabularies/core/id.js"(exports) {
     "use strict";
+    init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
@@ -55422,6 +55525,7 @@ var require_id = __commonJS({
 var require_ref = __commonJS({
   "node_modules/ajv/dist/vocabularies/core/ref.js"(exports) {
     "use strict";
+    init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
@@ -55548,6 +55652,7 @@ var require_ref = __commonJS({
 var require_core2 = __commonJS({
   "node_modules/ajv/dist/vocabularies/core/index.js"(exports) {
     "use strict";
+    init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
@@ -55573,6 +55678,7 @@ var require_core2 = __commonJS({
 var require_limitNumber = __commonJS({
   "node_modules/ajv/dist/vocabularies/validation/limitNumber.js"(exports) {
     "use strict";
+    init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
@@ -55609,6 +55715,7 @@ var require_limitNumber = __commonJS({
 var require_multipleOf = __commonJS({
   "node_modules/ajv/dist/vocabularies/validation/multipleOf.js"(exports) {
     "use strict";
+    init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
@@ -55641,6 +55748,7 @@ var require_multipleOf = __commonJS({
 var require_ucs2length = __commonJS({
   "node_modules/ajv/dist/runtime/ucs2length.js"(exports) {
     "use strict";
+    init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
@@ -55671,6 +55779,7 @@ var require_ucs2length = __commonJS({
 var require_limitLength = __commonJS({
   "node_modules/ajv/dist/vocabularies/validation/limitLength.js"(exports) {
     "use strict";
+    init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
@@ -55707,6 +55816,7 @@ var require_limitLength = __commonJS({
 var require_pattern = __commonJS({
   "node_modules/ajv/dist/vocabularies/validation/pattern.js"(exports) {
     "use strict";
+    init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
@@ -55748,6 +55858,7 @@ var require_pattern = __commonJS({
 var require_limitProperties = __commonJS({
   "node_modules/ajv/dist/vocabularies/validation/limitProperties.js"(exports) {
     "use strict";
+    init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
@@ -55781,6 +55892,7 @@ var require_limitProperties = __commonJS({
 var require_required = __commonJS({
   "node_modules/ajv/dist/vocabularies/validation/required.js"(exports) {
     "use strict";
+    init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
@@ -55867,6 +55979,7 @@ var require_required = __commonJS({
 var require_limitItems = __commonJS({
   "node_modules/ajv/dist/vocabularies/validation/limitItems.js"(exports) {
     "use strict";
+    init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
@@ -55900,6 +56013,7 @@ var require_limitItems = __commonJS({
 var require_equal = __commonJS({
   "node_modules/ajv/dist/runtime/equal.js"(exports) {
     "use strict";
+    init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
@@ -55915,6 +56029,7 @@ var require_equal = __commonJS({
 var require_uniqueItems = __commonJS({
   "node_modules/ajv/dist/vocabularies/validation/uniqueItems.js"(exports) {
     "use strict";
+    init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
@@ -55986,6 +56101,7 @@ var require_uniqueItems = __commonJS({
 var require_const = __commonJS({
   "node_modules/ajv/dist/vocabularies/validation/const.js"(exports) {
     "use strict";
+    init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
@@ -56019,6 +56135,7 @@ var require_const = __commonJS({
 var require_enum = __commonJS({
   "node_modules/ajv/dist/vocabularies/validation/enum.js"(exports) {
     "use strict";
+    init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
@@ -56072,6 +56189,7 @@ var require_enum = __commonJS({
 var require_validation = __commonJS({
   "node_modules/ajv/dist/vocabularies/validation/index.js"(exports) {
     "use strict";
+    init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
@@ -56114,6 +56232,7 @@ var require_validation = __commonJS({
 var require_additionalItems = __commonJS({
   "node_modules/ajv/dist/vocabularies/applicator/additionalItems.js"(exports) {
     "use strict";
+    init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
@@ -56171,6 +56290,7 @@ var require_additionalItems = __commonJS({
 var require_items = __commonJS({
   "node_modules/ajv/dist/vocabularies/applicator/items.js"(exports) {
     "use strict";
+    init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
@@ -56232,6 +56352,7 @@ var require_items = __commonJS({
 var require_prefixItems = __commonJS({
   "node_modules/ajv/dist/vocabularies/applicator/prefixItems.js"(exports) {
     "use strict";
+    init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
@@ -56253,6 +56374,7 @@ var require_prefixItems = __commonJS({
 var require_items2020 = __commonJS({
   "node_modules/ajv/dist/vocabularies/applicator/items2020.js"(exports) {
     "use strict";
+    init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
@@ -56292,6 +56414,7 @@ var require_items2020 = __commonJS({
 var require_contains = __commonJS({
   "node_modules/ajv/dist/vocabularies/applicator/contains.js"(exports) {
     "use strict";
+    init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
@@ -56390,6 +56513,7 @@ var require_contains = __commonJS({
 var require_dependencies = __commonJS({
   "node_modules/ajv/dist/vocabularies/applicator/dependencies.js"(exports) {
     "use strict";
+    init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
@@ -56488,6 +56612,7 @@ var require_dependencies = __commonJS({
 var require_propertyNames = __commonJS({
   "node_modules/ajv/dist/vocabularies/applicator/propertyNames.js"(exports) {
     "use strict";
+    init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
@@ -56535,6 +56660,7 @@ var require_propertyNames = __commonJS({
 var require_additionalProperties = __commonJS({
   "node_modules/ajv/dist/vocabularies/applicator/additionalProperties.js"(exports) {
     "use strict";
+    init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
@@ -56645,6 +56771,7 @@ var require_additionalProperties = __commonJS({
 var require_properties = __commonJS({
   "node_modules/ajv/dist/vocabularies/applicator/properties.js"(exports) {
     "use strict";
+    init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
@@ -56707,6 +56834,7 @@ var require_properties = __commonJS({
 var require_patternProperties = __commonJS({
   "node_modules/ajv/dist/vocabularies/applicator/patternProperties.js"(exports) {
     "use strict";
+    init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
@@ -56785,6 +56913,7 @@ var require_patternProperties = __commonJS({
 var require_not = __commonJS({
   "node_modules/ajv/dist/vocabularies/applicator/not.js"(exports) {
     "use strict";
+    init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
@@ -56820,6 +56949,7 @@ var require_not = __commonJS({
 var require_anyOf = __commonJS({
   "node_modules/ajv/dist/vocabularies/applicator/anyOf.js"(exports) {
     "use strict";
+    init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
@@ -56841,6 +56971,7 @@ var require_anyOf = __commonJS({
 var require_oneOf = __commonJS({
   "node_modules/ajv/dist/vocabularies/applicator/oneOf.js"(exports) {
     "use strict";
+    init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
@@ -56903,6 +57034,7 @@ var require_oneOf = __commonJS({
 var require_allOf = __commonJS({
   "node_modules/ajv/dist/vocabularies/applicator/allOf.js"(exports) {
     "use strict";
+    init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
@@ -56934,6 +57066,7 @@ var require_allOf = __commonJS({
 var require_if = __commonJS({
   "node_modules/ajv/dist/vocabularies/applicator/if.js"(exports) {
     "use strict";
+    init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
@@ -57007,6 +57140,7 @@ var require_if = __commonJS({
 var require_thenElse = __commonJS({
   "node_modules/ajv/dist/vocabularies/applicator/thenElse.js"(exports) {
     "use strict";
+    init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
@@ -57029,6 +57163,7 @@ var require_thenElse = __commonJS({
 var require_applicator = __commonJS({
   "node_modules/ajv/dist/vocabularies/applicator/index.js"(exports) {
     "use strict";
+    init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
@@ -57081,6 +57216,7 @@ var require_applicator = __commonJS({
 var require_format = __commonJS({
   "node_modules/ajv/dist/vocabularies/format/format.js"(exports) {
     "use strict";
+    init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
@@ -57175,6 +57311,7 @@ var require_format = __commonJS({
 var require_format2 = __commonJS({
   "node_modules/ajv/dist/vocabularies/format/index.js"(exports) {
     "use strict";
+    init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
@@ -57190,6 +57327,7 @@ var require_format2 = __commonJS({
 var require_metadata = __commonJS({
   "node_modules/ajv/dist/vocabularies/metadata.js"(exports) {
     "use strict";
+    init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
@@ -57217,6 +57355,7 @@ var require_metadata = __commonJS({
 var require_draft7 = __commonJS({
   "node_modules/ajv/dist/vocabularies/draft7.js"(exports) {
     "use strict";
+    init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
@@ -57243,6 +57382,7 @@ var require_draft7 = __commonJS({
 var require_types = __commonJS({
   "node_modules/ajv/dist/vocabularies/discriminator/types.js"(exports) {
     "use strict";
+    init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
@@ -57261,6 +57401,7 @@ var require_types = __commonJS({
 var require_discriminator = __commonJS({
   "node_modules/ajv/dist/vocabularies/discriminator/index.js"(exports) {
     "use strict";
+    init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
@@ -57527,6 +57668,7 @@ var require_json_schema_draft_07 = __commonJS({
 var require_ajv = __commonJS({
   "node_modules/ajv/dist/ajv.js"(exports, module) {
     "use strict";
+    init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
@@ -57601,6 +57743,7 @@ var require_ajv = __commonJS({
 var require_formats = __commonJS({
   "node_modules/ajv-formats/dist/formats.js"(exports) {
     "use strict";
+    init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
@@ -57808,6 +57951,7 @@ var require_formats = __commonJS({
 var require_limit = __commonJS({
   "node_modules/ajv-formats/dist/limit.js"(exports) {
     "use strict";
+    init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
@@ -57884,6 +58028,7 @@ var require_limit = __commonJS({
 var require_dist = __commonJS({
   "node_modules/ajv-formats/dist/index.js"(exports, module) {
     "use strict";
+    init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
@@ -57927,54 +58072,63 @@ var require_dist = __commonJS({
 });
 
 // stdio.mjs
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
 
 // node_modules/@modelcontextprotocol/sdk/dist/esm/server/mcp.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
 
 // node_modules/@modelcontextprotocol/sdk/dist/esm/server/index.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
 
 // node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
 
 // node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-compat.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod/v3/errors.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod/v3/locales/en.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod/v3/ZodError.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod/v3/helpers/util.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -58336,6 +58490,7 @@ function getErrorMap() {
 }
 
 // node_modules/zod/v3/helpers/parseUtil.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -58449,12 +58604,14 @@ var isValid = (x) => x.status === "valid";
 var isAsync = (x) => typeof Promise !== "undefined" && x instanceof Promise;
 
 // node_modules/zod/v3/types.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod/v3/helpers/errorUtil.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -61869,6 +62026,7 @@ var preprocessType = ZodEffects.createWithPreprocess;
 var pipelineType = ZodPipeline.create;
 
 // node_modules/zod/v4/mini/external.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -62152,12 +62310,14 @@ __export(core_exports2, {
   util: () => util_exports,
   version: () => version
 });
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod/v4/core/core.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -62239,12 +62399,14 @@ function config(newConfig) {
 }
 
 // node_modules/zod/v4/core/parse.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod/v4/core/errors.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -62317,6 +62479,7 @@ __export(util_exports, {
   uint8ArrayToHex: () => uint8ArrayToHex,
   unwrapMessage: () => unwrapMessage
 });
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -63178,12 +63341,14 @@ var _safeDecodeAsync = (_Err) => async (schema2, value, _ctx) => {
 var safeDecodeAsync = /* @__PURE__ */ _safeDecodeAsync($ZodRealError);
 
 // node_modules/zod/v4/core/schemas.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod/v4/core/checks.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -63252,6 +63417,7 @@ __export(regexes_exports, {
   uuid7: () => uuid7,
   xid: () => xid
 });
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -63901,6 +64067,7 @@ var $ZodCheckOverwrite = /* @__PURE__ */ $constructor("$ZodCheckOverwrite", (ins
 });
 
 // node_modules/zod/v4/core/doc.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -63941,6 +64108,7 @@ var Doc = class {
 };
 
 // node_modules/zod/v4/core/versions.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -66100,12 +66268,14 @@ __export(locales_exports, {
   zhCN: () => zh_CN_default,
   zhTW: () => zh_TW_default
 });
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod/v4/locales/ar.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -66217,6 +66387,7 @@ function ar_default() {
 }
 
 // node_modules/zod/v4/locales/az.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -66327,6 +66498,7 @@ function az_default() {
 }
 
 // node_modules/zod/v4/locales/be.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -66488,6 +66660,7 @@ function be_default() {
 }
 
 // node_modules/zod/v4/locales/bg.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -66613,6 +66786,7 @@ function bg_default() {
 }
 
 // node_modules/zod/v4/locales/ca.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -66726,6 +66900,7 @@ function ca_default() {
 }
 
 // node_modules/zod/v4/locales/cs.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -66842,6 +67017,7 @@ function cs_default() {
 }
 
 // node_modules/zod/v4/locales/da.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -66962,6 +67138,7 @@ function da_default() {
 }
 
 // node_modules/zod/v4/locales/de.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -67075,6 +67252,7 @@ function de_default() {
 }
 
 // node_modules/zod/v4/locales/el.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -67189,6 +67367,7 @@ function el_default() {
 }
 
 // node_modules/zod/v4/locales/en.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -67306,6 +67485,7 @@ function en_default2() {
 }
 
 // node_modules/zod/v4/locales/eo.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -67420,6 +67600,7 @@ function eo_default() {
 }
 
 // node_modules/zod/v4/locales/es.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -67557,6 +67738,7 @@ function es_default() {
 }
 
 // node_modules/zod/v4/locales/fa.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -67676,6 +67858,7 @@ function fa_default() {
 }
 
 // node_modules/zod/v4/locales/fi.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -67793,6 +67976,7 @@ function fi_default() {
 }
 
 // node_modules/zod/v4/locales/fr.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -67923,6 +68107,7 @@ function fr_default() {
 }
 
 // node_modules/zod/v4/locales/fr-CA.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -68035,6 +68220,7 @@ function fr_CA_default() {
 }
 
 // node_modules/zod/v4/locales/he.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -68234,6 +68420,7 @@ function he_default() {
 }
 
 // node_modules/zod/v4/locales/hr.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -68361,6 +68548,7 @@ function hr_default() {
 }
 
 // node_modules/zod/v4/locales/hu.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -68474,6 +68662,7 @@ function hu_default() {
 }
 
 // node_modules/zod/v4/locales/hy.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -68626,6 +68815,7 @@ function hy_default() {
 }
 
 // node_modules/zod/v4/locales/id.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -68737,6 +68927,7 @@ function id_default() {
 }
 
 // node_modules/zod/v4/locales/is.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -68851,6 +69042,7 @@ function is_default() {
 }
 
 // node_modules/zod/v4/locales/it.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -68964,6 +69156,7 @@ function it_default() {
 }
 
 // node_modules/zod/v4/locales/ja.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -69076,6 +69269,7 @@ function ja_default() {
 }
 
 // node_modules/zod/v4/locales/ka.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -69193,12 +69387,14 @@ function ka_default() {
 }
 
 // node_modules/zod/v4/locales/kh.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod/v4/locales/km.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -69319,6 +69515,7 @@ function kh_default() {
 }
 
 // node_modules/zod/v4/locales/ko.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -69435,6 +69632,7 @@ function ko_default() {
 }
 
 // node_modules/zod/v4/locales/lt.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -69643,6 +69841,7 @@ function lt_default() {
 }
 
 // node_modules/zod/v4/locales/mk.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -69757,6 +69956,7 @@ function mk_default() {
 }
 
 // node_modules/zod/v4/locales/ms.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -69869,6 +70069,7 @@ function ms_default() {
 }
 
 // node_modules/zod/v4/locales/nl.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -69984,6 +70185,7 @@ function nl_default() {
 }
 
 // node_modules/zod/v4/locales/no.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -70097,6 +70299,7 @@ function no_default() {
 }
 
 // node_modules/zod/v4/locales/ota.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -70211,6 +70414,7 @@ function ota_default() {
 }
 
 // node_modules/zod/v4/locales/ps.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -70330,6 +70534,7 @@ function ps_default() {
 }
 
 // node_modules/zod/v4/locales/pl.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -70444,6 +70649,7 @@ function pl_default() {
 }
 
 // node_modules/zod/v4/locales/pt.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -70557,6 +70763,7 @@ function pt_default() {
 }
 
 // node_modules/zod/v4/locales/ro.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -70681,6 +70888,7 @@ function ro_default() {
 }
 
 // node_modules/zod/v4/locales/ru.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -70842,6 +71050,7 @@ function ru_default() {
 }
 
 // node_modules/zod/v4/locales/sl.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -70956,6 +71165,7 @@ function sl_default() {
 }
 
 // node_modules/zod/v4/locales/sv.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -71071,6 +71281,7 @@ function sv_default() {
 }
 
 // node_modules/zod/v4/locales/ta.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -71186,6 +71397,7 @@ function ta_default() {
 }
 
 // node_modules/zod/v4/locales/th.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -71301,6 +71513,7 @@ function th_default() {
 }
 
 // node_modules/zod/v4/locales/tr.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -71411,12 +71624,14 @@ function tr_default() {
 }
 
 // node_modules/zod/v4/locales/ua.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod/v4/locales/uk.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -71535,6 +71750,7 @@ function ua_default() {
 }
 
 // node_modules/zod/v4/locales/ur.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -71650,6 +71866,7 @@ function ur_default() {
 }
 
 // node_modules/zod/v4/locales/uz.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -71765,6 +71982,7 @@ function uz_default() {
 }
 
 // node_modules/zod/v4/locales/vi.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -71878,6 +72096,7 @@ function vi_default() {
 }
 
 // node_modules/zod/v4/locales/zh-CN.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -71992,6 +72211,7 @@ function zh_CN_default() {
 }
 
 // node_modules/zod/v4/locales/zh-TW.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -72104,6 +72324,7 @@ function zh_TW_default() {
 }
 
 // node_modules/zod/v4/locales/yo.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -72216,6 +72437,7 @@ function yo_default() {
 }
 
 // node_modules/zod/v4/core/registries.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -72270,6 +72492,7 @@ function registry() {
 var globalRegistry = globalThis.__zod_globalRegistry;
 
 // node_modules/zod/v4/core/api.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -73313,6 +73536,7 @@ function _stringFormat(Class2, format, fnOrRegex, _params = {}) {
 }
 
 // node_modules/zod/v4/core/to-json-schema.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -73676,6 +73900,7 @@ var createStandardJSONSchemaMethod = (schema2, io, processors = {}) => (params) 
 };
 
 // node_modules/zod/v4/core/json-schema-processors.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -74224,6 +74449,7 @@ function toJSONSchema(input, params) {
 }
 
 // node_modules/zod/v4/core/json-schema-generator.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -74304,18 +74530,21 @@ var JSONSchemaGenerator = class {
 
 // node_modules/zod/v4/core/json-schema.js
 var json_schema_exports = {};
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod/v4/mini/parse.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod/v4/mini/schemas.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -74510,6 +74739,7 @@ function getLiteralValue(schema2) {
 }
 
 // node_modules/@modelcontextprotocol/sdk/dist/esm/types.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -74757,6 +74987,7 @@ __export(external_exports, {
   xid: () => xid2,
   xor: () => xor
 });
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -74932,6 +75163,7 @@ __export(schemas_exports2, {
   xid: () => xid2,
   xor: () => xor
 });
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -74970,6 +75202,7 @@ __export(checks_exports2, {
   trim: () => _trim,
   uppercase: () => _uppercase
 });
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -74987,6 +75220,7 @@ __export(iso_exports2, {
   duration: () => duration2,
   time: () => time2
 });
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -75021,12 +75255,14 @@ function duration2(params) {
 }
 
 // node_modules/zod/v4/classic/parse.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod/v4/classic/errors.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -76375,6 +76611,7 @@ function preprocess(fn, schema2) {
 }
 
 // node_modules/zod/v4/classic/compat.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -76405,6 +76642,7 @@ var ZodFirstPartyTypeKind2;
 })(ZodFirstPartyTypeKind2 || (ZodFirstPartyTypeKind2 = {}));
 
 // node_modules/zod/v4/classic/from-json-schema.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -76897,6 +77135,7 @@ __export(coerce_exports2, {
   number: () => number3,
   string: () => string3
 });
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -78452,6 +78691,7 @@ var UrlElicitationRequiredError = class extends McpError {
 };
 
 // node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/interfaces.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -78461,18 +78701,21 @@ function isTerminal(status) {
 }
 
 // node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-json-schema-compat.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod-to-json-schema/dist/esm/index.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod-to-json-schema/dist/esm/Options.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -78511,6 +78754,7 @@ var getDefaultOptions = (options) => typeof options === "string" ? {
 };
 
 // node_modules/zod-to-json-schema/dist/esm/Refs.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -78536,6 +78780,7 @@ var getRefs = (options) => {
 };
 
 // node_modules/zod-to-json-schema/dist/esm/errorMessages.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -78556,6 +78801,7 @@ function setResponseValueAndErrors(res, key, value, errorMessage, refs) {
 }
 
 // node_modules/zod-to-json-schema/dist/esm/getRelativePath.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -78570,18 +78816,21 @@ var getRelativePath = (pathA, pathB) => {
 };
 
 // node_modules/zod-to-json-schema/dist/esm/parseDef.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod-to-json-schema/dist/esm/selectParser.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/any.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -78602,6 +78851,7 @@ function parseAnyDef(refs) {
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/array.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -78630,6 +78880,7 @@ function parseArrayDef(def, refs) {
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/bigint.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -78680,6 +78931,7 @@ function parseBigintDef(def, refs) {
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/boolean.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -78691,6 +78943,7 @@ function parseBooleanDef() {
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/branded.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -78700,6 +78953,7 @@ function parseBrandedDef(_def, refs) {
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/catch.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -78709,6 +78963,7 @@ var parseCatchDef = (def, refs) => {
 };
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/date.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -78772,6 +79027,7 @@ var integerDateParser = (def, refs) => {
 };
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/default.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -78784,6 +79040,7 @@ function parseDefaultDef(_def, refs) {
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/effects.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -78793,6 +79050,7 @@ function parseEffectsDef(_def, refs) {
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/enum.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -78805,6 +79063,7 @@ function parseEnumDef(def) {
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/intersection.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -78851,6 +79110,7 @@ function parseIntersectionDef(def, refs) {
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/literal.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -78875,18 +79135,21 @@ function parseLiteralDef(def, refs) {
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/map.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/record.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/string.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -79293,6 +79556,7 @@ function parseMapDef(def, refs) {
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/nativeEnum.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -79311,6 +79575,7 @@ function parseNativeEnumDef(def) {
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/never.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -79325,6 +79590,7 @@ function parseNeverDef(refs) {
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/null.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -79339,12 +79605,14 @@ function parseNullDef(refs) {
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/nullable.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/union.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -79449,6 +79717,7 @@ function parseNullableDef(def, refs) {
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/number.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -79502,6 +79771,7 @@ function parseNumberDef(def, refs) {
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/object.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -79576,6 +79846,7 @@ function safeIsOptional(schema2) {
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/optional.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -79599,6 +79870,7 @@ var parseOptionalDef = (def, refs) => {
 };
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/pipeline.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -79623,6 +79895,7 @@ var parsePipelineDef = (def, refs) => {
 };
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/promise.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -79632,6 +79905,7 @@ function parsePromiseDef(def, refs) {
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/set.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -79656,6 +79930,7 @@ function parseSetDef(def, refs) {
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/tuple.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -79688,6 +79963,7 @@ function parseTupleDef(def, refs) {
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/undefined.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -79699,6 +79975,7 @@ function parseUndefinedDef(refs) {
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/unknown.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -79708,6 +79985,7 @@ function parseUnknownDef(refs) {
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/readonly.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -79849,12 +80127,14 @@ var addMeta = (def, refs, jsonSchema) => {
 };
 
 // node_modules/zod-to-json-schema/dist/esm/parseTypes.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod-to-json-schema/dist/esm/zodToJsonSchema.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -80917,6 +81197,7 @@ function mergeCapabilities(base, additional) {
 }
 
 // node_modules/@modelcontextprotocol/sdk/dist/esm/validation/ajv-provider.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -80989,6 +81270,7 @@ var AjvJsonSchemaValidator = class {
 };
 
 // node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/server.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -81206,6 +81488,7 @@ var ExperimentalServerTasks = class {
 };
 
 // node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/helpers.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -81625,6 +81908,7 @@ var Server = class extends Protocol {
 };
 
 // node_modules/@modelcontextprotocol/sdk/dist/esm/server/completable.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -81643,12 +81927,14 @@ var McpZodTypeKind;
 })(McpZodTypeKind || (McpZodTypeKind = {}));
 
 // node_modules/@modelcontextprotocol/sdk/dist/esm/shared/uriTemplate.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
 
 // node_modules/@modelcontextprotocol/sdk/dist/esm/shared/toolNameValidation.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -81711,6 +81997,7 @@ function validateAndWarnToolName(name) {
 }
 
 // node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/mcp-server.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -81730,6 +82017,7 @@ var ExperimentalMcpServerTasks = class {
 };
 
 // node_modules/zod/index.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -82528,6 +82816,7 @@ var EMPTY_COMPLETION_RESULT = {
 };
 
 // node_modules/@modelcontextprotocol/sdk/dist/esm/server/stdio.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -82535,6 +82824,7 @@ init_define_TOOL_CATALOG();
 import process3 from "node:process";
 
 // node_modules/@modelcontextprotocol/sdk/dist/esm/shared/stdio.js
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -82632,6 +82922,7 @@ import { fileURLToPath as fileURLToPath2 } from "node:url";
 import { dirname as dirname4, resolve as resolve3 } from "node:path";
 
 // core/tools.mjs
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -82642,6 +82933,7 @@ import { dirname as dirname2, resolve as resolve2, join as join3, isAbsolute as 
 import { createHash as createHash5 } from "node:crypto";
 
 // core/errors.mjs
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -82913,6 +83205,7 @@ function fromHttp(status, body) {
 }
 
 // core/auth.mjs
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -83031,6 +83324,7 @@ function requireAiCredentials(creds) {
 }
 
 // core/location-binding.mjs
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -83237,12 +83531,14 @@ function checkLocationBinding({ tool, args, allowed, legacyLocationsEnvSet = fal
 }
 
 // core/audit-gateway.mjs
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
 
 // core/audit-capabilities.mjs
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -84318,6 +84614,7 @@ function makeAuditGateway({ gateways, locationId, limiter, circuit, descriptors 
 }
 
 // core/gateway.mjs
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -84651,6 +84948,7 @@ function makeGateway({ tokenFile, loc, rail = "jwt", fetchImpl = fetch, sleepImp
 }
 
 // core/workflow-runtime-window.mjs
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -85638,6 +85936,7 @@ function pickStats(json2, workflowId) {
 }
 
 // core/audit-configuration.mjs
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -86897,18 +87196,21 @@ async function getAiConfigurationBundle({ auditGateway, input } = {}) {
 }
 
 // ../skills/create-ghl-workflow/engine/orchestrate.mjs
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
 
 // ../skills/create-ghl-workflow/engine/compiler.mjs
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
 
 // ../skills/create-ghl-workflow/engine/ir.mjs
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -87184,6 +87486,7 @@ function checkOpportunityAssociation(norm3, oppTriggerTypes) {
 }
 
 // ../skills/create-ghl-workflow/engine/opp-shapes.mjs
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -87327,6 +87630,7 @@ function checkAgainstRulebook(field, ref) {
 }
 
 // ../skills/create-ghl-workflow/engine/goghl.mjs
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -87456,12 +87760,14 @@ function checkGoghlSyntax(templates, ctx = {}) {
 }
 
 // ../skills/create-ghl-workflow/engine/webhook-rail.mjs
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
 
 // ../skills/create-ghl-workflow/engine/webhook-mergetags.mjs
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -87547,6 +87853,7 @@ function webhookUrlsFor(loc, triggerBodies) {
 }
 
 // ../skills/create-ghl-workflow/engine/step-outputs.mjs
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -87616,6 +87923,7 @@ function checkStepOutputRefs(templates, ctx = {}) {
 }
 
 // ../skills/create-ghl-workflow/engine/settings.mjs
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -87767,6 +88075,7 @@ function normalizeSettings(settings, ctx = {}) {
 }
 
 // ../skills/create-ghl-workflow/engine/terminals.mjs
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -87797,6 +88106,7 @@ function fillInputTriggerParams(templates) {
 }
 
 // ../skills/create-ghl-workflow/engine/step-notes.mjs
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -87812,6 +88122,7 @@ function stepNotesToComments(notes, ctx = {}) {
 }
 
 // ../skills/create-ghl-workflow/engine/contact-field-shapes.mjs
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -87870,12 +88181,14 @@ function lintContactFieldTemplates(templates, stepIds, warn) {
 }
 
 // ../skills/create-ghl-workflow/engine/required-fields.mjs
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
 
 // ../skills/create-ghl-workflow/engine/text-rules.mjs
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -150264,6 +150577,7 @@ function isSupplied(type, key, attrs) {
 }
 
 // ../skills/create-ghl-workflow/engine/action-schema.mjs
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -150454,6 +150768,7 @@ async function fetchActionSchema(call, loc) {
 }
 
 // ../skills/create-ghl-workflow/engine/enforce.mjs
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -150582,6 +150897,7 @@ function enforceTemplates(templates, catalog, ctx) {
 }
 
 // ../skills/create-ghl-workflow/engine/graph-refs.mjs
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -150649,6 +150965,7 @@ GHL grades this a WARNING \u2014 the builder's panel shows "0 Errors" while the 
 }
 
 // ../skills/create-ghl-workflow/engine/ui-defaults.mjs
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -150680,6 +150997,7 @@ function applyUiDefaults(templates, catalog, ctx) {
 }
 
 // ../skills/create-ghl-workflow/engine/ifelse-vocab.mjs
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -150766,6 +151084,7 @@ Fix the condition (see catalog.ifElseConditions), or pass skipIfElseVocab: true 
 }
 
 // ../skills/create-ghl-workflow/engine/merge-tags.mjs
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -150975,6 +151294,7 @@ Author tags from the picker inventory (search_merge_tags / catalog mergeTags), o
 }
 
 // ../skills/create-ghl-workflow/engine/goto-loops.mjs
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -152893,6 +153213,7 @@ function compile(ir, ctx) {
 }
 
 // ../skills/create-ghl-workflow/engine/preflight.mjs
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -152974,6 +153295,7 @@ async function runReadinessChecks(plan, { call, loc }) {
 }
 
 // ../skills/create-ghl-workflow/engine/sticky-notes.mjs
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -153049,6 +153371,7 @@ function planStickyNoteOp(op, { loc, wid, skipStickyCheck } = {}) {
 var STICKY_OPS = /* @__PURE__ */ new Set(["addStickyNote", "updateStickyNote"]);
 
 // ../skills/create-ghl-workflow/engine/idgen.mjs
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -153070,6 +153393,7 @@ function makeDeterministicIdGen(seed) {
 }
 
 // ../skills/create-ghl-workflow/engine/catalog.mjs
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -153144,6 +153468,7 @@ function loadCatalog() {
 }
 
 // ../skills/create-ghl-workflow/engine/entities.mjs
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -153323,6 +153648,7 @@ function registryResolvers(raw = {}) {
 }
 
 // ../skills/create-ghl-workflow/engine/tags.mjs
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -153388,6 +153714,7 @@ function missingTags(requiredNames, existingNames) {
 }
 
 // ../skills/create-ghl-workflow/engine/lints/opportunity.mjs
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -153499,6 +153826,7 @@ function lintOpportunityWrites(templates, { pipelines = null, lostReasons = null
 }
 
 // ../skills/create-ghl-workflow/engine/lints/trigger-rows.mjs
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -153548,6 +153876,7 @@ function lintTriggerRows(triggers, catalog) {
 }
 
 // ../skills/create-ghl-workflow/engine/resolve.mjs
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -153772,12 +154101,14 @@ function resolveIR(ir, r) {
 }
 
 // ../skills/create-ghl-workflow/engine/edit.mjs
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
 
 // ../skills/create-ghl-workflow/engine/template-normalize.mjs
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -153819,6 +154150,7 @@ function normalizeStoredAttributes2(template, ctx, opts) {
 }
 
 // ../skills/create-ghl-workflow/engine/lints/entry-step.mjs
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -154713,6 +155045,7 @@ function replaceTagInTriggerConditions(conditions, oldTag, newTag) {
 }
 
 // ../skills/create-ghl-workflow/engine/marketplace.mjs
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -154823,6 +155156,7 @@ function buildMarketplaceIndex({ assets, modules, legs } = {}) {
 }
 
 // ../skills/create-ghl-workflow/engine/asset-preflight.mjs
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -154872,6 +155206,7 @@ async function validateAssets(call, loc, { templates, triggers, companyId } = {}
 }
 
 // ../skills/create-ghl-workflow/engine/server-validation.mjs
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -154894,6 +155229,7 @@ function describeServerFindings(parsed) {
 }
 
 // ../skills/create-ghl-workflow/engine/graph-rules.mjs
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -155052,6 +155388,7 @@ Fix the structure, or pass skipWorkflowRules (true, or ['${live[0].rule}']) if y
 }
 
 // ../skills/create-ghl-workflow/engine/graph-context-rules.mjs
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -155173,6 +155510,7 @@ function checkGraphContextRules(templates, { warn, skipGraphContextRules } = {})
 }
 
 // ../skills/create-ghl-workflow/engine/field-caps.mjs
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -155813,7 +156151,103 @@ function sortKeysDeep(o) {
   return o;
 }
 
+// core/builder-validators.mjs
+init_define_BUILDER_VALIDATORS();
+init_define_CONTACT_FILTER_FIELDS();
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_OVERLAY();
+init_define_TOOL_CATALOG();
+var VALIDATORS = null;
+var validatorSource = (readJson) => {
+  if (VALIDATORS) return VALIDATORS;
+  if (true) {
+    VALIDATORS = define_BUILDER_VALIDATORS_default;
+    return VALIDATORS;
+  }
+  try {
+    VALIDATORS = readJson();
+  } catch {
+    VALIDATORS = null;
+  }
+  return VALIDATORS;
+};
+var PRE = `
+const translate = (k) => k; const t = translate;
+const isArray = Array.isArray;
+function parseHTMLToBody(html){ let b=String(html||'').replace(/<\\s*p\\s*>/gi,'').replace(/<\\/\\s*p\\s*>/gi,'\\n').replace(/<\\s*br\\s*\\/?>/gi,'\\n').replace(/&amp;/gi,'&').replace(/&nbsp;/gi,' ').replace(/&lt;/gi,'<').replace(/&gt;/gi,'>'); return b.replace(/<[^>]*>/g,'').trim(); }
+function cleanHTMLForEmail(text){ return parseHTMLToBody(text); }
+function isValidHandleBar(body){ const s=String(body||''); const o=(s.match(/{{/g)||[]).length, c=(s.match(/}}/g)||[]).length; return o===c; }
+function isValidEmail(v){ return /^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$/.test(String(v||'')) || /{{.+}}/.test(String(v||'')); }
+function isValidURL(v){ return /^https?:\\/\\//.test(String(v||'')) || /{{.+}}/.test(String(v||'')); }
+function isValidNumeric(v){ return v!=='' && v!=null && !isNaN(Number(v)); }
+function isValidPhone(v){ return /^[+0-9()\\-\\s]{6,}$/.test(String(v||'')) || /{{.+}}/.test(String(v||'')); }
+const contactStandardFields = ['id','firstName','lastName','name','email','phone','dateOfBirth','source','website','type','companyName','address1','country','state','postalCode','dnd','timezone','city'];
+const requiresFieldValue = (a) => a === 'update_field_data' || a === 'add_field_data';
+const isMissingFieldValue = (value, date) => { if (isArray(value)) return value.length === 0; return value !== false && (value == null || value === '') && date !== 'currentDate' && value !== 0; };
+function isWithinLimits(field, low, high, countWords){ low = low ?? 0; high = high ?? 100; if(!field) return false; if(!countWords){ return field.length > low && field.length <= high; } const avgWordLength=7; const totalWords=field.trim().split(/\\s+/).length; const totalWordsByAvgLength=Math.round(field.trim().length/avgWordLength); return totalWords > low && totalWords <= high && totalWordsByAvgLength <= high; }
+function getMathOperationSourceTypeFromTemplates(selectField, templates){ const m=String(selectField||'').match(/\\{\\{math_operation\\.(\\d+)\\.result\\}\\}/); if(!m||!templates||!templates.length) return null; const i=parseInt(m[1],10); const ops=templates.filter(x=>x.type==='math_operation'&&x.attributes); const byIdx=ops.find(x=>(x.stepIndex??0)===i); if(byIdx&&byIdx.attributes) return byIdx.attributes.selectFieldtype||'numerical'; const byOrder=ops[i]; if(!byOrder||!byOrder.attributes) return null; return byOrder.attributes.selectFieldtype||'numerical'; }
+`;
+var HELPER_FIDELITY = "The helper functions the validators call are reimplemented, not recovered. parseHTMLToBody, contactStandardFields, isWithinLimits and getMathOperationSourceTypeFromTemplates are faithful; isValidHandleBar, isValidEmail, isValidURL, isValidNumeric and isValidPhone are behavioural approximations \u2014 isValidHandleBar only counts brace pairs. Treat a finding that turns on one of those as a hint to check by hand, not a verdict.";
+function compileValidators(source) {
+  if (!source || typeof source !== "object") return null;
+  const names = Object.keys(source);
+  if (!names.length) return null;
+  const IDENT = /^[A-Za-z_$][A-Za-z0-9_$]*$/;
+  for (const n of names) {
+    if (!IDENT.test(n)) return { error: `validator key ${JSON.stringify(n).slice(0, 40)} is not a bare identifier` };
+    const body = source[n];
+    if (typeof body !== "string") return { error: `validator ${n} is not a string` };
+    const binds = new RegExp(`^(?:${n}\\s*=|function\\s+${n}\\s*\\()`);
+    if (!binds.test(body.trim())) {
+      return { error: `validator ${n} does not bind the identifier it is filed under (expected "${n}=" or "function ${n}(")` };
+    }
+  }
+  return new Function(`${PRE}
+${names.map((n) => source[n]).join(";\n")};
+return {${names.join(",")}};`)();
+}
+function validatorNamesFor(cards, bag) {
+  const NONE = /^none\b|null/i;
+  const out = {};
+  for (const c of cards ?? []) {
+    const line = c?.meta?.Validator;
+    if (!line || NONE.test(String(line).trim())) continue;
+    const m = String(line).match(/`([A-Za-z0-9_]+)`/);
+    if (m && bag?.[m[1]]) out[c.type] = m[1];
+  }
+  return out;
+}
+function runBuilderValidators(templates, bag, vname) {
+  const findings = [];
+  const lookups = [];
+  const unchecked = {};
+  const crashed = [];
+  let validated = 0;
+  for (const s of templates ?? []) {
+    const vn = vname?.[s.type];
+    if (!vn) {
+      (unchecked[s.type] ??= []).push(s.name ?? s.id ?? null);
+      continue;
+    }
+    validated += 1;
+    const arg = { ...s, templates, parentNode: { next: s.next } };
+    let out;
+    try {
+      out = bag[vn](arg);
+    } catch (e) {
+      crashed.push({ step: s.name ?? s.id ?? null, type: s.type, validator: vn, error: String(e?.message ?? e).slice(0, 160) });
+      continue;
+    }
+    for (const r of out ?? []) {
+      const row = { step: s.name ?? s.id ?? null, type: s.type, ...r };
+      (r?.message ? findings : lookups).push(row);
+    }
+  }
+  return { validated, findings, lookups, unchecked, crashed };
+}
+
 // ../skills/create-ghl-workflow/engine/edit-driver.mjs
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -156504,6 +156938,7 @@ function applyOps(templates, ops, { ctx, idGen }) {
 }
 
 // ../skills/create-ghl-workflow/engine/digest.mjs
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -156632,6 +157067,7 @@ function digestWorkflow({ doc, triggers = [], stickyNotes = [], include = [] } =
 }
 
 // core/read-cache.mjs
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -156681,6 +157117,7 @@ function readCache(state2) {
 }
 
 // core/smart-lists.mjs
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -156754,6 +157191,7 @@ function buildColumns(keys) {
 }
 
 // core/snapshots.mjs
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -156812,6 +157250,7 @@ function diffStored(requested, storedIndex) {
 var CONFLICT_KEYS = { locations: "selectedLocationIds", assets: "selectedSnapshotAssets" };
 
 // core/agent-logs.mjs
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -157049,12 +157488,14 @@ var walkSessions = async (gw, body, { maxRows = 1e3, maxHops = 200 } = {}) => {
 };
 
 // ../skills/create-ghl-workflow/engine/lints/runner.mjs
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
 
 // ../skills/create-ghl-workflow/engine/lints/publish-rules.mjs
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -157100,6 +157541,7 @@ function lintPublishRules(templates) {
 }
 
 // ../skills/create-ghl-workflow/engine/lints/name-length.mjs
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -157131,6 +157573,7 @@ function lintNameLength(templates, triggers) {
 }
 
 // ../skills/create-ghl-workflow/engine/lints/hygiene.mjs
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -157319,6 +157762,7 @@ var HYGIENE_RULES = [
 ];
 
 // ../skills/create-ghl-workflow/engine/lints/doctrine.mjs
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -157512,6 +157956,7 @@ function runLints(doc, {
 }
 
 // ../skills/ghl-workflow-fast-forward/engine/ff.mjs
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -157571,6 +158016,7 @@ function makeFF({ gw }) {
 }
 
 // ../skills/ghl-memberships/engine/api.mjs
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -157908,6 +158354,7 @@ async function probeDuration(filePath) {
 }
 
 // ../skills/ghl-memberships/engine/course-builder.mjs
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -157915,6 +158362,7 @@ init_define_TOOL_CATALOG();
 import { isAbsolute, resolve } from "node:path";
 
 // ../skills/ghl-memberships/engine/assessments.mjs
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -158012,6 +158460,7 @@ var Assessments = class {
 };
 
 // ../skills/ghl-memberships/engine/credentials.mjs
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -158168,6 +158617,7 @@ function isoEndOfToday() {
 }
 
 // ../skills/ghl-memberships/engine/members.mjs
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -158793,12 +159243,14 @@ async function buildCourse({
 }
 
 // ../engines/ai/convai-compiler.mjs
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
 
 // ../engines/ai/convai-ir.mjs
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -159280,12 +159732,14 @@ function compileConvaiUpdateFromRecord(current, partialIr, { agentId, locationId
 }
 
 // ../engines/ai/voiceai-compiler.mjs
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
 
 // ../engines/ai/voiceai-ir.mjs
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -159737,12 +160191,14 @@ function compileVoiceAiUpdate(fullIr, { agentId, locationId } = {}) {
 }
 
 // ../engines/ai/studio-compiler.mjs
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
 
 // ../engines/ai/studio-ir.mjs
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -159882,6 +160338,7 @@ function compileSuperAgentCreate({ buildPrompt, name } = {}, { locationId, compa
 }
 
 // ../engines/ai/driver.mjs
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -160115,6 +160572,7 @@ async function executeAgentUpdate({ plan, gw } = {}) {
 }
 
 // core/ai-studio.mjs
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -160571,6 +161029,14 @@ var scoreEndpoint = (e, terms, verbs = intentVerbs(terms)) => {
   return score;
 };
 var FILTER_FIELDS = null;
+var VALIDATOR_BAG;
+var builderValidatorBag = () => {
+  if (VALIDATOR_BAG !== void 0) return VALIDATOR_BAG;
+  const src = validatorSource(() => JSON.parse(readFileSync3(resolve2(HERE, "../catalog/builder-validators.json"), "utf8")));
+  const bag = src ? compileValidators(src) : null;
+  VALIDATOR_BAG = bag && bag.error ? null : bag;
+  return VALIDATOR_BAG;
+};
 var staticFilterFields = () => {
   if (FILTER_FIELDS) return FILTER_FIELDS;
   if (true) {
@@ -162058,6 +162524,29 @@ var TOOLS2 = [
         });
       }
       const errors = checkWorkflow(templates, actionSchema, triggerTypes.length ? { triggerTypes } : {});
+      const bv = (() => {
+        const bag = builderValidatorBag();
+        if (!bag) return { ran: false, why: "the recovered validator bodies are missing from this build or failed their shape check" };
+        const vname = validatorNamesFor(typeCards(), bag);
+        const r = runBuilderValidators(templates, bag, vname);
+        return {
+          ran: true,
+          validated: r.validated,
+          // Findings carry a `message` and are what the builder's panel would show.
+          findings: r.findings,
+          // Entries with `resource` and `value` and NO message are deferred existence lookups
+          // the builder posts to the server — "does this pipeline still exist?". They are
+          // normal, they are numerous, and counting them as problems is the first mistake.
+          resourceLookups: r.lookups.length,
+          resourceLookupKinds: [...new Set(r.lookups.map((l) => l.resource))],
+          uncheckedByType: Object.fromEntries(Object.entries(r.unchecked).map(([t, xs]) => [t, xs.length])),
+          uncheckedSteps: Object.values(r.unchecked).reduce((n, xs) => n + xs.length, 0),
+          crashed: r.crashed,
+          mappedTypes: Object.keys(vname).length,
+          helperFidelity: HELPER_FIDELITY,
+          note: "A validator body exists for 61 step types. 57 more name one in the catalogue whose body was never captured \u2014 mostly TRIGGER validators, which this capture does not cover \u2014 and the rest have none at all. Read uncheckedByType before reading findings: zero findings over few validated steps is not a clean workflow."
+        };
+      })();
       return ok({
         schemaChecked: true,
         ...lintKeys,
@@ -162072,7 +162561,7 @@ var TOOLS2 = [
         // "Resolve 0 Errors" about a workflow whose builder banner said "Resolve 1 Errors" at
         // that same moment. The coverage note below was honest and was read past, because the
         // headline looked like the builder's verdict. It now states what it actually measured.
-        headline: `Resolve ${errors.length} Errors (${templates.filter((t) => actionSchema.has(t.type)).length} of ${templates.length} steps checked)`,
+        headline: bv.ran ? `Resolve ${errors.length} Errors (marketplace schema: ${templates.filter((t) => actionSchema.has(t.type)).length} of ${templates.length} steps) \xB7 GHL validators: ${bv.findings.length} finding(s) over ${bv.validated} of ${templates.length}` : `Resolve ${errors.length} Errors (${templates.filter((t) => actionSchema.has(t.type)).length} of ${templates.length} steps checked)`,
         // Native steps the marketplace catalog does not describe, checked against the ONE thing
         // the type cards state exactly: their inner attributes.type. This is what a card-driven
         // pass over native steps catches, and it is the class the headline missed.
@@ -162095,6 +162584,7 @@ var TOOLS2 = [
         // why actions are out of scope). A separate key, deliberately never folded into
         // errorCount above. Consumes triggerSchema, never actionSchema.
         marketplaceDrift: marketplaceDrift(triggerList, triggerSchema),
+        builderValidators: bv,
         coverage: {
           schemaTypes: actionSchema.size,
           stepsDescribed: templates.filter((t) => actionSchema.has(t.type)).length,
@@ -167198,6 +167688,7 @@ function registerTools(server2, deps, tools = TOOLS2) {
 }
 
 // core/instructions.mjs
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -167259,6 +167750,7 @@ binding, and writes it additively with the user's confirmation. Never rebind wit
 env var not on that command line. Do not retry the refused call until the binding is confirmed.`;
 
 // core/token-renewal.mjs
+init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();

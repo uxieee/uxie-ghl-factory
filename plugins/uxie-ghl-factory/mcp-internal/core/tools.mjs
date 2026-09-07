@@ -27,6 +27,7 @@ import { validateAssets, describeFinding } from '../../skills/create-ghl-workflo
 import { planReadinessChecks, runReadinessChecks } from '../../skills/create-ghl-workflow/engine/preflight.mjs';
 import { parseActionSchema, parseTriggerSchema, checkWorkflow, marketplaceDrift } from '../../skills/create-ghl-workflow/engine/action-schema.mjs';
 import { INNER_ATTRIBUTE_TYPE } from '../../skills/create-ghl-workflow/engine/required-fields.mjs';
+import { HELPER_FIDELITY, compileValidators, runBuilderValidators, validatorNamesFor, validatorSource } from './builder-validators.mjs';
 import {
   applyOps,
   externalRefsOf,
@@ -336,6 +337,18 @@ const scoreEndpoint = (e, terms, verbs = intentVerbs(terms)) => {
 // per-account half is read live. Bundled via a define for the same reason the endpoint catalogue is:
 // dist/ ships with no sibling catalog/.
 let FILTER_FIELDS = null;
+// GHL's own action validators, compiled once per process. The bag is memoised because compiling
+// 67 function bodies on every check_workflow call is pure waste, and because a compile failure
+// should be reported the same way every time rather than re-attempted silently.
+let VALIDATOR_BAG;
+const builderValidatorBag = () => {
+  if (VALIDATOR_BAG !== undefined) return VALIDATOR_BAG;
+  const src = validatorSource(() => JSON.parse(readFileSync(resolve(HERE, '../catalog/builder-validators.json'), 'utf8')));
+  const bag = src ? compileValidators(src) : null;
+  VALIDATOR_BAG = (bag && bag.error) ? null : bag;
+  return VALIDATOR_BAG;
+};
+
 const staticFilterFields = () => {
   if (FILTER_FIELDS) return FILTER_FIELDS;
   if (typeof __HAS_FILTER_FIELDS__ !== 'undefined') { FILTER_FIELDS = __CONTACT_FILTER_FIELDS__; return FILTER_FIELDS; }
@@ -2150,6 +2163,36 @@ export const TOOLS = [
       }
 
       const errors = checkWorkflow(templates, actionSchema, triggerTypes.length ? { triggerTypes } : {});
+      const bv = (() => {
+          // GHL's OWN validators, replayed. This is the closest thing to the builder's error
+          // panel that exists off the screen — and its `unchecked` list is the honest half,
+          // because GHL ships no validator for the types authors use most.
+          const bag = builderValidatorBag();
+          if (!bag) return { ran: false, why: 'the recovered validator bodies are missing from this build or failed their shape check' };
+          const vname = validatorNamesFor(typeCards(), bag);
+          const r = runBuilderValidators(templates, bag, vname);
+          return {
+            ran: true,
+            validated: r.validated,
+            // Findings carry a `message` and are what the builder's panel would show.
+            findings: r.findings,
+            // Entries with `resource` and `value` and NO message are deferred existence lookups
+            // the builder posts to the server — "does this pipeline still exist?". They are
+            // normal, they are numerous, and counting them as problems is the first mistake.
+            resourceLookups: r.lookups.length,
+            resourceLookupKinds: [...new Set(r.lookups.map((l) => l.resource))],
+            uncheckedByType: Object.fromEntries(Object.entries(r.unchecked).map(([t, xs]) => [t, xs.length])),
+            uncheckedSteps: Object.values(r.unchecked).reduce((n, xs) => n + xs.length, 0),
+            crashed: r.crashed,
+            mappedTypes: Object.keys(vname).length,
+            helperFidelity: HELPER_FIDELITY,
+            note: 'A validator body exists for 61 step types. 57 more name one in the catalogue whose body was '
+              + 'never captured — mostly TRIGGER validators, which this capture does not cover — and the rest have '
+              + 'none at all. Read uncheckedByType before reading findings: zero findings over few validated steps '
+              + 'is not a clean workflow.',
+          };
+      })();
+
       return ok({
         schemaChecked: true,
         ...lintKeys,
@@ -2164,7 +2207,9 @@ export const TOOLS = [
         // "Resolve 0 Errors" about a workflow whose builder banner said "Resolve 1 Errors" at
         // that same moment. The coverage note below was honest and was read past, because the
         // headline looked like the builder's verdict. It now states what it actually measured.
-        headline: `Resolve ${errors.length} Errors (${templates.filter((t) => actionSchema.has(t.type)).length} of ${templates.length} steps checked)`,
+        headline: bv.ran
+          ? `Resolve ${errors.length} Errors (marketplace schema: ${templates.filter((t) => actionSchema.has(t.type)).length} of ${templates.length} steps) · GHL validators: ${bv.findings.length} finding(s) over ${bv.validated} of ${templates.length}`
+          : `Resolve ${errors.length} Errors (${templates.filter((t) => actionSchema.has(t.type)).length} of ${templates.length} steps checked)`,
         // Native steps the marketplace catalog does not describe, checked against the ONE thing
         // the type cards state exactly: their inner attributes.type. This is what a card-driven
         // pass over native steps catches, and it is the class the headline missed.
@@ -2190,6 +2235,7 @@ export const TOOLS = [
         // why actions are out of scope). A separate key, deliberately never folded into
         // errorCount above. Consumes triggerSchema, never actionSchema.
         marketplaceDrift: marketplaceDrift(triggerList, triggerSchema),
+        builderValidators: bv,
         coverage: {
           schemaTypes: actionSchema.size,
           stepsDescribed: templates.filter((t) => actionSchema.has(t.type)).length,
