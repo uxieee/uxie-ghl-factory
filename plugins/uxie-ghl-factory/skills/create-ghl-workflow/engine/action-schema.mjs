@@ -163,9 +163,15 @@ export function parseTriggerSchema(assets) {
 // passed in here is excluded by construction, not by an incidental filter that could later
 // be loosened by mistake.
 //
-// Reported SEPARATELY from checkWorkflow's error list, never folded into errorCount: that
-// headline is a live-proven exact reproduction of the builder's own panel, and mixing our
-// own findings into it would destroy the property that makes it trustworthy.
+// Reported SEPARATELY from checkWorkflow's error list, never folded into errorCount, so the
+// count keeps a single well-defined meaning.
+//
+// ⚠️ The headline is NOT an exact reproduction of the builder's panel, and this comment used to
+// claim it was. Disproven 2026-09-07: the builder read "Resolve 1 Errors" on a task step while
+// check_workflow read "Resolve 0 Errors" about the same workflow at the same moment, because
+// native steps the marketplace catalog does not describe are skipped rather than asserted clean.
+// The headline now carries its own coverage, and reasoning from it as though it were the builder's
+// verdict is what the wording invited.
 //
 // Takes the TRIGGER map from `parseTriggerSchema`, not `parseActionSchema` — the two are
 // kept separate on purpose (see parseActionSchema's docstring for why a shared map is

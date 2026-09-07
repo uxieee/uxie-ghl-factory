@@ -10,7 +10,7 @@ import { normalizeSettings } from './settings.mjs';
 import { stripNullNext } from './terminals.mjs';
 import { stepNotesToComments } from './step-notes.mjs';
 import { checkContactFieldShape } from './contact-field-shapes.mjs';
-import { enforceRequiredFields } from './required-fields.mjs';
+import { enforceRequiredFields, INNER_ATTRIBUTE_TYPE } from './required-fields.mjs';
 import { coerceDefault } from './action-schema.mjs';
 import { enforceTemplates } from './enforce.mjs';
 import { checkStepRefs } from './graph-refs.mjs';
@@ -219,9 +219,14 @@ function normalizeAttrs(node, attrs, ctx) {
   if (Array.isArray(meta.attrKeys) && meta.attrKeys.includes('type') && !('type' in out)) {
     // internal_notification's attributes.type is the CHANNEL, not the step type —
     // derive it from whichever channel envelope the author supplied.
+    // Three-way, and the middle case is the one that bit. internal_notification's inner type is
+    // the CHANNEL, not the step type. task-notification's inner type is the same action spelled
+    // with an underscore, and copying the row's hyphen there produces a step that saves, publishes
+    // and round-trips clean while the builder's drawer refuses to bind — see INNER_ATTRIBUTE_TYPE.
+    // Everything else mirrors the row type, which is right for 53 of the 56 captured examples.
     out.type = node.type === 'internal_notification'
       ? (['sms', 'email', 'notification', 'whatsapp'].find((c) => c in out) ?? node.type)
-      : node.type;
+      : (INNER_ATTRIBUTE_TYPE[node.type] ?? node.type);
   }
   checkAttrKeys(node, out, meta);
   return out;

@@ -535,6 +535,33 @@ const nearestSwatch = (hex) => {
   return bestD <= 2 ? best : null;
 };
 
+// ── attributes.type is NOT always the step-row type ────────────────────────────────────────────
+//
+// The compiler stamps `attributes.type` from the step row for every type whose catalog entry lists
+// `type` in attrKeys. That is right for 53 of the 56 types with a captured example, and WRONG for
+// `task-notification`, whose row type is hyphenated and whose inner type is not:
+//
+//     { "type": "task-notification", "attributes": { "type": "task_notification", … } }
+//
+// With the hyphen in both places the step SAVES (200), PUBLISHES clean, and round-trips clean —
+// GHL's own publish validator does not inspect native step attribute shapes. The failure is
+// client-side and misdirected: the builder's task drawer cannot bind its model, falls back to
+// reporting its FIRST required field, and shows "'Due date' is a required field" on a step whose
+// dueDate is present. Nothing points at the field-name mismatch one level up.
+//
+// Live-proven 2026-09-07 on another operator's account: 33 task steps across 23 published
+// workflows, 33 hyphen and 0 underscore — a 100% hit rate, because the engine stamps it, not the
+// author. All 33 corrected live and re-read clean.
+//
+// Only ONE type belongs here. The other two whose captured inner type differs from their row type
+// are DISCRIMINATORS with their own builders, not renames: `internal_notification` carries the
+// channel (`sms`/`email`/`notification`/`whatsapp`) and `wait` carries its subtype (`time` and
+// eight others). `required-fields.test.mjs` derives the divergent set from the captured examples
+// and asserts it is exactly these three, so a fourth cannot appear silently.
+export const INNER_ATTRIBUTE_TYPE = {
+  'task-notification': 'task_notification',
+};
+
 export const COUPLED_FIELDS = {
   add_notes: [{
     when: (a) => typeof a.color === 'string' && /^#[0-9a-fA-F]{6}$/.test(a.color)

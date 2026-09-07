@@ -10,7 +10,7 @@ import assert from 'node:assert/strict';
 import { compile } from './compiler.mjs';
 import { loadCatalog } from './catalog.mjs';
 import { makeSeededIdGen } from './idgen.mjs';
-import { CATALOG_CORRECTIONS, TRIGGER_CORRECTIONS, REQUIRED_FIELDS, enforceRequiredFields, requiredKeysFor, isSupplied } from './required-fields.mjs';
+import { CATALOG_CORRECTIONS, TRIGGER_CORRECTIONS, REQUIRED_FIELDS, INNER_ATTRIBUTE_TYPE, enforceRequiredFields, requiredKeysFor, isSupplied } from './required-fields.mjs';
 import { readFileSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -824,4 +824,59 @@ test('the catalog\'s declared requiredFields contradicts its own captures, so it
   assert.ok(violates.includes('custom_webhook'), 'custom_webhook declares both body.rawData and body.keyValueData');
   assert.ok(violates.includes('goto'), 'goto declares placement, which the engine has never emitted');
   assert.ok(noCapture > 200, 'most declaring types still have no capture to veto them');
+});
+
+// ─────────────────────────────────────────────────────────────────────────────────────────
+// attributes.type is not always the step-row type.
+//
+// The compiler stamped it from the row for every type, so `task-notification` got the hyphen in
+// both places. That step saves 200, publishes clean and round-trips clean — GHL's publish
+// validator does not inspect native step attribute shapes — and then the builder's task drawer
+// cannot bind its model and reports its FIRST required field as missing. The operator sees
+// "'Due date' is a required field" on a step whose dueDate is set, with nothing pointing at the
+// real fault. 33 instances across 23 published workflows on one live account, engine-stamped.
+// ─────────────────────────────────────────────────────────────────────────────────────────
+test('task-notification gets the UNDERSCORE inner type, not the row\'s hyphen', () => {
+  const a = attrsOf({
+    type: 'task-notification',
+    name: 'Call about the launch date',
+    attributes: { title: 'Call', body: 'ring them', dueDate: 1, assignedTo: 'USER1' },
+  });
+  assert.equal(a.type, 'task_notification',
+    'the hyphen form saves and publishes clean and then fails the builder drawer with a message about Due date');
+});
+
+test('an author who sets attributes.type explicitly is still not overridden', () => {
+  const a = attrsOf({
+    type: 'task-notification',
+    name: 'T',
+    attributes: { type: 'task_notification', title: 'Call', body: 'b', dueDate: 1, assignedTo: 'USER1' },
+  });
+  assert.equal(a.type, 'task_notification');
+});
+
+test('the set of types whose inner type diverges is EXACTLY the three known ones', () => {
+  // Derived from the captured examples rather than asserted from memory: a capture is a step that
+  // demonstrably runs in GHL, so its attributes.type is the truth. If a fourth type ever diverges,
+  // this fails and names it — which is the only reason the task bug is not still shipping.
+  const steps = JSON.parse(readFileSync(new URL('./catalog.data.json', import.meta.url), 'utf8')).steps;
+  const divergent = {};
+  for (const [type, meta] of Object.entries(steps)) {
+    if (typeof meta.example !== 'string') continue;
+    let attrs;
+    try { attrs = JSON.parse(readFileSync(resolve(SKILL, meta.example), 'utf8')).attributes; } catch { continue; }
+    if (attrs && typeof attrs === 'object' && 'type' in attrs && attrs.type !== type) divergent[type] = attrs.type;
+  }
+  assert.deepEqual(divergent, {
+    // a DISCRIMINATOR — the channel, handled by its own branch in normalizeAttrs
+    internal_notification: 'sms',
+    // a RENAME — the one this map exists for
+    'task-notification': 'task_notification',
+    // a DISCRIMINATOR — the wait subtype, built by the dedicated wait builder
+    wait: 'time',
+  }, 'a type\'s inner attributes.type diverged from its row type; decide whether it is a RENAME '
+   + '(add it to INNER_ATTRIBUTE_TYPE) or a DISCRIMINATOR (it needs its own branch), then update this list');
+
+  assert.deepEqual(Object.keys(INNER_ATTRIBUTE_TYPE), ['task-notification'],
+    'INNER_ATTRIBUTE_TYPE must carry the RENAMES only — discriminators are not renames');
 });

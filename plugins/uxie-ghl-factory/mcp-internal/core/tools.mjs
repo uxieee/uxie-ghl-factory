@@ -26,6 +26,7 @@ import { checkGraphContextRules } from '../../skills/create-ghl-workflow/engine/
 import { validateAssets, describeFinding } from '../../skills/create-ghl-workflow/engine/asset-preflight.mjs';
 import { planReadinessChecks, runReadinessChecks } from '../../skills/create-ghl-workflow/engine/preflight.mjs';
 import { parseActionSchema, parseTriggerSchema, checkWorkflow, marketplaceDrift } from '../../skills/create-ghl-workflow/engine/action-schema.mjs';
+import { INNER_ATTRIBUTE_TYPE } from '../../skills/create-ghl-workflow/engine/required-fields.mjs';
 import {
   applyOps,
   externalRefsOf,
@@ -2158,7 +2159,33 @@ export const TOOLS = [
         steps: templates.length,
         errorCount: errors.length,
         errors,
-        headline: `Resolve ${errors.length} Errors`,
+        // The scope is IN the headline on purpose. It used to read exactly "Resolve N Errors",
+        // reproducing the builder's own banner word for word — and on 2026-09-07 it said
+        // "Resolve 0 Errors" about a workflow whose builder banner said "Resolve 1 Errors" at
+        // that same moment. The coverage note below was honest and was read past, because the
+        // headline looked like the builder's verdict. It now states what it actually measured.
+        headline: `Resolve ${errors.length} Errors (${templates.filter((t) => actionSchema.has(t.type)).length} of ${templates.length} steps checked)`,
+        // Native steps the marketplace catalog does not describe, checked against the ONE thing
+        // the type cards state exactly: their inner attributes.type. This is what a card-driven
+        // pass over native steps catches, and it is the class the headline missed.
+        nativeShapeIssues: templates.flatMap((t) => {
+          const want = INNER_ATTRIBUTE_TYPE[t.type];
+          if (!want) return [];
+          const got = t.attributes?.type;
+          if (got === want) return [];
+          return [{
+            stepId: t.id ?? null,
+            name: t.name ?? null,
+            type: t.type,
+            field: 'attributes.type',
+            expected: want,
+            found: got ?? null,
+            why: 'The step saves, publishes and round-trips clean with the wrong token — GHL\'s publish '
+              + 'validator does not inspect native step attribute shapes. The builder\'s drawer then '
+              + 'cannot bind its model and reports its FIRST required field as missing, so the operator '
+              + 'sees a complaint about a field that is present.',
+          }];
+        }),
         // Marketplace TRIGGER-only version/templateId drift (see the tool description for
         // why actions are out of scope). A separate key, deliberately never folded into
         // errorCount above. Consumes triggerSchema, never actionSchema.
