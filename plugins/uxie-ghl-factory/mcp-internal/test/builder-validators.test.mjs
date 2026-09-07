@@ -147,3 +147,25 @@ test('the parse of the card\'s Validator line takes the first backticked identif
   assert.deepEqual(vname, { a: 'fooValidator', b: 'barValidator' },
     'none/null are skipped, a name with no body is skipped, and the SUMMARY path in the prose is not mistaken for the name');
 });
+
+test('TRAP 3: the wait model merges the ROW name into attributes, so the harness must too', () => {
+  // waitValidator reads attributes.name for its length check. The stored document keeps the display
+  // name on the step row, so replaying against the document as-is short-circuits and the rule never
+  // fires — which reads as coverage that is not there. The builder does merge it:
+  // models/conditions/Wait.ts constructs with `attributes.name || name` and serialises
+  // `this.attributes.name = this.name`.
+  const seen = [];
+  const spy = { waitValidator: (a) => { seen.push(a); return []; }, otherValidator: (a) => { seen.push(a); return []; } };
+  runBuilderValidators([
+    { id: 'w1', type: 'wait', name: 'Wait: 2 days', attributes: { type: 'time' } },
+    { id: 'w2', type: 'wait', name: 'row name', attributes: { type: 'time', name: 'attribute name wins' } },
+    { id: 'o1', type: 'quick-replies', name: 'Messenger', attributes: {} },
+  ], spy, { wait: 'waitValidator', 'quick-replies': 'otherValidator' });
+
+  assert.equal(seen[0].attributes.name, 'Wait: 2 days', 'the row name is merged in for a wait');
+  assert.equal(seen[1].attributes.name, 'attribute name wins', 'an existing attributes.name is never overwritten');
+  // Only the wait model merges the ROW name. InteractiveMessenger and the custom-object actions set
+  // a DERIVED label into attributes.name, so copying the row name onto them would feed the
+  // validator something the builder never produces.
+  assert.equal(seen[2].attributes.name, undefined, 'no other type gets the row name injected');
+});

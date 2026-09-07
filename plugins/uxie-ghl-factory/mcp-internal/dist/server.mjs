@@ -156217,6 +156217,12 @@ function validatorNamesFor(cards, bag) {
   }
   return out;
 }
+function canvasAttributes(step) {
+  if (step?.type !== "wait") return {};
+  const attrs = step.attributes ?? {};
+  if (attrs.name != null || step.name == null) return {};
+  return { attributes: { ...attrs, name: step.name } };
+}
 function runBuilderValidators(templates, bag, vname) {
   const findings = [];
   const lookups = [];
@@ -156230,7 +156236,7 @@ function runBuilderValidators(templates, bag, vname) {
       continue;
     }
     validated += 1;
-    const arg = { ...s, templates, parentNode: { next: s.next } };
+    const arg = { ...s, templates, parentNode: { next: s.next }, ...canvasAttributes(s) };
     let out;
     try {
       out = bag[vn](arg);

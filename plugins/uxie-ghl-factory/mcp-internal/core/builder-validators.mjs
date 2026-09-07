@@ -133,6 +133,28 @@ export function validatorNamesFor(cards, bag) {
  * builder posts to the server — "does this pipeline / email template / custom field still exist?".
  * Conflating them produced 178 phantom problems on a 51-workflow account. Split on `message`.
  */
+/**
+ * 🔴 TRAP 3: a validator can read a field the STORED document keeps somewhere else.
+ *
+ * `waitValidator` checks `attributes.name` for length. In a stored workflow document the display
+ * name lives on the STEP ROW as `name`, and `attributes.name` is absent — so replaying the
+ * validator against the document as-is short-circuits and that rule never fires. It is not dead in
+ * the product: the builder loads a wait through `models/conditions/Wait.ts`, whose constructor
+ * reads `attributes.name || name` and whose serialiser writes `this.attributes.name = this.name`
+ * back. By the time the validator runs on the canvas, the row name IS in attributes.
+ *
+ * So the harness has to reproduce that merge or it under-tests. `wait` is the ONLY type that does
+ * it with the row name: the other models that touch `attributes.name`
+ * (`InteractiveMessenger`, the custom-object actions) set a DERIVED label instead, so copying the
+ * row name onto them would feed the validators something the builder never sees.
+ */
+function canvasAttributes(step) {
+  if (step?.type !== 'wait') return {};
+  const attrs = step.attributes ?? {};
+  if (attrs.name != null || step.name == null) return {};
+  return { attributes: { ...attrs, name: step.name } };
+}
+
 export function runBuilderValidators(templates, bag, vname) {
   const findings = []; const lookups = []; const unchecked = {}; const crashed = [];
   let validated = 0;
@@ -140,7 +162,7 @@ export function runBuilderValidators(templates, bag, vname) {
     const vn = vname?.[s.type];
     if (!vn) { (unchecked[s.type] ??= []).push(s.name ?? s.id ?? null); continue; }
     validated += 1;
-    const arg = { ...s, templates, parentNode: { next: s.next } };
+    const arg = { ...s, templates, parentNode: { next: s.next }, ...canvasAttributes(s) };
     let out;
     try { out = bag[vn](arg); }
     catch (e) { crashed.push({ step: s.name ?? s.id ?? null, type: s.type, validator: vn, error: String(e?.message ?? e).slice(0, 160) }); continue; }
