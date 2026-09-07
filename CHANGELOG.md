@@ -11,6 +11,46 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [0.62.0] — 2026-09-07
+
+A compiler bug that shipped 33 broken steps to one account, and the check that should have caught it.
+
+### Fixed
+
+- 🔴 **`task-notification` was built with the wrong inner type.** The compiler stamped
+  `attributes.type` from the step row for every type, so the hyphenated row type landed inside
+  `attributes` where GHL wants the **underscore** form. Such a step saves `200`, publishes clean and
+  round-trips clean — GHL's publish validator does not inspect native step attribute shapes — and
+  then the builder's task drawer cannot bind its model, falls back to its FIRST required field, and
+  reports **"'Due date' is a required field"** on a step whose `dueDate` is set. Reported with 33
+  live instances across 23 published workflows on one account, 33 hyphen and 0 underscore, because
+  the engine stamped it rather than the author.
+  Scope measured, not assumed: of the 56 types with a captured example carrying `attributes.type`,
+  three diverge from their row type. Two are discriminators with their own builders
+  (`internal_notification` carries the channel, `wait` the subtype); `task-notification` is the only
+  rename. A test derives that set from the captures and fails naming any fourth.
+- **`check_workflow`'s headline no longer impersonates the builder.** It read exactly
+  `"Resolve N Errors"` — the builder's banner, word for word — while measuring only
+  marketplace-described steps, and said `"Resolve 0 Errors"` about the very workflow whose builder
+  banner read `"Resolve 1 Errors"`. The coverage note was honest and got read past, because the
+  headline looked like a verdict. It now states its own scope:
+  `"Resolve 0 Errors (1 of 17 steps checked)"`. A comment claiming the headline was a live-proven
+  exact reproduction of the builder's panel is deleted, being disproven.
+
+### Added
+
+- **`check_workflow.nativeShapeIssues`** — a card-driven pass over the native steps the marketplace
+  catalog does not describe, catching this class in workflows already built. Reported separately
+  from `errorCount`, like `marketplaceDrift`, so the count keeps one meaning.
+- **The opportunities surface, mapped.** The remote ships no source maps, so the request builders
+  were mined from its 52 minified chunks and then executed: four forecast reports (all `POST`, all
+  answering `201` for a read) with their enums recovered by probing, and the `smart-filters`
+  collection — one route serving both saved views and smart tags, scoped **per pipeline**, with
+  machine-readable error codes. 5 catalogue rows on that surface became 18.
+- 🔴 **A `404` on the `/opportunities/` prefix is never evidence a route is absent.** The service
+  reads any unmatched segment as an opportunity id and answers `OPPORTUNITY_NOT_FOUND` — the same
+  trap as `/knowledge-base/`, now recorded on both.
+
 ## [0.61.0] — 2026-09-07
 
 Typed tools for snapshots, four uncatalogued routes drained, and a test gate that was missing 962 tests.
