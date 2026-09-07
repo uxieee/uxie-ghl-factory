@@ -84,6 +84,15 @@ A post carries rich-HTML `description` (the body) + ONE primary media + N `post_
 6. **Theme needs TWO calls**: PUT the theme, then PUT `products/apply-theme` — saving alone does nothing.
 7. **`user-purchase/no-of-users` lies about enrollment** — it counts purchases, returns 0 for an
    admin-attached member. Verify with `products/user-progress`.
+7b. **The grant's own 200 lies too, and it is the worse of the two.**
+   `POST /membership/smart-list/attach-offer-user` answers
+   `200 {ok:true, msg:"…successfully queued"}` for an **empty body**, for fabricated ids, and for
+   the wrong key names — proven on the test sub-account, with a nonexistent sibling path answering
+   404 as the control. Two operators have been told a grant was queued and granted nothing. The
+   body is `{contactId, offerId, source:'admin'}` — **singular `contactId`, no `locationId`** (that
+   rides on the `sourceid` header). Then read back: `members.waitForEnrollment(productId,
+   {expectContactIds})`, which looks for **those contacts**. A non-empty check is not a check —
+   it passes on a member who was already there.
 8. **Deletes don't cascade to offers, credential templates, or assessment submissions.**
    Submissions have no delete route at all.
 9. **assets-drm wants a LEADING SLASH** on the `path` that `signed-url/upload` returns without.

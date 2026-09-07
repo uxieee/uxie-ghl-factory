@@ -13525,7 +13525,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          reach: "proven",
+          summary: "Grants a published offer to a contact, which is what puts them in the course. Body is `{contactId, offerId, source:'admin'}` -- SINGULAR contactId, and no locationId (the location comes from the sourceid header the gateway already sends). Async: the response is an enqueue ack.",
+          note: 'Its 200 CARRIES NO INFORMATION ABOUT THE PAYLOAD. Live-proven on the test sub-account 2026-09-07: an empty body `{}`, fabricated ids, and the wrong key names each return the identical `200 {ok:true, msg:"The request to attach the offer to the user has been successfully queued"}` a real grant returns. The control that makes that a measurement: a nonexistent sibling path answers `404 {"msg":"Not found"}`, so the 200 is this route replying and not a catch-all. Two operators have now sent `{locationId, offerId, contactIds:[...]}` or `userIds:[...]`, been told it was queued, and granted nothing. The ONLY proof a grant landed is `GET services.../membership/locations/{loc}/products/user-progress/{productId}` containing the contactId you granted -- and check for THAT contact, not for a non-empty list, which passes on a pre-existing member. Revoke is a different path: DELETE /membership/smart-list/user-offer-management with a body.',
+          reach: "proven-live",
           coveredBy: [
             "build_course"
           ],
@@ -49288,6 +49290,12 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         "GET /surveys/{id}": {
           reach: "proven",
           note: "Live-proven 2026-09-06: {survey:{\u2026, formData:{form, slides[]}}}. Survey save is POST /surveys/{id} {name, formData} (source-derived from the builder SPA; not executed)."
+        },
+        "POST /membership/smart-list/attach-offer-user": {
+          kind: "write",
+          summary: "Grants a published offer to a contact, which is what puts them in the course. Body is `{contactId, offerId, source:'admin'}` -- SINGULAR contactId, and no locationId (the location comes from the sourceid header the gateway already sends). Async: the response is an enqueue ack.",
+          note: 'Its 200 CARRIES NO INFORMATION ABOUT THE PAYLOAD. Live-proven on the test sub-account 2026-09-07: an empty body `{}`, fabricated ids, and the wrong key names each return the identical `200 {ok:true, msg:"The request to attach the offer to the user has been successfully queued"}` a real grant returns. The control that makes that a measurement: a nonexistent sibling path answers `404 {"msg":"Not found"}`, so the 200 is this route replying and not a catch-all. Two operators have now sent `{locationId, offerId, contactIds:[...]}` or `userIds:[...]`, been told it was queued, and granted nothing. The ONLY proof a grant landed is `GET services.../membership/locations/{loc}/products/user-progress/{productId}` containing the contactId you granted -- and check for THAT contact, not for a non-empty list, which passes on a pre-existing member. Revoke is a different path: DELETE /membership/smart-list/user-offer-management with a body.',
+          reach: "proven-live"
         }
       }
     };
@@ -158687,6 +158695,22 @@ var Members = class {
   /**
    * THE enrollment call. Note: no locationId in the path — it comes from the
    * sourceid header. ASYNC ("successfully queued") — poll productProgress().
+   *
+   * 🔴 ITS 200 CARRIES NO INFORMATION ABOUT THE PAYLOAD. Live-proven on the test sub-account
+   * 2026-09-07: an EMPTY body `{}`, fabricated ids, and the wrong key names all return
+   * `200 {ok:true, msg:"The request to attach the offer to the user has been successfully
+   * queued"}` — the identical response a real grant returns. The control that makes that a
+   * measurement rather than a guess: a nonexistent sibling path answers `404 {"msg":"Not found"}`,
+   * so the 200 is this route replying, not a catch-all. Nothing is validated at the edge; the
+   * message means the request was enqueued, not that a grant resolved.
+   *
+   * The key names are singular and are NOT `locationId`/`contactIds`: another operator sent
+   * `{locationId, offerId, contactIds:[…]}` and `{locationId, offerId, userIds:[…]}`, got the
+   * same cheerful 200 twice, and nothing was granted. Undeclared keys fall through and the
+   * declared ones simply arrive absent.
+   *
+   * So NEVER treat this response as proof. `waitForEnrollment` with the contact ids you granted
+   * is the only thing that knows.
    */
   grantOffer({ contactId, offerId }) {
     return this.req(
@@ -158737,15 +158761,33 @@ var Members = class {
   purchaseCount(productId) {
     return this.req("GET", `${SERVICES2}/membership/locations/${this.loc}/user-purchase/no-of-users/${productId}?email=`);
   }
-  /** Poll until the async grant lands (or throw). */
-  async waitForEnrollment(productId, { timeoutMs = 2e4, intervalMs = 2e3 } = {}) {
+  /**
+   * Poll until the async grant lands (or throw). This is the ONLY proof a grant worked —
+   * `grantOffer` answers 200 "queued" for an empty body, so its response proves nothing.
+   *
+   * 🔴 PASS `expectContactIds`. Waiting for the list to be merely NON-EMPTY discriminates
+   * nothing: a product that already has members satisfies it on the pre-existing rows, and
+   * granting three contacts satisfies it the moment ONE lands. Both report a confirmed
+   * enrollment that was never checked. With the ids, the wait resolves only when every one of
+   * them is present — which is the question the caller is actually asking.
+   *
+   * Progress rows carry BOTH keys (`userId` is the memberships user, `contactId` the CRM
+   * contact), so a contact id granted is a contact id matchable here. Without the argument the
+   * old non-empty behaviour is kept, because a caller with no ids to hand has nothing better —
+   * but it is the weaker check and everything in this repo passes the ids.
+   */
+  async waitForEnrollment(productId, { timeoutMs = 2e4, intervalMs = 2e3, expectContactIds = null } = {}) {
+    const want = Array.isArray(expectContactIds) ? [...new Set(expectContactIds.map(String))] : null;
     const deadline = Date.now() + timeoutMs;
+    let rows = [];
     while (Date.now() < deadline) {
-      const rows = await this.productProgress(productId);
-      if (Array.isArray(rows) && rows.length > 0) return rows;
+      rows = await this.productProgress(productId);
+      if (!Array.isArray(rows)) rows = [];
+      if (want ? want.every((id) => rows.some((r) => String(r?.contactId) === id)) : rows.length > 0) return rows;
       await new Promise((r) => setTimeout(r, intervalMs));
     }
-    throw new Error(`enrollment did not appear for product ${productId} within ${timeoutMs}ms`);
+    const missing = want ? want.filter((id) => !rows.some((r) => String(r?.contactId) === id)) : [];
+    throw new Error(want ? `enrollment did not appear for product ${productId} within ${timeoutMs}ms \u2014 ${missing.length} of ${want.length} contact(s) still absent from user-progress: ${missing.join(", ")}` : `enrollment did not appear for product ${productId} within ${timeoutMs}ms`);
   }
 };
 
@@ -159181,22 +159223,27 @@ async function buildCourse({
       log(`+ credential auto-issue attached (event: product_complete) \u2014 ${count} attachment(s)`);
     }
     if (spec.enroll?.length && built.offerId) {
-      built.enrolled = [];
+      built.granted = [];
       for (const contactId of spec.enroll) {
         phase("offer_grant");
         await members.grantOffer({ contactId, offerId: built.offerId });
-        built.enrolled.push(contactId);
-        log(`+ granted access to contact ${contactId}`);
+        built.granted.push(contactId);
+        log(`+ grant queued for contact ${contactId} (accepted \u2014 not yet proof)`);
       }
       phase("enrollment_read", false);
+      let rows = [];
       try {
-        const rows = await members.waitForEnrollment(product.id, { timeoutMs: 25e3 });
-        built.enrollmentConfirmed = rows.length;
-        log(`  enrollment confirmed: ${rows.length} member(s) in user-progress`);
-      } catch {
-        built.enrollmentConfirmed = null;
-        log("  enrollment not visible yet (grant is async \u2014 re-check user-progress)");
+        rows = await members.waitForEnrollment(product.id, { timeoutMs: 25e3, expectContactIds: built.granted });
+      } catch (e) {
+        rows = await members.productProgress(product.id).catch(() => []);
+        if (!Array.isArray(rows)) rows = [];
+        log(`  \u26A0 ${e.message}`);
       }
+      const present2 = new Set(rows.map((r) => String(r?.contactId)));
+      built.enrolled = built.granted.filter((id) => present2.has(String(id)));
+      built.enrollmentUnconfirmed = built.granted.filter((id) => !present2.has(String(id)));
+      built.enrollmentConfirmed = built.enrolled.length;
+      log(built.enrollmentUnconfirmed.length === 0 ? `  enrollment confirmed: ${built.enrolled.length} of ${built.granted.length} contact(s) present in user-progress` : `  enrollment CONFIRMED for ${built.enrolled.length} of ${built.granted.length}; still absent: ${built.enrollmentUnconfirmed.join(", ")} \u2014 the grant returns 200 whether or not it lands, so re-check user-progress rather than trusting it`);
     }
     for (const chapter of built.chapters) {
       for (const lesson of chapter.lessons) {

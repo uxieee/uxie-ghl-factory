@@ -11,6 +11,45 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [0.64.0] — 2026-09-07
+
+An endpoint that says "successfully queued" for an empty body, and the read-back that was not checking anything.
+
+### Fixed
+
+- **The course grant's 200 is not evidence, and nothing said so.**
+  `POST /membership/smart-list/attach-offer-user` — the call that puts a member in a course — answers
+  `200 {ok:true, msg:"The request to attach the offer to the user has been successfully queued"}` for an
+  **empty body**, for fabricated ids, and for the wrong key names. Proven on the designated test
+  sub-account, with the control that makes it a measurement rather than an impression: a nonexistent
+  sibling path answers `404 {"msg":"Not found"}`, so the uniform 200 is that route replying and not a
+  catch-all swallowing the prefix. Nothing is validated at the edge. Two operators have now been told a
+  grant was queued and granted nothing — the body is `{contactId, offerId, source:'admin'}`, **singular
+  `contactId`, no `locationId`** (that rides on the `sourceid` header), and an undeclared plural key
+  falls through while the declared one arrives absent.
+- **`waitForEnrollment` returned on ANY non-empty page, which discriminates nothing.** A product that
+  already has members satisfied it on somebody else's row, and granting three contacts satisfied it the
+  moment one landed — both reported a confirmed enrollment nobody had checked. It now takes
+  `expectContactIds` and resolves only when every one of them is present, naming the ones still absent
+  when it gives up. Progress rows carry `contactId`, so the contacts granted are the contacts matchable.
+- **`build_course` reported every accepted grant as an enrollment.** Its result now separates `granted`
+  (what was sent, which the 200 does not vouch for) from `enrolled` (what the read-back actually found),
+  and names the difference in `enrollmentUnconfirmed` instead of leaving a caller to infer it from a
+  null count.
+- **The conformance run asserted a row COUNT where it meant a specific member.** It now asserts that
+  *this* contact appears, and re-checks the empty-body ack as a trap so the rule stays true rather than
+  merely written down.
+
+### Changed
+
+- **An overlay row aimed at a typed-tool endpoint now reaches it.** The eight rows adopted from the
+  capability manifest — the strongest evidence in the catalogue, since a shipped tool calls each of them
+  on every run — were the only rows the hand-maintained overlay could not annotate. A key aimed at one
+  orphaned instead, which is how `attach-offer-user` shipped with `body: unresolved` and no trap note
+  while the corpus had carried its proven body for months. Adopted rows now take `kind`, `summary`,
+  `note` and `reach` from the overlay like every other row, and an orphan warning means what it says
+  again. `describe_endpoint` for that path now states the exact body and what its 200 does not mean.
+
 ## [0.63.1] — 2026-09-07
 
 The wait-name rule was never firing, because the harness did not reproduce the canvas merge.

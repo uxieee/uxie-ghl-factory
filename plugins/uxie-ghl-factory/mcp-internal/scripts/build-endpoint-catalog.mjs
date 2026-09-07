@@ -169,6 +169,13 @@ for (const [key, tools] of coverage) {
   const row = manifest.find((r) => `${r.method} ${normalize(r.path)}` === key);
   const raw = String(row?.path ?? path);
   const wire = raw.replace(/\{loc\}/g, '{locationId}').replace(/\{wid\}/g, '{workflowId}').split('?')[0];
+  // The overlay applies here too, and until 0.64.0 it did not. These rows are the ones a shipped
+  // tool calls on every run, so they are exactly where a curated trap note is worth most — and
+  // they were the only rows that could not carry one. An overlay key aimed at an adopted row
+  // orphaned instead, which trains a reader to ignore the orphan warning that is supposed to be
+  // the loud one. Same precedence as everywhere else: a human who probed the endpoint wins.
+  const extra = overlay[`${method} ${wire}`] ?? {};
+  seen.delete(`${method} ${wire}`);
   adopted.push({
     id: `typed--${[...tools][0]}--${wire.split('/').filter((x) => x && !x.startsWith('{')).slice(-2).join('-') || 'call'}`,
     method,
@@ -176,8 +183,10 @@ for (const [key, tools] of coverage) {
     path: wire,
     origin: 'https://backend.leadconnectorhq.com',
     rail: 'workflow',
-    kind: method === 'GET' ? 'read' : method === 'DELETE' ? 'destructive' : 'write',
-    reach: 'proven',
+    kind: extra.kind ?? (method === 'GET' ? 'read' : method === 'DELETE' ? 'destructive' : 'write'),
+    ...(extra.summary ? { summary: extra.summary } : {}),
+    ...(extra.note ? { note: extra.note } : {}),
+    reach: extra.reach ?? 'proven',
     coveredBy: [...tools].sort(),
     rawCallable: method !== 'SSE',
     transport: method === 'SSE' ? 'sse' : 'json',

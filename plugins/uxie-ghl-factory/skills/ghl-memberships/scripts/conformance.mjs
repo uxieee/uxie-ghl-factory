@@ -143,10 +143,25 @@ async function main() {
     created.contactId = contact.contact.id;
     assert('contact created', !!created.contactId, created.contactId);
 
+    // The grant's own 200 is worthless — it says "successfully queued" for an empty body too.
+    // Assert on THIS contact appearing, not on the row count: a count check passes on somebody
+    // else's row, which is how a broken grant reads as a working one.
     await members.grantOffer({ contactId: created.contactId, offerId: offer.id });
     let enrolled = [];
-    try { enrolled = await members.waitForEnrollment(product.id, { timeoutMs: 25000 }); } catch (e) { /* asserted below */ }
-    assert('GRANT: member appears in user-progress', enrolled.length === 1, `${enrolled.length} row(s)`);
+    try {
+      enrolled = await members.waitForEnrollment(product.id, { timeoutMs: 25000, expectContactIds: [created.contactId] });
+    } catch (e) { /* asserted below */ }
+    assert('GRANT: THIS contact appears in user-progress',
+      enrolled.some(r => String(r?.contactId) === String(created.contactId)),
+      `${enrolled.length} row(s), contactIds=[${enrolled.map(r => r?.contactId).join(', ')}]`);
+
+    // The response is the same for a request that cannot possibly grant anything. Proving that
+    // here keeps the "never trust the 200" rule in members.grantOffer true rather than merely
+    // written down. No ids are real, so nothing is created; the sibling-path 404 that shows the
+    // 200 is this route replying is recorded in the corpus, not re-run against the account.
+    const emptyAck = await members.req('POST', 'https://backend.leadconnectorhq.com/membership/smart-list/attach-offer-user', {});
+    assert('trap holds: attach-offer-user acks an EMPTY body with the same 200',
+      emptyAck && emptyAck.ok === true && /successfully queued/i.test(emptyAck.msg || ''), JSON.stringify(emptyAck));
 
     await members.revokeOffer({ contactId: created.contactId, offerId: offer.id });
     await sleep(3000);
