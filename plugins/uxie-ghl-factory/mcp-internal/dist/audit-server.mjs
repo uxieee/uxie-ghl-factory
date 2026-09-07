@@ -162094,7 +162094,20 @@ var TOOLS2 = [
           schemaTypes: actionSchema.size,
           stepsDescribed: templates.filter((t) => actionSchema.has(t.type)).length,
           stepsNotDescribed: templates.filter((t) => !actionSchema.has(t.type)).length,
-          note: "Steps not described by the marketplace catalog (core native actions) are SKIPPED, not asserted clean. A zero errorCount is not proof the workflow is publishable."
+          note: "Steps not described by the marketplace catalog (core native actions) are SKIPPED, not asserted clean. A zero errorCount is not proof the workflow is publishable.",
+          // The deeper reason a clean check proves little, and it is GHL's hole rather than ours.
+          // Of 385 step types, only 51 carry a validator GHL actually enforces. 18 more have rules
+          // that never fire, and 316 have none at all — including the types authors use most:
+          // if_else, task-notification, goto, transition, find_opportunity,
+          // internal_update_opportunity, workflow_ai_decision_maker. Independently measured on our
+          // mined rule set 2026-09-07 and corroborated by another operator replaying GHL's own 67
+          // validator bodies over 853 live steps: 528 validated, 325 had no validator to run.
+          // So "Check Errors" showing zero in the BUILDER is not evidence either. task-notification
+          // has no GHL validator at all — the "Due date is a required field" message that exposed
+          // the inner-type bug comes from the drawer's Vue form, which runs only when a human opens
+          // the step. nativeShapeIssues below exists precisely because that gap is not ours to close
+          // by reproducing GHL more faithfully.
+          nativeValidatorGap: "GHL enforces a validator on 51 of 385 step types. if_else and task-notification have none, so neither this tool nor the builder's own Check Errors will fault them however they are shaped. Read nativeShapeIssues, and for anything else on those types, open the step in the builder \u2014 the drawer form is the only oracle."
         }
       });
     })
