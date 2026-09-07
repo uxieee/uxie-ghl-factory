@@ -1,5 +1,5 @@
 {
-  "generated": "2026-09-06",
+  "generated": "2026-09-07",
   "trees": [
     {
       "tree": "workflow-builder",
@@ -20,16 +20,16 @@
     {
       "tree": "documented",
       "dir": "corpus",
-      "capturedAt": "2026-09-06T23:34:52.667Z",
+      "capturedAt": "2026-09-07T09:55:53.666Z",
       "hash": "corpus",
-      "fileCount": 679,
-      "endpoints": 679
+      "fileCount": 705,
+      "endpoints": 705
     }
   ],
   "note": "SOURCE-DERIVED ONLY, merged from every mined front-end. `tree` on each row says which app calls it. The plugin owns kind/note/summary/reach/coveredBy and merges them at read time. A row proves a GHL front-end calls that path — not that your token reaches it, and not that calling it is safe.",
-  "discoveredCallSites": 1139,
+  "discoveredCallSites": 1165,
   "skippedCallSites": 274,
-  "count": 1065,
+  "count": 1091,
   "endpoints": [
     {
       "id": "workflows--actions-branches",
@@ -33795,6 +33795,710 @@
       ]
     },
     {
+      "id": "pipelines-opportunities--forecast-column",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/opportunities/forecast/column",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "pipelines-opportunities",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "pipelines-opportunities/20-api/forecast.md:39"
+      ]
+    },
+    {
+      "id": "pipelines-opportunities--forecast-drilldown",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/opportunities/forecast/drilldown",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "pipelines-opportunities",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "pipelines-opportunities/20-api/forecast.md:41"
+      ]
+    },
+    {
+      "id": "pipelines-opportunities--forecast-slippage",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/opportunities/forecast/slippage",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "pipelines-opportunities",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "pipelines-opportunities/20-api/forecast.md:42"
+      ]
+    },
+    {
+      "id": "pipelines-opportunities--forecast-summary",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/opportunities/forecast/summary",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "pipelines-opportunities",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "pipelines-opportunities/20-api/forecast.md:40"
+      ]
+    },
+    {
+      "id": "pipelines-opportunities--opportunities-lost-reason",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/opportunities/lost-reason",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "pipelines-opportunities",
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "pipelines-opportunities/20-api/forecast.md:109"
+      ]
+    },
+    {
+      "id": "pipelines-opportunities--opportunities-lost-reason-post",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/opportunities/lost-reason",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "pipelines-opportunities",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "pipelines-opportunities/20-api/forecast.md:97"
+      ]
+    },
+    {
+      "id": "pipelines-opportunities--opportunities-lost-reason-get",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/opportunities/lost-reason/{lostReasonId}",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "pipelines-opportunities",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "pipelines-opportunities/20-api/forecast.md:110"
+      ]
+    },
+    {
+      "id": "pipelines-opportunities--opportunities-pipelines-get",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/opportunities/pipelines",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "pipelines-opportunities",
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "pipelines-opportunities/20-api/forecast.md:107",
+        "pipelines-opportunities/20-api/smart-filters.md:76"
+      ]
+    },
+    {
+      "id": "pipelines-opportunities--opportunities-pipelines-post",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/opportunities/pipelines",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "pipelines-opportunities",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "pipelines-opportunities/20-api/forecast.md:89"
+      ]
+    },
+    {
+      "id": "pipelines-opportunities--opportunities-pipelines-delete",
+      "method": "DELETE",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/opportunities/pipelines/{pipelineId}",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "pipelines-opportunities",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "pipelines-opportunities/20-api/forecast.md:92"
+      ]
+    },
+    {
+      "id": "pipelines-opportunities--opportunities-pipelines-put-put",
+      "method": "PUT",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/opportunities/pipelines/{pipelineId}",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "pipelines-opportunities",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "pipelines-opportunities/20-api/forecast.md:90"
+      ]
+    },
+    {
+      "id": "pipelines-opportunities--pipelines-clone",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/opportunities/pipelines/{pipelineId}/clone",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "pipelines-opportunities",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "pipelines-opportunities/20-api/forecast.md:93"
+      ]
+    },
+    {
+      "id": "pipelines-opportunities--pipelines-duplicate",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/opportunities/pipelines/{pipelineId}/duplicate",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "pipelines-opportunities",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "pipelines-opportunities/20-api/forecast.md:94"
+      ]
+    },
+    {
+      "id": "pipelines-opportunities--pipelines-position",
+      "method": "PATCH",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/opportunities/pipelines/{pipelineId}/position",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "pipelines-opportunities",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "pipelines-opportunities/20-api/forecast.md:91"
+      ]
+    },
+    {
+      "id": "pipelines-opportunities--pipelines-permissions",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/opportunities/pipelines/permissions",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "pipelines-opportunities",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "pipelines-opportunities/20-api/forecast.md:95"
+      ]
+    },
+    {
+      "id": "pipelines-opportunities--pipelines-permissions-put",
+      "method": "PUT",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/opportunities/pipelines/permissions/{id}",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "pipelines-opportunities",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "pipelines-opportunities/20-api/forecast.md:96"
+      ]
+    },
+    {
+      "id": "pipelines-opportunities--permissions-location",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/opportunities/pipelines/permissions/location",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "pipelines-opportunities",
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "pipelines-opportunities/20-api/forecast.md:108"
+      ]
+    },
+    {
+      "id": "pipelines-opportunities--opportunities-smart-filters",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/opportunities/smart-filters",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "pipelines-opportunities",
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "pipelineId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "filterType",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "pipelines-opportunities/20-api/smart-filters.md:41"
+      ]
+    },
+    {
+      "id": "pipelines-opportunities--opportunities-smart-filters-post",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/opportunities/smart-filters",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "pipelines-opportunities",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "pipelines-opportunities/20-api/smart-filters.md:83"
+      ]
+    },
+    {
+      "id": "pipelines-opportunities--opportunities-smart-filters-delete",
+      "method": "DELETE",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/opportunities/smart-filters/{smartFilterId}",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "pipelines-opportunities",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "pipelines-opportunities/20-api/smart-filters.md:85"
+      ]
+    },
+    {
+      "id": "pipelines-opportunities--opportunities-smart-filters-get",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/opportunities/smart-filters/{smartFilterId}",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "pipelines-opportunities",
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "pipelineId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "pipelines-opportunities/20-api/smart-filters.md:42"
+      ]
+    },
+    {
+      "id": "pipelines-opportunities--opportunities-smart-filters-put",
+      "method": "PUT",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/opportunities/smart-filters/{smartFilterId}",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "pipelines-opportunities",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "pipelines-opportunities/20-api/smart-filters.md:84"
+      ]
+    },
+    {
+      "id": "pipelines-opportunities--smart-filters-restore",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/opportunities/smart-filters/{smartFilterId}/restore",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "pipelines-opportunities",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "pipelines-opportunities/20-api/smart-filters.md:86"
+      ]
+    },
+    {
+      "id": "pipelines-opportunities--smart-filters-bulk",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/opportunities/smart-filters/bulk",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "pipelines-opportunities",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "pipelines-opportunities/20-api/smart-filters.md:87"
+      ]
+    },
+    {
+      "id": "pipelines-opportunities--bulk-delete",
+      "method": "DELETE",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/opportunities/smart-filters/bulk/delete",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "pipelines-opportunities",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "pipelines-opportunities/20-api/smart-filters.md:89"
+      ]
+    },
+    {
+      "id": "pipelines-opportunities--bulk-update",
+      "method": "PUT",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/opportunities/smart-filters/bulk/update",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "pipelines-opportunities",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "pipelines-opportunities/20-api/smart-filters.md:88"
+      ]
+    },
+    {
       "id": "services--integrations",
       "method": "GET",
       "origin": "https://services.leadconnectorhq.com",
@@ -33990,7 +34694,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "platform/20-api/snapshots.md:73"
+        "platform/20-api/snapshots.md:82"
       ]
     },
     {
@@ -34054,7 +34758,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "platform/20-api/snapshots.md:121"
+        "platform/20-api/snapshots.md:130"
       ]
     },
     {
@@ -34086,7 +34790,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "platform/20-api/snapshots.md:92"
+        "platform/20-api/snapshots.md:101"
       ]
     },
     {
@@ -34118,7 +34822,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "platform/20-api/snapshots.md:113"
+        "platform/20-api/snapshots.md:122"
       ]
     },
     {
@@ -34150,7 +34854,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "platform/20-api/snapshots.md:107"
+        "platform/20-api/snapshots.md:116"
       ]
     },
     {
@@ -34182,7 +34886,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "platform/20-api/snapshots.md:102"
+        "platform/20-api/snapshots.md:111"
       ]
     },
     {
@@ -34226,7 +34930,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "platform/20-api/snapshots.md:83"
+        "platform/20-api/snapshots.md:92"
       ]
     },
     {
@@ -34276,7 +34980,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "platform/20-api/snapshots.md:63"
+        "platform/20-api/snapshots.md:72"
       ]
     },
     {

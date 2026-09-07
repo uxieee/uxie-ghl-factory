@@ -168,9 +168,9 @@ var define_ENDPOINT_CATALOG_default;
 var init_define_ENDPOINT_CATALOG = __esm({
   "<define:__ENDPOINT_CATALOG__>"() {
     define_ENDPOINT_CATALOG_default = {
-      generated: "2026-09-06",
+      generated: "2026-09-07",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 1073,
+      count: 1099,
       endpoints: [
         {
           id: "workflows--actions-branches",
@@ -44273,6 +44273,924 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "pipelines-opportunities--forecast-column",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/opportunities/forecast/column",
+          path: "/opportunities/forecast/column",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "proven",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "pipelines-opportunities",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "pipelines-opportunities/20-api/forecast.md:39"
+          ]
+        },
+        {
+          id: "pipelines-opportunities--forecast-drilldown",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/opportunities/forecast/drilldown",
+          path: "/opportunities/forecast/drilldown",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "proven",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "pipelines-opportunities",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "pipelines-opportunities/20-api/forecast.md:41"
+          ]
+        },
+        {
+          id: "pipelines-opportunities--forecast-slippage",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/opportunities/forecast/slippage",
+          path: "/opportunities/forecast/slippage",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "proven",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "pipelines-opportunities",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "pipelines-opportunities/20-api/forecast.md:42"
+          ]
+        },
+        {
+          id: "pipelines-opportunities--forecast-summary",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/opportunities/forecast/summary",
+          path: "/opportunities/forecast/summary",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "proven",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "pipelines-opportunities",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "pipelines-opportunities/20-api/forecast.md:40"
+          ]
+        },
+        {
+          id: "pipelines-opportunities--opportunities-lost-reason",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/opportunities/lost-reason",
+          path: "/opportunities/lost-reason",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          note: "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "pipelines-opportunities",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "pipelines-opportunities/20-api/forecast.md:109"
+          ]
+        },
+        {
+          id: "pipelines-opportunities--opportunities-lost-reason-post",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/opportunities/lost-reason",
+          path: "/opportunities/lost-reason",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "pipelines-opportunities",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "pipelines-opportunities/20-api/forecast.md:97"
+          ]
+        },
+        {
+          id: "pipelines-opportunities--opportunities-lost-reason-get",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/opportunities/lost-reason/{lostReasonId}",
+          path: "/opportunities/lost-reason/{lostReasonId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "pipelines-opportunities",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "lostReasonId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "pipelines-opportunities/20-api/forecast.md:110"
+          ]
+        },
+        {
+          id: "pipelines-opportunities--opportunities-pipelines-get",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/opportunities/pipelines",
+          path: "/opportunities/pipelines",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [
+            "build_workflow",
+            "edit_workflow",
+            "list_account_entities"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "pipelines-opportunities",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "pipelines-opportunities/20-api/forecast.md:107",
+            "pipelines-opportunities/20-api/smart-filters.md:76"
+          ]
+        },
+        {
+          id: "pipelines-opportunities--opportunities-pipelines-post",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/opportunities/pipelines",
+          path: "/opportunities/pipelines",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "pipelines-opportunities",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "pipelines-opportunities/20-api/forecast.md:89"
+          ]
+        },
+        {
+          id: "pipelines-opportunities--opportunities-pipelines-delete",
+          method: "DELETE",
+          url: "https://services.leadconnectorhq.com/opportunities/pipelines/{pipelineId}",
+          path: "/opportunities/pipelines/{pipelineId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "pipelines-opportunities",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "pipelineId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "pipelines-opportunities/20-api/forecast.md:92"
+          ]
+        },
+        {
+          id: "pipelines-opportunities--opportunities-pipelines-put-put",
+          method: "PUT",
+          url: "https://services.leadconnectorhq.com/opportunities/pipelines/{pipelineId}",
+          path: "/opportunities/pipelines/{pipelineId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          summary: "Replaces a pipeline's name, flags and its WHOLE stages array.",
+          note: "Two traps. (1) It refuses an echo of what GET returns: strip id, dateAdded, dateUpdated, locationId and position from the TOP level or it 422s naming all five (live 2026-09-02). Inside stages, id and position are required. (2) FULL REPLACE on stages -- a stage OMITTED from the array is silently DELETED, with no warning and nothing in the response. Build the array from a fresh GET every time; never send a partial one; never drop a stage still holding cards. `stages` must contain at least 1 element.",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "pipelines-opportunities",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "pipelineId"
+            }
+          ],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "live-probe"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "pipelines-opportunities/20-api/forecast.md:90"
+          ]
+        },
+        {
+          id: "pipelines-opportunities--pipelines-clone",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/opportunities/pipelines/{pipelineId}/clone",
+          path: "/opportunities/pipelines/{pipelineId}/clone",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "pipelines-opportunities",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "pipelineId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "pipelines-opportunities/20-api/forecast.md:93"
+          ]
+        },
+        {
+          id: "pipelines-opportunities--pipelines-duplicate",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/opportunities/pipelines/{pipelineId}/duplicate",
+          path: "/opportunities/pipelines/{pipelineId}/duplicate",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "pipelines-opportunities",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "pipelineId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "pipelines-opportunities/20-api/forecast.md:94"
+          ]
+        },
+        {
+          id: "pipelines-opportunities--pipelines-position",
+          method: "PATCH",
+          url: "https://services.leadconnectorhq.com/opportunities/pipelines/{pipelineId}/position",
+          path: "/opportunities/pipelines/{pipelineId}/position",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "pipelines-opportunities",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "pipelineId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "pipelines-opportunities/20-api/forecast.md:91"
+          ]
+        },
+        {
+          id: "pipelines-opportunities--pipelines-permissions",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/opportunities/pipelines/permissions",
+          path: "/opportunities/pipelines/permissions",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "pipelines-opportunities",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "pipelines-opportunities/20-api/forecast.md:95"
+          ]
+        },
+        {
+          id: "pipelines-opportunities--pipelines-permissions-put",
+          method: "PUT",
+          url: "https://services.leadconnectorhq.com/opportunities/pipelines/permissions/{id}",
+          path: "/opportunities/pipelines/permissions/{id}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "pipelines-opportunities",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "pipelines-opportunities/20-api/forecast.md:96"
+          ]
+        },
+        {
+          id: "pipelines-opportunities--permissions-location",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/opportunities/pipelines/permissions/location",
+          path: "/opportunities/pipelines/permissions/location",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "proven",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "pipelines-opportunities",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "pipelines-opportunities/20-api/forecast.md:108"
+          ]
+        },
+        {
+          id: "pipelines-opportunities--opportunities-smart-filters",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/opportunities/smart-filters",
+          path: "/opportunities/smart-filters",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "proven",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "pipelines-opportunities",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "pipelineId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "filterType",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "pipelines-opportunities/20-api/smart-filters.md:41"
+          ]
+        },
+        {
+          id: "pipelines-opportunities--opportunities-smart-filters-post",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/opportunities/smart-filters",
+          path: "/opportunities/smart-filters",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "pipelines-opportunities",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "pipelines-opportunities/20-api/smart-filters.md:83"
+          ]
+        },
+        {
+          id: "pipelines-opportunities--opportunities-smart-filters-delete",
+          method: "DELETE",
+          url: "https://services.leadconnectorhq.com/opportunities/smart-filters/{smartFilterId}",
+          path: "/opportunities/smart-filters/{smartFilterId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "pipelines-opportunities",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "smartFilterId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "pipelines-opportunities/20-api/smart-filters.md:85"
+          ]
+        },
+        {
+          id: "pipelines-opportunities--opportunities-smart-filters-get",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/opportunities/smart-filters/{smartFilterId}",
+          path: "/opportunities/smart-filters/{smartFilterId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "pipelines-opportunities",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "smartFilterId"
+            }
+          ],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "pipelineId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "pipelines-opportunities/20-api/smart-filters.md:42"
+          ]
+        },
+        {
+          id: "pipelines-opportunities--opportunities-smart-filters-put",
+          method: "PUT",
+          url: "https://services.leadconnectorhq.com/opportunities/smart-filters/{smartFilterId}",
+          path: "/opportunities/smart-filters/{smartFilterId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "pipelines-opportunities",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "smartFilterId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "pipelines-opportunities/20-api/smart-filters.md:84"
+          ]
+        },
+        {
+          id: "pipelines-opportunities--smart-filters-restore",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/opportunities/smart-filters/{smartFilterId}/restore",
+          path: "/opportunities/smart-filters/{smartFilterId}/restore",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "pipelines-opportunities",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "smartFilterId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "pipelines-opportunities/20-api/smart-filters.md:86"
+          ]
+        },
+        {
+          id: "pipelines-opportunities--smart-filters-bulk",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/opportunities/smart-filters/bulk",
+          path: "/opportunities/smart-filters/bulk",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "pipelines-opportunities",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "pipelines-opportunities/20-api/smart-filters.md:87"
+          ]
+        },
+        {
+          id: "pipelines-opportunities--bulk-delete",
+          method: "DELETE",
+          url: "https://services.leadconnectorhq.com/opportunities/smart-filters/bulk/delete",
+          path: "/opportunities/smart-filters/bulk/delete",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "pipelines-opportunities",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "pipelines-opportunities/20-api/smart-filters.md:89"
+          ]
+        },
+        {
+          id: "pipelines-opportunities--bulk-update",
+          method: "PUT",
+          url: "https://services.leadconnectorhq.com/opportunities/smart-filters/bulk/update",
+          path: "/opportunities/smart-filters/bulk/update",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "pipelines-opportunities",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "pipelines-opportunities/20-api/smart-filters.md:88"
+          ]
+        },
+        {
           id: "services--integrations",
           method: "GET",
           url: "https://services.leadconnectorhq.com/payments/integrations/{locationId}",
@@ -44517,7 +45435,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "platform/20-api/snapshots.md:73"
+            "platform/20-api/snapshots.md:82"
           ]
         },
         {
@@ -44604,7 +45522,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "platform/20-api/snapshots.md:121"
+            "platform/20-api/snapshots.md:130"
           ]
         },
         {
@@ -44647,7 +45565,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "platform/20-api/snapshots.md:92"
+            "platform/20-api/snapshots.md:101"
           ]
         },
         {
@@ -44690,7 +45608,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "platform/20-api/snapshots.md:113"
+            "platform/20-api/snapshots.md:122"
           ]
         },
         {
@@ -44733,7 +45651,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "platform/20-api/snapshots.md:107"
+            "platform/20-api/snapshots.md:116"
           ]
         },
         {
@@ -44776,7 +45694,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "platform/20-api/snapshots.md:102"
+            "platform/20-api/snapshots.md:111"
           ]
         },
         {
@@ -44831,7 +45749,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "platform/20-api/snapshots.md:83"
+            "platform/20-api/snapshots.md:92"
           ]
         },
         {
@@ -44894,7 +45812,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "platform/20-api/snapshots.md:63"
+            "platform/20-api/snapshots.md:72"
           ]
         },
         {
@@ -149029,6 +149947,9 @@ var nearestSwatch = (hex3) => {
   }
   return bestD <= 2 ? best : null;
 };
+var INNER_ATTRIBUTE_TYPE = {
+  "task-notification": "task_notification"
+};
 var COUPLED_FIELDS = {
   add_notes: [{
     when: (a) => typeof a.color === "string" && /^#[0-9a-fA-F]{6}$/.test(a.color) && !NOTE_PALETTE.includes(a.color.toUpperCase()),
@@ -150186,7 +151107,7 @@ function normalizeAttrs(node, attrs, ctx) {
   const out = { ...enforceRequiredFields(node, attrs, ctx) };
   if (meta3.usesCustomInputs && !("__customInputs__" in out)) out.__customInputs__ = {};
   if (Array.isArray(meta3.attrKeys) && meta3.attrKeys.includes("type") && !("type" in out)) {
-    out.type = node.type === "internal_notification" ? ["sms", "email", "notification", "whatsapp"].find((c) => c in out) ?? node.type : node.type;
+    out.type = node.type === "internal_notification" ? ["sms", "email", "notification", "whatsapp"].find((c) => c in out) ?? node.type : INNER_ATTRIBUTE_TYPE[node.type] ?? node.type;
   }
   checkAttrKeys(node, out, meta3);
   return out;
@@ -161141,7 +162062,30 @@ var TOOLS2 = [
         steps: templates.length,
         errorCount: errors.length,
         errors,
-        headline: `Resolve ${errors.length} Errors`,
+        // The scope is IN the headline on purpose. It used to read exactly "Resolve N Errors",
+        // reproducing the builder's own banner word for word — and on 2026-09-07 it said
+        // "Resolve 0 Errors" about a workflow whose builder banner said "Resolve 1 Errors" at
+        // that same moment. The coverage note below was honest and was read past, because the
+        // headline looked like the builder's verdict. It now states what it actually measured.
+        headline: `Resolve ${errors.length} Errors (${templates.filter((t) => actionSchema.has(t.type)).length} of ${templates.length} steps checked)`,
+        // Native steps the marketplace catalog does not describe, checked against the ONE thing
+        // the type cards state exactly: their inner attributes.type. This is what a card-driven
+        // pass over native steps catches, and it is the class the headline missed.
+        nativeShapeIssues: templates.flatMap((t) => {
+          const want = INNER_ATTRIBUTE_TYPE[t.type];
+          if (!want) return [];
+          const got = t.attributes?.type;
+          if (got === want) return [];
+          return [{
+            stepId: t.id ?? null,
+            name: t.name ?? null,
+            type: t.type,
+            field: "attributes.type",
+            expected: want,
+            found: got ?? null,
+            why: "The step saves, publishes and round-trips clean with the wrong token \u2014 GHL's publish validator does not inspect native step attribute shapes. The builder's drawer then cannot bind its model and reports its FIRST required field as missing, so the operator sees a complaint about a field that is present."
+          }];
+        }),
         // Marketplace TRIGGER-only version/templateId drift (see the tool description for
         // why actions are out of scope). A separate key, deliberately never folded into
         // errorCount above. Consumes triggerSchema, never actionSchema.
