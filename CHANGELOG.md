@@ -11,6 +11,23 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [0.63.1] — 2026-09-07
+
+The wait-name rule was never firing, because the harness did not reproduce the canvas merge.
+
+### Fixed
+
+- **`waitValidator`'s name-length check is live again.** It reads `attributes.name`, and a stored
+  workflow document keeps the display name on the **step row** — `attributes.name` is absent on
+  essentially every step, so replaying the validator against the document short-circuits and that
+  rule silently never runs. It is not dead in the product: `models/conditions/Wait.ts` constructs
+  with `attributes.name || name` and serialises `this.attributes.name = this.name`, so the builder
+  merges the row name in when a wait passes through its model. The runner now does the same.
+  Applied to `wait` **only** — it is the one model that merges the ROW name; the interactive
+  messenger and custom-object actions also write `attributes.name` but set a *derived* label, so
+  copying the row name onto them would feed the validators something the builder never produces.
+  An existing `attributes.name` is never overwritten.
+
 ## [0.63.0] — 2026-09-07
 
 `check_workflow` now runs GHL's own validators instead of only describing what it cannot check.
