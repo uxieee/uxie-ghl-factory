@@ -11,6 +11,25 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [0.62.1] — 2026-09-07
+
+`check_workflow` now says what a zero error count does not mean.
+
+### Changed
+
+- 🔴 **GHL enforces a validator on 51 of 385 step types**, and the result now says so. The coverage
+  note already said native steps are skipped rather than asserted clean, which reads like a limit of
+  this tool; the larger fact is that it is GHL's hole and reproducing the builder more faithfully
+  would not close it. The uncovered set is the one authors use most — `if_else`,
+  `task-notification`, `goto`, `transition`, `find_opportunity`, `internal_update_opportunity`,
+  `workflow_ai_decision_maker` — so **the builder's own Check Errors panel is blind to them too**.
+  Measured on our mined rule set and corroborated by another operator replaying GHL's 67 validator
+  bodies over 853 live steps: 528 validated, 325 with no validator to run.
+  `task-notification` has no GHL validator at all, which is why the inner-type defect fixed in
+  0.62.0 could sit published across 23 workflows: the *"Due date is a required field"* message that
+  eventually exposed it comes from the drawer's Vue form, and that runs only when a human opens the
+  step.
+
 ## [0.62.0] — 2026-09-07
 
 A compiler bug that shipped 33 broken steps to one account, and the check that should have caught it.
