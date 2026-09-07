@@ -11,6 +11,41 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [0.63.0] — 2026-09-07
+
+`check_workflow` now runs GHL's own validators instead of only describing what it cannot check.
+
+### Added
+
+- **The builder's validators, replayed over the API.** GHL validates a workflow client-side and
+  nothing on the API rail does. Its 67 recovered validator bodies turn out to be runnable, so
+  `check_workflow` compiles them into one shared scope — they call each other — and runs them.
+  On a published workflow this took coverage from **7 of 35 steps to 25 of 35** and immediately
+  found a defect the publish endpoint had accepted: an `assign_user` step pointing at a user that
+  no longer exists.
+- **`builderValidators`** in the result: `findings` (entries the error panel would show),
+  `resourceLookups` (deferred existence checks the builder posts to the server — normal, numerous,
+  and not problems), `uncheckedByType`, `crashed`, and `helperFidelity`. **Read `uncheckedByType`
+  before `findings`:** zero findings over few validated steps is not a clean workflow.
+- The headline names both passes rather than one.
+
+### Fixed
+
+- **`waitValidator` crashed on every named wait step**, because `isWithinLimits` was missing from
+  the helper preamble. Found by running the port on an account that had one; ported faithfully from
+  the recovered `utils/validation.ts`.
+- **The coverage number is 61, not 136.** 136 type cards carry a `Validator` line and 118 name one,
+  but only 61 have a body in the capture — the remainder are mostly *trigger* validators, which this
+  capture does not include. Reporting the larger number would overstate coverage by more than double.
+
+### Security
+
+- The validator bodies are evaluated with `new Function`, so they are **embedded at build time and
+  never sourced from the wire**, and the compiler refuses any entry that does not bind the
+  identifier it is filed under — rejecting the whole set rather than one entry. Provenance is the
+  control; the shape check exists so a tampered or truncated artefact fails loudly instead of
+  compiling into something that looks like GHL.
+
 ## [0.62.1] — 2026-09-07
 
 `check_workflow` now says what a zero error count does not mean.
