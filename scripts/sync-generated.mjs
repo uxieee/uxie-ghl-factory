@@ -33,6 +33,7 @@ const GENERATED = [
   'plugins/uxie-ghl-factory/mcp-internal/catalog/internal-endpoints.source.json',
   'plugins/uxie-ghl-factory/mcp-internal/catalog/internal-endpoints.json',
   'plugins/uxie-ghl-factory/mcp-internal/catalog/contact-filter-fields.json',
+  'plugins/uxie-ghl-factory/mcp-internal/catalog/builder-validators.json',
   'plugins/uxie-ghl-factory/mcp-internal/capability-manifest.json',
   'plugins/uxie-ghl-factory/mcp-internal/audit-capability-manifest.json',
   'plugins/uxie-ghl-factory/mcp-internal/dist/server.mjs',
@@ -68,6 +69,13 @@ if (hasKnowledge) {
   copyFileSync(join(KNOWLEDGE, 'corpus/platform/_data/contact-filter-fields.json'),
     join(MCP, 'catalog/contact-filter-fields.json'));
   if (!quiet) console.log('sync: filter-fields ← knowledge/corpus/platform/_data');
+  // GHL's own 67 action-validator bodies, recovered verbatim from the builder bundle.
+  // check_workflow compiles and replays them, so the plugin ships its own copy — but the capture
+  // lives in knowledge/sniffs and is re-mined when the bundle rotates, and a plugin holding a
+  // stale copy would replay validators the product no longer uses while reporting live coverage.
+  copyFileSync(join(KNOWLEDGE, 'sniffs/bundle/validators.json'),
+    join(MCP, 'catalog/builder-validators.json'));
+  if (!quiet) console.log('sync: builder-validators ← knowledge/sniffs/bundle/validators.json');
 } else if (!quiet) {
   console.log('sync: knowledge/ not present — type-cards and source left as shipped');
 }

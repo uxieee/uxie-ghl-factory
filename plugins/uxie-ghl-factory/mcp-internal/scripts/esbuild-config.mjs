@@ -36,6 +36,11 @@ function optionsFor(entry, extra = {}) {
   // tell an unknown field from a bad envelope. A bundle without it would silently stop making
   // that distinction.
   const filterFields = readFileSync(resolve(ROOT, 'catalog/contact-filter-fields.json'), 'utf8');
+  // GHL's own 67 action-validator bodies, recovered from the builder bundle. check_workflow
+  // compiles and replays them, so they have to be IN the bundle: a dist without them silently
+  // drops the only check that reproduces the builder's error panel. Embedded, never fetched —
+  // this source is evaluated with `new Function`, so its provenance is the security control.
+  const builderValidators = readFileSync(resolve(ROOT, 'catalog/builder-validators.json'), 'utf8');
   return {
     entryPoints: [resolve(ROOT, entry)],
     bundle: true,
@@ -50,6 +55,8 @@ function optionsFor(entry, extra = {}) {
       __ENDPOINT_OVERLAY__: overlay,
       __HAS_FILTER_FIELDS__: 'true',
       __CONTACT_FILTER_FIELDS__: filterFields,
+      __HAS_BUILDER_VALIDATORS__: 'true',
+      __BUILDER_VALIDATORS__: builderValidators,
     },
     logLevel: 'warning',
     ...extra,
