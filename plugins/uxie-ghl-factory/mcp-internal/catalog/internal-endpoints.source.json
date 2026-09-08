@@ -20,16 +20,16 @@
     {
       "tree": "documented",
       "dir": "corpus",
-      "capturedAt": "2026-09-08T20:45:05.352Z",
+      "capturedAt": "2026-09-08T21:09:34.289Z",
       "hash": "corpus",
-      "fileCount": 750,
-      "endpoints": 750
+      "fileCount": 751,
+      "endpoints": 751
     }
   ],
   "note": "SOURCE-DERIVED ONLY, merged from every mined front-end. `tree` on each row says which app calls it. The plugin owns kind/note/summary/reach/coveredBy and merges them at read time. A row proves a GHL front-end calls that path — not that your token reaches it, and not that calling it is safe.",
-  "discoveredCallSites": 1210,
+  "discoveredCallSites": 1211,
   "skippedCallSites": 409,
-  "count": 1133,
+  "count": 1134,
   "endpoints": [
     {
       "id": "workflows--actions-branches",
@@ -14039,7 +14039,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "platform/20-api/snapshots-authoring.md:303"
+        "platform/20-api/snapshots-authoring.md:320"
       ],
       "serviceBasis": "declared"
     },
@@ -14179,7 +14179,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "platform/20-api/snapshots-authoring.md:305"
+        "platform/20-api/snapshots-authoring.md:322"
       ],
       "serviceBasis": "declared"
     },
@@ -14344,7 +14344,33 @@
         "returns": "unresolved"
       },
       "sources": [
-        "platform/20-api/snapshots-authoring.md:304"
+        "platform/20-api/snapshots-authoring.md:321"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "platform--snapshots-v2",
+      "method": "GET",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/snapshots/v2/{companyId}",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "platform",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "platform/20-api/snapshots-authoring.md:223"
       ],
       "serviceBasis": "declared"
     },
@@ -18250,7 +18276,7 @@
       },
       "sources": [
         "services/WorkflowService.ts:603",
-        "platform/20-api/snapshots-authoring.md:250",
+        "platform/20-api/snapshots-authoring.md:267",
         "platform/40-rules/snapshot-carry-matrix.md:108"
       ],
       "serviceClass": "WorkflowService",
@@ -18279,7 +18305,7 @@
       },
       "sources": [
         "services/WorkflowService.ts:596",
-        "platform/20-api/snapshots-authoring.md:249"
+        "platform/20-api/snapshots-authoring.md:266"
       ],
       "serviceClass": "WorkflowService",
       "serviceBasis": "inferred-from-path"
@@ -37449,7 +37475,7 @@
       "serviceBasis": "declared"
     },
     {
-      "id": "platform--snapshots-v2",
+      "id": "platform--snapshots-v2-get",
       "method": "GET",
       "origin": "https://services.leadconnectorhq.com",
       "path": "/snapshots/v2/{companyId}",

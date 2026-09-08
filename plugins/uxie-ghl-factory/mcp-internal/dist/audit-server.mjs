@@ -246,7 +246,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
     define_ENDPOINT_CATALOG_default = {
       generated: "2026-09-08",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 1141,
+      count: 1142,
       endpoints: [
         {
           id: "workflows--actions-branches",
@@ -17849,7 +17849,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "platform/20-api/snapshots-authoring.md:303"
+            "platform/20-api/snapshots-authoring.md:320"
           ]
         },
         {
@@ -18017,7 +18017,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "platform/20-api/snapshots-authoring.md:305"
+            "platform/20-api/snapshots-authoring.md:322"
           ]
         },
         {
@@ -18233,7 +18233,46 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "platform/20-api/snapshots-authoring.md:304"
+            "platform/20-api/snapshots-authoring.md:321"
+          ]
+        },
+        {
+          id: "platform--snapshots-v2",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/snapshots/v2/{companyId}",
+          path: "/snapshots/v2/{companyId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          note: "Agency snapshot list (type=own|imported|shared|templates). Captured from the agency Account Snapshots page's own browser session 2026-08-31; not yet proven through the plugin's location-user Bearer.",
+          reach: "source-only",
+          coveredBy: [
+            "list_snapshots",
+            "push_snapshot"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "platform",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "companyId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "platform/20-api/snapshots-authoring.md:223"
           ]
         },
         {
@@ -23287,7 +23326,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/WorkflowService.ts:603",
-            "platform/20-api/snapshots-authoring.md:250",
+            "platform/20-api/snapshots-authoring.md:267",
             "platform/40-rules/snapshot-carry-matrix.md:108"
           ]
         },
@@ -23328,7 +23367,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/WorkflowService.ts:596",
-            "platform/20-api/snapshots-authoring.md:249"
+            "platform/20-api/snapshots-authoring.md:266"
           ]
         },
         {
@@ -47069,7 +47108,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
-          id: "platform--snapshots-v2",
+          id: "platform--snapshots-v2-get",
           method: "GET",
           url: "https://services.leadconnectorhq.com/snapshots/v2/{companyId}",
           path: "/snapshots/v2/{companyId}",
