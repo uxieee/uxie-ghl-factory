@@ -2560,19 +2560,19 @@ var init_define_ENDPOINT_CATALOG = __esm({
           pathParams: [],
           query: [
             {
-              name: "offset",
+              name: "chatType",
               type: "string",
-              required: true,
-              source: "live-probe"
+              required: false,
+              source: "documented"
             },
             {
               name: "limit",
               type: "string",
-              required: true,
-              source: "live-probe"
+              required: false,
+              source: "documented"
             },
             {
-              name: "chatType",
+              name: "offset",
               type: "string",
               required: false,
               source: "documented"
@@ -2599,6 +2599,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "services/api/chat-widget-service.ts:35",
             "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:127",
+            "funnels/20-api/funnels-api.md:252",
             "workflows/70-research/ENDPOINTS.md:137"
           ]
         },
@@ -7196,7 +7197,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/20-api/funnels-api.md:80",
-            "funnels/40-rules/silent-failures.md:101"
+            "funnels/40-rules/silent-failures.md:106"
           ]
         },
         {
@@ -7560,7 +7561,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/20-api/funnels-api.md:97",
-            "funnels/40-rules/silent-failures.md:104"
+            "funnels/40-rules/silent-failures.md:109"
           ]
         },
         {
@@ -7867,7 +7868,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "funnels/10-anatomy/page-content.md:22",
             "funnels/20-api/funnels-api.md:69",
-            "funnels/40-rules/silent-failures.md:101"
+            "funnels/40-rules/silent-failures.md:106"
           ]
         },
         {
@@ -14367,7 +14368,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/funnels-api.md:250"
+            "funnels/20-api/funnels-api.md:274"
           ]
         },
         {
