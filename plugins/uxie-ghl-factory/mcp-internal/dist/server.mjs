@@ -7109,8 +7109,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "funnels/10-anatomy/routing-and-publishing.md:31",
             "funnels/20-api/funnels-api.md:76",
             "funnels/20-api/funnels-api.md:139",
-            "funnels/30-types/native-elements.md:83",
-            "funnels/30-types/native-elements.md:147"
+            "funnels/30-types/native-elements.md:101",
+            "funnels/30-types/native-elements.md:165"
           ]
         },
         {
@@ -46845,8 +46845,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/template-library.md:73",
-            "funnels/20-api/template-library.md:75"
+            "funnels/20-api/template-library.md:94",
+            "funnels/20-api/template-library.md:96"
           ]
         },
         {
@@ -48158,7 +48158,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/20-api/template-library.md:22",
-            "funnels/20-api/template-library.md:118"
+            "funnels/20-api/template-library.md:139"
           ]
         },
         {
@@ -48191,8 +48191,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "services/TemplateLibraryService.ts:18",
             "funnels/20-api/template-library.md:35",
-            "funnels/20-api/template-library.md:93",
-            "funnels/30-types/native-elements.md:81"
+            "funnels/20-api/template-library.md:114",
+            "funnels/30-types/native-elements.md:99"
           ]
         },
         {
@@ -48249,7 +48249,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/20-api/template-library.md:19",
-            "funnels/20-api/template-library.md:108"
+            "funnels/20-api/template-library.md:129"
           ]
         },
         {
@@ -48404,9 +48404,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/TemplateLibraryService.ts:43",
-            "funnels/20-api/template-library.md:56",
-            "funnels/20-api/template-library.md:128",
-            "funnels/30-types/native-elements.md:82"
+            "funnels/20-api/template-library.md:77",
+            "funnels/20-api/template-library.md:149",
+            "funnels/30-types/native-elements.md:100"
           ]
         },
         {
