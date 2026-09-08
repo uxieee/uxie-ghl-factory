@@ -46834,7 +46834,8 @@
       "note": "Agency snapshot list (type=own|imported|shared|templates). Captured from the agency Account Snapshots page's own browser session 2026-08-31; not yet proven through the plugin's location-user Bearer.",
       "reach": "source-only",
       "coveredBy": [
-        "list_snapshots"
+        "list_snapshots",
+        "push_snapshot"
       ],
       "rawCallable": true,
       "transport": "json",

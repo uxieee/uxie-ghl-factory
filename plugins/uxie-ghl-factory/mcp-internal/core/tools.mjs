@@ -7359,6 +7359,7 @@ export const TOOLS = [
     capabilities: [
       { method: 'GET', path: '/locations/{locationId}' },
       { method: 'GET', path: '/snapshots-appengine/snapshot/{snapshotId}/get_assets' },
+      { method: 'GET', path: '/snapshots/v2/{companyId}' },
       { method: 'GET', path: '/workflow/{loc}/{wid}' },
       { method: 'POST', path: '/snapshots/snapshot-push/v2/{snapshotId}/set_assets_to_locations' },
     ],
@@ -7403,7 +7404,17 @@ export const TOOLS = [
       // workflow that is published THERE arrives published on every target.
       const wanted = [...(args.assets.workflow ?? [])];
       const workflows = [];
-      const sourceLoc = man.json?.locationId ?? man.json?.data?.locationId ?? null;
+      // WHERE THE SOURCE ACCOUNT COMES FROM, and it is not where you would look first.
+      // get_assets returns the snapshot's CONTENTS and carries no locationId, so reading it there
+      // silently yields null and the published-workflow rail degrades to "undetermined" for every
+      // id — safe, but inert. The snapshot LIST is what carries `locationId` per row.
+      let sourceLoc = null;
+      if (wanted.length) {
+        const list = await gw.call('GET', `/snapshots/v2/${encodeURIComponent(companyId)}?limit=100&skip=0`);
+        const rows = list.json?.snapshots ?? list.json?.data ?? (Array.isArray(list.json) ? list.json : []);
+        const row = (Array.isArray(rows) ? rows : []).find((x) => (x?._id ?? x?.id) === args.snapshotId);
+        sourceLoc = row?.locationId ?? man.json?.locationId ?? man.json?.data?.locationId ?? null;
+      }
       let sourceReadable = false;
       if (wanted.length && sourceLoc) {
         for (const id of wanted) {

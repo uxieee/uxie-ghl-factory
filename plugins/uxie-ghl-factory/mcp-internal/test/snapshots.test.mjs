@@ -203,10 +203,16 @@ const pushGw = ({ wfStatus = { wf1: 'draft', wf2: 'draft' }, sourceLoc = 'SRC', 
       if (method === 'GET' && /^\/locations\/[^/]+$/.test(path)) {
         return { ok: true, status: 200, json: { location: { companyId: 'COMPANY1' } } };
       }
+      // get_assets returns the snapshot's CONTENTS and carries NO locationId. Putting one here
+      // would let the rail pass in tests while being inert in production — which is exactly what
+      // shipped, and what the first live run caught.
       if (method === 'GET' && path.includes('/get_assets')) {
         return manifestOk
-          ? { ok: true, status: 200, json: { ...PREFETCH, locationId: sourceLoc } }
+          ? { ok: true, status: 200, json: PREFETCH }
           : { ok: false, status: 400, json: { msg: "Can't find account data" } };
+      }
+      if (method === 'GET' && /^\/snapshots\/v2\/[^/]+\?/.test(path)) {
+        return { ok: true, status: 200, json: { snapshots: [{ _id: 's1', name: 'One', locationId: sourceLoc }] } };
       }
       // The real read is `/workflow/{loc}/{id}?includeScheduledPauseInfo=true` — a mock that
       // forgets the query string silently matches nothing and every workflow reads as absent.
@@ -340,5 +346,32 @@ test('push_snapshot surfaces the dehydrating-snapshot 400 with what to do about 
 
 test('nonEmptyCategories ignores categories present but empty', () => {
   assert.deepEqual(nonEmptyCategories({ workflow: ['w'], tags: [], pipelines: ['p'] }), ['workflow', 'pipelines']);
+});
+
+// THE REGRESSION THIS PINS, found by running the tool for real rather than by any test.
+// The published-workflow rail originally read the source account from get_assets — which returns
+// the snapshot's CONTENTS and carries no locationId. So sourceLoc was always null, no workflow was
+// ever read, and every id came back "undetermined". Safe by accident, and completely inert: the
+// headline safety rail could never fire. A rail that silently never fires is worse than no rail,
+// because it reads as a check that passed.
+test('the source account is resolved from the snapshot LIST — get_assets does not carry it', async () => {
+  const { r, gw } = await runPush(
+    { assets: { workflow: ['wf1'] }, confirm: true },
+    { wfStatus: { wf1: 'published' }, sourceLoc: 'SRC' },
+  );
+  assert.equal(r.ok, false, 'a published workflow must still be refused');
+  assert.equal(gw.seen.push, null);
+  assert.deepEqual(r.data.publishedOnSource.map((w) => w.workflowId), ['wf1']);
+  assert.ok(gw.seen.wfReads.some((p) => p.startsWith('/workflow/SRC/')),
+    'the workflow must have been read on the SOURCE account the list named');
+});
+
+// And when the list cannot name a source, the ids are UNDETERMINED — never silently "not published".
+test('no resolvable source account means UNDETERMINED, never safe', async () => {
+  const { r } = await runPush({ assets: { workflow: ['wf1'] } }, { sourceLoc: null });
+  assert.equal(r.code, 'CONFIRM_REQUIRED');
+  assert.deepEqual(r.data.preview.undeterminedWorkflows, ['wf1']);
+  assert.deepEqual(r.data.preview.publishedOnSource, undefined);
+  assert.ok(r.data.preview.warnings.some((w) => /UNKNOWN/.test(w)));
 });
 

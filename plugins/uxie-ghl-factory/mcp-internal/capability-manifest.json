@@ -1297,6 +1297,11 @@
   {
     "tool": "push_snapshot",
     "method": "GET",
+    "path": "/snapshots/v2/{companyId}"
+  },
+  {
+    "tool": "push_snapshot",
+    "method": "GET",
     "path": "/workflow/{loc}/{wid}"
   },
   {

@@ -47079,7 +47079,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           note: "Agency snapshot list (type=own|imported|shared|templates). Captured from the agency Account Snapshots page's own browser session 2026-08-31; not yet proven through the plugin's location-user Bearer.",
           reach: "source-only",
           coveredBy: [
-            "list_snapshots"
+            "list_snapshots",
+            "push_snapshot"
           ],
           rawCallable: true,
           transport: "json",
@@ -169153,6 +169154,7 @@ var TOOLS2 = [
     capabilities: [
       { method: "GET", path: "/locations/{locationId}" },
       { method: "GET", path: "/snapshots-appengine/snapshot/{snapshotId}/get_assets" },
+      { method: "GET", path: "/snapshots/v2/{companyId}" },
       { method: "GET", path: "/workflow/{loc}/{wid}" },
       { method: "POST", path: "/snapshots/snapshot-push/v2/{snapshotId}/set_assets_to_locations" }
     ],
@@ -169190,7 +169192,13 @@ var TOOLS2 = [
       }
       const wanted = [...args.assets.workflow ?? []];
       const workflows = [];
-      const sourceLoc = man.json?.locationId ?? man.json?.data?.locationId ?? null;
+      let sourceLoc = null;
+      if (wanted.length) {
+        const list = await gw.call("GET", `/snapshots/v2/${encodeURIComponent(companyId)}?limit=100&skip=0`);
+        const rows = list.json?.snapshots ?? list.json?.data ?? (Array.isArray(list.json) ? list.json : []);
+        const row = (Array.isArray(rows) ? rows : []).find((x) => (x?._id ?? x?.id) === args.snapshotId);
+        sourceLoc = row?.locationId ?? man.json?.locationId ?? man.json?.data?.locationId ?? null;
+      }
       let sourceReadable = false;
       if (wanted.length && sourceLoc) {
         for (const id of wanted) {
