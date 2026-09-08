@@ -151,11 +151,25 @@ test('refresh_snapshot re-sends the selection inside extras', async () => {
 
 test('check_snapshot_conflicts sends the key names the server wants, not the ones the UI shows', async () => {
   // locationIds and selectedAssets — the names the wizard displays — answer 400 ["Required","Required"].
-  const { r, gw } = await run('check_snapshot_conflicts', { snapshotId: 's1', targetLocationIds: ['L2'] });
+  const { r, gw } = await run('check_snapshot_conflicts', { snapshotId: 's1', targetLocationIds: ['L2'], assets: { tags: ['t1'] } });
   assert.equal(r.ok, true, JSON.stringify(r));
   assert.deepEqual(Object.keys(gw.seen.conflicts).sort(), [CONFLICT_KEYS.assets, CONFLICT_KEYS.locations].sort());
   assert.ok(!('locationIds' in gw.seen.conflicts));
   assert.ok(!('selectedAssets' in gw.seen.conflicts));
+});
+
+// There is no "check everything" call: the server answers
+// 400 ["selectedSnapshotAssets must contain at least one asset key"] (proven live 2026-09-09).
+// The tool used to default `assets` to {} and send it, turning a knowable refusal into a bare
+// upstream 400 that says nothing about what the caller should have passed.
+test('check_snapshot_conflicts refuses an empty asset selection itself, without spending a call', async () => {
+  for (const assets of [undefined, {}]) {
+    const { r, gw } = await run('check_snapshot_conflicts', { snapshotId: 's1', targetLocationIds: ['L2'], assets });
+    assert.equal(r.ok, false, `assets=${JSON.stringify(assets)} must be refused`);
+    assert.equal(r.code, 'VALIDATION_FAILED');
+    assert.match(r.remediation, /get_snapshot_manifest/, 'the caller must be told where ids come from');
+    assert.ok(gw.seen.conflicts == null, 'the refusal must happen before the wire call');
+  }
 });
 
 test('diffStored reports only what was requested and is absent', () => {

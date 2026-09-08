@@ -7288,12 +7288,23 @@ export const TOOLS = [
     description: `${describe('check_snapshot_conflicts', 'See what loading a snapshot would collide with — risk: read')}. `
       + 'Non-destructive, and the safe way to preview a load. It refuses the key names the UI itself '
       + 'shows: `locationIds` and `selectedAssets` answer 400 ["Required","Required"]. The real names '
-      + 'are `selectedLocationIds` and `selectedSnapshotAssets`, and this tool sends those.',
+      + 'are `selectedLocationIds` and `selectedSnapshotAssets`, and this tool sends those. '
+      + '`assets` is REQUIRED — there is no "check everything" call; an empty selection answers '
+      + '400 ["selectedSnapshotAssets must contain at least one asset key"]. Get the ids from '
+      + 'get_snapshot_manifest. '
+      + '🔴 An EMPTY conflicts list does not mean the load is safe. The list holds the SNAPSHOT\'s '
+      + 'ids the server reports as colliding, and a check against a target holding every asset in '
+      + 'the snapshot still came back empty for all ten categories asked (2026-09-09). A conflict '
+      + 'may mean "this snapshot was pushed here before" rather than "the target already has this", '
+      + 'in which case hand-built assets of the same name are never reported. Unproven either way — '
+      + 'treat an empty result as no information, not as clearance.',
     inputSchema: schema({
       locationId: z.string(),
       snapshotId: z.string(),
       targetLocationIds: z.array(z.string()).min(1),
-      assets: z.record(z.any()).optional(),
+      // Required by the API, not optional: an empty selection is a 400. Kept as a distinct
+      // refusal rather than a default {} so the caller sees WHY rather than a bare upstream 400.
+      assets: z.record(z.any()),
     }),
     capabilities: [
       { method: 'GET', path: '/locations/{locationId}' },
@@ -7303,9 +7314,14 @@ export const TOOLS = [
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
       const companyId = await resolveCompanyId(gw, args.locationId);
       if (!companyId) return fail(CODES.VALIDATION_FAILED, 'could not resolve the agency id for this sub-account', 'See list_snapshots.');
+      if (!args.assets || Object.keys(args.assets).length === 0) {
+        return fail(CODES.VALIDATION_FAILED,
+          'assets must name at least one category — there is no "check everything" call',
+          'Read the snapshot with get_snapshot_manifest and pass e.g. {"workflow": ["<id>"]}.');
+      }
       const body = {
         [CONFLICT_KEYS.locations]: args.targetLocationIds,
-        [CONFLICT_KEYS.assets]: args.assets ?? {},
+        [CONFLICT_KEYS.assets]: args.assets,
       };
       const r = await gw.call('POST', `/snapshots/${encodeURIComponent(args.snapshotId)}/conflicts?companyId=${encodeURIComponent(companyId)}`, body);
       if (!r.ok) return fromHttp(r.status, r.json);
