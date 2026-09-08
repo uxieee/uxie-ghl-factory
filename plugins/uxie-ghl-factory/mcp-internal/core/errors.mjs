@@ -281,10 +281,18 @@ export function fromHttp(status, body) {
       // Same phrasing discipline as core/auth.mjs: aimed at the agent, and bounded to one attempt.
       // This one also used to point at a capture runbook inside a read skill, which is a longer
       // road to the same place than the connect skill the agent can just invoke.
-      'EXPIRED CREDENTIAL — RE-CAPTURE IT YOURSELF, do not ask and do not stop. Invoke the '
-      + '`uxie-ghl-factory:internal-connect` skill, then retry this exact call. The server re-reads '
-      + 'the token file every call, so nothing restarts. ONE re-capture per failure: if the retry '
-      + 'fails the same way, stop and report it.');
+      // RETRY BEFORE RE-CAPTURING. A 401 here is not proof the credential is dead: on 2026-09-08
+      // one endpoint 401'd three times while another call succeeded on either side of it, then
+      // answered 200 with no re-capture. Reads are already retried once in the gateway; a write
+      // is not, because replaying a write to test a theory is worse than the theory being wrong.
+      // Re-capturing costs a human a browser login, so it is the SECOND thing to try, not the first.
+      'A 401 does not by itself mean the credential is dead — reads are already retried once. '
+      + 'FIRST: retry this exact call, and try one cheap read you know works (auth_status, or a list '
+      + 'on a location you can reach). If that read succeeds, the credential is fine and the problem '
+      + 'is this endpoint or this moment — do NOT re-capture, and report what differed. '
+      + 'ONLY IF the control read fails too: invoke the `uxie-ghl-factory:internal-connect` skill '
+      + 'yourself, then retry. The server re-reads the token file every call, so nothing restarts. '
+      + 'One re-capture per failure; if it fails the same way after that, stop and report it.');
   }
   if (status === 403) {
     return fail(CODES.ACCESS_DENIED, detail,

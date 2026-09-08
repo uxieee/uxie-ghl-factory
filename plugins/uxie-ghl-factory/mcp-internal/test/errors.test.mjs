@@ -126,17 +126,27 @@ test('403 is ACCESS_DENIED, not TOKEN_EXPIRED, and says re-auth will not help', 
   assert.doesNotMatch(r.remediation, /Re-capture the JWT with/);
 });
 
-test('401 stays TOKEN_EXPIRED and tells the AGENT to re-capture, itself, once', () => {
+test('401 stays TOKEN_EXPIRED but sends the agent to a CONTROL before a re-capture', () => {
   const r = fromHttp(401, 'Unauthorized');
   assert.equal(r.code, CODES.TOKEN_EXPIRED);
   // The remediation is addressed to the agent, not the user. It used to open "Run
   // /uxie-ghl-factory:internal-connect", and a slash command is something a USER types -- so the
   // agent read it as "ask the human" and stopped mid-task, on a credential that expires hourly.
-  assert.match(r.remediation, /RE-CAPTURE IT YOURSELF/);
-  assert.match(r.remediation, /do not ask and do not stop/);
-  assert.match(r.remediation, /internal-connect/);
-  // And bounded: re-capturing in a loop against a dead browser session achieves nothing loudly.
-  assert.match(r.remediation, /ONE re-capture per failure/);
+  //
+  // 2026-09-08: it then went too far the other way. It opened "RE-CAPTURE IT YOURSELF, do not ask
+  // and do not stop", and a 401 is NOT proof the credential is dead -- one endpoint 401'd three
+  // times while another call succeeded on either side of it, then answered 200 with no
+  // re-capture. internal-connect opens a browser and needs a human, so an unconditional
+  // re-capture instruction interrupts a person for a blip that clears on retry.
+  //
+  // The order is what this test pins: retry, then a control read, and only then re-capture.
+  assert.match(r.remediation, /FIRST: retry this exact call/);
+  assert.match(r.remediation, /control read/);
+  assert.match(r.remediation, /do NOT re-capture/);
+  assert.match(r.remediation, /ONLY IF/);
+  // Still the agent's own job once the control confirms it, and still bounded.
+  assert.match(r.remediation, /invoke the `uxie-ghl-factory:internal-connect` skill yourself/);
+  assert.match(r.remediation, /One re-capture per failure/);
   assert.doesNotMatch(r.remediation, /^Run \//);
 });
 

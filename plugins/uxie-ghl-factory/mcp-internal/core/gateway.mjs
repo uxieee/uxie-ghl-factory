@@ -221,8 +221,27 @@ export function makeGateway({ tokenFile, loc, rail = 'jwt', fetchImpl = fetch, s
     return res;
   };
 
+  // A 401 is retried ONCE, and only for a method that cannot change anything.
+  //
+  // 2026-09-08: /phone-system/call-dispositions answered 401 three times in a row while
+  // list_workflows succeeded on either side of it, and answered 200 on both locations twenty
+  // minutes later with no re-capture and nothing changed in between. The credential was never
+  // expired — most likely the renewal was in flight and this path read a stale value.
+  //
+  // The cost of getting that wrong is not a failed call. fromHttp maps 401 to TOKEN_EXPIRED with
+  // remediation reading "RE-CAPTURE IT YOURSELF, do not ask and do not stop", and internal-connect
+  // opens a browser and needs a human to log in. So a blip that clears on retry interrupts a
+  // person for nothing, and it fires on the commonest case.
+  //
+  // Only GET and HEAD. A 401 on a write is usually rejected before processing, but "usually" is
+  // not a basis for replaying a write — silently double-posting is a worse failure than the one
+  // being fixed. Writes keep the old behaviour and get the reworded remediation instead.
+  const RETRYABLE_ON_401 = new Set(['GET', 'HEAD']);
   const call = async (method, path, body, baseOrOptions) => {
-    const res = await request(method, path, body, baseOrOptions);
+    let res = await request(method, path, body, baseOrOptions);
+    if (res.status === 401 && RETRYABLE_ON_401.has(String(method).toUpperCase())) {
+      res = await request(method, path, body, baseOrOptions);
+    }
     const text = await res.text();
     let json; try { json = JSON.parse(text); } catch { json = text; }
     return { status: res.status, ok: res.ok, json };
