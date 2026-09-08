@@ -10435,7 +10435,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "forms/20-api/neighbour-services.md:21",
             "forms/20-api/neighbour-services.md:75",
-            "forms/40-rules/validators-and-quirks.md:112"
+            "forms/40-rules/validators-and-quirks.md:113"
           ]
         },
         {
@@ -10478,7 +10478,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "platform/20-api/custom-fields-and-values.md:41",
-            "platform/70-research/2026-08-31-certification-snapshot-and-field-probes.md:81"
+            "platform/70-research/2026-08-31-certification-snapshot-and-field-probes.md:86"
           ]
         },
         {
@@ -15708,7 +15708,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "platform/20-api/call-dispositions.md:65"
+            "platform/20-api/call-dispositions.md:73"
           ]
         },
         {
@@ -15750,7 +15750,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "platform/20-api/call-dispositions.md:77"
+            "platform/20-api/call-dispositions.md:85"
           ]
         },
         {
@@ -17846,7 +17846,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "platform/20-api/snapshots-authoring.md:257"
+            "platform/20-api/snapshots-authoring.md:256"
           ]
         },
         {
@@ -18014,7 +18014,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "platform/20-api/snapshots-authoring.md:259"
+            "platform/20-api/snapshots-authoring.md:258"
           ]
         },
         {
@@ -18186,7 +18186,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "platform/20-api/snapshots-authoring.md:258"
+            "platform/20-api/snapshots-authoring.md:257"
           ]
         },
         {
@@ -35816,7 +35816,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/knowledge-base.md:240"
+            "ai-agents/20-api/knowledge-base.md:237"
           ]
         },
         {
@@ -35851,7 +35851,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/knowledge-base.md:241"
+            "ai-agents/20-api/knowledge-base.md:238"
           ]
         },
         {
@@ -35896,7 +35896,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:82",
-            "ai-agents/20-api/knowledge-base.md:239"
+            "ai-agents/20-api/knowledge-base.md:236"
           ]
         },
         {
@@ -35927,7 +35927,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/knowledge-base.md:238"
+            "ai-agents/20-api/knowledge-base.md:235"
           ]
         },
         {
@@ -35958,7 +35958,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/knowledge-base.md:237"
+            "ai-agents/20-api/knowledge-base.md:234"
           ]
         },
         {
@@ -36212,7 +36212,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "forms/20-api/forms.md:221"
+            "forms/20-api/forms.md:222"
           ]
         },
         {
@@ -36328,7 +36328,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "forms/10-anatomy/form-object.md:73",
             "forms/20-api/forms.md:38",
             "forms/20-api/forms.md:82",
-            "forms/20-api/forms.md:132"
+            "forms/20-api/forms.md:133"
           ]
         },
         {
@@ -36411,7 +36411,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "forms/10-anatomy/form-object.md:90",
             "forms/20-api/forms.md:35",
             "forms/20-api/forms.md:69",
-            "forms/40-rules/validators-and-quirks.md:72"
+            "forms/40-rules/validators-and-quirks.md:73"
           ]
         },
         {
@@ -36446,7 +36446,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "forms/40-rules/validators-and-quirks.md:45"
+            "forms/40-rules/validators-and-quirks.md:46"
           ]
         },
         {
@@ -36656,7 +36656,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "forms/_data/endpoints.json",
             "forms/20-api/forms.md",
             "forms/20-api/forms.md:40",
-            "forms/20-api/forms.md:189"
+            "forms/20-api/forms.md:190"
           ]
         },
         {
@@ -36863,8 +36863,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "forms/_data/endpoints.json",
             "forms/20-api/forms.md",
             "forms/20-api/forms.md:37",
-            "forms/20-api/forms.md:209",
-            "forms/40-rules/validators-and-quirks.md:88"
+            "forms/20-api/forms.md:210",
+            "forms/40-rules/validators-and-quirks.md:89"
           ]
         },
         {
@@ -36941,8 +36941,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "forms/20-api/forms.md",
             "forms/20-api/folders.md:26",
             "forms/20-api/forms.md:41",
-            "forms/20-api/forms.md:203",
-            "forms/40-rules/validators-and-quirks.md:91"
+            "forms/20-api/forms.md:204",
+            "forms/40-rules/validators-and-quirks.md:92"
           ]
         },
         {
@@ -36977,7 +36977,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "forms/_data/endpoints.json",
             "forms/20-api/forms.md",
             "forms/20-api/forms.md:42",
-            "forms/20-api/forms.md:196"
+            "forms/20-api/forms.md:197"
           ]
         },
         {
@@ -37111,8 +37111,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "forms/_data/endpoints.json",
             "forms/20-api/forms.md",
             "forms/20-api/forms.md:47",
-            "forms/20-api/forms.md:217",
-            "forms/40-rules/validators-and-quirks.md:89"
+            "forms/20-api/forms.md:218",
+            "forms/40-rules/validators-and-quirks.md:90"
           ]
         },
         {
@@ -37166,7 +37166,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "forms/_data/endpoints.json",
             "forms/20-api/forms.md",
             "forms/20-api/forms.md:48",
-            "forms/40-rules/validators-and-quirks.md:90"
+            "forms/40-rules/validators-and-quirks.md:91"
           ]
         },
         {
@@ -37489,7 +37489,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "ai-agents/20-api/knowledge-base.md:107",
             "ai-agents/20-api/knowledge-base.md:116",
             "ai-agents/20-api/knowledge-base.md:117",
-            "ai-agents/20-api/knowledge-base.md:261"
+            "ai-agents/20-api/knowledge-base.md:258"
           ]
         },
         {
@@ -37595,7 +37595,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "ai-agents/20-api/knowledge-base.md:60",
-            "ai-agents/20-api/knowledge-base.md:256"
+            "ai-agents/20-api/knowledge-base.md:253"
           ]
         },
         {
@@ -38084,7 +38084,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "ai-agents/20-api/knowledge-base.md:174",
-            "ai-agents/20-api/knowledge-base.md:229"
+            "ai-agents/20-api/knowledge-base.md:226"
           ]
         },
         {
@@ -38120,7 +38120,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "ai-agents/20-api/knowledge-base.md:175",
-            "ai-agents/20-api/knowledge-base.md:210"
+            "ai-agents/20-api/knowledge-base.md:207"
           ]
         },
         {
@@ -38201,7 +38201,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:289",
             "ai-agents/20-api/12-ai-agents-api.md:358",
-            "ai-agents/20-api/knowledge-base.md:262"
+            "ai-agents/20-api/knowledge-base.md:259"
           ]
         },
         {
@@ -38237,7 +38237,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:291",
-            "ai-agents/20-api/knowledge-base.md:266"
+            "ai-agents/20-api/knowledge-base.md:263"
           ]
         },
         {
@@ -38272,7 +38272,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/knowledge-base.md:263"
+            "ai-agents/20-api/knowledge-base.md:260"
           ]
         },
         {
@@ -38308,7 +38308,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:290",
-            "ai-agents/20-api/knowledge-base.md:264"
+            "ai-agents/20-api/knowledge-base.md:261"
           ]
         },
         {
@@ -38343,7 +38343,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/knowledge-base.md:265"
+            "ai-agents/20-api/knowledge-base.md:262"
           ]
         },
         {
@@ -47394,7 +47394,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "forms/20-api/forms.md:94",
             "forms/20-api/surveys-and-quizzes.md:21",
             "forms/20-api/surveys-and-quizzes.md:89",
-            "forms/40-rules/validators-and-quirks.md:63"
+            "forms/40-rules/validators-and-quirks.md:64"
           ]
         },
         {
