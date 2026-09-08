@@ -20,16 +20,16 @@
     {
       "tree": "documented",
       "dir": "corpus",
-      "capturedAt": "2026-09-07T09:55:53.666Z",
+      "capturedAt": "2026-09-08T18:26:03.270Z",
       "hash": "corpus",
-      "fileCount": 705,
-      "endpoints": 705
+      "fileCount": 737,
+      "endpoints": 737
     }
   ],
   "note": "SOURCE-DERIVED ONLY, merged from every mined front-end. `tree` on each row says which app calls it. The plugin owns kind/note/summary/reach/coveredBy and merges them at read time. A row proves a GHL front-end calls that path — not that your token reaches it, and not that calling it is safe.",
-  "discoveredCallSites": 1165,
-  "skippedCallSites": 274,
-  "count": 1091,
+  "discoveredCallSites": 1197,
+  "skippedCallSites": 357,
+  "count": 1121,
   "endpoints": [
     {
       "id": "workflows--actions-branches",
@@ -1762,7 +1762,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "memberships-courses/20-api/build-api.md:286"
+        "memberships-courses/20-api/build-api.md:301"
       ],
       "serviceBasis": "declared"
     },
@@ -1788,7 +1788,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "memberships-courses/20-api/build-api.md:287"
+        "memberships-courses/20-api/build-api.md:302"
       ],
       "serviceBasis": "declared"
     },
@@ -1814,7 +1814,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "memberships-courses/20-api/build-api.md:285"
+        "memberships-courses/20-api/build-api.md:300"
       ],
       "serviceBasis": "declared"
     },
@@ -1884,7 +1884,7 @@
       },
       "sources": [
         "services/api/chat-widget-service.ts:35",
-        "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:123",
+        "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:127",
         "workflows/70-research/ENDPOINTS.md:137"
       ],
       "serviceClass": null,
@@ -1938,7 +1938,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "memberships-courses/20-api/build-api.md:255"
+        "memberships-courses/20-api/build-api.md:270"
       ],
       "serviceBasis": "declared"
     },
@@ -2009,7 +2009,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "memberships-courses/20-api/build-api.md:316",
+        "memberships-courses/20-api/build-api.md:331",
         "memberships-courses/70-research/2026-07-18-internal-api-recon.md:81"
       ],
       "serviceBasis": "declared"
@@ -2036,7 +2036,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "memberships-courses/20-api/build-api.md:317"
+        "memberships-courses/20-api/build-api.md:332"
       ],
       "serviceBasis": "declared"
     },
@@ -2062,7 +2062,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "memberships-courses/20-api/build-api.md:342"
+        "memberships-courses/20-api/build-api.md:357"
       ],
       "serviceBasis": "declared"
     },
@@ -2088,7 +2088,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "memberships-courses/20-api/build-api.md:341"
+        "memberships-courses/20-api/build-api.md:356"
       ],
       "serviceBasis": "declared"
     },
@@ -2114,7 +2114,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "memberships-courses/20-api/build-api.md:340"
+        "memberships-courses/20-api/build-api.md:355"
       ],
       "serviceBasis": "declared"
     },
@@ -2147,7 +2147,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "memberships-courses/20-api/build-api.md:345"
+        "memberships-courses/20-api/build-api.md:360"
       ],
       "serviceBasis": "declared"
     },
@@ -2173,7 +2173,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "memberships-courses/20-api/build-api.md:315",
+        "memberships-courses/20-api/build-api.md:330",
         "memberships-courses/70-research/2026-07-18-internal-api-recon.md:80"
       ],
       "serviceBasis": "declared"
@@ -5305,7 +5305,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/funnels-api.md:89",
+        "funnels/20-api/funnels-api.md:150",
         "funnels/60-recipes/add-a-page-to-a-funnel.md:33"
       ],
       "serviceBasis": "declared"
@@ -5332,7 +5332,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/funnels-api.md:143"
+        "funnels/20-api/funnels-api.md:204"
       ],
       "serviceBasis": "declared"
     },
@@ -5366,7 +5366,7 @@
       },
       "sources": [
         "funnels/10-anatomy/routing-and-publishing.md:69",
-        "funnels/20-api/funnels-api.md:132",
+        "funnels/20-api/funnels-api.md:193",
         "funnels/60-recipes/add-a-page-to-a-funnel.md:37"
       ],
       "serviceBasis": "declared"
@@ -5401,7 +5401,8 @@
       },
       "sources": [
         "funnels/10-anatomy/routing-and-publishing.md:31",
-        "funnels/20-api/funnels-api.md:78"
+        "funnels/20-api/funnels-api.md:76",
+        "funnels/20-api/funnels-api.md:139"
       ],
       "serviceBasis": "declared"
     },
@@ -5428,7 +5429,7 @@
       },
       "sources": [
         "funnels/10-anatomy/routing-and-publishing.md:70",
-        "funnels/20-api/funnels-api.md:133",
+        "funnels/20-api/funnels-api.md:194",
         "funnels/60-recipes/add-a-page-to-a-funnel.md:40"
       ],
       "serviceBasis": "declared"
@@ -5455,7 +5456,33 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/funnels-api.md:142"
+        "funnels/20-api/funnels-api.md:203"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "funnels--funnels-domain",
+      "method": "GET",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/funnels/domain/",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "funnels",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/20-api/funnels-api.md:127"
       ],
       "serviceBasis": "declared"
     },
@@ -5482,6 +5509,33 @@
       },
       "sources": [
         "funnels/20-api/funnels-api.md:44"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "funnels--funnel-clone-control-page",
+      "method": "POST",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/funnels/funnel/clone-control-page/",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "funnels",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/20-api/funnels-api.md:80",
+        "funnels/40-rules/silent-failures.md:95"
       ],
       "serviceBasis": "declared"
     },
@@ -5594,7 +5648,7 @@
       },
       "sources": [
         "funnels/20-api/funnels-api.md:28",
-        "funnels/20-api/funnels-api.md:75"
+        "funnels/20-api/funnels-api.md:136"
       ],
       "serviceBasis": "declared"
     },
@@ -5651,7 +5705,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/funnels-api.md:150",
+        "funnels/20-api/funnels-api.md:211",
         "funnels/40-rules/silent-failures.md:31",
         "funnels/60-recipes/add-a-page-to-a-funnel.md:47"
       ],
@@ -5686,7 +5740,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/funnels-api.md:159"
+        "funnels/20-api/funnels-api.md:220"
       ],
       "serviceBasis": "declared"
     },
@@ -5755,10 +5809,37 @@
       "sources": [
         "services/marketplaceServices/FunnelsService.ts:11",
         "ai-studio/10-anatomy/project.md:17",
-        "funnels/20-api/funnels-api.md:74"
+        "funnels/20-api/funnels-api.md:135"
       ],
       "serviceClass": "FunnelsService",
       "serviceBasis": "inferred-from-path"
+    },
+    {
+      "id": "funnels--funnel-step",
+      "method": "PUT",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/funnels/funnel/step/{funnelId}",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "funnels",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/20-api/funnels-api.md:97",
+        "funnels/40-rules/silent-failures.md:98"
+      ],
+      "serviceBasis": "declared"
     },
     {
       "id": "funnels--funnel-update-settings",
@@ -5782,7 +5863,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/funnels-api.md:168"
+        "funnels/20-api/funnels-api.md:229"
       ],
       "serviceBasis": "declared"
     },
@@ -5808,7 +5889,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/funnels-api.md:149",
+        "funnels/20-api/funnels-api.md:210",
         "funnels/60-recipes/add-a-page-to-a-funnel.md:46"
       ],
       "serviceBasis": "declared"
@@ -5836,7 +5917,7 @@
       },
       "sources": [
         "funnels/10-anatomy/routing-and-publishing.md:41",
-        "funnels/20-api/funnels-api.md:148"
+        "funnels/20-api/funnels-api.md:209"
       ],
       "serviceBasis": "declared"
     },
@@ -5976,8 +6057,35 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/funnels-api.md:76",
+        "funnels/20-api/funnels-api.md:137",
         "funnels/40-rules/silent-failures.md:32"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "funnels--page-create-page",
+      "method": "POST",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/funnels/page/create-page",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "funnels",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/20-api/funnels-api.md:69",
+        "funnels/40-rules/silent-failures.md:95"
       ],
       "serviceBasis": "declared"
     },
@@ -6016,7 +6124,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/funnels-api.md:77"
+        "funnels/20-api/funnels-api.md:138"
       ],
       "serviceBasis": "declared"
     },
@@ -8022,7 +8130,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "forms/40-rules/validators-and-quirks.md:92"
+        "forms/40-rules/validators-and-quirks.md:98"
       ],
       "serviceBasis": "declared"
     },
@@ -8049,7 +8157,7 @@
       },
       "sources": [
         "platform/20-api/custom-fields-and-values.md:41",
-        "platform/70-research/2026-08-31-certification-snapshot-and-field-probes.md:77"
+        "platform/70-research/2026-08-31-certification-snapshot-and-field-probes.md:81"
       ],
       "serviceBasis": "declared"
     },
@@ -10088,7 +10196,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "memberships-courses/20-api/build-api.md:301"
+        "memberships-courses/20-api/build-api.md:316"
       ],
       "serviceBasis": "declared"
     },
@@ -10127,7 +10235,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "memberships-courses/20-api/build-api.md:305"
+        "memberships-courses/20-api/build-api.md:320"
       ],
       "serviceBasis": "declared"
     },
@@ -10263,7 +10371,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "memberships-courses/20-api/build-api.md:260"
+        "memberships-courses/20-api/build-api.md:275"
       ],
       "serviceBasis": "declared"
     },
@@ -11032,7 +11140,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/funnels-api.md:189"
+        "funnels/20-api/funnels-api.md:250"
       ],
       "serviceBasis": "declared"
     },
@@ -11367,7 +11475,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/pipelines.md:22",
+        "pipelines-opportunities/20-api/pipelines.md:26",
         "workflows/70-research/ENDPOINTS.md:130"
       ],
       "serviceBasis": "declared"
@@ -11434,8 +11542,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/pipelines.md:23",
-        "pipelines-opportunities/20-api/pipelines.md:32",
+        "pipelines-opportunities/20-api/pipelines.md:27",
         "platform/20-api/api-gap-matrix.md:25"
       ],
       "serviceBasis": "declared"
@@ -13384,6 +13491,78 @@
       "serviceBasis": "declared"
     },
     {
+      "id": "platform--snapshot-conflicts",
+      "method": "POST",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/snapshots-appengine/snapshot/{snapshotId}/conflicts",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "platform",
+      "query": [
+        {
+          "name": "companyId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "platform/20-api/snapshots-authoring.md:161"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "platform--snapshot-get-assets",
+      "method": "GET",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/snapshots-appengine/snapshot/{snapshotId}/get_assets",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "platform",
+      "query": [
+        {
+          "name": "type",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "companyId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "platform/20-api/snapshots-authoring.md:159"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
       "id": "platform--snapshot-update",
       "method": "POST",
       "origin": "https://backend.leadconnectorhq.com",
@@ -13511,7 +13690,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "platform/20-api/snapshots-authoring.md:115"
+        "platform/20-api/snapshots-authoring.md:115",
+        "platform/20-api/snapshots-authoring.md:160"
       ],
       "serviceBasis": "declared"
     },
@@ -13814,7 +13994,121 @@
         "returns": "unresolved"
       },
       "sources": [
-        "platform/20-api/snapshots-authoring.md:176"
+        "platform/20-api/snapshots-authoring.md:236"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "platform--snapshots-locations",
+      "method": "GET",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/snapshots/locations/{companyId}",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "platform",
+      "query": [
+        {
+          "name": "snapshotId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "companyId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "skip",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "q",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "limit",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "platform/20-api/snapshots-authoring.md:158"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "platform--locations-v2",
+      "method": "GET",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/snapshots/locations/v2/{snapshotId}",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "platform",
+      "query": [
+        {
+          "name": "companyId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "responseType",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "q",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "isEnabled",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "platform/20-api/snapshots-authoring.md:157"
       ],
       "serviceBasis": "declared"
     },
@@ -13840,7 +14134,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "platform/20-api/snapshots-authoring.md:178"
+        "platform/20-api/snapshots-authoring.md:238"
       ],
       "serviceBasis": "declared"
     },
@@ -13878,6 +14172,72 @@
       "serviceBasis": "declared"
     },
     {
+      "id": "platform--snapshot-push-push-in-progress",
+      "method": "GET",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/snapshots/snapshot-push/{snapshotId}/push-in-progress",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "platform",
+      "query": [
+        {
+          "name": "companyId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "platform/20-api/snapshots-authoring.md:156"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "platform--v2-set-assets-to-locations",
+      "method": "POST",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/snapshots/snapshot-push/v2/{snapshotId}/set_assets_to_locations",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "platform",
+      "query": [
+        {
+          "name": "companyId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "platform/20-api/snapshots-authoring.md:162"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
       "id": "platform--snapshot-versions-summary",
       "method": "GET",
       "origin": "https://backend.leadconnectorhq.com",
@@ -13906,7 +14266,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "platform/20-api/snapshots-authoring.md:177"
+        "platform/20-api/snapshots-authoring.md:237"
       ],
       "serviceBasis": "declared"
     },
@@ -17811,7 +18171,9 @@
         "returns": "none-observed"
       },
       "sources": [
-        "services/WorkflowService.ts:603"
+        "services/WorkflowService.ts:603",
+        "platform/20-api/snapshots-authoring.md:203",
+        "platform/40-rules/snapshot-carry-matrix.md:108"
       ],
       "serviceClass": "WorkflowService",
       "serviceBasis": "inferred-from-path"
@@ -17838,7 +18200,8 @@
         "returns": "none-observed"
       },
       "sources": [
-        "services/WorkflowService.ts:596"
+        "services/WorkflowService.ts:596",
+        "platform/20-api/snapshots-authoring.md:202"
       ],
       "serviceClass": "WorkflowService",
       "serviceBasis": "inferred-from-path"
@@ -21886,8 +22249,8 @@
       "note": "the LIST endpoint the catalogue was missing",
       "proof": "executed",
       "sources": [
-        "ai-studio/_data/endpoints.json",
-        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md"
+        "brand-kit/_data/endpoints.json",
+        "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md"
       ],
       "serviceBasis": "declared"
     },
@@ -21971,8 +22334,9 @@
       },
       "proof": "executed",
       "sources": [
-        "ai-studio/_data/endpoints.json",
-        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md"
+        "brand-kit/_data/endpoints.json",
+        "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md",
+        "brand-kit/20-api/brand-voices.md:27"
       ],
       "serviceBasis": "declared"
     },
@@ -22052,9 +22416,10 @@
       "note": "answers 400 'prompt is required' on an empty body; WITHOUT the /workflow prefix the backend route 404s",
       "proof": "executed",
       "sources": [
-        "ai-studio/_data/endpoints.json",
-        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md",
-        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:32"
+        "brand-kit/_data/endpoints.json",
+        "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md",
+        "brand-kit/20-api/brand-voices.md:83",
+        "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:33"
       ],
       "serviceBasis": "declared"
     },
@@ -25290,7 +25655,33 @@
       "sources": [
         "ai-agents/20-api/12-ai-agents-api.md:360",
         "ai-agents/20-api/agent-deployment-routing.md:25",
-        "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:95"
+        "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:98"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "ai-agents--routing-config-configs-post",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/agent-deployment/routing-config/configs",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/agent-deployment-routing.md:87"
       ],
       "serviceBasis": "declared"
     },
@@ -25316,8 +25707,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/agent-deployment-routing.md:64",
-        "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:96"
+        "ai-agents/20-api/agent-deployment-routing.md:69",
+        "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:99"
       ],
       "serviceBasis": "declared"
     },
@@ -26738,7 +27129,7 @@
       "serviceBasis": "declared"
     },
     {
-      "id": "ai-studio--brand-boards",
+      "id": "brand-kit--brand-boards",
       "method": "POST",
       "origin": "https://services.leadconnectorhq.com",
       "path": "/brand-boards/",
@@ -26748,7 +27139,7 @@
       "extraHeaders": [],
       "tree": "documented",
       "operation": null,
-      "service": "ai-studio",
+      "service": "brand-kit",
       "query": [],
       "body": null,
       "returns": null,
@@ -26759,12 +27150,13 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:42"
+        "brand-kit/20-api/brand-voices.md:65",
+        "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:43"
       ],
       "serviceBasis": "declared"
     },
     {
-      "id": "ai-studio--brand-boards-get",
+      "id": "brand-kit--brand-boards-get",
       "method": "GET",
       "origin": "https://services.leadconnectorhq.com",
       "path": "/brand-boards/{locationId}",
@@ -26774,7 +27166,7 @@
       "extraHeaders": [],
       "tree": "documented",
       "operation": null,
-      "service": "ai-studio",
+      "service": "brand-kit",
       "query": [],
       "body": null,
       "returns": null,
@@ -26785,12 +27177,13 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:41"
+        "brand-kit/20-api/brand-voices.md:64",
+        "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:42"
       ],
       "serviceBasis": "declared"
     },
     {
-      "id": "ai-studio--brand-boards-delete",
+      "id": "brand-kit--brand-boards-delete",
       "method": "DELETE",
       "origin": "https://services.leadconnectorhq.com",
       "path": "/brand-boards/{locationId}/{brandBoardId}",
@@ -26800,7 +27193,7 @@
       "extraHeaders": [],
       "tree": "documented",
       "operation": null,
-      "service": "ai-studio",
+      "service": "brand-kit",
       "query": [],
       "body": null,
       "returns": null,
@@ -26811,12 +27204,13 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:45"
+        "brand-kit/20-api/brand-voices.md:68",
+        "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:46"
       ],
       "serviceBasis": "declared"
     },
     {
-      "id": "ai-studio--brand-boards-get-get",
+      "id": "brand-kit--brand-boards-get-get",
       "method": "GET",
       "origin": "https://services.leadconnectorhq.com",
       "path": "/brand-boards/{locationId}/{brandBoardId}",
@@ -26826,7 +27220,7 @@
       "extraHeaders": [],
       "tree": "documented",
       "operation": null,
-      "service": "ai-studio",
+      "service": "brand-kit",
       "query": [],
       "body": null,
       "returns": null,
@@ -26837,12 +27231,13 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:43"
+        "brand-kit/20-api/brand-voices.md:66",
+        "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:44"
       ],
       "serviceBasis": "declared"
     },
     {
-      "id": "ai-studio--brand-boards-post",
+      "id": "brand-kit--brand-boards-post",
       "method": "POST",
       "origin": "https://services.leadconnectorhq.com",
       "path": "/brand-boards/{locationId}/{brandBoardId}",
@@ -26852,7 +27247,7 @@
       "extraHeaders": [],
       "tree": "documented",
       "operation": null,
-      "service": "ai-studio",
+      "service": "brand-kit",
       "query": [],
       "body": null,
       "returns": null,
@@ -26863,12 +27258,13 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:44"
+        "brand-kit/20-api/brand-voices.md:67",
+        "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:45"
       ],
       "serviceBasis": "declared"
     },
     {
-      "id": "ai-studio--brand-boards-default",
+      "id": "brand-kit--brand-boards-default",
       "method": "POST",
       "origin": "https://services.leadconnectorhq.com",
       "path": "/brand-boards/{locationId}/default",
@@ -26878,7 +27274,7 @@
       "extraHeaders": [],
       "tree": "documented",
       "operation": null,
-      "service": "ai-studio",
+      "service": "brand-kit",
       "query": [],
       "body": null,
       "returns": null,
@@ -26889,12 +27285,13 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:46"
+        "brand-kit/20-api/brand-voices.md:69",
+        "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:47"
       ],
       "serviceBasis": "declared"
     },
     {
-      "id": "ai-studio--brand-boards-clone",
+      "id": "brand-kit--brand-boards-clone",
       "method": "POST",
       "origin": "https://services.leadconnectorhq.com",
       "path": "/brand-boards/clone",
@@ -26904,7 +27301,7 @@
       "extraHeaders": [],
       "tree": "documented",
       "operation": null,
-      "service": "ai-studio",
+      "service": "brand-kit",
       "query": [],
       "body": null,
       "returns": null,
@@ -26915,7 +27312,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:47"
+        "brand-kit/20-api/brand-voices.md:70",
+        "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:48"
       ],
       "serviceBasis": "declared"
     },
@@ -26942,8 +27340,9 @@
       },
       "proof": "executed",
       "sources": [
-        "ai-studio/_data/endpoints.json",
-        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md"
+        "brand-kit/_data/endpoints.json",
+        "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md",
+        "brand-kit/20-api/brand-voices.md:76"
       ],
       "serviceBasis": "declared"
     },
@@ -26970,13 +27369,14 @@
       },
       "proof": "executed",
       "sources": [
-        "ai-studio/_data/endpoints.json",
-        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md"
+        "brand-kit/_data/endpoints.json",
+        "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md",
+        "brand-kit/20-api/brand-voices.md:76"
       ],
       "serviceBasis": "declared"
     },
     {
-      "id": "ai-studio--locations-activity",
+      "id": "brand-kit--locations-activity",
       "method": "POST",
       "origin": "https://services.leadconnectorhq.com",
       "path": "/brand-boards/locations/{locationId}/activity",
@@ -26986,7 +27386,7 @@
       "extraHeaders": [],
       "tree": "documented",
       "operation": null,
-      "service": "ai-studio",
+      "service": "brand-kit",
       "query": [],
       "body": null,
       "returns": null,
@@ -26997,12 +27397,13 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:57"
+        "brand-kit/20-api/brand-voices.md:73",
+        "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:58"
       ],
       "serviceBasis": "declared"
     },
     {
-      "id": "ai-studio--brand-boards-voices",
+      "id": "brand-kit--brand-boards-voices",
       "method": "POST",
       "origin": "https://services.leadconnectorhq.com",
       "path": "/brand-boards/voices/",
@@ -27012,7 +27413,7 @@
       "extraHeaders": [],
       "tree": "documented",
       "operation": null,
-      "service": "ai-studio",
+      "service": "brand-kit",
       "query": [],
       "body": null,
       "returns": null,
@@ -27023,13 +27424,15 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:49",
-        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:100"
+        "brand-kit/20-api/brand-voices.md:21",
+        "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:50",
+        "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:101",
+        "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:154"
       ],
       "serviceBasis": "declared"
     },
     {
-      "id": "ai-studio--brand-boards-voices-get",
+      "id": "brand-kit--brand-boards-voices-get",
       "method": "GET",
       "origin": "https://services.leadconnectorhq.com",
       "path": "/brand-boards/voices/{locationId}",
@@ -27039,7 +27442,7 @@
       "extraHeaders": [],
       "tree": "documented",
       "operation": null,
-      "service": "ai-studio",
+      "service": "brand-kit",
       "query": [],
       "body": null,
       "returns": null,
@@ -27050,13 +27453,15 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:48",
-        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:93"
+        "brand-kit/20-api/brand-voices.md:19",
+        "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:49",
+        "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:94",
+        "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:152"
       ],
       "serviceBasis": "declared"
     },
     {
-      "id": "ai-studio--brand-boards-voices-delete",
+      "id": "brand-kit--brand-boards-voices-delete",
       "method": "DELETE",
       "origin": "https://services.leadconnectorhq.com",
       "path": "/brand-boards/voices/{locationId}/{brandVoiceId}",
@@ -27066,7 +27471,7 @@
       "extraHeaders": [],
       "tree": "documented",
       "operation": null,
-      "service": "ai-studio",
+      "service": "brand-kit",
       "query": [],
       "body": null,
       "returns": null,
@@ -27077,12 +27482,12 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:52"
+        "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:53"
       ],
       "serviceBasis": "declared"
     },
     {
-      "id": "ai-studio--brand-boards-voices-get-get",
+      "id": "brand-kit--brand-boards-voices-get-get",
       "method": "GET",
       "origin": "https://services.leadconnectorhq.com",
       "path": "/brand-boards/voices/{locationId}/{brandVoiceId}",
@@ -27092,7 +27497,7 @@
       "extraHeaders": [],
       "tree": "documented",
       "operation": null,
-      "service": "ai-studio",
+      "service": "brand-kit",
       "query": [],
       "body": null,
       "returns": null,
@@ -27103,13 +27508,13 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:50",
-        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:94"
+        "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:51",
+        "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:95"
       ],
       "serviceBasis": "declared"
     },
     {
-      "id": "ai-studio--brand-boards-voices-patch",
+      "id": "brand-kit--brand-boards-voices-patch",
       "method": "PATCH",
       "origin": "https://services.leadconnectorhq.com",
       "path": "/brand-boards/voices/{locationId}/{brandVoiceId}",
@@ -27119,7 +27524,7 @@
       "extraHeaders": [],
       "tree": "documented",
       "operation": null,
-      "service": "ai-studio",
+      "service": "brand-kit",
       "query": [],
       "body": null,
       "returns": null,
@@ -27130,12 +27535,93 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:51"
+        "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:52"
       ],
       "serviceBasis": "declared"
     },
     {
-      "id": "ai-studio--voices-default",
+      "id": "brand-kit--brand-boards-voices-delete-delete",
+      "method": "DELETE",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/brand-boards/voices/{locationId}/{id}",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "brand-kit",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "brand-kit/20-api/brand-voices.md:25",
+        "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:158"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "brand-kit--brand-boards-voices-get-get-get",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/brand-boards/voices/{locationId}/{id}",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "brand-kit",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "brand-kit/20-api/brand-voices.md:20",
+        "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:153"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "brand-kit--brand-boards-voices-patch-patch",
+      "method": "PATCH",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/brand-boards/voices/{locationId}/{id}",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "brand-kit",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "brand-kit/20-api/brand-voices.md:22",
+        "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:155"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "brand-kit--voices-default",
       "method": "POST",
       "origin": "https://services.leadconnectorhq.com",
       "path": "/brand-boards/voices/{locationId}/default",
@@ -27145,7 +27631,7 @@
       "extraHeaders": [],
       "tree": "documented",
       "operation": null,
-      "service": "ai-studio",
+      "service": "brand-kit",
       "query": [],
       "body": null,
       "returns": null,
@@ -27156,12 +27642,14 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:53"
+        "brand-kit/20-api/brand-voices.md:23",
+        "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:54",
+        "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:156"
       ],
       "serviceBasis": "declared"
     },
     {
-      "id": "ai-studio--voices-clone",
+      "id": "brand-kit--voices-clone",
       "method": "POST",
       "origin": "https://services.leadconnectorhq.com",
       "path": "/brand-boards/voices/clone",
@@ -27171,7 +27659,7 @@
       "extraHeaders": [],
       "tree": "documented",
       "operation": null,
-      "service": "ai-studio",
+      "service": "brand-kit",
       "query": [],
       "body": null,
       "returns": null,
@@ -27182,7 +27670,9 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:54"
+        "brand-kit/20-api/brand-voices.md:24",
+        "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:55",
+        "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:157"
       ],
       "serviceBasis": "declared"
     },
@@ -27520,7 +28010,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/agent-deployment-routing.md:83"
+        "ai-agents/20-api/agent-deployment-routing.md:122"
       ],
       "serviceBasis": "declared"
     },
@@ -27930,7 +28420,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/knowledge-base.md:215"
+        "ai-agents/20-api/knowledge-base.md:240"
       ],
       "serviceBasis": "declared"
     },
@@ -27956,7 +28446,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/knowledge-base.md:216"
+        "ai-agents/20-api/knowledge-base.md:241"
       ],
       "serviceBasis": "declared"
     },
@@ -27996,7 +28486,7 @@
       },
       "sources": [
         "ai-agents/20-api/12-ai-agents-api.md:82",
-        "ai-agents/20-api/knowledge-base.md:214"
+        "ai-agents/20-api/knowledge-base.md:239"
       ],
       "serviceBasis": "declared"
     },
@@ -28022,7 +28512,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/knowledge-base.md:213"
+        "ai-agents/20-api/knowledge-base.md:238"
       ],
       "serviceBasis": "declared"
     },
@@ -28048,7 +28538,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/knowledge-base.md:212"
+        "ai-agents/20-api/knowledge-base.md:237"
       ],
       "serviceBasis": "declared"
     },
@@ -28361,10 +28851,10 @@
       "sources": [
         "forms/_data/endpoints.json",
         "forms/20-api/forms.md",
+        "forms/10-anatomy/form-object.md:90",
         "forms/20-api/forms.md:35",
         "forms/20-api/forms.md:69",
-        "forms/40-rules/validators-and-quirks.md:58",
-        "forms/60-recipes/create-a-form-by-api.md:52"
+        "forms/40-rules/validators-and-quirks.md:58"
       ],
       "serviceBasis": "declared"
     },
@@ -28421,9 +28911,9 @@
         "forms/_data/endpoints.json",
         "forms/20-api/forms.md",
         "forms/10-anatomy/form-object.md:77",
+        "forms/10-anatomy/form-object.md:101",
         "forms/20-api/forms.md:39",
-        "forms/20-api/forms.md:100",
-        "forms/20-api/forms.md:129"
+        "forms/20-api/forms.md:100"
       ],
       "serviceBasis": "declared"
     },
@@ -28491,9 +28981,9 @@
         "forms/_data/endpoints.json",
         "forms/20-api/forms.md",
         "forms/10-anatomy/form-object.md:80",
+        "forms/10-anatomy/form-object.md:90",
         "forms/20-api/forms.md:36",
-        "forms/20-api/forms.md:75",
-        "forms/40-rules/validators-and-quirks.md:86"
+        "forms/20-api/forms.md:75"
       ],
       "serviceBasis": "declared"
     },
@@ -29075,7 +29565,7 @@
       "serviceBasis": "declared"
     },
     {
-      "id": "ai-studio--prompt-enhance",
+      "id": "brand-kit--prompt-enhance",
       "method": "POST",
       "origin": "https://services.leadconnectorhq.com",
       "path": "/generate-image-ai/{locationId}/prompt/enhance",
@@ -29085,7 +29575,7 @@
       "extraHeaders": [],
       "tree": "documented",
       "operation": null,
-      "service": "ai-studio",
+      "service": "brand-kit",
       "query": [],
       "body": null,
       "returns": null,
@@ -29096,7 +29586,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:31"
+        "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:32"
       ],
       "serviceBasis": "declared"
     },
@@ -29258,7 +29748,7 @@
         "ai-agents/20-api/knowledge-base.md:107",
         "ai-agents/20-api/knowledge-base.md:116",
         "ai-agents/20-api/knowledge-base.md:117",
-        "ai-agents/20-api/knowledge-base.md:236"
+        "ai-agents/20-api/knowledge-base.md:261"
       ],
       "serviceBasis": "declared"
     },
@@ -29337,7 +29827,7 @@
       },
       "sources": [
         "ai-agents/20-api/knowledge-base.md:60",
-        "ai-agents/20-api/knowledge-base.md:231"
+        "ai-agents/20-api/knowledge-base.md:256"
       ],
       "serviceBasis": "declared"
     },
@@ -29686,6 +30176,18 @@
           "type": "string",
           "required": false,
           "source": "documented"
+        },
+        {
+          "name": "page",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "perPage",
+          "type": "string",
+          "required": false,
+          "source": "documented"
         }
       ],
       "body": null,
@@ -29698,9 +30200,63 @@
       },
       "sources": [
         "ai-agents/20-api/12-ai-agents-api.md:359",
-        "ai-agents/20-api/knowledge-base.md:171",
+        "ai-agents/20-api/knowledge-base.md:172",
         "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:19",
         "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:48"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "ai-agents--gaps-fill",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/knowledge-base/gaps/{gapId}/fill",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/knowledge-base.md:174",
+        "ai-agents/20-api/knowledge-base.md:229"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "ai-agents--gaps-state",
+      "method": "PATCH",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/knowledge-base/gaps/{gapId}/state",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/knowledge-base.md:175",
+        "ai-agents/20-api/knowledge-base.md:210"
       ],
       "serviceBasis": "declared"
     },
@@ -29741,7 +30297,7 @@
       "sources": [
         "ai-agents/20-api/knowledge-base.md:53",
         "ai-agents/20-api/knowledge-base.md:131",
-        "ai-agents/20-api/knowledge-base.md:172",
+        "ai-agents/20-api/knowledge-base.md:173",
         "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:49"
       ],
       "serviceBasis": "declared"
@@ -29770,7 +30326,7 @@
       "sources": [
         "ai-agents/20-api/12-ai-agents-api.md:289",
         "ai-agents/20-api/12-ai-agents-api.md:358",
-        "ai-agents/20-api/knowledge-base.md:237"
+        "ai-agents/20-api/knowledge-base.md:262"
       ],
       "serviceBasis": "declared"
     },
@@ -29797,7 +30353,7 @@
       },
       "sources": [
         "ai-agents/20-api/12-ai-agents-api.md:291",
-        "ai-agents/20-api/knowledge-base.md:241"
+        "ai-agents/20-api/knowledge-base.md:266"
       ],
       "serviceBasis": "declared"
     },
@@ -29823,7 +30379,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/knowledge-base.md:238"
+        "ai-agents/20-api/knowledge-base.md:263"
       ],
       "serviceBasis": "declared"
     },
@@ -29850,7 +30406,7 @@
       },
       "sources": [
         "ai-agents/20-api/12-ai-agents-api.md:290",
-        "ai-agents/20-api/knowledge-base.md:239"
+        "ai-agents/20-api/knowledge-base.md:264"
       ],
       "serviceBasis": "declared"
     },
@@ -29876,7 +30432,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/knowledge-base.md:240"
+        "ai-agents/20-api/knowledge-base.md:265"
       ],
       "serviceBasis": "declared"
     },
@@ -30093,6 +30649,51 @@
       ],
       "serviceClass": null,
       "serviceBasis": "unattributed"
+    },
+    {
+      "id": "ai-agents--tags-search",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/locations/{locationId}/tags/search",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [
+        {
+          "name": "query",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "limit",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "skip",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/agent-deployment-routing.md:49"
+      ],
+      "serviceBasis": "declared"
     },
     {
       "id": "services--search--memberships",
@@ -35294,7 +35895,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/forecast.md:39"
+        "pipelines-opportunities/20-api/forecast.md:63"
       ],
       "serviceBasis": "declared"
     },
@@ -35320,7 +35921,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/forecast.md:41"
+        "pipelines-opportunities/20-api/forecast.md:65"
       ],
       "serviceBasis": "declared"
     },
@@ -35346,7 +35947,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/forecast.md:42"
+        "pipelines-opportunities/20-api/forecast.md:66"
       ],
       "serviceBasis": "declared"
     },
@@ -35372,7 +35973,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/forecast.md:40"
+        "pipelines-opportunities/20-api/forecast.md:64"
       ],
       "serviceBasis": "declared"
     },
@@ -35405,7 +36006,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/forecast.md:109"
+        "pipelines-opportunities/20-api/forecast.md:133",
+        "pipelines-opportunities/20-api/pipelines.md:42"
       ],
       "serviceBasis": "declared"
     },
@@ -35431,7 +36033,9 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/forecast.md:97"
+        "pipelines-opportunities/20-api/forecast.md:121",
+        "pipelines-opportunities/20-api/pipelines.md:43",
+        "pipelines-opportunities/20-api/pipelines.md:128"
       ],
       "serviceBasis": "declared"
     },
@@ -35457,7 +36061,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/forecast.md:110"
+        "pipelines-opportunities/20-api/forecast.md:134"
       ],
       "serviceBasis": "declared"
     },
@@ -35490,7 +36094,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/forecast.md:107",
+        "pipelines-opportunities/20-api/forecast.md:131",
+        "pipelines-opportunities/20-api/pipelines.md:152",
         "pipelines-opportunities/20-api/smart-filters.md:76"
       ],
       "serviceBasis": "declared"
@@ -35517,7 +36122,9 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/forecast.md:89"
+        "pipelines-opportunities/20-api/forecast.md:113",
+        "pipelines-opportunities/20-api/pipelines.md:34",
+        "pipelines-opportunities/20-api/pipelines.md:51"
       ],
       "serviceBasis": "declared"
     },
@@ -35543,7 +36150,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/forecast.md:92"
+        "pipelines-opportunities/20-api/forecast.md:116",
+        "pipelines-opportunities/20-api/pipelines.md:38"
       ],
       "serviceBasis": "declared"
     },
@@ -35559,7 +36167,14 @@
       "tree": "documented",
       "operation": null,
       "service": "pipelines-opportunities",
-      "query": [],
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
       "body": null,
       "returns": null,
       "confidence": {
@@ -35569,7 +36184,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/forecast.md:90"
+        "pipelines-opportunities/20-api/forecast.md:114",
+        "pipelines-opportunities/20-api/pipelines.md:163"
       ],
       "serviceBasis": "declared"
     },
@@ -35595,7 +36211,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/forecast.md:93"
+        "pipelines-opportunities/20-api/forecast.md:117",
+        "pipelines-opportunities/20-api/pipelines.md:35"
       ],
       "serviceBasis": "declared"
     },
@@ -35621,7 +36238,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/forecast.md:94"
+        "pipelines-opportunities/20-api/forecast.md:118",
+        "pipelines-opportunities/20-api/pipelines.md:36"
       ],
       "serviceBasis": "declared"
     },
@@ -35647,7 +36265,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/forecast.md:91"
+        "pipelines-opportunities/20-api/forecast.md:115",
+        "pipelines-opportunities/20-api/pipelines.md:37"
       ],
       "serviceBasis": "declared"
     },
@@ -35673,7 +36292,10 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/forecast.md:95"
+        "pipelines-opportunities/20-api/forecast.md:119",
+        "pipelines-opportunities/20-api/pipelines.md:40",
+        "pipelines-opportunities/20-api/pipelines.md:117",
+        "pipelines-opportunities/20-api/pipelines.md:135"
       ],
       "serviceBasis": "declared"
     },
@@ -35699,7 +36321,34 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/forecast.md:96"
+        "pipelines-opportunities/20-api/forecast.md:120",
+        "pipelines-opportunities/20-api/pipelines.md:119"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "pipelines-opportunities--pipelines-permissions-put-put",
+      "method": "PUT",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/opportunities/pipelines/permissions/{pipelineId}",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "pipelines-opportunities",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "pipelines-opportunities/20-api/pipelines.md:41"
       ],
       "serviceBasis": "declared"
     },
@@ -35732,7 +36381,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/forecast.md:108"
+        "pipelines-opportunities/20-api/forecast.md:132",
+        "pipelines-opportunities/20-api/pipelines.md:39"
       ],
       "serviceBasis": "declared"
     },
@@ -35803,7 +36453,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/smart-filters.md:83"
+        "pipelines-opportunities/20-api/smart-filters.md:83",
+        "pipelines-opportunities/20-api/smart-filters.md:104"
       ],
       "serviceBasis": "declared"
     },
@@ -36172,7 +36823,7 @@
       "serviceBasis": "inferred-from-path"
     },
     {
-      "id": "platform--snapshot-get-assets",
+      "id": "platform--snapshot-get-assets-get",
       "method": "GET",
       "origin": "https://services.leadconnectorhq.com",
       "path": "/snapshots-appengine/snapshot/{snapshotId}/get_assets",
@@ -36343,7 +36994,7 @@
       "serviceBasis": "declared"
     },
     {
-      "id": "platform--locations-v2",
+      "id": "platform--locations-v2-get",
       "method": "GET",
       "origin": "https://services.leadconnectorhq.com",
       "path": "/snapshots/locations/v2/{snapshotId}",
@@ -36376,7 +37027,7 @@
       "serviceBasis": "declared"
     },
     {
-      "id": "platform--snapshot-push-push-in-progress",
+      "id": "platform--snapshot-push-push-in-progress-get",
       "method": "GET",
       "origin": "https://services.leadconnectorhq.com",
       "path": "/snapshots/snapshot-push/{snapshotId}/push-in-progress",
@@ -36740,6 +37391,8 @@
         "forms/_data/endpoints.json",
         "forms/20-api/surveys-and-quizzes.md",
         "forms/20-api/forms.md:94",
+        "forms/20-api/surveys-and-quizzes.md:21",
+        "forms/20-api/surveys-and-quizzes.md:89",
         "forms/40-rules/validators-and-quirks.md:49"
       ],
       "serviceBasis": "declared"
@@ -36773,6 +37426,323 @@
       "serviceBasis": "declared"
     },
     {
+      "id": "forms--surveys",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/surveys/{id}",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "forms",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "forms/20-api/surveys-and-quizzes.md:83",
+        "forms/20-api/surveys-and-quizzes.md:93"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "forms--surveys-delete",
+      "method": "DELETE",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/surveys/{surveyId}",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "forms",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "forms/20-api/surveys-and-quizzes.md:38"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "forms--surveys-duplicate",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/surveys/duplicate",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "forms",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "forms/20-api/surveys-and-quizzes.md:53"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "forms--surveys-duplicate-post",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/surveys/duplicate/{surveyId}",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "forms",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "forms/20-api/surveys-and-quizzes.md:37",
+        "forms/20-api/surveys-and-quizzes.md:66",
+        "forms/20-api/surveys-and-quizzes.md:102"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "forms--surveys-folder",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/surveys/folder",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "forms",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "forms/20-api/surveys-and-quizzes.md:39"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "forms--surveys-folder-post",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/surveys/folder",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "forms",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "forms/20-api/surveys-and-quizzes.md:52"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "forms--surveys-folder-post-post",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/surveys/folder/",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "forms",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "forms/20-api/surveys-and-quizzes.md:37"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "forms--surveys-folder-get",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/surveys/folder/{folderId}",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "forms",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "forms/20-api/surveys-and-quizzes.md:39"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "forms--surveys-folder-post-post-post",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/surveys/folder/{id}",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "forms",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "forms/20-api/surveys-and-quizzes.md:38"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "forms--surveys-move-to-folder",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/surveys/move-to-folder",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "forms",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "forms/20-api/surveys-and-quizzes.md:37",
+        "forms/20-api/surveys-and-quizzes.md:51"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "forms--surveys-restore-version",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/surveys/restore-version",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "forms",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "forms/20-api/surveys-and-quizzes.md:84",
+        "forms/20-api/surveys-and-quizzes.md:108"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "forms--surveys-share",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/surveys/share/{id}",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "forms",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "forms/20-api/surveys-and-quizzes.md:38"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
       "id": "memberships-courses--templates",
       "method": "DELETE",
       "origin": "https://services.leadconnectorhq.com",
@@ -36794,7 +37764,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "memberships-courses/20-api/build-api.md:275"
+        "memberships-courses/20-api/build-api.md:290"
       ],
       "serviceBasis": "declared"
     },
@@ -36820,7 +37790,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "memberships-courses/20-api/build-api.md:272"
+        "memberships-courses/20-api/build-api.md:287"
       ],
       "serviceBasis": "declared"
     },

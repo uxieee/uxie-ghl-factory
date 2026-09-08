@@ -246,7 +246,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
     define_ENDPOINT_CATALOG_default = {
       generated: "2026-09-08",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 1099,
+      count: 1129,
       endpoints: [
         {
           id: "workflows--actions-branches",
@@ -2425,7 +2425,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "memberships-courses/20-api/build-api.md:286"
+            "memberships-courses/20-api/build-api.md:301"
           ]
         },
         {
@@ -2463,7 +2463,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "memberships-courses/20-api/build-api.md:287"
+            "memberships-courses/20-api/build-api.md:302"
           ]
         },
         {
@@ -2498,7 +2498,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "memberships-courses/20-api/build-api.md:285"
+            "memberships-courses/20-api/build-api.md:300"
           ]
         },
         {
@@ -2598,7 +2598,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/api/chat-widget-service.ts:35",
-            "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:123",
+            "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:127",
             "workflows/70-research/ENDPOINTS.md:137"
           ]
         },
@@ -2672,7 +2672,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "memberships-courses/20-api/build-api.md:255"
+            "memberships-courses/20-api/build-api.md:270"
           ]
         },
         {
@@ -2757,7 +2757,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "memberships-courses/20-api/build-api.md:316",
+            "memberships-courses/20-api/build-api.md:331",
             "memberships-courses/70-research/2026-07-18-internal-api-recon.md:81"
           ]
         },
@@ -2793,7 +2793,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "memberships-courses/20-api/build-api.md:317"
+            "memberships-courses/20-api/build-api.md:332"
           ]
         },
         {
@@ -2831,7 +2831,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "memberships-courses/20-api/build-api.md:342"
+            "memberships-courses/20-api/build-api.md:357"
           ]
         },
         {
@@ -2872,7 +2872,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "memberships-courses/20-api/build-api.md:341"
+            "memberships-courses/20-api/build-api.md:356"
           ]
         },
         {
@@ -2910,7 +2910,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "memberships-courses/20-api/build-api.md:340"
+            "memberships-courses/20-api/build-api.md:355"
           ]
         },
         {
@@ -2952,7 +2952,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "memberships-courses/20-api/build-api.md:345"
+            "memberships-courses/20-api/build-api.md:360"
           ]
         },
         {
@@ -2987,7 +2987,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "memberships-courses/20-api/build-api.md:315",
+            "memberships-courses/20-api/build-api.md:330",
             "memberships-courses/70-research/2026-07-18-internal-api-recon.md:80"
           ]
         },
@@ -6921,7 +6921,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/funnels-api.md:89",
+            "funnels/20-api/funnels-api.md:150",
             "funnels/60-recipes/add-a-page-to-a-funnel.md:33"
           ]
         },
@@ -6953,7 +6953,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/funnels-api.md:143"
+            "funnels/20-api/funnels-api.md:204"
           ]
         },
         {
@@ -6992,7 +6992,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/10-anatomy/routing-and-publishing.md:69",
-            "funnels/20-api/funnels-api.md:132",
+            "funnels/20-api/funnels-api.md:193",
             "funnels/60-recipes/add-a-page-to-a-funnel.md:37"
           ]
         },
@@ -7032,7 +7032,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/10-anatomy/routing-and-publishing.md:31",
-            "funnels/20-api/funnels-api.md:78"
+            "funnels/20-api/funnels-api.md:76",
+            "funnels/20-api/funnels-api.md:139"
           ]
         },
         {
@@ -7064,7 +7065,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/10-anatomy/routing-and-publishing.md:70",
-            "funnels/20-api/funnels-api.md:133",
+            "funnels/20-api/funnels-api.md:194",
             "funnels/60-recipes/add-a-page-to-a-funnel.md:40"
           ]
         },
@@ -7096,7 +7097,38 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/funnels-api.md:142"
+            "funnels/20-api/funnels-api.md:203"
+          ]
+        },
+        {
+          id: "funnels--funnels-domain",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/funnels/domain/",
+          path: "/funnels/domain/",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/20-api/funnels-api.md:127"
           ]
         },
         {
@@ -7132,6 +7164,38 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/20-api/funnels-api.md:44"
+          ]
+        },
+        {
+          id: "funnels--funnel-clone-control-page",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/funnels/funnel/clone-control-page/",
+          path: "/funnels/funnel/clone-control-page/",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/20-api/funnels-api.md:80",
+            "funnels/40-rules/silent-failures.md:95"
           ]
         },
         {
@@ -7268,7 +7332,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/20-api/funnels-api.md:28",
-            "funnels/20-api/funnels-api.md:75"
+            "funnels/20-api/funnels-api.md:136"
           ]
         },
         {
@@ -7342,7 +7406,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/funnels-api.md:150",
+            "funnels/20-api/funnels-api.md:211",
             "funnels/40-rules/silent-failures.md:31",
             "funnels/60-recipes/add-a-page-to-a-funnel.md:47"
           ]
@@ -7382,7 +7446,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/funnels-api.md:159"
+            "funnels/20-api/funnels-api.md:220"
           ]
         },
         {
@@ -7458,7 +7522,43 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "services/marketplaceServices/FunnelsService.ts:11",
             "ai-studio/10-anatomy/project.md:17",
-            "funnels/20-api/funnels-api.md:74"
+            "funnels/20-api/funnels-api.md:135"
+          ]
+        },
+        {
+          id: "funnels--funnel-step",
+          method: "PUT",
+          url: "https://backend.leadconnectorhq.com/funnels/funnel/step/{funnelId}",
+          path: "/funnels/funnel/step/{funnelId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "funnelId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/20-api/funnels-api.md:97",
+            "funnels/40-rules/silent-failures.md:98"
           ]
         },
         {
@@ -7489,7 +7589,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/funnels-api.md:168"
+            "funnels/20-api/funnels-api.md:229"
           ]
         },
         {
@@ -7524,7 +7624,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/funnels-api.md:149",
+            "funnels/20-api/funnels-api.md:210",
             "funnels/60-recipes/add-a-page-to-a-funnel.md:46"
           ]
         },
@@ -7561,7 +7661,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/10-anatomy/routing-and-publishing.md:41",
-            "funnels/20-api/funnels-api.md:148"
+            "funnels/20-api/funnels-api.md:209"
           ]
         },
         {
@@ -7731,8 +7831,40 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/funnels-api.md:76",
+            "funnels/20-api/funnels-api.md:137",
             "funnels/40-rules/silent-failures.md:32"
+          ]
+        },
+        {
+          id: "funnels--page-create-page",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/funnels/page/create-page",
+          path: "/funnels/page/create-page",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/20-api/funnels-api.md:69",
+            "funnels/40-rules/silent-failures.md:95"
           ]
         },
         {
@@ -7776,7 +7908,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/funnels-api.md:77"
+            "funnels/20-api/funnels-api.md:138"
           ]
         },
         {
@@ -10298,7 +10430,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "forms/40-rules/validators-and-quirks.md:92"
+            "forms/40-rules/validators-and-quirks.md:98"
           ]
         },
         {
@@ -10341,7 +10473,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "platform/20-api/custom-fields-and-values.md:41",
-            "platform/70-research/2026-08-31-certification-snapshot-and-field-probes.md:77"
+            "platform/70-research/2026-08-31-certification-snapshot-and-field-probes.md:81"
           ]
         },
         {
@@ -12941,7 +13073,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "memberships-courses/20-api/build-api.md:301"
+            "memberships-courses/20-api/build-api.md:316"
           ]
         },
         {
@@ -12994,7 +13126,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "memberships-courses/20-api/build-api.md:305"
+            "memberships-courses/20-api/build-api.md:320"
           ]
         },
         {
@@ -13173,7 +13305,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "memberships-courses/20-api/build-api.md:260"
+            "memberships-courses/20-api/build-api.md:275"
           ]
         },
         {
@@ -14191,7 +14323,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/funnels-api.md:189"
+            "funnels/20-api/funnels-api.md:250"
           ]
         },
         {
@@ -14602,7 +14734,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/pipelines.md:22",
+            "pipelines-opportunities/20-api/pipelines.md:26",
             "workflows/70-research/ENDPOINTS.md:130"
           ]
         },
@@ -14689,8 +14821,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/pipelines.md:23",
-            "pipelines-opportunities/20-api/pipelines.md:32",
+            "pipelines-opportunities/20-api/pipelines.md:27",
             "platform/20-api/api-gap-matrix.md:25"
           ]
         },
@@ -17032,6 +17163,99 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "platform--snapshot-conflicts",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/snapshots-appengine/snapshot/{snapshotId}/conflicts",
+          path: "/snapshots-appengine/snapshot/{snapshotId}/conflicts",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "platform",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "snapshotId"
+            }
+          ],
+          query: [
+            {
+              name: "companyId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "platform/20-api/snapshots-authoring.md:161"
+          ]
+        },
+        {
+          id: "platform--snapshot-get-assets",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/snapshots-appengine/snapshot/{snapshotId}/get_assets",
+          path: "/snapshots-appengine/snapshot/{snapshotId}/get_assets",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          note: "Details drawer, assets grouped by product category. Captured from the agency page's own session 2026-08-31; not yet proven through the plugin's credential.",
+          reach: "source-only",
+          coveredBy: [
+            "create_snapshot"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "platform",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "snapshotId"
+            }
+          ],
+          query: [
+            {
+              name: "type",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "companyId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "platform/20-api/snapshots-authoring.md:159"
+          ]
+        },
+        {
           id: "platform--snapshot-update",
           method: "POST",
           url: "https://backend.leadconnectorhq.com/snapshots-appengine/snapshot/{snapshotId}/update",
@@ -17197,7 +17421,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "platform/20-api/snapshots-authoring.md:115"
+            "platform/20-api/snapshots-authoring.md:115",
+            "platform/20-api/snapshots-authoring.md:160"
           ]
         },
         {
@@ -17577,7 +17802,140 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "platform/20-api/snapshots-authoring.md:176"
+            "platform/20-api/snapshots-authoring.md:236"
+          ]
+        },
+        {
+          id: "platform--snapshots-locations",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/snapshots/locations/{companyId}",
+          path: "/snapshots/locations/{companyId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "platform",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "companyId"
+            }
+          ],
+          query: [
+            {
+              name: "snapshotId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "companyId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "skip",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "q",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "limit",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "platform/20-api/snapshots-authoring.md:158"
+          ]
+        },
+        {
+          id: "platform--locations-v2",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/snapshots/locations/v2/{snapshotId}",
+          path: "/snapshots/locations/v2/{snapshotId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          note: "Sub-accounts LINKED to a snapshot (isEnabled=true). Captured from the agency page's own session 2026-08-31; not yet proven through the plugin's credential.",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "platform",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "snapshotId"
+            }
+          ],
+          query: [
+            {
+              name: "companyId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "cursor",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "responseType",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "q",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "isEnabled",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "platform/20-api/snapshots-authoring.md:157"
           ]
         },
         {
@@ -17612,7 +17970,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "platform/20-api/snapshots-authoring.md:178"
+            "platform/20-api/snapshots-authoring.md:238"
           ]
         },
         {
@@ -17658,6 +18016,91 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "platform--snapshot-push-push-in-progress",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/snapshots/snapshot-push/{snapshotId}/push-in-progress",
+          path: "/snapshots/snapshot-push/{snapshotId}/push-in-progress",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          note: "Load-wizard step 1. Captured from the agency page's own session 2026-08-31; not yet proven through the plugin's credential.",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "platform",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "snapshotId"
+            }
+          ],
+          query: [
+            {
+              name: "companyId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "platform/20-api/snapshots-authoring.md:156"
+          ]
+        },
+        {
+          id: "platform--v2-set-assets-to-locations",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/snapshots/snapshot-push/v2/{snapshotId}/set_assets_to_locations",
+          path: "/snapshots/snapshot-push/v2/{snapshotId}/set_assets_to_locations",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "platform",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "snapshotId"
+            }
+          ],
+          query: [
+            {
+              name: "companyId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "platform/20-api/snapshots-authoring.md:162"
+          ]
+        },
+        {
           id: "platform--snapshot-versions-summary",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/snapshots/snapshot-versions/{snapshotId}/{versionId}/summary",
@@ -17699,7 +18142,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "platform/20-api/snapshots-authoring.md:177"
+            "platform/20-api/snapshots-authoring.md:237"
           ]
         },
         {
@@ -22748,7 +23191,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/WorkflowService.ts:603"
+            "services/WorkflowService.ts:603",
+            "platform/20-api/snapshots-authoring.md:203",
+            "platform/40-rules/snapshot-carry-matrix.md:108"
           ]
         },
         {
@@ -22787,7 +23232,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/WorkflowService.ts:596"
+            "services/WorkflowService.ts:596",
+            "platform/20-api/snapshots-authoring.md:202"
           ]
         },
         {
@@ -27775,8 +28221,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "documented"
           },
           sources: [
-            "ai-studio/_data/endpoints.json",
-            "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md"
+            "brand-kit/_data/endpoints.json",
+            "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md"
           ]
         },
         {
@@ -27880,8 +28326,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "documented"
           },
           sources: [
-            "ai-studio/_data/endpoints.json",
-            "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md"
+            "brand-kit/_data/endpoints.json",
+            "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md",
+            "brand-kit/20-api/brand-voices.md:27"
           ]
         },
         {
@@ -27980,9 +28427,10 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-studio/_data/endpoints.json",
-            "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md",
-            "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:32"
+            "brand-kit/_data/endpoints.json",
+            "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md",
+            "brand-kit/20-api/brand-voices.md:83",
+            "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:33"
           ]
         },
         {
@@ -31671,7 +32119,38 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:360",
             "ai-agents/20-api/agent-deployment-routing.md:25",
-            "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:95"
+            "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:98"
+          ]
+        },
+        {
+          id: "ai-agents--routing-config-configs-post",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/agent-deployment/routing-config/configs",
+          path: "/agent-deployment/routing-config/configs",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/agent-deployment-routing.md:87"
           ]
         },
         {
@@ -31707,8 +32186,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-deployment-routing.md:64",
-            "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:96"
+            "ai-agents/20-api/agent-deployment-routing.md:69",
+            "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:99"
           ]
         },
         {
@@ -33535,7 +34014,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
-          id: "ai-studio--brand-boards",
+          id: "brand-kit--brand-boards",
           method: "POST",
           url: "https://services.leadconnectorhq.com/brand-boards/",
           path: "/brand-boards/",
@@ -33549,7 +34028,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: "ai-studio",
+          service: "brand-kit",
           tree: "documented",
           pathParams: [],
           query: [],
@@ -33562,11 +34041,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:42"
+            "brand-kit/20-api/brand-voices.md:65",
+            "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:43"
           ]
         },
         {
-          id: "ai-studio--brand-boards-get",
+          id: "brand-kit--brand-boards-get",
           method: "GET",
           url: "https://services.leadconnectorhq.com/brand-boards/{locationId}",
           path: "/brand-boards/{locationId}",
@@ -33580,7 +34060,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: "ai-studio",
+          service: "brand-kit",
           tree: "documented",
           pathParams: [
             {
@@ -33597,11 +34077,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:41"
+            "brand-kit/20-api/brand-voices.md:64",
+            "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:42"
           ]
         },
         {
-          id: "ai-studio--brand-boards-delete",
+          id: "brand-kit--brand-boards-delete",
           method: "DELETE",
           url: "https://services.leadconnectorhq.com/brand-boards/{locationId}/{brandBoardId}",
           path: "/brand-boards/{locationId}/{brandBoardId}",
@@ -33615,7 +34096,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: "ai-studio",
+          service: "brand-kit",
           tree: "documented",
           pathParams: [
             {
@@ -33635,11 +34116,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:45"
+            "brand-kit/20-api/brand-voices.md:68",
+            "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:46"
           ]
         },
         {
-          id: "ai-studio--brand-boards-get-get",
+          id: "brand-kit--brand-boards-get-get",
           method: "GET",
           url: "https://services.leadconnectorhq.com/brand-boards/{locationId}/{brandBoardId}",
           path: "/brand-boards/{locationId}/{brandBoardId}",
@@ -33653,7 +34135,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: "ai-studio",
+          service: "brand-kit",
           tree: "documented",
           pathParams: [
             {
@@ -33673,11 +34155,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:43"
+            "brand-kit/20-api/brand-voices.md:66",
+            "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:44"
           ]
         },
         {
-          id: "ai-studio--brand-boards-post",
+          id: "brand-kit--brand-boards-post",
           method: "POST",
           url: "https://services.leadconnectorhq.com/brand-boards/{locationId}/{brandBoardId}",
           path: "/brand-boards/{locationId}/{brandBoardId}",
@@ -33691,7 +34174,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: "ai-studio",
+          service: "brand-kit",
           tree: "documented",
           pathParams: [
             {
@@ -33711,11 +34194,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:44"
+            "brand-kit/20-api/brand-voices.md:67",
+            "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:45"
           ]
         },
         {
-          id: "ai-studio--brand-boards-default",
+          id: "brand-kit--brand-boards-default",
           method: "POST",
           url: "https://services.leadconnectorhq.com/brand-boards/{locationId}/default",
           path: "/brand-boards/{locationId}/default",
@@ -33729,7 +34213,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: "ai-studio",
+          service: "brand-kit",
           tree: "documented",
           pathParams: [
             {
@@ -33746,11 +34230,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:46"
+            "brand-kit/20-api/brand-voices.md:69",
+            "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:47"
           ]
         },
         {
-          id: "ai-studio--brand-boards-clone",
+          id: "brand-kit--brand-boards-clone",
           method: "POST",
           url: "https://services.leadconnectorhq.com/brand-boards/clone",
           path: "/brand-boards/clone",
@@ -33764,7 +34249,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: "ai-studio",
+          service: "brand-kit",
           tree: "documented",
           pathParams: [],
           query: [],
@@ -33777,7 +34262,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:47"
+            "brand-kit/20-api/brand-voices.md:70",
+            "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:48"
           ]
         },
         {
@@ -33813,8 +34299,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "documented"
           },
           sources: [
-            "ai-studio/_data/endpoints.json",
-            "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md"
+            "brand-kit/_data/endpoints.json",
+            "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md",
+            "brand-kit/20-api/brand-voices.md:76"
           ]
         },
         {
@@ -33850,12 +34337,13 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "documented"
           },
           sources: [
-            "ai-studio/_data/endpoints.json",
-            "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md"
+            "brand-kit/_data/endpoints.json",
+            "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md",
+            "brand-kit/20-api/brand-voices.md:76"
           ]
         },
         {
-          id: "ai-studio--locations-activity",
+          id: "brand-kit--locations-activity",
           method: "POST",
           url: "https://services.leadconnectorhq.com/brand-boards/locations/{locationId}/activity",
           path: "/brand-boards/locations/{locationId}/activity",
@@ -33869,7 +34357,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: "ai-studio",
+          service: "brand-kit",
           tree: "documented",
           pathParams: [
             {
@@ -33886,11 +34374,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:57"
+            "brand-kit/20-api/brand-voices.md:73",
+            "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:58"
           ]
         },
         {
-          id: "ai-studio--brand-boards-voices",
+          id: "brand-kit--brand-boards-voices",
           method: "POST",
           url: "https://services.leadconnectorhq.com/brand-boards/voices/",
           path: "/brand-boards/voices/",
@@ -33904,7 +34393,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: "ai-studio",
+          service: "brand-kit",
           tree: "documented",
           pathParams: [],
           query: [],
@@ -33917,12 +34406,14 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:49",
-            "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:100"
+            "brand-kit/20-api/brand-voices.md:21",
+            "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:50",
+            "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:101",
+            "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:154"
           ]
         },
         {
-          id: "ai-studio--brand-boards-voices-get",
+          id: "brand-kit--brand-boards-voices-get",
           method: "GET",
           url: "https://services.leadconnectorhq.com/brand-boards/voices/{locationId}",
           path: "/brand-boards/voices/{locationId}",
@@ -33936,7 +34427,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: "ai-studio",
+          service: "brand-kit",
           tree: "documented",
           pathParams: [
             {
@@ -33953,12 +34444,14 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:48",
-            "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:93"
+            "brand-kit/20-api/brand-voices.md:19",
+            "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:49",
+            "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:94",
+            "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:152"
           ]
         },
         {
-          id: "ai-studio--brand-boards-voices-delete",
+          id: "brand-kit--brand-boards-voices-delete",
           method: "DELETE",
           url: "https://services.leadconnectorhq.com/brand-boards/voices/{locationId}/{brandVoiceId}",
           path: "/brand-boards/voices/{locationId}/{brandVoiceId}",
@@ -33972,7 +34465,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: "ai-studio",
+          service: "brand-kit",
           tree: "documented",
           pathParams: [
             {
@@ -33992,11 +34485,11 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:52"
+            "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:53"
           ]
         },
         {
-          id: "ai-studio--brand-boards-voices-get-get",
+          id: "brand-kit--brand-boards-voices-get-get",
           method: "GET",
           url: "https://services.leadconnectorhq.com/brand-boards/voices/{locationId}/{brandVoiceId}",
           path: "/brand-boards/voices/{locationId}/{brandVoiceId}",
@@ -34010,7 +34503,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: "ai-studio",
+          service: "brand-kit",
           tree: "documented",
           pathParams: [
             {
@@ -34030,12 +34523,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:50",
-            "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:94"
+            "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:51",
+            "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:95"
           ]
         },
         {
-          id: "ai-studio--brand-boards-voices-patch",
+          id: "brand-kit--brand-boards-voices-patch",
           method: "PATCH",
           url: "https://services.leadconnectorhq.com/brand-boards/voices/{locationId}/{brandVoiceId}",
           path: "/brand-boards/voices/{locationId}/{brandVoiceId}",
@@ -34049,7 +34542,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: "ai-studio",
+          service: "brand-kit",
           tree: "documented",
           pathParams: [
             {
@@ -34069,11 +34562,128 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:51"
+            "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:52"
           ]
         },
         {
-          id: "ai-studio--voices-default",
+          id: "brand-kit--brand-boards-voices-delete-delete",
+          method: "DELETE",
+          url: "https://services.leadconnectorhq.com/brand-boards/voices/{locationId}/{id}",
+          path: "/brand-boards/voices/{locationId}/{id}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "brand-kit",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "brand-kit/20-api/brand-voices.md:25",
+            "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:158"
+          ]
+        },
+        {
+          id: "brand-kit--brand-boards-voices-get-get-get",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/brand-boards/voices/{locationId}/{id}",
+          path: "/brand-boards/voices/{locationId}/{id}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "brand-kit",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "brand-kit/20-api/brand-voices.md:20",
+            "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:153"
+          ]
+        },
+        {
+          id: "brand-kit--brand-boards-voices-patch-patch",
+          method: "PATCH",
+          url: "https://services.leadconnectorhq.com/brand-boards/voices/{locationId}/{id}",
+          path: "/brand-boards/voices/{locationId}/{id}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "brand-kit",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "brand-kit/20-api/brand-voices.md:22",
+            "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:155"
+          ]
+        },
+        {
+          id: "brand-kit--voices-default",
           method: "POST",
           url: "https://services.leadconnectorhq.com/brand-boards/voices/{locationId}/default",
           path: "/brand-boards/voices/{locationId}/default",
@@ -34087,7 +34697,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: "ai-studio",
+          service: "brand-kit",
           tree: "documented",
           pathParams: [
             {
@@ -34104,11 +34714,13 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:53"
+            "brand-kit/20-api/brand-voices.md:23",
+            "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:54",
+            "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:156"
           ]
         },
         {
-          id: "ai-studio--voices-clone",
+          id: "brand-kit--voices-clone",
           method: "POST",
           url: "https://services.leadconnectorhq.com/brand-boards/voices/clone",
           path: "/brand-boards/voices/clone",
@@ -34122,7 +34734,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: "ai-studio",
+          service: "brand-kit",
           tree: "documented",
           pathParams: [],
           query: [],
@@ -34135,7 +34747,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:54"
+            "brand-kit/20-api/brand-voices.md:24",
+            "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:55",
+            "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:157"
           ]
         },
         {
@@ -34554,7 +35168,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-deployment-routing.md:83"
+            "ai-agents/20-api/agent-deployment-routing.md:122"
           ]
         },
         {
@@ -35050,7 +35664,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/knowledge-base.md:215"
+            "ai-agents/20-api/knowledge-base.md:240"
           ]
         },
         {
@@ -35085,7 +35699,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/knowledge-base.md:216"
+            "ai-agents/20-api/knowledge-base.md:241"
           ]
         },
         {
@@ -35130,7 +35744,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:82",
-            "ai-agents/20-api/knowledge-base.md:214"
+            "ai-agents/20-api/knowledge-base.md:239"
           ]
         },
         {
@@ -35161,7 +35775,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/knowledge-base.md:213"
+            "ai-agents/20-api/knowledge-base.md:238"
           ]
         },
         {
@@ -35192,7 +35806,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/knowledge-base.md:212"
+            "ai-agents/20-api/knowledge-base.md:237"
           ]
         },
         {
@@ -35574,10 +36188,10 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "forms/_data/endpoints.json",
             "forms/20-api/forms.md",
+            "forms/10-anatomy/form-object.md:90",
             "forms/20-api/forms.md:35",
             "forms/20-api/forms.md:69",
-            "forms/40-rules/validators-and-quirks.md:58",
-            "forms/60-recipes/create-a-form-by-api.md:52"
+            "forms/40-rules/validators-and-quirks.md:58"
           ]
         },
         {
@@ -35654,9 +36268,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "forms/_data/endpoints.json",
             "forms/20-api/forms.md",
             "forms/10-anatomy/form-object.md:77",
+            "forms/10-anatomy/form-object.md:101",
             "forms/20-api/forms.md:39",
-            "forms/20-api/forms.md:100",
-            "forms/20-api/forms.md:129"
+            "forms/20-api/forms.md:100"
           ]
         },
         {
@@ -35740,9 +36354,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "forms/_data/endpoints.json",
             "forms/20-api/forms.md",
             "forms/10-anatomy/form-object.md:80",
+            "forms/10-anatomy/form-object.md:90",
             "forms/20-api/forms.md:36",
-            "forms/20-api/forms.md:75",
-            "forms/40-rules/validators-and-quirks.md:86"
+            "forms/20-api/forms.md:75"
           ]
         },
         {
@@ -36423,7 +37037,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
-          id: "ai-studio--prompt-enhance",
+          id: "brand-kit--prompt-enhance",
           method: "POST",
           url: "https://services.leadconnectorhq.com/generate-image-ai/{locationId}/prompt/enhance",
           path: "/generate-image-ai/{locationId}/prompt/enhance",
@@ -36437,7 +37051,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: "ai-studio",
+          service: "brand-kit",
           tree: "documented",
           pathParams: [
             {
@@ -36454,7 +37068,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:31"
+            "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:32"
           ]
         },
         {
@@ -36655,7 +37269,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "ai-agents/20-api/knowledge-base.md:107",
             "ai-agents/20-api/knowledge-base.md:116",
             "ai-agents/20-api/knowledge-base.md:117",
-            "ai-agents/20-api/knowledge-base.md:236"
+            "ai-agents/20-api/knowledge-base.md:261"
           ]
         },
         {
@@ -36761,7 +37375,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "ai-agents/20-api/knowledge-base.md:60",
-            "ai-agents/20-api/knowledge-base.md:231"
+            "ai-agents/20-api/knowledge-base.md:256"
           ]
         },
         {
@@ -37188,6 +37802,18 @@ var init_define_ENDPOINT_CATALOG = __esm({
               type: "string",
               required: false,
               source: "documented"
+            },
+            {
+              name: "page",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "perPage",
+              type: "string",
+              required: false,
+              source: "documented"
             }
           ],
           body: null,
@@ -37200,9 +37826,81 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:359",
-            "ai-agents/20-api/knowledge-base.md:171",
+            "ai-agents/20-api/knowledge-base.md:172",
             "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:19",
             "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:48"
+          ]
+        },
+        {
+          id: "ai-agents--gaps-fill",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/knowledge-base/gaps/{gapId}/fill",
+          path: "/knowledge-base/gaps/{gapId}/fill",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "gapId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/knowledge-base.md:174",
+            "ai-agents/20-api/knowledge-base.md:229"
+          ]
+        },
+        {
+          id: "ai-agents--gaps-state",
+          method: "PATCH",
+          url: "https://services.leadconnectorhq.com/knowledge-base/gaps/{gapId}/state",
+          path: "/knowledge-base/gaps/{gapId}/state",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "gapId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/knowledge-base.md:175",
+            "ai-agents/20-api/knowledge-base.md:210"
           ]
         },
         {
@@ -37249,7 +37947,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "ai-agents/20-api/knowledge-base.md:53",
             "ai-agents/20-api/knowledge-base.md:131",
-            "ai-agents/20-api/knowledge-base.md:172",
+            "ai-agents/20-api/knowledge-base.md:173",
             "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:49"
           ]
         },
@@ -37283,7 +37981,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:289",
             "ai-agents/20-api/12-ai-agents-api.md:358",
-            "ai-agents/20-api/knowledge-base.md:237"
+            "ai-agents/20-api/knowledge-base.md:262"
           ]
         },
         {
@@ -37319,7 +38017,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:291",
-            "ai-agents/20-api/knowledge-base.md:241"
+            "ai-agents/20-api/knowledge-base.md:266"
           ]
         },
         {
@@ -37354,7 +38052,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/knowledge-base.md:238"
+            "ai-agents/20-api/knowledge-base.md:263"
           ]
         },
         {
@@ -37390,7 +38088,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:290",
-            "ai-agents/20-api/knowledge-base.md:239"
+            "ai-agents/20-api/knowledge-base.md:264"
           ]
         },
         {
@@ -37425,7 +38123,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/knowledge-base.md:240"
+            "ai-agents/20-api/knowledge-base.md:265"
           ]
         },
         {
@@ -37705,6 +38403,60 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "services/api/custom-value.ts:13",
             "services/api/custom-value.ts:28"
+          ]
+        },
+        {
+          id: "ai-agents--tags-search",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/locations/{locationId}/tags/search",
+          path: "/locations/{locationId}/tags/search",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [
+            {
+              name: "query",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "limit",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "skip",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/agent-deployment-routing.md:49"
           ]
         },
         {
@@ -44382,7 +45134,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/forecast.md:39"
+            "pipelines-opportunities/20-api/forecast.md:63"
           ]
         },
         {
@@ -44413,7 +45165,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/forecast.md:41"
+            "pipelines-opportunities/20-api/forecast.md:65"
           ]
         },
         {
@@ -44444,7 +45196,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/forecast.md:42"
+            "pipelines-opportunities/20-api/forecast.md:66"
           ]
         },
         {
@@ -44475,7 +45227,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/forecast.md:40"
+            "pipelines-opportunities/20-api/forecast.md:64"
           ]
         },
         {
@@ -44514,7 +45266,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/forecast.md:109"
+            "pipelines-opportunities/20-api/forecast.md:133",
+            "pipelines-opportunities/20-api/pipelines.md:42"
           ]
         },
         {
@@ -44545,7 +45298,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/forecast.md:97"
+            "pipelines-opportunities/20-api/forecast.md:121",
+            "pipelines-opportunities/20-api/pipelines.md:43",
+            "pipelines-opportunities/20-api/pipelines.md:128"
           ]
         },
         {
@@ -44580,7 +45335,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/forecast.md:110"
+            "pipelines-opportunities/20-api/forecast.md:134"
           ]
         },
         {
@@ -44622,7 +45377,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/forecast.md:107",
+            "pipelines-opportunities/20-api/forecast.md:131",
+            "pipelines-opportunities/20-api/pipelines.md:152",
             "pipelines-opportunities/20-api/smart-filters.md:76"
           ]
         },
@@ -44654,7 +45410,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/forecast.md:89"
+            "pipelines-opportunities/20-api/forecast.md:113",
+            "pipelines-opportunities/20-api/pipelines.md:34",
+            "pipelines-opportunities/20-api/pipelines.md:51"
           ]
         },
         {
@@ -44689,7 +45447,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/forecast.md:92"
+            "pipelines-opportunities/20-api/forecast.md:116",
+            "pipelines-opportunities/20-api/pipelines.md:38"
           ]
         },
         {
@@ -44720,8 +45479,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             {
               name: "locationId",
               type: "string",
-              required: true,
-              source: "live-probe"
+              required: false,
+              source: "documented"
             }
           ],
           body: null,
@@ -44733,7 +45492,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/forecast.md:90"
+            "pipelines-opportunities/20-api/forecast.md:114",
+            "pipelines-opportunities/20-api/pipelines.md:163"
           ]
         },
         {
@@ -44768,7 +45528,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/forecast.md:93"
+            "pipelines-opportunities/20-api/forecast.md:117",
+            "pipelines-opportunities/20-api/pipelines.md:35"
           ]
         },
         {
@@ -44803,7 +45564,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/forecast.md:94"
+            "pipelines-opportunities/20-api/forecast.md:118",
+            "pipelines-opportunities/20-api/pipelines.md:36"
           ]
         },
         {
@@ -44838,7 +45600,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/forecast.md:91"
+            "pipelines-opportunities/20-api/forecast.md:115",
+            "pipelines-opportunities/20-api/pipelines.md:37"
           ]
         },
         {
@@ -44869,7 +45632,10 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/forecast.md:95"
+            "pipelines-opportunities/20-api/forecast.md:119",
+            "pipelines-opportunities/20-api/pipelines.md:40",
+            "pipelines-opportunities/20-api/pipelines.md:117",
+            "pipelines-opportunities/20-api/pipelines.md:135"
           ]
         },
         {
@@ -44904,7 +45670,43 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/forecast.md:96"
+            "pipelines-opportunities/20-api/forecast.md:120",
+            "pipelines-opportunities/20-api/pipelines.md:119"
+          ]
+        },
+        {
+          id: "pipelines-opportunities--pipelines-permissions-put-put",
+          method: "PUT",
+          url: "https://services.leadconnectorhq.com/opportunities/pipelines/permissions/{pipelineId}",
+          path: "/opportunities/pipelines/permissions/{pipelineId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "pipelines-opportunities",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "pipelineId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "pipelines-opportunities/20-api/pipelines.md:41"
           ]
         },
         {
@@ -44942,7 +45744,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/forecast.md:108"
+            "pipelines-opportunities/20-api/forecast.md:132",
+            "pipelines-opportunities/20-api/pipelines.md:39"
           ]
         },
         {
@@ -45023,7 +45826,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/smart-filters.md:83"
+            "pipelines-opportunities/20-api/smart-filters.md:83",
+            "pipelines-opportunities/20-api/smart-filters.md:104"
           ]
         },
         {
@@ -45470,7 +46274,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
-          id: "platform--snapshot-get-assets",
+          id: "platform--snapshot-get-assets-get",
           method: "GET",
           url: "https://services.leadconnectorhq.com/snapshots-appengine/snapshot/{snapshotId}/get_assets",
           path: "/snapshots-appengine/snapshot/{snapshotId}/get_assets",
@@ -45694,7 +46498,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
-          id: "platform--locations-v2",
+          id: "platform--locations-v2-get",
           method: "GET",
           url: "https://services.leadconnectorhq.com/snapshots/locations/v2/{snapshotId}",
           path: "/snapshots/locations/v2/{snapshotId}",
@@ -45737,7 +46541,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
-          id: "platform--snapshot-push-push-in-progress",
+          id: "platform--snapshot-push-push-in-progress-get",
           method: "GET",
           url: "https://services.leadconnectorhq.com/snapshots/snapshot-push/{snapshotId}/push-in-progress",
           path: "/snapshots/snapshot-push/{snapshotId}/push-in-progress",
@@ -46208,6 +47012,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "forms/_data/endpoints.json",
             "forms/20-api/surveys-and-quizzes.md",
             "forms/20-api/forms.md:94",
+            "forms/20-api/surveys-and-quizzes.md:21",
+            "forms/20-api/surveys-and-quizzes.md:89",
             "forms/40-rules/validators-and-quirks.md:49"
           ]
         },
@@ -46250,6 +47056,407 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "forms--surveys",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/surveys/{id}",
+          path: "/surveys/{id}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "forms",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "forms/20-api/surveys-and-quizzes.md:83",
+            "forms/20-api/surveys-and-quizzes.md:93"
+          ]
+        },
+        {
+          id: "forms--surveys-delete",
+          method: "DELETE",
+          url: "https://services.leadconnectorhq.com/surveys/{surveyId}",
+          path: "/surveys/{surveyId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "forms",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "surveyId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "forms/20-api/surveys-and-quizzes.md:38"
+          ]
+        },
+        {
+          id: "forms--surveys-duplicate",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/surveys/duplicate",
+          path: "/surveys/duplicate",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "forms",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "forms/20-api/surveys-and-quizzes.md:53"
+          ]
+        },
+        {
+          id: "forms--surveys-duplicate-post",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/surveys/duplicate/{surveyId}",
+          path: "/surveys/duplicate/{surveyId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "forms",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "surveyId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "forms/20-api/surveys-and-quizzes.md:37",
+            "forms/20-api/surveys-and-quizzes.md:66",
+            "forms/20-api/surveys-and-quizzes.md:102"
+          ]
+        },
+        {
+          id: "forms--surveys-folder",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/surveys/folder",
+          path: "/surveys/folder",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "forms",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "forms/20-api/surveys-and-quizzes.md:39"
+          ]
+        },
+        {
+          id: "forms--surveys-folder-post",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/surveys/folder",
+          path: "/surveys/folder",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "forms",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "forms/20-api/surveys-and-quizzes.md:52"
+          ]
+        },
+        {
+          id: "forms--surveys-folder-post-post",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/surveys/folder/",
+          path: "/surveys/folder/",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "forms",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "forms/20-api/surveys-and-quizzes.md:37"
+          ]
+        },
+        {
+          id: "forms--surveys-folder-get",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/surveys/folder/{folderId}",
+          path: "/surveys/folder/{folderId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "forms",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "folderId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "forms/20-api/surveys-and-quizzes.md:39"
+          ]
+        },
+        {
+          id: "forms--surveys-folder-post-post-post",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/surveys/folder/{id}",
+          path: "/surveys/folder/{id}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "forms",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "forms/20-api/surveys-and-quizzes.md:38"
+          ]
+        },
+        {
+          id: "forms--surveys-move-to-folder",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/surveys/move-to-folder",
+          path: "/surveys/move-to-folder",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "forms",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "forms/20-api/surveys-and-quizzes.md:37",
+            "forms/20-api/surveys-and-quizzes.md:51"
+          ]
+        },
+        {
+          id: "forms--surveys-restore-version",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/surveys/restore-version",
+          path: "/surveys/restore-version",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "forms",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "forms/20-api/surveys-and-quizzes.md:84",
+            "forms/20-api/surveys-and-quizzes.md:108"
+          ]
+        },
+        {
+          id: "forms--surveys-share",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/surveys/share/{id}",
+          path: "/surveys/share/{id}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "forms",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "forms/20-api/surveys-and-quizzes.md:38"
+          ]
+        },
+        {
           id: "memberships-courses--templates",
           method: "DELETE",
           url: "https://services.leadconnectorhq.com/templates/{id}",
@@ -46281,7 +47488,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "memberships-courses/20-api/build-api.md:275"
+            "memberships-courses/20-api/build-api.md:290"
           ]
         },
         {
@@ -46316,7 +47523,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "memberships-courses/20-api/build-api.md:272"
+            "memberships-courses/20-api/build-api.md:287"
           ]
         },
         {
