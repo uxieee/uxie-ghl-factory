@@ -20594,7 +20594,8 @@
         "get_workflow_stats",
         "move_workflows",
         "publish_workflow",
-        "repair_workflow"
+        "repair_workflow",
+        "unpublish_workflows"
       ],
       "rawCallable": true,
       "transport": "json",
@@ -20822,7 +20823,8 @@
         "get_workflow_stats",
         "move_workflows",
         "publish_workflow",
-        "repair_workflow"
+        "repair_workflow",
+        "unpublish_workflows"
       ],
       "rawCallable": true,
       "transport": "json",
@@ -22476,7 +22478,9 @@
       "rail": "workflow",
       "kind": "destructive",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "unpublish_workflows"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",

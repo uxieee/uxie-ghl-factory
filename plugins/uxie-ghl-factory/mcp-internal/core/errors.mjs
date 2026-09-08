@@ -41,6 +41,11 @@ export const CODES = Object.freeze({
   // its bound set to every location the credential reaches — refused instead; see
   // core/location-binding.mjs.
   LEGACY_LOCATIONS_ENV: 'LEGACY_LOCATIONS_ENV',
+  // The write was ACCEPTED and the state did not move. Distinct from VALIDATION_FAILED, which
+  // means the server refused: here the server said yes and the read-back disagrees. Anything
+  // reporting this has already re-read the object, so the caller is being told a fact rather
+  // than a suspicion.
+  VERIFY_FAILED: 'VERIFY_FAILED',
   RATE_LIMITED: 'RATE_LIMITED',
   ENGINE_ABORT: 'ENGINE_ABORT',
 

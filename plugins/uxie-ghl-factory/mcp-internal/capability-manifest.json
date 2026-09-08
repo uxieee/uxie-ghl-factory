@@ -910,6 +910,16 @@
     "path": "/workflow/{loc}/email/location-email-provider"
   },
   {
+    "tool": "unpublish_workflows",
+    "method": "PUT",
+    "path": "/workflow/{loc}/change-status"
+  },
+  {
+    "tool": "unpublish_workflows",
+    "method": "GET",
+    "path": "/workflow/{loc}/{wid}"
+  },
+  {
     "tool": "publish_workflow",
     "method": "GET",
     "path": "/workflow/{loc}/{wid}"

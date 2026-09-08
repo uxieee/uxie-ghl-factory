@@ -20839,7 +20839,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "get_workflow_stats",
             "move_workflows",
             "publish_workflow",
-            "repair_workflow"
+            "repair_workflow",
+            "unpublish_workflows"
           ],
           rawCallable: true,
           transport: "json",
@@ -21067,7 +21068,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "get_workflow_stats",
             "move_workflows",
             "publish_workflow",
-            "repair_workflow"
+            "repair_workflow",
+            "unpublish_workflows"
           ],
           rawCallable: true,
           transport: "json",
@@ -22721,7 +22723,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "destructive",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "unpublish_workflows"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -50866,6 +50870,24 @@ var init_define_TOOL_CATALOG = __esm({
         rows: [
           "smartlist-search",
           "smartlist-detail"
+        ]
+      },
+      unpublish_workflows: {
+        description: "Stand published workflows back down to draft, in bulk \u2014 proof: source-derived (corpus platform/20-api/snapshots-authoring.md, 2026-09-08); risk: write",
+        risk: "write",
+        proof: "source-derived (corpus platform/20-api/snapshots-authoring.md, 2026-09-08)",
+        proofFloor: "source-derived",
+        proofRows: [
+          "workflow-service--bulk-update-status"
+        ],
+        proofFloorRows: [
+          "workflow-service--bulk-update-status"
+        ],
+        riskRows: [
+          "workflow-service--bulk-update-status"
+        ],
+        rows: [
+          "workflow-service--bulk-update-status"
         ]
       }
     };
@@ -82985,6 +83007,11 @@ var CODES = Object.freeze({
   // its bound set to every location the credential reaches — refused instead; see
   // core/location-binding.mjs.
   LEGACY_LOCATIONS_ENV: "LEGACY_LOCATIONS_ENV",
+  // The write was ACCEPTED and the state did not move. Distinct from VALIDATION_FAILED, which
+  // means the server refused: here the server said yes and the read-back disagrees. Anything
+  // reporting this has already re-read the object, so the caller is being told a fact rather
+  // than a suspicion.
+  VERIFY_FAILED: "VERIFY_FAILED",
   RATE_LIMITED: "RATE_LIMITED",
   ENGINE_ABORT: "ENGINE_ABORT",
   // Audit-rail policy codes. They are separate from the codes above because an
@@ -165054,6 +165081,97 @@ var TOOLS2 = [
       }
       return ok(data2);
     }, args)
+  },
+  {
+    // THE STAND-DOWN CALL. Built 2026-09-08 out of bl-056, and deliberately built BEFORE any
+    // snapshot-push tool rather than alongside one.
+    //
+    // On 2026-09-08 a snapshot load put 26 workflows live on an account taking roughly 230
+    // enrollments a week. Loaded workflows arrive PUBLISHED when the source is published; the
+    // wizard does not warn and the push response does not mention it, so the first sign is
+    // contacts moving. The remedy was a raw PUT that nobody had wrapped, which meant the fastest
+    // path during an incident was also the least verified one.
+    //
+    // A push tool is the dangerous half of bl-056 and is NOT in this release. The brake ships
+    // first: whoever ends up building the push can hand this back as the stand-down call, which
+    // is what the finding asks for.
+    name: "unpublish_workflows",
+    description: `${describe3("unpublish_workflows", "Stand published workflows back down to draft, in bulk \u2014 risk: write")}. Preview by default; confirm:true writes. Built for the minute after a snapshot load goes live: loaded workflows arrive PUBLISHED when the source was published, and nothing warns you. Sets status to draft, which STOPS new enrollments \u2014 it does not remove contacts already in flight. \`updatedBy\` is required by the API and is filled from the credential, not the caller: omitting it answers 400 {"message":"Invalid value updatedBy"}, an error that names the field and not the shape. Every id is read back individually afterwards, because the bulk response reports its own success count and that is not the same as the status having changed.`,
+    inputSchema: schema({
+      locationId: external_exports.string(),
+      workflowIds: external_exports.array(external_exports.string()).min(1).max(200),
+      confirm: external_exports.boolean().default(false)
+    }),
+    capabilities: [
+      { method: "PUT", path: "/workflow/{loc}/change-status" },
+      { method: "GET", path: "/workflow/{loc}/{wid}" }
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+      const ids = [...new Set(args.workflowIds)];
+      const before = [];
+      for (const id of ids) {
+        const r2 = await getWorkflow(gw, args.locationId, id);
+        before.push({
+          workflowId: id,
+          found: r2.ok,
+          status: r2.ok ? r2.json?.status ?? null : null,
+          name: r2.ok ? r2.json?.name ?? null : null
+        });
+      }
+      const published = before.filter((w) => w.status === "published");
+      const missing = before.filter((w) => !w.found);
+      if (args.confirm !== true) {
+        return withFailureData(
+          fail(
+            CODES.CONFIRM_REQUIRED,
+            `Stand-down preview: ${published.length} of ${ids.length} are published; no write was sent.`,
+            "Review data.preview, then repeat with confirm:true to set them to draft."
+          ),
+          {
+            preview: {
+              wouldChange: published.map((w) => ({ workflowId: w.workflowId, name: w.name, from: "published", to: "draft" })),
+              alreadyDraft: before.filter((w) => w.found && w.status !== "published").map((w) => w.workflowId),
+              notFound: missing.map((w) => w.workflowId),
+              note: "Draft stops NEW enrollments. Contacts already inside a workflow are not removed by this."
+            }
+          }
+        );
+      }
+      if (published.length === 0) {
+        return { ok: true, data: { locationId: args.locationId, changed: [], note: "Nothing was published; no write sent." } };
+      }
+      const targets = published.map((w) => w.workflowId);
+      const r = await gw.call("PUT", `/workflow/${encodeURIComponent(args.locationId)}/change-status`, {
+        status: "draft",
+        updatedBy: gw.uid,
+        workflowIds: targets
+      });
+      if (!r.ok) return fromHttp(r.status, r.json);
+      const after = [];
+      for (const id of targets) {
+        const v = await getWorkflow(gw, args.locationId, id);
+        after.push({ workflowId: id, status: v.ok ? v.json?.status ?? null : null });
+      }
+      const stillLive = after.filter((w) => w.status === "published").map((w) => w.workflowId);
+      if (stillLive.length) {
+        return withFailureData(
+          fail(
+            CODES.VERIFY_FAILED,
+            `${stillLive.length} of ${targets.length} are STILL PUBLISHED after the write.`,
+            "These are live and enrolling. Re-run, or stand them down in the UI now."
+          ),
+          { stillPublished: stillLive, response: r.json ?? null }
+        );
+      }
+      return { ok: true, data: {
+        locationId: args.locationId,
+        stoodDown: after.map((w) => w.workflowId),
+        verified: true,
+        notFound: missing.map((w) => w.workflowId),
+        note: "All verified draft by individual read-back. Contacts already in flight were not removed."
+      } };
+    })
   },
   {
     name: "publish_workflow",

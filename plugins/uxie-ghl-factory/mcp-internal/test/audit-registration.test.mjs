@@ -331,7 +331,7 @@ const FORBIDDEN_TOOL_NAMES = Object.freeze([
   // raw escape hatch
   'raw_request',
   // writes
-  'build_workflow', 'edit_workflow', 'publish_workflow', 'fast_forward_contacts',
+  'build_workflow', 'edit_workflow', 'unpublish_workflows', 'publish_workflow', 'fast_forward_contacts',
   'create_convai_agent', 'create_voiceai_agent', 'create_studio_agent',
   // courses / memberships / communities
   'build_course', 'list_courses',
@@ -663,7 +663,11 @@ test('the full 51-tool registry and the normal stdio entry point are unchanged',
   // GHL renames on write.
   // 71 -> 72: check_smart_lists, read-only by design — a smart list cannot be deleted through the
   // API at all, so the write half of that surface needs the operator's word and is not here.
-  assert.equal(TOOLS.length, 78, 'the audit profile is ADDITIVE; the full server keeps every tool');
+  // 78 -> 79: unpublish_workflows, the stand-down call. A snapshot load put 26 workflows live on
+  // an account taking ~230 enrollments a week; loaded workflows arrive PUBLISHED when the source
+  // was, nothing warns, and the remedy was a raw PUT nobody had wrapped. The brake ships without
+  // the push tool that would need it — deliberately, since the push is the dangerous half.
+  assert.equal(TOOLS.length, 79, 'the audit profile is ADDITIVE; the full server keeps every tool');
   assert.deepEqual(TOOLS.map((tool) => tool.name), [
     'set_token_file', 'auth_status', 'create_convai_agent', 'update_convai_agent', 'create_voiceai_agent',
     'create_studio_agent', 'get_contact_ai_status', 'set_contact_ai_status',
@@ -675,7 +679,7 @@ test('the full 51-tool registry and the normal stdio entry point are unchanged',
     'list_agent_contacts', 'get_agent_metrics',
     'get_account_workflow_overview', 'test_custom_code', 'list_account_entities',
     'list_marketplace_apps', 'list_courses', 'build_course', 'build_workflow', 'edit_workflow',
-    'repair_workflow', 'publish_workflow', 'search_step_types', 'describe_step_type',
+    'repair_workflow', 'unpublish_workflows', 'publish_workflow', 'search_step_types', 'describe_step_type',
     'list_workflow_folders', 'create_workflow_folder',
     'duplicate_workflow', 'move_workflows', 'create_custom_field_folder',
     'pin_webhook_sample', 'fast_forward_contacts', 'raw_request',
