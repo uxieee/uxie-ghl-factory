@@ -165,3 +165,42 @@ test('an HTML data-* attribute whose name ends in a secret label is not scrubbed
   // and a JWT inside a data attribute is still caught by the token-shape rule
   assert.match(scrubSecrets({ s: `<a data-token="ey${'a'.repeat(30)}">` }).s, /<redacted>/);
 });
+
+// A 401 whose BODY is a validation error is not an auth failure, and reporting it as one sends
+// the caller to re-capture a working credential over a typo. Proven by differential on
+// 2026-09-08: POST /opportunities/pipelines/permissions with {} answered 401
+// "pipelineId can't be undefined"; the SAME call with the SAME credential, one key added,
+// answered 422. 29 calls that session, all on one token.
+test('a 401 carrying COMMON_*_UNDEFINED is VALIDATION_FAILED, not TOKEN_EXPIRED', () => {
+  const f = fromHttp(401, {
+    statusCode: 401, error: 'Unauthorized',
+    message: "pipelineId can't be undefined", code: 'COMMON_PIPELINE_ID_UNDEFINED',
+  });
+  assert.equal(f.code, CODES.VALIDATION_FAILED);
+  assert.match(f.remediation, /do NOT re-capture/);
+});
+
+test("a 401 whose message is \"<field> can't be undefined\" is VALIDATION_FAILED even with no code", () => {
+  assert.equal(fromHttp(401, { message: "locationId can't be undefined" }).code, CODES.VALIDATION_FAILED);
+  // GHL sends `message` as an array on some routes and a bare string on others
+  assert.equal(fromHttp(401, { message: ["pipelineId can't be undefined"] }).code, CODES.VALIDATION_FAILED);
+});
+
+// The exception must stay narrow. A real expiry says Unauthorized and names no field; widening
+// this to "any 401 with a message" would swallow the failure the code exists to report.
+test('a plain 401 still maps to TOKEN_EXPIRED', () => {
+  assert.equal(fromHttp(401, { message: 'unauthorized' }).code, CODES.TOKEN_EXPIRED);
+  assert.equal(fromHttp(401, { statusCode: 401, error: 'Unauthorized' }).code, CODES.TOKEN_EXPIRED);
+  assert.equal(fromHttp(401, 'Unauthorized').code, CODES.TOKEN_EXPIRED);
+  assert.equal(fromHttp(401, null).code, CODES.TOKEN_EXPIRED);
+  // near-misses that must NOT be treated as validation
+  assert.equal(fromHttp(401, { code: 'COMMON_SOMETHING_ELSE' }).code, CODES.TOKEN_EXPIRED);
+  assert.equal(fromHttp(401, { message: 'the token is undefined' }).code, CODES.TOKEN_EXPIRED);
+});
+
+// 422 is unaffected: GHL uses BOTH statuses for the same class of fault, which is exactly why
+// the check reads the body rather than the status.
+test('422 remains VALIDATION_FAILED whatever its body says', () => {
+  assert.equal(fromHttp(422, { message: ['name should not be empty'] }).code, CODES.VALIDATION_FAILED);
+  assert.equal(fromHttp(422, { code: 'COMMON_LOCATION_ID_UNDEFINED' }).code, CODES.VALIDATION_FAILED);
+});

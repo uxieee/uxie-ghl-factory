@@ -83218,8 +83218,23 @@ var fail = (code, detail, remediation) => ({
   detail: scrub(detail),
   remediation: scrub(remediation)
 });
+function isValidationBody(body) {
+  if (!body || typeof body === "string") return false;
+  const code = String(body.code ?? "");
+  if (/^COMMON_[A-Z0-9_]+_UNDEFINED$/.test(code)) return true;
+  const msg = body.message;
+  const one = (m) => typeof m === "string" && /^[A-Za-z][\w.]* can'?t be undefined$/.test(m.trim());
+  return Array.isArray(msg) ? msg.some(one) : one(msg);
+}
 function fromHttp(status, body) {
   const detail = typeof body === "string" ? body : JSON.stringify(scrubSecrets(body ?? {}));
+  if (status === 401 && isValidationBody(body)) {
+    return fail(
+      CODES.VALIDATION_FAILED,
+      detail,
+      "Upstream answered 401, but its body is a validation error naming a missing request field, not an auth failure. The credential is fine \u2014 do NOT re-capture. Fix the request body and retry. (GHL returns 401 for some missing-field cases and 422 for others; read the body, not the status.)"
+    );
+  }
   if (status === 401) {
     return fail(
       CODES.TOKEN_EXPIRED,

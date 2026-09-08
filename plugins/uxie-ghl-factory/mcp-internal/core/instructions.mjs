@@ -23,8 +23,11 @@ instead. Reach for raw_request only when nothing covers the endpoint, or when yo
 the typed tool does not expose.
 
 AUTH AND HEADERS ARE ADDED FOR YOU on every call — Bearer plus channel/source/version. Never set
-them yourself. A 401 whose body says "version header was not found" is NOT an auth failure and
-re-capturing the token will not help.
+them yourself. NOT EVERY 401 IS AN AUTH FAILURE — read the body before believing the status. A 401
+saying "version header was not found" is a header problem; a 401 whose body names a missing request
+field ("pipelineId can't be undefined", code COMMON_*_UNDEFINED) is a VALIDATION failure and is
+now reported as VALIDATION_FAILED. GHL uses 401 and 422 interchangeably for missing fields on the
+same service. Re-capturing the token fixes none of these.
 
 host:"ai" is ONE decision, not two: it switches the origin to services.leadconnectorhq.com AND
 attaches the second credential (token-id). Do not reach for it just to change host.

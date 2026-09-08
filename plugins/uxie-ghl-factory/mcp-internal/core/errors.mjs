@@ -267,6 +267,22 @@ export const fail = (code, detail, remediation) => ({
   remediation: scrub(remediation),
 });
 
+/** Does this response body say "you left a field out" rather than "who are you"?
+ *
+ *  Deliberately narrow. It fires on GHL's own `COMMON_<FIELD>_UNDEFINED` code family, or on a
+ *  message of the shape `<field> can't be undefined`, and on nothing else — a body that merely
+ *  lacks the word "unauthorized" is NOT evidence of a validation failure, and widening this to
+ *  "any 401 with a message" would swallow real expiry. A genuinely expired credential returns
+ *  `Unauthorized` with no field named, and still lands on TOKEN_EXPIRED below. */
+export function isValidationBody(body) {
+  if (!body || typeof body === 'string') return false;
+  const code = String(body.code ?? '');
+  if (/^COMMON_[A-Z0-9_]+_UNDEFINED$/.test(code)) return true;
+  const msg = body.message;
+  const one = (m) => typeof m === 'string' && /^[A-Za-z][\w.]* can'?t be undefined$/.test(m.trim());
+  return Array.isArray(msg) ? msg.some(one) : one(msg);
+}
+
 export function fromHttp(status, body) {
   const detail = typeof body === 'string' ? body : JSON.stringify(scrubSecrets(body ?? {}));
   // 401 and 403 are NOT the same failure and must not share a code. Folding 403 into
@@ -276,6 +292,28 @@ export function fromHttp(status, body) {
   // and was reported as an expired token, on a JWT that was demonstrably valid (the very
   // next call succeeded). Live-verified on AU 2026-07-27, with a bad-token control on the
   // same endpoint returning 401 "Unauthorized" — so the two are cleanly separable by status.
+  // A 401 whose BODY is plainly a validation failure is not an auth failure. GHL returns
+  // 401 for at least one class of missing body field: POST /opportunities/pipelines/permissions
+  // with an empty body answers
+  //   401 {"statusCode":401,"error":"Unauthorized",
+  //        "message":"pipelineId can't be undefined","code":"COMMON_PIPELINE_ID_UNDEFINED"}
+  // and the SAME call with the SAME credential, one key added, answers 422. Proven by
+  // differential on 2026-09-08 across 29 calls on one token — the credential was never in
+  // question. Reporting that as TOKEN_EXPIRED sends the caller to re-capture a working
+  // credential over a typo in a request body.
+  //
+  // GHL is inconsistent with itself, which is why this keys on the body and not on the path:
+  // COMMON_PIPELINE_ID_UNDEFINED is a 401 while its sibling COMMON_LOCATION_ID_UNDEFINED, on
+  // POST /opportunities/pipelines on the same service, is a 422. The status does not say what
+  // went wrong; the body does. Same exception in kind as the `version header was not found`
+  // 401 already documented in core/gateway.mjs.
+  if (status === 401 && isValidationBody(body)) {
+    return fail(CODES.VALIDATION_FAILED, detail,
+      'Upstream answered 401, but its body is a validation error naming a missing request field, '
+      + 'not an auth failure. The credential is fine — do NOT re-capture. Fix the request body '
+      + 'and retry. (GHL returns 401 for some missing-field cases and 422 for others; read the '
+      + 'body, not the status.)');
+  }
   if (status === 401) {
     return fail(CODES.TOKEN_EXPIRED, detail,
       // Same phrasing discipline as core/auth.mjs: aimed at the agent, and bounded to one attempt.
