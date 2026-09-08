@@ -246,7 +246,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
     define_ENDPOINT_CATALOG_default = {
       generated: "2026-09-08",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 1142,
+      count: 1148,
       endpoints: [
         {
           id: "workflows--actions-branches",
@@ -7036,7 +7036,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "funnels/10-anatomy/routing-and-publishing.md:31",
             "funnels/20-api/funnels-api.md:76",
             "funnels/20-api/funnels-api.md:139",
-            "funnels/30-types/native-elements.md:110"
+            "funnels/30-types/native-elements.md:134"
           ]
         },
         {
@@ -17248,7 +17248,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "platform/20-api/snapshots-authoring.md:201"
+            "platform/20-api/snapshots-authoring.md:212"
           ]
         },
         {
@@ -17300,7 +17300,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "platform/20-api/snapshots-authoring.md:199"
+            "platform/20-api/snapshots-authoring.md:210"
           ]
         },
         {
@@ -17470,7 +17470,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "platform/20-api/snapshots-authoring.md:115",
-            "platform/20-api/snapshots-authoring.md:200"
+            "platform/20-api/snapshots-authoring.md:211"
           ]
         },
         {
@@ -17850,7 +17850,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "platform/20-api/snapshots-authoring.md:325"
+            "platform/20-api/snapshots-authoring.md:336"
           ]
         },
         {
@@ -17916,7 +17916,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "platform/20-api/snapshots-authoring.md:198"
+            "platform/20-api/snapshots-authoring.md:209"
           ]
         },
         {
@@ -17983,7 +17983,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "platform/20-api/snapshots-authoring.md:197"
+            "platform/20-api/snapshots-authoring.md:208"
           ]
         },
         {
@@ -18018,7 +18018,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "platform/20-api/snapshots-authoring.md:327"
+            "platform/20-api/snapshots-authoring.md:338"
           ]
         },
         {
@@ -18145,7 +18145,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "platform/20-api/snapshots-authoring.md:196"
+            "platform/20-api/snapshots-authoring.md:207"
           ]
         },
         {
@@ -18189,7 +18189,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "platform/20-api/snapshots-authoring.md:202"
+            "platform/20-api/snapshots-authoring.md:213"
           ]
         },
         {
@@ -18234,7 +18234,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "platform/20-api/snapshots-authoring.md:326"
+            "platform/20-api/snapshots-authoring.md:337"
           ]
         },
         {
@@ -18273,7 +18273,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "platform/20-api/snapshots-authoring.md:223"
+            "platform/20-api/snapshots-authoring.md:234"
           ]
         },
         {
@@ -23327,7 +23327,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/WorkflowService.ts:603",
-            "platform/20-api/snapshots-authoring.md:267",
+            "platform/20-api/snapshots-authoring.md:278",
             "platform/40-rules/snapshot-carry-matrix.md:108"
           ]
         },
@@ -23368,7 +23368,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/WorkflowService.ts:596",
-            "platform/20-api/snapshots-authoring.md:266"
+            "platform/20-api/snapshots-authoring.md:277"
           ]
         },
         {
@@ -46743,6 +46743,37 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "funnels--library-templates",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/public/library/templates",
+          path: "/public/library/templates",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/20-api/template-library.md:34"
+          ]
+        },
+        {
           id: "platform--snapshot-get-assets-get",
           method: "GET",
           url: "https://services.leadconnectorhq.com/snapshots-appengine/snapshot/{snapshotId}/get_assets",
@@ -47998,6 +48029,63 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "funnels--category-list",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/templates/category/list",
+          path: "/templates/category/list",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "companyId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "product",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "offset",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "limit",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/20-api/template-library.md:22",
+            "funnels/20-api/template-library.md:74"
+          ]
+        },
+        {
           id: "template-library-service--fetch-templates-via-category",
           method: "POST",
           url: "https://services.leadconnectorhq.com/templates/list",
@@ -48012,7 +48100,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "fetchTemplatesViaCategory",
-          service: "memberships-courses",
+          service: "funnels",
           tree: "workflow-builder",
           pathParams: [],
           query: [],
@@ -48026,6 +48114,186 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/TemplateLibraryService.ts:18"
+          ]
+        },
+        {
+          id: "funnels--template-search-facets",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/templates/template-search/facets",
+          path: "/templates/template-search/facets",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "companyId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "product",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "offset",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "limit",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/20-api/template-library.md:19",
+            "funnels/20-api/template-library.md:64"
+          ]
+        },
+        {
+          id: "funnels--template-search-suggestions",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/templates/template-search/suggestions",
+          path: "/templates/template-search/suggestions",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "companyId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "product",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/20-api/template-library.md:21"
+          ]
+        },
+        {
+          id: "funnels--template-search-trending",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/templates/template-search/trending",
+          path: "/templates/template-search/trending",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "companyId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "product",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/20-api/template-library.md:20"
+          ]
+        },
+        {
+          id: "funnels--templates-template-settings",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/templates/template-settings/{companyId}",
+          path: "/templates/template-settings/{companyId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "companyId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/20-api/template-library.md:23"
           ]
         },
         {
@@ -48043,7 +48311,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "loadWorkflowViaTemplateId",
-          service: "memberships-courses",
+          service: "funnels",
           tree: "workflow-builder",
           pathParams: [],
           query: [],
@@ -48056,7 +48324,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/TemplateLibraryService.ts:43"
+            "services/TemplateLibraryService.ts:43",
+            "funnels/20-api/template-library.md:84"
           ]
         },
         {

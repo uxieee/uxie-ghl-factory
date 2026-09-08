@@ -20,16 +20,16 @@
     {
       "tree": "documented",
       "dir": "corpus",
-      "capturedAt": "2026-09-08T21:29:45.797Z",
+      "capturedAt": "2026-09-08T21:53:45.241Z",
       "hash": "corpus",
-      "fileCount": 751,
-      "endpoints": 751
+      "fileCount": 758,
+      "endpoints": 758
     }
   ],
   "note": "SOURCE-DERIVED ONLY, merged from every mined front-end. `tree` on each row says which app calls it. The plugin owns kind/note/summary/reach/coveredBy and merges them at read time. A row proves a GHL front-end calls that path — not that your token reaches it, and not that calling it is safe.",
-  "discoveredCallSites": 1211,
+  "discoveredCallSites": 1218,
   "skippedCallSites": 409,
-  "count": 1134,
+  "count": 1140,
   "endpoints": [
     {
       "id": "workflows--actions-branches",
@@ -5417,7 +5417,7 @@
         "funnels/10-anatomy/routing-and-publishing.md:31",
         "funnels/20-api/funnels-api.md:76",
         "funnels/20-api/funnels-api.md:139",
-        "funnels/30-types/native-elements.md:110"
+        "funnels/30-types/native-elements.md:134"
       ],
       "serviceBasis": "declared"
     },
@@ -13565,7 +13565,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "platform/20-api/snapshots-authoring.md:201"
+        "platform/20-api/snapshots-authoring.md:212"
       ],
       "serviceBasis": "declared"
     },
@@ -13604,7 +13604,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "platform/20-api/snapshots-authoring.md:199"
+        "platform/20-api/snapshots-authoring.md:210"
       ],
       "serviceBasis": "declared"
     },
@@ -13737,7 +13737,7 @@
       },
       "sources": [
         "platform/20-api/snapshots-authoring.md:115",
-        "platform/20-api/snapshots-authoring.md:200"
+        "platform/20-api/snapshots-authoring.md:211"
       ],
       "serviceBasis": "declared"
     },
@@ -14040,7 +14040,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "platform/20-api/snapshots-authoring.md:325"
+        "platform/20-api/snapshots-authoring.md:336"
       ],
       "serviceBasis": "declared"
     },
@@ -14097,7 +14097,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "platform/20-api/snapshots-authoring.md:198"
+        "platform/20-api/snapshots-authoring.md:209"
       ],
       "serviceBasis": "declared"
     },
@@ -14154,7 +14154,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "platform/20-api/snapshots-authoring.md:197"
+        "platform/20-api/snapshots-authoring.md:208"
       ],
       "serviceBasis": "declared"
     },
@@ -14180,7 +14180,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "platform/20-api/snapshots-authoring.md:327"
+        "platform/20-api/snapshots-authoring.md:338"
       ],
       "serviceBasis": "declared"
     },
@@ -14279,7 +14279,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "platform/20-api/snapshots-authoring.md:196"
+        "platform/20-api/snapshots-authoring.md:207"
       ],
       "serviceBasis": "declared"
     },
@@ -14312,7 +14312,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "platform/20-api/snapshots-authoring.md:202"
+        "platform/20-api/snapshots-authoring.md:213"
       ],
       "serviceBasis": "declared"
     },
@@ -14345,7 +14345,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "platform/20-api/snapshots-authoring.md:326"
+        "platform/20-api/snapshots-authoring.md:337"
       ],
       "serviceBasis": "declared"
     },
@@ -14371,7 +14371,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "platform/20-api/snapshots-authoring.md:223"
+        "platform/20-api/snapshots-authoring.md:234"
       ],
       "serviceBasis": "declared"
     },
@@ -18277,7 +18277,7 @@
       },
       "sources": [
         "services/WorkflowService.ts:603",
-        "platform/20-api/snapshots-authoring.md:267",
+        "platform/20-api/snapshots-authoring.md:278",
         "platform/40-rules/snapshot-carry-matrix.md:108"
       ],
       "serviceClass": "WorkflowService",
@@ -18306,7 +18306,7 @@
       },
       "sources": [
         "services/WorkflowService.ts:596",
-        "platform/20-api/snapshots-authoring.md:266"
+        "platform/20-api/snapshots-authoring.md:277"
       ],
       "serviceClass": "WorkflowService",
       "serviceBasis": "inferred-from-path"
@@ -37194,6 +37194,32 @@
       "serviceBasis": "inferred-from-path"
     },
     {
+      "id": "funnels--library-templates",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/public/library/templates",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "funnels",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/20-api/template-library.md:34"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
       "id": "platform--snapshot-get-assets-get",
       "method": "GET",
       "origin": "https://services.leadconnectorhq.com",
@@ -38166,6 +38192,58 @@
       "serviceBasis": "declared"
     },
     {
+      "id": "funnels--category-list",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/templates/category/list",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "funnels",
+      "query": [
+        {
+          "name": "companyId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "product",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "offset",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "limit",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/20-api/template-library.md:22",
+        "funnels/20-api/template-library.md:74"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
       "id": "template-library-service--fetch-templates-via-category",
       "method": "POST",
       "origin": "https://services.leadconnectorhq.com",
@@ -38176,7 +38254,7 @@
       "tree": "workflow-builder",
       "extraHeaders": [],
       "operation": "fetchTemplatesViaCategory",
-      "service": "memberships-courses",
+      "service": "funnels",
       "query": [],
       "body": null,
       "returns": null,
@@ -38193,6 +38271,162 @@
       "serviceBasis": "inferred-from-path"
     },
     {
+      "id": "funnels--template-search-facets",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/templates/template-search/facets",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "funnels",
+      "query": [
+        {
+          "name": "companyId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "product",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "offset",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "limit",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/20-api/template-library.md:19",
+        "funnels/20-api/template-library.md:64"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "funnels--template-search-suggestions",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/templates/template-search/suggestions",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "funnels",
+      "query": [
+        {
+          "name": "companyId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "product",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/20-api/template-library.md:21"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "funnels--template-search-trending",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/templates/template-search/trending",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "funnels",
+      "query": [
+        {
+          "name": "companyId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "product",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/20-api/template-library.md:20"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "funnels--templates-template-settings",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/templates/template-settings/{companyId}",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "funnels",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/20-api/template-library.md:23"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
       "id": "template-library-service--load-workflow-via-template-id",
       "method": "POST",
       "origin": "https://services.leadconnectorhq.com",
@@ -38203,7 +38437,7 @@
       "tree": "workflow-builder",
       "extraHeaders": [],
       "operation": "loadWorkflowViaTemplateId",
-      "service": "memberships-courses",
+      "service": "funnels",
       "query": [],
       "body": null,
       "returns": null,
@@ -38214,7 +38448,8 @@
         "returns": "none-observed"
       },
       "sources": [
-        "services/TemplateLibraryService.ts:43"
+        "services/TemplateLibraryService.ts:43",
+        "funnels/20-api/template-library.md:84"
       ],
       "serviceClass": "TemplateLibraryService",
       "serviceBasis": "inferred-from-path"
