@@ -7035,7 +7035,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "funnels/10-anatomy/page-content.md:13",
             "funnels/10-anatomy/routing-and-publishing.md:31",
             "funnels/20-api/funnels-api.md:76",
-            "funnels/20-api/funnels-api.md:139"
+            "funnels/20-api/funnels-api.md:139",
+            "funnels/30-types/native-elements.md:110"
           ]
         },
         {
@@ -169139,7 +169140,7 @@ var TOOLS2 = [
   },
   {
     name: "check_snapshot_conflicts",
-    description: `${describe3("check_snapshot_conflicts", "See what loading a snapshot would collide with \u2014 risk: read")}. Non-destructive, and the safe way to preview a load. It refuses the key names the UI itself shows: \`locationIds\` and \`selectedAssets\` answer 400 ["Required","Required"]. The real names are \`selectedLocationIds\` and \`selectedSnapshotAssets\`, and this tool sends those. \`assets\` is REQUIRED \u2014 there is no "check everything" call; an empty selection answers 400 ["selectedSnapshotAssets must contain at least one asset key"]. Get the ids from get_snapshot_manifest. \u{1F534} An EMPTY conflicts list does not mean the load is safe. The list holds the SNAPSHOT's ids the server reports as colliding, and a check against a target holding every asset in the snapshot still came back empty for all ten categories asked (2026-09-09). A conflict may mean "this snapshot was pushed here before" rather than "the target already has this", in which case hand-built assets of the same name are never reported. Unproven either way \u2014 treat an empty result as no information, not as clearance.`,
+    description: `${describe3("check_snapshot_conflicts", "See what loading a snapshot would collide with \u2014 risk: read")}. Non-destructive, and the safe way to preview a load. It refuses the key names the UI itself shows: \`locationIds\` and \`selectedAssets\` answer 400 ["Required","Required"]. The real names are \`selectedLocationIds\` and \`selectedSnapshotAssets\`, and this tool sends those. \`assets\` is REQUIRED \u2014 there is no "check everything" call; an empty selection answers 400 ["selectedSnapshotAssets must contain at least one asset key"]. Get the ids from get_snapshot_manifest. \u{1F534} A conflict means "this snapshot has been pushed to this account BEFORE" \u2014 NOT "the target already has something like this". Settled 2026-09-09 by a four-cell differential: the snapshot's own source account, which holds every asset by the same id and name, reported ZERO conflicts, while the one account previously loaded from it reported all ten. So this NEVER reports an asset the operator built by hand, and an EMPTY result means only "not loaded here before" \u2014 which is exactly when a first load is most likely to land on top of hand-built work. Treat empty as no information, never as clearance.`,
     inputSchema: schema({
       locationId: external_exports.string(),
       snapshotId: external_exports.string(),
@@ -169180,7 +169181,7 @@ var TOOLS2 = [
   },
   {
     name: "push_snapshot",
-    description: `${describe3("push_snapshot", "Load a snapshot into sub-accounts \u2014 risk: destructive")}. Preview by default; confirm:true writes. THE MOST DANGEROUS CALL HERE \u2014 it writes into OTHER sub-accounts, and the response is only "queued", so nothing can be read back to confirm it. \`assets\` is REQUIRED and explicit: the wizard shows no Workflows row while the body it sends carries every workflow id in the snapshot, so a tool that mirrors the UI ships workflows nobody chose. This one loads exactly what you name. \u{1F534} LOADED WORKFLOWS ARRIVE PUBLISHED when the source workflow is published \u2014 that is how 26 went live on an account taking ~230 enrollments a week. This refuses to load published workflows unless allowPublishedWorkflows:true, and either way hands back the stand-down plan. An empty conflicts result is NOT clearance that nothing will be overwritten \u2014 see check_snapshot_conflicts.`,
+    description: `${describe3("push_snapshot", "Load a snapshot into sub-accounts \u2014 risk: destructive")}. Preview by default; confirm:true writes. THE MOST DANGEROUS CALL HERE \u2014 it writes into OTHER sub-accounts, and the response is only "queued", so nothing can be read back to confirm it. \`assets\` is REQUIRED and explicit: the wizard shows no Workflows row while the body it sends carries every workflow id in the snapshot, so a tool that mirrors the UI ships workflows nobody chose. This one loads exactly what you name. \u{1F534} LOADED WORKFLOWS ARRIVE PUBLISHED when the source workflow is published \u2014 that is how 26 went live on an account taking ~230 enrollments a week. This refuses to load published workflows unless allowPublishedWorkflows:true, and either way hands back the stand-down plan. Conflicts NEVER cover assets the operator built by hand: a conflict means "this snapshot was pushed here before" (settled 2026-09-09), so an empty result is not clearance. Duplicate anything customised on the target BEFORE loading \u2014 that is the only protection.`,
     inputSchema: schema({
       locationId: external_exports.string(),
       snapshotId: external_exports.string(),
@@ -169286,7 +169287,7 @@ var TOOLS2 = [
               standDown: wanted.length ? standDown : void 0,
               warnings: [
                 'The push answers "queued". Nothing here can be read back to confirm what it wrote.',
-                "An EMPTY conflicts result is not clearance \u2014 see check_snapshot_conflicts.",
+                "Conflicts only cover what THIS snapshot loaded here before \u2014 never assets built by hand on the target. An empty result is not clearance.",
                 ...undetermined.length ? [`${undetermined.length} selected workflow id(s) could not be read on the source, so their published state is UNKNOWN \u2014 a folder id looks like this too.`] : []
               ]
             }

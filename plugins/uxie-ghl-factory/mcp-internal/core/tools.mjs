@@ -7293,12 +7293,13 @@ export const TOOLS = [
       + '`assets` is REQUIRED — there is no "check everything" call; an empty selection answers '
       + '400 ["selectedSnapshotAssets must contain at least one asset key"]. Get the ids from '
       + 'get_snapshot_manifest. '
-      + '🔴 An EMPTY conflicts list does not mean the load is safe. The list holds the SNAPSHOT\'s '
-      + 'ids the server reports as colliding, and a check against a target holding every asset in '
-      + 'the snapshot still came back empty for all ten categories asked (2026-09-09). A conflict '
-      + 'may mean "this snapshot was pushed here before" rather than "the target already has this", '
-      + 'in which case hand-built assets of the same name are never reported. Unproven either way — '
-      + 'treat an empty result as no information, not as clearance.',
+      + '🔴 A conflict means "this snapshot has been pushed to this account BEFORE" — NOT "the '
+      + 'target already has something like this". Settled 2026-09-09 by a four-cell differential: '
+      + 'the snapshot\'s own source account, which holds every asset by the same id and name, '
+      + 'reported ZERO conflicts, while the one account previously loaded from it reported all ten. '
+      + 'So this NEVER reports an asset the operator built by hand, and an EMPTY result means only '
+      + '"not loaded here before" — which is exactly when a first load is most likely to land on '
+      + 'top of hand-built work. Treat empty as no information, never as clearance.',
     inputSchema: schema({
       locationId: z.string(),
       snapshotId: z.string(),
@@ -7346,8 +7347,9 @@ export const TOOLS = [
       + '🔴 LOADED WORKFLOWS ARRIVE PUBLISHED when the source workflow is published — that is how 26 '
       + 'went live on an account taking ~230 enrollments a week. This refuses to load published '
       + 'workflows unless allowPublishedWorkflows:true, and either way hands back the stand-down plan. '
-      + 'An empty conflicts result is NOT clearance that nothing will be overwritten — see '
-      + 'check_snapshot_conflicts.',
+      + 'Conflicts NEVER cover assets the operator built by hand: a conflict means "this snapshot '
+      + 'was pushed here before" (settled 2026-09-09), so an empty result is not clearance. '
+      + 'Duplicate anything customised on the target BEFORE loading — that is the only protection.',
     inputSchema: schema({
       locationId: z.string(),
       snapshotId: z.string(),
@@ -7467,7 +7469,7 @@ export const TOOLS = [
               standDown: wanted.length ? standDown : undefined,
               warnings: [
                 'The push answers "queued". Nothing here can be read back to confirm what it wrote.',
-                'An EMPTY conflicts result is not clearance — see check_snapshot_conflicts.',
+                'Conflicts only cover what THIS snapshot loaded here before — never assets built by hand on the target. An empty result is not clearance.',
                 ...(undetermined.length ? [`${undetermined.length} selected workflow id(s) could not be read on the source, so their published state is UNKNOWN — a folder id looks like this too.`] : []),
               ],
             },
