@@ -246,7 +246,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
     define_ENDPOINT_CATALOG_default = {
       generated: "2026-09-08",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 1148,
+      count: 1150,
       endpoints: [
         {
           id: "workflows--actions-branches",
@@ -6860,6 +6860,79 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "funnels--page-generate",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/funnel-ai/page/generate",
+          path: "/funnel-ai/page/generate",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/20-api/funnel-ai.md:22"
+          ]
+        },
+        {
+          id: "funnels--funnel-ai-tracker",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/funnel-ai/tracker/{trackerId}",
+          path: "/funnel-ai/tracker/{trackerId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "trackerId"
+            }
+          ],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/20-api/funnel-ai.md:46"
+          ]
+        },
+        {
           id: "workflows--funnel-list",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/funnel/list",
@@ -7036,7 +7109,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "funnels/10-anatomy/routing-and-publishing.md:31",
             "funnels/20-api/funnels-api.md:76",
             "funnels/20-api/funnels-api.md:139",
-            "funnels/30-types/native-elements.md:134"
+            "funnels/30-types/native-elements.md:83",
+            "funnels/30-types/native-elements.md:147"
           ]
         },
         {
@@ -7835,6 +7909,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
+            "funnels/20-api/funnel-ai.md:75",
             "funnels/20-api/funnels-api.md:137",
             "funnels/40-rules/silent-failures.md:32"
           ]
@@ -46770,7 +46845,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/template-library.md:34"
+            "funnels/20-api/template-library.md:73",
+            "funnels/20-api/template-library.md:75"
           ]
         },
         {
@@ -48082,7 +48158,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/20-api/template-library.md:22",
-            "funnels/20-api/template-library.md:74"
+            "funnels/20-api/template-library.md:118"
           ]
         },
         {
@@ -48113,7 +48189,10 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/TemplateLibraryService.ts:18"
+            "services/TemplateLibraryService.ts:18",
+            "funnels/20-api/template-library.md:35",
+            "funnels/20-api/template-library.md:93",
+            "funnels/30-types/native-elements.md:81"
           ]
         },
         {
@@ -48170,7 +48249,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/20-api/template-library.md:19",
-            "funnels/20-api/template-library.md:64"
+            "funnels/20-api/template-library.md:108"
           ]
         },
         {
@@ -48325,7 +48404,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/TemplateLibraryService.ts:43",
-            "funnels/20-api/template-library.md:84"
+            "funnels/20-api/template-library.md:56",
+            "funnels/20-api/template-library.md:128",
+            "funnels/30-types/native-elements.md:82"
           ]
         },
         {
