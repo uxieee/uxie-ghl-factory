@@ -1561,10 +1561,10 @@
     ]
   },
   "unpublish_workflows": {
-    "description": "Stand published workflows back down to draft, in bulk — proof: source-derived (corpus platform/20-api/snapshots-authoring.md, 2026-09-08); risk: write",
+    "description": "Stand published workflows back down to draft, in bulk — proof: endpoint live-runtime (2026-09-08), tool unexecuted; risk: write",
     "risk": "write",
-    "proof": "source-derived (corpus platform/20-api/snapshots-authoring.md, 2026-09-08)",
-    "proofFloor": "source-derived",
+    "proof": "endpoint live-runtime (2026-09-08), tool unexecuted",
+    "proofFloor": "endpoint live-runtime (2026-09-08), tool unexecuted",
     "proofRows": [
       "workflow-service--bulk-update-status"
     ],

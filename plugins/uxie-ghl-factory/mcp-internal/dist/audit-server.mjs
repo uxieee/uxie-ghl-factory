@@ -17846,7 +17846,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "platform/20-api/snapshots-authoring.md:236"
+            "platform/20-api/snapshots-authoring.md:257"
           ]
         },
         {
@@ -18014,7 +18014,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "platform/20-api/snapshots-authoring.md:238"
+            "platform/20-api/snapshots-authoring.md:259"
           ]
         },
         {
@@ -18186,7 +18186,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "platform/20-api/snapshots-authoring.md:237"
+            "platform/20-api/snapshots-authoring.md:258"
           ]
         },
         {
@@ -23209,7 +23209,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "destructive",
-          reach: "source-only",
+          summary: "Set the published/draft status of many workflows at once. A live automation stops or starts.",
+          note: "Live-proven 2026-09-08 on the designated sandbox. Body {workflowIds:[...], status:'draft'|'published', updatedBy}. PRECISE: naming one id out of three published workflows moved exactly that one, confirmed by a separate list read. REVERSIBLE: status:'published' put all three back, so this is a status setter, not an unpublish-only route. `updatedBy` is required \u2014 omitting it is a 400 \"updatedBy is required and must be a non-empty string\". THE TRAP: that 400 still carries a full results envelope (totalProcessed 1, successfulUpdates 0, failedUpdates 1, details naming the workflow), so a caller keying on the presence of `results` rather than on the status code reads a refusal as a result. The 200 body counts the service's own work, not the stored status \u2014 read back. backgroundTasksCreated was 0 on every call. UNPROVEN: what unpublishing does to enrollments already in flight; the probe workflows carried none.",
+          reach: "proven-live",
           coveredBy: [
             "unpublish_workflows"
           ],
@@ -50741,7 +50743,10 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           note: "COMPANY-scope bulk write across sub-accounts, not one location."
         },
         "PUT /workflow/{locationId}/change-status": {
-          kind: "destructive"
+          kind: "destructive",
+          reach: "proven-live",
+          summary: "Set the published/draft status of many workflows at once. A live automation stops or starts.",
+          note: "Live-proven 2026-09-08 on the designated sandbox. Body {workflowIds:[...], status:'draft'|'published', updatedBy}. PRECISE: naming one id out of three published workflows moved exactly that one, confirmed by a separate list read. REVERSIBLE: status:'published' put all three back, so this is a status setter, not an unpublish-only route. `updatedBy` is required \u2014 omitting it is a 400 \"updatedBy is required and must be a non-empty string\". THE TRAP: that 400 still carries a full results envelope (totalProcessed 1, successfulUpdates 0, failedUpdates 1, details naming the workflow), so a caller keying on the presence of `results` rather than on the status code reads a refusal as a result. The 200 body counts the service's own work, not the stored status \u2014 read back. backgroundTasksCreated was 0 on every call. UNPROVEN: what unpublishing does to enrollments already in flight; the probe workflows carried none."
         },
         "PUT /workflow/{locationId}/change-status/{workflowId}": {
           kind: "destructive",
@@ -52462,10 +52467,10 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       unpublish_workflows: {
-        description: "Stand published workflows back down to draft, in bulk \u2014 proof: source-derived (corpus platform/20-api/snapshots-authoring.md, 2026-09-08); risk: write",
+        description: "Stand published workflows back down to draft, in bulk \u2014 proof: endpoint live-runtime (2026-09-08), tool unexecuted; risk: write",
         risk: "write",
-        proof: "source-derived (corpus platform/20-api/snapshots-authoring.md, 2026-09-08)",
-        proofFloor: "source-derived",
+        proof: "endpoint live-runtime (2026-09-08), tool unexecuted",
+        proofFloor: "endpoint live-runtime (2026-09-08), tool unexecuted",
         proofRows: [
           "workflow-service--bulk-update-status"
         ],
@@ -166704,7 +166709,7 @@ var TOOLS2 = [
     // first: whoever ends up building the push can hand this back as the stand-down call, which
     // is what the finding asks for.
     name: "unpublish_workflows",
-    description: `${describe3("unpublish_workflows", "Stand published workflows back down to draft, in bulk \u2014 risk: write")}. Preview by default; confirm:true writes. Built for the minute after a snapshot load goes live: loaded workflows arrive PUBLISHED when the source was published, and nothing warns you. Sets status to draft, which STOPS new enrollments \u2014 it does not remove contacts already in flight. \`updatedBy\` is required by the API and is filled from the credential, not the caller: omitting it answers 400 {"message":"Invalid value updatedBy"}, an error that names the field and not the shape. Every id is read back individually afterwards, because the bulk response reports its own success count and that is not the same as the status having changed.`,
+    description: `${describe3("unpublish_workflows", "Stand published workflows back down to draft, in bulk \u2014 risk: write")}. Preview by default; confirm:true writes. Built for the minute after a snapshot load goes live: loaded workflows arrive PUBLISHED when the source was published, and nothing warns you. Sets status to draft, which stops new enrollments. What it does to contacts ALREADY in flight is unproven \u2014 do not assume they keep running, and do not assume they stop. \`updatedBy\` is required by the API and is filled from the credential, not the caller. Reversible: this is a status setter, and publish_workflow puts them back. Every id is read back individually afterwards, because the bulk response reports its own success count and that is not the same as the status having changed \u2014 and because a REFUSAL here still carries a full results envelope, so the shape of the body cannot tell you it worked.`,
     inputSchema: schema({
       locationId: external_exports.string(),
       workflowIds: external_exports.array(external_exports.string()).min(1).max(200),

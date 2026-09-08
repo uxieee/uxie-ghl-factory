@@ -17601,7 +17601,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "platform/20-api/snapshots-authoring.md:236"
+        "platform/20-api/snapshots-authoring.md:257"
       ]
     },
     {
@@ -17769,7 +17769,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "platform/20-api/snapshots-authoring.md:238"
+        "platform/20-api/snapshots-authoring.md:259"
       ]
     },
     {
@@ -17941,7 +17941,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "platform/20-api/snapshots-authoring.md:237"
+        "platform/20-api/snapshots-authoring.md:258"
       ]
     },
     {
@@ -22964,7 +22964,9 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "destructive",
-      "reach": "source-only",
+      "summary": "Set the published/draft status of many workflows at once. A live automation stops or starts.",
+      "note": "Live-proven 2026-09-08 on the designated sandbox. Body {workflowIds:[...], status:'draft'|'published', updatedBy}. PRECISE: naming one id out of three published workflows moved exactly that one, confirmed by a separate list read. REVERSIBLE: status:'published' put all three back, so this is a status setter, not an unpublish-only route. `updatedBy` is required — omitting it is a 400 \"updatedBy is required and must be a non-empty string\". THE TRAP: that 400 still carries a full results envelope (totalProcessed 1, successfulUpdates 0, failedUpdates 1, details naming the workflow), so a caller keying on the presence of `results` rather than on the status code reads a refusal as a result. The 200 body counts the service's own work, not the stored status — read back. backgroundTasksCreated was 0 on every call. UNPROVEN: what unpublishing does to enrollments already in flight; the probe workflows carried none.",
+      "reach": "proven-live",
       "coveredBy": [
         "unpublish_workflows"
       ],

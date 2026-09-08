@@ -4915,11 +4915,13 @@ export const TOOLS = [
     description: `${describe('unpublish_workflows', 'Stand published workflows back down to draft, in bulk — risk: write')}. `
       + 'Preview by default; confirm:true writes. Built for the minute after a snapshot load goes live: '
       + 'loaded workflows arrive PUBLISHED when the source was published, and nothing warns you. '
-      + 'Sets status to draft, which STOPS new enrollments — it does not remove contacts already in flight. '
-      + '`updatedBy` is required by the API and is filled from the credential, not the caller: omitting it '
-      + 'answers 400 {"message":"Invalid value updatedBy"}, an error that names the field and not the shape. '
+      + 'Sets status to draft, which stops new enrollments. What it does to contacts ALREADY in '
+      + 'flight is unproven — do not assume they keep running, and do not assume they stop. '
+      + '`updatedBy` is required by the API and is filled from the credential, not the caller. '
+      + 'Reversible: this is a status setter, and publish_workflow puts them back. '
       + 'Every id is read back individually afterwards, because the bulk response reports its own success '
-      + 'count and that is not the same as the status having changed.',
+      + 'count and that is not the same as the status having changed — and because a REFUSAL here still '
+      + 'carries a full results envelope, so the shape of the body cannot tell you it worked.',
     inputSchema: schema({
       locationId: z.string(),
       workflowIds: z.array(z.string()).min(1).max(200),

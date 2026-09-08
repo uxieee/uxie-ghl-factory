@@ -182,3 +182,21 @@ test('the COMMITTED capability manifest equals a fresh generation', async () => 
     'capability-manifest.json is stale — run `npm run manifest` and commit it',
   );
 });
+
+// The stand-down description shipped two claims the live run on 2026-09-08 does not support:
+// the 400 was quoted as `{"message":"Invalid value updatedBy"}` (the server says "updatedBy is
+// required and must be a non-empty string"), and it asserted flatly that draft "does not remove
+// contacts already in flight". The probe workflows carried no enrollments, so that question was
+// never asked -- and an unproven claim in a tool description is read by the caller as a fact.
+// Both are pinned here because both were confident sentences with nothing behind them.
+test('unpublish_workflows does not assert what it never proved', () => {
+  const { description } = TOOLS.find((t) => t.name === 'unpublish_workflows');
+  assert.doesNotMatch(description, /Invalid value updatedBy/,
+    'the missing-updatedBy 400 does not say that; quoting a wrong error string is worse than quoting none');
+  assert.doesNotMatch(description, /does not remove contacts already in flight/,
+    'what draft does to in-flight enrollments is UNPROVEN — do not state it as fact');
+  assert.match(description, /unproven/i,
+    'the in-flight question must be disclosed as open, not silently dropped');
+  assert.match(description, /results envelope/,
+    'a refusal carries a full results envelope, so callers must be told the body shape cannot confirm success');
+});
