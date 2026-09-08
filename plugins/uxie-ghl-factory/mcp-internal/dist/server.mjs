@@ -52575,10 +52575,10 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       push_snapshot: {
-        description: "Load a snapshot into sub-accounts \u2014 proof: endpoint live-runtime (2026-09-08), tool unexecuted; risk: destructive",
+        description: "Load a snapshot into sub-accounts \u2014 proof: live-runtime (2026-09-09); risk: destructive",
         risk: "destructive",
-        proof: "endpoint live-runtime (2026-09-08), tool unexecuted",
-        proofFloor: "endpoint live-runtime (2026-09-08), tool unexecuted",
+        proof: "live-runtime (2026-09-09)",
+        proofFloor: "live-runtime (2026-09-09)",
         proofRows: [
           "platform--v2-set-assets-to-locations",
           "platform--snapshot-get-assets-get",
