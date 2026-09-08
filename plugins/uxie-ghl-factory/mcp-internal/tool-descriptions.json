@@ -1561,10 +1561,10 @@
     ]
   },
   "unpublish_workflows": {
-    "description": "Stand published workflows back down to draft, in bulk — proof: endpoint live-runtime (2026-09-08), tool unexecuted; risk: write",
+    "description": "Stand published workflows back down to draft, in bulk — proof: live-runtime (2026-09-09); risk: write",
     "risk": "write",
-    "proof": "endpoint live-runtime (2026-09-08), tool unexecuted",
-    "proofFloor": "endpoint live-runtime (2026-09-08), tool unexecuted",
+    "proof": "live-runtime (2026-09-09)",
+    "proofFloor": "live-runtime (2026-09-09)",
     "proofRows": [
       "workflow-service--bulk-update-status"
     ],

@@ -20,7 +20,7 @@
     {
       "tree": "documented",
       "dir": "corpus",
-      "capturedAt": "2026-09-08T21:09:34.289Z",
+      "capturedAt": "2026-09-08T21:20:16.267Z",
       "hash": "corpus",
       "fileCount": 751,
       "endpoints": 751
@@ -14039,7 +14039,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "platform/20-api/snapshots-authoring.md:320"
+        "platform/20-api/snapshots-authoring.md:325"
       ],
       "serviceBasis": "declared"
     },
@@ -14179,7 +14179,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "platform/20-api/snapshots-authoring.md:322"
+        "platform/20-api/snapshots-authoring.md:327"
       ],
       "serviceBasis": "declared"
     },
@@ -14344,7 +14344,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "platform/20-api/snapshots-authoring.md:321"
+        "platform/20-api/snapshots-authoring.md:326"
       ],
       "serviceBasis": "declared"
     },

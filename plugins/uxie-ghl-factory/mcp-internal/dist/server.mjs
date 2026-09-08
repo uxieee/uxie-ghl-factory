@@ -17849,7 +17849,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "platform/20-api/snapshots-authoring.md:320"
+            "platform/20-api/snapshots-authoring.md:325"
           ]
         },
         {
@@ -18017,7 +18017,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "platform/20-api/snapshots-authoring.md:322"
+            "platform/20-api/snapshots-authoring.md:327"
           ]
         },
         {
@@ -18233,7 +18233,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "platform/20-api/snapshots-authoring.md:321"
+            "platform/20-api/snapshots-authoring.md:326"
           ]
         },
         {
@@ -52557,10 +52557,10 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       unpublish_workflows: {
-        description: "Stand published workflows back down to draft, in bulk \u2014 proof: endpoint live-runtime (2026-09-08), tool unexecuted; risk: write",
+        description: "Stand published workflows back down to draft, in bulk \u2014 proof: live-runtime (2026-09-09); risk: write",
         risk: "write",
-        proof: "endpoint live-runtime (2026-09-08), tool unexecuted",
-        proofFloor: "endpoint live-runtime (2026-09-08), tool unexecuted",
+        proof: "live-runtime (2026-09-09)",
+        proofFloor: "live-runtime (2026-09-09)",
         proofRows: [
           "workflow-service--bulk-update-status"
         ],
@@ -166874,7 +166874,7 @@ var TOOLS2 = [
     // first: whoever ends up building the push can hand this back as the stand-down call, which
     // is what the finding asks for.
     name: "unpublish_workflows",
-    description: `${describe3("unpublish_workflows", "Stand published workflows back down to draft, in bulk \u2014 risk: write")}. Preview by default; confirm:true writes. Built for the minute after a snapshot load goes live: loaded workflows arrive PUBLISHED when the source was published, and nothing warns you. Sets status to draft, which stops new enrollments. What it does to contacts ALREADY in flight is unproven \u2014 do not assume they keep running, and do not assume they stop. \`updatedBy\` is required by the API and is filled from the credential, not the caller. Reversible: this is a status setter, and publish_workflow puts them back. Every id is read back individually afterwards, because the bulk response reports its own success count and that is not the same as the status having changed \u2014 and because a REFUSAL here still carries a full results envelope, so the shape of the body cannot tell you it worked.`,
+    description: `${describe3("unpublish_workflows", "Stand published workflows back down to draft, in bulk \u2014 risk: write")}. Preview by default; confirm:true writes. Built for the minute after a snapshot load goes live: loaded workflows arrive PUBLISHED when the source was published, and nothing warns you. Sets status to draft, which stops new enrollments. What it does to contacts ALREADY in flight is unproven \u2014 do not assume they keep running, and do not assume they stop. \`updatedBy\` is required by the API and is filled from the credential, not the caller. Reversible in STATUS, not in version: standing one down and republishing it mints a new version (6 -> 7 observed), which cannot be put back. Every id is read back individually afterwards, because the bulk response reports its own success count and that is not the same as the status having changed \u2014 and because a REFUSAL here still carries a full results envelope, so the shape of the body cannot tell you it worked.`,
     inputSchema: schema({
       locationId: external_exports.string(),
       workflowIds: external_exports.array(external_exports.string()).min(1).max(200),

@@ -4918,7 +4918,8 @@ export const TOOLS = [
       + 'Sets status to draft, which stops new enrollments. What it does to contacts ALREADY in '
       + 'flight is unproven — do not assume they keep running, and do not assume they stop. '
       + '`updatedBy` is required by the API and is filled from the credential, not the caller. '
-      + 'Reversible: this is a status setter, and publish_workflow puts them back. '
+      + 'Reversible in STATUS, not in version: standing one down and republishing it mints a new '
+      + 'version (6 -> 7 observed), which cannot be put back. '
       + 'Every id is read back individually afterwards, because the bulk response reports its own success '
       + 'count and that is not the same as the status having changed — and because a REFUSAL here still '
       + 'carries a full results envelope, so the shape of the body cannot tell you it worked.',
