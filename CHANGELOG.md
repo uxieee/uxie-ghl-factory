@@ -11,6 +11,49 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [0.67.0] — 2026-09-09
+
+`push_snapshot`'s published-workflow rail could never fire. Running the tool for the first time is what found it.
+
+### Fixed
+
+- **`push_snapshot` now resolves the snapshot's source account from the snapshot LIST, not from
+  `get_assets`.** The published-workflow refusal — the rail this tool exists for — was inert in
+  0.66.0.
+
+  `GET /snapshots-appengine/snapshot/{id}/get_assets` returns the snapshot's *contents* and
+  carries no `locationId`. The rail read the source account from there, so it was always `null`,
+  no workflow was ever read, and every selected workflow degraded to `undetermined`. Confirmed
+  live: two workflows were selected, one already verified `status: "published"` by direct read,
+  and the tool declined to refuse.
+
+  It was safe by accident — a published workflow was never reported as safe, and the preview
+  warned that the state was unknown — but the refusal **could not fire on any input**. A safety
+  rail that silently never fires is worse than no rail: it reads as a check that passed.
+
+  `GET /snapshots/v2/{companyId}` carries `locationId` on every row, verified live. The rail now
+  reads it there and falls back to the manifest.
+
+  **Why the tests did not catch it:** the mock put a `locationId` on the `get_assets` response
+  that production does not send, so the test proved the assumption rather than the API. The mock
+  now returns what the endpoint really returns, and two tests pin the behaviour — one that the
+  rail fires through the list, one that an unresolvable source stays `UNDETERMINED` rather than
+  reading as safe.
+
+### Proof
+
+- **`push_snapshot` has now been executed.** Its proof floor read
+  `endpoint live-runtime (2026-09-08), tool unexecuted`; the tool half is closed. First run was
+  the smallest payload available — a one-tag snapshot pushed back into the account it was
+  captured from, on the designated live-fire sub-account.
+
+  Recorded from that run: pushing a tag back into its own source is a **no-op** (38 tags before,
+  38 after, ids preserved — same-account only; a cross-account load is expected to mint new ids,
+  which is why the stand-down plan matches by name). `get_snapshot_manifest` returns category
+  **counts**, not ids, so a selection cannot be built from it — ids come from `preFetchAssets`
+  with an `assetType`. And a snapshot capturing one tag still lists all 51 categories in
+  `completedAssets`: that is what was *processed*, not what was *captured*.
+
 ## [0.66.0] — 2026-09-09
 
 Three shipped claims that had nothing behind them, and the snapshot push tool that waited for its brake.
