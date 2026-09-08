@@ -17849,7 +17849,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "platform/20-api/snapshots-authoring.md:296"
+            "platform/20-api/snapshots-authoring.md:303"
           ]
         },
         {
@@ -18017,7 +18017,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "platform/20-api/snapshots-authoring.md:298"
+            "platform/20-api/snapshots-authoring.md:305"
           ]
         },
         {
@@ -18233,7 +18233,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "platform/20-api/snapshots-authoring.md:297"
+            "platform/20-api/snapshots-authoring.md:304"
           ]
         },
         {
@@ -23287,7 +23287,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/WorkflowService.ts:603",
-            "platform/20-api/snapshots-authoring.md:243",
+            "platform/20-api/snapshots-authoring.md:250",
             "platform/40-rules/snapshot-carry-matrix.md:108"
           ]
         },
@@ -23328,7 +23328,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/WorkflowService.ts:596",
-            "platform/20-api/snapshots-authoring.md:242"
+            "platform/20-api/snapshots-authoring.md:249"
           ]
         },
         {
