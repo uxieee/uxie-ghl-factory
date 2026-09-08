@@ -494,7 +494,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "getAdAccountById",
-          service: "FacebookService",
+          service: null,
           tree: "workflow-builder",
           pathParams: [
             {
@@ -552,7 +552,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "getCustomAudienceIds",
-          service: "FacebookService",
+          service: null,
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -612,7 +612,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "getAllInstagramAccounts",
-          service: "AdPublishingService",
+          service: null,
           tree: "workflow-builder",
           pathParams: [
             {
@@ -664,7 +664,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "getAllFacebookPages",
-          service: "AdPublishingService",
+          service: null,
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -712,7 +712,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "getAllFacebookPixels",
-          service: "AdPublishingService",
+          service: null,
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -773,7 +773,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "getAffiliateById",
-          service: "AffiliateService",
+          service: null,
           tree: "workflow-builder",
           pathParams: [
             {
@@ -815,7 +815,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "getAffiliateCampaigns",
-          service: "AffiliateService",
+          service: null,
           tree: "workflow-builder",
           pathParams: [
             {
@@ -862,7 +862,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "getAffiliates",
-          service: "AffiliateService",
+          service: null,
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -972,7 +972,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "isBetaEnabled",
-          service: "AIEmployeeService",
+          service: null,
           tree: "workflow-builder",
           pathParams: [
             {
@@ -1022,7 +1022,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "getEmployeeById",
-          service: "AIEmployeeService",
+          service: null,
           tree: "workflow-builder",
           pathParams: [
             {
@@ -1063,7 +1063,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "updateEmployee",
-          service: "AIEmployeeService",
+          service: null,
           tree: "workflow-builder",
           pathParams: [
             {
@@ -1122,7 +1122,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "getEmployeesList",
-          service: "AIEmployeeService",
+          service: null,
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -1167,7 +1167,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: "ai-usage",
+          service: null,
           tree: "documented",
           pathParams: [],
           query: [
@@ -1242,7 +1242,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: "ai-usage",
+          service: null,
           tree: "documented",
           pathParams: [],
           query: [
@@ -1281,7 +1281,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: "ai-usage",
+          service: null,
           tree: "documented",
           pathParams: [],
           query: [
@@ -1320,7 +1320,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: "ai-usage",
+          service: null,
           tree: "documented",
           pathParams: [],
           query: [
@@ -1359,7 +1359,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: "ai-usage",
+          service: null,
           tree: "documented",
           pathParams: [],
           query: [
@@ -1398,7 +1398,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: "ai-usage",
+          service: null,
           tree: "documented",
           pathParams: [],
           query: [
@@ -1437,7 +1437,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: "ai-usage",
+          service: null,
           tree: "documented",
           pathParams: [],
           query: [
@@ -1476,7 +1476,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: "ai-usage",
+          service: null,
           tree: "documented",
           pathParams: [],
           query: [
@@ -1515,7 +1515,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: "ai-usage",
+          service: null,
           tree: "documented",
           pathParams: [],
           query: [
@@ -1553,7 +1553,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "getElizaInfo",
-          service: "ElizaService",
+          service: null,
           tree: "workflow-builder",
           pathParams: [
             {
@@ -1588,7 +1588,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "updateShopifyWebhooks",
-          service: "ShopifyService",
+          service: null,
           tree: "workflow-builder",
           pathParams: [],
           query: [],
@@ -1829,7 +1829,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "fetchAssociationsForObject",
-          service: "AssociationsService",
+          service: null,
           tree: "workflow-builder",
           pathParams: [
             {
@@ -2198,7 +2198,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "getCalendarConfiguration",
-          service: "CalendarService",
+          service: "calendars",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -2555,7 +2555,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "getChat",
-          service: null,
+          service: "ai-agents",
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -3518,7 +3518,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "getDefaultBotConfig",
-          service: "ConversationAIService",
+          service: "ai-agents",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -3558,7 +3558,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "getNewEmailStats",
-          service: "EmailStatsReportService",
+          service: null,
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -3619,7 +3619,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "getAggregateStatsNew",
-          service: "EmailStatsReportService",
+          service: null,
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -3679,7 +3679,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "getSmsStatsWithContacts",
-          service: "SmsStatsReportService",
+          service: null,
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -3726,7 +3726,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "getSmsStats",
-          service: "SmsStatsReportService",
+          service: null,
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -3785,7 +3785,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "getMessageById",
-          service: "ConversationMessageService",
+          service: "conversations",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -3823,7 +3823,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "location-id"
           ],
           operation: "getPreferenceSubTypes",
-          service: "EmailService",
+          service: "conversations",
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -3865,7 +3865,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "getTikTokPosts",
-          service: "TikTokService",
+          service: "conversations",
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -3930,7 +3930,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "getTikTokPostById",
-          service: "TikTokService",
+          service: "conversations",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -4310,7 +4310,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "getCustomValues",
-          service: "CustomDataService",
+          service: null,
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -4392,7 +4392,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: "domain-connect",
+          service: null,
           tree: "documented",
           pathParams: [],
           query: [],
@@ -4424,7 +4424,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: "domain-connect",
+          service: null,
           tree: "documented",
           pathParams: [],
           query: [],
@@ -4457,7 +4457,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: "domain-connect",
+          service: null,
           tree: "documented",
           pathParams: [],
           query: [],
@@ -4489,7 +4489,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: "domain-connect",
+          service: null,
           tree: "documented",
           pathParams: [],
           query: [],
@@ -4521,7 +4521,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: "domain-connect",
+          service: null,
           tree: "documented",
           pathParams: [],
           query: [],
@@ -4553,7 +4553,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: "domain-connect",
+          service: null,
           tree: "documented",
           pathParams: [],
           query: [],
@@ -4585,7 +4585,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: "domains",
+          service: null,
           tree: "documented",
           pathParams: [
             {
@@ -4621,7 +4621,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: "domains",
+          service: null,
           tree: "documented",
           pathParams: [
             {
@@ -4660,7 +4660,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: "domains",
+          service: null,
           tree: "documented",
           pathParams: [
             {
@@ -4699,7 +4699,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: "domains",
+          service: null,
           tree: "documented",
           pathParams: [
             {
@@ -4738,7 +4738,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "getEmailBuilderTemplatesPaginated",
-          service: "TemplateService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -4836,7 +4836,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "createHiddenEmailTemplate",
-          service: "TemplateService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [],
           query: [],
@@ -4907,7 +4907,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "getEmailBuilderTemplates",
-          service: "TemplateService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -4962,7 +4962,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "trackDefaultValueEvent",
-          service: "TemplateService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [],
           query: [],
@@ -5082,7 +5082,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "getTemplateById",
-          service: "TemplateService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -5124,7 +5124,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "getEmailBuilderSettings",
-          service: "TemplateService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -5163,7 +5163,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "updateTemplateFromSource",
-          service: "TemplateService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [],
           query: [],
@@ -5219,7 +5219,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "getWorkflowTemplate",
-          service: "TemplateService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -5283,7 +5283,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "updateWorkflowTemplate",
-          service: "TemplateService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -5348,7 +5348,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "getLinksFromHtml",
-          service: "TemplateService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [],
           query: [],
@@ -5403,7 +5403,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "location-id"
           ],
           operation: "deleteTrigger",
-          service: "EmailService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -5444,7 +5444,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "location-id"
           ],
           operation: "getTriggers",
-          service: "EmailService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -5504,7 +5504,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "updateTriggers",
-          service: "EmailService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -6615,7 +6615,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "getForms",
-          service: "FormsService",
+          service: "forms",
           tree: "workflow-builder",
           pathParams: [],
           query: [],
@@ -6798,7 +6798,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "getFormById",
-          service: "FormsService",
+          service: "forms",
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -7290,7 +7290,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "getFunnelById",
-          service: "FunnelsService",
+          service: "funnels",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -7406,7 +7406,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "getFunnels",
-          service: "FunnelsService",
+          service: "funnels",
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -7619,7 +7619,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "getPagesByFunnelId",
-          service: "FunnelsService",
+          service: "funnels",
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -7679,7 +7679,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "getPageById",
-          service: "FunnelsService",
+          service: "funnels",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -7798,7 +7798,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "getProductsByFunnelId",
-          service: "FunnelsService",
+          service: "funnels",
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -7858,7 +7858,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "getProductById",
-          service: "FunnelsService",
+          service: "funnels",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -8390,7 +8390,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "getAccountIds",
-          service: "FacebookService",
+          service: null,
           tree: "workflow-builder",
           pathParams: [
             {
@@ -8448,7 +8448,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "checkConnection",
-          service: "FacebookService",
+          service: null,
           tree: "workflow-builder",
           pathParams: [
             {
@@ -8489,7 +8489,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "getPages",
-          service: "FacebookService",
+          service: null,
           tree: "workflow-builder",
           pathParams: [
             {
@@ -8531,7 +8531,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "getLeadGenFroms",
-          service: "FacebookService",
+          service: null,
           tree: "workflow-builder",
           pathParams: [
             {
@@ -8567,7 +8567,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "getLeadGenPages",
-          service: "FacebookService",
+          service: null,
           tree: "workflow-builder",
           pathParams: [
             {
@@ -8606,7 +8606,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "getPosts",
-          service: "FacebookService",
+          service: null,
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -8729,7 +8729,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "getGoogleOAuthStartUrl",
-          service: "GoogleSheetsService",
+          service: null,
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -8777,7 +8777,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "getIgPosts",
-          service: "FacebookService",
+          service: null,
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -8846,7 +8846,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "fetchSingleAppDetails",
-          service: "WorkflowMarketplaceService",
+          service: null,
           tree: "workflow-builder",
           pathParams: [
             {
@@ -8881,7 +8881,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "fetchPaymentPlans",
-          service: "WorkflowMarketplaceService",
+          service: null,
           tree: "workflow-builder",
           pathParams: [
             {
@@ -9278,7 +9278,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "getById",
-          service: "LinksService",
+          service: null,
           tree: "workflow-builder",
           pathParams: [
             {
@@ -9326,7 +9326,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "getLinks",
-          service: "LinksService",
+          service: null,
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -9369,7 +9369,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "getSmartLists",
-          service: "SmartListService",
+          service: null,
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -9433,7 +9433,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "createSmartList",
-          service: "SmartListService",
+          service: null,
           tree: "workflow-builder",
           pathParams: [],
           query: [],
@@ -9735,7 +9735,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "deleteSmartList",
-          service: "SmartListService",
+          service: null,
           tree: "workflow-builder",
           pathParams: [
             {
@@ -9774,7 +9774,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "getSmartList",
-          service: "SmartListService",
+          service: null,
           tree: "workflow-builder",
           pathParams: [
             {
@@ -9817,7 +9817,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "updateSmartList",
-          service: "SmartListService",
+          service: null,
           tree: "workflow-builder",
           pathParams: [
             {
@@ -9912,7 +9912,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "getById",
-          service: "LocationsService",
+          service: null,
           tree: "workflow-builder",
           pathParams: [
             {
@@ -10197,7 +10197,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "getCustomFields",
-          service: "OpportunityCustomFieldService",
+          service: null,
           tree: "workflow-builder",
           pathParams: [
             {
@@ -10408,7 +10408,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "getContactCustomFields",
-          service: "CustomFieldService",
+          service: null,
           tree: "workflow-builder",
           pathParams: [
             {
@@ -11106,7 +11106,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "createTagMarketplace",
-          service: "EmailService",
+          service: null,
           tree: "workflow-builder",
           pathParams: [
             {
@@ -11156,7 +11156,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "location-id"
           ],
           operation: "fetchTags",
-          service: "EmailService",
+          service: null,
           tree: "workflow-builder",
           pathParams: [
             {
@@ -11214,7 +11214,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "searchTags",
-          service: "FilterService",
+          service: null,
           tree: "workflow-builder",
           pathParams: [
             {
@@ -11253,7 +11253,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "getTemplates",
-          service: "TemplateService",
+          service: null,
           tree: "workflow-builder",
           pathParams: [
             {
@@ -11312,7 +11312,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "getSnippetTemplateById",
-          service: "TemplateService",
+          service: null,
           tree: "workflow-builder",
           pathParams: [
             {
@@ -11463,7 +11463,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "searchLocations",
-          service: "LocationsService",
+          service: null,
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -11603,7 +11603,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "dump",
-          service: "LogsService",
+          service: "ai-agents",
           tree: "workflow-builder",
           pathParams: [],
           query: [],
@@ -11649,7 +11649,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "fetchLiveVersionId",
-          service: null,
+          service: "platform",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -11692,7 +11692,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "fetchIntegrationDetails",
-          service: null,
+          service: "platform",
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -11737,7 +11737,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "fetchBillingUsage",
-          service: "WorkflowMarketplaceService",
+          service: "platform",
           tree: "workflow-builder",
           pathParams: [],
           query: [],
@@ -11768,7 +11768,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "getAllCategoriesMarketplaceApps",
-          service: "WorkflowMarketplaceService",
+          service: "platform",
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -11812,7 +11812,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "listMarketplaceOauthApps",
-          service: "McpConnectionService",
+          service: "platform",
           tree: "workflow-builder",
           pathParams: [],
           query: [],
@@ -11848,7 +11848,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "getMarketplaceApps",
-          service: "WorkflowMarketplaceService",
+          service: "platform",
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -11989,7 +11989,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "searchVideos",
-          service: "MediaService",
+          service: null,
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -13568,7 +13568,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "fetchCategories",
-          service: "LocationMembership",
+          service: "memberships-courses",
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -13606,7 +13606,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "fetchLessons",
-          service: "LocationMembership",
+          service: "memberships-courses",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -13648,7 +13648,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "fetchAllCategories",
-          service: "LocationMembership",
+          service: "memberships-courses",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -13697,7 +13697,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "fetchData",
-          service: "LocationMembership",
+          service: "memberships-courses",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -13864,7 +13864,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "authorize",
-          service: "WorkflowMarketplaceService",
+          service: null,
           tree: "workflow-builder",
           pathParams: [],
           query: [],
@@ -13895,7 +13895,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "updateBasicAuthentication",
-          service: "WorkflowsMarketplacePlatformService",
+          service: null,
           tree: "workflow-builder",
           pathParams: [
             {
@@ -14050,7 +14050,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "deleteLocationAccount",
-          service: "WorkflowsMarketplacePlatformService",
+          service: null,
           tree: "workflow-builder",
           pathParams: [
             {
@@ -14092,7 +14092,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "fetchOAuthUrl",
-          service: "WorkflowsMarketplacePlatformService",
+          service: null,
           tree: "workflow-builder",
           pathParams: [
             {
@@ -14210,7 +14210,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "fetchWhiteLabelConfig",
-          service: "WorkflowMarketplaceService",
+          service: null,
           tree: "workflow-builder",
           pathParams: [
             {
@@ -14249,7 +14249,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "fetchCustomObjectsList",
-          service: "CustomObjectsService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -14297,7 +14297,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "fetchCustomObjectFields",
-          service: "CustomObjectsService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -14385,7 +14385,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "fetchRecordsByFilter",
-          service: "CustomObjectsService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -14507,7 +14507,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "getLostReasonCustomFieldOptions",
-          service: "OpportunityCustomFieldService",
+          service: "pipelines-opportunities",
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -15593,7 +15593,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "blob",
           extraHeaders: [],
           operation: "getRecording",
-          service: "IVRService",
+          service: null,
           tree: "workflow-builder",
           pathParams: [
             {
@@ -15714,7 +15714,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "getPhoneNumbersWithoutNumberPool",
-          service: "SaasTwilioService",
+          service: null,
           tree: "workflow-builder",
           pathParams: [
             {
@@ -15756,7 +15756,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "getLocationTranscriptionStatus",
-          service: "PhoneSystemService",
+          service: null,
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -15804,7 +15804,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "validateTranscription",
-          service: "PhoneSystemService",
+          service: null,
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -15995,7 +15995,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "getAllWhatsAppTemplates",
-          service: "TemplateService",
+          service: null,
           tree: "workflow-builder",
           pathParams: [
             {
@@ -16257,7 +16257,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "getReviewLinkList",
-          service: "ReputationService",
+          service: null,
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -16299,7 +16299,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "getCompanyResellingConfig",
-          service: "WorkflowsResellingService",
+          service: null,
           tree: "workflow-builder",
           pathParams: [
             {
@@ -16338,7 +16338,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "getLocationConfig",
-          service: "WorkflowsResellingService",
+          service: null,
           tree: "workflow-builder",
           pathParams: [
             {
@@ -16377,7 +16377,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "getLocationConfig",
-          service: "WorkflowsResellingService",
+          service: null,
           tree: "workflow-builder",
           pathParams: [
             {
@@ -16416,7 +16416,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "getProductConfiguration",
-          service: "WorkflowsResellingService",
+          service: null,
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -16459,7 +16459,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "getCompanySubscriptions",
-          service: "WorkflowsResellingService",
+          service: null,
           tree: "workflow-builder",
           pathParams: [
             {
@@ -16498,7 +16498,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "getLocationSubscriptions",
-          service: "WorkflowsResellingService",
+          service: null,
           tree: "workflow-builder",
           pathParams: [
             {
@@ -16550,7 +16550,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "cancelLocationSubscription",
-          service: "WorkflowsResellingService",
+          service: null,
           tree: "workflow-builder",
           pathParams: [
             {
@@ -16588,7 +16588,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "checkForLCAccount",
-          service: "SaasTwilioService",
+          service: null,
           tree: "workflow-builder",
           pathParams: [
             {
@@ -16659,7 +16659,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "checkForWorkflowBillingPlan",
-          service: "SaasService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -16718,7 +16718,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "upgradePlan",
-          service: "SaasService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -16768,7 +16768,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "fetchAgencyBillingConfig",
-          service: "SaasService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -16845,7 +16845,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "checkConversationAIEligibility",
-          service: "SaasService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -17773,7 +17773,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "getEmailSnippetsPaginated",
-          service: "TemplateService",
+          service: "conversations",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -17908,7 +17908,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "getSurveys",
-          service: "SurveysService",
+          service: "forms",
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -17970,7 +17970,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "getSurveyById",
-          service: "SurveysService",
+          service: "forms",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -18229,7 +18229,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "fetchUsersPage",
-          service: null,
+          service: "calendars",
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -20398,7 +20398,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "source"
           ],
           operation: "fetchEventsOptions",
-          service: null,
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -20441,7 +20441,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: null,
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -20501,7 +20501,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: null,
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -20554,7 +20554,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: null,
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -20630,7 +20630,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: null,
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -20705,7 +20705,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "findAll",
-          service: "WorkflowService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -20743,7 +20743,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "create",
-          service: "WorkflowService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -20787,7 +20787,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "delete",
-          service: "WorkflowService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -20846,7 +20846,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "findById",
-          service: "WorkflowService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -20889,7 +20889,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "update",
-          service: "WorkflowService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -20935,7 +20935,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "updateAutoSave",
-          service: "WorkflowService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -20979,7 +20979,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "restore",
-          service: "WorkflowService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -21508,7 +21508,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "commitAutoSavedChangesViaAxios",
-          service: null,
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -21576,7 +21576,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "copyToSubAccount",
-          service: "WorkflowService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -21618,7 +21618,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "blob",
           extraHeaders: [],
           operation: "downloadFile",
-          service: null,
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -21665,7 +21665,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "getAllVersions",
-          service: "WorkflowService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -21705,7 +21705,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "getVersionByNumberAndWorkflowId",
-          service: "WorkflowService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -21748,7 +21748,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "getVersionByIdAndWorkflowId",
-          service: "WorkflowService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -21791,7 +21791,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "getHistoryV2",
-          service: "WorkflowService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -21829,7 +21829,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "getLogsById",
-          service: "WorkflowService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -21907,7 +21907,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "removeStuckRecords",
-          service: "WorkflowService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -21958,7 +21958,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "requeueSelectedStuckContacts",
-          service: "WorkflowService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -22014,7 +22014,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "requeueStuckRecords",
-          service: "WorkflowService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -22058,7 +22058,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "testWorkflowForObjectRecords",
-          service: "WorkflowService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -22100,7 +22100,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "uploadFiles",
-          service: null,
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -22209,7 +22209,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "resumeWorkflowExecutionManually",
-          service: "WorkflowService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -22257,7 +22257,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "stopWorkflowExecutionManually",
-          service: "WorkflowService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -22305,7 +22305,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "getAdWords",
-          service: "WorkflowService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -22340,7 +22340,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "sendMessages",
-          service: "AIAssistantService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -22392,7 +22392,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "sendCustomCodeRequest",
-          service: "CustomCodeAIService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -22466,7 +22466,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "sendEmailRequest",
-          service: "EmailAiService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -22534,7 +22534,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "sendFeedback",
-          service: "AIFeedbackService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -22586,7 +22586,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "sendSMSRequest",
-          service: "SMSAiService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -22654,7 +22654,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "getAutoSaveSettings",
-          service: "AutoSaveSettingsService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -22692,7 +22692,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "updateAutoSaveSettings",
-          service: "AutoSaveSettingsService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -22727,7 +22727,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "bulkUpdateStatus",
-          service: "WorkflowService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -22763,7 +22763,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "updateStatus",
-          service: "WorkflowService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -22801,7 +22801,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "bulkDelete",
-          service: "WorkflowService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -22858,7 +22858,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "createFolder",
-          service: "WorkflowService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -22893,7 +22893,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "getContacts",
-          service: "DripScheduleService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -22951,7 +22951,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "getStepStats",
-          service: "DripScheduleService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -22996,7 +22996,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "getPreview",
-          service: "DripScheduleService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -23039,7 +23039,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "getElizaUsers",
-          service: "WorkflowService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -23078,7 +23078,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: null,
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -23115,7 +23115,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "sendTestEmail",
-          service: "EmailService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -23200,7 +23200,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "deleteWorkflowErrorNotificationDoc",
-          service: "ErrorNotificationService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -23239,7 +23239,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "getWorkflowErrorNotificationDoc",
-          service: "ErrorNotificationService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -23280,7 +23280,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "getErrorWorkflowsCount",
-          service: "ErrorNotificationService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -23323,7 +23323,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: null,
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -23377,7 +23377,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "getLocationErrorNotificationSetting",
-          service: "ErrorNotificationService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -23415,7 +23415,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "updateLocationErrorNotificationSettingIsActive",
-          service: "ErrorNotificationService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -23451,7 +23451,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "updateLocationErrorNotificationSettingUsers",
-          service: "ErrorNotificationService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -23568,7 +23568,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "getFoldersAndWorkflows",
-          service: "WorkflowService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -23672,7 +23672,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "bulkMove",
-          service: "WorkflowService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -23711,7 +23711,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "moveToFolder",
-          service: "WorkflowService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -23751,7 +23751,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "updateOnlyTriggers",
-          service: "WorkflowService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -23837,7 +23837,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "updatePermission",
-          service: "WorkflowService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -23875,7 +23875,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "bulkUpdateDirectoryPermissions",
-          service: "WorkflowService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -23910,7 +23910,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "getPhoneNumbers",
-          service: "FilterService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -23947,7 +23947,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "getPremiumTierUsage",
-          service: "PremiumTierUsageService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -23986,7 +23986,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "deleteFolder",
-          service: "WorkflowService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -24024,7 +24024,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "renameFolder",
-          service: "WorkflowService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -24064,7 +24064,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "renameWorkflow",
-          service: "WorkflowService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -24103,7 +24103,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "restoreWorkflow",
-          service: "WorkflowService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -24146,7 +24146,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "getSampleResponse",
-          service: "CustomWebhookService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -24222,7 +24222,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "getScheduledPauseSettings",
-          service: "ScheduledPauseService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -24258,7 +24258,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "createScheduledPauseSettings",
-          service: "ScheduledPauseService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -24328,7 +24328,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "deleteScheduledPauseSettings",
-          service: "ScheduledPauseService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -24366,7 +24366,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: null,
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -24441,7 +24441,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "list",
-          service: "SecretManagerService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -24494,7 +24494,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "create",
-          service: "SecretManagerService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -24530,7 +24530,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "remove",
-          service: "SecretManagerService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -24570,7 +24570,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Authorization"
           ],
           operation: "deleteSecret",
-          service: null,
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -24608,7 +24608,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "sendTestSMS",
-          service: "SmsService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -24643,7 +24643,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "deleteSplitStepExecutions",
-          service: "SplitService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -24691,7 +24691,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "isStepExecuted",
-          service: "SplitService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -24740,7 +24740,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "getStats",
-          service: "SplitService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -24795,7 +24795,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "createTag",
-          service: "TagService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -24841,7 +24841,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "findAll",
-          service: "TriggerService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -24891,7 +24891,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "create",
-          service: "TriggerService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -24937,7 +24937,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "delete",
-          service: "TriggerService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -24982,7 +24982,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "findById",
-          service: "TriggerService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -25023,7 +25023,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "update",
-          service: "TriggerService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -25066,7 +25066,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "updateAutoSave",
-          service: "TriggerService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -25109,7 +25109,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "restore",
-          service: "TriggerService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -25151,7 +25151,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "updateOnlyTriggers",
-          service: "TriggerService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -25193,7 +25193,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "sendMessagesV2",
-          service: "AIAssistantServiceV2",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -25241,7 +25241,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "setup",
-          service: null,
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -25289,7 +25289,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "buildWorkflow",
-          service: "AIBuilderService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -25341,7 +25341,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "handleRequest",
-          service: null,
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -25376,7 +25376,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "transcribeAudio",
-          service: "AIAssistantServiceV2",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -25528,7 +25528,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "send",
-          service: null,
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -25579,7 +25579,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: null,
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -25652,7 +25652,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "getSettings",
-          service: "WorkflowAISettingsService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -25689,7 +25689,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "updateSettings",
-          service: "WorkflowAISettingsService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -25724,7 +25724,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: null,
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -25797,7 +25797,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: null,
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -25867,7 +25867,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "getAllTemplates",
-          service: "WorkflowService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -25903,7 +25903,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "fetchDrives",
-          service: null,
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -25972,7 +25972,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "fetchSlackIntegrations",
-          service: null,
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -26024,7 +26024,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "fetchSlackPrivateChannels",
-          service: null,
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -26093,7 +26093,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "fetchSlackPublicChannels",
-          service: null,
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -26162,7 +26162,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "fetchSpreadsheets",
-          service: null,
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -26243,7 +26243,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "fetchSheets",
-          service: null,
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -26304,7 +26304,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "fetchSheetHeaders",
-          service: null,
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -26368,7 +26368,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "fetchSlackUsers",
-          service: null,
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -26437,7 +26437,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "submitFeedback",
-          service: "AgentTraceService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -26527,7 +26527,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "getFeedback",
-          service: "AgentTraceService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -26585,7 +26585,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "list",
-          service: "McpConnectionService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -26635,7 +26635,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "create",
-          service: "McpConnectionService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -26750,7 +26750,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "remove",
-          service: "McpConnectionService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -26788,7 +26788,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "update",
-          service: "McpConnectionService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -26906,7 +26906,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "listOauth2Tokens",
-          service: "McpConnectionService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -26956,7 +26956,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "testConnection",
-          service: "McpConnectionService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -27076,7 +27076,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "getModels",
-          service: "AgentTraceService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -27131,7 +27131,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "getTrace",
-          service: "AgentTraceService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -27184,7 +27184,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "getCampaigns",
-          service: "CampaignService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -27227,7 +27227,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "testCustomCode",
-          service: null,
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [],
           query: [],
@@ -27275,7 +27275,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "getAuthConfig",
-          service: "FlowGuardService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -27315,7 +27315,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "removeFromBlacklist",
-          service: "FlowGuardService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -27364,7 +27364,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "getContactBlacklist",
-          service: "FlowGuardService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [],
           query: [],
@@ -27396,7 +27396,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "addContactToBlacklist",
-          service: "FlowGuardService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -27432,7 +27432,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "getStepBlacklist",
-          service: "FlowGuardService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [],
           query: [],
@@ -27464,7 +27464,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "addStepToBlacklist",
-          service: "FlowGuardService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -27500,7 +27500,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "getWorkflowBlacklist",
-          service: "FlowGuardService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [],
           query: [],
@@ -27532,7 +27532,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "addWorkflowToBlacklist",
-          service: "FlowGuardService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -27568,7 +27568,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "addLoopLock",
-          service: "FlowGuardService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -27604,7 +27604,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "getRateLimitBypassInfo",
-          service: "FlowGuardService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [],
           query: [],
@@ -27636,7 +27636,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "createRateLimitBypass",
-          service: "FlowGuardService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [],
           query: [],
@@ -27672,7 +27672,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "deleteRateLimitBypass",
-          service: "FlowGuardService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -27718,7 +27718,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "getWorkflowDetails",
-          service: "FlowGuardService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -27754,7 +27754,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: "brand-kit",
+          service: "workflows",
           tree: "documented",
           pathParams: [
             {
@@ -27790,7 +27790,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "fetchBrandBoardById",
-          service: null,
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -27859,7 +27859,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: "brand-kit",
+          service: "workflows",
           tree: "documented",
           pathParams: [
             {
@@ -27895,7 +27895,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "fetchBrandVoiceById",
-          service: null,
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -27959,7 +27959,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: "brand-kit",
+          service: "workflows",
           tree: "documented",
           pathParams: [
             {
@@ -27996,7 +27996,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "getNumbersMapping",
-          service: "IVRService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [],
           query: [],
@@ -28029,7 +28029,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Authorization"
           ],
           operation: "deleteToken",
-          service: "CustomWebhookService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -28075,7 +28075,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Authorization"
           ],
           operation: "deleteTokenByState",
-          service: "CustomWebhookService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -28121,7 +28121,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Authorization"
           ],
           operation: "getAllTokens",
-          service: "CustomWebhookService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -28163,7 +28163,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Authorization"
           ],
           operation: "pingToGetToken",
-          service: "CustomWebhookService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -28207,7 +28207,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "refreshToken",
-          service: "CustomWebhookService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [],
           query: [],
@@ -28239,7 +28239,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "saveToken",
-          service: "CustomWebhookService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [],
           query: [],
@@ -28366,7 +28366,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "updateToken",
-          service: "CustomWebhookService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [],
           query: [],
@@ -28496,7 +28496,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "fetchDynamicSourceOptions",
-          service: "WorkflowsMarketplacePlatformService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -28542,7 +28542,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "getActionBranchesFields",
-          service: "WorkflowsMarketplacePlatformService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -28598,7 +28598,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "getCustomInputFieldData",
-          service: "WorkflowsMarketplacePlatformService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -28637,7 +28637,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "fetchActionDynamicSourceDetails",
-          service: "WorkflowsMarketplacePlatformService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -28680,7 +28680,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "fetchActionInputAllOptions",
-          service: "WorkflowsMarketplacePlatformService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -28738,7 +28738,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "fetchActionInputListOptions",
-          service: "WorkflowsMarketplacePlatformService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -28849,7 +28849,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "getActionDynamicFields",
-          service: "WorkflowsMarketplacePlatformService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -28892,7 +28892,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "getActionByKey",
-          service: "WorkflowsMarketplacePlatformService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -28938,7 +28938,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "getActionStats",
-          service: "WorkflowsMarketplacePlatformService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -28974,7 +28974,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: null,
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -29018,7 +29018,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "fetchIntegrationApps",
-          service: "WorkflowsMarketplacePlatformService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -29065,7 +29065,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "resetIntegrationToken",
-          service: "WorkflowsMarketplacePlatformService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -29116,7 +29116,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "initiateOAuthAuthorization",
-          service: "WorkflowsMarketplacePlatformService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -29177,7 +29177,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "fetchIntegrationOauthToken",
-          service: "WorkflowsMarketplacePlatformService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -29236,7 +29236,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "getSlackOAuthStartUrl",
-          service: "SlackService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -29284,7 +29284,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "testAction",
-          service: "WorkflowsMarketplacePlatformService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [],
           query: [],
@@ -29344,7 +29344,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "deregisterTestWebhook",
-          service: "WorkflowsMarketplacePlatformService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -29416,7 +29416,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "fetchWebhookStatus",
-          service: "WorkflowsMarketplacePlatformService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -29483,7 +29483,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "registerTestPolling",
-          service: "WorkflowsMarketplacePlatformService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -29551,7 +29551,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "registerTestWebhook",
-          service: "WorkflowsMarketplacePlatformService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -29619,7 +29619,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "testTrigger",
-          service: "WorkflowsMarketplacePlatformService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -29691,7 +29691,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "getActionsAndTriggers",
-          service: "WorkflowsMarketplacePlatformService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -29740,7 +29740,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "fetchTriggerDynamicSourceDetails",
-          service: "WorkflowsMarketplacePlatformService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -29783,7 +29783,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "fetchTriggerFilterListOptions",
-          service: "WorkflowsMarketplacePlatformService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -29834,7 +29834,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: null,
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -29892,7 +29892,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "getTriggerDynamicFields",
-          service: "WorkflowsMarketplacePlatformService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -29972,7 +29972,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "getDetailLogsList",
-          service: "WorkflowCopyLogsService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -30015,7 +30015,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "getLogsList",
-          service: "WorkflowCopyLogsService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -30058,7 +30058,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "getStatusList",
-          service: "WorkflowCopyLogsService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -30098,7 +30098,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "getWorkflowsFromEs",
-          service: "WorkflowMarketplaceService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [],
           query: [],
@@ -30138,7 +30138,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "getLogs",
-          service: "WorkflowMarketplaceService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -30196,7 +30196,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: null,
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -30240,7 +30240,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: null,
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -30286,7 +30286,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "getEnrollmentStatsSingle",
-          service: "WorkflowMarketplaceService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -30342,7 +30342,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "getContactCountPerStep",
-          service: "WorkflowMarketplaceService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -30396,7 +30396,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "getContactDetailsPerStep",
-          service: "WorkflowMarketplaceService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -30471,7 +30471,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "getEnrollmentStats",
-          service: "WorkflowMarketplaceService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -30780,7 +30780,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "getEnrollmentStats",
-          service: "WorkflowMarketplaceService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -31083,7 +31083,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "getStatuses",
-          service: "WorkflowMarketplaceService",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -31144,7 +31144,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: null,
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -31193,7 +31193,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: null,
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -31244,7 +31244,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: null,
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -31299,7 +31299,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: null,
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -31341,7 +31341,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: null,
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -31393,7 +31393,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: null,
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [],
           query: [],
@@ -31475,7 +31475,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: null,
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -31518,7 +31518,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: null,
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -31560,7 +31560,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: null,
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -31599,7 +31599,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "fetchData",
-          service: "FilterService",
+          service: null,
           tree: "workflow-builder",
           pathParams: [
             {
@@ -33792,7 +33792,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: "brand-kit",
+          service: "ai-studio",
           tree: "documented",
           pathParams: [
             {
@@ -33829,7 +33829,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: "brand-kit",
+          service: "ai-studio",
           tree: "documented",
           pathParams: [
             {
@@ -34366,7 +34366,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: null,
-          service: null,
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -34418,7 +34418,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: null,
-          service: null,
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -34465,7 +34465,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: null,
-          service: null,
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -34576,7 +34576,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: null,
-          service: null,
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -34654,7 +34654,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: null,
-          service: null,
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -34710,7 +34710,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: null,
-          service: null,
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [],
           query: [],
@@ -34753,7 +34753,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: null,
-          service: null,
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -35262,7 +35262,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: null,
-          service: null,
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -35312,7 +35312,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: null,
-          service: null,
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -36476,7 +36476,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "getReferenceById",
-          service: "InboundWebhookRequestService",
+          service: null,
           tree: "workflow-builder",
           pathParams: [
             {
@@ -36526,7 +36526,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "saveReference",
-          service: "InboundWebhookRequestService",
+          service: null,
           tree: "workflow-builder",
           pathParams: [
             {
@@ -36586,7 +36586,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "getRequestsByTriggerId",
-          service: "InboundWebhookRequestService",
+          service: null,
           tree: "workflow-builder",
           pathParams: [
             {
@@ -37806,7 +37806,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "cnameCheck",
-          service: "DomainService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -37846,7 +37846,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "findAll",
-          service: "LocationService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [],
           query: [],
@@ -37882,7 +37882,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "findById",
-          service: "LocationService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -37922,7 +37922,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "getRevenueByOffers",
-          service: "UserPurchaseService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -37969,7 +37969,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "findAll",
-          service: "AssignmentService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -38011,7 +38011,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "create",
-          service: "AssignmentService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -38056,7 +38056,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "delete",
-          service: "AssignmentService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -38101,7 +38101,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "findById",
-          service: "AssignmentService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -38144,7 +38144,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "update",
-          service: "AssignmentService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -38193,7 +38193,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "findByPostId",
-          service: "AssignmentService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -38236,7 +38236,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "findAll",
-          service: "QuizService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -38278,7 +38278,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "create",
-          service: "QuizService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -38322,7 +38322,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "delete",
-          service: "QuizService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -38367,7 +38367,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "findById",
-          service: "QuizService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -38410,7 +38410,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "update",
-          service: "QuizService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -38457,7 +38457,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "findAll",
-          service: "AssessmentServiceService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -38497,7 +38497,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "create",
-          service: "AssessmentServiceService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -38542,7 +38542,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "delete",
-          service: "AssessmentServiceService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -38585,7 +38585,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "findById",
-          service: "AssessmentServiceService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -38628,7 +38628,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "update",
-          service: "AssessmentServiceService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -38675,7 +38675,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "findByProductId",
-          service: "AssessmentServiceService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -38718,7 +38718,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "submitReview",
-          service: "AssessmentServiceService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -38765,7 +38765,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "findByLocationId",
-          service: "AssessmentServiceService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -38824,7 +38824,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "findByAssessmentStatusId",
-          service: "AssessmentServiceService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -38867,7 +38867,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "findAll",
-          service: "QuizService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -38909,7 +38909,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "create",
-          service: "QuizService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -38954,7 +38954,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "delete",
-          service: "QuizService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -38999,7 +38999,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "findById",
-          service: "QuizService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -39042,7 +39042,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "update",
-          service: "QuizService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -39091,7 +39091,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "findQuestionsByQuizId",
-          service: "QuizService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -39134,7 +39134,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "deleteQuestionByIds",
-          service: "QuizService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -39186,7 +39186,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "findAll",
-          service: "CategoryService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -39228,7 +39228,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "create",
-          service: "CategoryService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -39272,7 +39272,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "delete",
-          service: "CategoryService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -39315,7 +39315,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "findById",
-          service: "CategoryService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -39358,7 +39358,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "update",
-          service: "CategoryService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -39405,7 +39405,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "checkValidDripConfig",
-          service: "CategoryService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -39461,7 +39461,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "getDripDaysRange",
-          service: "CategoryService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -39504,7 +39504,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "fetchCategoryProgress",
-          service: "CategoryService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -39544,7 +39544,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "bulkUpdateSequenceNo",
-          service: "CategoryService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -39593,7 +39593,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: null,
-          service: null,
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -39640,7 +39640,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: null,
-          service: null,
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -39693,7 +39693,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: null,
-          service: null,
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -39745,7 +39745,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: null,
-          service: null,
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -39798,7 +39798,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: null,
-          service: null,
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -39842,7 +39842,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "findAll",
-          service: "CommentService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -39882,7 +39882,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "create",
-          service: "CommentService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -39927,7 +39927,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "deleteComment",
-          service: "CommentService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -39970,7 +39970,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "delete",
-          service: "CommentService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -40013,7 +40013,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "findById",
-          service: "CommentService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -40056,7 +40056,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "update",
-          service: "CommentService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -40104,7 +40104,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "findComments",
-          service: "CommentService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -40184,7 +40184,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "findCommentCountByPostIds",
-          service: "CommentService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -40224,7 +40224,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "restoreComment",
-          service: "CommentService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -40267,7 +40267,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "uploadFileOld",
-          service: "MediaUploadService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -40378,7 +40378,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "generateSignedUrl",
-          service: "MediaUploadService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -40418,7 +40418,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "findAll",
-          service: "OfferService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -40460,7 +40460,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "create",
-          service: "OfferService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -40504,7 +40504,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "delete",
-          service: "OfferService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -40549,7 +40549,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "findById",
-          service: "OfferService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -40594,7 +40594,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "update",
-          service: "OfferService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -40641,7 +40641,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "findAll",
-          service: "OfferCustomizationService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -40681,7 +40681,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "create",
-          service: "OfferCustomizationService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -40725,7 +40725,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "delete",
-          service: "OfferCustomizationService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -40768,7 +40768,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "findById",
-          service: "OfferCustomizationService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -40811,7 +40811,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "update",
-          service: "OfferCustomizationService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -40858,7 +40858,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "findAll",
-          service: "PostService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -40900,7 +40900,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "create",
-          service: "PostService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -40944,7 +40944,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "delete",
-          service: "PostService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -40989,7 +40989,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "findById",
-          service: "PostService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -41034,7 +41034,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "update",
-          service: "PostService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -41086,7 +41086,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: null,
-          service: null,
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -41133,7 +41133,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "bulkUpdateCommentPermission",
-          service: "PostService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -41186,7 +41186,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "findAll",
-          service: "PostMaterialService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -41228,7 +41228,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "create",
-          service: "PostMaterialService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -41272,7 +41272,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "delete",
-          service: "PostMaterialService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -41315,7 +41315,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "findById",
-          service: "PostMaterialService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -41358,7 +41358,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "update",
-          service: "PostMaterialService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -41405,7 +41405,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "bulkUpdateSequenceNo",
-          service: "PostMaterialService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -41449,7 +41449,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "bulkUpdateSequenceNo",
-          service: "PostService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -41495,7 +41495,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "findAll",
-          service: "ProductService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -41537,7 +41537,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "create",
-          service: "ProductService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -41581,7 +41581,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "delete",
-          service: "ProductService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -41624,7 +41624,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "findById",
-          service: "ProductService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -41667,7 +41667,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "update",
-          service: "ProductService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -41716,7 +41716,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "applyTheme",
-          service: "ProductService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -41766,7 +41766,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "clone",
-          service: "ProductService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -41819,7 +41819,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "findAll",
-          service: "ProductService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -41859,7 +41859,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "create",
-          service: "ProductService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -41903,7 +41903,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "delete",
-          service: "ProductService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -41946,7 +41946,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "findById",
-          service: "ProductService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -41989,7 +41989,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "update",
-          service: "ProductService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -42036,7 +42036,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "findPostByProductId",
-          service: "ProductService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -42079,7 +42079,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "updateBulkProductSequence",
-          service: "ProductService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -42123,7 +42123,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "saveThemeForLocation",
-          service: "ProductService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -42167,7 +42167,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "fetchProductTitle",
-          service: "ProductService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -42210,7 +42210,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "findAll",
-          service: "ProductService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -42250,7 +42250,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "create",
-          service: "ProductService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -42294,7 +42294,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "delete",
-          service: "ProductService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -42337,7 +42337,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "findById",
-          service: "ProductService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -42380,7 +42380,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "update",
-          service: "ProductService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -42427,7 +42427,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "getCustomizationSettings",
-          service: "ProductService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -42470,7 +42470,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "share",
-          service: "ProductService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -42525,7 +42525,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "getUserProgress",
-          service: "ProductService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -42568,7 +42568,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "findAll",
-          service: "BuilderSettingsService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -42609,7 +42609,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "create",
-          service: "BuilderSettingsService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -42653,7 +42653,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "delete",
-          service: "BuilderSettingsService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -42696,7 +42696,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "findById",
-          service: "BuilderSettingsService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -42739,7 +42739,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "update",
-          service: "BuilderSettingsService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -42786,7 +42786,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "findAll",
-          service: "DomainService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -42827,7 +42827,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "create",
-          service: "DomainService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -42871,7 +42871,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "delete",
-          service: "DomainService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -42914,7 +42914,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "findById",
-          service: "DomainService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -42957,7 +42957,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "update",
-          service: "DomainService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -43004,7 +43004,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "domainExist",
-          service: "DomainService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -43044,7 +43044,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "findAll",
-          service: "EmailSettingsService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -43085,7 +43085,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "create",
-          service: "EmailSettingsService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -43129,7 +43129,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "delete",
-          service: "EmailSettingsService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -43172,7 +43172,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "findById",
-          service: "EmailSettingsService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -43215,7 +43215,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "update",
-          service: "EmailSettingsService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -43262,7 +43262,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "getTemplates",
-          service: "EmailSettingsService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -43302,7 +43302,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "findAll",
-          service: "SiteInfoService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -43343,7 +43343,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "create",
-          service: "SiteInfoService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -43387,7 +43387,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "delete",
-          service: "SiteInfoService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -43430,7 +43430,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "findById",
-          service: "SiteInfoService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -43473,7 +43473,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "update",
-          service: "SiteInfoService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -43520,7 +43520,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "toggleClientPortal",
-          service: "SiteInfoService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -43563,7 +43563,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "fetchDashboardStats",
-          service: "StatsService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -43603,7 +43603,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "fetchOfferDashboardStats",
-          service: "StatsService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -43643,7 +43643,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "findAll",
-          service: "UpsellOfferService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -43683,7 +43683,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "create",
-          service: "UpsellOfferService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -43727,7 +43727,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "delete",
-          service: "UpsellOfferService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -43770,7 +43770,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "findById",
-          service: "UpsellOfferService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -43813,7 +43813,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "update",
-          service: "UpsellOfferService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -43860,7 +43860,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "getByOfferId",
-          service: "UpsellOfferService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -43903,7 +43903,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "getCategories",
-          service: "UserPurchaseService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -43943,7 +43943,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "getNoOfUsersForOffer",
-          service: "UserPurchaseService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -43986,7 +43986,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "getNoOfUsersForProduct",
-          service: "UserPurchaseService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -44029,7 +44029,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "findAll",
-          service: "VideoService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -44071,7 +44071,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "create",
-          service: "VideoService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -44115,7 +44115,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "delete",
-          service: "VideoService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -44158,7 +44158,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "findById",
-          service: "VideoService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -44201,7 +44201,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "update",
-          service: "VideoService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -44248,7 +44248,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "retranscodeVideo",
-          service: "VideoService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -44291,7 +44291,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "checkTranscodingError",
-          service: "VideoService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -44334,7 +44334,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: "isAgencyAdmin",
-          service: "UserService",
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [],
           query: [],
@@ -46330,7 +46330,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "fetchTemplatesViaCategory",
-          service: "TemplateLibraryService",
+          service: "memberships-courses",
           tree: "workflow-builder",
           pathParams: [],
           query: [],
@@ -46361,7 +46361,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "loadWorkflowViaTemplateId",
-          service: "TemplateLibraryService",
+          service: "memberships-courses",
           tree: "workflow-builder",
           pathParams: [],
           query: [],
@@ -48360,7 +48360,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "getInstagramConnectedAccounts",
-          service: null,
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
