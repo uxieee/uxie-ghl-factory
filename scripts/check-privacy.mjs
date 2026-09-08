@@ -15,9 +15,14 @@ import { readFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 
 const staged = process.argv.includes('--staged');
+// Plain mode scans tracked AND new-but-not-ignored files. `ls-files -z` alone is tracked-only,
+// which made a freshly authored file invisible to the exact command the docs tell you to run
+// before committing — a new SKILL.md reported "clean (585 files scanned)" on 2026-09-08 without
+// being among them. The --staged path still caught it on the way in, so this was a hole in
+// `npm test`, not an open door; the knowledge copy has scanned this way since 2026-08-22.
 const listCmd = staged
   ? ['diff', '--cached', '--name-only', '--diff-filter=ACM', '-z']
-  : ['ls-files', '-z'];
+  : ['ls-files', '-z', '--cached', '--others', '--exclude-standard'];
 // Generated build artifacts are NOT scanned: they are bundled third-party code (minified
 // deps carry arbitrary long numeric constants — e.g. int64/uint64 bounds — that trip the
 // "long opaque account id" rule). Their authored source (mcp-internal/core, stdio.mjs) is

@@ -293,7 +293,13 @@ const scoreEndpoint = (e, terms, verbs = intentVerbs(terms)) => {
   // that merely share the word "workflow". Indexing the human sentence is the single thing that
   // makes the public rail's search work, and it costs nothing here.
   const words = endpointWords(e);
-  const hay = `${e.method} ${e.origin ?? e.base ?? ''} ${e.path} ${e.service ?? ''} ${words.summary ?? ''} ${words.note ?? ''}`.toLowerCase();
+  // `serviceClass` is indexed alongside `service` because they answer different questions. The
+  // catalogue used to put a mined TypeScript class name in `service` (WorkflowService,
+  // AssessmentServiceService); it now carries a real surface there and keeps the class in
+  // `serviceClass`. Indexing only `service` would have made those 508 rows unfindable by the
+  // name an agent reading recovered source actually has in front of it — and 105 of them have
+  // no surface at all, so the class is the only handle they have.
+  const hay = `${e.method} ${e.origin ?? e.base ?? ''} ${e.path} ${e.service ?? ''} ${e.serviceClass ?? ''} ${words.summary ?? ''} ${words.note ?? ''}`.toLowerCase();
   let score = 0, segHits = 0;
   for (const t of terms) {
     // Match on a STEM, not the whole word. GHL names the path segment `error-notification` while

@@ -161049,7 +161049,7 @@ var scoreEndpoint = (e, terms, verbs = intentVerbs(terms)) => {
   const path = String(e.path || "").toLowerCase();
   const segs = new Set(path.split(/[^a-z0-9]+/).filter(Boolean));
   const words = endpointWords(e);
-  const hay = `${e.method} ${e.origin ?? e.base ?? ""} ${e.path} ${e.service ?? ""} ${words.summary ?? ""} ${words.note ?? ""}`.toLowerCase();
+  const hay = `${e.method} ${e.origin ?? e.base ?? ""} ${e.path} ${e.service ?? ""} ${e.serviceClass ?? ""} ${words.summary ?? ""} ${words.note ?? ""}`.toLowerCase();
   let score = 0, segHits = 0;
   for (const t of terms) {
     const stem = t.length > 4 ? t.replace(/(ing|ed|es|s)$/, "") : t;
