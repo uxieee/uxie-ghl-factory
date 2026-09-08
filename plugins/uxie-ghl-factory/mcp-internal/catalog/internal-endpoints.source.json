@@ -20,7 +20,7 @@
     {
       "tree": "documented",
       "dir": "corpus",
-      "capturedAt": "2026-09-08T19:42:15.692Z",
+      "capturedAt": "2026-09-08T19:46:01.108Z",
       "hash": "corpus",
       "fileCount": 750,
       "endpoints": 750
@@ -16261,7 +16261,7 @@
       "proof": "executed",
       "sources": [
         "ai-studio/_data/endpoints.json",
-        "ai-studio/20-api/chat-generation.md:152",
+        "ai-studio/20-api/chat-generation.md:180",
         "ai-studio/60-recipes/run-one-generation.md:20"
       ],
       "serviceBasis": "declared"
