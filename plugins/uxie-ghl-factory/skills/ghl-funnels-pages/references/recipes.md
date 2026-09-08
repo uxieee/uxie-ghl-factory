@@ -496,21 +496,24 @@ confirm the markup appears in `<head>`/before `</body>`. Do not use `/preview/{p
 on a domained funnel (§0).
 
 **Known limits:**
-- 🔴 **Empty strings are IGNORED, not applied.** Sending `domainId: ""` and
-  `bodyTrackingCode: ""` returns `201` and changes nothing — the previous values
-  are still there on read-back. So this endpoint can SET a field but cannot
-  CLEAR one, and a `201` is not evidence the payload took. Always verify with
-  the fetch GET below. Deleting the funnel was the only removal that worked.
-  Live-confirmed on AU 2026-07-25.
-- Consequence for the payload above: `domainId: ""`, `faviconUrl": ""` and
-  `chatWidgetId: ""` are **inert filler** — they neither set nor clear those
-  fields. In particular this payload does **not** attach a chat widget, and
-  cannot detach one. The funnel doc carries `chatWidgetId` and
-  `isChatWidgetLive`; attach a widget through the funnel's Settings tab in the
-  UI (§9), which is the only proven path.
-- Because empty strings are dropped, you can safely send the full payload
-  without wiping fields you did not mean to touch — but you also cannot rely
-  on it to reset anything.
+- 🔴 **Empty strings ARE applied, and they CLEAR the field. This is a
+  whole-settings write, not a patch.** `faviconUrl`, `headTrackingCode` and
+  `bodyTrackingCode` each stored a canary and each came back empty after a
+  subsequent `""`, proven in the order set → read → clear → read
+  (live 2026-09-09). **Never send the payload above as-is on a real funnel:**
+  its `""` defaults will wipe that funnel's tracking codes and favicon and
+  detach its chat widget. Read the funnel with the fetch GET first, fill every
+  field you do not intend to change, then send. A `201` tells you nothing —
+  the write you wanted succeeds while the collateral damage is invisible.
+- **It DOES attach and detach the chat widget** (live 2026-09-09). Send
+  `chatWidgetId`; the server flips `isChatWidgetLive` to `true` on its own.
+  `chatWidgetId: ""` detaches and sets it `false`. **Never send
+  `isChatWidgetLive`** — it is derived. List widgets with
+  `GET /chat-widget/list?limit=&offset=&locationId=`.
+- **`locationId` must be in the BODY** — omitting it is
+  `422 ["locationId should not be empty","locationId must be a string"]`.
+- A funnel whose settings have never been saved returns these keys **absent**,
+  not empty; the first `update-settings` materialises all ten at once.
 - Applies to **every page in the funnel**, not one page — if you only want
   one page affected, use 5b instead.
 - With `isOptimisePageLoad: true` (the default in the proven payload),
@@ -568,14 +571,28 @@ top-level `meta` key** — verified twice in the source investigation. There
 is no `token-id` REST endpoint for SEO; GHL's own builder writes `meta`
 directly to Firestore using a **separate Firebase ID token** (obtained via a
 `signInWithCustomToken` exchange during the builder's page load, itself
-minted by `POST /oauth/users/{uid}/sessions/token`). **This plugin's
-canonical auth doc (`${CLAUDE_PLUGIN_ROOT}/docs/auth-jwt-capture.md`)
-documents the workflow Bearer rail (§1), the AI `token-id` rail (§7), the
-memberships rails (§8) and the funnels `token-id` rail (§9) — but not this
-Firebase ID token.** That gap is the reason this recipe is experimental
-here rather than a first-class recipe: don't attempt it without first
-extending the auth capture procedure (and getting that reviewed), and never
-improvise a token format in its place.
+minted by `POST /oauth/users/{uid}/sessions/token`).
+
+🔴 **The blocker is NOT a missing credential — do not go extending the auth
+capture, it will not help.** The capture already holds a Firebase ID token:
+the token file's second credential is issued by
+`securetoken.google.com/highlevel-backend`, `role: admin`, `scope: agency`,
+and it renews itself. What it cannot do is read or write `funnel_pages` —
+Firestore's security rules refuse it. Proven by differential, same token and
+same call shape, different collection (live 2026-09-09): `documents:runQuery`
+on `vibe-platform`/`vibe-messages` answers `200` with a real document, while
+`funnel_pages` answers `403 PERMISSION_DENIED` three ways — `runQuery` in
+both databases and a direct document `get`.
+
+⚠️ Note for anyone probing this: a collection **list**
+(`GET …/documents/<collection>?pageSize=1`) is a different rule and is denied
+even for collections `runQuery` serves. Its `403` says nothing about your
+token. Use `documents:runQuery`.
+
+So the open question is whether the builder's `signInWithCustomToken` token
+carries claims those rules accept. Answering it means minting a credential,
+which needs the user's explicit word — never improvise a token format, and
+don't mint one to satisfy a documentation gap.
 
 **Shape, for reference (source-faithful, not to be run without the missing
 auth step above):**
@@ -611,8 +628,9 @@ known reason remains to route funnel creation through the UI. `POST
 wrapped in the recipe-4 envelope, it `201`s on a page created seconds earlier by
 `create-step`. The full sequence §2 → §4 → §7 → §10 → public URL is live-proven on a
 domained funnel, so an API-created page CAN be published. `POST
-/funnels/funnel/update-settings` still cannot clear a field with an empty string —
-`chatWidgetId: ""` never attaches or detaches a widget.
+/funnels/funnel/update-settings` DOES clear a field with an empty string, and does attach
+and detach a chat widget (live 2026-09-09) — treat it as a whole-settings write and fill
+every field you do not mean to change.
 
 A 4xx that names the missing body fields in its own message is a **caller** defect until
 the body is proven correct — read the error text before concluding the platform is broken.

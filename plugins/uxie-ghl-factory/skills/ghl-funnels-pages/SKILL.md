@@ -68,16 +68,17 @@ view on a spinner indefinitely. Everything proven on 2026-08-10 was done inside 
 existing, healthy, UI-created funnel. **Create the FUNNEL in the UI; create its STEPS
 and PAGES via the API.** Recipes §9 has the click-path.
 
-Also: `funnel/update-settings` **silently ignores empty strings**, so it can set a field
-but never clear one, and a `201` from it is not evidence the payload applied — verify
-with the fetch GET.
+🔴 Also: `funnel/update-settings` is a **whole-settings write, not a patch**. Empty
+strings ARE applied and DO clear (live 2026-09-09), so sending the full payload with its
+`""` defaults wipes that funnel's tracking codes and favicon and detaches its chat widget.
+Read the funnel first, fill every field you do not mean to change, then send. A `201` is
+not evidence the payload applied — verify with the fetch GET.
 
 ## Scope
 IN: **funnel/step/page creation**, page content writes, full-bleed HTML injection,
-tracking code, public-path (routing) updates, SEO settings, publish.
+tracking code, public-path (routing) updates, chat-widget attach/detach, publish.
 OUT: pipelines (public API — use the ghl MCP server), workflow wiring
-(use create-ghl-workflow), domain attachment (untested — refuse and say why),
-chat-widget attachment (funnel Settings tab in the UI — `update-settings` cannot do it).
+(use create-ghl-workflow), domain attachment (untested — refuse and say why).
 
 ⚠️ **Draft vs live.** Every content write here saves a **DRAFT**: `autosave` → `201`
 means the draft took, while the **public URL keeps serving the old page**. Publishing is
