@@ -11,6 +11,43 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [0.65.0] — 2026-09-09
+
+A 401 that was never about the credential, sending callers to re-capture a working token over a typo.
+
+### Fixed
+
+- **A 401 whose body names a missing request field is now `VALIDATION_FAILED`, not `TOKEN_EXPIRED`.**
+  Proven by differential on the sandbox, across 29 calls on one token:
+
+  ```
+  POST /opportunities/pipelines/permissions  body {}            -> 401
+      {"statusCode":401,"error":"Unauthorized",
+       "message":"pipelineId can't be undefined","code":"COMMON_PIPELINE_ID_UNDEFINED"}
+  POST /opportunities/pipelines/permissions  body {pipelineId}  -> 422
+  ```
+
+  Same endpoint, same credential, seconds apart; the only difference is one key in the request
+  body. `fromHttp` mapped every 401 to `TOKEN_EXPIRED`, so a missing field sent the caller to
+  re-capture a credential that was doing authenticated work on both sides of the call — a browser
+  login, to fix a typo.
+
+  The check reads the **body**, not the path, because GHL is inconsistent with itself:
+  `COMMON_PIPELINE_ID_UNDEFINED` is a 401 while its sibling `COMMON_LOCATION_ID_UNDEFINED`, on
+  `POST /opportunities/pipelines` on the same service, is a 422. The status does not say what went
+  wrong.
+
+  `isValidationBody` is deliberately narrow — GHL's own `COMMON_<FIELD>_UNDEFINED` code family, or
+  a message of the exact shape `<field> can't be undefined`, and nothing else. A real expiry says
+  `Unauthorized` and names no field, and still lands on `TOKEN_EXPIRED`. The tests pin the
+  near-misses as hard as the hits.
+
+### Changed
+
+- **The server instructions no longer imply only one 401 exception.** They said a 401 saying
+  "version header was not found" is not an auth failure. They now say to read the body before
+  believing the status, and name both exceptions.
+
 ## [0.64.0] — 2026-09-07
 
 An endpoint that says "successfully queued" for an empty body, and the read-back that was not checking anything.
