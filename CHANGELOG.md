@@ -11,6 +11,86 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [0.66.0] — 2026-09-09
+
+Three shipped claims that had nothing behind them, and the snapshot push tool that waited for its brake.
+
+### Added
+
+- **`push_snapshot`** — loads a snapshot into sub-accounts. Deliberately not built until
+  `unpublish_workflows` existed *and* `change-status` was proven live: on the operation that
+  already put 26 workflows live on an account taking ~230 enrollments a week, shipping the
+  accelerator before the brake was the wrong order.
+
+  Two rails, both from the finding that asked for it:
+
+  - **`assets` is required and explicit.** The wizard's Assets step renders no Workflows row
+    while the body it sends carries every workflow id in the snapshot — a tool that mirrors
+    the UI ships workflows nobody chose. A category you do not name ships as an empty array.
+  - **Published workflows are refused.** It reads each selected workflow on the snapshot's
+    source account and stops, returning the stand-down plan rather than only the complaint.
+    `allowPublishedWorkflows: true` overrides and still returns the plan.
+
+  A third rail nobody asked for: an id that cannot be **read** is reported `UNDETERMINED`,
+  not safe. A folder id lives inside `workflow` and reads as neither published nor draft, and
+  folding it into "not published" is how a live workflow slips through a check that looks
+  like it passed.
+
+  The stand-down plan matches by **name** — the load mints new ids on each target, so the
+  pushed source ids are useless there.
+
+  It never claims verification: the push answers "queued", so the result carries
+  `queued: true, verified: false` and says so.
+
+### Fixed
+
+- **`unpublish_workflows` no longer states two things it never proved.** Its description
+  quoted the missing-`updatedBy` 400 as `{"message":"Invalid value updatedBy"}`; the server
+  says `"updatedBy is required and must be a non-empty string"`. A wrong quoted string is
+  worse than none — it is what a caller writes a matcher against. It also asserted that draft
+  "does not remove contacts already in flight". The probe workflows carried no enrollments, so
+  that question was never asked; it is now disclosed as unproven, in the description **and** in
+  the two runtime notes that repeated it.
+
+  Newly documented: the refusal carries a **full `results` envelope** (`failedUpdates: 1`,
+  `details` naming the workflow), so a caller keying on the presence of `results` rather than
+  on the status code reads a refusal as a result.
+
+- **`check_snapshot_conflicts` required `assets`, and stopped letting an empty result read as
+  clearance.** The API answers `400 ["selectedSnapshotAssets must contain at least one asset
+  key"]` — there is no "check everything" call — so the tool now refuses before the wire and
+  names `get_snapshot_manifest` as where ids come from.
+
+  More important: a conflicts check run against a target that provably holds every asset in
+  the snapshot returned **empty for all ten categories asked**. The list holds the *snapshot's*
+  ids the server reports as colliding, and the app only flips "no conflicts" when a returned id
+  matches — so "No conflicts found" means nothing matched, not nothing collided. Treat an empty
+  result as no information, not as clearance.
+
+- **The `ghl-funnels-pages` skill was shipping advice that destroys data.** It said
+  `funnel/update-settings` ignores empty strings and therefore *"you can safely send the full
+  payload without wiping fields you did not mean to touch"* — beside a payload whose defaults
+  are all `""`. Empty strings **are** applied and **do** clear: `faviconUrl`,
+  `headTrackingCode` and `bodyTrackingCode` each stored a canary and each came back empty after
+  a subsequent `""`, proven set → read → clear → read. Following that advice on a live funnel
+  wipes its tracking codes and favicon and detaches its chat widget.
+
+- **Chat-widget attach/detach moved from "UI only" to supported.** `update-settings` does both,
+  proven live; the server derives `isChatWidgetLive`, so callers must not send it.
+
+- **The SEO recipe stopped blaming a missing credential.** It told readers to extend the auth
+  capture, which would not have helped: the capture already holds a Firebase ID token
+  (`securetoken.google.com/highlevel-backend`, admin/agency, self-renewing). Firestore's rules
+  simply refuse it `funnel_pages` — proven by differential against a collection the same token
+  reads fine. Also recorded: a collection **list** is denied even where `documents:runQuery`
+  succeeds, so its `403` is not evidence of a bad token.
+
+### Catalogue
+
+- `POST /snapshots/snapshot-asset-mapper/{snapshotId}/conflicts` — a third conflicts route,
+  taking `locationIds` / `selectedAssets`, the exact key names the other two refuse. Source-derived;
+  not called, because "mapper" may mean it writes.
+
 ## [0.65.0] — 2026-09-09
 
 A 401 that was never about the credential, sending callers to re-capture a working token over a typo.
