@@ -120,6 +120,48 @@ const NAME_HASHES = new Set([
   'a7a81f0dbbe295f1069931133d696a0473175e7695b85cfc03985e9d2314e2ef',
   '345aa0743f7662db7d2fc2861d1650f58df0f7091f0548127079d9b33a4a7fd6',
   'adf6a4a4af14f65e86cef064eb19b54015bc9467bafefc1579c7e1cd96b8f4a3',
+
+  // ── reconciled with knowledge/scripts/check-privacy.mjs, 2026-09-08 (bl-107) ──────────────
+  // The two lists had drifted apart in BOTH directions: 17 hashes shared, 19 only in knowledge,
+  // 11 only here. The reported "7 unaccounted" was arithmetic on the two counts (36 vs 28), not a
+  // comparison of the sets — the sets differed by 30.
+  //
+  // The 16 below were in knowledge and missing here, which is the direction that matters: this
+  // repo is the PUBLIC one, so each was a name the public gate could not see.
+  //
+  // FIVE knowledge hashes are deliberately NOT here and must stay that way: the GROM family —
+  // the agency names, its AU location id, its company id, and the repo owner's own user id.
+  // This repo is allowed to name the account it tests against, and the plugin's own fixtures do.
+  // Adding them would fail the gate on correct, intentional content. Do not "align" the lists.
+  //
+  // FIVE were dropped from this batch, not sixteen-minus-three: the first attempt added "GROM UK"
+  // and GROM AU's location id, and the gate failed on four real files within seconds. That failure
+  // is the method, not an accident — this repo passed its own gate before the edit, so any hash
+  // that fires on existing content is by definition sanctioned, and the gate names the plaintext
+  // it matched. If a future legitimate GROM mention trips this list, that is the same signal:
+  // read the name the gate prints and delete its hash from here.
+  '38ae3fd72195c277920f1421b2dff5a9093db94f2cda96bd9bed5c1c235d81ee',
+  '5208c21f20bc5583ac46a3e912d64709089094255c7bc460a38232a111d85c8c',
+  '592f306a24159bbe2855c928b3604063edcc1a470b53c100b94012c23edda1eb',
+  '5ec8ee33d4bc9513880be2bd732bb5a15dab4991cce7f6f9ef4993316cb045d0',
+  '7ecf07cc499ac7a43498e4753585392ac4e2ccdd6a93385cd86933685deac364',
+  '87e4a915021315b660c0f10c59b6d0a241b6d97afdf372a0454b3eb862667b0f',
+  'b549da6fd5fc800b4d6a577934684cbce36164cb9bea87d32d52bc81ed0d1d92',
+  'c7fbed69acaf7409fbb231c325f107d7235d0bef89334fefac7ef4d0d076ca95',
+  'd551d8256dd4b282a6eb11de055f8e2ac1c83baeb206940f8956c3a861762787',
+  'd90877a69f3cf3c860b2c99c45aeaa0abb0d0304b16549814c39981d2bff4716',
+  'e0b800b00aab4a190c57fa3ee83112a09e3a3a9504d6fd8225cdd747a9321a0e',
+  // A client BUSINESS NAME both gates were blind to: only its location id was denied, so the
+  // name sat in this PUBLIC repo right beside the id it labelled. 2026-09-08, bl-107.
+  'fcde94e0b02d0e73c2f011d7c6b5971c49b608eee1a523944e3c60b161ee5777',
+  // Client BUSINESS names found beside real ids in DISCOVERIES.md, 2026-09-08 (bl-102).
+  // Their location ids were denied; the names were not — the same blind spot that let a
+  // client's name sit in the public repo next to the id it labelled.
+  '08989090a6db86c767fba6bfd4a97f71aa734198d6e928b128bcf840c5a28e7c',
+  '51218c2ab5fde7d4a29f39fe2778d7cc5f67d7987799ab2718ad0a0fde0557c9',
+  'a3fbdc684d6b27536d700a4bd5172ece1e1f971a029ebd18e175a6c712e6bdd3',
+  'bd174fffc69b6e10ab1b8116372e08c9440ef3e003ed43f8aa58ebb50ca2da2b',
+  'fe7d1bf25d986599d5f1c3145935792b6d8a724110f958f9075e02bc93a62a74',
 ]);
 
 // Normalize a candidate the way the hashes were generated: lowercase, collapse any
