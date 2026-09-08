@@ -246,7 +246,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
     define_ENDPOINT_CATALOG_default = {
       generated: "2026-09-08",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 1140,
+      count: 1141,
       endpoints: [
         {
           id: "workflows--actions-branches",
@@ -17245,7 +17245,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "platform/20-api/snapshots-authoring.md:161"
+            "platform/20-api/snapshots-authoring.md:201"
           ]
         },
         {
@@ -17296,7 +17296,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "platform/20-api/snapshots-authoring.md:159"
+            "platform/20-api/snapshots-authoring.md:199"
           ]
         },
         {
@@ -17466,7 +17466,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "platform/20-api/snapshots-authoring.md:115",
-            "platform/20-api/snapshots-authoring.md:160"
+            "platform/20-api/snapshots-authoring.md:200"
           ]
         },
         {
@@ -17846,7 +17846,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "platform/20-api/snapshots-authoring.md:256"
+            "platform/20-api/snapshots-authoring.md:296"
           ]
         },
         {
@@ -17912,7 +17912,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "platform/20-api/snapshots-authoring.md:158"
+            "platform/20-api/snapshots-authoring.md:198"
           ]
         },
         {
@@ -17979,7 +17979,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "platform/20-api/snapshots-authoring.md:157"
+            "platform/20-api/snapshots-authoring.md:197"
           ]
         },
         {
@@ -18014,7 +18014,49 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "platform/20-api/snapshots-authoring.md:258"
+            "platform/20-api/snapshots-authoring.md:298"
+          ]
+        },
+        {
+          id: "platform--snapshot-asset-mapper-conflicts",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/snapshots/snapshot-asset-mapper/{snapshotId}/conflicts",
+          path: "/snapshots/snapshot-asset-mapper/{snapshotId}/conflicts",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "platform",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "snapshotId"
+            }
+          ],
+          query: [
+            {
+              name: "companyId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "platform/20-api/snapshots-authoring.md:156"
           ]
         },
         {
@@ -18099,7 +18141,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "platform/20-api/snapshots-authoring.md:156"
+            "platform/20-api/snapshots-authoring.md:196"
           ]
         },
         {
@@ -18141,7 +18183,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "platform/20-api/snapshots-authoring.md:162"
+            "platform/20-api/snapshots-authoring.md:202"
           ]
         },
         {
@@ -18186,7 +18228,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "platform/20-api/snapshots-authoring.md:257"
+            "platform/20-api/snapshots-authoring.md:297"
           ]
         },
         {
@@ -23238,7 +23280,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/WorkflowService.ts:603",
-            "platform/20-api/snapshots-authoring.md:203",
+            "platform/20-api/snapshots-authoring.md:243",
             "platform/40-rules/snapshot-carry-matrix.md:108"
           ]
         },
@@ -23279,7 +23321,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/WorkflowService.ts:596",
-            "platform/20-api/snapshots-authoring.md:202"
+            "platform/20-api/snapshots-authoring.md:242"
           ]
         },
         {

@@ -20,16 +20,16 @@
     {
       "tree": "documented",
       "dir": "corpus",
-      "capturedAt": "2026-09-08T19:35:12.255Z",
+      "capturedAt": "2026-09-08T19:42:15.692Z",
       "hash": "corpus",
-      "fileCount": 749,
-      "endpoints": 749
+      "fileCount": 750,
+      "endpoints": 750
     }
   ],
   "note": "SOURCE-DERIVED ONLY, merged from every mined front-end. `tree` on each row says which app calls it. The plugin owns kind/note/summary/reach/coveredBy and merges them at read time. A row proves a GHL front-end calls that path — not that your token reaches it, and not that calling it is safe.",
-  "discoveredCallSites": 1209,
+  "discoveredCallSites": 1210,
   "skippedCallSites": 381,
-  "count": 1132,
+  "count": 1133,
   "endpoints": [
     {
       "id": "workflows--actions-branches",
@@ -13551,7 +13551,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "platform/20-api/snapshots-authoring.md:161"
+        "platform/20-api/snapshots-authoring.md:201"
       ],
       "serviceBasis": "declared"
     },
@@ -13590,7 +13590,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "platform/20-api/snapshots-authoring.md:159"
+        "platform/20-api/snapshots-authoring.md:199"
       ],
       "serviceBasis": "declared"
     },
@@ -13723,7 +13723,7 @@
       },
       "sources": [
         "platform/20-api/snapshots-authoring.md:115",
-        "platform/20-api/snapshots-authoring.md:160"
+        "platform/20-api/snapshots-authoring.md:200"
       ],
       "serviceBasis": "declared"
     },
@@ -14026,7 +14026,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "platform/20-api/snapshots-authoring.md:256"
+        "platform/20-api/snapshots-authoring.md:296"
       ],
       "serviceBasis": "declared"
     },
@@ -14083,7 +14083,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "platform/20-api/snapshots-authoring.md:158"
+        "platform/20-api/snapshots-authoring.md:198"
       ],
       "serviceBasis": "declared"
     },
@@ -14140,7 +14140,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "platform/20-api/snapshots-authoring.md:157"
+        "platform/20-api/snapshots-authoring.md:197"
       ],
       "serviceBasis": "declared"
     },
@@ -14166,7 +14166,40 @@
         "returns": "unresolved"
       },
       "sources": [
-        "platform/20-api/snapshots-authoring.md:258"
+        "platform/20-api/snapshots-authoring.md:298"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "platform--snapshot-asset-mapper-conflicts",
+      "method": "POST",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/snapshots/snapshot-asset-mapper/{snapshotId}/conflicts",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "platform",
+      "query": [
+        {
+          "name": "companyId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "platform/20-api/snapshots-authoring.md:156"
       ],
       "serviceBasis": "declared"
     },
@@ -14232,7 +14265,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "platform/20-api/snapshots-authoring.md:156"
+        "platform/20-api/snapshots-authoring.md:196"
       ],
       "serviceBasis": "declared"
     },
@@ -14265,7 +14298,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "platform/20-api/snapshots-authoring.md:162"
+        "platform/20-api/snapshots-authoring.md:202"
       ],
       "serviceBasis": "declared"
     },
@@ -14298,7 +14331,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "platform/20-api/snapshots-authoring.md:257"
+        "platform/20-api/snapshots-authoring.md:297"
       ],
       "serviceBasis": "declared"
     },
@@ -18204,7 +18237,7 @@
       },
       "sources": [
         "services/WorkflowService.ts:603",
-        "platform/20-api/snapshots-authoring.md:203",
+        "platform/20-api/snapshots-authoring.md:243",
         "platform/40-rules/snapshot-carry-matrix.md:108"
       ],
       "serviceClass": "WorkflowService",
@@ -18233,7 +18266,7 @@
       },
       "sources": [
         "services/WorkflowService.ts:596",
-        "platform/20-api/snapshots-authoring.md:202"
+        "platform/20-api/snapshots-authoring.md:242"
       ],
       "serviceClass": "WorkflowService",
       "serviceBasis": "inferred-from-path"
