@@ -20,7 +20,7 @@
     {
       "tree": "documented",
       "dir": "corpus",
-      "capturedAt": "2026-09-08T19:46:01.108Z",
+      "capturedAt": "2026-09-08T20:18:01.766Z",
       "hash": "corpus",
       "fileCount": 750,
       "endpoints": 750
@@ -28,7 +28,7 @@
   ],
   "note": "SOURCE-DERIVED ONLY, merged from every mined front-end. `tree` on each row says which app calls it. The plugin owns kind/note/summary/reach/coveredBy and merges them at read time. A row proves a GHL front-end calls that path — not that your token reaches it, and not that calling it is safe.",
   "discoveredCallSites": 1210,
-  "skippedCallSites": 381,
+  "skippedCallSites": 409,
   "count": 1133,
   "endpoints": [
     {
@@ -5536,7 +5536,7 @@
       },
       "sources": [
         "funnels/20-api/funnels-api.md:80",
-        "funnels/40-rules/silent-failures.md:95"
+        "funnels/40-rules/silent-failures.md:101"
       ],
       "serviceBasis": "declared"
     },
@@ -5839,7 +5839,7 @@
       },
       "sources": [
         "funnels/20-api/funnels-api.md:97",
-        "funnels/40-rules/silent-failures.md:98"
+        "funnels/40-rules/silent-failures.md:104"
       ],
       "serviceBasis": "declared"
     },
@@ -6088,7 +6088,7 @@
       "sources": [
         "funnels/10-anatomy/page-content.md:22",
         "funnels/20-api/funnels-api.md:69",
-        "funnels/40-rules/silent-failures.md:95"
+        "funnels/40-rules/silent-failures.md:101"
       ],
       "serviceBasis": "declared"
     },

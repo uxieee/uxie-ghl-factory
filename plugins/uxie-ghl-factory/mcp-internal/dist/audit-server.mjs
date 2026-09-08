@@ -7196,7 +7196,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/20-api/funnels-api.md:80",
-            "funnels/40-rules/silent-failures.md:95"
+            "funnels/40-rules/silent-failures.md:101"
           ]
         },
         {
@@ -7560,7 +7560,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/20-api/funnels-api.md:97",
-            "funnels/40-rules/silent-failures.md:98"
+            "funnels/40-rules/silent-failures.md:104"
           ]
         },
         {
@@ -7867,7 +7867,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "funnels/10-anatomy/page-content.md:22",
             "funnels/20-api/funnels-api.md:69",
-            "funnels/40-rules/silent-failures.md:95"
+            "funnels/40-rules/silent-failures.md:101"
           ]
         },
         {
