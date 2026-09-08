@@ -90,3 +90,68 @@ export function diffStored(requested, storedIndex) {
 /** The conflicts endpoint's real key names. The ones the UI shows answer 400 ["Required","Required"]. */
 export const CONFLICT_KEYS = { locations: 'selectedLocationIds', assets: 'selectedSnapshotAssets' };
 export const CONFLICT_UI_KEYS = { locations: 'locationIds', assets: 'selectedAssets' };
+
+// ---------------------------------------------------------------------------------------------
+// Loading a snapshot into sub-accounts (the "push").
+//
+// This is the most dangerous call the plugin can make, and the danger is not the endpoint — it is
+// the shape of the request. Two proven behaviours make the obvious implementation harmful:
+//
+//   1. Loaded workflows arrive PUBLISHED when the source workflow is published. On 2026-09-08 a
+//      load put 26 workflows live on an account taking roughly 230 enrollments a week. Nothing in
+//      the response says so: the push answers 201 "queued".
+//   2. The wizard's Assets step renders NO Workflows row, while the push body it sends carries
+//      every workflow id in the snapshot. A tool built by mirroring the UI ships workflows nobody
+//      chose. So `assets` here is REQUIRED and explicit — never inferred, never defaulted to
+//      "everything in the snapshot".
+//
+// Corpus: platform/20-api/snapshots-authoring.md, platform/40-rules/snapshot-carry-matrix.md.
+
+/** Every category the push body carries. Absent categories are NOT loaded; empty arrays are sent. */
+export const PUSH_CATEGORIES = Object.freeze([
+  'agent_studio', 'teams', 'calendars', 'campaigns', 'chat_widget', 'custom_fields', 'custom_values',
+  'folders', 'knowledge_bases', 'membership_offers', 'membership_products', 'pipelines',
+  'sectionTemplates', 'social_planner', 'surveys', 'tags', 'text_templates', 'links', 'triggers',
+  'workflow',
+]);
+
+/**
+ * Build the push body.
+ *
+ * The target location id appears in THREE places — inside `selectedLocationsData.<tab>`, in the
+ * top-level `selectedLocationIds`, and as the KEY of `skipData`. Getting one of them wrong is not
+ * an error, it is a load that targets the wrong set, so they are derived from one argument here
+ * rather than passed separately.
+ *
+ * Every category is present, empty arrays included, exactly as the wizard sends it.
+ */
+export function buildPushBody(targetLocationIds, selectedAssets, { overwriteConflicts = false } = {}) {
+  const targets = [...targetLocationIds];
+  const assets = {};
+  for (const c of PUSH_CATEGORIES) assets[c] = [...(selectedAssets?.[c] ?? [])];
+  // A category the caller named that is not in the wizard's list is still sent: the vocabulary is
+  // GHL's, and silently dropping a category would be the same class of bug as inventing one.
+  for (const [c, ids] of Object.entries(selectedAssets ?? {})) if (!(c in assets)) assets[c] = [...ids];
+  const tab = (ids) => ({
+    selectedLocationIds: ids,
+    excludedLocationIds: [],
+    isGlobalSelectChecked: false,
+    selectedLocationsCount: ids.length,
+  });
+  return {
+    selectedSnapshotAssets: assets,
+    snapshotType: 'own',
+    selectedLocationsData: { all: tab([]), available: tab(targets), linked: tab([]) },
+    selectedLocationIds: targets,
+    globalLocationConflictSelect: false,
+    shouldOverwriteAllConflicts: overwriteConflicts,
+    skipData: Object.fromEntries(targets.map((id) => [id, { assets: {}, skipAllConflicts: false }])),
+  };
+}
+
+/** Categories the caller actually asked to load — the ones with at least one id. */
+export function nonEmptyCategories(selectedAssets) {
+  return Object.entries(selectedAssets ?? {})
+    .filter(([, ids]) => Array.isArray(ids) && ids.length > 0)
+    .map(([c]) => c);
+}

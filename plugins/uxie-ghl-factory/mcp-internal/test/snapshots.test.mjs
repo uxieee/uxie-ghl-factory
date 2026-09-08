@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { TOOLS } from '../core/tools.mjs';
-import { checkSelection, diffStored, manifestIndex, CONFLICT_KEYS } from '../core/snapshots.mjs';
+import { checkSelection, diffStored, manifestIndex, CONFLICT_KEYS, PUSH_CATEGORIES, buildPushBody, nonEmptyCategories } from '../core/snapshots.mjs';
 
 // Snapshots are AGENCY-scoped: a mistake is not confined to one sub-account. Three of the four
 // traps on this surface are silent — they answer 200 and produce a snapshot that is wrong rather
@@ -185,3 +185,160 @@ test('checkSelection cannot judge a category it has no manifest for, and says no
   assert.deepEqual(out.unknownIds, [], 'no manifest for the category means unjudgeable, not wrong');
   assert.deepEqual(out.unknownCategories, ['email_templates']);
 });
+
+// ---------------------------------------------------------------------------------------------
+// push_snapshot. This is the only DESTRUCTIVE tool here and the only one that cannot verify its
+// own work, so what it REFUSES is the whole safety story. Each of these pins a behaviour that a
+// real load already got wrong once.
+
+// A push gateway: the snapshot's manifest carries a source locationId, and workflow reads on that
+// source answer with whatever status the test asks for.
+const pushGw = ({ wfStatus = { wf1: 'draft', wf2: 'draft' }, sourceLoc = 'SRC', pushOk = true, manifestOk = true } = {}) => {
+  const seen = { push: null, wfReads: [] };
+  return {
+    seen,
+    uid: 'USER1',
+    companyId: null,
+    call: async (method, path, body) => {
+      if (method === 'GET' && /^\/locations\/[^/]+$/.test(path)) {
+        return { ok: true, status: 200, json: { location: { companyId: 'COMPANY1' } } };
+      }
+      if (method === 'GET' && path.includes('/get_assets')) {
+        return manifestOk
+          ? { ok: true, status: 200, json: { ...PREFETCH, locationId: sourceLoc } }
+          : { ok: false, status: 400, json: { msg: "Can't find account data" } };
+      }
+      // The real read is `/workflow/{loc}/{id}?includeScheduledPauseInfo=true` — a mock that
+      // forgets the query string silently matches nothing and every workflow reads as absent.
+      const wf = path.match(/^\/workflow\/[^/]+\/([^/?]+)(?:\?|$)/);
+      if (method === 'GET' && wf) {
+        seen.wfReads.push(path);
+        const st = wfStatus[wf[1]];
+        return st ? { ok: true, status: 200, json: { status: st, name: `NAME-${wf[1]}` } } : { ok: false, status: 404, json: {} };
+      }
+      if (method === 'POST' && path.includes('set_assets_to_locations')) {
+        seen.push = body;
+        return pushOk
+          ? { ok: true, status: 201, json: { success: true, message: 'Snapshot push preparation queued successfully' } }
+          : { ok: false, status: 500, json: {} };
+      }
+      throw new Error(`unexpected ${method} ${path}`);
+    },
+    readBackUntil: async (fn) => ({ hit: await fn(), attempts: 1 }),
+  };
+};
+const runPush = (args, opts = {}) => {
+  const gw = pushGw(opts);
+  return tool('push_snapshot').handler(
+    { locationId: 'LOC', snapshotId: 's1', targetLocationIds: ['TGT'], ...args },
+    { state: {}, makeGw: () => gw },
+  ).then((r) => ({ r, gw }));
+};
+
+// The target id appears in THREE places in the wire body. Getting one wrong is not an error —
+// it is a load that targets the wrong set of accounts.
+test('buildPushBody puts every target in all three places, and ships all 20 categories', () => {
+  const b = buildPushBody(['A', 'B'], { workflow: ['w1'] });
+  assert.deepEqual(b.selectedLocationIds, ['A', 'B']);
+  assert.deepEqual(b.selectedLocationsData.available.selectedLocationIds, ['A', 'B']);
+  assert.equal(b.selectedLocationsData.available.selectedLocationsCount, 2);
+  assert.deepEqual(Object.keys(b.skipData).sort(), ['A', 'B']);
+  for (const c of PUSH_CATEGORIES) assert.ok(Array.isArray(b.selectedSnapshotAssets[c]), `${c} must be present, empty arrays included`);
+  assert.deepEqual(b.selectedSnapshotAssets.workflow, ['w1']);
+  assert.deepEqual(b.selectedSnapshotAssets.tags, [], 'a category not asked for ships EMPTY, not absent');
+});
+
+// The wizard's Assets step renders no Workflows row while the body it sends carries every
+// workflow id in the snapshot. A tool that mirrors the UI ships workflows nobody chose.
+test('push_snapshot loads exactly what it is given — nothing is inferred from the snapshot', async () => {
+  const { r, gw } = await runPush({ assets: { tags: ['t1'] }, confirm: true });
+  assert.equal(r.ok, true, JSON.stringify(r));
+  assert.deepEqual(gw.seen.push.selectedSnapshotAssets.tags, ['t1']);
+  assert.deepEqual(gw.seen.push.selectedSnapshotAssets.workflow, [],
+    'the snapshot HAS workflows; not asking for them must send none');
+  assert.deepEqual(gw.seen.wfReads, [], 'no workflow was selected, so none should have been read');
+});
+
+test('push_snapshot refuses an empty selection rather than pushing nothing', async () => {
+  for (const assets of [{}, { workflow: [] }]) {
+    const { r, gw } = await runPush({ assets, confirm: true });
+    assert.equal(r.ok, false, JSON.stringify(assets));
+    assert.equal(r.code, 'VALIDATION_FAILED');
+    assert.equal(gw.seen.push, null, 'nothing may reach the wire');
+  }
+});
+
+// RAIL 1. 26 workflows went live on an account taking ~230 enrollments a week because the load
+// carried published ones and nothing warned.
+test('push_snapshot REFUSES published workflows, and hands back how to stand them down', async () => {
+  const { r, gw } = await runPush({ assets: { workflow: ['wf1', 'wf2'] }, confirm: true }, { wfStatus: { wf1: 'published', wf2: 'draft' } });
+  assert.equal(r.ok, false);
+  assert.equal(r.code, 'VALIDATION_FAILED');
+  assert.equal(gw.seen.push, null, 'the push must NOT be sent');
+  assert.deepEqual(r.data.publishedOnSource.map((w) => w.workflowId), ['wf1']);
+  assert.ok(r.data.standDown, 'the refusal must carry the remedy, not just the complaint');
+  // The load mints NEW ids on the target, so the source ids are useless there. Saying so is the
+  // difference between a usable remedy and one that sends the operator to the wrong ids.
+  assert.match(r.data.standDown.howToFind, /NEW ids/);
+  assert.ok(r.data.standDown.names.includes('NAME-wf1'));
+});
+
+test('push_snapshot proceeds with published workflows only on an explicit override', async () => {
+  const { r, gw } = await runPush(
+    { assets: { workflow: ['wf1'] }, allowPublishedWorkflows: true, confirm: true },
+    { wfStatus: { wf1: 'published' } },
+  );
+  assert.equal(r.ok, true, JSON.stringify(r));
+  assert.ok(gw.seen.push, 'the override must actually push');
+  assert.ok(r.data.standDown, 'and must still hand back the stand-down plan');
+});
+
+// A workflow id that cannot be read is NOT the same as one that is not published — a folder id
+// lives in `workflow` and reads as neither. Folding it into "safe" is how a published workflow
+// slips through.
+test('push_snapshot reports unreadable workflow ids as UNDETERMINED, not as safe', async () => {
+  // wf3 is a nested id the manifest DOES carry (folders live inside `workflow`), so it passes the
+  // membership gate and then fails to read as a workflow — the exact shape of a folder id.
+  const { r } = await runPush({ assets: { workflow: ['wf1', 'wf3'] } }, { wfStatus: { wf1: 'draft' } });
+  assert.equal(r.code, 'CONFIRM_REQUIRED', JSON.stringify(r));
+  assert.deepEqual(r.data.preview.undeterminedWorkflows, ['wf3']);
+  assert.ok(r.data.preview.warnings.some((w) => /UNKNOWN/.test(w)));
+});
+
+test('push_snapshot previews by default and sends nothing without confirm', async () => {
+  const { r, gw } = await runPush({ assets: { tags: ['t1'] } });
+  assert.equal(r.ok, false);
+  assert.equal(r.code, 'CONFIRM_REQUIRED');
+  assert.equal(gw.seen.push, null);
+  assert.deepEqual(r.data.preview.categories, ['tags']);
+});
+
+// An id absent from the snapshot is accepted by the push with a 201 and loads nothing.
+test('push_snapshot refuses ids the snapshot does not contain', async () => {
+  const { r, gw } = await runPush({ assets: { tags: ['t1', 'NOPE'] }, confirm: true });
+  assert.equal(r.ok, false);
+  assert.deepEqual(r.data.unknownIds, ['tags/NOPE']);
+  assert.equal(gw.seen.push, null);
+});
+
+// The push answers "queued". Claiming verification from a 201 is the exact failure this plugin
+// refuses everywhere else, so the success shape must say so out loud.
+test('push_snapshot never claims verification — the push is queued, not applied', async () => {
+  const { r } = await runPush({ assets: { tags: ['t1'] }, confirm: true });
+  assert.equal(r.ok, true);
+  assert.equal(r.data.queued, true);
+  assert.equal(r.data.verified, false);
+  assert.match(r.data.note, /QUEUED, NOT APPLIED/);
+});
+
+test('push_snapshot surfaces the dehydrating-snapshot 400 with what to do about it', async () => {
+  const { r, gw } = await runPush({ assets: { tags: ['t1'] }, confirm: true }, { manifestOk: false });
+  assert.equal(r.ok, false);
+  assert.equal(gw.seen.push, null, 'an unreadable snapshot must never reach the push');
+  assert.match(JSON.stringify(r), /list_snapshots/);
+});
+
+test('nonEmptyCategories ignores categories present but empty', () => {
+  assert.deepEqual(nonEmptyCategories({ workflow: ['w'], tags: [], pipelines: ['p'] }), ['workflow', 'pipelines']);
+});
+

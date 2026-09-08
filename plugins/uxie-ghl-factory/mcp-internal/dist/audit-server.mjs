@@ -10037,6 +10037,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "create_snapshot",
             "get_snapshot_manifest",
             "list_snapshots",
+            "push_snapshot",
             "refresh_snapshot"
           ],
           rawCallable: true,
@@ -17260,7 +17261,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           note: "Details drawer, assets grouped by product category. Captured from the agency page's own session 2026-08-31; not yet proven through the plugin's credential.",
           reach: "source-only",
           coveredBy: [
-            "create_snapshot"
+            "create_snapshot",
+            "push_snapshot"
           ],
           rawCallable: true,
           transport: "json",
@@ -18154,7 +18156,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "write",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "push_snapshot"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -21369,6 +21373,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "get_workflow_stats",
             "move_workflows",
             "publish_workflow",
+            "push_snapshot",
             "repair_workflow",
             "unpublish_workflows"
           ],
@@ -21598,6 +21603,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "get_workflow_stats",
             "move_workflows",
             "publish_workflow",
+            "push_snapshot",
             "repair_workflow",
             "unpublish_workflows"
           ],
@@ -46707,7 +46713,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           note: "Details drawer, assets grouped by product category. Captured from the agency page's own session 2026-08-31; not yet proven through the plugin's credential.",
           reach: "source-only",
           coveredBy: [
-            "create_snapshot"
+            "create_snapshot",
+            "push_snapshot"
           ],
           rawCallable: true,
           transport: "json",
@@ -52525,6 +52532,30 @@ var init_define_TOOL_CATALOG = __esm({
         ],
         rows: [
           "workflow-service--bulk-update-status"
+        ]
+      },
+      push_snapshot: {
+        description: "Load a snapshot into sub-accounts \u2014 proof: endpoint live-runtime (2026-09-08), tool unexecuted; risk: destructive",
+        risk: "destructive",
+        proof: "endpoint live-runtime (2026-09-08), tool unexecuted",
+        proofFloor: "endpoint live-runtime (2026-09-08), tool unexecuted",
+        proofRows: [
+          "platform--v2-set-assets-to-locations",
+          "platform--snapshot-get-assets-get",
+          "workflow-service--find-by-id"
+        ],
+        proofFloorRows: [
+          "platform--v2-set-assets-to-locations",
+          "platform--snapshot-get-assets-get",
+          "workflow-service--find-by-id"
+        ],
+        riskRows: [
+          "platform--v2-set-assets-to-locations"
+        ],
+        rows: [
+          "platform--v2-set-assets-to-locations",
+          "platform--snapshot-get-assets-get",
+          "workflow-service--find-by-id"
         ]
       }
     };
@@ -158945,6 +158976,52 @@ function diffStored(requested, storedIndex) {
   return missing;
 }
 var CONFLICT_KEYS = { locations: "selectedLocationIds", assets: "selectedSnapshotAssets" };
+var PUSH_CATEGORIES = Object.freeze([
+  "agent_studio",
+  "teams",
+  "calendars",
+  "campaigns",
+  "chat_widget",
+  "custom_fields",
+  "custom_values",
+  "folders",
+  "knowledge_bases",
+  "membership_offers",
+  "membership_products",
+  "pipelines",
+  "sectionTemplates",
+  "social_planner",
+  "surveys",
+  "tags",
+  "text_templates",
+  "links",
+  "triggers",
+  "workflow"
+]);
+function buildPushBody(targetLocationIds, selectedAssets, { overwriteConflicts = false } = {}) {
+  const targets = [...targetLocationIds];
+  const assets = {};
+  for (const c of PUSH_CATEGORIES) assets[c] = [...selectedAssets?.[c] ?? []];
+  for (const [c, ids] of Object.entries(selectedAssets ?? {})) if (!(c in assets)) assets[c] = [...ids];
+  const tab = (ids) => ({
+    selectedLocationIds: ids,
+    excludedLocationIds: [],
+    isGlobalSelectChecked: false,
+    selectedLocationsCount: ids.length
+  });
+  return {
+    selectedSnapshotAssets: assets,
+    snapshotType: "own",
+    selectedLocationsData: { all: tab([]), available: tab(targets), linked: tab([]) },
+    selectedLocationIds: targets,
+    globalLocationConflictSelect: false,
+    shouldOverwriteAllConflicts: overwriteConflicts,
+    skipData: Object.fromEntries(targets.map((id) => [id, { assets: {}, skipAllConflicts: false }]))
+  };
+}
+function nonEmptyCategories(selectedAssets) {
+  return Object.entries(selectedAssets ?? {}).filter(([, ids]) => Array.isArray(ids) && ids.length > 0).map(([c]) => c);
+}
 
 // core/agent-logs.mjs
 init_define_BUILDER_VALIDATORS();
@@ -166789,7 +166866,7 @@ var TOOLS2 = [
               wouldChange: published.map((w) => ({ workflowId: w.workflowId, name: w.name, from: "published", to: "draft" })),
               alreadyDraft: before.filter((w) => w.found && w.status !== "published").map((w) => w.workflowId),
               notFound: missing.map((w) => w.workflowId),
-              note: "Draft stops NEW enrollments. Contacts already inside a workflow are not removed by this."
+              note: "Draft stops NEW enrollments. What happens to contacts ALREADY in flight is UNPROVEN \u2014 do not assume either way."
             }
           }
         );
@@ -166825,7 +166902,7 @@ var TOOLS2 = [
         stoodDown: after.map((w) => w.workflowId),
         verified: true,
         notFound: missing.map((w) => w.workflowId),
-        note: "All verified draft by individual read-back. Contacts already in flight were not removed."
+        note: "All verified draft by individual read-back. What happens to contacts ALREADY in flight is UNPROVEN."
       } };
     })
   },
@@ -169053,6 +169130,130 @@ var TOOLS2 = [
         sentKeys: Object.keys(body),
         conflicts: r.json?.conflicts ?? r.json?.data ?? r.json ?? null,
         note: "This call changes nothing. It is the only way to see what a load would overwrite before running one."
+      });
+    }, args)
+  },
+  {
+    name: "push_snapshot",
+    description: `${describe3("push_snapshot", "Load a snapshot into sub-accounts \u2014 risk: destructive")}. Preview by default; confirm:true writes. THE MOST DANGEROUS CALL HERE \u2014 it writes into OTHER sub-accounts, and the response is only "queued", so nothing can be read back to confirm it. \`assets\` is REQUIRED and explicit: the wizard shows no Workflows row while the body it sends carries every workflow id in the snapshot, so a tool that mirrors the UI ships workflows nobody chose. This one loads exactly what you name. \u{1F534} LOADED WORKFLOWS ARRIVE PUBLISHED when the source workflow is published \u2014 that is how 26 went live on an account taking ~230 enrollments a week. This refuses to load published workflows unless allowPublishedWorkflows:true, and either way hands back the stand-down plan. An empty conflicts result is NOT clearance that nothing will be overwritten \u2014 see check_snapshot_conflicts.`,
+    inputSchema: schema({
+      locationId: external_exports.string(),
+      snapshotId: external_exports.string(),
+      targetLocationIds: external_exports.array(external_exports.string()).min(1).max(50),
+      assets: external_exports.record(external_exports.any()),
+      allowPublishedWorkflows: external_exports.boolean().default(false),
+      overwriteConflicts: external_exports.boolean().default(false),
+      confirm: external_exports.boolean().default(false)
+    }),
+    capabilities: [
+      { method: "GET", path: "/locations/{locationId}" },
+      { method: "GET", path: "/snapshots-appengine/snapshot/{snapshotId}/get_assets" },
+      { method: "GET", path: "/workflow/{loc}/{wid}" },
+      { method: "POST", path: "/snapshots/snapshot-push/v2/{snapshotId}/set_assets_to_locations" }
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+      const companyId = await resolveCompanyId(gw, args.locationId);
+      if (!companyId) return fail(CODES.VALIDATION_FAILED, "could not resolve the agency id for this sub-account", "See list_snapshots.");
+      const categories = nonEmptyCategories(args.assets);
+      if (categories.length === 0) {
+        return fail(
+          CODES.VALIDATION_FAILED,
+          "assets must name at least one id \u2014 a push with nothing selected is never what you meant",
+          'Read the snapshot with get_snapshot_manifest and pass e.g. {"workflow": ["<id>"]}.'
+        );
+      }
+      const man = await gw.call("GET", `/snapshots-appengine/snapshot/${encodeURIComponent(args.snapshotId)}/get_assets?type=own&companyId=${encodeURIComponent(companyId)}`);
+      if (!man.ok) {
+        const base = fromHttp(man.status, man.json);
+        return {
+          ...base,
+          remediation: man.status === 400 ? `The snapshot is unreadable. A snapshot still dehydrating answers 400 "Can't find account data" \u2014 check its status with list_snapshots and retry once it is not processing.` : base.remediation
+        };
+      }
+      const index = manifestIndex(man.json);
+      const check2 = checkSelection(args.assets, index, new Set(Object.keys(index)));
+      if (check2.unknownIds.length || check2.unknownCategories.length) {
+        return withFailureData(
+          fail(
+            CODES.VALIDATION_FAILED,
+            `${check2.unknownIds.length} id(s) and ${check2.unknownCategories.length} category(ies) are not in this snapshot`,
+            "The push accepts them with a 201 and loads nothing. Fix the selection against get_snapshot_manifest."
+          ),
+          { unknownIds: check2.unknownIds, unknownCategories: check2.unknownCategories }
+        );
+      }
+      const wanted = [...args.assets.workflow ?? []];
+      const workflows = [];
+      const sourceLoc = man.json?.locationId ?? man.json?.data?.locationId ?? null;
+      let sourceReadable = false;
+      if (wanted.length && sourceLoc) {
+        for (const id of wanted) {
+          const r2 = await getWorkflow(gw, sourceLoc, id);
+          if (r2.ok) sourceReadable = true;
+          workflows.push({ workflowId: id, status: r2.ok ? r2.json?.status ?? null : null, name: r2.ok ? r2.json?.name ?? null : null });
+        }
+      }
+      const published = workflows.filter((w) => w.status === "published");
+      const undetermined = wanted.length && (!sourceLoc || !sourceReadable) ? wanted : workflows.filter((w) => w.status === null).map((w) => w.workflowId);
+      const standDown = {
+        why: "Loaded workflows arrive PUBLISHED when the source is published, and the push response never says so.",
+        howToFind: "The load mints NEW ids on each target, so the pushed ids below cannot be used there. After the load finishes, list each target with list_workflows and match by NAME.",
+        names: workflows.filter((w) => w.name).map((w) => w.name),
+        then: 'unpublish_workflows({locationId: "<target>", workflowIds: [...], confirm: true})'
+      };
+      if (published.length && args.allowPublishedWorkflows !== true) {
+        return withFailureData(
+          fail(
+            CODES.VALIDATION_FAILED,
+            `${published.length} of ${wanted.length} selected workflows are PUBLISHED on the source and will arrive live on every target.`,
+            "Stand them down on the SOURCE first, or pass allowPublishedWorkflows:true and use the returned standDown plan immediately after the load."
+          ),
+          { publishedOnSource: published, targets: args.targetLocationIds, standDown }
+        );
+      }
+      const body = buildPushBody(args.targetLocationIds, args.assets, { overwriteConflicts: args.overwriteConflicts });
+      if (args.confirm !== true) {
+        return withFailureData(
+          fail(
+            CODES.CONFIRM_REQUIRED,
+            `Push preview: ${check2.requested} asset(s) across ${categories.length} category(ies) into ${args.targetLocationIds.length} sub-account(s). No write was sent.`,
+            "Review data.preview, then repeat with confirm:true."
+          ),
+          {
+            preview: {
+              companyId,
+              snapshotId: args.snapshotId,
+              targets: args.targetLocationIds,
+              categories,
+              assetCount: check2.requested,
+              workflows: workflows.length ? workflows : void 0,
+              publishedOnSource: published.length ? published : void 0,
+              undeterminedWorkflows: undetermined.length ? undetermined : void 0,
+              overwriteConflicts: args.overwriteConflicts,
+              standDown: wanted.length ? standDown : void 0,
+              warnings: [
+                'The push answers "queued". Nothing here can be read back to confirm what it wrote.',
+                "An EMPTY conflicts result is not clearance \u2014 see check_snapshot_conflicts.",
+                ...undetermined.length ? [`${undetermined.length} selected workflow id(s) could not be read on the source, so their published state is UNKNOWN \u2014 a folder id looks like this too.`] : []
+              ]
+            }
+          }
+        );
+      }
+      const r = await gw.call("POST", `/snapshots/snapshot-push/v2/${encodeURIComponent(args.snapshotId)}/set_assets_to_locations?companyId=${encodeURIComponent(companyId)}`, body);
+      if (!r.ok) return fromHttp(r.status, r.json);
+      return ok({
+        companyId,
+        snapshotId: args.snapshotId,
+        targets: args.targetLocationIds,
+        categories,
+        assetCount: check2.requested,
+        queued: true,
+        verified: false,
+        response: r.json ?? null,
+        standDown: wanted.length ? standDown : void 0,
+        note: "QUEUED, NOT APPLIED. The response says nothing about what was written. Check each target before assuming the load landed" + (wanted.length ? ", and stand down the loaded workflows now \u2014 see standDown." : ".")
       });
     }, args)
   },

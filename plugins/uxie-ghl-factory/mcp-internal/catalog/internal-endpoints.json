@@ -9792,6 +9792,7 @@
         "create_snapshot",
         "get_snapshot_manifest",
         "list_snapshots",
+        "push_snapshot",
         "refresh_snapshot"
       ],
       "rawCallable": true,
@@ -17015,7 +17016,8 @@
       "note": "Details drawer, assets grouped by product category. Captured from the agency page's own session 2026-08-31; not yet proven through the plugin's credential.",
       "reach": "source-only",
       "coveredBy": [
-        "create_snapshot"
+        "create_snapshot",
+        "push_snapshot"
       ],
       "rawCallable": true,
       "transport": "json",
@@ -17909,7 +17911,9 @@
       "rail": "workflow",
       "kind": "write",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "push_snapshot"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -21124,6 +21128,7 @@
         "get_workflow_stats",
         "move_workflows",
         "publish_workflow",
+        "push_snapshot",
         "repair_workflow",
         "unpublish_workflows"
       ],
@@ -21353,6 +21358,7 @@
         "get_workflow_stats",
         "move_workflows",
         "publish_workflow",
+        "push_snapshot",
         "repair_workflow",
         "unpublish_workflows"
       ],
@@ -46462,7 +46468,8 @@
       "note": "Details drawer, assets grouped by product category. Captured from the agency page's own session 2026-08-31; not yet proven through the plugin's credential.",
       "reach": "source-only",
       "coveredBy": [
-        "create_snapshot"
+        "create_snapshot",
+        "push_snapshot"
       ],
       "rawCallable": true,
       "transport": "json",

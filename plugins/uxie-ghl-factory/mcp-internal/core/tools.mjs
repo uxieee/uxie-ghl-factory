@@ -58,7 +58,7 @@ import {
   isGroup,
   leaves as filterLeaves,
 } from './smart-lists.mjs';
-import { CONFLICT_KEYS, checkSelection, diffStored, manifestIndex, resolveCompanyId } from './snapshots.mjs';
+import { CONFLICT_KEYS, PUSH_CATEGORIES, buildPushBody, checkSelection, diffStored, manifestIndex, nonEmptyCategories, resolveCompanyId } from './snapshots.mjs';
 import {
   digestSpans as digestAgentSpans,
   branchNameMap as agentLogBranchNames,
@@ -4961,7 +4961,7 @@ export const TOOLS = [
               wouldChange: published.map((w) => ({ workflowId: w.workflowId, name: w.name, from: 'published', to: 'draft' })),
               alreadyDraft: before.filter((w) => w.found && w.status !== 'published').map((w) => w.workflowId),
               notFound: missing.map((w) => w.workflowId),
-              note: 'Draft stops NEW enrollments. Contacts already inside a workflow are not removed by this.',
+              note: 'Draft stops NEW enrollments. What happens to contacts ALREADY in flight is UNPROVEN — do not assume either way.',
             },
           },
         );
@@ -5001,7 +5001,7 @@ export const TOOLS = [
         stoodDown: after.map((w) => w.workflowId),
         verified: true,
         notFound: missing.map((w) => w.workflowId),
-        note: 'All verified draft by individual read-back. Contacts already in flight were not removed.',
+        note: 'All verified draft by individual read-back. What happens to contacts ALREADY in flight is UNPROVEN.',
       } };
     }),
   },
@@ -7331,6 +7331,156 @@ export const TOOLS = [
         sentKeys: Object.keys(body),
         conflicts: r.json?.conflicts ?? r.json?.data ?? r.json ?? null,
         note: 'This call changes nothing. It is the only way to see what a load would overwrite before running one.',
+      });
+    }, args),
+  },
+  {
+    name: 'push_snapshot',
+    description: `${describe('push_snapshot', 'Load a snapshot into sub-accounts — risk: destructive')}. `
+      + 'Preview by default; confirm:true writes. THE MOST DANGEROUS CALL HERE — it writes into OTHER '
+      + 'sub-accounts, and the response is only "queued", so nothing can be read back to confirm it. '
+      + '`assets` is REQUIRED and explicit: the wizard shows no Workflows row while the body it sends '
+      + 'carries every workflow id in the snapshot, so a tool that mirrors the UI ships workflows '
+      + 'nobody chose. This one loads exactly what you name. '
+      + '🔴 LOADED WORKFLOWS ARRIVE PUBLISHED when the source workflow is published — that is how 26 '
+      + 'went live on an account taking ~230 enrollments a week. This refuses to load published '
+      + 'workflows unless allowPublishedWorkflows:true, and either way hands back the stand-down plan. '
+      + 'An empty conflicts result is NOT clearance that nothing will be overwritten — see '
+      + 'check_snapshot_conflicts.',
+    inputSchema: schema({
+      locationId: z.string(),
+      snapshotId: z.string(),
+      targetLocationIds: z.array(z.string()).min(1).max(50),
+      assets: z.record(z.any()),
+      allowPublishedWorkflows: z.boolean().default(false),
+      overwriteConflicts: z.boolean().default(false),
+      confirm: z.boolean().default(false),
+    }),
+    capabilities: [
+      { method: 'GET', path: '/locations/{locationId}' },
+      { method: 'GET', path: '/snapshots-appengine/snapshot/{snapshotId}/get_assets' },
+      { method: 'GET', path: '/workflow/{loc}/{wid}' },
+      { method: 'POST', path: '/snapshots/snapshot-push/v2/{snapshotId}/set_assets_to_locations' },
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+      const companyId = await resolveCompanyId(gw, args.locationId);
+      if (!companyId) return fail(CODES.VALIDATION_FAILED, 'could not resolve the agency id for this sub-account', 'See list_snapshots.');
+
+      const categories = nonEmptyCategories(args.assets);
+      if (categories.length === 0) {
+        return fail(CODES.VALIDATION_FAILED,
+          'assets must name at least one id — a push with nothing selected is never what you meant',
+          'Read the snapshot with get_snapshot_manifest and pass e.g. {"workflow": ["<id>"]}.');
+      }
+
+      // The snapshot's own manifest. An id that is not in it is accepted by the push and silently
+      // loads nothing, so it is caught here rather than discovered on the target account.
+      const man = await gw.call('GET', `/snapshots-appengine/snapshot/${encodeURIComponent(args.snapshotId)}/get_assets?type=own&companyId=${encodeURIComponent(companyId)}`);
+      if (!man.ok) {
+        // fromHttp takes (status, body) only — a third "remediation" argument is silently dropped,
+        // which is how a caller ends up with a bare 400 and no idea a dehydrating snapshot is the
+        // usual cause. So the guidance is attached explicitly.
+        const base = fromHttp(man.status, man.json);
+        return {
+          ...base,
+          remediation: man.status === 400
+            ? 'The snapshot is unreadable. A snapshot still dehydrating answers 400 "Can\'t find account data" — check its status with list_snapshots and retry once it is not processing.'
+            : base.remediation,
+        };
+      }
+      const index = manifestIndex(man.json);
+      const check = checkSelection(args.assets, index, new Set(Object.keys(index)));
+      if (check.unknownIds.length || check.unknownCategories.length) {
+        return withFailureData(
+          fail(CODES.VALIDATION_FAILED,
+            `${check.unknownIds.length} id(s) and ${check.unknownCategories.length} category(ies) are not in this snapshot`,
+            'The push accepts them with a 201 and loads nothing. Fix the selection against get_snapshot_manifest.'),
+          { unknownIds: check.unknownIds, unknownCategories: check.unknownCategories });
+      }
+
+      // RAIL 1 — published workflows. The source account is the snapshot's own location, and a
+      // workflow that is published THERE arrives published on every target.
+      const wanted = [...(args.assets.workflow ?? [])];
+      const workflows = [];
+      const sourceLoc = man.json?.locationId ?? man.json?.data?.locationId ?? null;
+      let sourceReadable = false;
+      if (wanted.length && sourceLoc) {
+        for (const id of wanted) {
+          const r = await getWorkflow(gw, sourceLoc, id);
+          if (r.ok) sourceReadable = true;
+          workflows.push({ workflowId: id, status: r.ok ? (r.json?.status ?? null) : null, name: r.ok ? (r.json?.name ?? null) : null });
+        }
+      }
+      const published = workflows.filter((w) => w.status === 'published');
+      // A folder id sits in `workflow` too and never reads as a workflow, so "unknown" here is not
+      // the same as "not published" and is reported separately rather than folded into either.
+      const undetermined = wanted.length && (!sourceLoc || !sourceReadable)
+        ? wanted
+        : workflows.filter((w) => w.status === null).map((w) => w.workflowId);
+
+      const standDown = {
+        why: 'Loaded workflows arrive PUBLISHED when the source is published, and the push response never says so.',
+        howToFind: 'The load mints NEW ids on each target, so the pushed ids below cannot be used there. After the load finishes, list each target with list_workflows and match by NAME.',
+        names: workflows.filter((w) => w.name).map((w) => w.name),
+        then: 'unpublish_workflows({locationId: "<target>", workflowIds: [...], confirm: true})',
+      };
+
+      if (published.length && args.allowPublishedWorkflows !== true) {
+        return withFailureData(
+          fail(CODES.VALIDATION_FAILED,
+            `${published.length} of ${wanted.length} selected workflows are PUBLISHED on the source and will arrive live on every target.`,
+            'Stand them down on the SOURCE first, or pass allowPublishedWorkflows:true and use the returned standDown plan immediately after the load.'),
+          { publishedOnSource: published, targets: args.targetLocationIds, standDown });
+      }
+
+      const body = buildPushBody(args.targetLocationIds, args.assets, { overwriteConflicts: args.overwriteConflicts });
+
+      if (args.confirm !== true) {
+        return withFailureData(
+          fail(CODES.CONFIRM_REQUIRED,
+            `Push preview: ${check.requested} asset(s) across ${categories.length} category(ies) into ${args.targetLocationIds.length} sub-account(s). No write was sent.`,
+            'Review data.preview, then repeat with confirm:true.'),
+          {
+            preview: {
+              companyId,
+              snapshotId: args.snapshotId,
+              targets: args.targetLocationIds,
+              categories,
+              assetCount: check.requested,
+              workflows: workflows.length ? workflows : undefined,
+              publishedOnSource: published.length ? published : undefined,
+              undeterminedWorkflows: undetermined.length ? undetermined : undefined,
+              overwriteConflicts: args.overwriteConflicts,
+              standDown: wanted.length ? standDown : undefined,
+              warnings: [
+                'The push answers "queued". Nothing here can be read back to confirm what it wrote.',
+                'An EMPTY conflicts result is not clearance — see check_snapshot_conflicts.',
+                ...(undetermined.length ? [`${undetermined.length} selected workflow id(s) could not be read on the source, so their published state is UNKNOWN — a folder id looks like this too.`] : []),
+              ],
+            },
+          },
+        );
+      }
+
+      const r = await gw.call('POST', `/snapshots/snapshot-push/v2/${encodeURIComponent(args.snapshotId)}/set_assets_to_locations?companyId=${encodeURIComponent(companyId)}`, body);
+      if (!r.ok) return fromHttp(r.status, r.json);
+
+      // Deliberately NO read-back claim. The push is queued; the assets do not exist on the target
+      // yet, and reporting "verified" from a 201 would be the exact failure this plugin refuses
+      // everywhere else.
+      return ok({
+        companyId,
+        snapshotId: args.snapshotId,
+        targets: args.targetLocationIds,
+        categories,
+        assetCount: check.requested,
+        queued: true,
+        verified: false,
+        response: r.json ?? null,
+        standDown: wanted.length ? standDown : undefined,
+        note: 'QUEUED, NOT APPLIED. The response says nothing about what was written. Check each target before assuming the load landed'
+            + (wanted.length ? ', and stand down the loaded workflows now — see standDown.' : '.'),
       });
     }, args),
   },

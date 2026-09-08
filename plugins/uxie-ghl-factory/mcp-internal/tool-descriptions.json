@@ -1577,5 +1577,29 @@
     "rows": [
       "workflow-service--bulk-update-status"
     ]
+  },
+  "push_snapshot": {
+    "description": "Load a snapshot into sub-accounts — proof: endpoint live-runtime (2026-09-08), tool unexecuted; risk: destructive",
+    "risk": "destructive",
+    "proof": "endpoint live-runtime (2026-09-08), tool unexecuted",
+    "proofFloor": "endpoint live-runtime (2026-09-08), tool unexecuted",
+    "proofRows": [
+      "platform--v2-set-assets-to-locations",
+      "platform--snapshot-get-assets-get",
+      "workflow-service--find-by-id"
+    ],
+    "proofFloorRows": [
+      "platform--v2-set-assets-to-locations",
+      "platform--snapshot-get-assets-get",
+      "workflow-service--find-by-id"
+    ],
+    "riskRows": [
+      "platform--v2-set-assets-to-locations"
+    ],
+    "rows": [
+      "platform--v2-set-assets-to-locations",
+      "platform--snapshot-get-assets-get",
+      "workflow-service--find-by-id"
+    ]
   }
 }

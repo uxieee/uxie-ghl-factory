@@ -1285,6 +1285,26 @@
     "path": "/snapshots/{snapshotId}/conflicts"
   },
   {
+    "tool": "push_snapshot",
+    "method": "GET",
+    "path": "/locations/{locationId}"
+  },
+  {
+    "tool": "push_snapshot",
+    "method": "GET",
+    "path": "/snapshots-appengine/snapshot/{snapshotId}/get_assets"
+  },
+  {
+    "tool": "push_snapshot",
+    "method": "GET",
+    "path": "/workflow/{loc}/{wid}"
+  },
+  {
+    "tool": "push_snapshot",
+    "method": "POST",
+    "path": "/snapshots/snapshot-push/v2/{snapshotId}/set_assets_to_locations"
+  },
+  {
     "tool": "create_snapshot",
     "method": "GET",
     "path": "/locations/{locationId}"
