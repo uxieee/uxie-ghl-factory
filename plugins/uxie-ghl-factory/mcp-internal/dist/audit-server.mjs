@@ -1167,7 +1167,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: null,
+          service: "ai-agents",
           tree: "documented",
           pathParams: [],
           query: [
@@ -1242,7 +1242,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: null,
+          service: "ai-agents",
           tree: "documented",
           pathParams: [],
           query: [
@@ -1281,7 +1281,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: null,
+          service: "ai-agents",
           tree: "documented",
           pathParams: [],
           query: [
@@ -1320,7 +1320,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: null,
+          service: "ai-agents",
           tree: "documented",
           pathParams: [],
           query: [
@@ -1359,7 +1359,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: null,
+          service: "ai-agents",
           tree: "documented",
           pathParams: [],
           query: [
@@ -1398,7 +1398,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: null,
+          service: "ai-agents",
           tree: "documented",
           pathParams: [],
           query: [
@@ -1437,7 +1437,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: null,
+          service: "ai-agents",
           tree: "documented",
           pathParams: [],
           query: [
@@ -1476,7 +1476,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: null,
+          service: "ai-agents",
           tree: "documented",
           pathParams: [],
           query: [
@@ -1515,7 +1515,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: null,
+          service: "ai-agents",
           tree: "documented",
           pathParams: [],
           query: [
@@ -13764,7 +13764,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "setFirebaseAuth",
-          service: null,
+          service: "platform",
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -13812,7 +13812,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "postOAuthAuthorize",
-          service: null,
+          service: "platform",
           tree: "workflow-builder",
           pathParams: [],
           query: [],
@@ -13864,7 +13864,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "authorize",
-          service: null,
+          service: "platform",
           tree: "workflow-builder",
           pathParams: [],
           query: [],
@@ -13895,7 +13895,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "updateBasicAuthentication",
-          service: null,
+          service: "platform",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -13933,7 +13933,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "listExternalAccounts",
-          service: null,
+          service: "platform",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -13986,7 +13986,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "createExternalAccount",
-          service: null,
+          service: "platform",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -14050,7 +14050,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "deleteLocationAccount",
-          service: null,
+          service: "platform",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -14092,7 +14092,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "fetchOAuthUrl",
-          service: null,
+          service: "platform",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -14210,7 +14210,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "fetchWhiteLabelConfig",
-          service: null,
+          service: "platform",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -15593,7 +15593,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "blob",
           extraHeaders: [],
           operation: "getRecording",
-          service: null,
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -15714,7 +15714,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "getPhoneNumbersWithoutNumberPool",
-          service: null,
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -15756,7 +15756,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "getLocationTranscriptionStatus",
-          service: null,
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -15804,7 +15804,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "validateTranscription",
-          service: null,
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -15995,7 +15995,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "getAllWhatsAppTemplates",
-          service: null,
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -27758,7 +27758,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: "workflows",
+          service: "brand-kit",
           tree: "documented",
           pathParams: [
             {
@@ -27794,7 +27794,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "fetchBrandBoardById",
-          service: "workflows",
+          service: "brand-kit",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -27863,7 +27863,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: "workflows",
+          service: "brand-kit",
           tree: "documented",
           pathParams: [
             {
@@ -27899,7 +27899,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "fetchBrandVoiceById",
-          service: "workflows",
+          service: "brand-kit",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -27963,7 +27963,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: "workflows",
+          service: "brand-kit",
           tree: "documented",
           pathParams: [
             {
@@ -33796,7 +33796,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: "ai-studio",
+          service: "brand-kit",
           tree: "documented",
           pathParams: [
             {
@@ -33833,7 +33833,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: "ai-studio",
+          service: "brand-kit",
           tree: "documented",
           pathParams: [
             {
@@ -45338,7 +45338,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: null,
-          service: null,
+          service: "platform",
           tree: "memberships",
           pathParams: [],
           query: [],
@@ -45402,7 +45402,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: null,
-          service: null,
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {
@@ -45445,7 +45445,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "sourceId"
           ],
           operation: null,
-          service: null,
+          service: "memberships-courses",
           tree: "memberships",
           pathParams: [
             {

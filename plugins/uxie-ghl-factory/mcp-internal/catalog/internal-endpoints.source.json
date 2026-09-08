@@ -755,7 +755,7 @@
       "extraHeaders": [],
       "tree": "documented",
       "operation": null,
-      "service": null,
+      "service": "ai-agents",
       "query": [
         {
           "name": "locationId",
@@ -779,7 +779,7 @@
         "ai-studio/20-api/usage-and-plan-gating.md:46"
       ],
       "serviceClass": "ai-usage",
-      "serviceBasis": "unattributed"
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "ai-studio--usage-policy",
@@ -818,7 +818,7 @@
       "extraHeaders": [],
       "tree": "documented",
       "operation": null,
-      "service": null,
+      "service": "ai-agents",
       "query": [
         {
           "name": "locationId",
@@ -841,7 +841,7 @@
         "ai-studio/_data/endpoints.json"
       ],
       "serviceClass": "ai-usage",
-      "serviceBasis": "unattributed"
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "ai-usage--patch-usage-limits-location",
@@ -854,7 +854,7 @@
       "extraHeaders": [],
       "tree": "documented",
       "operation": null,
-      "service": null,
+      "service": "ai-agents",
       "query": [
         {
           "name": "locationId",
@@ -876,7 +876,7 @@
         "ai-studio/_data/endpoints.json"
       ],
       "serviceClass": "ai-usage",
-      "serviceBasis": "unattributed"
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "ai-usage--get-usage-limits-location-extra-usage",
@@ -889,7 +889,7 @@
       "extraHeaders": [],
       "tree": "documented",
       "operation": null,
-      "service": null,
+      "service": "ai-agents",
       "query": [
         {
           "name": "locationId",
@@ -911,7 +911,7 @@
         "ai-studio/_data/endpoints.json"
       ],
       "serviceClass": "ai-usage",
-      "serviceBasis": "unattributed"
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "ai-usage--patch-usage-limits-location-extra-usage",
@@ -924,7 +924,7 @@
       "extraHeaders": [],
       "tree": "documented",
       "operation": null,
-      "service": null,
+      "service": "ai-agents",
       "query": [
         {
           "name": "locationId",
@@ -946,7 +946,7 @@
         "ai-studio/_data/endpoints.json"
       ],
       "serviceClass": "ai-usage",
-      "serviceBasis": "unattributed"
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "ai-usage--get-usage-limits-location-requests",
@@ -959,7 +959,7 @@
       "extraHeaders": [],
       "tree": "documented",
       "operation": null,
-      "service": null,
+      "service": "ai-agents",
       "query": [
         {
           "name": "locationId",
@@ -981,7 +981,7 @@
         "ai-studio/_data/endpoints.json"
       ],
       "serviceClass": "ai-usage",
-      "serviceBasis": "unattributed"
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "ai-usage--post-usage-limits-request",
@@ -994,7 +994,7 @@
       "extraHeaders": [],
       "tree": "documented",
       "operation": null,
-      "service": null,
+      "service": "ai-agents",
       "query": [
         {
           "name": "locationId",
@@ -1016,7 +1016,7 @@
         "ai-studio/_data/endpoints.json"
       ],
       "serviceClass": "ai-usage",
-      "serviceBasis": "unattributed"
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "ai-usage--get-usage-v2-fup-status",
@@ -1029,7 +1029,7 @@
       "extraHeaders": [],
       "tree": "documented",
       "operation": null,
-      "service": null,
+      "service": "ai-agents",
       "query": [
         {
           "name": "locationId",
@@ -1052,7 +1052,7 @@
         "ai-studio/_data/endpoints.json"
       ],
       "serviceClass": "ai-usage",
-      "serviceBasis": "unattributed"
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "ai-usage--get-usage-v2-snapshots",
@@ -1065,7 +1065,7 @@
       "extraHeaders": [],
       "tree": "documented",
       "operation": null,
-      "service": null,
+      "service": "ai-agents",
       "query": [
         {
           "name": "locationId",
@@ -1087,7 +1087,7 @@
         "ai-studio/_data/endpoints.json"
       ],
       "serviceClass": "ai-usage",
-      "serviceBasis": "unattributed"
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "eliza-service--get-eliza-info",
@@ -10686,7 +10686,7 @@
       "tree": "workflow-builder",
       "extraHeaders": [],
       "operation": "setFirebaseAuth",
-      "service": null,
+      "service": "platform",
       "query": [
         {
           "name": "version",
@@ -10717,7 +10717,7 @@
         "workflows/20-api/version-history.md:76"
       ],
       "serviceClass": null,
-      "serviceBasis": "unattributed"
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "backend--post-oauth-authorize",
@@ -10730,7 +10730,7 @@
       "tree": "workflow-builder",
       "extraHeaders": [],
       "operation": "postOAuthAuthorize",
-      "service": null,
+      "service": "platform",
       "query": [],
       "body": null,
       "returns": {
@@ -10765,7 +10765,7 @@
         "workflows/70-research/ENDPOINTS.md:243"
       ],
       "serviceClass": null,
-      "serviceBasis": "unattributed"
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "workflow-marketplace-service--authorize",
@@ -10778,7 +10778,7 @@
       "tree": "workflow-builder",
       "extraHeaders": [],
       "operation": "authorize",
-      "service": null,
+      "service": "platform",
       "query": [],
       "body": null,
       "returns": null,
@@ -10792,7 +10792,7 @@
         "services/marketplaceServices/WorkflowMarketplaceService.ts:492"
       ],
       "serviceClass": "WorkflowMarketplaceService",
-      "serviceBasis": "unattributed"
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "workflows-marketplace-platform-service--update-basic-authentication",
@@ -10805,7 +10805,7 @@
       "tree": "workflow-builder",
       "extraHeaders": [],
       "operation": "updateBasicAuthentication",
-      "service": null,
+      "service": "platform",
       "query": [],
       "body": null,
       "returns": null,
@@ -10819,7 +10819,7 @@
         "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:511"
       ],
       "serviceClass": "WorkflowsMarketplacePlatformService",
-      "serviceBasis": "unattributed"
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "backend--list-external-accounts",
@@ -10832,7 +10832,7 @@
       "tree": "workflow-builder",
       "extraHeaders": [],
       "operation": "listExternalAccounts",
-      "service": null,
+      "service": "platform",
       "query": [
         {
           "name": "page",
@@ -10861,7 +10861,7 @@
         "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:676"
       ],
       "serviceClass": null,
-      "serviceBasis": "unattributed"
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "backend--create-external-account",
@@ -10874,7 +10874,7 @@
       "tree": "workflow-builder",
       "extraHeaders": [],
       "operation": "createExternalAccount",
-      "service": null,
+      "service": "platform",
       "query": [],
       "body": null,
       "returns": {
@@ -10914,7 +10914,7 @@
         "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:742"
       ],
       "serviceClass": null,
-      "serviceBasis": "unattributed"
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "workflows-marketplace-platform-service--delete-location-account",
@@ -10927,7 +10927,7 @@
       "tree": "workflow-builder",
       "extraHeaders": [],
       "operation": "deleteLocationAccount",
-      "service": null,
+      "service": "platform",
       "query": [],
       "body": null,
       "returns": null,
@@ -10942,7 +10942,7 @@
         "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:696"
       ],
       "serviceClass": "WorkflowsMarketplacePlatformService",
-      "serviceBasis": "unattributed"
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "workflows-marketplace-platform-service--fetch-oauth-url",
@@ -10955,7 +10955,7 @@
       "tree": "workflow-builder",
       "extraHeaders": [],
       "operation": "fetchOAuthUrl",
-      "service": null,
+      "service": "platform",
       "query": [],
       "body": null,
       "returns": null,
@@ -10969,7 +10969,7 @@
         "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:493"
       ],
       "serviceClass": "WorkflowsMarketplacePlatformService",
-      "serviceBasis": "unattributed"
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "platform--static-scopes",
@@ -11047,7 +11047,7 @@
       "tree": "workflow-builder",
       "extraHeaders": [],
       "operation": "fetchWhiteLabelConfig",
-      "service": null,
+      "service": "platform",
       "query": [],
       "body": null,
       "returns": null,
@@ -11061,7 +11061,7 @@
         "services/marketplaceServices/WorkflowMarketplaceService.ts:430"
       ],
       "serviceClass": "WorkflowMarketplaceService",
-      "serviceBasis": "unattributed"
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "custom-objects-service--fetch-custom-objects-list",
@@ -12202,7 +12202,7 @@
       "tree": "workflow-builder",
       "extraHeaders": [],
       "operation": "getRecording",
-      "service": null,
+      "service": "workflows",
       "query": [],
       "body": null,
       "returns": null,
@@ -12216,7 +12216,7 @@
         "services/IVRService.ts:38"
       ],
       "serviceClass": "IVRService",
-      "serviceBasis": "unattributed"
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "workflows--phone-system-number-pools",
@@ -12299,7 +12299,7 @@
         "Version"
       ],
       "operation": "getPhoneNumbersWithoutNumberPool",
-      "service": null,
+      "service": "workflows",
       "query": [],
       "body": null,
       "returns": null,
@@ -12315,7 +12315,7 @@
         "workflows/70-research/SURFACE-GAP-ANALYSIS.md:134"
       ],
       "serviceClass": "SaasTwilioService",
-      "serviceBasis": "unattributed"
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "phone-system-service--get-location-transcription-status",
@@ -12332,7 +12332,7 @@
         "Version"
       ],
       "operation": "getLocationTranscriptionStatus",
-      "service": null,
+      "service": "workflows",
       "query": [
         {
           "name": "entityId",
@@ -12359,7 +12359,7 @@
         "services/marketplaceServices/PhoneSystemService.ts:36"
       ],
       "serviceClass": "PhoneSystemService",
-      "serviceBasis": "unattributed"
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "phone-system-service--validate-transcription",
@@ -12376,7 +12376,7 @@
         "Version"
       ],
       "operation": "validateTranscription",
-      "service": null,
+      "service": "workflows",
       "query": [
         {
           "name": "locationId",
@@ -12473,7 +12473,7 @@
         "workflows/70-research/ACTION-DRAWERS-2.md:4269"
       ],
       "serviceClass": "PhoneSystemService",
-      "serviceBasis": "unattributed"
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "workflows--location-phone-numbers",
@@ -12542,7 +12542,7 @@
         "Version"
       ],
       "operation": "getAllWhatsAppTemplates",
-      "service": null,
+      "service": "workflows",
       "query": [
         {
           "name": "skip",
@@ -12569,7 +12569,7 @@
         "services/marketplaceServices/TemplateService.ts:374"
       ],
       "serviceClass": "TemplateService",
-      "serviceBasis": "unattributed"
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "memberships-courses--posts-get",
@@ -21873,7 +21873,7 @@
       "extraHeaders": [],
       "tree": "documented",
       "operation": null,
-      "service": "workflows",
+      "service": "brand-kit",
       "query": [],
       "body": null,
       "returns": "{brandBoards, totalCount}",
@@ -21889,8 +21889,7 @@
         "ai-studio/_data/endpoints.json",
         "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md"
       ],
-      "serviceClass": "brand-kit",
-      "serviceBasis": "inferred-from-path"
+      "serviceBasis": "declared"
     },
     {
       "id": "backend--fetch-brand-board-by-id",
@@ -21903,7 +21902,7 @@
       "tree": "workflow-builder",
       "extraHeaders": [],
       "operation": "fetchBrandBoardById",
-      "service": "workflows",
+      "service": "brand-kit",
       "query": [],
       "body": null,
       "returns": {
@@ -21960,7 +21959,7 @@
       "extraHeaders": [],
       "tree": "documented",
       "operation": null,
-      "service": "workflows",
+      "service": "brand-kit",
       "query": [],
       "body": null,
       "returns": "{brandVoices, totalCount, traceId}",
@@ -21975,8 +21974,7 @@
         "ai-studio/_data/endpoints.json",
         "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md"
       ],
-      "serviceClass": "brand-kit",
-      "serviceBasis": "inferred-from-path"
+      "serviceBasis": "declared"
     },
     {
       "id": "backend--fetch-brand-voice-by-id",
@@ -21989,7 +21987,7 @@
       "tree": "workflow-builder",
       "extraHeaders": [],
       "operation": "fetchBrandVoiceById",
-      "service": "workflows",
+      "service": "brand-kit",
       "query": [],
       "body": null,
       "returns": {
@@ -22041,7 +22039,7 @@
       "extraHeaders": [],
       "tree": "documented",
       "operation": null,
-      "service": "workflows",
+      "service": "brand-kit",
       "query": [],
       "body": "{prompt}",
       "returns": null,
@@ -22058,8 +22056,7 @@
         "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md",
         "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md:32"
       ],
-      "serviceClass": "brand-kit",
-      "serviceBasis": "inferred-from-path"
+      "serviceBasis": "declared"
     },
     {
       "id": "ivrservice--get-numbers-mapping",
@@ -26933,7 +26930,7 @@
       "extraHeaders": [],
       "tree": "documented",
       "operation": null,
-      "service": "ai-studio",
+      "service": "brand-kit",
       "query": [],
       "body": null,
       "returns": "{customColors}",
@@ -26948,8 +26945,7 @@
         "ai-studio/_data/endpoints.json",
         "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md"
       ],
-      "serviceClass": "brand-kit",
-      "serviceBasis": "inferred-from-path"
+      "serviceBasis": "declared"
     },
     {
       "id": "brand-kit--get-brand-boards-custom-fonts",
@@ -26962,7 +26958,7 @@
       "extraHeaders": [],
       "tree": "documented",
       "operation": null,
-      "service": "ai-studio",
+      "service": "brand-kit",
       "query": [],
       "body": null,
       "returns": "{customFonts}",
@@ -26977,8 +26973,7 @@
         "ai-studio/_data/endpoints.json",
         "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md"
       ],
-      "serviceClass": "brand-kit",
-      "serviceBasis": "inferred-from-path"
+      "serviceBasis": "declared"
     },
     {
       "id": "ai-studio--locations-activity",
@@ -36061,7 +36056,7 @@
         "sourceId"
       ],
       "operation": null,
-      "service": null,
+      "service": "platform",
       "query": [],
       "body": {
         "typeName": "CreatePaymentProduct",
@@ -36100,7 +36095,7 @@
         "restAgent.ts:183"
       ],
       "serviceClass": null,
-      "serviceBasis": "unattributed"
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "services--prices",
@@ -36121,7 +36116,7 @@
         "sourceId"
       ],
       "operation": null,
-      "service": null,
+      "service": "memberships-courses",
       "query": [],
       "body": null,
       "returns": null,
@@ -36135,7 +36130,7 @@
         "restAgent.ts:158"
       ],
       "serviceClass": null,
-      "serviceBasis": "unattributed"
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "services--prices--put-prices-price-id",
@@ -36156,7 +36151,7 @@
         "sourceId"
       ],
       "operation": null,
-      "service": null,
+      "service": "memberships-courses",
       "query": [],
       "body": {
         "typeName": "PaymentPayload",
@@ -36174,7 +36169,7 @@
         "restAgent.ts:166"
       ],
       "serviceClass": null,
-      "serviceBasis": "unattributed"
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "platform--snapshot-get-assets",
