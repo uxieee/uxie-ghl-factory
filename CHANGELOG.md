@@ -11,6 +11,65 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [0.71.0] — 2026-09-10
+
+Three silent-failure defects on the workflow rail, and the first live conformance suite for it.
+Every fix here was executed against the sandbox before release; all three were green offline
+first, which is what every one of these defects already was.
+
+### Fixed
+
+- **An unrecognised node `kind` compiled to an EMPTY step.** `kind` selects the handler, so a value
+  nothing claims selected one by omission: `nodeType` undefined, `attributes {}`, `next null`, and
+  a write that returned `ok:true` with `verify.roundTrip:true`. Every guard downstream
+  (`BRANCH_SHAPE`, `IFELSE_ARITY`, `COND_SHAPE`) is keyed on `kind`, so a bad one does not trip
+  them — it switches them off. Now refused as `KIND_UNKNOWN`.
+
+  The value seen in the wild, twice, on two accounts weeks apart, was `kind:"step"` — **which is
+  this plugin's own catalogue**. All 385 step types carry `"kind":"step"` as a taxonomy field,
+  returned by `describe_step_type`. An author calls the tool we ship, copies the field it shows,
+  and lands on the one value that disables every guard. Two keys named `kind`, two disjoint
+  vocabularies, and the catalogue is the one agents read first. The error message names the
+  collision, because the author copied the value from us.
+
+- **`stepIndex` was a global, zero-based index; GHL's rule is per-type and 1-based.** A merge tag
+  `{{custom_code.N.output.x}}` resolves `N` as the per-type index, so the emitted and the
+  referenced index agreed in essentially no case and the reference rendered empty at runtime. A
+  lone `custom_code` as the first step was stamped `0`, which cannot be right when every reference
+  vocabulary here is 1-based.
+
+  The gate was the catalogue's `premium` flag — a paid/integration marker standing in for GHL's
+  `requiresStepIndex`. It covered 250 types where GHL names 15, and missed 7 that GHL requires.
+  The two rules also collided: 237 premium types are also marketplace actions, and the premium
+  branch ran first, so the correct per-key counter was skipped.
+
+  `meta.stepIndexCounter` now records native producers. That counter is what the **builder** reads
+  to number the next step a human drops on the canvas, so with no entry the next `custom_code`
+  is numbered 1, collides with the existing step 1, and silently steals its references.
+
+- **`modifyStep` could smuggle a dead condition past the compiler.** An `attrPatch` is merged onto
+  a stored step without compiling, so aimed at a condition-node it replaced `attributes.branches`
+  wholesale — losing `conditionName`, `operator`, `__conditionId` and the branch identity, while
+  looking tidier in an export than a correctly-refused write. `editCommitBody` now runs the same
+  `lintConditionShape` the add paths already ran, scoped to containers the edit touched so legacy
+  residue cannot brick an unrelated edit.
+
+### Added
+
+- **A live conformance suite for workflows** (`skills/create-ghl-workflow/scripts/conformance.mjs`),
+  registered in `run-live-proofs.mjs`. 16 assertions, all reading back on a separate request.
+  Refusals are asserted to leave the document UNCHANGED, not merely to return an error — a guard
+  that refuses after writing is not a guard.
+
+  It stops short of publish, trigger activation and contact enrollment, and reports those as **not
+  covered** rather than skipping them quietly. A live workflow sends real messages to real people.
+
+### Notes
+
+None of these fire a validator on GHL's side. GHL enforces one on 51 of its 385 step types, and
+`if_else` is not among them — so `check_workflow` returning `errorCount: 0` on a broken branch is
+the absence of a validator, not the presence of correctness.
+
 ## [0.70.0] — 2026-09-10
 
 The audit release. Everything on this rail returns `2xx`: a template install leaves 49 of 51 form
