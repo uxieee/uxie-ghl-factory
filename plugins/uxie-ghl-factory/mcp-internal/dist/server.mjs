@@ -88833,7 +88833,12 @@ var envelope = (id, type, meta3, tagName, extra, styles, cls, wrapper) => ({
   class: { ...BOX(), ...cls ?? {} },
   styles: styles ?? {},
   wrapper: { ...MARGINS(), ...wrapper ?? {} },
-  extra: { nodeId: `c${id}`, visibility: val({ hideDesktop: false, hideMobile: false }), customClass: val([]), ...extra ?? {} },
+  extra: {
+    ...type === "element" ? { nodeId: `c${id}` } : {},
+    visibility: val({ hideDesktop: false, hideMobile: false }),
+    customClass: val([]),
+    ...extra ?? {}
+  },
   customCss: [],
   tabletStyles: {},
   tabletWrapper: {},
@@ -89024,7 +89029,12 @@ var auditPageData = (pageData) => {
         const missing = (ELEMENTS[n.meta].extraProps ?? []).filter((p2) => !(p2 in (n.extra ?? {})));
         if (missing.length) problems.push(`node ${n.id} (${n.meta}): missing declared extra props ${missing.join(", ")} \u2014 the renderer reads extra.<prop>.value unguarded`);
       }
-      if (n.extra && n.extra.nodeId !== `c${n.id}`) problems.push(`node ${n.id}: extra.nodeId must be 'c'+id, the renderer keys markup on it`);
+      if (n.type === "element" && n.extra?.nodeId !== `c${n.id}`) {
+        problems.push(`node ${n.id}: extra.nodeId must be 'c'+id \u2014 the renderer keys the markup and the compiled CSS on it`);
+      }
+      if (n.type !== "element" && n.extra && "nodeId" in n.extra) {
+        problems.push(`${n.type} ${n.id}: extra.nodeId must be ABSENT on a section, row or column \u2014 with it the builder writes this node's background/padding/width against '.c${n.id}', a class nothing carries, and the CANVAS loses every container style while the public page stays correct`);
+      }
       const action = n.extra?.action?.value;
       if (action !== void 0 && action !== "" && !ACTION_VALUES.includes(action)) {
         problems.push(`node ${n.id} (${n.meta}): extra.action.value '${action}' is not a known action \u2014 use one of ${ACTION_VALUES.join(", ")}. autosave stores an unknown value with a 201 and the control silently does nothing.`);

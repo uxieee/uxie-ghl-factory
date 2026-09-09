@@ -35,12 +35,19 @@ Every node:
 ```jsonc
 { id, type: "section"|"row"|"col"|"element", meta: "<kind>", tagName: "c-<kind>", title: meta,
   child: [], class: {borders, borderRadius, radiusEdge}, styles: {}, wrapper: {margins},
-  extra: { nodeId: "c<id>", visibility: {value:{hideDesktop,hideMobile}}, customClass: {value:[]}, … },
+  extra: { visibility: {value:{hideDesktop,hideMobile}}, customClass: {value:[]}, … },
   customCss: [], tabletStyles: {}, tabletWrapper: {}, mobileStyles: {}, mobileWrapper: {},
   updated: true }
 ```
 
 A section node additionally carries `_id` (= its own id), `child: [rowId]` and `isGlobal: false`.
+
+🔴 **`extra.nodeId: "c<id>"` goes on `type: "element"` nodes and NOWHERE else.** It selects the CSS
+selector the builder writes for the node (`.<parent> .<extra.nodeId>` when present, `.<parent>
+.<id>` when absent), and only leaves wear `.c<id>` in the DOM. Give it to a section, row or column
+and that node's background, padding and width are written against a class nothing has — the CANVAS
+loses every container style while the public page stays correct, with no error anywhere. Counted on
+a GHL-authored page: 0/6 sections, 0/19 rows, 0/39 cols carry it; all 79 leaves do.
 
 ## The presence rule
 
@@ -140,9 +147,21 @@ spans the whole Sites surface — `funnels`, `websites`, `stores`, `blogs`, `for
 of styling hooks; it is the section's entire stylesheet. Variable fonts, blend modes, CSS grid,
 keyframes, pseudo-element ornament and scroll-driven animation all work.
 
-🔴 **Two styling sources.** The builder canvas re-derives from each node's `styles`; the public
-renderer uses `sectionStyles`. Write both, or the page is perfect in the builder and naked in
-public with no error anywhere.
+🔴 **THREE styling channels, and no single one reaches both consumers:**
+
+| Channel | Builder canvas | Public page |
+|---|---|---|
+| node `styles` / `wrapper` | ✅ | ✅ |
+| `section.general.sectionStyles` | ❌ | ✅ |
+| node `customCss` — `[{selector, styles}]` | ✅ | ❌ |
+
+`styles` only expresses plain per-node properties, so every device below — pseudo-element ornament,
+blend modes, rotation, keyframes, grid overrides — has to be written **twice**: into `sectionStyles`
+for the visitor and into `customCss` for whoever edits the page. Write it once and one of the two
+audiences sees a different page. `customCss` compiles as
+`.<parentClassName> .<element.id> <selector> { … }`; `selector: ''` targets the node itself,
+`'::before'` its pseudo-element, `'> .inner'` its inner wrapper (the builder emits it under several
+ancestor scopes, so `content` can repeat in the canvas).
 
 ## Fonts
 
@@ -299,6 +318,56 @@ person who has to edit the page cannot get past it.
 its public URL.** The differential that finds a defect like this in one pass: open a GHL-authored
 page in the same session as a control — if the control opens and yours does not, it is your data —
 then `GET /funnels/builder/page/data` on both and diff the key sets per node type.
+
+## A page has TWO stylesheets — decide which one you are designing in
+
+The public renderer serves `section.general.sectionStyles` **verbatim**. The builder **throws it
+away on every load and recomputes it from the nodes**:
+
+```
+getSectionGeneralAttributes → getSectionStyles([metaData, ...elements])
+  → computePageElementsStyles({ parentClassName: "hl_page-preview--content" })
+```
+
+So the rule is:
+
+> **Anything the builder cannot recompute from the nodes exists on the public page only.**
+
+The recompute reads `styles`, `wrapper`, `extra` and `customCss` — nothing else. A declaration
+written by hand into the stylesheet string but not expressible on the node renders live and is
+invisible in the canvas. Found this way: `text-transform`, `text-decoration`, `display`, and every
+container style on a node that wrongly carried `extra.nodeId`.
+
+Two ways to author, and they are a real choice:
+
+| | Put the art direction in | Canvas | Cost |
+|---|---|---|---|
+| **Expressive** | `sectionStyles` — pseudo-elements, blend modes, grid, keyframes | does not match | the owner edits a page that looks nothing like the one shipped |
+| **Parity** | node `styles`/`wrapper`/`extra` + real element nodes | matches | no pseudo-elements, no blend modes, no grid overrides; numerals become text nodes and rules become `divider` nodes |
+
+Parity is the right default for a page someone else will maintain. Reach for the expressive build
+only when the design genuinely needs a channel the nodes do not have, and say so.
+
+`object-fit` is the case with no node path at all — `customStyleMapper`'s IMAGE branch forwards only
+width, height, radius, border and shadow to the `<img>`. **Dual-emit** it: `customCss` for the
+builder's recompute, the stylesheet string for the public page.
+
+Check it rather than trusting it: for each node, every declaration in its served rule must be backed
+by that node's `styles` or `customCss`, and no section, row or column may carry `extra.nodeId`.
+`sniffs/funnel-synth-2026-09-09/parity-check.mjs` is that assertion against a live page.
+
+### The one exception: the calendar is an IFRAME in the canvas
+
+The bound booking widget renders **inline** on the public page (so `.hl-app` is in the page's own DOM
+and the accent custom properties brand it) and as a **cross-origin iframe** in the builder — a
+document request to `https://apisystem.tech/widget/booking/<calendarId>?id=<nodeId>`. No stylesheet
+crosses that boundary, so the canvas keeps GHL's default blue whatever channel or specificity is
+used. Verified 2026-09-10: the served rule computes to the brand colour publicly, the identical rule
+via `customCss` does nothing in the canvas, and raising specificity changes neither.
+
+The **two-step order form is inline in both** (its only iframes are Stripe's own card fields), so it
+skins normally through `customCss`. Calendar accent is the single known parity exception on this
+surface — record it, do not chase it.
 
 ## Design defaults worth keeping
 

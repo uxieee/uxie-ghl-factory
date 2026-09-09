@@ -11,6 +11,50 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [0.68.1] — 2026-09-10
+
+Every page 0.68.0 built looked right to the customer and wrong to whoever had to edit it.
+
+### Fixed
+
+- **`extra.nodeId` is now written on leaf elements only.** It is not decoration: it picks the
+  selector the builder writes for a node — `.<parent> .<extra.nodeId>` when the prop is present,
+  `.<parent> .<id>` when it is not — and only leaves wear `.c<id>` in the DOM. The engine put it on
+  every node, so each section, row and column had its background, padding and width written against
+  `.csection-<id>`, a class nothing has, and **the builder canvas lost every container style**.
+
+  It stayed invisible because a page has two stylesheets. The public renderer serves the stored
+  `section.general.sectionStyles` verbatim; the builder **discards it on load and recomputes one
+  from the nodes** (`getSectionGeneralAttributes → computePageElementsStyles`, at
+  `parentClassName: "hl_page-preview--content"`). A generated page therefore rendered perfectly in
+  public while every coloured band in the editor showed the page background — no error, no failed
+  request, nothing in the console. This corrects the 0.68.0 note above: the canvas does not read a
+  node's `styles` directly, it recompiles the whole sheet from the nodes.
+
+  Counted on a GHL-authored page: 0/6 sections, 0/19 rows and 0/39 columns carry `nodeId`; all 79
+  leaves do.
+
+- **`auditPageData` no longer enforces the wrong rule.** It required `extra.nodeId === "c" + id` on
+  *every* node — the defect itself. It now requires it on leaves and refuses it on sections, rows
+  and columns, naming which surface each mistake breaks.
+
+  Proven live before release, through the plugin's own engine rather than the test doubles: audit
+  clean, containers free of `nodeId`, leaves carrying it, `autosave` `201`, public render `200`.
+
+### Changed
+
+- **`ghl-funnels-pages` skill — the two-stylesheet contract, and how to author for both.** The
+  reference now states the rule the recompute implies — *anything the builder cannot recompute from
+  the nodes exists on the public page only* — and names the two ways to author against it: an
+  expressive build whose art direction lives in `sectionStyles` and whose canvas will not match, and
+  a parity build confined to node `styles`/`wrapper`/`extra` plus real element nodes, which costs
+  pseudo-elements, blend modes and grid overrides and buys an editor that shows what the customer
+  sees. `object-fit` has no node path at all and must be dual-emitted through `customCss`.
+
+  It also records the one exception that cannot be closed: the bound booking widget renders inline
+  in public and as a cross-origin iframe in the builder, so no stylesheet reaches it and the canvas
+  keeps GHL's default accent. The order form is inline in both and skins normally.
+
 ## [0.68.0] — 2026-09-09
 
 Funnel pages can now be composed from native elements and written by API, with the contract the

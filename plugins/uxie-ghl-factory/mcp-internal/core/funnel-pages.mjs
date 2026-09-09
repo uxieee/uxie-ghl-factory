@@ -108,10 +108,22 @@ let counter = 0;
 export const resetIds = () => { counter = 0; };
 export const mkId = (kind, salt = 'B') => `${kind}-${salt}${(counter++).toString(36).toUpperCase()}`;
 
+// 🔴 `extra.nodeId` GOES ON LEAF ELEMENTS ONLY, AND IT PICKS THE SELECTOR THE BUILDER WRITES.
+// On every load the builder throws away the stored `general.sectionStyles` and recomputes it from the
+// nodes (getSectionGeneralAttributes -> computePageElementsStyles, parentClassName
+// "hl_page-preview--content"). computeElementStyleStr then keys each rule on `extra.nodeId` when the
+// prop is present and on `id` when it is not. Give a section, row or column a nodeId and its
+// background, padding and width are written against `.csection-<id>` — a class no DOM element
+// carries — so the CANVAS silently loses every container style while the stored CSS still renders the
+// PUBLIC page correctly. The two surfaces then disagree about the same page and nothing errors.
+// Counted on a GHL-authored page: 0/6 sections, 0/19 rows, 0/39 cols carry nodeId; all 79 leaves do.
 const envelope = (id, type, meta, tagName, extra, styles, cls, wrapper) => ({
   id, type, meta, tagName: tagName ?? null, title: meta, child: [],
   class: { ...BOX(), ...(cls ?? {}) }, styles: styles ?? {}, wrapper: { ...MARGINS(), ...(wrapper ?? {}) },
-  extra: { nodeId: `c${id}`, visibility: val({ hideDesktop: false, hideMobile: false }), customClass: val([]), ...(extra ?? {}) },
+  extra: {
+    ...(type === 'element' ? { nodeId: `c${id}` } : {}),
+    visibility: val({ hideDesktop: false, hideMobile: false }), customClass: val([]), ...(extra ?? {}),
+  },
   customCss: [], tabletStyles: {}, tabletWrapper: {}, mobileStyles: {}, mobileWrapper: {}, updated: true,
 });
 
@@ -275,7 +287,15 @@ export const auditPageData = (pageData) => {
         const missing = (ELEMENTS[n.meta].extraProps ?? []).filter((p) => !(p in (n.extra ?? {})));
         if (missing.length) problems.push(`node ${n.id} (${n.meta}): missing declared extra props ${missing.join(', ')} — the renderer reads extra.<prop>.value unguarded`);
       }
-      if (n.extra && n.extra.nodeId !== `c${n.id}`) problems.push(`node ${n.id}: extra.nodeId must be 'c'+id, the renderer keys markup on it`);
+      // nodeId selects the CSS selector the builder recomputes for this node, so it must be present on
+      // leaves and absent on containers — either mistake breaks one surface while the other looks fine.
+      if (n.type === 'element' && n.extra?.nodeId !== `c${n.id}`) {
+        problems.push(`node ${n.id}: extra.nodeId must be 'c'+id — the renderer keys the markup and the compiled CSS on it`);
+      }
+      if (n.type !== 'element' && n.extra && 'nodeId' in n.extra) {
+        problems.push(`${n.type} ${n.id}: extra.nodeId must be ABSENT on a section, row or column — with it the builder writes this node's `
+          + `background/padding/width against '.c${n.id}', a class nothing carries, and the CANVAS loses every container style while the public page stays correct`);
+      }
       // A wrong action value is stored with a 201 and the control then does nothing, silently.
       const action = n.extra?.action?.value;
       if (action !== undefined && action !== '' && !ACTION_VALUES.includes(action)) {
