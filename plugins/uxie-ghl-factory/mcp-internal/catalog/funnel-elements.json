@@ -1,0 +1,1189 @@
+{
+ "_source": "knowledge/corpus/funnels/_data/elements.json + sniffs/funnel-element-registry-2026-09-09/defaults.json",
+ "_note": "meta is a CLOSED set of 60; extraProps must all be present on a node or the public render 500s.",
+ "count": 60,
+ "elements": {
+  "section": {
+   "tagName": "c-section",
+   "type": "section",
+   "insertable": false,
+   "extraProps": [
+    "sticky",
+    "visibility",
+    "bgImage",
+    "allowRowMaxWidth",
+    "customClass",
+    "elementScreenshot"
+   ]
+  },
+  "row": {
+   "tagName": "c-row",
+   "type": "row",
+   "insertable": false,
+   "extraProps": [
+    "visibility",
+    "bgImage",
+    "rowWidth",
+    "customClass"
+   ]
+  },
+  "col": {
+   "tagName": "c-column",
+   "type": "col",
+   "insertable": false,
+   "extraProps": [
+    "visibility",
+    "bgImage",
+    "columnLayout",
+    "justifyContentColumnLayout",
+    "alignContentColumnLayout",
+    "forceColumnLayoutForMobile",
+    "customClass",
+    "elementVersion"
+   ]
+  },
+  "heading": {
+   "tagName": "c-heading",
+   "type": "element",
+   "insertable": true,
+   "extraProps": [
+    "visibility",
+    "text",
+    "mobileFontSize",
+    "desktopFontSize",
+    "typography",
+    "inlineTypographies",
+    "icon",
+    "customClass",
+    "elementVersion"
+   ]
+  },
+  "sub-heading": {
+   "tagName": "c-sub-heading",
+   "type": "element",
+   "insertable": true,
+   "extraProps": [
+    "visibility",
+    "text",
+    "mobileFontSize",
+    "desktopFontSize",
+    "typography",
+    "inlineTypographies",
+    "icon",
+    "customClass",
+    "elementVersion"
+   ]
+  },
+  "paragraph": {
+   "tagName": "c-paragraph",
+   "type": "element",
+   "insertable": true,
+   "extraProps": [
+    "visibility",
+    "text",
+    "mobileFontSize",
+    "desktopFontSize",
+    "typography",
+    "inlineTypographies",
+    "icon",
+    "customClass",
+    "elementVersion"
+   ]
+  },
+  "rich-text": {
+   "tagName": "c-rich-text",
+   "type": "element",
+   "insertable": true,
+   "extraProps": [
+    "visibility",
+    "text",
+    "itemSpacing",
+    "mobileFontSize",
+    "desktopFontSize",
+    "typography",
+    "inlineTypographies",
+    "customClass",
+    "elementVersion"
+   ]
+  },
+  "bulletList": {
+   "tagName": "c-bullet-list",
+   "type": "element",
+   "insertable": true,
+   "extraProps": [
+    "visibility",
+    "text",
+    "itemSpacing",
+    "mobileFontSize",
+    "desktopFontSize",
+    "typography",
+    "icon",
+    "inlineTypographies",
+    "customClass",
+    "elementVersion"
+   ]
+  },
+  "button": {
+   "tagName": "c-button",
+   "type": "element",
+   "insertable": true,
+   "extraProps": [
+    "visibility",
+    "text",
+    "subText",
+    "mobileFontSize",
+    "desktopFontSize",
+    "subTextDesktopFontSize",
+    "subTextMobileFontSize",
+    "typography",
+    "iconStart",
+    "iconEnd",
+    "action",
+    "visitWebsite",
+    "downloadFile",
+    "hideElements",
+    "showElements",
+    "scrollToElement",
+    "phoneNumber",
+    "emailAddress",
+    "productId",
+    "storeProductId",
+    "storeProductPriceId",
+    "storeCollectionId",
+    "stepPath",
+    "saleAction",
+    "popupId",
+    "theme",
+    "customClass"
+   ]
+  },
+  "form": {
+   "tagName": "c-form",
+   "type": "element",
+   "insertable": true,
+   "extraProps": [
+    "visibility",
+    "formId",
+    "action",
+    "visitWebsite",
+    "customClass"
+   ]
+  },
+  "survey": {
+   "tagName": "c-survey",
+   "type": "element",
+   "insertable": true,
+   "extraProps": [
+    "visibility",
+    "surveyId",
+    "action",
+    "visitWebsite",
+    "customClass"
+   ]
+  },
+  "calendar": {
+   "tagName": "c-calendar",
+   "type": "element",
+   "insertable": true,
+   "extraProps": [
+    "visibility",
+    "calendarId",
+    "action",
+    "visitWebsite",
+    "customClass"
+   ]
+  },
+  "video": {
+   "tagName": "c-video",
+   "type": "element",
+   "insertable": true,
+   "extraProps": [
+    "visibility",
+    "videoProperties",
+    "customClass",
+    "playBackControls",
+    "leadVideoOptions",
+    "checkStep"
+   ]
+  },
+  "image": {
+   "tagName": "c-image",
+   "type": "element",
+   "insertable": true,
+   "extraProps": [
+    "visibility",
+    "imageActions",
+    "visitWebsite",
+    "downloadFile",
+    "imageProperties",
+    "theme",
+    "customClass",
+    "hideElements",
+    "showElements",
+    "scrollToElement",
+    "phoneNumber",
+    "emailAddress",
+    "stepPath",
+    "popupId",
+    "elementVersion"
+   ]
+  },
+  "custom-code": {
+   "tagName": "c-custom-code",
+   "type": "element",
+   "insertable": true,
+   "extraProps": [
+    "visibility",
+    "customCode",
+    "customClass"
+   ]
+  },
+  "divider": {
+   "tagName": "c-divider",
+   "type": "element",
+   "insertable": true,
+   "extraProps": [
+    "visibility",
+    "dividerProperties",
+    "customClass"
+   ]
+  },
+  "countdown": {
+   "tagName": "c-countdown",
+   "type": "element",
+   "insertable": true,
+   "extraProps": [
+    "visibility",
+    "typography",
+    "useWebinarSettings",
+    "timerType",
+    "startDate",
+    "startTime",
+    "timerLoop",
+    "timerDuration",
+    "timerTrigger",
+    "endDate",
+    "endTime",
+    "translate",
+    "expireAction",
+    "webinarExpireAction",
+    "redirectUrl",
+    "hideElements",
+    "showElements",
+    "webinarRedirectUrl",
+    "webinarHideElements",
+    "webinarShowElements",
+    "timezone",
+    "countdownTimerId",
+    "mobileFontSize",
+    "desktopFontSize",
+    "subTextDesktopFontSize",
+    "subTextMobileFontSize",
+    "customClass"
+   ]
+  },
+  "marketing-countdown": {
+   "tagName": "c-marketing-countdown",
+   "type": "element",
+   "insertable": false,
+   "extraProps": [
+    "visibility",
+    "timerType",
+    "startDate",
+    "startTime",
+    "timerLoop",
+    "timerDuration",
+    "timerTrigger",
+    "endDate",
+    "endTime",
+    "expireAction",
+    "redirectUrl",
+    "hideElements",
+    "showElements",
+    "timezone",
+    "countdownTimerId",
+    "customClass"
+   ]
+  },
+  "minute-timer": {
+   "tagName": null,
+   "type": "element",
+   "insertable": true,
+   "extraProps": [
+    "visibility",
+    "typography",
+    "hours",
+    "minutes",
+    "seconds",
+    "translate",
+    "expireAction",
+    "redirectUrl",
+    "hideElements",
+    "showElements",
+    "timezone",
+    "revisitAction",
+    "showElementsOnRevisit",
+    "cookieDate",
+    "mobileFontSize",
+    "desktopFontSize",
+    "subTextDesktopFontSize",
+    "subTextMobileFontSize",
+    "customClass"
+   ]
+  },
+  "day-timer": {
+   "tagName": null,
+   "type": "element",
+   "insertable": true,
+   "extraProps": [
+    "visibility",
+    "typography",
+    "endTime",
+    "expireAction",
+    "redirectUrl",
+    "hideElements",
+    "showElements",
+    "timezone",
+    "mobileFontSize",
+    "desktopFontSize",
+    "subTextDesktopFontSize",
+    "subTextMobileFontSize",
+    "customClass"
+   ]
+  },
+  "two-setp-order": {
+   "tagName": "c-order",
+   "type": "element",
+   "insertable": true,
+   "extraProps": [
+    "typography",
+    "activeMode",
+    "step1",
+    "step2",
+    "enableMultiProductSelect",
+    "enableMainProductDescription",
+    "enableProductDescription",
+    "showOrderBump",
+    "enableCouponCodes",
+    "termsAndConditions",
+    "bumpProduct",
+    "stickyContact",
+    "forceContactCreate",
+    "saleAction",
+    "stepPath",
+    "visitWebsite",
+    "validateEmail",
+    "visibility",
+    "customClass"
+   ]
+  },
+  "one-step-order": {
+   "tagName": "c-order",
+   "type": "element",
+   "insertable": true,
+   "extraProps": [
+    "typography",
+    "step1",
+    "enableMultiProductSelect",
+    "enableMainProductDescription",
+    "enableProductDescription",
+    "showOrderBump",
+    "enableCouponCodes",
+    "termsAndConditions",
+    "bumpProduct",
+    "stickyContact",
+    "forceContactCreate",
+    "saleAction",
+    "stepPath",
+    "visitWebsite",
+    "validateEmail",
+    "visibility",
+    "customClass"
+   ]
+  },
+  "hl_main_popup": {
+   "tagName": null,
+   "type": "element",
+   "insertable": false,
+   "extraProps": [
+    "bgImage",
+    "overlayColor",
+    "left",
+    "popupDisabled",
+    "popupHide",
+    "minWidth",
+    "showPopupOnMouseOut",
+    "customClass",
+    "position"
+   ]
+  },
+  "nav-menu": {
+   "tagName": "c-nav-menu",
+   "type": "element",
+   "insertable": true,
+   "extraProps": [
+    "visibility",
+    "showCartIcon",
+    "showSearchbar",
+    "menuItems",
+    "mobileFontSize",
+    "desktopFontSize",
+    "typography",
+    "inlineTypographies",
+    "icon",
+    "text",
+    "imageProperties",
+    "includeLogoInMenu",
+    "imageActions",
+    "visitWebsite",
+    "includeHeadlineInMenu",
+    "menuLayout",
+    "customClass",
+    "hideElements",
+    "showElements",
+    "scrollToElement",
+    "phoneNumber",
+    "emailAddress",
+    "stepPath",
+    "downloadFile"
+   ]
+  },
+  "nav-menu-v2": {
+   "tagName": "c-nav-menu-v2",
+   "type": "element",
+   "insertable": true,
+   "extraProps": [
+    "visibility",
+    "menuItems",
+    "enableCustomerLogin",
+    "cacItems",
+    "imageProperties",
+    "imageActions",
+    "visitWebsite",
+    "popupId",
+    "downloadFile",
+    "hideElements",
+    "showElements",
+    "scrollToElement",
+    "phoneNumber",
+    "emailAddress",
+    "elementVersion",
+    "stepPath",
+    "includeLogoInMenu",
+    "text",
+    "includeHeadlineInMenu",
+    "menuLayout",
+    "menuWrap",
+    "typography",
+    "inlineTypographies",
+    "icon",
+    "iconEnd",
+    "mobileFontSize",
+    "desktopFontSize",
+    "customClass",
+    "showCartIcon",
+    "showSearchbar"
+   ]
+  },
+  "map": {
+   "tagName": "c-map",
+   "type": "element",
+   "insertable": true,
+   "extraProps": [
+    "visibility",
+    "mapScale",
+    "mapMarkerColor",
+    "mapZoom",
+    "mapLocation",
+    "mapType",
+    "mapWidth",
+    "mapHeight",
+    "newTab",
+    "customClass"
+   ]
+  },
+  "svg": {
+   "tagName": "c-svg",
+   "type": "element",
+   "insertable": true,
+   "extraProps": [
+    "visibility",
+    "svgProperties",
+    "svgImageActions",
+    "visitWebsite",
+    "downloadFile",
+    "popupId",
+    "customClass"
+   ]
+  },
+  "progress-bar": {
+   "tagName": "c-progress-bar",
+   "type": "element",
+   "insertable": true,
+   "extraProps": [
+    "typography",
+    "text",
+    "percentWidth",
+    "progressBarSize",
+    "offsetColor",
+    "visibility",
+    "theme",
+    "customClass"
+   ]
+  },
+  "image-feature": {
+   "tagName": "c-image-feature",
+   "type": "element",
+   "insertable": true,
+   "extraProps": [
+    "typography",
+    "inlineTypographies",
+    "imageActions",
+    "visitWebsite",
+    "downloadFile",
+    "imageProperties",
+    "text",
+    "featureHeadline",
+    "featureHeadlineDesktopFontSize",
+    "featureHeadlineMobileFontSize",
+    "featureHeadlineTabletFontSize",
+    "desktopFontSize",
+    "mobileFontSize",
+    "featureImageShadow",
+    "featureImageEffects",
+    "visibility",
+    "theme",
+    "icon",
+    "customClass",
+    "hideElements",
+    "showElements",
+    "scrollToElement",
+    "phoneNumber",
+    "emailAddress",
+    "stepPath",
+    "popupId"
+   ]
+  },
+  "review-widget": {
+   "tagName": "c-review-widget",
+   "type": "element",
+   "insertable": true,
+   "extraProps": [
+    "visibility",
+    "customClass"
+   ]
+  },
+  "order-confirmation": {
+   "tagName": "c-order",
+   "type": "element",
+   "insertable": true,
+   "extraProps": [
+    "visibility",
+    "customClass",
+    "typography",
+    "desktopFontSize",
+    "mobileFontSize",
+    "subTextDesktopFontSize",
+    "subTextMobileFontSize",
+    "orderConfirmation"
+   ]
+  },
+  "faq": {
+   "tagName": "c-faq",
+   "type": "element",
+   "insertable": true,
+   "extraProps": [
+    "faqType",
+    "faqList",
+    "typography",
+    "inlineTypographies",
+    "faqCustomOptions",
+    "featureHeadlineDesktopFontSize",
+    "featureHeadlineMobileFontSize",
+    "featureHeadlineTabletFontSize",
+    "desktopFontSize",
+    "mobileFontSize",
+    "visibility",
+    "customClass",
+    "elementVersion"
+   ]
+  },
+  "blog": {
+   "tagName": "c-blog",
+   "type": "element",
+   "insertable": true,
+   "extraProps": [
+    "blogType",
+    "blogFilter",
+    "blogCategories",
+    "blogAuthor",
+    "buttonText",
+    "visibility",
+    "customClass",
+    "paginationOverride",
+    "compression"
+   ]
+  },
+  "blog-post": {
+   "tagName": "c-blog-post",
+   "type": "element",
+   "insertable": false,
+   "extraProps": [
+    "blogMainTitle",
+    "blogType",
+    "blogCategories",
+    "blogShowOption",
+    "visibility",
+    "customClass",
+    "compression",
+    "blog_style"
+   ]
+  },
+  "blog-content": {
+   "tagName": "c-blog-content",
+   "type": "element",
+   "insertable": false,
+   "extraProps": [
+    "blogAuthorLayout",
+    "blogContentShowOption",
+    "blogShowTagLinks",
+    "visibility",
+    "customClass",
+    "blogContentPostStyle"
+   ]
+  },
+  "category-navigation": {
+   "tagName": "c-category-navigation",
+   "type": "element",
+   "insertable": true,
+   "extraProps": [
+    "categoryNavigationMenuItems",
+    "includeSearchBar",
+    "blogShowHome",
+    "desktopFontSize",
+    "mobileFontSize",
+    "customClass",
+    "visibility",
+    "elementVersion"
+   ]
+  },
+  "store-product-list": {
+   "tagName": "c-store-product-list",
+   "type": "element",
+   "insertable": false,
+   "protected": true,
+   "extraProps": [
+    "manageProducts",
+    "itemsPerPage",
+    "typography",
+    "featureHeadlineDesktopFontSize",
+    "featureHeadlineMobileFontSize",
+    "featureHeadlineTabletFontSize",
+    "enableSorting",
+    "enableFiltering",
+    "addToCart",
+    "filterByAvailability",
+    "filterByPrice",
+    "defaultSortingOption",
+    "desktopFontSize",
+    "mobileFontSize",
+    "priceDiscountDesktopFontSize",
+    "priceDiscountMobileFontSize",
+    "priceDiscountTabletFontSize",
+    "showReviewsAndRatings",
+    "showRatingsCount",
+    "customText",
+    "desktopColumns",
+    "mobileColumns",
+    "tabletColumns",
+    "enableWishlisting",
+    "customClass",
+    "visibility"
+   ]
+  },
+  "store-product-detail": {
+   "tagName": "c-store-product-detail",
+   "type": "element",
+   "insertable": false,
+   "protected": true,
+   "extraProps": [
+    "selectedProducts",
+    "manageProducts",
+    "desktopMediaWidth",
+    "alignImage",
+    "mediaLayout",
+    "showAddToCartButton",
+    "showBuyNowButton",
+    "showDescription",
+    "showRelatedProducts",
+    "showReviewsAndRatings",
+    "showRatingsCount",
+    "itemsPerPage",
+    "desktopColumns",
+    "mobileColumns",
+    "tabletColumns",
+    "imageZoom",
+    "typography",
+    "variantsStyling",
+    "featureHeadlineDesktopFontSize",
+    "featureHeadlineMobileFontSize",
+    "featureHeadlineTabletFontSize",
+    "desktopFontSize",
+    "mobileFontSize",
+    "priceDiscountDesktopFontSize",
+    "priceDiscountMobileFontSize",
+    "priceDiscountTabletFontSize",
+    "relatedProductsDesktopFontSize",
+    "relatedProductsMobileFontSize",
+    "relatedProductsTabletFontSize",
+    "overrideDescriptionStyles",
+    "descriptionDesktopFontSize",
+    "descriptionMobileFontSize",
+    "customText",
+    "enableWishlisting",
+    "customClass",
+    "visibility"
+   ]
+  },
+  "store-cart": {
+   "tagName": "c-store-cart",
+   "type": "element",
+   "insertable": false,
+   "protected": true,
+   "extraProps": [
+    "typography",
+    "featureHeadlineDesktopFontSize",
+    "featureHeadlineMobileFontSize",
+    "featureHeadlineTabletFontSize",
+    "desktopFontSize",
+    "mobileFontSize",
+    "tabletFontSize",
+    "priceDiscountDesktopFontSize",
+    "priceDiscountMobileFontSize",
+    "priceDiscountTabletFontSize",
+    "customClass",
+    "visibility",
+    "customText"
+   ]
+  },
+  "nav-cart": {
+   "tagName": "c-nav-cart",
+   "type": "element",
+   "insertable": true,
+   "extraProps": [
+    "customClass",
+    "visibility"
+   ]
+  },
+  "upsell": {
+   "tagName": "c-upsell",
+   "type": "element",
+   "insertable": true,
+   "extraProps": [
+    "manageProducts",
+    "typography",
+    "variantsStyling",
+    "featureHeadlineDesktopFontSize",
+    "featureHeadlineMobileFontSize",
+    "featureHeadlineTabletFontSize",
+    "desktopFontSize",
+    "mobileFontSize",
+    "priceDiscountDesktopFontSize",
+    "priceDiscountMobileFontSize",
+    "priceDiscountTabletFontSize",
+    "enableShipping",
+    "productDetails",
+    "saleAction",
+    "customText",
+    "stepPath",
+    "visitWebsite",
+    "customClass",
+    "visibility"
+   ]
+  },
+  "collection-list": {
+   "tagName": "c-collection-list",
+   "type": "element",
+   "insertable": true,
+   "extraProps": [
+    "text",
+    "typography",
+    "desktopColumns",
+    "mobileColumns",
+    "tabletColumns",
+    "collectionListItems",
+    "featureHeadlineDesktopFontSize",
+    "featureHeadlineMobileFontSize",
+    "featureHeadlineTabletFontSize",
+    "desktopFontSize",
+    "mobileFontSize",
+    "customClass",
+    "visibility"
+   ]
+  },
+  "featured-products": {
+   "tagName": "c-featured-products",
+   "type": "element",
+   "insertable": true,
+   "extraProps": [
+    "text",
+    "typography",
+    "desktopColumns",
+    "mobileColumns",
+    "tabletColumns",
+    "featuredProductsItems",
+    "featureHeadlineDesktopFontSize",
+    "featureHeadlineMobileFontSize",
+    "featureHeadlineTabletFontSize",
+    "productNameDesktopFontSize",
+    "productNameMobileFontSize",
+    "productNameTabletFontSize",
+    "showReviewsAndRatings",
+    "showRatingsCount",
+    "priceDiscountDesktopFontSize",
+    "priceDiscountMobileFontSize",
+    "priceDiscountTabletFontSize",
+    "desktopFontSize",
+    "mobileFontSize",
+    "enableWishlisting",
+    "addToCart",
+    "customText",
+    "customClass",
+    "visibility"
+   ]
+  },
+  "store-checkout": {
+   "tagName": "c-store-checkout",
+   "type": "element",
+   "insertable": false,
+   "protected": true,
+   "extraProps": [
+    "manageShipping",
+    "step1",
+    "enableCouponCodes",
+    "termsAndConditions",
+    "typography",
+    "featureHeadlineDesktopFontSize",
+    "featureHeadlineMobileFontSize",
+    "featureHeadlineTabletFontSize",
+    "desktopFontSize",
+    "mobileFontSize",
+    "stickyContact",
+    "forceContactCreate",
+    "validateEmail",
+    "saleAction",
+    "stepPath",
+    "visitWebsite",
+    "customClass",
+    "visibility",
+    "customText"
+   ]
+  },
+  "store-thank-you": {
+   "tagName": "c-store-thank-you",
+   "type": "element",
+   "insertable": false,
+   "protected": true,
+   "extraProps": [
+    "downloadDigitalProducts",
+    "typography",
+    "featureHeadlineDesktopFontSize",
+    "featureHeadlineMobileFontSize",
+    "featureHeadlineTabletFontSize",
+    "desktopFontSize",
+    "mobileFontSize",
+    "customText",
+    "customClass",
+    "visibility"
+   ]
+  },
+  "social-icons": {
+   "tagName": "c-social-icons",
+   "type": "element",
+   "insertable": true,
+   "extraProps": [
+    "socials",
+    "displayType",
+    "theme",
+    "align",
+    "iconSize",
+    "customClass",
+    "visibility"
+   ]
+  },
+  "image-slider": {
+   "tagName": "c-image-slider",
+   "type": "element",
+   "insertable": true,
+   "extraProps": [
+    "sliderList",
+    "sliderSize",
+    "sliderPagination",
+    "sliderArrow",
+    "sliderAnimation",
+    "visibility",
+    "customClass"
+   ]
+  },
+  "searchbar": {
+   "tagName": "c-searchbar",
+   "type": "element",
+   "insertable": true,
+   "extraProps": [
+    "customClass",
+    "visibility",
+    "text",
+    "desktopFontSize",
+    "mobileFontSize",
+    "tabletFontSize"
+   ]
+  },
+  "photo-video-gallery": {
+   "tagName": "c-photo-video-gallery",
+   "type": "element",
+   "insertable": true,
+   "extraProps": [
+    "sliderList",
+    "galleryHeading",
+    "galleryInfo",
+    "galleryLayout",
+    "gallerySettings",
+    "galleryWatermark",
+    "customClass",
+    "visibility",
+    "elementVersion"
+   ]
+  },
+  "web-widget": {
+   "tagName": "c-web-widget",
+   "type": "element",
+   "insertable": false,
+   "extraProps": [
+    "visibility",
+    "customClass",
+    "webWidgetState"
+   ]
+  },
+  "social-share-blog": {
+   "tagName": "c-social-share-blog",
+   "type": "element",
+   "insertable": true,
+   "extraProps": [
+    "socialShareOption",
+    "visibility",
+    "customClass",
+    "socialShareStyle"
+   ]
+  },
+  "blog-pined-post": {
+   "tagName": "c-blog-pined-post",
+   "type": "element",
+   "insertable": true,
+   "extraProps": [
+    "blogPinedPost",
+    "blogPinedLayout",
+    "blogPinedOption",
+    "visibility",
+    "customClass",
+    "blogPinedPostStyle"
+   ]
+  },
+  "blog-subscribe-form": {
+   "tagName": "c-blog-subscribe-form",
+   "type": "element",
+   "insertable": true,
+   "extraProps": [
+    "blogSubscribeLayout",
+    "blogSubscribeOption",
+    "blogSubscribeTags",
+    "visibility",
+    "customClass",
+    "blogSubscribeFormStyle"
+   ]
+  },
+  "featured-product": {
+   "tagName": "c-featured-product",
+   "type": "element",
+   "insertable": true,
+   "extraProps": [
+    "showRelatedProducts",
+    "itemsPerPage",
+    "desktopColumns",
+    "mobileColumns",
+    "relatedProductsDesktopFontSize",
+    "relatedProductsMobileFontSize",
+    "customText"
+   ]
+  },
+  "store-custom-product-detail": {
+   "tagName": "c-store-custom-product-detail",
+   "type": "element",
+   "insertable": false,
+   "protected": true,
+   "extraProps": [
+    "selectedProducts",
+    "manageProducts",
+    "desktopMediaWidth",
+    "alignImage",
+    "mediaLayout",
+    "showAddToCartButton",
+    "showBuyNowButton",
+    "showDescription",
+    "showRelatedProducts",
+    "showReviewsAndRatings",
+    "showRatingsCount",
+    "itemsPerPage",
+    "desktopColumns",
+    "mobileColumns",
+    "tabletColumns",
+    "imageZoom",
+    "typography",
+    "variantsStyling",
+    "featureHeadlineDesktopFontSize",
+    "featureHeadlineMobileFontSize",
+    "featureHeadlineTabletFontSize",
+    "desktopFontSize",
+    "mobileFontSize",
+    "priceDiscountDesktopFontSize",
+    "priceDiscountMobileFontSize",
+    "priceDiscountTabletFontSize",
+    "relatedProductsDesktopFontSize",
+    "relatedProductsMobileFontSize",
+    "relatedProductsTabletFontSize",
+    "overrideDescriptionStyles",
+    "descriptionDesktopFontSize",
+    "descriptionMobileFontSize",
+    "customText",
+    "enableWishlisting",
+    "customClass",
+    "visibility"
+   ]
+  },
+  "number-counter": {
+   "tagName": "c-number-counter",
+   "type": "element",
+   "insertable": true,
+   "extraProps": [
+    "counterList",
+    "counterColumnGap",
+    "counterMobileColumnGap",
+    "counterDesktopColumns",
+    "counterMobileColumns",
+    "counterImageDesktopSize",
+    "counterImageMobileSize",
+    "visibility",
+    "customClass",
+    "counterDuration",
+    "inlineTypographies",
+    "featureHeadlineDesktopFontSize",
+    "featureHeadlineMobileFontSize",
+    "featureHeadlineTabletFontSize",
+    "desktopFontSize",
+    "mobileFontSize",
+    "counterNumberFontFamily",
+    "counterCaptionFontFamily",
+    "counterPreview",
+    "counterShowAnimationOnce"
+   ]
+  },
+  "logo-showcase": {
+   "tagName": "c-logo-showcase",
+   "type": "element",
+   "insertable": true,
+   "extraProps": [
+    "logoShowcaseMode",
+    "imagesPerSlide",
+    "sliderList",
+    "sliderPagination",
+    "sliderArrow",
+    "sliderAnimation",
+    "visibility",
+    "customClass",
+    "tickerSpeed",
+    "pauseOnHover",
+    "logoSpacing",
+    "elementVersion"
+   ]
+  },
+  "qr-code": {
+   "tagName": "c-qr-code",
+   "type": "element",
+   "insertable": true,
+   "extraProps": [
+    "qrCode",
+    "elementVersion",
+    "visibility",
+    "customClass"
+   ]
+  },
+  "pricing-table": {
+   "tagName": "c-pricing-table",
+   "type": "element",
+   "insertable": true,
+   "extraProps": [
+    "pricingTableLayout",
+    "pricingTableGap",
+    "pricingTableNumberOfColumns",
+    "pricingTableImageDesktopSize",
+    "pricingTableImageMobileSize",
+    "pricingTableImageTabletSize",
+    "typography",
+    "pricingTableTitleDesktopFontSize",
+    "pricingTableTitleMobileFontSize",
+    "pricingTableTitleTabletFontSize",
+    "pricingTableTitleCaptionDesktopFontSize",
+    "pricingTableTitleCaptionMobileFontSize",
+    "pricingTableTitleCaptionTabletFontSize",
+    "pricingTableHighlightLabelDesktopFontSize",
+    "pricingTableHighlightLabelMobileFontSize",
+    "pricingTableHighlightLabelTabletFontSize",
+    "pricingTableButtonTextDesktopFontSize",
+    "pricingTableButtonTextMobileFontSize",
+    "pricingTableButtonTextTabletFontSize",
+    "pricingTableButtonCaptionDesktopFontSize",
+    "pricingTableButtonCaptionMobileFontSize",
+    "pricingTableButtonCaptionTabletFontSize",
+    "pricingTableFeaturesDesktopFontSize",
+    "pricingTableFeaturesMobileFontSize",
+    "pricingTableFeaturesTabletFontSize",
+    "pricingTablePriceDesktopFontSize",
+    "pricingTablePriceMobileFontSize",
+    "pricingTablePriceTabletFontSize",
+    "pricingTableDiscountDesktopFontSize",
+    "pricingTableDiscountMobileFontSize",
+    "pricingTableDiscountTabletFontSize",
+    "pricingTableStrikeOffDesktopFontSize",
+    "pricingTableStrikeOffMobileFontSize",
+    "pricingTableStrikeOffTabletFontSize",
+    "sliderPagination",
+    "sliderArrow",
+    "sliderAnimation",
+    "pricingTableColumns",
+    "pricingTableHeadColumns",
+    "showHeadColumnTitle",
+    "showHeadColumnSubtitle",
+    "pricingTableHeadFeatures",
+    "visibility",
+    "customClass",
+    "elementVersion"
+   ]
+  },
+  "testimonial": {
+   "tagName": "c-testimonial",
+   "type": "element",
+   "insertable": true,
+   "extraProps": [
+    "testimonialList",
+    "testimonialSettings",
+    "testimonialLayout",
+    "testimonialCardStyle",
+    "sliderAnimation",
+    "sliderArrow",
+    "sliderPagination",
+    "customClass",
+    "visibility",
+    "elementVersion"
+   ]
+  }
+ }
+}

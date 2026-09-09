@@ -14,7 +14,7 @@
 // end asserts exactly that, so a generator that writes somewhere the gate does not read is
 // caught here and not at push time.
 import { execFileSync, spawnSync } from 'node:child_process';
-import { existsSync, readFileSync, copyFileSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync, copyFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -34,6 +34,7 @@ const GENERATED = [
   'plugins/uxie-ghl-factory/mcp-internal/catalog/internal-endpoints.json',
   'plugins/uxie-ghl-factory/mcp-internal/catalog/contact-filter-fields.json',
   'plugins/uxie-ghl-factory/mcp-internal/catalog/builder-validators.json',
+  'plugins/uxie-ghl-factory/mcp-internal/catalog/funnel-elements.json',
   'plugins/uxie-ghl-factory/mcp-internal/capability-manifest.json',
   'plugins/uxie-ghl-factory/mcp-internal/audit-capability-manifest.json',
   'plugins/uxie-ghl-factory/mcp-internal/dist/server.mjs',
@@ -76,6 +77,31 @@ if (hasKnowledge) {
   copyFileSync(join(KNOWLEDGE, 'sniffs/bundle/validators.json'),
     join(MCP, 'catalog/builder-validators.json'));
   if (!quiet) console.log('sync: builder-validators ← knowledge/sniffs/bundle/validators.json');
+  // The funnel page builder's element contract, distilled from the corpus. build_funnel_page needs
+  // three things per kind and nothing else: its tagName, whether it is insertable, and the list of
+  // `extra` properties its factory declares — because the renderer reads extra.<prop>.value
+  // UNGUARDED, so a missing property 500s the public page while autosave still answers 201.
+  // The full corpus file also carries observed shapes and palette metadata the plugin never reads.
+  {
+    const src = JSON.parse(readFileSync(join(KNOWLEDGE, 'corpus/funnels/_data/elements.json'), 'utf8'));
+    const defsPath = join(KNOWLEDGE, 'sniffs/funnel-element-registry-2026-09-09/defaults.json');
+    const defs = existsSync(defsPath) ? JSON.parse(readFileSync(defsPath, 'utf8')).elements : {};
+    const elements = {};
+    for (const [meta, v] of Object.entries(src.elements)) {
+      elements[meta] = {
+        tagName: v.tagName ?? null,
+        type: v.type,
+        insertable: !!v.insertable,
+        ...(v.protected ? { protected: true } : {}),
+        extraProps: (defs[meta]?.extra?.props ?? []).map((p) => p.prop),
+      };
+    }
+    writeFileSync(join(MCP, 'catalog/funnel-elements.json'),
+      JSON.stringify({ _source: 'knowledge/corpus/funnels/_data/elements.json + sniffs/funnel-element-registry-2026-09-09/defaults.json',
+        _note: 'meta is a CLOSED set of 60; extraProps must all be present on a node or the public render 500s.',
+        count: Object.keys(elements).length, elements }, null, 1) + '\n');
+    if (!quiet) console.log(`sync: funnel-elements ← knowledge/corpus/funnels/_data (${Object.keys(elements).length} kinds)`);
+  }
 } else if (!quiet) {
   console.log('sync: knowledge/ not present — type-cards and source left as shipped');
 }

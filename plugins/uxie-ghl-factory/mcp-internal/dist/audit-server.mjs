@@ -6972,7 +6972,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "write",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "build_funnel_page"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -7079,7 +7081,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "build_funnel_page"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -51341,6 +51345,1202 @@ var init_define_ENDPOINT_OVERLAY = __esm({
   }
 });
 
+// <define:__FUNNEL_ELEMENTS__>
+var define_FUNNEL_ELEMENTS_default;
+var init_define_FUNNEL_ELEMENTS = __esm({
+  "<define:__FUNNEL_ELEMENTS__>"() {
+    define_FUNNEL_ELEMENTS_default = {
+      _source: "knowledge/corpus/funnels/_data/elements.json + sniffs/funnel-element-registry-2026-09-09/defaults.json",
+      _note: "meta is a CLOSED set of 60; extraProps must all be present on a node or the public render 500s.",
+      count: 60,
+      elements: {
+        section: {
+          tagName: "c-section",
+          type: "section",
+          insertable: false,
+          extraProps: [
+            "sticky",
+            "visibility",
+            "bgImage",
+            "allowRowMaxWidth",
+            "customClass",
+            "elementScreenshot"
+          ]
+        },
+        row: {
+          tagName: "c-row",
+          type: "row",
+          insertable: false,
+          extraProps: [
+            "visibility",
+            "bgImage",
+            "rowWidth",
+            "customClass"
+          ]
+        },
+        col: {
+          tagName: "c-column",
+          type: "col",
+          insertable: false,
+          extraProps: [
+            "visibility",
+            "bgImage",
+            "columnLayout",
+            "justifyContentColumnLayout",
+            "alignContentColumnLayout",
+            "forceColumnLayoutForMobile",
+            "customClass",
+            "elementVersion"
+          ]
+        },
+        heading: {
+          tagName: "c-heading",
+          type: "element",
+          insertable: true,
+          extraProps: [
+            "visibility",
+            "text",
+            "mobileFontSize",
+            "desktopFontSize",
+            "typography",
+            "inlineTypographies",
+            "icon",
+            "customClass",
+            "elementVersion"
+          ]
+        },
+        "sub-heading": {
+          tagName: "c-sub-heading",
+          type: "element",
+          insertable: true,
+          extraProps: [
+            "visibility",
+            "text",
+            "mobileFontSize",
+            "desktopFontSize",
+            "typography",
+            "inlineTypographies",
+            "icon",
+            "customClass",
+            "elementVersion"
+          ]
+        },
+        paragraph: {
+          tagName: "c-paragraph",
+          type: "element",
+          insertable: true,
+          extraProps: [
+            "visibility",
+            "text",
+            "mobileFontSize",
+            "desktopFontSize",
+            "typography",
+            "inlineTypographies",
+            "icon",
+            "customClass",
+            "elementVersion"
+          ]
+        },
+        "rich-text": {
+          tagName: "c-rich-text",
+          type: "element",
+          insertable: true,
+          extraProps: [
+            "visibility",
+            "text",
+            "itemSpacing",
+            "mobileFontSize",
+            "desktopFontSize",
+            "typography",
+            "inlineTypographies",
+            "customClass",
+            "elementVersion"
+          ]
+        },
+        bulletList: {
+          tagName: "c-bullet-list",
+          type: "element",
+          insertable: true,
+          extraProps: [
+            "visibility",
+            "text",
+            "itemSpacing",
+            "mobileFontSize",
+            "desktopFontSize",
+            "typography",
+            "icon",
+            "inlineTypographies",
+            "customClass",
+            "elementVersion"
+          ]
+        },
+        button: {
+          tagName: "c-button",
+          type: "element",
+          insertable: true,
+          extraProps: [
+            "visibility",
+            "text",
+            "subText",
+            "mobileFontSize",
+            "desktopFontSize",
+            "subTextDesktopFontSize",
+            "subTextMobileFontSize",
+            "typography",
+            "iconStart",
+            "iconEnd",
+            "action",
+            "visitWebsite",
+            "downloadFile",
+            "hideElements",
+            "showElements",
+            "scrollToElement",
+            "phoneNumber",
+            "emailAddress",
+            "productId",
+            "storeProductId",
+            "storeProductPriceId",
+            "storeCollectionId",
+            "stepPath",
+            "saleAction",
+            "popupId",
+            "theme",
+            "customClass"
+          ]
+        },
+        form: {
+          tagName: "c-form",
+          type: "element",
+          insertable: true,
+          extraProps: [
+            "visibility",
+            "formId",
+            "action",
+            "visitWebsite",
+            "customClass"
+          ]
+        },
+        survey: {
+          tagName: "c-survey",
+          type: "element",
+          insertable: true,
+          extraProps: [
+            "visibility",
+            "surveyId",
+            "action",
+            "visitWebsite",
+            "customClass"
+          ]
+        },
+        calendar: {
+          tagName: "c-calendar",
+          type: "element",
+          insertable: true,
+          extraProps: [
+            "visibility",
+            "calendarId",
+            "action",
+            "visitWebsite",
+            "customClass"
+          ]
+        },
+        video: {
+          tagName: "c-video",
+          type: "element",
+          insertable: true,
+          extraProps: [
+            "visibility",
+            "videoProperties",
+            "customClass",
+            "playBackControls",
+            "leadVideoOptions",
+            "checkStep"
+          ]
+        },
+        image: {
+          tagName: "c-image",
+          type: "element",
+          insertable: true,
+          extraProps: [
+            "visibility",
+            "imageActions",
+            "visitWebsite",
+            "downloadFile",
+            "imageProperties",
+            "theme",
+            "customClass",
+            "hideElements",
+            "showElements",
+            "scrollToElement",
+            "phoneNumber",
+            "emailAddress",
+            "stepPath",
+            "popupId",
+            "elementVersion"
+          ]
+        },
+        "custom-code": {
+          tagName: "c-custom-code",
+          type: "element",
+          insertable: true,
+          extraProps: [
+            "visibility",
+            "customCode",
+            "customClass"
+          ]
+        },
+        divider: {
+          tagName: "c-divider",
+          type: "element",
+          insertable: true,
+          extraProps: [
+            "visibility",
+            "dividerProperties",
+            "customClass"
+          ]
+        },
+        countdown: {
+          tagName: "c-countdown",
+          type: "element",
+          insertable: true,
+          extraProps: [
+            "visibility",
+            "typography",
+            "useWebinarSettings",
+            "timerType",
+            "startDate",
+            "startTime",
+            "timerLoop",
+            "timerDuration",
+            "timerTrigger",
+            "endDate",
+            "endTime",
+            "translate",
+            "expireAction",
+            "webinarExpireAction",
+            "redirectUrl",
+            "hideElements",
+            "showElements",
+            "webinarRedirectUrl",
+            "webinarHideElements",
+            "webinarShowElements",
+            "timezone",
+            "countdownTimerId",
+            "mobileFontSize",
+            "desktopFontSize",
+            "subTextDesktopFontSize",
+            "subTextMobileFontSize",
+            "customClass"
+          ]
+        },
+        "marketing-countdown": {
+          tagName: "c-marketing-countdown",
+          type: "element",
+          insertable: false,
+          extraProps: [
+            "visibility",
+            "timerType",
+            "startDate",
+            "startTime",
+            "timerLoop",
+            "timerDuration",
+            "timerTrigger",
+            "endDate",
+            "endTime",
+            "expireAction",
+            "redirectUrl",
+            "hideElements",
+            "showElements",
+            "timezone",
+            "countdownTimerId",
+            "customClass"
+          ]
+        },
+        "minute-timer": {
+          tagName: null,
+          type: "element",
+          insertable: true,
+          extraProps: [
+            "visibility",
+            "typography",
+            "hours",
+            "minutes",
+            "seconds",
+            "translate",
+            "expireAction",
+            "redirectUrl",
+            "hideElements",
+            "showElements",
+            "timezone",
+            "revisitAction",
+            "showElementsOnRevisit",
+            "cookieDate",
+            "mobileFontSize",
+            "desktopFontSize",
+            "subTextDesktopFontSize",
+            "subTextMobileFontSize",
+            "customClass"
+          ]
+        },
+        "day-timer": {
+          tagName: null,
+          type: "element",
+          insertable: true,
+          extraProps: [
+            "visibility",
+            "typography",
+            "endTime",
+            "expireAction",
+            "redirectUrl",
+            "hideElements",
+            "showElements",
+            "timezone",
+            "mobileFontSize",
+            "desktopFontSize",
+            "subTextDesktopFontSize",
+            "subTextMobileFontSize",
+            "customClass"
+          ]
+        },
+        "two-setp-order": {
+          tagName: "c-order",
+          type: "element",
+          insertable: true,
+          extraProps: [
+            "typography",
+            "activeMode",
+            "step1",
+            "step2",
+            "enableMultiProductSelect",
+            "enableMainProductDescription",
+            "enableProductDescription",
+            "showOrderBump",
+            "enableCouponCodes",
+            "termsAndConditions",
+            "bumpProduct",
+            "stickyContact",
+            "forceContactCreate",
+            "saleAction",
+            "stepPath",
+            "visitWebsite",
+            "validateEmail",
+            "visibility",
+            "customClass"
+          ]
+        },
+        "one-step-order": {
+          tagName: "c-order",
+          type: "element",
+          insertable: true,
+          extraProps: [
+            "typography",
+            "step1",
+            "enableMultiProductSelect",
+            "enableMainProductDescription",
+            "enableProductDescription",
+            "showOrderBump",
+            "enableCouponCodes",
+            "termsAndConditions",
+            "bumpProduct",
+            "stickyContact",
+            "forceContactCreate",
+            "saleAction",
+            "stepPath",
+            "visitWebsite",
+            "validateEmail",
+            "visibility",
+            "customClass"
+          ]
+        },
+        hl_main_popup: {
+          tagName: null,
+          type: "element",
+          insertable: false,
+          extraProps: [
+            "bgImage",
+            "overlayColor",
+            "left",
+            "popupDisabled",
+            "popupHide",
+            "minWidth",
+            "showPopupOnMouseOut",
+            "customClass",
+            "position"
+          ]
+        },
+        "nav-menu": {
+          tagName: "c-nav-menu",
+          type: "element",
+          insertable: true,
+          extraProps: [
+            "visibility",
+            "showCartIcon",
+            "showSearchbar",
+            "menuItems",
+            "mobileFontSize",
+            "desktopFontSize",
+            "typography",
+            "inlineTypographies",
+            "icon",
+            "text",
+            "imageProperties",
+            "includeLogoInMenu",
+            "imageActions",
+            "visitWebsite",
+            "includeHeadlineInMenu",
+            "menuLayout",
+            "customClass",
+            "hideElements",
+            "showElements",
+            "scrollToElement",
+            "phoneNumber",
+            "emailAddress",
+            "stepPath",
+            "downloadFile"
+          ]
+        },
+        "nav-menu-v2": {
+          tagName: "c-nav-menu-v2",
+          type: "element",
+          insertable: true,
+          extraProps: [
+            "visibility",
+            "menuItems",
+            "enableCustomerLogin",
+            "cacItems",
+            "imageProperties",
+            "imageActions",
+            "visitWebsite",
+            "popupId",
+            "downloadFile",
+            "hideElements",
+            "showElements",
+            "scrollToElement",
+            "phoneNumber",
+            "emailAddress",
+            "elementVersion",
+            "stepPath",
+            "includeLogoInMenu",
+            "text",
+            "includeHeadlineInMenu",
+            "menuLayout",
+            "menuWrap",
+            "typography",
+            "inlineTypographies",
+            "icon",
+            "iconEnd",
+            "mobileFontSize",
+            "desktopFontSize",
+            "customClass",
+            "showCartIcon",
+            "showSearchbar"
+          ]
+        },
+        map: {
+          tagName: "c-map",
+          type: "element",
+          insertable: true,
+          extraProps: [
+            "visibility",
+            "mapScale",
+            "mapMarkerColor",
+            "mapZoom",
+            "mapLocation",
+            "mapType",
+            "mapWidth",
+            "mapHeight",
+            "newTab",
+            "customClass"
+          ]
+        },
+        svg: {
+          tagName: "c-svg",
+          type: "element",
+          insertable: true,
+          extraProps: [
+            "visibility",
+            "svgProperties",
+            "svgImageActions",
+            "visitWebsite",
+            "downloadFile",
+            "popupId",
+            "customClass"
+          ]
+        },
+        "progress-bar": {
+          tagName: "c-progress-bar",
+          type: "element",
+          insertable: true,
+          extraProps: [
+            "typography",
+            "text",
+            "percentWidth",
+            "progressBarSize",
+            "offsetColor",
+            "visibility",
+            "theme",
+            "customClass"
+          ]
+        },
+        "image-feature": {
+          tagName: "c-image-feature",
+          type: "element",
+          insertable: true,
+          extraProps: [
+            "typography",
+            "inlineTypographies",
+            "imageActions",
+            "visitWebsite",
+            "downloadFile",
+            "imageProperties",
+            "text",
+            "featureHeadline",
+            "featureHeadlineDesktopFontSize",
+            "featureHeadlineMobileFontSize",
+            "featureHeadlineTabletFontSize",
+            "desktopFontSize",
+            "mobileFontSize",
+            "featureImageShadow",
+            "featureImageEffects",
+            "visibility",
+            "theme",
+            "icon",
+            "customClass",
+            "hideElements",
+            "showElements",
+            "scrollToElement",
+            "phoneNumber",
+            "emailAddress",
+            "stepPath",
+            "popupId"
+          ]
+        },
+        "review-widget": {
+          tagName: "c-review-widget",
+          type: "element",
+          insertable: true,
+          extraProps: [
+            "visibility",
+            "customClass"
+          ]
+        },
+        "order-confirmation": {
+          tagName: "c-order",
+          type: "element",
+          insertable: true,
+          extraProps: [
+            "visibility",
+            "customClass",
+            "typography",
+            "desktopFontSize",
+            "mobileFontSize",
+            "subTextDesktopFontSize",
+            "subTextMobileFontSize",
+            "orderConfirmation"
+          ]
+        },
+        faq: {
+          tagName: "c-faq",
+          type: "element",
+          insertable: true,
+          extraProps: [
+            "faqType",
+            "faqList",
+            "typography",
+            "inlineTypographies",
+            "faqCustomOptions",
+            "featureHeadlineDesktopFontSize",
+            "featureHeadlineMobileFontSize",
+            "featureHeadlineTabletFontSize",
+            "desktopFontSize",
+            "mobileFontSize",
+            "visibility",
+            "customClass",
+            "elementVersion"
+          ]
+        },
+        blog: {
+          tagName: "c-blog",
+          type: "element",
+          insertable: true,
+          extraProps: [
+            "blogType",
+            "blogFilter",
+            "blogCategories",
+            "blogAuthor",
+            "buttonText",
+            "visibility",
+            "customClass",
+            "paginationOverride",
+            "compression"
+          ]
+        },
+        "blog-post": {
+          tagName: "c-blog-post",
+          type: "element",
+          insertable: false,
+          extraProps: [
+            "blogMainTitle",
+            "blogType",
+            "blogCategories",
+            "blogShowOption",
+            "visibility",
+            "customClass",
+            "compression",
+            "blog_style"
+          ]
+        },
+        "blog-content": {
+          tagName: "c-blog-content",
+          type: "element",
+          insertable: false,
+          extraProps: [
+            "blogAuthorLayout",
+            "blogContentShowOption",
+            "blogShowTagLinks",
+            "visibility",
+            "customClass",
+            "blogContentPostStyle"
+          ]
+        },
+        "category-navigation": {
+          tagName: "c-category-navigation",
+          type: "element",
+          insertable: true,
+          extraProps: [
+            "categoryNavigationMenuItems",
+            "includeSearchBar",
+            "blogShowHome",
+            "desktopFontSize",
+            "mobileFontSize",
+            "customClass",
+            "visibility",
+            "elementVersion"
+          ]
+        },
+        "store-product-list": {
+          tagName: "c-store-product-list",
+          type: "element",
+          insertable: false,
+          protected: true,
+          extraProps: [
+            "manageProducts",
+            "itemsPerPage",
+            "typography",
+            "featureHeadlineDesktopFontSize",
+            "featureHeadlineMobileFontSize",
+            "featureHeadlineTabletFontSize",
+            "enableSorting",
+            "enableFiltering",
+            "addToCart",
+            "filterByAvailability",
+            "filterByPrice",
+            "defaultSortingOption",
+            "desktopFontSize",
+            "mobileFontSize",
+            "priceDiscountDesktopFontSize",
+            "priceDiscountMobileFontSize",
+            "priceDiscountTabletFontSize",
+            "showReviewsAndRatings",
+            "showRatingsCount",
+            "customText",
+            "desktopColumns",
+            "mobileColumns",
+            "tabletColumns",
+            "enableWishlisting",
+            "customClass",
+            "visibility"
+          ]
+        },
+        "store-product-detail": {
+          tagName: "c-store-product-detail",
+          type: "element",
+          insertable: false,
+          protected: true,
+          extraProps: [
+            "selectedProducts",
+            "manageProducts",
+            "desktopMediaWidth",
+            "alignImage",
+            "mediaLayout",
+            "showAddToCartButton",
+            "showBuyNowButton",
+            "showDescription",
+            "showRelatedProducts",
+            "showReviewsAndRatings",
+            "showRatingsCount",
+            "itemsPerPage",
+            "desktopColumns",
+            "mobileColumns",
+            "tabletColumns",
+            "imageZoom",
+            "typography",
+            "variantsStyling",
+            "featureHeadlineDesktopFontSize",
+            "featureHeadlineMobileFontSize",
+            "featureHeadlineTabletFontSize",
+            "desktopFontSize",
+            "mobileFontSize",
+            "priceDiscountDesktopFontSize",
+            "priceDiscountMobileFontSize",
+            "priceDiscountTabletFontSize",
+            "relatedProductsDesktopFontSize",
+            "relatedProductsMobileFontSize",
+            "relatedProductsTabletFontSize",
+            "overrideDescriptionStyles",
+            "descriptionDesktopFontSize",
+            "descriptionMobileFontSize",
+            "customText",
+            "enableWishlisting",
+            "customClass",
+            "visibility"
+          ]
+        },
+        "store-cart": {
+          tagName: "c-store-cart",
+          type: "element",
+          insertable: false,
+          protected: true,
+          extraProps: [
+            "typography",
+            "featureHeadlineDesktopFontSize",
+            "featureHeadlineMobileFontSize",
+            "featureHeadlineTabletFontSize",
+            "desktopFontSize",
+            "mobileFontSize",
+            "tabletFontSize",
+            "priceDiscountDesktopFontSize",
+            "priceDiscountMobileFontSize",
+            "priceDiscountTabletFontSize",
+            "customClass",
+            "visibility",
+            "customText"
+          ]
+        },
+        "nav-cart": {
+          tagName: "c-nav-cart",
+          type: "element",
+          insertable: true,
+          extraProps: [
+            "customClass",
+            "visibility"
+          ]
+        },
+        upsell: {
+          tagName: "c-upsell",
+          type: "element",
+          insertable: true,
+          extraProps: [
+            "manageProducts",
+            "typography",
+            "variantsStyling",
+            "featureHeadlineDesktopFontSize",
+            "featureHeadlineMobileFontSize",
+            "featureHeadlineTabletFontSize",
+            "desktopFontSize",
+            "mobileFontSize",
+            "priceDiscountDesktopFontSize",
+            "priceDiscountMobileFontSize",
+            "priceDiscountTabletFontSize",
+            "enableShipping",
+            "productDetails",
+            "saleAction",
+            "customText",
+            "stepPath",
+            "visitWebsite",
+            "customClass",
+            "visibility"
+          ]
+        },
+        "collection-list": {
+          tagName: "c-collection-list",
+          type: "element",
+          insertable: true,
+          extraProps: [
+            "text",
+            "typography",
+            "desktopColumns",
+            "mobileColumns",
+            "tabletColumns",
+            "collectionListItems",
+            "featureHeadlineDesktopFontSize",
+            "featureHeadlineMobileFontSize",
+            "featureHeadlineTabletFontSize",
+            "desktopFontSize",
+            "mobileFontSize",
+            "customClass",
+            "visibility"
+          ]
+        },
+        "featured-products": {
+          tagName: "c-featured-products",
+          type: "element",
+          insertable: true,
+          extraProps: [
+            "text",
+            "typography",
+            "desktopColumns",
+            "mobileColumns",
+            "tabletColumns",
+            "featuredProductsItems",
+            "featureHeadlineDesktopFontSize",
+            "featureHeadlineMobileFontSize",
+            "featureHeadlineTabletFontSize",
+            "productNameDesktopFontSize",
+            "productNameMobileFontSize",
+            "productNameTabletFontSize",
+            "showReviewsAndRatings",
+            "showRatingsCount",
+            "priceDiscountDesktopFontSize",
+            "priceDiscountMobileFontSize",
+            "priceDiscountTabletFontSize",
+            "desktopFontSize",
+            "mobileFontSize",
+            "enableWishlisting",
+            "addToCart",
+            "customText",
+            "customClass",
+            "visibility"
+          ]
+        },
+        "store-checkout": {
+          tagName: "c-store-checkout",
+          type: "element",
+          insertable: false,
+          protected: true,
+          extraProps: [
+            "manageShipping",
+            "step1",
+            "enableCouponCodes",
+            "termsAndConditions",
+            "typography",
+            "featureHeadlineDesktopFontSize",
+            "featureHeadlineMobileFontSize",
+            "featureHeadlineTabletFontSize",
+            "desktopFontSize",
+            "mobileFontSize",
+            "stickyContact",
+            "forceContactCreate",
+            "validateEmail",
+            "saleAction",
+            "stepPath",
+            "visitWebsite",
+            "customClass",
+            "visibility",
+            "customText"
+          ]
+        },
+        "store-thank-you": {
+          tagName: "c-store-thank-you",
+          type: "element",
+          insertable: false,
+          protected: true,
+          extraProps: [
+            "downloadDigitalProducts",
+            "typography",
+            "featureHeadlineDesktopFontSize",
+            "featureHeadlineMobileFontSize",
+            "featureHeadlineTabletFontSize",
+            "desktopFontSize",
+            "mobileFontSize",
+            "customText",
+            "customClass",
+            "visibility"
+          ]
+        },
+        "social-icons": {
+          tagName: "c-social-icons",
+          type: "element",
+          insertable: true,
+          extraProps: [
+            "socials",
+            "displayType",
+            "theme",
+            "align",
+            "iconSize",
+            "customClass",
+            "visibility"
+          ]
+        },
+        "image-slider": {
+          tagName: "c-image-slider",
+          type: "element",
+          insertable: true,
+          extraProps: [
+            "sliderList",
+            "sliderSize",
+            "sliderPagination",
+            "sliderArrow",
+            "sliderAnimation",
+            "visibility",
+            "customClass"
+          ]
+        },
+        searchbar: {
+          tagName: "c-searchbar",
+          type: "element",
+          insertable: true,
+          extraProps: [
+            "customClass",
+            "visibility",
+            "text",
+            "desktopFontSize",
+            "mobileFontSize",
+            "tabletFontSize"
+          ]
+        },
+        "photo-video-gallery": {
+          tagName: "c-photo-video-gallery",
+          type: "element",
+          insertable: true,
+          extraProps: [
+            "sliderList",
+            "galleryHeading",
+            "galleryInfo",
+            "galleryLayout",
+            "gallerySettings",
+            "galleryWatermark",
+            "customClass",
+            "visibility",
+            "elementVersion"
+          ]
+        },
+        "web-widget": {
+          tagName: "c-web-widget",
+          type: "element",
+          insertable: false,
+          extraProps: [
+            "visibility",
+            "customClass",
+            "webWidgetState"
+          ]
+        },
+        "social-share-blog": {
+          tagName: "c-social-share-blog",
+          type: "element",
+          insertable: true,
+          extraProps: [
+            "socialShareOption",
+            "visibility",
+            "customClass",
+            "socialShareStyle"
+          ]
+        },
+        "blog-pined-post": {
+          tagName: "c-blog-pined-post",
+          type: "element",
+          insertable: true,
+          extraProps: [
+            "blogPinedPost",
+            "blogPinedLayout",
+            "blogPinedOption",
+            "visibility",
+            "customClass",
+            "blogPinedPostStyle"
+          ]
+        },
+        "blog-subscribe-form": {
+          tagName: "c-blog-subscribe-form",
+          type: "element",
+          insertable: true,
+          extraProps: [
+            "blogSubscribeLayout",
+            "blogSubscribeOption",
+            "blogSubscribeTags",
+            "visibility",
+            "customClass",
+            "blogSubscribeFormStyle"
+          ]
+        },
+        "featured-product": {
+          tagName: "c-featured-product",
+          type: "element",
+          insertable: true,
+          extraProps: [
+            "showRelatedProducts",
+            "itemsPerPage",
+            "desktopColumns",
+            "mobileColumns",
+            "relatedProductsDesktopFontSize",
+            "relatedProductsMobileFontSize",
+            "customText"
+          ]
+        },
+        "store-custom-product-detail": {
+          tagName: "c-store-custom-product-detail",
+          type: "element",
+          insertable: false,
+          protected: true,
+          extraProps: [
+            "selectedProducts",
+            "manageProducts",
+            "desktopMediaWidth",
+            "alignImage",
+            "mediaLayout",
+            "showAddToCartButton",
+            "showBuyNowButton",
+            "showDescription",
+            "showRelatedProducts",
+            "showReviewsAndRatings",
+            "showRatingsCount",
+            "itemsPerPage",
+            "desktopColumns",
+            "mobileColumns",
+            "tabletColumns",
+            "imageZoom",
+            "typography",
+            "variantsStyling",
+            "featureHeadlineDesktopFontSize",
+            "featureHeadlineMobileFontSize",
+            "featureHeadlineTabletFontSize",
+            "desktopFontSize",
+            "mobileFontSize",
+            "priceDiscountDesktopFontSize",
+            "priceDiscountMobileFontSize",
+            "priceDiscountTabletFontSize",
+            "relatedProductsDesktopFontSize",
+            "relatedProductsMobileFontSize",
+            "relatedProductsTabletFontSize",
+            "overrideDescriptionStyles",
+            "descriptionDesktopFontSize",
+            "descriptionMobileFontSize",
+            "customText",
+            "enableWishlisting",
+            "customClass",
+            "visibility"
+          ]
+        },
+        "number-counter": {
+          tagName: "c-number-counter",
+          type: "element",
+          insertable: true,
+          extraProps: [
+            "counterList",
+            "counterColumnGap",
+            "counterMobileColumnGap",
+            "counterDesktopColumns",
+            "counterMobileColumns",
+            "counterImageDesktopSize",
+            "counterImageMobileSize",
+            "visibility",
+            "customClass",
+            "counterDuration",
+            "inlineTypographies",
+            "featureHeadlineDesktopFontSize",
+            "featureHeadlineMobileFontSize",
+            "featureHeadlineTabletFontSize",
+            "desktopFontSize",
+            "mobileFontSize",
+            "counterNumberFontFamily",
+            "counterCaptionFontFamily",
+            "counterPreview",
+            "counterShowAnimationOnce"
+          ]
+        },
+        "logo-showcase": {
+          tagName: "c-logo-showcase",
+          type: "element",
+          insertable: true,
+          extraProps: [
+            "logoShowcaseMode",
+            "imagesPerSlide",
+            "sliderList",
+            "sliderPagination",
+            "sliderArrow",
+            "sliderAnimation",
+            "visibility",
+            "customClass",
+            "tickerSpeed",
+            "pauseOnHover",
+            "logoSpacing",
+            "elementVersion"
+          ]
+        },
+        "qr-code": {
+          tagName: "c-qr-code",
+          type: "element",
+          insertable: true,
+          extraProps: [
+            "qrCode",
+            "elementVersion",
+            "visibility",
+            "customClass"
+          ]
+        },
+        "pricing-table": {
+          tagName: "c-pricing-table",
+          type: "element",
+          insertable: true,
+          extraProps: [
+            "pricingTableLayout",
+            "pricingTableGap",
+            "pricingTableNumberOfColumns",
+            "pricingTableImageDesktopSize",
+            "pricingTableImageMobileSize",
+            "pricingTableImageTabletSize",
+            "typography",
+            "pricingTableTitleDesktopFontSize",
+            "pricingTableTitleMobileFontSize",
+            "pricingTableTitleTabletFontSize",
+            "pricingTableTitleCaptionDesktopFontSize",
+            "pricingTableTitleCaptionMobileFontSize",
+            "pricingTableTitleCaptionTabletFontSize",
+            "pricingTableHighlightLabelDesktopFontSize",
+            "pricingTableHighlightLabelMobileFontSize",
+            "pricingTableHighlightLabelTabletFontSize",
+            "pricingTableButtonTextDesktopFontSize",
+            "pricingTableButtonTextMobileFontSize",
+            "pricingTableButtonTextTabletFontSize",
+            "pricingTableButtonCaptionDesktopFontSize",
+            "pricingTableButtonCaptionMobileFontSize",
+            "pricingTableButtonCaptionTabletFontSize",
+            "pricingTableFeaturesDesktopFontSize",
+            "pricingTableFeaturesMobileFontSize",
+            "pricingTableFeaturesTabletFontSize",
+            "pricingTablePriceDesktopFontSize",
+            "pricingTablePriceMobileFontSize",
+            "pricingTablePriceTabletFontSize",
+            "pricingTableDiscountDesktopFontSize",
+            "pricingTableDiscountMobileFontSize",
+            "pricingTableDiscountTabletFontSize",
+            "pricingTableStrikeOffDesktopFontSize",
+            "pricingTableStrikeOffMobileFontSize",
+            "pricingTableStrikeOffTabletFontSize",
+            "sliderPagination",
+            "sliderArrow",
+            "sliderAnimation",
+            "pricingTableColumns",
+            "pricingTableHeadColumns",
+            "showHeadColumnTitle",
+            "showHeadColumnSubtitle",
+            "pricingTableHeadFeatures",
+            "visibility",
+            "customClass",
+            "elementVersion"
+          ]
+        },
+        testimonial: {
+          tagName: "c-testimonial",
+          type: "element",
+          insertable: true,
+          extraProps: [
+            "testimonialList",
+            "testimonialSettings",
+            "testimonialLayout",
+            "testimonialCardStyle",
+            "sliderAnimation",
+            "sliderArrow",
+            "sliderPagination",
+            "customClass",
+            "visibility",
+            "elementVersion"
+          ]
+        }
+      }
+    };
+  }
+});
+
 // <define:__TOOL_CATALOG__>
 var define_TOOL_CATALOG_default;
 var init_define_TOOL_CATALOG = __esm({
@@ -52961,6 +54161,7 @@ var require_code = __commonJS({
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
+    init_define_FUNNEL_ELEMENTS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.regexpCode = exports.getEsmExportName = exports.getProperty = exports.safeStringify = exports.stringify = exports.strConcat = exports.addCodeArg = exports.str = exports._ = exports.nil = exports._Code = exports.Name = exports.IDENTIFIER = exports._CodeOrName = void 0;
@@ -53120,6 +54321,7 @@ var require_scope = __commonJS({
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
+    init_define_FUNNEL_ELEMENTS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.ValueScope = exports.ValueScopeName = exports.Scope = exports.varKinds = exports.UsedValueState = void 0;
@@ -53270,6 +54472,7 @@ var require_codegen = __commonJS({
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
+    init_define_FUNNEL_ELEMENTS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.or = exports.and = exports.not = exports.CodeGen = exports.operators = exports.varKinds = exports.ValueScopeName = exports.ValueScope = exports.Scope = exports.Name = exports.regexpCode = exports.stringify = exports.getProperty = exports.nil = exports.strConcat = exports.str = exports._ = void 0;
@@ -53995,6 +55198,7 @@ var require_util = __commonJS({
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
+    init_define_FUNNEL_ELEMENTS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.checkStrictMode = exports.getErrorPath = exports.Type = exports.useFunc = exports.setEvaluated = exports.evaluatedPropsToName = exports.mergeEvaluated = exports.eachItem = exports.unescapeJsonPointer = exports.escapeJsonPointer = exports.escapeFragment = exports.unescapeFragment = exports.schemaRefOrVal = exports.schemaHasRulesButRef = exports.schemaHasRules = exports.checkUnknownRules = exports.alwaysValidSchema = exports.toHash = void 0;
@@ -54167,6 +55371,7 @@ var require_names = __commonJS({
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
+    init_define_FUNNEL_ELEMENTS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -54211,6 +55416,7 @@ var require_errors = __commonJS({
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
+    init_define_FUNNEL_ELEMENTS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.extendErrors = exports.resetErrorsCount = exports.reportExtraError = exports.reportError = exports.keyword$DataError = exports.keywordError = void 0;
@@ -54338,6 +55544,7 @@ var require_boolSchema = __commonJS({
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
+    init_define_FUNNEL_ELEMENTS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.boolOrEmptySchema = exports.topBoolOrEmptySchema = void 0;
@@ -54394,6 +55601,7 @@ var require_rules = __commonJS({
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
+    init_define_FUNNEL_ELEMENTS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.getRules = exports.isJSONType = void 0;
@@ -54430,6 +55638,7 @@ var require_applicability = __commonJS({
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
+    init_define_FUNNEL_ELEMENTS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.shouldUseRule = exports.shouldUseGroup = exports.schemaHasRulesForType = void 0;
@@ -54458,6 +55667,7 @@ var require_dataType = __commonJS({
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
+    init_define_FUNNEL_ELEMENTS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.reportTypeError = exports.checkDataTypes = exports.checkDataType = exports.coerceAndCheckDataType = exports.getJSONTypes = exports.getSchemaTypes = exports.DataType = void 0;
@@ -54647,6 +55857,7 @@ var require_defaults = __commonJS({
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
+    init_define_FUNNEL_ELEMENTS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.assignDefaults = void 0;
@@ -54689,6 +55900,7 @@ var require_code2 = __commonJS({
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
+    init_define_FUNNEL_ELEMENTS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.validateUnion = exports.validateArray = exports.usePattern = exports.callValidateCode = exports.schemaProperties = exports.allSchemaProperties = exports.noPropertyInData = exports.propertyInData = exports.isOwnProperty = exports.hasPropFunc = exports.reportMissingProp = exports.checkMissingProp = exports.checkReportMissingProp = void 0;
@@ -54827,6 +56039,7 @@ var require_keyword = __commonJS({
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
+    init_define_FUNNEL_ELEMENTS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.validateKeywordUsage = exports.validSchemaType = exports.funcKeywordCode = exports.macroKeywordCode = void 0;
@@ -54950,6 +56163,7 @@ var require_subschema = __commonJS({
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
+    init_define_FUNNEL_ELEMENTS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.extendSubschemaMode = exports.extendSubschemaData = exports.getSubschema = void 0;
@@ -55038,6 +56252,7 @@ var require_fast_deep_equal = __commonJS({
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
+    init_define_FUNNEL_ELEMENTS();
     init_define_TOOL_CATALOG();
     module.exports = function equal(a, b) {
       if (a === b) return true;
@@ -55078,6 +56293,7 @@ var require_json_schema_traverse = __commonJS({
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
+    init_define_FUNNEL_ELEMENTS();
     init_define_TOOL_CATALOG();
     var traverse = module.exports = function(schema2, opts, cb) {
       if (typeof opts == "function") {
@@ -55171,6 +56387,7 @@ var require_resolve = __commonJS({
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
+    init_define_FUNNEL_ELEMENTS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.getSchemaRefs = exports.resolveUrl = exports.normalizeId = exports._getFullPath = exports.getFullPath = exports.inlineRef = void 0;
@@ -55332,6 +56549,7 @@ var require_validate = __commonJS({
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
+    init_define_FUNNEL_ELEMENTS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.getData = exports.KeywordCxt = exports.validateFunctionCode = void 0;
@@ -55845,6 +57063,7 @@ var require_validation_error = __commonJS({
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
+    init_define_FUNNEL_ELEMENTS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var ValidationError = class extends Error {
@@ -55866,6 +57085,7 @@ var require_ref_error = __commonJS({
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
+    init_define_FUNNEL_ELEMENTS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var resolve_1 = require_resolve();
@@ -55888,6 +57108,7 @@ var require_compile = __commonJS({
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
+    init_define_FUNNEL_ELEMENTS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.resolveSchema = exports.getCompilingSchema = exports.resolveRef = exports.compileSchema = exports.SchemaEnv = void 0;
@@ -56009,7 +57230,7 @@ var require_compile = __commonJS({
       const schOrFunc = root.refs[ref];
       if (schOrFunc)
         return schOrFunc;
-      let _sch = resolve4.call(this, root, ref);
+      let _sch = resolve5.call(this, root, ref);
       if (_sch === void 0) {
         const schema2 = (_a3 = root.localRefs) === null || _a3 === void 0 ? void 0 : _a3[ref];
         const { schemaId } = this.opts;
@@ -56036,7 +57257,7 @@ var require_compile = __commonJS({
     function sameSchemaEnv(s1, s2) {
       return s1.schema === s2.schema && s1.root === s2.root && s1.baseId === s2.baseId;
     }
-    function resolve4(root, ref) {
+    function resolve5(root, ref) {
       let sch;
       while (typeof (sch = this.refs[ref]) == "string")
         ref = sch;
@@ -56136,6 +57357,7 @@ var require_utils = __commonJS({
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
+    init_define_FUNNEL_ELEMENTS();
     init_define_TOOL_CATALOG();
     var isUUID = RegExp.prototype.test.bind(/^[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12}$/iu);
     var isIPv4 = RegExp.prototype.test.bind(/^(?:(?:25[0-5]|2[0-4]\d|1\d{2}|[1-9]\d|\d)\.){3}(?:25[0-5]|2[0-4]\d|1\d{2}|[1-9]\d|\d)$/u);
@@ -56454,6 +57676,7 @@ var require_schemes = __commonJS({
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
+    init_define_FUNNEL_ELEMENTS();
     init_define_TOOL_CATALOG();
     var { isUUID } = require_utils();
     var URN_REG = /([\da-z][\d\-a-z]{0,31}):((?:[\w!$'()*+,\-.:;=@]|%[\da-f]{2})+)/iu;
@@ -56669,6 +57892,7 @@ var require_fast_uri = __commonJS({
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
+    init_define_FUNNEL_ELEMENTS();
     init_define_TOOL_CATALOG();
     var { normalizeIPv6, removeDotSegments, recomposeAuthority, normalizePercentEncoding, normalizePathEncoding, escapePreservingEscapes, reescapeHostDelimiters, isIPv4, nonSimpleDomain } = require_utils();
     var { SCHEMES, getSchemeHandler } = require_schemes();
@@ -56682,7 +57906,7 @@ var require_fast_uri = __commonJS({
       }
       return uri;
     }
-    function resolve4(baseURI, relativeURI, options) {
+    function resolve5(baseURI, relativeURI, options) {
       const schemelessOptions = options ? Object.assign({ scheme: "null" }, options) : { scheme: "null" };
       const resolved = resolveComponent(parse3(baseURI, schemelessOptions), parse3(relativeURI, schemelessOptions), schemelessOptions, true);
       schemelessOptions.skipEscape = true;
@@ -56946,7 +58170,7 @@ var require_fast_uri = __commonJS({
     var fastUri = {
       SCHEMES,
       normalize,
-      resolve: resolve4,
+      resolve: resolve5,
       resolveComponent,
       equal,
       serialize,
@@ -56966,6 +58190,7 @@ var require_uri = __commonJS({
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
+    init_define_FUNNEL_ELEMENTS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var uri = require_fast_uri();
@@ -56982,6 +58207,7 @@ var require_core = __commonJS({
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
+    init_define_FUNNEL_ELEMENTS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.CodeGen = exports.Name = exports.nil = exports.stringify = exports.str = exports._ = exports.KeywordCxt = void 0;
@@ -57598,6 +58824,7 @@ var require_id = __commonJS({
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
+    init_define_FUNNEL_ELEMENTS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var def = {
@@ -57618,6 +58845,7 @@ var require_ref = __commonJS({
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
+    init_define_FUNNEL_ELEMENTS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.callRef = exports.getValidate = void 0;
@@ -57745,6 +58973,7 @@ var require_core2 = __commonJS({
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
+    init_define_FUNNEL_ELEMENTS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var id_1 = require_id();
@@ -57771,6 +59000,7 @@ var require_limitNumber = __commonJS({
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
+    init_define_FUNNEL_ELEMENTS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -57808,6 +59038,7 @@ var require_multipleOf = __commonJS({
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
+    init_define_FUNNEL_ELEMENTS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -57841,6 +59072,7 @@ var require_ucs2length = __commonJS({
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
+    init_define_FUNNEL_ELEMENTS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     function ucs2length(str) {
@@ -57872,6 +59104,7 @@ var require_limitLength = __commonJS({
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
+    init_define_FUNNEL_ELEMENTS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -57909,6 +59142,7 @@ var require_pattern = __commonJS({
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
+    init_define_FUNNEL_ELEMENTS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var code_1 = require_code2();
@@ -57951,6 +59185,7 @@ var require_limitProperties = __commonJS({
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
+    init_define_FUNNEL_ELEMENTS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -57985,6 +59220,7 @@ var require_required = __commonJS({
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
+    init_define_FUNNEL_ELEMENTS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var code_1 = require_code2();
@@ -58072,6 +59308,7 @@ var require_limitItems = __commonJS({
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
+    init_define_FUNNEL_ELEMENTS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -58106,6 +59343,7 @@ var require_equal = __commonJS({
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
+    init_define_FUNNEL_ELEMENTS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var equal = require_fast_deep_equal();
@@ -58122,6 +59360,7 @@ var require_uniqueItems = __commonJS({
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
+    init_define_FUNNEL_ELEMENTS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var dataType_1 = require_dataType();
@@ -58194,6 +59433,7 @@ var require_const = __commonJS({
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
+    init_define_FUNNEL_ELEMENTS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -58228,6 +59468,7 @@ var require_enum = __commonJS({
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
+    init_define_FUNNEL_ELEMENTS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -58282,6 +59523,7 @@ var require_validation = __commonJS({
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
+    init_define_FUNNEL_ELEMENTS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var limitNumber_1 = require_limitNumber();
@@ -58325,6 +59567,7 @@ var require_additionalItems = __commonJS({
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
+    init_define_FUNNEL_ELEMENTS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.validateAdditionalItems = void 0;
@@ -58383,6 +59626,7 @@ var require_items = __commonJS({
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
+    init_define_FUNNEL_ELEMENTS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.validateTuple = void 0;
@@ -58445,6 +59689,7 @@ var require_prefixItems = __commonJS({
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
+    init_define_FUNNEL_ELEMENTS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var items_1 = require_items();
@@ -58467,6 +59712,7 @@ var require_items2020 = __commonJS({
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
+    init_define_FUNNEL_ELEMENTS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -58507,6 +59753,7 @@ var require_contains = __commonJS({
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
+    init_define_FUNNEL_ELEMENTS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -58606,6 +59853,7 @@ var require_dependencies = __commonJS({
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
+    init_define_FUNNEL_ELEMENTS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.validateSchemaDeps = exports.validatePropertyDeps = exports.error = void 0;
@@ -58705,6 +59953,7 @@ var require_propertyNames = __commonJS({
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
+    init_define_FUNNEL_ELEMENTS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -58753,6 +60002,7 @@ var require_additionalProperties = __commonJS({
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
+    init_define_FUNNEL_ELEMENTS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var code_1 = require_code2();
@@ -58864,6 +60114,7 @@ var require_properties = __commonJS({
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
+    init_define_FUNNEL_ELEMENTS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var validate_1 = require_validate();
@@ -58927,6 +60178,7 @@ var require_patternProperties = __commonJS({
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
+    init_define_FUNNEL_ELEMENTS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var code_1 = require_code2();
@@ -59006,6 +60258,7 @@ var require_not = __commonJS({
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
+    init_define_FUNNEL_ELEMENTS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var util_1 = require_util();
@@ -59042,6 +60295,7 @@ var require_anyOf = __commonJS({
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
+    init_define_FUNNEL_ELEMENTS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var code_1 = require_code2();
@@ -59064,6 +60318,7 @@ var require_oneOf = __commonJS({
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
+    init_define_FUNNEL_ELEMENTS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -59127,6 +60382,7 @@ var require_allOf = __commonJS({
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
+    init_define_FUNNEL_ELEMENTS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var util_1 = require_util();
@@ -59159,6 +60415,7 @@ var require_if = __commonJS({
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
+    init_define_FUNNEL_ELEMENTS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -59233,6 +60490,7 @@ var require_thenElse = __commonJS({
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
+    init_define_FUNNEL_ELEMENTS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var util_1 = require_util();
@@ -59256,6 +60514,7 @@ var require_applicator = __commonJS({
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
+    init_define_FUNNEL_ELEMENTS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var additionalItems_1 = require_additionalItems();
@@ -59309,6 +60568,7 @@ var require_format = __commonJS({
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
+    init_define_FUNNEL_ELEMENTS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -59404,6 +60664,7 @@ var require_format2 = __commonJS({
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
+    init_define_FUNNEL_ELEMENTS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var format_1 = require_format();
@@ -59420,6 +60681,7 @@ var require_metadata = __commonJS({
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
+    init_define_FUNNEL_ELEMENTS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.contentVocabulary = exports.metadataVocabulary = void 0;
@@ -59448,6 +60710,7 @@ var require_draft7 = __commonJS({
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
+    init_define_FUNNEL_ELEMENTS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var core_1 = require_core2();
@@ -59475,6 +60738,7 @@ var require_types = __commonJS({
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
+    init_define_FUNNEL_ELEMENTS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.DiscrError = void 0;
@@ -59494,6 +60758,7 @@ var require_discriminator = __commonJS({
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
+    init_define_FUNNEL_ELEMENTS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -59761,6 +61026,7 @@ var require_ajv = __commonJS({
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
+    init_define_FUNNEL_ELEMENTS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.MissingRefError = exports.ValidationError = exports.CodeGen = exports.Name = exports.nil = exports.stringify = exports.str = exports._ = exports.KeywordCxt = exports.Ajv = void 0;
@@ -59836,6 +61102,7 @@ var require_formats = __commonJS({
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
+    init_define_FUNNEL_ELEMENTS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.formatNames = exports.fastFormats = exports.fullFormats = void 0;
@@ -60044,6 +61311,7 @@ var require_limit = __commonJS({
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
+    init_define_FUNNEL_ELEMENTS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.formatLimitDefinition = void 0;
@@ -60121,6 +61389,7 @@ var require_dist = __commonJS({
     init_define_CONTACT_FILTER_FIELDS();
     init_define_ENDPOINT_CATALOG();
     init_define_ENDPOINT_OVERLAY();
+    init_define_FUNNEL_ELEMENTS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var formats_1 = require_formats();
@@ -60165,6 +61434,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
 // node_modules/@modelcontextprotocol/sdk/dist/esm/server/mcp.js
@@ -60172,6 +61442,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
 // node_modules/@modelcontextprotocol/sdk/dist/esm/server/index.js
@@ -60179,6 +61450,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
 // node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js
@@ -60186,6 +61458,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
 // node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-compat.js
@@ -60193,6 +61466,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod/v3/errors.js
@@ -60200,6 +61474,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod/v3/locales/en.js
@@ -60207,6 +61482,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod/v3/ZodError.js
@@ -60214,6 +61490,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod/v3/helpers/util.js
@@ -60221,6 +61498,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var util;
 (function(util2) {
@@ -60269,9 +61547,9 @@ var util;
     }
     return void 0;
   };
-  util2.isInteger = typeof Number.isInteger === "function" ? (val) => Number.isInteger(val) : (val) => typeof val === "number" && Number.isFinite(val) && Math.floor(val) === val;
+  util2.isInteger = typeof Number.isInteger === "function" ? (val2) => Number.isInteger(val2) : (val2) => typeof val2 === "number" && Number.isFinite(val2) && Math.floor(val2) === val2;
   function joinValues2(array2, separator = " | ") {
-    return array2.map((val) => typeof val === "string" ? `'${val}'` : val).join(separator);
+    return array2.map((val2) => typeof val2 === "string" ? `'${val2}'` : val2).join(separator);
   }
   util2.joinValues = joinValues2;
   util2.jsonStringifyReplacer = (_, value) => {
@@ -60583,6 +61861,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var makeIssue = (params) => {
   const { data: data2, path, errorMaps, issueData } = params;
@@ -60697,6 +61976,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod/v3/helpers/errorUtil.js
@@ -60704,6 +61984,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var errorUtil;
 (function(errorUtil2) {
@@ -60896,20 +62177,20 @@ var ZodType = class {
     return handleResult(ctx, result);
   }
   refine(check2, message) {
-    const getIssueProperties = (val) => {
+    const getIssueProperties = (val2) => {
       if (typeof message === "string" || typeof message === "undefined") {
         return { message };
       } else if (typeof message === "function") {
-        return message(val);
+        return message(val2);
       } else {
         return message;
       }
     };
-    return this._refinement((val, ctx) => {
-      const result = check2(val);
+    return this._refinement((val2, ctx) => {
+      const result = check2(val2);
       const setError = () => ctx.addIssue({
         code: ZodIssueCode.custom,
-        ...getIssueProperties(val)
+        ...getIssueProperties(val2)
       });
       if (typeof Promise !== "undefined" && result instanceof Promise) {
         return result.then((data2) => {
@@ -60930,9 +62211,9 @@ var ZodType = class {
     });
   }
   refinement(check2, refinementData) {
-    return this._refinement((val, ctx) => {
-      if (!check2(val)) {
-        ctx.addIssue(typeof refinementData === "function" ? refinementData(val, ctx) : refinementData);
+    return this._refinement((val2, ctx) => {
+      if (!check2(val2)) {
+        ctx.addIssue(typeof refinementData === "function" ? refinementData(val2, ctx) : refinementData);
         return false;
       } else {
         return true;
@@ -61682,11 +62963,11 @@ ZodString.create = (params) => {
     ...processCreateParams(params)
   });
 };
-function floatSafeRemainder(val, step) {
-  const valDecCount = (val.toString().split(".")[1] || "").length;
+function floatSafeRemainder(val2, step) {
+  const valDecCount = (val2.toString().split(".")[1] || "").length;
   const stepDecCount = (step.toString().split(".")[1] || "").length;
   const decCount = valDecCount > stepDecCount ? valDecCount : stepDecCount;
-  const valInt = Number.parseInt(val.toFixed(decCount).replace(".", ""));
+  const valInt = Number.parseInt(val2.toFixed(decCount).replace(".", ""));
   const stepInt = Number.parseInt(step.toFixed(decCount).replace(".", ""));
   return valInt % stepInt / 10 ** decCount;
 }
@@ -63569,22 +64850,22 @@ var ZodEnum = class _ZodEnum extends ZodType {
   }
   get enum() {
     const enumValues = {};
-    for (const val of this._def.values) {
-      enumValues[val] = val;
+    for (const val2 of this._def.values) {
+      enumValues[val2] = val2;
     }
     return enumValues;
   }
   get Values() {
     const enumValues = {};
-    for (const val of this._def.values) {
-      enumValues[val] = val;
+    for (const val2 of this._def.values) {
+      enumValues[val2] = val2;
     }
     return enumValues;
   }
   get Enum() {
     const enumValues = {};
-    for (const val of this._def.values) {
-      enumValues[val] = val;
+    for (const val2 of this._def.values) {
+      enumValues[val2] = val2;
     }
     return enumValues;
   }
@@ -64119,6 +65400,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod/v4/core/index.js
@@ -64403,6 +65685,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod/v4/core/core.js
@@ -64410,6 +65693,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var _a;
 var NEVER = /* @__PURE__ */ Object.freeze({
@@ -64492,6 +65776,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod/v4/core/errors.js
@@ -64499,6 +65784,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod/v4/core/util.js
@@ -64572,12 +65858,13 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
-function assertEqual(val) {
-  return val;
+function assertEqual(val2) {
+  return val2;
 }
-function assertNotEqual(val) {
-  return val;
+function assertNotEqual(val2) {
+  return val2;
 }
 function assertIs(_arg) {
 }
@@ -64592,7 +65879,7 @@ function getEnumValues(entries) {
   return values;
 }
 function joinValues(array2, separator = "|") {
-  return array2.map((val) => stringifyPrimitive(val)).join(separator);
+  return array2.map((val2) => stringifyPrimitive(val2)).join(separator);
 }
 function jsonStringifyReplacer(_, value) {
   if (typeof value === "bigint")
@@ -64620,8 +65907,8 @@ function cleanRegex(source) {
   const end = source.endsWith("$") ? source.length - 1 : source.length;
   return source.slice(start, end);
 }
-function floatSafeRemainder2(val, step) {
-  const ratio = val / step;
+function floatSafeRemainder2(val2, step) {
+  const ratio = val2 / step;
   const roundedRatio = Math.round(ratio);
   const tolerance = Number.EPSILON * Math.max(Math.abs(ratio), 1);
   if (Math.abs(ratio - roundedRatio) < tolerance)
@@ -65434,6 +66721,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod/v4/core/checks.js
@@ -65441,6 +66729,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod/v4/core/regexes.js
@@ -65510,6 +66799,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var cuid = /^[cC][0-9a-z]{6,}$/;
 var cuid2 = /^[0-9a-z]+$/;
@@ -65815,8 +67105,8 @@ var $ZodCheckMaxSize = /* @__PURE__ */ $constructor("$ZodCheckMaxSize", (inst, d
   var _a3;
   $ZodCheck.init(inst, def);
   (_a3 = inst._zod.def).when ?? (_a3.when = (payload) => {
-    const val = payload.value;
-    return !nullish(val) && val.size !== void 0;
+    const val2 = payload.value;
+    return !nullish(val2) && val2.size !== void 0;
   });
   inst._zod.onattach.push((inst2) => {
     const curr = inst2._zod.bag.maximum ?? Number.POSITIVE_INFINITY;
@@ -65843,8 +67133,8 @@ var $ZodCheckMinSize = /* @__PURE__ */ $constructor("$ZodCheckMinSize", (inst, d
   var _a3;
   $ZodCheck.init(inst, def);
   (_a3 = inst._zod.def).when ?? (_a3.when = (payload) => {
-    const val = payload.value;
-    return !nullish(val) && val.size !== void 0;
+    const val2 = payload.value;
+    return !nullish(val2) && val2.size !== void 0;
   });
   inst._zod.onattach.push((inst2) => {
     const curr = inst2._zod.bag.minimum ?? Number.NEGATIVE_INFINITY;
@@ -65871,8 +67161,8 @@ var $ZodCheckSizeEquals = /* @__PURE__ */ $constructor("$ZodCheckSizeEquals", (i
   var _a3;
   $ZodCheck.init(inst, def);
   (_a3 = inst._zod.def).when ?? (_a3.when = (payload) => {
-    const val = payload.value;
-    return !nullish(val) && val.size !== void 0;
+    const val2 = payload.value;
+    return !nullish(val2) && val2.size !== void 0;
   });
   inst._zod.onattach.push((inst2) => {
     const bag = inst2._zod.bag;
@@ -65901,8 +67191,8 @@ var $ZodCheckMaxLength = /* @__PURE__ */ $constructor("$ZodCheckMaxLength", (ins
   var _a3;
   $ZodCheck.init(inst, def);
   (_a3 = inst._zod.def).when ?? (_a3.when = (payload) => {
-    const val = payload.value;
-    return !nullish(val) && val.length !== void 0;
+    const val2 = payload.value;
+    return !nullish(val2) && val2.length !== void 0;
   });
   inst._zod.onattach.push((inst2) => {
     const curr = inst2._zod.bag.maximum ?? Number.POSITIVE_INFINITY;
@@ -65930,8 +67220,8 @@ var $ZodCheckMinLength = /* @__PURE__ */ $constructor("$ZodCheckMinLength", (ins
   var _a3;
   $ZodCheck.init(inst, def);
   (_a3 = inst._zod.def).when ?? (_a3.when = (payload) => {
-    const val = payload.value;
-    return !nullish(val) && val.length !== void 0;
+    const val2 = payload.value;
+    return !nullish(val2) && val2.length !== void 0;
   });
   inst._zod.onattach.push((inst2) => {
     const curr = inst2._zod.bag.minimum ?? Number.NEGATIVE_INFINITY;
@@ -65959,8 +67249,8 @@ var $ZodCheckLengthEquals = /* @__PURE__ */ $constructor("$ZodCheckLengthEquals"
   var _a3;
   $ZodCheck.init(inst, def);
   (_a3 = inst._zod.def).when ?? (_a3.when = (payload) => {
-    const val = payload.value;
-    return !nullish(val) && val.length !== void 0;
+    const val2 = payload.value;
+    return !nullish(val2) && val2.length !== void 0;
   });
   inst._zod.onattach.push((inst2) => {
     const bag = inst2._zod.bag;
@@ -66160,6 +67450,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var Doc = class {
   constructor(args = []) {
@@ -66201,6 +67492,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var version = {
   major: 4,
@@ -67022,9 +68314,9 @@ var $ZodObjectJIT = /* @__PURE__ */ $constructor("$ZodObjectJIT", (inst, def) =>
     };
     doc.write(`const input = payload.value;`);
     const ids = /* @__PURE__ */ Object.create(null);
-    let counter = 0;
+    let counter2 = 0;
     for (const key of normalized.keys) {
-      ids[key] = `key_${counter++}`;
+      ids[key] = `key_${counter2++}`;
     }
     doc.write(`const newResult = {};`);
     for (const key of normalized.keys) {
@@ -67267,8 +68559,8 @@ var $ZodDiscriminatedUnion = /* @__PURE__ */ $constructor("$ZodDiscriminatedUnio
       for (const [k, v] of Object.entries(pv)) {
         if (!propValues[k])
           propValues[k] = /* @__PURE__ */ new Set();
-        for (const val of v) {
-          propValues[k].add(val);
+        for (const val2 of v) {
+          propValues[k].add(val2);
         }
       }
     }
@@ -68361,6 +69653,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod/v4/locales/ar.js
@@ -68368,6 +69661,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var error = () => {
   const Sizable = {
@@ -68480,6 +69774,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var error2 = () => {
   const Sizable = {
@@ -68591,6 +69886,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 function getBelarusianPlural(count, one, few, many) {
   const absCount = Math.abs(count);
@@ -68753,6 +70049,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var error4 = () => {
   const Sizable = {
@@ -68879,6 +70176,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var error5 = () => {
   const Sizable = {
@@ -68993,6 +70291,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var error6 = () => {
   const Sizable = {
@@ -69110,6 +70409,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var error7 = () => {
   const Sizable = {
@@ -69231,6 +70531,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var error8 = () => {
   const Sizable = {
@@ -69345,6 +70646,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var error9 = () => {
   const Sizable = {
@@ -69460,6 +70762,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var error10 = () => {
   const Sizable = {
@@ -69578,6 +70881,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var error11 = () => {
   const Sizable = {
@@ -69693,6 +70997,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var error12 = () => {
   const Sizable = {
@@ -69831,6 +71136,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var error13 = () => {
   const Sizable = {
@@ -69951,6 +71257,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var error14 = () => {
   const Sizable = {
@@ -70069,6 +71376,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var error15 = () => {
   const Sizable = {
@@ -70200,6 +71508,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var error16 = () => {
   const Sizable = {
@@ -70313,6 +71622,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var error17 = () => {
   const TypeNames = {
@@ -70513,6 +71823,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var error18 = () => {
   const Sizable = {
@@ -70641,6 +71952,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var error19 = () => {
   const Sizable = {
@@ -70755,6 +72067,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 function getArmenianPlural(count, one, many) {
   return Math.abs(count) === 1 ? one : many;
@@ -70908,6 +72221,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var error21 = () => {
   const Sizable = {
@@ -71020,6 +72334,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var error22 = () => {
   const Sizable = {
@@ -71135,6 +72450,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var error23 = () => {
   const Sizable = {
@@ -71249,6 +72565,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var error24 = () => {
   const Sizable = {
@@ -71362,6 +72679,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var error25 = () => {
   const Sizable = {
@@ -71480,6 +72798,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod/v4/locales/km.js
@@ -71487,6 +72806,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var error26 = () => {
   const Sizable = {
@@ -71608,6 +72928,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var error27 = () => {
   const Sizable = {
@@ -71725,6 +73046,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var capitalizeFirstCharacter = (text) => {
   return text.charAt(0).toUpperCase() + text.slice(1);
@@ -71934,6 +73256,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var error29 = () => {
   const Sizable = {
@@ -72049,6 +73372,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var error30 = () => {
   const Sizable = {
@@ -72162,6 +73486,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var error31 = () => {
   const Sizable = {
@@ -72278,6 +73603,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var error32 = () => {
   const Sizable = {
@@ -72392,6 +73718,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var error33 = () => {
   const Sizable = {
@@ -72507,6 +73834,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var error34 = () => {
   const Sizable = {
@@ -72627,6 +73955,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var error35 = () => {
   const Sizable = {
@@ -72742,6 +74071,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var error36 = () => {
   const Sizable = {
@@ -72856,6 +74186,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var error37 = () => {
   const Sizable = {
@@ -72981,6 +74312,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 function getRussianPlural(count, one, few, many) {
   const absCount = Math.abs(count);
@@ -73143,6 +74475,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var error39 = () => {
   const Sizable = {
@@ -73258,6 +74591,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var error40 = () => {
   const Sizable = {
@@ -73374,6 +74708,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var error41 = () => {
   const Sizable = {
@@ -73490,6 +74825,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var error42 = () => {
   const Sizable = {
@@ -73606,6 +74942,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var error43 = () => {
   const Sizable = {
@@ -73717,6 +75054,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod/v4/locales/uk.js
@@ -73724,6 +75062,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var error44 = () => {
   const Sizable = {
@@ -73843,6 +75182,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var error45 = () => {
   const Sizable = {
@@ -73959,6 +75299,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var error46 = () => {
   const Sizable = {
@@ -74075,6 +75416,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var error47 = () => {
   const Sizable = {
@@ -74189,6 +75531,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var error48 = () => {
   const Sizable = {
@@ -74304,6 +75647,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var error49 = () => {
   const Sizable = {
@@ -74417,6 +75761,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var error50 = () => {
   const Sizable = {
@@ -74530,6 +75875,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var _a2;
 var $output = /* @__PURE__ */ Symbol("ZodOutput");
@@ -74585,6 +75931,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 // @__NO_SIDE_EFFECTS__
 function _string(Class2, params) {
@@ -75614,7 +76961,7 @@ function _stringFormat(Class2, format, fnOrRegex, _params = {}) {
     check: "string_format",
     type: "string",
     format,
-    fn: typeof fnOrRegex === "function" ? fnOrRegex : (val) => fnOrRegex.test(val),
+    fn: typeof fnOrRegex === "function" ? fnOrRegex : (val2) => fnOrRegex.test(val2),
     ...params
   };
   if (fnOrRegex instanceof RegExp) {
@@ -75629,6 +76976,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 function initializeContext(params) {
   let target = params?.target ?? "draft-2020-12";
@@ -75993,6 +77341,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var formatMap = {
   guid: "uuid",
@@ -76123,30 +77472,30 @@ var enumProcessor = (schema2, _ctx, json2, _params) => {
 var literalProcessor = (schema2, ctx, json2, _params) => {
   const def = schema2._zod.def;
   const vals = [];
-  for (const val of def.values) {
-    if (val === void 0) {
+  for (const val2 of def.values) {
+    if (val2 === void 0) {
       if (ctx.unrepresentable === "throw") {
         throw new Error("Literal `undefined` cannot be represented in JSON Schema");
       } else {
       }
-    } else if (typeof val === "bigint") {
+    } else if (typeof val2 === "bigint") {
       if (ctx.unrepresentable === "throw") {
         throw new Error("BigInt literals cannot be represented in JSON Schema");
       } else {
-        vals.push(Number(val));
+        vals.push(Number(val2));
       }
     } else {
-      vals.push(val);
+      vals.push(val2);
     }
   }
   if (vals.length === 0) {
   } else if (vals.length === 1) {
-    const val = vals[0];
-    json2.type = val === null ? "null" : typeof val;
+    const val2 = vals[0];
+    json2.type = val2 === null ? "null" : typeof val2;
     if (ctx.target === "draft-04" || ctx.target === "openapi-3.0") {
-      json2.enum = [val];
+      json2.enum = [val2];
     } else {
-      json2.const = val;
+      json2.const = val2;
     }
   } else {
     if (vals.every((v) => typeof v === "number"))
@@ -76298,7 +77647,7 @@ var intersectionProcessor = (schema2, ctx, json2, params) => {
     ...params,
     path: [...params.path, "allOf", 1]
   });
-  const isSimpleIntersection = (val) => "allOf" in val && Object.keys(val).length === 1;
+  const isSimpleIntersection = (val2) => "allOf" in val2 && Object.keys(val2).length === 1;
   const allOf = [
     ...isSimpleIntersection(a) ? a.allOf : [a],
     ...isSimpleIntersection(b) ? b.allOf : [b]
@@ -76542,6 +77891,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var JSONSchemaGenerator = class {
   /** @deprecated Access via ctx instead */
@@ -76623,6 +77973,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod/v4/mini/parse.js
@@ -76630,6 +77981,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod/v4/mini/schemas.js
@@ -76637,6 +77989,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var ZodMiniType = /* @__PURE__ */ $constructor("ZodMiniType", (inst, def) => {
   if (!inst._zod)
@@ -76832,6 +78185,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod/v4/classic/external.js
@@ -77080,6 +78434,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod/v4/classic/schemas.js
@@ -77256,6 +78611,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod/v4/classic/checks.js
@@ -77295,6 +78651,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod/v4/classic/iso.js
@@ -77313,6 +78670,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var ZodISODateTime = /* @__PURE__ */ $constructor("ZodISODateTime", (inst, def) => {
   $ZodISODateTime.init(inst, def);
@@ -77348,6 +78706,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod/v4/classic/errors.js
@@ -77355,6 +78714,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var initializer2 = (inst, issues) => {
   $ZodError.init(inst, issues);
@@ -78704,6 +80064,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var ZodIssueCode2 = {
   invalid_type: "invalid_type",
@@ -78735,6 +80096,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var z = {
   ...schemas_exports2,
@@ -79228,6 +80590,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 function string3(params) {
   return _coercedString(ZodString2, params);
@@ -79775,9 +81138,9 @@ var TextResourceContentsSchema = ResourceContentsSchema.extend({
    */
   text: string2()
 });
-var Base64Schema = string2().refine((val) => {
+var Base64Schema = string2().refine((val2) => {
   try {
-    atob(val);
+    atob(val2);
     return true;
   } catch {
     return false;
@@ -80580,7 +81943,7 @@ var ElicitResultSchema = ResultSchema.extend({
    * Per MCP spec, content is "typically omitted" for decline/cancel actions.
    * We normalize null to undefined for leniency while maintaining type compatibility.
    */
-  content: preprocess((val) => val === null ? void 0 : val, record(string2(), union([string2(), number2(), boolean2(), array(string2())])).optional())
+  content: preprocess((val2) => val2 === null ? void 0 : val2, record(string2(), union([string2(), number2(), boolean2(), array(string2())])).optional())
 });
 var ResourceTemplateReferenceSchema = object2({
   type: literal("ref/resource"),
@@ -80784,6 +82147,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 function isTerminal(status) {
   return status === "completed" || status === "failed" || status === "cancelled";
@@ -80794,6 +82158,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod-to-json-schema/dist/esm/index.js
@@ -80801,6 +82166,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod-to-json-schema/dist/esm/Options.js
@@ -80808,6 +82174,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var ignoreOverride = /* @__PURE__ */ Symbol("Let zodToJsonSchema decide on which parser to use");
 var defaultOptions = {
@@ -80847,6 +82214,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var getRefs = (options) => {
   const _options = getDefaultOptions(options);
@@ -80873,6 +82241,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 function addErrorMessage(res, key, errorMessage, refs) {
   if (!refs?.errorMessages)
@@ -80894,6 +82263,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var getRelativePath = (pathA, pathB) => {
   let i = 0;
@@ -80909,6 +82279,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod-to-json-schema/dist/esm/selectParser.js
@@ -80916,6 +82287,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/any.js
@@ -80923,6 +82295,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 function parseAnyDef(refs) {
   if (refs.target !== "openAi") {
@@ -80944,6 +82317,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 function parseArrayDef(def, refs) {
   const res = {
@@ -80973,6 +82347,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 function parseBigintDef(def, refs) {
   const res = {
@@ -81024,6 +82399,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 function parseBooleanDef() {
   return {
@@ -81036,6 +82412,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 function parseBrandedDef(_def, refs) {
   return parseDef(_def.type._def, refs);
@@ -81046,6 +82423,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var parseCatchDef = (def, refs) => {
   return parseDef(def.innerType._def, refs);
@@ -81056,6 +82434,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 function parseDateDef(def, refs, overrideDateStrategy) {
   const strategy = overrideDateStrategy ?? refs.dateStrategy;
@@ -81120,6 +82499,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 function parseDefaultDef(_def, refs) {
   return {
@@ -81133,6 +82513,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 function parseEffectsDef(_def, refs) {
   return refs.effectStrategy === "input" ? parseDef(_def.schema._def, refs) : parseAnyDef(refs);
@@ -81143,6 +82524,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 function parseEnumDef(def) {
   return {
@@ -81156,6 +82538,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var isJsonSchema7AllOfType = (type) => {
   if ("type" in type && type.type === "string")
@@ -81203,6 +82586,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 function parseLiteralDef(def, refs) {
   const parsedType2 = typeof def.value;
@@ -81228,6 +82612,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/record.js
@@ -81235,6 +82620,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/string.js
@@ -81242,6 +82628,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var emojiRegex2 = void 0;
 var zodPatterns = {
@@ -81649,6 +83036,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 function parseNativeEnumDef(def) {
   const object3 = def.values;
@@ -81668,6 +83056,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 function parseNeverDef(refs) {
   return refs.target === "openAi" ? void 0 : {
@@ -81683,6 +83072,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 function parseNullDef(refs) {
   return refs.target === "openApi3" ? {
@@ -81698,6 +83088,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/union.js
@@ -81705,6 +83096,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var primitiveMappings = {
   ZodString: "string",
@@ -81810,6 +83202,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 function parseNumberDef(def, refs) {
   const res = {
@@ -81864,6 +83257,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 function parseObjectDef(def, refs) {
   const forceOptionalIntoNullable = refs.target === "openAi";
@@ -81939,6 +83333,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var parseOptionalDef = (def, refs) => {
   if (refs.currentPath.toString() === refs.propertyPath?.toString()) {
@@ -81963,6 +83358,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var parsePipelineDef = (def, refs) => {
   if (refs.pipeStrategy === "input") {
@@ -81988,6 +83384,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 function parsePromiseDef(def, refs) {
   return parseDef(def.type._def, refs);
@@ -81998,6 +83395,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 function parseSetDef(def, refs) {
   const items = parseDef(def.valueType._def, {
@@ -82023,6 +83421,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 function parseTupleDef(def, refs) {
   if (def.rest) {
@@ -82056,6 +83455,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 function parseUndefinedDef(refs) {
   return {
@@ -82068,6 +83468,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 function parseUnknownDef(refs) {
   return parseAnyDef(refs);
@@ -82078,6 +83479,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var parseReadonlyDef = (def, refs) => {
   return parseDef(def.innerType._def, refs);
@@ -82220,6 +83622,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod-to-json-schema/dist/esm/zodToJsonSchema.js
@@ -82227,6 +83630,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var zodToJsonSchema = (schema2, options) => {
   const refs = getRefs(options);
@@ -82831,7 +84235,7 @@ var Protocol = class {
           return;
         }
         const pollInterval = task2.pollInterval ?? this._options?.defaultTaskPollInterval ?? 1e3;
-        await new Promise((resolve4) => setTimeout(resolve4, pollInterval));
+        await new Promise((resolve5) => setTimeout(resolve5, pollInterval));
         options?.signal?.throwIfAborted();
       }
     } catch (error51) {
@@ -82848,7 +84252,7 @@ var Protocol = class {
    */
   request(request, resultSchema, options) {
     const { relatedRequestId, resumptionToken, onresumptiontoken, task, relatedTask } = options ?? {};
-    return new Promise((resolve4, reject) => {
+    return new Promise((resolve5, reject) => {
       const earlyReject = (error51) => {
         reject(error51);
       };
@@ -82926,7 +84330,7 @@ var Protocol = class {
           if (!parseResult.success) {
             reject(parseResult.error);
           } else {
-            resolve4(parseResult.data);
+            resolve5(parseResult.data);
           }
         } catch (error51) {
           reject(error51);
@@ -83187,12 +84591,12 @@ var Protocol = class {
       }
     } catch {
     }
-    return new Promise((resolve4, reject) => {
+    return new Promise((resolve5, reject) => {
       if (signal.aborted) {
         reject(new McpError(ErrorCode.InvalidRequest, "Request cancelled"));
         return;
       }
-      const timeoutId = setTimeout(resolve4, interval);
+      const timeoutId = setTimeout(resolve5, interval);
       signal.addEventListener("abort", () => {
         clearTimeout(timeoutId);
         reject(new McpError(ErrorCode.InvalidRequest, "Request cancelled"));
@@ -83290,6 +84694,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var import_ajv = __toESM(require_ajv(), 1);
 var import_ajv_formats = __toESM(require_dist(), 1);
@@ -83363,6 +84768,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var ExperimentalServerTasks = class {
   constructor(_server) {
@@ -83581,6 +84987,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 function assertToolsCallTaskCapability(requests, method, entityName) {
   if (!requests) {
@@ -84001,6 +85408,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var COMPLETABLE_SYMBOL = /* @__PURE__ */ Symbol.for("mcp.completable");
 function isCompletable(schema2) {
@@ -84020,6 +85428,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
 // node_modules/@modelcontextprotocol/sdk/dist/esm/shared/toolNameValidation.js
@@ -84027,6 +85436,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var TOOL_NAME_REGEX = /^[A-Za-z0-9._-]{1,128}$/;
 function validateToolName(name) {
@@ -84090,6 +85500,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var ExperimentalMcpServerTasks = class {
   constructor(_mcpServer) {
@@ -84110,6 +85521,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
 // node_modules/@modelcontextprotocol/sdk/dist/esm/server/mcp.js
@@ -84336,7 +85748,7 @@ var McpServer = class {
     let task = createTaskResult.task;
     const pollInterval = task.pollInterval ?? 5e3;
     while (task.status !== "completed" && task.status !== "failed" && task.status !== "cancelled") {
-      await new Promise((resolve4) => setTimeout(resolve4, pollInterval));
+      await new Promise((resolve5) => setTimeout(resolve5, pollInterval));
       const updatedTask = await extra.taskStore.getTask(taskId);
       if (!updatedTask) {
         throw new McpError(ErrorCode.InternalError, `Task ${taskId} not found during polling`);
@@ -84909,6 +86321,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 import process3 from "node:process";
 
@@ -84917,6 +86330,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var ReadBuffer = class {
   append(chunk) {
@@ -84995,30 +86409,31 @@ var StdioServerTransport = class {
     this.onclose?.();
   }
   send(message) {
-    return new Promise((resolve4) => {
+    return new Promise((resolve5) => {
       const json2 = serializeMessage(message);
       if (this._stdout.write(json2)) {
-        resolve4();
+        resolve5();
       } else {
-        this._stdout.once("drain", resolve4);
+        this._stdout.once("drain", resolve5);
       }
     });
   }
 };
 
 // stdio-audit.mjs
-import { fileURLToPath as fileURLToPath2 } from "node:url";
-import { dirname as dirname4, resolve as resolve3 } from "node:path";
+import { fileURLToPath as fileURLToPath3 } from "node:url";
+import { dirname as dirname5, resolve as resolve4 } from "node:path";
 
 // core/tools.mjs
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 import { readFileSync as readFileSync3, existsSync as existsSync3, writeFileSync as writeFileSync2, mkdirSync as mkdirSync2 } from "node:fs";
-import { fileURLToPath } from "node:url";
-import { dirname as dirname2, resolve as resolve2, join as join3, isAbsolute as isAbsolute2 } from "node:path";
+import { fileURLToPath as fileURLToPath2 } from "node:url";
+import { dirname as dirname3, resolve as resolve3, join as join3, isAbsolute as isAbsolute2 } from "node:path";
 import { createHash as createHash5 } from "node:crypto";
 
 // core/errors.mjs
@@ -85026,6 +86441,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var CODES = Object.freeze({
   TOKEN_MISSING: "TOKEN_MISSING",
@@ -85323,6 +86739,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 import { readFileSync, existsSync } from "node:fs";
 import { homedir } from "node:os";
@@ -85442,6 +86859,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var declaresLocation = (tool) => Object.keys(tool?.inputSchema?.shape ?? {}).includes("locationId");
 function classifyCall(tool, args) {
@@ -85644,6 +87062,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
 // core/audit-capabilities.mjs
@@ -85651,6 +87070,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var deepFreeze = (value) => {
   if (!value || typeof value !== "object" || Object.isFrozen(value)) return value;
@@ -86727,6 +88147,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var BASE = "https://backend.leadconnectorhq.com";
 var IFRAME = "https://client-app-automation-workflows.leadconnectorhq.com";
@@ -87060,11 +88481,229 @@ function makeGateway({ tokenFile, loc, rail = "jwt", fetchImpl = fetch, sleepImp
   return { call, callWithMeta, stream, readBackUntil, loc, rail, uid: creds.uid, companyId: creds.companyId ?? null, capabilities: { unauthenticatedRawUpload: true } };
 }
 
+// core/funnel-pages.mjs
+init_define_BUILDER_VALIDATORS();
+init_define_CONTACT_FILTER_FIELDS();
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
+init_define_TOOL_CATALOG();
+import { fileURLToPath } from "node:url";
+import { dirname, resolve } from "node:path";
+var HERE = dirname(fileURLToPath(import.meta.url));
+var CATALOG = true ? define_FUNNEL_ELEMENTS_default : JSON.parse(readFileSync(resolve(HERE, "../catalog/funnel-elements.json"), "utf8"));
+var ELEMENTS = Object.freeze(CATALOG.elements);
+var ELEMENT_KINDS = Object.freeze(Object.keys(CATALOG.elements));
+var px = (value) => ({ value, unit: "px" });
+var val = (value) => ({ value });
+var BG_IMAGE = Object.freeze({ value: Object.freeze({
+  mediaType: "image",
+  url: "",
+  opacity: "1",
+  options: "bgCover",
+  svgCode: "",
+  videoUrl: "",
+  videoThumbnail: "",
+  videoLoop: true
+}) });
+var MARGINS = () => ({ marginLeft: px(0), marginRight: px(0), marginTop: px(0), marginBottom: px(0) });
+var BOX = () => ({ borders: val("noBorder"), borderRadius: val("radius0"), radiusEdge: val("none") });
+var PREFIX = ".hl_page-preview--content";
+var emptyFor = (prop) => {
+  if (/image|media|video|file|thumbnail|icon|website|link/i.test(prop)) return { value: { ...BG_IMAGE.value, newTab: false } };
+  if (/items|list|options|products|categories|elements|fields|slides|links/i.test(prop)) return { value: [] };
+  return { value: "" };
+};
+var counter = 0;
+var resetIds = () => {
+  counter = 0;
+};
+var mkId = (kind, salt = "B") => `${kind}-${salt}${(counter++).toString(36).toUpperCase()}`;
+var envelope = (id, type, meta3, tagName, extra, styles, cls, wrapper) => ({
+  id,
+  type,
+  meta: meta3,
+  tagName: tagName ?? null,
+  title: meta3,
+  child: [],
+  class: { ...BOX(), ...cls ?? {} },
+  styles: styles ?? {},
+  wrapper: { ...MARGINS(), ...wrapper ?? {} },
+  extra: { nodeId: `c${id}`, visibility: val({ hideDesktop: false, hideMobile: false }), customClass: val([]), ...extra ?? {} },
+  customCss: [],
+  tabletStyles: {},
+  tabletWrapper: {},
+  mobileStyles: {},
+  mobileWrapper: {},
+  updated: true
+});
+var completeExtra = (meta3, given = {}) => {
+  const declared = ELEMENTS[meta3]?.extraProps ?? [];
+  const out = {};
+  for (const prop of declared) out[prop] = Object.prototype.hasOwnProperty.call(given, prop) ? given[prop] : emptyFor(prop);
+  return { ...out, ...given };
+};
+var makeLeaf = ({ meta: meta3, extra = {}, styles = {}, cls = {}, tag = "", salt }) => {
+  if (!ELEMENTS[meta3]) throw new Error(`unknown element meta '${meta3}' \u2014 the vocabulary is a closed set of ${ELEMENT_KINDS.length}`);
+  const id = mkId(meta3, salt);
+  const node = envelope(id, "element", meta3, ELEMENTS[meta3].tagName, completeExtra(meta3, extra), styles, cls);
+  node.tag = tag;
+  return node;
+};
+var makeColumn = ({ children, widthPct, padX = 20, salt }) => {
+  const id = mkId("col", salt);
+  const col = envelope(
+    id,
+    "col",
+    "col",
+    "c-column",
+    {
+      bgImage: BG_IMAGE,
+      columnLayout: val("column"),
+      justifyContentColumnLayout: val("center"),
+      alignContentColumnLayout: val("inherit"),
+      forceColumnLayoutForMobile: val(true),
+      elementVersion: val(2)
+    },
+    {
+      paddingTop: px(0),
+      paddingBottom: px(0),
+      paddingLeft: px(padX),
+      paddingRight: px(padX),
+      backgroundColor: val("transparent"),
+      width: { value: String(widthPct), unit: "%" }
+    }
+  );
+  col.child = children.map((c) => c.id);
+  return col;
+};
+var makeSection = ({ columns, background = "transparent", padY = 60, maxWidth = 1100, elementCss = "", pageId, funnelId, locationId, salt }) => {
+  const sid = mkId("section", salt);
+  const rid = mkId("row", salt);
+  const row = envelope(
+    rid,
+    "row",
+    "row",
+    "c-row",
+    { bgImage: BG_IMAGE },
+    { paddingTop: px(0), paddingBottom: px(0), backgroundColor: val("transparent") }
+  );
+  row.child = columns.map((c) => c.col.id);
+  const meta3 = envelope(
+    sid,
+    "section",
+    "section",
+    "c-section",
+    { sticky: val("noneSticky"), bgImage: BG_IMAGE, allowRowMaxWidth: val(false) },
+    { backgroundColor: val(background), paddingTop: px(padY), paddingBottom: px(padY), paddingLeft: px(20), paddingRight: px(20) }
+  );
+  meta3._id = sid;
+  meta3.child = [rid];
+  meta3.isGlobal = false;
+  const scaffold = [
+    `${PREFIX} .${sid}{box-shadow:none;padding:${padY}px 20px;margin:0;background-color:${background};border:0}`,
+    `#${sid}>.inner{max-width:${maxWidth}px}`,
+    `${PREFIX} .${rid}{margin:0 auto;padding:0;width:100%;background-color:transparent;box-shadow:none;border:0}`,
+    ...columns.map(({ col, widthPct }) => `${PREFIX} .${col.id}{padding:0 20px;width:${widthPct}%;margin:0;background-color:transparent;box-shadow:none;border:0}#${col.id}>.inner{flex-direction:column;justify-content:center;align-items:inherit;flex-wrap:nowrap}`)
+  ].join("");
+  return {
+    id: sid,
+    pageId,
+    funnelId,
+    locationId,
+    isGlobal: false,
+    metaData: meta3,
+    elements: [row, ...columns.flatMap(({ col, leaves: leaves2 }) => [col, ...leaves2])],
+    general: { colors: [], fontsForPreview: [], rootVars: {}, sectionStyles: scaffold + elementCss, customFonts: [] }
+  };
+};
+var textCss = (id, o) => {
+  const sel = `.${id} h1,.${id} h2,.${id} h3,.${id} h4,.${id} h5,.${id} h6,.${id} ul li,.${id}.text-output`;
+  const weight = o.weight ?? 400;
+  return [
+    `${PREFIX} #${id}{margin:0}`,
+    `${PREFIX} .c${id}{font-family:${o.font};color:${o.color};font-weight:${weight};padding:0;opacity:1;line-height:${o.lineHeight ?? "1.35em"};letter-spacing:${o.letterSpacing ?? 0}px;text-align:${o.align ?? "center"};background-color:transparent}`,
+    `@media screen and (min-width:481px) and (max-width:10000px){${sel}{font-size:${o.size}px!important;font-weight:${weight}}}`,
+    `@media screen and (min-width:0px) and (max-width:480px){${sel}{font-size:${o.mobileSize ?? Math.round(o.size * 0.8)}px!important;font-weight:${weight}}}`
+  ].join("");
+};
+var buttonCss = (id, o) => [
+  `${PREFIX} .${id}{margin:0;text-align:${o.align ?? "center"}}`,
+  `${PREFIX} .c${id}{font-family:${o.font};background-color:${o.background};color:${o.color};text-decoration:none;padding:16px 32px;border:1px solid ${o.borderColor ?? o.background};border-radius:${o.radius ?? 2}px;letter-spacing:.3px;width:auto;display:inline-block}`,
+  `.${id} .main-heading-button{font-size:${o.size ?? 16}px;font-weight:600}`
+].join("");
+var buildPageData = ({ pageId, stepId, funnelId, locationId, sections, pageStyles = "", fonts = ["Arial", "Georgia", "Roboto"], colors = [] }) => ({
+  funnelId,
+  locationId,
+  pageId,
+  id: pageId,
+  stepId,
+  sections: sections.map((s, i) => ({ ...s, sequence: i })),
+  settings: { settings: { typography: { fonts: {
+    headlineFont: { id: "headlinefont", text: "Headline Font", value: { text: "Default", value: "inherit" }, isCustom: false },
+    contentFont: { id: "contentfont", text: "Content Font", value: { text: "Default", value: "inherit" }, isCustom: false }
+  } } } },
+  // fontsToLoad and colors are MANDATORY — absent, the public render 500s.
+  general: { general: { colors, fontsToLoad: fonts, fontsToLoadForPreview: fonts, pageStyles: "", customFonts: [] } },
+  pageStyles,
+  popups: [],
+  popupsList: [],
+  fontsForPreview: [],
+  trackingCode: { headerCode: "", footerCode: "" }
+});
+var autosaveEnvelope = ({ funnelId, pageData, pageVersion = 1 }) => ({
+  funnelId,
+  pageData,
+  pageVersion,
+  pageType: "draft",
+  manualSave: true,
+  integrations: {
+    videoBackground: false,
+    blogMeta: { selectedBlogCategories: [], categoryNavigationList: [] },
+    customCode: pageData.sections.reduce((n, s) => n + s.elements.filter((e) => e.meta === "custom-code").length, 0),
+    popup: false
+  }
+});
+var auditPageData = (pageData) => {
+  const problems = [];
+  for (const s of pageData.sections ?? []) {
+    const byId = new Map(s.elements.map((n) => [n.id, n]));
+    const roots = s.metaData?.child ?? [];
+    for (const id of roots) if (!byId.has(id)) problems.push(`section ${s.id}: metaData.child references '${id}', which is not in elements[]`);
+    for (const n of s.elements) {
+      for (const c of n.child ?? []) {
+        if (typeof c !== "string") {
+          problems.push(`node ${n.id}: child[] must hold node IDS, not objects`);
+          break;
+        }
+        if (!byId.has(c)) problems.push(`node ${n.id}: child '${c}' does not resolve`);
+      }
+      if (n.type === "col" && !n.extra?.bgImage) problems.push(`column ${n.id}: extra.bgImage is required \u2014 the public render 500s without it`);
+      if (n.type === "element") {
+        if (!ELEMENTS[n.meta]) {
+          problems.push(`node ${n.id}: meta '${n.meta}' is not one of the ${ELEMENT_KINDS.length} known kinds \u2014 autosave accepts it anyway`);
+          continue;
+        }
+        const missing = (ELEMENTS[n.meta].extraProps ?? []).filter((p2) => !(p2 in (n.extra ?? {})));
+        if (missing.length) problems.push(`node ${n.id} (${n.meta}): missing declared extra props ${missing.join(", ")} \u2014 the renderer reads extra.<prop>.value unguarded`);
+      }
+      if (n.extra && n.extra.nodeId !== `c${n.id}`) problems.push(`node ${n.id}: extra.nodeId must be 'c'+id, the renderer keys markup on it`);
+    }
+    const css = s.general?.sectionStyles ?? "";
+    if (css && !css.includes(s.id)) problems.push(`section ${s.id}: sectionStyles does not mention this section id \u2014 the stylesheet is keyed by node id, so it is orphaned`);
+  }
+  const g = pageData.general?.general ?? {};
+  if (!Array.isArray(g.fontsToLoad)) problems.push("general.general.fontsToLoad is required \u2014 absent, the public render 500s");
+  if (!Array.isArray(g.colors)) problems.push("general.general.colors is required (may be empty) \u2014 absent, the public render 500s");
+  return problems;
+};
+
 // core/workflow-runtime-window.mjs
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 import { createHash } from "node:crypto";
 var RUNTIME_WINDOW_CONTRACT_VERSION = "2.0.0";
@@ -88053,6 +89692,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 import { createHash as createHash2 } from "node:crypto";
 var AUDIT_CONFIGURATION_CONTRACT_VERSION = "1.0.0";
@@ -89313,6 +90953,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
 // ../skills/create-ghl-workflow/engine/compiler.mjs
@@ -89320,6 +90961,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
 // ../skills/create-ghl-workflow/engine/ir.mjs
@@ -89327,6 +90969,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var IRError = class extends Error {
   constructor(code, message) {
@@ -89603,6 +91246,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
 // ../skills/create-ghl-workflow/catalog/opp-field-shapes.json
@@ -89719,11 +91363,11 @@ function checkOppFieldShape(field, { ref, warn } = {}) {
   for (const key of ["valueFieldType", "dataType"]) {
     const rule = spec[key];
     if (!rule) continue;
-    const val = field[key];
-    if (val === void 0) continue;
-    if (rule.allowed.includes(val)) continue;
+    const val2 = field[key];
+    if (val2 === void 0) continue;
+    if (rule.allowed.includes(val2)) continue;
     const support = `set: [${rule.allowed.join(", ")}], n=${rule.n}, ${rule.accounts} accounts`;
-    const msg = `OPP_SHAPE: ${field.filterField} ${key} '${val}' not attested (${support})${ref ? ` on '${ref}'` : ""} \u2014 verify against a live step`;
+    const msg = `OPP_SHAPE: ${field.filterField} ${key} '${val2}' not attested (${support})${ref ? ` on '${ref}'` : ""} \u2014 verify against a live step`;
     if (rule.accounts >= throwAt) throw new IRError("OPP_SHAPE", msg);
     if (rule.accounts >= warnAt) warn?.(msg);
   }
@@ -89732,12 +91376,12 @@ function checkAgainstRulebook(field, ref) {
   const rule = opp_field_rulebook_default.fields[field.filterField];
   if (!rule) return;
   for (const key of ["valueFieldType", "dataType"]) {
-    const val = field[key];
-    if (val === void 0) continue;
-    if (val === rule[key]) continue;
+    const val2 = field[key];
+    if (val2 === void 0) continue;
+    if (val2 === rule[key]) continue;
     throw new IRError(
       "OPP_SHAPE",
-      `OPP_SHAPE: ${field.filterField} ${key} '${val}' contradicts the builder's own field picker, which defines this field as ${key} '${rule[key]}' (source: ${opp_field_rulebook_default._source.split(" \u2014 ")[0]}, ${opp_field_rulebook_default._captured})${ref ? ` on '${ref}'` : ""}.`
+      `OPP_SHAPE: ${field.filterField} ${key} '${val2}' contradicts the builder's own field picker, which defines this field as ${key} '${rule[key]}' (source: ${opp_field_rulebook_default._source.split(" \u2014 ")[0]}, ${opp_field_rulebook_default._captured})${ref ? ` on '${ref}'` : ""}.`
     );
   }
 }
@@ -89747,6 +91391,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var BUTTON_TYPES = /* @__PURE__ */ new Set(["quick_reply", "cta_url", "cta_call", "cta_copy"]);
 var GOGHL_DRIP_MS = Object.freeze({ bulk: 15e3, normal: [3e3, 5e3], warming: [1e4, 2e4], minimum: 1e3 });
@@ -89877,6 +91522,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
 // ../skills/create-ghl-workflow/engine/webhook-mergetags.mjs
@@ -89884,14 +91530,15 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
-var PREFIX = "inboundWebhookRequest";
-function webhookMergeTags(payload, { prefix = PREFIX, includeHeaders = false } = {}) {
+var PREFIX2 = "inboundWebhookRequest";
+function webhookMergeTags(payload, { prefix = PREFIX2, includeHeaders = false } = {}) {
   const out = {};
-  const walk2 = (val, path) => {
-    if (val !== null && typeof val === "object") {
-      if (Array.isArray(val)) val.forEach((v, i) => walk2(v, path ? `${path}.${i}` : String(i)));
-      else for (const [k, v] of Object.entries(val)) walk2(v, path ? `${path}.${k}` : k);
+  const walk2 = (val2, path) => {
+    if (val2 !== null && typeof val2 === "object") {
+      if (Array.isArray(val2)) val2.forEach((v, i) => walk2(v, path ? `${path}.${i}` : String(i)));
+      else for (const [k, v] of Object.entries(val2)) walk2(v, path ? `${path}.${k}` : k);
     } else {
       out[path] = `{{${prefix}.${path}}}`;
     }
@@ -89970,6 +91617,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var STEP_OUTPUTS = Object.freeze({
   chatgpt: { ns: "chatgpt", fields: ["response"], kind: "fixed" },
@@ -90040,6 +91688,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var TIMEZONES = ["account", "contact"];
 var WINDOW_CONDITIONS = ["when"];
@@ -90192,6 +91841,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 function stripNullNext(templates) {
   if (!Array.isArray(templates)) return templates;
@@ -90223,6 +91873,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 function stepNoteRecord(text, { uid, now, idGen } = {}) {
   if (typeof text !== "string" || !text.trim()) throw new Error(`a step note needs non-empty text`);
@@ -90239,6 +91890,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var CONTACT_FIELD_ACTION_TYPES = ["update_field_data", "clear_field_data"];
 var DEFAULT_CONTACT_FIELD_ACTION_TYPE = "update_field_data";
@@ -90298,6 +91950,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
 // ../skills/create-ghl-workflow/engine/text-rules.mjs
@@ -90305,6 +91958,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var HANDLEBARS_EXPRESSION = /\{\{(?:(?!\}\}).)*\}\}/g;
 function hasNestedBracketsInExpressions(str) {
@@ -152694,6 +154348,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var PSEUDO_FIELDS = /* @__PURE__ */ new Set(["DYNAMIC"]);
 function isBlank(v) {
@@ -152885,6 +154540,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var get = (o, p2) => p2 === "" ? o : p2.split(".").reduce((a, k) => a == null ? void 0 : a[k], o);
 var RE_CACHE = /* @__PURE__ */ new Map();
@@ -153014,6 +154670,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var STEP_REF_FIELDS = [
   ["goto", "targetNodeId", "single"],
@@ -153082,6 +154739,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var clone2 = (v) => v === void 0 ? v : JSON.parse(JSON.stringify(v));
 function applyUiDefaults(templates, catalog, ctx) {
@@ -153114,6 +154772,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var NO_VALUE_DATE_OPS = /* @__PURE__ */ new Set(["today", "yesterday", "tomorrow"]);
 var ABSOLUTE_DATE_OPS = /* @__PURE__ */ new Set(["on", "between", "afterDate", "beforeDate"]);
@@ -153201,6 +154860,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var NAMESPACE_POLICY = Object.freeze({
   closed: /* @__PURE__ */ new Set([
@@ -153411,6 +155071,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 function gotoLoops(templates) {
   if (!Array.isArray(templates)) return [];
@@ -154214,9 +155875,9 @@ function normalizeCondition(rawC, ctx) {
   }
   if (type === "contact_detail") {
     const op = c.conditionOperator ?? "contain";
-    let val = c.conditionValue;
-    if (op === "contain" && typeof val === "string") val = val.toLowerCase();
-    return { ...extras, conditionType: "contact_detail", conditionSubType: c.conditionSubType, conditionOperator: op, conditionValue: val };
+    let val2 = c.conditionValue;
+    if (op === "contain" && typeof val2 === "string") val2 = val2.toLowerCase();
+    return { ...extras, conditionType: "contact_detail", conditionSubType: c.conditionSubType, conditionOperator: op, conditionValue: val2 };
   }
   return {
     ...extras,
@@ -155330,6 +156991,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var SMS_TYPES = /* @__PURE__ */ new Set(["sms", "manual-sms"]);
 var IG_TYPES = /* @__PURE__ */ new Set(["instagram-dm", "ig_interactive_messenger"]);
@@ -155412,6 +157074,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var STICKY_COLORS = ["yellow", "blue", "green", "orange", "cyan", "gray", "teal", "purple", "fuchsia", "rose"];
 var STICKY_DEFAULTS = Object.freeze({ color: "yellow", width: 400, height: 400, x: 320, y: 180 });
@@ -155488,6 +157151,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 import { createHash as createHash3, randomUUID } from "node:crypto";
 function makeUuidV4() {
@@ -155510,6 +157174,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 function data() {
   return catalog_data_default;
@@ -155585,6 +157250,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var arrayFrom = (...values) => values.find(Array.isArray) ?? [];
 var recordsFrom = (...values) => arrayFrom(...values).filter((v) => v && typeof v === "object" && !Array.isArray(v));
@@ -155765,6 +157431,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 function collectRequiredTags(ir) {
   const byLower = /* @__PURE__ */ new Map();
@@ -155831,6 +157498,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var OPP_TYPES = /* @__PURE__ */ new Set(["internal_update_opportunity", "internal_create_opportunity"]);
 var ID_ROWS = /* @__PURE__ */ new Set(["pipelineId", "pipelineStageId", "lostReasonId"]);
@@ -155943,6 +157611,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 function lintTriggerRows(triggers, catalog) {
   const out = [];
@@ -155993,6 +157662,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var norm2 = (s) => String(s ?? "").trim().toLowerCase();
 var STANDARD_CONTACT_FIELDS = /* @__PURE__ */ new Set([
@@ -156218,6 +157888,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
 // ../skills/create-ghl-workflow/engine/template-normalize.mjs
@@ -156225,6 +157896,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var NORMALIZE_SKIP = /* @__PURE__ */ new Set([
   // author shape !== wire shape
@@ -156267,6 +157939,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var isRootish = (t) => t && (t.parentKey === null || t.parentKey === void 0) && (t.parent === null || t.parent === void 0);
 function lintEntryStep(templates) {
@@ -156439,12 +158112,12 @@ function retypeStep(templates, stepId, compiledEntry) {
   };
 }
 function marketplaceStepIndexCounter(templates) {
-  const counter = /* @__PURE__ */ new Map();
+  const counter2 = /* @__PURE__ */ new Map();
   for (const t of templates ?? []) {
     if (t?.isMarketplaceAction !== true || !t.type) continue;
-    counter.set(t.type, Math.max(counter.get(t.type) ?? 0, Number(t.stepIndex) || 0));
+    counter2.set(t.type, Math.max(counter2.get(t.type) ?? 0, Number(t.stepIndex) || 0));
   }
-  return counter;
+  return counter2;
 }
 function assignMarketplaceStepIndexes(templates) {
   const running = /* @__PURE__ */ new Map();
@@ -156912,7 +158585,7 @@ function editCommitBody(fresh, newTemplates, diff, uid, opts = {}) {
         risks.map((r) => `'${r.name}' routes the workflow's existing steps down ${r.carrying.map((b) => `'${b}'`).join(", ")} while ${r.deadEnded.map((b) => `'${b}'`).join(", ")} ${r.deadEnded.length > 1 ? "terminate" : "terminates"} immediately at END`).join("; ") + `. Contacts taking the terminating branch reach the end of the workflow and nothing downstream runs. Confirm that is intended (or attach steps to it / re-run with a different attachTailTo), then pass deadBranchAcknowledged:true.`
       );
   }
-  const counter = marketplaceStepIndexCounter(newTemplates);
+  const counter2 = marketplaceStepIndexCounter(newTemplates);
   const touched = /* @__PURE__ */ new Set([...diff.createdSteps ?? [], ...diff.modifiedSteps ?? []]);
   const editTouchedMarketplace = newTemplates.some((t) => t.isMarketplaceAction === true && touched.has(t.id));
   const settingsBody = opts.settingsPatch ? settingsCommitFields(fresh, opts.settingsPatch, uid, opts) : {};
@@ -156928,9 +158601,9 @@ function editCommitBody(fresh, newTemplates, diff, uid, opts = {}) {
     // input_trigger_params, which blocks EVERY save on the workflow, not just this step —
     // same wire-assembly boundary, same reason. See terminals.mjs.
     workflowData: { templates: fillInputTriggerParams(stripNullNext(newTemplates)) },
-    ...counter.size > 0 && editTouchedMarketplace ? { meta: {
+    ...counter2.size > 0 && editTouchedMarketplace ? { meta: {
       ...fresh.meta ?? {},
-      stepIndexCounter: { ...fresh.meta?.stepIndexCounter ?? {}, ...Object.fromEntries(counter) }
+      stepIndexCounter: { ...fresh.meta?.stepIndexCounter ?? {}, ...Object.fromEntries(counter2) }
     } } : {},
     ...settingsBody,
     createdSteps: diff.createdSteps,
@@ -157162,6 +158835,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var entryFrom = (kind, appName, raw) => ({
   kind,
@@ -157273,6 +158947,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var EMPTY = Object.freeze([]);
 function normalizeFinding(f) {
@@ -157323,6 +158998,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 function parseServerValidation(json2) {
   const meta3 = json2?.errorMetadata ?? json2?.response?.data?.errorMetadata;
@@ -157346,6 +159022,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var has = (v) => v != null && v !== "" && !(Array.isArray(v) && !v.length);
 var present = (v) => !(v == null || v === "" || Array.isArray(v) && !v.length || typeof v === "object" && !Array.isArray(v) && !Object.keys(v).length);
@@ -157505,6 +159182,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 function gotoPlacement(templates) {
   const out = [];
@@ -157627,6 +159305,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var FIELD_CAPS = Object.freeze({
   conversationai_objective: Object.freeze({ instructions: 1e3 }),
@@ -158269,6 +159948,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var VALIDATORS = null;
 var validatorSource = (readJson) => {
@@ -158370,6 +160050,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var TRIGGER_OPS = /* @__PURE__ */ new Set(["addTrigger", "deleteTrigger", "modifyTrigger", "duplicateTrigger", "replaceTagInTriggers", "replaceFieldIdInTriggers"]);
 var SETTINGS_OPS = /* @__PURE__ */ new Set(["updateSettings"]);
@@ -159061,6 +160742,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 import { createHash as createHash4 } from "node:crypto";
 var MERGE_TAG = /\{\{\s*[A-Za-z_][\w.-]*\s*\}\}/g;
@@ -159190,9 +160872,10 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 import { existsSync as existsSync2, mkdirSync, readFileSync as readFileSync2, writeFileSync } from "node:fs";
-import { dirname, join as join2 } from "node:path";
+import { dirname as dirname2, join as join2 } from "node:path";
 import { homedir as homedir2 } from "node:os";
 var JWT = /\b(?:Bearer\s+)?ey[A-Za-z0-9._-]{20,}/g;
 function scrubUpstream2(value) {
@@ -159207,7 +160890,7 @@ function scrubUpstream2(value) {
 }
 function readCache(state2) {
   const enabled = process.env.GHL_READ_CACHE !== "0";
-  const root = state2?.tokenFile ? dirname(state2.tokenFile) : join2(homedir2(), ".uxie-ghl-internal-mcp", "cache");
+  const root = state2?.tokenFile ? dirname2(state2.tokenFile) : join2(homedir2(), ".uxie-ghl-internal-mcp", "cache");
   const pathFor = (locationId, workflowId) => join2(root, String(locationId), "workflows", String(workflowId), "last-read.json");
   return {
     enabled,
@@ -159224,7 +160907,7 @@ function readCache(state2) {
       try {
         if (!enabled || !locationId || !workflowId || !snapshot) return false;
         const p2 = pathFor(locationId, workflowId);
-        mkdirSync(dirname(p2), { recursive: true, mode: 448 });
+        mkdirSync(dirname2(p2), { recursive: true, mode: 448 });
         writeFileSync(p2, JSON.stringify(scrubUpstream2(snapshot), null, 1), { mode: 384 });
         return true;
       } catch {
@@ -159240,6 +160923,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var isGroup = (n) => n && typeof n === "object" && Array.isArray(n.filters);
 function buildFilterSpec({ groups, page = 1, limit = 20, outerMatch = "OR" } = {}) {
@@ -159314,6 +160998,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 async function resolveCompanyId(gw, locationId) {
   if (typeof gw.companyId === "string" && gw.companyId) return gw.companyId;
@@ -159419,6 +161104,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var SORT_FIELDS = ["timestamp", "agentName", "aiProduct", "contactName", "channel", "durationMs", "totalTokens"];
 var TIME_RANGES = ["1_day", "7_days", "14_days", "30_days", "90_days", "custom"];
@@ -159657,6 +161343,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
 // ../skills/create-ghl-workflow/engine/lints/publish-rules.mjs
@@ -159664,6 +161351,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 function lintPublishRules(templates) {
   const list = Array.isArray(templates) ? templates.filter(Boolean) : [];
@@ -159710,6 +161398,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var STEP_NAME_MIN = 1;
 var STEP_NAME_MAX = 100;
@@ -159742,6 +161431,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var isType = (t, ...types) => types.includes(t?.type);
 var consecutiveRemoves = (templates) => {
@@ -159931,6 +161621,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var HHMM2 = /^([01]\d|2[0-3]):[0-5]\d$/;
 function loadDoctrinePack(json2) {
@@ -160125,6 +161816,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 function makeFF({ gw }) {
   const { call, loc, uid } = gw;
@@ -160185,6 +161877,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 import { readFile } from "node:fs/promises";
 import { randomUUID as randomUUID2 } from "node:crypto";
@@ -160523,14 +162216,16 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
-import { isAbsolute, resolve } from "node:path";
+import { isAbsolute, resolve as resolve2 } from "node:path";
 
 // ../skills/ghl-memberships/engine/assessments.mjs
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var BACKEND2 = "https://backend.leadconnectorhq.com";
 var SERVICES = "https://services.leadconnectorhq.com";
@@ -160629,6 +162324,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var BACKEND3 = "https://backend.leadconnectorhq.com";
 var Credentials = class {
@@ -160786,6 +162482,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var BACKEND4 = "https://backend.leadconnectorhq.com";
 var SERVICES2 = "https://services.leadconnectorhq.com";
@@ -161288,7 +162985,7 @@ async function buildCourse({
         if (mediaPath) {
           phase("media_upload");
           const { licenseId } = await api.uploadVideo({
-            filePath: resolve(specDir, mediaPath),
+            filePath: resolve2(specDir, mediaPath),
             postId: post.id,
             title: lesson.title
           });
@@ -161298,7 +162995,7 @@ async function buildCourse({
         for (const [fileIndex, filePath] of (lesson.files || []).entries()) {
           phase("material_upload");
           await api.uploadMaterial({
-            filePath: resolve(specDir, filePath),
+            filePath: resolve2(specDir, filePath),
             postId: post.id,
             sequenceNo: fileIndex + 1
           });
@@ -161451,6 +163148,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
 // ../engines/ai/convai-ir.mjs
@@ -161458,6 +163156,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var IRError2 = class extends Error {
   constructor(code, message) {
@@ -161940,6 +163639,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
 // ../engines/ai/voiceai-ir.mjs
@@ -161947,6 +163647,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var DENOISING_MODES = ["noise-cancellation"];
 var STT_MODES = ["accurate", "fast", "custom"];
@@ -162399,6 +164100,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
 // ../engines/ai/studio-ir.mjs
@@ -162406,6 +164108,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var DEFAULT_MODEL = "anthropic/claude-sonnet-4-6";
 var TOOLS = ["web_search", "image_generation", "kb_search"];
@@ -162546,6 +164249,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var AI_BASE2 = "https://services.leadconnectorhq.com";
 var kindFor = (create) => {
@@ -162780,6 +164484,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var FIRESTORE_PROJECT = "highlevel-backend";
 var FIRESTORE_DB = "vibe-platform";
@@ -163072,17 +164777,17 @@ var StudioApi = class {
 };
 
 // core/tools.mjs
-var HERE = dirname2(fileURLToPath(import.meta.url));
-var CATALOG = true ? define_TOOL_CATALOG_default : (() => {
+var HERE2 = dirname3(fileURLToPath2(import.meta.url));
+var CATALOG2 = true ? define_TOOL_CATALOG_default : (() => {
   try {
-    return JSON.parse(readFileSync3(resolve2(HERE, "../tool-descriptions.json"), "utf8"));
+    return JSON.parse(readFileSync3(resolve3(HERE2, "../tool-descriptions.json"), "utf8"));
   } catch {
     return {};
   }
 })();
 var PROVENANCE = /\s*\u2014\s*proof:[\s\S]*?risk:\s*([a-z-]+)\.?/i;
 var describe3 = (tool, fallback) => {
-  const meta3 = CATALOG[tool];
+  const meta3 = CATALOG2[tool];
   if (!meta3?.description) return fallback;
   const clause = meta3.description.match(PROVENANCE);
   if (!clause) return meta3.description.length >= fallback.length ? meta3.description : fallback;
@@ -163109,7 +164814,7 @@ var TYPE_CARDS = null;
 var typeCards = () => {
   if (TYPE_CARDS) return TYPE_CARDS;
   try {
-    TYPE_CARDS = JSON.parse(readFileSync3(resolve2(HERE, "../../skills/create-ghl-workflow/catalog/type-cards.json"), "utf8")).cards ?? [];
+    TYPE_CARDS = JSON.parse(readFileSync3(resolve3(HERE2, "../../skills/create-ghl-workflow/catalog/type-cards.json"), "utf8")).cards ?? [];
   } catch {
     TYPE_CARDS = [];
   }
@@ -163123,7 +164828,7 @@ var endpoints = () => {
     return ENDPOINTS;
   }
   try {
-    ENDPOINTS = JSON.parse(readFileSync3(resolve2(HERE, "../catalog/internal-endpoints.json"), "utf8")).endpoints ?? [];
+    ENDPOINTS = JSON.parse(readFileSync3(resolve3(HERE2, "../catalog/internal-endpoints.json"), "utf8")).endpoints ?? [];
   } catch {
     ENDPOINTS = [];
   }
@@ -163137,7 +164842,7 @@ var overlay = () => {
     return OVERLAY;
   }
   try {
-    OVERLAY = JSON.parse(readFileSync3(resolve2(HERE, "../catalog/endpoint-overlay.json"), "utf8")).rows ?? {};
+    OVERLAY = JSON.parse(readFileSync3(resolve3(HERE2, "../catalog/endpoint-overlay.json"), "utf8")).rows ?? {};
   } catch {
     OVERLAY = {};
   }
@@ -163236,7 +164941,7 @@ var FILTER_FIELDS = null;
 var VALIDATOR_BAG;
 var builderValidatorBag = () => {
   if (VALIDATOR_BAG !== void 0) return VALIDATOR_BAG;
-  const src = validatorSource(() => JSON.parse(readFileSync3(resolve2(HERE, "../catalog/builder-validators.json"), "utf8")));
+  const src = validatorSource(() => JSON.parse(readFileSync3(resolve3(HERE2, "../catalog/builder-validators.json"), "utf8")));
   const bag = src ? compileValidators(src) : null;
   VALIDATOR_BAG = bag && bag.error ? null : bag;
   return VALIDATOR_BAG;
@@ -163248,7 +164953,7 @@ var staticFilterFields = () => {
     return FILTER_FIELDS;
   }
   try {
-    FILTER_FIELDS = JSON.parse(readFileSync3(resolve2(HERE, "../catalog/contact-filter-fields.json"), "utf8"));
+    FILTER_FIELDS = JSON.parse(readFileSync3(resolve3(HERE2, "../catalog/contact-filter-fields.json"), "utf8"));
   } catch {
     FILTER_FIELDS = null;
   }
@@ -163347,7 +165052,7 @@ var descriptorPreview = (descriptor2) => ({
 function readProjectLintPack(state2, locationId) {
   try {
     if (process.env.GHL_READ_CACHE === "0") return null;
-    const dir = state2?.tokenFile ? dirname2(state2.tokenFile) : null;
+    const dir = state2?.tokenFile ? dirname3(state2.tokenFile) : null;
     if (!dir || !locationId) return null;
     const p2 = join3(dir, String(locationId), "lint-pack.json");
     return existsSync3(p2) ? JSON.parse(readFileSync3(p2, "utf8")) : null;
@@ -163617,7 +165322,7 @@ function writeResultFile(path, data2) {
     return { failure: fail(CODES.VALIDATION_FAILED, "writeTo must be an absolute file path.", 'Pass e.g. "/Users/you/project/.ghl/export.json".') };
   }
   const text = JSON.stringify(scrubSecrets(data2), null, 1);
-  mkdirSync2(dirname2(path), { recursive: true });
+  mkdirSync2(dirname3(path), { recursive: true });
   writeFileSync2(path, text, { mode: 384 });
   return { writtenTo: path, bytes: Buffer.byteLength(text) };
 }
@@ -170106,6 +171811,154 @@ var TOOLS2 = [
         scoreCaveat: "`score` is treated as valid without checking. It is only a real field when the account has a PUBLISHED score profile, and nothing here reads that \u2014 flagging it would risk breaking a working filter."
       });
     }, args)
+  },
+  {
+    name: "build_funnel_page",
+    description: `${describe3("build_funnel_page", "Compose a funnel page from native elements and write it \u2014 proof: live-roundtrip (2026-09-09); risk: write")}. Preview by default; confirm:true autosaves the DRAFT. Emits the nodes AND the compiled stylesheet together, because the builder canvas styles a page from each node's \`styles\` while the PUBLIC renderer uses the compiled \`sectionStyles\` string keyed by node id \u2014 write only one and the page looks right in the builder and naked in public. Enforces the contract autosave will not: \`meta\` against the closed set of 60 kinds, every declared \`extra\` property present (the renderer reads extra.<prop>.value UNGUARDED, so a missing one 500s the whole page while autosave still answers 201), \`col.extra.bgImage\`, \`general.general.fontsToLoad\` and \`colors\`, and child[] holding node IDS that resolve. Verifies by reading the page back on a separate request; pass verifyUrl to also poll the public render for your own copy \u2014 one request there is not a measurement, since the first can serve the previous compile.`,
+    inputSchema: schema({
+      locationId: external_exports.string(),
+      funnelId: external_exports.string(),
+      pageId: external_exports.string(),
+      stepId: external_exports.string(),
+      sections: external_exports.array(external_exports.record(external_exports.any())).min(1),
+      pageStyles: external_exports.string().optional(),
+      fonts: external_exports.array(external_exports.string()).optional(),
+      colors: external_exports.array(external_exports.record(external_exports.any())).optional(),
+      pageVersion: external_exports.number().int().positive().default(1),
+      verifyUrl: external_exports.string().optional(),
+      confirm: external_exports.boolean().default(false)
+    }),
+    capabilities: [
+      { method: "POST", path: "/funnels/builder/autosave/{pageId}" },
+      { method: "GET", path: "/funnels/builder/page/data" }
+    ],
+    handler: async (args, deps) => guard(async () => {
+      resetIds();
+      let pageData;
+      try {
+        const sections = args.sections.map((spec, si) => {
+          const css = [];
+          const columns = (spec.columns ?? []).map((c, ci) => {
+            const leaves2 = (c.elements ?? []).map((e) => {
+              const leaf = makeLeaf({
+                meta: e.meta,
+                extra: { ...e.html !== void 0 ? { text: val(e.html) } : {}, ...e.extra ?? {} },
+                styles: e.styles ?? {},
+                tag: e.tag ?? "",
+                salt: `S${si}C${ci}`
+              });
+              if (e.css) css.push(e.meta === "button" ? buttonCss(leaf.id, e.css) : textCss(leaf.id, e.css));
+              return leaf;
+            });
+            const widthPct = c.widthPct ?? Math.round(1e4 / (spec.columns.length || 1)) / 100;
+            return { col: makeColumn({ children: leaves2, widthPct, padX: c.padX ?? 20, salt: `S${si}C${ci}` }), leaves: leaves2, widthPct };
+          });
+          return makeSection({
+            columns,
+            background: spec.background ?? "transparent",
+            padY: spec.padY ?? 60,
+            maxWidth: spec.maxWidth ?? 1100,
+            elementCss: css.join(""),
+            pageId: args.pageId,
+            funnelId: args.funnelId,
+            locationId: args.locationId,
+            salt: `S${si}`
+          });
+        });
+        pageData = buildPageData({
+          pageId: args.pageId,
+          stepId: args.stepId,
+          funnelId: args.funnelId,
+          locationId: args.locationId,
+          sections,
+          pageStyles: args.pageStyles ?? "",
+          fonts: args.fonts,
+          colors: args.colors
+        });
+      } catch (e) {
+        return fail(
+          CODES.VALIDATION_FAILED,
+          e.message,
+          `Element kinds are a closed set of ${ELEMENT_KINDS.length}; see the funnels corpus for the list.`
+        );
+      }
+      const problems = auditPageData(pageData);
+      if (problems.length) {
+        return withFailureData(
+          fail(
+            CODES.VALIDATION_FAILED,
+            `The composed page would save with 201 and then fail: ${problems.length} problem(s).`,
+            "Fix the problems listed in data.problems. None of these is reported by the write path."
+          ),
+          { problems }
+        );
+      }
+      const nodeCount = pageData.sections.reduce((n, s) => n + s.elements.length + 1, 0);
+      const cssBytes = pageData.sections.reduce((n, s) => n + s.general.sectionStyles.length, 0);
+      const preview = {
+        sections: pageData.sections.length,
+        nodes: nodeCount,
+        compiledCssBytes: cssBytes,
+        kinds: [...new Set(pageData.sections.flatMap((s) => s.elements.filter((e) => e.type === "element").map((e) => e.meta)))],
+        audit: "clean",
+        note: "This writes a DRAFT. It does not publish, and it does not map a public path."
+      };
+      if (args.confirm !== true) {
+        return withFailureData(
+          fail(
+            CODES.CONFIRM_REQUIRED,
+            "Funnel page compose preview is ready; no write was sent.",
+            "Repeat with confirm:true to autosave the draft."
+          ),
+          { preview }
+        );
+      }
+      const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+      const saved = await gw.call(
+        "POST",
+        `/funnels/builder/autosave/${encodeURIComponent(args.pageId)}`,
+        autosaveEnvelope({ funnelId: args.funnelId, pageData, pageVersion: args.pageVersion })
+      );
+      if (!saved.ok) return fromHttp(saved.status, saved.json);
+      const readBack = await gw.call("GET", `/funnels/builder/page/data?pageId=${encodeURIComponent(args.pageId)}`);
+      const got = readBack.json?.sections ?? [];
+      const wantIds = pageData.sections.map((s) => s.id);
+      const storedIds = got.map((s) => s.id);
+      const missing = wantIds.filter((id) => !storedIds.includes(id));
+      let render = null;
+      if (args.verifyUrl) {
+        const markers = pageData.sections.flatMap((s) => s.elements.filter((e) => e.type === "element").map((e) => `c${e.id}`));
+        const codes = [];
+        let found = false;
+        for (let i = 0; i < 6 && !found; i++) {
+          try {
+            const res = await fetch(`${args.verifyUrl}${args.verifyUrl.includes("?") ? "&" : "?"}x=${Math.random()}`);
+            codes.push(res.status);
+            if (res.status === 200) {
+              const html = await res.text();
+              found = markers.every((m) => html.includes(m));
+            }
+          } catch (e) {
+            codes.push(String(e.message ?? e));
+          }
+          if (!found) await new Promise((r) => setTimeout(r, 2e3));
+        }
+        render = {
+          codes,
+          allNodesPresent: found,
+          note: found ? "every node id appears in the rendered HTML" : "the render did not show every node \u2014 a 200 alone is not proof; the first request after a save can serve the previous compile"
+        };
+      }
+      return ok({
+        pageId: args.pageId,
+        autosave: saved.status,
+        ...preview,
+        readBack: { sections: storedIds.length, missingSections: missing },
+        stored: missing.length === 0,
+        ...render ? { render } : {},
+        ...missing.length ? { warning: "The autosave was accepted but the read-back is missing sections." } : {}
+      });
+    }, args)
   }
 ];
 function registerTools(server2, deps, tools = TOOLS2) {
@@ -170127,6 +171980,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var AUDIT_TOOL_NAMES = Object.freeze([
   "auth_status",
@@ -170164,6 +172018,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var AUDIT_INSTRUCTIONS = `GoHighLevel internal API \u2014 READ-ONLY audit profile.
 
@@ -170185,6 +172040,7 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 function auditError2(code, detail, remediation) {
   const safeDetail = scrubSecrets(String(detail));
@@ -170238,9 +172094,10 @@ init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 import { renameSync, writeFileSync as writeFileSync3, chmodSync, existsSync as existsSync4, readFileSync as readFileSync4 } from "node:fs";
-import { dirname as dirname3, join as join4 } from "node:path";
+import { dirname as dirname4, join as join4 } from "node:path";
 var BACKEND5 = "https://backend.leadconnectorhq.com";
 var REFRESH_PATH = "/oauth/2/login/current";
 var EXCHANGE_PATH = "/oauth/2/login/token";
@@ -170353,7 +172210,7 @@ function writeTokenFile({ tokenFile, bearer, tokenId, firebaseKey, refreshToken 
   renameSync(tmp, tokenFile);
 }
 function writeAgencyJsonIfAbsent({ tokenFile, companyId, nowMs = Date.now(), source = "token-renewal" }) {
-  const path = join4(dirname3(tokenFile), "agency.json");
+  const path = join4(dirname4(tokenFile), "agency.json");
   if (existsSync4(path)) return false;
   writeFileSync3(path, `${JSON.stringify({ companyId, source, capturedAt: new Date(nowMs).toISOString() }, null, 2)}
 `, { mode: 384 });
@@ -170447,10 +172304,10 @@ function makeRenewer({
 }
 
 // stdio-audit.mjs
-var HERE2 = dirname4(fileURLToPath2(import.meta.url));
+var HERE3 = dirname5(fileURLToPath3(import.meta.url));
 var pkgVersion = true ? "0.1.0" : (() => {
   try {
-    return JSON.parse(readFileSync(resolve3(HERE2, "package.json"), "utf8")).version;
+    return JSON.parse(readFileSync(resolve4(HERE3, "package.json"), "utf8")).version;
   } catch {
     return "0.0.0-dev";
   }

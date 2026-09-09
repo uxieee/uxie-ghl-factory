@@ -1373,5 +1373,15 @@
     "tool": "check_smart_lists",
     "method": "GET",
     "path": "/locations/{locationId}/customFields"
+  },
+  {
+    "tool": "build_funnel_page",
+    "method": "POST",
+    "path": "/funnels/builder/autosave/{pageId}"
+  },
+  {
+    "tool": "build_funnel_page",
+    "method": "GET",
+    "path": "/funnels/builder/page/data"
   }
 ]

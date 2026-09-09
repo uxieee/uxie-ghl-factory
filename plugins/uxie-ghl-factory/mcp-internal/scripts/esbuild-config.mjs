@@ -41,6 +41,11 @@ function optionsFor(entry, extra = {}) {
   // drops the only check that reproduces the builder's error panel. Embedded, never fetched —
   // this source is evaluated with `new Function`, so its provenance is the security control.
   const builderValidators = readFileSync(resolve(ROOT, 'catalog/builder-validators.json'), 'utf8');
+  // The funnel element contract: 60 kinds and the `extra` properties each declares. build_funnel_page
+  // refuses a page whose nodes omit any of them, because the public renderer reads
+  // extra.<prop>.value UNGUARDED and 500s the whole page while autosave still answers 201. A bundle
+  // without this silently loses that check and ships pages that save clean and never render.
+  const funnelElements = readFileSync(resolve(ROOT, 'catalog/funnel-elements.json'), 'utf8');
   return {
     entryPoints: [resolve(ROOT, entry)],
     bundle: true,
@@ -57,6 +62,8 @@ function optionsFor(entry, extra = {}) {
       __CONTACT_FILTER_FIELDS__: filterFields,
       __HAS_BUILDER_VALIDATORS__: 'true',
       __BUILDER_VALIDATORS__: builderValidators,
+      __HAS_FUNNEL_ELEMENTS__: 'true',
+      __FUNNEL_ELEMENTS__: funnelElements,
     },
     logLevel: 'warning',
     ...extra,

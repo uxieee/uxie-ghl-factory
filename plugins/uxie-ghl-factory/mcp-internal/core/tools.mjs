@@ -10,6 +10,10 @@ import { authStatus, DEFAULT_TOKEN_FILE, readCredentials } from './auth.mjs';
 import { checkLocationBinding } from './location-binding.mjs';
 import { makeAuditCircuit, makeAuditGateway, makeAuditLimiter } from './audit-gateway.mjs';
 import { makeGateway } from './gateway.mjs';
+import {
+  ELEMENT_KINDS, buildPageData, autosaveEnvelope, auditPageData, makeLeaf, makeColumn,
+  makeSection, textCss, buttonCss, resetIds, val,
+} from './funnel-pages.mjs';
 import { collectWorkflowRuntimeWindow, validateRuntimeWindowInput } from './workflow-runtime-window.mjs';
 import {
   getAiConfigurationBundle,
@@ -8040,6 +8044,140 @@ export const TOOLS = [
           : 'NOT CHECKED — the static filter-field list or this account\'s custom fields could not be read, so only the filter SHAPE was judged. A verdict of "ok" here means the envelope is right, not that every field resolves.',
         ...(fieldsUsable ? {} : { notChecked: 'field validity' }),
         scoreCaveat: '`score` is treated as valid without checking. It is only a real field when the account has a PUBLISHED score profile, and nothing here reads that — flagging it would risk breaking a working filter.',
+      });
+    }, args),
+  },
+  {
+    name: 'build_funnel_page',
+    description: `${describe('build_funnel_page', 'Compose a funnel page from native elements and write it — proof: live-roundtrip (2026-09-09); risk: write')}. `
+      + 'Preview by default; confirm:true autosaves the DRAFT. Emits the nodes AND the compiled '
+      + 'stylesheet together, because the builder canvas styles a page from each node\'s `styles` '
+      + 'while the PUBLIC renderer uses the compiled `sectionStyles` string keyed by node id — write '
+      + 'only one and the page looks right in the builder and naked in public. Enforces the contract '
+      + 'autosave will not: `meta` against the closed set of 60 kinds, every declared `extra` property '
+      + 'present (the renderer reads extra.<prop>.value UNGUARDED, so a missing one 500s the whole '
+      + 'page while autosave still answers 201), `col.extra.bgImage`, `general.general.fontsToLoad` '
+      + 'and `colors`, and child[] holding node IDS that resolve. Verifies by reading the page back on '
+      + 'a separate request; pass verifyUrl to also poll the public render for your own copy — one '
+      + 'request there is not a measurement, since the first can serve the previous compile.',
+    inputSchema: schema({
+      locationId: z.string(),
+      funnelId: z.string(),
+      pageId: z.string(),
+      stepId: z.string(),
+      sections: z.array(z.record(z.any())).min(1),
+      pageStyles: z.string().optional(),
+      fonts: z.array(z.string()).optional(),
+      colors: z.array(z.record(z.any())).optional(),
+      pageVersion: z.number().int().positive().default(1),
+      verifyUrl: z.string().optional(),
+      confirm: z.boolean().default(false),
+    }),
+    capabilities: [
+      { method: 'POST', path: '/funnels/builder/autosave/{pageId}' },
+      { method: 'GET', path: '/funnels/builder/page/data' },
+    ],
+    handler: async (args, deps) => guard(async () => {
+      resetIds();
+      let pageData;
+      try {
+        const sections = args.sections.map((spec, si) => {
+          const css = [];
+          const columns = (spec.columns ?? []).map((c, ci) => {
+            const leaves = (c.elements ?? []).map((e) => {
+              const leaf = makeLeaf({
+                meta: e.meta,
+                extra: { ...(e.html !== undefined ? { text: val(e.html) } : {}), ...(e.extra ?? {}) },
+                styles: e.styles ?? {},
+                tag: e.tag ?? '',
+                salt: `S${si}C${ci}`,
+              });
+              if (e.css) css.push(e.meta === 'button' ? buttonCss(leaf.id, e.css) : textCss(leaf.id, e.css));
+              return leaf;
+            });
+            const widthPct = c.widthPct ?? Math.round(10000 / (spec.columns.length || 1)) / 100;
+            return { col: makeColumn({ children: leaves, widthPct, padX: c.padX ?? 20, salt: `S${si}C${ci}` }), leaves, widthPct };
+          });
+          return makeSection({
+            columns, background: spec.background ?? 'transparent', padY: spec.padY ?? 60,
+            maxWidth: spec.maxWidth ?? 1100, elementCss: css.join(''),
+            pageId: args.pageId, funnelId: args.funnelId, locationId: args.locationId, salt: `S${si}`,
+          });
+        });
+        pageData = buildPageData({
+          pageId: args.pageId, stepId: args.stepId, funnelId: args.funnelId, locationId: args.locationId,
+          sections, pageStyles: args.pageStyles ?? '', fonts: args.fonts, colors: args.colors,
+        });
+      } catch (e) {
+        return fail(CODES.VALIDATION_FAILED, e.message,
+          `Element kinds are a closed set of ${ELEMENT_KINDS.length}; see the funnels corpus for the list.`);
+      }
+
+      const problems = auditPageData(pageData);
+      if (problems.length) {
+        return withFailureData(
+          fail(CODES.VALIDATION_FAILED, `The composed page would save with 201 and then fail: ${problems.length} problem(s).`,
+            'Fix the problems listed in data.problems. None of these is reported by the write path.'),
+          { problems },
+        );
+      }
+
+      const nodeCount = pageData.sections.reduce((n, s) => n + s.elements.length + 1, 0);
+      const cssBytes = pageData.sections.reduce((n, s) => n + s.general.sectionStyles.length, 0);
+      const preview = {
+        sections: pageData.sections.length,
+        nodes: nodeCount,
+        compiledCssBytes: cssBytes,
+        kinds: [...new Set(pageData.sections.flatMap((s) => s.elements.filter((e) => e.type === 'element').map((e) => e.meta)))],
+        audit: 'clean',
+        note: 'This writes a DRAFT. It does not publish, and it does not map a public path.',
+      };
+      if (args.confirm !== true) {
+        return withFailureData(
+          fail(CODES.CONFIRM_REQUIRED, 'Funnel page compose preview is ready; no write was sent.',
+            'Repeat with confirm:true to autosave the draft.'),
+          { preview },
+        );
+      }
+
+      const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+      const saved = await gw.call('POST', `/funnels/builder/autosave/${encodeURIComponent(args.pageId)}`,
+        autosaveEnvelope({ funnelId: args.funnelId, pageData, pageVersion: args.pageVersion }));
+      if (!saved.ok) return fromHttp(saved.status, saved.json);
+
+      // Read back on a SEPARATE request. A 201 from autosave proves the request parsed, nothing more.
+      const readBack = await gw.call('GET', `/funnels/builder/page/data?pageId=${encodeURIComponent(args.pageId)}`);
+      const got = readBack.json?.sections ?? [];
+      const wantIds = pageData.sections.map((s) => s.id);
+      const storedIds = got.map((s) => s.id);
+      const missing = wantIds.filter((id) => !storedIds.includes(id));
+
+      let render = null;
+      if (args.verifyUrl) {
+        const markers = pageData.sections.flatMap((s) => s.elements.filter((e) => e.type === 'element').map((e) => `c${e.id}`));
+        const codes = [];
+        let found = false;
+        for (let i = 0; i < 6 && !found; i++) {
+          try {
+            const res = await fetch(`${args.verifyUrl}${args.verifyUrl.includes('?') ? '&' : '?'}x=${Math.random()}`);
+            codes.push(res.status);
+            if (res.status === 200) { const html = await res.text(); found = markers.every((m) => html.includes(m)); }
+          } catch (e) { codes.push(String(e.message ?? e)); }
+          if (!found) await new Promise((r) => setTimeout(r, 2000));
+        }
+        render = { codes, allNodesPresent: found,
+          note: found ? 'every node id appears in the rendered HTML'
+            : 'the render did not show every node — a 200 alone is not proof; the first request after a save can serve the previous compile' };
+      }
+
+      return ok({
+        pageId: args.pageId,
+        autosave: saved.status,
+        ...preview,
+        readBack: { sections: storedIds.length, missingSections: missing },
+        stored: missing.length === 0,
+        ...(render ? { render } : {}),
+        ...(missing.length ? { warning: 'The autosave was accepted but the read-back is missing sections.' } : {}),
       });
     }, args),
   },
