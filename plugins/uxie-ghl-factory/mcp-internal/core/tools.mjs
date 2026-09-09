@@ -8,7 +8,7 @@ import { z } from 'zod';
 import { ok, fail, fromHttp, CODES, containsSecrets, scrubSecrets } from './errors.mjs';
 import { authStatus, DEFAULT_TOKEN_FILE, readCredentials } from './auth.mjs';
 import { checkLocationBinding } from './location-binding.mjs';
-import { scanPage, judge, judgeVersions, judgeRouting, normaliseTag } from './site-audit.mjs';
+import { scanPage, judge, judgeVersions, judgeRouting, judgeRendered, normaliseTag } from './site-audit.mjs';
 import { makeAuditCircuit, makeAuditGateway, makeAuditLimiter } from './audit-gateway.mjs';
 import { makeGateway } from './gateway.mjs';
 import {
@@ -8312,6 +8312,7 @@ export const TOOLS = [
       { method: 'GET', path: '/funnels/builder/get-versions' },
       { method: 'GET', path: '/funnels/lookup/type/{entityId}' },
       { method: 'GET', path: '/funnels/lookup/list' },
+      { method: 'GET', path: '/funnels/domain/' },
       { method: 'GET', path: '/forms/' },
       { method: 'GET', path: '/calendars/' },
       { method: 'GET', path: '/surveys' },
@@ -8402,19 +8403,66 @@ export const TOOLS = [
       coverage.push({ check: 'page-local-references', ran: pagesScanned > 0 });
       findings.push(...judge({ scans, known, locationId: args.locationId }));
 
+      // ── the render leg ──────────────────────────────────────────────────────────────────
+      // Some defects exist ONLY in what is served. A dead form iframe, a schema block naming a
+      // previous publish, a merge tag rendering as a blank bullet — none of them are visible in the
+      // stored document, and a page pinned to a published version serves content the document no
+      // longer contains. An audit with only a document leg can pass an account whose public pages
+      // are stale AND broken, and report clean, because everything it read was self-consistent.
       let rendered = 0;
       if (args.includeRender) {
-        for (const s of scans.slice(0, 12)) {
-          const row = await gw.call('GET', `/funnels/lookup/type/${encodeURIComponent(s.pageId)}`);
-          const path = body(row)?.path;
-          const domain = docs.find((d) => (d.steps ?? []).some((st) => (st.pages ?? []).includes(s.pageId)))?.domainId;
-          if (!path || !domain) continue;
-          // The page's own route is known, but the DOMAIN NAME is not on the funnel record — only
-          // its id — so a render leg needs the domain list. Reported honestly rather than guessed.
-          rendered++;
+        // The funnel record carries only `domainId`; the NAME lives in the domain list.
+        const dres = await gw.call('GET', `/funnels/domain/?locationId=${encodeURIComponent(args.locationId)}`);
+        const domains = new Map(pick(body(dres), 'domains').map((d) => [d.id ?? d._id, d.url]));
+        const pageOwner = new Map();
+        for (const d of docs) for (const st of d.steps ?? []) for (const pid of st.pages ?? []) pageOwner.set(pid, { doc: d, step: st });
+
+        let noDomain = 0, noRoute = 0, cacheHits = 0;
+        for (const sc of scans.slice(0, 12)) {
+          const owner = pageOwner.get(sc.pageId);
+          const host = domains.get(owner?.doc?.domainId);
+          if (!host) { noDomain++; continue; }
+          // Funnel, step and page each get a routing row and ALL THREE serve — they are aliases.
+          // A page can have no page-row and still be perfectly reachable through its step's, which
+          // is what a hand-minted route looks like. Looking up only the page id skips those pages
+          // and reports them as unroutable when a visitor can reach them fine.
+          let path = body(await gw.call('GET', `/funnels/lookup/type/${encodeURIComponent(sc.pageId)}`))?.path;
+          if (!path && owner?.step?.id) {
+            path = body(await gw.call('GET', `/funnels/lookup/type/${encodeURIComponent(owner.step.id)}`))?.path;
+          }
+          if (!path) { noRoute++; continue; }
+
+          // 🔴 The QUERY STRING IS NOT IN CLOUDFLARE'S CACHE KEY, so `?cb=` measures the cache and
+          // request-side `no-cache` is ignored. Path SHAPE is in the key and matching is
+          // case-insensitive, so a re-cased path is a fresh key onto the same routing row.
+          const slug = String(path).replace(/^\//, '');
+          const keyed = `https://${host}/${[...slug].map((c, i) => (i % (rendered + 2) === 0 ? c.toUpperCase() : c)).join('')}`;
+          try {
+            const r = await fetch(keyed, { headers: { 'Cache-Control': 'no-cache' } });
+            if (r.headers.get('cf-cache-status') === 'HIT') cacheHits++;
+            const html = r.status === 200 ? await r.text() : '';
+            rendered++;
+            if (r.status !== 200) {
+              findings.push({ severity: 'high', check: 'render', pageId: sc.pageId, pageName: sc.pageName,
+                value: `https://${host}${path}`, detail: `the public URL answers ${r.status} — this page is not reachable by a visitor` });
+              continue;
+            }
+            for (const f of judgeRendered({ html, url: `https://${host}${path}`, headline: sc.headline })) {
+              findings.push({ ...f, pageId: sc.pageId, pageName: sc.pageName });
+            }
+          } catch (e) {
+            findings.push({ severity: 'unknown', check: 'render', pageId: sc.pageId, pageName: sc.pageName,
+              notChecked: true, detail: `could not fetch the public URL: ${String(e.message ?? e).slice(0, 80)}` });
+          }
         }
-        coverage.push({ check: 'render', ran: false,
-          why: 'the render leg needs the domain NAME; the funnel record carries only domainId. Resolve it with GET /funnels/domain/ and fetch the public URL — 🔴 vary the path CASING per request, because the query string is not in Cloudflare\'s cache key and `?cb=` measures the cache, not the origin.' });
+        coverage.push({ check: 'render', ran: rendered > 0, knownIds: rendered,
+          ...(rendered === 0 ? { why: noDomain ? 'no domain is attached, so no page has a public URL' : 'no routing rows resolved' } : {}),
+          ...(noDomain ? { skippedNoDomain: noDomain } : {}),
+          ...(noRoute ? { skippedNoRoute: noRoute } : {}),
+          // A HIT means that reading measured the CDN, not the origin — say so rather than let it
+          // pass as evidence about the page.
+          ...(cacheHits ? { cacheHits, cacheNote: 'some reads were served by Cloudflare, not the origin' } : {}),
+          ...(scans.length > 12 ? { note: `first 12 of ${scans.length} pages` } : {}) });
       } else {
         coverage.push({ check: 'render', ran: false, why: 'not requested (pass includeRender:true)' });
       }

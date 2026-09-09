@@ -65,6 +65,21 @@ export function scanPage({ pageData, pageId, pageName = null }) {
       if ((k === 'locationId' || k === 'location_id') && typeof v === 'string' && v) locations.add(v);
     }
   });
+  // The first heading's text, for rule 28: generated schema.org markup is pinned to a page's FIRST
+  // publish, so a page republished with new copy keeps describing the old one. Comparing the JSON-LD
+  // against the CURRENT headline is the only way to see it, and only from the rendered page.
+  let headline = null;
+  walk(pageData, (o) => {
+    if (headline || o?.type !== 'element') return;
+    if (o.meta !== 'heading' && o.meta !== 'sub-heading') return;
+    // The text lives in `extra.text.value` on a synthesised node; `html` is undefined there and is
+    // only populated on some donor-copied shapes. Reading `html` alone returns null on every page
+    // this engine builds, which silently disables the schema check that depends on it.
+    const raw = o.extra?.text?.value ?? o.extra?.text ?? o.html ?? '';
+    const t = String(raw).replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+    if (t) headline = t;
+  });
+
   const raw = JSON.stringify(pageData ?? {});
   for (const m of raw.matchAll(/\{\{\s*custom_values\.[a-z0-9_]+\s*\}\}/gi)) tags.add(m[0]);
   // A locationId can also appear inside a URL (the review-widget case) rather than as a key.
@@ -75,7 +90,7 @@ export function scanPage({ pageData, pageId, pageName = null }) {
   const mediaLocations = new Set();
   for (const m of raw.matchAll(/\/msgsndr\/([A-Za-z0-9]{20,24})\b/g)) { locations.add(m[1]); mediaLocations.add(m[1]); }
 
-  return { pageId, pageName, refs, tags: [...tags], locations: [...locations],
+  return { pageId, pageName, headline, refs, tags: [...tags], locations: [...locations],
     mediaLocations: [...mediaLocations], popupsDefined: [...popupsDefined] };
 }
 
@@ -173,12 +188,23 @@ export function judgeRendered({ html, url, headline = null }) {
       sample: [...new Set(preview)].slice(0, 3),
       detail: 'the served page links to app.gohighlevel.com/v2/preview/… — template-origin links that do not resolve for a visitor' });
   }
-  // Rule 28: the generated schema block is written once and never regenerates on republish.
-  if (headline) {
-    const ld = [...html.matchAll(/<script[^>]*application\/ld\+json[^>]*>([\s\S]*?)<\/script>/gi)].map((m) => m[1]).join(' ');
-    if (ld && !ld.includes(headline)) {
-      findings.push({ severity: 'medium', check: 'render', url,
-        detail: 'the schema.org JSON-LD does not name the page\'s current headline — generated schema is pinned to an earlier publish and only a search engine reads it' });
+  // Rule 28: the generated schema block describes the PREVIOUS publish.
+  //
+  // Compare it against what is ON THE SERVED PAGE, never against the stored draft. A page pinned to
+  // a published version serves that version, so a draft-vs-schema comparison reports "stale schema"
+  // for a page whose schema is fine and whose DRAFT has simply moved on — two different findings
+  // wearing one message. Asking "does the schema name something that is not on this page" needs no
+  // headline at all and cannot confuse the two.
+  const ldBlocks = [...html.matchAll(/<script[^>]*application\/ld\+json[^>]*>([\s\S]*?)<\/script>/gi)];
+  const ld = ldBlocks.map((m) => m[1]).join(' ');
+  if (ld) {
+    const bodyText = html.replace(/<script[\s\S]*?<\/script>/gi, ' ').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
+    const named = [...ld.matchAll(/"name"\s*:\s*"([^"]{4,120})"/g)].map((m) => m[1])
+      .filter((n) => !/^HEADING \[/i.test(n));       // the generator's own element label, not copy
+    const missing = [...new Set(named)].filter((n) => !bodyText.includes(n));
+    if (missing.length) {
+      findings.push({ severity: 'medium', check: 'render', url, names: missing.slice(0, 3),
+        detail: `the schema.org JSON-LD describes copy that is not on this page (${missing.slice(0, 2).map((n) => JSON.stringify(n)).join(', ')}) — generated schema runs ONE PUBLISH BEHIND, so a search engine is reading the previous version` });
     }
   }
   return findings;

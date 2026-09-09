@@ -7390,7 +7390,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "audit_site"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",

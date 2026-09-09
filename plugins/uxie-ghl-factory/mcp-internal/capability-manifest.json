@@ -1427,6 +1427,11 @@
   {
     "tool": "audit_site",
     "method": "GET",
+    "path": "/funnels/domain/"
+  },
+  {
+    "tool": "audit_site",
+    "method": "GET",
     "path": "/forms/"
   },
   {

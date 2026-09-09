@@ -7635,7 +7635,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "audit_site"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -87890,6 +87892,14 @@ function scanPage({ pageData, pageId, pageName = null }) {
       if ((k === "locationId" || k === "location_id") && typeof v === "string" && v) locations.add(v);
     }
   });
+  let headline = null;
+  walk(pageData, (o) => {
+    if (headline || o?.type !== "element") return;
+    if (o.meta !== "heading" && o.meta !== "sub-heading") return;
+    const raw2 = o.extra?.text?.value ?? o.extra?.text ?? o.html ?? "";
+    const t = String(raw2).replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+    if (t) headline = t;
+  });
   const raw = JSON.stringify(pageData ?? {});
   for (const m of raw.matchAll(/\{\{\s*custom_values\.[a-z0-9_]+\s*\}\}/gi)) tags.add(m[0]);
   for (const m of raw.matchAll(/\/reputation\/widgets\/[A-Za-z0-9_-]+\/([A-Za-z0-9]{20,24})\b/g)) locations.add(m[1]);
@@ -87901,6 +87911,7 @@ function scanPage({ pageData, pageId, pageName = null }) {
   return {
     pageId,
     pageName,
+    headline,
     refs,
     tags: [...tags],
     locations: [...locations],
@@ -88016,6 +88027,45 @@ function judge({ scans, known, locationId }) {
           });
         }
       }
+    }
+  }
+  return findings;
+}
+function judgeRendered({ html, url: url2, headline = null }) {
+  const findings = [];
+  if (/Unable to find form/i.test(html)) {
+    findings.push({
+      severity: "high",
+      check: "render",
+      url: url2,
+      detail: 'the served page renders "Unable to find form" \u2014 lead capture is dead on this page'
+    });
+  }
+  const preview = [...html.matchAll(/https?:\/\/app\.gohighlevel\.com\/v2\/preview\/[A-Za-z0-9]+/g)].map((m) => m[0]);
+  if (preview.length) {
+    findings.push({
+      severity: "medium",
+      check: "render",
+      url: url2,
+      count: preview.length,
+      sample: [...new Set(preview)].slice(0, 3),
+      detail: "the served page links to app.gohighlevel.com/v2/preview/\u2026 \u2014 template-origin links that do not resolve for a visitor"
+    });
+  }
+  const ldBlocks = [...html.matchAll(/<script[^>]*application\/ld\+json[^>]*>([\s\S]*?)<\/script>/gi)];
+  const ld = ldBlocks.map((m) => m[1]).join(" ");
+  if (ld) {
+    const bodyText = html.replace(/<script[\s\S]*?<\/script>/gi, " ").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ");
+    const named = [...ld.matchAll(/"name"\s*:\s*"([^"]{4,120})"/g)].map((m) => m[1]).filter((n) => !/^HEADING \[/i.test(n));
+    const missing = [...new Set(named)].filter((n) => !bodyText.includes(n));
+    if (missing.length) {
+      findings.push({
+        severity: "medium",
+        check: "render",
+        url: url2,
+        names: missing.slice(0, 3),
+        detail: `the schema.org JSON-LD describes copy that is not on this page (${missing.slice(0, 2).map((n) => JSON.stringify(n)).join(", ")}) \u2014 generated schema runs ONE PUBLISH BEHIND, so a search engine is reading the previous version`
+      });
     }
   }
   return findings;
@@ -173459,6 +173509,7 @@ var TOOLS2 = [
       { method: "GET", path: "/funnels/builder/get-versions" },
       { method: "GET", path: "/funnels/lookup/type/{entityId}" },
       { method: "GET", path: "/funnels/lookup/list" },
+      { method: "GET", path: "/funnels/domain/" },
       { method: "GET", path: "/forms/" },
       { method: "GET", path: "/calendars/" },
       { method: "GET", path: "/surveys" },
@@ -173550,17 +173601,69 @@ var TOOLS2 = [
       findings.push(...judge({ scans, known, locationId: args.locationId }));
       let rendered = 0;
       if (args.includeRender) {
-        for (const s of scans.slice(0, 12)) {
-          const row = await gw.call("GET", `/funnels/lookup/type/${encodeURIComponent(s.pageId)}`);
-          const path = body(row)?.path;
-          const domain2 = docs.find((d) => (d.steps ?? []).some((st) => (st.pages ?? []).includes(s.pageId)))?.domainId;
-          if (!path || !domain2) continue;
-          rendered++;
+        const dres = await gw.call("GET", `/funnels/domain/?locationId=${encodeURIComponent(args.locationId)}`);
+        const domains = new Map(pick2(body(dres), "domains").map((d) => [d.id ?? d._id, d.url]));
+        const pageOwner = /* @__PURE__ */ new Map();
+        for (const d of docs) for (const st of d.steps ?? []) for (const pid of st.pages ?? []) pageOwner.set(pid, { doc: d, step: st });
+        let noDomain = 0, noRoute = 0, cacheHits = 0;
+        for (const sc of scans.slice(0, 12)) {
+          const owner = pageOwner.get(sc.pageId);
+          const host = domains.get(owner?.doc?.domainId);
+          if (!host) {
+            noDomain++;
+            continue;
+          }
+          let path = body(await gw.call("GET", `/funnels/lookup/type/${encodeURIComponent(sc.pageId)}`))?.path;
+          if (!path && owner?.step?.id) {
+            path = body(await gw.call("GET", `/funnels/lookup/type/${encodeURIComponent(owner.step.id)}`))?.path;
+          }
+          if (!path) {
+            noRoute++;
+            continue;
+          }
+          const slug = String(path).replace(/^\//, "");
+          const keyed = `https://${host}/${[...slug].map((c, i) => i % (rendered + 2) === 0 ? c.toUpperCase() : c).join("")}`;
+          try {
+            const r = await fetch(keyed, { headers: { "Cache-Control": "no-cache" } });
+            if (r.headers.get("cf-cache-status") === "HIT") cacheHits++;
+            const html = r.status === 200 ? await r.text() : "";
+            rendered++;
+            if (r.status !== 200) {
+              findings.push({
+                severity: "high",
+                check: "render",
+                pageId: sc.pageId,
+                pageName: sc.pageName,
+                value: `https://${host}${path}`,
+                detail: `the public URL answers ${r.status} \u2014 this page is not reachable by a visitor`
+              });
+              continue;
+            }
+            for (const f of judgeRendered({ html, url: `https://${host}${path}`, headline: sc.headline })) {
+              findings.push({ ...f, pageId: sc.pageId, pageName: sc.pageName });
+            }
+          } catch (e) {
+            findings.push({
+              severity: "unknown",
+              check: "render",
+              pageId: sc.pageId,
+              pageName: sc.pageName,
+              notChecked: true,
+              detail: `could not fetch the public URL: ${String(e.message ?? e).slice(0, 80)}`
+            });
+          }
         }
         coverage.push({
           check: "render",
-          ran: false,
-          why: "the render leg needs the domain NAME; the funnel record carries only domainId. Resolve it with GET /funnels/domain/ and fetch the public URL \u2014 \u{1F534} vary the path CASING per request, because the query string is not in Cloudflare's cache key and `?cb=` measures the cache, not the origin."
+          ran: rendered > 0,
+          knownIds: rendered,
+          ...rendered === 0 ? { why: noDomain ? "no domain is attached, so no page has a public URL" : "no routing rows resolved" } : {},
+          ...noDomain ? { skippedNoDomain: noDomain } : {},
+          ...noRoute ? { skippedNoRoute: noRoute } : {},
+          // A HIT means that reading measured the CDN, not the origin — say so rather than let it
+          // pass as evidence about the page.
+          ...cacheHits ? { cacheHits, cacheNote: "some reads were served by Cloudflare, not the origin" } : {},
+          ...scans.length > 12 ? { note: `first 12 of ${scans.length} pages` } : {}
         });
       } else {
         coverage.push({ check: "render", ran: false, why: "not requested (pass includeRender:true)" });

@@ -125,6 +125,13 @@ the wrong id, so a visual check and a name-based grep both pass. Three shapes fa
 foreign id, the literal `"none"` (what the AI generator writes when the account has no forms), and an
 unsubstituted `"{{ webinar_formId }}"`. Clone and snapshot remap form OBJECTS but not page embeds.
 
+✅ **Repairing one is a ONE-FIELD change.** `.text` is display-only: the same real id published with
+the correct name, a wrong name, an empty string, and with no `text` key at all rendered the form in
+all four cases `[proven-live, 2026-09-10]`. Only `value` is resolved. Set `text` as well for whoever
+opens the builder next, but it changes nothing about whether the page works — and it is precisely
+why a dangling reference is so well disguised: the field a human checks is the one the platform
+ignores.
+
 **Before any launch on a template-derived site**, collect
 `[...JSON.stringify(pageData).matchAll(/"formId":\{"value":"([^"]*)"/g)]` for every page and diff
 against the account's own form ids. Anything not in that set is dead lead capture. The same node

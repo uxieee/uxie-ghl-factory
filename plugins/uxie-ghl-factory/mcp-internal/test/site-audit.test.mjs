@@ -99,12 +99,18 @@ test('the render leg catches what a document scan structurally cannot', () => {
   assert.equal(dead[0].severity, 'high');
   const links = judgeRendered({ html: '<a href="https://app.gohighlevel.com/v2/preview/ABC123">x</a>', url: 'u' });
   assert.equal(links[0].count, 1);
-  const stale = judgeRendered({ url: 'u', headline: 'NEW HEADLINE',
+  // Compared against the SERVED page, not a stored draft: a pinned page serves its published
+  // version, and a draft-vs-schema check would report stale schema for a page whose schema is fine.
+  const stale = judgeRendered({ url: 'u',
     html: '<h1>NEW HEADLINE</h1><script type="application/ld+json">{"name":"OLD HEADLINE"}</script>' });
-  assert.match(stale[0].detail, /pinned to an earlier publish/);
-  const fresh = judgeRendered({ url: 'u', headline: 'NEW HEADLINE',
+  assert.match(stale[0].detail, /ONE PUBLISH BEHIND/);
+  assert.deepEqual(stale[0].names, ['OLD HEADLINE']);
+  const fresh = judgeRendered({ url: 'u',
     html: '<h1>NEW HEADLINE</h1><script type="application/ld+json">{"name":"NEW HEADLINE"}</script>' });
   assert.deepEqual(fresh, []);
+  // The generator labels its own elements "HEADING [heading-S0C00]" — never page copy, never a finding.
+  assert.deepEqual(judgeRendered({ url: 'u',
+    html: '<h1>X</h1><script type="application/ld+json">{"name":"HEADING [heading-S0C00]"}</script>' }), []);
 });
 
 test('placeholderKind and normaliseTag behave at the edges', () => {
