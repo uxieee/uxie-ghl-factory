@@ -639,7 +639,7 @@ Other defects in the funnel/page routing layer:
 
 | # | Defect | Effect |
 |---|---|---|
-| 1 | A step's `url` and its CONTROL page's Path are **two different paths**, and `create-step` auto-appends `-page` to the page path. | The public URL 301s to the funnel's first step. Page is live, correct, unreachable. **Fix with recipe 10.** |
+| 1 | A step's `url` and its CONTROL page's Path are **two independent rows**, and `create-step` derives the page path as `<step.url>-page` (plus a numeric suffix on collision). | Both rows serve — they are aliases, not competitors — but the page path you get is not the one you would have chosen, and it is not derived from the funnel path. **Rename with recipe 10.** |
 | 2 | `/preview/{pageId}` does not serve — **301** to the first step on one account, **404** on another, both for pages serving fine publicly. | Preview-based verification reports a **false failure**. Verify on the public URL (§0). |
 | 3 | The public URL resolves from the **`funnel_lookup`** routing table (one row per funnel/step/page), NOT from the page doc's `url`. | `POST funnel-page/{pageId}` alone updates the page doc while the live route keeps the old path, **silently**. Recipe 10 needs all three calls. |
 | 4 | `funnel-step-page-url` returns **`ok: true` for a path that is already taken**. | Reading `ok` as availability is always wrong; compare `uniqueUrl` to what you asked (§10). |
@@ -691,3 +691,118 @@ injection requires `isChatWidgetLive`. **Put at least one real element on the pa
 before publishing**, and check `isChatWidgetLive` on the funnel doc. Do not report a page
 as live off a Publish click alone; fetch the public URL and confirm non-empty content
 (§0 applies here too).
+
+
+---
+
+## 11. Attach a domain, and what the four public URLs are
+
+`GET /funnels/domain/?locationId=` lists what the account owns:
+
+```jsonc
+{ "domains": [ { "id": "<domainId>", "url": "<the hostname>", "defaultDomain": true,
+                 "defaultPage": "<a step uuid>", "nameServer": "…", "provider": "…",
+                 "robotsTxtCode": "", "steps": [], "locationId": "…", "companyId": "…",
+                 "deleted": false } ] }
+```
+
+Attachment is a **funnel setting**, not a domain call:
+
+```
+POST /funnels/funnel/update-settings
+{ "locationId", "funnelId", "funnelName", "funnelPath", "domainId",
+  "allowPaymentModeOption": false,          // ← REQUIRED, and not in the form's own payload
+  "faviconUrl", "chatWidgetId", "headTrackingCode", "bodyTrackingCode",
+  "imageOptimization", "isGdprCompliant", "isOptimisePageLoad" }
+```
+
+🔴 Omit `allowPaymentModeOption` and the whole write is refused —
+`422 ["allowPaymentModeOption should not be empty","allowPaymentModeOption must be a boolean value"]` —
+so the `domainId` silently does not attach while the funnel still reads back fine on every other
+field. Verify with `GET /funnels/funnel/fetch/{funnelId}` and check `domainId` is non-empty.
+
+Remember this is a **whole-settings write**: read the funnel first and fill every field you do not
+mean to change, or you clear its tracking codes and favicon and detach its chat widget.
+
+### The four URLs
+
+| What | Shape |
+|---|---|
+| funnel URL | `https://<domain><funnel.url>` — serves the first step |
+| step URL | `https://<domain><lookup.path for the step uuid>` |
+| page URL | `https://<domain><lookup.path for the pageId>` |
+| variation URL | **does not exist** — a split variation has no lookup row |
+
+All three that exist return `200` with the same `<title>`.
+
+🔴 **Attach the domain BEFORE creating steps.** Routing rows are minted per domain and stamped from
+the funnel path as it stood at that moment. Steps created first get flat rows (`/alpha`) instead of
+nesting under the funnel path (`/<funnel>/alpha`). Fixable with recipe 10, but cheaper to order the
+calls correctly.
+
+`POST /funnels/funnel/create` **derives `url` from `name`** — a funnel named `"TEST-CAP Domain
+Probe"` comes back at `/test-cap-domain-probe` with no path ever supplied.
+
+Path matching is **case-insensitive** (the lookup row carries `pathLowercase` beside `path`).
+
+### Verifying a public page measures Cloudflare unless you defeat it
+
+```
+cache-control: max-age=60, stale-while-revalidate=30, stale-if-error=1800
+vary: Accept-Encoding
+```
+
+🔴 The **query string is not in the cache key**, so `?cb=<random>` does not bust it, and a
+request-side `cache-control: no-cache` is ignored — 26 samples nine seconds apart all returned
+`cf-cache-status: HIT`. Read `cf-cache-status` on every sample. Get a fresh key from **path shape**
+(`/Alpha` is a distinct key that serves the same row) or by moving the row with
+`PUT /funnels/lookup/{lookupId}`.
+
+---
+
+## 12. Split tests — configured by API, and inert
+
+```
+POST /funnels/funnel/clone-control-page/
+{ "locationId", "pageId": "<control pageId>", "stepName": "<step name>", "domainName": "<any non-empty string>" }
+→ 201 { pageId }        // copies the control's content, same stepId
+
+PUT /funnels/funnel/step/{funnelId}
+{ "stepId", "pages": ["<control>", "<variation>"], "split": true, "control_traffic": 50,
+  "split_started_at": "<ignored — the server stamps its own>", "split_ended_at": null,
+  "route_all_requests": false, "additional_routes": [] }
+→ 200
+```
+
+🔴 **Neither create route puts its page on the step** — `pages[]` is seeded by `create-step` and
+thereafter maintained only by this `PUT`. Clone a variation and stop, and you have made a page the
+funnel does not know about.
+
+🔴 **Write keys are snake_case; the read returns camelCase** — `control_traffic` → `controlTraffic`,
+`route_all_requests` → `routeAllRequests`, `split_started_at` → `splitStartedAt`.
+
+🔴 **And it routes nothing.** On a funnel with a real domain, `split: true`, `control_traffic: 0`,
+`route_all_requests: false` and **both pages published `live`**, 43 genuine origin decisions all
+served the control. The variation has **no routing row** (`GET /funnels/lookup/type/{variationPageId}`
+→ `404`, `path: null`), so there is nothing to link to or preview. Two explanations were tested and
+rejected: publishing (no change) and a client-side assignment (a real browser rendered the control,
+no redirect, no variant cookie, the variation's `pageId` absent from the document).
+
+Not proven impossible — something the builder UI does was not reproduced, and no split-arming
+endpoint exists in the funnels surface or the page-builder bundle to imitate. **Do not tell a user
+their A/B test is running** off these two calls: say it is configured and unverified, or set it up
+in the UI.
+
+---
+
+## 13. Publish — the version list is a bare array
+
+```
+GET  /funnels/builder/get-versions?pageId=&locationId=     → [ { version_id, pageType, updated_at, … }, … ]
+POST /funnels/builder/publish-version { pageId, versionId, userId }   → 201
+```
+
+🔴 **The response is a BARE ARRAY**, not `{versions: […]}`, and each row's id is snake_case
+**`version_id`** — not `versionId`, which is the name `publish-version` takes in its own *body*. A
+caller that reads `.versions` or `row.versionId` gets `undefined`, publishes nothing, and sees no
+error. Verify by re-reading `get-versions` and confirming a row now reads `pageType: "live"`.

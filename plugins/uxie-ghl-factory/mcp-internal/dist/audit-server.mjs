@@ -88528,7 +88528,8 @@ var emptyFor = (prop, meta3) => {
   const forced = meta3 && SHAPE_BY_KIND[meta3];
   if (forced === "arrays") return { value: [] };
   if (forced === "strings") return { value: "" };
-  if (/image|media|video|file|thumbnail|icon|website|link/i.test(prop)) return { value: { ...BG_IMAGE.value, newTab: false } };
+  if (/^icon$/i.test(prop)) return { value: { name: "", unicode: "", fontFamily: "" } };
+  if (/image|media|video|file|thumbnail|website|link/i.test(prop)) return { value: { ...BG_IMAGE.value, newTab: false } };
   if (/items|list|options|products|categories|elements|fields|slides|links/i.test(prop)) return { value: [] };
   return { value: "" };
 };
@@ -88658,14 +88659,40 @@ var buttonCss = (id, o) => [
   `${PREFIX} .c${id}{font-family:${o.font};background-color:${o.background};color:${o.color};text-decoration:none;padding:16px 32px;border:1px solid ${o.borderColor ?? o.background};border-radius:${o.radius ?? 2}px;letter-spacing:.3px;width:auto;display:inline-block}`,
   `.${id} .main-heading-button{font-size:${o.size ?? 16}px;font-weight:600}`
 ].join("");
-var buildPageData = ({ pageId, stepId, funnelId, locationId, sections, pageStyles = "", fonts = ["Arial", "Georgia", "Roboto"], colors = [] }) => ({
+var builderSettings = (pageBackground = "var(--white)") => ({
+  background: { bgImage: { value: { url: "", options: "bgCover" } }, backgroundColor: { value: pageBackground } },
+  offsetColor: [
+    { text: "White", value: "progressbarOffsetWhite" },
+    { text: "Transparent White", value: "progressbarOffsetTransparentWhite" },
+    { text: "Black", value: "progressbarOffsetBlack" },
+    { text: "Transparent Black", value: "progressbarOffsetTransparentBlack" }
+  ],
+  percentWidth: Array.from({ length: 11 }, (_, i) => ({ text: `${i * 10} Percent`, value: `progress${i * 10}` })),
+  progressBarSize: [
+    { text: "Small", value: "progressbarSmall" },
+    { text: "Medium", value: "progressbarMedium" },
+    { text: "Large", value: "progressbarLarge" }
+  ]
+});
+var withElement = (n) => {
+  const pick2 = (keys) => Object.fromEntries(keys.filter((k) => n[k] !== void 0).map((k) => [k, n[k]]));
+  const base = ["id", "type", "meta", "tagName", "title", "child", "class", "styles", "wrapper", "extra", "mobileStyles", "mobileWrapper", "updated"];
+  const element = n.type === "section" ? { ...pick2([...base, "_id"]), _id: n._id ?? n.id } : n.type === "col" ? { ...pick2(base), noOfColumns: n.noOfColumns ?? 1 } : n.type === "row" ? pick2(base) : pick2([...base, "customCss", "tag"]);
+  return { ...n, ...n.type === "col" ? { noOfColumns: n.noOfColumns ?? 1 } : {}, element };
+};
+var buildPageData = ({ pageId, stepId, funnelId, locationId, sections, pageStyles = "", fonts = ["Arial", "Georgia", "Roboto"], colors = [], pageBackground = "var(--white)" }) => ({
   funnelId,
   locationId,
   pageId,
   id: pageId,
   stepId,
-  sections: sections.map((s, i) => ({ ...s, sequence: i })),
-  settings: { settings: { typography: { fonts: {
+  sections: sections.map((s, i) => ({
+    ...s,
+    sequence: i,
+    ...s.metaData ? { metaData: withElement(s.metaData) } : {},
+    ...s.elements ? { elements: s.elements.map(withElement) } : {}
+  })),
+  settings: { settings: { ...builderSettings(pageBackground), typography: { fonts: {
     headlineFont: { id: "headlinefont", text: "Headline Font", value: { text: "Default", value: "inherit" }, isCustom: false },
     contentFont: { id: "contentfont", text: "Content Font", value: { text: "Default", value: "inherit" }, isCustom: false }
   } } } },
@@ -88692,6 +88719,9 @@ var autosaveEnvelope = ({ funnelId, pageData, pageVersion = 1 }) => ({
 });
 var auditPageData = (pageData) => {
   const problems = [];
+  if (!pageData.settings?.settings?.background) {
+    problems.push("settings.settings.background is missing: the public page will render but the BUILDER will hang forever (bgStyle() destructures bgImage from it unguarded). Use buildPageData(), or add builderSettings().");
+  }
   for (const s of pageData.sections ?? []) {
     const byId = new Map(s.elements.map((n) => [n.id, n]));
     const roots = s.metaData?.child ?? [];

@@ -64,7 +64,12 @@ export const emptyFor = (prop, meta) => {
   const forced = meta && SHAPE_BY_KIND[meta];
   if (forced === 'arrays') return { value: [] };
   if (forced === 'strings') return { value: '' };
-  if (/image|media|video|file|thumbnail|icon|website|link/i.test(prop)) return { value: { ...BG_IMAGE.value, newTab: false } };
+  // `icon` is NOT media. It is a glyph descriptor, and the name-based heuristic used to hand it a
+  // bgImage-shaped object — which the PUBLIC renderer ignored while the BUILDER printed a literal
+  // "undefined" in front of every heading and paragraph. Proven live 2026-09-09. Keep this branch
+  // above the media test, whose regex would otherwise swallow it.
+  if (/^icon$/i.test(prop)) return { value: { name: '', unicode: '', fontFamily: '' } };
+  if (/image|media|video|file|thumbnail|website|link/i.test(prop)) return { value: { ...BG_IMAGE.value, newTab: false } };
   if (/items|list|options|products|categories|elements|fields|slides|links/i.test(prop)) return { value: [] };
   return { value: '' };
 };
@@ -165,10 +170,45 @@ export const buttonCss = (id, o) => [
   `.${id} .main-heading-button{font-size:${o.size ?? 16}px;font-weight:600}`,
 ].join('');
 
-export const buildPageData = ({ pageId, stepId, funnelId, locationId, sections, pageStyles = '', fonts = ['Arial', 'Georgia', 'Roboto'], colors = [] }) => ({
+
+// 🔴 THE BUILDER READS `settings.settings.background`, THE PUBLIC RENDERER NEVER DOES.
+// The page builder's `bgStyle()` computed is `const {bgImage} = builderStore.backgroundSettings`
+// with NO guard, so a page saved without this object throws `Cannot destructure property 'bgImage'
+// of 'e1' as it is undefined` and the builder hangs on its loading spinner forever — while the
+// public URL renders the page perfectly. Proven live 2026-09-09 against a GHL-authored control
+// page that opened fine in the same session. The three progress-bar lists sit beside it in every
+// GHL-authored page.
+export const builderSettings = (pageBackground = 'var(--white)') => ({
+  background: { bgImage: { value: { url: '', options: 'bgCover' } }, backgroundColor: { value: pageBackground } },
+  offsetColor: [
+    { text: 'White', value: 'progressbarOffsetWhite' }, { text: 'Transparent White', value: 'progressbarOffsetTransparentWhite' },
+    { text: 'Black', value: 'progressbarOffsetBlack' }, { text: 'Transparent Black', value: 'progressbarOffsetTransparentBlack' }],
+  percentWidth: Array.from({ length: 11 }, (_, i) => ({ text: `${i * 10} Percent`, value: `progress${i * 10}` })),
+  progressBarSize: [
+    { text: 'Small', value: 'progressbarSmall' }, { text: 'Medium', value: 'progressbarMedium' }, { text: 'Large', value: 'progressbarLarge' }],
+});
+
+// The builder also reads a nested canonical copy of each node from `node.element`; the outer object
+// is a wrapper the API layer adds. Section adds `_id`, col adds `noOfColumns`, a leaf adds
+// `customCss` and `tag`; none carry `element`, `tabletStyles`, `tabletWrapper`.
+export const withElement = (n) => {
+  const pick = (keys) => Object.fromEntries(keys.filter((k) => n[k] !== undefined).map((k) => [k, n[k]]));
+  const base = ['id', 'type', 'meta', 'tagName', 'title', 'child', 'class', 'styles', 'wrapper', 'extra', 'mobileStyles', 'mobileWrapper', 'updated'];
+  const element = n.type === 'section' ? { ...pick([...base, '_id']), _id: n._id ?? n.id }
+    : n.type === 'col' ? { ...pick(base), noOfColumns: n.noOfColumns ?? 1 }
+      : n.type === 'row' ? pick(base)
+        : pick([...base, 'customCss', 'tag']);
+  return { ...n, ...(n.type === 'col' ? { noOfColumns: n.noOfColumns ?? 1 } : {}), element };
+};
+
+export const buildPageData = ({ pageId, stepId, funnelId, locationId, sections, pageStyles = '', fonts = ['Arial', 'Georgia', 'Roboto'], colors = [], pageBackground = 'var(--white)' }) => ({
   funnelId, locationId, pageId, id: pageId, stepId,
-  sections: sections.map((s, i) => ({ ...s, sequence: i })),
-  settings: { settings: { typography: { fonts: {
+  sections: sections.map((s, i) => ({
+    ...s, sequence: i,
+    ...(s.metaData ? { metaData: withElement(s.metaData) } : {}),
+    ...(s.elements ? { elements: s.elements.map(withElement) } : {}),
+  })),
+  settings: { settings: { ...builderSettings(pageBackground), typography: { fonts: {
     headlineFont: { id: 'headlinefont', text: 'Headline Font', value: { text: 'Default', value: 'inherit' }, isCustom: false },
     contentFont: { id: 'contentfont', text: 'Content Font', value: { text: 'Default', value: 'inherit' }, isCustom: false } } } } },
   // fontsToLoad and colors are MANDATORY — absent, the public render 500s.
@@ -186,6 +226,10 @@ export const autosaveEnvelope = ({ funnelId, pageData, pageVersion = 1 }) => ({
 /** Structural checks the write path will NOT do for you. Returns [] when the page is sane. */
 export const auditPageData = (pageData) => {
   const problems = [];
+  // A page missing this renders in public and hangs the BUILDER — the failure mode with no error.
+  if (!pageData.settings?.settings?.background) {
+    problems.push("settings.settings.background is missing: the public page will render but the BUILDER will hang forever (bgStyle() destructures bgImage from it unguarded). Use buildPageData(), or add builderSettings().");
+  }
   for (const s of pageData.sections ?? []) {
     const byId = new Map(s.elements.map((n) => [n.id, n]));
     const roots = s.metaData?.child ?? [];

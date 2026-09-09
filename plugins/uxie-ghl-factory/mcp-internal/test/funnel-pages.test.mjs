@@ -151,3 +151,47 @@ test('kinds that no shape can render are refused with the reason', () => {
   const data = buildPageData({ pageId: 'P', stepId: 'S', funnelId: 'F', locationId: 'L', sections: [section] });
   assert.match(auditPageData(data).join(' '), /needs store page type/);
 });
+
+// ── the builder-only contract ─────────────────────────────────────────────────
+// A page can render perfectly on its public URL and still hang the page BUILDER on a loading
+// spinner forever. Both of these pin that failure mode, found live 2026-09-09.
+test('buildPageData carries settings.settings.background — without it the BUILDER hangs', () => {
+  const p = buildPageData({ pageId: 'p', stepId: 's', funnelId: 'f', locationId: 'l', sections: [] });
+  const bg = p.settings.settings.background;
+  assert.ok(bg, 'settings.settings.background must exist');
+  assert.ok(bg.bgImage && 'value' in bg.bgImage, 'bgStyle() destructures bgImage from it, unguarded');
+  assert.ok(bg.backgroundColor && 'value' in bg.backgroundColor);
+  assert.ok(p.settings.settings.typography, 'typography must survive alongside it');
+});
+
+test('auditPageData reports a missing settings.settings.background', () => {
+  const p = buildPageData({ pageId: 'p', stepId: 's', funnelId: 'f', locationId: 'l', sections: [] });
+  delete p.settings.settings.background;
+  assert.ok(auditPageData(p).some((x) => /settings\.settings\.background/.test(x)));
+});
+
+test('every node carries a nested `element` copy — the builder reads that, not the wrapper', () => {
+  resetIds();
+  const leaf = makeLeaf({ meta: 'heading', extra: { text: val('<h1>Hi</h1>') }, tag: 'h1' });
+  const col = makeColumn({ children: [leaf], widthPct: 100 });
+  const section = makeSection({ columns: [{ col, leaves: [leaf], widthPct: 100 }], pageId: 'p', funnelId: 'f', locationId: 'l' });
+  const p = buildPageData({ pageId: 'p', stepId: 's', funnelId: 'f', locationId: 'l', sections: [section] });
+  const s0 = p.sections[0];
+  assert.ok(s0.metaData.element, 'section metaData needs element');
+  assert.equal(s0.metaData.element._id, s0.metaData.id, 'a section element carries _id');
+  for (const n of s0.elements) {
+    assert.ok(n.element, `${n.id} (${n.type}) needs element`);
+    assert.equal(n.element.id, n.id);
+    assert.ok(!('element' in n.element), 'element must not nest itself');
+    assert.ok(!('tabletStyles' in n.element), 'element omits the outer-only tablet keys');
+  }
+  assert.equal(s0.elements.find((n) => n.type === 'col').element.noOfColumns, 1);
+});
+
+test('an `icon` prop is a glyph descriptor, not media — a media shape prints "undefined" in the builder', () => {
+  const icon = emptyFor('icon', 'heading');
+  assert.deepEqual(Object.keys(icon.value).sort(), ['fontFamily', 'name', 'unicode']);
+  assert.ok(!('mediaType' in icon.value), 'the media regex must not swallow `icon`');
+  // the media branch itself must still work
+  assert.ok('mediaType' in emptyFor('imageProperties', 'image-feature').value);
+});
