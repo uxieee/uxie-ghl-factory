@@ -1,7 +1,7 @@
 {
   "generated": "2026-09-09",
   "note": "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path — not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-  "count": 1167,
+  "count": 1168,
   "endpoints": [
     {
       "id": "workflows--actions-branches",
@@ -1729,6 +1729,7 @@
       "kind": "read",
       "reach": "proven",
       "coveredBy": [
+        "audit_site",
         "build_workflow",
         "edit_workflow",
         "list_account_entities"
@@ -1751,7 +1752,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "capability-manifest.json (list_account_entities, build_workflow, edit_workflow)"
+        "capability-manifest.json (list_account_entities, build_workflow, edit_workflow, audit_site)"
       ]
     },
     {
@@ -6392,6 +6393,7 @@
       "note": "Live-proven 2026-09-06 (knowledge corpus/forms). Needs locationId, skip, limit; type=form returns forms only — ANY other type value (or none) returns forms AND folders in one array. query= is a substring name search; parentId= filters to a folder. Rows carry no formData; GET /forms/{id} does. token-id or Bearer, services or backend — all reach. The full lifecycle (POST /forms/ create, POST /forms/{id} save {name, formData}, duplicate, restore-version, move-to-folder, folders) is proven in corpus/forms/20-api/forms.md but has no rows here yet: the builder is a separate SPA with a PUBLIC source map (sniffs/forms-2026-09-06/builder-app/tree/src) that the generator does not read — see plugin/STATUS-2026-09-06-forms-surface.md.",
       "reach": "proven",
       "coveredBy": [
+        "audit_site",
         "build_workflow",
         "edit_workflow",
         "list_account_entities",
@@ -6830,8 +6832,12 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
-      "coveredBy": [],
+      "note": "Live-proven 2026-09-10. Answers a BARE ARRAY, newest first. The id key is snake_case `version_id` — a caller reading `.versions` or `row.versionId` gets undefined, publishes nothing, and sees no error. `updated_at` is a Firestore {_seconds,_nanoseconds} object, not a string, so sorting it as a string silently does nothing.",
+      "reach": "proven",
+      "coveredBy": [
+        "audit_site",
+        "build_funnel_page"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -6908,6 +6914,7 @@
       "kind": "read",
       "reach": "source-only",
       "coveredBy": [
+        "audit_site",
         "build_funnel_page"
       ],
       "rawCallable": true,
@@ -7313,8 +7320,11 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "write",
-      "reach": "source-only",
-      "coveredBy": [],
+      "note": "Live-proven 2026-09-10 with a 4-step differential. Body {pageId, versionId, userId}; userId is the JWT's authClassId and omitting it 422s. A published version is stamped pageType:'live', NOT 'published'. 🔴 Publishing PINS the public page to that version: the renderer serves the newest live version if one exists and falls back to the newest draft only while a page has NEVER been published, so after the first publish every later autosave is invisible in public with a 201 on each one.",
+      "reach": "proven",
+      "coveredBy": [
+        "build_funnel_page"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -7587,7 +7597,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "audit_site"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -7631,7 +7643,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "audit_site"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -7748,6 +7762,7 @@
       "kind": "read",
       "reach": "proven",
       "coveredBy": [
+        "audit_site",
         "find_ghl_site"
       ],
       "rawCallable": true,
@@ -7927,6 +7942,39 @@
       ]
     },
     {
+      "id": "typed--audit_site--lookup-list",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/funnels/lookup/list",
+      "path": "/funnels/lookup/list",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "proven",
+      "coveredBy": [
+        "audit_site"
+      ],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "audit_site",
+      "tree": "typed-tool",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "proven",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "capability-manifest.json (audit_site)"
+      ]
+    },
+    {
       "id": "funnels--lookup-type",
       "method": "GET",
       "url": "https://backend.leadconnectorhq.com/funnels/lookup/type/{entityId}",
@@ -7935,7 +7983,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "audit_site"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -7971,7 +8021,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "audit_site"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -8007,7 +8059,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "audit_site"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -10986,6 +11040,7 @@
       "kind": "read",
       "reach": "proven",
       "coveredBy": [
+        "audit_site",
         "build_workflow",
         "check_workflow",
         "edit_workflow",
@@ -18876,7 +18931,9 @@
       "kind": "read",
       "note": "Live-proven 2026-09-06: {surveys:[], total}; same params as GET /forms. POST /surveys/ {locationId, name, source} creates a survey PRE-SEEDED with one slide (a form starts at formData {}). /surveys/* does NOT mirror /forms/* path for path (corrected 2026-09-07 from a full call-site extraction of the builder SPA): the survey app uses /surveys/… only for list, create, read, save, image, restore-version, themes and theme-style, and calls the /forms/… routes for delete, duplicate, share, folder create/read/list/rename and move-to-folder. So /surveys/duplicate/{id}, /surveys/folder and /surveys/move-to-folder are paths nothing in the product calls — untested, existence unknown. Corpus: knowledge/corpus/forms/20-api/surveys-and-quizzes.md.",
       "reach": "proven",
-      "coveredBy": [],
+      "coveredBy": [
+        "audit_site"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -36789,6 +36846,7 @@
       "proof": "executed",
       "reach": "proven",
       "coveredBy": [
+        "audit_site",
         "build_workflow",
         "edit_workflow",
         "list_account_entities",

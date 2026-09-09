@@ -1383,5 +1383,65 @@
     "tool": "build_funnel_page",
     "method": "GET",
     "path": "/funnels/builder/page/data"
+  },
+  {
+    "tool": "build_funnel_page",
+    "method": "GET",
+    "path": "/funnels/builder/get-versions"
+  },
+  {
+    "tool": "build_funnel_page",
+    "method": "POST",
+    "path": "/funnels/builder/publish-version"
+  },
+  {
+    "tool": "audit_site",
+    "method": "GET",
+    "path": "/funnels/funnel/list"
+  },
+  {
+    "tool": "audit_site",
+    "method": "GET",
+    "path": "/funnels/funnel/fetch/{funnelId}"
+  },
+  {
+    "tool": "audit_site",
+    "method": "GET",
+    "path": "/funnels/builder/page/data"
+  },
+  {
+    "tool": "audit_site",
+    "method": "GET",
+    "path": "/funnels/builder/get-versions"
+  },
+  {
+    "tool": "audit_site",
+    "method": "GET",
+    "path": "/funnels/lookup/type/{entityId}"
+  },
+  {
+    "tool": "audit_site",
+    "method": "GET",
+    "path": "/funnels/lookup/list"
+  },
+  {
+    "tool": "audit_site",
+    "method": "GET",
+    "path": "/forms/"
+  },
+  {
+    "tool": "audit_site",
+    "method": "GET",
+    "path": "/calendars/"
+  },
+  {
+    "tool": "audit_site",
+    "method": "GET",
+    "path": "/surveys"
+  },
+  {
+    "tool": "audit_site",
+    "method": "GET",
+    "path": "/locations/{locationId}/customValues"
   }
 ]

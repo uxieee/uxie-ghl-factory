@@ -118,6 +118,18 @@ and discarded.
 for `"formId":"<id>"` matches nothing on a page that carries a live reference; match on
 `extra.formId.value` or on `element.meta === "form"`. `auditPageData()` refuses the bare-string shape.
 
+🔴 **Every form embed that arrives with a template points at the SOURCE account's form.** Swept
+live 2026-09-10: 49 of 51 embedded ids on a template-built account did not exist there, and the page
+renders the literal **"Unable to find form"**. The `text` field carries the CORRECT form name beside
+the wrong id, so a visual check and a name-based grep both pass. Three shapes fail the same way: a
+foreign id, the literal `"none"` (what the AI generator writes when the account has no forms), and an
+unsubstituted `"{{ webinar_formId }}"`. Clone and snapshot remap form OBJECTS but not page embeds.
+
+**Before any launch on a template-derived site**, collect
+`[...JSON.stringify(pageData).matchAll(/"formId":\{"value":"([^"]*)"/g)]` for every page and diff
+against the account's own form ids. Anything not in that set is dead lead capture. The same node
+also carries `action` + `visitWebsite.url` for the post-submit redirect — check it in the same pass.
+
 A **partial snapshot push** remaps ids for the assets included in the push and leaves references to
 **excluded** assets pointing at the source account — the page renders "Unable to find form" while
 every API read looks clean. Pushing `funnels` without `forms` is the common case.

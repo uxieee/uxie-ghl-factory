@@ -11,6 +11,69 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [0.70.0] — 2026-09-10
+
+The audit release. Everything on this rail returns `2xx`: a template install leaves 49 of 51 form
+references and 4 of 5 calendar references pointing at the account it was cloned FROM, each showing
+the correct name beside the wrong id; publishing pins the public page so later writes vanish; and
+`autosave` stores an invented element kind with the same 201 as a real one. None of that is visible
+from a status code, and most of it is not visible in the stored document either. So this release
+adds the tool that looks, teaches the skill to route by the problem the user actually has, and puts
+the whole rail under a live conformance suite.
+
+### Added
+
+- **`audit_site`** — read-only. Diffs every embedded reference against what the account really
+  holds, checks merge tags against its custom values, finds foreign `locationId`s a clone left
+  behind, reports publish drift, and verifies routing rows against the step records. It reports
+  **coverage beside findings**: a check that could not run is named, never counted as clean.
+- **`build_funnel_page` can publish.** `publish: true` runs `get-versions` → `publish-version` and
+  asserts THAT version reads back `live` on a separate request. Default stays false — publishing is
+  outward-facing. It refuses to publish a draft whose sections did not read back.
+- **A live conformance suite for funnels**, registered in `run-live-proofs.mjs`. 18 assertions on
+  EFFECTS, not status codes. `funnels` is the second surface to have any live proof at all.
+- **`references/choose-an-element.md`** — 54 intents covering all 46 insertable element kinds,
+  indexed by what a brief asks for. Generated from the element registry, so only the intent column
+  is hand-written. GHL's own palette groups file `calendar` and `pricing-table` under "custom HTML",
+  which is why nobody finds them.
+- **`references/verify-reads.md`** — for every write, the read that verifies it and **the read that
+  lies**. `GET /funnels/page/{id}` omits `meta` after a successful meta write; `funnel/list` shows an
+  unrepairable step looking well-formed; `globalSectionVersion` drifts from the path that is actually
+  live.
+
+### Fixed
+
+- 🔴 **The skill no longer forks the shared specialist contract.** The fork had dropped the approval
+  gate that NAMES the target `locationId` — in the one skill whose output is a live public URL on a
+  client's own domain.
+- 🔴 **Auth on `/funnels/*`: both rails answer.** `token-id` and Bearer each return 200, re-measured
+  with negative controls. The skill previously stated Bearer was rejected (true in July; the platform
+  moved) and told an agent to re-capture on a 401 — a loop, while a working credential sat in the
+  token file. A 401 here means try the other rail first.
+- **The dead SEO recipe is gone** — 66 lines routing callers into Firestore for something
+  `POST /funnels/funnel/funnel-page/{pageId}` does on the ordinary rail, and which recipe 10 had been
+  calling all along.
+- **A garbled two-revision auth block** — two half-sentences welded together — was the first thing
+  anyone read in `recipes.md`.
+- **`run-live-proofs.mjs` no longer contradicts itself.** Its "surfaces with no live proof" list was
+  hand-written, so the first funnels receipt printed `covered: funnels` while still naming funnels as
+  unproven. It is derived from the registry now, and split into two honest claims: no suite exists
+  versus not exercised in this run.
+- **Catalogue**: `GET /funnels/lookup/list` had no row at all, so `search_endpoints` could not
+  surface it. `get-versions` and `publish-version` are marked `proven` with the traps that matter —
+  a **bare array**, snake_case `version_id`, and `updated_at` as a Firestore object rather than a
+  string.
+- **Provenance**: `build_funnel_page` shipped since 0.68.0 with a `proof:` claim that was a bare
+  string with no `tool-descriptions.json` entry behind it. Both it and `audit_site` now carry real
+  entries.
+
+### Knowledge
+
+Fourteen contradictions in the funnels corpus were resolved before any of this was built, because a
+skill distilled from a self-contradicting corpus ships whichever side it happened to read. The worst
+was a recipe teaching `action: {value:"goToNextStep"}` — stored with a 201, renders 200, and the
+button does nothing; the enum is `go-to-next-funnel-step`.
+
 ## [0.69.0] — 2026-09-10
 
 Websites. A website is a funnel document with `type: "website"` — the same builder, the same

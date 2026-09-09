@@ -1,169 +1,121 @@
 ---
 name: ghl-funnels-pages
-description: Build GoHighLevel funnels, pages and websites via the internal API — create the funnel and its steps, author page content from native elements (not just custom HTML), art-direct it with the compiled stylesheet, bind calendars and products, set tracking and SEO, attach a domain and fix the public path. Use when the user asks to build/create a GHL funnel, landing page, website, sales or booking funnel, to restyle one, to add custom HTML, or to set tracking, SEO or routing on GHL funnels/pages.
+description: Build GoHighLevel funnels, pages and websites via the internal API — create the funnel and its steps, author page content from native elements (not just custom HTML), art-direct it with the compiled stylesheet, bind calendars and products, set tracking and SEO, attach a domain, fix the public path, and audit a site for the references a template install leaves broken. Use when the user asks to build/create a GHL funnel, landing page, website, sales or booking funnel, to restyle one, to add custom HTML, to set tracking, SEO or routing, or when a GHL page renders wrong, 404s, says "Unable to find form", or shows different content in the builder than in public.
 ---
 
 # GHL funnels, pages and websites
 
-Writes to a GHL account through the undocumented internal API. Everything below was executed
-against a live account and verified by reading the effect back; where something is unproven it says
-so in those words.
+Writes to a GHL account through the undocumented internal API. Everything here was executed against
+a live account and read back; anything unproven says so in those words.
+
+**A website IS a funnel document** (`type: "website"`) — same steps, same builder, same elements.
+Nothing on this page is funnel-only.
 
 ## Before any write
-1. Run BOTH gates in ${CLAUDE_PLUGIN_ROOT}/docs/write-rails.md.
-2. Auth: ${CLAUDE_PLUGIN_ROOT}/docs/auth-jwt-capture.md **§9** — the funnels rail.
-   `/funnels/*` uses a **`token-id`** header, NOT `Authorization: Bearer`; §1 is the
-   workflow-builder rail and its token is rejected here. §9.2 has the capture procedure
-   (hook `fetch`/`XHR` BEFORE navigating — deep links to the funnels area 404, and a
-   `location.reload()` wipes the hook). Short-lived, never stored. On a 401, re-capture via
-   `uxie-ghl-factory:internal-connect` and carry on — do not stop to ask.
 
-## Contract
-Recon (read the existing funnels) → read the account brief (`.ghl/<locationId>/brief.md` if
-present) → intake only what is missing → blueprint naming every page, its sections and its
-bindings → **user approval** → build → verify each artifact by fetching the URL a visitor would
-and asserting your own copy is in the response.
+1. Both gates in `${CLAUDE_PLUGIN_ROOT}/docs/write-rails.md`.
+2. **The contract**: `${CLAUDE_PLUGIN_ROOT}/docs/specialist-contract.md`. Follow it as written —
+   including step 5 (resolve every dependency to a real id before writing) and step 6's approval
+   that **names the target `locationId`**. This skill's output is a live public URL on someone's
+   own domain; that gate is the one that matters most here.
+3. **Auth**: `${CLAUDE_PLUGIN_ROOT}/docs/auth-jwt-capture.md` §9. Through the MCP server, headers
+   are added for you — never set them yourself.
+   🔴 **Both rails answer on `/funnels/*`.** `token-id` and `Authorization: Bearer` each returned
+   200 on identical calls (re-measured with negative controls 2026-09-10). An older note saying
+   Bearer is *rejected* was true in July and the platform moved. **So a 401 here is not proof the
+   credential is dead — try the other rail before re-capturing.** Re-capturing on the first 401
+   loops while a working credential sits in the token file.
 
 ## The object model
 
 ```
-funnel ──has many──▶ step ──has many──▶ page (CONTROL + split variations)
+funnel ──has many──▶ step ──has many──▶ page (control + split variations)
    │                   │                  │
-   └──── one funnel_lookup row each ──────┘        (rows exist only once a domain is attached)
+   └──── one funnel_lookup row each ──────┘     (rows exist only once a domain is attached)
 ```
 
-- You mint `step.id` (a uuid v4 client-side). The server mints `pageId`.
-- A page document carries metadata only. **Content is not inline** — it lives behind
-  `GET /funnels/builder/page/data?pageId=`.
-- The content tree is **FLAT**: `section.elements[]` holds every node and `child[]` holds node
-  **ids**, never nested objects. Section roots live in `metaData.child`.
+- **You mint `step.id`** (uuid v4, client-side). The server mints `pageId`.
+- A page document is metadata only. **Content lives behind** `GET /funnels/builder/page/data?pageId=`.
+- The content tree is **FLAT**: `section.elements[]` holds every node, `child[]` holds node **ids**.
 
-## The build sequence
+## The build sequence — and which steps have no tool
 
-1. `POST /funnels/funnel/create` — `{locationId, name, type:"funnel"}`. **`url` is derived from
-   `name`.** (The old "API-created funnels hang the UI on a spinner" warning did not reproduce and
-   is retired; funnels created this way open fine and are fully editable.)
-2. **Attach the domain now, before the steps** — `POST /funnels/funnel/update-settings`. Routing
-   rows are stamped from the funnel path as it stands when they are minted, so steps created first
-   get flat paths instead of nesting under the funnel.
-3. `POST /funnels/funnel/create-step` — creates the step *and* its control page.
-4. `POST /funnels/builder/autosave/{pageId}` — the content (recipe 4, and *Authoring* below).
-5. `GET /funnels/builder/get-versions?pageId=` then `POST /funnels/builder/publish-version`.
-6. Fetch the public URL and confirm your own content is in the response.
+| # | step | how |
+|---|---|---|
+| 1 | create the funnel | **no tool** — `POST /funnels/funnel/create` via `raw_request` (recipe 1) |
+| 2 | attach the domain **before creating steps** | **no tool** — recipe 11. Rows are stamped from the funnel path as it stands when minted, so steps created first get flat paths |
+| 3 | create each step (mints its page) | **no tool** — recipe 2. 🔴 Pass your own `step.id` |
+| 4 | author + publish the page | **`build_funnel_page`** — composes, validates, writes, reads back, and publishes when you pass `publish:true` |
+| 5 | fix the public path | **no tool** — recipe 10, and it is **three calls** |
+| 6 | verify | fetch the URL a visitor would, and read the publish state |
+| 7 | audit before handing over | **`audit_site`** — read-only |
 
-## Authoring page content
+Only steps 4 and 7 have typed tools. Everything else is `raw_request` against a recipe.
 
-Two ways, and the second is usually the right one.
+## The four that cannot be deferred
 
-**Custom HTML** (recipe 4) — one `custom-code`/HTML element, full-bleed. Fast, and correct when the
-user wants a bespoke page nobody will edit in the builder.
+🔴 **Every declared property of an element must be PRESENT.** Empty is fine, missing is fatal — the
+renderer reads `extra.<prop>.value` unguarded, so one absent prop 500s the whole page while autosave
+returns 201. Three keys do the same: `col.extra.bgImage`, `general.general.fontsToLoad`,
+`general.general.colors`.
 
-**Native elements** — 60 element kinds exist (a closed set); **51 of the 57 leaf kinds build from
-scratch**, so a page can be authored as real, builder-editable nodes. `build_funnel_page` on the
-internal MCP server does this and carries the guards below. See
-[`references/authoring-and-design.md`](references/authoring-and-design.md) for the full contract:
+🔴 **`builder/autosave` is a blind store.** An invented `meta` round-trips exactly like a real one.
+A write-then-read proves persistence, never validity. `build_funnel_page` enforces what autosave
+will not.
 
-- 🔴 **Every `extra` property a kind declares must be PRESENT.** The renderer reads
-  `extra.<prop>.value` unguarded, so one absent property **500s the whole public page** while
-  `autosave` answered `201`. Present-but-empty is fine; the empty SHAPE is per kind.
-- 🔴 **`autosave` is a blind store.** It accepts an invented `meta`, a wrong enum and a missing
-  property with the same `201`. A round trip through it proves persistence and nothing else.
-- 🔴 **Enums are checked nowhere.** A button with `action: "goToNextStep"` stores fine and does
-  nothing; the value is `go-to-next-funnel-step`.
-- 🔴 Three keys whose absence 500s the page: `col.extra.bgImage` (an object), and
-  `general.general.fontsToLoad` / `general.general.colors`.
+🔴 **There are TWO stylesheets and neither reaches both consumers.** The public renderer serves
+`section.general.sectionStyles` (compiled CSS keyed by node id); the builder discards it and
+recompiles from node `styles`/`wrapper`/`extra`/`customCss`. Write one and the page looks right in
+the builder and naked in public, or the reverse.
 
-## Art direction — the compiled stylesheet is the whole stylesheet
+🔴 **Publishing FREEZES the page.** The public URL serves the newest `live` version if one exists,
+and falls back to the newest draft if the page has never been published. So while unpublished,
+every autosave appears publicly and publishing looks optional — and the first publish pins the page,
+after which every later write is invisible in public with a 201 on each one. `build_funnel_page`
+reports this on every run; read `publishState` before believing any public fetch.
 
-A page that renders is not a page that holds up. `section.general.sectionStyles` is not a set of
-hooks; it is the section's entire stylesheet, keyed by node id, and anything CSS can express a
-synthesised page can express. **Read
-[`references/authoring-and-design.md`](references/authoring-and-design.md) before styling anything**
-— it carries the duotone/blend trap, the CSS-grid override that buys asymmetric layout, the
-`noBorder` `!important` collision, how to re-skin the bound calendar and order-form widgets through
-their own CSS custom properties, and how to load real fonts.
+## Which reference for which job
 
-🔴 **Verification is not done until the page has been opened in the BUILDER too.** A page can
-render perfectly on its public URL and hang the editor on a loading spinner forever —
-`settings.settings.background`, `node.element` and a correctly shaped `extra.icon` are read by the
-builder and by nothing else. The reference has the shapes and the one-pass differential that finds
-this class of defect.
+Load only what the job needs.
 
-🔴 **A page has TWO styling sources.** The builder canvas re-derives from each node's `styles`; the
-PUBLIC renderer uses `sectionStyles`. Emit one and not the other and the page looks perfect in the
-builder and renders naked in public, with no error anywhere.
-
-## Routing, domains and the public URLs
-
-**The public URL resolves from the `funnel_lookup` table, not from the page document's `url`.**
-Funnel, step and page each get a row, and **all three serve** — they are aliases for the same page,
-not competitors. Moving a path is three calls (recipe 10); the `PUT` is what moves the live route
-and the `POST` only makes the page document agree.
-
-Attach a domain with `POST /funnels/funnel/update-settings` carrying `domainId`. 🔴 It also
-requires **`allowPaymentModeOption`** (boolean), which is not in the settings form's own payload —
-omit it and the whole write is refused, so the domain silently does not attach. And it is a
-**whole-settings write, not a patch**: empty strings ARE applied and DO clear, so read the funnel
-first and fill every field you do not intend to change.
-
-🔴 **Verifying a public page measures Cloudflare unless you defeat it.** `max-age=60`, `vary` on
-`Accept-Encoding` only, and **the query string is not in the cache key** — `?cb=<random>` does not
-bust it and a request-side `no-cache` is ignored. Read `cf-cache-status` on every sample; get a
-fresh key from path SHAPE (matching is case-insensitive, so `/Alpha` is a distinct key serving the
-same row) or by moving the row.
-
-🔴 **`/preview/{pageId}` is not a verification route on a domained funnel** — it 301s to the first
-step on one account and 404s on another, for pages serving fine publicly. Verify on the public URL.
-On a funnel with *no* domain the preview route is all there is, and the first request after an
-autosave can serve the PREVIOUS compile — poll until a freshly minted node id appears.
-
-## Split tests
-
-`POST /funnels/funnel/clone-control-page/` then `PUT /funnels/funnel/step/{funnelId}` with
-`{pages:[control, variation], split:true, control_traffic:N}`. Both calls succeed and the state
-reads back correctly.
-
-🔴 **It routes nothing.** On a domained funnel with `control_traffic: 0` and both pages published
-`live`, 43 genuine origin decisions all served the control, and the variation has **no routing
-row** (`lookup/type/{variationPageId}` → 404), so there is no variation URL. Not proven impossible —
-something the builder UI does was not reproduced and no split-arming endpoint exists to imitate —
-but **do not tell a user their A/B test is running** off these two calls. Say it is configured and
-unverified, or set it up in the UI.
-
-## Bindings
-
-- **Calendar** — a `calendar` element whose `extra.calendarId` is `{value, text, isTeamSelected}`.
-- **Product** — binds to the **STEP**, not the page: `PUT /funnels/funnel/step/{funnelId}`. The
-  funnel read nests under `data.steps`.
-- **Order form** — `two-setp-order` (the platform's spelling) 500s without `step1`/`step2`; those
-  objects carry the form's labels and checkout config and the renderer reads them unguarded.
-
-## Scope
-**IN:** funnel / step / page creation, native-element authoring, art direction, custom HTML,
-tracking code, SEO, public-path and domain routing, calendar and product bindings, chat-widget
-attach/detach, publishing.
-**OUT:** pipelines (public API — use the ghl MCP server), workflow wiring (use
-`create-ghl-workflow`). Store and blog pages ARE in scope now — the store kinds need a step of
-`type: "store"` and the blog kinds a `blog-post` step of a `type: "blog"` funnel (installed from a
-`blogs` template, since a blog container cannot yet be created directly).
+| what you are doing | go to |
+|---|---|
+| "which element do I use for a testimonial / booking / pricing block?" | [`references/choose-an-element.md`](references/choose-an-element.md) |
+| build a funnel or website end to end | [`references/recipes.md`](references/recipes.md) §1, 11, 2, 4, 7, 10 |
+| the page 500s, renders blank, or an element is missing | [`references/authoring-and-design.md`](references/authoring-and-design.md) — the presence rule and the per-kind contract |
+| the builder hangs on a spinner forever | `authoring-and-design.md` — `settings.settings.background`, `node.element`, `extra.icon` |
+| make it look designed rather than generated | `authoring-and-design.md` Part 2 — the compiled stylesheet is the whole stylesheet |
+| change the URL a page serves at, or attach a domain | `recipes.md` §10 (three calls) and §11 |
+| a page 404s, or a step lost its route | [`references/websites.md`](references/websites.md) — routing, and what a domain attach silently renames |
+| "Unable to find form", a dead calendar, a blank heading | **run `audit_site`** — then `websites.md` for the reference shapes |
+| the builder shows my change and the public URL does not | the publish-freeze rule above; read `publishState` |
+| set up an A/B test | `websites.md` — it works, and it needs **six** things |
+| websites, global sections, blogs, stores | [`references/websites.md`](references/websites.md) |
+| I need to know which READ verifies a WRITE | [`references/verify-reads.md`](references/verify-reads.md) |
 
 ## Never report a page as shipped off a `201`
-State which of draft/live you verified and name the URL you fetched. Six of this surface's fifteen
-documented silent failures are a `2xx` that changed nothing or broke the page.
 
-## Websites, global sections and section libraries
-A website is a funnel document with `type: "website"` — same builder, same elements — so everything
-above applies. What differs is in [`references/websites.md`](references/websites.md), and each entry
-is a way to be wrong while every call returns success: a global section resolves PER SECTION ID (the
-funnel-level file wins where it has the id, the page's inline copy is the fallback, so **editing is
-one call and deleting is two**); the list `type` is a UI tab and an unknown value returns everything;
-routing needs a domain before any lookup row exists, and then every step answers on TWO paths; page
-`meta` writes land but `GET /funnels/page/{id}` omits the key entirely; and a reference to another
-asset is `{value, text}`, never a bare string.
+Name the URL you fetched and say which of draft/live you verified. **28 documented ways this surface
+returns success and does nothing** — that is the house it lives in.
 
-## Recipes
-[`references/recipes.md`](references/recipes.md). **Never WRITE through an endpoint that is not in
-it** — every recipe exists because a write here has a trap. Reads are different: `search_endpoints`
-on the internal MCP indexes every `/funnels/*` route the builder source calls, and
-`describe_endpoint` hands you the `raw_request`. A write you discover that way goes through
-`ghl-reverse-engineering` and into `recipes.md` first; it does not go straight to a client funnel.
+🔴 Measuring a public page measures **Cloudflare** unless you defeat it: `max-age=60`, and the query
+string is **not** in the cache key, so `?cb=` busts nothing and request-side `no-cache` is ignored.
+Read `cf-cache-status` on every sample; get a fresh key by varying the path's CASING (matching is
+case-insensitive, so `/Alpha` is a distinct key onto the same row).
+
+## Scope
+
+**IN:** funnel / step / page creation, native-element authoring (all 57 leaf kinds build from
+scratch), art direction, custom HTML, tracking code, page `meta`, public-path and domain routing,
+calendar and product bindings, chat widget, split tests, publishing, site audit. Store pages need a
+step of `type:"store"`; blog pages need a `blog-post` step in a `type:"blog"` funnel, which comes
+from a `blogs` template load.
+
+**OUT:** pipelines (public API — use the ghl MCP server), workflow wiring (use
+`create-ghl-workflow`), form and calendar *authoring* (use `ghl-forms`; this skill only binds and
+audits them).
+
+**Never WRITE through an endpoint that is not in `recipes.md`** — every recipe exists because a
+write here has a trap. Reads are different: `search_endpoints` indexes every `/funnels/*` route and
+`describe_endpoint` hands you the call. A write you discover that way goes through
+`ghl-reverse-engineering` and into `recipes.md` first, not straight at a client funnel.

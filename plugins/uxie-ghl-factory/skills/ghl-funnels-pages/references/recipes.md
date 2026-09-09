@@ -10,9 +10,14 @@ Source: `ghl-workflow-api-docs/docs/superpowers/specs/2026-07-11-pipelines-funne
 `page-trackingcode.mjs`, `seo.mjs` (probed via `probe.mjs`). Every payload
 below is copied from those two sources — nothing invented.
 
-> ⚠️ **Auth: `/funnels/*` uses `token-id`, NOT `Authorization: Bearer`.** Every
-> **Auth on this rail:** funnels use `token-id`, not a Bearer JWT. Newer funnels may run a
-> different scheme; if a call 401s with `token-id`, check which the account's funnels use.
+> ⚠️ **Auth on this rail: BOTH credentials work.** `token-id` and `Authorization: Bearer` each
+> returned 200 on identical `/funnels/*` calls, re-measured with negative controls 2026-09-10 (a
+> bad token 401s, no header 401s, and a `/vibe-ai` control still refuses `token-id` — so the header
+> is genuinely being checked and the two are interchangeable *here*, not everywhere).
+>
+> An earlier revision of this line said Bearer was **rejected**. That was true when measured in
+> July; the platform moved. 🔴 **So a 401 on this rail is not proof the credential is dead — try the
+> other rail before re-capturing.** Auth facts on this product carry an expiry date.
 
 Auth headers on every call: see `${CLAUDE_PLUGIN_ROOT}/docs/auth-jwt-capture.md`
 **§9** (funnels rail — `token-id` + `channel`/`source`/`version`/`accept`, and a
@@ -323,9 +328,17 @@ The suffix is the literal string `-page`, NOT the random dedup number from §10.
 recipe 10 — all THREE of its calls.** The page doc's url alone does not route.
 
 **Known limits:**
-- `"optin_funnel_page"` is the only proven `step.type`. `pages: []` is sent
-  empty in every proven call — its purpose beyond that isn't explored;
-  don't invent contents for it.
+- `step.type` `"optin_funnel_page"` and `"store"` are proven; `"blog-post"` 404s
+  (a blog container comes from a template load, not from `create-step`).
+- `step.pages: ["<existingPageId>"]` is **ignored** — a new step always mints a new
+  blank page. You cannot point a step at an existing page.
+- 🔴 **Omitting `step.id` mints an UNREPAIRABLE step.** It returns `201` and mints a
+  page, but the page gets no `stepId`, `PUT /funnels/funnel/step/{funnelId}` then
+  answers `400 "Funnel Step not found!"` forever, there is no step-delete endpoint
+  (only whole-funnel delete), and domain attach mints no routing row for it. Always
+  generate the uuid v4 yourself. `GET /funnels/page?locationId=&funnelId=&limit=20`
+  returns `stepId` per page and detects id-less steps already in an account (`limit`
+  is capped at 20).
 - Proven live (page `pWOizhNP5hBqHtVNLgfu`; re-proven end to end 2026-08-10 on a
   client funnel with a real custom domain).
 - ✅ **The page this creates CAN be saved to and published.** This corrects the
@@ -552,71 +565,37 @@ funnel it was written against but is a **false-failure trap on a domained funnel
 
 ---
 
-## 6. SEO metadata — EXPERIMENTAL, not fully covered by this plugin's auth doc
+## 6. Page `meta` (SEO title and description)
 
-**Purpose:** set a page's SEO title/description/keywords/image/author/language.
+**Purpose:** set a page's SEO title and description.
 
-**Status: proven live by the source investigation, but excluded from the
-single-token flow this skill otherwise relies on.** Include this recipe only
-with that caveat surfaced to the user before attempting it.
+```
+POST /funnels/funnel/funnel-page/{pageId}   { name, url, meta: { title, description, … } }
+```
 
-> Note: the 2026-07-21 auth correction (funnels are `token-id`, not Bearer)
-> does **not** dissolve this recipe's problem — it renames one of the two
-> tokens. SEO still needs a genuinely different credential class.
+→ `201`, and the rendered page carries the new `<title>` `[proven-live, 2026-09-10]`. This is the
+same route recipe 10 uses for `{url, name}` — the bundle calls it `updatePageData`. There is no
+separate meta endpoint and **no Firestore call is involved.**
 
-**Why it's different:** SEO metadata lives on the page's Firestore doc
-(`funnel_pages/{pageId}.meta`), not in `pageData`. The `builder/autosave`
-endpoint (`token-id`, same as every other recipe here) **ignores a
-top-level `meta` key** — verified twice in the source investigation. There
-is no `token-id` REST endpoint for SEO; GHL's own builder writes `meta`
-directly to Firestore using a **separate Firebase ID token** (obtained via a
-`signInWithCustomToken` exchange during the builder's page load, itself
-minted by `POST /oauth/users/{uid}/sessions/token`).
+🔴 **Verify on the RENDER, never on the page record.** `GET /funnels/page/{pageId}` does not return
+`meta` at all — the key is absent even immediately after the `201` that set it — so a read-back
+through the record reports every page as untouched.
 
-🔴 **The blocker is NOT a missing credential — do not go extending the auth
-capture, it will not help.** The capture already holds a Firebase ID token:
-the token file's second credential is issued by
-`securetoken.google.com/highlevel-backend`, `role: admin`, `scope: agency`,
-and it renews itself. What it cannot do is read or write `funnel_pages` —
-Firestore's security rules refuse it. Proven by differential, same token and
-same call shape, different collection (live 2026-09-09): `documents:runQuery`
-on `vibe-platform`/`vibe-messages` answers `200` with a real document, while
-`funnel_pages` answers `403 PERMISSION_DENIED` three ways — `runQuery` in
-both databases and a direct document `get`.
+Merge tags resolve in `<title>`: `{{custom_values.company_name}}` came back **consumed** — the tag
+gone, the substitution empty on an account with no such value. Consumed-to-empty is the positive
+result; a literal `{{…}}` surviving is the negative one.
 
-⚠️ Note for anyone probing this: a collection **list**
-(`GET …/documents/<collection>?pageSize=1`) is a different rule and is denied
-even for collections `runQuery` serves. Its `403` says nothing about your
-token. Use `documents:runQuery`.
+> ⚠️ **This recipe previously ran to ~64 lines saying SEO was BLOCKED** — "there is no `token-id`
+> REST endpoint for it" — and routed callers into the Firestore REST API with a separate Firebase
+> credential. That was wrong, and it was disproved twice over: by the endpoint above, and by
+> recipe 10, which had been calling that very route on the token-id rail the whole time. The
+> Firestore material is provenance for how GHL's own builder does it and is kept in the corpus,
+> not here.
 
-So the open question is whether the builder's `signInWithCustomToken` token
-carries claims those rules accept. Answering it means minting a credential,
-which needs the user's explicit word — never improvise a token format, and
-don't mint one to satisfy a documentation gap.
+**Not exercised:** `schemaMarkup` (the manual override) and `robotsTxtCode`. 🔴 And note that the
+AUTO-generated schema.org block is pinned to a page's first publish and never regenerates — see the
+publish-freeze rule in SKILL.md.
 
-**Shape, for reference (source-faithful, not to be run without the missing
-auth step above):**
-1. Write `meta` on the Firestore page doc — a PATCH to the Firestore REST API
-   (`firestore.googleapis.com`, project `highlevel-backend`, database
-   `(default)`, document `funnel_pages/{pageId}`, field mask `meta`), body
-   `{"fields":{"meta":{"mapValue":{"fields":{"title":{...},"description":{...},"keywords":{...},"imageUrl":{...},"author":{...},"language":{...},"canonicalMeta":{...},"customMeta":{...}}}}}}`
-   — authenticated with the Firebase ID token described above (not the
-   funnels `token-id`).
-2. Trigger a normal `POST /funnels/builder/autosave/{pageId}` (`token-id`,
-   current `pageData` unchanged) to force GHL to re-render the preview,
-   which reads `meta` fresh at render time.
-
-**Verification (if ever run):** fetch the published page at its **public URL** and
-confirm title/description/keywords appear in the served `<head>`. (`/preview/{pageId}`
-is not reliable on a domained funnel — §0.)
-
-**Known limits:**
-- Genuinely needs two different tokens — the only recipe in this file that
-  does.
-- The autosave step alone does nothing for SEO; skipping step 1 above and
-  only doing step 2 leaves `meta` unchanged.
-
----
 
 ## 9. Create the FUNNEL in the UI; create its STEPS and PAGES via the API
 

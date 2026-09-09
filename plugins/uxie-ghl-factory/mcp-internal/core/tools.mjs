@@ -8,6 +8,7 @@ import { z } from 'zod';
 import { ok, fail, fromHttp, CODES, containsSecrets, scrubSecrets } from './errors.mjs';
 import { authStatus, DEFAULT_TOKEN_FILE, readCredentials } from './auth.mjs';
 import { checkLocationBinding } from './location-binding.mjs';
+import { scanPage, judge, judgeVersions, judgeRouting, normaliseTag } from './site-audit.mjs';
 import { makeAuditCircuit, makeAuditGateway, makeAuditLimiter } from './audit-gateway.mjs';
 import { makeGateway } from './gateway.mjs';
 import {
@@ -8071,11 +8072,14 @@ export const TOOLS = [
       colors: z.array(z.record(z.any())).optional(),
       pageVersion: z.number().int().positive().default(1),
       verifyUrl: z.string().optional(),
+      publish: z.boolean().default(false),
       confirm: z.boolean().default(false),
     }),
     capabilities: [
       { method: 'POST', path: '/funnels/builder/autosave/{pageId}' },
       { method: 'GET', path: '/funnels/builder/page/data' },
+      { method: 'GET', path: '/funnels/builder/get-versions' },
+      { method: 'POST', path: '/funnels/builder/publish-version' },
     ],
     handler: async (args, deps) => guard(async () => {
       resetIds();
@@ -8130,7 +8134,10 @@ export const TOOLS = [
         compiledCssBytes: cssBytes,
         kinds: [...new Set(pageData.sections.flatMap((s) => s.elements.filter((e) => e.type === 'element').map((e) => e.meta)))],
         audit: 'clean',
-        note: 'This writes a DRAFT. It does not publish, and it does not map a public path.',
+        note: args.publish === true
+          ? 'This writes a draft AND PUBLISHES it — the page becomes visible to the public at its mapped path. It does not map a path that does not already exist.'
+          : 'This writes a DRAFT. It does not publish, and it does not map a public path.',
+        willPublish: args.publish === true,
       };
       if (args.confirm !== true) {
         return withFailureData(
@@ -8152,6 +8159,91 @@ export const TOOLS = [
       const storedIds = got.map((s) => s.id);
       const missing = wantIds.filter((id) => !storedIds.includes(id));
 
+      // THE PUBLISH STATE IS REPORTED ON EVERY RUN, published or not — because the trap here is
+      // invisible until it has already cost you. The public renderer serves the newest `live`
+      // version if the page has one, and falls back to the newest draft if the page has NEVER been
+      // published (proven 2026-09-10, funnels/40-rules rule 27). So while a page is unpublished
+      // every autosave appears publicly within seconds and publishing looks optional; the first
+      // publish pins the page to that version and every later autosave stops reaching the public
+      // URL, with a 201 on each one. A caller who never sees this state cannot know which regime
+      // their `verifyUrl` fetch is measuring.
+      //
+      // `get-versions` answers a BARE ARRAY, newest first. The id key is snake_case `version_id`
+      // — a caller reading `.versions` or `row.versionId` gets undefined, publishes nothing, and
+      // sees no error. `updated_at` is a Firestore {_seconds,_nanoseconds} object, not a string.
+      let versions = [];
+      const vres = await gw.call('GET', `/funnels/builder/get-versions?pageId=${encodeURIComponent(args.pageId)}`);
+      if (Array.isArray(vres.json)) versions = vres.json;
+      const liveIdx = versions.findIndex((v) => v.pageType === 'live');
+      const newest = versions[0] ?? null;
+      const pinnedTo = liveIdx >= 0 ? versions[liveIdx] : null;
+      const secs = (v) => v?.updated_at?._seconds ?? 0;
+      const publishState = {
+        versions: versions.length,
+        pinned: liveIdx >= 0,
+        // Drafts stacked behind the pinned version: work the public cannot see.
+        draftsSincePublish: liveIdx >= 0 ? liveIdx : null,
+        staleBySeconds: liveIdx >= 0 ? Math.max(0, secs(newest) - secs(pinnedTo)) : null,
+        servingNote: liveIdx >= 0
+          ? 'This page is PINNED to a published version. The public URL serves that version, NOT the draft this call just wrote.'
+          : 'This page has never been published, so the public URL falls back to the newest draft — the one this call just wrote.',
+      };
+
+      let published = null;
+      if (args.publish === true) {
+        if (missing.length) {
+          return withFailureData(
+            fail(CODES.VERIFY_FAILED,
+              'the draft read back with sections missing, so it was NOT published',
+              'Publishing pins the public page to this version. Fix the write first — data.readBack names the missing sections — then re-run.'),
+            { readBack: { sections: storedIds.length, missingSections: missing }, publishState },
+          );
+        }
+        // userId is REQUIRED by publish-version and its absence 422s. A blank one is the shape a
+        // caller hits when a variable is undefined rather than absent, so refuse it by name.
+        if (typeof gw.uid !== 'string' || gw.uid.trim() === '') {
+          return withFailureData(
+            fail(CODES.VALIDATION_FAILED,
+              'this credential carries no user id, and publish-version requires one',
+              'Re-capture the token (uxie-ghl-factory:internal-connect), or omit publish and publish from the builder.'),
+            { publishState },
+          );
+        }
+        const target = newest;
+        if (!target?.version_id) {
+          return withFailureData(
+            fail(CODES.ENGINE_ABORT,
+              'the version list came back without a usable version_id, so nothing was published',
+              'The draft IS saved. Read GET /funnels/builder/get-versions?pageId= and publish by hand.'),
+            { publishState, versionsSeen: versions.length },
+          );
+        }
+        const pub = await gw.call('POST', '/funnels/builder/publish-version',
+          { pageId: args.pageId, versionId: target.version_id, userId: gw.uid });
+        if (!pub.ok) return fromHttp(pub.status, pub.json);
+
+        // Read back on a SEPARATE request: a 201 proves the request parsed. Assert THAT version is
+        // now `live` — not merely that some version is.
+        const after = await gw.call('GET', `/funnels/builder/get-versions?pageId=${encodeURIComponent(args.pageId)}`);
+        const rows = Array.isArray(after.json) ? after.json : [];
+        const row = rows.find((v) => v.version_id === target.version_id) ?? null;
+        published = {
+          versionId: target.version_id,
+          status: pub.status,
+          // A published version is stamped `live`, NOT `published`.
+          pageType: row?.pageType ?? null,
+          verified: row?.pageType === 'live',
+        };
+        if (!published.verified) {
+          return withFailureData(
+            fail(CODES.VERIFY_FAILED,
+              'publish-version was accepted but that version did not read back as live',
+              'The draft is saved. Re-read get-versions before assuming the public page changed.'),
+            { published, publishState },
+          );
+        }
+      }
+
       let render = null;
       if (args.verifyUrl) {
         const markers = pageData.sections.flatMap((s) => s.elements.filter((e) => e.type === 'element').map((e) => `c${e.id}`));
@@ -8165,9 +8257,16 @@ export const TOOLS = [
           } catch (e) { codes.push(String(e.message ?? e)); }
           if (!found) await new Promise((r) => setTimeout(r, 2000));
         }
+        // On a PINNED page this fetch is not measuring your write at all — it is measuring the
+        // published version. Say so, rather than letting a green 'allNodesPresent' or a puzzling
+        // miss be read as evidence about the draft just written.
+        const pinnedAndUnpublished = publishState.pinned && args.publish !== true;
         render = { codes, allNodesPresent: found,
-          note: found ? 'every node id appears in the rendered HTML'
-            : 'the render did not show every node — a 200 alone is not proof; the first request after a save can serve the previous compile' };
+          measures: pinnedAndUnpublished ? 'the PUBLISHED version, not this write' : 'this write',
+          note: pinnedAndUnpublished
+            ? 'This page is pinned to a published version, so the public URL cannot show the draft this call wrote — whatever this fetch found, it is not evidence about your write. Re-run with publish:true, or publish from the builder.'
+            : found ? 'every node id appears in the rendered HTML'
+              : 'the render did not show every node — a 200 alone is not proof; the first request after a save can serve the previous compile' };
       }
 
       return ok({
@@ -8176,8 +8275,163 @@ export const TOOLS = [
         ...preview,
         readBack: { sections: storedIds.length, missingSections: missing },
         stored: missing.length === 0,
+        publishState,
+        ...(published ? { published } : {}),
         ...(render ? { render } : {}),
         ...(missing.length ? { warning: 'The autosave was accepted but the read-back is missing sections.' } : {}),
+        ...(publishState.pinned && args.publish !== true
+          ? { warning: `This page is pinned to a published version with ${publishState.draftsSincePublish} draft(s) stacked behind it. This write is NOT visible at the public URL until the page is published again.` }
+          : {}),
+      });
+    }, args),
+  },
+  {
+    name: 'audit_site',
+    description: `${describe('audit_site', 'Read-only audit of a GHL funnel or website — dangling references, missing merge tags, foreign locationIds, publish drift')}. `
+      + 'Finds the defects that return 2xx everywhere, '
+      + 'store correctly, and render a page that looks right to whoever built it. Checks embedded '
+      + 'REFERENCES against what the account actually holds (a template or snapshot install leaves them '
+      + 'pointing at the SOURCE account — measured 49 of 51 formIds and 4 of 5 calendarIds dangling on one '
+      + 'account, each displaying the CORRECT name beside the wrong id, which is why they survive the '
+      + 'builder, a screenshot and any name-based grep), merge tags against the location\'s custom values '
+      + '(a missing one renders as a blank heading or an empty bullet while every id resolves), foreign '
+      + 'locationIds left behind by a clone, and publish state (a page pinned to a published version serves '
+      + 'THAT version, so the builder and the public URL show different content). Pass includeRender to also '
+      + 'fetch the public URLs — some defects exist only in what is SERVED and cannot be seen in stored page '
+      + 'data at all. Reports coverage beside findings: a check that could not run is never counted as clean.',
+    inputSchema: schema({
+      locationId: z.string(),
+      funnelId: z.string().optional(),
+      includeRender: z.boolean().default(false),
+      maxPages: z.number().int().positive().max(200).default(60),
+    }),
+    capabilities: [
+      { method: 'GET', path: '/funnels/funnel/list' },
+      { method: 'GET', path: '/funnels/funnel/fetch/{funnelId}' },
+      { method: 'GET', path: '/funnels/builder/page/data' },
+      { method: 'GET', path: '/funnels/builder/get-versions' },
+      { method: 'GET', path: '/funnels/lookup/type/{entityId}' },
+      { method: 'GET', path: '/funnels/lookup/list' },
+      { method: 'GET', path: '/forms/' },
+      { method: 'GET', path: '/calendars/' },
+      { method: 'GET', path: '/surveys' },
+      { method: 'GET', path: '/locations/{locationId}/customValues' },
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+      const body = (r) => r.json?.data ?? r.json ?? {};
+      const pick = (b, ...keys) => { for (const k of keys) if (Array.isArray(b?.[k])) return b[k]; return Array.isArray(b) ? b : []; };
+
+      // COVERAGE IS PART OF THE RESULT. A list that fails to load disables its check; the check is
+      // then reported as not-run rather than silently passing. A headline of "0 findings" over
+      // checks that never executed is the worst answer an audit can give.
+      const coverage = [];
+      const known = {};
+      const loadList = async (name, path, ...keys) => {
+        const r = await gw.call('GET', path);
+        if (r.status !== 200) {
+          coverage.push({ check: `dangling-references:${name}`, ran: false, why: `the ${name} list answered ${r.status}` });
+          return;
+        }
+        known[name] = new Set(pick(body(r), ...keys).map((x) => x.id ?? x._id).filter(Boolean));
+        coverage.push({ check: `dangling-references:${name}`, ran: true, knownIds: known[name].size });
+      };
+      await loadList('forms', `/forms/?locationId=${encodeURIComponent(args.locationId)}&limit=20`, 'forms');
+      await loadList('calendars', `/calendars/?locationId=${encodeURIComponent(args.locationId)}`, 'calendars');
+      await loadList('surveys', `/surveys/?locationId=${encodeURIComponent(args.locationId)}&limit=20`, 'surveys');
+
+      const cv = await gw.call('GET', `/locations/${encodeURIComponent(args.locationId)}/customValues`);
+      if (cv.status === 200) {
+        // The account's fieldKey is the FULL tag and carries inner spaces (`{{ custom_values.x }}`)
+        // while pages usually write it without. Normalise both sides or every tag reads as missing.
+        known.customValues = new Set(pick(body(cv), 'customValues').map((c) => normaliseTag(c.fieldKey ?? '')).filter(Boolean));
+        coverage.push({ check: 'merge-tags', ran: true, knownIds: known.customValues.size });
+      } else {
+        coverage.push({ check: 'merge-tags', ran: false, why: `customValues answered ${cv.status}` });
+      }
+
+      let docs = [];
+      if (args.funnelId) {
+        const one = await gw.call('GET', `/funnels/funnel/fetch/${encodeURIComponent(args.funnelId)}?locationId=${encodeURIComponent(args.locationId)}`);
+        if (one.status !== 200) return fromHttp(one.status, one.json);
+        docs = [body(one)];
+      } else {
+        const all = await gw.call('GET', `/funnels/funnel/list?locationId=${encodeURIComponent(args.locationId)}&limit=100`);
+        if (all.status !== 200) return fromHttp(all.status, all.json);
+        docs = pick(body(all), 'funnels', 'data');
+      }
+
+      const scans = [];
+      const findings = [];
+      let pagesScanned = 0, pagesFailed = 0, truncated = false;
+      for (const d of docs) {
+        for (const st of d.steps ?? []) {
+          // Rule 24: a step created without a client-minted id is unrepairable and gets no route.
+          if (!st.id) {
+            findings.push({ severity: 'high', check: 'step-integrity', pageName: `${d.name} / ${st.name}`,
+              detail: 'this step has no id — it cannot be edited (step PUT 400s), cannot be deleted by API, and gets no routing row' });
+          }
+          for (const pid of st.pages ?? []) {
+            if (pagesScanned >= args.maxPages) { truncated = true; continue; }
+            const pd = await gw.call('GET', `/funnels/builder/page/data?pageId=${encodeURIComponent(pid)}`);
+            if (pd.status !== 200) { pagesFailed++; continue; }
+            pagesScanned++;
+            scans.push(scanPage({ pageData: pd.json, pageId: pid, pageName: `${d.name} / ${st.name}` }));
+            const vs = await gw.call('GET', `/funnels/builder/get-versions?pageId=${encodeURIComponent(pid)}`);
+            if (Array.isArray(vs.json)) findings.push(...judgeVersions({ versions: vs.json, pageId: pid, pageName: `${d.name} / ${st.name}` }));
+          }
+        }
+      }
+      // ROUTING. A domain attach reports `pathsUpdated: true` and nothing else, while it silently
+      // renames a colliding step path and mints NO ROW AT ALL for one whose path is already held —
+      // that step simply 404s. lookup/list is the only way to see what the attach actually did.
+      if (args.funnelId) {
+        const rows = await gw.call('GET', `/funnels/lookup/list?funnelId=${encodeURIComponent(args.funnelId)}&locationId=${encodeURIComponent(args.locationId)}`);
+        if (rows.status === 200) {
+          const all = pick(body(rows), 'lookups', 'data');
+          for (const d of docs) findings.push(...judgeRouting({ rows: all, steps: d.steps, documentName: d.name }));
+          coverage.push({ check: 'routing', ran: true, knownIds: all.length });
+        } else {
+          coverage.push({ check: 'routing', ran: false, why: `lookup/list answered ${rows.status}` });
+        }
+      } else {
+        coverage.push({ check: 'routing', ran: false, why: 'pass funnelId to check routing (lookup/list is per-document)' });
+      }
+      coverage.push({ check: 'publish-state', ran: pagesScanned > 0 });
+      coverage.push({ check: 'foreign-location', ran: pagesScanned > 0 });
+      coverage.push({ check: 'page-local-references', ran: pagesScanned > 0 });
+      findings.push(...judge({ scans, known, locationId: args.locationId }));
+
+      let rendered = 0;
+      if (args.includeRender) {
+        for (const s of scans.slice(0, 12)) {
+          const row = await gw.call('GET', `/funnels/lookup/type/${encodeURIComponent(s.pageId)}`);
+          const path = body(row)?.path;
+          const domain = docs.find((d) => (d.steps ?? []).some((st) => (st.pages ?? []).includes(s.pageId)))?.domainId;
+          if (!path || !domain) continue;
+          // The page's own route is known, but the DOMAIN NAME is not on the funnel record — only
+          // its id — so a render leg needs the domain list. Reported honestly rather than guessed.
+          rendered++;
+        }
+        coverage.push({ check: 'render', ran: false,
+          why: 'the render leg needs the domain NAME; the funnel record carries only domainId. Resolve it with GET /funnels/domain/ and fetch the public URL — 🔴 vary the path CASING per request, because the query string is not in Cloudflare\'s cache key and `?cb=` measures the cache, not the origin.' });
+      } else {
+        coverage.push({ check: 'render', ran: false, why: 'not requested (pass includeRender:true)' });
+      }
+
+      const bySeverity = findings.reduce((a, f) => ({ ...a, [f.severity]: (a[f.severity] ?? 0) + 1 }), {});
+      const byCheck = findings.reduce((a, f) => ({ ...a, [f.check]: (a[f.check] ?? 0) + 1 }), {});
+      const notRun = coverage.filter((c) => !c.ran).map((c) => c.check);
+      return ok({
+        scope: { documents: docs.length, pagesScanned, pagesFailed, truncated, renderable: rendered },
+        coverage,
+        checksNotRun: notRun,
+        headline: `${findings.length} finding(s) across ${coverage.filter((c) => c.ran).length} check(s) that ran`
+          + (notRun.length ? `; ${notRun.length} check(s) did NOT run and are not counted as clean: ${notRun.join(', ')}` : ''),
+        bySeverity,
+        byCheck,
+        findings: findings.slice(0, 200),
+        ...(findings.length > 200 ? { truncatedFindings: findings.length - 200 } : {}),
       });
     }, args),
   },

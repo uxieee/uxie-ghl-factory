@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { PROOFS, selectProofs, tail4, parseSummary } from '../../../../scripts/run-live-proofs.mjs';
+import { ALL_SURFACES, PROOFS, selectProofs, tail4, parseSummary } from '../../../../scripts/run-live-proofs.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const SCRIPT = resolve(HERE, '../../../../scripts/run-live-proofs.mjs');
@@ -76,19 +76,25 @@ test('an unparseable summary is null, never a zero', () => {
   assert.equal(parseSummary(undefined), null);
 });
 
-test('the receipt records the surfaces with NO live proof, not only the green one', () => {
-  // A receipt showing only what passed reads as a clean bill of health for the whole product. 12 of
-  // 14 surfaces have no live proof at all and every receipt has to say so.
+test('the receipt records what is NOT proven, and derives it so it cannot contradict the registry', () => {
+  // A receipt showing only what passed reads as a clean bill of health for the whole product, so
+  // every receipt has to state the gap. This was a hand-written array until 2026-09-10, when the
+  // funnels suite landed and a receipt printed `covered: funnels` while STILL listing funnels as
+  // unproven — a report contradicting its own coverage. It is derived from the registry now.
   const src = readFileSync(SCRIPT, 'utf8');
-  assert.match(src, /surfacesWithNoLiveProof/);
-  const listed = /surfacesWithNoLiveProof: \[([\s\S]*?)\]/.exec(src);
-  assert.ok(listed, 'the uncovered list must be explicit, not computed from an empty set');
-  const names = [...listed[1].matchAll(/'([a-z-]+)'/g)].map((m) => m[1]);
-  assert.ok(names.length >= 10, `expected the real gap to be recorded, got ${names.length}`);
-  assert.ok(names.includes('workflows'), 'the largest surface has no conformance suite and must be listed');
-  for (const p of PROOFS) {
-    for (const s of p.surfaces) {
-      assert.ok(!names.includes(s), `${s} is both proven and listed as unproven`);
-    }
+  assert.match(src, /surfacesWithNoSuite/, 'the receipt must say which surfaces have no suite at all');
+  assert.match(src, /surfacesNotProvenThisRun/, '"no suite exists" and "not exercised today" are different claims');
+  assert.ok(!/surfacesWithNoLiveProof:\s*\[/.test(src),
+    'the uncovered list must be DERIVED from PROOFS, never re-hardcoded — that is what drifted');
+
+  assert.ok(ALL_SURFACES.length >= 12, `the denominator must be the real surface list, got ${ALL_SURFACES.length}`);
+  const covered = new Set(PROOFS.flatMap((p) => p.surfaces ?? []));
+  const noSuite = ALL_SURFACES.filter((sf) => !covered.has(sf));
+  assert.ok(noSuite.length >= 10, `expected the real gap to be recorded, got ${noSuite.length}`);
+  assert.ok(noSuite.includes('workflows'), 'the largest surface has no conformance suite and must be listed');
+  for (const sf of covered) {
+    assert.ok(ALL_SURFACES.includes(sf), `${sf} is claimed by a suite but is not in ALL_SURFACES — the denominator is wrong`);
+    assert.ok(!noSuite.includes(sf), `${sf} is both proven and listed as unproven`);
   }
 });
+

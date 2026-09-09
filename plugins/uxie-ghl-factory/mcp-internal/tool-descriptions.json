@@ -1601,5 +1601,77 @@
       "platform--snapshot-get-assets-get",
       "workflow-service--find-by-id"
     ]
+  },
+  "audit_site": {
+    "description": "Read-only audit of a GHL funnel or website — dangling references, missing merge tags, foreign locationIds, publish drift — proof: live-runtime (2026-09-10); risk: read",
+    "risk": "read",
+    "proof": "live-runtime (2026-09-10)",
+    "proofFloor": "live-runtime (2026-09-10)",
+    "proofRows": [
+      "funnels-service--get-funnels",
+      "funnels--page-data",
+      "funnels--builder-get-versions",
+      "forms--get-forms",
+      "typed--list_account_entities--calendars",
+      "surveys-service--get-surveys",
+      "backend--custom-values"
+    ],
+    "proofFloorRows": [
+      "funnels-service--get-funnels",
+      "funnels--page-data",
+      "funnels--builder-get-versions",
+      "forms--get-forms",
+      "typed--list_account_entities--calendars",
+      "surveys-service--get-surveys",
+      "backend--custom-values"
+    ],
+    "riskRows": [
+      "funnels-service--get-funnels",
+      "funnels--page-data",
+      "funnels--builder-get-versions",
+      "forms--get-forms",
+      "typed--list_account_entities--calendars",
+      "surveys-service--get-surveys",
+      "backend--custom-values"
+    ],
+    "rows": [
+      "funnels-service--get-funnels",
+      "funnels--page-data",
+      "funnels--builder-get-versions",
+      "forms--get-forms",
+      "typed--list_account_entities--calendars",
+      "surveys-service--get-surveys",
+      "backend--custom-values"
+    ]
+  },
+  "build_funnel_page": {
+    "description": "Compose, validate and write a funnel page from native elements; optionally publish it — proof: live-runtime (2026-09-10); risk: write",
+    "risk": "write",
+    "proof": "live-runtime (2026-09-10)",
+    "proofFloor": "live-runtime (2026-09-09)",
+    "proofRows": [
+      "funnels--builder-autosave",
+      "funnels--page-data",
+      "funnels--builder-get-versions",
+      "funnels--builder-publish-version"
+    ],
+    "proofFloorRows": [
+      "funnels--builder-autosave",
+      "funnels--page-data",
+      "funnels--builder-get-versions",
+      "funnels--builder-publish-version"
+    ],
+    "riskRows": [
+      "funnels--builder-autosave",
+      "funnels--page-data",
+      "funnels--builder-get-versions",
+      "funnels--builder-publish-version"
+    ],
+    "rows": [
+      "funnels--builder-autosave",
+      "funnels--page-data",
+      "funnels--builder-get-versions",
+      "funnels--builder-publish-version"
+    ]
   }
 }

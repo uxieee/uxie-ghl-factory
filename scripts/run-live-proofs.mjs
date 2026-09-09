@@ -55,6 +55,12 @@ const val = (n, d) => { const i = argv.indexOf(n); return i >= 0 ? argv[i + 1] :
  * `surfaces` is what a pass actually covers, and it is deliberately short: 10 of the 14 corpus
  * surfaces have no live proof at all, and pretending otherwise is worse than the gap.
  */
+/** Every surface the corpus covers. The denominator for both coverage lists on a receipt. */
+export const ALL_SURFACES = [
+  'ai-agents', 'ai-studio', 'ask-ai', 'calendars', 'conversations', 'events', 'forms', 'funnels',
+  'marketplace-apps', 'memberships-courses', 'platform', 'pipelines-opportunities', 'workflows',
+];
+
 export const PROOFS = [
   {
     name: 'memberships',
@@ -65,6 +71,23 @@ export const PROOFS = [
     note: 'build → quiz+questions → assignment → grant → assert THIS contact enrolled → revoke → '
       + 'assert un-enrolled → credential issue → assert registry record → community group. Also '
       + 're-checks the documented traps, including attach-offer-user acking an empty body.',
+  },
+  {
+    name: 'funnels',
+    surfaces: ['funnels'],
+    script: join(PLUGIN, 'skills/ghl-funnels-pages/scripts/conformance.mjs'),
+    creates: true,
+    // Deliberately FALSE, and not an oversight: this project's rule is that probe artefacts stay
+    // named and in place, and this rail has no step-delete endpoint at all, so a suite that
+    // claimed to tear down would be lying about half of what it made.
+    tearsDown: false,
+    note: 'funnel → step with a CLIENT-MINTED id → author a page → assert every section reads back '
+      + 'on a separate request → publish → assert THAT version reads back live → write again and '
+      + 'assert the tool WARNS the write is now invisible (publishing pins the public page) → '
+      + 'assert get-versions is a bare array keyed snake_case version_id, newest first → run the '
+      + 'read-only auditor and assert it reports COVERAGE, so a check that could not run is never '
+      + 'counted as clean. Public-URL assertions are reported SKIPPED: they need a domain on a '
+      + 'fresh funnel, which is outward-facing and not for an unattended run.',
   },
 ];
 
@@ -189,13 +212,17 @@ if (invokedDirectly) {
     credentialRenewed: Boolean(renewal.renewed),
     results,
     surfacesCovered: [...new Set(results.filter((r) => r.ok).flatMap((r) => r.surfaces ?? []))],
-    surfacesWithNoLiveProof: [
-      'ai-agents', 'ai-studio', 'ask-ai', 'calendars', 'conversations', 'events',
-      'forms', 'funnels', 'marketplace-apps', 'platform', 'pipelines-opportunities', 'workflows',
-    ],
-    _coverage: 'surfacesWithNoLiveProof is recorded on EVERY receipt on purpose. A green run proves '
-      + 'one surface, and a receipt that showed only the green would read as a clean bill of health '
-      + 'for the whole product.',
+    // DERIVED, not hand-listed. It was a literal array until 2026-09-10, when the funnels suite
+    // landed and the receipt printed `covered: funnels` while STILL naming funnels as unproven —
+    // a report contradicting its own coverage, which is the exact defect these receipts exist to
+    // prevent. Deriving it means it can never disagree with the registry again.
+    surfacesWithNoSuite: ALL_SURFACES.filter((sf) => !PROOFS.some((p) => (p.surfaces ?? []).includes(sf))),
+    // Different question, deliberately kept apart: a suite may exist and simply not have been
+    // selected on this run. "No suite exists" and "not exercised today" are not the same claim.
+    surfacesNotProvenThisRun: ALL_SURFACES.filter((sf) => !new Set(results.filter((r) => r.ok).flatMap((r) => r.surfaces ?? [])).has(sf)),
+    _coverage: 'Both lists are recorded on EVERY receipt on purpose. A green run proves one surface, '
+      + 'and a receipt that showed only the green would read as a clean bill of health for the whole '
+      + 'product.',
   };
   const file = join(RECEIPTS, `${startedAt.slice(0, 10)}-${startedAt.slice(11, 16).replace(':', '')}.json`);
   writeFileSync(file, `${JSON.stringify(receipt, null, 2)}\n`);
@@ -205,7 +232,7 @@ if (invokedDirectly) {
   console.log(`\n${'═'.repeat(64)}`);
   console.log(`${results.length - failed.length}/${results.length} suite(s) passed${skipped ? `, ${skipped} assertion(s) SKIPPED` : ''}`);
   console.log(`receipt: ${file.replace(`${REPO}/`, '')}`);
-  console.log(`covered: ${receipt.surfacesCovered.join(', ') || 'nothing'} — ${receipt.surfacesWithNoLiveProof.length} surfaces still have NO live proof`);
+  console.log(`covered: ${receipt.surfacesCovered.join(', ') || 'nothing'} — ${receipt.surfacesWithNoSuite.length} surface(s) have NO suite at all; ${receipt.surfacesNotProvenThisRun.length} not exercised in this run`);
   if (failed.length) for (const f of failed) console.log(`  FAILED  ${f.name} (exit ${f.exitCode})`);
   process.exit(failed.length ? 2 : 0);
 }

@@ -246,7 +246,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
     define_ENDPOINT_CATALOG_default = {
       generated: "2026-09-09",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 1167,
+      count: 1168,
       endpoints: [
         {
           id: "workflows--actions-branches",
@@ -1974,6 +1974,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           reach: "proven",
           coveredBy: [
+            "audit_site",
             "build_workflow",
             "edit_workflow",
             "list_account_entities"
@@ -1996,7 +1997,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "capability-manifest.json (list_account_entities, build_workflow, edit_workflow)"
+            "capability-manifest.json (list_account_entities, build_workflow, edit_workflow, audit_site)"
           ]
         },
         {
@@ -6637,6 +6638,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           note: "Live-proven 2026-09-06 (knowledge corpus/forms). Needs locationId, skip, limit; type=form returns forms only \u2014 ANY other type value (or none) returns forms AND folders in one array. query= is a substring name search; parentId= filters to a folder. Rows carry no formData; GET /forms/{id} does. token-id or Bearer, services or backend \u2014 all reach. The full lifecycle (POST /forms/ create, POST /forms/{id} save {name, formData}, duplicate, restore-version, move-to-folder, folders) is proven in corpus/forms/20-api/forms.md but has no rows here yet: the builder is a separate SPA with a PUBLIC source map (sniffs/forms-2026-09-06/builder-app/tree/src) that the generator does not read \u2014 see plugin/STATUS-2026-09-06-forms-surface.md.",
           reach: "proven",
           coveredBy: [
+            "audit_site",
             "build_workflow",
             "edit_workflow",
             "list_account_entities",
@@ -7075,8 +7077,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
-          coveredBy: [],
+          note: "Live-proven 2026-09-10. Answers a BARE ARRAY, newest first. The id key is snake_case `version_id` \u2014 a caller reading `.versions` or `row.versionId` gets undefined, publishes nothing, and sees no error. `updated_at` is a Firestore {_seconds,_nanoseconds} object, not a string, so sorting it as a string silently does nothing.",
+          reach: "proven",
+          coveredBy: [
+            "audit_site",
+            "build_funnel_page"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -7153,6 +7159,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           reach: "source-only",
           coveredBy: [
+            "audit_site",
             "build_funnel_page"
           ],
           rawCallable: true,
@@ -7558,8 +7565,11 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          reach: "source-only",
-          coveredBy: [],
+          note: "Live-proven 2026-09-10 with a 4-step differential. Body {pageId, versionId, userId}; userId is the JWT's authClassId and omitting it 422s. A published version is stamped pageType:'live', NOT 'published'. \u{1F534} Publishing PINS the public page to that version: the renderer serves the newest live version if one exists and falls back to the newest draft only while a page has NEVER been published, so after the first publish every later autosave is invisible in public with a 201 on each one.",
+          reach: "proven",
+          coveredBy: [
+            "build_funnel_page"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -7832,7 +7842,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "audit_site"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -7876,7 +7888,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "audit_site"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -7993,6 +8007,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           reach: "proven",
           coveredBy: [
+            "audit_site",
             "find_ghl_site"
           ],
           rawCallable: true,
@@ -8172,6 +8187,39 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "typed--audit_site--lookup-list",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/funnels/lookup/list",
+          path: "/funnels/lookup/list",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "proven",
+          coveredBy: [
+            "audit_site"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "audit_site",
+          tree: "typed-tool",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "proven",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "capability-manifest.json (audit_site)"
+          ]
+        },
+        {
           id: "funnels--lookup-type",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/funnels/lookup/type/{entityId}",
@@ -8180,7 +8228,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "audit_site"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -8216,7 +8266,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "audit_site"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -8252,7 +8304,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "audit_site"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -11231,6 +11285,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           reach: "proven",
           coveredBy: [
+            "audit_site",
             "build_workflow",
             "check_workflow",
             "edit_workflow",
@@ -19121,7 +19176,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           note: "Live-proven 2026-09-06: {surveys:[], total}; same params as GET /forms. POST /surveys/ {locationId, name, source} creates a survey PRE-SEEDED with one slide (a form starts at formData {}). /surveys/* does NOT mirror /forms/* path for path (corrected 2026-09-07 from a full call-site extraction of the builder SPA): the survey app uses /surveys/\u2026 only for list, create, read, save, image, restore-version, themes and theme-style, and calls the /forms/\u2026 routes for delete, duplicate, share, folder create/read/list/rename and move-to-folder. So /surveys/duplicate/{id}, /surveys/folder and /surveys/move-to-folder are paths nothing in the product calls \u2014 untested, existence unknown. Corpus: knowledge/corpus/forms/20-api/surveys-and-quizzes.md.",
           reach: "proven",
-          coveredBy: [],
+          coveredBy: [
+            "audit_site"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -37034,6 +37091,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           proof: "executed",
           reach: "proven",
           coveredBy: [
+            "audit_site",
             "build_workflow",
             "edit_workflow",
             "list_account_entities",
@@ -51980,6 +52038,14 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           summary: "Grants a published offer to a contact, which is what puts them in the course. Body is `{contactId, offerId, source:'admin'}` -- SINGULAR contactId, and no locationId (the location comes from the sourceid header the gateway already sends). Async: the response is an enqueue ack.",
           note: 'Its 200 CARRIES NO INFORMATION ABOUT THE PAYLOAD. Live-proven on the test sub-account 2026-09-07: an empty body `{}`, fabricated ids, and the wrong key names each return the identical `200 {ok:true, msg:"The request to attach the offer to the user has been successfully queued"}` a real grant returns. The control that makes that a measurement: a nonexistent sibling path answers `404 {"msg":"Not found"}`, so the 200 is this route replying and not a catch-all. Two operators have now sent `{locationId, offerId, contactIds:[...]}` or `userIds:[...]`, been told it was queued, and granted nothing. The ONLY proof a grant landed is `GET services.../membership/locations/{loc}/products/user-progress/{productId}` containing the contactId you granted -- and check for THAT contact, not for a non-empty list, which passes on a pre-existing member. Revoke is a different path: DELETE /membership/smart-list/user-offer-management with a body.',
           reach: "proven-live"
+        },
+        "GET /funnels/builder/get-versions": {
+          reach: "proven",
+          note: "Live-proven 2026-09-10. Answers a BARE ARRAY, newest first. The id key is snake_case `version_id` \u2014 a caller reading `.versions` or `row.versionId` gets undefined, publishes nothing, and sees no error. `updated_at` is a Firestore {_seconds,_nanoseconds} object, not a string, so sorting it as a string silently does nothing."
+        },
+        "POST /funnels/builder/publish-version": {
+          reach: "proven",
+          note: "Live-proven 2026-09-10 with a 4-step differential. Body {pageId, versionId, userId}; userId is the JWT's authClassId and omitting it 422s. A published version is stamped pageType:'live', NOT 'published'. \u{1F534} Publishing PINS the public page to that version: the renderer serves the newest live version if one exists and falls back to the newest draft only while a page has NEVER been published, so after the first publish every later autosave is invisible in public with a 201 on each one."
         }
       }
     };
@@ -54788,6 +54854,78 @@ var init_define_TOOL_CATALOG = __esm({
           "platform--v2-set-assets-to-locations",
           "platform--snapshot-get-assets-get",
           "workflow-service--find-by-id"
+        ]
+      },
+      audit_site: {
+        description: "Read-only audit of a GHL funnel or website \u2014 dangling references, missing merge tags, foreign locationIds, publish drift \u2014 proof: live-runtime (2026-09-10); risk: read",
+        risk: "read",
+        proof: "live-runtime (2026-09-10)",
+        proofFloor: "live-runtime (2026-09-10)",
+        proofRows: [
+          "funnels-service--get-funnels",
+          "funnels--page-data",
+          "funnels--builder-get-versions",
+          "forms--get-forms",
+          "typed--list_account_entities--calendars",
+          "surveys-service--get-surveys",
+          "backend--custom-values"
+        ],
+        proofFloorRows: [
+          "funnels-service--get-funnels",
+          "funnels--page-data",
+          "funnels--builder-get-versions",
+          "forms--get-forms",
+          "typed--list_account_entities--calendars",
+          "surveys-service--get-surveys",
+          "backend--custom-values"
+        ],
+        riskRows: [
+          "funnels-service--get-funnels",
+          "funnels--page-data",
+          "funnels--builder-get-versions",
+          "forms--get-forms",
+          "typed--list_account_entities--calendars",
+          "surveys-service--get-surveys",
+          "backend--custom-values"
+        ],
+        rows: [
+          "funnels-service--get-funnels",
+          "funnels--page-data",
+          "funnels--builder-get-versions",
+          "forms--get-forms",
+          "typed--list_account_entities--calendars",
+          "surveys-service--get-surveys",
+          "backend--custom-values"
+        ]
+      },
+      build_funnel_page: {
+        description: "Compose, validate and write a funnel page from native elements; optionally publish it \u2014 proof: live-runtime (2026-09-10); risk: write",
+        risk: "write",
+        proof: "live-runtime (2026-09-10)",
+        proofFloor: "live-runtime (2026-09-09)",
+        proofRows: [
+          "funnels--builder-autosave",
+          "funnels--page-data",
+          "funnels--builder-get-versions",
+          "funnels--builder-publish-version"
+        ],
+        proofFloorRows: [
+          "funnels--builder-autosave",
+          "funnels--page-data",
+          "funnels--builder-get-versions",
+          "funnels--builder-publish-version"
+        ],
+        riskRows: [
+          "funnels--builder-autosave",
+          "funnels--page-data",
+          "funnels--builder-get-versions",
+          "funnels--builder-publish-version"
+        ],
+        rows: [
+          "funnels--builder-autosave",
+          "funnels--page-data",
+          "funnels--builder-get-versions",
+          "funnels--builder-publish-version"
         ]
       }
     };
@@ -87565,10 +87703,10 @@ var MAX_NODES = 1e4;
 function scanBodyLocations(value, allowed) {
   let nodes = 0;
   const bad = [];
-  const walk2 = (v, depth) => {
+  const walk3 = (v, depth) => {
     if (bad.length) return true;
     if (depth > MAX_DEPTH || ++nodes > MAX_NODES) return false;
-    if (Array.isArray(v)) return v.every((x) => walk2(x, depth + 1));
+    if (Array.isArray(v)) return v.every((x) => walk3(x, depth + 1));
     if (!v || typeof v !== "object") return true;
     for (const [k, x] of Object.entries(v)) {
       if (k === "locationId" || k === "location_id" || k === "locations" || k === "locationIds") {
@@ -87582,11 +87720,11 @@ function scanBodyLocations(value, allowed) {
           bad.push({ id });
           return true;
         }
-      } else if (!walk2(x, depth + 1)) return false;
+      } else if (!walk3(x, depth + 1)) return false;
     }
     return true;
   };
-  const withinCaps = walk2(value, 0);
+  const withinCaps = walk3(value, 0);
   return { withinCaps, bad };
 }
 function checkLocationBinding({ tool, args, allowed, legacyLocationsEnvSet = false, ...opts }) {
@@ -87701,6 +87839,257 @@ function checkLocationBinding({ tool, args, allowed, legacyLocationsEnvSet = fal
     }
   }
   return null;
+}
+
+// core/site-audit.mjs
+init_define_BUILDER_VALIDATORS();
+init_define_CONTACT_FILTER_FIELDS();
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
+init_define_TOOL_CATALOG();
+var REF_CLASS = Object.freeze({
+  formId: "account",
+  calendarId: "account",
+  surveyId: "account",
+  countdownTimerId: "account",
+  productId: "account",
+  storeProductId: "account",
+  storeCollectionId: "account",
+  popupId: "page-local",
+  // hl_main_popup-<id>, defined in this page's own popupsList
+  storeProductPriceId: "sentinel"
+  // observed value "all" — not an id at all
+});
+var REF_SOURCE = Object.freeze({
+  formId: "forms",
+  calendarId: "calendars",
+  surveyId: "surveys"
+});
+var placeholderKind = (v) => {
+  if (v === "none" || v === "" || v == null) return "empty";
+  if (/^\{\{.*\}\}$/.test(String(v).trim())) return "unsubstituted-merge-tag";
+  return null;
+};
+var normaliseTag = (s) => String(s).replace(/\s+/g, "").toLowerCase();
+var walk = (node, fn, depth = 0) => {
+  if (depth > 64 || node == null || typeof node !== "object") return;
+  if (Array.isArray(node)) {
+    for (const x of node) walk(x, fn, depth + 1);
+    return;
+  }
+  fn(node);
+  for (const v of Object.values(node)) walk(v, fn, depth + 1);
+};
+function scanPage({ pageData, pageId, pageName = null }) {
+  const refs = [];
+  const tags = /* @__PURE__ */ new Set();
+  const locations = /* @__PURE__ */ new Set();
+  const popupsDefined = /* @__PURE__ */ new Set();
+  for (const p2 of pageData?.popupsList ?? []) if (p2?.id) popupsDefined.add(p2.id);
+  walk(pageData, (o) => {
+    for (const [k, v] of Object.entries(o)) {
+      if (REF_CLASS[k] && v && typeof v === "object" && "value" in v) {
+        refs.push({ prop: k, cls: REF_CLASS[k], value: String(v.value ?? ""), text: v.text ?? null, pageId, pageName });
+      }
+      if ((k === "locationId" || k === "location_id") && typeof v === "string" && v) locations.add(v);
+    }
+  });
+  const raw = JSON.stringify(pageData ?? {});
+  for (const m of raw.matchAll(/\{\{\s*custom_values\.[a-z0-9_]+\s*\}\}/gi)) tags.add(m[0]);
+  for (const m of raw.matchAll(/\/reputation\/widgets\/[A-Za-z0-9_-]+\/([A-Za-z0-9]{20,24})\b/g)) locations.add(m[1]);
+  const mediaLocations = /* @__PURE__ */ new Set();
+  for (const m of raw.matchAll(/\/msgsndr\/([A-Za-z0-9]{20,24})\b/g)) {
+    locations.add(m[1]);
+    mediaLocations.add(m[1]);
+  }
+  return {
+    pageId,
+    pageName,
+    refs,
+    tags: [...tags],
+    locations: [...locations],
+    mediaLocations: [...mediaLocations],
+    popupsDefined: [...popupsDefined]
+  };
+}
+function judge({ scans, known, locationId }) {
+  const seen = /* @__PURE__ */ new Map();
+  const findings = [];
+  const add = (f) => {
+    const key = `${f.pageId}|${f.check}|${f.prop ?? ""}|${f.value ?? ""}`;
+    const hit = seen.get(key);
+    if (hit) {
+      hit.occurrences += 1;
+      return;
+    }
+    const rec = { ...f, occurrences: 1 };
+    seen.set(key, rec);
+    findings.push(rec);
+  };
+  for (const s of scans) {
+    const localPopups = new Set(s.popupsDefined);
+    for (const r of s.refs) {
+      if (r.cls === "sentinel") continue;
+      const ph = placeholderKind(r.value);
+      if (r.cls === "page-local") {
+        if (ph) continue;
+        if (!localPopups.has(r.value)) {
+          add({
+            severity: "medium",
+            check: "page-local-references",
+            prop: r.prop,
+            value: r.value,
+            pageId: s.pageId,
+            pageName: s.pageName,
+            detail: `${r.prop} points at a popup that is not defined on this page`
+          });
+        }
+        continue;
+      }
+      const source = REF_SOURCE[r.prop];
+      if (!source || !known[source]) {
+        add({
+          severity: "unknown",
+          check: "dangling-references",
+          prop: r.prop,
+          value: r.value,
+          pageId: s.pageId,
+          pageName: s.pageName,
+          notChecked: true,
+          detail: `no account list is available for ${r.prop}, so this reference was NOT checked`
+        });
+        continue;
+      }
+      if (ph) {
+        add({
+          severity: "high",
+          check: "dangling-references",
+          prop: r.prop,
+          value: r.value,
+          text: r.text,
+          pageId: s.pageId,
+          pageName: s.pageName,
+          placeholder: ph,
+          detail: ph === "empty" ? `${r.prop} is empty/"none" \u2014 the element renders an error where the ${source.replace(/s$/, "")} should be` : `${r.prop} still holds an unsubstituted template placeholder`
+        });
+        continue;
+      }
+      if (!known[source].has(r.value)) {
+        add({
+          severity: "high",
+          check: "dangling-references",
+          prop: r.prop,
+          value: r.value,
+          text: r.text,
+          pageId: s.pageId,
+          pageName: s.pageName,
+          detail: `${r.prop} points at a ${source.replace(/s$/, "")} that does not exist in this account` + (r.text ? ` \u2014 it displays as ${JSON.stringify(r.text)}, which is why this survives a visual check` : "")
+        });
+      }
+    }
+    for (const loc of s.locations) {
+      if (loc === locationId) continue;
+      const media = s.mediaLocations?.includes(loc);
+      add(media ? {
+        severity: "info",
+        check: "foreign-location",
+        value: loc,
+        pageId: s.pageId,
+        pageName: s.pageName,
+        media: true,
+        detail: "media is served from another account's store \u2014 NORMAL for template imagery. Do not repoint it; doing so removes the images."
+      } : {
+        severity: "high",
+        check: "foreign-location",
+        value: loc,
+        pageId: s.pageId,
+        pageName: s.pageName,
+        detail: "page content is BOUND to another account (a widget or setting carrying a foreign locationId) \u2014 a clone that was never remapped"
+      });
+    }
+    if (known.customValues) {
+      for (const t of s.tags) {
+        if (!known.customValues.has(normaliseTag(t))) {
+          add({
+            severity: "high",
+            check: "merge-tags",
+            value: t,
+            pageId: s.pageId,
+            pageName: s.pageName,
+            detail: "merge tag references a custom value that does not exist \u2014 it renders as blank (an empty bullet, a missing heading), while every id on the page resolves"
+          });
+        }
+      }
+    }
+  }
+  return findings;
+}
+function judgeVersions({ versions, pageId, pageName = null }) {
+  const rows = Array.isArray(versions) ? versions : [];
+  const liveIdx = rows.findIndex((v) => v.pageType === "live");
+  if (liveIdx <= 0) return [];
+  const secs = (v) => v?.updated_at?._seconds ?? 0;
+  return [{
+    severity: "medium",
+    check: "publish-state",
+    pageId,
+    pageName,
+    draftsSincePublish: liveIdx,
+    staleBySeconds: Math.max(0, secs(rows[0]) - secs(rows[liveIdx])),
+    detail: `${liveIdx} draft(s) sit ahead of the published version \u2014 the public page is serving older content than the builder shows`
+  }];
+}
+function judgeRouting({ rows, steps, documentName = "" }) {
+  const findings = [];
+  const all = Array.isArray(rows) ? rows.filter((r) => !r.deleted) : [];
+  const byType = /* @__PURE__ */ new Map();
+  for (const r of all) {
+    if (!byType.has(r.typeId)) byType.set(r.typeId, []);
+    byType.get(r.typeId).push(r);
+  }
+  const paths = /* @__PURE__ */ new Map();
+  for (const r of all) paths.set(r.path, (paths.get(r.path) ?? 0) + 1);
+  for (const st of steps ?? []) {
+    const where = `${documentName} / ${st.name}`;
+    if (!st.id) continue;
+    const mine = byType.get(st.id) ?? [];
+    const served = mine.map((r) => r.path).join(", ");
+    if (!mine.length) {
+      findings.push({
+        severity: "high",
+        check: "routing",
+        pageName: where,
+        value: st.url,
+        detail: "this step has NO routing row, so it 404s in public \u2014 a domain attach skips a step whose path is already held, and says nothing"
+      });
+    } else if (!mine.some((r) => r.path === st.url)) {
+      findings.push({
+        severity: "medium",
+        check: "routing",
+        pageName: where,
+        value: served,
+        detail: `the step record says ${st.url} but NO routing row serves that path \u2014 the live route(s) are ${served}. An attach renamed it, or a path move updated only one side`
+      });
+    } else if (mine.length > 1) {
+      findings.push({
+        severity: "info",
+        check: "routing",
+        pageName: where,
+        value: served,
+        detail: `${mine.length} routing rows point at this step and all serve as aliases; the step record matches ${st.url}`
+      });
+    }
+  }
+  for (const [p2, n] of paths) if (n > 1) {
+    findings.push({
+      severity: "medium",
+      check: "routing",
+      value: p2,
+      detail: `${n} routing rows share this path \u2014 only one can win and which is undefined`
+    });
+  }
+  return findings;
 }
 
 // core/audit-gateway.mjs
@@ -91181,7 +91570,7 @@ async function listWorkflowsComplete({ auditGateway, input } = {}) {
     };
   };
   try {
-    await walk2();
+    await walk3();
     return finalize2();
   } catch (error51) {
     if (error51 && error51.code === CODES.CIRCUIT_OPEN) {
@@ -91194,7 +91583,7 @@ async function listWorkflowsComplete({ auditGateway, input } = {}) {
     }
     throw error51;
   }
-  async function walk2() {
+  async function walk3() {
     let offset = 0;
     for (; ; ) {
       if (pagination.attempted >= pagination.budget) {
@@ -92143,21 +92532,21 @@ function lintConditionShape(c) {
 function collectRefs(ir) {
   const refs = [];
   for (const t of ir.triggers ?? []) if (t.ref !== void 0) refs.push(t.ref);
-  const walk2 = (nodes) => {
+  const walk3 = (nodes) => {
     for (const n of nodes ?? []) {
       if (n.ref !== void 0) refs.push(n.ref);
       for (const b of n.branches ?? []) {
         if (b.ref !== void 0) refs.push(b.ref);
-        walk2(b.then);
+        walk3(b.then);
       }
       for (const p2 of n.paths ?? []) {
         if (p2.ref !== void 0) refs.push(p2.ref);
-        walk2(p2.then);
+        walk3(p2.then);
       }
-      for (const k of SCOPE_KEYS) walk2(n[k]);
+      for (const k of SCOPE_KEYS) walk3(n[k]);
     }
   };
-  walk2(ir.graph);
+  walk3(ir.graph);
   return refs;
 }
 function walkNodes(nodes, visit) {
@@ -92234,7 +92623,7 @@ var REQUIRES_OPPORTUNITY = /* @__PURE__ */ new Set(["update_opportunity", "inter
 var CREATES_OPPORTUNITY = /* @__PURE__ */ new Set(["create_opportunity", "create_opportunity_strict", "internal_create_opportunity"]);
 function checkOpportunityAssociation(norm3, oppTriggerTypes) {
   const rootAssoc = norm3.triggers.length > 0 && norm3.triggers.every((t) => oppTriggerTypes.has(t.type));
-  const walk2 = (nodes, assoc) => {
+  const walk3 = (nodes, assoc) => {
     for (const n of nodes ?? []) {
       if (REQUIRES_OPPORTUNITY.has(n.type) && !assoc && n.assocGuaranteed !== true)
         throw new IRError(
@@ -92242,18 +92631,18 @@ function checkOpportunityAssociation(norm3, oppTriggerTypes) {
           `update_opportunity '${n.ref}' has no associated opportunity on its path \u2014 add a find_opportunity (put this step in its Found branch, and a create_opportunity in Not Found), add a create_opportunity before it, use an opportunity trigger on ALL triggers, or set assocGuaranteed:true if you know association is established in a way the checker can't see.`
         );
       if (CREATES_OPPORTUNITY.has(n.type)) assoc = true;
-      for (const b of n.branches ?? []) walk2(b.then, b.assocGuaranteed === true || assoc);
-      for (const p2 of n.paths ?? []) walk2(p2.then, p2.assocGuaranteed === true || assoc);
-      walk2(n.onEvent, assoc);
-      walk2(n.onTimeout, assoc);
-      walk2(n.default, assoc);
-      walk2(n.onFound, n.type === "find_opportunity" ? true : assoc);
-      walk2(n.onNotFound, assoc);
-      walk2(n.onBooked, assoc);
-      walk2(n.onNotBooked, assoc);
+      for (const b of n.branches ?? []) walk3(b.then, b.assocGuaranteed === true || assoc);
+      for (const p2 of n.paths ?? []) walk3(p2.then, p2.assocGuaranteed === true || assoc);
+      walk3(n.onEvent, assoc);
+      walk3(n.onTimeout, assoc);
+      walk3(n.default, assoc);
+      walk3(n.onFound, n.type === "find_opportunity" ? true : assoc);
+      walk3(n.onNotFound, assoc);
+      walk3(n.onBooked, assoc);
+      walk3(n.onNotBooked, assoc);
     }
   };
-  walk2(norm3.graph, rootAssoc);
+  walk3(norm3.graph, rootAssoc);
 }
 
 // ../skills/create-ghl-workflow/engine/opp-shapes.mjs
@@ -92503,12 +92892,12 @@ function checkGoghlSyntax(templates, ctx = {}) {
   const findings = [];
   for (const t of templates ?? []) {
     const texts = [];
-    const walk2 = (v) => {
+    const walk3 = (v) => {
       if (typeof v === "string") texts.push(v);
-      else if (Array.isArray(v)) v.forEach(walk2);
-      else if (v && typeof v === "object") Object.values(v).forEach(walk2);
+      else if (Array.isArray(v)) v.forEach(walk3);
+      else if (v && typeof v === "object") Object.values(v).forEach(walk3);
     };
-    walk2(t?.attributes);
+    walk3(t?.attributes);
     for (const s of texts) {
       for (const line of s.split(/\r?\n/)) {
         const l = line.trim();
@@ -92550,15 +92939,15 @@ init_define_TOOL_CATALOG();
 var PREFIX2 = "inboundWebhookRequest";
 function webhookMergeTags(payload, { prefix = PREFIX2, includeHeaders = false } = {}) {
   const out = {};
-  const walk2 = (val2, path) => {
+  const walk3 = (val2, path) => {
     if (val2 !== null && typeof val2 === "object") {
-      if (Array.isArray(val2)) val2.forEach((v, i) => walk2(v, path ? `${path}.${i}` : String(i)));
-      else for (const [k, v] of Object.entries(val2)) walk2(v, path ? `${path}.${k}` : k);
+      if (Array.isArray(val2)) val2.forEach((v, i) => walk3(v, path ? `${path}.${i}` : String(i)));
+      else for (const [k, v] of Object.entries(val2)) walk3(v, path ? `${path}.${k}` : k);
     } else {
       out[path] = `{{${prefix}.${path}}}`;
     }
   };
-  walk2(payload, "");
+  walk3(payload, "");
   if (!includeHeaders) {
     for (const k of Object.keys(out)) if (k === "headers" || k.startsWith("headers.")) delete out[k];
   }
@@ -92573,13 +92962,13 @@ var webhookTriggerUrl = (loc, triggerId) => `${WEBHOOK_HOOKS_BASE}/${loc}/webhoo
 function findWebhookRefs(templates) {
   const refs = [];
   for (const t of templates ?? []) {
-    const walk2 = (v) => {
+    const walk3 = (v) => {
       if (typeof v === "string") {
         for (const m of v.matchAll(REF_RE)) refs.push({ step: t.name ?? t.id ?? "?", path: m[1] ?? "" });
-      } else if (Array.isArray(v)) v.forEach(walk2);
-      else if (v && typeof v === "object") Object.values(v).forEach(walk2);
+      } else if (Array.isArray(v)) v.forEach(walk3);
+      else if (v && typeof v === "object") Object.values(v).forEach(walk3);
     };
-    walk2(t?.attributes);
+    walk3(t?.attributes);
   }
   return refs;
 }
@@ -92670,12 +93059,12 @@ function checkStepOutputRefs(templates, ctx = {}) {
   const findings = [];
   for (const t of templates ?? []) {
     const texts = [];
-    const walk2 = (v) => {
+    const walk3 = (v) => {
       if (typeof v === "string") texts.push(v);
-      else if (Array.isArray(v)) v.forEach(walk2);
-      else if (v && typeof v === "object") Object.values(v).forEach(walk2);
+      else if (Array.isArray(v)) v.forEach(walk3);
+      else if (v && typeof v === "object") Object.values(v).forEach(walk3);
     };
-    walk2(t?.attributes);
+    walk3(t?.attributes);
     for (const s of texts) for (const ref of findOutputRefs(s)) {
       const list = producers.get(ref.type) ?? [];
       const hit = list.find((p2) => p2.n === ref.n);
@@ -156012,15 +156401,15 @@ function evaluateMergeTags(templates, mergeTags, opts = {}) {
   const staticTags = /* @__PURE__ */ new Set([...mergeTags.tags.map((t) => compact(t.tag)), ...NAMESPACE_POLICY.allow]);
   const P = NAMESPACE_POLICY;
   const out = [];
-  const walk2 = (v, cb) => {
+  const walk3 = (v, cb) => {
     if (typeof v === "string") cb(v);
-    else if (Array.isArray(v)) v.forEach((x) => walk2(x, cb));
-    else if (v && typeof v === "object") Object.values(v).forEach((x) => walk2(x, cb));
+    else if (Array.isArray(v)) v.forEach((x) => walk3(x, cb));
+    else if (v && typeof v === "object") Object.values(v).forEach((x) => walk3(x, cb));
   };
   for (const t of templates ?? []) {
     if (!t?.attributes || t.type === "transition") continue;
     const where = `'${t.name ?? t.id}' (${t.type})`;
-    walk2(t.attributes, (s) => {
+    walk3(t.attributes, (s) => {
       const opens = (s.match(/\{\{/g) ?? []).length, closes = (s.match(/\}\}/g) ?? []).length;
       if (opens !== closes) out.push({
         where,
@@ -158464,7 +158853,7 @@ function collectRequiredTags(ir) {
       }
     }
   }
-  const walk2 = (nodes) => {
+  const walk3 = (nodes) => {
     for (const n of nodes ?? []) {
       if (n.type === "add_contact_tag" || n.type === "remove_contact_tag") {
         for (const t of n.attributes?.tags ?? []) add(t);
@@ -158477,16 +158866,16 @@ function collectRequiredTags(ir) {
             for (const t of [].concat(c.conditionValue ?? [])) add(t);
           }
         }
-        walk2(b.then);
+        walk3(b.then);
       }
-      for (const p2 of n.paths ?? []) walk2(p2.then);
-      walk2(n.onEvent);
-      walk2(n.onTimeout);
-      walk2(n.onFound);
-      walk2(n.onNotFound);
+      for (const p2 of n.paths ?? []) walk3(p2.then);
+      walk3(n.onEvent);
+      walk3(n.onTimeout);
+      walk3(n.onFound);
+      walk3(n.onNotFound);
     }
   };
-  walk2(ir.graph);
+  walk3(ir.graph);
   return [...byLower.values()];
 }
 function collectOpTags(ops) {
@@ -158778,12 +159167,12 @@ function resolveFilterValue(field, value, r) {
   return Array.isArray(value) ? value.map(one) : one(value);
 }
 var SCOPE_KEYS2 = ["onEvent", "onTimeout", "onFound", "onNotFound", "default"];
-function walk(nodes, visit) {
+function walk2(nodes, visit) {
   for (const n of nodes ?? []) {
     visit(n);
-    for (const b of n.branches ?? []) walk(b.then, visit);
-    for (const p2 of n.paths ?? []) walk(p2.then, visit);
-    for (const k of SCOPE_KEYS2) walk(n[k], visit);
+    for (const b of n.branches ?? []) walk2(b.then, visit);
+    for (const p2 of n.paths ?? []) walk2(p2.then, visit);
+    for (const k of SCOPE_KEYS2) walk2(n[k], visit);
   }
 }
 function resolveIR(ir, r) {
@@ -158816,7 +159205,7 @@ function resolveIR(ir, r) {
       }
     }
   }
-  walk(ir.graph, (n) => {
+  walk2(ir.graph, (n) => {
     const a = n.attributes ?? {};
     const type = n.type;
     if (type === "create_opportunity" || type === "create_opportunity_strict" || type === "update_opportunity" || type === "find_opportunity") {
@@ -160431,15 +160820,15 @@ async function fetchMarketplace(call, loc) {
 }
 function collectEmailTemplates(ir) {
   const out = [];
-  const walk2 = (nodes) => {
+  const walk3 = (nodes) => {
     for (const n of nodes ?? []) {
       if (n.type === "email" && n.attributes?._template) out.push(n);
-      for (const b of n.branches ?? []) walk2(b.then);
-      for (const p2 of n.paths ?? []) walk2(p2.then);
-      for (const k of ["onEvent", "onTimeout", "onFound", "onNotFound", "default"]) walk2(n[k]);
+      for (const b of n.branches ?? []) walk3(b.then);
+      for (const p2 of n.paths ?? []) walk3(p2.then);
+      for (const k of ["onEvent", "onTimeout", "onFound", "onNotFound", "default"]) walk3(n[k]);
     }
   };
-  walk2(ir.graph);
+  walk3(ir.graph);
   return out;
 }
 async function orchestrate(ir, gw, opts = {}) {
@@ -161763,13 +162152,13 @@ import { createHash as createHash4 } from "node:crypto";
 var MERGE_TAG = /\{\{\s*[A-Za-z_][\w.-]*\s*\}\}/g;
 function mergeTagsOf(attrs) {
   const found = /* @__PURE__ */ new Set();
-  const walk2 = (v) => {
+  const walk3 = (v) => {
     if (typeof v === "string") {
       for (const m of v.match(MERGE_TAG) ?? []) found.add(m.replace(/\s+/g, ""));
-    } else if (Array.isArray(v)) v.forEach(walk2);
-    else if (v && typeof v === "object") Object.values(v).forEach(walk2);
+    } else if (Array.isArray(v)) v.forEach(walk3);
+    else if (v && typeof v === "object") Object.values(v).forEach(walk3);
   };
-  walk2(attrs);
+  walk3(attrs);
   return [...found];
 }
 function textOf(t) {
@@ -162025,21 +162414,21 @@ async function resolveCompanyId(gw, locationId) {
 function manifestIndex(prefetch) {
   const out = {};
   const idOf3 = (row) => typeof row === "string" ? row : row?.id ?? row?._id ?? row?.value ?? null;
-  const walk2 = (node, category) => {
+  const walk3 = (node, category) => {
     if (Array.isArray(node)) {
       for (const row of node) {
         const id = idOf3(row);
         if (id) (out[category] ??= /* @__PURE__ */ new Set()).add(String(id));
         if (row && typeof row === "object") {
-          for (const [k, v] of Object.entries(row)) if (Array.isArray(v)) walk2(v, category);
+          for (const [k, v] of Object.entries(row)) if (Array.isArray(v)) walk3(v, category);
         }
       }
       return;
     }
-    if (node && typeof node === "object") for (const [k, v] of Object.entries(node)) walk2(v, category ?? k);
+    if (node && typeof node === "object") for (const [k, v] of Object.entries(node)) walk3(v, category ?? k);
   };
   const root = prefetch?.data ?? prefetch ?? {};
-  for (const [category, node] of Object.entries(root)) walk2(node, category);
+  for (const [category, node] of Object.entries(root)) walk3(node, category);
   return out;
 }
 function checkSelection(selectedAssets, index, knownCategories) {
@@ -162417,7 +162806,7 @@ init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var STEP_NAME_MIN = 1;
 var STEP_NAME_MAX = 100;
-var judge = (name) => {
+var judge2 = (name) => {
   if (typeof name !== "string") return null;
   const len = [...name].length;
   if (name.trim() === "") {
@@ -162431,11 +162820,11 @@ var judge = (name) => {
 function lintNameLength(templates, triggers) {
   const out = [];
   for (const t of Array.isArray(templates) ? templates.filter(Boolean) : []) {
-    const bad = judge(t.name);
+    const bad = judge2(t.name);
     if (bad) out.push({ code: "NAME_LENGTH", severity: "warning", stepId: t.id, name: t.name, msg: `step '${t.id}' ${bad}` });
   }
   for (const g of Array.isArray(triggers) ? triggers.filter(Boolean) : []) {
-    const bad = judge(g.name);
+    const bad = judge2(g.name);
     if (bad) out.push({ code: "NAME_LENGTH", severity: "warning", triggerId: g.id, name: g.name, msg: `trigger '${g.id}' ${bad}` });
   }
   return out;
@@ -170864,13 +171253,13 @@ var TOOLS2 = [
       if (!g.ok) return fromHttp(g.status, g.json);
       const ref = g.json ?? {};
       const tags = {};
-      const walk2 = (v, path) => {
+      const walk3 = (v, path) => {
         if (v !== null && typeof v === "object") {
-          if (Array.isArray(v)) v.forEach((x, i) => walk2(x, path ? `${path}.${i}` : String(i)));
-          else for (const [k, x] of Object.entries(v)) walk2(x, path ? `${path}.${k}` : k);
+          if (Array.isArray(v)) v.forEach((x, i) => walk3(x, path ? `${path}.${i}` : String(i)));
+          else for (const [k, x] of Object.entries(v)) walk3(x, path ? `${path}.${k}` : k);
         } else tags[path] = `{{inboundWebhookRequest.${path}}}`;
       };
-      walk2(ref.payload ?? {}, "");
+      walk3(ref.payload ?? {}, "");
       const mergeTags = Object.fromEntries(Object.entries(tags).filter(([k]) => k !== "headers" && !k.startsWith("headers.")));
       return ok({
         receivingUrl,
@@ -172841,11 +173230,14 @@ var TOOLS2 = [
       colors: external_exports.array(external_exports.record(external_exports.any())).optional(),
       pageVersion: external_exports.number().int().positive().default(1),
       verifyUrl: external_exports.string().optional(),
+      publish: external_exports.boolean().default(false),
       confirm: external_exports.boolean().default(false)
     }),
     capabilities: [
       { method: "POST", path: "/funnels/builder/autosave/{pageId}" },
-      { method: "GET", path: "/funnels/builder/page/data" }
+      { method: "GET", path: "/funnels/builder/page/data" },
+      { method: "GET", path: "/funnels/builder/get-versions" },
+      { method: "POST", path: "/funnels/builder/publish-version" }
     ],
     handler: async (args, deps) => guard(async () => {
       resetIds();
@@ -172916,7 +173308,8 @@ var TOOLS2 = [
         compiledCssBytes: cssBytes,
         kinds: [...new Set(pageData.sections.flatMap((s) => s.elements.filter((e) => e.type === "element").map((e) => e.meta)))],
         audit: "clean",
-        note: "This writes a DRAFT. It does not publish, and it does not map a public path."
+        note: args.publish === true ? "This writes a draft AND PUBLISHES it \u2014 the page becomes visible to the public at its mapped path. It does not map a path that does not already exist." : "This writes a DRAFT. It does not publish, and it does not map a public path.",
+        willPublish: args.publish === true
       };
       if (args.confirm !== true) {
         return withFailureData(
@@ -172940,6 +173333,81 @@ var TOOLS2 = [
       const wantIds = pageData.sections.map((s) => s.id);
       const storedIds = got.map((s) => s.id);
       const missing = wantIds.filter((id) => !storedIds.includes(id));
+      let versions = [];
+      const vres = await gw.call("GET", `/funnels/builder/get-versions?pageId=${encodeURIComponent(args.pageId)}`);
+      if (Array.isArray(vres.json)) versions = vres.json;
+      const liveIdx = versions.findIndex((v) => v.pageType === "live");
+      const newest = versions[0] ?? null;
+      const pinnedTo = liveIdx >= 0 ? versions[liveIdx] : null;
+      const secs = (v) => v?.updated_at?._seconds ?? 0;
+      const publishState = {
+        versions: versions.length,
+        pinned: liveIdx >= 0,
+        // Drafts stacked behind the pinned version: work the public cannot see.
+        draftsSincePublish: liveIdx >= 0 ? liveIdx : null,
+        staleBySeconds: liveIdx >= 0 ? Math.max(0, secs(newest) - secs(pinnedTo)) : null,
+        servingNote: liveIdx >= 0 ? "This page is PINNED to a published version. The public URL serves that version, NOT the draft this call just wrote." : "This page has never been published, so the public URL falls back to the newest draft \u2014 the one this call just wrote."
+      };
+      let published = null;
+      if (args.publish === true) {
+        if (missing.length) {
+          return withFailureData(
+            fail(
+              CODES.VERIFY_FAILED,
+              "the draft read back with sections missing, so it was NOT published",
+              "Publishing pins the public page to this version. Fix the write first \u2014 data.readBack names the missing sections \u2014 then re-run."
+            ),
+            { readBack: { sections: storedIds.length, missingSections: missing }, publishState }
+          );
+        }
+        if (typeof gw.uid !== "string" || gw.uid.trim() === "") {
+          return withFailureData(
+            fail(
+              CODES.VALIDATION_FAILED,
+              "this credential carries no user id, and publish-version requires one",
+              "Re-capture the token (uxie-ghl-factory:internal-connect), or omit publish and publish from the builder."
+            ),
+            { publishState }
+          );
+        }
+        const target = newest;
+        if (!target?.version_id) {
+          return withFailureData(
+            fail(
+              CODES.ENGINE_ABORT,
+              "the version list came back without a usable version_id, so nothing was published",
+              "The draft IS saved. Read GET /funnels/builder/get-versions?pageId= and publish by hand."
+            ),
+            { publishState, versionsSeen: versions.length }
+          );
+        }
+        const pub = await gw.call(
+          "POST",
+          "/funnels/builder/publish-version",
+          { pageId: args.pageId, versionId: target.version_id, userId: gw.uid }
+        );
+        if (!pub.ok) return fromHttp(pub.status, pub.json);
+        const after = await gw.call("GET", `/funnels/builder/get-versions?pageId=${encodeURIComponent(args.pageId)}`);
+        const rows = Array.isArray(after.json) ? after.json : [];
+        const row = rows.find((v) => v.version_id === target.version_id) ?? null;
+        published = {
+          versionId: target.version_id,
+          status: pub.status,
+          // A published version is stamped `live`, NOT `published`.
+          pageType: row?.pageType ?? null,
+          verified: row?.pageType === "live"
+        };
+        if (!published.verified) {
+          return withFailureData(
+            fail(
+              CODES.VERIFY_FAILED,
+              "publish-version was accepted but that version did not read back as live",
+              "The draft is saved. Re-read get-versions before assuming the public page changed."
+            ),
+            { published, publishState }
+          );
+        }
+      }
       let render = null;
       if (args.verifyUrl) {
         const markers = pageData.sections.flatMap((s) => s.elements.filter((e) => e.type === "element").map((e) => `c${e.id}`));
@@ -172958,10 +173426,12 @@ var TOOLS2 = [
           }
           if (!found) await new Promise((r) => setTimeout(r, 2e3));
         }
+        const pinnedAndUnpublished = publishState.pinned && args.publish !== true;
         render = {
           codes,
           allNodesPresent: found,
-          note: found ? "every node id appears in the rendered HTML" : "the render did not show every node \u2014 a 200 alone is not proof; the first request after a save can serve the previous compile"
+          measures: pinnedAndUnpublished ? "the PUBLISHED version, not this write" : "this write",
+          note: pinnedAndUnpublished ? "This page is pinned to a published version, so the public URL cannot show the draft this call wrote \u2014 whatever this fetch found, it is not evidence about your write. Re-run with publish:true, or publish from the builder." : found ? "every node id appears in the rendered HTML" : "the render did not show every node \u2014 a 200 alone is not proof; the first request after a save can serve the previous compile"
         };
       }
       return ok({
@@ -172970,8 +173440,148 @@ var TOOLS2 = [
         ...preview,
         readBack: { sections: storedIds.length, missingSections: missing },
         stored: missing.length === 0,
+        publishState,
+        ...published ? { published } : {},
         ...render ? { render } : {},
-        ...missing.length ? { warning: "The autosave was accepted but the read-back is missing sections." } : {}
+        ...missing.length ? { warning: "The autosave was accepted but the read-back is missing sections." } : {},
+        ...publishState.pinned && args.publish !== true ? { warning: `This page is pinned to a published version with ${publishState.draftsSincePublish} draft(s) stacked behind it. This write is NOT visible at the public URL until the page is published again.` } : {}
+      });
+    }, args)
+  },
+  {
+    name: "audit_site",
+    description: `${describe3("audit_site", "Read-only audit of a GHL funnel or website \u2014 dangling references, missing merge tags, foreign locationIds, publish drift")}. Finds the defects that return 2xx everywhere, store correctly, and render a page that looks right to whoever built it. Checks embedded REFERENCES against what the account actually holds (a template or snapshot install leaves them pointing at the SOURCE account \u2014 measured 49 of 51 formIds and 4 of 5 calendarIds dangling on one account, each displaying the CORRECT name beside the wrong id, which is why they survive the builder, a screenshot and any name-based grep), merge tags against the location's custom values (a missing one renders as a blank heading or an empty bullet while every id resolves), foreign locationIds left behind by a clone, and publish state (a page pinned to a published version serves THAT version, so the builder and the public URL show different content). Pass includeRender to also fetch the public URLs \u2014 some defects exist only in what is SERVED and cannot be seen in stored page data at all. Reports coverage beside findings: a check that could not run is never counted as clean.`,
+    inputSchema: schema({
+      locationId: external_exports.string(),
+      funnelId: external_exports.string().optional(),
+      includeRender: external_exports.boolean().default(false),
+      maxPages: external_exports.number().int().positive().max(200).default(60)
+    }),
+    capabilities: [
+      { method: "GET", path: "/funnels/funnel/list" },
+      { method: "GET", path: "/funnels/funnel/fetch/{funnelId}" },
+      { method: "GET", path: "/funnels/builder/page/data" },
+      { method: "GET", path: "/funnels/builder/get-versions" },
+      { method: "GET", path: "/funnels/lookup/type/{entityId}" },
+      { method: "GET", path: "/funnels/lookup/list" },
+      { method: "GET", path: "/forms/" },
+      { method: "GET", path: "/calendars/" },
+      { method: "GET", path: "/surveys" },
+      { method: "GET", path: "/locations/{locationId}/customValues" }
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+      const body = (r) => r.json?.data ?? r.json ?? {};
+      const pick2 = (b, ...keys) => {
+        for (const k of keys) if (Array.isArray(b?.[k])) return b[k];
+        return Array.isArray(b) ? b : [];
+      };
+      const coverage = [];
+      const known = {};
+      const loadList = async (name, path, ...keys) => {
+        const r = await gw.call("GET", path);
+        if (r.status !== 200) {
+          coverage.push({ check: `dangling-references:${name}`, ran: false, why: `the ${name} list answered ${r.status}` });
+          return;
+        }
+        known[name] = new Set(pick2(body(r), ...keys).map((x) => x.id ?? x._id).filter(Boolean));
+        coverage.push({ check: `dangling-references:${name}`, ran: true, knownIds: known[name].size });
+      };
+      await loadList("forms", `/forms/?locationId=${encodeURIComponent(args.locationId)}&limit=20`, "forms");
+      await loadList("calendars", `/calendars/?locationId=${encodeURIComponent(args.locationId)}`, "calendars");
+      await loadList("surveys", `/surveys/?locationId=${encodeURIComponent(args.locationId)}&limit=20`, "surveys");
+      const cv = await gw.call("GET", `/locations/${encodeURIComponent(args.locationId)}/customValues`);
+      if (cv.status === 200) {
+        known.customValues = new Set(pick2(body(cv), "customValues").map((c) => normaliseTag(c.fieldKey ?? "")).filter(Boolean));
+        coverage.push({ check: "merge-tags", ran: true, knownIds: known.customValues.size });
+      } else {
+        coverage.push({ check: "merge-tags", ran: false, why: `customValues answered ${cv.status}` });
+      }
+      let docs = [];
+      if (args.funnelId) {
+        const one = await gw.call("GET", `/funnels/funnel/fetch/${encodeURIComponent(args.funnelId)}?locationId=${encodeURIComponent(args.locationId)}`);
+        if (one.status !== 200) return fromHttp(one.status, one.json);
+        docs = [body(one)];
+      } else {
+        const all = await gw.call("GET", `/funnels/funnel/list?locationId=${encodeURIComponent(args.locationId)}&limit=100`);
+        if (all.status !== 200) return fromHttp(all.status, all.json);
+        docs = pick2(body(all), "funnels", "data");
+      }
+      const scans = [];
+      const findings = [];
+      let pagesScanned = 0, pagesFailed = 0, truncated = false;
+      for (const d of docs) {
+        for (const st of d.steps ?? []) {
+          if (!st.id) {
+            findings.push({
+              severity: "high",
+              check: "step-integrity",
+              pageName: `${d.name} / ${st.name}`,
+              detail: "this step has no id \u2014 it cannot be edited (step PUT 400s), cannot be deleted by API, and gets no routing row"
+            });
+          }
+          for (const pid of st.pages ?? []) {
+            if (pagesScanned >= args.maxPages) {
+              truncated = true;
+              continue;
+            }
+            const pd = await gw.call("GET", `/funnels/builder/page/data?pageId=${encodeURIComponent(pid)}`);
+            if (pd.status !== 200) {
+              pagesFailed++;
+              continue;
+            }
+            pagesScanned++;
+            scans.push(scanPage({ pageData: pd.json, pageId: pid, pageName: `${d.name} / ${st.name}` }));
+            const vs = await gw.call("GET", `/funnels/builder/get-versions?pageId=${encodeURIComponent(pid)}`);
+            if (Array.isArray(vs.json)) findings.push(...judgeVersions({ versions: vs.json, pageId: pid, pageName: `${d.name} / ${st.name}` }));
+          }
+        }
+      }
+      if (args.funnelId) {
+        const rows = await gw.call("GET", `/funnels/lookup/list?funnelId=${encodeURIComponent(args.funnelId)}&locationId=${encodeURIComponent(args.locationId)}`);
+        if (rows.status === 200) {
+          const all = pick2(body(rows), "lookups", "data");
+          for (const d of docs) findings.push(...judgeRouting({ rows: all, steps: d.steps, documentName: d.name }));
+          coverage.push({ check: "routing", ran: true, knownIds: all.length });
+        } else {
+          coverage.push({ check: "routing", ran: false, why: `lookup/list answered ${rows.status}` });
+        }
+      } else {
+        coverage.push({ check: "routing", ran: false, why: "pass funnelId to check routing (lookup/list is per-document)" });
+      }
+      coverage.push({ check: "publish-state", ran: pagesScanned > 0 });
+      coverage.push({ check: "foreign-location", ran: pagesScanned > 0 });
+      coverage.push({ check: "page-local-references", ran: pagesScanned > 0 });
+      findings.push(...judge({ scans, known, locationId: args.locationId }));
+      let rendered = 0;
+      if (args.includeRender) {
+        for (const s of scans.slice(0, 12)) {
+          const row = await gw.call("GET", `/funnels/lookup/type/${encodeURIComponent(s.pageId)}`);
+          const path = body(row)?.path;
+          const domain2 = docs.find((d) => (d.steps ?? []).some((st) => (st.pages ?? []).includes(s.pageId)))?.domainId;
+          if (!path || !domain2) continue;
+          rendered++;
+        }
+        coverage.push({
+          check: "render",
+          ran: false,
+          why: "the render leg needs the domain NAME; the funnel record carries only domainId. Resolve it with GET /funnels/domain/ and fetch the public URL \u2014 \u{1F534} vary the path CASING per request, because the query string is not in Cloudflare's cache key and `?cb=` measures the cache, not the origin."
+        });
+      } else {
+        coverage.push({ check: "render", ran: false, why: "not requested (pass includeRender:true)" });
+      }
+      const bySeverity = findings.reduce((a, f) => ({ ...a, [f.severity]: (a[f.severity] ?? 0) + 1 }), {});
+      const byCheck = findings.reduce((a, f) => ({ ...a, [f.check]: (a[f.check] ?? 0) + 1 }), {});
+      const notRun = coverage.filter((c) => !c.ran).map((c) => c.check);
+      return ok({
+        scope: { documents: docs.length, pagesScanned, pagesFailed, truncated, renderable: rendered },
+        coverage,
+        checksNotRun: notRun,
+        headline: `${findings.length} finding(s) across ${coverage.filter((c) => c.ran).length} check(s) that ran` + (notRun.length ? `; ${notRun.length} check(s) did NOT run and are not counted as clean: ${notRun.join(", ")}` : ""),
+        bySeverity,
+        byCheck,
+        findings: findings.slice(0, 200),
+        ...findings.length > 200 ? { truncatedFindings: findings.length - 200 } : {}
       });
     }, args)
   }

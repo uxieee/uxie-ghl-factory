@@ -671,11 +671,16 @@ test('the full 51-tool registry and the normal stdio entry point are unchanged',
   // 79 -> 80: push_snapshot, once change-status was proven live (2026-09-08) so the brake was real
   // rather than source-derived. It writes into OTHER sub-accounts and is the only `destructive`
   // tool here that cannot verify itself — the push answers "queued".
-  // 80 -> 81: build_funnel_page, once page synthesis was proven live (2026-09-09) — 48/57 element
-  // kinds built from scratch and a 4-step funnel rendering. It enforces the contract the write path
-  // does not: autosave accepts an invented `meta` and a node missing declared props with the same
-  // 201, and the page then 500s in public.
-  assert.equal(TOOLS.length, 81, 'the audit profile is ADDITIVE; the full server keeps every tool');
+  // 80 -> 81: build_funnel_page, once page synthesis was proven live (2026-09-09) — ALL 57 element
+  // kinds built from scratch (an earlier note here said 48/57; the last nine were resolved the same
+  // day by the right STEP TYPE and one raw prop) and a 4-step funnel rendering. It enforces the
+  // contract the write path does not: autosave accepts an invented `meta` and a node missing
+  // declared props with the same 201, and the page then 500s in public.
+  // 81 -> 82: audit_site, once the defects it looks for were measured live (2026-09-10) — 49 of 51
+  // embedded formIds and 4 of 5 calendarIds on one account pointing at the SOURCE account, each
+  // displaying the CORRECT name beside the wrong id. Read-only. It exists because every defect on
+  // this rail returns 2xx, stores correctly, and renders a page that looks right to its builder.
+  assert.equal(TOOLS.length, 82, 'the audit profile is ADDITIVE; the full server keeps every tool');
   assert.deepEqual(TOOLS.map((tool) => tool.name), [
     'set_token_file', 'auth_status', 'create_convai_agent', 'update_convai_agent', 'create_voiceai_agent',
     'create_studio_agent', 'get_contact_ai_status', 'set_contact_ai_status',
@@ -701,7 +706,7 @@ test('the full 51-tool registry and the normal stdio entry point are unchanged',
     'list_snapshots', 'get_snapshot_manifest', 'check_snapshot_conflicts', 'push_snapshot',
     'create_snapshot', 'refresh_snapshot',
     'create_smart_list', 'check_smart_lists',
-    'build_funnel_page',
+    'build_funnel_page', 'audit_site',
   ]);
   const normal = stripComments(readFileSync(NORMAL_ENTRY, 'utf8'));
   assert.equal(
