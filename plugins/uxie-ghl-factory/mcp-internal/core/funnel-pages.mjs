@@ -41,14 +41,44 @@ const MARGINS = () => ({ marginLeft: px(0), marginRight: px(0), marginTop: px(0)
 const BOX = () => ({ borders: val('noBorder'), borderRadius: val('radius0'), radiusEdge: val('none') });
 const PREFIX = '.hl_page-preview--content';
 
-// An empty value shaped by what the renderer will do with it. Guessing from the property NAME is a
-// heuristic, not a rule: two kinds are known to want the opposite shape (photo-video-gallery reads
-// .toLowerCase() on one, social-share-blog reads .bgColor), so callers can override via `extra`.
-export const emptyFor = (prop) => {
+// STYLE_PROPS_VALUE from the builder bundle — the values a click action may take. `goToNextStep`
+// is NOT one of them: that camelCase guess was stored by autosave with a 201 and the button then
+// did nothing at all. Presence checks do not catch a wrong ENUM, so this list exists.
+export const ACTION_VALUES = Object.freeze([
+  'go-to-next-funnel-step', 'go-to-funnel-step', 'step-path', 'url',
+  'openPopup', 'go-to-product-collection', 'go-to-cac', 'logout',
+]);
+export const GO_TO_NEXT_STEP = 'go-to-next-funnel-step';
+
+// Some kinds want a specific empty SHAPE and the property name does not predict it — `nav-menu`
+// reads its properties as lists even for ones called `icon`/`imageProperties`, so an object-shaped
+// empty 500s the page exactly as a string does. Established by trying whole-node variants
+// (strings / rich objects / arrays) per kind and seeing which renders.
+const SHAPE_BY_KIND = Object.freeze({
+  'nav-menu': 'arrays', 'nav-menu-v2': 'arrays', image: 'arrays',
+});
+
+// An empty value shaped by what the renderer will do with it. Name-based guessing is a heuristic,
+// not a rule — the per-kind table above overrides it where live probing proved it wrong.
+export const emptyFor = (prop, meta) => {
+  const forced = meta && SHAPE_BY_KIND[meta];
+  if (forced === 'arrays') return { value: [] };
+  if (forced === 'strings') return { value: '' };
   if (/image|media|video|file|thumbnail|icon|website|link/i.test(prop)) return { value: { ...BG_IMAGE.value, newTab: false } };
   if (/items|list|options|products|categories|elements|fields|slides|links/i.test(prop)) return { value: [] };
   return { value: '' };
 };
+
+// Kinds that no node shape could make render: they want a real reference or a different page type.
+// Recorded so the tool can say WHY rather than let the caller discover it as a 500.
+export const NEEDS_CONTEXT = Object.freeze({
+  'store-cart': 'store page type (one of the PROTECTED store scaffolding elements)',
+  'store-checkout': 'store page type (one of the PROTECTED store scaffolding elements)',
+  'store-thank-you': 'store page type (one of the PROTECTED store scaffolding elements)',
+  'blog-content': 'a blog page type — it answers 404, not 500, under every shape',
+  'photo-video-gallery': 'a real media reference',
+  'social-share-blog': 'a blog context',
+});
 
 let counter = 0;
 export const resetIds = () => { counter = 0; };
@@ -65,7 +95,7 @@ const envelope = (id, type, meta, tagName, extra, styles, cls, wrapper) => ({
 export const completeExtra = (meta, given = {}) => {
   const declared = ELEMENTS[meta]?.extraProps ?? [];
   const out = {};
-  for (const prop of declared) out[prop] = Object.prototype.hasOwnProperty.call(given, prop) ? given[prop] : emptyFor(prop);
+  for (const prop of declared) out[prop] = Object.prototype.hasOwnProperty.call(given, prop) ? given[prop] : emptyFor(prop, meta);
   return { ...out, ...given };
 };
 
@@ -172,6 +202,15 @@ export const auditPageData = (pageData) => {
         if (missing.length) problems.push(`node ${n.id} (${n.meta}): missing declared extra props ${missing.join(', ')} — the renderer reads extra.<prop>.value unguarded`);
       }
       if (n.extra && n.extra.nodeId !== `c${n.id}`) problems.push(`node ${n.id}: extra.nodeId must be 'c'+id, the renderer keys markup on it`);
+      // A wrong action value is stored with a 201 and the control then does nothing, silently.
+      const action = n.extra?.action?.value;
+      if (action !== undefined && action !== '' && !ACTION_VALUES.includes(action)) {
+        problems.push(`node ${n.id} (${n.meta}): extra.action.value '${action}' is not a known action — use one of ${ACTION_VALUES.join(', ')}. `
+          + 'autosave stores an unknown value with a 201 and the control silently does nothing.');
+      }
+      if (n.type === 'element' && NEEDS_CONTEXT[n.meta]) {
+        problems.push(`node ${n.id} (${n.meta}): no node shape makes this kind render on a plain funnel page — it needs ${NEEDS_CONTEXT[n.meta]}`);
+      }
     }
     const css = s.general?.sectionStyles ?? '';
     if (css && !css.includes(s.id)) problems.push(`section ${s.id}: sectionStyles does not mention this section id — the stylesheet is keyed by node id, so it is orphaned`);

@@ -6,6 +6,7 @@ import assert from 'node:assert/strict';
 import {
   ELEMENT_KINDS, ELEMENTS, completeExtra, makeLeaf, makeColumn, makeSection,
   buildPageData, autosaveEnvelope, auditPageData, resetIds, textCss, val, BG_IMAGE,
+  emptyFor, GO_TO_NEXT_STEP,
 } from '../core/funnel-pages.mjs';
 
 const page = (over = {}) => {
@@ -110,4 +111,43 @@ test('the autosave envelope counts custom-code elements rather than hardcoding 0
   const section = makeSection({ columns: [{ col, leaves: [code], widthPct: 100 }], pageId: 'P', funnelId: 'F', locationId: 'L' });
   const data = buildPageData({ pageId: 'P', stepId: 'S', funnelId: 'F', locationId: 'L', sections: [section] });
   assert.equal(autosaveEnvelope({ funnelId: 'F', pageData: data }).integrations.customCode, 1);
+});
+
+// ── added after the CTA shipped broken and after the shape sweep ──────────────────────────────
+
+test('a wrong action ENUM is refused — presence checks do not catch it', () => {
+  // `goToNextStep` is the plausible camelCase guess. autosave stored it with a 201, the page
+  // rendered 200, and the button did nothing. The builder's value is 'go-to-next-funnel-step'.
+  const { data } = page();
+  const broken = structuredClone(data);
+  broken.sections[0].elements.find((n) => n.type === 'element').extra.action = { value: 'goToNextStep' };
+  const out = auditPageData(broken).join(' ');
+  assert.match(out, /is not a known action/);
+  assert.match(out, /go-to-next-funnel-step/);
+});
+
+test('a valid action passes, and an empty one is not second-guessed', () => {
+  const { data } = page();
+  for (const v of [GO_TO_NEXT_STEP, 'openPopup', 'url', '']) {
+    const probe = structuredClone(data);
+    probe.sections[0].elements.find((n) => n.type === 'element').extra.action = { value: v };
+    assert.deepEqual(auditPageData(probe), [], `action '${v}' should be accepted`);
+  }
+});
+
+test('nav-menu takes ARRAY empties even for props named like media', () => {
+  // The name says icon/imageProperties; the component iterates them. An object-shaped empty 500s
+  // the page exactly as a string does — proven by trying whole-node shape variants per kind.
+  assert.deepEqual(emptyFor('icon', 'nav-menu'), { value: [] });
+  assert.deepEqual(emptyFor('imageProperties', 'nav-menu-v2'), { value: [] });
+  assert.equal(typeof emptyFor('icon', 'heading').value, 'object', 'other kinds keep the name heuristic');
+});
+
+test('kinds that no shape can render are refused with the reason', () => {
+  resetIds();
+  const leaf = makeLeaf({ meta: 'store-cart' });
+  const col = makeColumn({ children: [leaf], widthPct: 100 });
+  const section = makeSection({ columns: [{ col, leaves: [leaf], widthPct: 100 }], pageId: 'P', funnelId: 'F', locationId: 'L' });
+  const data = buildPageData({ pageId: 'P', stepId: 'S', funnelId: 'F', locationId: 'L', sections: [section] });
+  assert.match(auditPageData(data).join(' '), /needs store page type/);
 });

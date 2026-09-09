@@ -88509,11 +88509,37 @@ var BG_IMAGE = Object.freeze({ value: Object.freeze({
 var MARGINS = () => ({ marginLeft: px(0), marginRight: px(0), marginTop: px(0), marginBottom: px(0) });
 var BOX = () => ({ borders: val("noBorder"), borderRadius: val("radius0"), radiusEdge: val("none") });
 var PREFIX = ".hl_page-preview--content";
-var emptyFor = (prop) => {
+var ACTION_VALUES = Object.freeze([
+  "go-to-next-funnel-step",
+  "go-to-funnel-step",
+  "step-path",
+  "url",
+  "openPopup",
+  "go-to-product-collection",
+  "go-to-cac",
+  "logout"
+]);
+var SHAPE_BY_KIND = Object.freeze({
+  "nav-menu": "arrays",
+  "nav-menu-v2": "arrays",
+  image: "arrays"
+});
+var emptyFor = (prop, meta3) => {
+  const forced = meta3 && SHAPE_BY_KIND[meta3];
+  if (forced === "arrays") return { value: [] };
+  if (forced === "strings") return { value: "" };
   if (/image|media|video|file|thumbnail|icon|website|link/i.test(prop)) return { value: { ...BG_IMAGE.value, newTab: false } };
   if (/items|list|options|products|categories|elements|fields|slides|links/i.test(prop)) return { value: [] };
   return { value: "" };
 };
+var NEEDS_CONTEXT = Object.freeze({
+  "store-cart": "store page type (one of the PROTECTED store scaffolding elements)",
+  "store-checkout": "store page type (one of the PROTECTED store scaffolding elements)",
+  "store-thank-you": "store page type (one of the PROTECTED store scaffolding elements)",
+  "blog-content": "a blog page type \u2014 it answers 404, not 500, under every shape",
+  "photo-video-gallery": "a real media reference",
+  "social-share-blog": "a blog context"
+});
 var counter = 0;
 var resetIds = () => {
   counter = 0;
@@ -88540,7 +88566,7 @@ var envelope = (id, type, meta3, tagName, extra, styles, cls, wrapper) => ({
 var completeExtra = (meta3, given = {}) => {
   const declared = ELEMENTS[meta3]?.extraProps ?? [];
   const out = {};
-  for (const prop of declared) out[prop] = Object.prototype.hasOwnProperty.call(given, prop) ? given[prop] : emptyFor(prop);
+  for (const prop of declared) out[prop] = Object.prototype.hasOwnProperty.call(given, prop) ? given[prop] : emptyFor(prop, meta3);
   return { ...out, ...given };
 };
 var makeLeaf = ({ meta: meta3, extra = {}, styles = {}, cls = {}, tag = "", salt }) => {
@@ -88688,6 +88714,13 @@ var auditPageData = (pageData) => {
         if (missing.length) problems.push(`node ${n.id} (${n.meta}): missing declared extra props ${missing.join(", ")} \u2014 the renderer reads extra.<prop>.value unguarded`);
       }
       if (n.extra && n.extra.nodeId !== `c${n.id}`) problems.push(`node ${n.id}: extra.nodeId must be 'c'+id, the renderer keys markup on it`);
+      const action = n.extra?.action?.value;
+      if (action !== void 0 && action !== "" && !ACTION_VALUES.includes(action)) {
+        problems.push(`node ${n.id} (${n.meta}): extra.action.value '${action}' is not a known action \u2014 use one of ${ACTION_VALUES.join(", ")}. autosave stores an unknown value with a 201 and the control silently does nothing.`);
+      }
+      if (n.type === "element" && NEEDS_CONTEXT[n.meta]) {
+        problems.push(`node ${n.id} (${n.meta}): no node shape makes this kind render on a plain funnel page \u2014 it needs ${NEEDS_CONTEXT[n.meta]}`);
+      }
     }
     const css = s.general?.sectionStyles ?? "";
     if (css && !css.includes(s.id)) problems.push(`section ${s.id}: sectionStyles does not mention this section id \u2014 the stylesheet is keyed by node id, so it is orphaned`);
