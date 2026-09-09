@@ -19,6 +19,7 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
+import { KIND_DEFAULT_EXTRA } from './kind-defaults.mjs';
 
 // Embedded by esbuild into dist so the bundle stays self-contained (the bundle test asserts it
 // ships with NO sibling files); read from disk when running from source.
@@ -82,6 +83,8 @@ export const emptyFor = (prop, meta) => {
 // with `type: "blog"` whose steps are `blog-home` and `blog-post` — but `funnel/create` ignores
 // `type: "blog"` and `create-step` 404s on `type: "blog-post"`, so a blog CONTAINER can only be
 // obtained by installing a blogs template (`POST /templates/template/load`, product `blogs`).
+export { KIND_DEFAULT_EXTRA };
+
 export const NEEDS_STEP_TYPE = Object.freeze({
   'store-cart': 'store', 'store-checkout': 'store', 'store-thank-you': 'store',
   'blog-content': 'blog-post',
@@ -93,12 +96,13 @@ export const TAG_IS_TAGNAME = Object.freeze(new Set([
   'store-cart', 'store-checkout', 'store-thank-you', 'blog-content', 'blog-post',
 ]));
 
-// What is genuinely still unbuilt, and why.
-export const NEEDS_CONTEXT = Object.freeze({
-  'social-share-blog': 'unresolved: answers 500 `Cannot read properties of undefined (reading \'bgColor\')` '
-    + 'invariantly — across six socialShareStyle shapes, alone and beside blog-post, on blog-home and '
-    + 'blog-post pages. It appears in NONE of GHL\'s 1,886 templates, so no real example exists to copy.',
-});
+// Every one of the 57 leaf kinds now builds from scratch (2026-09-09). Kept as the hook for the
+// next kind that turns out to need context the caller cannot supply.
+export const NEEDS_CONTEXT = Object.freeze({});
+
+// 🔴 Props that are RAW objects, not `{value: …}`. Wrapping one of these is silent in the builder
+// and 500s the public page (`reading 'bgColor'` for socialShareStyle).
+export const RAW_EXTRA_PROPS = Object.freeze(new Set(['socialShareStyle', 'blog_style', 'blogPinedPostStyle']));
 
 let counter = 0;
 export const resetIds = () => { counter = 0; };
@@ -114,8 +118,18 @@ const envelope = (id, type, meta, tagName, extra, styles, cls, wrapper) => ({
 /** Every declared prop, present. Caller values win; anything unspecified gets a shaped empty. */
 export const completeExtra = (meta, given = {}) => {
   const declared = ELEMENTS[meta]?.extraProps ?? [];
+  // Kinds with a required object a heuristic cannot invent (store `customText`, blog show-options)
+  // get the real default first; the shaped empty is only the last resort.
+  const known = KIND_DEFAULT_EXTRA[meta] ?? {};
   const out = {};
-  for (const prop of declared) out[prop] = Object.prototype.hasOwnProperty.call(given, prop) ? given[prop] : emptyFor(prop, meta);
+  for (const prop of declared) {
+    out[prop] = Object.prototype.hasOwnProperty.call(given, prop) ? given[prop]
+      : Object.prototype.hasOwnProperty.call(known, prop) ? known[prop]
+        : emptyFor(prop, meta);
+  }
+  // A kind may need a property its own registry entry does not declare — `customText` is declared,
+  // but `step1` on store-checkout is not, and the renderer reads it anyway.
+  for (const [prop, v] of Object.entries(known)) if (!(prop in out)) out[prop] = v;
   return { ...out, ...given };
 };
 
@@ -267,6 +281,12 @@ export const auditPageData = (pageData) => {
       if (action !== undefined && action !== '' && !ACTION_VALUES.includes(action)) {
         problems.push(`node ${n.id} (${n.meta}): extra.action.value '${action}' is not a known action — use one of ${ACTION_VALUES.join(', ')}. `
           + 'autosave stores an unknown value with a 201 and the control silently does nothing.');
+      }
+      for (const prop of RAW_EXTRA_PROPS) {
+        const v = n.extra?.[prop];
+        if (v && typeof v === 'object' && 'value' in v) {
+          problems.push(`node ${n.id} (${n.meta}): extra.${prop} must be a RAW object, not {value: …} — wrapping it 500s the public page with "reading 'bgColor'" while the builder shows nothing wrong`);
+        }
       }
       if (n.type === 'element' && NEEDS_STEP_TYPE[n.meta]) {
         problems.push(`node ${n.id} (${n.meta}): this kind renders only on a step of type '${NEEDS_STEP_TYPE[n.meta]}' — on a plain funnel page it 500s (or 404s for blog kinds). Create the step with that type.`);

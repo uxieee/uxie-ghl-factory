@@ -204,9 +204,30 @@ test('store and blog kinds carry tag === tagName; everything else stays empty', 
   assert.equal(makeLeaf({ meta: 'heading', tag: 'h2' }).tag, 'h2', 'an explicit tag still wins');
 });
 
-test('NEEDS_STEP_TYPE names the step type, and only social-share-blog is still unbuilt', () => {
+test('NEEDS_STEP_TYPE names the step type, and nothing is left unbuilt', () => {
   assert.equal(NEEDS_STEP_TYPE['store-checkout'], 'store');
   assert.equal(NEEDS_STEP_TYPE['blog-content'], 'blog-post');
-  assert.deepEqual(Object.keys(NEEDS_CONTEXT), ['social-share-blog']);
+  assert.deepEqual(Object.keys(NEEDS_CONTEXT), [], 'every leaf kind builds from scratch now');
   for (const k of Object.keys(NEEDS_STEP_TYPE)) assert.ok(!(k in NEEDS_CONTEXT), `${k} is buildable now`);
+});
+
+test('social-share-blog: socialShareStyle is RAW, socialShareOption is wrapped', () => {
+  const e = completeExtra('social-share-blog');
+  assert.ok(!('value' in e.socialShareStyle), 'socialShareStyle must NOT be {value:…} — wrapping it 500s the page');
+  assert.ok('value' in e.socialShareOption, 'socialShareOption IS wrapped');
+  assert.equal(e.socialShareStyle.socialIcon.iconStyle, 'sqaure', "GHL's own typo is what the renderer matches");
+  assert.equal(e.socialShareStyle.background.bgColor, '#ffffff');
+});
+
+test('auditPageData catches a RAW prop that was wrapped', () => {
+  resetIds();
+  const leaf = makeLeaf({ meta: 'social-share-blog', extra: { socialShareStyle: { value: { background: { bgColor: '#fff' } } } } });
+  const col = makeColumn({ children: [leaf], widthPct: 100 });
+  const section = makeSection({ columns: [{ col, leaves: [leaf], widthPct: 100 }], pageId: 'P', funnelId: 'F', locationId: 'L' });
+  const data = buildPageData({ pageId: 'P', stepId: 'S', funnelId: 'F', locationId: 'L', sections: [section] });
+  assert.match(auditPageData(data).join(' '), /extra\.socialShareStyle must be a RAW object/);
+});
+
+test('nothing is left in NEEDS_CONTEXT — all 57 leaf kinds build', () => {
+  assert.deepEqual(Object.keys(NEEDS_CONTEXT), []);
 });

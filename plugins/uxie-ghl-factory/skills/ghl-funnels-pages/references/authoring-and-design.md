@@ -87,8 +87,8 @@ Anything else stores and does nothing.
 
 ## Coverage
 
-60 element kinds exist (a closed set in the page-builder bundle). Of the 57 leaf kinds, **56 build
-from scratch**. Five of the six that used to fail were never shape problems — they needed the right
+60 element kinds exist (a closed set in the page-builder bundle). **All 57 leaf kinds build
+from scratch.** Five of the six that used to fail were never shape problems — they needed the right
 **step type**, found by installing GHL's own store and blog templates and reading the real nodes.
 
 | Kind | Needs | Status |
@@ -96,7 +96,11 @@ from scratch**. Five of the six that used to fail were never shape problems — 
 | `store-cart` / `store-checkout` / `store-thank-you` | a step of `type: "store"` | ✅ build and render |
 | `photo-video-gallery` | a real `galleryLayout.value.layout` string (`"grid"`) | ✅ builds on an ordinary page |
 | `blog-content` | a `blog-post` step of a `type: "blog"` funnel | ✅ builds (verify in the BUILDER) |
-| `social-share-blog` | unresolved — `reading 'bgColor'`, invariant | ❌ |
+| `social-share-blog` | `socialShareStyle` sent RAW, not `{value:…}` | ✅ |
+
+🔴 **Not every `extra` prop is `{value: …}`-wrapped.** `socialShareStyle`, `blog_style` and
+`blogPinedPostStyle` are RAW objects. Wrapping `socialShareStyle` 500s the public page with
+`reading 'bgColor'` and looks fine in the builder — `auditPageData` now catches it.
 
 🔴 **`tag` equals the tagName for the store and blog kinds** (`"c-store-cart"`, `"c-blog-content"`),
 not the empty string every other leaf carries. A leaf built with `tag: ''` does not render.

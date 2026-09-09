@@ -145,8 +145,7 @@ attach/detach, publishing.
 **OUT:** pipelines (public API — use the ghl MCP server), workflow wiring (use
 `create-ghl-workflow`). Store and blog pages ARE in scope now — the store kinds need a step of
 `type: "store"` and the blog kinds a `blog-post` step of a `type: "blog"` funnel (installed from a
-`blogs` template, since a blog container cannot yet be created directly). One kind,
-`social-share-blog`, is still unbuilt — see `references/authoring-and-design.md`.
+`blogs` template, since a blog container cannot yet be created directly).
 
 ## Never report a page as shipped off a `201`
 State which of draft/live you verified and name the URL you fetched. Six of this surface's fifteen

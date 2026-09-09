@@ -88495,6 +88495,271 @@ init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
+
+// core/kind-defaults.mjs
+init_define_BUILDER_VALIDATORS();
+init_define_CONTACT_FILTER_FIELDS();
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
+init_define_TOOL_CATALOG();
+var KIND_DEFAULT_EXTRA = Object.freeze({
+  "store-cart": {
+    "typography": {
+      "value": "var(--contentfont)"
+    },
+    "featureHeadlineDesktopFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "featureHeadlineMobileFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "desktopFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "mobileFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "priceDiscountDesktopFontSize": {
+      "value": 16,
+      "unit": "px"
+    },
+    "priceDiscountMobileFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "customText": {
+      "value": {
+        "headline": "My cart",
+        "subtotalColumnHeading": "Subtotal",
+        "totalColumnHeading": "Total",
+        "checkoutButtonText": "Checkout",
+        "emptyCartText": "Your cart is empty",
+        "continueShopping": "Continue Shopping"
+      }
+    }
+  },
+  "store-checkout": {
+    "step1": {
+      "value": {
+        "addressLine2": "Address Line 2",
+        "showShipping": true,
+        "btnIcon": "fas fa-shopping-cart",
+        "enablePostalCode": true,
+        "enableCountryPicker": false,
+        "enableCouponCodes": true,
+        "enableBillingAddress": true,
+        "fieldOptions": {
+          "phoneNumber": "mandatory",
+          "address": "mandatory",
+          "country": "mandatory",
+          "city": "mandatory",
+          "zipPostalCode": "mandatory"
+        },
+        "enableAutoCompleteAddress": true,
+        "enableNote": true
+      }
+    },
+    "enableCouponCodes": {
+      "value": true
+    },
+    "typography": {
+      "value": "var(--contentfont)"
+    },
+    "featureHeadlineDesktopFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "featureHeadlineMobileFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "desktopFontSize": {
+      "value": 15,
+      "unit": "px"
+    },
+    "mobileFontSize": {
+      "value": 15,
+      "unit": "px"
+    },
+    "stickyContact": {
+      "value": false
+    },
+    "forceContactCreate": {
+      "value": false
+    },
+    "validateEmail": {
+      "value": true
+    },
+    "saleAction": {
+      "value": "go-to-next-funnel-step"
+    },
+    "stepPath": {
+      "value": ""
+    },
+    "visitWebsite": {
+      "value": ""
+    },
+    "customText": {
+      "value": {
+        "breadcrumbSection": {
+          "step1Label": "Contact & shipping",
+          "step2Label": "Payment",
+          "continueToPaymentText": "Continue to payment",
+          "returnToContactShippingText": "Return to contact & shipping"
+        },
+        "contactDetailsSection": {
+          "headline": "Contact",
+          "email": "Email Address"
+        },
+        "shippingDetailsSection": {
+          "headline": "Shipping details",
+          "fullName": "Full Name",
+          "phoneNumber": "Phone Number",
+          "searchBoxPlaceholder": "Search your address",
+          "fullAddress": "Full Address",
+          "country": "Country",
+          "state": "State / Province",
+          "cityName": "City Name",
+          "zipCode": "Zip Code",
+          "notesHeadingLabelText": "Add notes to your order",
+          "notesTextBoxPlaceholder": "Add notes about your order or special notes for delivery",
+          "shippingMethodsHeadline": "Shipping methods",
+          "freeShippingLabelText": "FREE"
+        },
+        "billingDetailsSection": {
+          "headline": "Billing Details",
+          "checkboxText": "Billing address same as shipping address"
+        },
+        "paymentSection": {
+          "headline": "Payment",
+          "checkoutButtonText": "Make Payment",
+          "footerText": "* 100% Secure & Safe Payments *"
+        },
+        "cartSummarySection": {
+          "headline": "Cart summary",
+          "editCartButtonText": "Edit Cart",
+          "quantityColumnHeading": "Qty",
+          "couponHeadline": "Coupon",
+          "couponCodePlaceholder": "Enter Coupon Code",
+          "applyCouponButtonText": "Apply",
+          "subtotalColumnHeading": "Subtotal",
+          "discountHeading": "Discount (coupon)",
+          "removeCouponButtonText": "Remove",
+          "shippingHeading": "Shipping",
+          "totalColumnHeading": "Total"
+        }
+      }
+    }
+  },
+  "store-thank-you": {
+    "typography": {
+      "value": "var(--contentfont)"
+    },
+    "featureHeadlineDesktopFontSize": {
+      "value": 26,
+      "unit": "px"
+    },
+    "featureHeadlineMobileFontSize": {
+      "value": 20,
+      "unit": "px"
+    },
+    "desktopFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "mobileFontSize": {
+      "value": 14,
+      "unit": "px"
+    },
+    "customText": {
+      "value": {
+        "thankYouSection": {
+          "headline": "Thank you",
+          "subHeadline": "You\u2019ll receive a confirmation email for your order",
+          "shippingAddressHeadline": "Shipping address",
+          "billingAddressHeadline": "Billing address",
+          "continueShopping": "Continue Shopping"
+        },
+        "summaryTableSection": {
+          "itemColumnHeading": "Item",
+          "priceColumnHeading": "Price",
+          "quantityColumnHeading": "Qty",
+          "subtotalColumnHeading": "Subtotal",
+          "discountHeading": "Discount (coupon)",
+          "shippingHeading": "Shipping",
+          "freeShippingLabelText": "FREE",
+          "totalColumnHeading": "Total"
+        },
+        "downloadButton": {
+          "buttonName": "Download",
+          "accessURL": "Access URL"
+        }
+      }
+    },
+    "downloadDigitalProducts": {
+      "value": true
+    }
+  },
+  "blog-content": {
+    "blogContentShowOption": {
+      "value": [
+        "photo",
+        "name",
+        "description",
+        "social"
+      ]
+    }
+  },
+  "social-share-blog": {
+    "socialShareOption": {
+      "value": [
+        "mail",
+        "facebook",
+        "linkedin",
+        "twitter",
+        "pinterest"
+      ]
+    },
+    "socialShareStyle": {
+      "socialIcon": {
+        "cornerRadius": 0,
+        "displayType": "icon",
+        "iconStyle": "sqaure",
+        "iconAlign": "center",
+        "fontColor": "#000000",
+        "fontSize": 12,
+        "fontWeight": 300,
+        "fontFamily": "var(--headlinefont)",
+        "textStyle": "bold",
+        "textTransform": "capitalize"
+      },
+      "labelText": {
+        "text": "Share This",
+        "fontColor": "#000000",
+        "fontSize": 16,
+        "fontWeight": 300,
+        "fontFamily": "var(--headlinefont)",
+        "textStyle": "bold",
+        "textTransform": "capitalize"
+      },
+      "background": {
+        "selectedOption": "color",
+        "bgColor": "#ffffff",
+        "bgImage": ""
+      },
+      "highlightedShare": {
+        "bgColor": "#101828"
+      }
+    }
+  }
+});
+
+// core/funnel-pages.mjs
 var HERE = dirname(fileURLToPath(import.meta.url));
 var CATALOG = true ? define_FUNNEL_ELEMENTS_default : JSON.parse(readFileSync(resolve(HERE, "../catalog/funnel-elements.json"), "utf8"));
 var ELEMENTS = Object.freeze(CATALOG.elements);
@@ -88551,9 +88816,8 @@ var TAG_IS_TAGNAME = Object.freeze(/* @__PURE__ */ new Set([
   "blog-content",
   "blog-post"
 ]));
-var NEEDS_CONTEXT = Object.freeze({
-  "social-share-blog": "unresolved: answers 500 `Cannot read properties of undefined (reading 'bgColor')` invariantly \u2014 across six socialShareStyle shapes, alone and beside blog-post, on blog-home and blog-post pages. It appears in NONE of GHL's 1,886 templates, so no real example exists to copy."
-});
+var NEEDS_CONTEXT = Object.freeze({});
+var RAW_EXTRA_PROPS = Object.freeze(/* @__PURE__ */ new Set(["socialShareStyle", "blog_style", "blogPinedPostStyle"]));
 var counter = 0;
 var resetIds = () => {
   counter = 0;
@@ -88579,8 +88843,12 @@ var envelope = (id, type, meta3, tagName, extra, styles, cls, wrapper) => ({
 });
 var completeExtra = (meta3, given = {}) => {
   const declared = ELEMENTS[meta3]?.extraProps ?? [];
+  const known = KIND_DEFAULT_EXTRA[meta3] ?? {};
   const out = {};
-  for (const prop of declared) out[prop] = Object.prototype.hasOwnProperty.call(given, prop) ? given[prop] : emptyFor(prop, meta3);
+  for (const prop of declared) {
+    out[prop] = Object.prototype.hasOwnProperty.call(given, prop) ? given[prop] : Object.prototype.hasOwnProperty.call(known, prop) ? known[prop] : emptyFor(prop, meta3);
+  }
+  for (const [prop, v] of Object.entries(known)) if (!(prop in out)) out[prop] = v;
   return { ...out, ...given };
 };
 var makeLeaf = ({ meta: meta3, extra = {}, styles = {}, cls = {}, tag = "", salt }) => {
@@ -88760,6 +89028,12 @@ var auditPageData = (pageData) => {
       const action = n.extra?.action?.value;
       if (action !== void 0 && action !== "" && !ACTION_VALUES.includes(action)) {
         problems.push(`node ${n.id} (${n.meta}): extra.action.value '${action}' is not a known action \u2014 use one of ${ACTION_VALUES.join(", ")}. autosave stores an unknown value with a 201 and the control silently does nothing.`);
+      }
+      for (const prop of RAW_EXTRA_PROPS) {
+        const v = n.extra?.[prop];
+        if (v && typeof v === "object" && "value" in v) {
+          problems.push(`node ${n.id} (${n.meta}): extra.${prop} must be a RAW object, not {value: \u2026} \u2014 wrapping it 500s the public page with "reading 'bgColor'" while the builder shows nothing wrong`);
+        }
       }
       if (n.type === "element" && NEEDS_STEP_TYPE[n.meta]) {
         problems.push(`node ${n.id} (${n.meta}): this kind renders only on a step of type '${NEEDS_STEP_TYPE[n.meta]}' \u2014 on a plain funnel page it 500s (or 404s for blog kinds). Create the step with that type.`);
