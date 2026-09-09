@@ -448,3 +448,47 @@ test('appendToBranch with NO anchor names all three shapes', () => {
     { ctx: ctx('e'), idGen: makeSeededIdGen('e') }),
     /needs ONE anchor: branchEntryId.*branchRef.*containerId \+ branch/s);
 });
+
+// Defect 1 lives on, one door over. The ADD paths refuse a trigger-filter condition on an
+// if_else — insertAfter/appendStep run compile(), which runs lintConditionShape. `modifyStep`
+// merges an attrPatch straight onto the stored step and never reaches compile(), so the SAME
+// payload that is refused on one path was stored silently on the other.
+//
+// Stored, and worse than inert: an attrPatch REPLACES `attributes.branches` wholesale, so the
+// container keeps its graph wiring and loses conditionName, operator, __conditionId and the
+// compiled condition with it. The export looks tidier than the refused version does.
+//
+// Found by a peer session's 4-cell matrix (write path x condition shape) on a live draft,
+// reproduced offline here. editCommitBody is the chokepoint that can see it — the same place
+// the opportunity-name guard catches the same bypass one layer up.
+test('modifyStep cannot smuggle a trigger-filter condition past the compiler onto a container', () => {
+  const gateStep = { kind: 'if_else', type: 'if_else', name: 'Gate', branches: [
+    { ref: 'y', name: 'Yes', conditions: [{ conditionType: 'contact_detail', tag: 'vip' }], then: [] },
+    { ref: 'n', name: 'No', else: true, then: [] } ] };
+  const seeded = applyOps(linearWf(), [{ op: 'appendStep', step: gateStep }],
+    { ctx: ctx(), idGen: makeSeededIdGen('z') });
+  const gate = seeded.templates.find((t) => t.nodeType === 'condition-node');
+  const commit = (r) => editCommitBody({ id: 'w1', name: 'W' }, r.templates, r.diff, { catalog: loadCatalog() });
+
+  // the correct container still commits — the guard must not close the door on valid work
+  assert.doesNotThrow(() => commit(seeded));
+
+  // the smuggled trigger-filter condition is refused, naming the step and the way out
+  const smuggled = applyOps(seeded.templates, [{ op: 'modifyStep', stepId: gate.id, attrPatch: {
+    branches: [{ segments: [{ conditions: [{ field: 'email', operator: 'is', value: 'a@b.com' }] }] }] } }],
+  { ctx: ctx('b'), idGen: makeSeededIdGen('y') });
+  assert.throws(() => commit(smuggled), (err) => {
+    assert.equal(err.code, 'COND_SHAPE');
+    assert.match(err.message, /Gate/);
+    assert.match(err.message, /retypeStep|addBranch/);
+    return true;
+  });
+
+  // SCOPE: the same residue on a container this edit never touched must not brick the edit.
+  // A legacy workflow full of pre-existing condition damage still has to be editable elsewhere.
+  const legacy = seeded.templates.map((t) => (t.id !== gate.id ? t : { ...t, attributes: { ...t.attributes,
+    branches: [{ segments: [{ conditions: [{ field: 'x', operator: 'is', value: 'y' }] }] }] } }));
+  const elsewhere = applyOps(legacy, [{ op: 'renameStep', stepId: 's1', name: 'One renamed' }],
+    { ctx: ctx('c'), idGen: makeSeededIdGen('w') });
+  assert.doesNotThrow(() => commit(elsewhere));
+});

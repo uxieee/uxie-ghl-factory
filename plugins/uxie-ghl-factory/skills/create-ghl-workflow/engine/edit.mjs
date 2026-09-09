@@ -7,7 +7,7 @@
 // GHL's incremental save only touches steps named in the diff arrays — sending the
 // full templates[] with correct createdSteps/modifiedSteps/deletedSteps is what makes
 // an edit apply cleanly without disturbing untouched steps.
-import { IRError, REQUIRES_OPPORTUNITY, CREATES_OPPORTUNITY } from './ir.mjs';
+import { IRError, REQUIRES_OPPORTUNITY, CREATES_OPPORTUNITY, lintConditionShape } from './ir.mjs';
 import { normalizeStoredAttributes } from './template-normalize.mjs';
 import { lintEntryStep } from './lints/entry-step.mjs';
 import { normalizeSettings, KNOWN_SETTINGS_KEYS } from './settings.mjs';
@@ -915,6 +915,43 @@ export function editCommitBody(fresh, newTemplates, diff, uid, opts = {}) {
         + `edit_workflow call — {stepId, step:{type:'update_opportunity', name, attributes:{pipelineId, stageId}}} `
         + `— which recompiles the ids and drops the name keys.`);
   }
+  // CONDITION SHAPE on the containers THIS edit touched. Same bypass as the opportunity-name
+  // guard above, one layer deeper: `modifyStep` merges an attrPatch straight onto a stored step's
+  // `attributes`, so an attrPatch aimed at a condition-node REPLACES `attributes.branches`
+  // wholesale — the container keeps its graph wiring and loses `conditionName`, `operator`,
+  // `__conditionId` and the compiled condition, and the export still looks tidy.
+  //
+  // The add paths already refuse this: compile() runs lintConditionShape, which is why
+  // insertAfter/appendStep throw COND_SHAPE on a trigger-filter `{field, operator, value}`
+  // condition rather than storing a branch no contact can ever match. modifyStep never reaches
+  // compile(), so the SAME payload that is refused on one path was stored silently on the other.
+  // The refusal already existed; it was simply not wired to the path that needed it.
+  //
+  // Scoped to touched steps, like every other guard here: a legacy workflow's pre-existing
+  // condition residue must not brick an unrelated edit.
+  {
+    const touched = new Set([...(diff.createdSteps ?? []), ...(diff.modifiedSteps ?? [])]);
+    for (const t of newTemplates) {
+      if (!touched.has(t.id)) continue;
+      for (const b of t.attributes?.branches ?? []) {
+        for (const seg of b?.segments ?? []) {
+          for (const c of seg?.conditions ?? []) {
+            if (!c || typeof c !== 'object') continue;
+            try { lintConditionShape(c); } catch (err) {
+              throw new IRError('COND_SHAPE',
+                `step '${t.id}' ('${t.name ?? t.id}', ${t.type}) would store an unusable condition. `
+                + `${err.message} `
+                + `An attrPatch is merged onto the stored step WITHOUT the compiler, so it cannot build `
+                + `this shape for you and replacing 'branches' drops the branch's identity with it. `
+                + `To change a condition, retypeStep the container in the same edit_workflow call so it `
+                + `recompiles, or use addBranch for a new conditioned branch.`);
+            }
+          }
+        }
+      }
+    }
+  }
+
   // FIELD enforcement on the steps THIS edit touched. Steps ADDED by ops were compiled through
   // compile() and its chokepoint already; `modifyStep` merges an attrPatch straight onto a stored
   // step and NEVER reaches the compiler — the long-known bypass (same reason tools.mjs runs

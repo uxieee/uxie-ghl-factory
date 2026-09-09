@@ -160151,6 +160151,27 @@ function editCommitBody(fresh, newTemplates, diff, uid, opts = {}) {
         `step '${t.id}' ('${t.name ?? t.id}', ${t.type}) carries name key(s) [${leaked.join(", ")}] \u2014 the edit path does not resolve names to ids, so GHL would store the word and the step would move nothing. Author pipelineId/stageId (from list_account_entities), or rebuild through build_workflow, which resolves names. If this step was saved from the BUILDER, retypeStep it first in the same edit_workflow call \u2014 {stepId, step:{type:'update_opportunity', name, attributes:{pipelineId, stageId}}} \u2014 which recompiles the ids and drops the name keys.`
       );
   }
+  {
+    const touched2 = /* @__PURE__ */ new Set([...diff.createdSteps ?? [], ...diff.modifiedSteps ?? []]);
+    for (const t of newTemplates) {
+      if (!touched2.has(t.id)) continue;
+      for (const b of t.attributes?.branches ?? []) {
+        for (const seg of b?.segments ?? []) {
+          for (const c of seg?.conditions ?? []) {
+            if (!c || typeof c !== "object") continue;
+            try {
+              lintConditionShape(c);
+            } catch (err) {
+              throw new IRError(
+                "COND_SHAPE",
+                `step '${t.id}' ('${t.name ?? t.id}', ${t.type}) would store an unusable condition. ${err.message} An attrPatch is merged onto the stored step WITHOUT the compiler, so it cannot build this shape for you and replacing 'branches' drops the branch's identity with it. To change a condition, retypeStep the container in the same edit_workflow call so it recompiles, or use addBranch for a new conditioned branch.`
+              );
+            }
+          }
+        }
+      }
+    }
+  }
   if (opts.catalog) {
     const touched2 = /* @__PURE__ */ new Set([...diff.createdSteps ?? [], ...diff.modifiedSteps ?? []]);
     enforceTemplates(
