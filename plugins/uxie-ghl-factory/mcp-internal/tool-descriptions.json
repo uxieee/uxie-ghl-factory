@@ -1673,5 +1673,167 @@
       "funnels--builder-get-versions",
       "funnels--builder-publish-version"
     ]
+  },
+  "check_workflow": {
+    "description": "Read-only conformance check: replays GHL's own validators against a workflow — proof: unrecorded; risk: read",
+    "risk": "read",
+    "proof": "unrecorded",
+    "proofFloor": "unrecorded",
+    "proofRows": [
+      "workflow-service--find-by-id",
+      "trigger-service--find-all",
+      "workflows-marketplace-platform-service--get-actions-and-triggers",
+      "custom-field-service--get-contact-custom-fields",
+      "backend--custom-values"
+    ],
+    "proofFloorRows": [
+      "workflow-service--find-by-id",
+      "trigger-service--find-all",
+      "workflows-marketplace-platform-service--get-actions-and-triggers",
+      "custom-field-service--get-contact-custom-fields",
+      "backend--custom-values"
+    ],
+    "riskRows": [
+      "workflow-service--find-by-id",
+      "trigger-service--find-all",
+      "workflows-marketplace-platform-service--get-actions-and-triggers",
+      "custom-field-service--get-contact-custom-fields",
+      "backend--custom-values"
+    ],
+    "rows": [
+      "workflow-service--find-by-id",
+      "trigger-service--find-all",
+      "workflows-marketplace-platform-service--get-actions-and-triggers",
+      "custom-field-service--get-contact-custom-fields",
+      "backend--custom-values"
+    ]
+  },
+  "get_workflow_digest": {
+    "description": "Compact read of one workflow — identity, version, structure, merge tags per step — proof: unrecorded; risk: read",
+    "risk": "read",
+    "proof": "unrecorded",
+    "proofFloor": "unrecorded",
+    "proofRows": [
+      "workflow-service--find-by-id",
+      "trigger-service--find-all"
+    ],
+    "proofFloorRows": [
+      "workflow-service--find-by-id",
+      "trigger-service--find-all"
+    ],
+    "riskRows": [
+      "workflow-service--find-by-id",
+      "trigger-service--find-all"
+    ],
+    "rows": [
+      "workflow-service--find-by-id",
+      "trigger-service--find-all"
+    ]
+  },
+  "repair_workflow": {
+    "description": "Repair a workflow from an export or a raw templates body — proof: unrecorded; risk: write",
+    "risk": "write",
+    "proof": "unrecorded",
+    "proofFloor": "unrecorded",
+    "proofRows": [
+      "workflow-service--find-by-id",
+      "trigger-service--find-all",
+      "custom-field-service--get-contact-custom-fields",
+      "backend--custom-values",
+      "workflow-service--update",
+      "workflows-marketplace-platform-service--get-actions-and-triggers",
+      "backend--validate-assets",
+      "backend--test-custom-code",
+      "workflows--phone-system-numbers",
+      "workflows--location-phone-numbers",
+      "workflows--instagram-connected-accounts",
+      "backend--location-email-provider"
+    ],
+    "proofFloorRows": [
+      "workflow-service--find-by-id",
+      "trigger-service--find-all",
+      "custom-field-service--get-contact-custom-fields",
+      "backend--custom-values",
+      "workflow-service--update",
+      "workflows-marketplace-platform-service--get-actions-and-triggers",
+      "backend--validate-assets",
+      "backend--test-custom-code",
+      "workflows--phone-system-numbers",
+      "workflows--location-phone-numbers",
+      "workflows--instagram-connected-accounts",
+      "backend--location-email-provider"
+    ],
+    "riskRows": [
+      "workflow-service--find-by-id",
+      "trigger-service--find-all",
+      "custom-field-service--get-contact-custom-fields",
+      "backend--custom-values",
+      "workflow-service--update",
+      "workflows-marketplace-platform-service--get-actions-and-triggers",
+      "backend--validate-assets",
+      "backend--test-custom-code",
+      "workflows--phone-system-numbers",
+      "workflows--location-phone-numbers",
+      "workflows--instagram-connected-accounts",
+      "backend--location-email-provider"
+    ],
+    "rows": [
+      "workflow-service--find-by-id",
+      "trigger-service--find-all",
+      "custom-field-service--get-contact-custom-fields",
+      "backend--custom-values",
+      "workflow-service--update",
+      "workflows-marketplace-platform-service--get-actions-and-triggers",
+      "backend--validate-assets",
+      "backend--test-custom-code",
+      "workflows--phone-system-numbers",
+      "workflows--location-phone-numbers",
+      "workflows--instagram-connected-accounts",
+      "backend--location-email-provider"
+    ]
+  },
+  "search_merge_tags": {
+    "description": "Search the merge-tag picker's static tags plus this account's own custom values — proof: unrecorded; risk: read",
+    "risk": "read",
+    "proof": "unrecorded",
+    "proofFloor": "unrecorded",
+    "proofRows": [
+      "custom-field-service--get-contact-custom-fields",
+      "backend--custom-values"
+    ],
+    "proofFloorRows": [
+      "custom-field-service--get-contact-custom-fields",
+      "backend--custom-values"
+    ],
+    "riskRows": [
+      "custom-field-service--get-contact-custom-fields",
+      "backend--custom-values"
+    ],
+    "rows": [
+      "custom-field-service--get-contact-custom-fields",
+      "backend--custom-values"
+    ]
+  },
+  "update_convai_agent": {
+    "description": "Update a Conversation AI agent by read-merge-write — proof: unrecorded; risk: write",
+    "risk": "write",
+    "proof": "unrecorded",
+    "proofFloor": "unrecorded",
+    "proofRows": [
+      "aiemployee-service--get-employee-by-id",
+      "aiemployee-service--update-employee"
+    ],
+    "proofFloorRows": [
+      "aiemployee-service--get-employee-by-id",
+      "aiemployee-service--update-employee"
+    ],
+    "riskRows": [
+      "aiemployee-service--get-employee-by-id",
+      "aiemployee-service--update-employee"
+    ],
+    "rows": [
+      "aiemployee-service--get-employee-by-id",
+      "aiemployee-service--update-employee"
+    ]
   }
 }

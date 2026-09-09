@@ -68,11 +68,17 @@ export function releaseCommitMessage(version, title) {
 
 // Everything that must be true before a single file is touched. Returns the failures, all of
 // them, so one run reports every problem rather than the first.
-export function preflightFailures({ branch, behind, ahead, dirty, current, next, section, today, tools }) {
+export function preflightFailures({ branch, behind, ahead, dirty, untracked = [], current, next, section, today, tools }) {
   const out = [];
   if (branch !== 'main') out.push(`on branch "${branch}" — releases are cut from main`);
   if (behind > 0) out.push(`main is ${behind} commit(s) behind origin/main — pull first (the 0.50.0 collision was exactly this)`);
   if (dirty.length) out.push(`tracked files are modified: ${dirty.join(', ')} — commit or stash before releasing`);
+  // A new file is invisible to `git add -u` and to every gate. Refusing here is the only place that
+  // can tell the difference between "meant to ship" and "meant to be ignored" — a person can.
+  if (untracked.length) {
+    out.push(`${untracked.length} untracked file(s) would NOT ship — the release stages with \`git add -u\`, which skips new files: `
+      + `${untracked.join(', ')} — \`git add\` the ones that belong in the release, or add them to .gitignore`);
+  }
   try {
     if (compareSemver(next, current) <= 0) out.push(`version ${next} is not above the current ${current}`);
   } catch (e) { out.push(e.message); }

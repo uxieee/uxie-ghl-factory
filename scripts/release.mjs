@@ -75,12 +75,21 @@ const section = changelogSection(changelogText, version);
 // and toISOString() said "still yesterday" to an entry dated after local midnight.
 const d = new Date();
 const today = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-const dirty = git('status', '--porcelain').split('\n').filter((l) => l && !l.startsWith('??')).map((l) => l.slice(3));
+const porcelain = git('status', '--porcelain').split('\n').filter(Boolean);
+const dirty = porcelain.filter((l) => !l.startsWith('??')).map((l) => l.slice(3));
+// 🔴 Step 7 stages with `git add -u`, which re-adds TRACKED files only. A genuinely new file — a new
+// core module, a new test, a new skill reference — is untracked, so it is not staged, not committed,
+// and not in the release, while every gate stays green: privacy scans the working tree, freshness
+// compares regenerated artefacts, and the tests pass because the file is on disk locally. 0.70.0 had
+// six such files and they were staged by hand; nothing here would have caught it.
+// Untracked-and-ignored files (audits/, node_modules) never appear in --porcelain without -uall,
+// so this lists only files a person actually added and has not yet decided about.
+const untracked = porcelain.filter((l) => l.startsWith('??')).map((l) => l.slice(3));
 const failures = preflightFailures({
   branch: git('branch', '--show-current'),
   behind: Number(git('rev-list', '--count', 'HEAD..origin/main')),
   ahead: Number(git('rev-list', '--count', 'origin/main..HEAD')),
-  dirty, current, next: version, section, today,
+  dirty, untracked, current, next: version, section, today,
   tools: DRY ? {} : { gh: onPath('gh'), claude: flag('--no-install') ? true : onPath('claude') },
 });
 const hard = failures.filter((f) => !f.startsWith('note:'));

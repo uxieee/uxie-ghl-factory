@@ -95,3 +95,24 @@ test('preflight passes a clean main with a dated, non-empty entry for the next v
 test('the commit message is the shape the log already uses', () => {
   assert.equal(releaseCommitMessage('0.52.0', 'a title'), 'release: 0.52.0 — a title');
 });
+
+test('preflight REFUSES when untracked files would be left out of the release', () => {
+  // Step 7 stages with `git add -u` — tracked files only. A new file is not staged, not committed,
+  // and not in the release, while every gate stays green: privacy scans the working tree, freshness
+  // compares regenerated artefacts, and the tests pass because the file is on disk. 0.70.0 had six
+  // such files, staged by hand; nothing in the pipeline would have caught it.
+  const base = {
+    branch: 'main', behind: 0, ahead: 0, dirty: [], current: '0.51.0', next: '0.52.0',
+    section: { heading: '## [0.52.0] — 2026-09-03', date: '2026-09-03', body: 'Something.' },
+    today: '2026-09-03', tools: { gh: true, claude: true },
+  };
+  assert.deepEqual(preflightFailures(base), [], 'no untracked files is still a clean release');
+  assert.deepEqual(preflightFailures({ ...base, untracked: [] }), [], 'an empty list is not a failure');
+
+  const f = preflightFailures({ ...base, untracked: ['core/site-audit.mjs', 'test/site-audit.test.mjs'] });
+  assert.equal(f.length, 1);
+  assert.match(f[0], /would NOT ship/);
+  assert.match(f[0], /core\/site-audit\.mjs/, 'the files must be NAMED — a count alone cannot be acted on');
+  assert.match(f[0], /git add/, 'and it must say what to do about them');
+  assert.ok(!f[0].startsWith('note:'), 'this aborts the release; it is not advisory');
+});
