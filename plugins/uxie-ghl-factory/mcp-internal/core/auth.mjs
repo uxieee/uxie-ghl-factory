@@ -5,6 +5,7 @@ import { readFileSync, existsSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 import { CODES } from './errors.mjs';
+import { buildProvenance } from './build-provenance.mjs';
 
 // Absolute + stable so the auto-registered server and the capture flow agree on ONE path,
 // and it survives plugin updates (never under the plugin cache root). Overridable via the
@@ -121,6 +122,10 @@ export function authStatus(state) {
       jwtClaims: { present: true, ...s },
       tokenIdClaims: tokenId,
       engine: state.engineVersion ?? 'unknown',
+      // Which build is actually answering. A user-scoped server resolves its plugin build at LAUNCH
+      // and /reload-plugins does not restart it, so an upgrade mid-session does not reach it and
+      // nothing otherwise says so — you can spend a whole session testing code you did not install.
+      build: buildProvenance(),
       // A COUNT, never the ids: an operator needs to know whether this registration is guarded,
       // not which accounts it may reach.
       allowedLocations: state.allowedLocations ? state.allowedLocations.size : null,
@@ -131,6 +136,10 @@ export function authStatus(state) {
       jwtClaims: { present: false },
       error: { code: e.code, detail: e.detail, remediation: e.remediation },
       engine: state.engineVersion ?? 'unknown',
+      // Which build is actually answering. A user-scoped server resolves its plugin build at LAUNCH
+      // and /reload-plugins does not restart it, so an upgrade mid-session does not reach it and
+      // nothing otherwise says so — you can spend a whole session testing code you did not install.
+      build: buildProvenance(),
       // A COUNT, never the ids: an operator needs to know whether this registration is guarded,
       // not which accounts it may reach.
       allowedLocations: state.allowedLocations ? state.allowedLocations.size : null,

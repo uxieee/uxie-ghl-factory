@@ -87374,9 +87374,9 @@ init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
-import { readFileSync as readFileSync3, existsSync as existsSync3, writeFileSync as writeFileSync2, mkdirSync as mkdirSync2 } from "node:fs";
+import { readFileSync as readFileSync3, existsSync as existsSync4, writeFileSync as writeFileSync2, mkdirSync as mkdirSync2 } from "node:fs";
 import { fileURLToPath as fileURLToPath2 } from "node:url";
-import { dirname as dirname3, resolve as resolve3, join as join3, isAbsolute as isAbsolute2 } from "node:path";
+import { dirname as dirname3, resolve as resolve3, join as join4, isAbsolute as isAbsolute2 } from "node:path";
 import { createHash as createHash5 } from "node:crypto";
 
 // core/errors.mjs
@@ -87684,10 +87684,59 @@ init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
-import { readFileSync, existsSync } from "node:fs";
+import { readFileSync, existsSync as existsSync2 } from "node:fs";
+import { homedir as homedir2 } from "node:os";
+import { join as join2 } from "node:path";
+
+// core/build-provenance.mjs
+init_define_BUILDER_VALIDATORS();
+init_define_CONTACT_FILTER_FIELDS();
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
+init_define_TOOL_CATALOG();
+import { readdirSync, existsSync } from "node:fs";
 import { homedir } from "node:os";
-import { join } from "node:path";
-var DEFAULT_TOKEN_FILE = join(homedir(), ".uxie-ghl-internal-mcp", "tok.txt");
+import { join, sep } from "node:path";
+var CACHE = join(homedir(), ".claude", "plugins", "cache", "uxieee", "uxie-ghl-factory");
+var SEMVER = /^\d+\.\d+\.\d+$/;
+var cmp = (a, b) => {
+  const pa = a.split(".").map(Number), pb = b.split(".").map(Number);
+  for (let i = 0; i < 3; i++) if ((pa[i] || 0) !== (pb[i] || 0)) return (pb[i] || 0) - (pa[i] || 0);
+  return 0;
+};
+function runningVersion(fromUrl) {
+  const parts = String(fromUrl ?? import.meta.url).split(sep.length ? /[/\\]/ : "/");
+  const i = parts.lastIndexOf("uxie-ghl-factory");
+  const v = i >= 0 ? parts[i + 1] : null;
+  return v && SEMVER.test(v) ? v : null;
+}
+function newestInstalled() {
+  try {
+    if (!existsSync(CACHE)) return null;
+    const vs = readdirSync(CACHE).filter((d) => SEMVER.test(d)).sort(cmp);
+    return vs[0] ?? null;
+  } catch {
+    return null;
+  }
+}
+function buildProvenance(fromUrl) {
+  const running = runningVersion(fromUrl);
+  const newest = newestInstalled();
+  const stale = running !== null && newest !== null && running !== newest;
+  let note;
+  if (stale) {
+    note = `This server is running ${running} but ${newest} is installed. A user-scoped MCP server resolves its build at LAUNCH, and /reload-plugins does not restart it \u2014 restart the session to pick up ${newest}. Until then, a fix you believe you installed is not in this process.`;
+  } else if (running === null) {
+    note = "Running from a source tree or an unrecognised path rather than an installed plugin build, so there is no version to compare. Expected when running the engine directly from the repo.";
+  } else if (newest === null) {
+    note = "The plugin cache could not be read, so staleness is UNKNOWN \u2014 not confirmed current.";
+  }
+  return { running, newest, stale, ...note ? { note } : {} };
+}
+
+// core/auth.mjs
+var DEFAULT_TOKEN_FILE = join2(homedir2(), ".uxie-ghl-internal-mcp", "tok.txt");
 var AuthError = class extends Error {
   constructor(code, detail, remediation) {
     super(detail);
@@ -87729,7 +87778,7 @@ function readCredentials({ tokenFile, allowExpired = false, legacyTokenFileEnv =
       LEGACY_TOKEN_FILE_REMEDIATION
     );
   }
-  if (!tokenFile || !existsSync(tokenFile)) {
+  if (!tokenFile || !existsSync2(tokenFile)) {
     throw new AuthError(
       CODES.TOKEN_MISSING,
       `no token file at ${tokenFile ?? "(unset)"}`,
@@ -87761,6 +87810,10 @@ function authStatus(state2) {
       jwtClaims: { present: true, ...s },
       tokenIdClaims: tokenId,
       engine: state2.engineVersion ?? "unknown",
+      // Which build is actually answering. A user-scoped server resolves its plugin build at LAUNCH
+      // and /reload-plugins does not restart it, so an upgrade mid-session does not reach it and
+      // nothing otherwise says so — you can spend a whole session testing code you did not install.
+      build: buildProvenance(),
       // A COUNT, never the ids: an operator needs to know whether this registration is guarded,
       // not which accounts it may reach.
       allowedLocations: state2.allowedLocations ? state2.allowedLocations.size : null
@@ -87771,6 +87824,10 @@ function authStatus(state2) {
       jwtClaims: { present: false },
       error: { code: e.code, detail: e.detail, remediation: e.remediation },
       engine: state2.engineVersion ?? "unknown",
+      // Which build is actually answering. A user-scoped server resolves its plugin build at LAUNCH
+      // and /reload-plugins does not restart it, so an upgrade mid-session does not reach it and
+      // nothing otherwise says so — you can spend a whole session testing code you did not install.
+      build: buildProvenance(),
       // A COUNT, never the ids: an operator needs to know whether this registration is guarded,
       // not which accounts it may reach.
       allowedLocations: state2.allowedLocations ? state2.allowedLocations.size : null
@@ -160577,7 +160634,7 @@ function buildMarketplaceIndex({ assets, modules, legs } = {}) {
     for (const key of app.actionKeys) appIdByKind.action.set(key, app.appId);
     for (const key of app.triggerKeys) appIdByKind.trigger.set(key, app.appId);
   }
-  const join5 = (schema2, kind) => {
+  const join6 = (schema2, kind) => {
     const appIdByKey = appIdByKind[kind];
     const joined = /* @__PURE__ */ new Map();
     for (const [key, entry] of schema2) {
@@ -160587,7 +160644,7 @@ function buildMarketplaceIndex({ assets, modules, legs } = {}) {
     }
     return joined;
   };
-  const byKind = { action: join5(actionSchema, "action"), trigger: join5(triggerSchema, "trigger") };
+  const byKind = { action: join6(actionSchema, "action"), trigger: join6(triggerSchema, "trigger") };
   return {
     // WHICH READS FAILED. A key missing from the assets schema, or an app reading installed:false,
     // means nothing when the read behind it did not succeed — the compiler must say "unknown",
@@ -162547,9 +162604,9 @@ init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
-import { existsSync as existsSync2, mkdirSync, readFileSync as readFileSync2, writeFileSync } from "node:fs";
-import { dirname as dirname2, join as join2 } from "node:path";
-import { homedir as homedir2 } from "node:os";
+import { existsSync as existsSync3, mkdirSync, readFileSync as readFileSync2, writeFileSync } from "node:fs";
+import { dirname as dirname2, join as join3 } from "node:path";
+import { homedir as homedir3 } from "node:os";
 var JWT = /\b(?:Bearer\s+)?ey[A-Za-z0-9._-]{20,}/g;
 function scrubUpstream2(value) {
   if (typeof value === "string") return value.replace(JWT, "<redacted>");
@@ -162563,15 +162620,15 @@ function scrubUpstream2(value) {
 }
 function readCache(state2) {
   const enabled = process.env.GHL_READ_CACHE !== "0";
-  const root = state2?.tokenFile ? dirname2(state2.tokenFile) : join2(homedir2(), ".uxie-ghl-internal-mcp", "cache");
-  const pathFor = (locationId, workflowId) => join2(root, String(locationId), "workflows", String(workflowId), "last-read.json");
+  const root = state2?.tokenFile ? dirname2(state2.tokenFile) : join3(homedir3(), ".uxie-ghl-internal-mcp", "cache");
+  const pathFor = (locationId, workflowId) => join3(root, String(locationId), "workflows", String(workflowId), "last-read.json");
   return {
     enabled,
     read(locationId, workflowId) {
       try {
         if (!enabled || !locationId || !workflowId) return null;
         const p2 = pathFor(locationId, workflowId);
-        return existsSync2(p2) ? JSON.parse(readFileSync2(p2, "utf8")) : null;
+        return existsSync3(p2) ? JSON.parse(readFileSync2(p2, "utf8")) : null;
       } catch {
         return null;
       }
@@ -166727,8 +166784,8 @@ function readProjectLintPack(state2, locationId) {
     if (process.env.GHL_READ_CACHE === "0") return null;
     const dir = state2?.tokenFile ? dirname3(state2.tokenFile) : null;
     if (!dir || !locationId) return null;
-    const p2 = join3(dir, String(locationId), "lint-pack.json");
-    return existsSync3(p2) ? JSON.parse(readFileSync3(p2, "utf8")) : null;
+    const p2 = join4(dir, String(locationId), "lint-pack.json");
+    return existsSync4(p2) ? JSON.parse(readFileSync3(p2, "utf8")) : null;
   } catch {
     return null;
   }
@@ -173995,8 +174052,8 @@ init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
-import { renameSync, writeFileSync as writeFileSync3, chmodSync, existsSync as existsSync4, readFileSync as readFileSync4 } from "node:fs";
-import { dirname as dirname4, join as join4 } from "node:path";
+import { renameSync, writeFileSync as writeFileSync3, chmodSync, existsSync as existsSync5, readFileSync as readFileSync4 } from "node:fs";
+import { dirname as dirname4, join as join5 } from "node:path";
 var BACKEND5 = "https://backend.leadconnectorhq.com";
 var REFRESH_PATH = "/oauth/2/login/current";
 var EXCHANGE_PATH = "/oauth/2/login/token";
@@ -174019,12 +174076,12 @@ function autoRenewEnabled(env = process.env) {
 function readFirebaseKey({ tokenFile, env = process.env }) {
   const fromEnv = env?.[FIREBASE_KEY_ENV];
   if (looksFirebaseKey(fromEnv)) return fromEnv;
-  if (!tokenFile || !existsSync4(tokenFile)) return null;
+  if (!tokenFile || !existsSync5(tokenFile)) return null;
   const fromFile = lineOf(readFileSync4(tokenFile, "utf8"), "firebase-key");
   return looksFirebaseKey(fromFile) ? fromFile : null;
 }
 function readRefreshToken({ tokenFile }) {
-  if (!tokenFile || !existsSync4(tokenFile)) return null;
+  if (!tokenFile || !existsSync5(tokenFile)) return null;
   const v = lineOf(readFileSync4(tokenFile, "utf8"), "refresh-token");
   return looksJwt(v) ? v : null;
 }
@@ -174097,7 +174154,7 @@ function writeTokenFile({ tokenFile, bearer, tokenId, firebaseKey, refreshToken 
   let keepTid = tokenId;
   let keepKey = firebaseKey;
   let keepRt = refreshToken;
-  if ((!keepTid || keepKey === void 0 || keepRt === void 0) && existsSync4(tokenFile)) {
+  if ((!keepTid || keepKey === void 0 || keepRt === void 0) && existsSync5(tokenFile)) {
     const raw = readFileSync4(tokenFile, "utf8");
     if (!keepTid) keepTid = lineOf(raw, "token-id");
     if (keepKey === void 0) keepKey = lineOf(raw, "firebase-key");
@@ -174109,8 +174166,8 @@ function writeTokenFile({ tokenFile, bearer, tokenId, firebaseKey, refreshToken 
   renameSync(tmp, tokenFile);
 }
 function writeAgencyJsonIfAbsent({ tokenFile, companyId, nowMs = Date.now(), source = "token-renewal" }) {
-  const path = join4(dirname4(tokenFile), "agency.json");
-  if (existsSync4(path)) return false;
+  const path = join5(dirname4(tokenFile), "agency.json");
+  if (existsSync5(path)) return false;
   writeFileSync3(path, `${JSON.stringify({ companyId, source, capturedAt: new Date(nowMs).toISOString() }, null, 2)}
 `, { mode: 384 });
   return true;
