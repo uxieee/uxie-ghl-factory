@@ -246,7 +246,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
     define_ENDPOINT_CATALOG_default = {
       generated: "2026-09-09",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 1150,
+      count: 1167,
       endpoints: [
         {
           id: "workflows--actions-branches",
@@ -2387,6 +2387,41 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "funnels--schedules-event-calendar",
+          method: "PUT",
+          url: "https://backend.leadconnectorhq.com/calendars/schedules/event-calendar/{calendarId}",
+          path: "/calendars/schedules/event-calendar/{calendarId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "calendarId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/60-recipes/build-a-multi-step-funnel.md:73"
+          ]
+        },
+        {
           id: "memberships-courses--locations-registry",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/certificates/locations/{locationId}/registry",
@@ -2599,7 +2634,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "services/api/chat-widget-service.ts:35",
             "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:127",
-            "funnels/20-api/funnels-api.md:252",
+            "funnels/20-api/funnels-api.md:264",
             "workflows/70-research/ENDPOINTS.md:137"
           ]
         },
@@ -6997,7 +7032,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/funnels-api.md:150",
+            "funnels/20-api/funnels-api.md:153",
             "funnels/60-recipes/add-a-page-to-a-funnel.md:33"
           ]
         },
@@ -7029,7 +7064,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/funnels-api.md:204"
+            "funnels/20-api/funnels-api.md:211"
           ]
         },
         {
@@ -7067,9 +7102,45 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/10-anatomy/routing-and-publishing.md:69",
-            "funnels/20-api/funnels-api.md:193",
-            "funnels/60-recipes/add-a-page-to-a-funnel.md:37"
+            "funnels/10-anatomy/routing-and-publishing.md:71",
+            "funnels/20-api/funnels-api.md:196",
+            "funnels/60-recipes/add-a-page-to-a-funnel.md:37",
+            "funnels/60-recipes/build-a-multi-step-funnel.md:77"
+          ]
+        },
+        {
+          id: "funnels--builder-global-sections",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/funnels/builder/global-sections/{funnelId}",
+          path: "/funnels/builder/global-sections/{funnelId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "funnelId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/10-anatomy/websites-and-global-sections.md:90"
           ]
         },
         {
@@ -7111,10 +7182,372 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "funnels/10-anatomy/page-content.md:13",
             "funnels/10-anatomy/routing-and-publishing.md:31",
-            "funnels/20-api/funnels-api.md:76",
-            "funnels/20-api/funnels-api.md:139",
-            "funnels/30-types/native-elements.md:101",
-            "funnels/30-types/native-elements.md:165"
+            "funnels/20-api/funnels-api.md:77",
+            "funnels/20-api/funnels-api.md:142",
+            "funnels/60-recipes/author-native-elements.md:32"
+          ]
+        },
+        {
+          id: "funnels--builder-prebuilt-section",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/funnels/builder/prebuilt-section",
+          path: "/funnels/builder/prebuilt-section",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/10-anatomy/websites-and-global-sections.md:149"
+          ]
+        },
+        {
+          id: "funnels--builder-prebuilt-section-post",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/funnels/builder/prebuilt-section",
+          path: "/funnels/builder/prebuilt-section",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/10-anatomy/websites-and-global-sections.md:157"
+          ]
+        },
+        {
+          id: "funnels--prebuilt-section-template",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/funnels/builder/prebuilt-section/{collectionId}/template",
+          path: "/funnels/builder/prebuilt-section/{collectionId}/template",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "collectionId"
+            }
+          ],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "prebuiltSectionTemplateType",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "page",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "limit",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/10-anatomy/websites-and-global-sections.md:150"
+          ]
+        },
+        {
+          id: "funnels--prebuilt-section-template-post",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/funnels/builder/prebuilt-section/{collectionId}/template",
+          path: "/funnels/builder/prebuilt-section/{collectionId}/template",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "collectionId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/10-anatomy/websites-and-global-sections.md:151",
+            "funnels/10-anatomy/websites-and-global-sections.md:176"
+          ]
+        },
+        {
+          id: "funnels--builder-prebuilt-section-delete",
+          method: "DELETE",
+          url: "https://backend.leadconnectorhq.com/funnels/builder/prebuilt-section/{id}",
+          path: "/funnels/builder/prebuilt-section/{id}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/10-anatomy/websites-and-global-sections.md:159"
+          ]
+        },
+        {
+          id: "funnels--builder-prebuilt-section-get",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/funnels/builder/prebuilt-section/{id}",
+          path: "/funnels/builder/prebuilt-section/{id}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/10-anatomy/websites-and-global-sections.md:155"
+          ]
+        },
+        {
+          id: "funnels--builder-prebuilt-section-put",
+          method: "PUT",
+          url: "https://backend.leadconnectorhq.com/funnels/builder/prebuilt-section/{id}",
+          path: "/funnels/builder/prebuilt-section/{id}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/10-anatomy/websites-and-global-sections.md:158"
+          ]
+        },
+        {
+          id: "funnels--hero-hero",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/funnels/builder/prebuilt-section/hero/template/hero/hero",
+          path: "/funnels/builder/prebuilt-section/hero/template/hero/hero",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/10-anatomy/websites-and-global-sections.md:156"
+          ]
+        },
+        {
+          id: "funnels--prebuilt-section-sync",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/funnels/builder/prebuilt-section/sync",
+          path: "/funnels/builder/prebuilt-section/sync",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/10-anatomy/websites-and-global-sections.md:154"
+          ]
+        },
+        {
+          id: "funnels--sync-changes",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/funnels/builder/prebuilt-section/sync/changes",
+          path: "/funnels/builder/prebuilt-section/sync/changes",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/10-anatomy/websites-and-global-sections.md:153"
           ]
         },
         {
@@ -7145,9 +7578,11 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/10-anatomy/routing-and-publishing.md:70",
-            "funnels/20-api/funnels-api.md:194",
-            "funnels/60-recipes/add-a-page-to-a-funnel.md:40"
+            "funnels/10-anatomy/domains-and-public-urls.md:114",
+            "funnels/10-anatomy/routing-and-publishing.md:72",
+            "funnels/20-api/funnels-api.md:197",
+            "funnels/60-recipes/add-a-page-to-a-funnel.md:40",
+            "funnels/60-recipes/build-a-multi-step-funnel.md:78"
           ]
         },
         {
@@ -7178,7 +7613,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/funnels-api.md:203"
+            "funnels/20-api/funnels-api.md:210"
           ]
         },
         {
@@ -7199,17 +7634,25 @@ var init_define_ENDPOINT_CATALOG = __esm({
           service: "funnels",
           tree: "documented",
           pathParams: [],
-          query: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
             path: "documented",
-            query: "none-observed",
+            query: "documented",
             body: "unresolved",
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/funnels-api.md:127"
+            "funnels/10-anatomy/domains-and-public-urls.md:21",
+            "funnels/20-api/funnels-api.md:130"
           ]
         },
         {
@@ -7244,7 +7687,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/funnels-api.md:44"
+            "funnels/20-api/funnels-api.md:45"
           ]
         },
         {
@@ -7275,8 +7718,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/funnels-api.md:80",
-            "funnels/40-rules/silent-failures.md:106"
+            "funnels/10-anatomy/domains-and-public-urls.md:100",
+            "funnels/20-api/funnels-api.md:81",
+            "funnels/40-rules/silent-failures.md:114"
           ]
         },
         {
@@ -7307,7 +7751,10 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/funnels-api.md:21"
+            "funnels/10-anatomy/domains-and-public-urls.md:43",
+            "funnels/10-anatomy/websites-and-global-sections.md:10",
+            "funnels/20-api/funnels-api.md:21",
+            "funnels/60-recipes/build-a-multi-step-funnel.md:28"
           ]
         },
         {
@@ -7339,8 +7786,10 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/10-anatomy/page-content.md:22",
-            "funnels/20-api/funnels-api.md:52",
-            "funnels/60-recipes/add-a-page-to-a-funnel.md:29"
+            "funnels/20-api/funnels-api.md:53",
+            "funnels/60-recipes/add-a-page-to-a-funnel.md:29",
+            "funnels/60-recipes/author-native-elements.md:42",
+            "funnels/60-recipes/build-a-multi-step-funnel.md:30"
           ]
         },
         {
@@ -7371,7 +7820,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/funnels-api.md:36"
+            "funnels/20-api/funnels-api.md:37"
           ]
         },
         {
@@ -7413,8 +7862,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/funnels-api.md:28",
-            "funnels/20-api/funnels-api.md:136"
+            "funnels/20-api/funnels-api.md:29",
+            "funnels/20-api/funnels-api.md:139",
+            "funnels/60-recipes/build-a-multi-step-funnel.md:50"
           ]
         },
         {
@@ -7488,8 +7938,10 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/funnels-api.md:211",
+            "funnels/10-anatomy/websites-and-global-sections.md:119",
+            "funnels/20-api/funnels-api.md:218",
             "funnels/40-rules/silent-failures.md:31",
+            "funnels/40-rules/silent-failures.md:447",
             "funnels/60-recipes/add-a-page-to-a-funnel.md:47"
           ]
         },
@@ -7528,7 +7980,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/funnels-api.md:220"
+            "funnels/20-api/funnels-api.md:227"
           ]
         },
         {
@@ -7604,7 +8056,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "services/marketplaceServices/FunnelsService.ts:11",
             "ai-studio/10-anatomy/project.md:17",
-            "funnels/20-api/funnels-api.md:135"
+            "funnels/10-anatomy/websites-and-global-sections.md:28",
+            "funnels/20-api/funnels-api.md:138"
           ]
         },
         {
@@ -7639,8 +8092,11 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/funnels-api.md:97",
-            "funnels/40-rules/silent-failures.md:109"
+            "funnels/10-anatomy/domains-and-public-urls.md:101",
+            "funnels/20-api/funnels-api.md:98",
+            "funnels/40-rules/silent-failures.md:117",
+            "funnels/40-rules/silent-failures.md:214",
+            "funnels/60-recipes/build-a-multi-step-funnel.md:44"
           ]
         },
         {
@@ -7671,7 +8127,10 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/funnels-api.md:229"
+            "funnels/00-overview/index.md:68",
+            "funnels/10-anatomy/domains-and-public-urls.md:33",
+            "funnels/10-anatomy/websites-and-global-sections.md:281",
+            "funnels/20-api/funnels-api.md:236"
           ]
         },
         {
@@ -7706,7 +8165,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/funnels-api.md:210",
+            "funnels/10-anatomy/domains-and-public-urls.md:93",
+            "funnels/20-api/funnels-api.md:217",
+            "funnels/40-rules/silent-failures.md:234",
             "funnels/60-recipes/add-a-page-to-a-funnel.md:46"
           ]
         },
@@ -7743,7 +8204,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/10-anatomy/routing-and-publishing.md:41",
-            "funnels/20-api/funnels-api.md:209"
+            "funnels/20-api/funnels-api.md:216"
           ]
         },
         {
@@ -7780,6 +8241,42 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "funnels/10-anatomy/routing-and-publishing.md:61",
             "funnels/60-recipes/add-a-page-to-a-funnel.md:45"
+          ]
+        },
+        {
+          id: "funnels--lookup-type-get-get",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/funnels/lookup/type/{variationPageId}",
+          path: "/funnels/lookup/type/{variationPageId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "variationPageId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/10-anatomy/domains-and-public-urls.md:122",
+            "funnels/40-rules/silent-failures.md:218"
           ]
         },
         {
@@ -7913,9 +8410,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
+            "funnels/10-anatomy/websites-and-global-sections.md:125",
+            "funnels/10-anatomy/websites-and-global-sections.md:319",
             "funnels/20-api/funnel-ai.md:75",
-            "funnels/20-api/funnels-api.md:137",
-            "funnels/40-rules/silent-failures.md:32"
+            "funnels/20-api/funnels-api.md:140",
+            "funnels/40-rules/silent-failures.md:32",
+            "funnels/40-rules/silent-failures.md:445"
           ]
         },
         {
@@ -7947,8 +8447,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/10-anatomy/page-content.md:22",
-            "funnels/20-api/funnels-api.md:69",
-            "funnels/40-rules/silent-failures.md:106"
+            "funnels/20-api/funnels-api.md:70",
+            "funnels/40-rules/silent-failures.md:114"
           ]
         },
         {
@@ -7992,7 +8492,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/funnels-api.md:138"
+            "funnels/20-api/funnels-api.md:141"
           ]
         },
         {
@@ -14449,7 +14949,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/funnels-api.md:274"
+            "funnels/20-api/funnels-api.md:286"
           ]
         },
         {
@@ -16349,6 +16849,76 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "memberships-courses/20-api/build-api.md:174"
+          ]
+        },
+        {
+          id: "funnels--preview",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/preview/{pageId}",
+          path: "/preview/{pageId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "pageId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/40-rules/silent-failures.md:277"
+          ]
+        },
+        {
+          id: "funnels--products-price",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/products/{productId}/price",
+          path: "/products/{productId}/price",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "productId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/60-recipes/build-a-multi-step-funnel.md:25"
           ]
         },
         {
@@ -35073,6 +35643,41 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "calendars--calendars-put-put-put",
+          method: "PUT",
+          url: "https://services.leadconnectorhq.com/calendars/{calendarId}",
+          path: "/calendars/{calendarId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "calendars",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "calendarId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "calendars/20-api/schedules.md:73"
+          ]
+        },
+        {
           id: "calendars--ai-chat",
           method: "POST",
           url: "https://services.leadconnectorhq.com/calendars/ai/chat",
@@ -35205,11 +35810,46 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "calendars/20-api/schedules.md:64"
+            "calendars/20-api/schedules.md:91"
           ]
         },
         {
           id: "calendars--schedules-event-calendar",
+          method: "PUT",
+          url: "https://services.leadconnectorhq.com/calendars/schedules/event-calendar/{calendarId}",
+          path: "/calendars/schedules/event-calendar/{calendarId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "calendars",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "calendarId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "calendars/20-api/schedules.md:64"
+          ]
+        },
+        {
+          id: "calendars--schedules-event-calendar-get",
           method: "GET",
           url: "https://services.leadconnectorhq.com/calendars/schedules/event-calendar/{id}",
           path: "/calendars/schedules/event-calendar/{id}",
@@ -46849,8 +47489,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/template-library.md:94",
-            "funnels/20-api/template-library.md:96"
+            "funnels/20-api/template-library.md:98",
+            "funnels/20-api/template-library.md:100"
           ]
         },
         {
@@ -48162,7 +48802,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/20-api/template-library.md:22",
-            "funnels/20-api/template-library.md:139"
+            "funnels/20-api/template-library.md:143"
           ]
         },
         {
@@ -48195,8 +48835,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "services/TemplateLibraryService.ts:18",
             "funnels/20-api/template-library.md:35",
-            "funnels/20-api/template-library.md:114",
-            "funnels/30-types/native-elements.md:99"
+            "funnels/20-api/template-library.md:118",
+            "funnels/60-recipes/author-native-elements.md:33"
           ]
         },
         {
@@ -48253,7 +48893,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/20-api/template-library.md:19",
-            "funnels/20-api/template-library.md:129"
+            "funnels/20-api/template-library.md:133"
           ]
         },
         {
@@ -48409,8 +49049,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "services/TemplateLibraryService.ts:43",
             "funnels/20-api/template-library.md:77",
-            "funnels/20-api/template-library.md:149",
-            "funnels/30-types/native-elements.md:100"
+            "funnels/20-api/template-library.md:153",
+            "funnels/30-types/synthesis-contract.md:155",
+            "funnels/60-recipes/author-native-elements.md:33"
           ]
         },
         {
@@ -88799,6 +89440,7 @@ var emptyFor = (prop, meta3) => {
   if (forced === "arrays") return { value: [] };
   if (forced === "strings") return { value: "" };
   if (/^icon$/i.test(prop)) return { value: { name: "", unicode: "", fontFamily: "" } };
+  if (REFERENCE_EXTRA_PROPS.has(prop)) return { value: "", text: "" };
   if (/image|media|video|file|thumbnail|website|link/i.test(prop)) return { value: { ...BG_IMAGE.value, newTab: false } };
   if (/items|list|options|products|categories|elements|fields|slides|links/i.test(prop)) return { value: [] };
   return { value: "" };
@@ -88818,6 +89460,7 @@ var TAG_IS_TAGNAME = Object.freeze(/* @__PURE__ */ new Set([
 ]));
 var NEEDS_CONTEXT = Object.freeze({});
 var RAW_EXTRA_PROPS = Object.freeze(/* @__PURE__ */ new Set(["socialShareStyle", "blog_style", "blogPinedPostStyle"]));
+var REFERENCE_EXTRA_PROPS = Object.freeze(/* @__PURE__ */ new Set(["formId"]));
 var counter = 0;
 var resetIds = () => {
   counter = 0;
@@ -89009,6 +89652,9 @@ var auditPageData = (pageData) => {
     problems.push("settings.settings.background is missing: the public page will render but the BUILDER will hang forever (bgStyle() destructures bgImage from it unguarded). Use buildPageData(), or add builderSettings().");
   }
   for (const s of pageData.sections ?? []) {
+    if (s.isGlobal === true) {
+      problems.push(`section ${s.id} is isGlobal:true \u2014 editing it in page data is a NO-OP while the funnel-level global-sections file still carries this id (that file wins per section id; the inline copy is only a fallback). Write POST /funnels/builder/global-sections/{funnelId} {sectionData, version: <numeric suffix of globalSectionsPath> + 1}. To DELETE it, do both: drop it from that file AND from every page's sections[].`);
+    }
     const byId = new Map(s.elements.map((n) => [n.id, n]));
     const roots = s.metaData?.child ?? [];
     for (const id of roots) if (!byId.has(id)) problems.push(`section ${s.id}: metaData.child references '${id}', which is not in elements[]`);
@@ -89038,6 +89684,12 @@ var auditPageData = (pageData) => {
       const action = n.extra?.action?.value;
       if (action !== void 0 && action !== "" && !ACTION_VALUES.includes(action)) {
         problems.push(`node ${n.id} (${n.meta}): extra.action.value '${action}' is not a known action \u2014 use one of ${ACTION_VALUES.join(", ")}. autosave stores an unknown value with a 201 and the control silently does nothing.`);
+      }
+      for (const prop of REFERENCE_EXTRA_PROPS) {
+        const v = n.extra?.[prop];
+        if (v !== void 0 && typeof v !== "object") {
+          problems.push(`node ${n.id} (${n.meta}): extra.${prop} must be {value, text}, not a bare string \u2014 the renderer reads .value and the builder shows .text`);
+        }
       }
       for (const prop of RAW_EXTRA_PROPS) {
         const v = n.extra?.[prop];

@@ -70,6 +70,8 @@ export const emptyFor = (prop, meta) => {
   // "undefined" in front of every heading and paragraph. Proven live 2026-09-09. Keep this branch
   // above the media test, whose regex would otherwise swallow it.
   if (/^icon$/i.test(prop)) return { value: { name: '', unicode: '', fontFamily: '' } };
+  // a reference to another asset carries the id AND its display name
+  if (REFERENCE_EXTRA_PROPS.has(prop)) return { value: '', text: '' };
   if (/image|media|video|file|thumbnail|website|link/i.test(prop)) return { value: { ...BG_IMAGE.value, newTab: false } };
   if (/items|list|options|products|categories|elements|fields|slides|links/i.test(prop)) return { value: [] };
   return { value: '' };
@@ -103,6 +105,13 @@ export const NEEDS_CONTEXT = Object.freeze({});
 // 🔴 Props that are RAW objects, not `{value: …}`. Wrapping one of these is silent in the builder
 // and 500s the public page (`reading 'bgColor'` for socialShareStyle).
 export const RAW_EXTRA_PROPS = Object.freeze(new Set(['socialShareStyle', 'blog_style', 'blogPinedPostStyle']));
+
+// Props that REFERENCE another asset by id. They are `{value, text}` — the id plus the asset's name
+// as of the moment it was written. Proven live 2026-09-10 on a `form` node from GHL's "Web Platform"
+// template: `{"value":"jKwjvV2VCm6nWM1PnVTk","text":"Claim My Link"}`. A scan for `"formId":"<id>"`
+// matches nothing, which is how two independent sessions declared a page clean that carried a live
+// reference — match on `extra.<prop>.value`, or on the element's `meta`.
+export const REFERENCE_EXTRA_PROPS = Object.freeze(new Set(['formId']));
 
 let counter = 0;
 export const resetIds = () => { counter = 0; };
@@ -273,6 +282,16 @@ export const auditPageData = (pageData) => {
     problems.push("settings.settings.background is missing: the public page will render but the BUILDER will hang forever (bgStyle() destructures bgImage from it unguarded). Use buildPageData(), or add builderSettings().");
   }
   for (const s of pageData.sections ?? []) {
+    // 🔴 A global section resolves PER SECTION ID: the funnel-level file at `globalSectionsUrl` wins
+    // where it carries that id, and the page's inline copy is only a FALLBACK for ids the file lacks.
+    // So editing one here is a silent no-op whenever the file still has it — autosave returns 201,
+    // the change reads back, and no page renders it. Deleting one needs BOTH writes.
+    if (s.isGlobal === true) {
+      problems.push(`section ${s.id} is isGlobal:true — editing it in page data is a NO-OP while the funnel-level `
+        + `global-sections file still carries this id (that file wins per section id; the inline copy is only a fallback). `
+        + `Write POST /funnels/builder/global-sections/{funnelId} {sectionData, version: <numeric suffix of globalSectionsPath> + 1}. `
+        + `To DELETE it, do both: drop it from that file AND from every page's sections[].`);
+    }
     const byId = new Map(s.elements.map((n) => [n.id, n]));
     const roots = s.metaData?.child ?? [];
     for (const id of roots) if (!byId.has(id)) problems.push(`section ${s.id}: metaData.child references '${id}', which is not in elements[]`);
@@ -301,6 +320,16 @@ export const auditPageData = (pageData) => {
       if (action !== undefined && action !== '' && !ACTION_VALUES.includes(action)) {
         problems.push(`node ${n.id} (${n.meta}): extra.action.value '${action}' is not a known action — use one of ${ACTION_VALUES.join(', ')}. `
           + 'autosave stores an unknown value with a 201 and the control silently does nothing.');
+      }
+      // A reference to another asset is `{value, text}` — `formId` proven live 2026-09-10 by reading a
+      // `form` node out of GHL's own template. A bare string is the shape a `"formId":"<id>"` scan
+      // expects and it is wrong; `.text` carries the referenced asset's NAME at write time.
+      for (const prop of REFERENCE_EXTRA_PROPS) {
+        const v = n.extra?.[prop];
+        if (v !== undefined && typeof v !== 'object') {
+          problems.push(`node ${n.id} (${n.meta}): extra.${prop} must be {value, text}, not a bare string — `
+            + `the renderer reads .value and the builder shows .text`);
+        }
       }
       for (const prop of RAW_EXTRA_PROPS) {
         const v = n.extra?.[prop];

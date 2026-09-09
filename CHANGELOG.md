@@ -11,6 +11,51 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [0.69.0] — 2026-09-10
+
+Websites. A website is a funnel document with `type: "website"` — the same builder, the same
+elements — so the engine already built them. What it did not carry was the handful of ways a website
+lets you be wrong while every call returns success.
+
+### Added
+
+- **`references/websites.md` in the `ghl-funnels-pages` skill** — global sections, the section
+  libraries, routing, page meta, `update-settings`, and asset references. Every entry is a `2xx` that
+  changes nothing or a read-back that lies.
+
+- **`auditPageData` refuses two more shapes, both proven live.**
+
+  🔴 **A section with `isGlobal: true` in page data.** A global section resolves PER SECTION ID: the
+  funnel-level file at `globalSectionsUrl` wins where it carries that id, and the page's inline copy
+  is only a fallback for ids the file lacks. So editing one through `builder/autosave` returns `201`,
+  reads back with the change stored, and renders on no page. The auditor now names the funnel-level
+  write, and says that a DELETE needs both — drop it from the file *and* from every page's
+  `sections[]`, or the pages fall back and keep rendering it. It also names the version trap: take
+  `version` from the numeric suffix of `globalSectionsPath`, never from `globalSectionVersion`, which
+  is a different counter (sending `5`/`6`/`7` produced version fields `1`/`2`/`3`).
+
+  🔴 **A reference prop written as a bare string.** `form.extra.formId` is
+  `{"value": "<id>", "text": "<form name>"}`. A scan for `"formId":"<id>"` matches nothing on a page
+  carrying a live reference — two sessions on two accounts independently declared such a page clean.
+  Match on `extra.formId.value`, or on `element.meta === "form"`.
+
+- **15 endpoints in the catalogue**, harvested from the corpus: the `prebuilt-section` service (the
+  one API behind three sidebar entries), `global-sections`, and the lookup/preview routes.
+
+### Fixed
+
+- **`completeExtra('form')` now emits `formId: {value: '', text: ''}`.** It emitted `{value: ''}`, so
+  a page built with a real form carried a half-shaped reference. Live-fired: the shaped empty renders
+  without breaking the page, and a real `{value, text}` reference renders the form.
+
+### Known and recorded, not fixed
+
+`POST /funnels/builder/prebuilt-section` (create a COLLECTION) returns `401` for this credential
+class however the body is shaped, while creating a TEMPLATE inside an existing collection succeeds —
+the `access: []` write gate is real, and it sits at the collection level. `sync/changes` reports a
+diverged synced section only once the template's PUBLISHED body changes; a `PUT` writes the draft
+body alone, and no publish route exists on that service.
+
 ## [0.68.1] — 2026-09-10
 
 Every page 0.68.0 built looked right to the customer and wrong to whoever had to edit it.

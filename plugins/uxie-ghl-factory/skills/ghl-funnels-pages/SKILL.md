@@ -151,6 +151,16 @@ attach/detach, publishing.
 State which of draft/live you verified and name the URL you fetched. Six of this surface's fifteen
 documented silent failures are a `2xx` that changed nothing or broke the page.
 
+## Websites, global sections and section libraries
+A website is a funnel document with `type: "website"` — same builder, same elements — so everything
+above applies. What differs is in [`references/websites.md`](references/websites.md), and each entry
+is a way to be wrong while every call returns success: a global section resolves PER SECTION ID (the
+funnel-level file wins where it has the id, the page's inline copy is the fallback, so **editing is
+one call and deleting is two**); the list `type` is a UI tab and an unknown value returns everything;
+routing needs a domain before any lookup row exists, and then every step answers on TWO paths; page
+`meta` writes land but `GET /funnels/page/{id}` omits the key entirely; and a reference to another
+asset is `{value, text}`, never a bare string.
+
 ## Recipes
 [`references/recipes.md`](references/recipes.md). **Never WRITE through an endpoint that is not in
 it** — every recipe exists because a write here has a trap. Reads are different: `search_endpoints`

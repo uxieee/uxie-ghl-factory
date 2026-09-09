@@ -231,3 +231,43 @@ test('auditPageData catches a RAW prop that was wrapped', () => {
 test('nothing is left in NEEDS_CONTEXT — all 57 leaf kinds build', () => {
   assert.deepEqual(Object.keys(NEEDS_CONTEXT), []);
 });
+
+// ── 0.69.0: the websites findings, 2026-09-10 ────────────────────────────────────────────────────
+
+test('a reference prop is {value, text}, and its shaped empty carries both', () => {
+  const extra = completeExtra('form');
+  assert.deepEqual(extra.formId, { value: '', text: '' },
+    'formId is a REFERENCE: the id plus the referenced asset name, proven live on a GHL template node');
+});
+
+test('the auditor refuses a reference prop written as a bare string', () => {
+  const { data } = page();
+  const clean = structuredClone(data);
+  clean.sections[0].elements.push({
+    id: 'form-T1', type: 'element', meta: 'form', tagName: 'c-form', child: [],
+    extra: { nodeId: 'cform-T1', formId: 'I52gDulH6DKpO2YiwTlz' }, styles: {}, wrapper: {}, class: {},
+  });
+  assert.match(auditPageData(clean).join(' '), /extra\.formId must be \{value, text\}/);
+
+  const ok = structuredClone(clean);
+  ok.sections[0].elements.at(-1).extra.formId = { value: 'I52gDulH6DKpO2YiwTlz', text: 'A2P General Optin' };
+  assert.ok(!auditPageData(ok).some((p) => /extra\.formId/.test(p)));
+});
+
+test('the auditor flags an isGlobal section as a no-op edit, and names both writes a delete needs', () => {
+  const { data } = page();
+  const withGlobal = structuredClone(data);
+  withGlobal.sections[0].isGlobal = true;
+  const found = auditPageData(withGlobal).find((p) => /isGlobal/.test(p));
+  assert.ok(found, 'a global section in page data must be flagged');
+  assert.match(found, /NO-OP/);
+  assert.match(found, /global-sections/);
+  assert.match(found, /numeric suffix of globalSectionsPath/,
+    'globalSectionVersion is a DIFFERENT counter — the path suffix is the authoritative one');
+  assert.match(found, /drop it from that file AND from every page/);
+});
+
+test('a section without isGlobal is not flagged', () => {
+  const { data } = page();
+  assert.ok(!auditPageData(data).some((p) => /isGlobal/.test(p)));
+});
