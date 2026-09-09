@@ -60,6 +60,17 @@ const SCOPE_OWNERS = {
 // attributes.targetNodeId stays a raw step (REF_DANGLING owns that case).
 const KIND_BY_TYPE = { if_else: 'if_else', workflow_split: 'split', ai_decision: 'ai_decision', goto: 'goto' };
 
+// The node-kind vocabulary, in full. `kind` selects the HANDLER, so an unrecognised value used to
+// select one by omission: no branch matched, nothing validated, and the compiler emitted a step
+// with nodeType undefined, attributes {} and next null — clean write, errorCount 0, dead step.
+//
+// The value that did it in the wild, twice, on two accounts weeks apart, was `kind:'step'` — and
+// that is not a typo, it is OUR OWN CATALOGUE. All 385 step types in catalog.data.json carry
+// "kind":"step" as a taxonomy field (step vs trigger), so an author who calls describe_step_type
+// and copies what it shows lands on the one value that disabled every guard downstream. Two keys
+// named `kind`, two disjoint vocabularies, and the catalogue is the one agents read first.
+export const NODE_KINDS = new Set(['action', 'wait', 'if_else', 'split', 'ai_decision', 'goto', 'raw']);
+
 // Opportunity steps have a LEAN authoring name (update_opportunity) and a WIRE name
 // (internal_update_opportunity). The dedicated builder and the resolver key on the LEAN name, so
 // the wire name fell through to the generic path — where `stage`/`pipeline` were whitelisted
@@ -248,11 +259,34 @@ export function parseIR(ir, { externalRefs } = {}) {
   // Normalize the container-kind alias BEFORE any type-keyed validation runs, so the
   // rest of the pipeline only ever sees the canonical { kind:'action', type:'<container>' }.
   walkNodes(ir.graph, (n) => {
-    if (CONTAINER_KINDS.has(n.kind) && n.type === undefined) { n.type = n.kind; n.kind = 'action'; }
+    // `type === n.kind` is the redundant-but-legal spelling ({kind:'find_opportunity',
+    // type:'find_opportunity'}) that authors and our own tests both use. Normalising it here,
+    // rather than merely tolerating it downstream, keeps the kind vocabulary below tight enough
+    // to fail closed on a value nothing handles.
+    if (CONTAINER_KINDS.has(n.kind) && (n.type === undefined || n.type === n.kind)) { n.type = n.kind; n.kind = 'action'; }
     if ((n.kind === undefined || n.kind === 'action') && KIND_BY_TYPE[n.type] && (n.type !== 'goto' || n.target !== undefined)) {
       n.kind = KIND_BY_TYPE[n.type];
     }
     if (n.kind !== 'raw' && WIRE_TYPE_ALIASES[n.type]) n.type = WIRE_TYPE_ALIASES[n.type];
+    // Fail CLOSED on a kind nothing handles. This runs AFTER the aliases above, so every
+    // legitimate spelling has already been normalised and anything still unrecognised is a value
+    // no handler will claim. Refusing here is the whole point: every guard downstream is keyed on
+    // `kind`, so a bad one does not trip them — it switches them off.
+    if (n.kind !== undefined && !NODE_KINDS.has(n.kind)) {
+      const fromCatalogue = n.kind === 'step' || n.kind === 'trigger';
+      throw new IRError('KIND_UNKNOWN',
+        `node '${n.ref ?? n.name ?? n.type}' has kind:'${n.kind}', which no handler claims. `
+        + (fromCatalogue
+          ? `'${n.kind}' is the CATALOGUE's taxonomy field — describe_step_type and search_step_types `
+            + `report "kind":"${n.kind}" to say this is a step rather than a trigger, and that is a `
+            + `different vocabulary from the one an authored node uses. Do not copy it onto the step. `
+          : '')
+        + `Author kind as one of: ${[...NODE_KINDS].join(', ')} — or omit it entirely, which is `
+        + `usually right: the engine infers it from 'type' (if_else, workflow_split, ai_decision, `
+        + `goto), and everything else defaults to 'action'. `
+        + `This used to be accepted and compile to an EMPTY step (attributes {}, no nodeType) that `
+        + `wrote clean, verified clean and did nothing.`);
+    }
   });
   walkNodes(ir.graph, (n) => checkNodeKeys(n));
 

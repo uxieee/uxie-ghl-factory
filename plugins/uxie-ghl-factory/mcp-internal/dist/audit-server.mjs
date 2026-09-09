@@ -92643,6 +92643,7 @@ var SCOPE_OWNERS = {
   target: ["goto"]
 };
 var KIND_BY_TYPE = { if_else: "if_else", workflow_split: "split", ai_decision: "ai_decision", goto: "goto" };
+var NODE_KINDS = /* @__PURE__ */ new Set(["action", "wait", "if_else", "split", "ai_decision", "goto", "raw"]);
 var WIRE_TYPE_ALIASES = { internal_update_opportunity: "update_opportunity", internal_create_opportunity: "create_opportunity_strict" };
 var KNOWN_TOP_KEYS = /* @__PURE__ */ new Set([
   "name",
@@ -92776,7 +92777,7 @@ function parseIR(ir, { externalRefs } = {}) {
     seen.add(r);
   }
   walkNodes(ir.graph, (n) => {
-    if (CONTAINER_KINDS.has(n.kind) && n.type === void 0) {
+    if (CONTAINER_KINDS.has(n.kind) && (n.type === void 0 || n.type === n.kind)) {
       n.type = n.kind;
       n.kind = "action";
     }
@@ -92784,6 +92785,13 @@ function parseIR(ir, { externalRefs } = {}) {
       n.kind = KIND_BY_TYPE[n.type];
     }
     if (n.kind !== "raw" && WIRE_TYPE_ALIASES[n.type]) n.type = WIRE_TYPE_ALIASES[n.type];
+    if (n.kind !== void 0 && !NODE_KINDS.has(n.kind)) {
+      const fromCatalogue = n.kind === "step" || n.kind === "trigger";
+      throw new IRError(
+        "KIND_UNKNOWN",
+        `node '${n.ref ?? n.name ?? n.type}' has kind:'${n.kind}', which no handler claims. ` + (fromCatalogue ? `'${n.kind}' is the CATALOGUE's taxonomy field \u2014 describe_step_type and search_step_types report "kind":"${n.kind}" to say this is a step rather than a trigger, and that is a different vocabulary from the one an authored node uses. Do not copy it onto the step. ` : "") + `Author kind as one of: ${[...NODE_KINDS].join(", ")} \u2014 or omit it entirely, which is usually right: the engine infers it from 'type' (if_else, workflow_split, ai_decision, goto), and everything else defaults to 'action'. This used to be accepted and compile to an EMPTY step (attributes {}, no nodeType) that wrote clean, verified clean and did nothing.`
+      );
+    }
   });
   walkNodes(ir.graph, (n) => checkNodeKeys(n));
   walkNodes(ir.graph, (n, idx, siblings) => {

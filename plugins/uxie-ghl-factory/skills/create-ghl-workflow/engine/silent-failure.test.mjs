@@ -385,3 +385,40 @@ test('custom_webhook method is normalized to the attested casing, not just valid
   const hook = out.autoSaveBody.workflowData.templates.find((s) => s.type === 'custom_webhook');
   assert.equal(hook.attributes.method, 'POST');
 });
+
+// An unrecognised `kind` used to select a handler by OMISSION: no branch matched, nothing
+// validated, and the compiler emitted nodeType undefined / attributes {} / next null. Clean write,
+// errorCount 0, verify.roundTrip true, dead step. Every guard downstream is keyed on `kind`, so a
+// bad one does not trip them — it switches them off. That is the whole silent-failure class in one
+// field, which is why this fails closed rather than warning.
+//
+// The value seen in the wild, twice, on two accounts weeks apart, was `kind:'step'` — and that is
+// OUR OWN CATALOGUE talking. All 385 step types in catalog.data.json carry "kind":"step" as a
+// taxonomy field, so an author who calls describe_step_type and copies what it shows lands exactly
+// here. Two keys named `kind`, two disjoint vocabularies, the catalogue read first.
+test('an unrecognised node kind is refused, not handled by omission (KIND_UNKNOWN)', () => {
+  // the wild payload: kind from the catalogue, a real if_else type, a friendly branch condition
+  const wild = { ref: 'x', kind: 'step', type: 'if_else', name: 'X PROBE',
+    branches: [{ name: 'Text message rail', condition: { conditionType: 'contact_detail' } }] };
+  throws([wild], 'KIND_UNKNOWN');
+  throws([{ ...wild, kind: 'trigger' }], 'KIND_UNKNOWN');   // the catalogue's other taxonomy value
+  throws([{ ...wild, kind: 'ACTION' }], 'KIND_UNKNOWN');    // case matters; near-misses fail loud
+  throws([{ ...wild, kind: 'bogus' }], 'KIND_UNKNOWN');
+
+  // the message has to teach, because the author copied the value from a tool we ship
+  assert.throws(() => build([wild]), (e) => {
+    assert.match(e.message, /describe_step_type/);
+    assert.match(e.message, /EMPTY step/);
+    return true;
+  });
+
+  // CONTROL: every legal spelling still compiles, including omitting kind entirely (the
+  // engine infers if_else from `type`) — the guard must not close the door on valid authoring.
+  const ok = { ref: 'g', type: 'if_else', name: 'Gate', branches: [
+    { ref: 'y', name: 'Yes', conditions: [{ conditionType: 'contact_detail', tag: 'vip' }], then: [] },
+    { ref: 'n', name: 'No', else: true, then: [] } ] };
+  assert.doesNotThrow(() => build([ok]));
+  assert.doesNotThrow(() => build([{ ...ok, kind: 'if_else' }]));
+  assert.doesNotThrow(() => build([{ ref: 'a', kind: 'action', type: 'add_contact_tag',
+    name: 'Tag', attributes: { tags: ['x'] } }]));
+});
