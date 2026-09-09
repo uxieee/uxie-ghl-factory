@@ -1,7 +1,7 @@
 // Deterministic compiler: IR -> GHL builder-API payloads (create/auto-save/trigger).
 // See docs/superpowers/specs/2026-07-10-create-ghl-workflow-v2-design.md §5.
 import { parseIR, IRError, collectRefs, checkOpportunityAssociation, canonicalizeOppStageCondition,
-  lintConditionShape, walkNodes, OPP_STAGE_TYPE, OPP_STAGE_SUBTYPE } from './ir.mjs';
+  lintConditionShape, walkNodes, OPP_STAGE_TYPE, OPP_STAGE_SUBTYPE, requiresStepIndex } from './ir.mjs';
 import { checkOppFieldShape, STANDARD_OPP_FIELDS, defaultOppFieldShape, OPP_CUSTOM_FIELD_PREFIX } from './opp-shapes.mjs';
 import { checkGoghlSyntax } from './goghl.mjs';
 import { checkWebhookRefs } from './webhook-rail.mjs';
@@ -2319,39 +2319,47 @@ export function compile(ir, ctx) {
   }
 
   // situational injection (catalog-gated); parent/sibling/nodeType already set structurally
-  let stepIndex = 0;
-  // Marketplace stepIndex is a SEPARATE, DELIBERATELY DIFFERENT rule from the premium
-  // stepIndex just above — do not "unify" them.
-  //   - premium stepIndex: a single GLOBAL running index over every template in the
-  //     workflow, gated by the native catalog's `premium` flag.
-  //   - marketplace stepIndex: a PER-ACTION-KEY, 1-based occurrence counter — the Nth
-  //     time THIS key appears, not the Nth template overall. Two different marketplace
-  //     keys interleaved must NOT share a counter (a wait_step between two
-  //     send_outbound_whatsapp_message steps does not consume a WhatsApp slot).
-  // Live-confirmed 2026-08-16 (the marketplace-canary client account): the one send_outbound_whatsapp_message step
-  // carries stepIndex:1 and workflow.meta.stepIndexCounter reads
-  // {send_outbound_whatsapp_message: 1} — same counter, recorded twice: running on the
-  // step, final tally at workflow level. marketplaceStepIndexCounter below feeds both
-  // t.stepIndex here AND autoSaveBody.meta.stepIndexCounter further down.
-  const marketplaceStepIndexCounter = new Map();
+  // ONE rule for stepIndex, because GHL has one. `utils/step_index.ts:6-46`, recorded in
+  // corpus/workflows/70-research/ACTION-DRAWERS.md:66-70:
+  //
+  //   "stepIndex — client-generated, monotonic, PER (workflow, type)"
+  //   "getStepIndexByType increments workflow.meta.stepIndexCounter[type] and returns the
+  //    NEW value (1-based)"
+  //
+  // This used to be two rules, and the premium half was wrong in three ways at once. It
+  // assigned a single GLOBAL running index over every template, ZERO-based, gated on the
+  // catalogue's `premium` flag — which is a paid/integration marker, not GHL's requiresStepIndex
+  // set. The flag covers 250 types where GHL names 15, and misses 7 that GHL requires
+  // (number_formatter, the three ivr_*, array_functions, math_operation, task-notification).
+  //
+  // What it cost: a merge tag {{custom_code.N.output.x}} resolves N as the per-type 1-based
+  // index, so the emitted and the referenced index agreed in essentially no case. A lone
+  // custom_code as the first step of a workflow was stamped `0`, which cannot be right under
+  // any theory when every reference vocabulary here is 1-based. The reference then renders
+  // empty at runtime — clean write, clean round-trip, errorCount 0, because GHL enforces a
+  // validator on 51 of 385 step types and none of these is one of them.
+  //
+  // Worse, the two rules COLLIDED. 237 of the 250 premium types are also marketplace actions,
+  // and the premium branch ran first and set `stepIndex`, so the `!('stepIndex' in t)` guard on
+  // the marketplace branch then skipped the correct per-key counter. The comment claiming
+  // "a marketplace type is never in the native catalog" was the load-bearing assumption, and it
+  // was false for 237 types.
+  //
+  // The live confirmation that survives all of this (2026-08-16, marketplace-canary account):
+  // one send_outbound_whatsapp_message step carries stepIndex:1 with
+  // meta.stepIndexCounter {send_outbound_whatsapp_message: 1} — the same counter recorded
+  // twice, running on the step and tallied at workflow level. That type is NOT premium in the
+  // catalogue, which is exactly why it took the correct branch and looked fine.
+  const stepIndexCounter = new Map();
   for (const t of templates) {
     const meta = ctx.catalog.step(t.type);
     if (meta && meta.situational?.includes('workflowsActionType') && !('workflowsActionType' in t))
       t.workflowsActionType = 'INTERNAL';
-    // premium actions carry a top-level stepIndex (runtime sequence id). Which types
-    // carry it is derived from the verified-live corpus (catalog `premium` flag):
-    // custom_webhook, custom_code, ai_agent, chatgpt, google_sheets, the *_formatter
-    // family, appointment_booking, find_or_create_contact, conversationai_objective.
-    if (meta?.premium && !('stepIndex' in t)) t.stepIndex = stepIndex;
-    // A marketplace type is never in the native catalog (meta is undefined above), so
-    // the premium branch never fires for it — this is why marketplace needs its own
-    // rule rather than reusing `meta?.premium`.
-    if (t.isMarketplaceAction === true && !('stepIndex' in t)) {
-      const next = (marketplaceStepIndexCounter.get(t.type) ?? 0) + 1;
-      marketplaceStepIndexCounter.set(t.type, next);
+    if (requiresStepIndex(t) && !('stepIndex' in t)) {
+      const next = (stepIndexCounter.get(t.type) ?? 0) + 1;
+      stepIndexCounter.set(t.type, next);
       t.stepIndex = next;
     }
-    stepIndex += 1;
   }
 
   const wid = ctx.idGen();
@@ -2405,12 +2413,16 @@ export function compile(ir, ctx) {
     // enforcement would silently vanish from what actually ships. The null-terminal strip
     // happens once, at the very end, right before `templates` stops changing. See below.
     workflowData: { templates },
-    // Only present when the workflow actually HAS marketplace steps — a native-only
-    // build must emit exactly the autoSaveBody it emitted before this fix, with no new
-    // `meta` key (existing native-output test asserts this). See marketplaceStepIndexCounter
-    // above for what this map records and why it's per-key.
-    ...(marketplaceStepIndexCounter.size > 0 || S.statsView
-      ? { meta: { ...(marketplaceStepIndexCounter.size > 0 ? { stepIndexCounter: Object.fromEntries(marketplaceStepIndexCounter) } : {}), ...(S.statsView ? { statsView: true } : {}) } }
+    // Only present when the workflow actually HAS a step that carries a stepIndex. A build
+    // with none must emit no `meta` key at all (an existing native-output test asserts this).
+    //
+    // Native producers belong in here too, and their absence was the second half of the same
+    // defect: the counter was fed only by marketplace actions, so a workflow with a custom_code
+    // step recorded nothing. ACTION-DRAWERS.md:512-514 states the consequence — the builder's
+    // getStepIndexByType reads this counter, so with no entry the next UI-added step of that
+    // type is numbered 1, collides with the existing step 1, and silently steals its references.
+    ...(stepIndexCounter.size > 0 || S.statsView
+      ? { meta: { ...(stepIndexCounter.size > 0 ? { stepIndexCounter: Object.fromEntries(stepIndexCounter) } : {}), ...(S.statsView ? { statsView: true } : {}) } }
       : {}),
   };
 

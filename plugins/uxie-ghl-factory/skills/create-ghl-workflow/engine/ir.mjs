@@ -71,6 +71,41 @@ const KIND_BY_TYPE = { if_else: 'if_else', workflow_split: 'split', ai_decision:
 // named `kind`, two disjoint vocabularies, and the catalogue is the one agents read first.
 export const NODE_KINDS = new Set(['action', 'wait', 'if_else', 'split', 'ai_decision', 'goto', 'raw']);
 
+// GHL's `requiresStepIndex`, from utils/step_index.ts:6-30 via
+// corpus/workflows/70-research/ACTION-DRAWERS.md:66-70. A step that requires a stepIndex gets a
+// PER-TYPE, 1-BASED one, and the workflow's meta.stepIndexCounter records the running tally per
+// type — both halves matter, because the BUILDER reads that counter to number the next step a
+// human drops on the canvas.
+export const REQUIRES_STEP_INDEX = new Set([
+  'google_sheets', 'datetime_formatter', 'number_formatter', 'custom_webhook', 'chatgpt',
+  'workflow_ai_generate_image', 'ivr_gather', 'ivr_collect_voicemail', 'ivr_connect_call',
+  'array_functions', 'text_formatter', 'math_operation', 'custom_code', 'ai_agent',
+  'task-notification',
+]);
+
+// GHL's rule has a third clause this engine cannot evaluate: "any internal action with
+// workflowsActionType && showStepIndex". The catalogue carries `situational:['workflowsActionType']`
+// but not `showStepIndex`, so the clause is only half-observable.
+//
+// These five are what the old `premium` gate stamped that the explicit list does not name. Three
+// (appointment_booking, conversationai_objective, find_or_create_contact) do carry
+// workflowsActionType, so they are plausible members of that third clause; the other two carry
+// neither marker. All five are RETAINED rather than dropped, deliberately: correcting a stepIndex's
+// VALUE is a fix with a right answer, while removing one it has always written is a different
+// change with different evidence behind it, and nothing here establishes that they do not need it.
+// Drop them only against a live read of a builder-authored step of each type.
+export const STEP_INDEX_RETAINED = new Set([
+  'appointment_booking', 'conversationai_objective', 'find_or_create_contact',
+  'copy_contact_to_subaccount', 'slack_message',
+]);
+
+/** Does this compiled template carry a top-level `stepIndex`? Marketplace actions always do. */
+export function requiresStepIndex(t) {
+  return t?.isMarketplaceAction === true
+    || REQUIRES_STEP_INDEX.has(t?.type)
+    || STEP_INDEX_RETAINED.has(t?.type);
+}
+
 // Opportunity steps have a LEAN authoring name (update_opportunity) and a WIRE name
 // (internal_update_opportunity). The dedicated builder and the resolver key on the LEAN name, so
 // the wire name fell through to the generic path — where `stage`/`pipeline` were whitelisted

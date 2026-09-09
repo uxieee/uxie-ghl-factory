@@ -92644,6 +92644,33 @@ var SCOPE_OWNERS = {
 };
 var KIND_BY_TYPE = { if_else: "if_else", workflow_split: "split", ai_decision: "ai_decision", goto: "goto" };
 var NODE_KINDS = /* @__PURE__ */ new Set(["action", "wait", "if_else", "split", "ai_decision", "goto", "raw"]);
+var REQUIRES_STEP_INDEX = /* @__PURE__ */ new Set([
+  "google_sheets",
+  "datetime_formatter",
+  "number_formatter",
+  "custom_webhook",
+  "chatgpt",
+  "workflow_ai_generate_image",
+  "ivr_gather",
+  "ivr_collect_voicemail",
+  "ivr_connect_call",
+  "array_functions",
+  "text_formatter",
+  "math_operation",
+  "custom_code",
+  "ai_agent",
+  "task-notification"
+]);
+var STEP_INDEX_RETAINED = /* @__PURE__ */ new Set([
+  "appointment_booking",
+  "conversationai_objective",
+  "find_or_create_contact",
+  "copy_contact_to_subaccount",
+  "slack_message"
+]);
+function requiresStepIndex(t) {
+  return t?.isMarketplaceAction === true || REQUIRES_STEP_INDEX.has(t?.type) || STEP_INDEX_RETAINED.has(t?.type);
+}
 var WIRE_TYPE_ALIASES = { internal_update_opportunity: "update_opportunity", internal_create_opportunity: "create_opportunity_strict" };
 var KNOWN_TOP_KEYS = /* @__PURE__ */ new Set([
   "name",
@@ -158438,19 +158465,16 @@ function compile(ir, ctx) {
       }).join("; ")}. These types are not in the catalog, so the builder will not recognise them: the step saves, renders without its action icon, and its editor will not open. Search the catalog (node scripts/query-catalog-cli.mjs <term>) for the real slug. If you have verified the type IS real and the catalog is behind, harvest an example and pass allowUnknownStepTypes to override this guard deliberately.`);
     }
   }
-  let stepIndex = 0;
-  const marketplaceStepIndexCounter2 = /* @__PURE__ */ new Map();
+  const stepIndexCounter = /* @__PURE__ */ new Map();
   for (const t of templates) {
     const meta3 = ctx.catalog.step(t.type);
     if (meta3 && meta3.situational?.includes("workflowsActionType") && !("workflowsActionType" in t))
       t.workflowsActionType = "INTERNAL";
-    if (meta3?.premium && !("stepIndex" in t)) t.stepIndex = stepIndex;
-    if (t.isMarketplaceAction === true && !("stepIndex" in t)) {
-      const next = (marketplaceStepIndexCounter2.get(t.type) ?? 0) + 1;
-      marketplaceStepIndexCounter2.set(t.type, next);
+    if (requiresStepIndex(t) && !("stepIndex" in t)) {
+      const next = (stepIndexCounter.get(t.type) ?? 0) + 1;
+      stepIndexCounter.set(t.type, next);
       t.stepIndex = next;
     }
-    stepIndex += 1;
   }
   const wid = ctx.idGen();
   const sessionId = ctx.idGen();
@@ -158528,11 +158552,15 @@ function compile(ir, ctx) {
     // enforcement would silently vanish from what actually ships. The null-terminal strip
     // happens once, at the very end, right before `templates` stops changing. See below.
     workflowData: { templates },
-    // Only present when the workflow actually HAS marketplace steps — a native-only
-    // build must emit exactly the autoSaveBody it emitted before this fix, with no new
-    // `meta` key (existing native-output test asserts this). See marketplaceStepIndexCounter
-    // above for what this map records and why it's per-key.
-    ...marketplaceStepIndexCounter2.size > 0 || S.statsView ? { meta: { ...marketplaceStepIndexCounter2.size > 0 ? { stepIndexCounter: Object.fromEntries(marketplaceStepIndexCounter2) } : {}, ...S.statsView ? { statsView: true } : {} } } : {}
+    // Only present when the workflow actually HAS a step that carries a stepIndex. A build
+    // with none must emit no `meta` key at all (an existing native-output test asserts this).
+    //
+    // Native producers belong in here too, and their absence was the second half of the same
+    // defect: the counter was fed only by marketplace actions, so a workflow with a custom_code
+    // step recorded nothing. ACTION-DRAWERS.md:512-514 states the consequence — the builder's
+    // getStepIndexByType reads this counter, so with no entry the next UI-added step of that
+    // type is numbered 1, collides with the existing step 1, and silently steals its references.
+    ...stepIndexCounter.size > 0 || S.statsView ? { meta: { ...stepIndexCounter.size > 0 ? { stepIndexCounter: Object.fromEntries(stepIndexCounter) } : {}, ...S.statsView ? { statsView: true } : {} } } : {}
   };
   const triggerBodies = norm3.triggers.map((t, i) => {
     const body = buildTrigger(t, ctx, wid, refMap);

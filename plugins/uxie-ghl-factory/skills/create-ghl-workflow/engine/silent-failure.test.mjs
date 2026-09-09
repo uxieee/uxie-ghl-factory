@@ -8,6 +8,7 @@ import assert from 'node:assert/strict';
 import { compile } from './compiler.mjs';
 import { makeSeededIdGen } from './idgen.mjs';
 import { loadCatalog } from './catalog.mjs';
+import { requiresStepIndex, REQUIRES_STEP_INDEX } from './ir.mjs';
 
 const ctx = () => ({ loc: 'LOC', cid: 'CID', uid: 'UID', companyAge: 27, idGen: makeSeededIdGen('a'), catalog: loadCatalog() });
 const tagTrigger = { ref: 't', type: 'contact_tag', name: 'T', filters: [] };
@@ -421,4 +422,61 @@ test('an unrecognised node kind is refused, not handled by omission (KIND_UNKNOW
   assert.doesNotThrow(() => build([{ ...ok, kind: 'if_else' }]));
   assert.doesNotThrow(() => build([{ ref: 'a', kind: 'action', type: 'add_contact_tag',
     name: 'Tag', attributes: { tags: ['x'] } }]));
+});
+
+// stepIndex is how a merge tag finds its producer: {{custom_code.N.output.slot}} resolves N as the
+// PER-TYPE, 1-BASED index (GHL's utils/step_index.ts:6-46, corpus ACTION-DRAWERS.md:66-70). The
+// compiler used to emit a GLOBAL, ZERO-BASED index for anything the catalogue flagged `premium`,
+// so the emitted and the referenced index agreed in essentially no case, and the tag rendered
+// empty at runtime behind a clean write and errorCount 0.
+//
+// Nothing in this suite caught it, which is why these assertions are on the VALUE and not merely
+// on presence. The zero is the tell: no 1-based vocabulary can ever legitimately produce it.
+test('stepIndex is per-type and 1-based, never a global running index', () => {
+  const tag = (n) => ({ ref: 't' + n, kind: 'action', type: 'add_contact_tag', name: 'Tag ' + n,
+    attributes: { tags: ['x'] } });
+  const code = (n) => ({ ref: 'c' + n, kind: 'action', type: 'custom_code', name: 'Code ' + n,
+    attributes: { code: 'return {slot:1}', language: 'javascript', output: { slot: 1 } } });
+  const hook = (n) => ({ ref: 'h' + n, kind: 'action', type: 'custom_webhook', name: 'Hook ' + n,
+    attributes: { event: 'CUSTOM', method: 'post', url: 'https://example.com/h' } });
+  const idx = (graph, type) => templatesOf(graph).filter((t) => t.type === type).map((t) => t.stepIndex);
+
+  // a lone producer is 1 — NOT 0, and NOT its position in the workflow
+  assert.deepEqual(idx([code(1)], 'custom_code'), [1]);
+  assert.deepEqual(idx([tag(1), tag(2), tag(3), tag(4), code(1)], 'custom_code'), [1],
+    'four unrelated steps ahead of it must not advance its per-type index');
+  assert.deepEqual(idx([tag(1), code(1), code(2)], 'custom_code'), [1, 2]);
+
+  // two producer TYPES interleaved keep independent counters — one does not consume the other's slot
+  const mixed = [code(1), hook(1), code(2), hook(2)];
+  assert.deepEqual(idx(mixed, 'custom_code'), [1, 2]);
+  assert.deepEqual(idx(mixed, 'custom_webhook'), [1, 2]);
+
+  // the counter the BUILDER reads must record native producers, or the next step a human drops on
+  // the canvas is numbered 1 again and steals this step's references (ACTION-DRAWERS.md:512-514)
+  assert.deepEqual(build(mixed).autoSaveBody.meta.stepIndexCounter,
+    { custom_code: 2, custom_webhook: 2 });
+
+  // INVARIANT preserved: a build with nothing indexable emits no meta key at all
+  assert.equal('meta' in build([tag(1)]).autoSaveBody, false);
+});
+
+// The gate itself, as a unit. The old one was the catalogue's `premium` flag — a paid/integration
+// marker standing in for GHL's requiresStepIndex set. It covered 250 types where GHL names 15 and
+// MISSED seven that GHL requires, so those seven were written with no stepIndex at all.
+test('requiresStepIndex matches GHL\'s set, including the seven the premium flag missed', () => {
+  // the seven `premium` never covered
+  for (const type of ['number_formatter', 'ivr_gather', 'ivr_collect_voicemail', 'ivr_connect_call',
+    'array_functions', 'math_operation', 'task-notification'])
+    assert.equal(requiresStepIndex({ type }), true, `${type} requires a stepIndex`);
+
+  // the rest of GHL's explicit list
+  for (const type of REQUIRES_STEP_INDEX) assert.equal(requiresStepIndex({ type }), true);
+
+  // marketplace actions always carry one, whatever their type
+  assert.equal(requiresStepIndex({ type: 'anything_at_all', isMarketplaceAction: true }), true);
+
+  // and an ordinary action does not
+  assert.equal(requiresStepIndex({ type: 'add_contact_tag' }), false);
+  assert.equal(requiresStepIndex({ type: 'send_email' }), false);
 });
