@@ -88538,13 +88538,21 @@ var emptyFor = (prop, meta3) => {
   if (/items|list|options|products|categories|elements|fields|slides|links/i.test(prop)) return { value: [] };
   return { value: "" };
 };
+var NEEDS_STEP_TYPE = Object.freeze({
+  "store-cart": "store",
+  "store-checkout": "store",
+  "store-thank-you": "store",
+  "blog-content": "blog-post"
+});
+var TAG_IS_TAGNAME = Object.freeze(/* @__PURE__ */ new Set([
+  "store-cart",
+  "store-checkout",
+  "store-thank-you",
+  "blog-content",
+  "blog-post"
+]));
 var NEEDS_CONTEXT = Object.freeze({
-  "store-cart": "store page type (one of the PROTECTED store scaffolding elements)",
-  "store-checkout": "store page type (one of the PROTECTED store scaffolding elements)",
-  "store-thank-you": "store page type (one of the PROTECTED store scaffolding elements)",
-  "blog-content": "a blog page type \u2014 it answers 404, not 500, under every shape",
-  "photo-video-gallery": "a real media reference",
-  "social-share-blog": "a blog context"
+  "social-share-blog": "unresolved: answers 500 `Cannot read properties of undefined (reading 'bgColor')` invariantly \u2014 across six socialShareStyle shapes, alone and beside blog-post, on blog-home and blog-post pages. It appears in NONE of GHL's 1,886 templates, so no real example exists to copy."
 });
 var counter = 0;
 var resetIds = () => {
@@ -88579,7 +88587,7 @@ var makeLeaf = ({ meta: meta3, extra = {}, styles = {}, cls = {}, tag = "", salt
   if (!ELEMENTS[meta3]) throw new Error(`unknown element meta '${meta3}' \u2014 the vocabulary is a closed set of ${ELEMENT_KINDS.length}`);
   const id = mkId(meta3, salt);
   const node = envelope(id, "element", meta3, ELEMENTS[meta3].tagName, completeExtra(meta3, extra), styles, cls);
-  node.tag = tag;
+  node.tag = tag || (TAG_IS_TAGNAME.has(meta3) ? ELEMENTS[meta3].tagName : "");
   return node;
 };
 var makeColumn = ({ children, widthPct, padX = 20, salt }) => {
@@ -88753,8 +88761,11 @@ var auditPageData = (pageData) => {
       if (action !== void 0 && action !== "" && !ACTION_VALUES.includes(action)) {
         problems.push(`node ${n.id} (${n.meta}): extra.action.value '${action}' is not a known action \u2014 use one of ${ACTION_VALUES.join(", ")}. autosave stores an unknown value with a 201 and the control silently does nothing.`);
       }
+      if (n.type === "element" && NEEDS_STEP_TYPE[n.meta]) {
+        problems.push(`node ${n.id} (${n.meta}): this kind renders only on a step of type '${NEEDS_STEP_TYPE[n.meta]}' \u2014 on a plain funnel page it 500s (or 404s for blog kinds). Create the step with that type.`);
+      }
       if (n.type === "element" && NEEDS_CONTEXT[n.meta]) {
-        problems.push(`node ${n.id} (${n.meta}): no node shape makes this kind render on a plain funnel page \u2014 it needs ${NEEDS_CONTEXT[n.meta]}`);
+        problems.push(`node ${n.id} (${n.meta}): ${NEEDS_CONTEXT[n.meta]}`);
       }
     }
     const css = s.general?.sectionStyles ?? "";

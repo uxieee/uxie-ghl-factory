@@ -143,8 +143,10 @@ unverified, or set it up in the UI.
 tracking code, SEO, public-path and domain routing, calendar and product bindings, chat-widget
 attach/detach, publishing.
 **OUT:** pipelines (public API — use the ghl MCP server), workflow wiring (use
-`create-ghl-workflow`), store and blog page types (six element kinds still unproven — see
-`references/authoring-and-design.md`).
+`create-ghl-workflow`). Store and blog pages ARE in scope now — the store kinds need a step of
+`type: "store"` and the blog kinds a `blog-post` step of a `type: "blog"` funnel (installed from a
+`blogs` template, since a blog container cannot yet be created directly). One kind,
+`social-share-blog`, is still unbuilt — see `references/authoring-and-design.md`.
 
 ## Never report a page as shipped off a `201`
 State which of draft/live you verified and name the URL you fetched. Six of this surface's fifteen

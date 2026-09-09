@@ -74,15 +74,30 @@ export const emptyFor = (prop, meta) => {
   return { value: '' };
 };
 
-// Kinds that no node shape could make render: they want a real reference or a different page type.
-// Recorded so the tool can say WHY rather than let the caller discover it as a 500.
+// Kinds that need a particular STEP TYPE, not a better node shape. Proven 2026-09-09 by installing
+// GHL's own store and blog templates and reading the real nodes: five of the six that no shape
+// sweep could build are buildable once the step type is right.
+//
+// `create-step` accepts `type: "store"` (proven) as well as `optin_funnel_page`. A blog is a FUNNEL
+// with `type: "blog"` whose steps are `blog-home` and `blog-post` — but `funnel/create` ignores
+// `type: "blog"` and `create-step` 404s on `type: "blog-post"`, so a blog CONTAINER can only be
+// obtained by installing a blogs template (`POST /templates/template/load`, product `blogs`).
+export const NEEDS_STEP_TYPE = Object.freeze({
+  'store-cart': 'store', 'store-checkout': 'store', 'store-thank-you': 'store',
+  'blog-content': 'blog-post',
+});
+
+// 🔴 These kinds carry `tag` EQUAL TO THEIR tagName, not the empty string every other leaf uses.
+// Read off real template nodes; a leaf built with tag:'' does not render.
+export const TAG_IS_TAGNAME = Object.freeze(new Set([
+  'store-cart', 'store-checkout', 'store-thank-you', 'blog-content', 'blog-post',
+]));
+
+// What is genuinely still unbuilt, and why.
 export const NEEDS_CONTEXT = Object.freeze({
-  'store-cart': 'store page type (one of the PROTECTED store scaffolding elements)',
-  'store-checkout': 'store page type (one of the PROTECTED store scaffolding elements)',
-  'store-thank-you': 'store page type (one of the PROTECTED store scaffolding elements)',
-  'blog-content': 'a blog page type — it answers 404, not 500, under every shape',
-  'photo-video-gallery': 'a real media reference',
-  'social-share-blog': 'a blog context',
+  'social-share-blog': 'unresolved: answers 500 `Cannot read properties of undefined (reading \'bgColor\')` '
+    + 'invariantly — across six socialShareStyle shapes, alone and beside blog-post, on blog-home and '
+    + 'blog-post pages. It appears in NONE of GHL\'s 1,886 templates, so no real example exists to copy.',
 });
 
 let counter = 0;
@@ -108,7 +123,8 @@ export const makeLeaf = ({ meta, extra = {}, styles = {}, cls = {}, tag = '', sa
   if (!ELEMENTS[meta]) throw new Error(`unknown element meta '${meta}' — the vocabulary is a closed set of ${ELEMENT_KINDS.length}`);
   const id = mkId(meta, salt);
   const node = envelope(id, 'element', meta, ELEMENTS[meta].tagName, completeExtra(meta, extra), styles, cls);
-  node.tag = tag;
+  // Most leaves carry tag:''. The store and blog kinds carry their tagName, and do not render without it.
+  node.tag = tag || (TAG_IS_TAGNAME.has(meta) ? ELEMENTS[meta].tagName : '');
   return node;
 };
 
@@ -252,8 +268,11 @@ export const auditPageData = (pageData) => {
         problems.push(`node ${n.id} (${n.meta}): extra.action.value '${action}' is not a known action — use one of ${ACTION_VALUES.join(', ')}. `
           + 'autosave stores an unknown value with a 201 and the control silently does nothing.');
       }
+      if (n.type === 'element' && NEEDS_STEP_TYPE[n.meta]) {
+        problems.push(`node ${n.id} (${n.meta}): this kind renders only on a step of type '${NEEDS_STEP_TYPE[n.meta]}' — on a plain funnel page it 500s (or 404s for blog kinds). Create the step with that type.`);
+      }
       if (n.type === 'element' && NEEDS_CONTEXT[n.meta]) {
-        problems.push(`node ${n.id} (${n.meta}): no node shape makes this kind render on a plain funnel page — it needs ${NEEDS_CONTEXT[n.meta]}`);
+        problems.push(`node ${n.id} (${n.meta}): ${NEEDS_CONTEXT[n.meta]}`);
       }
     }
     const css = s.general?.sectionStyles ?? '';

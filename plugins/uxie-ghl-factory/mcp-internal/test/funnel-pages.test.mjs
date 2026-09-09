@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import {
   ELEMENT_KINDS, ELEMENTS, completeExtra, makeLeaf, makeColumn, makeSection,
   buildPageData, autosaveEnvelope, auditPageData, resetIds, textCss, val, BG_IMAGE,
-  emptyFor, GO_TO_NEXT_STEP,
+  emptyFor, GO_TO_NEXT_STEP, NEEDS_CONTEXT, NEEDS_STEP_TYPE, TAG_IS_TAGNAME,
 } from '../core/funnel-pages.mjs';
 
 const page = (over = {}) => {
@@ -143,13 +143,13 @@ test('nav-menu takes ARRAY empties even for props named like media', () => {
   assert.equal(typeof emptyFor('icon', 'heading').value, 'object', 'other kinds keep the name heuristic');
 });
 
-test('kinds that no shape can render are refused with the reason', () => {
+test('a kind that needs a particular step type is flagged with that step type', () => {
   resetIds();
   const leaf = makeLeaf({ meta: 'store-cart' });
   const col = makeColumn({ children: [leaf], widthPct: 100 });
   const section = makeSection({ columns: [{ col, leaves: [leaf], widthPct: 100 }], pageId: 'P', funnelId: 'F', locationId: 'L' });
   const data = buildPageData({ pageId: 'P', stepId: 'S', funnelId: 'F', locationId: 'L', sections: [section] });
-  assert.match(auditPageData(data).join(' '), /needs store page type/);
+  assert.match(auditPageData(data).join(' '), /renders only on a step of type 'store'/);
 });
 
 // ── the builder-only contract ─────────────────────────────────────────────────
@@ -194,4 +194,19 @@ test('an `icon` prop is a glyph descriptor, not media — a media shape prints "
   assert.ok(!('mediaType' in icon.value), 'the media regex must not swallow `icon`');
   // the media branch itself must still work
   assert.ok('mediaType' in emptyFor('imageProperties', 'image-feature').value);
+});
+
+test('store and blog kinds carry tag === tagName; everything else stays empty', () => {
+  resetIds();
+  assert.equal(makeLeaf({ meta: 'store-cart' }).tag, 'c-store-cart');
+  assert.equal(makeLeaf({ meta: 'blog-content' }).tag, 'c-blog-content');
+  assert.equal(makeLeaf({ meta: 'heading' }).tag, '');
+  assert.equal(makeLeaf({ meta: 'heading', tag: 'h2' }).tag, 'h2', 'an explicit tag still wins');
+});
+
+test('NEEDS_STEP_TYPE names the step type, and only social-share-blog is still unbuilt', () => {
+  assert.equal(NEEDS_STEP_TYPE['store-checkout'], 'store');
+  assert.equal(NEEDS_STEP_TYPE['blog-content'], 'blog-post');
+  assert.deepEqual(Object.keys(NEEDS_CONTEXT), ['social-share-blog']);
+  for (const k of Object.keys(NEEDS_STEP_TYPE)) assert.ok(!(k in NEEDS_CONTEXT), `${k} is buildable now`);
 });
