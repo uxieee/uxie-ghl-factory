@@ -11,6 +11,45 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [0.68.0] — 2026-09-09
+
+Funnel pages can now be composed from native elements and written by API, with the contract the
+write path does not enforce.
+
+### Added
+
+- **`build_funnel_page`** — compose a funnel page from sections, columns and native elements, and
+  autosave it as a draft. Preview by default; `confirm:true` writes.
+
+  It emits the nodes **and the compiled stylesheet** from one token set. The builder canvas styles
+  a page from each node's `styles` object while the PUBLIC renderer uses
+  `section.general.sectionStyles`, a compiled CSS string keyed by node id. Emit only one and the
+  page looks correct in exactly one of the two places, with no error anywhere.
+
+  It refuses, before sending, five things `autosave` accepts with a `201` and which fail later:
+
+  - an element `meta` outside the closed set of 60 kinds — autosave stores an invented kind
+    verbatim, so a successful round-trip there proves persistence and nothing else;
+  - a node missing any `extra` property its kind declares. The renderer reads
+    `extra.<prop>.value` **unguarded**, so one absent property 500s the whole page rather than
+    skipping the element. `form` declares five properties and *none* has a default;
+  - a column without `extra.bgImage`, or a page without `general.general.fontsToLoad` /
+    `colors` — each isolated by removing exactly one key from an otherwise working page;
+  - `child[]` holding nested objects instead of node ids, which saves cleanly and then leaves the
+    builder spinning forever on a `TypeError`;
+  - a `sectionStyles` string that does not mention its own section id, which orphans every rule.
+
+  Verification is a read-back on a separate request; pass `verifyUrl` to also poll the public
+  render until every node id appears. The poll asserts *this run's* freshly minted ids, which an
+  older compile cannot contain — a bare `200` there is not a measurement, because the first
+  request after a save can serve the previous compile.
+
+  Proven live before release: preview refused to write, the confirmed run returned `201`, read
+  back stored, and rendered `200` with every node present.
+
+- **`catalog/funnel-elements.json`** — the 60-kind element contract, synced from the corpus and
+  embedded into `dist` so the bundle stays self-contained.
+
 ## [0.67.0] — 2026-09-09
 
 `push_snapshot`'s published-workflow rail could never fire. Running the tool for the first time is what found it.
