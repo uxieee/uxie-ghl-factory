@@ -73,6 +73,24 @@ export const PROOFS = [
       + 're-checks the documented traps, including attach-offer-user acking an empty body.',
   },
   {
+    name: 'workflows',
+    surfaces: ['workflows'],
+    script: join(PLUGIN, 'skills/create-ghl-workflow/scripts/conformance.mjs'),
+    creates: true,
+    // FALSE, like funnels and unlike memberships: probe artefacts stay named and in place for a
+    // human. Every workflow it creates is an unpublished draft with zero triggers, so a leftover
+    // costs nothing but clutter — and a suite that deleted its evidence could not be audited.
+    tearsDown: false,
+    note: 'build a draft with two custom_code + one custom_webhook -> read back on a SEPARATE '
+      + 'request -> assert stepIndex is per-type and 1-based and that meta.stepIndexCounter '
+      + 'records native producers (the counter the BUILDER reads to number the next step). Then '
+      + 'the refusals: an unrecognised node kind, and a trigger-filter condition smuggled onto a '
+      + 'container through modifyStep\'s attrPatch — each asserted to leave the document '
+      + 'UNCHANGED, because a guard that refuses after writing is not a guard. Stops short of '
+      + 'publish, trigger activation and enrollment, which are outward-facing and are reported as '
+      + 'not covered rather than skipped.',
+  },
+  {
     name: 'funnels',
     surfaces: ['funnels'],
     script: join(PLUGIN, 'skills/ghl-funnels-pages/scripts/conformance.mjs'),

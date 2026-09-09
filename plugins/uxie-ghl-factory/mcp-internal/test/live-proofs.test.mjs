@@ -90,8 +90,12 @@ test('the receipt records what is NOT proven, and derives it so it cannot contra
   assert.ok(ALL_SURFACES.length >= 12, `the denominator must be the real surface list, got ${ALL_SURFACES.length}`);
   const covered = new Set(PROOFS.flatMap((p) => p.surfaces ?? []));
   const noSuite = ALL_SURFACES.filter((sf) => !covered.has(sf));
-  assert.ok(noSuite.length >= 10, `expected the real gap to be recorded, got ${noSuite.length}`);
-  assert.ok(noSuite.includes('workflows'), 'the largest surface has no conformance suite and must be listed');
+  // This used to assert that WORKFLOWS had no suite. It gained one on 2026-09-10, so the
+  // assertion is rewritten to the current truth rather than relaxed — a test that keeps asserting
+  // a gap after the gap closes is the same stale-claim problem the receipt itself exists to stop.
+  assert.ok(covered.has('workflows'), 'workflows has a conformance suite and must be counted as covered');
+  assert.ok(noSuite.length >= 8, `expected the real remaining gap to be recorded, got ${noSuite.length}`);
+  assert.ok(noSuite.includes('conversations'), 'a surface with no suite must still be named — the gap is most of the product');
   for (const sf of covered) {
     assert.ok(ALL_SURFACES.includes(sf), `${sf} is claimed by a suite but is not in ALL_SURFACES — the denominator is wrong`);
     assert.ok(!noSuite.includes(sf), `${sf} is both proven and listed as unproven`);
