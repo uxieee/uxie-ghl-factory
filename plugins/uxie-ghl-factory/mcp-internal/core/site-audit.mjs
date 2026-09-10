@@ -223,8 +223,25 @@ export function judgeVersions({ versions, pageId, pageName = null }) {
 
 /** Rule 25: what a domain attach did to your paths. Pure, because the inline version shipped a
  *  false "drift" finding until a live run turned up a step carrying TWO routing rows. */
-export function judgeRouting({ rows, steps, documentName = '' }) {
+export function judgeRouting({ rows, steps, documentName = '', hasDomain = true }) {
   const findings = [];
+  // 🔴 ROUTING ROWS DO NOT EXIST UNTIL A DOMAIN IS ATTACHED. Measured across 14 funnels on one
+  // account: every funnel with no `domainId` had ZERO lookup rows, and the two with a domain had 20
+  // and 14. The correlation is total.
+  //
+  // So on an unattached funnel the per-step check below has no evidence to reason from, and it used
+  // to read that absence as "this step has NO routing row, so it 404s in public" at severity HIGH —
+  // on EVERY step of EVERY funnel mid-build. A peer acted on 19 of those as urgent and lost a
+  // detour to it. An absence that is guaranteed by the state of the account is not a finding.
+  //
+  // One `info` per DOCUMENT instead, which is the true and useful statement, said once rather than
+  // once per step. The caller records this as a check that could not run.
+  if (!hasDomain) {
+    return [{ severity: 'info', check: 'routing', pageName: documentName,
+      detail: 'no domain is attached to this funnel, so it has no routing rows and serves nothing in '
+        + 'public yet. That is expected mid-build and says nothing about the steps — routing is '
+        + 'materialised at attach time.' }];
+  }
   const all = Array.isArray(rows) ? rows.filter((r) => !r.deleted) : [];
   // 🔴 A step can carry MORE THAN ONE live row — observed: one step holding `/upsell-8618` and
   // `/upsell`, same typeId, neither deleted. They serve as aliases. Keying a Map by typeId keeps

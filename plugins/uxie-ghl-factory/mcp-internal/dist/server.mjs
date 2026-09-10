@@ -88325,8 +88325,16 @@ function judgeVersions({ versions, pageId, pageName = null }) {
     detail: `${liveIdx} draft(s) sit ahead of the published version \u2014 the public page is serving older content than the builder shows`
   }];
 }
-function judgeRouting({ rows, steps, documentName = "" }) {
+function judgeRouting({ rows, steps, documentName = "", hasDomain = true }) {
   const findings = [];
+  if (!hasDomain) {
+    return [{
+      severity: "info",
+      check: "routing",
+      pageName: documentName,
+      detail: "no domain is attached to this funnel, so it has no routing rows and serves nothing in public yet. That is expected mid-build and says nothing about the steps \u2014 routing is materialised at attach time."
+    }];
+  }
   const all = Array.isArray(rows) ? rows.filter((r) => !r.deleted) : [];
   const byType = /* @__PURE__ */ new Map();
   for (const r of all) {
@@ -174068,8 +174076,14 @@ var TOOLS2 = [
         const rows = await gw.call("GET", `/funnels/lookup/list?funnelId=${encodeURIComponent(args.funnelId)}&locationId=${encodeURIComponent(args.locationId)}`);
         if (rows.status === 200) {
           const all = pick2(body(rows), "lookups", "data");
-          for (const d of docs) findings.push(...judgeRouting({ rows: all, steps: d.steps, documentName: d.name }));
-          coverage.push({ check: "routing", ran: true, knownIds: all.length });
+          for (const d of docs) findings.push(...judgeRouting({ rows: all, steps: d.steps, documentName: d.name, hasDomain: !!d.domainId }));
+          const attached = docs.filter((d) => d.domainId).length;
+          coverage.push({
+            check: "routing",
+            ran: attached > 0,
+            knownIds: all.length,
+            ...attached === 0 ? { why: "no document here has a domain attached; routing rows are materialised at attach time, so there is nothing to check yet" } : {}
+          });
         } else {
           coverage.push({ check: "routing", ran: false, why: `lookup/list answered ${rows.status}` });
         }

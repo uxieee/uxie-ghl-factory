@@ -8444,8 +8444,11 @@ export const TOOLS = [
         const rows = await gw.call('GET', `/funnels/lookup/list?funnelId=${encodeURIComponent(args.funnelId)}&locationId=${encodeURIComponent(args.locationId)}`);
         if (rows.status === 200) {
           const all = pick(body(rows), 'lookups', 'data');
-          for (const d of docs) findings.push(...judgeRouting({ rows: all, steps: d.steps, documentName: d.name }));
-          coverage.push({ check: 'routing', ran: true, knownIds: all.length });
+          // `hasDomain` decides whether an EMPTY row set is evidence or just the account's state.
+          for (const d of docs) findings.push(...judgeRouting({ rows: all, steps: d.steps, documentName: d.name, hasDomain: !!d.domainId }));
+          const attached = docs.filter((d) => d.domainId).length;
+          coverage.push({ check: 'routing', ran: attached > 0, knownIds: all.length,
+            ...(attached === 0 ? { why: 'no document here has a domain attached; routing rows are materialised at attach time, so there is nothing to check yet' } : {}) });
         } else {
           coverage.push({ check: 'routing', ran: false, why: `lookup/list answered ${rows.status}` });
         }
