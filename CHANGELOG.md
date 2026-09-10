@@ -11,6 +11,55 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [0.79.0] — 2026-09-10
+
+A column's compiled `width` is a flex **basis**, not a size. A row that does not add up to 100 grows
+to fill, and the page looks deliberate while being wrong.
+
+### Fixed
+
+- **`build_funnel_page` refuses a row whose column widths do not fill it.** Columns are
+  `flex: 1 1 auto`, so two columns at `33.33%` render at **50% each** — nothing in the write path
+  says so, and the result reads as intentional. A peer shipped 123px-wide content on a 390px viewport
+  this way.
+
+  🔴 **The fix is not `flex: 0 0`.** Measured first: GHL's own templates *and* this builder both emit
+  a bare `width:<n>%` with no `flex` declaration, and GHL's templates render correctly — bare width is
+  the platform's convention. The defect is always an incomplete **spec**, so it is refused with the
+  arithmetic spelled out rather than papered over with a declaration GHL itself does not use. The
+  default path divides 100 evenly across the row and can never trip the guard; only an explicit
+  `widthPct` can. Tolerance is ±1%, so `33/33/33` and `33.33/33.33/33.34` both pass.
+
+- **A composer refusal now carries its own remediation.** The catch around page composition could not
+  tell which of its failure modes threw and advised "element kinds are a closed set of 60" on all of
+  them — correct for exactly one, misleading for the rest.
+
+### Proven
+
+Executed live through the tool handler on GROM Sandbox, four ways — two refusals and two passes:
+
+| widths | result |
+|---|---|
+| `33.33 + 33.33` (66.66%) | `VALIDATION_FAILED`, naming the sum and the 50%-each outcome |
+| `60 + 60` (120%) | `VALIDATION_FAILED` |
+| `50 + 50` | passes the guard, stops at `CONFIRM_REQUIRED` — **nothing written** |
+| `33.33 + 33.33 + 33.34` | passes the guard, stops at `CONFIRM_REQUIRED` |
+
+### Corrected
+
+- **Version ordering is unreliable, not wrong.** `get-versions` is newest-first, but 2 of 14 sandbox
+  reads came back non-monotonic while 19 of 19 pages on a client account had `rows[0]` equal to the
+  newest by timestamp. Position usually works and cannot be relied on. Always true separately: a
+  freshly published `live` row is appended at the **end**, so `rows[rows.length - 1]` is very often
+  the version that is *already live*. Sort on `updated_at._seconds` — it is a Firestore object, so
+  sorting it as a string silently does nothing.
+- **`update-settings`' required fields are per-funnel.** Two funnels on one account demanded
+  different boolean sets from the same body shape; `allowPaymentModeOption` is always missing from the
+  record, and any other boolean the record omits will be demanded too. Read the 422's `message` array,
+  supply what it names, retry.
+
+2502 tests green.
+
 ## [0.78.0] — 2026-09-10
 
 SEO. A merge tag in a page's `meta` ships the page with **no title element at all**, and it looks
