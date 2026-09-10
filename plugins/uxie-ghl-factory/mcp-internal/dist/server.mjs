@@ -53256,9 +53256,9 @@ var init_define_TOOL_CATALOG = __esm({
   "<define:__TOOL_CATALOG__>"() {
     define_TOOL_CATALOG_default = {
       build_workflow: {
-        description: "Build workflow \u2014 proof: live-runtime (2026-07-17), floor: documented; risk: write",
+        description: "Build workflow \u2014 proof: live-runtime (2026-09-10), floor: documented; risk: write",
         risk: "write",
-        proof: "live-runtime (2026-07-17)",
+        proof: "live-runtime (2026-09-10)",
         proofFloor: "documented",
         proofRows: [
           "entities-tags-create",
@@ -53307,9 +53307,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       export_workflow: {
-        description: "Export workflow \u2014 proof: documented; risk: read",
+        description: "Export workflow \u2014 proof: live-runtime (2026-09-10); risk: read",
         risk: "read",
-        proof: "documented",
+        proof: "live-runtime (2026-09-10)",
         proofFloor: "documented",
         proofRows: [
           "triggers-list",
@@ -53333,9 +53333,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       edit_workflow: {
-        description: "Edit workflow \u2014 proof: live-runtime (2026-07-17), floor: live-roundtrip (2026-07-17); risk: destructive",
+        description: "Edit workflow \u2014 proof: live-runtime (2026-09-10), floor: live-roundtrip (2026-07-17); risk: destructive",
         risk: "destructive",
-        proof: "live-runtime (2026-07-17)",
+        proof: "live-runtime (2026-09-10)",
         proofFloor: "live-roundtrip (2026-07-17)",
         proofRows: [
           "triggers-create-for-edit"
@@ -53380,9 +53380,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       list_workflows: {
-        description: "List workflows \u2014 proof: documented; risk: read",
+        description: "List workflows \u2014 proof: live-runtime (2026-09-10); risk: read",
         risk: "read",
-        proof: "documented",
+        proof: "live-runtime (2026-09-10)",
         proofFloor: "documented",
         proofRows: [
           "workflow-list"
