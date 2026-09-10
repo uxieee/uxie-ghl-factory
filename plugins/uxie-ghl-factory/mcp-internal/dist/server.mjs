@@ -3185,7 +3185,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          reach: "source-only",
+          note: 'Executed on the designated sandbox 2026-09-10, write-parity sweep, read back on a separate request. A READ-shaped POST. Body {locationId, page, pageLimit, filters:[]} returns {contacts:[...]} \u2014 an empty filters array is accepted and means "no filter", unlike scheduler-trigger/preview which refuses one.',
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -24840,6 +24841,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
+          note: '\u{1F534} WRONG PATH IN THIS ROW: /workflow/{locationId}/folder answers 404 {"msg":"Not found"}. The real path is **/workflow/{locationId}/directory**, proven on the sandbox 2026-09-10 \u2014 body {name, locationId}, answers 200 {id}, and the folder count in /workflow/{locationId}/list went 6 -> 7 with the new folder found by name. Folders appear in that list as rows with type "directory".',
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -46688,7 +46690,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "write",
-          reach: "source-only",
+          note: "Executed on the designated sandbox 2026-09-10, write-parity sweep, read back on a separate request. Body {name, locationId, stages:[{name, position}]}. Proven by differential: 6 -> 7 pipelines, found by name.",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -47054,6 +47057,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
+          note: 'Executed on the designated sandbox 2026-09-10, write-parity sweep, read back on a separate request. \u{1F534} BOTH `pipelineId` AND `filterType` are required query params \u2014 locationId alone answers 400 "pipelineId can\'t be undefined" (code COMMON_PIPELINE_ID_UNDEFINED), and adding pipelineId alone then answers 422 naming filterType with its enum: **smartlist | smarttag**. With all three it returns {smartFilters, total, page, limit}. Its POST twin additionally requires a non-empty `color`, a non-empty `filters` array and `position` >= 1; the filter shape was not invented, so the write stays unproven.',
           reach: "proven",
           coveredBy: [],
           rawCallable: true,
@@ -48225,7 +48229,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "write",
-          reach: "source-only",
+          note: 'Executed on the designated sandbox 2026-09-10, write-parity sweep, read back on a separate request. Body {name, locationId, body, type} \u2014 `type` is the channel ("sms" proven). Proven by differential: 7 -> 8 snippets, found by name.',
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -48732,7 +48737,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "write",
-          reach: "source-only",
+          note: 'Executed on the designated sandbox 2026-09-10, write-parity sweep, read back on a separate request. \u{1F534} REFUSES `productType` \u2014 422 ["property productType should not exist"] \u2014 while its sibling POST /forms/folder/ REQUIRES it. Two folder endpoints on the same service with opposite contracts; do not copy one body to the other. Body is just {name, locationId}. Proven: 0 -> 1 folder, found by name.',
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -52508,6 +52514,29 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         "PUT /calendars/{calendarId}": {
           reach: "proven",
           note: 'Executed on the sandbox 2026-09-10 by round trip \u2014 description changed, read back on a separate request, restored. \u{1F534} THE READ SHAPE IS NOT THE WRITE SHAPE. Sending back what GET returns answers 422 twice over. First it names ten server-added properties that "should not exist" and must be stripped: id, deleted, dateAdded, dateUpdated, isSystemGenerated, locationId, createdBy, lastUpdatedBy, version, notificationStatus. Then it rejects `openHours` \u2014 the sub-object the GET itself returned \u2014 with "openHours.must be a valid day of week / daysOfTheWeek must be an array / hours must be an array". Dropping openHours entirely lands a 200 and leaves the stored hours alone. So a naive read-modify-write is refused, and the refusal arrives one layer at a time.'
+        },
+        "POST /opportunities/pipelines": {
+          reach: "proven",
+          note: "Executed on the designated sandbox 2026-09-10, write-parity sweep, read back on a separate request. Body {name, locationId, stages:[{name, position}]}. Proven by differential: 6 -> 7 pipelines, found by name."
+        },
+        "POST /snippets/{locationId}": {
+          reach: "proven",
+          note: 'Executed on the designated sandbox 2026-09-10, write-parity sweep, read back on a separate request. Body {name, locationId, body, type} \u2014 `type` is the channel ("sms" proven). Proven by differential: 7 -> 8 snippets, found by name.'
+        },
+        "POST /contacts/search": {
+          reach: "proven",
+          note: 'Executed on the designated sandbox 2026-09-10, write-parity sweep, read back on a separate request. A READ-shaped POST. Body {locationId, page, pageLimit, filters:[]} returns {contacts:[...]} \u2014 an empty filters array is accepted and means "no filter", unlike scheduler-trigger/preview which refuses one.'
+        },
+        "POST /surveys/folder/": {
+          reach: "proven",
+          note: 'Executed on the designated sandbox 2026-09-10, write-parity sweep, read back on a separate request. \u{1F534} REFUSES `productType` \u2014 422 ["property productType should not exist"] \u2014 while its sibling POST /forms/folder/ REQUIRES it. Two folder endpoints on the same service with opposite contracts; do not copy one body to the other. Body is just {name, locationId}. Proven: 0 -> 1 folder, found by name.'
+        },
+        "POST /workflow/{locationId}/folder": {
+          note: '\u{1F534} WRONG PATH IN THIS ROW: /workflow/{locationId}/folder answers 404 {"msg":"Not found"}. The real path is **/workflow/{locationId}/directory**, proven on the sandbox 2026-09-10 \u2014 body {name, locationId}, answers 200 {id}, and the folder count in /workflow/{locationId}/list went 6 -> 7 with the new folder found by name. Folders appear in that list as rows with type "directory".'
+        },
+        "GET /opportunities/smart-filters": {
+          reach: "proven",
+          note: 'Executed on the designated sandbox 2026-09-10, write-parity sweep, read back on a separate request. \u{1F534} BOTH `pipelineId` AND `filterType` are required query params \u2014 locationId alone answers 400 "pipelineId can\'t be undefined" (code COMMON_PIPELINE_ID_UNDEFINED), and adding pipelineId alone then answers 422 naming filterType with its enum: **smartlist | smarttag**. With all three it returns {smartFilters, total, page, limit}. Its POST twin additionally requires a non-empty `color`, a non-empty `filters` array and `position` >= 1; the filter shape was not invented, so the write stays unproven.'
         }
       }
     };
