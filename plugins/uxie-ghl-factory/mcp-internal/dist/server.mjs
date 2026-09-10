@@ -88404,16 +88404,43 @@ function judgeStyles({ pageData, pageId, pageName = null }) {
     }
     const styled = (n) => [n.styles, n.mobileStyles, n.wrapper, n.mobileWrapper].some((o) => o && typeof o === "object" && Object.keys(o).length > 0);
     const naked = nodes.filter((n) => !css.includes(n.id) && styled(n));
-    if (naked.length) {
+    const kindOf = (n) => n.type === "element" ? n.meta ?? "element" : n.type;
+    const byKind = /* @__PURE__ */ new Map();
+    for (const n of nodes) {
+      if (!styled(n)) continue;
+      const k = kindOf(n);
+      const e = byKind.get(k) ?? { total: 0, naked: 0 };
+      e.total += 1;
+      if (!css.includes(n.id)) e.naked += 1;
+      byKind.set(k, e);
+    }
+    const leafKinds = new Set(nodes.filter((n) => n.type === "element" && styled(n)).map(kindOf));
+    const anyCompiled = [...byKind].some(([k, e]) => leafKinds.has(k) && e.naked < e.total);
+    const noEmitter = anyCompiled ? new Set([...byKind].filter(([, e]) => e.total > 0 && e.naked === e.total).map(([t]) => t)) : /* @__PURE__ */ new Set();
+    const damaged = naked.filter((n) => !noEmitter.has(kindOf(n)));
+    if (noEmitter.size) {
+      findings.push({
+        severity: "info",
+        check: "uncompiled-styles",
+        pageId,
+        pageName,
+        value: sec.id,
+        occurrences: [...noEmitter].length,
+        sample: [...noEmitter],
+        detail: `${noEmitter.size} element TYPE(s) in section '${sec.id}' have styles and no compiled rule on ANY instance, which looks like the compiler having no emitter for that type rather than damage to a particular element. Composite widgets in this state have been observed rendering correctly, so this is a LEAD to check, not a defect \u2014 look at the rendered page before changing anything.`
+      });
+    }
+    if (damaged.length) {
+      const naked2 = damaged;
       findings.push({
         severity: "high",
         check: "uncompiled-styles",
         pageId,
         pageName,
         value: sec.id,
-        occurrences: naked.length,
-        sample: naked.slice(0, 4).map((n) => `${n.type}:${n.id}`),
-        detail: `${naked.length} element(s) in section '${sec.id}' carry their own styles but have NO selector in that section's compiled sectionStyles, so they render unstyled in public however correct they look in the builder. Usually a CLONE: a copied element gets a fresh id and inherits none of the template's rules. Fixing node styles/mobileStyles will NOT fix it \u2014 the compiled declaration has to be duplicated with the id substituted.`
+        occurrences: naked2.length,
+        sample: naked2.slice(0, 4).map((n) => `${kindOf(n)}:${n.id}`),
+        detail: `${naked2.length} element(s) in section '${sec.id}' carry their own styles but have NO selector in that section's compiled sectionStyles, so they render unstyled in public however correct they look in the builder. Usually a CLONE: a copied element gets a fresh id and inherits none of the template's rules. Fixing node styles/mobileStyles will NOT fix it \u2014 the compiled declaration has to be duplicated with the id substituted.`
       });
     }
     const mirrored = [];

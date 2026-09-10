@@ -339,10 +339,63 @@ export function judgeStyles({ pageData, pageId, pageName = null }) {
     const styled = (n) => [n.styles, n.mobileStyles, n.wrapper, n.mobileWrapper]
       .some((o) => o && typeof o === 'object' && Object.keys(o).length > 0);
     const naked = nodes.filter((n) => !css.includes(n.id) && styled(n));
-    if (naked.length) {
+
+    // A THIRD OUTCOME, not a binary. Two element kinds on a snapshot-installed page —
+    // photo-video-gallery and social-icons — carry their own styles, have zero compiled rules, and
+    // RENDER CORRECTLY (28 images, no breakage, no overflow at 1440 or 390). So "no rule" is not
+    // always damage: a composite widget can carry styles that were never going to be compiled for
+    // it, and the absence is then correct.
+    //
+    // The signal that separates them is whether EVERY instance of a type is uncompiled. One naked
+    // heading beside compiled headings is a clone that lost its rules. A type with no compiled
+    // instance anywhere on the page looks like the compiler having no emitter for it, which is a
+    // different report and a much weaker claim. Reported at `info` and named as a lead, so a hit is
+    // not automatically actionable — the caller still has to look.
+    // KIND, not `type`. Every leaf carries the literal `type: 'element'` and the real discriminator
+    // is `meta` (heading, sub-heading, paragraph, image, social-icons…). Grouping on `type` collapses
+    // the entire leaf family into one bucket, so a single cloned heading beside compiled headings
+    // gets averaged in with every other leaf and downgraded from damage to a lead — the exact
+    // opposite of what this split is for. Caught by running it against real pages; grouping on
+    // `type` reported 0 damage and 7 leads where the truth is the reverse.
+    const kindOf = (n) => (n.type === 'element' ? (n.meta ?? 'element') : n.type);
+    const byKind = new Map();
+    for (const n of nodes) {
+      if (!styled(n)) continue;
+      const k = kindOf(n);
+      const e = byKind.get(k) ?? { total: 0, naked: 0 };
+      e.total += 1; if (!css.includes(n.id)) e.naked += 1;
+      byKind.set(k, e);
+    }
+    // "Every instance of this kind is uncompiled" only means MISSING EMITTER when the section
+    // compiles other kinds fine. If NOTHING in the section is compiled, that is systematic loss and
+    // downgrading it to a lead is precisely backwards — which is what a live run showed: on
+    // engine-built pages every heading and paragraph is uncompiled, and grouping alone reported
+    // 0 damage and 7 leads when the truth is the reverse.
+    // …and the reference has to be another LEAF. Structural nodes (row/col/column) are always
+    // self-selected and always compile, so "something in this section compiled" is trivially true
+    // and tells you nothing about whether leaf styling survived. Only a compiled LEAF proves the
+    // section's leaf emitter works, which is what makes a single uncompiled leaf kind a missing
+    // emitter rather than systematic loss.
+    const leafKinds = new Set(nodes.filter((n) => n.type === 'element' && styled(n)).map(kindOf));
+    const anyCompiled = [...byKind].some(([k, e]) => leafKinds.has(k) && e.naked < e.total);
+    const noEmitter = anyCompiled
+      ? new Set([...byKind].filter(([, e]) => e.total > 0 && e.naked === e.total).map(([t]) => t))
+      : new Set();
+    const damaged = naked.filter((n) => !noEmitter.has(kindOf(n)));
+
+    if (noEmitter.size) {
+      findings.push({ severity: 'info', check: 'uncompiled-styles', pageId, pageName,
+        value: sec.id, occurrences: [...noEmitter].length, sample: [...noEmitter],
+        detail: `${noEmitter.size} element TYPE(s) in section '${sec.id}' have styles and no compiled rule on `
+          + 'ANY instance, which looks like the compiler having no emitter for that type rather than damage to '
+          + 'a particular element. Composite widgets in this state have been observed rendering correctly, so '
+          + 'this is a LEAD to check, not a defect — look at the rendered page before changing anything.' });
+    }
+    if (damaged.length) {
+      const naked = damaged;
       findings.push({ severity: 'high', check: 'uncompiled-styles', pageId, pageName,
         value: sec.id, occurrences: naked.length,
-        sample: naked.slice(0, 4).map((n) => `${n.type}:${n.id}`),
+        sample: naked.slice(0, 4).map((n) => `${kindOf(n)}:${n.id}`),
         detail: `${naked.length} element(s) in section '${sec.id}' carry their own styles but have NO selector `
           + 'in that section\'s compiled sectionStyles, so they render unstyled in public however correct they look in the '
           + 'builder. Usually a CLONE: a copied element gets a fresh id and inherits none of the template\'s '
