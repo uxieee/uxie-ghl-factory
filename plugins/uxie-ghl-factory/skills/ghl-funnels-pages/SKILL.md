@@ -43,7 +43,7 @@ funnel ──has many──▶ step ──has many──▶ page (control + spli
 | # | step | how |
 |---|---|---|
 | 1 | create the funnel | **no tool** — `POST /funnels/funnel/create` via `raw_request` (recipe 1) |
-| 2 | attach the domain **before creating steps** | **no tool** — recipe 11. Rows are stamped from the funnel path as it stands when minted, so steps created first get flat paths |
+| 2 | attach the domain **before creating steps** | **no tool** — recipe 11. Rows are stamped from the funnel path as it stands when minted, so steps created first get flat paths. 🔴 Run **`audit_site`** first: a path is held per DOMAIN across every document on the location, the attach renames a collision silently and arbitrarily, and routing never follows a later step rename |
 | 3 | create each step (mints its page) | **no tool** — recipe 2. 🔴 Pass your own `step.id` |
 | 4 | author + publish the page | **`build_funnel_page`** — composes, validates, writes, reads back, and publishes when you pass `publish:true` |
 | 5 | fix the public path | **no tool** — recipe 10, and it is **three calls** |
@@ -88,6 +88,7 @@ Load only what the job needs.
 | change the URL a page serves at, or attach a domain | `recipes.md` §10 (three calls) and §11 |
 | a page 404s, or a step lost its route | [`references/websites.md`](references/websites.md) — routing, and what a domain attach silently renames |
 | "Unable to find form", a dead calendar, a blank heading | **run `audit_site`** — then `websites.md` for the reference shapes |
+| a page 404s on a path the step record says it owns | **run `audit_site`** — routing is materialised at attach time and never recomputed; the repair is a `PUT /funnels/lookup/{lookupId}`, which the finding names with the ids filled in |
 | the builder shows my change and the public URL does not | the publish-freeze rule above; read `publishState` |
 | set up an A/B test | `websites.md` — it works, and it needs **six** things |
 | websites, global sections, blogs, stores | [`references/websites.md`](references/websites.md) |

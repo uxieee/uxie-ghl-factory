@@ -8,7 +8,7 @@ import { z } from 'zod';
 import { ok, fail, fromHttp, CODES, REDACTED, containsSecrets, scrubSecrets } from './errors.mjs';
 import { authStatus, DEFAULT_TOKEN_FILE, readCredentials } from './auth.mjs';
 import { checkLocationBinding } from './location-binding.mjs';
-import { scanPage, judge, judgeVersions, judgeRouting, judgeRendered, judgeStyles, normaliseTag } from './site-audit.mjs';
+import { scanPage, judge, judgeVersions, judgeRouting, judgePathCollisions, judgeRendered, judgeStyles, normaliseTag } from './site-audit.mjs';
 import { makeAuditCircuit, makeAuditGateway, makeAuditLimiter } from './audit-gateway.mjs';
 import { makeGateway } from './gateway.mjs';
 import {
@@ -8341,7 +8341,14 @@ export const TOOLS = [
       + 'builder, a screenshot and any name-based grep), merge tags against the location\'s custom values '
       + '(a missing one renders as a blank heading or an empty bullet while every id resolves), foreign '
       + 'locationIds left behind by a clone, and publish state (a page pinned to a published version serves '
-      + 'THAT version, so the builder and the public URL show different content). Pass includeRender to also '
+      + 'THAT version, so the builder and the public URL show different content). '
+      + 'Run it BEFORE attaching a domain: a public path is held per DOMAIN and one domain serves many '
+      + 'documents, so the row that takes your path usually belongs to a DIFFERENT funnel or website — and '
+      + 'lookup/list requires funnelId, so that claimant is invisible from the document you are attaching. '
+      + 'This sweeps every document on the location and names it. The attach resolves a collision silently '
+      + 'and arbitrarily (an id-less orphan was measured KEEPING the clean path while the real page was '
+      + 'pushed to a suffixed one), and routing is materialised at attach time, so renaming the step '
+      + 'afterwards changes nothing in public. Pass includeRender to also '
       + 'fetch the public URLs — some defects exist only in what is SERVED and cannot be seen in stored page '
       + 'data at all. Reports coverage beside findings: a check that could not run is never counted as clean.',
     inputSchema: schema({
@@ -8349,6 +8356,7 @@ export const TOOLS = [
       funnelId: z.string().optional(),
       includeRender: z.boolean().default(false),
       maxPages: z.number().int().positive().max(200).default(60),
+      maxDocuments: z.number().int().positive().max(300).default(120),
     }),
     capabilities: [
       { method: 'GET', path: '/funnels/funnel/list' },
@@ -8440,20 +8448,51 @@ export const TOOLS = [
       // so "no findings" can never be confused with "did not look".
       coverage.push({ check: 'uncompiled-styles', ran: styleChecked > 0, pages: styleChecked });
       coverage.push({ check: 'mirror-divergence', ran: styleChecked > 0, pages: styleChecked });
+      // 🔴 lookup/list REQUIRES funnelId — `locationId` alone answers 422 — so there is no one call
+      // that reads a location's route table. Sweeping one call per document is the only way, and it
+      // is the ONLY way to see the cross-document claimant that a domain attach will silently
+      // rename. Bounded by `maxDocuments`, and skipped entirely when the location has no domain at
+      // all, because then no row exists anywhere and there is nothing any path could collide with.
+      // Auditing ONE funnel still has to sweep its NEIGHBOURS: the claimant lives elsewhere.
+      let sweepDocs = docs;
       if (args.funnelId) {
-        const rows = await gw.call('GET', `/funnels/lookup/list?funnelId=${encodeURIComponent(args.funnelId)}&locationId=${encodeURIComponent(args.locationId)}`);
-        if (rows.status === 200) {
-          const all = pick(body(rows), 'lookups', 'data');
-          // `hasDomain` decides whether an EMPTY row set is evidence or just the account's state.
-          for (const d of docs) findings.push(...judgeRouting({ rows: all, steps: d.steps, documentName: d.name, hasDomain: !!d.domainId }));
-          const attached = docs.filter((d) => d.domainId).length;
-          coverage.push({ check: 'routing', ran: attached > 0, knownIds: all.length,
-            ...(attached === 0 ? { why: 'no document here has a domain attached; routing rows are materialised at attach time, so there is nothing to check yet' } : {}) });
-        } else {
-          coverage.push({ check: 'routing', ran: false, why: `lookup/list answered ${rows.status}` });
+        const all = await gw.call('GET', `/funnels/funnel/list?locationId=${encodeURIComponent(args.locationId)}&limit=100`);
+        if (all.status === 200) sweepDocs = pick(body(all), 'funnels', 'data');
+      }
+      const anyDomain = sweepDocs.some((d) => d.domainId);
+      const rowsByFunnel = new Map();
+      let swept = 0, sweepFailed = 0, sweepTruncated = false;
+      if (anyDomain) {
+        for (const d of sweepDocs) {
+          if (swept >= args.maxDocuments) { sweepTruncated = true; break; }
+          const r = await gw.call('GET', `/funnels/lookup/list?funnelId=${encodeURIComponent(d._id)}&locationId=${encodeURIComponent(args.locationId)}`);
+          if (r.status !== 200) { sweepFailed++; continue; }
+          rowsByFunnel.set(d._id, pick(body(r), 'lookups', 'data').filter((x) => !x.deleted));
+          swept++;
         }
+      }
+
+      if (rowsByFunnel.size) {
+        // `hasDomain` decides whether an EMPTY row set is evidence or just the account's state.
+        for (const d of docs) {
+          findings.push(...judgeRouting({ rows: rowsByFunnel.get(d._id) ?? [], steps: d.steps, documentName: d.name, hasDomain: !!d.domainId }));
+        }
+        const attached = docs.filter((d) => d.domainId).length;
+        const totalRows = [...rowsByFunnel.values()].reduce((a, b) => a + b.length, 0);
+        coverage.push({ check: 'routing', ran: attached > 0, knownIds: totalRows,
+          ...(attached === 0 ? { why: 'no document here has a domain attached; routing rows are materialised at attach time, so there is nothing to check yet' } : {}) });
+        findings.push(...judgePathCollisions({ docs: sweepDocs, rowsByFunnel, focusIds: new Set(docs.map((d) => d._id)) }));
+        coverage.push({ check: 'path-collision', ran: true, documents: swept,
+          ...(sweepTruncated ? { why: `stopped at maxDocuments=${args.maxDocuments}; a claimant in an unswept document would be missed` } : {}),
+          ...(sweepFailed ? { failed: sweepFailed } : {}) });
+      } else if (!anyDomain) {
+        const why = 'no document on this location has a domain attached, so no routing row exists anywhere and no path can collide yet';
+        coverage.push({ check: 'routing', ran: false, why });
+        coverage.push({ check: 'path-collision', ran: false, why });
       } else {
-        coverage.push({ check: 'routing', ran: false, why: 'pass funnelId to check routing (lookup/list is per-document)' });
+        const why = `lookup/list answered non-200 for every document tried (${sweepFailed} failed)`;
+        coverage.push({ check: 'routing', ran: false, why });
+        coverage.push({ check: 'path-collision', ran: false, why });
       }
       coverage.push({ check: 'publish-state', ran: pagesScanned > 0 });
       coverage.push({ check: 'foreign-location', ran: pagesScanned > 0 });

@@ -3,7 +3,7 @@
 // switched off, and an auditor that reports "clean" for a check it never ran is worse than none.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { scanPage, judge, judgeRendered, judgeVersions, judgeRouting, normaliseTag, placeholderKind, REF_CLASS } from '../core/site-audit.mjs';
+import { scanPage, judge, judgeRendered, judgeVersions, judgeRouting, normaliseTag, placeholderKind, REF_CLASS, judgePathCollisions } from '../core/site-audit.mjs';
 
 const LOC = 'LOC_OWN';
 const page = ({ els = [], popups = [], extra = {} } = {}) => ({
@@ -174,4 +174,83 @@ test('judgeRouting: deleted rows are ignored', () => {
   const rows = [row('S1', '/old', { deleted: true }), row('S1', '/new')];
   const f = judgeRouting({ rows, steps: [{ id: 'S1', name: 'A', url: '/new' }] });
   assert.deepEqual(f, []);
+});
+
+test('judgePathCollisions names the cross-document claimant BEFORE an attach can rename it', () => {
+  const docs = [
+    { _id: 'f1', name: 'Live Website', domainId: 'dom1', steps: [{ id: 's1', name: 'TY', url: '/thank-you' }] },
+    { _id: 'f2', name: 'New Funnel', domainId: null, steps: [{ id: 's2', name: 'Thanks', url: '/thank-you' }] },
+  ];
+  const rowsByFunnel = new Map([
+    ['f1', [{ domain: 'x.example.com', path: '/thank-you', type: 'step', typeId: 's1', deleted: false }]],
+    ['f2', []],
+  ]);
+  const f = judgePathCollisions({ docs, rowsByFunnel, focusIds: new Set(['f2']) });
+  assert.equal(f.length, 1);
+  assert.equal(f[0].check, 'path-collision');
+  assert.equal(f[0].severity, 'medium');       // f2 is the document the caller asked about
+  assert.equal(f[0].value, '/thank-you');
+  assert.match(f[0].pageName, /New Funnel/);
+  // 🔴 The whole point is naming WHO holds it — the claimant is invisible from the attaching document.
+  assert.match(f[0].detail, /Live Website/);
+});
+
+test('judgePathCollisions stays silent when the colliding document is already attached', () => {
+  // Its collision is history: the attach already resolved it, and judgeRouting reports the fallout.
+  const docs = [
+    { _id: 'f1', name: 'A', domainId: 'dom1', steps: [{ id: 's1', name: 'x', url: '/p' }] },
+    { _id: 'f2', name: 'B', domainId: 'dom1', steps: [{ id: 's2', name: 'y', url: '/p' }] },
+  ];
+  const rowsByFunnel = new Map([
+    ['f1', [{ domain: 'x.example.com', path: '/p', type: 'step', typeId: 's1', deleted: false }]],
+    ['f2', [{ domain: 'x.example.com', path: '/p-4821', type: 'step', typeId: 's2', deleted: false }]],
+  ]);
+  assert.deepEqual(judgePathCollisions({ docs, rowsByFunnel }), []);
+});
+
+test('judgePathCollisions reports two live rows holding the identical domain+path', () => {
+  const docs = [{ _id: 'f1', name: 'A', domainId: 'd' }, { _id: 'f2', name: 'B', domainId: 'd' }];
+  const rowsByFunnel = new Map([
+    ['f1', [{ domain: 'x.example.com', path: '/p', type: 'step', typeId: 's1', deleted: false }]],
+    ['f2', [{ domain: 'x.example.com', path: '/p', type: 'page', typeId: 'p1', deleted: false }]],
+  ]);
+  const f = judgePathCollisions({ docs, rowsByFunnel });
+  assert.equal(f.length, 1);
+  assert.equal(f[0].value, 'x.example.com/p');
+  assert.match(f[0].detail, /A \[step\]/);
+  assert.match(f[0].detail, /B \[page\]/);
+});
+
+test('judgePathCollisions ignores a deleted row, which holds nothing', () => {
+  const docs = [
+    { _id: 'f1', name: 'A', domainId: 'd', steps: [] },
+    { _id: 'f2', name: 'B', domainId: null, steps: [{ id: 's', name: 'y', url: '/p' }] },
+  ];
+  const rowsByFunnel = new Map([['f1', [{ domain: 'x.example.com', path: '/p', type: 'step', typeId: 's1', deleted: true }]], ['f2', []]]);
+  assert.deepEqual(judgePathCollisions({ docs, rowsByFunnel }), []);
+});
+
+test('judgePathCollisions on a location with no domain finds nothing to collide with', () => {
+  const docs = [
+    { _id: 'f1', name: 'A', domainId: null, steps: [{ id: 's1', name: 'x', url: '/p' }] },
+    { _id: 'f2', name: 'B', domainId: null, steps: [{ id: 's2', name: 'y', url: '/p' }] },
+  ];
+  assert.deepEqual(judgePathCollisions({ docs, rowsByFunnel: new Map() }), []);
+});
+
+test('judgePathCollisions drops a neighbour-only forecast to info, so a sweep cannot drown the audit', () => {
+  const docs = [
+    { _id: 'f1', name: 'Live Website', domainId: 'dom1', steps: [{ id: 's1', name: 'TY', url: '/thank-you' }] },
+    { _id: 'f2', name: 'Asked About', domainId: null, steps: [{ id: 's2', name: 'a', url: '/thank-you' }] },
+    { _id: 'f3', name: 'Half-built Neighbour', domainId: null, steps: [{ id: 's3', name: 'b', url: '/thank-you' }] },
+  ];
+  const rowsByFunnel = new Map([
+    ['f1', [{ domain: 'x.example.com', path: '/thank-you', type: 'step', typeId: 's1', deleted: false }]],
+    ['f2', []], ['f3', []],
+  ]);
+  const f = judgePathCollisions({ docs, rowsByFunnel, focusIds: new Set(['f2']) });
+  const byName = Object.fromEntries(f.map((x) => [x.pageName, x.severity]));
+  assert.equal(byName['Asked About / a'], 'medium');
+  assert.equal(byName['Half-built Neighbour / b'], 'info');
+  assert.match(f.find((x) => x.severity === 'info').detail, /swept as a neighbour/);
 });

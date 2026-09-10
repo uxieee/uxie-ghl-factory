@@ -88472,6 +88472,58 @@ function judgeStyles({ pageData, pageId, pageName = null }) {
   }
   return findings;
 }
+function judgePathCollisions({ docs, rowsByFunnel, focusIds }) {
+  const findings = [];
+  const documents = Array.isArray(docs) ? docs : [];
+  const nameOf = new Map(documents.map((d) => [d._id, d.name]));
+  const holders = /* @__PURE__ */ new Map();
+  for (const [fid, rows] of rowsByFunnel ?? /* @__PURE__ */ new Map()) {
+    for (const r of rows ?? []) {
+      if (r.deleted) continue;
+      const key = `${r.domain}${r.path}`;
+      if (!holders.has(key)) holders.set(key, []);
+      holders.get(key).push({ fid, name: nameOf.get(fid) ?? fid, type: r.type, typeId: r.typeId });
+    }
+  }
+  for (const [key, who] of holders) {
+    if (who.length < 2) continue;
+    findings.push({
+      severity: "medium",
+      check: "path-collision",
+      value: key,
+      detail: `${who.length} live routing rows hold this exact domain+path \u2014 ${who.map((w) => `${w.name} [${w.type}]`).join(" | ")}. Only one can serve it and which is undefined`
+    });
+  }
+  const domains = [...new Set(documents.filter((d) => d.domainId).map((d) => d.domainId))];
+  const pathsOnDomain = /* @__PURE__ */ new Map();
+  for (const d of documents) {
+    if (!d.domainId) continue;
+    if (!pathsOnDomain.has(d.domainId)) pathsOnDomain.set(d.domainId, /* @__PURE__ */ new Map());
+    for (const r of rowsByFunnel?.get(d._id) ?? []) {
+      if (!r.deleted) pathsOnDomain.get(d.domainId).set(r.path, d.name);
+    }
+  }
+  const focus = focusIds instanceof Set ? focusIds : new Set(focusIds ?? []);
+  for (const d of documents) {
+    if (d.domainId) continue;
+    for (const st of d.steps ?? []) {
+      if (!st.url) continue;
+      for (const dom of domains) {
+        const holder = pathsOnDomain.get(dom)?.get(st.url);
+        if (!holder || holder === d.name) continue;
+        const asked = focus.size === 0 || focus.has(d._id);
+        findings.push({
+          severity: asked ? "medium" : "info",
+          check: "path-collision",
+          pageName: `${d.name} / ${st.name}`,
+          value: st.url,
+          detail: `this path is ALREADY held on a domain in use here, by ${holder}. Attaching this document to that domain will silently rename one of the two with a random 4-digit suffix, and which one loses is not the one that can serve. Rename this step now \u2014 after the attach, routing no longer follows the step record` + (asked ? "" : " (this document was swept as a neighbour, not audited \u2014 it matters only if you attach it)")
+        });
+      }
+    }
+  }
+  return findings;
+}
 
 // core/audit-gateway.mjs
 init_define_BUILDER_VALIDATORS();
@@ -173974,12 +174026,13 @@ var TOOLS2 = [
   },
   {
     name: "audit_site",
-    description: `${describe3("audit_site", "Read-only audit of a GHL funnel or website \u2014 dangling references, missing merge tags, foreign locationIds, publish drift")}. Finds the defects that return 2xx everywhere, store correctly, and render a page that looks right to whoever built it. Checks embedded REFERENCES against what the account actually holds (a template or snapshot install leaves them pointing at the SOURCE account \u2014 measured 49 of 51 formIds and 4 of 5 calendarIds dangling on one account, each displaying the CORRECT name beside the wrong id, which is why they survive the builder, a screenshot and any name-based grep), merge tags against the location's custom values (a missing one renders as a blank heading or an empty bullet while every id resolves), foreign locationIds left behind by a clone, and publish state (a page pinned to a published version serves THAT version, so the builder and the public URL show different content). Pass includeRender to also fetch the public URLs \u2014 some defects exist only in what is SERVED and cannot be seen in stored page data at all. Reports coverage beside findings: a check that could not run is never counted as clean.`,
+    description: `${describe3("audit_site", "Read-only audit of a GHL funnel or website \u2014 dangling references, missing merge tags, foreign locationIds, publish drift")}. Finds the defects that return 2xx everywhere, store correctly, and render a page that looks right to whoever built it. Checks embedded REFERENCES against what the account actually holds (a template or snapshot install leaves them pointing at the SOURCE account \u2014 measured 49 of 51 formIds and 4 of 5 calendarIds dangling on one account, each displaying the CORRECT name beside the wrong id, which is why they survive the builder, a screenshot and any name-based grep), merge tags against the location's custom values (a missing one renders as a blank heading or an empty bullet while every id resolves), foreign locationIds left behind by a clone, and publish state (a page pinned to a published version serves THAT version, so the builder and the public URL show different content). Run it BEFORE attaching a domain: a public path is held per DOMAIN and one domain serves many documents, so the row that takes your path usually belongs to a DIFFERENT funnel or website \u2014 and lookup/list requires funnelId, so that claimant is invisible from the document you are attaching. This sweeps every document on the location and names it. The attach resolves a collision silently and arbitrarily (an id-less orphan was measured KEEPING the clean path while the real page was pushed to a suffixed one), and routing is materialised at attach time, so renaming the step afterwards changes nothing in public. Pass includeRender to also fetch the public URLs \u2014 some defects exist only in what is SERVED and cannot be seen in stored page data at all. Reports coverage beside findings: a check that could not run is never counted as clean.`,
     inputSchema: schema({
       locationId: external_exports.string(),
       funnelId: external_exports.string().optional(),
       includeRender: external_exports.boolean().default(false),
-      maxPages: external_exports.number().int().positive().max(200).default(60)
+      maxPages: external_exports.number().int().positive().max(200).default(60),
+      maxDocuments: external_exports.number().int().positive().max(300).default(120)
     }),
     capabilities: [
       { method: "GET", path: "/funnels/funnel/list" },
@@ -174067,23 +174120,57 @@ var TOOLS2 = [
       }
       coverage.push({ check: "uncompiled-styles", ran: styleChecked > 0, pages: styleChecked });
       coverage.push({ check: "mirror-divergence", ran: styleChecked > 0, pages: styleChecked });
+      let sweepDocs = docs;
       if (args.funnelId) {
-        const rows = await gw.call("GET", `/funnels/lookup/list?funnelId=${encodeURIComponent(args.funnelId)}&locationId=${encodeURIComponent(args.locationId)}`);
-        if (rows.status === 200) {
-          const all = pick2(body(rows), "lookups", "data");
-          for (const d of docs) findings.push(...judgeRouting({ rows: all, steps: d.steps, documentName: d.name, hasDomain: !!d.domainId }));
-          const attached = docs.filter((d) => d.domainId).length;
-          coverage.push({
-            check: "routing",
-            ran: attached > 0,
-            knownIds: all.length,
-            ...attached === 0 ? { why: "no document here has a domain attached; routing rows are materialised at attach time, so there is nothing to check yet" } : {}
-          });
-        } else {
-          coverage.push({ check: "routing", ran: false, why: `lookup/list answered ${rows.status}` });
+        const all = await gw.call("GET", `/funnels/funnel/list?locationId=${encodeURIComponent(args.locationId)}&limit=100`);
+        if (all.status === 200) sweepDocs = pick2(body(all), "funnels", "data");
+      }
+      const anyDomain = sweepDocs.some((d) => d.domainId);
+      const rowsByFunnel = /* @__PURE__ */ new Map();
+      let swept = 0, sweepFailed = 0, sweepTruncated = false;
+      if (anyDomain) {
+        for (const d of sweepDocs) {
+          if (swept >= args.maxDocuments) {
+            sweepTruncated = true;
+            break;
+          }
+          const r = await gw.call("GET", `/funnels/lookup/list?funnelId=${encodeURIComponent(d._id)}&locationId=${encodeURIComponent(args.locationId)}`);
+          if (r.status !== 200) {
+            sweepFailed++;
+            continue;
+          }
+          rowsByFunnel.set(d._id, pick2(body(r), "lookups", "data").filter((x) => !x.deleted));
+          swept++;
         }
+      }
+      if (rowsByFunnel.size) {
+        for (const d of docs) {
+          findings.push(...judgeRouting({ rows: rowsByFunnel.get(d._id) ?? [], steps: d.steps, documentName: d.name, hasDomain: !!d.domainId }));
+        }
+        const attached = docs.filter((d) => d.domainId).length;
+        const totalRows = [...rowsByFunnel.values()].reduce((a, b) => a + b.length, 0);
+        coverage.push({
+          check: "routing",
+          ran: attached > 0,
+          knownIds: totalRows,
+          ...attached === 0 ? { why: "no document here has a domain attached; routing rows are materialised at attach time, so there is nothing to check yet" } : {}
+        });
+        findings.push(...judgePathCollisions({ docs: sweepDocs, rowsByFunnel, focusIds: new Set(docs.map((d) => d._id)) }));
+        coverage.push({
+          check: "path-collision",
+          ran: true,
+          documents: swept,
+          ...sweepTruncated ? { why: `stopped at maxDocuments=${args.maxDocuments}; a claimant in an unswept document would be missed` } : {},
+          ...sweepFailed ? { failed: sweepFailed } : {}
+        });
+      } else if (!anyDomain) {
+        const why = "no document on this location has a domain attached, so no routing row exists anywhere and no path can collide yet";
+        coverage.push({ check: "routing", ran: false, why });
+        coverage.push({ check: "path-collision", ran: false, why });
       } else {
-        coverage.push({ check: "routing", ran: false, why: "pass funnelId to check routing (lookup/list is per-document)" });
+        const why = `lookup/list answered non-200 for every document tried (${sweepFailed} failed)`;
+        coverage.push({ check: "routing", ran: false, why });
+        coverage.push({ check: "path-collision", ran: false, why });
       }
       coverage.push({ check: "publish-state", ran: pagesScanned > 0 });
       coverage.push({ check: "foreign-location", ran: pagesScanned > 0 });

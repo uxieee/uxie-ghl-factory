@@ -453,3 +453,85 @@ export function judgeStyles({ pageData, pageId, pageName = null }) {
   }
   return findings;
 }
+
+/**
+ * PATH COLLISIONS ACROSS THE WHOLE LOCATION.
+ *
+ * 🔴 A public path is held per DOMAIN, and one domain serves many documents — so the row that takes
+ * your path routinely belongs to a different funnel or website. `GET /funnels/lookup/list` REQUIRES
+ * `funnelId` (`locationId` alone answers `422 ["funnelId should not be empty"]`, and neither
+ * `domain=` nor `limit=` substitutes) and there is no read-by-path route, so from inside the
+ * document you are attaching the claimant that beats you is INVISIBLE. Only a sweep sees it.
+ *
+ * That matters because a domain attach resolves the collision silently and arbitrarily: it keeps one
+ * claimant and suffixes the rest (`/pierce-county` → `/pierce-county-6868`), rewriting the step
+ * record to match. Measured live, an id-less orphan kept the clean path while the client's real page
+ * was pushed onto the junk URL — and routing is materialised at attach time, so renaming the step
+ * back afterwards changes nothing in public (the repair is a lookup PUT; see judgeRouting).
+ *
+ * @param docs      every document on the location, from `/funnels/funnel/list`
+ * @param rowsByFunnel  Map<funnelId, row[]> — the live lookup rows for each document
+ * @param focusIds  ids the caller actually asked about; everything else was swept as a neighbour
+ */
+export function judgePathCollisions({ docs, rowsByFunnel, focusIds }) {
+  const findings = [];
+  const documents = Array.isArray(docs) ? docs : [];
+  const nameOf = new Map(documents.map((d) => [d._id, d.name]));
+
+  // 1. Two live rows on the same domain+path. The route table is collision-free BY CONSTRUCTION
+  //    (35/35 distinct keys measured on a swept account), because the uniquify suffix is what keeps
+  //    it that way — so a duplicate here means something wrote a row outside the attach path.
+  const holders = new Map();
+  for (const [fid, rows] of rowsByFunnel ?? new Map()) {
+    for (const r of rows ?? []) {
+      if (r.deleted) continue;
+      const key = `${r.domain}${r.path}`;
+      if (!holders.has(key)) holders.set(key, []);
+      holders.get(key).push({ fid, name: nameOf.get(fid) ?? fid, type: r.type, typeId: r.typeId });
+    }
+  }
+  for (const [key, who] of holders) {
+    if (who.length < 2) continue;
+    findings.push({ severity: 'medium', check: 'path-collision', value: key,
+      detail: `${who.length} live routing rows hold this exact domain+path — ${who.map((w) => `${w.name} [${w.type}]`).join(' | ')}. `
+        + 'Only one can serve it and which is undefined' });
+  }
+
+  // 2. THE PRE-ATTACH WARNING, which is the only cheap moment to act. A document with no domain has
+  //    no rows at all; the instant one is attached, every step path it wants is tested against the
+  //    rows ALREADY on that domain. Say so now, while a rename is still a one-field edit.
+  const domains = [...new Set(documents.filter((d) => d.domainId).map((d) => d.domainId))];
+  const pathsOnDomain = new Map();          // domainId -> Map<path, holderName>
+  for (const d of documents) {
+    if (!d.domainId) continue;
+    if (!pathsOnDomain.has(d.domainId)) pathsOnDomain.set(d.domainId, new Map());
+    for (const r of rowsByFunnel?.get(d._id) ?? []) {
+      if (!r.deleted) pathsOnDomain.get(d.domainId).set(r.path, d.name);
+    }
+  }
+  //
+  // 🔴 SEVERITY TRACKS WHETHER YOU ASKED ABOUT THE DOCUMENT. This condition is a FORECAST — it costs
+  // nothing until someone attaches a domain, and a location can hold dozens of half-built documents
+  // that never will be (46 documents on a swept sandbox produced 32 of these). Reporting all of them
+  // at `medium` is the same mistake that once reported "this step has NO routing row" at `high` on
+  // every step of every unattached funnel and sent a peer on 19 urgent detours. The document the
+  // caller named is the one they are acting on; the rest were swept only to find the claimant.
+  const focus = focusIds instanceof Set ? focusIds : new Set(focusIds ?? []);
+  for (const d of documents) {
+    if (d.domainId) continue;               // already attached; its collisions are history
+    for (const st of d.steps ?? []) {
+      if (!st.url) continue;
+      for (const dom of domains) {
+        const holder = pathsOnDomain.get(dom)?.get(st.url);
+        if (!holder || holder === d.name) continue;
+        const asked = focus.size === 0 || focus.has(d._id);
+        findings.push({ severity: asked ? 'medium' : 'info', check: 'path-collision', pageName: `${d.name} / ${st.name}`, value: st.url,
+          detail: `this path is ALREADY held on a domain in use here, by ${holder}. Attaching this document to that `
+            + 'domain will silently rename one of the two with a random 4-digit suffix, and which one loses is not the '
+            + 'one that can serve. Rename this step now — after the attach, routing no longer follows the step record'
+            + (asked ? '' : ' (this document was swept as a neighbour, not audited — it matters only if you attach it)') });
+      }
+    }
+  }
+  return findings;
+}
