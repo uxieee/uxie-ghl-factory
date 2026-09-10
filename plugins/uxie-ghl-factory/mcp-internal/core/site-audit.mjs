@@ -313,6 +313,29 @@ export function judgeStyles({ pageData, pageId, pageName = null }) {
     // broken — flagging those would put a finding on every minimal page and teach people to skim.
     // The signal is the CONTRADICTION: node styles that say one thing and compiled CSS that has
     // never heard of the element.
+    // 🔴 DO NOT "TIGHTEN" THIS TO A SELF-SELECTOR MATCH. The id-presence test looks loose and the
+    // obvious refactor is to require a real `.<id>{` rule. That would break it completely.
+    //
+    // Measured on a snapshot-installed page, 231 elements carrying their own styles:
+    //
+    //   structural (col 72, row 27, column 6)   -> 105 self-selectors, 0 descendant
+    //   leaf (paragraph, heading, button, …)    -> 0 self-selectors, 88 descendant-ONLY
+    //
+    // The split is total. A leaf element is NEVER self-selected: its rule is always
+    // `.paragraph-X p{…}` or `.image-X .image-container img{…}`. So requiring `.<id>{` would report
+    // every healthy paragraph, heading, button, image and divider on that page as unstyled — 88
+    // false positives on one page. Substring presence is correct BECAUSE leaves are only ever
+    // reached through a descendant selector.
+    //
+    // WHAT THIS DOES NOT CATCH, stated because a peer reasonably assumed otherwise. The question
+    // asked here is "does this element have ANY compiled rule", implemented as id-presence, and the
+    // rule that governs an element is often a DESCENDANT selector — `.image-<id> .image-container
+    // img{width:180px}` rather than `.image-<id>` itself. That passes, correctly: the element has
+    // rules. What it cannot see is a rule that exists and is WRONG — the same selector still saying
+    // width:180px after a 3:1 banner was swapped for a square logo, which rendered it as tall as it
+    // was wide. "Has a rule" is objective; "has the RIGHT rule" needs the author's intent, and
+    // nothing in the document carries that. This check is for the CLONE case — styling intent with
+    // zero compiled rules — and claims nothing further.
     const styled = (n) => [n.styles, n.mobileStyles, n.wrapper, n.mobileWrapper]
       .some((o) => o && typeof o === 'object' && Object.keys(o).length > 0);
     const naked = nodes.filter((n) => !css.includes(n.id) && styled(n));
