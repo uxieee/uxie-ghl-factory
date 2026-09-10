@@ -53360,9 +53360,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       publish_workflow: {
-        description: "Publish workflow \u2014 proof: live-runtime (2026-07-11), floor: documented; risk: destructive",
+        description: "Publish workflow \u2014 proof: live-runtime (2026-09-10), floor: documented; risk: destructive",
         risk: "destructive",
-        proof: "live-runtime (2026-07-11)",
+        proof: "live-runtime (2026-09-10)",
         proofFloor: "documented",
         proofRows: [
           "workflow-publish"
@@ -53640,9 +53640,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       build_course: {
-        description: "Build course \u2014 proof: live-runtime (2026-07-19), floor: documented; risk: write",
+        description: "Build course \u2014 proof: live-runtime (2026-09-10), floor: documented; risk: write",
         risk: "write",
-        proof: "live-runtime (2026-07-19)",
+        proof: "live-runtime (2026-09-10)",
         proofFloor: "documented",
         proofRows: [
           "memberships-assessment-assignment-create",
@@ -53766,9 +53766,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       create_voiceai_agent: {
-        description: "Create Voice AI agent \u2014 proof: live-runtime (2026-07-21); risk: write",
+        description: "Create Voice AI agent \u2014 proof: live-runtime (2026-09-10); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-07-21)",
+        proof: "live-runtime (2026-09-10)",
         proofFloor: "live-runtime (2026-07-21)",
         proofRows: [
           "ai-voiceai-agent-create"
@@ -53784,9 +53784,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       create_studio_agent: {
-        description: "Create Agent Studio agent \u2014 proof: live-runtime (2026-07-21); risk: write",
+        description: "Create Agent Studio agent \u2014 proof: live-runtime (2026-09-10); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-07-21)",
+        proof: "live-runtime (2026-09-10)",
         proofFloor: "live-runtime (2026-07-21)",
         proofRows: [
           "ai-studio-agent-build"
@@ -53820,9 +53820,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       set_contact_ai_status: {
-        description: "Set per-contact Conversation AI status \u2014 proof: live-runtime (2026-08-08); risk: write",
+        description: "Set per-contact Conversation AI status \u2014 proof: live-runtime (2026-09-10); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-08-08)",
+        proof: "live-runtime (2026-09-10)",
         proofFloor: "live-runtime (2026-08-08)",
         proofRows: [
           "ai-convai-contact-config-update"
@@ -54817,9 +54817,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       unpublish_workflows: {
-        description: "Stand published workflows back down to draft, in bulk \u2014 proof: live-runtime (2026-09-09); risk: write",
+        description: "Stand published workflows back down to draft, in bulk \u2014 proof: live-runtime (2026-09-10); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-09)",
+        proof: "live-runtime (2026-09-10)",
         proofFloor: "live-runtime (2026-09-09)",
         proofRows: [
           "workflow-service--bulk-update-status"

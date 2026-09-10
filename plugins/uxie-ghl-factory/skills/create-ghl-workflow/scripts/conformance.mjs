@@ -18,9 +18,11 @@
  *
  * WHAT IT DELIBERATELY DOES NOT DO
  * --------------------------------
- * No publish. No trigger activation. No contact enrollment. A live workflow sends real messages
- * to real people, so everything here stays an unpublished draft with zero triggers, and the
- * publish/enrollment half of the rail is reported as NOT COVERED rather than quietly skipped.
+ * No trigger activation. No contact enrollment. A trigger is the ONLY path by which a contact can
+ * enter a workflow, so an unpublished-or-published draft with ZERO triggers cannot reach anybody —
+ * which is what makes the publish leg safe to run and what the suite asserts immediately before
+ * publishing rather than inheriting from how the object was built. Enrolment itself stays out and
+ * is reported as NOT COVERED rather than quietly skipped.
  *
  * NOTHING IS DELETED. Probe artefacts stay named TEST-CONF-* and in place; the final report lists
  * them by id for a human to remove.
@@ -231,10 +233,58 @@ if (wid) {
     'a stale expectedVersion is refused, not written over', `${stale.code}: ${String(stale.detail).slice(0, 80)}`);
 }
 
+// ── 4. publish / unpublish ──────────────────────────────────────────────────────────────────
+// publish_workflow is `destructive` and was the OLDEST proof in the plugin at 61 days — last
+// exercised 2026-07-11, in the same window this platform demonstrably moved its funnels auth rail.
+// A publish is the one workflow write that can reach a real person, so the safety argument is
+// asserted rather than assumed:
+//
+//   ENROLLMENT REQUIRES A TRIGGER. This draft was built with `triggers: []` and nothing has added
+//   one, so a published copy has no path by which any contact can enter it. The suite CHECKS that
+//   the trigger list is empty immediately before publishing and refuses to publish if it is not —
+//   an assumption that guards a live send has to be re-measured at the moment it matters, not
+//   inherited from how the object was created 90 seconds earlier.
+//
+// It is unpublished again immediately, and the final state is asserted.
+console.log('\npublish / unpublish');
+if (wid) {
+  const pre = await call('export_workflow', { workflowId: wid });
+  const triggers = pre.data?.triggers ?? [];
+  const steps = (pre.data?.workflow?.workflowData?.templates ?? []);
+  const sends = steps.filter((t) => /email|sms|call|whatsapp|slack|notification|messenger/i.test(String(t.type)));
+
+  check(triggers.length === 0,
+    'PRECONDITION: the draft has ZERO triggers, so a published copy can enrol nobody',
+    `found ${triggers.length} trigger(s) — refusing to publish`);
+  check(sends.length === 0,
+    'PRECONDITION: and no step that could message anyone even if it somehow ran',
+    sends.map((t) => t.type).join(', '));
+
+  if (triggers.length === 0 && sends.length === 0) {
+    const pub = await call('publish_workflow', { workflowId: wid, confirm: true });
+    check(pub.ok === true, 'publish_workflow publishes a draft', pub.detail);
+
+    const live = await call('export_workflow', { workflowId: wid });
+    check(live.data?.workflow?.status === 'published',
+      'the workflow reads back as published on a SEPARATE request — not merely a 200',
+      `status ${live.data?.workflow?.status}`);
+
+    const un = await call('unpublish_workflows', { workflowIds: [wid], confirm: true });
+    check(un.ok === true, 'unpublish_workflows takes it back down', un.detail);
+
+    const after = await call('export_workflow', { workflowId: wid });
+    check(after.data?.workflow?.status === 'draft',
+      'and it reads back as draft again — the suite leaves nothing published',
+      `status ${after.data?.workflow?.status}`);
+  } else {
+    check(false, 'publish leg SKIPPED because a precondition failed — nothing was published');
+  }
+}
+
 // ── coverage honesty ────────────────────────────────────────────────────────────────────────
 console.log('\nNOT COVERED by this suite, and not counted as passing:');
-console.log('  publish / unpublish   — outward-facing; a live workflow sends real messages');
-console.log('  trigger activation    — same reason');
+console.log('  trigger activation    — a trigger is the ONLY enrolment path, so activating one is the');
+console.log('                          line between a draft nobody can enter and a live automation');
 console.log('  contact enrollment    — same reason; fast_forward_contacts moves real people');
 
 console.log(`\nLEFT IN PLACE (nothing is deleted):`);
