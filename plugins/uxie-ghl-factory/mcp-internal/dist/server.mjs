@@ -1159,6 +1159,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
+          note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
           proof: "executed",
           reach: "proven",
           coveredBy: [],
@@ -2583,7 +2584,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           summary: "The account's chat widgets {chatWidgets:[{_id, chatType, name, default, settings, creationSource, createdAt, updatedAt}], totalCount}; chatType=liveChat filters to Live-chat widgets (the Agent Deployment picker's read).",
-          note: "offset and limit are REQUIRED as number strings \u2014 omit them and BOTH hosts answer 422 naming exactly those keys (proven 2026-08-31). Answers byte-identically on backend and services. A widget id pinned in an agent's routing row dies with the widget; route on All widgets instead.",
+          note: "offset and limit are REQUIRED as number strings \u2014 omit them and BOTH hosts answer 422 naming exactly those keys (proven 2026-08-31). Answers byte-identically on backend and services. A widget id pinned in an agent's routing row dies with the widget; route on All widgets instead. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
           reach: "proven",
           coveredBy: [],
           rawCallable: true,
@@ -4076,7 +4077,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -4090,7 +4092,14 @@ var init_define_ENDPOINT_CATALOG = __esm({
               name: "locationId"
             }
           ],
-          query: [],
+          query: [
+            {
+              name: "totalRows",
+              type: "string",
+              required: true,
+              source: "live-probe"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
@@ -4933,6 +4942,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
+          note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
           reach: "proven",
           coveredBy: [],
           rawCallable: true,
@@ -6873,7 +6883,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -6883,7 +6894,14 @@ var init_define_ENDPOINT_CATALOG = __esm({
           service: "forms",
           tree: "documented",
           pathParams: [],
-          query: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "live-probe"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
@@ -7472,7 +7490,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -7482,7 +7501,14 @@ var init_define_ENDPOINT_CATALOG = __esm({
           service: "funnels",
           tree: "documented",
           pathParams: [],
-          query: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "live-probe"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
@@ -12576,7 +12602,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -13767,7 +13793,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [
             "build_course"
           ],
@@ -15793,7 +15819,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -17172,7 +17199,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -17332,7 +17359,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -17683,7 +17710,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -18571,7 +18598,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -19662,6 +19689,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
+          note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
           proof: "executed",
           reach: "proven",
           coveredBy: [
@@ -19852,6 +19880,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
+          note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
           proof: "executed",
           reach: "proven",
           coveredBy: [
@@ -21834,7 +21863,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -22492,7 +22521,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [
             "list_workflow_versions"
           ],
@@ -22618,7 +22647,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [
             "list_workflow_versions"
           ],
@@ -31303,8 +31332,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          note: "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
-          reach: "source-only",
+          note: "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -31321,6 +31350,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
           query: [
             {
               name: "locationId",
+              type: "string",
+              required: true,
+              source: "live-probe"
+            },
+            {
+              name: "workflowId",
               type: "string",
               required: true,
               source: "live-probe"
@@ -33047,8 +33082,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "ai",
           kind: "read",
           summary: "Agent Logs Contacts tab: one row per contact with products, channels, conversation and token totals.",
-          note: "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone \u2014 either credential reaches this surface). Ignores the logs-only filters (contentSearch, metadataFilters, agentId, agentName, contactId) and emits NO nextPageToken, so it is hard-capped at offset 500.",
-          reach: "proven-live",
+          note: "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone \u2014 either credential reaches this surface). Ignores the logs-only filters (contentSearch, metadataFilters, agentId, agentName, contactId) and emits NO nextPageToken, so it is hard-capped at offset 500. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
+          reach: "proven",
           coveredBy: [
             "list_agent_contacts"
           ],
@@ -33060,7 +33095,14 @@ var init_define_ENDPOINT_CATALOG = __esm({
           service: "ai-agents",
           tree: "documented",
           pathParams: [],
-          query: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "live-probe"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
@@ -33151,8 +33193,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "ai",
           kind: "read",
           summary: "Agent Logs Sessions table. A POST that READS (201).",
-          note: 'Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone \u2014 either credential reaches this surface). Offset ceiling: (page-1)*limit must be <=500 or 400 "Page too deep"; `limit` is uncapped and `pageToken` (body, and ONLY when `page` is omitted) walks past it. Values are never validated \u2014 a bogus timeRange/sortBy is silently ignored, a bogus product/channel filters to 0 rows.',
-          reach: "proven-live",
+          note: 'Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone \u2014 either credential reaches this surface). Offset ceiling: (page-1)*limit must be <=500 or 400 "Page too deep"; `limit` is uncapped and `pageToken` (body, and ONLY when `page` is omitted) walks past it. Values are never validated \u2014 a bogus timeRange/sortBy is silently ignored, a bogus product/channel filters to 0 rows. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.',
+          reach: "proven",
           coveredBy: [
             "list_agent_sessions"
           ],
@@ -33164,7 +33206,14 @@ var init_define_ENDPOINT_CATALOG = __esm({
           service: "ai-agents",
           tree: "documented",
           pathParams: [],
-          query: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "live-probe"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
@@ -33225,8 +33274,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "ai",
           kind: "read",
           summary: "Session detail: a 4-key summary plus EVERY interaction inline.",
-          note: "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone \u2014 either credential reaches this surface). Not the same as /summary: fewer summary keys, but all interactions, and it ignores page/limit.",
-          reach: "proven-live",
+          note: "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone \u2014 either credential reaches this surface). Not the same as /summary: fewer summary keys, but all interactions, and it ignores page/limit. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -33240,7 +33289,14 @@ var init_define_ENDPOINT_CATALOG = __esm({
               name: "sessionId"
             }
           ],
-          query: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "live-probe"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
@@ -33264,8 +33320,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "ai",
           kind: "read",
           summary: "One row per inbound message; each traceId IS that message\u2019s CRM id.",
-          note: "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone \u2014 either credential reaches this surface). Default limit is 100. A page past the end returns 200 empty; page=0 or negative returns 404.",
-          reach: "proven-live",
+          note: "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone \u2014 either credential reaches this surface). Default limit is 100. A page past the end returns 200 empty; page=0 or negative returns 404. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
+          reach: "proven",
           coveredBy: [
             "get_agent_message_trace",
             "get_agent_session"
@@ -33282,7 +33338,14 @@ var init_define_ENDPOINT_CATALOG = __esm({
               name: "sessionId"
             }
           ],
-          query: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "live-probe"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
@@ -33306,8 +33369,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "ai",
           kind: "read",
           summary: "Per-session metrics with a perInteraction[] series.",
-          note: "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone \u2014 either credential reaches this surface). A wrong id returns 200 with zeroes rather than 404.",
-          reach: "proven-live",
+          note: "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone \u2014 either credential reaches this surface). A wrong id returns 200 with zeroes rather than 404. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
+          reach: "proven",
           coveredBy: [
             "get_agent_session"
           ],
@@ -33323,7 +33386,14 @@ var init_define_ENDPOINT_CATALOG = __esm({
               name: "sessionId"
             }
           ],
-          query: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "live-probe"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
@@ -33346,8 +33416,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "ai",
           kind: "read",
           summary: "Session summary incl. totalInteractions, durationMs and per-product customConfigs.",
-          note: 'Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone \u2014 either credential reaches this surface). A trace id here 404s "No conversation data found for conversation".',
-          reach: "proven-live",
+          note: 'Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone \u2014 either credential reaches this surface). A trace id here 404s "No conversation data found for conversation". requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.',
+          reach: "proven",
           coveredBy: [
             "get_agent_session"
           ],
@@ -33363,7 +33433,14 @@ var init_define_ENDPOINT_CATALOG = __esm({
               name: "sessionId"
             }
           ],
-          query: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "live-probe"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
@@ -33441,8 +33518,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "ai",
           kind: "read",
           summary: "Agent Logs Metrics tab: 35 widget datasets (overview, topModels/Tools/Agents/Contacts, time series, voice-call stats).",
-          note: "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone \u2014 either credential reaches this surface). A non-empty widgetIds \u2014 even a bogus value \u2014 drops voiceAiCallStats and callSentimentStats.",
-          reach: "proven-live",
+          note: "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone \u2014 either credential reaches this surface). A non-empty widgetIds \u2014 even a bogus value \u2014 drops voiceAiCallStats and callSentimentStats. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
+          reach: "proven",
           coveredBy: [
             "get_agent_metrics"
           ],
@@ -33454,7 +33531,14 @@ var init_define_ENDPOINT_CATALOG = __esm({
           service: "ai-agents",
           tree: "documented",
           pathParams: [],
-          query: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "live-probe"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
@@ -33477,8 +33561,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "ai",
           kind: "read",
           summary: "Saved Metrics dashboard layouts for the location.",
-          note: "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone \u2014 either credential reaches this surface). Returns {layouts: []} when none exist \u2014 and the UI reacts to that by POSTing a default layout, so opening the Metrics tab in a browser WRITES. The populated shape is unproven.",
-          reach: "proven-live",
+          note: "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone \u2014 either credential reaches this surface). Returns {layouts: []} when none exist \u2014 and the UI reacts to that by POSTing a default layout, so opening the Metrics tab in a browser WRITES. The populated shape is unproven. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -33488,7 +33572,14 @@ var init_define_ENDPOINT_CATALOG = __esm({
           service: "ai-agents",
           tree: "documented",
           pathParams: [],
-          query: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "live-probe"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
@@ -34370,7 +34461,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [
             "create_convai_agent",
             "get_ai_configuration_bundle",
@@ -34768,7 +34859,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "source-only",
+          note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -34778,7 +34870,14 @@ var init_define_ENDPOINT_CATALOG = __esm({
           service: "ai-agents",
           tree: "documented",
           pathParams: [],
-          query: [],
+          query: [
+            {
+              name: "companyId",
+              type: "string",
+              required: true,
+              source: "live-probe"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
@@ -34799,7 +34898,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "source-only",
+          note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -34809,7 +34909,14 @@ var init_define_ENDPOINT_CATALOG = __esm({
           service: "ai-agents",
           tree: "documented",
           pathParams: [],
-          query: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "live-probe"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
@@ -36146,7 +36253,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "ai",
           kind: "read",
           summary: "The account's chat widgets {chatWidgets:[{_id, chatType, name, default, settings, creationSource, createdAt, updatedAt}], totalCount}; chatType=liveChat filters to Live-chat widgets (the Agent Deployment picker's read).",
-          note: "offset and limit are REQUIRED as number strings \u2014 omit them and BOTH hosts answer 422 naming exactly those keys (proven 2026-08-31). Answers byte-identically on backend and services. A widget id pinned in an agent's routing row dies with the widget; route on All widgets instead.",
+          note: "offset and limit are REQUIRED as number strings \u2014 omit them and BOTH hosts answer 422 naming exactly those keys (proven 2026-08-31). Answers byte-identically on backend and services. A widget id pinned in an agent's routing row dies with the widget; route on All widgets instead. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
           reach: "proven",
           coveredBy: [],
           rawCallable: true,
@@ -36471,7 +36578,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [
             "get_contact_ai_status",
             "set_contact_ai_status"
@@ -36889,7 +36996,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "source-only",
+          note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -36912,6 +37020,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
             }
           ],
           query: [
+            {
+              name: "totalRows",
+              type: "string",
+              required: true,
+              source: "live-probe"
+            },
             {
               name: "authorization",
               type: "string",
@@ -36992,6 +37106,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
+          note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
           reach: "proven",
           coveredBy: [],
           rawCallable: true,
@@ -37002,7 +37117,14 @@ var init_define_ENDPOINT_CATALOG = __esm({
           service: "forms",
           tree: "documented",
           pathParams: [],
-          query: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "live-probe"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
@@ -37933,6 +38055,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://services.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
+          note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
           proof: "executed",
           reach: "proven",
           coveredBy: [
@@ -38095,6 +38218,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://services.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
+          note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
           proof: "executed",
           reach: "proven",
           coveredBy: [],
@@ -41577,7 +41701,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [
             "build_course"
           ],
@@ -45823,7 +45947,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "source-only",
+          reach: "refused",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -48489,7 +48613,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "source-only",
+          note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -48499,7 +48624,14 @@ var init_define_ENDPOINT_CATALOG = __esm({
           service: "forms",
           tree: "documented",
           pathParams: [],
-          query: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "live-probe"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
@@ -49013,7 +49145,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -49057,7 +49189,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -49658,7 +49790,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "source-only",
+          reach: "refused",
           coveredBy: [
             "create_voiceai_agent",
             "get_ai_configuration_bundle"
@@ -51213,11 +51345,11 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         },
         "GET /chat-widget/list": {
           requiredQuery: [
+            "limit",
             "locationId",
-            "offset",
-            "limit"
+            "offset"
           ],
-          note: "offset and limit are REQUIRED as number strings \u2014 omit them and BOTH hosts answer 422 naming exactly those keys (proven 2026-08-31). Answers byte-identically on backend and services. A widget id pinned in an agent's routing row dies with the widget; route on All widgets instead.",
+          note: "offset and limit are REQUIRED as number strings \u2014 omit them and BOTH hosts answer 422 naming exactly those keys (proven 2026-08-31). Answers byte-identically on backend and services. A widget id pinned in an agent's routing row dies with the widget; route on All widgets instead. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
           reach: "proven",
           summary: "The account's chat widgets {chatWidgets:[{_id, chatType, name, default, settings, creationSource, createdAt, updatedAt}], totalCount}; chatType=liveChat filters to Live-chat widgets (the Agent Deployment picker's read)."
         },
@@ -51273,7 +51405,11 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           reach: "proven"
         },
         "GET /emails/builder/all": {
-          reach: "proven"
+          reach: "proven",
+          requiredQuery: [
+            "locationId"
+          ],
+          note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them."
         },
         "GET /emails/builder/settings/{locationId}": {
           reach: "proven"
@@ -51638,9 +51774,11 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         },
         "GET /workflows/copyWorkflow/logList": {
           requiredQuery: [
-            "locationId"
+            "locationId",
+            "workflowId"
           ],
-          note: "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source."
+          note: "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
+          reach: "proven"
         },
         "GET /workflows/copyWorkflow/statusList": {
           requiredQuery: [
@@ -51942,21 +52080,30 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         },
         "POST /agent-logs/logs": {
           kind: "read",
-          reach: "proven-live",
+          reach: "proven",
           summary: "Agent Logs Sessions table. A POST that READS (201).",
-          note: 'Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone \u2014 either credential reaches this surface). Offset ceiling: (page-1)*limit must be <=500 or 400 "Page too deep"; `limit` is uncapped and `pageToken` (body, and ONLY when `page` is omitted) walks past it. Values are never validated \u2014 a bogus timeRange/sortBy is silently ignored, a bogus product/channel filters to 0 rows.'
+          note: 'Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone \u2014 either credential reaches this surface). Offset ceiling: (page-1)*limit must be <=500 or 400 "Page too deep"; `limit` is uncapped and `pageToken` (body, and ONLY when `page` is omitted) walks past it. Values are never validated \u2014 a bogus timeRange/sortBy is silently ignored, a bogus product/channel filters to 0 rows. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.',
+          requiredQuery: [
+            "locationId"
+          ]
         },
         "POST /agent-logs/contacts": {
           kind: "read",
-          reach: "proven-live",
+          reach: "proven",
           summary: "Agent Logs Contacts tab: one row per contact with products, channels, conversation and token totals.",
-          note: "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone \u2014 either credential reaches this surface). Ignores the logs-only filters (contentSearch, metadataFilters, agentId, agentName, contactId) and emits NO nextPageToken, so it is hard-capped at offset 500."
+          note: "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone \u2014 either credential reaches this surface). Ignores the logs-only filters (contentSearch, metadataFilters, agentId, agentName, contactId) and emits NO nextPageToken, so it is hard-capped at offset 500. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
+          requiredQuery: [
+            "locationId"
+          ]
         },
         "POST /agent-logs/metrics": {
           kind: "read",
-          reach: "proven-live",
+          reach: "proven",
           summary: "Agent Logs Metrics tab: 35 widget datasets (overview, topModels/Tools/Agents/Contacts, time series, voice-call stats).",
-          note: "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone \u2014 either credential reaches this surface). A non-empty widgetIds \u2014 even a bogus value \u2014 drops voiceAiCallStats and callSentimentStats."
+          note: "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone \u2014 either credential reaches this surface). A non-empty widgetIds \u2014 even a bogus value \u2014 drops voiceAiCallStats and callSentimentStats. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
+          requiredQuery: [
+            "locationId"
+          ]
         },
         "POST /agent-logs/filter-values": {
           kind: "read",
@@ -51966,21 +52113,30 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         },
         "GET /agent-logs/logs/{sessionId}": {
           kind: "read",
-          reach: "proven-live",
+          reach: "proven",
           summary: "Session detail: a 4-key summary plus EVERY interaction inline.",
-          note: "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone \u2014 either credential reaches this surface). Not the same as /summary: fewer summary keys, but all interactions, and it ignores page/limit."
+          note: "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone \u2014 either credential reaches this surface). Not the same as /summary: fewer summary keys, but all interactions, and it ignores page/limit. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
+          requiredQuery: [
+            "locationId"
+          ]
         },
         "GET /agent-logs/logs/{sessionId}/summary": {
           kind: "read",
-          reach: "proven-live",
+          reach: "proven",
           summary: "Session summary incl. totalInteractions, durationMs and per-product customConfigs.",
-          note: 'Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone \u2014 either credential reaches this surface). A trace id here 404s "No conversation data found for conversation".'
+          note: 'Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone \u2014 either credential reaches this surface). A trace id here 404s "No conversation data found for conversation". requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.',
+          requiredQuery: [
+            "locationId"
+          ]
         },
         "GET /agent-logs/logs/{sessionId}/interactions": {
           kind: "read",
-          reach: "proven-live",
+          reach: "proven",
           summary: "One row per inbound message; each traceId IS that message\u2019s CRM id.",
-          note: "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone \u2014 either credential reaches this surface). Default limit is 100. A page past the end returns 200 empty; page=0 or negative returns 404."
+          note: "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone \u2014 either credential reaches this surface). Default limit is 100. A page past the end returns 200 empty; page=0 or negative returns 404. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
+          requiredQuery: [
+            "locationId"
+          ]
         },
         "GET /agent-logs/logs/{traceId}/spans": {
           kind: "read",
@@ -51990,15 +52146,21 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         },
         "GET /agent-logs/logs/{sessionId}/metrics": {
           kind: "read",
-          reach: "proven-live",
+          reach: "proven",
           summary: "Per-session metrics with a perInteraction[] series.",
-          note: "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone \u2014 either credential reaches this surface). A wrong id returns 200 with zeroes rather than 404."
+          note: "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone \u2014 either credential reaches this surface). A wrong id returns 200 with zeroes rather than 404. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
+          requiredQuery: [
+            "locationId"
+          ]
         },
         "GET /agent-logs/metrics-layouts": {
           kind: "read",
-          reach: "proven-live",
+          reach: "proven",
           summary: "Saved Metrics dashboard layouts for the location.",
-          note: "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone \u2014 either credential reaches this surface). Returns {layouts: []} when none exist \u2014 and the UI reacts to that by POSTing a default layout, so opening the Metrics tab in a browser WRITES. The populated shape is unproven."
+          note: "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone \u2014 either credential reaches this surface). Returns {layouts: []} when none exist \u2014 and the UI reacts to that by POSTing a default layout, so opening the Metrics tab in a browser WRITES. The populated shape is unproven. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
+          requiredQuery: [
+            "locationId"
+          ]
         },
         "GET /agent-logs/health": {
           kind: "read",
@@ -52075,6 +52237,77 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         "POST /snapshots-appengine/v2/snapshots/{snapshotId}/refresh": {
           reach: "proven",
           note: "Executed through the plugin credential on the designated sandbox, 2026-09-10, as part of the snapshot parity run: list -> manifest -> conflicts -> create -> refresh, with the create read back on a separate request (snapshot count 8 -> 9 and the new snapshot found by name and id)."
+        },
+        "GET /courses/analytics/locations/{locationId}/export/assessment-results": {
+          reach: "proven",
+          requiredQuery: [
+            "totalRows"
+          ],
+          note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them."
+        },
+        "GET /forms/themes": {
+          reach: "proven",
+          requiredQuery: [
+            "locationId"
+          ],
+          note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them."
+        },
+        "GET /funnels/builder/prebuilt-section/hero/template/hero/hero": {
+          reach: "proven",
+          requiredQuery: [
+            "locationId"
+          ],
+          note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them."
+        },
+        "GET /payment-links/settings": {
+          reach: "proven",
+          requiredQuery: [
+            "altId",
+            "altType"
+          ],
+          note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them."
+        },
+        "GET /vibe-ai/folders": {
+          reach: "proven",
+          requiredQuery: [
+            "alt_id"
+          ],
+          note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them."
+        },
+        "GET /vibe-ai/projects": {
+          reach: "proven",
+          requiredQuery: [
+            "alt_id"
+          ],
+          note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them."
+        },
+        "GET /ai-wrapper/plan/company": {
+          reach: "proven",
+          requiredQuery: [
+            "companyId"
+          ],
+          note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them."
+        },
+        "GET /ai-wrapper/plan/location": {
+          reach: "proven",
+          requiredQuery: [
+            "locationId"
+          ],
+          note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them."
+        },
+        "GET /forms/submissions": {
+          reach: "proven",
+          requiredQuery: [
+            "limit"
+          ],
+          note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them."
+        },
+        "GET /surveys/folder": {
+          reach: "proven",
+          requiredQuery: [
+            "locationId"
+          ],
+          note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them."
         }
       }
     };

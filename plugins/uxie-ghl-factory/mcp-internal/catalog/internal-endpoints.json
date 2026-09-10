@@ -914,6 +914,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
+      "note": "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
       "proof": "executed",
       "reach": "proven",
       "coveredBy": [],
@@ -2338,7 +2339,7 @@
       "rail": "workflow",
       "kind": "read",
       "summary": "The account's chat widgets {chatWidgets:[{_id, chatType, name, default, settings, creationSource, createdAt, updatedAt}], totalCount}; chatType=liveChat filters to Live-chat widgets (the Agent Deployment picker's read).",
-      "note": "offset and limit are REQUIRED as number strings — omit them and BOTH hosts answer 422 naming exactly those keys (proven 2026-08-31). Answers byte-identically on backend and services. A widget id pinned in an agent's routing row dies with the widget; route on All widgets instead.",
+      "note": "offset and limit are REQUIRED as number strings — omit them and BOTH hosts answer 422 naming exactly those keys (proven 2026-08-31). Answers byte-identically on backend and services. A widget id pinned in an agent's routing row dies with the widget; route on All widgets instead. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
       "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
@@ -3831,7 +3832,8 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "note": "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
+      "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -3845,7 +3847,14 @@
           "name": "locationId"
         }
       ],
-      "query": [],
+      "query": [
+        {
+          "name": "totalRows",
+          "type": "string",
+          "required": true,
+          "source": "live-probe"
+        }
+      ],
       "body": null,
       "returns": null,
       "confidence": {
@@ -4688,6 +4697,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
+      "note": "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
       "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
@@ -6628,7 +6638,8 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "note": "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
+      "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -6638,7 +6649,14 @@
       "service": "forms",
       "tree": "documented",
       "pathParams": [],
-      "query": [],
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": true,
+          "source": "live-probe"
+        }
+      ],
       "body": null,
       "returns": null,
       "confidence": {
@@ -7227,7 +7245,8 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "note": "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
+      "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -7237,7 +7256,14 @@
       "service": "funnels",
       "tree": "documented",
       "pathParams": [],
-      "query": [],
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": true,
+          "source": "live-probe"
+        }
+      ],
       "body": null,
       "returns": null,
       "confidence": {
@@ -12331,7 +12357,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -13522,7 +13548,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "reach": "proven",
       "coveredBy": [
         "build_course"
       ],
@@ -15548,7 +15574,8 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "note": "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
+      "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -16927,7 +16954,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -17087,7 +17114,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -17438,7 +17465,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -18326,7 +18353,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -19417,6 +19444,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
+      "note": "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
       "proof": "executed",
       "reach": "proven",
       "coveredBy": [
@@ -19607,6 +19635,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
+      "note": "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
       "proof": "executed",
       "reach": "proven",
       "coveredBy": [
@@ -21589,7 +21618,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -22247,7 +22276,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "reach": "proven",
       "coveredBy": [
         "list_workflow_versions"
       ],
@@ -22373,7 +22402,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "reach": "proven",
       "coveredBy": [
         "list_workflow_versions"
       ],
@@ -31058,8 +31087,8 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "note": "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
-      "reach": "source-only",
+      "note": "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
+      "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -31076,6 +31105,12 @@
       "query": [
         {
           "name": "locationId",
+          "type": "string",
+          "required": true,
+          "source": "live-probe"
+        },
+        {
+          "name": "workflowId",
           "type": "string",
           "required": true,
           "source": "live-probe"
@@ -32802,8 +32837,8 @@
       "rail": "ai",
       "kind": "read",
       "summary": "Agent Logs Contacts tab: one row per contact with products, channels, conversation and token totals.",
-      "note": "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone — either credential reaches this surface). Ignores the logs-only filters (contentSearch, metadataFilters, agentId, agentName, contactId) and emits NO nextPageToken, so it is hard-capped at offset 500.",
-      "reach": "proven-live",
+      "note": "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone — either credential reaches this surface). Ignores the logs-only filters (contentSearch, metadataFilters, agentId, agentName, contactId) and emits NO nextPageToken, so it is hard-capped at offset 500. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
+      "reach": "proven",
       "coveredBy": [
         "list_agent_contacts"
       ],
@@ -32815,7 +32850,14 @@
       "service": "ai-agents",
       "tree": "documented",
       "pathParams": [],
-      "query": [],
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": true,
+          "source": "live-probe"
+        }
+      ],
       "body": null,
       "returns": null,
       "confidence": {
@@ -32906,8 +32948,8 @@
       "rail": "ai",
       "kind": "read",
       "summary": "Agent Logs Sessions table. A POST that READS (201).",
-      "note": "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone — either credential reaches this surface). Offset ceiling: (page-1)*limit must be <=500 or 400 \"Page too deep\"; `limit` is uncapped and `pageToken` (body, and ONLY when `page` is omitted) walks past it. Values are never validated — a bogus timeRange/sortBy is silently ignored, a bogus product/channel filters to 0 rows.",
-      "reach": "proven-live",
+      "note": "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone — either credential reaches this surface). Offset ceiling: (page-1)*limit must be <=500 or 400 \"Page too deep\"; `limit` is uncapped and `pageToken` (body, and ONLY when `page` is omitted) walks past it. Values are never validated — a bogus timeRange/sortBy is silently ignored, a bogus product/channel filters to 0 rows. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
+      "reach": "proven",
       "coveredBy": [
         "list_agent_sessions"
       ],
@@ -32919,7 +32961,14 @@
       "service": "ai-agents",
       "tree": "documented",
       "pathParams": [],
-      "query": [],
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": true,
+          "source": "live-probe"
+        }
+      ],
       "body": null,
       "returns": null,
       "confidence": {
@@ -32980,8 +33029,8 @@
       "rail": "ai",
       "kind": "read",
       "summary": "Session detail: a 4-key summary plus EVERY interaction inline.",
-      "note": "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone — either credential reaches this surface). Not the same as /summary: fewer summary keys, but all interactions, and it ignores page/limit.",
-      "reach": "proven-live",
+      "note": "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone — either credential reaches this surface). Not the same as /summary: fewer summary keys, but all interactions, and it ignores page/limit. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
+      "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -32995,7 +33044,14 @@
           "name": "sessionId"
         }
       ],
-      "query": [],
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": true,
+          "source": "live-probe"
+        }
+      ],
       "body": null,
       "returns": null,
       "confidence": {
@@ -33019,8 +33075,8 @@
       "rail": "ai",
       "kind": "read",
       "summary": "One row per inbound message; each traceId IS that message’s CRM id.",
-      "note": "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone — either credential reaches this surface). Default limit is 100. A page past the end returns 200 empty; page=0 or negative returns 404.",
-      "reach": "proven-live",
+      "note": "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone — either credential reaches this surface). Default limit is 100. A page past the end returns 200 empty; page=0 or negative returns 404. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
+      "reach": "proven",
       "coveredBy": [
         "get_agent_message_trace",
         "get_agent_session"
@@ -33037,7 +33093,14 @@
           "name": "sessionId"
         }
       ],
-      "query": [],
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": true,
+          "source": "live-probe"
+        }
+      ],
       "body": null,
       "returns": null,
       "confidence": {
@@ -33061,8 +33124,8 @@
       "rail": "ai",
       "kind": "read",
       "summary": "Per-session metrics with a perInteraction[] series.",
-      "note": "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone — either credential reaches this surface). A wrong id returns 200 with zeroes rather than 404.",
-      "reach": "proven-live",
+      "note": "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone — either credential reaches this surface). A wrong id returns 200 with zeroes rather than 404. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
+      "reach": "proven",
       "coveredBy": [
         "get_agent_session"
       ],
@@ -33078,7 +33141,14 @@
           "name": "sessionId"
         }
       ],
-      "query": [],
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": true,
+          "source": "live-probe"
+        }
+      ],
       "body": null,
       "returns": null,
       "confidence": {
@@ -33101,8 +33171,8 @@
       "rail": "ai",
       "kind": "read",
       "summary": "Session summary incl. totalInteractions, durationMs and per-product customConfigs.",
-      "note": "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone — either credential reaches this surface). A trace id here 404s \"No conversation data found for conversation\".",
-      "reach": "proven-live",
+      "note": "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone — either credential reaches this surface). A trace id here 404s \"No conversation data found for conversation\". requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
+      "reach": "proven",
       "coveredBy": [
         "get_agent_session"
       ],
@@ -33118,7 +33188,14 @@
           "name": "sessionId"
         }
       ],
-      "query": [],
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": true,
+          "source": "live-probe"
+        }
+      ],
       "body": null,
       "returns": null,
       "confidence": {
@@ -33196,8 +33273,8 @@
       "rail": "ai",
       "kind": "read",
       "summary": "Agent Logs Metrics tab: 35 widget datasets (overview, topModels/Tools/Agents/Contacts, time series, voice-call stats).",
-      "note": "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone — either credential reaches this surface). A non-empty widgetIds — even a bogus value — drops voiceAiCallStats and callSentimentStats.",
-      "reach": "proven-live",
+      "note": "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone — either credential reaches this surface). A non-empty widgetIds — even a bogus value — drops voiceAiCallStats and callSentimentStats. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
+      "reach": "proven",
       "coveredBy": [
         "get_agent_metrics"
       ],
@@ -33209,7 +33286,14 @@
       "service": "ai-agents",
       "tree": "documented",
       "pathParams": [],
-      "query": [],
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": true,
+          "source": "live-probe"
+        }
+      ],
       "body": null,
       "returns": null,
       "confidence": {
@@ -33232,8 +33316,8 @@
       "rail": "ai",
       "kind": "read",
       "summary": "Saved Metrics dashboard layouts for the location.",
-      "note": "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone — either credential reaches this surface). Returns {layouts: []} when none exist — and the UI reacts to that by POSTing a default layout, so opening the Metrics tab in a browser WRITES. The populated shape is unproven.",
-      "reach": "proven-live",
+      "note": "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone — either credential reaches this surface). Returns {layouts: []} when none exist — and the UI reacts to that by POSTing a default layout, so opening the Metrics tab in a browser WRITES. The populated shape is unproven. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
+      "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -33243,7 +33327,14 @@
       "service": "ai-agents",
       "tree": "documented",
       "pathParams": [],
-      "query": [],
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": true,
+          "source": "live-probe"
+        }
+      ],
       "body": null,
       "returns": null,
       "confidence": {
@@ -34125,7 +34216,7 @@
       "origin": "https://services.leadconnectorhq.com",
       "rail": "ai",
       "kind": "read",
-      "reach": "source-only",
+      "reach": "proven",
       "coveredBy": [
         "create_convai_agent",
         "get_ai_configuration_bundle",
@@ -34523,7 +34614,8 @@
       "origin": "https://services.leadconnectorhq.com",
       "rail": "ai",
       "kind": "read",
-      "reach": "source-only",
+      "note": "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
+      "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -34533,7 +34625,14 @@
       "service": "ai-agents",
       "tree": "documented",
       "pathParams": [],
-      "query": [],
+      "query": [
+        {
+          "name": "companyId",
+          "type": "string",
+          "required": true,
+          "source": "live-probe"
+        }
+      ],
       "body": null,
       "returns": null,
       "confidence": {
@@ -34554,7 +34653,8 @@
       "origin": "https://services.leadconnectorhq.com",
       "rail": "ai",
       "kind": "read",
-      "reach": "source-only",
+      "note": "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
+      "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -34564,7 +34664,14 @@
       "service": "ai-agents",
       "tree": "documented",
       "pathParams": [],
-      "query": [],
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": true,
+          "source": "live-probe"
+        }
+      ],
       "body": null,
       "returns": null,
       "confidence": {
@@ -35901,7 +36008,7 @@
       "rail": "ai",
       "kind": "read",
       "summary": "The account's chat widgets {chatWidgets:[{_id, chatType, name, default, settings, creationSource, createdAt, updatedAt}], totalCount}; chatType=liveChat filters to Live-chat widgets (the Agent Deployment picker's read).",
-      "note": "offset and limit are REQUIRED as number strings — omit them and BOTH hosts answer 422 naming exactly those keys (proven 2026-08-31). Answers byte-identically on backend and services. A widget id pinned in an agent's routing row dies with the widget; route on All widgets instead.",
+      "note": "offset and limit are REQUIRED as number strings — omit them and BOTH hosts answer 422 naming exactly those keys (proven 2026-08-31). Answers byte-identically on backend and services. A widget id pinned in an agent's routing row dies with the widget; route on All widgets instead. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
       "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
@@ -36226,7 +36333,7 @@
       "origin": "https://services.leadconnectorhq.com",
       "rail": "ai",
       "kind": "read",
-      "reach": "source-only",
+      "reach": "proven",
       "coveredBy": [
         "get_contact_ai_status",
         "set_contact_ai_status"
@@ -36644,7 +36751,8 @@
       "origin": "https://services.leadconnectorhq.com",
       "rail": "ai",
       "kind": "read",
-      "reach": "source-only",
+      "note": "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
+      "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -36667,6 +36775,12 @@
         }
       ],
       "query": [
+        {
+          "name": "totalRows",
+          "type": "string",
+          "required": true,
+          "source": "live-probe"
+        },
         {
           "name": "authorization",
           "type": "string",
@@ -36747,6 +36861,7 @@
       "origin": "https://services.leadconnectorhq.com",
       "rail": "ai",
       "kind": "read",
+      "note": "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
       "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
@@ -36757,7 +36872,14 @@
       "service": "forms",
       "tree": "documented",
       "pathParams": [],
-      "query": [],
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": true,
+          "source": "live-probe"
+        }
+      ],
       "body": null,
       "returns": null,
       "confidence": {
@@ -37688,6 +37810,7 @@
       "origin": "https://services.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
+      "note": "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
       "proof": "executed",
       "reach": "proven",
       "coveredBy": [
@@ -37850,6 +37973,7 @@
       "origin": "https://services.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
+      "note": "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
       "proof": "executed",
       "reach": "proven",
       "coveredBy": [],
@@ -41332,7 +41456,7 @@
       "origin": "https://services.leadconnectorhq.com",
       "rail": "ai",
       "kind": "read",
-      "reach": "source-only",
+      "reach": "proven",
       "coveredBy": [
         "build_course"
       ],
@@ -45578,7 +45702,7 @@
       "origin": "https://services.leadconnectorhq.com",
       "rail": "ai",
       "kind": "read",
-      "reach": "source-only",
+      "reach": "refused",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -48244,7 +48368,8 @@
       "origin": "https://services.leadconnectorhq.com",
       "rail": "ai",
       "kind": "read",
-      "reach": "source-only",
+      "note": "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
+      "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -48254,7 +48379,14 @@
       "service": "forms",
       "tree": "documented",
       "pathParams": [],
-      "query": [],
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": true,
+          "source": "live-probe"
+        }
+      ],
       "body": null,
       "returns": null,
       "confidence": {
@@ -48768,7 +48900,7 @@
       "origin": "https://services.leadconnectorhq.com",
       "rail": "ai",
       "kind": "read",
-      "reach": "source-only",
+      "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -48812,7 +48944,7 @@
       "origin": "https://services.leadconnectorhq.com",
       "rail": "ai",
       "kind": "read",
-      "reach": "source-only",
+      "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -49413,7 +49545,7 @@
       "origin": "https://services.leadconnectorhq.com",
       "rail": "ai",
       "kind": "read",
-      "reach": "source-only",
+      "reach": "refused",
       "coveredBy": [
         "create_voiceai_agent",
         "get_ai_configuration_bundle"
