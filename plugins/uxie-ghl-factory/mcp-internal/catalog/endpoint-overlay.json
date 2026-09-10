@@ -1186,6 +1186,10 @@
     },
     "POST /snapshots/{snapshotId}/snapshot-preferences": {
       "note": "🔴 Answers 201 {\"success\":true,\"message\":\"Snapshot preferences upserted successfully\"} and the value does NOT appear in the read-back (2026-09-10, on a snapshot this project created). Do not read that message as confirmation. Note the likely cause is on the caller side, not the server: the GET returns {\"success\":true,\"data\":[]} — preferences are a LIST — and the probe sent a single object, so the shape is probably wrong. Either way the message is not evidence of storage; read the preference back before believing it."
+    },
+    "PUT /calendars/{calendarId}": {
+      "reach": "proven",
+      "note": "Executed on the sandbox 2026-09-10 by round trip — description changed, read back on a separate request, restored. 🔴 THE READ SHAPE IS NOT THE WRITE SHAPE. Sending back what GET returns answers 422 twice over. First it names ten server-added properties that \"should not exist\" and must be stripped: id, deleted, dateAdded, dateUpdated, isSystemGenerated, locationId, createdBy, lastUpdatedBy, version, notificationStatus. Then it rejects `openHours` — the sub-object the GET itself returned — with \"openHours.must be a valid day of week / daysOfTheWeek must be an array / hours must be an array\". Dropping openHours entirely lands a 200 and leaves the stored hours alone. So a naive read-modify-write is refused, and the refusal arrives one layer at a time."
     }
   }
 }
