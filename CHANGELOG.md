@@ -11,6 +11,37 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [0.75.0] — 2026-09-10
+
+`fast_forward_contacts` re-proven — the last write tool resting on old evidence. **Every write tool
+in the plugin now carries proof from today**, and none of them needed a client account to earn it.
+
+### Changed
+
+- **`fast_forward_contacts`: live-runtime (2026-07-18) → (2026-09-10).** It moves real contacts
+  through a workflow, and a contact pushed past a step can land ON the next one, so the safety
+  property was built rather than assumed: a throwaway workflow whose every step is a tag, with a
+  7-day wait in the middle to park someone. Not "the step we aim at is inert" — every possible
+  landing spot is inert. Zero triggers, so only a deliberate manual add could enrol anybody.
+
+      enrolled                    -> parked at the wait
+      preview (no confirm)        -> CONFIRM_REQUIRED, named the exact enrollment, wrote nothing
+      confirm + previewToken      -> moved: 1
+      read back separately        -> 0 at the wait step
+      contact tags                -> ["test-conf-ffwd-a", "test-conf-ffwd-b"]
+
+  Both tags is the assertion worth having: the contact did not merely leave the wait, it advanced
+  and the step AFTER the wait executed. An enrollment count going to zero would equally fit the
+  enrollment being dropped, which is the failure this tool must never have.
+
+### Notes
+
+That closes the proof-decay sweep this project opened when the capability page started reporting
+proof AGE rather than presence. Nine write tools were resting on evidence 33–61 days old, in a
+window where this platform demonstrably moved its funnels auth rail underneath us. All nine now
+carry today's date. Two of them — `create_voiceai_agent` and `create_studio_agent` — had previously
+been proven against a CLIENT account and now rest on the sandbox instead.
+
 ## [0.74.0] — 2026-09-10
 
 Six write tools re-proven on the sandbox, and two new `audit_site` checks that immediately found a
