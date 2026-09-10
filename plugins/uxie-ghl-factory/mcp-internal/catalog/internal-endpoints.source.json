@@ -20,16 +20,16 @@
     {
       "tree": "documented",
       "dir": "corpus",
-      "capturedAt": "2026-09-09T19:13:03.603Z",
+      "capturedAt": "2026-09-10T19:46:54.956Z",
       "hash": "corpus",
-      "fileCount": 778,
-      "endpoints": 778
+      "fileCount": 809,
+      "endpoints": 809
     }
   ],
   "note": "SOURCE-DERIVED ONLY, merged from every mined front-end. `tree` on each row says which app calls it. The plugin owns kind/note/summary/reach/coveredBy and merges them at read time. A row proves a GHL front-end calls that path — not that your token reaches it, and not that calling it is safe.",
-  "discoveredCallSites": 1238,
-  "skippedCallSites": 412,
-  "count": 1159,
+  "discoveredCallSites": 1269,
+  "skippedCallSites": 413,
+  "count": 1188,
   "endpoints": [
     {
       "id": "workflows--actions-branches",
@@ -1890,6 +1890,12 @@
           "source": "documented"
         },
         {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
           "name": "limit",
           "type": "string",
           "required": false,
@@ -1897,12 +1903,6 @@
         },
         {
           "name": "offset",
-          "type": "string",
-          "required": false,
-          "source": "documented"
-        },
-        {
-          "name": "locationId",
           "type": "string",
           "required": false,
           "source": "documented"
@@ -1923,7 +1923,8 @@
       "sources": [
         "services/api/chat-widget-service.ts:35",
         "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:127",
-        "funnels/20-api/funnels-api.md:264",
+        "funnels/10-anatomy/websites-and-global-sections.md:278",
+        "funnels/20-api/funnels-api.md:305",
         "workflows/70-research/ENDPOINTS.md:137"
       ],
       "serviceClass": null,
@@ -2075,7 +2076,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "memberships-courses/20-api/build-api.md:332"
+        "memberships-courses/20-api/build-api.md:332",
+        "platform/40-rules/validation-speaks-three-dialects.md:28"
       ],
       "serviceBasis": "declared"
     },
@@ -2894,6 +2896,39 @@
       ],
       "serviceClass": "EmailService",
       "serviceBasis": "inferred-from-path"
+    },
+    {
+      "id": "conversations--fetch-domain",
+      "method": "GET",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/conversations/providers/mailgun/fetch/domain",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "conversations",
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "conversations/20-api/email-sending-domains.md:54"
+      ],
+      "serviceBasis": "declared"
     },
     {
       "id": "tik-tok-service--get-tik-tok-posts",
@@ -5065,7 +5100,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "events/20-api/events-management-api.md:106"
+        "events/20-api/events-management-api.md:106",
+        "platform/40-rules/validation-speaks-three-dialects.md:39"
       ],
       "serviceBasis": "declared"
     },
@@ -5385,6 +5421,32 @@
       "id": "funnels--builder-autosave",
       "method": "POST",
       "origin": "https://backend.leadconnectorhq.com",
+      "path": "/funnels/builder/autosave/{newPageId}",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "funnels",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/40-rules/silent-failures.md:569"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "funnels--builder-autosave-post",
+      "method": "POST",
+      "origin": "https://backend.leadconnectorhq.com",
       "path": "/funnels/builder/autosave/{pageId}",
       "authRail": "bearer",
       "transport": "json",
@@ -5403,7 +5465,10 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/funnels-api.md:153",
+        "funnels/20-api/funnels-api.md:194",
+        "funnels/40-rules/autosave-writes-only-the-data-file.md:11",
+        "funnels/40-rules/autosave-writes-only-the-data-file.md:31",
+        "funnels/40-rules/silent-failures.md:1061",
         "funnels/60-recipes/add-a-page-to-a-funnel.md:33"
       ],
       "serviceBasis": "declared"
@@ -5430,7 +5495,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/funnels-api.md:211"
+        "funnels/20-api/funnels-api.md:252"
       ],
       "serviceBasis": "declared"
     },
@@ -5464,9 +5529,11 @@
       },
       "sources": [
         "funnels/10-anatomy/routing-and-publishing.md:71",
-        "funnels/20-api/funnels-api.md:196",
-        "funnels/60-recipes/add-a-page-to-a-funnel.md:37",
-        "funnels/60-recipes/build-a-multi-step-funnel.md:77"
+        "funnels/20-api/funnels-api.md:237",
+        "funnels/40-rules/autosave-writes-only-the-data-file.md:32",
+        "funnels/40-rules/silent-failures.md:791",
+        "funnels/40-rules/silent-failures.md:1062",
+        "funnels/60-recipes/add-a-page-to-a-funnel.md:37"
       ],
       "serviceBasis": "declared"
     },
@@ -5492,7 +5559,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/10-anatomy/websites-and-global-sections.md:90"
+        "funnels/10-anatomy/websites-and-global-sections.md:96"
       ],
       "serviceBasis": "declared"
     },
@@ -5527,9 +5594,9 @@
       "sources": [
         "funnels/10-anatomy/page-content.md:13",
         "funnels/10-anatomy/routing-and-publishing.md:31",
-        "funnels/20-api/funnels-api.md:77",
-        "funnels/20-api/funnels-api.md:142",
-        "funnels/60-recipes/author-native-elements.md:32"
+        "funnels/20-api/funnels-api.md:110",
+        "funnels/20-api/funnels-api.md:183",
+        "funnels/60-recipes/author-native-elements.md:44"
       ],
       "serviceBasis": "declared"
     },
@@ -5562,7 +5629,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/10-anatomy/websites-and-global-sections.md:149"
+        "funnels/10-anatomy/websites-and-global-sections.md:330"
       ],
       "serviceBasis": "declared"
     },
@@ -5588,7 +5655,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/10-anatomy/websites-and-global-sections.md:157"
+        "funnels/10-anatomy/websites-and-global-sections.md:338"
       ],
       "serviceBasis": "declared"
     },
@@ -5639,7 +5706,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/10-anatomy/websites-and-global-sections.md:150"
+        "funnels/10-anatomy/websites-and-global-sections.md:331"
       ],
       "serviceBasis": "declared"
     },
@@ -5665,8 +5732,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/10-anatomy/websites-and-global-sections.md:151",
-        "funnels/10-anatomy/websites-and-global-sections.md:176"
+        "funnels/10-anatomy/websites-and-global-sections.md:332",
+        "funnels/10-anatomy/websites-and-global-sections.md:357"
       ],
       "serviceBasis": "declared"
     },
@@ -5692,7 +5759,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/10-anatomy/websites-and-global-sections.md:159"
+        "funnels/10-anatomy/websites-and-global-sections.md:340"
       ],
       "serviceBasis": "declared"
     },
@@ -5718,7 +5785,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/10-anatomy/websites-and-global-sections.md:155"
+        "funnels/10-anatomy/websites-and-global-sections.md:336"
       ],
       "serviceBasis": "declared"
     },
@@ -5744,7 +5811,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/10-anatomy/websites-and-global-sections.md:158"
+        "funnels/10-anatomy/websites-and-global-sections.md:339"
       ],
       "serviceBasis": "declared"
     },
@@ -5770,7 +5837,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/10-anatomy/websites-and-global-sections.md:156"
+        "funnels/10-anatomy/websites-and-global-sections.md:337"
       ],
       "serviceBasis": "declared"
     },
@@ -5796,7 +5863,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/10-anatomy/websites-and-global-sections.md:154"
+        "funnels/10-anatomy/websites-and-global-sections.md:335"
       ],
       "serviceBasis": "declared"
     },
@@ -5822,7 +5889,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/10-anatomy/websites-and-global-sections.md:153"
+        "funnels/10-anatomy/websites-and-global-sections.md:334",
+        "funnels/10-anatomy/websites-and-global-sections.md:411"
       ],
       "serviceBasis": "declared"
     },
@@ -5848,9 +5916,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/10-anatomy/domains-and-public-urls.md:114",
         "funnels/10-anatomy/routing-and-publishing.md:72",
-        "funnels/20-api/funnels-api.md:197",
+        "funnels/20-api/funnels-api.md:238",
         "funnels/60-recipes/add-a-page-to-a-funnel.md:40",
         "funnels/60-recipes/build-a-multi-step-funnel.md:78"
       ],
@@ -5878,7 +5945,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/funnels-api.md:210"
+        "funnels/20-api/funnels-api.md:251"
       ],
       "serviceBasis": "declared"
     },
@@ -5912,7 +5979,7 @@
       },
       "sources": [
         "funnels/10-anatomy/domains-and-public-urls.md:21",
-        "funnels/20-api/funnels-api.md:130"
+        "funnels/20-api/funnels-api.md:171"
       ],
       "serviceBasis": "declared"
     },
@@ -5938,7 +6005,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/funnels-api.md:45"
+        "funnels/20-api/funnels-api.md:78"
       ],
       "serviceBasis": "declared"
     },
@@ -5964,9 +6031,10 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/10-anatomy/domains-and-public-urls.md:100",
-        "funnels/20-api/funnels-api.md:81",
-        "funnels/40-rules/silent-failures.md:114"
+        "funnels/10-anatomy/domains-and-public-urls.md:107",
+        "funnels/20-api/funnels-api.md:114",
+        "funnels/40-rules/silent-failures.md:120",
+        "funnels/40-rules/silent-failures.md:237"
       ],
       "serviceBasis": "declared"
     },
@@ -5993,8 +6061,8 @@
       },
       "sources": [
         "funnels/10-anatomy/domains-and-public-urls.md:43",
-        "funnels/10-anatomy/websites-and-global-sections.md:10",
-        "funnels/20-api/funnels-api.md:21",
+        "funnels/10-anatomy/websites-and-global-sections.md:16",
+        "funnels/20-api/funnels-api.md:54",
         "funnels/60-recipes/build-a-multi-step-funnel.md:28"
       ],
       "serviceBasis": "declared"
@@ -6022,9 +6090,10 @@
       },
       "sources": [
         "funnels/10-anatomy/page-content.md:22",
-        "funnels/20-api/funnels-api.md:53",
+        "funnels/20-api/funnels-api.md:86",
+        "funnels/40-rules/silent-failures.md:515",
         "funnels/60-recipes/add-a-page-to-a-funnel.md:29",
-        "funnels/60-recipes/author-native-elements.md:42",
+        "funnels/60-recipes/author-native-elements.md:56",
         "funnels/60-recipes/build-a-multi-step-funnel.md:30"
       ],
       "serviceBasis": "declared"
@@ -6051,7 +6120,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/funnels-api.md:37"
+        "funnels/20-api/funnels-api.md:70",
+        "funnels/40-rules/silent-failures.md:555"
       ],
       "serviceBasis": "declared"
     },
@@ -6084,8 +6154,9 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/funnels-api.md:29",
-        "funnels/20-api/funnels-api.md:139",
+        "funnels/20-api/funnels-api.md:62",
+        "funnels/20-api/funnels-api.md:180",
+        "funnels/40-rules/silent-failures.md:1033",
         "funnels/60-recipes/build-a-multi-step-funnel.md:50"
       ],
       "serviceBasis": "declared"
@@ -6116,7 +6187,8 @@
         "returns": "none-observed"
       },
       "sources": [
-        "services/marketplaceServices/FunnelsService.ts:21"
+        "services/marketplaceServices/FunnelsService.ts:21",
+        "funnels/20-api/funnels-api.md:17"
       ],
       "serviceClass": "FunnelsService",
       "serviceBasis": "inferred-from-path"
@@ -6143,11 +6215,12 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/10-anatomy/websites-and-global-sections.md:119",
-        "funnels/20-api/funnels-api.md:218",
-        "funnels/40-rules/silent-failures.md:31",
-        "funnels/40-rules/silent-failures.md:447",
-        "funnels/60-recipes/add-a-page-to-a-funnel.md:47"
+        "funnels/00-overview/index.md:29",
+        "funnels/10-anatomy/websites-and-global-sections.md:300",
+        "funnels/20-api/funnels-api.md:259",
+        "funnels/20-api/funnels-api.md:328",
+        "funnels/40-rules/autosave-writes-only-the-data-file.md:58",
+        "funnels/40-rules/autosave-writes-only-the-data-file.md:63"
       ],
       "serviceBasis": "declared"
     },
@@ -6180,7 +6253,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/funnels-api.md:227"
+        "funnels/20-api/funnels-api.md:268"
       ],
       "serviceBasis": "declared"
     },
@@ -6249,8 +6322,10 @@
       "sources": [
         "services/marketplaceServices/FunnelsService.ts:11",
         "ai-studio/10-anatomy/project.md:17",
-        "funnels/10-anatomy/websites-and-global-sections.md:28",
-        "funnels/20-api/funnels-api.md:138"
+        "funnels/10-anatomy/websites-and-global-sections.md:34",
+        "funnels/20-api/funnels-api.md:17",
+        "funnels/20-api/funnels-api.md:179",
+        "funnels/40-rules/silent-failures.md:646"
       ],
       "serviceClass": "FunnelsService",
       "serviceBasis": "inferred-from-path"
@@ -6277,11 +6352,12 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/10-anatomy/domains-and-public-urls.md:101",
-        "funnels/20-api/funnels-api.md:98",
-        "funnels/40-rules/silent-failures.md:117",
-        "funnels/40-rules/silent-failures.md:214",
-        "funnels/60-recipes/build-a-multi-step-funnel.md:44"
+        "funnels/10-anatomy/domains-and-public-urls.md:109",
+        "funnels/10-anatomy/domains-and-public-urls.md:163",
+        "funnels/20-api/funnels-api.md:131",
+        "funnels/40-rules/silent-failures.md:123",
+        "funnels/40-rules/silent-failures.md:245",
+        "funnels/40-rules/silent-failures.md:522"
       ],
       "serviceBasis": "declared"
     },
@@ -6307,15 +6383,69 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/00-overview/index.md:68",
+        "funnels/00-overview/index.md:71",
         "funnels/10-anatomy/domains-and-public-urls.md:33",
-        "funnels/10-anatomy/websites-and-global-sections.md:281",
-        "funnels/20-api/funnels-api.md:236"
+        "funnels/10-anatomy/websites-and-global-sections.md:264",
+        "funnels/10-anatomy/websites-and-global-sections.md:489",
+        "funnels/20-api/funnels-api.md:277",
+        "funnels/40-rules/silent-failures.md:977"
       ],
       "serviceBasis": "declared"
     },
     {
       "id": "funnels--funnels-lookup",
+      "method": "GET",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/funnels/lookup",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "funnels",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/10-anatomy/domains-and-public-urls.md:168"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "funnels--funnels-lookup-post",
+      "method": "POST",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/funnels/lookup",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "funnels",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/10-anatomy/domains-and-public-urls.md:113"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "funnels--funnels-lookup-put",
       "method": "PUT",
       "origin": "https://backend.leadconnectorhq.com",
       "path": "/funnels/lookup/{lookupId}",
@@ -6337,9 +6467,107 @@
       },
       "sources": [
         "funnels/10-anatomy/domains-and-public-urls.md:93",
-        "funnels/20-api/funnels-api.md:217",
-        "funnels/40-rules/silent-failures.md:234",
-        "funnels/60-recipes/add-a-page-to-a-funnel.md:46"
+        "funnels/20-api/funnels-api.md:258",
+        "funnels/40-rules/silent-failures.md:270",
+        "funnels/40-rules/silent-failures.md:926",
+        "funnels/40-rules/silent-failures.md:956",
+        "funnels/40-rules/silent-failures.md:960"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "funnels--lookup-create",
+      "method": "POST",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/funnels/lookup/create",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "funnels",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/10-anatomy/domains-and-public-urls.md:111",
+        "funnels/10-anatomy/domains-and-public-urls.md:157",
+        "funnels/40-rules/silent-failures.md:239"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "funnels--lookup-list",
+      "method": "GET",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/funnels/lookup/list",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "funnels",
+      "query": [
+        {
+          "name": "funnelId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/10-anatomy/domains-and-public-urls.md:165",
+        "funnels/40-rules/silent-failures.md:609",
+        "funnels/40-rules/silent-failures.md:641",
+        "funnels/40-rules/silent-failures.md:929"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "funnels--lookup-path",
+      "method": "GET",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/funnels/lookup/path",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "funnels",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/10-anatomy/domains-and-public-urls.md:167"
       ],
       "serviceBasis": "declared"
     },
@@ -6366,7 +6594,7 @@
       },
       "sources": [
         "funnels/10-anatomy/routing-and-publishing.md:41",
-        "funnels/20-api/funnels-api.md:216"
+        "funnels/20-api/funnels-api.md:257"
       ],
       "serviceBasis": "declared"
     },
@@ -6394,33 +6622,6 @@
       "sources": [
         "funnels/10-anatomy/routing-and-publishing.md:61",
         "funnels/60-recipes/add-a-page-to-a-funnel.md:45"
-      ],
-      "serviceBasis": "declared"
-    },
-    {
-      "id": "funnels--lookup-type-get-get",
-      "method": "GET",
-      "origin": "https://backend.leadconnectorhq.com",
-      "path": "/funnels/lookup/type/{variationPageId}",
-      "authRail": "bearer",
-      "transport": "json",
-      "responseMode": "json",
-      "extraHeaders": [],
-      "tree": "documented",
-      "operation": null,
-      "service": "funnels",
-      "query": [],
-      "body": null,
-      "returns": null,
-      "confidence": {
-        "path": "documented",
-        "query": "none-observed",
-        "body": "unresolved",
-        "returns": "unresolved"
-      },
-      "sources": [
-        "funnels/10-anatomy/domains-and-public-urls.md:122",
-        "funnels/40-rules/silent-failures.md:218"
       ],
       "serviceBasis": "declared"
     },
@@ -6464,6 +6665,12 @@
           "type": "string",
           "required": true,
           "source": "params"
+        },
+        {
+          "name": "funnelId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
         }
       ],
       "body": null,
@@ -6475,7 +6682,8 @@
         "returns": "none-observed"
       },
       "sources": [
-        "services/marketplaceServices/FunnelsService.ts:25"
+        "services/marketplaceServices/FunnelsService.ts:25",
+        "funnels/40-rules/silent-failures.md:590"
       ],
       "serviceClass": "FunnelsService",
       "serviceBasis": "inferred-from-path"
@@ -6512,7 +6720,7 @@
       "serviceBasis": "inferred-from-path"
     },
     {
-      "id": "funnels--funnels-page",
+      "id": "funnels--funnels-page-get",
       "method": "GET",
       "origin": "https://backend.leadconnectorhq.com",
       "path": "/funnels/page/{pageId}",
@@ -6533,12 +6741,12 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/10-anatomy/websites-and-global-sections.md:125",
-        "funnels/10-anatomy/websites-and-global-sections.md:319",
+        "funnels/00-overview/index.md:31",
+        "funnels/10-anatomy/websites-and-global-sections.md:306",
+        "funnels/10-anatomy/websites-and-global-sections.md:539",
         "funnels/20-api/funnel-ai.md:75",
-        "funnels/20-api/funnels-api.md:140",
-        "funnels/40-rules/silent-failures.md:32",
-        "funnels/40-rules/silent-failures.md:445"
+        "funnels/20-api/funnels-api.md:181",
+        "funnels/20-api/funnels-api.md:335"
       ],
       "serviceBasis": "declared"
     },
@@ -6565,8 +6773,8 @@
       },
       "sources": [
         "funnels/10-anatomy/page-content.md:22",
-        "funnels/20-api/funnels-api.md:70",
-        "funnels/40-rules/silent-failures.md:114"
+        "funnels/20-api/funnels-api.md:103",
+        "funnels/40-rules/silent-failures.md:120"
       ],
       "serviceBasis": "declared"
     },
@@ -6605,7 +6813,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/funnels-api.md:141"
+        "funnels/20-api/funnels-api.md:182"
       ],
       "serviceBasis": "declared"
     },
@@ -10680,7 +10888,8 @@
       },
       "sources": [
         "memberships-courses/20-api/build-api.md:46",
-        "memberships-courses/70-research/2026-07-18-internal-api-recon.md:49"
+        "memberships-courses/70-research/2026-07-18-internal-api-recon.md:49",
+        "platform/40-rules/validation-speaks-three-dialects.md:29"
       ],
       "serviceBasis": "declared"
     },
@@ -11650,7 +11859,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/funnels-api.md:286"
+        "funnels/20-api/funnels-api.md:350"
       ],
       "serviceBasis": "declared"
     },
@@ -13262,7 +13471,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/40-rules/silent-failures.md:277"
+        "funnels/40-rules/silent-failures.md:313"
       ],
       "serviceBasis": "declared"
     },
@@ -15581,7 +15790,8 @@
       "proof": "executed",
       "sources": [
         "ai-studio/_data/endpoints.json",
-        "ai-studio/40-rules/constraints.md:46"
+        "ai-studio/40-rules/constraints.md:46",
+        "funnels/20-api/funnels-api.md:29"
       ],
       "serviceBasis": "declared"
     },
@@ -19061,6 +19271,7 @@
       },
       "sources": [
         "services/api/workflow-overview.service.ts:260",
+        "conversations/20-api/email-sending-domains.md:44",
         "workflows/20-api/03-endpoints.md:297",
         "workflows/70-research/ENDPOINT-SWEEP-2026-08-25.md:71"
       ],
@@ -29333,6 +29544,84 @@
       "serviceBasis": "declared"
     },
     {
+      "id": "conversations--mailgun-fetch",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/conversations/providers/mailgun/fetch",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "conversations",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "conversations/20-api/email-sending-domains.md:101"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "conversations--fetch-domain-get",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/conversations/providers/mailgun/fetch/domain",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "conversations",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "conversations/20-api/email-sending-domains.md:102"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "conversations--mailgun-validations",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/conversations/providers/mailgun/validations",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "conversations",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "conversations/20-api/email-sending-domains.md:103"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
       "id": "services--assessment-results",
       "method": "GET",
       "origin": "https://services.leadconnectorhq.com",
@@ -29418,6 +29707,526 @@
       ],
       "serviceClass": null,
       "serviceBasis": "inferred-from-path"
+    },
+    {
+      "id": "conversations--feature-domain",
+      "method": "DELETE",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/email-isv/feature/domain/{domain}",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "conversations",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "conversations/20-api/email-sending-domains.md:74"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "conversations--feature-domain-get",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/email-isv/feature/domain/{domain}",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "conversations",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "conversations/20-api/email-sending-domains.md:73"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "conversations--domain-default-domain-mapping",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/email-isv/feature/domain/default-domain-mapping",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "conversations",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "conversations/20-api/email-sending-domains.md:90"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "conversations--domain-domain-selection-list",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/email-isv/feature/domain/domain-selection-list",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "conversations",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "conversations/20-api/email-sending-domains.md:87"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "conversations--domain-domain-type",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/email-isv/feature/domain/domain-type",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "conversations",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "conversations/20-api/email-sending-domains.md:81"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "conversations--domain-lc-spf-record",
+      "method": "PUT",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/email-isv/feature/domain/lc-spf-record",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "conversations",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "conversations/20-api/email-sending-domains.md:85"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "conversations--domain-list",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/email-isv/feature/domain/list",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "conversations",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "conversations/20-api/email-sending-domains.md:75"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "conversations--domain-mx-and-spf-record",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/email-isv/feature/domain/mx-and-spf-record",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "conversations",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "conversations/20-api/email-sending-domains.md:79"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "conversations--domain-mx-record",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/email-isv/feature/domain/mx-record",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "conversations",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "conversations/20-api/email-sending-domains.md:78"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "conversations--domain-removal-allowed",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/email-isv/feature/domain/removal-allowed",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "conversations",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "conversations/20-api/email-sending-domains.md:91"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "conversations--domain-remove-domain-selection",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/email-isv/feature/domain/remove-domain-selection",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "conversations",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "conversations/20-api/email-sending-domains.md:88"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "conversations--domain-set-default",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/email-isv/feature/domain/set-default",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "conversations",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "conversations/20-api/email-sending-domains.md:77"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "conversations--domain-set-default-headers",
+      "method": "PUT",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/email-isv/feature/domain/set-default-headers/{domain}",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "conversations",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "conversations/20-api/email-sending-domains.md:82"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "conversations--domain-type-config",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/email-isv/feature/domain/type-config",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "conversations",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "conversations/20-api/email-sending-domains.md:84"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "conversations--domain-unset-default-headers",
+      "method": "PUT",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/email-isv/feature/domain/unset-default-headers/{domain}",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "conversations",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "conversations/20-api/email-sending-domains.md:83"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "conversations--v2-add-domain",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/email-isv/feature/domain/v2/add-domain",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "conversations",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "conversations/20-api/email-sending-domains.md:72"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "conversations--v2-mx-and-spf-record",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/email-isv/feature/domain/v2/mx-and-spf-record",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "conversations",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "conversations/20-api/email-sending-domains.md:80"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "conversations--domain-validate",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/email-isv/feature/domain/validate",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "conversations",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "conversations/20-api/email-sending-domains.md:89"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "conversations--domain-verify",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/email-isv/feature/domain/verify",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "conversations",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "conversations/20-api/email-sending-domains.md:76"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "conversations--domain-warmup",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/email-isv/feature/domain/warmup/{domain}",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "conversations",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "conversations/20-api/email-sending-domains.md:86"
+      ],
+      "serviceBasis": "declared"
     },
     {
       "id": "forms--builder-all",
@@ -38837,7 +39646,7 @@
         "services/TemplateLibraryService.ts:18",
         "funnels/20-api/template-library.md:35",
         "funnels/20-api/template-library.md:118",
-        "funnels/60-recipes/author-native-elements.md:33"
+        "funnels/60-recipes/author-native-elements.md:45"
       ],
       "serviceClass": "TemplateLibraryService",
       "serviceBasis": "inferred-from-path"
@@ -39023,8 +39832,8 @@
         "services/TemplateLibraryService.ts:43",
         "funnels/20-api/template-library.md:77",
         "funnels/20-api/template-library.md:153",
-        "funnels/30-types/synthesis-contract.md:155",
-        "funnels/60-recipes/author-native-elements.md:33"
+        "funnels/30-types/synthesis-contract.md:158",
+        "funnels/60-recipes/author-native-elements.md:45"
       ],
       "serviceClass": "TemplateLibraryService",
       "serviceBasis": "inferred-from-path"

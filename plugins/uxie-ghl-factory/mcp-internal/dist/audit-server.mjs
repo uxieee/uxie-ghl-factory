@@ -246,7 +246,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
     define_ENDPOINT_CATALOG_default = {
       generated: "2026-09-10",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 1168,
+      count: 1196,
       endpoints: [
         {
           id: "workflows--actions-branches",
@@ -2614,6 +2614,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
               source: "documented"
             },
             {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
               name: "limit",
               type: "string",
               required: false,
@@ -2621,12 +2627,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             },
             {
               name: "offset",
-              type: "string",
-              required: false,
-              source: "documented"
-            },
-            {
-              name: "locationId",
               type: "string",
               required: false,
               source: "documented"
@@ -2647,7 +2647,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "services/api/chat-widget-service.ts:35",
             "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:127",
-            "funnels/20-api/funnels-api.md:264",
+            "funnels/10-anatomy/websites-and-global-sections.md:278",
+            "funnels/20-api/funnels-api.md:305",
             "workflows/70-research/ENDPOINTS.md:137"
           ]
         },
@@ -2843,7 +2844,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "memberships-courses/20-api/build-api.md:332"
+            "memberships-courses/20-api/build-api.md:332",
+            "platform/40-rules/validation-speaks-three-dialects.md:28"
           ]
         },
         {
@@ -3895,6 +3897,45 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/EmailService.ts:234"
+          ]
+        },
+        {
+          id: "conversations--fetch-domain",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/conversations/providers/mailgun/fetch/domain",
+          path: "/conversations/providers/mailgun/fetch/domain",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          note: '\u{1F534} A 400 HERE IS AN ANSWER, NOT A FAILURE. On an account using LeadConnector email it returns 400 {"message":"No MailgunAccount found","canonicalCode":"CONVERSATIONS_SOMETHING_WENT_WRONG"} \u2014 which tells you the account is NOT on bring-your-own Mailgun. Not an auth problem and not a wrong path. Reproduced on GROM Sandbox 2026-09-11 on BOTH hosts \u2014 backend and services each answered the identical 400 with its own traceId, so this row is not host-specific.',
+          reach: "proven",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "conversations",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "conversations/20-api/email-sending-domains.md:54"
           ]
         },
         {
@@ -6617,7 +6658,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "events/20-api/events-management-api.md:106"
+            "events/20-api/events-management-api.md:106",
+            "platform/40-rules/validation-speaks-three-dialects.md:39"
           ]
         },
         {
@@ -7039,6 +7081,43 @@ var init_define_ENDPOINT_CATALOG = __esm({
         {
           id: "funnels--builder-autosave",
           method: "POST",
+          url: "https://backend.leadconnectorhq.com/funnels/builder/autosave/{newPageId}",
+          path: "/funnels/builder/autosave/{newPageId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [
+            "build_funnel_page"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "newPageId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/40-rules/silent-failures.md:569"
+          ]
+        },
+        {
+          id: "funnels--builder-autosave-post",
+          method: "POST",
           url: "https://backend.leadconnectorhq.com/funnels/builder/autosave/{pageId}",
           path: "/funnels/builder/autosave/{pageId}",
           origin: "https://backend.leadconnectorhq.com",
@@ -7070,7 +7149,10 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/funnels-api.md:153",
+            "funnels/20-api/funnels-api.md:194",
+            "funnels/40-rules/autosave-writes-only-the-data-file.md:11",
+            "funnels/40-rules/autosave-writes-only-the-data-file.md:31",
+            "funnels/40-rules/silent-failures.md:1061",
             "funnels/60-recipes/add-a-page-to-a-funnel.md:33"
           ]
         },
@@ -7102,7 +7184,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/funnels-api.md:211"
+            "funnels/20-api/funnels-api.md:252"
           ]
         },
         {
@@ -7145,9 +7227,11 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/10-anatomy/routing-and-publishing.md:71",
-            "funnels/20-api/funnels-api.md:196",
-            "funnels/60-recipes/add-a-page-to-a-funnel.md:37",
-            "funnels/60-recipes/build-a-multi-step-funnel.md:77"
+            "funnels/20-api/funnels-api.md:237",
+            "funnels/40-rules/autosave-writes-only-the-data-file.md:32",
+            "funnels/40-rules/silent-failures.md:791",
+            "funnels/40-rules/silent-failures.md:1062",
+            "funnels/60-recipes/add-a-page-to-a-funnel.md:37"
           ]
         },
         {
@@ -7182,7 +7266,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/10-anatomy/websites-and-global-sections.md:90"
+            "funnels/10-anatomy/websites-and-global-sections.md:96"
           ]
         },
         {
@@ -7225,9 +7309,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "funnels/10-anatomy/page-content.md:13",
             "funnels/10-anatomy/routing-and-publishing.md:31",
-            "funnels/20-api/funnels-api.md:77",
-            "funnels/20-api/funnels-api.md:142",
-            "funnels/60-recipes/author-native-elements.md:32"
+            "funnels/20-api/funnels-api.md:110",
+            "funnels/20-api/funnels-api.md:183",
+            "funnels/60-recipes/author-native-elements.md:44"
           ]
         },
         {
@@ -7265,7 +7349,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/10-anatomy/websites-and-global-sections.md:149"
+            "funnels/10-anatomy/websites-and-global-sections.md:330"
           ]
         },
         {
@@ -7297,7 +7381,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/10-anatomy/websites-and-global-sections.md:157"
+            "funnels/10-anatomy/websites-and-global-sections.md:338"
           ]
         },
         {
@@ -7357,7 +7441,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/10-anatomy/websites-and-global-sections.md:150"
+            "funnels/10-anatomy/websites-and-global-sections.md:331"
           ]
         },
         {
@@ -7392,8 +7476,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/10-anatomy/websites-and-global-sections.md:151",
-            "funnels/10-anatomy/websites-and-global-sections.md:176"
+            "funnels/10-anatomy/websites-and-global-sections.md:332",
+            "funnels/10-anatomy/websites-and-global-sections.md:357"
           ]
         },
         {
@@ -7428,7 +7512,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/10-anatomy/websites-and-global-sections.md:159"
+            "funnels/10-anatomy/websites-and-global-sections.md:340"
           ]
         },
         {
@@ -7463,7 +7547,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/10-anatomy/websites-and-global-sections.md:155"
+            "funnels/10-anatomy/websites-and-global-sections.md:336"
           ]
         },
         {
@@ -7498,7 +7582,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/10-anatomy/websites-and-global-sections.md:158"
+            "funnels/10-anatomy/websites-and-global-sections.md:339"
           ]
         },
         {
@@ -7537,7 +7621,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/10-anatomy/websites-and-global-sections.md:156"
+            "funnels/10-anatomy/websites-and-global-sections.md:337"
           ]
         },
         {
@@ -7568,7 +7652,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/10-anatomy/websites-and-global-sections.md:154"
+            "funnels/10-anatomy/websites-and-global-sections.md:335"
           ]
         },
         {
@@ -7599,7 +7683,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/10-anatomy/websites-and-global-sections.md:153"
+            "funnels/10-anatomy/websites-and-global-sections.md:334",
+            "funnels/10-anatomy/websites-and-global-sections.md:411"
           ]
         },
         {
@@ -7633,9 +7718,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/10-anatomy/domains-and-public-urls.md:114",
             "funnels/10-anatomy/routing-and-publishing.md:72",
-            "funnels/20-api/funnels-api.md:197",
+            "funnels/20-api/funnels-api.md:238",
             "funnels/60-recipes/add-a-page-to-a-funnel.md:40",
             "funnels/60-recipes/build-a-multi-step-funnel.md:78"
           ]
@@ -7668,7 +7752,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/funnels-api.md:210"
+            "funnels/20-api/funnels-api.md:251"
           ]
         },
         {
@@ -7709,7 +7793,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/10-anatomy/domains-and-public-urls.md:21",
-            "funnels/20-api/funnels-api.md:130"
+            "funnels/20-api/funnels-api.md:171"
           ]
         },
         {
@@ -7744,7 +7828,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/funnels-api.md:45"
+            "funnels/20-api/funnels-api.md:78"
           ]
         },
         {
@@ -7775,9 +7859,10 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/10-anatomy/domains-and-public-urls.md:100",
-            "funnels/20-api/funnels-api.md:81",
-            "funnels/40-rules/silent-failures.md:114"
+            "funnels/10-anatomy/domains-and-public-urls.md:107",
+            "funnels/20-api/funnels-api.md:114",
+            "funnels/40-rules/silent-failures.md:120",
+            "funnels/40-rules/silent-failures.md:237"
           ]
         },
         {
@@ -7809,8 +7894,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/10-anatomy/domains-and-public-urls.md:43",
-            "funnels/10-anatomy/websites-and-global-sections.md:10",
-            "funnels/20-api/funnels-api.md:21",
+            "funnels/10-anatomy/websites-and-global-sections.md:16",
+            "funnels/20-api/funnels-api.md:54",
             "funnels/60-recipes/build-a-multi-step-funnel.md:28"
           ]
         },
@@ -7843,9 +7928,10 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/10-anatomy/page-content.md:22",
-            "funnels/20-api/funnels-api.md:53",
+            "funnels/20-api/funnels-api.md:86",
+            "funnels/40-rules/silent-failures.md:515",
             "funnels/60-recipes/add-a-page-to-a-funnel.md:29",
-            "funnels/60-recipes/author-native-elements.md:42",
+            "funnels/60-recipes/author-native-elements.md:56",
             "funnels/60-recipes/build-a-multi-step-funnel.md:30"
           ]
         },
@@ -7877,7 +7963,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/funnels-api.md:37"
+            "funnels/20-api/funnels-api.md:70",
+            "funnels/40-rules/silent-failures.md:555"
           ]
         },
         {
@@ -7921,8 +8008,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/funnels-api.md:29",
-            "funnels/20-api/funnels-api.md:139",
+            "funnels/20-api/funnels-api.md:62",
+            "funnels/20-api/funnels-api.md:180",
+            "funnels/40-rules/silent-failures.md:1033",
             "funnels/60-recipes/build-a-multi-step-funnel.md:50"
           ]
         },
@@ -7964,7 +8052,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/FunnelsService.ts:21"
+            "services/marketplaceServices/FunnelsService.ts:21",
+            "funnels/20-api/funnels-api.md:17"
           ]
         },
         {
@@ -7999,11 +8088,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/10-anatomy/websites-and-global-sections.md:119",
-            "funnels/20-api/funnels-api.md:218",
-            "funnels/40-rules/silent-failures.md:31",
-            "funnels/40-rules/silent-failures.md:447",
-            "funnels/60-recipes/add-a-page-to-a-funnel.md:47"
+            "funnels/00-overview/index.md:29",
+            "funnels/10-anatomy/websites-and-global-sections.md:300",
+            "funnels/20-api/funnels-api.md:259",
+            "funnels/20-api/funnels-api.md:328",
+            "funnels/40-rules/autosave-writes-only-the-data-file.md:58",
+            "funnels/40-rules/autosave-writes-only-the-data-file.md:63"
           ]
         },
         {
@@ -8041,7 +8131,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/funnels-api.md:227"
+            "funnels/20-api/funnels-api.md:268"
           ]
         },
         {
@@ -8118,8 +8208,10 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "services/marketplaceServices/FunnelsService.ts:11",
             "ai-studio/10-anatomy/project.md:17",
-            "funnels/10-anatomy/websites-and-global-sections.md:28",
-            "funnels/20-api/funnels-api.md:138"
+            "funnels/10-anatomy/websites-and-global-sections.md:34",
+            "funnels/20-api/funnels-api.md:17",
+            "funnels/20-api/funnels-api.md:179",
+            "funnels/40-rules/silent-failures.md:646"
           ]
         },
         {
@@ -8154,11 +8246,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/10-anatomy/domains-and-public-urls.md:101",
-            "funnels/20-api/funnels-api.md:98",
-            "funnels/40-rules/silent-failures.md:117",
-            "funnels/40-rules/silent-failures.md:214",
-            "funnels/60-recipes/build-a-multi-step-funnel.md:44"
+            "funnels/10-anatomy/domains-and-public-urls.md:109",
+            "funnels/10-anatomy/domains-and-public-urls.md:163",
+            "funnels/20-api/funnels-api.md:131",
+            "funnels/40-rules/silent-failures.md:123",
+            "funnels/40-rules/silent-failures.md:245",
+            "funnels/40-rules/silent-failures.md:522"
           ]
         },
         {
@@ -8189,14 +8282,78 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/00-overview/index.md:68",
+            "funnels/00-overview/index.md:71",
             "funnels/10-anatomy/domains-and-public-urls.md:33",
-            "funnels/10-anatomy/websites-and-global-sections.md:281",
-            "funnels/20-api/funnels-api.md:236"
+            "funnels/10-anatomy/websites-and-global-sections.md:264",
+            "funnels/10-anatomy/websites-and-global-sections.md:489",
+            "funnels/20-api/funnels-api.md:277",
+            "funnels/40-rules/silent-failures.md:977"
           ]
         },
         {
           id: "funnels--funnels-lookup",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/funnels/lookup",
+          path: "/funnels/lookup",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/10-anatomy/domains-and-public-urls.md:168"
+          ]
+        },
+        {
+          id: "funnels--funnels-lookup-post",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/funnels/lookup",
+          path: "/funnels/lookup",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/10-anatomy/domains-and-public-urls.md:113"
+          ]
+        },
+        {
+          id: "funnels--funnels-lookup-put",
           method: "PUT",
           url: "https://backend.leadconnectorhq.com/funnels/lookup/{lookupId}",
           path: "/funnels/lookup/{lookupId}",
@@ -8228,13 +8385,48 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/10-anatomy/domains-and-public-urls.md:93",
-            "funnels/20-api/funnels-api.md:217",
-            "funnels/40-rules/silent-failures.md:234",
-            "funnels/60-recipes/add-a-page-to-a-funnel.md:46"
+            "funnels/20-api/funnels-api.md:258",
+            "funnels/40-rules/silent-failures.md:270",
+            "funnels/40-rules/silent-failures.md:926",
+            "funnels/40-rules/silent-failures.md:956",
+            "funnels/40-rules/silent-failures.md:960"
           ]
         },
         {
-          id: "typed--audit_site--lookup-list",
+          id: "funnels--lookup-create",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/funnels/lookup/create",
+          path: "/funnels/lookup/create",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/10-anatomy/domains-and-public-urls.md:111",
+            "funnels/10-anatomy/domains-and-public-urls.md:157",
+            "funnels/40-rules/silent-failures.md:239"
+          ]
+        },
+        {
+          id: "funnels--lookup-list",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/funnels/lookup/list",
           path: "/funnels/lookup/list",
@@ -8250,20 +8442,67 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: "audit_site",
-          tree: "typed-tool",
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "funnelId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/10-anatomy/domains-and-public-urls.md:165",
+            "funnels/40-rules/silent-failures.md:609",
+            "funnels/40-rules/silent-failures.md:641",
+            "funnels/40-rules/silent-failures.md:929"
+          ]
+        },
+        {
+          id: "funnels--lookup-path",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/funnels/lookup/path",
+          path: "/funnels/lookup/path",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
           pathParams: [],
           query: [],
           body: null,
           returns: null,
           confidence: {
-            path: "proven",
+            path: "documented",
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
           },
           sources: [
-            "capability-manifest.json (audit_site)"
+            "funnels/10-anatomy/domains-and-public-urls.md:167"
           ]
         },
         {
@@ -8301,7 +8540,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/10-anatomy/routing-and-publishing.md:41",
-            "funnels/20-api/funnels-api.md:216"
+            "funnels/20-api/funnels-api.md:257"
           ]
         },
         {
@@ -8343,44 +8582,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
-          id: "funnels--lookup-type-get-get",
-          method: "GET",
-          url: "https://backend.leadconnectorhq.com/funnels/lookup/type/{variationPageId}",
-          path: "/funnels/lookup/type/{variationPageId}",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "read",
-          reach: "source-only",
-          coveredBy: [
-            "audit_site"
-          ],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "funnels",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "variationPageId"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "funnels/10-anatomy/domains-and-public-urls.md:122",
-            "funnels/40-rules/silent-failures.md:218"
-          ]
-        },
-        {
           id: "funnels-service--get-pages-by-funnel-id",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/funnels/page",
@@ -8405,12 +8606,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           pathParams: [],
           query: [
             {
-              name: "funnelId",
-              type: "string",
-              required: true,
-              source: "live-probe"
-            },
-            {
               name: "locationId",
               type: "any",
               required: true,
@@ -8433,6 +8628,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
               type: "string",
               required: true,
               source: "params"
+            },
+            {
+              name: "funnelId",
+              type: "string",
+              required: false,
+              source: "documented"
             }
           ],
           body: null,
@@ -8444,7 +8645,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/FunnelsService.ts:25"
+            "services/marketplaceServices/FunnelsService.ts:25",
+            "funnels/40-rules/silent-failures.md:590"
           ]
         },
         {
@@ -8487,7 +8689,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
-          id: "funnels--funnels-page",
+          id: "funnels--funnels-page-get",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/funnels/page/{pageId}",
           path: "/funnels/page/{pageId}",
@@ -8518,12 +8720,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/10-anatomy/websites-and-global-sections.md:125",
-            "funnels/10-anatomy/websites-and-global-sections.md:319",
+            "funnels/00-overview/index.md:31",
+            "funnels/10-anatomy/websites-and-global-sections.md:306",
+            "funnels/10-anatomy/websites-and-global-sections.md:539",
             "funnels/20-api/funnel-ai.md:75",
-            "funnels/20-api/funnels-api.md:140",
-            "funnels/40-rules/silent-failures.md:32",
-            "funnels/40-rules/silent-failures.md:445"
+            "funnels/20-api/funnels-api.md:181",
+            "funnels/20-api/funnels-api.md:335"
           ]
         },
         {
@@ -8556,8 +8758,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/10-anatomy/page-content.md:22",
-            "funnels/20-api/funnels-api.md:70",
-            "funnels/40-rules/silent-failures.md:114"
+            "funnels/20-api/funnels-api.md:103",
+            "funnels/40-rules/silent-failures.md:120"
           ]
         },
         {
@@ -8601,7 +8803,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/funnels-api.md:141"
+            "funnels/20-api/funnels-api.md:182"
           ]
         },
         {
@@ -13795,7 +13997,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "memberships-courses/20-api/build-api.md:46",
-            "memberships-courses/70-research/2026-07-18-internal-api-recon.md:49"
+            "memberships-courses/70-research/2026-07-18-internal-api-recon.md:49",
+            "platform/40-rules/validation-speaks-three-dialects.md:29"
           ]
         },
         {
@@ -15082,7 +15285,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/funnels-api.md:286"
+            "funnels/20-api/funnels-api.md:350"
           ]
         },
         {
@@ -17026,7 +17229,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/40-rules/silent-failures.md:277"
+            "funnels/40-rules/silent-failures.md:313"
           ]
         },
         {
@@ -19982,7 +20185,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "ai-studio/_data/endpoints.json",
-            "ai-studio/40-rules/constraints.md:46"
+            "ai-studio/40-rules/constraints.md:46",
+            "funnels/20-api/funnels-api.md:29"
           ]
         },
         {
@@ -24490,6 +24694,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/api/workflow-overview.service.ts:260",
+            "conversations/20-api/email-sending-domains.md:44",
             "workflows/20-api/03-endpoints.md:297",
             "workflows/70-research/ENDPOINT-SWEEP-2026-08-25.md:71"
           ]
@@ -37068,6 +37273,100 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "conversations--mailgun-fetch",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/conversations/providers/mailgun/fetch",
+          path: "/conversations/providers/mailgun/fetch",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "conversations",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "conversations/20-api/email-sending-domains.md:101"
+          ]
+        },
+        {
+          id: "conversations--fetch-domain-get",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/conversations/providers/mailgun/fetch/domain",
+          path: "/conversations/providers/mailgun/fetch/domain",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          note: '\u{1F534} A 400 HERE IS AN ANSWER, NOT A FAILURE. On an account using LeadConnector email it returns 400 {"message":"No MailgunAccount found","canonicalCode":"CONVERSATIONS_SOMETHING_WENT_WRONG"} \u2014 which tells you the account is NOT on bring-your-own Mailgun. Not an auth problem and not a wrong path. Reproduced on GROM Sandbox 2026-09-11 on BOTH hosts \u2014 backend and services each answered the identical 400 with its own traceId, so this row is not host-specific.',
+          reach: "proven",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "conversations",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "conversations/20-api/email-sending-domains.md:102"
+          ]
+        },
+        {
+          id: "conversations--mailgun-validations",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/conversations/providers/mailgun/validations",
+          path: "/conversations/providers/mailgun/validations",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "conversations",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "conversations/20-api/email-sending-domains.md:103"
+          ]
+        },
+        {
           id: "services--assessment-results",
           method: "GET",
           url: "https://services.leadconnectorhq.com/courses/analytics/locations/{locationId}/export/assessment-results",
@@ -37176,6 +37475,650 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "restAgent.ts:304"
+          ]
+        },
+        {
+          id: "conversations--feature-domain",
+          method: "DELETE",
+          url: "https://services.leadconnectorhq.com/email-isv/feature/domain/{domain}",
+          path: "/email-isv/feature/domain/{domain}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "conversations",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "domain"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "conversations/20-api/email-sending-domains.md:74"
+          ]
+        },
+        {
+          id: "conversations--feature-domain-get",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/email-isv/feature/domain/{domain}",
+          path: "/email-isv/feature/domain/{domain}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "conversations",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "domain"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "conversations/20-api/email-sending-domains.md:73"
+          ]
+        },
+        {
+          id: "conversations--domain-default-domain-mapping",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/email-isv/feature/domain/default-domain-mapping",
+          path: "/email-isv/feature/domain/default-domain-mapping",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "conversations",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "conversations/20-api/email-sending-domains.md:90"
+          ]
+        },
+        {
+          id: "conversations--domain-domain-selection-list",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/email-isv/feature/domain/domain-selection-list",
+          path: "/email-isv/feature/domain/domain-selection-list",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          note: 'Executed 2026-09-11: 422 ["domains must be a string","domains should not be empty","source should not be empty","source must be a valid enum value"]. The route exists; `source` is an enum whose members the error does NOT spell out, so it was not guessed.',
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "conversations",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "conversations/20-api/email-sending-domains.md:87"
+          ]
+        },
+        {
+          id: "conversations--domain-domain-type",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/email-isv/feature/domain/domain-type",
+          path: "/email-isv/feature/domain/domain-type",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "conversations",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "conversations/20-api/email-sending-domains.md:81"
+          ]
+        },
+        {
+          id: "conversations--domain-lc-spf-record",
+          method: "PUT",
+          url: "https://services.leadconnectorhq.com/email-isv/feature/domain/lc-spf-record",
+          path: "/email-isv/feature/domain/lc-spf-record",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "conversations",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "conversations/20-api/email-sending-domains.md:85"
+          ]
+        },
+        {
+          id: "conversations--domain-list",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/email-isv/feature/domain/list",
+          path: "/email-isv/feature/domain/list",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          note: 'Richer than /workflow/{locationId}/email/location-email-provider: fromName, fromEmail, warmup{mode,stage,status}, types[] with per-type percentages, defaultDomain, emailSentCount/emailSentLimit, ssl, ips, domainAddedDate. \u26A0\uFE0F Answers on BOTH hosts (services AND backend) \u2014 re-verified on GROM Sandbox 2026-09-11, where it returns [] with no domain configured. The original capture saw only services, so "ai host" is where it was observed, not a constraint.',
+          reach: "proven",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "conversations",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "conversations/20-api/email-sending-domains.md:75"
+          ]
+        },
+        {
+          id: "conversations--domain-mx-and-spf-record",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/email-isv/feature/domain/mx-and-spf-record",
+          path: "/email-isv/feature/domain/mx-and-spf-record",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "conversations",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "conversations/20-api/email-sending-domains.md:79"
+          ]
+        },
+        {
+          id: "conversations--domain-mx-record",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/email-isv/feature/domain/mx-record",
+          path: "/email-isv/feature/domain/mx-record",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "conversations",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "conversations/20-api/email-sending-domains.md:78"
+          ]
+        },
+        {
+          id: "conversations--domain-removal-allowed",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/email-isv/feature/domain/removal-allowed",
+          path: "/email-isv/feature/domain/removal-allowed",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          note: "Executed on GROM Sandbox 2026-09-11 \u2014 200 on a location with no domains.",
+          reach: "proven",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "conversations",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "conversations/20-api/email-sending-domains.md:91"
+          ]
+        },
+        {
+          id: "conversations--domain-remove-domain-selection",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/email-isv/feature/domain/remove-domain-selection",
+          path: "/email-isv/feature/domain/remove-domain-selection",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "conversations",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "conversations/20-api/email-sending-domains.md:88"
+          ]
+        },
+        {
+          id: "conversations--domain-set-default",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/email-isv/feature/domain/set-default",
+          path: "/email-isv/feature/domain/set-default",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "conversations",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "conversations/20-api/email-sending-domains.md:77"
+          ]
+        },
+        {
+          id: "conversations--domain-set-default-headers",
+          method: "PUT",
+          url: "https://services.leadconnectorhq.com/email-isv/feature/domain/set-default-headers/{domain}",
+          path: "/email-isv/feature/domain/set-default-headers/{domain}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          note: "\u{1F534} THE EMAIL SENDER DISPLAY NAME, and it is WRITABLE \u2014 it had been reported to a client as UI-only. Body {fromEmail, fromName}; send BOTH, the handler takes them together so omitting fromEmail may clear it. Scope key is companyId for entityType COMPANY, else locationId. \u26A0\uFE0F NOT PROVEN HERE \u2014 no reach. The only execution is a PEER SESSION's, on a CLIENT account this project may never write to, verified there by re-reading two independent services \u2014 fromEmail, warmup, defaultDomain and all eight types[] percentages survived untouched. \u{1F534} HIGH BLAST RADIUS, NEEDS EXPLICIT HUMAN APPROVAL: types[] read all eight rails at 100% (calendar, invoices, oneToOne, bulk-request, campaign, workflow, client-portal, client-portal-otp), so this one field is the sender identity on INVOICES and on replies staff type by hand in Conversations. It cannot be scoped to one rail. It could not be reproduced on GROM Sandbox: that account has zero sending domains, so there is nothing to address. Proving it needs a domain on a test sub-account AND the user's explicit word, because of the blast radius below.",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "conversations",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "domain"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "conversations/20-api/email-sending-domains.md:82"
+          ]
+        },
+        {
+          id: "conversations--domain-type-config",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/email-isv/feature/domain/type-config",
+          path: "/email-isv/feature/domain/type-config",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "conversations",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "conversations/20-api/email-sending-domains.md:84"
+          ]
+        },
+        {
+          id: "conversations--domain-unset-default-headers",
+          method: "PUT",
+          url: "https://services.leadconnectorhq.com/email-isv/feature/domain/unset-default-headers/{domain}",
+          path: "/email-isv/feature/domain/unset-default-headers/{domain}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "conversations",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "domain"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "conversations/20-api/email-sending-domains.md:83"
+          ]
+        },
+        {
+          id: "conversations--v2-add-domain",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/email-isv/feature/domain/v2/add-domain",
+          path: "/email-isv/feature/domain/v2/add-domain",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "conversations",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "conversations/20-api/email-sending-domains.md:72"
+          ]
+        },
+        {
+          id: "conversations--v2-mx-and-spf-record",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/email-isv/feature/domain/v2/mx-and-spf-record",
+          path: "/email-isv/feature/domain/v2/mx-and-spf-record",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "conversations",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "conversations/20-api/email-sending-domains.md:80"
+          ]
+        },
+        {
+          id: "conversations--domain-validate",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/email-isv/feature/domain/validate",
+          path: "/email-isv/feature/domain/validate",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "conversations",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "conversations/20-api/email-sending-domains.md:89"
+          ]
+        },
+        {
+          id: "conversations--domain-verify",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/email-isv/feature/domain/verify",
+          path: "/email-isv/feature/domain/verify",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "conversations",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "conversations/20-api/email-sending-domains.md:76"
+          ]
+        },
+        {
+          id: "conversations--domain-warmup",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/email-isv/feature/domain/warmup/{domain}",
+          path: "/email-isv/feature/domain/warmup/{domain}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "conversations",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "domain"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "conversations/20-api/email-sending-domains.md:86"
           ]
         },
         {
@@ -49149,7 +50092,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "services/TemplateLibraryService.ts:18",
             "funnels/20-api/template-library.md:35",
             "funnels/20-api/template-library.md:118",
-            "funnels/60-recipes/author-native-elements.md:33"
+            "funnels/60-recipes/author-native-elements.md:45"
           ]
         },
         {
@@ -49365,8 +50308,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "services/TemplateLibraryService.ts:43",
             "funnels/20-api/template-library.md:77",
             "funnels/20-api/template-library.md:153",
-            "funnels/30-types/synthesis-contract.md:155",
-            "funnels/60-recipes/author-native-elements.md:33"
+            "funnels/30-types/synthesis-contract.md:158",
+            "funnels/60-recipes/author-native-elements.md:45"
           ]
         },
         {
@@ -52712,6 +53655,29 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         },
         "POST /events-management/event": {
           note: 'Refuses with 422 ["type must be a valid enum value"] \u2014 the field is named but its MEMBERS are not, unlike sibling errors on this API which spell the vocabulary out ("product must be one of the following values: ask-ai, ..."). Supplying a value here would test the guess rather than the row, so it was left. This is what blocks the five read rows keyed on {eventId}: the sandbox holds zero events and one cannot be minted without the enum.'
+        },
+        "PUT /email-isv/feature/domain/set-default-headers/{domain}": {
+          kind: "write",
+          note: "\u{1F534} THE EMAIL SENDER DISPLAY NAME, and it is WRITABLE \u2014 it had been reported to a client as UI-only. Body {fromEmail, fromName}; send BOTH, the handler takes them together so omitting fromEmail may clear it. Scope key is companyId for entityType COMPANY, else locationId. \u26A0\uFE0F NOT PROVEN HERE \u2014 no reach. The only execution is a PEER SESSION's, on a CLIENT account this project may never write to, verified there by re-reading two independent services \u2014 fromEmail, warmup, defaultDomain and all eight types[] percentages survived untouched. \u{1F534} HIGH BLAST RADIUS, NEEDS EXPLICIT HUMAN APPROVAL: types[] read all eight rails at 100% (calendar, invoices, oneToOne, bulk-request, campaign, workflow, client-portal, client-portal-otp), so this one field is the sender identity on INVOICES and on replies staff type by hand in Conversations. It cannot be scoped to one rail. It could not be reproduced on GROM Sandbox: that account has zero sending domains, so there is nothing to address. Proving it needs a domain on a test sub-account AND the user's explicit word, because of the blast radius below."
+        },
+        "GET /email-isv/feature/domain/list": {
+          reach: "proven",
+          kind: "read",
+          note: 'Richer than /workflow/{locationId}/email/location-email-provider: fromName, fromEmail, warmup{mode,stage,status}, types[] with per-type percentages, defaultDomain, emailSentCount/emailSentLimit, ssl, ips, domainAddedDate. \u26A0\uFE0F Answers on BOTH hosts (services AND backend) \u2014 re-verified on GROM Sandbox 2026-09-11, where it returns [] with no domain configured. The original capture saw only services, so "ai host" is where it was observed, not a constraint.'
+        },
+        "GET /email-isv/feature/domain/removal-allowed": {
+          reach: "proven",
+          kind: "read",
+          note: "Executed on GROM Sandbox 2026-09-11 \u2014 200 on a location with no domains."
+        },
+        "GET /email-isv/feature/domain/domain-selection-list": {
+          kind: "read",
+          note: 'Executed 2026-09-11: 422 ["domains must be a string","domains should not be empty","source should not be empty","source must be a valid enum value"]. The route exists; `source` is an enum whose members the error does NOT spell out, so it was not guessed.'
+        },
+        "GET /conversations/providers/mailgun/fetch/domain": {
+          reach: "proven",
+          kind: "read",
+          note: '\u{1F534} A 400 HERE IS AN ANSWER, NOT A FAILURE. On an account using LeadConnector email it returns 400 {"message":"No MailgunAccount found","canonicalCode":"CONVERSATIONS_SOMETHING_WENT_WRONG"} \u2014 which tells you the account is NOT on bring-your-own Mailgun. Not an auth problem and not a wrong path. Reproduced on GROM Sandbox 2026-09-11 on BOTH hosts \u2014 backend and services each answered the identical 400 with its own traceId, so this row is not host-specific.'
         }
       }
     };

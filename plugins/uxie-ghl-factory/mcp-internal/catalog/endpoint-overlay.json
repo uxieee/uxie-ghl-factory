@@ -1325,6 +1325,29 @@
     },
     "POST /events-management/event": {
       "note": "Refuses with 422 [\"type must be a valid enum value\"] — the field is named but its MEMBERS are not, unlike sibling errors on this API which spell the vocabulary out (\"product must be one of the following values: ask-ai, ...\"). Supplying a value here would test the guess rather than the row, so it was left. This is what blocks the five read rows keyed on {eventId}: the sandbox holds zero events and one cannot be minted without the enum."
+    },
+    "PUT /email-isv/feature/domain/set-default-headers/{domain}": {
+      "kind": "write",
+      "note": "🔴 THE EMAIL SENDER DISPLAY NAME, and it is WRITABLE — it had been reported to a client as UI-only. Body {fromEmail, fromName}; send BOTH, the handler takes them together so omitting fromEmail may clear it. Scope key is companyId for entityType COMPANY, else locationId. ⚠️ NOT PROVEN HERE — no reach. The only execution is a PEER SESSION's, on a CLIENT account this project may never write to, verified there by re-reading two independent services — fromEmail, warmup, defaultDomain and all eight types[] percentages survived untouched. 🔴 HIGH BLAST RADIUS, NEEDS EXPLICIT HUMAN APPROVAL: types[] read all eight rails at 100% (calendar, invoices, oneToOne, bulk-request, campaign, workflow, client-portal, client-portal-otp), so this one field is the sender identity on INVOICES and on replies staff type by hand in Conversations. It cannot be scoped to one rail. It could not be reproduced on GROM Sandbox: that account has zero sending domains, so there is nothing to address. Proving it needs a domain on a test sub-account AND the user's explicit word, because of the blast radius below."
+    },
+    "GET /email-isv/feature/domain/list": {
+      "reach": "proven",
+      "kind": "read",
+      "note": "Richer than /workflow/{locationId}/email/location-email-provider: fromName, fromEmail, warmup{mode,stage,status}, types[] with per-type percentages, defaultDomain, emailSentCount/emailSentLimit, ssl, ips, domainAddedDate. ⚠️ Answers on BOTH hosts (services AND backend) — re-verified on GROM Sandbox 2026-09-11, where it returns [] with no domain configured. The original capture saw only services, so \"ai host\" is where it was observed, not a constraint."
+    },
+    "GET /email-isv/feature/domain/removal-allowed": {
+      "reach": "proven",
+      "kind": "read",
+      "note": "Executed on GROM Sandbox 2026-09-11 — 200 on a location with no domains."
+    },
+    "GET /email-isv/feature/domain/domain-selection-list": {
+      "kind": "read",
+      "note": "Executed 2026-09-11: 422 [\"domains must be a string\",\"domains should not be empty\",\"source should not be empty\",\"source must be a valid enum value\"]. The route exists; `source` is an enum whose members the error does NOT spell out, so it was not guessed."
+    },
+    "GET /conversations/providers/mailgun/fetch/domain": {
+      "reach": "proven",
+      "kind": "read",
+      "note": "🔴 A 400 HERE IS AN ANSWER, NOT A FAILURE. On an account using LeadConnector email it returns 400 {\"message\":\"No MailgunAccount found\",\"canonicalCode\":\"CONVERSATIONS_SOMETHING_WENT_WRONG\"} — which tells you the account is NOT on bring-your-own Mailgun. Not an auth problem and not a wrong path. Reproduced on GROM Sandbox 2026-09-11 on BOTH hosts — backend and services each answered the identical 400 with its own traceId, so this row is not host-specific."
     }
   }
 }
