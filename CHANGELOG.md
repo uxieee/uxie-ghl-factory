@@ -11,6 +11,69 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [0.72.0] — 2026-09-10
+
+Two false positives, one corrupting round trip, and the first live proof for the riskiest tool in
+the plugin. Every fix here came from a peer session's production evidence contradicting something
+this engine believed.
+
+### Fixed
+
+- **`check_workflow` reported `user_not_found` against every `assign_user` step on every account.**
+  The findings/lookups split was on `message`, and exactly one validator of 67 breaks that:
+  `assignToUserValidator` pushes an entry carrying BOTH `resource` and `message` — a deferred
+  existence lookup shipping with its failure LABEL pre-baked, for the builder to render if the
+  server says the user is gone. The harness never posts the lookup, so the answer never arrives.
+
+  Now split on `resource`: a validator emitting one is asking a QUESTION, and only an answer can be
+  a finding. A test asserts that `assignToUserValidator` remains the only dual-shape validator, so a
+  second cannot adopt it silently. The genuine finding it also emits — an `assign_user` step with an
+  empty `user_list` — still reports, with a control test.
+
+- **The step-output check warned on workflows that demonstrably work.** An unnumbered producer was
+  assumed to answer to its 1-based occurrence. A live account has four `math_operation` steps with
+  no `stepIndex` whose consumers reference `{{math_operation.0.result}}`, and two production sends
+  rendered the real changing number. An unnumbered producer now answers to EITHER occurrence
+  number, because one account cannot say whether that is a 0-based rule or leniency about the base,
+  and guessing turns an advisory into noise. A producer that HAS a `stepIndex` still answers to that
+  number only.
+
+- **`repair_workflow`'s sanctioned round trip corrupted the document.** `export_workflow --writeTo`
+  writes a SCRUBBED file and the tool recommended feeding it back. But the scrub fires on the KEY
+  NAME without reading the value: GHL stores a `custom_webhook`'s `attributes.authorization` as
+  `{type:"NONE", data:null}` — no credential in it — and the export returns the string
+  `"<redacted>"`. Writing that back replaces a configured authorization with a seven-character
+  placeholder, through a full-document PUT with no validator on the far side.
+
+  `repair_workflow` now refuses a document carrying placeholders, naming each step and path.
+  `containsSecrets` no longer treats our own placeholder as a credential (exact match, value
+  position only — a real credential under the same key is still refused).
+
+- **The location guard pushed callers off the audited path.** "The request body is too large or too
+  deeply nested" named no limit and no route, and a caller on a live client build read it as a
+  blanket ceiling, concluded the typed rail could not carry a funnel page write, and dropped to
+  direct calls OUTSIDE the server — sending the same body with no location guard at all. The
+  refusal now names which cap tripped and its value, says it is a limit on what can be CHECKED
+  rather than on what can be written, and points at the typed tool.
+
+### Added
+
+- **`repair_workflow` is live-proven** — 12 endpoints, a full-document PUT, and `proof: unrecorded`
+  until now. 11 assertions: preview writes nothing (verified by re-reading), the write lands, no
+  step is dropped or duplicated, `stepIndex` survives, and a stale `expectedVersion` is refused.
+
+- **`auth_status` reports which build is answering.** This server is user-scoped and resolves its
+  plugin build at LAUNCH; `/reload-plugins` does not restart it, so an upgrade mid-session does not
+  reach it and nothing said so. `stale` is true only when both versions are known and differ — an
+  unreadable cache reports UNKNOWN, never "current".
+
+### Notes
+
+`templatesPath` is not a convenience. `authorization` is a credential-named key and the argument
+scanner refuses one in a tool ARGUMENT whatever it holds, so inline `templates` cannot carry any
+workflow containing a webhook step. A file is not a tool argument. This is now documented at the
+schema field.
+
 ## [0.71.0] — 2026-09-10
 
 Three silent-failure defects on the workflow rail, and the first live conformance suite for it.
