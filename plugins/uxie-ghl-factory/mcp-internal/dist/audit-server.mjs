@@ -5971,6 +5971,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
+          note: 'Refuses with 422 ["type must be a valid enum value"] \u2014 the field is named but its MEMBERS are not, unlike sibling errors on this API which spell the vocabulary out ("product must be one of the following values: ask-ai, ..."). Supplying a value here would test the guess rather than the row, so it was left. This is what blocks the five read rows keyed on {eventId}: the sandbox holds zero events and one cannot be minted without the enum.',
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -10477,7 +10478,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -10594,7 +10595,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          reach: "refused",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -38543,7 +38544,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "write",
-          reach: "source-only",
+          note: "Executed on the sandbox 2026-09-11 \u2014 body {name, locationId} answers 201 and the base is readable immediately. Minted to unblock the three read rows keyed on {knowledgeBaseId}, which had no verdict purely because the account held no knowledge base.",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -38612,7 +38614,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -39396,7 +39398,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -52703,6 +52705,13 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         },
         "POST /events-management/tickets": {
           note: 'Named its own requirements on 2026-09-10: {eventId, price, quantity} \u2014 price and quantity must be NUMBERS (filled with an empty string they answer "must be a number" indefinitely). Unproven because the sandbox holds zero events, so there is no eventId to attach a ticket to. Not a reach problem; a fixture problem.'
+        },
+        "POST /knowledge-base/": {
+          reach: "proven",
+          note: "Executed on the sandbox 2026-09-11 \u2014 body {name, locationId} answers 201 and the base is readable immediately. Minted to unblock the three read rows keyed on {knowledgeBaseId}, which had no verdict purely because the account held no knowledge base."
+        },
+        "POST /events-management/event": {
+          note: 'Refuses with 422 ["type must be a valid enum value"] \u2014 the field is named but its MEMBERS are not, unlike sibling errors on this API which spell the vocabulary out ("product must be one of the following values: ask-ai, ..."). Supplying a value here would test the guess rather than the row, so it was left. This is what blocks the five read rows keyed on {eventId}: the sandbox holds zero events and one cannot be minted without the enum.'
         }
       }
     };
