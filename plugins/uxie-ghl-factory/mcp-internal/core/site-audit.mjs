@@ -313,21 +313,25 @@ export function judgeStyles({ pageData, pageId, pageName = null }) {
     // broken — flagging those would put a finding on every minimal page and teach people to skim.
     // The signal is the CONTRADICTION: node styles that say one thing and compiled CSS that has
     // never heard of the element.
-    // 🔴 DO NOT "TIGHTEN" THIS TO A SELF-SELECTOR MATCH. The id-presence test looks loose and the
-    // obvious refactor is to require a real `.<id>{` rule. Measured on a template-installed page,
-    // counting self and descendant INDEPENDENTLY (an element can have both):
+    // 🔴 DO NOT "TIGHTEN" THIS TO A SELF-SELECTOR MATCH, AND DO NOT NARROW IT TO DESCENDANT EITHER.
+    // The id-presence test looks loose and the obvious refactor is to require a real `.<id>{` rule.
+    // Two template-installed pages, from different sessions, counting self and descendant as
+    // INDEPENDENT booleans (an element can have both, and classifying it as one OR the other is how
+    // both of us got this wrong first time):
     //
-    //   row 4, col 7          -> self only, never descendant
-    //   button 12, heading 4  -> BOTH self and descendant
-    //   paragraph 2, image 1  -> BOTH
-    //   nav-menu 1            -> DESCENDANT ONLY, no self-selector at all
-    //   blog 1                -> neither (no emitter for the kind)
+    //   structural  row, col, column      SELF only — 105/105 on one page, zero descendant
+    //   most leaves button, heading,      BOTH — 35/35 paragraph, 15/15 heading, 12/12 button,
+    //               paragraph, image,            11/11 sub-heading, 10/10 image, 5/5 divider
+    //               sub-heading, divider
+    //   nav-menu                          DESCENDANT ONLY — no self-selector at all
+    //   faq                               SELF ONLY — no descendant rule, beside leaves with both
+    //   photo-video-gallery, social-icons NEITHER — and they render correctly
+    //   blog                              NEITHER
     //
-    // A first pass reported leaves as descendant-only, which was an artifact of classifying each
-    // element as one OR the other; most leaves carry both. But `nav-menu` genuinely has no
-    // self-selector, so a `.<id>{` requirement would report a healthy nav as unstyled — and any
-    // kind whose rules are purely descendant would join it. Substring presence is the safe test
-    // because it does not care which depth the rule lives at, and depth varies by kind.
+    // So depth is PER KIND and is not derivable from structural-vs-leaf. A `.<id>{` requirement
+    // reports a healthy `nav-menu` as unstyled; a descendant-only requirement reports a healthy
+    // `faq` as unstyled. Substring presence is the only test that survives both, precisely because
+    // it does not care which depth the rule lives at.
     //
     // WHAT THIS DOES NOT CATCH, stated because a peer reasonably assumed otherwise. The question
     // asked here is "does this element have ANY compiled rule", implemented as id-presence, and the
