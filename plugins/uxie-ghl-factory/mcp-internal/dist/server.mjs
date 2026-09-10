@@ -24005,7 +24005,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          reach: "source-only",
+          note: "Executed on the designated sandbox 2026-09-10 in the workflows write-parity run. Round-tripped: isActive flipped, read back changed on a separate request, and restored. Send the whole settings document back, not a patch.",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -24735,7 +24736,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          reach: "source-only",
+          note: "Executed on the designated sandbox 2026-09-10 in the workflows write-parity run. Round-tripped on {isActive}; read back changed and restored. Its read is GET /workflow/{locationId}/error-notification/settings.",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -24771,7 +24773,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          reach: "source-only",
+          note: "Executed on the designated sandbox 2026-09-10 in the workflows write-parity run. Round-tripped on {users:[userId]}; read back changed ([] -> [id]) and restored.",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -25344,7 +25347,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          reach: "source-only",
+          note: 'Executed on the designated sandbox 2026-09-10 in the workflows write-parity run. Folder rename. Answers 200 {"msg":"Updated successfull","error":false} \u2014 note the typo and that `error:false` is the success signal. Read back changed and restored.',
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -25383,8 +25387,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "write",
           summary: 'Renames a workflow. Body is {"name": "..."}.',
-          note: "The only rename path that does NOT re-run the step validator. Use it instead of the full-document PUT, which re-validates every stored step and on a workflow whose own saved graph the validator now rejects fails outright with INVALID_FIELD_VALUE -- so a rename by full PUT can be refused on a workflow that is running perfectly well. \u26A0\uFE0F Do NOT rely on it leaving `version` alone: one account observed 4 -> 4 (2026-08-31) and another observed 1 -> 2 on a flow workflow (2026-09-02). The two disagree and the cause is not established, so re-read the digest before any expectedVersion write that follows a rename.",
-          reach: "source-only",
+          note: 'The only rename path that does NOT re-run the step validator. Use it instead of the full-document PUT, which re-validates every stored step and on a workflow whose own saved graph the validator now rejects fails outright with INVALID_FIELD_VALUE -- so a rename by full PUT can be refused on a workflow that is running perfectly well. \u26A0\uFE0F Do NOT rely on it leaving `version` alone: one account observed 4 -> 4 (2026-08-31) and another observed 1 -> 2 on a flow workflow (2026-09-02). The two disagree and the cause is not established, so re-read the digest before any expectedVersion write that follows a rename. Executed on the designated sandbox 2026-09-10 in the workflows write-parity run. \u{1F534} 404s on a FOLDER id, and the body is the bare string "Not Found" \u2014 which reads like a wrong route rather than a wrong object. GET /workflow/{locationId}/list returns BOTH (type "directory" x5 and "workflow" x95 on the sandbox); filter on type before renaming. Proven on a real workflow: {name} written, read back changed, restored.',
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -25686,7 +25690,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          reach: "source-only",
+          note: 'Executed on the designated sandbox 2026-09-10 in the workflows write-parity run. \u{1F534} `conditions` must be a NON-EMPTY array or it answers 400 "conditions array is required and cannot be empty" \u2014 an empty array is refused, not treated as "no filter". Proven with [{field:"dayOfWeek",value:"monday"}]; returns {success:true, executions:[]}.',
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -32720,8 +32725,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "write",
           summary: "Trigger effectiveness across the account: attempted, matched and unmatched enrollments.",
-          note: "A POST that RETURNS 201 for what is plainly a read. Its window is the last 30 days, unlike the 7-week enrollment chart beside it on the same screen.",
-          reach: "source-only",
+          note: "A POST that RETURNS 201 for what is plainly a read. Its window is the last 30 days, unlike the 7-week enrollment chart beside it on the same screen. Executed on the designated sandbox 2026-09-10 in the workflows write-parity run. Answers 201 with [{total,matched}] as counted strings. Body {locationId, workflowId[]} \u2014 locationId is REQUIRED in the body, not the query.",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -52007,7 +52012,8 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         },
         "POST /workflows/trigger/logs/count": {
           summary: "Trigger effectiveness across the account: attempted, matched and unmatched enrollments.",
-          note: "A POST that RETURNS 201 for what is plainly a read. Its window is the last 30 days, unlike the 7-week enrollment chart beside it on the same screen."
+          note: "A POST that RETURNS 201 for what is plainly a read. Its window is the last 30 days, unlike the 7-week enrollment chart beside it on the same screen. Executed on the designated sandbox 2026-09-10 in the workflows write-parity run. Answers 201 with [{total,matched}] as counted strings. Body {locationId, workflowId[]} \u2014 locationId is REQUIRED in the body, not the query.",
+          reach: "proven"
         },
         "PUT /opportunities/pipelines/{pipelineId}": {
           kind: "write",
@@ -52073,7 +52079,8 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         "PUT /workflow/{locationId}/rename-workflow/{workflowId}": {
           kind: "write",
           summary: 'Renames a workflow. Body is {"name": "..."}.',
-          note: "The only rename path that does NOT re-run the step validator. Use it instead of the full-document PUT, which re-validates every stored step and on a workflow whose own saved graph the validator now rejects fails outright with INVALID_FIELD_VALUE -- so a rename by full PUT can be refused on a workflow that is running perfectly well. \u26A0\uFE0F Do NOT rely on it leaving `version` alone: one account observed 4 -> 4 (2026-08-31) and another observed 1 -> 2 on a flow workflow (2026-09-02). The two disagree and the cause is not established, so re-read the digest before any expectedVersion write that follows a rename."
+          note: 'The only rename path that does NOT re-run the step validator. Use it instead of the full-document PUT, which re-validates every stored step and on a workflow whose own saved graph the validator now rejects fails outright with INVALID_FIELD_VALUE -- so a rename by full PUT can be refused on a workflow that is running perfectly well. \u26A0\uFE0F Do NOT rely on it leaving `version` alone: one account observed 4 -> 4 (2026-08-31) and another observed 1 -> 2 on a flow workflow (2026-09-02). The two disagree and the cause is not established, so re-read the digest before any expectedVersion write that follows a rename. Executed on the designated sandbox 2026-09-10 in the workflows write-parity run. \u{1F534} 404s on a FOLDER id, and the body is the bare string "Not Found" \u2014 which reads like a wrong route rather than a wrong object. GET /workflow/{locationId}/list returns BOTH (type "directory" x5 and "workflow" x95 on the sandbox); filter on type before renaming. Proven on a real workflow: {name} written, read back changed, restored.',
+          reach: "proven"
         },
         "PUT /workflow/{locationId}/{wid}": {
           note: "The full-document commit re-runs the step validator over EVERY stored step, so it can be refused by a published, running workflow's own saved graph (INVALID_FIELD_VALUE, 'Action validation failed: <type> (...): Next is invalid'). The workflow keeps running and cannot be saved by anyone, API or builder. Never use this path for a rename -- rename-workflow skips the validator. Re-read before every write: a successful PUT bumps version and a later PUT built from a stale read 422s."
@@ -52308,6 +52315,26 @@ var init_define_ENDPOINT_OVERLAY = __esm({
             "locationId"
           ],
           note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them."
+        },
+        "POST /workflow/{locationId}/scheduler-trigger/preview": {
+          reach: "proven",
+          note: 'Executed on the designated sandbox 2026-09-10 in the workflows write-parity run. \u{1F534} `conditions` must be a NON-EMPTY array or it answers 400 "conditions array is required and cannot be empty" \u2014 an empty array is refused, not treated as "no filter". Proven with [{field:"dayOfWeek",value:"monday"}]; returns {success:true, executions:[]}.'
+        },
+        "PUT /workflow/{locationId}/auto-save/settings": {
+          reach: "proven",
+          note: "Executed on the designated sandbox 2026-09-10 in the workflows write-parity run. Round-tripped: isActive flipped, read back changed on a separate request, and restored. Send the whole settings document back, not a patch."
+        },
+        "PUT /workflow/{locationId}/error-notification/settings/is-active": {
+          reach: "proven",
+          note: "Executed on the designated sandbox 2026-09-10 in the workflows write-parity run. Round-tripped on {isActive}; read back changed and restored. Its read is GET /workflow/{locationId}/error-notification/settings."
+        },
+        "PUT /workflow/{locationId}/error-notification/settings/users": {
+          reach: "proven",
+          note: "Executed on the designated sandbox 2026-09-10 in the workflows write-parity run. Round-tripped on {users:[userId]}; read back changed ([] -> [id]) and restored."
+        },
+        "PUT /workflow/{locationId}/rename-directory/{folderId}": {
+          reach: "proven",
+          note: 'Executed on the designated sandbox 2026-09-10 in the workflows write-parity run. Folder rename. Answers 200 {"msg":"Updated successfull","error":false} \u2014 note the typo and that `error:false` is the success signal. Read back changed and restored.'
         }
       }
     };
