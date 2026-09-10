@@ -4049,6 +4049,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
+          note: '\u{1F534} THIS ROW IS UNCALLABLE: its path contains a literal "..." left by the source miner, and unlike the other truncated rows it has NO full-path twin in the catalogue \u2014 the real path was lost in mining and needs re-capture before this endpoint can be reached at all. Measured 2026-09-10.',
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -4123,6 +4124,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
+          note: "\u{1F534} ANSWERS 2xx TO AN EMPTY BODY. Measured 2026-09-10 on the sandbox: POST/PUT with `{}` returned 2xx. That is a HAZARD, not a capability \u2014 this rail has a known case (attach-offer-user) where an empty body is acknowledged with the same 200 a real grant returns, so a 2xx here says nothing about what was stored and may mean a real mutation ran with defaults. Never record this row as proven on an empty-body 2xx; supply a real body and read the object back.",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -12931,6 +12933,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
+          note: '\u{1F534} THIS ROW IS UNCALLABLE: its path contains a literal "..." left by the source miner, so every request 404s. 15 rows are in this state, all on this service. 11 of them \u2014 including this one \u2014 duplicate a full-path row already in the catalogue; use that one instead. Measured 2026-09-10.',
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -12975,6 +12978,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
+          note: '\u{1F534} THIS ROW IS UNCALLABLE: its path contains a literal "..." left by the source miner, so every request 404s. 15 rows are in this state, all on this service. 11 of them \u2014 including this one \u2014 duplicate a full-path row already in the catalogue; use that one instead. Measured 2026-09-10.',
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -13006,6 +13010,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
+          note: '\u{1F534} THIS ROW IS UNCALLABLE: its path contains a literal "..." left by the source miner, and unlike the other truncated rows it has NO full-path twin in the catalogue \u2014 the real path was lost in mining and needs re-capture before this endpoint can be reached at all. Measured 2026-09-10.',
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -13037,6 +13042,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
+          note: '\u{1F534} THIS ROW IS UNCALLABLE: its path contains a literal "..." left by the source miner, so every request 404s. 15 rows are in this state, all on this service. 11 of them \u2014 including this one \u2014 duplicate a full-path row already in the catalogue; use that one instead. Measured 2026-09-10.',
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -13072,6 +13078,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
+          note: '\u{1F534} THIS ROW IS UNCALLABLE: its path contains a literal "..." left by the source miner, so every request 404s. 15 rows are in this state, all on this service. 11 of them \u2014 including this one \u2014 duplicate a full-path row already in the catalogue; use that one instead. Measured 2026-09-10.',
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -13104,6 +13111,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
+          note: '\u{1F534} THIS ROW IS UNCALLABLE: its path contains a literal "..." left by the source miner, so every request 404s. 15 rows are in this state, all on this service. 11 of them \u2014 including this one \u2014 duplicate a full-path row already in the catalogue; use that one instead. Measured 2026-09-10.',
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -13135,6 +13143,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
+          note: '\u{1F534} THIS ROW IS UNCALLABLE: its path contains a literal "..." left by the source miner, so every request 404s. 15 rows are in this state, all on this service. 11 of them \u2014 including this one \u2014 duplicate a full-path row already in the catalogue; use that one instead. Measured 2026-09-10.',
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -13167,6 +13176,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
+          note: '\u{1F534} THIS ROW IS UNCALLABLE: its path contains a literal "..." left by the source miner, so every request 404s. 15 rows are in this state, all on this service. 11 of them \u2014 including this one \u2014 duplicate a full-path row already in the catalogue; use that one instead. Measured 2026-09-10.',
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -13199,6 +13209,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
+          note: '\u{1F534} THIS ROW IS UNCALLABLE: its path contains a literal "..." left by the source miner, and unlike the other truncated rows it has NO full-path twin in the catalogue \u2014 the real path was lost in mining and needs re-capture before this endpoint can be reached at all. Measured 2026-09-10.',
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -13230,6 +13241,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
+          note: '\u{1F534} THIS ROW IS UNCALLABLE: its path contains a literal "..." left by the source miner, so every request 404s. 15 rows are in this state, all on this service. 11 of them \u2014 including this one \u2014 duplicate a full-path row already in the catalogue; use that one instead. Measured 2026-09-10.',
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -13265,6 +13277,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
+          note: '\u{1F534} THIS ROW IS UNCALLABLE: its path contains a literal "..." left by the source miner, so every request 404s. 15 rows are in this state, all on this service. 11 of them \u2014 including this one \u2014 duplicate a full-path row already in the catalogue; use that one instead. Measured 2026-09-10.',
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -13296,6 +13309,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
+          note: '\u{1F534} THIS ROW IS UNCALLABLE: its path contains a literal "..." left by the source miner, and unlike the other truncated rows it has NO full-path twin in the catalogue \u2014 the real path was lost in mining and needs re-capture before this endpoint can be reached at all. Measured 2026-09-10.',
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -13327,6 +13341,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "destructive",
+          note: '\u{1F534} THIS ROW IS UNCALLABLE: its path contains a literal "..." left by the source miner, so every request 404s. 15 rows are in this state, all on this service. 11 of them \u2014 including this one \u2014 duplicate a full-path row already in the catalogue; use that one instead. Measured 2026-09-10.',
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -13362,6 +13377,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
+          note: '\u{1F534} THIS ROW IS UNCALLABLE: its path contains a literal "..." left by the source miner, so every request 404s. 15 rows are in this state, all on this service. 11 of them \u2014 including this one \u2014 duplicate a full-path row already in the catalogue; use that one instead. Measured 2026-09-10.',
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -22377,7 +22393,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           note: `?version=N is ACCEPTED, silently IGNORED, and the CURRENT document is returned wearing its real version number (live 2026-09-02: ?version=1 -> "version": 3). Nothing errors, so a 'recovery' read can restore the corruption over itself and look successful. Use the version-history rail instead -- history / history-by-number -- which the typed get_workflow_version already does.`,
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [
             "build_workflow",
             "check_workflow",
@@ -37070,6 +37086,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "write",
+          note: "\u{1F534} ANSWERS 2xx TO AN EMPTY BODY. Measured 2026-09-10 on the sandbox: POST/PUT with `{}` returned 2xx. That is a HAZARD, not a capability \u2014 this rail has a known case (attach-offer-user) where an empty body is acknowledged with the same 200 a real grant returns, so a 2xx here says nothing about what was stored and may mean a real mutation ran with defaults. Never record this row as proven on an empty-body 2xx; supply a real body and read the object back.",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -41522,6 +41539,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "write",
+          note: "\u{1F534} ANSWERS 2xx TO AN EMPTY BODY. Measured 2026-09-10 on the sandbox: POST/PUT with `{}` returned 2xx. That is a HAZARD, not a capability \u2014 this rail has a known case (attach-offer-user) where an empty body is acknowledged with the same 200 a real grant returns, so a 2xx here says nothing about what was stored and may mean a real mutation ran with defaults. Never record this row as proven on an empty-body 2xx; supply a real body and read the object back.",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -42082,6 +42100,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "write",
+          note: "\u{1F534} ANSWERS 2xx TO AN EMPTY BODY. Measured 2026-09-10 on the sandbox: POST/PUT with `{}` returned 2xx. That is a HAZARD, not a capability \u2014 this rail has a known case (attach-offer-user) where an empty body is acknowledged with the same 200 a real grant returns, so a 2xx here says nothing about what was stored and may mean a real mutation ran with defaults. Never record this row as proven on an empty-body 2xx; supply a real body and read the object back.",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -43383,6 +43402,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "write",
+          note: "\u{1F534} ANSWERS 2xx TO AN EMPTY BODY. Measured 2026-09-10 on the sandbox: POST/PUT with `{}` returned 2xx. That is a HAZARD, not a capability \u2014 this rail has a known case (attach-offer-user) where an empty body is acknowledged with the same 200 a real grant returns, so a 2xx here says nothing about what was stored and may mean a real mutation ran with defaults. Never record this row as proven on an empty-body 2xx; supply a real body and read the object back.",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -43427,6 +43447,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "write",
+          note: "\u{1F534} ANSWERS 2xx TO AN EMPTY BODY. Measured 2026-09-10 on the sandbox: POST/PUT with `{}` returned 2xx. That is a HAZARD, not a capability \u2014 this rail has a known case (attach-offer-user) where an empty body is acknowledged with the same 200 a real grant returns, so a 2xx here says nothing about what was stored and may mean a real mutation ran with defaults. Never record this row as proven on an empty-body 2xx; supply a real body and read the object back.",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -44057,6 +44078,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "write",
+          note: "\u{1F534} ANSWERS 2xx TO AN EMPTY BODY. Measured 2026-09-10 on the sandbox: POST/PUT with `{}` returned 2xx. That is a HAZARD, not a capability \u2014 this rail has a known case (attach-offer-user) where an empty body is acknowledged with the same 200 a real grant returns, so a 2xx here says nothing about what was stored and may mean a real mutation ran with defaults. Never record this row as proven on an empty-body 2xx; supply a real body and read the object back.",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -44587,6 +44609,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "write",
+          note: "\u{1F534} ANSWERS 2xx TO AN EMPTY BODY. Measured 2026-09-10 on the sandbox: POST/PUT with `{}` returned 2xx. That is a HAZARD, not a capability \u2014 this rail has a known case (attach-offer-user) where an empty body is acknowledged with the same 200 a real grant returns, so a 2xx here says nothing about what was stored and may mean a real mutation ran with defaults. Never record this row as proven on an empty-body 2xx; supply a real body and read the object back.",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -45321,6 +45344,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "write",
+          note: "\u{1F534} ANSWERS 2xx TO AN EMPTY BODY. Measured 2026-09-10 on the sandbox: POST/PUT with `{}` returned 2xx. That is a HAZARD, not a capability \u2014 this rail has a known case (attach-offer-user) where an empty body is acknowledged with the same 200 a real grant returns, so a 2xx here says nothing about what was stored and may mean a real mutation ran with defaults. Never record this row as proven on an empty-body 2xx; supply a real body and read the object back.",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -52387,6 +52411,75 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         },
         "POST /workflow/{locationId}/tags/create": {
           note: 'Executed on the designated sandbox 2026-09-10, workflows write-parity sweep. Refused four body shapes ({name}, {tags:[]}, +locationId, +workflowId) with a bare-string 400 "Bad Request" \u2014 no validation detail, so the shape is still unknown. Not a reach failure; a shape we have not found.'
+        },
+        "PUT /membership/locations/{locationId}/categories/sequence": {
+          note: "\u{1F534} ANSWERS 2xx TO AN EMPTY BODY. Measured 2026-09-10 on the sandbox: POST/PUT with `{}` returned 2xx. That is a HAZARD, not a capability \u2014 this rail has a known case (attach-offer-user) where an empty body is acknowledged with the same 200 a real grant returns, so a 2xx here says nothing about what was stored and may mean a real mutation ran with defaults. Never record this row as proven on an empty-body 2xx; supply a real body and read the object back."
+        },
+        "POST /membership/locations/{locationId}/comments/filtered": {
+          note: "\u{1F534} ANSWERS 2xx TO AN EMPTY BODY. Measured 2026-09-10 on the sandbox: POST/PUT with `{}` returned 2xx. That is a HAZARD, not a capability \u2014 this rail has a known case (attach-offer-user) where an empty body is acknowledged with the same 200 a real grant returns, so a 2xx here says nothing about what was stored and may mean a real mutation ran with defaults. Never record this row as proven on an empty-body 2xx; supply a real body and read the object back."
+        },
+        "PUT /membership/locations/{locationId}/posts/material/sequence": {
+          note: "\u{1F534} ANSWERS 2xx TO AN EMPTY BODY. Measured 2026-09-10 on the sandbox: POST/PUT with `{}` returned 2xx. That is a HAZARD, not a capability \u2014 this rail has a known case (attach-offer-user) where an empty body is acknowledged with the same 200 a real grant returns, so a 2xx here says nothing about what was stored and may mean a real mutation ran with defaults. Never record this row as proven on an empty-body 2xx; supply a real body and read the object back."
+        },
+        "PUT /membership/locations/{locationId}/posts/sequence": {
+          note: "\u{1F534} ANSWERS 2xx TO AN EMPTY BODY. Measured 2026-09-10 on the sandbox: POST/PUT with `{}` returned 2xx. That is a HAZARD, not a capability \u2014 this rail has a known case (attach-offer-user) where an empty body is acknowledged with the same 200 a real grant returns, so a 2xx here says nothing about what was stored and may mean a real mutation ran with defaults. Never record this row as proven on an empty-body 2xx; supply a real body and read the object back."
+        },
+        "PUT /membership/locations/{locationId}/products/library-order": {
+          note: "\u{1F534} ANSWERS 2xx TO AN EMPTY BODY. Measured 2026-09-10 on the sandbox: POST/PUT with `{}` returned 2xx. That is a HAZARD, not a capability \u2014 this rail has a known case (attach-offer-user) where an empty body is acknowledged with the same 200 a real grant returns, so a 2xx here says nothing about what was stored and may mean a real mutation ran with defaults. Never record this row as proven on an empty-body 2xx; supply a real body and read the object back."
+        },
+        "POST /membership/locations/{locationId}/settings/builder-settings": {
+          note: "\u{1F534} ANSWERS 2xx TO AN EMPTY BODY. Measured 2026-09-10 on the sandbox: POST/PUT with `{}` returned 2xx. That is a HAZARD, not a capability \u2014 this rail has a known case (attach-offer-user) where an empty body is acknowledged with the same 200 a real grant returns, so a 2xx here says nothing about what was stored and may mean a real mutation ran with defaults. Never record this row as proven on an empty-body 2xx; supply a real body and read the object back."
+        },
+        "POST /membership/locations/{locationId}/settings/site-info": {
+          note: "\u{1F534} ANSWERS 2xx TO AN EMPTY BODY. Measured 2026-09-10 on the sandbox: POST/PUT with `{}` returned 2xx. That is a HAZARD, not a capability \u2014 this rail has a known case (attach-offer-user) where an empty body is acknowledged with the same 200 a real grant returns, so a 2xx here says nothing about what was stored and may mean a real mutation ran with defaults. Never record this row as proven on an empty-body 2xx; supply a real body and read the object back."
+        },
+        "POST /courses/analytics/locations/{locationId}/members/count": {
+          note: "\u{1F534} ANSWERS 2xx TO AN EMPTY BODY. Measured 2026-09-10 on the sandbox: POST/PUT with `{}` returned 2xx. That is a HAZARD, not a capability \u2014 this rail has a known case (attach-offer-user) where an empty body is acknowledged with the same 200 a real grant returns, so a 2xx here says nothing about what was stored and may mean a real mutation ran with defaults. Never record this row as proven on an empty-body 2xx; supply a real body and read the object back."
+        },
+        "GET /membership/.../categories": {
+          note: '\u{1F534} THIS ROW IS UNCALLABLE: its path contains a literal "..." left by the source miner, so every request 404s. 15 rows are in this state, all on this service. 11 of them \u2014 including this one \u2014 duplicate a full-path row already in the catalogue; use that one instead. Measured 2026-09-10.'
+        },
+        "POST /membership/.../categories": {
+          note: '\u{1F534} THIS ROW IS UNCALLABLE: its path contains a literal "..." left by the source miner, so every request 404s. 15 rows are in this state, all on this service. 11 of them \u2014 including this one \u2014 duplicate a full-path row already in the catalogue; use that one instead. Measured 2026-09-10.'
+        },
+        "PUT /membership/.../categories/{id}": {
+          note: '\u{1F534} THIS ROW IS UNCALLABLE: its path contains a literal "..." left by the source miner, so every request 404s. 15 rows are in this state, all on this service. 11 of them \u2014 including this one \u2014 duplicate a full-path row already in the catalogue; use that one instead. Measured 2026-09-10.'
+        },
+        "POST /membership/.../certificate-attachments": {
+          note: '\u{1F534} THIS ROW IS UNCALLABLE: its path contains a literal "..." left by the source miner, so every request 404s. 15 rows are in this state, all on this service. 11 of them \u2014 including this one \u2014 duplicate a full-path row already in the catalogue; use that one instead. Measured 2026-09-10.'
+        },
+        "POST /membership/.../media/signed-url": {
+          note: '\u{1F534} THIS ROW IS UNCALLABLE: its path contains a literal "..." left by the source miner, so every request 404s. 15 rows are in this state, all on this service. 11 of them \u2014 including this one \u2014 duplicate a full-path row already in the catalogue; use that one instead. Measured 2026-09-10.'
+        },
+        "POST /membership/.../offers": {
+          note: '\u{1F534} THIS ROW IS UNCALLABLE: its path contains a literal "..." left by the source miner, so every request 404s. 15 rows are in this state, all on this service. 11 of them \u2014 including this one \u2014 duplicate a full-path row already in the catalogue; use that one instead. Measured 2026-09-10.'
+        },
+        "POST /membership/.../posts": {
+          note: '\u{1F534} THIS ROW IS UNCALLABLE: its path contains a literal "..." left by the source miner, so every request 404s. 15 rows are in this state, all on this service. 11 of them \u2014 including this one \u2014 duplicate a full-path row already in the catalogue; use that one instead. Measured 2026-09-10.'
+        },
+        "PUT /membership/.../posts/{id}": {
+          note: '\u{1F534} THIS ROW IS UNCALLABLE: its path contains a literal "..." left by the source miner, so every request 404s. 15 rows are in this state, all on this service. 11 of them \u2014 including this one \u2014 duplicate a full-path row already in the catalogue; use that one instead. Measured 2026-09-10.'
+        },
+        "POST /membership/.../products": {
+          note: '\u{1F534} THIS ROW IS UNCALLABLE: its path contains a literal "..." left by the source miner, so every request 404s. 15 rows are in this state, all on this service. 11 of them \u2014 including this one \u2014 duplicate a full-path row already in the catalogue; use that one instead. Measured 2026-09-10.'
+        },
+        "DELETE /membership/.../products/{id}": {
+          note: '\u{1F534} THIS ROW IS UNCALLABLE: its path contains a literal "..." left by the source miner, so every request 404s. 15 rows are in this state, all on this service. 11 of them \u2014 including this one \u2014 duplicate a full-path row already in the catalogue; use that one instead. Measured 2026-09-10.'
+        },
+        "POST /membership/.../videos": {
+          note: '\u{1F534} THIS ROW IS UNCALLABLE: its path contains a literal "..." left by the source miner, so every request 404s. 15 rows are in this state, all on this service. 11 of them \u2014 including this one \u2014 duplicate a full-path row already in the catalogue; use that one instead. Measured 2026-09-10.'
+        },
+        "POST /courses/.../product-themes": {
+          note: '\u{1F534} THIS ROW IS UNCALLABLE: its path contains a literal "..." left by the source miner, and unlike the other truncated rows it has NO full-path twin in the catalogue \u2014 the real path was lost in mining and needs re-capture before this endpoint can be reached at all. Measured 2026-09-10.'
+        },
+        "PUT /membership/.../categories": {
+          note: '\u{1F534} THIS ROW IS UNCALLABLE: its path contains a literal "..." left by the source miner, and unlike the other truncated rows it has NO full-path twin in the catalogue \u2014 the real path was lost in mining and needs re-capture before this endpoint can be reached at all. Measured 2026-09-10.'
+        },
+        "PUT /membership/.../posts": {
+          note: '\u{1F534} THIS ROW IS UNCALLABLE: its path contains a literal "..." left by the source miner, and unlike the other truncated rows it has NO full-path twin in the catalogue \u2014 the real path was lost in mining and needs re-capture before this endpoint can be reached at all. Measured 2026-09-10.'
+        },
+        "PUT /membership/.../products": {
+          note: '\u{1F534} THIS ROW IS UNCALLABLE: its path contains a literal "..." left by the source miner, and unlike the other truncated rows it has NO full-path twin in the catalogue \u2014 the real path was lost in mining and needs re-capture before this endpoint can be reached at all. Measured 2026-09-10.'
         }
       }
     };
