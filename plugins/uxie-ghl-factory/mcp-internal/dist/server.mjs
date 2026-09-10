@@ -6542,6 +6542,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
+          note: "Executed 2026-09-10 \u2014 returns {tickets, traceId}; empty on the sandbox.",
           reach: "proven",
           coveredBy: [],
           rawCallable: true,
@@ -8516,6 +8517,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
+          note: '\u{1F534} Body needs `step` as an OBJECT, not a name \u2014 422 ["step should not be empty","step must be an object"] otherwise. Supply the full create-step shape INCLUDING a client-minted step.id (rule 24: a server-minted step is unrepairable). With that body the call answered **524, a Cloudflare edge TIMEOUT**, on 2026-09-10. A 524 is an UNKNOWN, not a failure \u2014 the origin may still have committed. Checked afterwards and it wrote NOTHING: steps, pages and routing rows were all unchanged. Always read back after a 524 here rather than retrying blind, or a retry can double-create.',
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -27049,6 +27051,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
+          note: "Its GET returns an EMPTY OBJECT {} on the sandbox, so there is no baseline to diff a write against and no field whose type is known. Not probed: writing here would be inventing a schema and could not be verified either way.",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -35084,6 +35087,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
+          note: "Executed 2026-09-10 \u2014 returns {brandBoards, totalCount, traceId}; zero boards on the sandbox, which is why its /default write twin has nothing to target and is not probed.",
           reach: "proven",
           coveredBy: [],
           rawCallable: true,
@@ -35791,7 +35795,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "write",
-          reach: "source-only",
+          note: "Executed on the sandbox 2026-09-10 against this project's own TEST-CAP brand voice: body {brandVoiceId, locationId}, answers 200 {success, message, brandVoiceId, locationId}, and the voice's isDefault read back false -> true on a separate request. NOTE the probe artifact is LEFT as the default \u2014 there is no obvious unset call on this rail, and the account has exactly one (test) voice, so nothing real was displaced.",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -52537,6 +52542,24 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         "GET /opportunities/smart-filters": {
           reach: "proven",
           note: 'Executed on the designated sandbox 2026-09-10, write-parity sweep, read back on a separate request. \u{1F534} BOTH `pipelineId` AND `filterType` are required query params \u2014 locationId alone answers 400 "pipelineId can\'t be undefined" (code COMMON_PIPELINE_ID_UNDEFINED), and adding pipelineId alone then answers 422 naming filterType with its enum: **smartlist | smarttag**. With all three it returns {smartFilters, total, page, limit}. Its POST twin additionally requires a non-empty `color`, a non-empty `filters` array and `position` >= 1; the filter shape was not invented, so the write stays unproven.'
+        },
+        "POST /brand-boards/voices/{locationId}/default": {
+          reach: "proven",
+          note: "Executed on the sandbox 2026-09-10 against this project's own TEST-CAP brand voice: body {brandVoiceId, locationId}, answers 200 {success, message, brandVoiceId, locationId}, and the voice's isDefault read back false -> true on a separate request. NOTE the probe artifact is LEFT as the default \u2014 there is no obvious unset call on this rail, and the account has exactly one (test) voice, so nothing real was displaced."
+        },
+        "POST /funnels/page/create-page": {
+          note: '\u{1F534} Body needs `step` as an OBJECT, not a name \u2014 422 ["step should not be empty","step must be an object"] otherwise. Supply the full create-step shape INCLUDING a client-minted step.id (rule 24: a server-minted step is unrepairable). With that body the call answered **524, a Cloudflare edge TIMEOUT**, on 2026-09-10. A 524 is an UNKNOWN, not a failure \u2014 the origin may still have committed. Checked afterwards and it wrote NOTHING: steps, pages and routing rows were all unchanged. Always read back after a 524 here rather than retrying blind, or a retry can double-create.'
+        },
+        "GET /brand-boards/{locationId}": {
+          reach: "proven",
+          note: "Executed 2026-09-10 \u2014 returns {brandBoards, totalCount, traceId}; zero boards on the sandbox, which is why its /default write twin has nothing to target and is not probed."
+        },
+        "GET /events-management/tickets": {
+          reach: "proven",
+          note: "Executed 2026-09-10 \u2014 returns {tickets, traceId}; empty on the sandbox."
+        },
+        "PUT /workflow/{locationId}/workflow-ai/settings": {
+          note: "Its GET returns an EMPTY OBJECT {} on the sandbox, so there is no baseline to diff a write against and no field whose type is known. Not probed: writing here would be inventing a schema and could not be verified either way."
         }
       }
     };
