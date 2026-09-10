@@ -136,6 +136,57 @@ if (wid) {
   }
 }
 
+// ── 3. repair_workflow ──────────────────────────────────────────────────────────────────────
+// The riskiest tool in the plugin and, until tonight, the one with zero live proof: 12 endpoints,
+// a full-document PUT of workflowData.templates, and no receipt anywhere saying it had ever been
+// run against a real account. A tool that rewrites an entire workflow document on evidence nobody
+// has produced is the one that should be proven first, not last.
+//
+// Proven here in the order that makes a failure safe: PREVIEW first (asserting no write happened),
+// then a real repair on a draft this suite created, then a read-back on a separate request.
+console.log('\nrepair_workflow');
+if (wid) {
+  const current = await call('export_workflow', { workflowId: wid });
+  const tpls = current.data?.workflow?.workflowData?.templates ?? [];
+  const target = tpls.find((t) => t.type === 'custom_code');
+
+  if (!target) { check(false, 'a custom_code step to repair', 'none found in the draft'); }
+  else {
+    const RENAMED = `${target.name} REPAIRED`;
+    const patched = tpls.map((t) => (t.id === target.id ? { ...t, name: RENAMED } : t));
+
+    // PREVIEW: default is no-write. If this is wrong, everything below is destructive by accident.
+    const preview = await call('repair_workflow', { workflowId: wid, templates: patched });
+    check(preview.ok === false && /CONFIRM/i.test(String(preview.code)),
+      'repair_workflow PREVIEWS by default and refuses to write without confirm:true', `${preview.code}`);
+    const afterPreview = await call('export_workflow', { workflowId: wid });
+    const stillOld = (afterPreview.data?.workflow?.workflowData?.templates ?? []).find((t) => t.id === target.id);
+    check(stillOld?.name === target.name,
+      'the preview really wrote NOTHING — the step still carries its original name', `now ${stillOld?.name}`);
+
+    // WRITE, then prove it by reading the document back rather than trusting the response.
+    const done = await call('repair_workflow', { workflowId: wid, templates: patched, confirm: true });
+    check(done.ok === true, 'repair_workflow writes the full document with confirm:true', done.detail);
+
+    const verify = await call('export_workflow', { workflowId: wid });
+    const vt = verify.data?.workflow?.workflowData?.templates ?? [];
+    check(vt.find((t) => t.id === target.id)?.name === RENAMED,
+      'the repair LANDED — read back on a separate request', `got ${vt.find((t) => t.id === target.id)?.name}`);
+    check(vt.length === tpls.length,
+      'and it did not drop or duplicate a step — a full-document PUT is exactly how a workflow loses one',
+      `${tpls.length} before, ${vt.length} after`);
+
+    // the numbering must survive a full-document rewrite, or every merge tag in the document breaks
+    const codes = vt.filter((t) => t.type === 'custom_code').map((t) => t.stepIndex);
+    check(JSON.stringify(codes) === '[1,2]', 'stepIndex survives a full-document repair unchanged', `got ${JSON.stringify(codes)}`);
+
+    // a STALE expectedVersion must be refused, or two agents repairing at once silently clobber
+    const stale = await call('repair_workflow', { workflowId: wid, templates: patched, confirm: true, expectedVersion: 1 });
+    check(stale.ok === false && /VERSION_CONFLICT/i.test(String(stale.code)),
+      'a stale expectedVersion is refused with VERSION_CONFLICT, not written over', `${stale.code}`);
+  }
+}
+
 // ── coverage honesty ────────────────────────────────────────────────────────────────────────
 console.log('\nNOT COVERED by this suite, and not counted as passing:');
 console.log('  publish / unpublish   — outward-facing; a live workflow sends real messages');

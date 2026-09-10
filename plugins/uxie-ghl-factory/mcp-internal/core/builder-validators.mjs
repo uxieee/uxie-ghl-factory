@@ -129,9 +129,25 @@ export function validatorNamesFor(cards, bag) {
  * gave zero.
  *
  * 🔴 Validators return TWO kinds of entry. One carrying `message` is a finding the error panel
- * shows. One carrying `resource` and `value` and NO message is a deferred existence lookup the
- * builder posts to the server — "does this pipeline / email template / custom field still exist?".
- * Conflating them produced 178 phantom problems on a 51-workflow account. Split on `message`.
+ * shows. One carrying `resource` and `value` is a deferred existence lookup the builder POSTS to
+ * the server — "does this pipeline / email template / custom field still exist?". Conflating them
+ * produced 178 phantom problems on a 51-workflow account.
+ *
+ * SPLIT ON `resource`, NOT ON `message`. Splitting on `message` was wrong for exactly one
+ * validator out of 67, and it is a common one: `assignToUserValidator` pushes an entry carrying
+ * BOTH keys —
+ *
+ *   e.push({resource:"user", field:"user_list", value:r, result:"warning", message:translate("user_not_found")})
+ *
+ * — a deferred lookup that ships with its failure LABEL pre-baked, for the builder to render IF
+ * the server comes back saying the user is gone. On its own it asserts nothing. Splitting on
+ * `message` therefore reported `user_not_found` against every assign_user step on every account,
+ * including steps whose assignment had just been observed working at runtime.
+ *
+ * A validator that emits `resource` is asking a question. Only the answer can be a finding, and
+ * this harness never asks it — so a `resource` row is a lookup however it is labelled. Swept
+ * across all 67: `assignToUserValidator` is the only one that emits both, which is why review
+ * missed it twice.
  */
 /**
  * 🔴 TRAP 3: a validator can read a field the STORED document keeps somewhere else.
@@ -168,7 +184,7 @@ export function runBuilderValidators(templates, bag, vname) {
     catch (e) { crashed.push({ step: s.name ?? s.id ?? null, type: s.type, validator: vn, error: String(e?.message ?? e).slice(0, 160) }); continue; }
     for (const r of (out ?? [])) {
       const row = { step: s.name ?? s.id ?? null, type: s.type, ...r };
-      (r?.message ? findings : lookups).push(row);
+      (r?.resource ? lookups : findings).push(row);
     }
   }
   return { validated, findings, lookups, unchecked, crashed };

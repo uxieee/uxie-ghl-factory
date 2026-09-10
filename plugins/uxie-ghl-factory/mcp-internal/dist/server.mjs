@@ -161783,7 +161783,7 @@ function runBuilderValidators(templates, bag, vname) {
     }
     for (const r of out ?? []) {
       const row = { step: s.name ?? s.id ?? null, type: s.type, ...r };
-      (r?.message ? findings : lookups).push(row);
+      (r?.resource ? lookups : findings).push(row);
     }
   }
   return { validated, findings, lookups, unchecked, crashed };

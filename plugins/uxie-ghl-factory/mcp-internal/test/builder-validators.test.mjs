@@ -169,3 +169,51 @@ test('TRAP 3: the wait model merges the ROW name into attributes, so the harness
   // validator something the builder never produces.
   assert.equal(seen[2].attributes.name, undefined, 'no other type gets the row name injected');
 });
+
+// The split is on `resource`, not on `message`, and one validator out of 67 is the whole reason.
+// assignToUserValidator pushes an entry carrying BOTH keys — a deferred existence lookup that
+// ships with its failure LABEL pre-baked, for the builder to render IF the server says the user is
+// gone. On its own it asserts nothing. Splitting on `message` reported `user_not_found` against
+// every assign_user step on every account, including steps whose assignment had just been watched
+// working at runtime on a live account.
+//
+// Reported by a peer session against 891 steps across 53 workflows; the miss was confirmed here by
+// sweeping all 67 validator bodies for a push carrying both keys, which returns exactly one.
+test('an assign_user step with a real user is a LOOKUP, never a user_not_found finding', () => {
+  const bag = compileValidators(SOURCE);
+  const vname = validatorNamesFor(CARDS, bag);
+  const step = {
+    id: 's1', name: 'Assign to owner', type: 'assign_user',
+    attributes: { user_list: ['REALUSERID0000000001'] },
+  };
+  const r = runBuilderValidators([step], bag, vname);
+
+  assert.equal(r.findings.length, 0,
+    `a populated assign_user step must produce NO finding, got ${JSON.stringify(r.findings)}`);
+  assert.equal(r.lookups.length, 1, 'it must produce exactly one deferred existence lookup');
+  assert.equal(r.lookups[0].resource, 'user');
+  assert.equal(r.lookups[0].value, 'REALUSERID0000000001');
+  assert.ok(r.crashed.length === 0, `validator crashed: ${JSON.stringify(r.crashed)}`);
+
+  // CONTROL: the same validator's OTHER push carries no `resource` and IS a real finding —
+  // an assign_user step with nobody assigned is genuinely broken, and must still be reported.
+  const empty = runBuilderValidators(
+    [{ id: 's2', name: 'Assign to nobody', type: 'assign_user', attributes: { user_list: [] } }], bag, vname);
+  assert.equal(empty.lookups.length, 0);
+  assert.equal(empty.findings.length, 1, 'an EMPTY user_list is a real finding and must survive the change');
+  assert.equal(empty.findings[0].field, 'user_list');
+});
+
+test('assignToUserValidator is the ONLY validator emitting both resource and message', () => {
+  // The rule "a resource row is a lookup however it is labelled" is only safe to state because
+  // this is one special case rather than a class. If a second validator ever adopts the dual
+  // shape, this fails and the rule gets re-examined instead of silently widening.
+  const dual = new Set();
+  for (const [name, src] of Object.entries(SOURCE)) {
+    for (const [, body] of String(src).matchAll(/push\(\{([^{}]*(?:\{[^{}]*\}[^{}]*)*)\}\)/g)) {
+      if (/\bresource\s*:/.test(body) && /\bmessage\s*:/.test(body)) dual.add(name);
+    }
+  }
+  assert.deepEqual([...dual], ['assignToUserValidator'],
+    'a new dual-shape validator appeared — re-read the resource/message split before trusting it');
+});
