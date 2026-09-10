@@ -8,7 +8,7 @@ import { z } from 'zod';
 import { ok, fail, fromHttp, CODES, REDACTED, containsSecrets, scrubSecrets } from './errors.mjs';
 import { authStatus, DEFAULT_TOKEN_FILE, readCredentials } from './auth.mjs';
 import { checkLocationBinding } from './location-binding.mjs';
-import { scanPage, judge, judgeVersions, judgeRouting, judgePathCollisions, judgeRendered, judgeStyles, normaliseTag } from './site-audit.mjs';
+import { scanPage, judge, judgeVersions, judgeRouting, judgePathCollisions, judgePageRecord, judgeRendered, judgeStyles, normaliseTag } from './site-audit.mjs';
 import { makeAuditCircuit, makeAuditGateway, makeAuditLimiter } from './audit-gateway.mjs';
 import { makeGateway } from './gateway.mjs';
 import {
@@ -8216,6 +8216,14 @@ export const TOOLS = [
       // `get-versions` answers a BARE ARRAY, newest first. The id key is snake_case `version_id`
       // — a caller reading `.versions` or `row.versionId` gets undefined, publishes nothing, and
       // sees no error. `updated_at` is a Firestore {_seconds,_nanoseconds} object, not a string.
+      //
+      // 🔴 "newest first" is the ordering, NOT a guarantee of monotonic timestamps: measured across
+      // 14 pages, 2 were out of order, and a freshly published `live` row is APPENDED AT THE END.
+      // So `rows[rows.length - 1]` is very often the version that is ALREADY live — publish that and
+      // three publishes in a row change nothing, which reads exactly like "the write did not land".
+      // This handler is safe because it publishes `versions[0]` immediately after its own autosave,
+      // which is that autosave's draft. Anything picking a target in another flow must sort on
+      // `updated_at._seconds`, not on position.
       let versions = [];
       const vres = await gw.call('GET', `/funnels/builder/get-versions?pageId=${encodeURIComponent(args.pageId)}`);
       if (Array.isArray(vres.json)) versions = vres.json;
@@ -8420,6 +8428,7 @@ export const TOOLS = [
       let pagesScanned = 0, pagesFailed = 0, truncated = false;
 
       let styleChecked = 0;
+      let recordsRead = 0, recordsFailed = 0;
       for (const d of docs) {
         for (const st of d.steps ?? []) {
           // Rule 24: a step created without a client-minted id is unrepairable and gets no route.
@@ -8438,6 +8447,16 @@ export const TOOLS = [
             styleChecked++;
             const vs = await gw.call('GET', `/funnels/builder/get-versions?pageId=${encodeURIComponent(pid)}`);
             if (Array.isArray(vs.json)) findings.push(...judgeVersions({ versions: vs.json, pageId: pid, pageName: `${d.name} / ${st.name}` }));
+            // The page RECORD is a THIRD surface, holding what neither pageData nor the page list
+            // carries: `meta`. 🔴 It comes back at the TOP LEVEL — `r.json?.data ?? {}` yields `{}`
+            // and reports every field absent, which is how this record was once written up as
+            // "omits meta". One read, three checks.
+            const prec = await gw.call('GET', `/funnels/page/${encodeURIComponent(pid)}?locationId=${encodeURIComponent(args.locationId)}`);
+            if (prec.status === 200) {
+              recordsRead++;
+              findings.push(...judgePageRecord({ record: prec.json?.data ?? prec.json, pageId: pid,
+                pageName: `${d.name} / ${st.name}`, locationId: args.locationId }));
+            } else recordsFailed++;
           }
         }
       }
@@ -8448,6 +8467,11 @@ export const TOOLS = [
       // so "no findings" can never be confused with "did not look".
       coverage.push({ check: 'uncompiled-styles', ran: styleChecked > 0, pages: styleChecked });
       coverage.push({ check: 'mirror-divergence', ran: styleChecked > 0, pages: styleChecked });
+      for (const c of ['seo-meta', 'clone-leftover']) {
+        coverage.push({ check: c, ran: recordsRead > 0, pages: recordsRead,
+          ...(recordsFailed ? { failed: recordsFailed } : {}),
+          ...(recordsRead === 0 ? { why: 'no page record could be read, so nothing on the record was checked' } : {}) });
+      }
       // 🔴 lookup/list REQUIRES funnelId — `locationId` alone answers 422 — so there is no one call
       // that reads a location's route table. Sweeping one call per document is the only way, and it
       // is the ONLY way to see the cross-document claimant that a domain attach will silently

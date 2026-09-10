@@ -535,3 +535,67 @@ export function judgePathCollisions({ docs, rowsByFunnel, focusIds }) {
   }
   return findings;
 }
+
+/**
+ * THE PAGE RECORD — three defects that live on it and on nothing else.
+ *
+ * `meta` is not in `pageData` and not in the page LIST (which returns only
+ * `_id deleted funnelId locationId name stepId updatedAt`, and requires BOTH `limit` and `offset`
+ * — the exact inverse of `lookup/list`, which refuses them). It costs one
+ * `GET /funnels/page/{pageId}?locationId=` per page, and that one read carries all three checks.
+ *
+ * @param record      the page record, read as `r.json?.data ?? r.json` — 🔴 it comes back at the TOP
+ *                    LEVEL, so `r.json?.data ?? {}` yields `{}` and reports every field absent
+ * @param locationId  the account being audited, for the foreign-asset check
+ */
+const META_TEXT_FIELDS = ['title', 'description', 'keywords', 'author'];
+
+export function judgePageRecord({ record, pageId, pageName, locationId }) {
+  const findings = [];
+  const meta = record?.meta;
+
+  // 1. 🔴 A MERGE TAG IN `meta` EMITS NO TAG AT ALL. `{{custom_values.x}}` in meta.title does not
+  //    resolve and does not render literally — the renderer omits the whole <title> element. Proven
+  //    with a control on either side: the same page published with a literal title rendered
+  //    `<title>ZZ CONTROL TITLE 11699</title>`, and with a merge tag rendered no title element,
+  //    both as genuine origin decisions (cf-cache-status: MISS).
+  //
+  //    This is invisible everywhere an operator would look — the page document holds the string, the
+  //    record reads it back, and the builder's SEO panel displays it. On one live client site 15 of
+  //    16 pages carried a tag in meta.title and shipped with no title.
+  for (const f of META_TEXT_FIELDS) {
+    const v = meta?.[f];
+    if (typeof v === 'string' && v.includes('{{')) {
+      findings.push({ severity: 'high', check: 'seo-meta', pageName, value: `${f}: ${v}`,
+        detail: `a merge tag in meta.${f} does NOT resolve and does NOT render literally — the renderer emits `
+          + `no <${f === 'title' ? 'title' : `meta name="${f}"`}> element at all. The page document, the record and the `
+          + 'builder SEO panel all show the string, so this looks healthy everywhere except the served HTML. '
+          + 'Write a literal value' });
+    }
+  }
+
+  // 2. A CROSS-ACCOUNT ASSET SURVIVING A CLONE. GHL media sits under `/msgsndr/<locationId>/`, so an
+  //    asset URL naming a DIFFERENT location is unambiguous — no id shape-matching involved. The
+  //    og:image is the one that bites: every social share card served from the previous client's
+  //    bucket, on a site that otherwise looks clean.
+  const MSGSNDR = /\/msgsndr\/([A-Za-z0-9]+)\//g;
+  for (const [k, v] of Object.entries(meta ?? {})) {
+    if (typeof v !== 'string') continue;
+    for (const m of v.matchAll(MSGSNDR)) {
+      if (m[1] === locationId) continue;
+      findings.push({ severity: 'medium', check: 'foreign-location', pageName, value: `meta.${k}`,
+        detail: 'this asset URL points at ANOTHER account\'s media bucket — it survives a clone or template '
+          + 'install, still resolves, and still renders, so nothing looks broken. If this is the og:image, every '
+          + 'social share card for this page is served from that account' });
+    }
+  }
+
+  // 3. A CLONE LEFTOVER. GHL's clone suffixes every page name with " Clone". Cosmetic, never breaks
+  //    a render — `info`, so it is reported without competing with anything that does.
+  if (typeof (record?.name ?? pageName) === 'string' && /\sClone$/.test(record?.name ?? pageName)) {
+    findings.push({ severity: 'info', check: 'clone-leftover', pageName, value: record?.name ?? pageName,
+      detail: 'the page name still carries the " Clone" suffix GHL adds when duplicating a funnel. '
+        + 'Settable through POST /funnels/funnel/funnel-page/{pageId} with {name}' });
+  }
+  return findings;
+}

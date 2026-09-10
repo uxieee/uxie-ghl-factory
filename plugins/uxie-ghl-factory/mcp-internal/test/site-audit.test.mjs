@@ -4,7 +4,7 @@
 import { readFile } from 'node:fs/promises';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { scanPage, judge, judgeRendered, judgeVersions, judgeRouting, normaliseTag, placeholderKind, REF_CLASS, judgePathCollisions } from '../core/site-audit.mjs';
+import { scanPage, judge, judgeRendered, judgeVersions, judgeRouting, normaliseTag, placeholderKind, REF_CLASS, judgePathCollisions, judgePageRecord } from '../core/site-audit.mjs';
 
 const LOC = 'LOC_OWN';
 const page = ({ els = [], popups = [], extra = {} } = {}) => ({
@@ -269,4 +269,46 @@ test('audit_site never passes limit or offset to lookup/list, which would zero t
     assert.doesNotMatch(c, /\blimit=/, `lookup/list must not paginate: ${c}`);
     assert.doesNotMatch(c, /\boffset=/, `lookup/list must not paginate: ${c}`);
   }
+});
+
+test('judgePageRecord flags a merge tag in every meta text field, at high', () => {
+  const f = judgePageRecord({
+    record: { name: 'Home', meta: { title: '{{custom_values.company_name}} | Home', description: 'ok',
+      keywords: 'a,{{custom_values.city}}', author: '{{custom_values.owner}}' } },
+    pageId: 'p1', pageName: 'Site / Home', locationId: 'LOC1' });
+  const seo = f.filter((x) => x.check === 'seo-meta');
+  assert.equal(seo.length, 3);                       // title, keywords, author — description is clean
+  assert.ok(seo.every((x) => x.severity === 'high'));
+  assert.match(seo.find((x) => x.value.startsWith('title:')).detail, /no <title> element at all/);
+});
+
+test('judgePageRecord leaves a literal meta alone', () => {
+  const f = judgePageRecord({
+    record: { name: 'Home', meta: { title: 'Acme Plumbing | Seattle', description: 'We fix pipes' } },
+    pageId: 'p1', pageName: 'Site / Home', locationId: 'LOC1' });
+  assert.deepEqual(f, []);
+});
+
+test('judgePageRecord flags an asset in ANOTHER account bucket and spares this one', () => {
+  const mine = 'https://storage.googleapis.com/msgsndr/LOC1/media/og.png';
+  const theirs = 'https://storage.googleapis.com/msgsndr/OTHERLOC/media/og.png';
+  const ok = judgePageRecord({ record: { name: 'A', meta: { imageUrl: mine } }, pageName: 'x', locationId: 'LOC1' });
+  assert.deepEqual(ok, []);
+  const bad = judgePageRecord({ record: { name: 'A', meta: { imageUrl: theirs } }, pageName: 'x', locationId: 'LOC1' });
+  assert.equal(bad.length, 1);
+  assert.equal(bad[0].check, 'foreign-location');
+  assert.equal(bad[0].value, 'meta.imageUrl');
+});
+
+test('judgePageRecord flags the clone name suffix at info, and only at the end', () => {
+  const f = judgePageRecord({ record: { name: 'Contact Clone', meta: {} }, pageName: 'x', locationId: 'L' });
+  assert.equal(f.length, 1);
+  assert.equal(f[0].severity, 'info');
+  // "Clone Services" is a real page name, not a leftover
+  assert.deepEqual(judgePageRecord({ record: { name: 'Clone Services', meta: {} }, pageName: 'x', locationId: 'L' }), []);
+});
+
+test('judgePageRecord survives a record with no meta at all, which is the normal case', () => {
+  assert.deepEqual(judgePageRecord({ record: { name: 'Home' }, pageName: 'x', locationId: 'L' }), []);
+  assert.deepEqual(judgePageRecord({ record: null, pageName: 'x', locationId: 'L' }), []);
 });

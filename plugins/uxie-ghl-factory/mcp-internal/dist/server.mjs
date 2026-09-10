@@ -88529,6 +88529,47 @@ function judgePathCollisions({ docs, rowsByFunnel, focusIds }) {
   }
   return findings;
 }
+var META_TEXT_FIELDS = ["title", "description", "keywords", "author"];
+function judgePageRecord({ record: record2, pageId, pageName, locationId }) {
+  const findings = [];
+  const meta3 = record2?.meta;
+  for (const f of META_TEXT_FIELDS) {
+    const v = meta3?.[f];
+    if (typeof v === "string" && v.includes("{{")) {
+      findings.push({
+        severity: "high",
+        check: "seo-meta",
+        pageName,
+        value: `${f}: ${v}`,
+        detail: `a merge tag in meta.${f} does NOT resolve and does NOT render literally \u2014 the renderer emits no <${f === "title" ? "title" : `meta name="${f}"`}> element at all. The page document, the record and the builder SEO panel all show the string, so this looks healthy everywhere except the served HTML. Write a literal value`
+      });
+    }
+  }
+  const MSGSNDR = /\/msgsndr\/([A-Za-z0-9]+)\//g;
+  for (const [k, v] of Object.entries(meta3 ?? {})) {
+    if (typeof v !== "string") continue;
+    for (const m of v.matchAll(MSGSNDR)) {
+      if (m[1] === locationId) continue;
+      findings.push({
+        severity: "medium",
+        check: "foreign-location",
+        pageName,
+        value: `meta.${k}`,
+        detail: "this asset URL points at ANOTHER account's media bucket \u2014 it survives a clone or template install, still resolves, and still renders, so nothing looks broken. If this is the og:image, every social share card for this page is served from that account"
+      });
+    }
+  }
+  if (typeof (record2?.name ?? pageName) === "string" && /\sClone$/.test(record2?.name ?? pageName)) {
+    findings.push({
+      severity: "info",
+      check: "clone-leftover",
+      pageName,
+      value: record2?.name ?? pageName,
+      detail: 'the page name still carries the " Clone" suffix GHL adds when duplicating a funnel. Settable through POST /funnels/funnel/funnel-page/{pageId} with {name}'
+    });
+  }
+  return findings;
+}
 
 // core/audit-gateway.mjs
 init_define_BUILDER_VALIDATORS();
@@ -174094,6 +174135,7 @@ var TOOLS2 = [
       const findings = [];
       let pagesScanned = 0, pagesFailed = 0, truncated = false;
       let styleChecked = 0;
+      let recordsRead = 0, recordsFailed = 0;
       for (const d of docs) {
         for (const st of d.steps ?? []) {
           if (!st.id) {
@@ -174120,11 +174162,30 @@ var TOOLS2 = [
             styleChecked++;
             const vs = await gw.call("GET", `/funnels/builder/get-versions?pageId=${encodeURIComponent(pid)}`);
             if (Array.isArray(vs.json)) findings.push(...judgeVersions({ versions: vs.json, pageId: pid, pageName: `${d.name} / ${st.name}` }));
+            const prec = await gw.call("GET", `/funnels/page/${encodeURIComponent(pid)}?locationId=${encodeURIComponent(args.locationId)}`);
+            if (prec.status === 200) {
+              recordsRead++;
+              findings.push(...judgePageRecord({
+                record: prec.json?.data ?? prec.json,
+                pageId: pid,
+                pageName: `${d.name} / ${st.name}`,
+                locationId: args.locationId
+              }));
+            } else recordsFailed++;
           }
         }
       }
       coverage.push({ check: "uncompiled-styles", ran: styleChecked > 0, pages: styleChecked });
       coverage.push({ check: "mirror-divergence", ran: styleChecked > 0, pages: styleChecked });
+      for (const c of ["seo-meta", "clone-leftover"]) {
+        coverage.push({
+          check: c,
+          ran: recordsRead > 0,
+          pages: recordsRead,
+          ...recordsFailed ? { failed: recordsFailed } : {},
+          ...recordsRead === 0 ? { why: "no page record could be read, so nothing on the record was checked" } : {}
+        });
+      }
       let sweepDocs = docs;
       if (args.funnelId) {
         const all = await gw.call("GET", `/funnels/funnel/list?locationId=${encodeURIComponent(args.locationId)}&limit=100`);
