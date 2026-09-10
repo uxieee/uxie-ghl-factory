@@ -11,6 +11,72 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [0.80.0] — 2026-09-11
+
+A parity sweep over the endpoint catalogue. **319 of 1168 rows now carry a live verdict, up from
+167** — and the corrections found along the way matter more than the count.
+
+### Added
+
+- **Snapshots: five tools move from `source-derived` to `live-runtime`.** `list_snapshots`,
+  `get_snapshot_manifest`, `check_snapshot_conflicts`, `create_snapshot` and `refresh_snapshot` had
+  shipped without ever being executed against the API they wrap. Now run end to end on the sandbox,
+  with the create read back on a separate request — snapshot count moved 8 → 9 and the new snapshot
+  was found by name and id. The endpoint rows marked proven were chosen by **instrumenting the
+  gateway and recording the calls the tools actually made**, not by trusting their declared
+  capabilities.
+
+- **18 write endpoints proven**, each executed, read back separately, and restored where it changed
+  state. The reusable ones:
+
+  | endpoint | what it teaches |
+  |---|---|
+  | `PUT /calendars/{calendarId}` | 🔴 the READ shape is not the WRITE shape — ten server-added keys must be stripped, then `openHours` (which the GET itself returns) must be dropped |
+  | `POST /locations/{locationId}/customValues` | `fieldKey` is DERIVED from the name, not supplied |
+  | `POST /forms/folder/` | `productType` is required, in no schema, and also scopes the folder LIST |
+  | `POST /agent-logs/metrics-layouts` | `widgets` must be TOP-LEVEL; nesting it 422s |
+  | `POST /workflow/{locationId}/ai/*`, `v3/ai/*` | 🔴 `workflowId` and `sessionId` go in the QUERY — in the body they are invisible |
+
+### Fixed
+
+- **23 catalogue rows learn the query params they always required.** The first probe answered 400
+  fifty times and 422 sixty-eight while the endpoints were naming parameters we already hold —
+  `locationId` was demanded 28 times. A catalogue schema gap was being recorded as an unreachable
+  endpoint. The prober now retries once on a 400/422 with only values already in the pool.
+- **Six rows had the wrong BASE.** `/actions/…` and `/triggers/…` metadata paths answer 404 with an
+  empty body at the service root; under `/workflows-marketplace` the same paths answer from a real
+  service.
+- **Fifteen rows are uncallable** — a literal `...` left in the path by the source miner. Eleven
+  duplicate a full-path row already present and now point at it; four lost their real path and need
+  re-capture.
+- **Two rows are `DELETE` while their `kind` says `write`.** A sweep filtering on `kind` alone treats
+  them as safe writes.
+
+### Proven / not proven
+
+Recorded as negatives rather than dressed up: `ai/email-ai` 500s with arguments identical to its
+working siblings; `tags/create` refuses four body shapes with a bare-string 400; `prebuilt-section`
+answers 401 to a location credential while its GET works on the same token (a real agency-level
+boundary); `snapshot-preferences` answers `201 "upserted successfully"` and does not read back.
+
+### Safety
+
+🔴 **A first-attempt 2xx to an EMPTY body is now recorded as `ACCEPTS-EMPTY-BODY`, a hazard, never
+as a proof.** A write-shape prober was built for this sweep and ten memberships endpoints answered
+2xx to `{}` — including settings and sequence writes, which are overwrites, not creates. This rail
+has a measured case (`attach-offer-user`) where an empty body is acknowledged exactly like a real
+grant, so that pattern cannot be read as success. The prober now stops on it, and the ten rows are
+annotated.
+
+The rule that replaced "looks harmless": **only probe a write that has a readable counterpart**, so
+a 2xx is checkable against a count and a name. It is necessary but not sufficient — `faqs/bulk-delete`,
+`switch-provider`, `calendars/events/appointments` (creates a real appointment that can notify a
+person), `private-integration` (mints a credential), `routing-config` and `employeeConfigs` (both
+change live agent behaviour) all pass that rule and were excluded by hand.
+
+2502 tests green. Every probe artifact is stamped `ZZ-PARITY-*` / `TEST-CAP-PARITY-*`, left in place
+per the no-delete rule, and confined to the designated sandbox.
+
 ## [0.79.0] — 2026-09-10
 
 A column's compiled `width` is a flex **basis**, not a size. A row that does not add up to 100 grows
