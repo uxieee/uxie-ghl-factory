@@ -1472,6 +1472,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
+          note: "requiredQuery proven live 2026-09-10: product.",
           proof: "executed",
           reach: "proven",
           coveredBy: [],
@@ -1484,6 +1485,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
           tree: "documented",
           pathParams: [],
           query: [
+            {
+              name: "product",
+              type: "string",
+              required: true,
+              source: "live-probe"
+            },
             {
               name: "locationId",
               type: "string",
@@ -2588,7 +2595,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           summary: "The account's chat widgets {chatWidgets:[{_id, chatType, name, default, settings, creationSource, createdAt, updatedAt}], totalCount}; chatType=liveChat filters to Live-chat widgets (the Agent Deployment picker's read).",
-          note: "offset and limit are REQUIRED as number strings \u2014 omit them and BOTH hosts answer 422 naming exactly those keys (proven 2026-08-31). Answers byte-identically on backend and services. A widget id pinned in an agent's routing row dies with the widget; route on All widgets instead. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
+          note: "offset and limit are REQUIRED as number strings \u2014 omit them and BOTH hosts answer 422 naming exactly those keys (proven 2026-08-31). Answers byte-identically on backend and services. A widget id pinned in an agent's routing row dies with the widget; route on All widgets instead. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them. requiredQuery proven live 2026-09-10: limit, offset. \u{1F534} This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND \u2014 the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder.",
           reach: "proven",
           coveredBy: [],
           rawCallable: true,
@@ -4083,7 +4090,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
+          note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them. requiredQuery proven live 2026-09-10: totalRows.",
           reach: "proven",
           coveredBy: [],
           rawCallable: true,
@@ -8378,7 +8385,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          note: "requiredQuery proven live 2026-09-10: funnelId, limit, offset. \u{1F534} This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND \u2014 the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder.",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -8393,6 +8401,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
           tree: "workflow-builder",
           pathParams: [],
           query: [
+            {
+              name: "funnelId",
+              type: "string",
+              required: true,
+              source: "live-probe"
+            },
             {
               name: "locationId",
               type: "any",
@@ -8595,7 +8609,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          note: "requiredQuery proven live 2026-09-10: funnelId, limit, offset. \u{1F534} This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND \u2014 the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder.",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -8610,6 +8625,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
           tree: "workflow-builder",
           pathParams: [],
           query: [
+            {
+              name: "funnelId",
+              type: "string",
+              required: true,
+              source: "live-probe"
+            },
             {
               name: "locationId",
               type: "any",
@@ -15845,7 +15866,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
+          note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them. requiredQuery proven live 2026-09-10: altId, altType. \u{1F534} This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND \u2014 the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder.",
           reach: "proven",
           coveredBy: [],
           rawCallable: true,
@@ -15933,7 +15954,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          note: "requiredQuery proven live 2026-09-10: altId, altType. \u{1F534} This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND \u2014 the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder.",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -15944,6 +15966,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
           tree: "documented",
           pathParams: [],
           query: [
+            {
+              name: "altType",
+              type: "string",
+              required: true,
+              source: "live-probe"
+            },
             {
               name: "altId",
               type: "string",
@@ -16110,7 +16138,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          note: "requiredQuery proven live 2026-09-10: altId, altType. \u{1F534} This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND \u2014 the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder.",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -18691,7 +18720,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          note: "Sub-accounts LINKED to a snapshot (isEnabled=true). Captured from the agency page's own session 2026-08-31; not yet proven through the plugin's credential.",
+          note: "Sub-accounts LINKED to a snapshot (isEnabled=true). Captured from the agency page's own session 2026-08-31; not yet proven through the plugin's credential. requiredQuery proven live 2026-09-10: companyId.",
           reach: "proven",
           coveredBy: [],
           rawCallable: true,
@@ -19719,7 +19748,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
+          note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them. requiredQuery proven live 2026-09-10: alt_id.",
           proof: "executed",
           reach: "proven",
           coveredBy: [
@@ -19910,7 +19939,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
+          note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them. requiredQuery proven live 2026-09-10: alt_id.",
           proof: "executed",
           reach: "proven",
           coveredBy: [
@@ -36299,7 +36328,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "ai",
           kind: "read",
           summary: "The account's chat widgets {chatWidgets:[{_id, chatType, name, default, settings, creationSource, createdAt, updatedAt}], totalCount}; chatType=liveChat filters to Live-chat widgets (the Agent Deployment picker's read).",
-          note: "offset and limit are REQUIRED as number strings \u2014 omit them and BOTH hosts answer 422 naming exactly those keys (proven 2026-08-31). Answers byte-identically on backend and services. A widget id pinned in an agent's routing row dies with the widget; route on All widgets instead. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
+          note: "offset and limit are REQUIRED as number strings \u2014 omit them and BOTH hosts answer 422 naming exactly those keys (proven 2026-08-31). Answers byte-identically on backend and services. A widget id pinned in an agent's routing row dies with the widget; route on All widgets instead. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them. requiredQuery proven live 2026-09-10: limit, offset. \u{1F534} This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND \u2014 the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder.",
           reach: "proven",
           coveredBy: [],
           rawCallable: true,
@@ -37042,7 +37071,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
+          note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them. requiredQuery proven live 2026-09-10: totalRows.",
           reach: "proven",
           coveredBy: [],
           rawCallable: true,
@@ -38103,7 +38132,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://services.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
+          note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them. requiredQuery proven live 2026-09-10: limit.",
           proof: "executed",
           reach: "proven",
           coveredBy: [
@@ -47563,7 +47592,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "source-only",
+          note: "requiredQuery proven live 2026-09-10: altId, locationId. \u{1F534} This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND \u2014 the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder.",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -47573,7 +47603,20 @@ var init_define_ENDPOINT_CATALOG = __esm({
           service: "forms",
           tree: "documented",
           pathParams: [],
-          query: [],
+          query: [
+            {
+              name: "altId",
+              type: "string",
+              required: true,
+              source: "live-probe"
+            },
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "live-probe"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
@@ -47973,7 +48016,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          note: "Sub-accounts LINKED to a snapshot (isEnabled=true). Captured from the agency page's own session 2026-08-31; not yet proven through the plugin's credential.",
+          note: "Sub-accounts LINKED to a snapshot (isEnabled=true). Captured from the agency page's own session 2026-08-31; not yet proven through the plugin's credential. requiredQuery proven live 2026-09-10: companyId.",
           reach: "proven",
           coveredBy: [],
           rawCallable: true,
@@ -47989,6 +48032,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
             }
           ],
           query: [
+            {
+              name: "companyId",
+              type: "string",
+              required: true,
+              source: "live-probe"
+            },
             {
               name: "isEnabled",
               type: "string",
@@ -49013,7 +49062,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "source-only",
+          note: "requiredQuery proven live 2026-09-10: limit, offset, product. \u{1F534} This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND \u2014 the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder.",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -49104,7 +49154,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "source-only",
+          note: "requiredQuery proven live 2026-09-10: product.",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -49161,7 +49212,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "source-only",
+          note: "requiredQuery proven live 2026-09-10: product.",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -51409,7 +51461,7 @@ var init_define_ENDPOINT_OVERLAY = __esm({
             "locationId",
             "offset"
           ],
-          note: "offset and limit are REQUIRED as number strings \u2014 omit them and BOTH hosts answer 422 naming exactly those keys (proven 2026-08-31). Answers byte-identically on backend and services. A widget id pinned in an agent's routing row dies with the widget; route on All widgets instead. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
+          note: "offset and limit are REQUIRED as number strings \u2014 omit them and BOTH hosts answer 422 naming exactly those keys (proven 2026-08-31). Answers byte-identically on backend and services. A widget id pinned in an agent's routing row dies with the widget; route on All widgets instead. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them. requiredQuery proven live 2026-09-10: limit, offset. \u{1F534} This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND \u2014 the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder.",
           reach: "proven",
           summary: "The account's chat widgets {chatWidgets:[{_id, chatType, name, default, settings, creationSource, createdAt, updatedAt}], totalCount}; chatType=liveChat filters to Live-chat widgets (the Agent Deployment picker's read)."
         },
@@ -51677,7 +51729,11 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           note: "Sub-accounts available as load targets \u2014 the SOURCE sub-account is excluded, so a snapshot cannot be loaded back onto the account it came from. Captured from the agency page's own session 2026-08-31; not yet proven through the plugin's credential."
         },
         "GET /snapshots/locations/v2/{snapshotId}": {
-          note: "Sub-accounts LINKED to a snapshot (isEnabled=true). Captured from the agency page's own session 2026-08-31; not yet proven through the plugin's credential."
+          note: "Sub-accounts LINKED to a snapshot (isEnabled=true). Captured from the agency page's own session 2026-08-31; not yet proven through the plugin's credential. requiredQuery proven live 2026-09-10: companyId.",
+          reach: "proven",
+          requiredQuery: [
+            "companyId"
+          ]
         },
         "GET /snapshots/snapshot-push/{snapshotId}/push-in-progress": {
           note: "Load-wizard step 1. Captured from the agency page's own session 2026-08-31; not yet proven through the plugin's credential."
@@ -52306,7 +52362,7 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           requiredQuery: [
             "totalRows"
           ],
-          note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them."
+          note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them. requiredQuery proven live 2026-09-10: totalRows."
         },
         "GET /forms/themes": {
           reach: "proven",
@@ -52328,21 +52384,21 @@ var init_define_ENDPOINT_OVERLAY = __esm({
             "altId",
             "altType"
           ],
-          note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them."
+          note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them. requiredQuery proven live 2026-09-10: altId, altType. \u{1F534} This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND \u2014 the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder."
         },
         "GET /vibe-ai/folders": {
           reach: "proven",
           requiredQuery: [
             "alt_id"
           ],
-          note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them."
+          note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them. requiredQuery proven live 2026-09-10: alt_id."
         },
         "GET /vibe-ai/projects": {
           reach: "proven",
           requiredQuery: [
             "alt_id"
           ],
-          note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them."
+          note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them. requiredQuery proven live 2026-09-10: alt_id."
         },
         "GET /ai-wrapper/plan/company": {
           reach: "proven",
@@ -52363,7 +52419,7 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           requiredQuery: [
             "limit"
           ],
-          note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them."
+          note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them. requiredQuery proven live 2026-09-10: limit."
         },
         "GET /surveys/folder": {
           reach: "proven",
@@ -52560,6 +52616,78 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         },
         "PUT /workflow/{locationId}/workflow-ai/settings": {
           note: "Its GET returns an EMPTY OBJECT {} on the sandbox, so there is no baseline to diff a write against and no field whose type is known. Not probed: writing here would be inventing a schema and could not be verified either way."
+        },
+        "GET /ai-wrapper/usage/v2/fup-status": {
+          reach: "proven",
+          requiredQuery: [
+            "product"
+          ],
+          note: "requiredQuery proven live 2026-09-10: product."
+        },
+        "GET /funnels/page": {
+          reach: "proven",
+          requiredQuery: [
+            "funnelId",
+            "limit",
+            "offset"
+          ],
+          note: "requiredQuery proven live 2026-09-10: funnelId, limit, offset. \u{1F534} This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND \u2014 the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder."
+        },
+        "GET /funnels/page/product": {
+          reach: "proven",
+          requiredQuery: [
+            "funnelId",
+            "limit",
+            "offset"
+          ],
+          note: "requiredQuery proven live 2026-09-10: funnelId, limit, offset. \u{1F534} This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND \u2014 the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder."
+        },
+        "GET /payments/coupon/list": {
+          reach: "proven",
+          requiredQuery: [
+            "altId",
+            "altType"
+          ],
+          note: "requiredQuery proven live 2026-09-10: altId, altType. \u{1F534} This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND \u2014 the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder."
+        },
+        "GET /payments/integrations/provider/connected": {
+          reach: "proven",
+          requiredQuery: [
+            "altId",
+            "altType"
+          ],
+          note: "requiredQuery proven live 2026-09-10: altId, altType. \u{1F534} This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND \u2014 the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder."
+        },
+        "GET /products/": {
+          reach: "proven",
+          requiredQuery: [
+            "altId",
+            "locationId"
+          ],
+          note: "requiredQuery proven live 2026-09-10: altId, locationId. \u{1F534} This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND \u2014 the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder."
+        },
+        "GET /templates/category/list": {
+          reach: "proven",
+          requiredQuery: [
+            "limit",
+            "offset",
+            "product"
+          ],
+          note: "requiredQuery proven live 2026-09-10: limit, offset, product. \u{1F534} This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND \u2014 the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder."
+        },
+        "GET /templates/template-search/facets": {
+          reach: "proven",
+          requiredQuery: [
+            "product"
+          ],
+          note: "requiredQuery proven live 2026-09-10: product."
+        },
+        "GET /templates/template-search/suggestions": {
+          reach: "proven",
+          requiredQuery: [
+            "product"
+          ],
+          note: "requiredQuery proven live 2026-09-10: product."
         }
       }
     };

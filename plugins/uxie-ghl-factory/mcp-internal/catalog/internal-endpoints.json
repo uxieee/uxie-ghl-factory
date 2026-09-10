@@ -1227,6 +1227,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
+      "note": "requiredQuery proven live 2026-09-10: product.",
       "proof": "executed",
       "reach": "proven",
       "coveredBy": [],
@@ -1239,6 +1240,12 @@
       "tree": "documented",
       "pathParams": [],
       "query": [
+        {
+          "name": "product",
+          "type": "string",
+          "required": true,
+          "source": "live-probe"
+        },
         {
           "name": "locationId",
           "type": "string",
@@ -2343,7 +2350,7 @@
       "rail": "workflow",
       "kind": "read",
       "summary": "The account's chat widgets {chatWidgets:[{_id, chatType, name, default, settings, creationSource, createdAt, updatedAt}], totalCount}; chatType=liveChat filters to Live-chat widgets (the Agent Deployment picker's read).",
-      "note": "offset and limit are REQUIRED as number strings — omit them and BOTH hosts answer 422 naming exactly those keys (proven 2026-08-31). Answers byte-identically on backend and services. A widget id pinned in an agent's routing row dies with the widget; route on All widgets instead. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
+      "note": "offset and limit are REQUIRED as number strings — omit them and BOTH hosts answer 422 naming exactly those keys (proven 2026-08-31). Answers byte-identically on backend and services. A widget id pinned in an agent's routing row dies with the widget; route on All widgets instead. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them. requiredQuery proven live 2026-09-10: limit, offset. 🔴 This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND — the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder.",
       "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
@@ -3838,7 +3845,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "note": "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
+      "note": "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them. requiredQuery proven live 2026-09-10: totalRows.",
       "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
@@ -8133,7 +8140,8 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "note": "requiredQuery proven live 2026-09-10: funnelId, limit, offset. 🔴 This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND — the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder.",
+      "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -8148,6 +8156,12 @@
       "tree": "workflow-builder",
       "pathParams": [],
       "query": [
+        {
+          "name": "funnelId",
+          "type": "string",
+          "required": true,
+          "source": "live-probe"
+        },
         {
           "name": "locationId",
           "type": "any",
@@ -8350,7 +8364,8 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "note": "requiredQuery proven live 2026-09-10: funnelId, limit, offset. 🔴 This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND — the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder.",
+      "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -8365,6 +8380,12 @@
       "tree": "workflow-builder",
       "pathParams": [],
       "query": [
+        {
+          "name": "funnelId",
+          "type": "string",
+          "required": true,
+          "source": "live-probe"
+        },
         {
           "name": "locationId",
           "type": "any",
@@ -15600,7 +15621,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "note": "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
+      "note": "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them. requiredQuery proven live 2026-09-10: altId, altType. 🔴 This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND — the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder.",
       "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
@@ -15688,7 +15709,8 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "note": "requiredQuery proven live 2026-09-10: altId, altType. 🔴 This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND — the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder.",
+      "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -15699,6 +15721,12 @@
       "tree": "documented",
       "pathParams": [],
       "query": [
+        {
+          "name": "altType",
+          "type": "string",
+          "required": true,
+          "source": "live-probe"
+        },
         {
           "name": "altId",
           "type": "string",
@@ -15865,7 +15893,8 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "note": "requiredQuery proven live 2026-09-10: altId, altType. 🔴 This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND — the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder.",
+      "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -18446,7 +18475,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "note": "Sub-accounts LINKED to a snapshot (isEnabled=true). Captured from the agency page's own session 2026-08-31; not yet proven through the plugin's credential.",
+      "note": "Sub-accounts LINKED to a snapshot (isEnabled=true). Captured from the agency page's own session 2026-08-31; not yet proven through the plugin's credential. requiredQuery proven live 2026-09-10: companyId.",
       "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
@@ -19474,7 +19503,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "note": "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
+      "note": "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them. requiredQuery proven live 2026-09-10: alt_id.",
       "proof": "executed",
       "reach": "proven",
       "coveredBy": [
@@ -19665,7 +19694,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "note": "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
+      "note": "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them. requiredQuery proven live 2026-09-10: alt_id.",
       "proof": "executed",
       "reach": "proven",
       "coveredBy": [
@@ -36054,7 +36083,7 @@
       "rail": "ai",
       "kind": "read",
       "summary": "The account's chat widgets {chatWidgets:[{_id, chatType, name, default, settings, creationSource, createdAt, updatedAt}], totalCount}; chatType=liveChat filters to Live-chat widgets (the Agent Deployment picker's read).",
-      "note": "offset and limit are REQUIRED as number strings — omit them and BOTH hosts answer 422 naming exactly those keys (proven 2026-08-31). Answers byte-identically on backend and services. A widget id pinned in an agent's routing row dies with the widget; route on All widgets instead. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
+      "note": "offset and limit are REQUIRED as number strings — omit them and BOTH hosts answer 422 naming exactly those keys (proven 2026-08-31). Answers byte-identically on backend and services. A widget id pinned in an agent's routing row dies with the widget; route on All widgets instead. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them. requiredQuery proven live 2026-09-10: limit, offset. 🔴 This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND — the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder.",
       "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
@@ -36797,7 +36826,7 @@
       "origin": "https://services.leadconnectorhq.com",
       "rail": "ai",
       "kind": "read",
-      "note": "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
+      "note": "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them. requiredQuery proven live 2026-09-10: totalRows.",
       "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
@@ -37858,7 +37887,7 @@
       "origin": "https://services.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "note": "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
+      "note": "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them. requiredQuery proven live 2026-09-10: limit.",
       "proof": "executed",
       "reach": "proven",
       "coveredBy": [
@@ -47318,7 +47347,8 @@
       "origin": "https://services.leadconnectorhq.com",
       "rail": "ai",
       "kind": "read",
-      "reach": "source-only",
+      "note": "requiredQuery proven live 2026-09-10: altId, locationId. 🔴 This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND — the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder.",
+      "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -47328,7 +47358,20 @@
       "service": "forms",
       "tree": "documented",
       "pathParams": [],
-      "query": [],
+      "query": [
+        {
+          "name": "altId",
+          "type": "string",
+          "required": true,
+          "source": "live-probe"
+        },
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": true,
+          "source": "live-probe"
+        }
+      ],
       "body": null,
       "returns": null,
       "confidence": {
@@ -47728,7 +47771,7 @@
       "origin": "https://services.leadconnectorhq.com",
       "rail": "ai",
       "kind": "read",
-      "note": "Sub-accounts LINKED to a snapshot (isEnabled=true). Captured from the agency page's own session 2026-08-31; not yet proven through the plugin's credential.",
+      "note": "Sub-accounts LINKED to a snapshot (isEnabled=true). Captured from the agency page's own session 2026-08-31; not yet proven through the plugin's credential. requiredQuery proven live 2026-09-10: companyId.",
       "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
@@ -47744,6 +47787,12 @@
         }
       ],
       "query": [
+        {
+          "name": "companyId",
+          "type": "string",
+          "required": true,
+          "source": "live-probe"
+        },
         {
           "name": "isEnabled",
           "type": "string",
@@ -48768,7 +48817,8 @@
       "origin": "https://services.leadconnectorhq.com",
       "rail": "ai",
       "kind": "read",
-      "reach": "source-only",
+      "note": "requiredQuery proven live 2026-09-10: limit, offset, product. 🔴 This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND — the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder.",
+      "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -48859,7 +48909,8 @@
       "origin": "https://services.leadconnectorhq.com",
       "rail": "ai",
       "kind": "read",
-      "reach": "source-only",
+      "note": "requiredQuery proven live 2026-09-10: product.",
+      "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -48916,7 +48967,8 @@
       "origin": "https://services.leadconnectorhq.com",
       "rail": "ai",
       "kind": "read",
-      "reach": "source-only",
+      "note": "requiredQuery proven live 2026-09-10: product.",
+      "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",

@@ -80,7 +80,7 @@
         "locationId",
         "offset"
       ],
-      "note": "offset and limit are REQUIRED as number strings — omit them and BOTH hosts answer 422 naming exactly those keys (proven 2026-08-31). Answers byte-identically on backend and services. A widget id pinned in an agent's routing row dies with the widget; route on All widgets instead. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
+      "note": "offset and limit are REQUIRED as number strings — omit them and BOTH hosts answer 422 naming exactly those keys (proven 2026-08-31). Answers byte-identically on backend and services. A widget id pinned in an agent's routing row dies with the widget; route on All widgets instead. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them. requiredQuery proven live 2026-09-10: limit, offset. 🔴 This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND — the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder.",
       "reach": "proven",
       "summary": "The account's chat widgets {chatWidgets:[{_id, chatType, name, default, settings, creationSource, createdAt, updatedAt}], totalCount}; chatType=liveChat filters to Live-chat widgets (the Agent Deployment picker's read)."
     },
@@ -348,7 +348,11 @@
       "note": "Sub-accounts available as load targets — the SOURCE sub-account is excluded, so a snapshot cannot be loaded back onto the account it came from. Captured from the agency page's own session 2026-08-31; not yet proven through the plugin's credential."
     },
     "GET /snapshots/locations/v2/{snapshotId}": {
-      "note": "Sub-accounts LINKED to a snapshot (isEnabled=true). Captured from the agency page's own session 2026-08-31; not yet proven through the plugin's credential."
+      "note": "Sub-accounts LINKED to a snapshot (isEnabled=true). Captured from the agency page's own session 2026-08-31; not yet proven through the plugin's credential. requiredQuery proven live 2026-09-10: companyId.",
+      "reach": "proven",
+      "requiredQuery": [
+        "companyId"
+      ]
     },
     "GET /snapshots/snapshot-push/{snapshotId}/push-in-progress": {
       "note": "Load-wizard step 1. Captured from the agency page's own session 2026-08-31; not yet proven through the plugin's credential."
@@ -977,7 +981,7 @@
       "requiredQuery": [
         "totalRows"
       ],
-      "note": "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them."
+      "note": "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them. requiredQuery proven live 2026-09-10: totalRows."
     },
     "GET /forms/themes": {
       "reach": "proven",
@@ -999,21 +1003,21 @@
         "altId",
         "altType"
       ],
-      "note": "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them."
+      "note": "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them. requiredQuery proven live 2026-09-10: altId, altType. 🔴 This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND — the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder."
     },
     "GET /vibe-ai/folders": {
       "reach": "proven",
       "requiredQuery": [
         "alt_id"
       ],
-      "note": "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them."
+      "note": "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them. requiredQuery proven live 2026-09-10: alt_id."
     },
     "GET /vibe-ai/projects": {
       "reach": "proven",
       "requiredQuery": [
         "alt_id"
       ],
-      "note": "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them."
+      "note": "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them. requiredQuery proven live 2026-09-10: alt_id."
     },
     "GET /ai-wrapper/plan/company": {
       "reach": "proven",
@@ -1034,7 +1038,7 @@
       "requiredQuery": [
         "limit"
       ],
-      "note": "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them."
+      "note": "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them. requiredQuery proven live 2026-09-10: limit."
     },
     "GET /surveys/folder": {
       "reach": "proven",
@@ -1231,6 +1235,78 @@
     },
     "PUT /workflow/{locationId}/workflow-ai/settings": {
       "note": "Its GET returns an EMPTY OBJECT {} on the sandbox, so there is no baseline to diff a write against and no field whose type is known. Not probed: writing here would be inventing a schema and could not be verified either way."
+    },
+    "GET /ai-wrapper/usage/v2/fup-status": {
+      "reach": "proven",
+      "requiredQuery": [
+        "product"
+      ],
+      "note": "requiredQuery proven live 2026-09-10: product."
+    },
+    "GET /funnels/page": {
+      "reach": "proven",
+      "requiredQuery": [
+        "funnelId",
+        "limit",
+        "offset"
+      ],
+      "note": "requiredQuery proven live 2026-09-10: funnelId, limit, offset. 🔴 This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND — the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder."
+    },
+    "GET /funnels/page/product": {
+      "reach": "proven",
+      "requiredQuery": [
+        "funnelId",
+        "limit",
+        "offset"
+      ],
+      "note": "requiredQuery proven live 2026-09-10: funnelId, limit, offset. 🔴 This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND — the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder."
+    },
+    "GET /payments/coupon/list": {
+      "reach": "proven",
+      "requiredQuery": [
+        "altId",
+        "altType"
+      ],
+      "note": "requiredQuery proven live 2026-09-10: altId, altType. 🔴 This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND — the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder."
+    },
+    "GET /payments/integrations/provider/connected": {
+      "reach": "proven",
+      "requiredQuery": [
+        "altId",
+        "altType"
+      ],
+      "note": "requiredQuery proven live 2026-09-10: altId, altType. 🔴 This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND — the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder."
+    },
+    "GET /products/": {
+      "reach": "proven",
+      "requiredQuery": [
+        "altId",
+        "locationId"
+      ],
+      "note": "requiredQuery proven live 2026-09-10: altId, locationId. 🔴 This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND — the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder."
+    },
+    "GET /templates/category/list": {
+      "reach": "proven",
+      "requiredQuery": [
+        "limit",
+        "offset",
+        "product"
+      ],
+      "note": "requiredQuery proven live 2026-09-10: limit, offset, product. 🔴 This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND — the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder."
+    },
+    "GET /templates/template-search/facets": {
+      "reach": "proven",
+      "requiredQuery": [
+        "product"
+      ],
+      "note": "requiredQuery proven live 2026-09-10: product."
+    },
+    "GET /templates/template-search/suggestions": {
+      "reach": "proven",
+      "requiredQuery": [
+        "product"
+      ],
+      "note": "requiredQuery proven live 2026-09-10: product."
     }
   }
 }
