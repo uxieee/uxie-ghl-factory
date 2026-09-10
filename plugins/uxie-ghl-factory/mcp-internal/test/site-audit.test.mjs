@@ -1,6 +1,7 @@
 // Each test pins one live-observed defect class. The false-positive tests matter as much as the
 // detection ones: an auditor that cries wolf on popupId (776 occurrences on one account) gets
 // switched off, and an auditor that reports "clean" for a check it never ran is worse than none.
+import { readFile } from 'node:fs/promises';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { scanPage, judge, judgeRendered, judgeVersions, judgeRouting, normaliseTag, placeholderKind, REF_CLASS, judgePathCollisions } from '../core/site-audit.mjs';
@@ -253,4 +254,19 @@ test('judgePathCollisions drops a neighbour-only forecast to info, so a sweep ca
   assert.equal(byName['Asked About / a'], 'medium');
   assert.equal(byName['Half-built Neighbour / b'], 'info');
   assert.match(f.find((x) => x.severity === 'info').detail, /swept as a neighbour/);
+});
+
+// 🔴 A REGRESSION PIN, not a behaviour test. `/funnels/lookup/list` answers 200 with `{"data":[]}`
+// if it is given `limit` OR `offset` — either alone, any value. Measured on one funnel seconds
+// apart: no params 20 rows; limit=100, limit=500, offset=0, offset=1 all 0 rows. An empty row set
+// on a funnel that HAS a domain is what makes judgeRouting report "NO routing row … 404s in public"
+// at HIGH on every step, so someone adding pagination here silently resurrects that false positive.
+test('audit_site never passes limit or offset to lookup/list, which would zero the rows', async () => {
+  const src = await readFile(new URL('../core/tools.mjs', import.meta.url), 'utf8');
+  const calls = [...src.matchAll(/\/funnels\/lookup\/list\?[^`]*/g)].map((m) => m[0]);
+  assert.ok(calls.length > 0, 'expected at least one lookup/list call to guard');
+  for (const c of calls) {
+    assert.doesNotMatch(c, /\blimit=/, `lookup/list must not paginate: ${c}`);
+    assert.doesNotMatch(c, /\boffset=/, `lookup/list must not paginate: ${c}`);
+  }
 });

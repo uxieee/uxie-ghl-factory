@@ -8465,6 +8465,12 @@ export const TOOLS = [
       if (anyDomain) {
         for (const d of sweepDocs) {
           if (swept >= args.maxDocuments) { sweepTruncated = true; break; }
+          // 🔴 NEVER add `limit` or `offset` HERE. Either one, alone, turns 20 rows into `{"data":[]}`
+          // behind a 200 — measured on the same funnel seconds apart, with limit=100, limit=500,
+          // offset=0 and offset=1 all returning empty. An empty row set on a funnel that HAS a domain
+          // is what makes judgeRouting report "this step has NO routing row, so it 404s in public" at
+          // HIGH on every step, which is the exact false positive 0.76.0 removed. The route takes
+          // funnelId + locationId and nothing else.
           const r = await gw.call('GET', `/funnels/lookup/list?funnelId=${encodeURIComponent(d._id)}&locationId=${encodeURIComponent(args.locationId)}`);
           if (r.status !== 200) { sweepFailed++; continue; }
           rowsByFunnel.set(d._id, pick(body(r), 'lookups', 'data').filter((x) => !x.deleted));
