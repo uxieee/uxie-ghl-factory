@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, resolve, join, isAbsolute } from 'node:path';
 import { createHash } from 'node:crypto';
 import { z } from 'zod';
-import { ok, fail, fromHttp, CODES, containsSecrets, scrubSecrets } from './errors.mjs';
+import { ok, fail, fromHttp, CODES, REDACTED, containsSecrets, scrubSecrets } from './errors.mjs';
 import { authStatus, DEFAULT_TOKEN_FILE, readCredentials } from './auth.mjs';
 import { checkLocationBinding } from './location-binding.mjs';
 import { scanPage, judge, judgeVersions, judgeRouting, judgeRendered, normaliseTag } from './site-audit.mjs';
@@ -2343,7 +2343,11 @@ export const TOOLS = [
           workflowId: args.workflowId, name: workflow?.name ?? null, status: workflow?.status ?? null, version: workflow?.version ?? null,
           stepCount: workflow?.workflowData?.templates?.length ?? null, triggerCount: result.triggers.length, stickyNoteCount: result.stickyNotes.length,
           ...(workflow?.exportFilter ? { exportFilter: workflow.exportFilter } : {}),
-          note: 'Full export written to writeTo (scrubbed). repair_workflow accepts this file as templatesPath.',
+          note: 'Full export written to writeTo. It is SCRUBBED: any value under a credential-named key '
+            + '(a custom_webhook\'s attributes.authorization, for one) is replaced with "<redacted>" on the KEY '
+            + 'NAME, without reading the value. repair_workflow reads this file via templatesPath but REFUSES a '
+            + 'document still carrying placeholders, because writing one back replaces the stored value with the '
+            + 'literal string. Restore those paths first, or use edit_workflow, which only touches fields you name.',
         });
       }
       return ok(result);
@@ -4740,6 +4744,37 @@ export const TOOLS = [
       if (!Array.isArray(args.templates) || !args.templates.length) {
         return fail(CODES.ENGINE_ABORT, 'templates must be a non-empty array of step objects.',
           'Pass the full workflowData.templates you want stored (inline, or via templatesPath). To empty a workflow, delete its steps with edit_workflow.');
+      }
+      // 🔴 A SCRUBBED EXPORT IS NOT A REPAIRABLE DOCUMENT, and the tool used to recommend exactly
+      // that round trip: export_workflow --writeTo writes a SCRUBBED file, and this tool's own note
+      // said "repair_workflow accepts this file as templatesPath".
+      //
+      // Measured 2026-09-10: GHL stores a custom_webhook's attributes.authorization as
+      // {type:"NONE", data:null} — a structured object with no credential in it. The scrub replaces
+      // it with the string "<redacted>" on the KEY NAME alone, without looking at the value. PUT
+      // that back and a step whose authorization is genuinely configured has its auth replaced by a
+      // seven-character placeholder. Full-document PUT, no validator on the far side, silent.
+      //
+      // So this refuses, and names the steps. A repair is for changing what you meant to change;
+      // writing a redaction placeholder is never that.
+      const redacted = [];
+      const findRedacted = (v, t, path) => {
+        if (v === REDACTED) { redacted.push({ step: t.name ?? t.id, type: t.type, at: path }); return; }
+        if (Array.isArray(v)) return v.forEach((x, i) => findRedacted(x, t, `${path}[${i}]`));
+        if (v && typeof v === 'object') for (const [k, x] of Object.entries(v)) findRedacted(x, t, `${path}.${k}`);
+      };
+      for (const t of args.templates) findRedacted(t.attributes, t, 'attributes');
+      if (redacted.length) {
+        return fail(CODES.ENGINE_ABORT,
+          `${redacted.length} value(s) in this document are the redaction placeholder, not real values: `
+          + `${redacted.slice(0, 4).map((r) => `'${r.step}' (${r.type}) ${r.at}`).join('; ')}`
+          + `${redacted.length > 4 ? `, and ${redacted.length - 4} more` : ''}. Writing them back would `
+          + 'REPLACE the stored value with the literal string "<redacted>".',
+          'export_workflow scrubs on the KEY NAME without reading the value, so a webhook\'s '
+          + 'authorization comes back redacted even when it holds {type:"NONE"} and no credential at '
+          + 'all. Restore the real values on those paths before repairing — read the untouched '
+          + 'document from the workflow\'s own fileUrl — or use edit_workflow, whose ops only touch '
+          + 'the fields you name and leave the rest of the document alone.');
       }
       const badIds = args.templates.filter((t) => !t || typeof t !== 'object' || typeof t.id !== 'string' || !t.id);
       if (badIds.length) {

@@ -87579,6 +87579,7 @@ var hasSecretText = (text) => {
   );
   return found;
 };
+var REDACTED = "<redacted>";
 var scrub = (s) => {
   if (s == null) return s;
   const text = String(s);
@@ -87595,6 +87596,7 @@ var scrub = (s) => {
   );
 };
 function containsSecrets(value, key = "", depth = 0) {
+  if (value === REDACTED) return false;
   if (isSecretKey(key)) return true;
   if (value == null) return false;
   if (typeof value === "string") return hasSecretText(value);
@@ -93366,8 +93368,8 @@ function checkStepOutputRefs(templates, ctx = {}) {
     const k = t.type;
     const cnt = (occ.get(k) ?? 0) + 1;
     occ.set(k, cnt);
-    const n = Number.isInteger(t.stepIndex) ? t.stepIndex : cnt;
-    (producers.get(k) ?? producers.set(k, []).get(k)).push({ n, step: t });
+    const ns = Number.isInteger(t.stepIndex) ? /* @__PURE__ */ new Set([t.stepIndex]) : /* @__PURE__ */ new Set([cnt - 1, cnt]);
+    (producers.get(k) ?? producers.set(k, []).get(k)).push({ ns, step: t });
   }
   const findings = [];
   for (const t of templates ?? []) {
@@ -93380,10 +93382,10 @@ function checkStepOutputRefs(templates, ctx = {}) {
     walk3(t?.attributes);
     for (const s of texts) for (const ref of findOutputRefs(s)) {
       const list = producers.get(ref.type) ?? [];
-      const hit = list.find((p2) => p2.n === ref.n);
+      const hit = list.find((p2) => p2.ns.has(ref.n));
       if (!hit) {
         findings.push(ref);
-        warn(`step output ${ref.raw} on '${t.name ?? t.id}': no ${ref.type} step with stepIndex ${ref.n} exists in this workflow \u2014 the reference renders literally/empty at runtime. N is the per-type stepIndex (see references/step-outputs).`);
+        warn(`step output ${ref.raw} on '${t.name ?? t.id}': no ${ref.type} step answers to ${ref.n} in this workflow \u2014 the reference renders literally/empty at runtime. N is the producer's stored stepIndex; a producer with no stepIndex answers to its occurrence position (see references/step-outputs).`);
         continue;
       }
       if (ref.type === "custom_webhook" && hit.step.attributes?.saveResponse !== true) {
@@ -168323,7 +168325,7 @@ var TOOLS2 = [
           triggerCount: result.triggers.length,
           stickyNoteCount: result.stickyNotes.length,
           ...workflow?.exportFilter ? { exportFilter: workflow.exportFilter } : {},
-          note: "Full export written to writeTo (scrubbed). repair_workflow accepts this file as templatesPath."
+          note: `Full export written to writeTo. It is SCRUBBED: any value under a credential-named key (a custom_webhook's attributes.authorization, for one) is replaced with "<redacted>" on the KEY NAME, without reading the value. repair_workflow reads this file via templatesPath but REFUSES a document still carrying placeholders, because writing one back replaces the stored value with the literal string. Restore those paths first, or use edit_workflow, which only touches fields you name.`
         });
       }
       return ok(result);
@@ -170477,6 +170479,23 @@ var TOOLS2 = [
           CODES.ENGINE_ABORT,
           "templates must be a non-empty array of step objects.",
           "Pass the full workflowData.templates you want stored (inline, or via templatesPath). To empty a workflow, delete its steps with edit_workflow."
+        );
+      }
+      const redacted = [];
+      const findRedacted = (v, t, path) => {
+        if (v === REDACTED) {
+          redacted.push({ step: t.name ?? t.id, type: t.type, at: path });
+          return;
+        }
+        if (Array.isArray(v)) return v.forEach((x, i) => findRedacted(x, t, `${path}[${i}]`));
+        if (v && typeof v === "object") for (const [k, x] of Object.entries(v)) findRedacted(x, t, `${path}.${k}`);
+      };
+      for (const t of args.templates) findRedacted(t.attributes, t, "attributes");
+      if (redacted.length) {
+        return fail(
+          CODES.ENGINE_ABORT,
+          `${redacted.length} value(s) in this document are the redaction placeholder, not real values: ${redacted.slice(0, 4).map((r) => `'${r.step}' (${r.type}) ${r.at}`).join("; ")}${redacted.length > 4 ? `, and ${redacted.length - 4} more` : ""}. Writing them back would REPLACE the stored value with the literal string "<redacted>".`,
+          `export_workflow scrubs on the KEY NAME without reading the value, so a webhook's authorization comes back redacted even when it holds {type:"NONE"} and no credential at all. Restore the real values on those paths before repairing \u2014 read the untouched document from the workflow's own fileUrl \u2014 or use edit_workflow, whose ops only touch the fields you name and leave the rest of the document alone.`
         );
       }
       const badIds = args.templates.filter((t) => !t || typeof t !== "object" || typeof t.id !== "string" || !t.id);

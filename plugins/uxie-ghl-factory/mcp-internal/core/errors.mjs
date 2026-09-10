@@ -190,6 +190,11 @@ const hasSecretText = (text) => {
   return found;
 };
 
+// The exact string this module substitutes for a redacted value. It is worth a name because it
+// travels: a scrubbed document can be handed back to a tool as INPUT, and at that point the
+// placeholder is data, not a credential.
+export const REDACTED = '<redacted>';
+
 const scrub = (s) => {
   if (s == null) return s;
   const text = String(s);
@@ -208,6 +213,19 @@ const scrub = (s) => {
 };
 
 export function containsSecrets(value, key = '', depth = 0) {
+  // A value we ourselves redacted is not a secret — it is the ABSENCE of one, and refusing it
+  // makes our own scrubbed output unusable as input to our own tools.
+  //
+  // Measured 2026-09-10: GHL stores a custom_webhook's `attributes.authorization` as
+  // {type:"NONE", data:null} — a structured object carrying no credential at all. export_workflow
+  // scrubbed it to this placeholder on the KEY NAME alone, and repair_workflow then refused the
+  // document on that same key name. Every workflow containing a webhook step was therefore
+  // unrepairable through the path the tool description calls sanctioned.
+  //
+  // Narrow on purpose: only an EXACT match, only as a value. A real credential under a
+  // secret-named key is still refused, and a string that merely CONTAINS the placeholder still
+  // goes through the full text scan below.
+  if (value === REDACTED) return false;
   if (isSecretKey(key)) return true;
   if (value == null) return false;
   if (typeof value === 'string') return hasSecretText(value);

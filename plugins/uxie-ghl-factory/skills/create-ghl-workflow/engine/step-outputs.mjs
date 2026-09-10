@@ -45,19 +45,38 @@ export function findOutputRefs(text) {
 
 /**
  * Advisory pass over compiled templates: does every step-output reference have a matching
- * PRODUCER (same type, same stepIndex — or Nth occurrence when stepIndex is absent), and is a
- * referenced custom_webhook actually configured to save its response? ctx.warn only.
+ * PRODUCER, and is a referenced custom_webhook actually configured to save its response?
+ * ctx.warn only.
+ *
+ * Matching is on the stored `stepIndex` when the producer has one. When it does not, the reference
+ * is accepted at EITHER occurrence number, because the runtime demonstrably resolves a 0-based
+ * reference against an unnumbered producer and we cannot yet say whether that is the rule or
+ * leniency. Warning on a shape that works in production is worse than staying quiet.
  */
 export function checkStepOutputRefs(templates, ctx = {}) {
   if (ctx.skipStepOutputCheck === true) return [];
   const warn = (m) => { if (typeof ctx.warn === 'function') ctx.warn(m); };
-  const producers = new Map();           // type → [{n, step}]
+  const producers = new Map();           // type → [{ns:Set<number>, step}]
   const occ = new Map();
   for (const t of templates ?? []) {
     if (!STEP_OUTPUTS[t?.type]) continue;
     const k = t.type; const cnt = (occ.get(k) ?? 0) + 1; occ.set(k, cnt);
-    const n = Number.isInteger(t.stepIndex) ? t.stepIndex : cnt;
-    (producers.get(k) ?? producers.set(k, []).get(k)).push({ n, step: t });
+    // A step that HAS a stepIndex answers to exactly that number: producer and consumer only ever
+    // need to agree, and the stored field is the key they agree on.
+    //
+    // A step with NO stepIndex is the case we do not get to be confident about. This used to assume
+    // the 1-based occurrence and warn on anything else, which is a FALSE POSITIVE on shapes that
+    // demonstrably work: a peer account has four math_operation steps with no stepIndex at all
+    // whose consumers reference {{math_operation.0.result}}, and two production sends on different
+    // days rendered the real, changing number. So the runtime resolves a 0-based reference against
+    // a producer whose field was never written.
+    //
+    // One account is not enough to say whether that is a 0-based rule or leniency about the base,
+    // and guessing wrong turns this advisory into noise on working workflows. So an absent
+    // stepIndex accepts EITHER occurrence number and this check stays quiet — an advisory pass
+    // should only speak where it knows.
+    const ns = Number.isInteger(t.stepIndex) ? new Set([t.stepIndex]) : new Set([cnt - 1, cnt]);
+    (producers.get(k) ?? producers.set(k, []).get(k)).push({ ns, step: t });
   }
   const findings = [];
   for (const t of templates ?? []) {
@@ -66,10 +85,10 @@ export function checkStepOutputRefs(templates, ctx = {}) {
     walk(t?.attributes);
     for (const s of texts) for (const ref of findOutputRefs(s)) {
       const list = producers.get(ref.type) ?? [];
-      const hit = list.find((p) => p.n === ref.n);
+      const hit = list.find((p) => p.ns.has(ref.n));
       if (!hit) {
         findings.push(ref);
-        warn(`step output ${ref.raw} on '${t.name ?? t.id}': no ${ref.type} step with stepIndex ${ref.n} exists in this workflow — the reference renders literally/empty at runtime. N is the per-type stepIndex (see references/step-outputs).`);
+        warn(`step output ${ref.raw} on '${t.name ?? t.id}': no ${ref.type} step answers to ${ref.n} in this workflow — the reference renders literally/empty at runtime. N is the producer's stored stepIndex; a producer with no stepIndex answers to its occurrence position (see references/step-outputs).`);
         continue;
       }
       if (ref.type === 'custom_webhook' && hit.step.attributes?.saveResponse !== true) {
