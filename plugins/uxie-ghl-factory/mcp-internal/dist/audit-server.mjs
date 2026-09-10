@@ -7157,7 +7157,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [
             "audit_site",
             "build_funnel_page"
@@ -7202,7 +7202,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -7634,7 +7634,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [
             "audit_site"
           ],
@@ -7843,7 +7843,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [
             "audit_site"
           ],
@@ -8267,7 +8267,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [
             "audit_site"
           ],
@@ -8442,7 +8442,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -8515,7 +8515,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -17965,8 +17965,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          note: "Details drawer, assets grouped by product category. Captured from the agency page's own session 2026-08-31; not yet proven through the plugin's credential.",
-          reach: "source-only",
+          note: "Details drawer, assets grouped by product category. Executed through the plugin credential on the designated sandbox, 2026-09-10, as part of the snapshot parity run: list -> manifest -> conflicts -> create -> refresh, with the create read back on a separate request (snapshot count 8 -> 9 and the new snapshot found by name and id).",
+          reach: "proven",
           coveredBy: [
             "create_snapshot",
             "push_snapshot"
@@ -18059,7 +18059,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          reach: "source-only",
+          note: "Executed through the plugin credential on the designated sandbox, 2026-09-10, as part of the snapshot parity run: list -> manifest -> conflicts -> create -> refresh, with the create read back on a separate request (snapshot count 8 -> 9 and the new snapshot found by name and id).",
+          reach: "proven",
           coveredBy: [
             "create_snapshot"
           ],
@@ -18099,7 +18100,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          reach: "source-only",
+          note: "Executed through the plugin credential on the designated sandbox, 2026-09-10, as part of the snapshot parity run: list -> manifest -> conflicts -> create -> refresh, with the create read back on a separate request (snapshot count 8 -> 9 and the new snapshot found by name and id).",
+          reach: "proven",
           coveredBy: [
             "refresh_snapshot"
           ],
@@ -18271,7 +18273,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          reach: "source-only",
+          note: "Executed through the plugin credential on the designated sandbox, 2026-09-10, as part of the snapshot parity run: list -> manifest -> conflicts -> create -> refresh, with the create read back on a separate request (snapshot count 8 -> 9 and the new snapshot found by name and id).",
+          reach: "proven",
           coveredBy: [
             "check_snapshot_conflicts"
           ],
@@ -18441,7 +18444,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "refused",
+          note: "Executed through the plugin credential on the designated sandbox, 2026-09-10, as part of the snapshot parity run: list -> manifest -> conflicts -> create -> refresh, with the create read back on a separate request (snapshot count 8 -> 9 and the new snapshot found by name and id).",
+          reach: "proven",
           coveredBy: [
             "get_snapshot_manifest"
           ],
@@ -18951,8 +18955,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          note: "Agency snapshot list (type=own|imported|shared|templates). Captured from the agency Account Snapshots page's own browser session 2026-08-31; not yet proven through the plugin's location-user Bearer.",
-          reach: "source-only",
+          note: "Agency snapshot list (type=own|imported|shared|templates). Captured from the agency Account Snapshots page's own browser session 2026-08-31; not yet proven through the plugin's location-user Bearer. Executed through the plugin credential on the designated sandbox, 2026-09-10, as part of the snapshot parity run: list -> manifest -> conflicts -> create -> refresh, with the create read back on a separate request (snapshot count 8 -> 9 and the new snapshot found by name and id).",
+          reach: "proven",
           coveredBy: [
             "list_snapshots",
             "push_snapshot"
@@ -18990,6 +18994,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
+          note: "Executed through the plugin credential on the designated sandbox, 2026-09-10, as part of the snapshot parity run: list -> manifest -> conflicts -> create -> refresh, with the create read back on a separate request (snapshot count 8 -> 9 and the new snapshot found by name and id).",
           reach: "proven",
           coveredBy: [
             "create_snapshot",
@@ -29284,7 +29289,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          reach: "refused",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -35226,7 +35231,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -39501,7 +39506,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -46202,7 +46207,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "source-only",
+          reach: "refused",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -46358,7 +46363,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "ai",
           kind: "read",
           note: "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -46465,7 +46470,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [
             "build_workflow",
             "edit_workflow",
@@ -47204,7 +47209,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -47561,8 +47566,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          note: "Details drawer, assets grouped by product category. Captured from the agency page's own session 2026-08-31; not yet proven through the plugin's credential.",
-          reach: "source-only",
+          note: "Details drawer, assets grouped by product category. Executed through the plugin credential on the designated sandbox, 2026-09-10, as part of the snapshot parity run: list -> manifest -> conflicts -> create -> refresh, with the create read back on a separate request (snapshot count 8 -> 9 and the new snapshot found by name and id).",
+          reach: "proven",
           coveredBy: [
             "create_snapshot",
             "push_snapshot"
@@ -47927,8 +47932,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          note: "Agency snapshot list (type=own|imported|shared|templates). Captured from the agency Account Snapshots page's own browser session 2026-08-31; not yet proven through the plugin's location-user Bearer.",
-          reach: "source-only",
+          note: "Agency snapshot list (type=own|imported|shared|templates). Captured from the agency Account Snapshots page's own browser session 2026-08-31; not yet proven through the plugin's location-user Bearer. Executed through the plugin credential on the designated sandbox, 2026-09-10, as part of the snapshot parity run: list -> manifest -> conflicts -> create -> refresh, with the create read back on a separate request (snapshot count 8 -> 9 and the new snapshot found by name and id).",
+          reach: "proven",
           coveredBy: [
             "list_snapshots",
             "push_snapshot"
@@ -51466,7 +51471,8 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           reach: "proven"
         },
         "GET /snapshots-appengine/snapshot/{snapshotId}/get_assets": {
-          note: "Details drawer, assets grouped by product category. Captured from the agency page's own session 2026-08-31; not yet proven through the plugin's credential."
+          note: "Details drawer, assets grouped by product category. Executed through the plugin credential on the designated sandbox, 2026-09-10, as part of the snapshot parity run: list -> manifest -> conflicts -> create -> refresh, with the create read back on a separate request (snapshot count 8 -> 9 and the new snapshot found by name and id).",
+          reach: "proven"
         },
         "GET /snapshots/locations/v2/{companyId}/available": {
           requiredQuery: [
@@ -51484,7 +51490,8 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           note: "{version, locationId, createdAt} per refresh. Captured from the agency page's own session 2026-08-31; not yet proven through the plugin's credential."
         },
         "GET /snapshots/v2/{companyId}": {
-          note: "Agency snapshot list (type=own|imported|shared|templates). Captured from the agency Account Snapshots page's own browser session 2026-08-31; not yet proven through the plugin's location-user Bearer."
+          note: "Agency snapshot list (type=own|imported|shared|templates). Captured from the agency Account Snapshots page's own browser session 2026-08-31; not yet proven through the plugin's location-user Bearer. Executed through the plugin credential on the designated sandbox, 2026-09-10, as part of the snapshot parity run: list -> manifest -> conflicts -> create -> refresh, with the create read back on a separate request (snapshot count 8 -> 9 and the new snapshot found by name and id).",
+          reach: "proven"
         },
         "GET /snapshots/{snapshotId}/assets": {
           reach: "proven",
@@ -52048,6 +52055,26 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         "POST /funnels/builder/publish-version": {
           reach: "proven",
           note: "Live-proven 2026-09-10 with a 4-step differential. Body {pageId, versionId, userId}; userId is the JWT's authClassId and omitting it 422s. A published version is stamped pageType:'live', NOT 'published'. \u{1F534} Publishing PINS the public page to that version: the renderer serves the newest live version if one exists and falls back to the newest draft only while a page has NEVER been published, so after the first publish every later autosave is invisible in public with a 201 on each one."
+        },
+        "GET /snapshots/v2/preFetchAssets/{locationId}": {
+          reach: "proven",
+          note: "Executed through the plugin credential on the designated sandbox, 2026-09-10, as part of the snapshot parity run: list -> manifest -> conflicts -> create -> refresh, with the create read back on a separate request (snapshot count 8 -> 9 and the new snapshot found by name and id)."
+        },
+        "GET /snapshots/assets/asset-names": {
+          reach: "proven",
+          note: "Executed through the plugin credential on the designated sandbox, 2026-09-10, as part of the snapshot parity run: list -> manifest -> conflicts -> create -> refresh, with the create read back on a separate request (snapshot count 8 -> 9 and the new snapshot found by name and id)."
+        },
+        "POST /snapshots/{snapshotId}/conflicts": {
+          reach: "proven",
+          note: "Executed through the plugin credential on the designated sandbox, 2026-09-10, as part of the snapshot parity run: list -> manifest -> conflicts -> create -> refresh, with the create read back on a separate request (snapshot count 8 -> 9 and the new snapshot found by name and id)."
+        },
+        "POST /snapshots-appengine/v2/snapshots": {
+          reach: "proven",
+          note: "Executed through the plugin credential on the designated sandbox, 2026-09-10, as part of the snapshot parity run: list -> manifest -> conflicts -> create -> refresh, with the create read back on a separate request (snapshot count 8 -> 9 and the new snapshot found by name and id)."
+        },
+        "POST /snapshots-appengine/v2/snapshots/{snapshotId}/refresh": {
+          reach: "proven",
+          note: "Executed through the plugin credential on the designated sandbox, 2026-09-10, as part of the snapshot parity run: list -> manifest -> conflicts -> create -> refresh, with the create read back on a separate request (snapshot count 8 -> 9 and the new snapshot found by name and id)."
         }
       }
     };
@@ -54655,10 +54682,10 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       list_snapshots: {
-        description: "List the agency's snapshots \u2014 proof: source-derived (corpus platform/20-api/snapshots-authoring.md, 2026-09-07); risk: read",
+        description: "List the agency's snapshots \u2014 proof: live-runtime (2026-09-10); risk: read",
         risk: "read",
-        proof: "source-derived (corpus platform/20-api/snapshots-authoring.md, 2026-09-07)",
-        proofFloor: "source-derived (corpus platform/20-api/snapshots-authoring.md, 2026-09-07)",
+        proof: "live-runtime (2026-09-10)",
+        proofFloor: "live-runtime (2026-09-10)",
         proofRows: [
           "platform--snapshots-prefetch",
           "platform--snapshots-create-appengine"
@@ -54677,10 +54704,10 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       get_snapshot_manifest: {
-        description: "Read everything a sub-account could put in a snapshot \u2014 proof: source-derived (corpus platform/20-api/snapshots-authoring.md, 2026-09-07); risk: read",
+        description: "Read everything a sub-account could put in a snapshot \u2014 proof: live-runtime (2026-09-10); risk: read",
         risk: "read",
-        proof: "source-derived (corpus platform/20-api/snapshots-authoring.md, 2026-09-07)",
-        proofFloor: "source-derived (corpus platform/20-api/snapshots-authoring.md, 2026-09-07)",
+        proof: "live-runtime (2026-09-10)",
+        proofFloor: "live-runtime (2026-09-10)",
         proofRows: [
           "platform--snapshots-prefetch",
           "platform--snapshots-create-appengine"
@@ -54699,10 +54726,10 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       check_snapshot_conflicts: {
-        description: "See what loading a snapshot would collide with \u2014 proof: source-derived (corpus platform/20-api/snapshots-authoring.md, 2026-09-07); risk: read",
+        description: "See what loading a snapshot would collide with \u2014 proof: live-runtime (2026-09-10); risk: read",
         risk: "read",
-        proof: "source-derived (corpus platform/20-api/snapshots-authoring.md, 2026-09-07)",
-        proofFloor: "source-derived (corpus platform/20-api/snapshots-authoring.md, 2026-09-07)",
+        proof: "live-runtime (2026-09-10)",
+        proofFloor: "live-runtime (2026-09-10)",
         proofRows: [
           "platform--snapshots-prefetch",
           "platform--snapshots-create-appengine"
@@ -54721,10 +54748,10 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       create_snapshot: {
-        description: "Capture a sub-account into an agency snapshot \u2014 proof: source-derived (corpus platform/20-api/snapshots-authoring.md, 2026-09-07); risk: write",
+        description: "Capture a sub-account into an agency snapshot \u2014 proof: live-runtime (2026-09-10); risk: write",
         risk: "write",
-        proof: "source-derived (corpus platform/20-api/snapshots-authoring.md, 2026-09-07)",
-        proofFloor: "source-derived (corpus platform/20-api/snapshots-authoring.md, 2026-09-07)",
+        proof: "live-runtime (2026-09-10)",
+        proofFloor: "live-runtime (2026-09-10)",
         proofRows: [
           "platform--snapshots-prefetch",
           "platform--snapshots-create-appengine"
@@ -54743,10 +54770,10 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       refresh_snapshot: {
-        description: "Re-capture a snapshot without losing its curation \u2014 proof: source-derived (corpus platform/20-api/snapshots-authoring.md, 2026-09-07); risk: write",
+        description: "Re-capture a snapshot without losing its curation \u2014 proof: live-runtime (2026-09-10); risk: write",
         risk: "write",
-        proof: "source-derived (corpus platform/20-api/snapshots-authoring.md, 2026-09-07)",
-        proofFloor: "source-derived (corpus platform/20-api/snapshots-authoring.md, 2026-09-07)",
+        proof: "live-runtime (2026-09-10)",
+        proofFloor: "live-runtime (2026-09-10)",
         proofRows: [
           "platform--snapshots-prefetch",
           "platform--snapshots-create-appengine"

@@ -1399,10 +1399,10 @@
     ]
   },
   "list_snapshots": {
-    "description": "List the agency's snapshots — proof: source-derived (corpus platform/20-api/snapshots-authoring.md, 2026-09-07); risk: read",
+    "description": "List the agency's snapshots — proof: live-runtime (2026-09-10); risk: read",
     "risk": "read",
-    "proof": "source-derived (corpus platform/20-api/snapshots-authoring.md, 2026-09-07)",
-    "proofFloor": "source-derived (corpus platform/20-api/snapshots-authoring.md, 2026-09-07)",
+    "proof": "live-runtime (2026-09-10)",
+    "proofFloor": "live-runtime (2026-09-10)",
     "proofRows": [
       "platform--snapshots-prefetch",
       "platform--snapshots-create-appengine"
@@ -1421,10 +1421,10 @@
     ]
   },
   "get_snapshot_manifest": {
-    "description": "Read everything a sub-account could put in a snapshot — proof: source-derived (corpus platform/20-api/snapshots-authoring.md, 2026-09-07); risk: read",
+    "description": "Read everything a sub-account could put in a snapshot — proof: live-runtime (2026-09-10); risk: read",
     "risk": "read",
-    "proof": "source-derived (corpus platform/20-api/snapshots-authoring.md, 2026-09-07)",
-    "proofFloor": "source-derived (corpus platform/20-api/snapshots-authoring.md, 2026-09-07)",
+    "proof": "live-runtime (2026-09-10)",
+    "proofFloor": "live-runtime (2026-09-10)",
     "proofRows": [
       "platform--snapshots-prefetch",
       "platform--snapshots-create-appengine"
@@ -1443,10 +1443,10 @@
     ]
   },
   "check_snapshot_conflicts": {
-    "description": "See what loading a snapshot would collide with — proof: source-derived (corpus platform/20-api/snapshots-authoring.md, 2026-09-07); risk: read",
+    "description": "See what loading a snapshot would collide with — proof: live-runtime (2026-09-10); risk: read",
     "risk": "read",
-    "proof": "source-derived (corpus platform/20-api/snapshots-authoring.md, 2026-09-07)",
-    "proofFloor": "source-derived (corpus platform/20-api/snapshots-authoring.md, 2026-09-07)",
+    "proof": "live-runtime (2026-09-10)",
+    "proofFloor": "live-runtime (2026-09-10)",
     "proofRows": [
       "platform--snapshots-prefetch",
       "platform--snapshots-create-appengine"
@@ -1465,10 +1465,10 @@
     ]
   },
   "create_snapshot": {
-    "description": "Capture a sub-account into an agency snapshot — proof: source-derived (corpus platform/20-api/snapshots-authoring.md, 2026-09-07); risk: write",
+    "description": "Capture a sub-account into an agency snapshot — proof: live-runtime (2026-09-10); risk: write",
     "risk": "write",
-    "proof": "source-derived (corpus platform/20-api/snapshots-authoring.md, 2026-09-07)",
-    "proofFloor": "source-derived (corpus platform/20-api/snapshots-authoring.md, 2026-09-07)",
+    "proof": "live-runtime (2026-09-10)",
+    "proofFloor": "live-runtime (2026-09-10)",
     "proofRows": [
       "platform--snapshots-prefetch",
       "platform--snapshots-create-appengine"
@@ -1487,10 +1487,10 @@
     ]
   },
   "refresh_snapshot": {
-    "description": "Re-capture a snapshot without losing its curation — proof: source-derived (corpus platform/20-api/snapshots-authoring.md, 2026-09-07); risk: write",
+    "description": "Re-capture a snapshot without losing its curation — proof: live-runtime (2026-09-10); risk: write",
     "risk": "write",
-    "proof": "source-derived (corpus platform/20-api/snapshots-authoring.md, 2026-09-07)",
-    "proofFloor": "source-derived (corpus platform/20-api/snapshots-authoring.md, 2026-09-07)",
+    "proof": "live-runtime (2026-09-10)",
+    "proofFloor": "live-runtime (2026-09-10)",
     "proofRows": [
       "platform--snapshots-prefetch",
       "platform--snapshots-create-appengine"
