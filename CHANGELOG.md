@@ -11,6 +11,52 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [0.74.0] — 2026-09-10
+
+Six write tools re-proven on the sandbox, and two new `audit_site` checks that immediately found a
+defect in this plugin's own page builder.
+
+### Added
+
+- **`audit_site` checks the STYLING AUTHORITY.** A section's `general.sectionStyles` is a
+  precompiled CSS string keyed by element id, and the PUBLIC renderer lays out from it; a node's own
+  `styles`/`mobileStyles` drive the BUILDER canvas only. An element carrying styles with no selector
+  in that compiled CSS looks right in the builder and renders naked in public — and every write that
+  "fixes" it through node styles returns 201 and reads back exactly as written.
+
+  `uncompiled-styles` flags exactly that contradiction. It is scoped to elements with styling INTENT:
+  an element with no styles needs no rule, and flagging those put a finding on every minimal page.
+
+  `mirror-divergence` flags a node whose nested `element` mirror carries a different `child` list
+  from its own — the renderer reads the mirror, so a child added to `node.child` alone persists,
+  reads back correct, and renders nothing.
+
+  Both run on a document already fetched (no extra request) and both report coverage, so "no
+  findings" cannot be read as "did not look".
+
+  On first live run: 7 real cases across 60 sandbox pages, four of them pages `build_funnel_page`
+  produced. The engine emits compiled rules for sections, rows and cols and not for leaf elements.
+  Detection ships here; the repair is tracked separately.
+
+### Changed
+
+- **Six write tools re-proven against the sandbox**, each verified by the tool's own read-back:
+  `publish_workflow` (61 days old, the plugin's oldest evidence), `unpublish_workflows`,
+  `build_course`, `create_voiceai_agent`, `create_studio_agent`, `set_contact_ai_status`.
+  `set_contact_ai_status` is a real differential — active → inactive → active, restored to the state
+  it was found in, on a contact that already existed.
+
+  `create_voiceai_agent` and `create_studio_agent` previously rested on proof taken against a CLIENT
+  account. Both now rest on the sandbox, which is where this project's live-fire belongs.
+
+- **Publish/unpublish is now in the workflows conformance suite**, with its safety argument asserted
+  rather than assumed: a trigger is the only path by which a contact can enter a workflow, so the
+  suite CHECKS the trigger list is empty and that no step could message anyone, in the moment before
+  it publishes. It unpublishes immediately and asserts the final state.
+
+- `fast_forward_contacts` is deliberately NOT re-proven and stays at 54 days. It moves real contacts
+  through a workflow, and that needs a purpose-built enrolment target and an explicit decision.
+
 ## [0.73.0] — 2026-09-10
 
 A write tool that reported success while changing nothing, and the reason nobody caught it for
