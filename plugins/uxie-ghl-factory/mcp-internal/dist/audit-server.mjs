@@ -87918,15 +87918,26 @@ var MAX_DEPTH = 32;
 var MAX_NODES = 1e4;
 function scanBodyLocations(value, allowed) {
   let nodes = 0;
+  let tripped = null;
   const bad = [];
   const walk3 = (v, depth) => {
     if (bad.length) return true;
-    if (depth > MAX_DEPTH || ++nodes > MAX_NODES) return false;
+    if (depth > MAX_DEPTH) {
+      tripped ??= "depth";
+      return false;
+    }
+    if (++nodes > MAX_NODES) {
+      tripped ??= "nodes";
+      return false;
+    }
     if (Array.isArray(v)) return v.every((x) => walk3(x, depth + 1));
     if (!v || typeof v !== "object") return true;
     for (const [k, x] of Object.entries(v)) {
       if (k === "locationId" || k === "location_id" || k === "locations" || k === "locationIds") {
-        if (Array.isArray(x) && (nodes += x.length) > MAX_NODES) return false;
+        if (Array.isArray(x) && (nodes += x.length) > MAX_NODES) {
+          tripped ??= "nodes";
+          return false;
+        }
         const values = typeof x === "string" ? [x] : Array.isArray(x) && x.every((s) => typeof s === "string") ? x : null;
         if (values === null) {
           bad.push({ unusable: true });
@@ -87941,7 +87952,7 @@ function scanBodyLocations(value, allowed) {
     return true;
   };
   const withinCaps = walk3(value, 0);
-  return { withinCaps, bad };
+  return { withinCaps, bad, tripped };
 }
 function checkLocationBinding({ tool, args, allowed, legacyLocationsEnvSet = false, ...opts }) {
   const kind = classifyCall(tool, args);
@@ -88034,12 +88045,15 @@ function checkLocationBinding({ tool, args, allowed, legacyLocationsEnvSet = fal
       }
     }
     if (body !== void 0) {
-      const { withinCaps, bad } = scanBodyLocations(body, allowed);
-      if (!withinCaps) return fail(
-        CODES.VALIDATION_FAILED,
-        "the request body is too large or too deeply nested to check for account references",
-        "Flatten or shrink the body. This is a size limit, not a location refusal."
-      );
+      const { withinCaps, bad, tripped } = scanBodyLocations(body, allowed);
+      if (!withinCaps) {
+        const limit = tripped === "depth" ? `nesting deeper than ${MAX_DEPTH} levels` : `more than ${MAX_NODES.toLocaleString("en-US")} nodes`;
+        return fail(
+          CODES.VALIDATION_FAILED,
+          `the request body has ${limit}, which is past what the account-reference scan can vouch for \u2014 so this raw_request is refused rather than sent unchecked`,
+          "This is a limit on what raw_request can be CHECKED for, not a limit on what this server can write. Use the typed tool for this surface \u2014 a typed tool builds its own body and never reaches this scan, so a page, workflow or course of any size goes through it. search_endpoints names the covering tool in `coveredBy`. Do NOT work around this by calling the API directly: that sends the same body with no location guard at all."
+        );
+      }
       if (bad.length) {
         const first = bad[0];
         return first.unusable ? fail(

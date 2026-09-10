@@ -378,3 +378,40 @@ test('legacyLocationsEnvSet false (the default) leaves every existing binding ou
   const forbidden = checkLocationBinding({ tool: tool('get_workflow'), args: { locationId: FOREIGN }, allowed: new Set([PERMITTED]), legacyLocationsEnvSet: false });
   assert.equal(forbidden.code, CODES.LOCATION_FORBIDDEN);
 });
+
+// A refusal that names no limit and no alternative does not stop the write — it MOVES it.
+// On a live client build a caller read "too large or too deeply nested" as a blanket ceiling on
+// the typed rail, concluded the MCP could not carry a funnel page write, and dropped to direct
+// token-id calls outside the server entirely. The body went out anyway, with no location guard on
+// it at all, and they did not realise that was the trade. So the message has to carry three
+// things: which limit tripped, that it is a limit on CHECKABILITY rather than on capability, and
+// the route that has no such limit.
+test('the scan-cap refusal names WHICH limit tripped, and the way through', async () => {
+  const { TOOLS } = await import('../core/tools.mjs');
+  const tool = TOOLS.find((t) => t.name === 'raw_request');
+  const allowed = new Set(['LOC']);
+  const call = (body) => checkLocationBinding({ tool, args: { method: 'POST', path: '/x', locationId: 'LOC', body }, allowed });
+
+  const deep = (n) => { const root = {}; let c = root; for (let i = 0; i < n; i++) { c.x = {}; c = c.x; } return root; };
+  const byDepth = call(deep(40));
+  assert.match(byDepth.detail, /nesting deeper than 32 levels/, 'name the depth cap and its value');
+
+  const byNodes = call({ rows: Array.from({ length: 11000 }, (_, i) => ({ i })) });
+  assert.match(byNodes.detail, /more than 10,000 nodes/, 'name the node cap and its value');
+
+  // the two must be DISTINGUISHABLE — "shrink it" is the wrong advice for a deeply nested body
+  assert.notEqual(byDepth.detail, byNodes.detail);
+
+  for (const r of [byDepth, byNodes]) {
+    assert.match(r.remediation, /typed tool/, 'name the route that has no such limit');
+    assert.match(r.remediation, /search_endpoints/, 'and how to find it');
+    assert.match(r.remediation, /no location guard at all/,
+      'say plainly what going around this costs — that is the failure being prevented');
+    assert.doesNotMatch(r.detail, /^the request body is too large/,
+      'the old message named no limit and no alternative');
+  }
+
+  // CONTROL: the guard still allows an ordinary body, and still refuses a foreign account
+  assert.equal(call({ locationId: 'LOC' }), null);
+  assert.match(call({ locationId: 'FOREIGN' }).detail, /FOREIGN/);
+});
