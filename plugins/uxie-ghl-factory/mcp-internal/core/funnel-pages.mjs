@@ -180,10 +180,18 @@ export const makeSection = ({ columns, background = 'transparent', padY = 60, ma
   // gap, it GROWS every column to fill. Two columns at 33.33% render at 50% each — the page looks
   // deliberate and is not what was asked for, and nothing in the write path says so.
   //
-  // Measured: GHL's own templates and this builder both emit a bare `width:<n>%` with no `flex`
-  // declaration, so this is the platform's convention and not something to "fix" with `flex: 0 0`.
-  // The defect is only ever an incomplete SPEC, which is why it is caught here rather than papered
-  // over. The default path divides 100 evenly and always passes; only explicit widthPct can trip it.
+  // Measured across 24 pages: compiled `sectionStyles` contains ZERO `flex:` declarations of any
+  // kind, GHL-authored and API-built alike. Bare `width` is the platform's convention, so the fix is
+  // never `flex: 0 0` — the defect is an incomplete SPEC, caught here rather than papered over. The
+  // default path divides 100 evenly and always passes; only an explicit widthPct can trip it.
+  //
+  // 🔴 This guard is sound HERE and does not generalise to repairing an existing page. A composed
+  // page gets exactly one width rule per column, emitted below — but GHL-authored columns routinely
+  // carry SEVERAL (63 of 118 measured, up to 10: a base rule, `@media` variants and `!important`
+  // overrides), so out there a column's width is the outcome of a cascade. On such a page correct
+  // arithmetic can render WORSE than wrong arithmetic: removing `!important` overrides that said
+  // 33.33% exposed a stale 41.5% base, and 41.5 x 3 = 124.5% wrapped the row. Repair means stripping
+  // every existing width declaration first. See the anatomy page before touching a live stylesheet.
   const widths = columns.map((c) => Number(c.widthPct)).filter((n) => Number.isFinite(n));
   const total = widths.reduce((a, b) => a + b, 0);
   if (widths.length === columns.length && columns.length > 0 && Math.abs(total - 100) > 1) {
