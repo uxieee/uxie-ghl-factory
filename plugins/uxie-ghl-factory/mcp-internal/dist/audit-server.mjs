@@ -7263,7 +7263,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          reach: "source-only",
+          note: 'Answers 401 {"statusCode":401,"message":"Unauthorized Exception"} to a location credential, 2026-09-10, while its GET counterpart returns 17 sections on the same token. The 401 carries no field name, so unlike the usual GHL 401 this is a genuine permission boundary rather than a validation failure in disguise \u2014 saving a prebuilt section is very likely an agency-level gesture. Reading them is fine; writing one is not, from here.',
+          reach: "refused",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -18408,6 +18409,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
+          note: '\u{1F534} Answers 201 {"success":true,"message":"Snapshot preferences upserted successfully"} and the value does NOT appear in the read-back (2026-09-10, on a snapshot this project created). Do not read that message as confirmation. Note the likely cause is on the caller side, not the server: the GET returns {"success":true,"data":[]} \u2014 preferences are a LIST \u2014 and the probe sent a single object, so the shape is probably wrong. Either way the message is not evidence of storage; read the preference back before believing it.',
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -52493,6 +52495,13 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         "POST /forms/folder/": {
           reach: "proven",
           note: 'Executed on the designated sandbox 2026-09-10, write-parity sweep, with a read-back on a separate request. \u{1F534} `productType` is REQUIRED and is not in any declared schema \u2014 omit it and the call answers 422 ["productType should not be empty","productType must be a string"]. "form" is proven; the folder list is also scoped by productType, so a folder created under one value is invisible to a read using another. Proven by differential: 0 -> 1 folder, found by name.'
+        },
+        "POST /funnels/builder/prebuilt-section": {
+          reach: "refused",
+          note: 'Answers 401 {"statusCode":401,"message":"Unauthorized Exception"} to a location credential, 2026-09-10, while its GET counterpart returns 17 sections on the same token. The 401 carries no field name, so unlike the usual GHL 401 this is a genuine permission boundary rather than a validation failure in disguise \u2014 saving a prebuilt section is very likely an agency-level gesture. Reading them is fine; writing one is not, from here.'
+        },
+        "POST /snapshots/{snapshotId}/snapshot-preferences": {
+          note: '\u{1F534} Answers 201 {"success":true,"message":"Snapshot preferences upserted successfully"} and the value does NOT appear in the read-back (2026-09-10, on a snapshot this project created). Do not read that message as confirmation. Note the likely cause is on the caller side, not the server: the GET returns {"success":true,"data":[]} \u2014 preferences are a LIST \u2014 and the probe sent a single object, so the shape is probably wrong. Either way the message is not evidence of storage; read the preference back before believing it.'
         }
       }
     };
