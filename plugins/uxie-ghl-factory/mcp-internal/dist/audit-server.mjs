@@ -256,6 +256,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
+          note: `\u{1F534} THE BASE IS /workflows-marketplace, NOT the service root. At the root this path answers 404 with an EMPTY body (or Express's "Cannot POST ..."), which reads like a dead endpoint; under /workflows-marketplace the same path answers from a real service \u2014 400 "Action does not exists for this key" / "Trigger does not exists for this key", or 403 "locationId is required". Route existence is proven; a 200 additionally needs a marketplace app installed on the account, which the sandbox has none of.`,
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -339,6 +340,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
+          note: `\u{1F534} THE BASE IS /workflows-marketplace, NOT the service root. At the root this path answers 404 with an EMPTY body (or Express's "Cannot POST ..."), which reads like a dead endpoint; under /workflows-marketplace the same path answers from a real service \u2014 400 "Action does not exists for this key" / "Trigger does not exists for this key", or 403 "locationId is required". Route existence is proven; a 200 additionally needs a marketplace app installed on the account, which the sandbox has none of.`,
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -416,6 +418,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
+          note: `\u{1F534} THE BASE IS /workflows-marketplace, NOT the service root. At the root this path answers 404 with an EMPTY body (or Express's "Cannot POST ..."), which reads like a dead endpoint; under /workflows-marketplace the same path answers from a real service \u2014 400 "Action does not exists for this key" / "Trigger does not exists for this key", or 403 "locationId is required". Route existence is proven; a 200 additionally needs a marketplace app installed on the account, which the sandbox has none of.`,
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -19313,6 +19316,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
+          note: `\u{1F534} THE BASE IS /workflows-marketplace, NOT the service root. At the root this path answers 404 with an EMPTY body (or Express's "Cannot POST ..."), which reads like a dead endpoint; under /workflows-marketplace the same path answers from a real service \u2014 400 "Action does not exists for this key" / "Trigger does not exists for this key", or 403 "locationId is required". Route existence is proven; a 200 additionally needs a marketplace app installed on the account, which the sandbox has none of.`,
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -19348,6 +19352,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
+          note: `\u{1F534} THE BASE IS /workflows-marketplace, NOT the service root. At the root this path answers 404 with an EMPTY body (or Express's "Cannot POST ..."), which reads like a dead endpoint; under /workflows-marketplace the same path answers from a real service \u2014 400 "Action does not exists for this key" / "Trigger does not exists for this key", or 403 "locationId is required". Route existence is proven; a 200 additionally needs a marketplace app installed on the account, which the sandbox has none of.`,
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -19465,6 +19470,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
+          note: `\u{1F534} THE BASE IS /workflows-marketplace, NOT the service root. At the root this path answers 404 with an EMPTY body (or Express's "Cannot POST ..."), which reads like a dead endpoint; under /workflows-marketplace the same path answers from a real service \u2014 400 "Action does not exists for this key" / "Trigger does not exists for this key", or 403 "locationId is required". Route existence is proven; a 200 additionally needs a marketplace app installed on the account, which the sandbox has none of.`,
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -23705,7 +23711,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          reach: "source-only",
+          note: 'Executed on the designated sandbox 2026-09-10, workflows write-parity sweep. \u{1F534} workflowId and sessionId go in the QUERY STRING, not the body \u2014 sent in the body they are not seen and the endpoint answers 422 "Workflow ID is required" / "Session ID is required", one field per round. `messages` is a chat array [{role,content}] in the body; `prompt` is refused with "Messages are required". Proven: returned the generated snippet "{{input}}".',
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -23779,6 +23786,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
+          note: 'Executed on the designated sandbox 2026-09-10, workflows write-parity sweep. \u{1F534} workflowId and sessionId go in the QUERY STRING, not the body \u2014 sent in the body they are not seen and the endpoint answers 422 "Workflow ID is required" / "Session ID is required", one field per round. `messages` is a chat array [{role,content}] in the body; `prompt` is refused with "Messages are required". With the same complete arguments it answers 500 "Something went wrong. Please try again later." \u2014 a server fault, not a caller defect. Left unproven deliberately.',
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -23899,7 +23907,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          reach: "source-only",
+          note: 'Executed on the designated sandbox 2026-09-10, workflows write-parity sweep. \u{1F534} workflowId and sessionId go in the QUERY STRING, not the body \u2014 sent in the body they are not seen and the endpoint answers 422 "Workflow ID is required" / "Session ID is required", one field per round. `messages` is a chat array [{role,content}] in the body; `prompt` is refused with "Messages are required". Proven 200.',
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -26120,6 +26129,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
+          note: 'Executed on the designated sandbox 2026-09-10, workflows write-parity sweep. Refused four body shapes ({name}, {tags:[]}, +locationId, +workflowId) with a bare-string 400 "Bad Request" \u2014 no validation detail, so the shape is still unknown. Not a reach failure; a shape we have not found.',
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -26818,7 +26828,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          reach: "source-only",
+          note: 'Executed on the designated sandbox 2026-09-10, workflows write-parity sweep. Body {sessionId, messages}; workflowId in the QUERY. Responds as an SSE STREAM (data: {"type":"data-workflow-event"...}) carrying a langfuse traceId, not a JSON object.',
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -26853,7 +26864,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          reach: "source-only",
+          note: 'Executed on the designated sandbox 2026-09-10, workflows write-parity sweep. \u{1F534} Takes `prompt` (a string), NOT `messages` \u2014 the sibling v3/ai/message takes messages, so the two disagree. Body {sessionId, prompt, mode:"create"}, workflowId in the query. Returns {status:"proceed", mode, waitAttributes:{...}} \u2014 a ready-made wait step.',
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -52335,6 +52347,46 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         "PUT /workflow/{locationId}/rename-directory/{folderId}": {
           reach: "proven",
           note: 'Executed on the designated sandbox 2026-09-10 in the workflows write-parity run. Folder rename. Answers 200 {"msg":"Updated successfull","error":false} \u2014 note the typo and that `error:false` is the success signal. Read back changed and restored.'
+        },
+        "POST /workflow/{locationId}/ai/custom-code-ai": {
+          reach: "proven",
+          note: 'Executed on the designated sandbox 2026-09-10, workflows write-parity sweep. \u{1F534} workflowId and sessionId go in the QUERY STRING, not the body \u2014 sent in the body they are not seen and the endpoint answers 422 "Workflow ID is required" / "Session ID is required", one field per round. `messages` is a chat array [{role,content}] in the body; `prompt` is refused with "Messages are required". Proven: returned the generated snippet "{{input}}".'
+        },
+        "POST /workflow/{locationId}/ai/sms-ai": {
+          reach: "proven",
+          note: 'Executed on the designated sandbox 2026-09-10, workflows write-parity sweep. \u{1F534} workflowId and sessionId go in the QUERY STRING, not the body \u2014 sent in the body they are not seen and the endpoint answers 422 "Workflow ID is required" / "Session ID is required", one field per round. `messages` is a chat array [{role,content}] in the body; `prompt` is refused with "Messages are required". Proven 200.'
+        },
+        "POST /workflow/{locationId}/ai/email-ai": {
+          note: 'Executed on the designated sandbox 2026-09-10, workflows write-parity sweep. \u{1F534} workflowId and sessionId go in the QUERY STRING, not the body \u2014 sent in the body they are not seen and the endpoint answers 422 "Workflow ID is required" / "Session ID is required", one field per round. `messages` is a chat array [{role,content}] in the body; `prompt` is refused with "Messages are required". With the same complete arguments it answers 500 "Something went wrong. Please try again later." \u2014 a server fault, not a caller defect. Left unproven deliberately.'
+        },
+        "POST /workflow/{locationId}/v3/ai/message": {
+          reach: "proven",
+          note: 'Executed on the designated sandbox 2026-09-10, workflows write-parity sweep. Body {sessionId, messages}; workflowId in the QUERY. Responds as an SSE STREAM (data: {"type":"data-workflow-event"...}) carrying a langfuse traceId, not a JSON object.'
+        },
+        "POST /workflow/{locationId}/v3/ai/wait": {
+          reach: "proven",
+          note: 'Executed on the designated sandbox 2026-09-10, workflows write-parity sweep. \u{1F534} Takes `prompt` (a string), NOT `messages` \u2014 the sibling v3/ai/message takes messages, so the two disagree. Body {sessionId, prompt, mode:"create"}, workflowId in the query. Returns {status:"proceed", mode, waitAttributes:{...}} \u2014 a ready-made wait step.'
+        },
+        "POST /actions/{type}/branches": {
+          note: `\u{1F534} THE BASE IS /workflows-marketplace, NOT the service root. At the root this path answers 404 with an EMPTY body (or Express's "Cannot POST ..."), which reads like a dead endpoint; under /workflows-marketplace the same path answers from a real service \u2014 400 "Action does not exists for this key" / "Trigger does not exists for this key", or 403 "locationId is required". Route existence is proven; a 200 additionally needs a marketplace app installed on the account, which the sandbox has none of.`
+        },
+        "POST /actions/published/{type}/dynamic-fields": {
+          note: `\u{1F534} THE BASE IS /workflows-marketplace, NOT the service root. At the root this path answers 404 with an EMPTY body (or Express's "Cannot POST ..."), which reads like a dead endpoint; under /workflows-marketplace the same path answers from a real service \u2014 400 "Action does not exists for this key" / "Trigger does not exists for this key", or 403 "locationId is required". Route existence is proven; a 200 additionally needs a marketplace app installed on the account, which the sandbox has none of.`
+        },
+        "POST /triggers/published/{type}/dynamic-fields": {
+          note: `\u{1F534} THE BASE IS /workflows-marketplace, NOT the service root. At the root this path answers 404 with an EMPTY body (or Express's "Cannot POST ..."), which reads like a dead endpoint; under /workflows-marketplace the same path answers from a real service \u2014 400 "Action does not exists for this key" / "Trigger does not exists for this key", or 403 "locationId is required". Route existence is proven; a 200 additionally needs a marketplace app installed on the account, which the sandbox has none of.`
+        },
+        "POST /actions/dynamic-source-details/{key}": {
+          note: `\u{1F534} THE BASE IS /workflows-marketplace, NOT the service root. At the root this path answers 404 with an EMPTY body (or Express's "Cannot POST ..."), which reads like a dead endpoint; under /workflows-marketplace the same path answers from a real service \u2014 400 "Action does not exists for this key" / "Trigger does not exists for this key", or 403 "locationId is required". Route existence is proven; a 200 additionally needs a marketplace app installed on the account, which the sandbox has none of.`
+        },
+        "POST /triggers/dynamic-source-details/{key}": {
+          note: `\u{1F534} THE BASE IS /workflows-marketplace, NOT the service root. At the root this path answers 404 with an EMPTY body (or Express's "Cannot POST ..."), which reads like a dead endpoint; under /workflows-marketplace the same path answers from a real service \u2014 400 "Action does not exists for this key" / "Trigger does not exists for this key", or 403 "locationId is required". Route existence is proven; a 200 additionally needs a marketplace app installed on the account, which the sandbox has none of.`
+        },
+        "POST /triggers/dynamic-source/{key}": {
+          note: `\u{1F534} THE BASE IS /workflows-marketplace, NOT the service root. At the root this path answers 404 with an EMPTY body (or Express's "Cannot POST ..."), which reads like a dead endpoint; under /workflows-marketplace the same path answers from a real service \u2014 400 "Action does not exists for this key" / "Trigger does not exists for this key", or 403 "locationId is required". Route existence is proven; a 200 additionally needs a marketplace app installed on the account, which the sandbox has none of.`
+        },
+        "POST /workflow/{locationId}/tags/create": {
+          note: 'Executed on the designated sandbox 2026-09-10, workflows write-parity sweep. Refused four body shapes ({name}, {tags:[]}, +locationId, +workflowId) with a bare-string 400 "Bad Request" \u2014 no validation detail, so the shape is still unknown. Not a reach failure; a shape we have not found.'
         }
       }
     };
