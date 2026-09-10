@@ -53748,9 +53748,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       create_convai_agent: {
-        description: "Create Conversation AI agent \u2014 proof: live-runtime (2026-07-21); risk: write",
+        description: "Create Conversation AI agent \u2014 proof: live-runtime (2026-09-10); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-07-21)",
+        proof: "live-runtime (2026-09-10)",
         proofFloor: "live-runtime (2026-07-21)",
         proofRows: [
           "ai-convai-agent-create"
@@ -55071,9 +55071,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       update_convai_agent: {
-        description: "Update a Conversation AI agent by read-merge-write \u2014 proof: unrecorded; risk: write",
+        description: "Update a Conversation AI agent by read-merge-write \u2014 proof: live-runtime (2026-09-10); risk: write",
         risk: "write",
-        proof: "unrecorded",
+        proof: "live-runtime (2026-09-10)",
         proofFloor: "unrecorded",
         proofRows: [
           "aiemployee-service--get-employee-by-id",

@@ -11,6 +11,46 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [0.73.0] — 2026-09-10
+
+A write tool that reported success while changing nothing, and the reason nobody caught it for
+months.
+
+### Fixed
+
+- **`update_convai_agent` silently discarded `wait` and `sleep`.** 0.64.0 replaced the partial-PUT
+  compiler with a read-merge-write one and lost both keys on the way — neither is in
+  `UPDATE_FIELD_MAP`, because each fans out to several wire keys, and the old compiler handled them
+  explicitly while the replacement did not.
+
+  The resulting shape was the worst available: `parseConvaiPartialIR` **validates** both keys, so a
+  correct spec passed validation, was dropped, produced a PUT that changed nothing, and reported
+  success — the read-back verify found no mismatch because nothing had tried to change.
+
+  The stakes were not cosmetic. The note on file said this tool was the safe read-merge-write
+  alternative to a raw PUT, so anyone following it was writing into a hole; and a partial agent PUT
+  resets `cancelEnabled`/`rescheduleEnabled`, which on a flow bot ARE the cancel and reschedule
+  capability. A recommended-safe tool doing nothing pushes callers onto the path that strips them.
+
+  Live-proven on the sandbox: `waitTime` 2 → 45 with its unit, `sleepOnManualMessage` false → true,
+  and `waitTime` still 45 across the second update — the merge preserving collateral rather than a
+  partial PUT resetting it.
+
+- **A spec key the compiler cannot apply is now refused** as `SPEC_KEY_UNAPPLIED`, naming the
+  applicable set. Restoring two keys does not fix a compiler that iterates what it knows and never
+  looks at what it was handed; a misspelled key used to buy a clean success and no change.
+
+### Changed
+
+- **211 tests now actually run.** Eight files under `engines/` — the convai, voiceai, studio and
+  knowledge-base compilers — were outside the runner's globs and had never executed in any release
+  gate. They all pass, which is the point: nobody knew either way, and "the suite is green" meant
+  "the suite we happened to glob is green". A directory that is not globbed is worse than one with
+  no tests, because it looks covered. Suite: 2274 → 2486.
+
+- A new test asserts every `.test.mjs` in the plugin sits inside those globs, so the next file
+  added outside them fails the build instead of disappearing.
+
 ## [0.72.0] — 2026-09-10
 
 Two false positives, one corrupting round trip, and the first live proof for the riskiest tool in

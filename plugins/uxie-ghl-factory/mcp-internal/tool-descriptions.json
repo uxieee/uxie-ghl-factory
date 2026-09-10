@@ -492,9 +492,9 @@
     ]
   },
   "create_convai_agent": {
-    "description": "Create Conversation AI agent — proof: live-runtime (2026-07-21); risk: write",
+    "description": "Create Conversation AI agent — proof: live-runtime (2026-09-10); risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-07-21)",
+    "proof": "live-runtime (2026-09-10)",
     "proofFloor": "live-runtime (2026-07-21)",
     "proofRows": [
       "ai-convai-agent-create"
@@ -1815,9 +1815,9 @@
     ]
   },
   "update_convai_agent": {
-    "description": "Update a Conversation AI agent by read-merge-write — proof: unrecorded; risk: write",
+    "description": "Update a Conversation AI agent by read-merge-write — proof: live-runtime (2026-09-10); risk: write",
     "risk": "write",
-    "proof": "unrecorded",
+    "proof": "live-runtime (2026-09-10)",
     "proofFloor": "unrecorded",
     "proofRows": [
       "aiemployee-service--get-employee-by-id",
