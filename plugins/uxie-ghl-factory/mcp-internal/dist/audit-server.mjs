@@ -11366,6 +11366,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "write",
           summary: 'Create a custom VALUE \u2014 or, with {name, documentType:"folder"}, a custom-value FOLDER (the response echoes documentType:"folder"). Proven 2026-08-30.',
+          note: `Executed on the designated sandbox 2026-09-10, write-parity sweep, with a read-back on a separate request. Body {name, value}. Proven by differential: the location's custom values went 15 -> 16 and the new one was found by name. Response returns the minted fieldKey, e.g. "{{ custom_values.zzparity123100 }}" \u2014 the key is DERIVED from the name (lowercased, non-alphanumerics stripped), not supplied.`,
           reach: "proven",
           coveredBy: [],
           rawCallable: true,
@@ -15400,7 +15401,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          reach: "source-only",
+          note: "Executed on the designated sandbox 2026-09-10, write-parity sweep, with a read-back on a separate request. Body {name, locationId}; locationId is also required in the QUERY. Proven by differential: 7 -> 8 reasons, found by name. Returns {lostReason:{_id,...}}.",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -33270,7 +33272,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "ai",
           kind: "write",
           summary: "Delete a conversation log.",
-          note: "Present in the bundle API client and wired (delete error strings ship) but UI-unreachable \u2014 no row-action string exists for it. NEVER called during mapping; destructive and unproven.",
+          note: 'Present in the bundle API client and wired (delete error strings ship) but UI-unreachable \u2014 no row-action string exists for it. NEVER called during mapping; destructive and unproven. \u{1F534} CATALOGUE MISLABEL: this row is DELETE but its `kind` says "write". Any sweep that filters on kind alone will treat it as a safe write. Filter on METHOD as well as kind. Not probed \u2014 nothing is deleted.',
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -33668,7 +33670,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "ai",
           kind: "write",
           summary: "Delete a Metrics dashboard layout.",
-          note: "Never called during mapping; read-only sweep.",
+          note: 'Never called during mapping; read-only sweep. \u{1F534} CATALOGUE MISLABEL: DELETE row whose `kind` says "write". Filter on METHOD as well as kind. Not probed.',
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -37743,6 +37745,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://services.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
+          note: 'Executed on the designated sandbox 2026-09-10, write-parity sweep, with a read-back on a separate request. \u{1F534} `productType` is REQUIRED and is not in any declared schema \u2014 omit it and the call answers 422 ["productType should not be empty","productType must be a string"]. "form" is proven; the folder list is also scoped by productType, so a folder created under one value is invisible to a read using another. Proven by differential: 0 -> 1 folder, found by name.',
           proof: "executed",
           reach: "proven",
           coveredBy: [],
@@ -46567,7 +46570,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "write",
-          reach: "source-only",
+          note: "Executed on the designated sandbox 2026-09-10, write-parity sweep, with a read-back on a separate request. Body {name, locationId}; locationId is also required in the QUERY. Proven by differential: 7 -> 8 reasons, found by name. Returns {lostReason:{_id,...}}.",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -51925,7 +51929,8 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         },
         "POST /locations/{locationId}/customValues": {
           reach: "proven",
-          summary: 'Create a custom VALUE \u2014 or, with {name, documentType:"folder"}, a custom-value FOLDER (the response echoes documentType:"folder"). Proven 2026-08-30.'
+          summary: 'Create a custom VALUE \u2014 or, with {name, documentType:"folder"}, a custom-value FOLDER (the response echoes documentType:"folder"). Proven 2026-08-30.',
+          note: `Executed on the designated sandbox 2026-09-10, write-parity sweep, with a read-back on a separate request. Body {name, value}. Proven by differential: the location's custom values went 15 -> 16 and the new one was found by name. Response returns the minted fieldKey, e.g. "{{ custom_values.zzparity123100 }}" \u2014 the key is DERIVED from the name (lowercased, non-alphanumerics stripped), not supplied.`
         },
         "POST /marketplace/billing/usage/meters/public": {
           kind: "read",
@@ -52215,7 +52220,7 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           kind: "write",
           reach: "source-only",
           summary: "Delete a conversation log.",
-          note: "Present in the bundle API client and wired (delete error strings ship) but UI-unreachable \u2014 no row-action string exists for it. NEVER called during mapping; destructive and unproven."
+          note: 'Present in the bundle API client and wired (delete error strings ship) but UI-unreachable \u2014 no row-action string exists for it. NEVER called during mapping; destructive and unproven. \u{1F534} CATALOGUE MISLABEL: this row is DELETE but its `kind` says "write". Any sweep that filters on kind alone will treat it as a safe write. Filter on METHOD as well as kind. Not probed \u2014 nothing is deleted.'
         },
         "POST /agent-logs/metrics-layouts": {
           kind: "write",
@@ -52233,7 +52238,7 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           kind: "write",
           reach: "source-only",
           summary: "Delete a Metrics dashboard layout.",
-          note: "Never called during mapping; read-only sweep."
+          note: 'Never called during mapping; read-only sweep. \u{1F534} CATALOGUE MISLABEL: DELETE row whose `kind` says "write". Filter on METHOD as well as kind. Not probed.'
         },
         "GET /forms": {
           reach: "proven",
@@ -52480,6 +52485,14 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         },
         "PUT /membership/.../products": {
           note: '\u{1F534} THIS ROW IS UNCALLABLE: its path contains a literal "..." left by the source miner, and unlike the other truncated rows it has NO full-path twin in the catalogue \u2014 the real path was lost in mining and needs re-capture before this endpoint can be reached at all. Measured 2026-09-10.'
+        },
+        "POST /opportunities/lost-reason": {
+          reach: "proven",
+          note: "Executed on the designated sandbox 2026-09-10, write-parity sweep, with a read-back on a separate request. Body {name, locationId}; locationId is also required in the QUERY. Proven by differential: 7 -> 8 reasons, found by name. Returns {lostReason:{_id,...}}."
+        },
+        "POST /forms/folder/": {
+          reach: "proven",
+          note: 'Executed on the designated sandbox 2026-09-10, write-parity sweep, with a read-back on a separate request. \u{1F534} `productType` is REQUIRED and is not in any declared schema \u2014 omit it and the call answers 422 ["productType should not be empty","productType must be a string"]. "form" is proven; the folder list is also scoped by productType, so a folder created under one value is invisible to a read using another. Proven by differential: 0 -> 1 folder, found by name.'
         }
       }
     };
