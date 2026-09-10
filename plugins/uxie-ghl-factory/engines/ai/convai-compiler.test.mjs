@@ -662,3 +662,57 @@ test('compileConvaiUpdateFromRecord marks `actions` write-only so the read-back 
   assert.deepEqual(out.writeOnlyKeys, ['actions']);
   assert.equal(out.collateralKeys.includes('actions'), false, 'not collateral either — nothing about it is verifiable here');
 });
+
+// 0.64.0 replaced the partial-PUT compiler with a read-merge-write one and LOST two keys on the
+// way. `wait` and `sleep` are not in UPDATE_FIELD_MAP because each fans out to several wire keys;
+// the old compileConvaiUpdate handled them explicitly and compileConvaiUpdateFromRecord did not.
+//
+// The result was the worst available shape: parseConvaiPartialIR VALIDATES both, so a correct spec
+// passed validation, was dropped, produced a PUT that changed nothing, and reported success —
+// because the read-back verify found no mismatch on a field nothing had tried to change.
+//
+// Found on a live client account by a peer session whose separate waitTime control probe also
+// failed to land, which is what turned "my payload was wrong" into "this path drops payloads".
+test('update: wait and sleep reach the wire, and are counted as CHANGING not collateral', () => {
+  const record = { _id: 'A1', locationId: 'LOC', employeeName: 'Bot', botType: 'conversation_ai',
+    personality: 'old', mode: 'auto_pilot' };
+  const changing = (spec) => {
+    const p = compileConvaiUpdateFromRecord(record, spec, { agentId: 'A1', locationId: 'LOC' });
+    return Object.keys(p.body).filter((k) => !p.collateralKeys.includes(k));
+  };
+
+  const w = changing({ wait: { value: 30, unit: 'seconds' } });
+  assert.ok(w.includes('waitTime') && w.includes('waitTimeUnit'), `wait must reach the body, got ${w}`);
+
+  const s = changing({ sleep: { onManualMessage: true, enabled: false } });
+  assert.ok(s.includes('sleepOnManualMessage') && s.includes('sleepEnabled'), `sleep must reach the body, got ${s}`);
+
+  // a mapped key still works — the fix must not narrow what already landed
+  assert.ok(changing({ personality: 'NEW' }).includes('personality'));
+});
+
+test('update: a spec key the compiler cannot apply is REFUSED, never silently dropped', () => {
+  // Restoring wait/sleep fixes two keys. It does not fix the shape that lost them — a compiler
+  // that iterates what it knows and never looks at what it was handed. A misspelled key must not
+  // buy a clean success and no change.
+  const record = { _id: 'A1', locationId: 'LOC', employeeName: 'Bot', botType: 'conversation_ai' };
+  assert.throws(
+    () => compileConvaiUpdateFromRecord(record, { thisKeyDoesNotExist: 'x' }, { agentId: 'A1', locationId: 'LOC' }),
+    (e) => {
+      assert.equal(e.code, 'SPEC_KEY_UNAPPLIED');
+      assert.match(e.message, /thisKeyDoesNotExist/);
+      assert.match(e.message, /Applicable keys:/, 'a refusal has to say what WOULD work');
+      return true;
+    });
+
+  // near-miss spellings are the realistic case and must not slip through
+  for (const bad of [{ personalty: 'x' }, { Wait: {} }, { knowledgeBaseId: ['k'] }]) {
+    assert.throws(() => compileConvaiUpdateFromRecord(record, bad, { agentId: 'A1', locationId: 'LOC' }),
+      /SPEC_KEY_UNAPPLIED|cannot apply spec key/, `${JSON.stringify(bad)} must be refused`);
+  }
+
+  // CONTROL: every applicable key together still compiles
+  assert.doesNotThrow(() => compileConvaiUpdateFromRecord(record,
+    { personality: 'p', goal: 'g', wait: { value: 1, unit: 'minutes' }, sleep: { enabled: true } },
+    { agentId: 'A1', locationId: 'LOC' }));
+});

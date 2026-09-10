@@ -485,6 +485,44 @@ export function compileConvaiUpdateFromRecord(current, partialIr, { agentId, loc
     if (norm[irKey] !== undefined) { body[wireKey] = norm[irKey]; setKeys.add(wireKey); }
   }
   if (norm.name !== undefined) { body.employeeName = norm.name; setKeys.add('employeeName'); }
+  // `wait` and `sleep` are NOT in UPDATE_FIELD_MAP because they fan out to several wire keys.
+  // compileConvaiUpdate (the pre-0.64.0 partial-PUT compiler) handled them here and this
+  // read-merge-write replacement did not, so from 0.64.0 until 2026-09-10 a spec carrying either
+  // was VALIDATED by parseConvaiPartialIR — which checks both — and then silently dropped. The
+  // resulting PUT changed nothing, the read-back found nothing missing because nothing was meant
+  // to change, and the tool reported success. Found on a live client account by a peer whose
+  // waitTime control probe did not land either, which is what separated "my payload was wrong"
+  // from "this path drops payloads".
+  if (norm.wait !== undefined) {
+    if (norm.wait.value !== undefined) { body.waitTime = norm.wait.value; setKeys.add('waitTime'); }
+    if (norm.wait.unit !== undefined) { body.waitTimeUnit = norm.wait.unit; setKeys.add('waitTimeUnit'); }
+  }
+  if (norm.sleep !== undefined) {
+    const sl = norm.sleep;
+    if (sl.enabled !== undefined) { body.sleepEnabled = sl.enabled; setKeys.add('sleepEnabled'); }
+    if (sl.onManualMessage !== undefined) { body.sleepOnManualMessage = sl.onManualMessage; setKeys.add('sleepOnManualMessage'); }
+    if (sl.onWorkflowMessage !== undefined) { body.sleepOnWorkflowMessage = sl.onWorkflowMessage; setKeys.add('sleepOnWorkflowMessage'); }
+    if (sl.time !== undefined) { body.sleepTime = sl.time; setKeys.add('sleepTime'); }
+    if (sl.timeUnit !== undefined) { body.sleepTimeUnit = sl.timeUnit; setKeys.add('sleepTimeUnit'); }
+  }
+  // FAIL CLOSED on a spec key this compiler cannot apply. Restoring wait/sleep fixes the two keys
+  // that were lost; it does not fix the SHAPE that lost them, which is a compiler that iterates
+  // what it knows and never looks at what it was handed. A caller who misspells a key, or reaches
+  // for one this rail does not carry, otherwise gets a clean success and no change — the same
+  // silent-discard class as an unrecognised node kind.
+  const applicable = new Set([...Object.keys(UPDATE_FIELD_MAP), 'wait', 'sleep']);
+  const unapplied = Object.keys(partialIr ?? {}).filter((k) => !applicable.has(k));
+  if (unapplied.length) {
+    const actionsAsked = unapplied.includes('actions');
+    throw new IRError('SPEC_KEY_UNAPPLIED',
+      `update_convai_agent cannot apply spec key(s) [${unapplied.join(', ')}], and refuses rather than `
+      + 'writing a PUT that silently changes nothing. '
+      + (actionsAsked
+        ? 'Actions are a SEPARATE resource on this rail: the agent PUT always sends actions:null, the way '
+          + 'the UI does, so an action list here would never have landed. Use the action endpoints. '
+        : '')
+      + `Applicable keys: ${[...applicable].sort().join(', ')}.`);
+  }
   // Actions are their own resource; the record PUT always sends null, as the UI does.
   // WRITE-ONLY: the server stores the real action list and the re-read returns `[]` (or the
   // actions), never the `null` we sent — so holding the read-back to that null reports

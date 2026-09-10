@@ -165365,6 +165365,48 @@ function compileConvaiUpdateFromRecord(current, partialIr, { agentId, locationId
     body.employeeName = norm3.name;
     setKeys.add("employeeName");
   }
+  if (norm3.wait !== void 0) {
+    if (norm3.wait.value !== void 0) {
+      body.waitTime = norm3.wait.value;
+      setKeys.add("waitTime");
+    }
+    if (norm3.wait.unit !== void 0) {
+      body.waitTimeUnit = norm3.wait.unit;
+      setKeys.add("waitTimeUnit");
+    }
+  }
+  if (norm3.sleep !== void 0) {
+    const sl = norm3.sleep;
+    if (sl.enabled !== void 0) {
+      body.sleepEnabled = sl.enabled;
+      setKeys.add("sleepEnabled");
+    }
+    if (sl.onManualMessage !== void 0) {
+      body.sleepOnManualMessage = sl.onManualMessage;
+      setKeys.add("sleepOnManualMessage");
+    }
+    if (sl.onWorkflowMessage !== void 0) {
+      body.sleepOnWorkflowMessage = sl.onWorkflowMessage;
+      setKeys.add("sleepOnWorkflowMessage");
+    }
+    if (sl.time !== void 0) {
+      body.sleepTime = sl.time;
+      setKeys.add("sleepTime");
+    }
+    if (sl.timeUnit !== void 0) {
+      body.sleepTimeUnit = sl.timeUnit;
+      setKeys.add("sleepTimeUnit");
+    }
+  }
+  const applicable = /* @__PURE__ */ new Set([...Object.keys(UPDATE_FIELD_MAP), "wait", "sleep"]);
+  const unapplied = Object.keys(partialIr ?? {}).filter((k) => !applicable.has(k));
+  if (unapplied.length) {
+    const actionsAsked = unapplied.includes("actions");
+    throw new IRError2(
+      "SPEC_KEY_UNAPPLIED",
+      `update_convai_agent cannot apply spec key(s) [${unapplied.join(", ")}], and refuses rather than writing a PUT that silently changes nothing. ` + (actionsAsked ? "Actions are a SEPARATE resource on this rail: the agent PUT always sends actions:null, the way the UI does, so an action list here would never have landed. Use the action endpoints. " : "") + `Applicable keys: ${[...applicable].sort().join(", ")}.`
+    );
+  }
   body.actions = null;
   setKeys.add("actions");
   const writeOnlyKeys = ["actions"];
