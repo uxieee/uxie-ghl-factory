@@ -11,6 +11,54 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [0.77.0] — 2026-09-10
+
+Routing. A public path is held per DOMAIN, not per funnel — so the row that takes your path is
+usually in a document you were not looking at, and `audit_site` could not see it either.
+
+### Added
+
+- **`audit_site` names the path claimant BEFORE a domain attach renames it.** One domain serves many
+  documents, and `GET /funnels/lookup/list` **requires `funnelId`** (`locationId` alone answers
+  `422 ["funnelId should not be empty"]`; neither `domain=` nor `limit=` substitutes) with no
+  read-by-path route anywhere. So from inside the document you are attaching, the claimant that beats
+  you is invisible. The audit now sweeps every document on the location keyed on `domain + path` and
+  names the holder, bounded by a new `maxDocuments` (default 120) and skipped entirely when no
+  document on the location has a domain — with no domain there is no row anywhere and nothing can
+  collide.
+
+  Severity tracks whether you asked about the document. This is a **forecast**: it costs nothing
+  until someone attaches, and a location can hold dozens of half-built documents that never will be
+  (46 documents on the sandbox produced 32 of these). The document you named is `medium`; the rest,
+  swept only to find the claimant, are `info`. Reporting all of them at `medium` would repeat the
+  mistake 0.76.0 fixed, where "this step has NO routing row" fired at `high` on every step of every
+  unattached funnel.
+
+### Fixed
+
+- **A routing finding now names the call that repairs it.** Routing is materialised at a domain
+  attach and **never** recomputed from the step record, so an operator who saw "the step says `/x`
+  but no row serves it" and re-saved the step changed nothing. Both routing findings now carry the
+  repair with the ids and paths already filled in — `POST /funnels/lookup/create` for a missing row,
+  `PUT /funnels/lookup/{lookupId}` for a stale one.
+
+### Proven
+
+Executed on GROM Sandbox against a funnel with a live domain, 2026-09-10 — no client account touched.
+
+- Routing does **not** follow a step URL change: the step record moved immediately, the row had not
+  followed at t+0s, +30s, +75s or +135s.
+- `PUT /funnels/lookup/{lookupId}` is the refresh path. One write moved the row; the new path then
+  served `200` in public and the old one `404`ed once its CDN entry expired. Writing the row back
+  reversed both.
+- Re-attaching the same `domainId` does nothing — `201 {"pathsUpdated": false}`, all 20 rows
+  byte-identical. Changing `funnelPath` outright also returned `pathsUpdated: false` while the
+  funnel's own path demonstrably changed, so **that flag is not a report on the routing table.**
+- Both new severities: auditing the attached funnel gave 32 `info` and 0 `medium` (its collisions are
+  history); auditing an unattached one gave exactly 1 `medium` naming the real holder, and 31 `info`.
+
+2492 tests green.
+
 ## [0.76.0] — 2026-09-10
 
 `build_funnel_page` was styling the builder and not the visitor. Fixed, and the check that found it
