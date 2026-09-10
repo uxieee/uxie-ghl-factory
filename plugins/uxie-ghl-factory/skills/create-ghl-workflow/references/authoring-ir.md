@@ -143,11 +143,24 @@ falls to None even when the stage id is correct — the same OPP_UNASSOCIATED ru
 enforces for `update_opportunity`. Enter via an opp trigger (or create/find on the path) before
 an opp-stage branch.
 
-- **Node kinds:** `action` (any linear type), `wait`, `if_else` (N≥2 branches, one
-  optional `else: true`), `split` (`workflow_split`, weighted/random), `ai_decision`
+- **Node kinds** — a CLOSED set: `action` (any linear type), `wait`, `if_else` (N≥2 branches,
+  one optional `else: true`), `split` (`workflow_split`, weighted/random), `ai_decision`
   (`workflow_ai_decision_maker`, Default + N branches), `goto` (must be last in its
-  branch). Pre-set 2-branch finders (`find_contact`/`find_opportunity`/`lc_merge_contact`)
-  use `onFound`/`onNotFound`.
+  branch), `raw` (you own the template end to end). Pre-set 2-branch finders
+  (`find_contact`/`find_opportunity`/`lc_merge_contact`) use `onFound`/`onNotFound`.
+
+  **Omitting `kind` is usually right** — the engine infers it from `type` (`if_else`,
+  `workflow_split`, `ai_decision`, `goto`) and everything else defaults to `action`.
+
+  🔴 **Never write `kind: "step"`.** It is not a node kind, and it is the one wrong value you
+  are most likely to reach for, because the CATALOGUE uses the same word differently: every
+  one of the 385 step types in `catalog.data.json` carries `"kind": "step"` (and every trigger
+  `"kind": "trigger"`) to mean *step rather than trigger*. That is catalogue taxonomy, not
+  authoring vocabulary. Copying it onto a node used to produce a step with `nodeType`
+  undefined, `attributes {}` and `next null` — a clean write, `errorCount 0`, and nothing at
+  runtime — because every validator here is keyed on `kind`, so a value none of them recognise
+  does not fail their checks, it skips them. Refused as `KIND_UNKNOWN` since 0.71.0; the
+  refusal names this collision.
 - **Conversation-AI flow-builder containers** (for `FLOW_BUILDER_BOT` flows — see
   the `ghl-conversation-ai` / `ghl-voice-ai` skill): `conversationai_book_appointment` uses scope
   keys `onBooked`/`onNotBooked`; `conversationai_ai_splitter` uses `branches: [{name, then}]`
