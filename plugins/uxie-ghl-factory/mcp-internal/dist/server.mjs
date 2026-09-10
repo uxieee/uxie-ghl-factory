@@ -246,7 +246,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
     define_ENDPOINT_CATALOG_default = {
       generated: "2026-09-10",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 1196,
+      count: 1201,
       endpoints: [
         {
           id: "workflows--actions-branches",
@@ -6698,6 +6698,41 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "forms--submission-v2",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/form/submission/v2/{id}",
+          path: "/form/submission/v2/{id}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "forms",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "forms/20-api/public-renderer-and-submit.md:98"
+          ]
+        },
+        {
           id: "forms-service--get-forms",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/forms",
@@ -6887,6 +6922,38 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "forms--forms-form-survey-event",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/forms/form-survey-event",
+          path: "/forms/form-survey-event",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "forms",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "forms/20-api/public-renderer-and-submit.md:37",
+            "forms/20-api/public-renderer-and-submit.md:100"
+          ]
+        },
+        {
           id: "forms-service--get-form-by-id",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/forms/forms-list",
@@ -6933,6 +7000,85 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/marketplaceServices/FormsService.ts:25"
+          ]
+        },
+        {
+          id: "forms--forms-submission",
+          method: "PATCH",
+          url: "https://backend.leadconnectorhq.com/forms/submission",
+          path: "/forms/submission",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "forms",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "forms/20-api/public-renderer-and-submit.md:36",
+            "forms/20-api/public-renderer-and-submit.md:100"
+          ]
+        },
+        {
+          id: "forms--forms-submit",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/forms/submit",
+          path: "/forms/submit",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "forms",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "formId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "forms/20-api/public-renderer-and-submit.md:16",
+            "forms/20-api/public-renderer-and-submit.md:35",
+            "forms/20-api/public-renderer-and-submit.md:51",
+            "forms/20-api/public-renderer-and-submit.md:74"
           ]
         },
         {
@@ -21928,6 +22074,41 @@ var init_define_ENDPOINT_CATALOG = __esm({
         },
         {
           id: "forms--widget-form",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/widget/form/{formId}",
+          path: "/widget/form/{formId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "forms",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "formId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "forms/20-api/public-renderer-and-submit.md:88"
+          ]
+        },
+        {
+          id: "forms--widget-form-get",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/widget/form/{id}",
           path: "/widget/form/{id}",
@@ -37868,7 +38049,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "write",
-          note: "\u{1F534} THE EMAIL SENDER DISPLAY NAME, and it is WRITABLE \u2014 it had been reported to a client as UI-only. Body {fromEmail, fromName}; send BOTH, the handler takes them together so omitting fromEmail may clear it. Scope key is companyId for entityType COMPANY, else locationId. \u26A0\uFE0F NOT PROVEN HERE \u2014 no reach. The only execution is a PEER SESSION's, on a CLIENT account this project may never write to, verified there by re-reading two independent services \u2014 fromEmail, warmup, defaultDomain and all eight types[] percentages survived untouched. \u{1F534} HIGH BLAST RADIUS, NEEDS EXPLICIT HUMAN APPROVAL: types[] read all eight rails at 100% (calendar, invoices, oneToOne, bulk-request, campaign, workflow, client-portal, client-portal-otp), so this one field is the sender identity on INVOICES and on replies staff type by hand in Conversations. It cannot be scoped to one rail. It could not be reproduced on GROM Sandbox: that account has zero sending domains, so there is nothing to address. Proving it needs a domain on a test sub-account AND the user's explicit word, because of the blast radius below.",
+          note: "\u{1F534} THE EMAIL SENDER DISPLAY NAME, and it is WRITABLE \u2014 it had been reported to a client as UI-only. Body {fromEmail, fromName}; send BOTH, the handler takes them together so omitting fromEmail may clear it. Scope key is companyId for entityType COMPANY, else locationId. \u26A0\uFE0F NOT PROVEN HERE \u2014 no reach. The only execution is a PEER SESSION's, on a CLIENT account this project may never write to, verified there by re-reading two independent services \u2014 fromEmail, warmup, defaultDomain and all eight types[] percentages survived untouched. \u{1F534} HIGH BLAST RADIUS, NEEDS EXPLICIT HUMAN APPROVAL: types[] read all eight rails at 100% (calendar, invoices, oneToOne, bulk-request, campaign, workflow, client-portal, client-portal-otp), so this one field is the sender identity on INVOICES and on replies staff type by hand in Conversations. It cannot be scoped to one rail. It could not be reproduced on GROM Sandbox: that account has zero sending domains, so there is nothing to address. Proving it needs a domain on a test sub-account AND the user's explicit word, because of the blast radius below. \u26A0\uFE0F SCOPE OF THE EVIDENCE: the one account behind this row read domainOwnershipType 'location_owned', type 'leadconnector'. The agency-owned and shared-domain shapes have never been seen, and a shared domain's headers are plausibly not a single location's to set \u2014 do not generalise this row to them.",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -38198,7 +38379,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
-          id: "forms--submission-v2",
+          id: "forms--submission-v2-get",
           method: "GET",
           url: "https://services.leadconnectorhq.com/form/submission/v2/{submissionId}",
           path: "/form/submission/v2/{submissionId}",
@@ -53658,7 +53839,7 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         },
         "PUT /email-isv/feature/domain/set-default-headers/{domain}": {
           kind: "write",
-          note: "\u{1F534} THE EMAIL SENDER DISPLAY NAME, and it is WRITABLE \u2014 it had been reported to a client as UI-only. Body {fromEmail, fromName}; send BOTH, the handler takes them together so omitting fromEmail may clear it. Scope key is companyId for entityType COMPANY, else locationId. \u26A0\uFE0F NOT PROVEN HERE \u2014 no reach. The only execution is a PEER SESSION's, on a CLIENT account this project may never write to, verified there by re-reading two independent services \u2014 fromEmail, warmup, defaultDomain and all eight types[] percentages survived untouched. \u{1F534} HIGH BLAST RADIUS, NEEDS EXPLICIT HUMAN APPROVAL: types[] read all eight rails at 100% (calendar, invoices, oneToOne, bulk-request, campaign, workflow, client-portal, client-portal-otp), so this one field is the sender identity on INVOICES and on replies staff type by hand in Conversations. It cannot be scoped to one rail. It could not be reproduced on GROM Sandbox: that account has zero sending domains, so there is nothing to address. Proving it needs a domain on a test sub-account AND the user's explicit word, because of the blast radius below."
+          note: "\u{1F534} THE EMAIL SENDER DISPLAY NAME, and it is WRITABLE \u2014 it had been reported to a client as UI-only. Body {fromEmail, fromName}; send BOTH, the handler takes them together so omitting fromEmail may clear it. Scope key is companyId for entityType COMPANY, else locationId. \u26A0\uFE0F NOT PROVEN HERE \u2014 no reach. The only execution is a PEER SESSION's, on a CLIENT account this project may never write to, verified there by re-reading two independent services \u2014 fromEmail, warmup, defaultDomain and all eight types[] percentages survived untouched. \u{1F534} HIGH BLAST RADIUS, NEEDS EXPLICIT HUMAN APPROVAL: types[] read all eight rails at 100% (calendar, invoices, oneToOne, bulk-request, campaign, workflow, client-portal, client-portal-otp), so this one field is the sender identity on INVOICES and on replies staff type by hand in Conversations. It cannot be scoped to one rail. It could not be reproduced on GROM Sandbox: that account has zero sending domains, so there is nothing to address. Proving it needs a domain on a test sub-account AND the user's explicit word, because of the blast radius below. \u26A0\uFE0F SCOPE OF THE EVIDENCE: the one account behind this row read domainOwnershipType 'location_owned', type 'leadconnector'. The agency-owned and shared-domain shapes have never been seen, and a shared domain's headers are plausibly not a single location's to set \u2014 do not generalise this row to them."
         },
         "GET /email-isv/feature/domain/list": {
           reach: "proven",
