@@ -246,7 +246,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
     define_ENDPOINT_CATALOG_default = {
       generated: "2026-09-10",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 1201,
+      count: 1202,
       endpoints: [
         {
           id: "workflows--actions-branches",
@@ -24846,7 +24846,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          summary: "The sending domain, warm-up state and rate limit behind this account's email steps.",
+          note: "Answers 201 (not 200) on a GET. \u26A0\uFE0F NOT BACKEND-ONLY \u2014 the catalogue row is mined from backend source, but it answers 201 with an identical body on services.leadconnectorhq.com too (verified GROM Sandbox 2026-09-11). Returns provider.domain, provider.domainOwnershipType ('agency_owned' | 'location_owned'), warmupInfo{warmupStage,warmupStatus,warmupMode}, type and applyRateLimit. \u{1F534} THIS IS THE READ THAT TELLS YOU AN ACCOUNT HAS A SENDING DOMAIN AT ALL \u2014 /email-isv/feature/domain/list returns [] for an agency-owned domain, so use this one before concluding an account is unconfigured.",
           reach: "proven",
           coveredBy: [
             "edit_workflow",
@@ -24875,7 +24875,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/api/workflow-overview.service.ts:260",
-            "conversations/20-api/email-sending-domains.md:44",
             "workflows/20-api/03-endpoints.md:297",
             "workflows/70-research/ENDPOINT-SWEEP-2026-08-25.md:71"
           ]
@@ -37513,7 +37512,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "conversations/20-api/email-sending-domains.md:102"
+            "conversations/20-api/email-sending-domains.md:102",
+            "conversations/20-api/email-sending-domains.md:183"
           ]
         },
         {
@@ -37854,6 +37854,37 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "conversations--domain-link-gromdigital-com",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/email-isv/feature/domain/link.gromdigital.com",
+          path: "/email-isv/feature/domain/link.gromdigital.com",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "conversations",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "conversations/20-api/email-sending-domains.md:152"
+          ]
+        },
+        {
           id: "conversations--domain-list",
           method: "GET",
           url: "https://services.leadconnectorhq.com/email-isv/feature/domain/list",
@@ -37861,7 +37892,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          note: 'Richer than /workflow/{locationId}/email/location-email-provider: fromName, fromEmail, warmup{mode,stage,status}, types[] with per-type percentages, defaultDomain, emailSentCount/emailSentLimit, ssl, ips, domainAddedDate. \u26A0\uFE0F Answers on BOTH hosts (services AND backend) \u2014 re-verified on GROM Sandbox 2026-09-11, where it returns [] with no domain configured. The original capture saw only services, so "ai host" is where it was observed, not a constraint.',
+          note: `Richer than /workflow/{locationId}/email/location-email-provider: fromName, fromEmail, warmup{mode,stage,status}, types[] with per-type percentages, defaultDomain, emailSentCount/emailSentLimit, ssl, ips, domainAddedDate. \u26A0\uFE0F Answers on BOTH hosts (services AND backend) \u2014 re-verified on GROM Sandbox 2026-09-11, where it returns []. The original capture saw only services, so "ai host" is where it was observed, not a constraint. \u{1F534} AN EMPTY ARRAY DOES NOT MEAN THE ACCOUNT HAS NO SENDING DOMAIN. GROM Sandbox returns [] while GET /workflow/{loc}/email/location-email-provider reports a live, actively warming domain (link.gromdigital.com, domainOwnershipType 'agency_owned'), and asking this rail for that domain by name answers 400 "not found in the system". This rail is scoped to LOCATION-OWNED domains only; an agency-owned domain is invisible to it. Read [] as 'no domain this location owns', never as an unconfigured account.`,
           reach: "proven",
           coveredBy: [],
           rawCallable: true,
@@ -37882,7 +37913,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "conversations/20-api/email-sending-domains.md:75"
+            "conversations/20-api/email-sending-domains.md:75",
+            "conversations/20-api/email-sending-domains.md:151",
+            "conversations/20-api/email-sending-domains.md:179"
           ]
         },
         {
@@ -38049,7 +38082,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "write",
-          note: "\u{1F534} THE EMAIL SENDER DISPLAY NAME, and it is WRITABLE \u2014 it had been reported to a client as UI-only. Body {fromEmail, fromName}; send BOTH, the handler takes them together so omitting fromEmail may clear it. Scope key is companyId for entityType COMPANY, else locationId. \u26A0\uFE0F NOT PROVEN HERE \u2014 no reach. The only execution is a PEER SESSION's, on a CLIENT account this project may never write to, verified there by re-reading two independent services \u2014 fromEmail, warmup, defaultDomain and all eight types[] percentages survived untouched. \u{1F534} HIGH BLAST RADIUS, NEEDS EXPLICIT HUMAN APPROVAL: types[] read all eight rails at 100% (calendar, invoices, oneToOne, bulk-request, campaign, workflow, client-portal, client-portal-otp), so this one field is the sender identity on INVOICES and on replies staff type by hand in Conversations. It cannot be scoped to one rail. It could not be reproduced on GROM Sandbox: that account has zero sending domains, so there is nothing to address. Proving it needs a domain on a test sub-account AND the user's explicit word, because of the blast radius below. \u26A0\uFE0F SCOPE OF THE EVIDENCE: the one account behind this row read domainOwnershipType 'location_owned', type 'leadconnector'. The agency-owned and shared-domain shapes have never been seen, and a shared domain's headers are plausibly not a single location's to set \u2014 do not generalise this row to them.",
+          note: "\u{1F534} THE EMAIL SENDER DISPLAY NAME, and it is WRITABLE \u2014 it had been reported to a client as UI-only. Body {fromEmail, fromName}; send BOTH, the handler takes them together so omitting fromEmail may clear it. Scope key is companyId for entityType COMPANY, else locationId. \u26A0\uFE0F NOT PROVEN HERE \u2014 no reach. The only execution is a PEER SESSION's, on a CLIENT account this project may never write to, verified there by re-reading two independent services \u2014 fromEmail, warmup, defaultDomain and all eight types[] percentages survived untouched. \u{1F534} HIGH BLAST RADIUS, NEEDS EXPLICIT HUMAN APPROVAL: types[] read all eight rails at 100% (calendar, invoices, oneToOne, bulk-request, campaign, workflow, client-portal, client-portal-otp), so this one field is the sender identity on INVOICES and on replies staff type by hand in Conversations. It cannot be scoped to one rail. It could not be reproduced on GROM Sandbox: that account has zero sending domains, so there is nothing to address. Proving it needs a domain on a test sub-account AND the user's explicit word, because of the blast radius below. \u26A0\uFE0F SCOPE OF THE EVIDENCE: the one account behind this row read domainOwnershipType 'location_owned', type 'leadconnector'. The agency-owned and shared-domain shapes have never been seen, and a shared domain's headers are plausibly not a single location's to set \u2014 do not generalise this row to them. SCOPE: this addresses a domain from /email-isv/feature/domain/list, which carries only LOCATION-OWNED domains. On an account whose sending domain is agency-owned the list is empty and there is no reachable target at all \u2014 check list is non-empty before offering this as the way to change a sender name.",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -52948,7 +52981,9 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           reach: "proven"
         },
         "GET /workflow/{locationId}/email/location-email-provider": {
-          summary: "The sending domain, warm-up state and rate limit behind this account's email steps."
+          reach: "proven",
+          kind: "read",
+          note: "Answers 201 (not 200) on a GET. \u26A0\uFE0F NOT BACKEND-ONLY \u2014 the catalogue row is mined from backend source, but it answers 201 with an identical body on services.leadconnectorhq.com too (verified GROM Sandbox 2026-09-11). Returns provider.domain, provider.domainOwnershipType ('agency_owned' | 'location_owned'), warmupInfo{warmupStage,warmupStatus,warmupMode}, type and applyRateLimit. \u{1F534} THIS IS THE READ THAT TELLS YOU AN ACCOUNT HAS A SENDING DOMAIN AT ALL \u2014 /email-isv/feature/domain/list returns [] for an agency-owned domain, so use this one before concluding an account is unconfigured."
         },
         "GET /workflow/{locationId}/error-notification/count": {
           reach: "proven"
@@ -53839,12 +53874,12 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         },
         "PUT /email-isv/feature/domain/set-default-headers/{domain}": {
           kind: "write",
-          note: "\u{1F534} THE EMAIL SENDER DISPLAY NAME, and it is WRITABLE \u2014 it had been reported to a client as UI-only. Body {fromEmail, fromName}; send BOTH, the handler takes them together so omitting fromEmail may clear it. Scope key is companyId for entityType COMPANY, else locationId. \u26A0\uFE0F NOT PROVEN HERE \u2014 no reach. The only execution is a PEER SESSION's, on a CLIENT account this project may never write to, verified there by re-reading two independent services \u2014 fromEmail, warmup, defaultDomain and all eight types[] percentages survived untouched. \u{1F534} HIGH BLAST RADIUS, NEEDS EXPLICIT HUMAN APPROVAL: types[] read all eight rails at 100% (calendar, invoices, oneToOne, bulk-request, campaign, workflow, client-portal, client-portal-otp), so this one field is the sender identity on INVOICES and on replies staff type by hand in Conversations. It cannot be scoped to one rail. It could not be reproduced on GROM Sandbox: that account has zero sending domains, so there is nothing to address. Proving it needs a domain on a test sub-account AND the user's explicit word, because of the blast radius below. \u26A0\uFE0F SCOPE OF THE EVIDENCE: the one account behind this row read domainOwnershipType 'location_owned', type 'leadconnector'. The agency-owned and shared-domain shapes have never been seen, and a shared domain's headers are plausibly not a single location's to set \u2014 do not generalise this row to them."
+          note: "\u{1F534} THE EMAIL SENDER DISPLAY NAME, and it is WRITABLE \u2014 it had been reported to a client as UI-only. Body {fromEmail, fromName}; send BOTH, the handler takes them together so omitting fromEmail may clear it. Scope key is companyId for entityType COMPANY, else locationId. \u26A0\uFE0F NOT PROVEN HERE \u2014 no reach. The only execution is a PEER SESSION's, on a CLIENT account this project may never write to, verified there by re-reading two independent services \u2014 fromEmail, warmup, defaultDomain and all eight types[] percentages survived untouched. \u{1F534} HIGH BLAST RADIUS, NEEDS EXPLICIT HUMAN APPROVAL: types[] read all eight rails at 100% (calendar, invoices, oneToOne, bulk-request, campaign, workflow, client-portal, client-portal-otp), so this one field is the sender identity on INVOICES and on replies staff type by hand in Conversations. It cannot be scoped to one rail. It could not be reproduced on GROM Sandbox: that account has zero sending domains, so there is nothing to address. Proving it needs a domain on a test sub-account AND the user's explicit word, because of the blast radius below. \u26A0\uFE0F SCOPE OF THE EVIDENCE: the one account behind this row read domainOwnershipType 'location_owned', type 'leadconnector'. The agency-owned and shared-domain shapes have never been seen, and a shared domain's headers are plausibly not a single location's to set \u2014 do not generalise this row to them. SCOPE: this addresses a domain from /email-isv/feature/domain/list, which carries only LOCATION-OWNED domains. On an account whose sending domain is agency-owned the list is empty and there is no reachable target at all \u2014 check list is non-empty before offering this as the way to change a sender name."
         },
         "GET /email-isv/feature/domain/list": {
           reach: "proven",
           kind: "read",
-          note: 'Richer than /workflow/{locationId}/email/location-email-provider: fromName, fromEmail, warmup{mode,stage,status}, types[] with per-type percentages, defaultDomain, emailSentCount/emailSentLimit, ssl, ips, domainAddedDate. \u26A0\uFE0F Answers on BOTH hosts (services AND backend) \u2014 re-verified on GROM Sandbox 2026-09-11, where it returns [] with no domain configured. The original capture saw only services, so "ai host" is where it was observed, not a constraint.'
+          note: `Richer than /workflow/{locationId}/email/location-email-provider: fromName, fromEmail, warmup{mode,stage,status}, types[] with per-type percentages, defaultDomain, emailSentCount/emailSentLimit, ssl, ips, domainAddedDate. \u26A0\uFE0F Answers on BOTH hosts (services AND backend) \u2014 re-verified on GROM Sandbox 2026-09-11, where it returns []. The original capture saw only services, so "ai host" is where it was observed, not a constraint. \u{1F534} AN EMPTY ARRAY DOES NOT MEAN THE ACCOUNT HAS NO SENDING DOMAIN. GROM Sandbox returns [] while GET /workflow/{loc}/email/location-email-provider reports a live, actively warming domain (link.gromdigital.com, domainOwnershipType 'agency_owned'), and asking this rail for that domain by name answers 400 "not found in the system". This rail is scoped to LOCATION-OWNED domains only; an agency-owned domain is invisible to it. Read [] as 'no domain this location owns', never as an unconfigured account.`
         },
         "GET /email-isv/feature/domain/removal-allowed": {
           reach: "proven",

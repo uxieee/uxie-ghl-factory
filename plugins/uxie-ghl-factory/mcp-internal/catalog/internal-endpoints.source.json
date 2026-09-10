@@ -20,16 +20,16 @@
     {
       "tree": "documented",
       "dir": "corpus",
-      "capturedAt": "2026-09-10T19:59:08.854Z",
+      "capturedAt": "2026-09-10T20:08:17.344Z",
       "hash": "corpus",
-      "fileCount": 814,
-      "endpoints": 814
+      "fileCount": 815,
+      "endpoints": 815
     }
   ],
   "note": "SOURCE-DERIVED ONLY, merged from every mined front-end. `tree` on each row says which app calls it. The plugin owns kind/note/summary/reach/coveredBy and merges them at read time. A row proves a GHL front-end calls that path — not that your token reaches it, and not that calling it is safe.",
-  "discoveredCallSites": 1274,
+  "discoveredCallSites": 1275,
   "skippedCallSites": 413,
-  "count": 1193,
+  "count": 1194,
   "endpoints": [
     {
       "id": "workflows--actions-branches",
@@ -19419,7 +19419,6 @@
       },
       "sources": [
         "services/api/workflow-overview.service.ts:260",
-        "conversations/20-api/email-sending-domains.md:44",
         "workflows/20-api/03-endpoints.md:297",
         "workflows/70-research/ENDPOINT-SWEEP-2026-08-25.md:71"
       ],
@@ -29739,7 +29738,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "conversations/20-api/email-sending-domains.md:102"
+        "conversations/20-api/email-sending-domains.md:102",
+        "conversations/20-api/email-sending-domains.md:183"
       ],
       "serviceBasis": "declared"
     },
@@ -30013,6 +30013,32 @@
       "serviceBasis": "declared"
     },
     {
+      "id": "conversations--domain-link-gromdigital-com",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/email-isv/feature/domain/link.gromdigital.com",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "conversations",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "conversations/20-api/email-sending-domains.md:152"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
       "id": "conversations--domain-list",
       "method": "GET",
       "origin": "https://services.leadconnectorhq.com",
@@ -30034,7 +30060,9 @@
         "returns": "unresolved"
       },
       "sources": [
-        "conversations/20-api/email-sending-domains.md:75"
+        "conversations/20-api/email-sending-domains.md:75",
+        "conversations/20-api/email-sending-domains.md:151",
+        "conversations/20-api/email-sending-domains.md:179"
       ],
       "serviceBasis": "declared"
     },
