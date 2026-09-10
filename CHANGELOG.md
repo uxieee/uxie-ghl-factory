@@ -11,6 +11,47 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [0.81.0] — 2026-09-11
+
+Seven more write endpoints proven, and two instrument fixes that were costing real coverage.
+
+### Fixed
+
+- 🔴 **The probe retry is a LADDER, not a single shot.** `GET /funnels/lookup/list` was reported
+  unreachable — a row proved by hand hours earlier. The first `422` named `locationId`, the retry
+  supplied it, and the *next* `422` named `funnelId`, which nothing added because the retry ran once.
+  It stopped one field short of a 200. Now loops up to four rounds: **15 ladders, 10 reaching 2xx**.
+- 🔴 **Validation speaks three dialects.** NestJS `class-validator`, Mongoose (`Path \`slug\` is
+  required`) and Sequelize (`notNull Violation: Category.productId cannot be null`) — and **two of
+  the three carry no `message` array**, so a caller doing `json.message.join()` sees `undefined` and
+  concludes the endpoint is opaque while it is being entirely explicit. Two endpoints moved from
+  unresolved to proven on the first retry once the other dialects were parsed. New corpus rule:
+  `platform/40-rules/validation-speaks-three-dialects.md`.
+- **Fill the type, not just the name.** A numeric field filled with `''` answers `"must be a number"`
+  indefinitely.
+- **Enums the server names WITH its values** are now used (`product must be one of: ask-ai, …`);
+  enums named *without* values are still refused, because that would be invention.
+
+### Added
+
+Proven live, each read back on a separate request: `POST /opportunities/pipelines` (6→7),
+`POST /snippets/{locationId}` (7→8), `POST /surveys/folder/` (0→1), `POST /contacts/search`,
+`POST /communities/{locationId}/groups` (0→1, needs `slug`),
+`POST /membership/locations/{locationId}/categories` (1→2, needs `productId`),
+`POST /brand-boards/voices/{locationId}/default`.
+
+### Corrected
+
+- **`/workflow/{locationId}/folder` is the wrong path** — it 404s. The real one is
+  `/workflow/{locationId}/**directory**`.
+- **`/surveys/folder/` REFUSES `productType`** while its sibling `/forms/folder/` REQUIRES it. Two
+  folder endpoints, same service, opposite contracts.
+- **A 524 is an unknown, not a failure.** `funnels/page/create-page` timed out at the Cloudflare
+  edge; read-back showed nothing was written. Retrying blind after a 524 that *did* commit
+  double-creates a step, which on this rail is the unremovable kind.
+
+**349 of 1168 rows now carry a live verdict, from 167.** 2502 tests green.
+
 ## [0.80.0] — 2026-09-11
 
 A parity sweep over the endpoint catalogue. **319 of 1168 rows now carry a live verdict, up from
