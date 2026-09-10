@@ -11,6 +11,70 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [0.78.0] — 2026-09-10
+
+SEO. A merge tag in a page's `meta` ships the page with **no title element at all**, and it looks
+correct on every surface an operator would check.
+
+### Added
+
+- **`audit_site` reads the page RECORD** — the third surface, holding what neither `pageData` nor the
+  page list carries. One `GET /funnels/page/{pageId}` per page, three checks:
+
+  - 🔴 **`seo-meta` (high)** — a merge tag in `meta.title` / `description` / `keywords` / `author`.
+    `{{custom_values.company_name}}` does **not** resolve and does **not** render literally: the
+    renderer emits no element at all. The page document holds the string, the record reads it back,
+    and the builder's SEO panel displays it, so this is invisible everywhere except the served HTML.
+    A peer session found 15 of 16 pages on a live client site shipping with an empty title this way.
+  - **`foreign-location` (medium)** — an asset URL under another account's `/msgsndr/<locationId>/`
+    bucket. It survives a clone, still resolves and still renders; if it is the og:image, every
+    social share card is served from the previous client's storage.
+  - **`clone-leftover` (info)** — the `" Clone"` suffix GHL appends to every page name when
+    duplicating a funnel.
+
+  `meta` is not in the page list either — that returns only `_id deleted funnelId locationId name
+  stepId updatedAt` and requires **both** `limit` and `offset`, the exact inverse of `lookup/list`,
+  which refuses them. The check reports its own coverage in pages read.
+
+### Fixed
+
+- **`lookup/list` is pinned against pagination.** It answers `200 {"data":[]}` when given `limit`
+  **or** `offset` — either alone, any value. Measured on one funnel seconds apart: no params 20 rows;
+  `limit=100`, `limit=500`, `offset=0`, `offset=1` all 0 rows. An empty row set on a funnel that has
+  a domain is what makes routing report "this step has NO routing row" at `high` on every step, so
+  this ships as a regression pin that reads the source and fails if either param appears. Verified it
+  bites.
+
+### Proven
+
+Executed on GROM Sandbox, 2026-09-10 — no client account touched.
+
+- The SEO mechanism, with a control on **both** sides: the same page published with a literal title
+  rendered `<title>ZZ CONTROL TITLE 11699</title>`; republished with a merge tag in that field it
+  rendered **no title element**. Both were genuine origin decisions (`cf-cache-status: MISS`), taken
+  by varying the path's letter case — the path shape is in the CDN cache key and the query string is
+  not.
+- The new checks end to end: the audited funnel clean, all three defects planted at once and each
+  flagged at its intended severity, then restored clean.
+
+### Corrected
+
+Three corpus claims were disproved by measurement and rewritten rather than annotated.
+
+- **`autosave` does not discard `meta`.** It writes it onto the version it mints, and publishing that
+  version puts the title on the public page. What is true is narrower: autosave does not change the
+  page RECORD. 🔴 The consequence is a live SEO-stripping bug in any API republish helper — publish a
+  version minted without `meta` and the page loses its title.
+- **The page record IS writable.** `POST /funnels/funnel/funnel-page/{pageId}` moves `meta`, `name`
+  and `sectionVersion`, proven by differential. The 404s previously read as "builder-UI-only" were
+  simply other routes.
+- **The record does not omit `meta`.** Two things produce that symptom: `meta` does not exist until
+  something writes it, and the record comes back at the **top level**, so a reader written
+  `r.json?.data ?? {}` sees every field absent. That envelope bug was hit twice while re-measuring
+  this very rule.
+
+2498 tests green.
+
 ## [0.77.0] — 2026-09-10
 
 Routing. A public path is held per DOMAIN, not per funnel — so the row that takes your path is
