@@ -259,3 +259,94 @@ export function judgeRouting({ rows, steps, documentName = '' }) {
   }
   return findings;
 }
+
+/**
+ * TWO checks against a page's own document — no network, no rendering.
+ *
+ * 1. UNCOMPILED ELEMENT. A section carries `general.sectionStyles`: a precompiled CSS string whose
+ *    selectors are keyed by element id (`.hl_page-preview--content .image-3vpf_iQ2f0 …`). The
+ *    PUBLIC renderer lays out from that string; a node's own `styles`/`mobileStyles` drive the
+ *    BUILDER canvas only. So an element present in the tree with NO selector in its section's
+ *    compiled CSS renders naked in public while looking correct in the builder, and every write
+ *    that "fixes" it through node styles returns 201 and reads back exactly as written.
+ *
+ *    The way this happens in practice is CLONING: a copied element with a fresh id inherits none
+ *    of the template's compiled rules. Observed live on a client rebuild 2026-09-10 — cloned footer
+ *    links rendered as raw blue browser anchors beside identically-structured siblings, and cloned
+ *    columns rendered not at all. 744 clone rules had to be written by hand across 19 pages.
+ *
+ * 2. MIRROR DIVERGENCE. A row can carry a nested `element` MIRROR of itself, and the renderer reads
+ *    `row.element.child` rather than `row.child`. Pushing a new column id into `row.child` persists,
+ *    reads back correct, and renders nothing. 257 mirrors were out of sync on one account.
+ *
+ * Both are the same shape as everything else on this rail: the write succeeds, the read-back agrees,
+ * and the public page disagrees with both.
+ */
+export function judgeStyles({ pageData, pageId, pageName = null }) {
+  const findings = [];
+  for (const sec of pageData?.sections ?? []) {
+    const css = String(sec?.general?.sectionStyles ?? '');
+    const nodes = [];
+    const walkNode = (n) => {
+      if (!n || typeof n !== 'object') return;
+      if (n.id && n.type) nodes.push(n);
+      for (const c of n.child ?? []) walkNode(c);
+      // the mirror's children are a separate subtree and are checked too
+      for (const c of n.element?.child ?? []) walkNode(c);
+    };
+    for (const el of sec?.elements ?? []) walkNode(el);
+
+    // A section with NO compiled CSS at all is a different (and louder) problem than one element
+    // missing a rule — report it once rather than once per node.
+    if (!css.trim()) {
+      if (nodes.length) {
+        findings.push({ severity: 'high', check: 'uncompiled-styles', pageId, pageName,
+          value: sec.id, occurrences: nodes.length,
+          detail: `section '${sec.id}' has ${nodes.length} element(s) and an EMPTY sectionStyles — the public `
+            + 'renderer lays out from that string, so this whole section renders unstyled in public while the '
+            + 'builder canvas (which uses node styles) looks correct' });
+      }
+      continue;
+    }
+    // ONLY nodes that carry styling INTENT. An element with no `styles`/`mobileStyles`/`wrapper` of
+    // its own is meant to be unstyled, and having no compiled rule for it is correct rather than
+    // broken — flagging those would put a finding on every minimal page and teach people to skim.
+    // The signal is the CONTRADICTION: node styles that say one thing and compiled CSS that has
+    // never heard of the element.
+    const styled = (n) => [n.styles, n.mobileStyles, n.wrapper, n.mobileWrapper]
+      .some((o) => o && typeof o === 'object' && Object.keys(o).length > 0);
+    const naked = nodes.filter((n) => !css.includes(n.id) && styled(n));
+    if (naked.length) {
+      findings.push({ severity: 'high', check: 'uncompiled-styles', pageId, pageName,
+        value: sec.id, occurrences: naked.length,
+        sample: naked.slice(0, 4).map((n) => `${n.type}:${n.id}`),
+        detail: `${naked.length} element(s) in section '${sec.id}' carry their own styles but have NO selector `
+          + 'in that section\'s compiled sectionStyles, so they render unstyled in public however correct they look in the '
+          + 'builder. Usually a CLONE: a copied element gets a fresh id and inherits none of the template\'s '
+          + 'rules. Fixing node styles/mobileStyles will NOT fix it — the compiled declaration has to be '
+          + 'duplicated with the id substituted.' });
+    }
+
+    // 2. the mirror
+    const mirrored = [];
+    const walkMirror = (n) => {
+      if (!n || typeof n !== 'object') return;
+      if (Array.isArray(n.element?.child)) {
+        const own = (n.child ?? []).map((c) => c?.id).filter(Boolean).join(',');
+        const mir = n.element.child.map((c) => c?.id).filter(Boolean).join(',');
+        if (own !== mir) mirrored.push({ id: n.id, type: n.type, own, mir });
+      }
+      for (const c of n.child ?? []) walkMirror(c);
+    };
+    for (const el of sec?.elements ?? []) walkMirror(el);
+    if (mirrored.length) {
+      findings.push({ severity: 'high', check: 'mirror-divergence', pageId, pageName,
+        value: sec.id, occurrences: mirrored.length,
+        sample: mirrored.slice(0, 3).map((m) => `${m.type}:${m.id}`),
+        detail: `${mirrored.length} node(s) in section '${sec.id}' carry a nested \`element\` mirror whose `
+          + '`child` list differs from their own. The renderer reads the MIRROR, so a child added to '
+          + '`node.child` alone persists, reads back correct, and renders nothing.' });
+    }
+  }
+  return findings;
+}

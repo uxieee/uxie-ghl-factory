@@ -8,7 +8,7 @@ import { z } from 'zod';
 import { ok, fail, fromHttp, CODES, REDACTED, containsSecrets, scrubSecrets } from './errors.mjs';
 import { authStatus, DEFAULT_TOKEN_FILE, readCredentials } from './auth.mjs';
 import { checkLocationBinding } from './location-binding.mjs';
-import { scanPage, judge, judgeVersions, judgeRouting, judgeRendered, normaliseTag } from './site-audit.mjs';
+import { scanPage, judge, judgeVersions, judgeRouting, judgeRendered, judgeStyles, normaliseTag } from './site-audit.mjs';
 import { makeAuditCircuit, makeAuditGateway, makeAuditLimiter } from './audit-gateway.mjs';
 import { makeGateway } from './gateway.mjs';
 import {
@@ -8405,6 +8405,8 @@ export const TOOLS = [
       const scans = [];
       const findings = [];
       let pagesScanned = 0, pagesFailed = 0, truncated = false;
+
+      let styleChecked = 0;
       for (const d of docs) {
         for (const st of d.steps ?? []) {
           // Rule 24: a step created without a client-minted id is unrepairable and gets no route.
@@ -8418,6 +8420,9 @@ export const TOOLS = [
             if (pd.status !== 200) { pagesFailed++; continue; }
             pagesScanned++;
             scans.push(scanPage({ pageData: pd.json, pageId: pid, pageName: `${d.name} / ${st.name}` }));
+            // The compiled-CSS and mirror checks read the SAME document — no extra request.
+            findings.push(...judgeStyles({ pageData: pd.json, pageId: pid, pageName: `${d.name} / ${st.name}` }));
+            styleChecked++;
             const vs = await gw.call('GET', `/funnels/builder/get-versions?pageId=${encodeURIComponent(pid)}`);
             if (Array.isArray(vs.json)) findings.push(...judgeVersions({ versions: vs.json, pageId: pid, pageName: `${d.name} / ${st.name}` }));
           }
@@ -8426,6 +8431,10 @@ export const TOOLS = [
       // ROUTING. A domain attach reports `pathsUpdated: true` and nothing else, while it silently
       // renames a colliding step path and mints NO ROW AT ALL for one whose path is already held —
       // that step simply 404s. lookup/list is the only way to see what the attach actually did.
+      // Compiled-CSS coverage is reported like every other check: how many pages it actually ran on,
+      // so "no findings" can never be confused with "did not look".
+      coverage.push({ check: 'uncompiled-styles', ran: styleChecked > 0, pages: styleChecked });
+      coverage.push({ check: 'mirror-divergence', ran: styleChecked > 0, pages: styleChecked });
       if (args.funnelId) {
         const rows = await gw.call('GET', `/funnels/lookup/list?funnelId=${encodeURIComponent(args.funnelId)}&locationId=${encodeURIComponent(args.locationId)}`);
         if (rows.status === 200) {

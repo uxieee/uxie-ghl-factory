@@ -88371,6 +88371,72 @@ function judgeRouting({ rows, steps, documentName = "" }) {
   }
   return findings;
 }
+function judgeStyles({ pageData, pageId, pageName = null }) {
+  const findings = [];
+  for (const sec of pageData?.sections ?? []) {
+    const css = String(sec?.general?.sectionStyles ?? "");
+    const nodes = [];
+    const walkNode = (n) => {
+      if (!n || typeof n !== "object") return;
+      if (n.id && n.type) nodes.push(n);
+      for (const c of n.child ?? []) walkNode(c);
+      for (const c of n.element?.child ?? []) walkNode(c);
+    };
+    for (const el of sec?.elements ?? []) walkNode(el);
+    if (!css.trim()) {
+      if (nodes.length) {
+        findings.push({
+          severity: "high",
+          check: "uncompiled-styles",
+          pageId,
+          pageName,
+          value: sec.id,
+          occurrences: nodes.length,
+          detail: `section '${sec.id}' has ${nodes.length} element(s) and an EMPTY sectionStyles \u2014 the public renderer lays out from that string, so this whole section renders unstyled in public while the builder canvas (which uses node styles) looks correct`
+        });
+      }
+      continue;
+    }
+    const styled = (n) => [n.styles, n.mobileStyles, n.wrapper, n.mobileWrapper].some((o) => o && typeof o === "object" && Object.keys(o).length > 0);
+    const naked = nodes.filter((n) => !css.includes(n.id) && styled(n));
+    if (naked.length) {
+      findings.push({
+        severity: "high",
+        check: "uncompiled-styles",
+        pageId,
+        pageName,
+        value: sec.id,
+        occurrences: naked.length,
+        sample: naked.slice(0, 4).map((n) => `${n.type}:${n.id}`),
+        detail: `${naked.length} element(s) in section '${sec.id}' carry their own styles but have NO selector in that section's compiled sectionStyles, so they render unstyled in public however correct they look in the builder. Usually a CLONE: a copied element gets a fresh id and inherits none of the template's rules. Fixing node styles/mobileStyles will NOT fix it \u2014 the compiled declaration has to be duplicated with the id substituted.`
+      });
+    }
+    const mirrored = [];
+    const walkMirror = (n) => {
+      if (!n || typeof n !== "object") return;
+      if (Array.isArray(n.element?.child)) {
+        const own = (n.child ?? []).map((c) => c?.id).filter(Boolean).join(",");
+        const mir = n.element.child.map((c) => c?.id).filter(Boolean).join(",");
+        if (own !== mir) mirrored.push({ id: n.id, type: n.type, own, mir });
+      }
+      for (const c of n.child ?? []) walkMirror(c);
+    };
+    for (const el of sec?.elements ?? []) walkMirror(el);
+    if (mirrored.length) {
+      findings.push({
+        severity: "high",
+        check: "mirror-divergence",
+        pageId,
+        pageName,
+        value: sec.id,
+        occurrences: mirrored.length,
+        sample: mirrored.slice(0, 3).map((m) => `${m.type}:${m.id}`),
+        detail: `${mirrored.length} node(s) in section '${sec.id}' carry a nested \`element\` mirror whose \`child\` list differs from their own. The renderer reads the MIRROR, so a child added to \`node.child\` alone persists, reads back correct, and renders nothing.`
+      });
+    }
+  }
+  return findings;
+}
 
 // core/audit-gateway.mjs
 init_define_BUILDER_VALIDATORS();
@@ -173912,6 +173978,7 @@ var TOOLS2 = [
       const scans = [];
       const findings = [];
       let pagesScanned = 0, pagesFailed = 0, truncated = false;
+      let styleChecked = 0;
       for (const d of docs) {
         for (const st of d.steps ?? []) {
           if (!st.id) {
@@ -173934,11 +174001,15 @@ var TOOLS2 = [
             }
             pagesScanned++;
             scans.push(scanPage({ pageData: pd.json, pageId: pid, pageName: `${d.name} / ${st.name}` }));
+            findings.push(...judgeStyles({ pageData: pd.json, pageId: pid, pageName: `${d.name} / ${st.name}` }));
+            styleChecked++;
             const vs = await gw.call("GET", `/funnels/builder/get-versions?pageId=${encodeURIComponent(pid)}`);
             if (Array.isArray(vs.json)) findings.push(...judgeVersions({ versions: vs.json, pageId: pid, pageName: `${d.name} / ${st.name}` }));
           }
         }
       }
+      coverage.push({ check: "uncompiled-styles", ran: styleChecked > 0, pages: styleChecked });
+      coverage.push({ check: "mirror-divergence", ran: styleChecked > 0, pages: styleChecked });
       if (args.funnelId) {
         const rows = await gw.call("GET", `/funnels/lookup/list?funnelId=${encodeURIComponent(args.funnelId)}&locationId=${encodeURIComponent(args.locationId)}`);
         if (rows.status === 200) {
