@@ -11,6 +11,49 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [0.76.0] — 2026-09-10
+
+`build_funnel_page` was styling the builder and not the visitor. Fixed, and the check that found it
+learned to tell a missing emitter from real damage.
+
+### Fixed
+
+- **A leaf's `styles` never reached the public renderer.** The engine compiled rules for the
+  section, the row and the columns, and for a leaf ONLY when the caller passed an explicit `css`
+  block. The spec takes both — `styles` drives the BUILDER canvas, `general.sectionStyles` is what
+  the PUBLIC renderer lays out from — so a caller who set `styles` and no `css` got a page correct
+  in the builder and unstyled in public. A `201` on the way through and a read-back that agreed.
+
+  The cause was one condition: `if (e.css)`. Two inputs, two consumers, and only one of them
+  reached the visitor.
+
+  Measured against a template-installed page on the same account, counting self and descendant
+  selectors independently:
+
+      template   row/col                              self only
+                 button, heading, paragraph, image    BOTH self + descendant
+                 nav-menu                             descendant only
+      engine     row/col                              self only
+                 heading, paragraph                   NOTHING
+
+  So the storage format was never the problem. `leafStyleCss` now compiles whatever `styles` a leaf
+  is given, handling the plain map and the `{value, unit}` envelope, and skipping values it cannot
+  serialise rather than emitting garbage. An explicit `css` block still wins — it can express
+  breakpoints, descendant selectors and pseudo-states a flat map cannot.
+
+### Changed
+
+- **`audit_site`'s `uncompiled-styles` check has a third outcome.** A peer confirmed the two
+  composite widgets it first flagged — `photo-video-gallery`, `social-icons` — RENDER CORRECTLY. So
+  an element can carry styles that were never going to be compiled for it, and "no rule" is then
+  correct rather than broken. When every styled instance of a KIND is uncompiled *and some other
+  leaf kind compiled fine*, it now reports at `info` as a lead to check.
+
+  Getting the discriminator right took two live corrections, both the same mistake wearing different
+  clothes: grouping on `type` (every leaf is literally `type: 'element'`; the discriminator is
+  `meta`), then asking whether anything at all compiled (structural nodes always do, so the question
+  was trivially true). Each looked reasonable and inverted the answer on real pages.
+
 ## [0.75.0] — 2026-09-10
 
 `fast_forward_contacts` re-proven — the last write tool resting on old evidence. **Every write tool
