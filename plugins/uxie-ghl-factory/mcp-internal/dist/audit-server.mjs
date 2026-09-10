@@ -90345,6 +90345,24 @@ var textCss = (id, o) => {
     `@media screen and (min-width:0px) and (max-width:480px){${sel}{font-size:${o.mobileSize ?? Math.round(o.size * 0.8)}px!important;font-weight:${weight}}}`
   ].join("");
 };
+var KEBAB = (k) => k.replace(/[A-Z]/g, (m) => `-${m.toLowerCase()}`);
+var declValue = (v) => {
+  if (v == null) return null;
+  if (typeof v === "string" || typeof v === "number") return String(v);
+  if (typeof v === "object" && "value" in v) {
+    const inner = v.value;
+    if (inner == null || typeof inner === "object") return null;
+    return `${inner}${v.unit ?? ""}`;
+  }
+  return null;
+};
+var leafStyleCss = (id, styles) => {
+  const decls = Object.entries(styles ?? {}).map(([k, v]) => {
+    const out = declValue(v);
+    return out === null ? null : `${KEBAB(k)}:${out}`;
+  }).filter(Boolean);
+  return decls.length ? `${PREFIX} .${id}{${decls.join(";")}}` : "";
+};
 var buttonCss = (id, o) => [
   `${PREFIX} .${id}{margin:0;text-align:${o.align ?? "center"}}`,
   `${PREFIX} .c${id}{font-family:${o.font};background-color:${o.background};color:${o.color};text-decoration:none;padding:16px 32px;border:1px solid ${o.borderColor ?? o.background};border-radius:${o.radius ?? 2}px;letter-spacing:.3px;width:auto;display:inline-block}`,
@@ -173749,6 +173767,10 @@ var TOOLS2 = [
                 salt: `S${si}C${ci}`
               });
               if (e.css) css.push(e.meta === "button" ? buttonCss(leaf.id, e.css) : textCss(leaf.id, e.css));
+              else {
+                const auto = leafStyleCss(leaf.id, e.styles);
+                if (auto) css.push(auto);
+              }
               return leaf;
             });
             const widthPct = c.widthPct ?? Math.round(1e4 / (spec.columns.length || 1)) / 100;

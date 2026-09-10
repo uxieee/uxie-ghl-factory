@@ -213,6 +213,41 @@ export const textCss = (id, o) => {
   ].join('');
 };
 
+// A leaf's `styles` object compiled to a real rule.
+//
+// 🔴 THE PAGE HAS TWO STYLING SOURCES AND ONLY ONE REACHES THE VISITOR. A node's `styles` drives
+// the BUILDER canvas; `general.sectionStyles` is what the PUBLIC renderer lays out from. Until
+// 2026-09-10 this engine emitted compiled rules for the section, the row and the columns, and for a
+// leaf ONLY when the caller passed an explicit `css` block — so a caller who set `styles` and no
+// `css` got a page that looked right in the builder and rendered unstyled in public, with a 201 on
+// the way through and a read-back that agreed with them.
+//
+// Measured against a template-installed page on the same account: every styled leaf there carries a
+// compiled rule (button 12/12, heading 4/4, paragraph 2/2, image 1/1) while this engine's leaves
+// carried none. So the format was never the problem.
+//
+// This closes it by construction rather than by asking callers to remember: whatever `styles` a
+// leaf is given is also compiled to a self-selector rule. An explicit `css` block still wins, since
+// it can express things a flat style map cannot (breakpoints, descendant selectors, pseudo-states).
+const KEBAB = (k) => k.replace(/[A-Z]/g, (m) => `-${m.toLowerCase()}`);
+const declValue = (v) => {
+  if (v == null) return null;
+  if (typeof v === 'string' || typeof v === 'number') return String(v);
+  // the {value, unit} envelope the structural helpers use
+  if (typeof v === 'object' && 'value' in v) {
+    const inner = v.value;
+    if (inner == null || typeof inner === 'object') return null;
+    return `${inner}${v.unit ?? ''}`;
+  }
+  return null;
+};
+export const leafStyleCss = (id, styles) => {
+  const decls = Object.entries(styles ?? {})
+    .map(([k, v]) => { const out = declValue(v); return out === null ? null : `${KEBAB(k)}:${out}`; })
+    .filter(Boolean);
+  return decls.length ? `${PREFIX} .${id}{${decls.join(';')}}` : '';
+};
+
 export const buttonCss = (id, o) => [
   `${PREFIX} .${id}{margin:0;text-align:${o.align ?? 'center'}}`,
   `${PREFIX} .c${id}{font-family:${o.font};background-color:${o.background};color:${o.color};text-decoration:none;`

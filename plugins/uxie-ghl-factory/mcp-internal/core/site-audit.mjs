@@ -314,18 +314,20 @@ export function judgeStyles({ pageData, pageId, pageName = null }) {
     // The signal is the CONTRADICTION: node styles that say one thing and compiled CSS that has
     // never heard of the element.
     // 🔴 DO NOT "TIGHTEN" THIS TO A SELF-SELECTOR MATCH. The id-presence test looks loose and the
-    // obvious refactor is to require a real `.<id>{` rule. That would break it completely.
+    // obvious refactor is to require a real `.<id>{` rule. Measured on a template-installed page,
+    // counting self and descendant INDEPENDENTLY (an element can have both):
     //
-    // Measured on a snapshot-installed page, 231 elements carrying their own styles:
+    //   row 4, col 7          -> self only, never descendant
+    //   button 12, heading 4  -> BOTH self and descendant
+    //   paragraph 2, image 1  -> BOTH
+    //   nav-menu 1            -> DESCENDANT ONLY, no self-selector at all
+    //   blog 1                -> neither (no emitter for the kind)
     //
-    //   structural (col 72, row 27, column 6)   -> 105 self-selectors, 0 descendant
-    //   leaf (paragraph, heading, button, …)    -> 0 self-selectors, 88 descendant-ONLY
-    //
-    // The split is total. A leaf element is NEVER self-selected: its rule is always
-    // `.paragraph-X p{…}` or `.image-X .image-container img{…}`. So requiring `.<id>{` would report
-    // every healthy paragraph, heading, button, image and divider on that page as unstyled — 88
-    // false positives on one page. Substring presence is correct BECAUSE leaves are only ever
-    // reached through a descendant selector.
+    // A first pass reported leaves as descendant-only, which was an artifact of classifying each
+    // element as one OR the other; most leaves carry both. But `nav-menu` genuinely has no
+    // self-selector, so a `.<id>{` requirement would report a healthy nav as unstyled — and any
+    // kind whose rules are purely descendant would join it. Substring presence is the safe test
+    // because it does not care which depth the rule lives at, and depth varies by kind.
     //
     // WHAT THIS DOES NOT CATCH, stated because a peer reasonably assumed otherwise. The question
     // asked here is "does this element have ANY compiled rule", implemented as id-presence, and the

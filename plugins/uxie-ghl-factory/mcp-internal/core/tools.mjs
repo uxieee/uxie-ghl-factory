@@ -13,7 +13,7 @@ import { makeAuditCircuit, makeAuditGateway, makeAuditLimiter } from './audit-ga
 import { makeGateway } from './gateway.mjs';
 import {
   ELEMENT_KINDS, buildPageData, autosaveEnvelope, auditPageData, makeLeaf, makeColumn,
-  makeSection, textCss, buttonCss, resetIds, val,
+  makeSection, textCss, buttonCss, leafStyleCss, resetIds, val,
 } from './funnel-pages.mjs';
 import { collectWorkflowRuntimeWindow, validateRuntimeWindowInput } from './workflow-runtime-window.mjs';
 import {
@@ -8136,7 +8136,12 @@ export const TOOLS = [
                 tag: e.tag ?? '',
                 salt: `S${si}C${ci}`,
               });
+              // An explicit `css` block wins — it can express breakpoints, descendant selectors and
+              // pseudo-states that a flat style map cannot. Otherwise the leaf's `styles` are
+              // COMPILED, so styling set through `styles` alone reaches the public renderer instead
+              // of living only on the builder canvas. See leafStyleCss for what that used to cost.
               if (e.css) css.push(e.meta === 'button' ? buttonCss(leaf.id, e.css) : textCss(leaf.id, e.css));
+              else { const auto = leafStyleCss(leaf.id, e.styles); if (auto) css.push(auto); }
               return leaf;
             });
             const widthPct = c.widthPct ?? Math.round(10000 / (spec.columns.length || 1)) / 100;
