@@ -261,10 +261,14 @@ export function judgeRouting({ rows, steps, documentName = '', hasDomain = true 
     const served = mine.map((r) => r.path).join(', ');
     if (!mine.length) {
       findings.push({ severity: 'high', check: 'routing', pageName: where, value: st.url,
-        detail: 'this step has NO routing row, so it 404s in public — a domain attach skips a step whose path is already held, and says nothing' });
+        detail: 'this step has NO routing row, so it 404s in public — a domain attach skips a step whose path is already held, and says nothing. '
+          + `Repair: POST /funnels/lookup/create { type:'step', typeId:'${st.id}', path:'${st.url}', funnelId, locationId, domain }` });
     } else if (!mine.some((r) => r.path === st.url)) {
       findings.push({ severity: 'medium', check: 'routing', pageName: where, value: served,
-        detail: `the step record says ${st.url} but NO routing row serves that path — the live route(s) are ${served}. An attach renamed it, or a path move updated only one side` });
+        detail: `the step record says ${st.url} but NO routing row serves that path — the live route(s) are ${served}. `
+          + 'An attach renamed it, or a path move updated only one side. Routing is materialised at attach time and NEVER '
+          + 'recomputed from the step record, so re-saving the step will not fix this. '
+          + `Repair: PUT /funnels/lookup/${mine[0]._id} { path: '${st.url}', pathLowercase: '${String(st.url).toLowerCase()}' }` });
     } else if (mine.length > 1) {
       findings.push({ severity: 'info', check: 'routing', pageName: where, value: served,
         detail: `${mine.length} routing rows point at this step and all serve as aliases; the step record matches ${st.url}` });
