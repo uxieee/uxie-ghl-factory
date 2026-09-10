@@ -271,3 +271,40 @@ test('a section without isGlobal is not flagged', () => {
   const { data } = page();
   assert.ok(!auditPageData(data).some((p) => /isGlobal/.test(p)));
 });
+
+test('makeSection refuses a row whose column widths do not fill it', () => {
+  const col = (widthPct) => ({ col: { id: `c${widthPct}` }, leaves: [], widthPct });
+  // the peer's exact case: two columns at 33.33 render 50/50, not 33/33
+  assert.throws(
+    () => makeSection({ columns: [col(33.33), col(33.33)], pageId: 'p', funnelId: 'f', locationId: 'l', salt: 'S' }),
+    /sum to 66.66%, not 100%/);
+  assert.throws(
+    () => makeSection({ columns: [col(33.33), col(33.33)], pageId: 'p', funnelId: 'f', locationId: 'l', salt: 'S' }),
+    /render at 50% each/);
+});
+
+test('makeSection accepts widths that fill the row, including rounding', () => {
+  const col = (widthPct) => ({ col: { id: `c${widthPct}` }, leaves: [], widthPct });
+  for (const set of [[100], [50, 50], [33.33, 33.33, 33.34], [33, 33, 33], [25, 25, 25, 25], [60, 40]]) {
+    assert.doesNotThrow(() => makeSection({ columns: set.map(col), pageId: 'p', funnelId: 'f', locationId: 'l', salt: 'S' }),
+      `widths ${set.join('/')} should be accepted`);
+  }
+});
+
+test('makeSection leaves a row alone when no explicit widths are given', () => {
+  // the default path divides 100 evenly upstream; a column with no widthPct must not trip the guard
+  assert.doesNotThrow(() => makeSection({
+    columns: [{ col: { id: 'a' }, leaves: [] }, { col: { id: 'b' }, leaves: [] }],
+    pageId: 'p', funnelId: 'f', locationId: 'l', salt: 'S' }));
+});
+
+test('the width refusal carries its OWN remediation, not the element-kind default', () => {
+  const col = (widthPct) => ({ col: { id: `c${widthPct}` }, leaves: [], widthPct });
+  try {
+    makeSection({ columns: [col(33.33), col(33.33)], pageId: 'p', funnelId: 'f', locationId: 'l', salt: 'S' });
+    assert.fail('expected a throw');
+  } catch (e) {
+    assert.match(e.remediation ?? '', /omit widthPct/);
+    assert.doesNotMatch(e.remediation ?? '', /Element kinds/);
+  }
+});

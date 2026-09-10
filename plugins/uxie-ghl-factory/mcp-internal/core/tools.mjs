@@ -8158,8 +8158,10 @@ export const TOOLS = [
           sections, pageStyles: args.pageStyles ?? '', fonts: args.fonts, colors: args.colors,
         });
       } catch (e) {
+        // A thrown composer error may carry its own remediation; the default below is only right for
+        // the element-kind failure, and was misleading on every other one.
         return fail(CODES.VALIDATION_FAILED, e.message,
-          `Element kinds are a closed set of ${ELEMENT_KINDS.length}; see the funnels corpus for the list.`);
+          e.remediation ?? `Element kinds are a closed set of ${ELEMENT_KINDS.length}; see the funnels corpus for the list.`);
       }
 
       const problems = auditPageData(pageData);
@@ -8217,13 +8219,15 @@ export const TOOLS = [
       // — a caller reading `.versions` or `row.versionId` gets undefined, publishes nothing, and
       // sees no error. `updated_at` is a Firestore {_seconds,_nanoseconds} object, not a string.
       //
-      // 🔴 "newest first" is the ordering, NOT a guarantee of monotonic timestamps: measured across
-      // 14 pages, 2 were out of order, and a freshly published `live` row is APPENDED AT THE END.
-      // So `rows[rows.length - 1]` is very often the version that is ALREADY live — publish that and
+      // 🔴 "newest first" is the ordering, NOT a guarantee. Two measurements disagree and that IS the
+      // finding: 2 of 14 sandbox reads came back non-monotonic, while 19 of 19 pages on a client
+      // account had rows[0] == newest by timestamp. So position usually works and cannot be relied
+      // on. Separately and always: a freshly published `live` row is APPENDED AT THE END, so
+      // `rows[rows.length - 1]` is very often the version that is ALREADY live — publish that and
       // three publishes in a row change nothing, which reads exactly like "the write did not land".
       // This handler is safe because it publishes `versions[0]` immediately after its own autosave,
       // which is that autosave's draft. Anything picking a target in another flow must sort on
-      // `updated_at._seconds`, not on position.
+      // `updated_at._seconds` — a Firestore object, so sorting it as a string silently does nothing.
       let versions = [];
       const vres = await gw.call('GET', `/funnels/builder/get-versions?pageId=${encodeURIComponent(args.pageId)}`);
       if (Array.isArray(vres.json)) versions = vres.json;

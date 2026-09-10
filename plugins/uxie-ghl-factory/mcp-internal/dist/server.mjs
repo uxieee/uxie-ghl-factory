@@ -90402,6 +90402,15 @@ var makeColumn = ({ children, widthPct, padX = 20, salt }) => {
   return col;
 };
 var makeSection = ({ columns, background = "transparent", padY = 60, maxWidth = 1100, elementCss = "", pageId, funnelId, locationId, salt }) => {
+  const widths = columns.map((c) => Number(c.widthPct)).filter((n) => Number.isFinite(n));
+  const total = widths.reduce((a, b) => a + b, 0);
+  if (widths.length === columns.length && columns.length > 0 && Math.abs(total - 100) > 1) {
+    const err = new Error(
+      `column widths in this row sum to ${Number(total.toFixed(2))}%, not 100% (${widths.join("% + ")}%). Columns are flex:1 1 auto, so width is a BASIS: they will be grown or shrunk to fill the row and will NOT render at the widths given \u2014 ${columns.length} columns summing short render at ${Number((100 / columns.length).toFixed(2))}% each.`
+    );
+    err.remediation = "Give widths that total 100, or omit widthPct entirely to divide the row evenly.";
+    throw err;
+  }
   const sid = mkId("section", salt);
   const rid = mkId("row", salt);
   const row = envelope(
@@ -173908,7 +173917,7 @@ var TOOLS2 = [
         return fail(
           CODES.VALIDATION_FAILED,
           e.message,
-          `Element kinds are a closed set of ${ELEMENT_KINDS.length}; see the funnels corpus for the list.`
+          e.remediation ?? `Element kinds are a closed set of ${ELEMENT_KINDS.length}; see the funnels corpus for the list.`
         );
       }
       const problems = auditPageData(pageData);

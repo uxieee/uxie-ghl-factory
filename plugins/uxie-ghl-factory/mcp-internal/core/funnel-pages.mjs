@@ -175,6 +175,29 @@ export const makeColumn = ({ children, widthPct, padX = 20, salt }) => {
 };
 
 export const makeSection = ({ columns, background = 'transparent', padY = 60, maxWidth = 1100, elementCss = '', pageId, funnelId, locationId, salt }) => {
+  // 🔴 COLUMN WIDTHS MUST FILL THE ROW. A column is `flex: 1 1 auto`, so the `width` compiled here
+  // acts as a flex BASIS, not a fixed size: a row whose widths sum to less than 100 does not leave a
+  // gap, it GROWS every column to fill. Two columns at 33.33% render at 50% each — the page looks
+  // deliberate and is not what was asked for, and nothing in the write path says so.
+  //
+  // Measured: GHL's own templates and this builder both emit a bare `width:<n>%` with no `flex`
+  // declaration, so this is the platform's convention and not something to "fix" with `flex: 0 0`.
+  // The defect is only ever an incomplete SPEC, which is why it is caught here rather than papered
+  // over. The default path divides 100 evenly and always passes; only explicit widthPct can trip it.
+  const widths = columns.map((c) => Number(c.widthPct)).filter((n) => Number.isFinite(n));
+  const total = widths.reduce((a, b) => a + b, 0);
+  if (widths.length === columns.length && columns.length > 0 && Math.abs(total - 100) > 1) {
+    const err = new Error(
+      `column widths in this row sum to ${Number(total.toFixed(2))}%, not 100% (${widths.join('% + ')}%). `
+      + 'Columns are flex:1 1 auto, so width is a BASIS: they will be grown or shrunk to fill the row and '
+      + `will NOT render at the widths given — ${columns.length} columns summing short render at `
+      + `${Number((100 / columns.length).toFixed(2))}% each.`);
+    // Carry the remediation with the error: the composer's catch cannot tell which of its many
+    // failure modes threw, and its default advice (the element-kind list) is misleading here.
+    err.remediation = 'Give widths that total 100, or omit widthPct entirely to divide the row evenly.';
+    throw err;
+  }
+
   const sid = mkId('section', salt);
   const rid = mkId('row', salt);
   const row = envelope(rid, 'row', 'row', 'c-row', { bgImage: BG_IMAGE },
