@@ -33002,7 +33002,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "ai",
           kind: "read",
           summary: "Agent Deployment as it really is: one row per channel {channel, providerId, enabled, allIdentifiers, specificIdentifiers[], includeTags, excludeTags}.",
-          note: "A Live_Chat row pinned to a DELETED widget id (specificIdentifiers) makes the agent silently mute \u2014 contacts created, no reply, no enrolment, no error anywhere. Fix: allIdentifiers:true, specificIdentifiers:[]. get_ai_configuration_bundle reads these rows per Conversation AI agent as of 0.47.0 and summarises rows with allIdentifiers:false in routingPinned \u2014 but it never checks whether the pinned identifiers still EXIST, so verify them against /chat-widget/list before trusting a pinned row.",
+          note: 'A Live_Chat row pinned to a DELETED widget id (specificIdentifiers) makes the agent silently mute \u2014 contacts created, no reply, no enrolment, no error anywhere. Fix: allIdentifiers:true, specificIdentifiers:[]. get_ai_configuration_bundle reads these rows per Conversation AI agent as of 0.47.0 and summarises rows with allIdentifiers:false in routingPinned \u2014 but it never checks whether the pinned identifiers still EXIST, so verify them against /chat-widget/list before trusting a pinned row. Executed on the sandbox 2026-09-10 on host:"ai" \u2014 returns a BARE ARRAY of routing rows {id, createdAt, deleted, locationId, channel, providerId, ...}, 11 of them here. Its POST twin is deliberately NOT probed: a new routing row can change WHICH agent answers an inbound conversation on the account, which is a behaviour change dressed as a create.',
           reach: "proven",
           coveredBy: [
             "get_ai_configuration_bundle"
@@ -33640,8 +33640,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "ai",
           kind: "write",
           summary: "Create a Metrics dashboard layout.",
-          note: 'The UI calls this automatically when metrics-layouts is empty, seeding {name:"Default", isDefault:true, version:2}. Never called during mapping.',
-          reach: "source-only",
+          note: 'The UI calls this automatically when metrics-layouts is empty, seeding {name:"Default", isDefault:true, version:2}. Never called during mapping. Executed on the sandbox 2026-09-10, read back on a separate request (0 -> 1 layout, found by name). Body is exactly {locationId, name, widgets} with `widgets` at the TOP LEVEL \u2014 nesting it under a `layout` key answers 422 ["widgets must be an array"]. host:"ai" (services.leadconnectorhq.com); the read returns {status, layouts[], traceId} so a caller reading `.data` gets nothing.',
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -51350,7 +51350,7 @@ var init_define_ENDPOINT_OVERLAY = __esm({
             "agentId"
           ],
           summary: "Agent Deployment as it really is: one row per channel {channel, providerId, enabled, allIdentifiers, specificIdentifiers[], includeTags, excludeTags}.",
-          note: "A Live_Chat row pinned to a DELETED widget id (specificIdentifiers) makes the agent silently mute \u2014 contacts created, no reply, no enrolment, no error anywhere. Fix: allIdentifiers:true, specificIdentifiers:[]. get_ai_configuration_bundle reads these rows per Conversation AI agent as of 0.47.0 and summarises rows with allIdentifiers:false in routingPinned \u2014 but it never checks whether the pinned identifiers still EXIST, so verify them against /chat-widget/list before trusting a pinned row."
+          note: 'A Live_Chat row pinned to a DELETED widget id (specificIdentifiers) makes the agent silently mute \u2014 contacts created, no reply, no enrolment, no error anywhere. Fix: allIdentifiers:true, specificIdentifiers:[]. get_ai_configuration_bundle reads these rows per Conversation AI agent as of 0.47.0 and summarises rows with allIdentifiers:false in routingPinned \u2014 but it never checks whether the pinned identifiers still EXIST, so verify them against /chat-widget/list before trusting a pinned row. Executed on the sandbox 2026-09-10 on host:"ai" \u2014 returns a BARE ARRAY of routing rows {id, createdAt, deleted, locationId, channel, providerId, ...}, 11 of them here. Its POST twin is deliberately NOT probed: a new routing row can change WHICH agent answers an inbound conversation on the account, which is a behaviour change dressed as a create.'
         },
         "GET /ai-employees/actions/search": {
           reach: "proven",
@@ -52228,9 +52228,9 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         },
         "POST /agent-logs/metrics-layouts": {
           kind: "write",
-          reach: "source-only",
+          reach: "proven",
           summary: "Create a Metrics dashboard layout.",
-          note: 'The UI calls this automatically when metrics-layouts is empty, seeding {name:"Default", isDefault:true, version:2}. Never called during mapping.'
+          note: 'The UI calls this automatically when metrics-layouts is empty, seeding {name:"Default", isDefault:true, version:2}. Never called during mapping. Executed on the sandbox 2026-09-10, read back on a separate request (0 -> 1 layout, found by name). Body is exactly {locationId, name, widgets} with `widgets` at the TOP LEVEL \u2014 nesting it under a `layout` key answers 422 ["widgets must be an array"]. host:"ai" (services.leadconnectorhq.com); the read returns {status, layouts[], traceId} so a caller reading `.data` gets nothing.'
         },
         "PUT /agent-logs/metrics-layouts/{layoutId}": {
           kind: "write",
