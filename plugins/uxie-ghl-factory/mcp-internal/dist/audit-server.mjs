@@ -2818,7 +2818,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          reach: "source-only",
+          note: 'Executed on the designated sandbox 2026-09-10, read back on a separate request. Body {name, description, locationId, slug}. \u{1F534} `slug` is REQUIRED and is announced in the MONGOOSE dialect \u2014 {"errors":{"slug":{"message":"Path `slug` is required."}}} \u2014 with no `message` array, so a reader parsing only the NestJS shape sees nothing. Proven by differential: 0 -> 1 group, found by name.',
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -6594,6 +6595,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
+          note: 'Named its own requirements on 2026-09-10: {eventId, price, quantity} \u2014 price and quantity must be NUMBERS (filled with an empty string they answer "must be a number" indefinitely). Unproven because the sandbox holds zero events, so there is no eventId to attach a ticket to. Not a reach problem; a fixture problem.',
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -13764,7 +13766,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          reach: "source-only",
+          note: 'Executed on the designated sandbox 2026-09-10, read back on a separate request. Body {title, locationId, productId} \u2014 a category belongs to a COURSE. \u{1F534} `productId` is announced in the SEQUELIZE dialect \u2014 {"msg":"notNull Violation: Category.productId cannot be null"} \u2014 again with no `message` array. Proven by differential: 1 -> 2 categories, found by title.',
+          reach: "proven",
           coveredBy: [
             "build_course"
           ],
@@ -41264,7 +41267,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "write",
-          reach: "source-only",
+          note: 'Executed on the designated sandbox 2026-09-10, read back on a separate request. Body {title, locationId, productId} \u2014 a category belongs to a COURSE. \u{1F534} `productId` is announced in the SEQUELIZE dialect \u2014 {"msg":"notNull Violation: Category.productId cannot be null"} \u2014 again with no `message` array. Proven by differential: 1 -> 2 categories, found by title.',
+          reach: "proven",
           coveredBy: [
             "build_course"
           ],
@@ -52688,6 +52692,17 @@ var init_define_ENDPOINT_OVERLAY = __esm({
             "product"
           ],
           note: "requiredQuery proven live 2026-09-10: product."
+        },
+        "POST /communities/{locationId}/groups": {
+          reach: "proven",
+          note: 'Executed on the designated sandbox 2026-09-10, read back on a separate request. Body {name, description, locationId, slug}. \u{1F534} `slug` is REQUIRED and is announced in the MONGOOSE dialect \u2014 {"errors":{"slug":{"message":"Path `slug` is required."}}} \u2014 with no `message` array, so a reader parsing only the NestJS shape sees nothing. Proven by differential: 0 -> 1 group, found by name.'
+        },
+        "POST /membership/locations/{locationId}/categories": {
+          reach: "proven",
+          note: 'Executed on the designated sandbox 2026-09-10, read back on a separate request. Body {title, locationId, productId} \u2014 a category belongs to a COURSE. \u{1F534} `productId` is announced in the SEQUELIZE dialect \u2014 {"msg":"notNull Violation: Category.productId cannot be null"} \u2014 again with no `message` array. Proven by differential: 1 -> 2 categories, found by title.'
+        },
+        "POST /events-management/tickets": {
+          note: 'Named its own requirements on 2026-09-10: {eventId, price, quantity} \u2014 price and quantity must be NUMBERS (filled with an empty string they answer "must be a number" indefinitely). Unproven because the sandbox holds zero events, so there is no eventId to attach a ticket to. Not a reach problem; a fixture problem.'
         }
       }
     };
