@@ -53561,9 +53561,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       fast_forward_contacts: {
-        description: "Fast-forward contacts \u2014 proof: live-runtime (2026-07-18); risk: write",
+        description: "Fast-forward contacts \u2014 proof: live-runtime (2026-09-10); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-07-18)",
+        proof: "live-runtime (2026-09-10)",
         proofFloor: "live-runtime (2026-07-18)",
         proofRows: [
           "fast-forward-count-per-step",
