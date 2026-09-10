@@ -1731,9 +1731,9 @@
     ]
   },
   "repair_workflow": {
-    "description": "Repair a workflow from an export or a raw templates body — proof: unrecorded; risk: write",
+    "description": "Repair a workflow from an export or a raw templates body — proof: live-runtime (2026-09-10); risk: write",
     "risk": "write",
-    "proof": "unrecorded",
+    "proof": "live-runtime (2026-09-10)",
     "proofFloor": "unrecorded",
     "proofRows": [
       "workflow-service--find-by-id",

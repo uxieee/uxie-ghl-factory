@@ -4692,6 +4692,11 @@ export const TOOLS = [
       // workflow GET body, {templates}, or a bare array) — a finished flow bot is above what a
       // client passes inline (backlog 21).
       templates: z.array(z.object({}).passthrough()).optional(),
+      // 🔴 templatesPath is not a convenience — for many workflows it is the ONLY path that works.
+      // `authorization` (a custom_webhook attribute) is a credential-named key, and the argument
+      // scanner refuses a credential-named key in a tool ARGUMENT whatever it holds, including the
+      // {type:"NONE", data:null} object GHL actually stores there. A FILE is not a tool argument.
+      // So any workflow containing a webhook step must be repaired through templatesPath.
       templatesPath: z.string().optional(),
       // The build path's hatches, same names and defaults as build_workflow / edit_workflow.
       ignoreAssetErrors: z.boolean().default(false),

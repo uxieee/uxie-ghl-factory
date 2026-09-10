@@ -54987,9 +54987,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       repair_workflow: {
-        description: "Repair a workflow from an export or a raw templates body \u2014 proof: unrecorded; risk: write",
+        description: "Repair a workflow from an export or a raw templates body \u2014 proof: live-runtime (2026-09-10); risk: write",
         risk: "write",
-        proof: "unrecorded",
+        proof: "live-runtime (2026-09-10)",
         proofFloor: "unrecorded",
         proofRows: [
           "workflow-service--find-by-id",
@@ -170431,6 +170431,11 @@ var TOOLS2 = [
       // workflow GET body, {templates}, or a bare array) — a finished flow bot is above what a
       // client passes inline (backlog 21).
       templates: external_exports.array(external_exports.object({}).passthrough()).optional(),
+      // 🔴 templatesPath is not a convenience — for many workflows it is the ONLY path that works.
+      // `authorization` (a custom_webhook attribute) is a credential-named key, and the argument
+      // scanner refuses a credential-named key in a tool ARGUMENT whatever it holds, including the
+      // {type:"NONE", data:null} object GHL actually stores there. A FILE is not a tool argument.
+      // So any workflow containing a webhook step must be repaired through templatesPath.
       templatesPath: external_exports.string().optional(),
       // The build path's hatches, same names and defaults as build_workflow / edit_workflow.
       ignoreAssetErrors: external_exports.boolean().default(false),
