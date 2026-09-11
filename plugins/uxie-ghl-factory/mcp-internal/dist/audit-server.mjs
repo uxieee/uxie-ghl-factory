@@ -244,7 +244,7 @@ var define_ENDPOINT_CATALOG_default;
 var init_define_ENDPOINT_CATALOG = __esm({
   "<define:__ENDPOINT_CATALOG__>"() {
     define_ENDPOINT_CATALOG_default = {
-      generated: "2026-09-10",
+      generated: "2026-09-11",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
       count: 1202,
       endpoints: [
@@ -6700,8 +6700,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
         {
           id: "forms--submission-v2",
           method: "GET",
-          url: "https://backend.leadconnectorhq.com/form/submission/v2/{id}",
-          path: "/form/submission/v2/{id}",
+          url: "https://backend.leadconnectorhq.com/form/submission/v2/{submissionId}",
+          path: "/form/submission/v2/{submissionId}",
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
@@ -6716,7 +6716,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           tree: "documented",
           pathParams: [
             {
-              name: "id"
+              name: "submissionId"
             }
           ],
           query: [],
@@ -6729,7 +6729,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "forms/20-api/public-renderer-and-submit.md:98"
+            "forms/20-api/public-renderer-and-submit.md:146"
           ]
         },
         {
@@ -6950,7 +6950,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "forms/20-api/public-renderer-and-submit.md:37",
-            "forms/20-api/public-renderer-and-submit.md:100"
+            "forms/20-api/public-renderer-and-submit.md:145"
           ]
         },
         {
@@ -7031,7 +7031,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "forms/20-api/public-renderer-and-submit.md:36",
-            "forms/20-api/public-renderer-and-submit.md:100"
+            "forms/20-api/public-renderer-and-submit.md:145"
           ]
         },
         {
@@ -26833,7 +26833,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/BaseService.ts:46",
-            "workflows/30-types/triggers/conv_ai_autonomous_trigger.md:233"
+            "workflows/30-types/triggers/conv_ai_autonomous_trigger.md:233",
+            "workflows/50-runtime/flow-bot-four-node-certification.md:58"
           ]
         },
         {
@@ -30617,7 +30618,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "workflows/30-types/steps/conversationai_services_booking.md:61"
+            "workflows/30-types/steps/conversationai_services_booking.md:61",
+            "workflows/50-runtime/flow-bot-four-node-certification.md:27"
           ]
         },
         {
@@ -33494,7 +33496,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-deployment-routing.md:87"
+            "ai-agents/20-api/agent-deployment-routing.md:87",
+            "workflows/50-runtime/flow-bot-four-node-certification.md:55"
           ]
         },
         {
@@ -166973,8 +166976,8 @@ var IRError2 = class extends Error {
     this.code = code;
   }
 };
-var MODES = ["off", "suggestive", "autoPilot"];
-var MODE_ALIASES = /* @__PURE__ */ new Map([["auto-pilot", "autoPilot"]]);
+var MODES = ["off", "suggestive", "auto-pilot"];
+var MODE_ALIASES = /* @__PURE__ */ new Map([["autoPilot", "auto-pilot"]]);
 function normalizeMode(mode) {
   return typeof mode === "string" && MODE_ALIASES.has(mode) ? MODE_ALIASES.get(mode) : mode;
 }
@@ -171925,7 +171928,7 @@ var TOOLS2 = [
   },
   {
     name: "edit_workflow",
-    description: describe3("edit_workflow", "Preview or confirmation-gate edits to an existing workflow through the canonical edit engine. Confirmed step edits use only the plain workflow PUT and are round-trip verified. Guard hatches, each named by the guard that refuses: allowGotoLoops, deadBranchAcknowledged, allowDanglingParentKeys, allowDanglingStepRefs, allowOverCap. OP KEYS ARE STRICT: an unknown key on any op refuses the whole call by name (a dropped key once re-sent the stored record and verified clean \u2014 R-96). Ops \u2014 steps: appendStep, insertAfter, insertBefore, appendToBranch (anchor: branchEntryId | containerId+branch | branchRef), deleteStep, modifyStep (attrPatch/stepPatch \u2014 never `attributes`, never `name`; re-normalised through the compiler), retypeStep (full attributes), renameStep, setStepDisabled, disableStepsByType, moveStep, addBranch (if/else, or an AI splitter: alias addSplitterBranch), deleteContainer, repairParentKeys, addStepNote, duplicateStep, replaceTag, replaceFieldId, replaceInAttributes; triggers: addTrigger, modifyTrigger {triggerId|name, trigger:{name?, filters? (author rows) | conditions? (stored rows, sent verbatim), active?, target?|targetActionId?}} \u2014 a top-level conditions/name/status is refused, not ignored; a patch that changes nothing is a NOOP, not a write; the verifier holds the store to what YOU asked for and to the server's own date_updated stamp; deleteTrigger, duplicateTrigger; settings: updateSettings (Settings-tab keys plus `name`); notes: addStickyNote, updateStickyNote. Names in steps and triggers resolve to ids against the account (ignoreUnresolved to bypass). Runs the same pre-write validation ladder as build_workflow: workflow + graph-context rules, GHL's asset-reference validator (hatch: ignoreAssetErrors), the custom-code sandbox test on custom_code steps this edit touches (skipCustomCodeTest / strictCustomCode), account-readiness signals, and a builder-required-field check on the persisted document."),
+    description: describe3("edit_workflow", "Preview or confirmation-gate edits to an existing workflow through the canonical edit engine. Confirmed step edits use only the plain workflow PUT and are round-trip verified. Guard hatches, each named by the guard that refuses: allowGotoLoops, deadBranchAcknowledged, allowFlowTriggerEdit, allowDanglingParentKeys, allowDanglingStepRefs, allowOverCap. OP KEYS ARE STRICT: an unknown key on any op refuses the whole call by name (a dropped key once re-sent the stored record and verified clean \u2014 R-96). Ops \u2014 steps: appendStep, insertAfter, insertBefore, appendToBranch (anchor: branchEntryId | containerId+branch | branchRef), deleteStep, modifyStep (attrPatch/stepPatch \u2014 never `attributes`, never `name`; re-normalised through the compiler), retypeStep (full attributes), renameStep, setStepDisabled, disableStepsByType, moveStep, addBranch (if/else, or an AI splitter: alias addSplitterBranch), deleteContainer, repairParentKeys, addStepNote, duplicateStep, replaceTag, replaceFieldId, replaceInAttributes; triggers: addTrigger, modifyTrigger {triggerId|name, trigger:{name?, filters? (author rows) | conditions? (stored rows, sent verbatim), active?, target?|targetActionId?}} \u2014 a top-level conditions/name/status is refused, not ignored; a patch that changes nothing is a NOOP, not a write; the verifier holds the store to what YOU asked for and to the server's own date_updated stamp; deleteTrigger, duplicateTrigger; settings: updateSettings (Settings-tab keys plus `name`); notes: addStickyNote, updateStickyNote. Names in steps and triggers resolve to ids against the account (ignoreUnresolved to bypass). Runs the same pre-write validation ladder as build_workflow: workflow + graph-context rules, GHL's asset-reference validator (hatch: ignoreAssetErrors), the custom-code sandbox test on custom_code steps this edit touches (skipCustomCodeTest / strictCustomCode), account-readiness signals, and a builder-required-field check on the persisted document."),
     inputSchema: schema({
       locationId: external_exports.string(),
       workflowId: external_exports.string(),
@@ -171943,6 +171946,13 @@ var TOOLS2 = [
       deadBranchAcknowledged: external_exports.boolean().optional(),
       allowDanglingParentKeys: external_exports.boolean().optional(),
       allowDanglingStepRefs: external_exports.boolean().optional(),
+      // The FOURTH one, found the same way on 2026-09-11: guardFlowEntry (edit-driver.mjs) refuses
+      // any op touching a conv_ai_trigger and names `ctx.allowFlowTriggerEdit` as the remedy — and
+      // the schema did not declare it, so the remedy was unreachable and the error was a dead end.
+      // The legitimate case is BINDING a trigger that has no botId yet (a flow built before its
+      // agent existed, which is the order the flow-bot build REQUIRES); the dangerous case the
+      // guard exists for is REBINDING one that already has an agent.
+      allowFlowTriggerEdit: external_exports.boolean().optional(),
       // Same opt-out build_workflow has: proceed with names that resolved to nothing. Rarely what
       // you want — a name on the wire moves nothing — but it is the caller's decision to make.
       ignoreUnresolved: external_exports.boolean().default(false),
@@ -172198,7 +172208,7 @@ var TOOLS2 = [
       const caps = fieldCapGate({ templates, scope: editTouchedIds, allowOverCap: args.allowOverCap, warnings });
       if (caps.refusal) return caps.refusal;
       const triggerPlan = planTriggerOps(triggerOps, {
-        ctx,
+        ctx: { ...ctx, allowFlowTriggerEdit: args.allowFlowTriggerEdit === true },
         wid: args.workflowId,
         uid: gw.uid,
         existing: existingTriggers,

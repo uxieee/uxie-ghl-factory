@@ -34,7 +34,9 @@ test('mode not in enum rejected', () => {
 });
 
 test('mode enum matches captured values', () => {
-  assert.deepEqual(MODES, ['off', 'suggestive', 'autoPilot']);
+  // The WIRE spelling is hyphenated. Measured on GROM Sandbox 2026-09-11 against
+  // POST /ai-employees/employees — see the note in convai-ir.mjs.
+  assert.deepEqual(MODES, ['off', 'suggestive', 'auto-pilot']);
 });
 
 test('channel not in enum rejected', () => {
@@ -98,19 +100,24 @@ test('partial IR: knowledgeBaseTriggers passthrough (only KB ids array-checked)'
   assert.deepEqual(out.knowledgeBaseIds, ['kb1']);
 });
 
-// R-26 (2026-09-02). GHL ACCEPTS `autoPilot` on the write and STORES `auto-pilot`, which is what
-// every read returns (live-confirmed on the sandbox agent, 2026-09-02: `"mode": "auto-pilot"`).
-// So the enum rejected the only spelling a caller could ever have in hand — copying a live agent's
-// own record into a create spec failed validation on a value GHL itself wrote.
-test('mode accepts the hyphenated spelling GHL STORES, and normalises it to the wire spelling', () => {
+// 🔴 This test asserted the OPPOSITE until 2026-09-11, on a 2026-09-02 note claiming GHL accepts
+// `autoPilot` on the write and stores `auto-pilot`. Measured live on GROM Sandbox 2026-09-11,
+// POST /ai-employees/employees: `autoPilot` is REFUSED —
+//   422 ["mode must be one of the following values: off, suggestive, auto-pilot"]
+// — and `auto-pilot` is accepted (201) and read back as `auto-pilot`. Write and read agree; both
+// want the hyphen. The engine had been normalising the accepted spelling into the refused one, so
+// no agent with a non-`off` mode could be created at all. Green tests proved the assumption, not
+// the API. `autoPilot` stays ACCEPTED from callers — anyone working from the old note has it in
+// hand — but it is normalised to the wire spelling rather than emitted.
+test('mode accepts the camelCase spelling callers may hold, and normalises it to the hyphenated wire spelling', () => {
   const spec = (mode) => ({
     name: 'A', botType: 'PROMPT_BASED_BOT', mode,
     channels: ['Live_Chat'], personality: 'p', goal: 'g', locationId: 'LOC',
   });
-  const out = parseConvaiIR(spec('auto-pilot'));
-  assert.equal(out.mode, 'autoPilot', 'the read spelling must normalise to the write spelling');
-  // the canonical spelling still works, unchanged
-  assert.equal(parseConvaiIR(spec('autoPilot')).mode, 'autoPilot');
+  assert.equal(parseConvaiIR(spec('autoPilot')).mode, 'auto-pilot',
+    'the camelCase spelling must normalise to the spelling the server accepts');
+  // the wire spelling passes through untouched
+  assert.equal(parseConvaiIR(spec('auto-pilot')).mode, 'auto-pilot');
   // and a genuinely wrong value still fails, naming the accepted set
   assert.throws(() => parseConvaiIR(spec('turbo')), (e) => e.code === 'BAD_MODE');
 });

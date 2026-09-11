@@ -3935,7 +3935,7 @@ export const TOOLS = [
     name: 'edit_workflow',
     description: describe('edit_workflow', 'Preview or confirmation-gate edits to an existing workflow through the canonical edit engine. '
       + 'Confirmed step edits use only the plain workflow PUT and are round-trip verified. '
-      + 'Guard hatches, each named by the guard that refuses: allowGotoLoops, deadBranchAcknowledged, '
+      + 'Guard hatches, each named by the guard that refuses: allowGotoLoops, deadBranchAcknowledged, allowFlowTriggerEdit, '
       + 'allowDanglingParentKeys, allowDanglingStepRefs, allowOverCap. '
       + 'OP KEYS ARE STRICT: an unknown key on any op refuses the whole call by name (a dropped key once re-sent the stored record and verified clean — R-96). '
       + 'Ops — steps: appendStep, insertAfter, insertBefore, appendToBranch (anchor: branchEntryId | '
@@ -3967,6 +3967,13 @@ export const TOOLS = [
       deadBranchAcknowledged: z.boolean().optional(),
       allowDanglingParentKeys: z.boolean().optional(),
       allowDanglingStepRefs: z.boolean().optional(),
+      // The FOURTH one, found the same way on 2026-09-11: guardFlowEntry (edit-driver.mjs) refuses
+      // any op touching a conv_ai_trigger and names `ctx.allowFlowTriggerEdit` as the remedy — and
+      // the schema did not declare it, so the remedy was unreachable and the error was a dead end.
+      // The legitimate case is BINDING a trigger that has no botId yet (a flow built before its
+      // agent existed, which is the order the flow-bot build REQUIRES); the dangerous case the
+      // guard exists for is REBINDING one that already has an agent.
+      allowFlowTriggerEdit: z.boolean().optional(),
       // Same opt-out build_workflow has: proceed with names that resolved to nothing. Rarely what
       // you want — a name on the wire moves nothing — but it is the caller's decision to make.
       ignoreUnresolved: z.boolean().default(false),
@@ -4307,7 +4314,7 @@ export const TOOLS = [
       const caps = fieldCapGate({ templates, scope: editTouchedIds, allowOverCap: args.allowOverCap, warnings });
       if (caps.refusal) return caps.refusal;
       const triggerPlan = planTriggerOps(triggerOps, {
-        ctx,
+        ctx: { ...ctx, allowFlowTriggerEdit: args.allowFlowTriggerEdit === true },
         wid: args.workflowId,
         uid: gw.uid,
         existing: existingTriggers,

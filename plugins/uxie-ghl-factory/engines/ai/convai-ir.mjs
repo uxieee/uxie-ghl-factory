@@ -10,14 +10,22 @@ export class IRError extends Error {
   constructor(code, message) { super(message); this.name = 'IRError'; this.code = code; }
 }
 
-// mode enum — the spelling the WRITE takes.
-export const MODES = ['off', 'suggestive', 'autoPilot'];
-// ...and the spelling the READ gives back. GHL accepts `autoPilot` on create/update and STORES
-// `auto-pilot`, so every GET of a live agent returns the hyphenated form (live-confirmed
-// 2026-09-02). Rejecting it meant the one spelling a caller actually has in hand — the value read
-// off the agent they are cloning — failed validation on a word GHL itself wrote (R-26).
-// Normalise on the way in; keep emitting the wire spelling.
-const MODE_ALIASES = new Map([['auto-pilot', 'autoPilot']]);
+// mode enum — the spelling the WRITE takes, which is the HYPHENATED one.
+export const MODES = ['off', 'suggestive', 'auto-pilot'];
+// 🔴 This was the other way round until 2026-09-11 and it made the engine unable to create or
+// update any agent with a non-`off` mode. The old note claimed GHL "accepts `autoPilot` on
+// create/update and STORES `auto-pilot`", so the engine normalised auto-pilot -> autoPilot and
+// emitted the camelCase form. Measured live on GROM Sandbox 2026-09-11, POST /ai-employees/employees:
+//   mode: "autoPilot"  -> 422 ["mode must be one of the following values: off, suggestive, auto-pilot"]
+//   mode: "auto-pilot" -> 201, and the read returns "auto-pilot"
+// So the write and the read agree, and both want the hyphen. The engine was normalising the one
+// spelling the server accepts INTO the one it refuses, and create_convai_agent surfaced that as a
+// bare 422 with no message — which is why it read as an unexplained server failure rather than
+// our own enum. Whether GHL ever accepted the camelCase form or the 2026-09-02 note was wrong from
+// the start is not established; only the behaviour above is measured. Keep accepting `autoPilot`
+// from callers (the value a caller may have copied from older notes) and normalise it to the wire
+// spelling.
+const MODE_ALIASES = new Map([['autoPilot', 'auto-pilot']]);
 export function normalizeMode(mode) {
   return typeof mode === 'string' && MODE_ALIASES.has(mode) ? MODE_ALIASES.get(mode) : mode;
 }

@@ -117,7 +117,7 @@ Field tables: `describe_step_type <key>`. What the tool will not tell you:
 
 | | |
 |---|---|
-| **Terminal** | `conversationai_continue` and `conversationai_end` end their branch — nothing follows. An `end` inserted mid-flow is **silently dropped when the workflow saves**. Author them last. |
+| **Terminal** | `conversationai_continue`, `conversationai_end` **and `conversationai_transfer_bot`** end their branch — nothing follows. An `end` inserted mid-flow is **silently dropped when the workflow saves**. Author them last. `transfer_bot` was missing from this list until 2026-09-11; PUBLISH refuses a flow that wires anything after it (see below), so two terminals cannot share a chain. |
 | **Containers** | `conversationai_book_appointment`, `conversationai_services_booking` (both `onBooked`/`onNotBooked`) and `conversationai_ai_splitter` (`branches[]` + `default`). |
 | **Premium** | `conversationai_objective` carries a `stepIndex`. |
 | **Labels ≠ keys** | `end`'s drawer says REACTIVATE AFTER BOT / (VALUE) / (UNIT); the keys are `sleepEnabled` / `sleepDuration` / `sleepUnit`. `continue`'s field is `instructions`, not `prompt`. Four wrong names have come from reading this surface's labels. |
@@ -156,12 +156,30 @@ A Custom trigger separately raised `trigger-condition-invalid` and blocked the s
 client's rule table enumerates 28 ids and includes **neither** that one nor any of the nine — it is
 a dedup convenience, not the server's catalogue.
 
-**The server does NOT check graph shape** — tested against every path we know. Dangling `next`,
-duplicate node ids, orphan `parentKey`, a step wired after a terminal `end`, a multipath container
-with no transitions, an orphaned `transition`, a two-node cycle: all accepted on the auto-save PUT,
-on `isAutoSave:false`, with the change manifest (`createdSteps`/`modifiedSteps`), under the **full
-publish body**, and by `validate-assets` (0 errors, 0 warnings). Publish is the same endpoint, so
-there is no stricter route left for a check to hide in.
+🔴 **PUBLISH DOES CHECK GRAPH SHAPE. This section said "nobody" until 2026-09-11.**
+
+Measured on GROM Sandbox 2026-09-11. A flow wiring `conversationai_end` after
+`conversationai_transfer_bot` **saved clean** through `edit_workflow`'s PUT — round-trip verified,
+`Resolve 0 Errors`, `validate-assets` clean — and then the publish PUT refused it:
+
+```json
+{ "messageKey": "INVALID_STRUCTURE",
+  "errorMetadata": { "validationType": "structural", "errors": [
+    { "ruleId": "last-action-has-next", "severity": "error",
+      "stepType": "conversationai_transfer_bot",
+      "message": "Terminal action type \"conversationai_transfer_bot\" should not have \"next\" (…)" }]}}
+```
+
+So the save layer and the publish layer do NOT validate the same things, and a flow can round-trip
+perfectly and still be unpublishable. The older claim above rested on the two being the same
+endpoint; they are not the same *check*. Whether `last-action-has-next` is new or was simply never
+hit by the 2026-08-26 probes (none of which wired a step after `transfer_bot`, because nothing
+recorded it as terminal) is not established — only the behaviour is.
+
+What survives from the old finding: the AUTO-SAVE PUT still accepts dangling `next`, duplicate ids,
+orphan `parentKey`, orphaned transitions and cycles. Do not read "publish validates structure" as
+"the save validates structure" — the engine's `REF_DANGLING` throw and parent-key repair are still
+not redundant with any save-time check.
 
 The three checks partition cleanly: **attributes** on the PUT, **references** in `validate-assets`
 (`ASSET_CALENDAR_NOT_FOUND` is an error; `ASSET_TAG_NOT_FOUND` only a warning, because tags
