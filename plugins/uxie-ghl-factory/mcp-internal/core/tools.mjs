@@ -5943,7 +5943,10 @@ export const TOOLS = [
       confirm: z.boolean().default(false),
     }),
     capabilities: [
-      { method: 'POST', path: '/hooks/{loc}/webhook-trigger/{triggerId}' },
+      // Explicit, because the handler dials services (below) and an undeclared origin reads as
+      // backend — so the capability manifest and the host-parity test described a call this tool
+      // never makes. Surfaced 2026-09-11 when the catalogue first carried a row for this path.
+      { method: 'POST', path: '/hooks/{loc}/webhook-trigger/{triggerId}', origin: 'https://services.leadconnectorhq.com' },
       { method: 'GET', path: '/hooks/inbound-webhook-request/trigger/{triggerId}' },
       { method: 'PUT', path: '/hooks/inbound-webhook-request/set-as-reference/{requestId}' },
       { method: 'GET', path: '/hooks/inbound-webhook-request/reference/{triggerId}' },
