@@ -1,6 +1,21 @@
 {
   "_note": "Hand-maintained overlay over the source-mined endpoint catalogue. Keyed by WIRE IDENTITY 'METHOD /path' exactly as catalog/internal-endpoints.source.json records it -- not by id, which the source artefact owns. A generator never writes this file.\n\nkind    ranking metadata only (raw_request gates every non-GET on confirm regardless). Absent = defaults by method: GET read, DELETE destructive, else write.\nreach   whether a location-user Bearer actually gets through. 'refused' rows are real endpoints that will 401 from this rail, so surfacing them costs the caller a turn for nothing.\nnote    the one trap worth knowing BEFORE choosing this row.\nsummary what the call returns, in a sentence.\n\nWhen the extractor corrects a path, that key orphans and the build names it. That is intended: a corrected path is exactly when a human should re-check its note.\n\nRE-KEYED 2026-08-25 when the extractor moved to full wire paths and {param} braces. All 34 keys mapped cleanly, 0 ambiguous, 0 orphaned. The two entries that had been parked under  -- logs/v2 dateType and the contacts/search/2 silent-ignore -- now have rows and moved into place.\n\nREACH values from 2026-08-25 come from the F1 differential (knowledge/scripts/probe-reach-differential.mjs) on the designated test sub-account. They are recorded PER ENDPOINT, never per prefix: /workflow/campaign returns 401 while /workflow/{locationId}/list is read successfully every day, so a prefix-level verdict would be flatly wrong.\n\nrequiredQuery entries came from the F2 ledger: the endpoint was CALLED, it returned 400/422, and GHL named the key it wanted. That is knowledge the static extractor cannot produce -- the builder passes those keys through a spread it can only mark open-map.\n\nRequired-key discovery is ITERATIVE. An endpoint answers 400/422 naming one missing key; supply it and the next round names the next. A single probe pass under-reports, and requiredQuery should be treated as a floor rather than a complete list.",
   "rows": {
+    "DELETE /agent-logs/logs/{sessionId}": {
+      "kind": "write",
+      "reach": "source-only",
+      "summary": "Delete a conversation log.",
+      "note": "Present in the bundle API client and wired (delete error strings ship) but UI-unreachable — no row-action string exists for it. NEVER called during mapping; destructive and unproven. 🔴 CATALOGUE MISLABEL: this row is DELETE but its `kind` says \"write\". Any sweep that filters on kind alone will treat it as a safe write. Filter on METHOD as well as kind. Not probed — nothing is deleted."
+    },
+    "DELETE /agent-logs/metrics-layouts/{layoutId}": {
+      "kind": "write",
+      "reach": "source-only",
+      "summary": "Delete a Metrics dashboard layout.",
+      "note": "Never called during mapping; read-only sweep. 🔴 CATALOGUE MISLABEL: DELETE row whose `kind` says \"write\". Filter on METHOD as well as kind. Not probed."
+    },
+    "DELETE /membership/.../products/{id}": {
+      "note": "🔴 THIS ROW IS UNCALLABLE: its path contains a literal \"...\" left by the source miner, so every request 404s. 15 rows are in this state, all on this service. 11 of them — including this one — duplicate a full-path row already in the catalogue; use that one instead. Measured 2026-09-10."
+    },
     "DELETE /workflow/flowguard/blacklist/{type}/{id}": {
       "reach": "refused",
       "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
@@ -34,6 +49,63 @@
       "summary": "Agent Deployment as it really is: one row per channel {channel, providerId, enabled, allIdentifiers, specificIdentifiers[], includeTags, excludeTags}.",
       "note": "A Live_Chat row pinned to a DELETED widget id (specificIdentifiers) makes the agent silently mute — contacts created, no reply, no enrolment, no error anywhere. Fix: allIdentifiers:true, specificIdentifiers:[]. get_ai_configuration_bundle reads these rows per Conversation AI agent as of 0.47.0 and summarises rows with allIdentifiers:false in routingPinned — but it never checks whether the pinned identifiers still EXIST, so verify them against /chat-widget/list before trusting a pinned row. Executed on the sandbox 2026-09-10 on host:\"ai\" — returns a BARE ARRAY of routing rows {id, createdAt, deleted, locationId, channel, providerId, ...}, 11 of them here. Its POST twin is deliberately NOT probed: a new routing row can change WHICH agent answers an inbound conversation on the account, which is a behaviour change dressed as a create."
     },
+    "GET /agent-logs/health": {
+      "kind": "read",
+      "reach": "proven-live",
+      "summary": "Service health: {status, timestamp, traceId}.",
+      "note": "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone — either credential reaches this surface)."
+    },
+    "GET /agent-logs/logs/{sessionId}": {
+      "kind": "read",
+      "reach": "proven",
+      "summary": "Session detail: a 4-key summary plus EVERY interaction inline.",
+      "note": "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone — either credential reaches this surface). Not the same as /summary: fewer summary keys, but all interactions, and it ignores page/limit. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
+      "requiredQuery": [
+        "locationId"
+      ]
+    },
+    "GET /agent-logs/logs/{sessionId}/interactions": {
+      "kind": "read",
+      "reach": "proven",
+      "summary": "One row per inbound message; each traceId IS that message’s CRM id.",
+      "note": "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone — either credential reaches this surface). Default limit is 100. A page past the end returns 200 empty; page=0 or negative returns 404. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
+      "requiredQuery": [
+        "locationId"
+      ]
+    },
+    "GET /agent-logs/logs/{sessionId}/metrics": {
+      "kind": "read",
+      "reach": "proven",
+      "summary": "Per-session metrics with a perInteraction[] series.",
+      "note": "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone — either credential reaches this surface). A wrong id returns 200 with zeroes rather than 404. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
+      "requiredQuery": [
+        "locationId"
+      ]
+    },
+    "GET /agent-logs/logs/{sessionId}/summary": {
+      "kind": "read",
+      "reach": "proven",
+      "summary": "Session summary incl. totalInteractions, durationMs and per-product customConfigs.",
+      "note": "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone — either credential reaches this surface). A trace id here 404s \"No conversation data found for conversation\". requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
+      "requiredQuery": [
+        "locationId"
+      ]
+    },
+    "GET /agent-logs/logs/{traceId}/spans": {
+      "kind": "read",
+      "reach": "proven-live",
+      "summary": "The per-message execution trace: splitter branch + reasoning, knowledge chunks, tool calls, model, tokens.",
+      "note": "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone — either credential reaches this surface). Path id is the INBOUND MESSAGE id, not a session id (a session id 404s \"No spans found for trace\"). locationId is required. DO NOT send conversationId: the UI does, and it drops the ai_splitter span — the branch decision — from the trace."
+    },
+    "GET /agent-logs/metrics-layouts": {
+      "kind": "read",
+      "reach": "proven",
+      "summary": "Saved Metrics dashboard layouts for the location.",
+      "note": "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone — either credential reaches this surface). Returns {layouts: []} when none exist — and the UI reacts to that by POSTing a default layout, so opening the Metrics tab in a browser WRITES. The populated shape is unproven. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
+      "requiredQuery": [
+        "locationId"
+      ]
+    },
     "GET /ai-employees/actions/search": {
       "reach": "proven",
       "requiredQuery": [
@@ -48,12 +120,37 @@
     "GET /ai-employees/employees/list": {
       "reach": "proven"
     },
+    "GET /ai-wrapper/plan/company": {
+      "reach": "proven",
+      "requiredQuery": [
+        "companyId"
+      ],
+      "note": "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them."
+    },
+    "GET /ai-wrapper/plan/location": {
+      "reach": "proven",
+      "requiredQuery": [
+        "locationId"
+      ],
+      "note": "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them."
+    },
+    "GET /ai-wrapper/usage/v2/fup-status": {
+      "reach": "proven",
+      "requiredQuery": [
+        "product"
+      ],
+      "note": "requiredQuery proven live 2026-09-10: product."
+    },
     "GET /appengine/dialogflow/eliza-location-status/{locationId}": {
       "reach": "proven"
     },
     "GET /associations/objectKey/{objectKey}": {
       "reach": "refused",
       "note": "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it."
+    },
+    "GET /brand-boards/{locationId}": {
+      "reach": "proven",
+      "note": "Executed 2026-09-10 — returns {brandBoards, totalCount, traceId}; zero boards on the sandbox, which is why its /default write twin has nothing to target and is not probed."
     },
     "GET /calendars/configuration/location/{locationId}": {
       "reach": "proven"
@@ -129,8 +226,34 @@
       ],
       "note": "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source."
     },
+    "GET /conversations/providers/mailgun/fetch/domain": {
+      "reach": "proven",
+      "kind": "read",
+      "note": "🔴 A 400 HERE IS AN ANSWER, NOT A FAILURE. On an account using LeadConnector email it returns 400 {\"message\":\"No MailgunAccount found\",\"canonicalCode\":\"CONVERSATIONS_SOMETHING_WENT_WRONG\"} — which tells you the account is NOT on bring-your-own Mailgun. Not an auth problem and not a wrong path. Reproduced on GROM Sandbox 2026-09-11 on BOTH hosts — backend and services each answered the identical 400 with its own traceId, so this row is not host-specific."
+    },
+    "GET /courses/analytics/locations/{locationId}/export/assessment-results": {
+      "reach": "proven",
+      "requiredQuery": [
+        "totalRows"
+      ],
+      "note": "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them. requiredQuery proven live 2026-09-10: totalRows."
+    },
     "GET /custom-data/conversations": {
       "reach": "proven"
+    },
+    "GET /email-isv/feature/domain/domain-selection-list": {
+      "kind": "read",
+      "note": "Executed 2026-09-11: 422 [\"domains must be a string\",\"domains should not be empty\",\"source should not be empty\",\"source must be a valid enum value\"]. The route exists; `source` is an enum whose members the error does NOT spell out, so it was not guessed."
+    },
+    "GET /email-isv/feature/domain/list": {
+      "reach": "proven",
+      "kind": "read",
+      "note": "Richer than /workflow/{locationId}/email/location-email-provider: fromName, fromEmail, warmup{mode,stage,status}, types[] with per-type percentages, defaultDomain, emailSentCount/emailSentLimit, ssl, ips, domainAddedDate. ⚠️ Answers on BOTH hosts (services AND backend) — re-verified on GROM Sandbox 2026-09-11, where it returns []. The original capture saw only services, so \"ai host\" is where it was observed, not a constraint. 🔴 AN EMPTY ARRAY DOES NOT MEAN THE ACCOUNT HAS NO SENDING DOMAIN. GROM Sandbox returns [] while GET /workflow/{loc}/email/location-email-provider reports a live, actively warming domain (link.gromdigital.com, domainOwnershipType 'agency_owned'), and asking this rail for that domain by name answers 400 \"not found in the system\". This rail is scoped to LOCATION-OWNED domains only; an agency-owned domain is invisible to it. Read [] as 'no domain this location owns', never as an unconfigured account."
+    },
+    "GET /email-isv/feature/domain/removal-allowed": {
+      "reach": "proven",
+      "kind": "read",
+      "note": "Executed on GROM Sandbox 2026-09-11 — 200 on a location with no domains."
     },
     "GET /emails/builder": {
       "reach": "proven"
@@ -145,6 +268,14 @@
     "GET /emails/builder/settings/{locationId}": {
       "reach": "proven"
     },
+    "GET /events-management/tickets": {
+      "reach": "proven",
+      "note": "Executed 2026-09-10 — returns {tickets, traceId}; empty on the sandbox."
+    },
+    "GET /forms": {
+      "reach": "proven",
+      "note": "Live-proven 2026-09-06 (knowledge corpus/forms). Needs locationId, skip, limit; type=form returns forms only — ANY other type value (or none) returns forms AND folders in one array. query= is a substring name search; parentId= filters to a folder. Rows carry no formData; GET /forms/{id} does. token-id or Bearer, services or backend — all reach. The full lifecycle (POST /forms/ create, POST /forms/{id} save {name, formData}, duplicate, restore-version, move-to-folder, folders) is proven in corpus/forms/20-api/forms.md but has no rows here yet: the builder is a separate SPA with a PUBLIC source map (sniffs/forms-2026-09-06/builder-app/tree/src) that the generator does not read — see plugin/STATUS-2026-09-06-forms-surface.md."
+    },
     "GET /forms/forms-list": {
       "requiredQuery": [
         "locationId"
@@ -152,8 +283,51 @@
       "note": "Live-proven 2026-09-06: formIds MUST be one comma-joined string (formIds=a,b) — repeated or bracketed params 422 \"formIds must be a string\"; locationId is rejected (\"property locationId should not exist\"). Returns list rows without formData. The row id says get-form-by-id but the by-id read is GET /forms/{id} (unknown id → 400 \"Form does not exist\", not 404).",
       "reach": "proven"
     },
+    "GET /forms/submissions": {
+      "reach": "proven",
+      "requiredQuery": [
+        "limit"
+      ],
+      "note": "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them. requiredQuery proven live 2026-09-10: limit."
+    },
+    "GET /forms/themes": {
+      "reach": "proven",
+      "requiredQuery": [
+        "locationId"
+      ],
+      "note": "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them."
+    },
+    "GET /funnels/builder/get-versions": {
+      "reach": "proven",
+      "note": "Live-proven 2026-09-10. Answers a BARE ARRAY, newest first. The id key is snake_case `version_id` — a caller reading `.versions` or `row.versionId` gets undefined, publishes nothing, and sees no error. `updated_at` is a Firestore {_seconds,_nanoseconds} object, not a string, so sorting it as a string silently does nothing."
+    },
+    "GET /funnels/builder/prebuilt-section/hero/template/hero/hero": {
+      "reach": "proven",
+      "requiredQuery": [
+        "locationId"
+      ],
+      "note": "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them."
+    },
     "GET /funnels/funnel/list": {
       "reach": "proven"
+    },
+    "GET /funnels/page": {
+      "reach": "proven",
+      "requiredQuery": [
+        "funnelId",
+        "limit",
+        "offset"
+      ],
+      "note": "requiredQuery proven live 2026-09-10: funnelId, limit, offset. 🔴 This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND — the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder."
+    },
+    "GET /funnels/page/product": {
+      "reach": "proven",
+      "requiredQuery": [
+        "funnelId",
+        "limit",
+        "offset"
+      ],
+      "note": "requiredQuery proven live 2026-09-10: funnelId, limit, offset. 🔴 This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND — the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder."
     },
     "GET /hooks/inbound-webhook-request/reference/{triggerId}": {
       "reach": "refused",
@@ -248,6 +422,9 @@
       ],
       "note": "Live-probed 2026-08-25: the endpoint returned 422 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source."
     },
+    "GET /membership/.../categories": {
+      "note": "🔴 THIS ROW IS UNCALLABLE: its path contains a literal \"...\" left by the source miner, so every request 404s. 15 rows are in this state, all on this service. 11 of them — including this one — duplicate a full-path row already in the catalogue; use that one instead. Measured 2026-09-10."
+    },
     "GET /membership/smart-list/categories": {
       "reach": "refused",
       "note": "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it."
@@ -267,6 +444,10 @@
         "locationId"
       ],
       "note": "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source."
+    },
+    "GET /opportunities/smart-filters": {
+      "reach": "proven",
+      "note": "Executed on the designated sandbox 2026-09-10, write-parity sweep, read back on a separate request. 🔴 BOTH `pipelineId` AND `filterType` are required query params — locationId alone answers 400 \"pipelineId can't be undefined\" (code COMMON_PIPELINE_ID_UNDEFINED), and adding pipelineId alone then answers 422 naming filterType with its enum: **smartlist | smarttag**. With all three it returns {smartFilters, total, page, limit}. Its POST twin additionally requires a non-empty `color`, a non-empty `filters` array and `position` >= 1; the filter shape was not invented, so the write stays unproven."
     },
     "GET /payment-links/": {
       "reach": "proven",
@@ -294,8 +475,32 @@
       "summary": "The full payment link with products and prices expanded. This IS the detail read.",
       "note": "There is NO bare detail read -- GET /payment-links/{id} is a 404 'Cannot GET' (the route does not exist). preview is what both the editor and the public checkout use, and it answers UNAUTHENTICATED with config=true."
     },
+    "GET /payment-links/settings": {
+      "reach": "proven",
+      "requiredQuery": [
+        "altId",
+        "altType"
+      ],
+      "note": "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them. requiredQuery proven live 2026-09-10: altId, altType. 🔴 This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND — the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder."
+    },
+    "GET /payments/coupon/list": {
+      "reach": "proven",
+      "requiredQuery": [
+        "altId",
+        "altType"
+      ],
+      "note": "requiredQuery proven live 2026-09-10: altId, altType. 🔴 This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND — the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder."
+    },
     "GET /payments/integrations/entity-providers": {
       "note": "Test vs Live is two layers: the provider integration holds a test key pair and a live key pair (one Stripe Connect fills both), and each payment link carries liveMode and asks this endpoint for the matching keys. Nothing validates a provider at link-save time -- a link saves fine in Live mode with no gateway connected, and the public Pay button is simply disabled."
+    },
+    "GET /payments/integrations/provider/connected": {
+      "reach": "proven",
+      "requiredQuery": [
+        "altId",
+        "altType"
+      ],
+      "note": "requiredQuery proven live 2026-09-10: altId, altType. 🔴 This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND — the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder."
     },
     "GET /phone-system/call-dispositions": {
       "reach": "proven",
@@ -314,6 +519,14 @@
     },
     "GET /phone-system/whatsapp/location/{locationId}/template": {
       "reach": "proven"
+    },
+    "GET /products/": {
+      "reach": "proven",
+      "requiredQuery": [
+        "altId",
+        "locationId"
+      ],
+      "note": "requiredQuery proven live 2026-09-10: altId, locationId. 🔴 This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND — the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder."
     },
     "GET /reputation/integrations/review-link-list": {
       "reach": "refused",
@@ -341,6 +554,10 @@
       "note": "Details drawer, assets grouped by product category. Executed through the plugin credential on the designated sandbox, 2026-09-10, as part of the snapshot parity run: list -> manifest -> conflicts -> create -> refresh, with the create read back on a separate request (snapshot count 8 -> 9 and the new snapshot found by name and id).",
       "reach": "proven"
     },
+    "GET /snapshots/assets/asset-names": {
+      "reach": "proven",
+      "note": "Executed through the plugin credential on the designated sandbox, 2026-09-10, as part of the snapshot parity run: list -> manifest -> conflicts -> create -> refresh, with the create read back on a separate request (snapshot count 8 -> 9 and the new snapshot found by name and id)."
+    },
     "GET /snapshots/locations/v2/{companyId}/available": {
       "requiredQuery": [
         "snapshotId"
@@ -359,6 +576,10 @@
     },
     "GET /snapshots/snapshot-versions/{snapshotId}": {
       "note": "{version, locationId, createdAt} per refresh. Captured from the agency page's own session 2026-08-31; not yet proven through the plugin's credential."
+    },
+    "GET /snapshots/v2/preFetchAssets/{locationId}": {
+      "reach": "proven",
+      "note": "Executed through the plugin credential on the designated sandbox, 2026-09-10, as part of the snapshot parity run: list -> manifest -> conflicts -> create -> refresh, with the create read back on a separate request (snapshot count 8 -> 9 and the new snapshot found by name and id)."
     },
     "GET /snapshots/v2/{companyId}": {
       "note": "Agency snapshot list (type=own|imported|shared|templates). Captured from the agency Account Snapshots page's own browser session 2026-08-31; not yet proven through the plugin's location-user Bearer. Executed through the plugin credential on the designated sandbox, 2026-09-10, as part of the snapshot parity run: list -> manifest -> conflicts -> create -> refresh, with the create read back on a separate request (snapshot count 8 -> 9 and the new snapshot found by name and id).",
@@ -386,9 +607,61 @@
       "reach": "proven",
       "note": "TWO catalogue rows exist for this path and they disagree on HOST. The one mined from bundle source (template-service--get-email-snippets-paginated) says backend, but that is almost certainly the app-wide axios default rather than a service prefix — the same trap the harvester documents for /workflow. The whole snippets surface was captured LIVE 2026-08-29 on services.leadconnectorhq.com (the ai rail: Bearer plus token-id), six calls end to end. USE SERVICES. The mined row is kept, not deleted: it is a real source observation."
     },
+    "GET /surveys": {
+      "reach": "proven",
+      "note": "Live-proven 2026-09-06: {surveys:[], total}; same params as GET /forms. POST /surveys/ {locationId, name, source} creates a survey PRE-SEEDED with one slide (a form starts at formData {}). /surveys/* does NOT mirror /forms/* path for path (corrected 2026-09-07 from a full call-site extraction of the builder SPA): the survey app uses /surveys/… only for list, create, read, save, image, restore-version, themes and theme-style, and calls the /forms/… routes for delete, duplicate, share, folder create/read/list/rename and move-to-folder. So /surveys/duplicate/{id}, /surveys/folder and /surveys/move-to-folder are paths nothing in the product calls — untested, existence unknown. Corpus: knowledge/corpus/forms/20-api/surveys-and-quizzes.md."
+    },
+    "GET /surveys/folder": {
+      "reach": "proven",
+      "requiredQuery": [
+        "locationId"
+      ],
+      "note": "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them."
+    },
+    "GET /surveys/{id}": {
+      "reach": "proven",
+      "note": "Live-proven 2026-09-06: {survey:{…, formData:{form, slides[]}}}. Survey save is POST /surveys/{id} {name, formData} (source-derived from the builder SPA; not executed)."
+    },
+    "GET /templates/category/list": {
+      "reach": "proven",
+      "requiredQuery": [
+        "limit",
+        "offset",
+        "product"
+      ],
+      "note": "requiredQuery proven live 2026-09-10: limit, offset, product. 🔴 This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND — the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder."
+    },
+    "GET /templates/template-search/facets": {
+      "reach": "proven",
+      "requiredQuery": [
+        "product"
+      ],
+      "note": "requiredQuery proven live 2026-09-10: product."
+    },
+    "GET /templates/template-search/suggestions": {
+      "reach": "proven",
+      "requiredQuery": [
+        "product"
+      ],
+      "note": "requiredQuery proven live 2026-09-10: product."
+    },
     "GET /users/search": {
       "reach": "refused",
       "note": "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it."
+    },
+    "GET /vibe-ai/folders": {
+      "reach": "proven",
+      "requiredQuery": [
+        "alt_id"
+      ],
+      "note": "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them. requiredQuery proven live 2026-09-10: alt_id."
+    },
+    "GET /vibe-ai/projects": {
+      "reach": "proven",
+      "requiredQuery": [
+        "alt_id"
+      ],
+      "note": "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them. requiredQuery proven live 2026-09-10: alt_id."
     },
     "GET /workflow/agent/{locationId}/mcp-connections": {
       "reach": "proven"
@@ -484,7 +757,7 @@
     "GET /workflow/{locationId}/workflow-templates": {
       "reach": "proven"
     },
-    "GET /workflow/{locationId}/{wid}": {
+    "GET /workflow/{locationId}/{workflowId}": {
       "note": "?version=N is ACCEPTED, silently IGNORED, and the CURRENT document is returned wearing its real version number (live 2026-09-02: ?version=1 -> \"version\": 3). Nothing errors, so a 'recovery' read can restore the corruption over itself and look successful. Use the version-history rail instead -- history / history-by-number -- which the typed get_workflow_version already does."
     },
     "GET /workflow/{locationId}/{workflowId}/history": {
@@ -598,9 +871,69 @@
       "summary": "Deactivates a payment link. Body {activeValue:false, altId, altType}.",
       "note": "Deactivates but CANNOT reactivate: activeValue:true returns 400 'Error activating link. Please update automatic deactivation configuration to activate'. Reactivation is the full-document PUT with active:true. A deactivated link renders only 'Payment link deactivated / CODE:- PAYMENT_LINK_DEACTIVATED' to the customer -- no product, no form -- which is why a deposit link must never carry an automatic deactivation date."
     },
+    "POST /actions/dynamic-source-details/{key}": {
+      "note": "🔴 THE BASE IS /workflows-marketplace, NOT the service root. At the root this path answers 404 with an EMPTY body (or Express's \"Cannot POST ...\"), which reads like a dead endpoint; under /workflows-marketplace the same path answers from a real service — 400 \"Action does not exists for this key\" / \"Trigger does not exists for this key\", or 403 \"locationId is required\". Route existence is proven; a 200 additionally needs a marketplace app installed on the account, which the sandbox has none of."
+    },
+    "POST /actions/published/{type}/dynamic-fields": {
+      "note": "🔴 THE BASE IS /workflows-marketplace, NOT the service root. At the root this path answers 404 with an EMPTY body (or Express's \"Cannot POST ...\"), which reads like a dead endpoint; under /workflows-marketplace the same path answers from a real service — 400 \"Action does not exists for this key\" / \"Trigger does not exists for this key\", or 403 \"locationId is required\". Route existence is proven; a 200 additionally needs a marketplace app installed on the account, which the sandbox has none of."
+    },
+    "POST /actions/{type}/branches": {
+      "note": "🔴 THE BASE IS /workflows-marketplace, NOT the service root. At the root this path answers 404 with an EMPTY body (or Express's \"Cannot POST ...\"), which reads like a dead endpoint; under /workflows-marketplace the same path answers from a real service — 400 \"Action does not exists for this key\" / \"Trigger does not exists for this key\", or 403 \"locationId is required\". Route existence is proven; a 200 additionally needs a marketplace app installed on the account, which the sandbox has none of."
+    },
+    "POST /agent-logs/contacts": {
+      "kind": "read",
+      "reach": "proven",
+      "summary": "Agent Logs Contacts tab: one row per contact with products, channels, conversation and token totals.",
+      "note": "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone — either credential reaches this surface). Ignores the logs-only filters (contentSearch, metadataFilters, agentId, agentName, contactId) and emits NO nextPageToken, so it is hard-capped at offset 500. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
+      "requiredQuery": [
+        "locationId"
+      ]
+    },
+    "POST /agent-logs/filter-values": {
+      "kind": "read",
+      "reach": "proven-live",
+      "summary": "Dropdown values for one filter field, derived from that location’s data.",
+      "note": "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone — either credential reaches this surface). `field` is the one strictly validated enum: 422 \"field must be one of the following values: agentName, channel, contactName, voiceName\". limit caps at 100 and the list is never scoped by products/timeRange."
+    },
+    "POST /agent-logs/logs": {
+      "kind": "read",
+      "reach": "proven",
+      "summary": "Agent Logs Sessions table. A POST that READS (201).",
+      "note": "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone — either credential reaches this surface). Offset ceiling: (page-1)*limit must be <=500 or 400 \"Page too deep\"; `limit` is uncapped and `pageToken` (body, and ONLY when `page` is omitted) walks past it. Values are never validated — a bogus timeRange/sortBy is silently ignored, a bogus product/channel filters to 0 rows. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
+      "requiredQuery": [
+        "locationId"
+      ]
+    },
+    "POST /agent-logs/metrics": {
+      "kind": "read",
+      "reach": "proven",
+      "summary": "Agent Logs Metrics tab: 35 widget datasets (overview, topModels/Tools/Agents/Contacts, time series, voice-call stats).",
+      "note": "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone — either credential reaches this surface). A non-empty widgetIds — even a bogus value — drops voiceAiCallStats and callSentimentStats. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
+      "requiredQuery": [
+        "locationId"
+      ]
+    },
+    "POST /agent-logs/metrics-layouts": {
+      "kind": "write",
+      "reach": "proven",
+      "summary": "Create a Metrics dashboard layout.",
+      "note": "The UI calls this automatically when metrics-layouts is empty, seeding {name:\"Default\", isDefault:true, version:2}. Never called during mapping. Executed on the sandbox 2026-09-10, read back on a separate request (0 -> 1 layout, found by name). Body is exactly {locationId, name, widgets} with `widgets` at the TOP LEVEL — nesting it under a `layout` key answers 422 [\"widgets must be an array\"]. host:\"ai\" (services.leadconnectorhq.com); the read returns {status, layouts[], traceId} so a caller reading `.data` gets nothing."
+    },
     "POST /appengine/workflow/sendElizaMailToAgencyAdmin": {
       "kind": "destructive",
       "note": "Sends a real email to the agency admin."
+    },
+    "POST /brand-boards/voices/{locationId}/default": {
+      "reach": "proven",
+      "note": "Executed on the sandbox 2026-09-10 against this project's own TEST-CAP brand voice: body {brandVoiceId, locationId}, answers 200 {success, message, brandVoiceId, locationId}, and the voice's isDefault read back false -> true on a separate request. NOTE the probe artifact is LEFT as the default — there is no obvious unset call on this rail, and the account has exactly one (test) voice, so nothing real was displaced."
+    },
+    "POST /communities/{locationId}/groups": {
+      "reach": "proven",
+      "note": "Executed on the designated sandbox 2026-09-10, read back on a separate request. Body {name, description, locationId, slug}. 🔴 `slug` is REQUIRED and is announced in the MONGOOSE dialect — {\"errors\":{\"slug\":{\"message\":\"Path `slug` is required.\"}}} — with no `message` array, so a reader parsing only the NestJS shape sees nothing. Proven by differential: 0 -> 1 group, found by name."
+    },
+    "POST /contacts/search": {
+      "reach": "proven",
+      "note": "Executed on the designated sandbox 2026-09-10, write-parity sweep, read back on a separate request. A READ-shaped POST. Body {locationId, page, pageLimit, filters:[]} returns {contacts:[...]} — an empty filters array is accepted and means \"no filter\", unlike scheduler-trigger/preview which refuses one."
     },
     "POST /contacts/search/2": {
       "note": "Silently ignores a filter it does not understand and returns 200 with a plausible WRONG row -- always run a baseline and a KNOWN-ZERO control, never a single query. Filter FIELDS and OPERATORS are validated (422, and an invalid operator prints the whole 22-value enum); COLUMN keys are not. Fields are snake_case (first_name works, firstName 422s). On a keyword field eq/contains/match are exact SYNONYMS -- `contains` is NOT substring; only `wildcard` with an explicit * is partial. `active_workflows_2`/`finished_workflows_2` filter workflow membership; `finished_workflows` WITHOUT the _2 validates and silently matches nothing. includeTotal:true is what makes `total` appear, and pageLimit:0 returns the count alone.",
@@ -616,8 +949,39 @@
     "POST /conversations/providers/tiktok/posts/{id}": {
       "kind": "read"
     },
+    "POST /courses/.../product-themes": {
+      "note": "🔴 THIS ROW IS UNCALLABLE: its path contains a literal \"...\" left by the source miner, and unlike the other truncated rows it has NO full-path twin in the catalogue — the real path was lost in mining and needs re-capture before this endpoint can be reached at all. Measured 2026-09-10."
+    },
+    "POST /courses/analytics/locations/{locationId}/members/count": {
+      "note": "🔴 ANSWERS 2xx TO AN EMPTY BODY. Measured 2026-09-10 on the sandbox: POST/PUT with `{}` returned 2xx. That is a HAZARD, not a capability — this rail has a known case (attach-offer-user) where an empty body is acknowledged with the same 200 a real grant returns, so a 2xx here says nothing about what was stored and may mean a real mutation ran with defaults. Never record this row as proven on an empty-body 2xx; supply a real body and read the object back."
+    },
     "POST /emails/tracking/links": {
       "kind": "read"
+    },
+    "POST /events-management/event": {
+      "note": "Refuses with 422 [\"type must be a valid enum value\"] — the field is named but its MEMBERS are not, unlike sibling errors on this API which spell the vocabulary out (\"product must be one of the following values: ask-ai, ...\"). Supplying a value here would test the guess rather than the row, so it was left. This is what blocks the five read rows keyed on {eventId}: the sandbox holds zero events and one cannot be minted without the enum."
+    },
+    "POST /events-management/tickets": {
+      "note": "Named its own requirements on 2026-09-10: {eventId, price, quantity} — price and quantity must be NUMBERS (filled with an empty string they answer \"must be a number\" indefinitely). Unproven because the sandbox holds zero events, so there is no eventId to attach a ticket to. Not a reach problem; a fixture problem."
+    },
+    "POST /forms/folder/": {
+      "reach": "proven",
+      "note": "Executed on the designated sandbox 2026-09-10, write-parity sweep, with a read-back on a separate request. 🔴 `productType` is REQUIRED and is not in any declared schema — omit it and the call answers 422 [\"productType should not be empty\",\"productType must be a string\"]. \"form\" is proven; the folder list is also scoped by productType, so a folder created under one value is invisible to a read using another. Proven by differential: 0 -> 1 folder, found by name."
+    },
+    "POST /funnels/builder/prebuilt-section": {
+      "reach": "refused",
+      "note": "Answers 401 {\"statusCode\":401,\"message\":\"Unauthorized Exception\"} to a location credential, 2026-09-10, while its GET counterpart returns 17 sections on the same token. The 401 carries no field name, so unlike the usual GHL 401 this is a genuine permission boundary rather than a validation failure in disguise — saving a prebuilt section is very likely an agency-level gesture. Reading them is fine; writing one is not, from here."
+    },
+    "POST /funnels/builder/publish-version": {
+      "reach": "proven",
+      "note": "Live-proven 2026-09-10 with a 4-step differential. Body {pageId, versionId, userId}; userId is the JWT's authClassId and omitting it 422s. A published version is stamped pageType:'live', NOT 'published'. 🔴 Publishing PINS the public page to that version: the renderer serves the newest live version if one exists and falls back to the newest draft only while a page has NEVER been published, so after the first publish every later autosave is invisible in public with a 201 on each one."
+    },
+    "POST /funnels/page/create-page": {
+      "note": "🔴 Body needs `step` as an OBJECT, not a name — 422 [\"step should not be empty\",\"step must be an object\"] otherwise. Supply the full create-step shape INCLUDING a client-minted step.id (rule 24: a server-minted step is unrepairable). With that body the call answered **524, a Cloudflare edge TIMEOUT**, on 2026-09-10. A 524 is an UNKNOWN, not a failure — the origin may still have committed. Checked afterwards and it wrote NOTHING: steps, pages and routing rows were all unchanged. Always read back after a 524 here rather than retrying blind, or a retry can double-create."
+    },
+    "POST /knowledge-base/": {
+      "reach": "proven",
+      "note": "Executed on the sandbox 2026-09-11 — body {name, locationId} answers 201 and the base is readable immediately. Minted to unblock the three read rows keyed on {knowledgeBaseId}, which had no verdict purely because the account held no knowledge base."
     },
     "POST /locations/{locationId}/customValues": {
       "reach": "proven",
@@ -631,9 +995,57 @@
     "POST /marketplace/core/apps/connection-status/bulk": {
       "kind": "read"
     },
+    "POST /membership/.../categories": {
+      "note": "🔴 THIS ROW IS UNCALLABLE: its path contains a literal \"...\" left by the source miner, so every request 404s. 15 rows are in this state, all on this service. 11 of them — including this one — duplicate a full-path row already in the catalogue; use that one instead. Measured 2026-09-10."
+    },
+    "POST /membership/.../certificate-attachments": {
+      "note": "🔴 THIS ROW IS UNCALLABLE: its path contains a literal \"...\" left by the source miner, so every request 404s. 15 rows are in this state, all on this service. 11 of them — including this one — duplicate a full-path row already in the catalogue; use that one instead. Measured 2026-09-10."
+    },
+    "POST /membership/.../media/signed-url": {
+      "note": "🔴 THIS ROW IS UNCALLABLE: its path contains a literal \"...\" left by the source miner, so every request 404s. 15 rows are in this state, all on this service. 11 of them — including this one — duplicate a full-path row already in the catalogue; use that one instead. Measured 2026-09-10."
+    },
+    "POST /membership/.../offers": {
+      "note": "🔴 THIS ROW IS UNCALLABLE: its path contains a literal \"...\" left by the source miner, so every request 404s. 15 rows are in this state, all on this service. 11 of them — including this one — duplicate a full-path row already in the catalogue; use that one instead. Measured 2026-09-10."
+    },
+    "POST /membership/.../posts": {
+      "note": "🔴 THIS ROW IS UNCALLABLE: its path contains a literal \"...\" left by the source miner, so every request 404s. 15 rows are in this state, all on this service. 11 of them — including this one — duplicate a full-path row already in the catalogue; use that one instead. Measured 2026-09-10."
+    },
+    "POST /membership/.../products": {
+      "note": "🔴 THIS ROW IS UNCALLABLE: its path contains a literal \"...\" left by the source miner, so every request 404s. 15 rows are in this state, all on this service. 11 of them — including this one — duplicate a full-path row already in the catalogue; use that one instead. Measured 2026-09-10."
+    },
+    "POST /membership/.../videos": {
+      "note": "🔴 THIS ROW IS UNCALLABLE: its path contains a literal \"...\" left by the source miner, so every request 404s. 15 rows are in this state, all on this service. 11 of them — including this one — duplicate a full-path row already in the catalogue; use that one instead. Measured 2026-09-10."
+    },
+    "POST /membership/locations/{locationId}/categories": {
+      "reach": "proven",
+      "note": "Executed on the designated sandbox 2026-09-10, read back on a separate request. Body {title, locationId, productId} — a category belongs to a COURSE. 🔴 `productId` is announced in the SEQUELIZE dialect — {\"msg\":\"notNull Violation: Category.productId cannot be null\"} — again with no `message` array. Proven by differential: 1 -> 2 categories, found by title."
+    },
+    "POST /membership/locations/{locationId}/comments/filtered": {
+      "note": "🔴 ANSWERS 2xx TO AN EMPTY BODY. Measured 2026-09-10 on the sandbox: POST/PUT with `{}` returned 2xx. That is a HAZARD, not a capability — this rail has a known case (attach-offer-user) where an empty body is acknowledged with the same 200 a real grant returns, so a 2xx here says nothing about what was stored and may mean a real mutation ran with defaults. Never record this row as proven on an empty-body 2xx; supply a real body and read the object back."
+    },
+    "POST /membership/locations/{locationId}/settings/builder-settings": {
+      "note": "🔴 ANSWERS 2xx TO AN EMPTY BODY. Measured 2026-09-10 on the sandbox: POST/PUT with `{}` returned 2xx. That is a HAZARD, not a capability — this rail has a known case (attach-offer-user) where an empty body is acknowledged with the same 200 a real grant returns, so a 2xx here says nothing about what was stored and may mean a real mutation ran with defaults. Never record this row as proven on an empty-body 2xx; supply a real body and read the object back."
+    },
+    "POST /membership/locations/{locationId}/settings/site-info": {
+      "note": "🔴 ANSWERS 2xx TO AN EMPTY BODY. Measured 2026-09-10 on the sandbox: POST/PUT with `{}` returned 2xx. That is a HAZARD, not a capability — this rail has a known case (attach-offer-user) where an empty body is acknowledged with the same 200 a real grant returns, so a 2xx here says nothing about what was stored and may mean a real mutation ran with defaults. Never record this row as proven on an empty-body 2xx; supply a real body and read the object back."
+    },
+    "POST /membership/smart-list/attach-offer-user": {
+      "kind": "write",
+      "summary": "Grants a published offer to a contact, which is what puts them in the course. Body is `{contactId, offerId, source:'admin'}` -- SINGULAR contactId, and no locationId (the location comes from the sourceid header the gateway already sends). Async: the response is an enqueue ack.",
+      "note": "Its 200 CARRIES NO INFORMATION ABOUT THE PAYLOAD. Live-proven on the test sub-account 2026-09-07: an empty body `{}`, fabricated ids, and the wrong key names each return the identical `200 {ok:true, msg:\"The request to attach the offer to the user has been successfully queued\"}` a real grant returns. The control that makes that a measurement: a nonexistent sibling path answers `404 {\"msg\":\"Not found\"}`, so the 200 is this route replying and not a catch-all. Two operators have now sent `{locationId, offerId, contactIds:[...]}` or `userIds:[...]`, been told it was queued, and granted nothing. The ONLY proof a grant landed is `GET services.../membership/locations/{loc}/products/user-progress/{productId}` containing the contactId you granted -- and check for THAT contact, not for a non-empty list, which passes on a pre-existing member. Revoke is a different path: DELETE /membership/smart-list/user-offer-management with a body.",
+      "reach": "proven-live"
+    },
     "POST /objects/{objectKey}/records/search": {
       "kind": "read",
       "summary": "Search records of a custom object by filter."
+    },
+    "POST /opportunities/lost-reason": {
+      "reach": "proven",
+      "note": "Executed on the designated sandbox 2026-09-10, write-parity sweep, with a read-back on a separate request. Body {name, locationId}; locationId is also required in the QUERY. Proven by differential: 7 -> 8 reasons, found by name. Returns {lostReason:{_id,...}}."
+    },
+    "POST /opportunities/pipelines": {
+      "reach": "proven",
+      "note": "Executed on the designated sandbox 2026-09-10, write-parity sweep, read back on a separate request. Body {name, locationId, stages:[{name, position}]}. Proven by differential: 6 -> 7 pipelines, found by name."
     },
     "POST /phone-system/call-dispositions": {
       "requiredQuery": [
@@ -643,11 +1055,43 @@
       "summary": "Creates a call disposition. Body is {\"name\": \"...\"}.",
       "note": "locationId must be in the QUERY. With it in the BODY only, the POST returns 403 {\"message\":\"Forbidden resource\",\"message_code\":\"FORBIDDEN\"} -- which reads as a credential problem and is actually 'this request names no location'. Not referer-gated. The server assigns isDefault, orderingKey and meta.createdBy; sending them is accepted and ignored. call_status triggers match a disposition BY NAME (array value, contains-any), so the name must match exactly, case included."
     },
+    "POST /snapshots-appengine/v2/snapshots": {
+      "reach": "proven",
+      "note": "Executed through the plugin credential on the designated sandbox, 2026-09-10, as part of the snapshot parity run: list -> manifest -> conflicts -> create -> refresh, with the create read back on a separate request (snapshot count 8 -> 9 and the new snapshot found by name and id)."
+    },
+    "POST /snapshots-appengine/v2/snapshots/{snapshotId}/refresh": {
+      "reach": "proven",
+      "note": "Executed through the plugin credential on the designated sandbox, 2026-09-10, as part of the snapshot parity run: list -> manifest -> conflicts -> create -> refresh, with the create read back on a separate request (snapshot count 8 -> 9 and the new snapshot found by name and id)."
+    },
+    "POST /snapshots/{snapshotId}/conflicts": {
+      "reach": "proven",
+      "note": "Executed through the plugin credential on the designated sandbox, 2026-09-10, as part of the snapshot parity run: list -> manifest -> conflicts -> create -> refresh, with the create read back on a separate request (snapshot count 8 -> 9 and the new snapshot found by name and id)."
+    },
+    "POST /snapshots/{snapshotId}/snapshot-preferences": {
+      "note": "🔴 Answers 201 {\"success\":true,\"message\":\"Snapshot preferences upserted successfully\"} and the value does NOT appear in the read-back (2026-09-10, on a snapshot this project created). Do not read that message as confirmation. Note the likely cause is on the caller side, not the server: the GET returns {\"success\":true,\"data\":[]} — preferences are a LIST — and the probe sent a single object, so the shape is probably wrong. Either way the message is not evidence of storage; read the preference back before believing it."
+    },
+    "POST /snippets/{locationId}": {
+      "reach": "proven",
+      "note": "Executed on the designated sandbox 2026-09-10, write-parity sweep, read back on a separate request. Body {name, locationId, body, type} — `type` is the channel (\"sms\" proven). Proven by differential: 7 -> 8 snippets, found by name."
+    },
+    "POST /surveys/folder/": {
+      "reach": "proven",
+      "note": "Executed on the designated sandbox 2026-09-10, write-parity sweep, read back on a separate request. 🔴 REFUSES `productType` — 422 [\"property productType should not exist\"] — while its sibling POST /forms/folder/ REQUIRES it. Two folder endpoints on the same service with opposite contracts; do not copy one body to the other. Body is just {name, locationId}. Proven: 0 -> 1 folder, found by name."
+    },
     "POST /templates/list": {
       "kind": "read"
     },
     "POST /templates/template/load": {
       "kind": "read"
+    },
+    "POST /triggers/dynamic-source-details/{key}": {
+      "note": "🔴 THE BASE IS /workflows-marketplace, NOT the service root. At the root this path answers 404 with an EMPTY body (or Express's \"Cannot POST ...\"), which reads like a dead endpoint; under /workflows-marketplace the same path answers from a real service — 400 \"Action does not exists for this key\" / \"Trigger does not exists for this key\", or 403 \"locationId is required\". Route existence is proven; a 200 additionally needs a marketplace app installed on the account, which the sandbox has none of."
+    },
+    "POST /triggers/dynamic-source/{key}": {
+      "note": "🔴 THE BASE IS /workflows-marketplace, NOT the service root. At the root this path answers 404 with an EMPTY body (or Express's \"Cannot POST ...\"), which reads like a dead endpoint; under /workflows-marketplace the same path answers from a real service — 400 \"Action does not exists for this key\" / \"Trigger does not exists for this key\", or 403 \"locationId is required\". Route existence is proven; a 200 additionally needs a marketplace app installed on the account, which the sandbox has none of."
+    },
+    "POST /triggers/published/{type}/dynamic-fields": {
+      "note": "🔴 THE BASE IS /workflows-marketplace, NOT the service root. At the root this path answers 404 with an EMPTY body (or Express's \"Cannot POST ...\"), which reads like a dead endpoint; under /workflows-marketplace the same path answers from a real service — 400 \"Action does not exists for this key\" / \"Trigger does not exists for this key\", or 403 \"locationId is required\". Route existence is proven; a 200 additionally needs a marketplace app installed on the account, which the sandbox has none of."
     },
     "POST /workflow/flowguard/blacklist/contact/{contactId}": {
       "kind": "destructive",
@@ -683,18 +1127,47 @@
     "POST /workflow/{locationId}/adwords": {
       "kind": "read"
     },
+    "POST /workflow/{locationId}/ai/custom-code-ai": {
+      "reach": "proven",
+      "note": "Executed on the designated sandbox 2026-09-10, workflows write-parity sweep. 🔴 workflowId and sessionId go in the QUERY STRING, not the body — sent in the body they are not seen and the endpoint answers 422 \"Workflow ID is required\" / \"Session ID is required\", one field per round. `messages` is a chat array [{role,content}] in the body; `prompt` is refused with \"Messages are required\". Proven: returned the generated snippet \"{{input}}\"."
+    },
+    "POST /workflow/{locationId}/ai/email-ai": {
+      "note": "Executed on the designated sandbox 2026-09-10, workflows write-parity sweep. 🔴 workflowId and sessionId go in the QUERY STRING, not the body — sent in the body they are not seen and the endpoint answers 422 \"Workflow ID is required\" / \"Session ID is required\", one field per round. `messages` is a chat array [{role,content}] in the body; `prompt` is refused with \"Messages are required\". With the same complete arguments it answers 500 \"Something went wrong. Please try again later.\" — a server fault, not a caller defect. Left unproven deliberately."
+    },
+    "POST /workflow/{locationId}/ai/sms-ai": {
+      "reach": "proven",
+      "note": "Executed on the designated sandbox 2026-09-10, workflows write-parity sweep. 🔴 workflowId and sessionId go in the QUERY STRING, not the body — sent in the body they are not seen and the endpoint answers 422 \"Workflow ID is required\" / \"Session ID is required\", one field per round. `messages` is a chat array [{role,content}] in the body; `prompt` is refused with \"Messages are required\". Proven 200."
+    },
     "POST /workflow/{locationId}/drip-schedule/preview": {
       "kind": "read"
     },
     "POST /workflow/{locationId}/email/send-test-email": {
       "kind": "destructive"
     },
+    "POST /workflow/{locationId}/folder": {
+      "note": "🔴 WRONG PATH IN THIS ROW: /workflow/{locationId}/folder answers 404 {\"msg\":\"Not found\"}. The real path is **/workflow/{locationId}/directory**, proven on the sandbox 2026-09-10 — body {name, locationId}, answers 200 {id}, and the folder count in /workflow/{locationId}/list went 6 -> 7 with the new folder found by name. Folders appear in that list as rows with type \"directory\"."
+    },
     "POST /workflow/{locationId}/run-single-action": {
       "kind": "destructive",
       "note": "Despite the name, run-single-action EXECUTES the action to produce its sample. For a send step that means a real message."
     },
+    "POST /workflow/{locationId}/scheduler-trigger/preview": {
+      "reach": "proven",
+      "note": "Executed on the designated sandbox 2026-09-10 in the workflows write-parity run. 🔴 `conditions` must be a NON-EMPTY array or it answers 400 \"conditions array is required and cannot be empty\" — an empty array is refused, not treated as \"no filter\". Proven with [{field:\"dayOfWeek\",value:\"monday\"}]; returns {success:true, executions:[]}."
+    },
     "POST /workflow/{locationId}/sms/send-test-sms": {
       "kind": "destructive"
+    },
+    "POST /workflow/{locationId}/tags/create": {
+      "note": "Executed on the designated sandbox 2026-09-10, workflows write-parity sweep. Refused four body shapes ({name}, {tags:[]}, +locationId, +workflowId) with a bare-string 400 \"Bad Request\" — no validation detail, so the shape is still unknown. Not a reach failure; a shape we have not found."
+    },
+    "POST /workflow/{locationId}/v3/ai/message": {
+      "reach": "proven",
+      "note": "Executed on the designated sandbox 2026-09-10, workflows write-parity sweep. Body {sessionId, messages}; workflowId in the QUERY. Responds as an SSE STREAM (data: {\"type\":\"data-workflow-event\"...}) carrying a langfuse traceId, not a JSON object."
+    },
+    "POST /workflow/{locationId}/v3/ai/wait": {
+      "reach": "proven",
+      "note": "Executed on the designated sandbox 2026-09-10, workflows write-parity sweep. 🔴 Takes `prompt` (a string), NOT `messages` — the sibling v3/ai/message takes messages, so the two disagree. Body {sessionId, prompt, mode:\"create\"}, workflowId in the query. Returns {status:\"proceed\", mode, waitAttributes:{...}} — a ready-made wait step."
     },
     "POST /workflow/{locationId}/{workflowId}/remove-stuck-statuses/{stepId}": {
       "kind": "destructive"
@@ -748,6 +1221,47 @@
       "note": "A POST that RETURNS 201 for what is plainly a read. Its window is the last 30 days, unlike the 7-week enrollment chart beside it on the same screen. Executed on the designated sandbox 2026-09-10 in the workflows write-parity run. Answers 201 with [{total,matched}] as counted strings. Body {locationId, workflowId[]} — locationId is REQUIRED in the body, not the query.",
       "reach": "proven"
     },
+    "PUT /agent-logs/metrics-layouts/{layoutId}": {
+      "kind": "write",
+      "reach": "source-only",
+      "summary": "Update a Metrics dashboard layout.",
+      "note": "Never called during mapping; read-only sweep."
+    },
+    "PUT /calendars/{calendarId}": {
+      "reach": "proven",
+      "note": "Executed on the sandbox 2026-09-10 by round trip — description changed, read back on a separate request, restored. 🔴 THE READ SHAPE IS NOT THE WRITE SHAPE. Sending back what GET returns answers 422 twice over. First it names ten server-added properties that \"should not exist\" and must be stripped: id, deleted, dateAdded, dateUpdated, isSystemGenerated, locationId, createdBy, lastUpdatedBy, version, notificationStatus. Then it rejects `openHours` — the sub-object the GET itself returned — with \"openHours.must be a valid day of week / daysOfTheWeek must be an array / hours must be an array\". Dropping openHours entirely lands a 200 and leaves the stored hours alone. So a naive read-modify-write is refused, and the refusal arrives one layer at a time."
+    },
+    "PUT /email-isv/feature/domain/set-default-headers/{domain}": {
+      "kind": "write",
+      "note": "🔴 THE EMAIL SENDER DISPLAY NAME, and it is WRITABLE — it had been reported to a client as UI-only. Body {fromEmail, fromName}; send BOTH, the handler takes them together so omitting fromEmail may clear it. Scope key is companyId for entityType COMPANY, else locationId. ⚠️ NOT PROVEN HERE — no reach. The only execution is a PEER SESSION's, on a CLIENT account this project may never write to, verified there by re-reading two independent services — fromEmail, warmup, defaultDomain and all eight types[] percentages survived untouched. 🔴 HIGH BLAST RADIUS, NEEDS EXPLICIT HUMAN APPROVAL: types[] read all eight rails at 100% (calendar, invoices, oneToOne, bulk-request, campaign, workflow, client-portal, client-portal-otp), so this one field is the sender identity on INVOICES and on replies staff type by hand in Conversations. It cannot be scoped to one rail. It could not be reproduced on GROM Sandbox: that account has zero sending domains, so there is nothing to address. Proving it needs a domain on a test sub-account AND the user's explicit word, because of the blast radius below. ⚠️ SCOPE OF THE EVIDENCE: the one account behind this row read domainOwnershipType 'location_owned', type 'leadconnector'. The agency-owned and shared-domain shapes have never been seen, and a shared domain's headers are plausibly not a single location's to set — do not generalise this row to them. SCOPE: this addresses a domain from /email-isv/feature/domain/list, which carries only LOCATION-OWNED domains. On an account whose sending domain is agency-owned the list is empty and there is no reachable target at all — check list is non-empty before offering this as the way to change a sender name."
+    },
+    "PUT /membership/.../categories": {
+      "note": "🔴 THIS ROW IS UNCALLABLE: its path contains a literal \"...\" left by the source miner, and unlike the other truncated rows it has NO full-path twin in the catalogue — the real path was lost in mining and needs re-capture before this endpoint can be reached at all. Measured 2026-09-10."
+    },
+    "PUT /membership/.../categories/{id}": {
+      "note": "🔴 THIS ROW IS UNCALLABLE: its path contains a literal \"...\" left by the source miner, so every request 404s. 15 rows are in this state, all on this service. 11 of them — including this one — duplicate a full-path row already in the catalogue; use that one instead. Measured 2026-09-10."
+    },
+    "PUT /membership/.../posts": {
+      "note": "🔴 THIS ROW IS UNCALLABLE: its path contains a literal \"...\" left by the source miner, and unlike the other truncated rows it has NO full-path twin in the catalogue — the real path was lost in mining and needs re-capture before this endpoint can be reached at all. Measured 2026-09-10."
+    },
+    "PUT /membership/.../posts/{id}": {
+      "note": "🔴 THIS ROW IS UNCALLABLE: its path contains a literal \"...\" left by the source miner, so every request 404s. 15 rows are in this state, all on this service. 11 of them — including this one — duplicate a full-path row already in the catalogue; use that one instead. Measured 2026-09-10."
+    },
+    "PUT /membership/.../products": {
+      "note": "🔴 THIS ROW IS UNCALLABLE: its path contains a literal \"...\" left by the source miner, and unlike the other truncated rows it has NO full-path twin in the catalogue — the real path was lost in mining and needs re-capture before this endpoint can be reached at all. Measured 2026-09-10."
+    },
+    "PUT /membership/locations/{locationId}/categories/sequence": {
+      "note": "🔴 ANSWERS 2xx TO AN EMPTY BODY. Measured 2026-09-10 on the sandbox: POST/PUT with `{}` returned 2xx. That is a HAZARD, not a capability — this rail has a known case (attach-offer-user) where an empty body is acknowledged with the same 200 a real grant returns, so a 2xx here says nothing about what was stored and may mean a real mutation ran with defaults. Never record this row as proven on an empty-body 2xx; supply a real body and read the object back."
+    },
+    "PUT /membership/locations/{locationId}/posts/material/sequence": {
+      "note": "🔴 ANSWERS 2xx TO AN EMPTY BODY. Measured 2026-09-10 on the sandbox: POST/PUT with `{}` returned 2xx. That is a HAZARD, not a capability — this rail has a known case (attach-offer-user) where an empty body is acknowledged with the same 200 a real grant returns, so a 2xx here says nothing about what was stored and may mean a real mutation ran with defaults. Never record this row as proven on an empty-body 2xx; supply a real body and read the object back."
+    },
+    "PUT /membership/locations/{locationId}/posts/sequence": {
+      "note": "🔴 ANSWERS 2xx TO AN EMPTY BODY. Measured 2026-09-10 on the sandbox: POST/PUT with `{}` returned 2xx. That is a HAZARD, not a capability — this rail has a known case (attach-offer-user) where an empty body is acknowledged with the same 200 a real grant returns, so a 2xx here says nothing about what was stored and may mean a real mutation ran with defaults. Never record this row as proven on an empty-body 2xx; supply a real body and read the object back."
+    },
+    "PUT /membership/locations/{locationId}/products/library-order": {
+      "note": "🔴 ANSWERS 2xx TO AN EMPTY BODY. Measured 2026-09-10 on the sandbox: POST/PUT with `{}` returned 2xx. That is a HAZARD, not a capability — this rail has a known case (attach-offer-user) where an empty body is acknowledged with the same 200 a real grant returns, so a 2xx here says nothing about what was stored and may mean a real mutation ran with defaults. Never record this row as proven on an empty-body 2xx; supply a real body and read the object back."
+    },
     "PUT /opportunities/pipelines/{pipelineId}": {
       "kind": "write",
       "requiredQuery": [
@@ -772,6 +1286,10 @@
       "kind": "destructive",
       "note": "COMPANY-scope bulk write across sub-accounts, not one location."
     },
+    "PUT /workflow/{locationId}/auto-save/settings": {
+      "reach": "proven",
+      "note": "Executed on the designated sandbox 2026-09-10 in the workflows write-parity run. Round-tripped: isActive flipped, read back changed on a separate request, and restored. Send the whole settings document back, not a patch."
+    },
     "PUT /workflow/{locationId}/change-status": {
       "kind": "destructive",
       "reach": "proven-live",
@@ -782,6 +1300,14 @@
       "kind": "destructive",
       "note": "Publishes or unpublishes a workflow. A live automation stops or starts."
     },
+    "PUT /workflow/{locationId}/error-notification/settings/is-active": {
+      "reach": "proven",
+      "note": "Executed on the designated sandbox 2026-09-10 in the workflows write-parity run. Round-tripped on {isActive}; read back changed and restored. Its read is GET /workflow/{locationId}/error-notification/settings."
+    },
+    "PUT /workflow/{locationId}/error-notification/settings/users": {
+      "reach": "proven",
+      "note": "Executed on the designated sandbox 2026-09-10 in the workflows write-parity run. Round-tripped on {users:[userId]}; read back changed ([] -> [id]) and restored."
+    },
     "PUT /workflow/{locationId}/move": {
       "kind": "destructive",
       "note": "Bulk move across workflows. Moving a PUBLISHED workflow is how a live automation ends up filed in a staging folder."
@@ -789,12 +1315,6 @@
     "PUT /workflow/{locationId}/move-directory/{workflowId}": {
       "summary": "Move ONE workflow between folders. The only route that accepts a null parent, i.e. the only way back to root.",
       "note": "The BATCH move cannot reach root -- null, \"\" and \"root\" all 404. Use this per-workflow route instead."
-    },
-    "PUT /workflow/{locationId}/only-triggers/{id}": {
-      "kind": "write",
-      "reach": "proven",
-      "summary": "Same route as the {wid} row — also live-proven INERT for trigger content, see that row.",
-      "note": "Same route as the {wid} row; the miner produced both spellings from different call sites — see that row's note. This does not persist a trigger edit either."
     },
     "PUT /workflow/{locationId}/only-triggers/{wid}": {
       "kind": "write",
@@ -809,547 +1329,21 @@
     "PUT /workflow/{locationId}/permissions": {
       "kind": "destructive"
     },
+    "PUT /workflow/{locationId}/rename-directory/{folderId}": {
+      "reach": "proven",
+      "note": "Executed on the designated sandbox 2026-09-10 in the workflows write-parity run. Folder rename. Answers 200 {\"msg\":\"Updated successfull\",\"error\":false} — note the typo and that `error:false` is the success signal. Read back changed and restored."
+    },
     "PUT /workflow/{locationId}/rename-workflow/{workflowId}": {
       "kind": "write",
       "summary": "Renames a workflow. Body is {\"name\": \"...\"}.",
       "note": "The only rename path that does NOT re-run the step validator. Use it instead of the full-document PUT, which re-validates every stored step and on a workflow whose own saved graph the validator now rejects fails outright with INVALID_FIELD_VALUE -- so a rename by full PUT can be refused on a workflow that is running perfectly well. ⚠️ Do NOT rely on it leaving `version` alone: one account observed 4 -> 4 (2026-08-31) and another observed 1 -> 2 on a flow workflow (2026-09-02). The two disagree and the cause is not established, so re-read the digest before any expectedVersion write that follows a rename. Executed on the designated sandbox 2026-09-10 in the workflows write-parity run. 🔴 404s on a FOLDER id, and the body is the bare string \"Not Found\" — which reads like a wrong route rather than a wrong object. GET /workflow/{locationId}/list returns BOTH (type \"directory\" x5 and \"workflow\" x95 on the sandbox); filter on type before renaming. Proven on a real workflow: {name} written, read back changed, restored.",
       "reach": "proven"
     },
-    "PUT /workflow/{locationId}/{wid}": {
-      "note": "The full-document commit re-runs the step validator over EVERY stored step, so it can be refused by a published, running workflow's own saved graph (INVALID_FIELD_VALUE, 'Action validation failed: <type> (...): Next is invalid'). The workflow keeps running and cannot be saved by anyone, API or builder. Never use this path for a rename -- rename-workflow skips the validator. Re-read before every write: a successful PUT bumps version and a later PUT built from a stale read 422s."
-    },
-    "POST /agent-logs/logs": {
-      "kind": "read",
-      "reach": "proven",
-      "summary": "Agent Logs Sessions table. A POST that READS (201).",
-      "note": "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone — either credential reaches this surface). Offset ceiling: (page-1)*limit must be <=500 or 400 \"Page too deep\"; `limit` is uncapped and `pageToken` (body, and ONLY when `page` is omitted) walks past it. Values are never validated — a bogus timeRange/sortBy is silently ignored, a bogus product/channel filters to 0 rows. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
-      "requiredQuery": [
-        "locationId"
-      ]
-    },
-    "POST /agent-logs/contacts": {
-      "kind": "read",
-      "reach": "proven",
-      "summary": "Agent Logs Contacts tab: one row per contact with products, channels, conversation and token totals.",
-      "note": "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone — either credential reaches this surface). Ignores the logs-only filters (contentSearch, metadataFilters, agentId, agentName, contactId) and emits NO nextPageToken, so it is hard-capped at offset 500. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
-      "requiredQuery": [
-        "locationId"
-      ]
-    },
-    "POST /agent-logs/metrics": {
-      "kind": "read",
-      "reach": "proven",
-      "summary": "Agent Logs Metrics tab: 35 widget datasets (overview, topModels/Tools/Agents/Contacts, time series, voice-call stats).",
-      "note": "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone — either credential reaches this surface). A non-empty widgetIds — even a bogus value — drops voiceAiCallStats and callSentimentStats. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
-      "requiredQuery": [
-        "locationId"
-      ]
-    },
-    "POST /agent-logs/filter-values": {
-      "kind": "read",
-      "reach": "proven-live",
-      "summary": "Dropdown values for one filter field, derived from that location’s data.",
-      "note": "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone — either credential reaches this surface). `field` is the one strictly validated enum: 422 \"field must be one of the following values: agentName, channel, contactName, voiceName\". limit caps at 100 and the list is never scoped by products/timeRange."
-    },
-    "GET /agent-logs/logs/{sessionId}": {
-      "kind": "read",
-      "reach": "proven",
-      "summary": "Session detail: a 4-key summary plus EVERY interaction inline.",
-      "note": "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone — either credential reaches this surface). Not the same as /summary: fewer summary keys, but all interactions, and it ignores page/limit. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
-      "requiredQuery": [
-        "locationId"
-      ]
-    },
-    "GET /agent-logs/logs/{sessionId}/summary": {
-      "kind": "read",
-      "reach": "proven",
-      "summary": "Session summary incl. totalInteractions, durationMs and per-product customConfigs.",
-      "note": "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone — either credential reaches this surface). A trace id here 404s \"No conversation data found for conversation\". requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
-      "requiredQuery": [
-        "locationId"
-      ]
-    },
-    "GET /agent-logs/logs/{sessionId}/interactions": {
-      "kind": "read",
-      "reach": "proven",
-      "summary": "One row per inbound message; each traceId IS that message’s CRM id.",
-      "note": "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone — either credential reaches this surface). Default limit is 100. A page past the end returns 200 empty; page=0 or negative returns 404. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
-      "requiredQuery": [
-        "locationId"
-      ]
-    },
-    "GET /agent-logs/logs/{traceId}/spans": {
-      "kind": "read",
-      "reach": "proven-live",
-      "summary": "The per-message execution trace: splitter branch + reasoning, knowledge chunks, tool calls, model, tokens.",
-      "note": "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone — either credential reaches this surface). Path id is the INBOUND MESSAGE id, not a session id (a session id 404s \"No spans found for trace\"). locationId is required. DO NOT send conversationId: the UI does, and it drops the ai_splitter span — the branch decision — from the trace."
-    },
-    "GET /agent-logs/logs/{sessionId}/metrics": {
-      "kind": "read",
-      "reach": "proven",
-      "summary": "Per-session metrics with a perInteraction[] series.",
-      "note": "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone — either credential reaches this surface). A wrong id returns 200 with zeroes rather than 404. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
-      "requiredQuery": [
-        "locationId"
-      ]
-    },
-    "GET /agent-logs/metrics-layouts": {
-      "kind": "read",
-      "reach": "proven",
-      "summary": "Saved Metrics dashboard layouts for the location.",
-      "note": "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone — either credential reaches this surface). Returns {layouts: []} when none exist — and the UI reacts to that by POSTing a default layout, so opening the Metrics tab in a browser WRITES. The populated shape is unproven. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
-      "requiredQuery": [
-        "locationId"
-      ]
-    },
-    "GET /agent-logs/health": {
-      "kind": "read",
-      "reach": "proven-live",
-      "summary": "Service health: {status, timestamp, traceId}.",
-      "note": "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone — either credential reaches this surface)."
-    },
-    "DELETE /agent-logs/logs/{sessionId}": {
-      "kind": "write",
-      "reach": "source-only",
-      "summary": "Delete a conversation log.",
-      "note": "Present in the bundle API client and wired (delete error strings ship) but UI-unreachable — no row-action string exists for it. NEVER called during mapping; destructive and unproven. 🔴 CATALOGUE MISLABEL: this row is DELETE but its `kind` says \"write\". Any sweep that filters on kind alone will treat it as a safe write. Filter on METHOD as well as kind. Not probed — nothing is deleted."
-    },
-    "POST /agent-logs/metrics-layouts": {
-      "kind": "write",
-      "reach": "proven",
-      "summary": "Create a Metrics dashboard layout.",
-      "note": "The UI calls this automatically when metrics-layouts is empty, seeding {name:\"Default\", isDefault:true, version:2}. Never called during mapping. Executed on the sandbox 2026-09-10, read back on a separate request (0 -> 1 layout, found by name). Body is exactly {locationId, name, widgets} with `widgets` at the TOP LEVEL — nesting it under a `layout` key answers 422 [\"widgets must be an array\"]. host:\"ai\" (services.leadconnectorhq.com); the read returns {status, layouts[], traceId} so a caller reading `.data` gets nothing."
-    },
-    "PUT /agent-logs/metrics-layouts/{layoutId}": {
-      "kind": "write",
-      "reach": "source-only",
-      "summary": "Update a Metrics dashboard layout.",
-      "note": "Never called during mapping; read-only sweep."
-    },
-    "DELETE /agent-logs/metrics-layouts/{layoutId}": {
-      "kind": "write",
-      "reach": "source-only",
-      "summary": "Delete a Metrics dashboard layout.",
-      "note": "Never called during mapping; read-only sweep. 🔴 CATALOGUE MISLABEL: DELETE row whose `kind` says \"write\". Filter on METHOD as well as kind. Not probed."
-    },
-    "GET /forms": {
-      "reach": "proven",
-      "note": "Live-proven 2026-09-06 (knowledge corpus/forms). Needs locationId, skip, limit; type=form returns forms only — ANY other type value (or none) returns forms AND folders in one array. query= is a substring name search; parentId= filters to a folder. Rows carry no formData; GET /forms/{id} does. token-id or Bearer, services or backend — all reach. The full lifecycle (POST /forms/ create, POST /forms/{id} save {name, formData}, duplicate, restore-version, move-to-folder, folders) is proven in corpus/forms/20-api/forms.md but has no rows here yet: the builder is a separate SPA with a PUBLIC source map (sniffs/forms-2026-09-06/builder-app/tree/src) that the generator does not read — see plugin/STATUS-2026-09-06-forms-surface.md."
-    },
-    "GET /surveys": {
-      "reach": "proven",
-      "note": "Live-proven 2026-09-06: {surveys:[], total}; same params as GET /forms. POST /surveys/ {locationId, name, source} creates a survey PRE-SEEDED with one slide (a form starts at formData {}). /surveys/* does NOT mirror /forms/* path for path (corrected 2026-09-07 from a full call-site extraction of the builder SPA): the survey app uses /surveys/… only for list, create, read, save, image, restore-version, themes and theme-style, and calls the /forms/… routes for delete, duplicate, share, folder create/read/list/rename and move-to-folder. So /surveys/duplicate/{id}, /surveys/folder and /surveys/move-to-folder are paths nothing in the product calls — untested, existence unknown. Corpus: knowledge/corpus/forms/20-api/surveys-and-quizzes.md."
-    },
-    "GET /surveys/{id}": {
-      "reach": "proven",
-      "note": "Live-proven 2026-09-06: {survey:{…, formData:{form, slides[]}}}. Survey save is POST /surveys/{id} {name, formData} (source-derived from the builder SPA; not executed)."
-    },
-    "POST /membership/smart-list/attach-offer-user": {
-      "kind": "write",
-      "summary": "Grants a published offer to a contact, which is what puts them in the course. Body is `{contactId, offerId, source:'admin'}` -- SINGULAR contactId, and no locationId (the location comes from the sourceid header the gateway already sends). Async: the response is an enqueue ack.",
-      "note": "Its 200 CARRIES NO INFORMATION ABOUT THE PAYLOAD. Live-proven on the test sub-account 2026-09-07: an empty body `{}`, fabricated ids, and the wrong key names each return the identical `200 {ok:true, msg:\"The request to attach the offer to the user has been successfully queued\"}` a real grant returns. The control that makes that a measurement: a nonexistent sibling path answers `404 {\"msg\":\"Not found\"}`, so the 200 is this route replying and not a catch-all. Two operators have now sent `{locationId, offerId, contactIds:[...]}` or `userIds:[...]`, been told it was queued, and granted nothing. The ONLY proof a grant landed is `GET services.../membership/locations/{loc}/products/user-progress/{productId}` containing the contactId you granted -- and check for THAT contact, not for a non-empty list, which passes on a pre-existing member. Revoke is a different path: DELETE /membership/smart-list/user-offer-management with a body.",
-      "reach": "proven-live"
-    },
-    "GET /funnels/builder/get-versions": {
-      "reach": "proven",
-      "note": "Live-proven 2026-09-10. Answers a BARE ARRAY, newest first. The id key is snake_case `version_id` — a caller reading `.versions` or `row.versionId` gets undefined, publishes nothing, and sees no error. `updated_at` is a Firestore {_seconds,_nanoseconds} object, not a string, so sorting it as a string silently does nothing."
-    },
-    "POST /funnels/builder/publish-version": {
-      "reach": "proven",
-      "note": "Live-proven 2026-09-10 with a 4-step differential. Body {pageId, versionId, userId}; userId is the JWT's authClassId and omitting it 422s. A published version is stamped pageType:'live', NOT 'published'. 🔴 Publishing PINS the public page to that version: the renderer serves the newest live version if one exists and falls back to the newest draft only while a page has NEVER been published, so after the first publish every later autosave is invisible in public with a 201 on each one."
-    },
-    "GET /snapshots/v2/preFetchAssets/{locationId}": {
-      "reach": "proven",
-      "note": "Executed through the plugin credential on the designated sandbox, 2026-09-10, as part of the snapshot parity run: list -> manifest -> conflicts -> create -> refresh, with the create read back on a separate request (snapshot count 8 -> 9 and the new snapshot found by name and id)."
-    },
-    "GET /snapshots/assets/asset-names": {
-      "reach": "proven",
-      "note": "Executed through the plugin credential on the designated sandbox, 2026-09-10, as part of the snapshot parity run: list -> manifest -> conflicts -> create -> refresh, with the create read back on a separate request (snapshot count 8 -> 9 and the new snapshot found by name and id)."
-    },
-    "POST /snapshots/{snapshotId}/conflicts": {
-      "reach": "proven",
-      "note": "Executed through the plugin credential on the designated sandbox, 2026-09-10, as part of the snapshot parity run: list -> manifest -> conflicts -> create -> refresh, with the create read back on a separate request (snapshot count 8 -> 9 and the new snapshot found by name and id)."
-    },
-    "POST /snapshots-appengine/v2/snapshots": {
-      "reach": "proven",
-      "note": "Executed through the plugin credential on the designated sandbox, 2026-09-10, as part of the snapshot parity run: list -> manifest -> conflicts -> create -> refresh, with the create read back on a separate request (snapshot count 8 -> 9 and the new snapshot found by name and id)."
-    },
-    "POST /snapshots-appengine/v2/snapshots/{snapshotId}/refresh": {
-      "reach": "proven",
-      "note": "Executed through the plugin credential on the designated sandbox, 2026-09-10, as part of the snapshot parity run: list -> manifest -> conflicts -> create -> refresh, with the create read back on a separate request (snapshot count 8 -> 9 and the new snapshot found by name and id)."
-    },
-    "GET /courses/analytics/locations/{locationId}/export/assessment-results": {
-      "reach": "proven",
-      "requiredQuery": [
-        "totalRows"
-      ],
-      "note": "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them. requiredQuery proven live 2026-09-10: totalRows."
-    },
-    "GET /forms/themes": {
-      "reach": "proven",
-      "requiredQuery": [
-        "locationId"
-      ],
-      "note": "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them."
-    },
-    "GET /funnels/builder/prebuilt-section/hero/template/hero/hero": {
-      "reach": "proven",
-      "requiredQuery": [
-        "locationId"
-      ],
-      "note": "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them."
-    },
-    "GET /payment-links/settings": {
-      "reach": "proven",
-      "requiredQuery": [
-        "altId",
-        "altType"
-      ],
-      "note": "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them. requiredQuery proven live 2026-09-10: altId, altType. 🔴 This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND — the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder."
-    },
-    "GET /vibe-ai/folders": {
-      "reach": "proven",
-      "requiredQuery": [
-        "alt_id"
-      ],
-      "note": "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them. requiredQuery proven live 2026-09-10: alt_id."
-    },
-    "GET /vibe-ai/projects": {
-      "reach": "proven",
-      "requiredQuery": [
-        "alt_id"
-      ],
-      "note": "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them. requiredQuery proven live 2026-09-10: alt_id."
-    },
-    "GET /ai-wrapper/plan/company": {
-      "reach": "proven",
-      "requiredQuery": [
-        "companyId"
-      ],
-      "note": "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them."
-    },
-    "GET /ai-wrapper/plan/location": {
-      "reach": "proven",
-      "requiredQuery": [
-        "locationId"
-      ],
-      "note": "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them."
-    },
-    "GET /forms/submissions": {
-      "reach": "proven",
-      "requiredQuery": [
-        "limit"
-      ],
-      "note": "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them. requiredQuery proven live 2026-09-10: limit."
-    },
-    "GET /surveys/folder": {
-      "reach": "proven",
-      "requiredQuery": [
-        "locationId"
-      ],
-      "note": "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them."
-    },
-    "POST /workflow/{locationId}/scheduler-trigger/preview": {
-      "reach": "proven",
-      "note": "Executed on the designated sandbox 2026-09-10 in the workflows write-parity run. 🔴 `conditions` must be a NON-EMPTY array or it answers 400 \"conditions array is required and cannot be empty\" — an empty array is refused, not treated as \"no filter\". Proven with [{field:\"dayOfWeek\",value:\"monday\"}]; returns {success:true, executions:[]}."
-    },
-    "PUT /workflow/{locationId}/auto-save/settings": {
-      "reach": "proven",
-      "note": "Executed on the designated sandbox 2026-09-10 in the workflows write-parity run. Round-tripped: isActive flipped, read back changed on a separate request, and restored. Send the whole settings document back, not a patch."
-    },
-    "PUT /workflow/{locationId}/error-notification/settings/is-active": {
-      "reach": "proven",
-      "note": "Executed on the designated sandbox 2026-09-10 in the workflows write-parity run. Round-tripped on {isActive}; read back changed and restored. Its read is GET /workflow/{locationId}/error-notification/settings."
-    },
-    "PUT /workflow/{locationId}/error-notification/settings/users": {
-      "reach": "proven",
-      "note": "Executed on the designated sandbox 2026-09-10 in the workflows write-parity run. Round-tripped on {users:[userId]}; read back changed ([] -> [id]) and restored."
-    },
-    "PUT /workflow/{locationId}/rename-directory/{folderId}": {
-      "reach": "proven",
-      "note": "Executed on the designated sandbox 2026-09-10 in the workflows write-parity run. Folder rename. Answers 200 {\"msg\":\"Updated successfull\",\"error\":false} — note the typo and that `error:false` is the success signal. Read back changed and restored."
-    },
-    "POST /workflow/{locationId}/ai/custom-code-ai": {
-      "reach": "proven",
-      "note": "Executed on the designated sandbox 2026-09-10, workflows write-parity sweep. 🔴 workflowId and sessionId go in the QUERY STRING, not the body — sent in the body they are not seen and the endpoint answers 422 \"Workflow ID is required\" / \"Session ID is required\", one field per round. `messages` is a chat array [{role,content}] in the body; `prompt` is refused with \"Messages are required\". Proven: returned the generated snippet \"{{input}}\"."
-    },
-    "POST /workflow/{locationId}/ai/sms-ai": {
-      "reach": "proven",
-      "note": "Executed on the designated sandbox 2026-09-10, workflows write-parity sweep. 🔴 workflowId and sessionId go in the QUERY STRING, not the body — sent in the body they are not seen and the endpoint answers 422 \"Workflow ID is required\" / \"Session ID is required\", one field per round. `messages` is a chat array [{role,content}] in the body; `prompt` is refused with \"Messages are required\". Proven 200."
-    },
-    "POST /workflow/{locationId}/ai/email-ai": {
-      "note": "Executed on the designated sandbox 2026-09-10, workflows write-parity sweep. 🔴 workflowId and sessionId go in the QUERY STRING, not the body — sent in the body they are not seen and the endpoint answers 422 \"Workflow ID is required\" / \"Session ID is required\", one field per round. `messages` is a chat array [{role,content}] in the body; `prompt` is refused with \"Messages are required\". With the same complete arguments it answers 500 \"Something went wrong. Please try again later.\" — a server fault, not a caller defect. Left unproven deliberately."
-    },
-    "POST /workflow/{locationId}/v3/ai/message": {
-      "reach": "proven",
-      "note": "Executed on the designated sandbox 2026-09-10, workflows write-parity sweep. Body {sessionId, messages}; workflowId in the QUERY. Responds as an SSE STREAM (data: {\"type\":\"data-workflow-event\"...}) carrying a langfuse traceId, not a JSON object."
-    },
-    "POST /workflow/{locationId}/v3/ai/wait": {
-      "reach": "proven",
-      "note": "Executed on the designated sandbox 2026-09-10, workflows write-parity sweep. 🔴 Takes `prompt` (a string), NOT `messages` — the sibling v3/ai/message takes messages, so the two disagree. Body {sessionId, prompt, mode:\"create\"}, workflowId in the query. Returns {status:\"proceed\", mode, waitAttributes:{...}} — a ready-made wait step."
-    },
-    "POST /actions/{type}/branches": {
-      "note": "🔴 THE BASE IS /workflows-marketplace, NOT the service root. At the root this path answers 404 with an EMPTY body (or Express's \"Cannot POST ...\"), which reads like a dead endpoint; under /workflows-marketplace the same path answers from a real service — 400 \"Action does not exists for this key\" / \"Trigger does not exists for this key\", or 403 \"locationId is required\". Route existence is proven; a 200 additionally needs a marketplace app installed on the account, which the sandbox has none of."
-    },
-    "POST /actions/published/{type}/dynamic-fields": {
-      "note": "🔴 THE BASE IS /workflows-marketplace, NOT the service root. At the root this path answers 404 with an EMPTY body (or Express's \"Cannot POST ...\"), which reads like a dead endpoint; under /workflows-marketplace the same path answers from a real service — 400 \"Action does not exists for this key\" / \"Trigger does not exists for this key\", or 403 \"locationId is required\". Route existence is proven; a 200 additionally needs a marketplace app installed on the account, which the sandbox has none of."
-    },
-    "POST /triggers/published/{type}/dynamic-fields": {
-      "note": "🔴 THE BASE IS /workflows-marketplace, NOT the service root. At the root this path answers 404 with an EMPTY body (or Express's \"Cannot POST ...\"), which reads like a dead endpoint; under /workflows-marketplace the same path answers from a real service — 400 \"Action does not exists for this key\" / \"Trigger does not exists for this key\", or 403 \"locationId is required\". Route existence is proven; a 200 additionally needs a marketplace app installed on the account, which the sandbox has none of."
-    },
-    "POST /actions/dynamic-source-details/{key}": {
-      "note": "🔴 THE BASE IS /workflows-marketplace, NOT the service root. At the root this path answers 404 with an EMPTY body (or Express's \"Cannot POST ...\"), which reads like a dead endpoint; under /workflows-marketplace the same path answers from a real service — 400 \"Action does not exists for this key\" / \"Trigger does not exists for this key\", or 403 \"locationId is required\". Route existence is proven; a 200 additionally needs a marketplace app installed on the account, which the sandbox has none of."
-    },
-    "POST /triggers/dynamic-source-details/{key}": {
-      "note": "🔴 THE BASE IS /workflows-marketplace, NOT the service root. At the root this path answers 404 with an EMPTY body (or Express's \"Cannot POST ...\"), which reads like a dead endpoint; under /workflows-marketplace the same path answers from a real service — 400 \"Action does not exists for this key\" / \"Trigger does not exists for this key\", or 403 \"locationId is required\". Route existence is proven; a 200 additionally needs a marketplace app installed on the account, which the sandbox has none of."
-    },
-    "POST /triggers/dynamic-source/{key}": {
-      "note": "🔴 THE BASE IS /workflows-marketplace, NOT the service root. At the root this path answers 404 with an EMPTY body (or Express's \"Cannot POST ...\"), which reads like a dead endpoint; under /workflows-marketplace the same path answers from a real service — 400 \"Action does not exists for this key\" / \"Trigger does not exists for this key\", or 403 \"locationId is required\". Route existence is proven; a 200 additionally needs a marketplace app installed on the account, which the sandbox has none of."
-    },
-    "POST /workflow/{locationId}/tags/create": {
-      "note": "Executed on the designated sandbox 2026-09-10, workflows write-parity sweep. Refused four body shapes ({name}, {tags:[]}, +locationId, +workflowId) with a bare-string 400 \"Bad Request\" — no validation detail, so the shape is still unknown. Not a reach failure; a shape we have not found."
-    },
-    "PUT /membership/locations/{locationId}/categories/sequence": {
-      "note": "🔴 ANSWERS 2xx TO AN EMPTY BODY. Measured 2026-09-10 on the sandbox: POST/PUT with `{}` returned 2xx. That is a HAZARD, not a capability — this rail has a known case (attach-offer-user) where an empty body is acknowledged with the same 200 a real grant returns, so a 2xx here says nothing about what was stored and may mean a real mutation ran with defaults. Never record this row as proven on an empty-body 2xx; supply a real body and read the object back."
-    },
-    "POST /membership/locations/{locationId}/comments/filtered": {
-      "note": "🔴 ANSWERS 2xx TO AN EMPTY BODY. Measured 2026-09-10 on the sandbox: POST/PUT with `{}` returned 2xx. That is a HAZARD, not a capability — this rail has a known case (attach-offer-user) where an empty body is acknowledged with the same 200 a real grant returns, so a 2xx here says nothing about what was stored and may mean a real mutation ran with defaults. Never record this row as proven on an empty-body 2xx; supply a real body and read the object back."
-    },
-    "PUT /membership/locations/{locationId}/posts/material/sequence": {
-      "note": "🔴 ANSWERS 2xx TO AN EMPTY BODY. Measured 2026-09-10 on the sandbox: POST/PUT with `{}` returned 2xx. That is a HAZARD, not a capability — this rail has a known case (attach-offer-user) where an empty body is acknowledged with the same 200 a real grant returns, so a 2xx here says nothing about what was stored and may mean a real mutation ran with defaults. Never record this row as proven on an empty-body 2xx; supply a real body and read the object back."
-    },
-    "PUT /membership/locations/{locationId}/posts/sequence": {
-      "note": "🔴 ANSWERS 2xx TO AN EMPTY BODY. Measured 2026-09-10 on the sandbox: POST/PUT with `{}` returned 2xx. That is a HAZARD, not a capability — this rail has a known case (attach-offer-user) where an empty body is acknowledged with the same 200 a real grant returns, so a 2xx here says nothing about what was stored and may mean a real mutation ran with defaults. Never record this row as proven on an empty-body 2xx; supply a real body and read the object back."
-    },
-    "PUT /membership/locations/{locationId}/products/library-order": {
-      "note": "🔴 ANSWERS 2xx TO AN EMPTY BODY. Measured 2026-09-10 on the sandbox: POST/PUT with `{}` returned 2xx. That is a HAZARD, not a capability — this rail has a known case (attach-offer-user) where an empty body is acknowledged with the same 200 a real grant returns, so a 2xx here says nothing about what was stored and may mean a real mutation ran with defaults. Never record this row as proven on an empty-body 2xx; supply a real body and read the object back."
-    },
-    "POST /membership/locations/{locationId}/settings/builder-settings": {
-      "note": "🔴 ANSWERS 2xx TO AN EMPTY BODY. Measured 2026-09-10 on the sandbox: POST/PUT with `{}` returned 2xx. That is a HAZARD, not a capability — this rail has a known case (attach-offer-user) where an empty body is acknowledged with the same 200 a real grant returns, so a 2xx here says nothing about what was stored and may mean a real mutation ran with defaults. Never record this row as proven on an empty-body 2xx; supply a real body and read the object back."
-    },
-    "POST /membership/locations/{locationId}/settings/site-info": {
-      "note": "🔴 ANSWERS 2xx TO AN EMPTY BODY. Measured 2026-09-10 on the sandbox: POST/PUT with `{}` returned 2xx. That is a HAZARD, not a capability — this rail has a known case (attach-offer-user) where an empty body is acknowledged with the same 200 a real grant returns, so a 2xx here says nothing about what was stored and may mean a real mutation ran with defaults. Never record this row as proven on an empty-body 2xx; supply a real body and read the object back."
-    },
-    "POST /courses/analytics/locations/{locationId}/members/count": {
-      "note": "🔴 ANSWERS 2xx TO AN EMPTY BODY. Measured 2026-09-10 on the sandbox: POST/PUT with `{}` returned 2xx. That is a HAZARD, not a capability — this rail has a known case (attach-offer-user) where an empty body is acknowledged with the same 200 a real grant returns, so a 2xx here says nothing about what was stored and may mean a real mutation ran with defaults. Never record this row as proven on an empty-body 2xx; supply a real body and read the object back."
-    },
-    "GET /membership/.../categories": {
-      "note": "🔴 THIS ROW IS UNCALLABLE: its path contains a literal \"...\" left by the source miner, so every request 404s. 15 rows are in this state, all on this service. 11 of them — including this one — duplicate a full-path row already in the catalogue; use that one instead. Measured 2026-09-10."
-    },
-    "POST /membership/.../categories": {
-      "note": "🔴 THIS ROW IS UNCALLABLE: its path contains a literal \"...\" left by the source miner, so every request 404s. 15 rows are in this state, all on this service. 11 of them — including this one — duplicate a full-path row already in the catalogue; use that one instead. Measured 2026-09-10."
-    },
-    "PUT /membership/.../categories/{id}": {
-      "note": "🔴 THIS ROW IS UNCALLABLE: its path contains a literal \"...\" left by the source miner, so every request 404s. 15 rows are in this state, all on this service. 11 of them — including this one — duplicate a full-path row already in the catalogue; use that one instead. Measured 2026-09-10."
-    },
-    "POST /membership/.../certificate-attachments": {
-      "note": "🔴 THIS ROW IS UNCALLABLE: its path contains a literal \"...\" left by the source miner, so every request 404s. 15 rows are in this state, all on this service. 11 of them — including this one — duplicate a full-path row already in the catalogue; use that one instead. Measured 2026-09-10."
-    },
-    "POST /membership/.../media/signed-url": {
-      "note": "🔴 THIS ROW IS UNCALLABLE: its path contains a literal \"...\" left by the source miner, so every request 404s. 15 rows are in this state, all on this service. 11 of them — including this one — duplicate a full-path row already in the catalogue; use that one instead. Measured 2026-09-10."
-    },
-    "POST /membership/.../offers": {
-      "note": "🔴 THIS ROW IS UNCALLABLE: its path contains a literal \"...\" left by the source miner, so every request 404s. 15 rows are in this state, all on this service. 11 of them — including this one — duplicate a full-path row already in the catalogue; use that one instead. Measured 2026-09-10."
-    },
-    "POST /membership/.../posts": {
-      "note": "🔴 THIS ROW IS UNCALLABLE: its path contains a literal \"...\" left by the source miner, so every request 404s. 15 rows are in this state, all on this service. 11 of them — including this one — duplicate a full-path row already in the catalogue; use that one instead. Measured 2026-09-10."
-    },
-    "PUT /membership/.../posts/{id}": {
-      "note": "🔴 THIS ROW IS UNCALLABLE: its path contains a literal \"...\" left by the source miner, so every request 404s. 15 rows are in this state, all on this service. 11 of them — including this one — duplicate a full-path row already in the catalogue; use that one instead. Measured 2026-09-10."
-    },
-    "POST /membership/.../products": {
-      "note": "🔴 THIS ROW IS UNCALLABLE: its path contains a literal \"...\" left by the source miner, so every request 404s. 15 rows are in this state, all on this service. 11 of them — including this one — duplicate a full-path row already in the catalogue; use that one instead. Measured 2026-09-10."
-    },
-    "DELETE /membership/.../products/{id}": {
-      "note": "🔴 THIS ROW IS UNCALLABLE: its path contains a literal \"...\" left by the source miner, so every request 404s. 15 rows are in this state, all on this service. 11 of them — including this one — duplicate a full-path row already in the catalogue; use that one instead. Measured 2026-09-10."
-    },
-    "POST /membership/.../videos": {
-      "note": "🔴 THIS ROW IS UNCALLABLE: its path contains a literal \"...\" left by the source miner, so every request 404s. 15 rows are in this state, all on this service. 11 of them — including this one — duplicate a full-path row already in the catalogue; use that one instead. Measured 2026-09-10."
-    },
-    "POST /courses/.../product-themes": {
-      "note": "🔴 THIS ROW IS UNCALLABLE: its path contains a literal \"...\" left by the source miner, and unlike the other truncated rows it has NO full-path twin in the catalogue — the real path was lost in mining and needs re-capture before this endpoint can be reached at all. Measured 2026-09-10."
-    },
-    "PUT /membership/.../categories": {
-      "note": "🔴 THIS ROW IS UNCALLABLE: its path contains a literal \"...\" left by the source miner, and unlike the other truncated rows it has NO full-path twin in the catalogue — the real path was lost in mining and needs re-capture before this endpoint can be reached at all. Measured 2026-09-10."
-    },
-    "PUT /membership/.../posts": {
-      "note": "🔴 THIS ROW IS UNCALLABLE: its path contains a literal \"...\" left by the source miner, and unlike the other truncated rows it has NO full-path twin in the catalogue — the real path was lost in mining and needs re-capture before this endpoint can be reached at all. Measured 2026-09-10."
-    },
-    "PUT /membership/.../products": {
-      "note": "🔴 THIS ROW IS UNCALLABLE: its path contains a literal \"...\" left by the source miner, and unlike the other truncated rows it has NO full-path twin in the catalogue — the real path was lost in mining and needs re-capture before this endpoint can be reached at all. Measured 2026-09-10."
-    },
-    "POST /opportunities/lost-reason": {
-      "reach": "proven",
-      "note": "Executed on the designated sandbox 2026-09-10, write-parity sweep, with a read-back on a separate request. Body {name, locationId}; locationId is also required in the QUERY. Proven by differential: 7 -> 8 reasons, found by name. Returns {lostReason:{_id,...}}."
-    },
-    "POST /forms/folder/": {
-      "reach": "proven",
-      "note": "Executed on the designated sandbox 2026-09-10, write-parity sweep, with a read-back on a separate request. 🔴 `productType` is REQUIRED and is not in any declared schema — omit it and the call answers 422 [\"productType should not be empty\",\"productType must be a string\"]. \"form\" is proven; the folder list is also scoped by productType, so a folder created under one value is invisible to a read using another. Proven by differential: 0 -> 1 folder, found by name."
-    },
-    "POST /funnels/builder/prebuilt-section": {
-      "reach": "refused",
-      "note": "Answers 401 {\"statusCode\":401,\"message\":\"Unauthorized Exception\"} to a location credential, 2026-09-10, while its GET counterpart returns 17 sections on the same token. The 401 carries no field name, so unlike the usual GHL 401 this is a genuine permission boundary rather than a validation failure in disguise — saving a prebuilt section is very likely an agency-level gesture. Reading them is fine; writing one is not, from here."
-    },
-    "POST /snapshots/{snapshotId}/snapshot-preferences": {
-      "note": "🔴 Answers 201 {\"success\":true,\"message\":\"Snapshot preferences upserted successfully\"} and the value does NOT appear in the read-back (2026-09-10, on a snapshot this project created). Do not read that message as confirmation. Note the likely cause is on the caller side, not the server: the GET returns {\"success\":true,\"data\":[]} — preferences are a LIST — and the probe sent a single object, so the shape is probably wrong. Either way the message is not evidence of storage; read the preference back before believing it."
-    },
-    "PUT /calendars/{calendarId}": {
-      "reach": "proven",
-      "note": "Executed on the sandbox 2026-09-10 by round trip — description changed, read back on a separate request, restored. 🔴 THE READ SHAPE IS NOT THE WRITE SHAPE. Sending back what GET returns answers 422 twice over. First it names ten server-added properties that \"should not exist\" and must be stripped: id, deleted, dateAdded, dateUpdated, isSystemGenerated, locationId, createdBy, lastUpdatedBy, version, notificationStatus. Then it rejects `openHours` — the sub-object the GET itself returned — with \"openHours.must be a valid day of week / daysOfTheWeek must be an array / hours must be an array\". Dropping openHours entirely lands a 200 and leaves the stored hours alone. So a naive read-modify-write is refused, and the refusal arrives one layer at a time."
-    },
-    "POST /opportunities/pipelines": {
-      "reach": "proven",
-      "note": "Executed on the designated sandbox 2026-09-10, write-parity sweep, read back on a separate request. Body {name, locationId, stages:[{name, position}]}. Proven by differential: 6 -> 7 pipelines, found by name."
-    },
-    "POST /snippets/{locationId}": {
-      "reach": "proven",
-      "note": "Executed on the designated sandbox 2026-09-10, write-parity sweep, read back on a separate request. Body {name, locationId, body, type} — `type` is the channel (\"sms\" proven). Proven by differential: 7 -> 8 snippets, found by name."
-    },
-    "POST /contacts/search": {
-      "reach": "proven",
-      "note": "Executed on the designated sandbox 2026-09-10, write-parity sweep, read back on a separate request. A READ-shaped POST. Body {locationId, page, pageLimit, filters:[]} returns {contacts:[...]} — an empty filters array is accepted and means \"no filter\", unlike scheduler-trigger/preview which refuses one."
-    },
-    "POST /surveys/folder/": {
-      "reach": "proven",
-      "note": "Executed on the designated sandbox 2026-09-10, write-parity sweep, read back on a separate request. 🔴 REFUSES `productType` — 422 [\"property productType should not exist\"] — while its sibling POST /forms/folder/ REQUIRES it. Two folder endpoints on the same service with opposite contracts; do not copy one body to the other. Body is just {name, locationId}. Proven: 0 -> 1 folder, found by name."
-    },
-    "POST /workflow/{locationId}/folder": {
-      "note": "🔴 WRONG PATH IN THIS ROW: /workflow/{locationId}/folder answers 404 {\"msg\":\"Not found\"}. The real path is **/workflow/{locationId}/directory**, proven on the sandbox 2026-09-10 — body {name, locationId}, answers 200 {id}, and the folder count in /workflow/{locationId}/list went 6 -> 7 with the new folder found by name. Folders appear in that list as rows with type \"directory\"."
-    },
-    "GET /opportunities/smart-filters": {
-      "reach": "proven",
-      "note": "Executed on the designated sandbox 2026-09-10, write-parity sweep, read back on a separate request. 🔴 BOTH `pipelineId` AND `filterType` are required query params — locationId alone answers 400 \"pipelineId can't be undefined\" (code COMMON_PIPELINE_ID_UNDEFINED), and adding pipelineId alone then answers 422 naming filterType with its enum: **smartlist | smarttag**. With all three it returns {smartFilters, total, page, limit}. Its POST twin additionally requires a non-empty `color`, a non-empty `filters` array and `position` >= 1; the filter shape was not invented, so the write stays unproven."
-    },
-    "POST /brand-boards/voices/{locationId}/default": {
-      "reach": "proven",
-      "note": "Executed on the sandbox 2026-09-10 against this project's own TEST-CAP brand voice: body {brandVoiceId, locationId}, answers 200 {success, message, brandVoiceId, locationId}, and the voice's isDefault read back false -> true on a separate request. NOTE the probe artifact is LEFT as the default — there is no obvious unset call on this rail, and the account has exactly one (test) voice, so nothing real was displaced."
-    },
-    "POST /funnels/page/create-page": {
-      "note": "🔴 Body needs `step` as an OBJECT, not a name — 422 [\"step should not be empty\",\"step must be an object\"] otherwise. Supply the full create-step shape INCLUDING a client-minted step.id (rule 24: a server-minted step is unrepairable). With that body the call answered **524, a Cloudflare edge TIMEOUT**, on 2026-09-10. A 524 is an UNKNOWN, not a failure — the origin may still have committed. Checked afterwards and it wrote NOTHING: steps, pages and routing rows were all unchanged. Always read back after a 524 here rather than retrying blind, or a retry can double-create."
-    },
-    "GET /brand-boards/{locationId}": {
-      "reach": "proven",
-      "note": "Executed 2026-09-10 — returns {brandBoards, totalCount, traceId}; zero boards on the sandbox, which is why its /default write twin has nothing to target and is not probed."
-    },
-    "GET /events-management/tickets": {
-      "reach": "proven",
-      "note": "Executed 2026-09-10 — returns {tickets, traceId}; empty on the sandbox."
-    },
     "PUT /workflow/{locationId}/workflow-ai/settings": {
       "note": "Its GET returns an EMPTY OBJECT {} on the sandbox, so there is no baseline to diff a write against and no field whose type is known. Not probed: writing here would be inventing a schema and could not be verified either way."
     },
-    "GET /ai-wrapper/usage/v2/fup-status": {
-      "reach": "proven",
-      "requiredQuery": [
-        "product"
-      ],
-      "note": "requiredQuery proven live 2026-09-10: product."
-    },
-    "GET /funnels/page": {
-      "reach": "proven",
-      "requiredQuery": [
-        "funnelId",
-        "limit",
-        "offset"
-      ],
-      "note": "requiredQuery proven live 2026-09-10: funnelId, limit, offset. 🔴 This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND — the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder."
-    },
-    "GET /funnels/page/product": {
-      "reach": "proven",
-      "requiredQuery": [
-        "funnelId",
-        "limit",
-        "offset"
-      ],
-      "note": "requiredQuery proven live 2026-09-10: funnelId, limit, offset. 🔴 This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND — the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder."
-    },
-    "GET /payments/coupon/list": {
-      "reach": "proven",
-      "requiredQuery": [
-        "altId",
-        "altType"
-      ],
-      "note": "requiredQuery proven live 2026-09-10: altId, altType. 🔴 This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND — the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder."
-    },
-    "GET /payments/integrations/provider/connected": {
-      "reach": "proven",
-      "requiredQuery": [
-        "altId",
-        "altType"
-      ],
-      "note": "requiredQuery proven live 2026-09-10: altId, altType. 🔴 This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND — the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder."
-    },
-    "GET /products/": {
-      "reach": "proven",
-      "requiredQuery": [
-        "altId",
-        "locationId"
-      ],
-      "note": "requiredQuery proven live 2026-09-10: altId, locationId. 🔴 This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND — the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder."
-    },
-    "GET /templates/category/list": {
-      "reach": "proven",
-      "requiredQuery": [
-        "limit",
-        "offset",
-        "product"
-      ],
-      "note": "requiredQuery proven live 2026-09-10: limit, offset, product. 🔴 This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND — the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder."
-    },
-    "GET /templates/template-search/facets": {
-      "reach": "proven",
-      "requiredQuery": [
-        "product"
-      ],
-      "note": "requiredQuery proven live 2026-09-10: product."
-    },
-    "GET /templates/template-search/suggestions": {
-      "reach": "proven",
-      "requiredQuery": [
-        "product"
-      ],
-      "note": "requiredQuery proven live 2026-09-10: product."
-    },
-    "POST /communities/{locationId}/groups": {
-      "reach": "proven",
-      "note": "Executed on the designated sandbox 2026-09-10, read back on a separate request. Body {name, description, locationId, slug}. 🔴 `slug` is REQUIRED and is announced in the MONGOOSE dialect — {\"errors\":{\"slug\":{\"message\":\"Path `slug` is required.\"}}} — with no `message` array, so a reader parsing only the NestJS shape sees nothing. Proven by differential: 0 -> 1 group, found by name."
-    },
-    "POST /membership/locations/{locationId}/categories": {
-      "reach": "proven",
-      "note": "Executed on the designated sandbox 2026-09-10, read back on a separate request. Body {title, locationId, productId} — a category belongs to a COURSE. 🔴 `productId` is announced in the SEQUELIZE dialect — {\"msg\":\"notNull Violation: Category.productId cannot be null\"} — again with no `message` array. Proven by differential: 1 -> 2 categories, found by title."
-    },
-    "POST /events-management/tickets": {
-      "note": "Named its own requirements on 2026-09-10: {eventId, price, quantity} — price and quantity must be NUMBERS (filled with an empty string they answer \"must be a number\" indefinitely). Unproven because the sandbox holds zero events, so there is no eventId to attach a ticket to. Not a reach problem; a fixture problem."
-    },
-    "POST /knowledge-base/": {
-      "reach": "proven",
-      "note": "Executed on the sandbox 2026-09-11 — body {name, locationId} answers 201 and the base is readable immediately. Minted to unblock the three read rows keyed on {knowledgeBaseId}, which had no verdict purely because the account held no knowledge base."
-    },
-    "POST /events-management/event": {
-      "note": "Refuses with 422 [\"type must be a valid enum value\"] — the field is named but its MEMBERS are not, unlike sibling errors on this API which spell the vocabulary out (\"product must be one of the following values: ask-ai, ...\"). Supplying a value here would test the guess rather than the row, so it was left. This is what blocks the five read rows keyed on {eventId}: the sandbox holds zero events and one cannot be minted without the enum."
-    },
-    "PUT /email-isv/feature/domain/set-default-headers/{domain}": {
-      "kind": "write",
-      "note": "🔴 THE EMAIL SENDER DISPLAY NAME, and it is WRITABLE — it had been reported to a client as UI-only. Body {fromEmail, fromName}; send BOTH, the handler takes them together so omitting fromEmail may clear it. Scope key is companyId for entityType COMPANY, else locationId. ⚠️ NOT PROVEN HERE — no reach. The only execution is a PEER SESSION's, on a CLIENT account this project may never write to, verified there by re-reading two independent services — fromEmail, warmup, defaultDomain and all eight types[] percentages survived untouched. 🔴 HIGH BLAST RADIUS, NEEDS EXPLICIT HUMAN APPROVAL: types[] read all eight rails at 100% (calendar, invoices, oneToOne, bulk-request, campaign, workflow, client-portal, client-portal-otp), so this one field is the sender identity on INVOICES and on replies staff type by hand in Conversations. It cannot be scoped to one rail. It could not be reproduced on GROM Sandbox: that account has zero sending domains, so there is nothing to address. Proving it needs a domain on a test sub-account AND the user's explicit word, because of the blast radius below. ⚠️ SCOPE OF THE EVIDENCE: the one account behind this row read domainOwnershipType 'location_owned', type 'leadconnector'. The agency-owned and shared-domain shapes have never been seen, and a shared domain's headers are plausibly not a single location's to set — do not generalise this row to them. SCOPE: this addresses a domain from /email-isv/feature/domain/list, which carries only LOCATION-OWNED domains. On an account whose sending domain is agency-owned the list is empty and there is no reachable target at all — check list is non-empty before offering this as the way to change a sender name."
-    },
-    "GET /email-isv/feature/domain/list": {
-      "reach": "proven",
-      "kind": "read",
-      "note": "Richer than /workflow/{locationId}/email/location-email-provider: fromName, fromEmail, warmup{mode,stage,status}, types[] with per-type percentages, defaultDomain, emailSentCount/emailSentLimit, ssl, ips, domainAddedDate. ⚠️ Answers on BOTH hosts (services AND backend) — re-verified on GROM Sandbox 2026-09-11, where it returns []. The original capture saw only services, so \"ai host\" is where it was observed, not a constraint. 🔴 AN EMPTY ARRAY DOES NOT MEAN THE ACCOUNT HAS NO SENDING DOMAIN. GROM Sandbox returns [] while GET /workflow/{loc}/email/location-email-provider reports a live, actively warming domain (link.gromdigital.com, domainOwnershipType 'agency_owned'), and asking this rail for that domain by name answers 400 \"not found in the system\". This rail is scoped to LOCATION-OWNED domains only; an agency-owned domain is invisible to it. Read [] as 'no domain this location owns', never as an unconfigured account."
-    },
-    "GET /email-isv/feature/domain/removal-allowed": {
-      "reach": "proven",
-      "kind": "read",
-      "note": "Executed on GROM Sandbox 2026-09-11 — 200 on a location with no domains."
-    },
-    "GET /email-isv/feature/domain/domain-selection-list": {
-      "kind": "read",
-      "note": "Executed 2026-09-11: 422 [\"domains must be a string\",\"domains should not be empty\",\"source should not be empty\",\"source must be a valid enum value\"]. The route exists; `source` is an enum whose members the error does NOT spell out, so it was not guessed."
-    },
-    "GET /conversations/providers/mailgun/fetch/domain": {
-      "reach": "proven",
-      "kind": "read",
-      "note": "🔴 A 400 HERE IS AN ANSWER, NOT A FAILURE. On an account using LeadConnector email it returns 400 {\"message\":\"No MailgunAccount found\",\"canonicalCode\":\"CONVERSATIONS_SOMETHING_WENT_WRONG\"} — which tells you the account is NOT on bring-your-own Mailgun. Not an auth problem and not a wrong path. Reproduced on GROM Sandbox 2026-09-11 on BOTH hosts — backend and services each answered the identical 400 with its own traceId, so this row is not host-specific."
+    "PUT /workflow/{locationId}/{workflowId}": {
+      "note": "The full-document commit re-runs the step validator over EVERY stored step, so it can be refused by a published, running workflow's own saved graph (INVALID_FIELD_VALUE, 'Action validation failed: <type> (...): Next is invalid'). The workflow keeps running and cannot be saved by anyone, API or builder. Never use this path for a rename -- rename-workflow skips the validator. Re-read before every write: a successful PUT bumps version and a later PUT built from a stale read 422s."
     }
   }
 }

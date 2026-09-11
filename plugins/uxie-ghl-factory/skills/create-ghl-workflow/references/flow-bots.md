@@ -18,6 +18,9 @@ engine emitted it on the document from 2026-07-15 to 2026-08-26 and **GHL discar
 flow built in that window had an unbound trigger while the build reported `verify.pass: 1`. If you
 see a flow whose trigger has `conditions: []`, that is the bug — re-author it.
 
+`validate_workflow` names this defect directly: `Bot is required`, layer `trigger`, rule
+`missing-required-field`. Run it after every flow build. A clean round-trip does not catch it.
+
 Omit `convTriggerBotId` and the compiler warns `FLOW_BINDING:`. Do not ignore it.
 
 ## Creation order is workflow-FIRST

@@ -144,6 +144,20 @@ This exists because the UNguarded version of it — GET, hand-edit the JSON, PUT
 only way to express some changes, and it skips every check above. Eight client workflows carried a
 dead pipeline-stage NAME to the wire through that route while the build reported clean.
 
+### Checking an edit before it is saved: `validate_workflow`
+
+`validate_workflow` asks GHL's own server validator, the one the builder calls live on every change,
+whether a workflow would pass. It writes nothing. Pass `templates` to validate the stored document with
+your edited tree in place, before `edit_workflow` or `repair_workflow` writes it.
+
+- **Read `layer`.** A failing call reports ONE layer. A structural or action failure is reported
+  instead of a trigger failure the same document also has. Fix what it names and call again until
+  `valid: true`.
+- It always sends the workflow's stored triggers. Without them the server skips the trigger layer and
+  says valid, so the tool refuses to validate when it cannot read them.
+- `valid: true` is not exhaustive: an unknown step type passes. Keep `check_workflow` for the drawer
+  and native-shape classes the server does not check.
+
 ### Retyping a step (including native → marketplace)
 
 `retypeStep` changes what an EXISTING step is, in place, without touching the graph:

@@ -11,6 +11,65 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [0.82.0] — 2026-09-11
+
+GHL's own server validator as a tool, and the catalogue re-mined from this morning's builder.
+
+### Added
+
+- **`validate_workflow`** asks GHL's live validator whether a workflow would pass. It is the check the
+  builder runs, debounced, on every edit: `POST /workflow/{loc}/{wid}/validate-workflows`. It runs over
+  the stored document, or the stored document with an edited `templates` array, so an edit can be
+  checked before it is saved. Executed on GROM Sandbox: an unbound flow trigger came back `trigger` /
+  `missing-required-field`; stripped attributes came back `action`; seven structural defects were each
+  refused by name (`dangling-next-ref`, `no-duplicate-ids`, `dangling-parentkey-ref`,
+  `next-parentkey-mismatch`, `last-action-has-next`, `cycle-detected`, `orphan-transition`). The
+  document read back identical after twelve calls. It always sends the stored triggers, because
+  without them the server skips the trigger layer and says valid, and it refuses to validate when it
+  cannot read them. A failing call reports one layer. It POSTs, so it is outside the audit profile.
+  83 tools.
+- **Catalogue: 22 rows from the 2026-09-11 builder capture.** Agent skills
+  (`/workflow/agent/{loc}/skills`, gated until 2026-10-25), execution-log export, a workflow's
+  sending domain and From Email check, live validation, and the Slack and Google Sheets integration
+  reads that used to be filed under phantom paths.
+- Email sending domains (email-isv), with the write left unproven. An empty list does not mean the
+  account has no sending domain.
+- Three rows from the public form renderer, source-only: a WAF rule blocks scripted callers on
+  submit. `POST /knowledge-base/` proven.
+
+### Fixed
+
+- 🔴 **`create_convai_agent` could not create a non-off agent.** The mode enum was inverted: the
+  server refuses `autoPilot` and accepts `auto-pilot`. The wire spelling is used now, and `autoPilot`
+  from a caller is normalised to it. Proven live.
+- 🔴 **`edit_workflow`'s `allowFlowTriggerEdit` was unreachable.** The flow-entry guard named it as
+  the remedy and the schema never declared it: the fourth hatch found that way. Declared, and
+  executed live: the same op is refused without it and planned as a no-op with it.
+- 🔴 **The catalogue miner folded a base into the path.** It read a call to a local function as a
+  value named after its argument, so `${baseUrl(loc)}/resolve` became `/workflow/{locationId}/resolve`
+  and the agent-skill CRUD was filed as extra sources on the workflow's own `/workflow/{locationId}/{id}`
+  rows; five rows read `/workflow/{root}/…` for `/workflows-marketplace/integration/…`. Twelve phantom
+  rows removed, each read first. Conditional URLs, `URLSearchParams` and conditional spreads now yield
+  their query keys, optional when conditional.
+- 🔴 **One route stood in the catalogue as up to three rows.** The merge keyed on the exact path
+  string, so `/workflow/{locationId}/{id}`, `/workflow/{locationId}/{wid}` and
+  `/workflow/{locationId}/{workflowId}` were three endpoints as far as any reader could tell, across
+  44 shapes. Each parameter position now takes one name for the whole route: a mined name wins, then
+  one echoing the noun the route names (`/objects/{objectKey}`, not `/objects/{workflowType}`), then
+  the longer (`{workflowId}` over `{wid}`). 70 rows renamed, 45 merged into another tree's row, every
+  one printed. 1213 → 1167 rows, and no duplicate shape left.
+  The endpoint overlay is matched by route shape too, so a future rename cannot orphan a hand-written
+  note the way this one orphaned three; two overlay keys sharing a shape stays an ambiguity a human
+  settles, and the one mirror entry that existed only to point at the other spelling is gone.
+  🔴 A fold keeps what it folded. `/lists/dynamic/{locationId}` folding into `{smartListId}` took a
+  word out of the **location guard's** reach — it finds `{locationId}` in a template to decide
+  whether a path targets another account — and a call to another account's dynamic list stopped
+  being refused. Rows now carry `aka`, the spellings they were also written with, and the guard
+  reads every one of them. This repo's own guard test caught it.
+- Memberships: nine rows listed header names (`authorization`, `source-id`, `version`) as query
+  params. That wrapper takes `(url, headers, params)`; argument roles now come from its parameter names.
+- `pin_webhook_sample` declares the host it actually dials. Two wrong v2 form-submission rows dropped.
+
 ## [0.81.0] — 2026-09-11
 
 Seven more write endpoints proven, and two instrument fixes that were costing real coverage.

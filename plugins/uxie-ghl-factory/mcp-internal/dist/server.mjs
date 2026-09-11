@@ -246,7 +246,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
     define_ENDPOINT_CATALOG_default = {
       generated: "2026-09-11",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 1209,
+      count: 1174,
       endpoints: [
         {
           id: "workflows--actions-branches",
@@ -871,16 +871,34 @@ var init_define_ENDPOINT_CATALOG = __esm({
           query: [
             {
               name: "locationId",
-              type: "string",
+              type: "any",
               required: true,
-              source: "live-probe"
+              source: "params"
+            },
+            {
+              name: "query",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "limit",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "page",
+              type: "unknown",
+              required: true,
+              source: "params"
             }
           ],
           body: null,
           returns: null,
           confidence: {
             path: "resolved",
-            query: "none-observed",
+            query: "resolved",
             body: "none-observed",
             returns: "none-observed"
           },
@@ -1900,13 +1918,16 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
-          id: "workflows--blacklist",
-          method: "POST",
+          id: "workflows--blacklist-delete",
+          aka: [
+            "/blacklist/{type}/{id}"
+          ],
+          method: "DELETE",
           url: "https://backend.leadconnectorhq.com/blacklist/{kind}/{id}",
           path: "/blacklist/{kind}/{id}",
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
-          kind: "write",
+          kind: "destructive",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -1938,13 +1959,13 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
-          id: "workflows--blacklist-delete",
-          method: "DELETE",
-          url: "https://backend.leadconnectorhq.com/blacklist/{type}/{id}",
-          path: "/blacklist/{type}/{id}",
+          id: "workflows--blacklist",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/blacklist/{kind}/{id}",
+          path: "/blacklist/{kind}/{id}",
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
-          kind: "destructive",
+          kind: "write",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -1956,7 +1977,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           tree: "documented",
           pathParams: [
             {
-              name: "type"
+              name: "kind"
             },
             {
               name: "id"
@@ -2013,6 +2034,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
         },
         {
           id: "calendars--calendars",
+          aka: [
+            "/calendars/{id}"
+          ],
           method: "GET",
           url: "https://backend.leadconnectorhq.com/calendars/{calendarId}",
           path: "/calendars/{calendarId}",
@@ -2047,11 +2071,15 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "calendars/20-api/events-and-appointments.md:24",
             "calendars/20-api/events-and-appointments.md:85",
-            "calendars/40-rules/appointment-status-semantics.md:19"
+            "calendars/40-rules/appointment-status-semantics.md:19",
+            "calendars/40-rules/calendar-put-replaces-it-does-not-merge.md:45"
           ]
         },
         {
           id: "calendars--calendars-put",
+          aka: [
+            "/calendars/{id}"
+          ],
           method: "PUT",
           url: "https://backend.leadconnectorhq.com/calendars/{calendarId}",
           path: "/calendars/{calendarId}",
@@ -2083,7 +2111,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "calendars/40-rules/calendar-put-replaces-it-does-not-merge.md:23"
+            "calendars/40-rules/calendar-put-replaces-it-does-not-merge.md:23",
+            "calendars/40-rules/calendar-put-replaces-it-does-not-merge.md:4",
+            "calendars/40-rules/index.md:19"
           ]
         },
         {
@@ -2119,77 +2149,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "calendars/40-rules/calendar-put-replaces-it-does-not-merge.md:47"
-          ]
-        },
-        {
-          id: "calendars--calendars-get",
-          method: "GET",
-          url: "https://backend.leadconnectorhq.com/calendars/{id}",
-          path: "/calendars/{id}",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "read",
-          reach: "proven",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "calendars",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "id"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "calendars/40-rules/calendar-put-replaces-it-does-not-merge.md:45"
-          ]
-        },
-        {
-          id: "calendars--calendars-put-put",
-          method: "PUT",
-          url: "https://backend.leadconnectorhq.com/calendars/{id}",
-          path: "/calendars/{id}",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "write",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "calendars",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "id"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "calendars/40-rules/calendar-put-replaces-it-does-not-merge.md:4",
-            "calendars/40-rules/index.md:19"
           ]
         },
         {
@@ -5022,7 +4981,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/TemplateService.ts:415"
+            "services/marketplaceServices/TemplateService.ts:417"
           ]
         },
         {
@@ -5094,7 +5053,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/TemplateService.ts:633",
+            "services/marketplaceServices/TemplateService.ts:635",
             "workflows/70-research/ENDPOINTS.md:160"
           ]
         },
@@ -5150,7 +5109,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/TemplateService.ts:474",
+            "services/marketplaceServices/TemplateService.ts:476",
             "workflows/70-research/ENDPOINTS.md:160"
           ]
         },
@@ -5236,7 +5195,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/TemplateService.ts:688",
+            "services/marketplaceServices/TemplateService.ts:690",
             "workflows/70-research/ACTION-DRAWERS-2.md:5553",
             "workflows/70-research/INVENTORY.md:214"
           ]
@@ -5303,12 +5262,19 @@ var init_define_ENDPOINT_CATALOG = __esm({
               name: "id"
             }
           ],
-          query: [],
+          query: [
+            {
+              name: "isInternal",
+              type: "true",
+              required: true,
+              source: "params"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
             path: "resolved",
-            query: "none-observed",
+            query: "resolved",
             body: "none-observed",
             returns: "none-observed"
           },
@@ -5352,7 +5318,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/TemplateService.ts:668"
+            "services/marketplaceServices/TemplateService.ts:670"
           ]
         },
         {
@@ -5407,7 +5373,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/TemplateService.ts:596",
+            "services/marketplaceServices/TemplateService.ts:598",
             "workflows/70-research/ENDPOINTS.md:162"
           ]
         },
@@ -5472,7 +5438,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/TemplateService.ts:519"
+            "services/marketplaceServices/TemplateService.ts:521"
           ]
         },
         {
@@ -5536,7 +5502,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/TemplateService.ts:546",
+            "services/marketplaceServices/TemplateService.ts:548",
             "workflows/70-research/ENDPOINTS.md:161"
           ]
         },
@@ -5592,7 +5558,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/TemplateService.ts:652",
+            "services/marketplaceServices/TemplateService.ts:654",
             "workflows/70-research/ENDPOINTS.md:163"
           ]
         },
@@ -6146,9 +6112,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
         },
         {
           id: "events--events-management-event-get",
+          aka: [
+            "/events-management/event/{anything}"
+          ],
           method: "GET",
-          url: "https://backend.leadconnectorhq.com/events-management/event/{anything}",
-          path: "/events-management/event/{anything}",
+          url: "https://backend.leadconnectorhq.com/events-management/event/{eventId}",
+          path: "/events-management/event/{eventId}",
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
@@ -6163,7 +6132,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           tree: "documented",
           pathParams: [
             {
-              name: "anything"
+              name: "eventId"
             }
           ],
           query: [],
@@ -6871,12 +6840,43 @@ var init_define_ENDPOINT_CATALOG = __esm({
           service: "forms",
           tree: "workflow-builder",
           pathParams: [],
-          query: [],
+          query: [
+            {
+              name: "locationId",
+              type: "any",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "query",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "type",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "skip",
+              type: "number",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "limit",
+              type: "number",
+              required: true,
+              source: "params"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
             path: "resolved",
-            query: "none-observed",
+            query: "resolved",
             body: "none-observed",
             returns: "none-observed"
           },
@@ -7337,6 +7337,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
         },
         {
           id: "funnels--builder-autosave",
+          aka: [
+            "/funnels/builder/autosave/{pageId}"
+          ],
           method: "POST",
           url: "https://backend.leadconnectorhq.com/funnels/builder/autosave/{newPageId}",
           path: "/funnels/builder/autosave/{newPageId}",
@@ -7369,43 +7372,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/40-rules/silent-failures.md:569"
-          ]
-        },
-        {
-          id: "funnels--builder-autosave-post",
-          method: "POST",
-          url: "https://backend.leadconnectorhq.com/funnels/builder/autosave/{pageId}",
-          path: "/funnels/builder/autosave/{pageId}",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "write",
-          reach: "source-only",
-          coveredBy: [
-            "build_funnel_page"
-          ],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "funnels",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "pageId"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
+            "funnels/40-rules/silent-failures.md:569",
             "funnels/20-api/funnels-api.md:194",
             "funnels/40-rules/autosave-writes-only-the-data-file.md:11",
             "funnels/40-rules/autosave-writes-only-the-data-file.md:31",
@@ -8225,57 +8192,13 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
-          id: "funnels--funnel-fetch",
+          id: "funnels-service--get-funnel-by-id",
+          aka: [
+            "/funnels/funnel/fetch/{id}"
+          ],
           method: "GET",
           url: "https://backend.leadconnectorhq.com/funnels/funnel/fetch/{funnelId}",
           path: "/funnels/funnel/fetch/{funnelId}",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "read",
-          reach: "proven",
-          coveredBy: [
-            "audit_site"
-          ],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "funnels",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "funnelId"
-            }
-          ],
-          query: [
-            {
-              name: "locationId",
-              type: "string",
-              required: false,
-              source: "documented"
-            }
-          ],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "documented",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "funnels/20-api/funnels-api.md:62",
-            "funnels/20-api/funnels-api.md:180",
-            "funnels/40-rules/silent-failures.md:1033",
-            "funnels/60-recipes/build-a-multi-step-funnel.md:50"
-          ]
-        },
-        {
-          id: "funnels-service--get-funnel-by-id",
-          method: "GET",
-          url: "https://backend.leadconnectorhq.com/funnels/funnel/fetch/{id}",
-          path: "/funnels/funnel/fetch/{id}",
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
@@ -8296,10 +8219,17 @@ var init_define_ENDPOINT_CATALOG = __esm({
           tree: "workflow-builder",
           pathParams: [
             {
-              name: "id"
+              name: "funnelId"
             }
           ],
-          query: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
@@ -8310,7 +8240,11 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/marketplaceServices/FunnelsService.ts:21",
-            "funnels/20-api/funnels-api.md:17"
+            "funnels/20-api/funnels-api.md:17",
+            "funnels/20-api/funnels-api.md:62",
+            "funnels/20-api/funnels-api.md:180",
+            "funnels/40-rules/silent-failures.md:1033",
+            "funnels/60-recipes/build-a-multi-step-funnel.md:50"
           ]
         },
         {
@@ -8764,6 +8698,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
         },
         {
           id: "funnels--lookup-type",
+          aka: [
+            "/funnels/lookup/type/{pageId}"
+          ],
           method: "GET",
           url: "https://backend.leadconnectorhq.com/funnels/lookup/type/{entityId}",
           path: "/funnels/lookup/type/{entityId}",
@@ -8797,43 +8734,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/10-anatomy/routing-and-publishing.md:41",
-            "funnels/20-api/funnels-api.md:257"
-          ]
-        },
-        {
-          id: "funnels--lookup-type-get",
-          method: "GET",
-          url: "https://backend.leadconnectorhq.com/funnels/lookup/type/{pageId}",
-          path: "/funnels/lookup/type/{pageId}",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "read",
-          reach: "proven",
-          coveredBy: [
-            "audit_site"
-          ],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "funnels",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "pageId"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
+            "funnels/20-api/funnels-api.md:257",
             "funnels/10-anatomy/routing-and-publishing.md:61",
             "funnels/60-recipes/add-a-page-to-a-funnel.md:45"
           ]
@@ -8908,9 +8809,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
         },
         {
           id: "funnels-service--get-page-by-id",
+          aka: [
+            "/funnels/page/{id}"
+          ],
           method: "GET",
-          url: "https://backend.leadconnectorhq.com/funnels/page/{id}",
-          path: "/funnels/page/{id}",
+          url: "https://backend.leadconnectorhq.com/funnels/page/{pageId}",
+          path: "/funnels/page/{pageId}",
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
@@ -8929,7 +8833,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           tree: "workflow-builder",
           pathParams: [
             {
-              name: "id"
+              name: "pageId"
             }
           ],
           query: [],
@@ -8942,41 +8846,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/FunnelsService.ts:35"
-          ]
-        },
-        {
-          id: "funnels--funnels-page-get",
-          method: "GET",
-          url: "https://backend.leadconnectorhq.com/funnels/page/{pageId}",
-          path: "/funnels/page/{pageId}",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "read",
-          reach: "proven",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "funnels",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "pageId"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
+            "services/marketplaceServices/FunnelsService.ts:35",
             "funnels/00-overview/index.md:31",
             "funnels/10-anatomy/websites-and-global-sections.md:306",
             "funnels/10-anatomy/websites-and-global-sections.md:539",
@@ -10582,16 +10452,28 @@ var init_define_ENDPOINT_CATALOG = __esm({
           query: [
             {
               name: "locationId",
-              type: "string",
+              type: "any",
               required: true,
-              source: "live-probe"
+              source: "params"
+            },
+            {
+              name: "skip",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "limit",
+              type: "unknown",
+              required: true,
+              source: "params"
             }
           ],
           body: null,
           returns: null,
           confidence: {
             path: "resolved",
-            query: "none-observed",
+            query: "resolved",
             body: "none-observed",
             returns: "none-observed"
           },
@@ -10708,147 +10590,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
-          id: "platform--lists-dynamic",
-          method: "GET",
-          url: "https://backend.leadconnectorhq.com/lists/dynamic/{locationId}",
-          path: "/lists/dynamic/{locationId}",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "read",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "platform",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "locationId"
-            }
-          ],
-          query: [
-            {
-              name: "objectKey",
-              type: "string",
-              required: false,
-              source: "documented"
-            },
-            {
-              name: "limit",
-              type: "string",
-              required: false,
-              source: "documented"
-            },
-            {
-              name: "startAfter",
-              type: "string",
-              required: false,
-              source: "documented"
-            },
-            {
-              name: "query",
-              type: "string",
-              required: false,
-              source: "documented"
-            }
-          ],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "documented",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "platform/20-api/smart-lists.md:25",
-            "platform/20-api/smart-lists.md:278",
-            "platform/20-api/smart-lists.md:322",
-            "workflows/20-api/03-endpoints.md:345",
-            "workflows/20-api/smart-lists.md:69",
-            "workflows/70-research/ENDPOINTS.md:77"
-          ]
-        },
-        {
-          id: "workflows--lists-dynamic",
-          method: "POST",
-          url: "https://backend.leadconnectorhq.com/lists/dynamic/{locationId}",
-          path: "/lists/dynamic/{locationId}",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "write",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "workflows",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "locationId"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "workflows/20-api/smart-lists.md:71",
-            "workflows/70-research/ENDPOINTS.md:79"
-          ]
-        },
-        {
-          id: "platform--lists-dynamic-get",
-          method: "GET",
-          url: "https://backend.leadconnectorhq.com/lists/dynamic/{locationId}/{id}",
-          path: "/lists/dynamic/{locationId}/{id}",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "read",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "platform",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "locationId"
-            },
-            {
-              name: "id"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "platform/20-api/smart-lists.md:26",
-            "platform/20-api/smart-lists.md:294",
-            "platform/20-api/smart-lists.md:332"
-          ]
-        },
-        {
           id: "platform--lists-dynamic-delete",
           method: "DELETE",
           url: "https://backend.leadconnectorhq.com/lists/dynamic/{locationId}/{smartListId}",
@@ -10889,7 +10630,10 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
-          id: "workflows--lists-dynamic-get",
+          id: "platform--lists-dynamic-get",
+          aka: [
+            "/lists/dynamic/{locationId}/{id}"
+          ],
           method: "GET",
           url: "https://backend.leadconnectorhq.com/lists/dynamic/{locationId}/{smartListId}",
           path: "/lists/dynamic/{locationId}/{smartListId}",
@@ -10903,7 +10647,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: "workflows",
+          service: "platform",
           tree: "documented",
           pathParams: [
             {
@@ -10923,6 +10667,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
+            "platform/20-api/smart-lists.md:26",
+            "platform/20-api/smart-lists.md:294",
+            "platform/20-api/smart-lists.md:332",
             "workflows/20-api/smart-lists.md:70",
             "workflows/70-research/ENDPOINTS.md:78"
           ]
@@ -11007,6 +10754,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
         },
         {
           id: "smart-list-service--get-smart-list",
+          aka: [
+            "/lists/dynamic/{locationId}"
+          ],
           method: "GET",
           url: "https://backend.leadconnectorhq.com/lists/dynamic/{smartListId}",
           path: "/lists/dynamic/{smartListId}",
@@ -11031,7 +10781,32 @@ var init_define_ENDPOINT_CATALOG = __esm({
               name: "smartListId"
             }
           ],
-          query: [],
+          query: [
+            {
+              name: "objectKey",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "limit",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "startAfter",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "query",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
           body: null,
           returns: {
             typeName: "ISmartListView",
@@ -11045,7 +10820,52 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "erased"
           },
           sources: [
-            "components/smart-lists/services/smart-list-service.ts:34"
+            "components/smart-lists/services/smart-list-service.ts:34",
+            "platform/20-api/smart-lists.md:25",
+            "platform/20-api/smart-lists.md:278",
+            "platform/20-api/smart-lists.md:322",
+            "workflows/20-api/03-endpoints.md:345",
+            "workflows/20-api/smart-lists.md:69",
+            "workflows/70-research/ENDPOINTS.md:77"
+          ]
+        },
+        {
+          id: "workflows--lists-dynamic",
+          aka: [
+            "/lists/dynamic/{locationId}"
+          ],
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/lists/dynamic/{smartListId}",
+          path: "/lists/dynamic/{smartListId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "smartListId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/20-api/smart-lists.md:71",
+            "workflows/70-research/ENDPOINTS.md:79"
           ]
         },
         {
@@ -11182,44 +11002,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "services/marketplaceServices/LocationsService.ts:11",
             "ai-agents/20-api/conversation-ai-boundary.md:47"
-          ]
-        },
-        {
-          id: "platform--locations-custom-fields",
-          method: "GET",
-          url: "https://backend.leadconnectorhq.com/locations/{id}/customFields",
-          path: "/locations/{id}/customFields",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "read",
-          reach: "proven",
-          coveredBy: [
-            "check_smart_lists",
-            "create_smart_list"
-          ],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "platform",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "id"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "platform/20-api/custom-fields-and-values.md:148"
           ]
         },
         {
@@ -11428,6 +11210,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
         },
         {
           id: "opportunity-custom-field-service--get-custom-fields",
+          aka: [
+            "/locations/{id}/customFields"
+          ],
           method: "GET",
           url: "https://backend.leadconnectorhq.com/locations/{locationId}/customFields",
           path: "/locations/{locationId}/customFields",
@@ -11458,16 +11243,16 @@ var init_define_ENDPOINT_CATALOG = __esm({
           query: [
             {
               name: "model",
-              type: "string",
-              required: false,
-              source: "documented"
+              type: '"opportunity"',
+              required: true,
+              source: "params"
             }
           ],
           body: null,
           returns: null,
           confidence: {
             path: "resolved",
-            query: "none-observed",
+            query: "resolved",
             body: "none-observed",
             returns: "none-observed"
           },
@@ -11477,7 +11262,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "platform/30-types/contact-filter-dsl.md:54",
             "workflows/10-anatomy/07-id-resolution.md:85",
             "workflows/10-anatomy/07-id-resolution.md:185",
-            "workflows/70-research/ENDPOINTS.md:124"
+            "workflows/70-research/ENDPOINTS.md:124",
+            "platform/20-api/custom-fields-and-values.md:148"
           ]
         },
         {
@@ -11556,6 +11342,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
         },
         {
           id: "platform--locations-custom-fields-get-get",
+          aka: [
+            "/locations/{locationId}/customFields/{id}"
+          ],
           method: "GET",
           url: "https://backend.leadconnectorhq.com/locations/{locationId}/customFields/{fieldId}",
           path: "/locations/{locationId}/customFields/{fieldId}",
@@ -11594,54 +11383,18 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "platform/20-api/custom-fields-and-values.md:41",
-            "platform/70-research/2026-08-31-certification-snapshot-and-field-probes.md:86"
-          ]
-        },
-        {
-          id: "forms--locations-custom-fields-get",
-          method: "GET",
-          url: "https://backend.leadconnectorhq.com/locations/{locationId}/customFields/{id}",
-          path: "/locations/{locationId}/customFields/{id}",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "read",
-          reach: "source-only",
-          coveredBy: [
-            "edit_workflow"
-          ],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "forms",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "locationId"
-            },
-            {
-              name: "id"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
+            "platform/70-research/2026-08-31-certification-snapshot-and-field-probes.md:86",
             "forms/60-recipes/create-a-form-by-api.md:18"
           ]
         },
         {
           id: "forms--locations-custom-fields-put",
+          aka: [
+            "/locations/{locationId}/customFields/{id}"
+          ],
           method: "PUT",
-          url: "https://backend.leadconnectorhq.com/locations/{locationId}/customFields/{id}",
-          path: "/locations/{locationId}/customFields/{id}",
+          url: "https://backend.leadconnectorhq.com/locations/{locationId}/customFields/{fieldId}",
+          path: "/locations/{locationId}/customFields/{fieldId}",
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
@@ -11659,7 +11412,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
               name: "locationId"
             },
             {
-              name: "id"
+              name: "fieldId"
             }
           ],
           query: [],
@@ -12115,44 +11868,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
-          id: "memberships-courses--products-customizations-put",
-          method: "PUT",
-          url: "https://backend.leadconnectorhq.com/locations/{locationId}/products/customizations/{id}",
-          path: "/locations/{locationId}/products/customizations/{id}",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "write",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "memberships-courses",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "locationId"
-            },
-            {
-              name: "id"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/20-api/theming-and-custom-code.md:55"
-          ]
-        },
-        {
           id: "memberships-courses--products-customizations-get",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/locations/{locationId}/products/customizations/{productId}",
@@ -12188,6 +11903,47 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "memberships-courses/20-api/theming-and-custom-code.md:39"
+          ]
+        },
+        {
+          id: "memberships-courses--products-customizations-put",
+          aka: [
+            "/locations/{locationId}/products/customizations/{id}"
+          ],
+          method: "PUT",
+          url: "https://backend.leadconnectorhq.com/locations/{locationId}/products/customizations/{productId}",
+          path: "/locations/{locationId}/products/customizations/{productId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "memberships-courses",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "productId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "memberships-courses/20-api/theming-and-custom-code.md:55"
           ]
         },
         {
@@ -12490,42 +12246,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/EmailService.ts:201",
+            "services/FilterService.ts:188",
             "workflows/70-research/ENDPOINTS.md:127"
-          ]
-        },
-        {
-          id: "filter-service--search-tags",
-          method: "GET",
-          url: "https://backend.leadconnectorhq.com/locations/{locationId}/tags/search{}",
-          path: "/locations/{locationId}/tags/search{}",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "read",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: "searchTags",
-          service: null,
-          tree: "workflow-builder",
-          pathParams: [
-            {
-              name: "locationId"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "resolved",
-            query: "none-observed",
-            body: "none-observed",
-            returns: "none-observed"
-          },
-          sources: [
-            "services/FilterService.ts:188"
           ]
         },
         {
@@ -12583,7 +12305,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/TemplateService.ts:282",
+            "services/marketplaceServices/TemplateService.ts:284",
             "workflows/70-research/ENDPOINTS.md:157"
           ]
         },
@@ -12626,7 +12348,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/TemplateService.ts:240"
+            "services/marketplaceServices/TemplateService.ts:242"
           ]
         },
         {
@@ -12787,6 +12509,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
             },
             {
               name: "query",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "userId",
               type: "unknown",
               required: true,
               source: "params"
@@ -15101,7 +14829,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "states/app.ts:854",
+            "states/app.ts:877",
             "ai-studio/_data/endpoints.json",
             "ai-studio/10-anatomy/embedding-and-credentials.md:51",
             "ai-studio/10-anatomy/the-chat-and-version-model.md:25",
@@ -15157,38 +14885,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/api/slack-marketplace-install-service.ts:129",
+            "services/marketplaceServices/WorkflowMarketplaceService.ts:492",
             "workflows/70-research/ENDPOINTS.md:243"
-          ]
-        },
-        {
-          id: "workflow-marketplace-service--authorize",
-          method: "POST",
-          url: "https://backend.leadconnectorhq.com/oauth/authorize{}",
-          path: "/oauth/authorize{}",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "write",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: "authorize",
-          service: "platform",
-          tree: "workflow-builder",
-          pathParams: [],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "resolved",
-            query: "none-observed",
-            body: "none-observed",
-            returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/WorkflowMarketplaceService.ts:492"
           ]
         },
         {
@@ -15226,7 +14924,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:511"
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:542"
           ]
         },
         {
@@ -15278,8 +14976,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/api/slack-marketplace-install-service.ts:237",
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:418",
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:676"
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:449",
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:707"
           ]
         },
         {
@@ -15343,7 +15041,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/api/slack-marketplace-install-service.ts:220",
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:742"
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:773"
           ]
         },
         {
@@ -15384,8 +15082,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:425",
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:696"
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:456",
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:727"
           ]
         },
         {
@@ -15423,7 +15121,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:493"
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:524"
           ]
         },
         {
@@ -15542,7 +15240,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
-          id: "custom-objects-service--fetch-custom-objects-list",
+          id: "preview-objects-service--list",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/objects",
           path: "/objects",
@@ -15559,14 +15257,14 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Source",
             "Version"
           ],
-          operation: "fetchCustomObjectsList",
+          operation: "list",
           service: "forms",
           tree: "workflow-builder",
           pathParams: [],
           query: [
             {
               name: "locationId",
-              type: "any",
+              type: "unknown",
               required: true,
               source: "params"
             },
@@ -15586,6 +15284,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
+            "iatf-preview/preview-workflow-labels.ts:31",
             "services/marketplaceServices/CustomObjectsService.ts:17"
           ]
         },
@@ -15643,6 +15342,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
         },
         {
           id: "workflows--objects",
+          aka: [
+            "/objects/{workflowType}/"
+          ],
           method: "GET",
           url: "https://backend.leadconnectorhq.com/objects/{objectKey}/",
           path: "/objects/{objectKey}/",
@@ -15663,7 +15365,14 @@ var init_define_ENDPOINT_CATALOG = __esm({
               name: "objectKey"
             }
           ],
-          query: [],
+          query: [
+            {
+              name: "fetchProperties",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
@@ -15673,7 +15382,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "workflows/70-research/ENDPOINTS.md:143"
+            "workflows/70-research/ENDPOINTS.md:143",
+            "workflows/70-research/ENDPOINTS.md:144"
           ]
         },
         {
@@ -15719,48 +15429,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "services/marketplaceServices/CustomObjectsService.ts:41",
             "workflows/70-research/ENDPOINTS.md:145"
-          ]
-        },
-        {
-          id: "workflows--objects-get",
-          method: "GET",
-          url: "https://backend.leadconnectorhq.com/objects/{workflowType}/",
-          path: "/objects/{workflowType}/",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "read",
-          reach: "refused",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "workflows",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "workflowType"
-            }
-          ],
-          query: [
-            {
-              name: "fetchProperties",
-              type: "string",
-              required: false,
-              source: "documented"
-            }
-          ],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "documented",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "workflows/70-research/ENDPOINTS.md:144"
           ]
         },
         {
@@ -15824,16 +15492,34 @@ var init_define_ENDPOINT_CATALOG = __esm({
           query: [
             {
               name: "locationId",
-              type: "string",
-              required: false,
-              source: "documented"
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "getCount",
+              type: "true",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "skip",
+              type: "0",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "limit",
+              type: "100",
+              required: true,
+              source: "params"
             }
           ],
           body: null,
           returns: null,
           confidence: {
             path: "resolved",
-            query: "none-observed",
+            query: "resolved",
             body: "none-observed",
             returns: "none-observed"
           },
@@ -17204,7 +16890,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
                 doc: "Returns a list of values in the list."
               },
               {
-                name: "__@iterator@767",
+                name: "__@iterator@696",
                 type: "() => FormDataIterator<[string, FormDataEntryValue]>",
                 optional: false
               }
@@ -17262,42 +16948,10 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
-          id: "workflows--location-template",
-          method: "GET",
-          url: "https://backend.leadconnectorhq.com/phone-system/whatsapp/location/{id}/template",
-          path: "/phone-system/whatsapp/location/{id}/template",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "read",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "workflows",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "id"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "workflows/70-research/ENDPOINTS.md:159"
-          ]
-        },
-        {
           id: "template-service--get-all-whats-app-templates",
+          aka: [
+            "/phone-system/whatsapp/location/{id}/template"
+          ],
           method: "GET",
           url: "https://backend.leadconnectorhq.com/phone-system/whatsapp/location/{locationId}/template",
           path: "/phone-system/whatsapp/location/{locationId}/template",
@@ -17345,7 +16999,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/TemplateService.ts:374"
+            "services/marketplaceServices/TemplateService.ts:376",
+            "workflows/70-research/ENDPOINTS.md:159"
           ]
         },
         {
@@ -19572,17 +19227,36 @@ var init_define_ENDPOINT_CATALOG = __esm({
               name: "locationId"
             }
           ],
-          query: [],
+          query: [
+            {
+              name: "type",
+              type: '"email"',
+              required: true,
+              source: "params"
+            },
+            {
+              name: "skip",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "limit",
+              type: "unknown",
+              required: true,
+              source: "params"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
             path: "resolved",
-            query: "none-observed",
+            query: "resolved",
             body: "none-observed",
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/TemplateService.ts:330",
+            "services/marketplaceServices/TemplateService.ts:332",
             "services/api/sms-template-service.ts:66",
             "workflows/70-research/ENDPOINTS.md:158"
           ]
@@ -20032,14 +19706,26 @@ var init_define_ENDPOINT_CATALOG = __esm({
           query: [
             {
               name: "companyId",
-              type: "unknown",
+              type: "string",
               required: true,
               source: "params"
             },
             {
               name: "locationId",
-              type: "unknown",
-              required: true,
+              type: "string",
+              required: false,
+              source: "params"
+            },
+            {
+              name: "type",
+              type: "UserAccountType",
+              required: false,
+              source: "params"
+            },
+            {
+              name: "query",
+              type: "string",
+              required: false,
               source: "params"
             },
             {
@@ -20079,7 +19765,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "resolved"
           },
           sources: [
-            "services/api/fetch-users.ts:15",
+            "services/api/fetch-users.ts:55",
+            "workflows/50-runtime/log-export.md:45",
             "workflows/70-research/ENDPOINTS.md:129"
           ]
         },
@@ -22146,6 +21833,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
         },
         {
           id: "forms--widget-form",
+          aka: [
+            "/widget/form/{id}"
+          ],
           method: "GET",
           url: "https://backend.leadconnectorhq.com/widget/form/{formId}",
           path: "/widget/form/{formId}",
@@ -22176,41 +21866,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "forms/20-api/public-renderer-and-submit.md:88"
-          ]
-        },
-        {
-          id: "forms--widget-form-get",
-          method: "GET",
-          url: "https://backend.leadconnectorhq.com/widget/form/{id}",
-          path: "/widget/form/{id}",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "read",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "forms",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "id"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
+            "forms/20-api/public-renderer-and-submit.md:88",
             "forms/30-types/standard-elements.md:91"
           ]
         },
@@ -22323,10 +21979,10 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
-          id: "backend--location-settings-query",
+          id: "backend--location-settings",
           method: "GET",
-          url: "https://backend.leadconnectorhq.com/workflow/{companyId}/workflow-company-setting/location-settings{query}",
-          path: "/workflow/{companyId}/workflow-company-setting/location-settings{query}",
+          url: "https://backend.leadconnectorhq.com/workflow/{companyId}/workflow-company-setting/location-settings",
+          path: "/workflow/{companyId}/workflow-company-setting/location-settings",
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
@@ -22342,9 +21998,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           pathParams: [
             {
               name: "companyId"
-            },
-            {
-              name: "query"
             }
           ],
           query: [],
@@ -22601,205 +22254,11 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/BaseService.ts:36",
-            "services/WorkflowService.ts:578",
+            "services/WorkflowService.ts:590",
             "workflows/00-overview/10-caveats.md:139",
             "workflows/10-anatomy/04-workflow-anatomy.md:25",
             "workflows/10-anatomy/04-workflow-anatomy.md:427",
             "workflows/10-anatomy/05-build-flow.md:22"
-          ]
-        },
-        {
-          id: "workflow-service--delete",
-          method: "DELETE",
-          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/{id}",
-          path: "/workflow/{locationId}/{id}",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "destructive",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: "delete",
-          service: "workflows",
-          tree: "workflow-builder",
-          pathParams: [
-            {
-              name: "locationId"
-            },
-            {
-              name: "id"
-            }
-          ],
-          query: [
-            {
-              name: "userId",
-              type: "string",
-              required: true,
-              source: "url-literal"
-            }
-          ],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "resolved",
-            query: "resolved",
-            body: "none-observed",
-            returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:54"
-          ]
-        },
-        {
-          id: "workflow-service--find-by-id",
-          method: "GET",
-          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/{id}",
-          path: "/workflow/{locationId}/{id}",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "read",
-          reach: "proven",
-          coveredBy: [
-            "build_workflow",
-            "check_workflow",
-            "duplicate_workflow",
-            "edit_workflow",
-            "export_workflow",
-            "get_agent_message_trace",
-            "get_workflow",
-            "get_workflow_digest",
-            "get_workflow_runtime_window",
-            "get_workflow_stats",
-            "move_workflows",
-            "publish_workflow",
-            "push_snapshot",
-            "repair_workflow",
-            "unpublish_workflows"
-          ],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: "findById",
-          service: "workflows",
-          tree: "workflow-builder",
-          pathParams: [
-            {
-              name: "locationId"
-            },
-            {
-              name: "id"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "resolved",
-            query: "none-observed",
-            body: "none-observed",
-            returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:30",
-            "workflows/20-api/03-endpoints.md:181"
-          ]
-        },
-        {
-          id: "workflow-service--update",
-          method: "PUT",
-          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/{id}",
-          path: "/workflow/{locationId}/{id}",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "write",
-          reach: "source-only",
-          coveredBy: [
-            "edit_workflow",
-            "publish_workflow",
-            "repair_workflow"
-          ],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: "update",
-          service: "workflows",
-          tree: "workflow-builder",
-          pathParams: [
-            {
-              name: "locationId"
-            },
-            {
-              name: "id"
-            }
-          ],
-          query: [],
-          body: {
-            typeName: "{ [key: string]: any; }",
-            properties: null,
-            confidence: "open-map"
-          },
-          returns: null,
-          confidence: {
-            path: "resolved",
-            query: "none-observed",
-            body: "open-map",
-            returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:46",
-            "workflows/10-anatomy/04-workflow-anatomy.md:430",
-            "workflows/10-anatomy/05-build-flow.md:25"
-          ]
-        },
-        {
-          id: "workflow-service--update-auto-save",
-          method: "PUT",
-          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/{id}/auto-save",
-          path: "/workflow/{locationId}/{id}/auto-save",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "write",
-          reach: "source-only",
-          coveredBy: [
-            "build_workflow"
-          ],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: "updateAutoSave",
-          service: "workflows",
-          tree: "workflow-builder",
-          pathParams: [
-            {
-              name: "locationId"
-            },
-            {
-              name: "id"
-            }
-          ],
-          query: [],
-          body: {
-            typeName: "{ [key: string]: any; }",
-            properties: null,
-            confidence: "open-map"
-          },
-          returns: null,
-          confidence: {
-            path: "resolved",
-            query: "none-observed",
-            body: "open-map",
-            returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:42",
-            "workflows/10-anatomy/04-workflow-anatomy.md:428",
-            "workflows/10-anatomy/05-build-flow.md:23"
           ]
         },
         {
@@ -22845,152 +22304,10 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
-          id: "workflows--workflow-delete",
-          method: "DELETE",
-          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/{wid}",
-          path: "/workflow/{locationId}/{wid}",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "destructive",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "workflows",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "locationId"
-            },
-            {
-              name: "wid"
-            }
+          id: "workflow-service--update-auto-save",
+          aka: [
+            "/workflow/{locationId}/{id}/auto-save"
           ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "workflows/20-api/03-endpoints.md:370"
-          ]
-        },
-        {
-          id: "workflows--workflow-get-get",
-          method: "GET",
-          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/{wid}",
-          path: "/workflow/{locationId}/{wid}",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "read",
-          note: `?version=N is ACCEPTED, silently IGNORED, and the CURRENT document is returned wearing its real version number (live 2026-09-02: ?version=1 -> "version": 3). Nothing errors, so a 'recovery' read can restore the corruption over itself and look successful. Use the version-history rail instead -- history / history-by-number -- which the typed get_workflow_version already does.`,
-          reach: "proven",
-          coveredBy: [
-            "build_workflow",
-            "check_workflow",
-            "duplicate_workflow",
-            "edit_workflow",
-            "export_workflow",
-            "get_agent_message_trace",
-            "get_workflow",
-            "get_workflow_digest",
-            "get_workflow_runtime_window",
-            "get_workflow_stats",
-            "move_workflows",
-            "publish_workflow",
-            "push_snapshot",
-            "repair_workflow",
-            "unpublish_workflows"
-          ],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "workflows",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "locationId"
-            },
-            {
-              name: "wid"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "workflows/00-overview/10-caveats.md:138",
-            "workflows/10-anatomy/04-workflow-anatomy.md:40",
-            "workflows/10-anatomy/07-id-resolution.md:204",
-            "workflows/30-types/steps/if_else.md:34",
-            "workflows/40-rules/09-gotchas.md:386"
-          ]
-        },
-        {
-          id: "workflows--workflow-put-put",
-          method: "PUT",
-          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/{wid}",
-          path: "/workflow/{locationId}/{wid}",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "write",
-          note: "The full-document commit re-runs the step validator over EVERY stored step, so it can be refused by a published, running workflow's own saved graph (INVALID_FIELD_VALUE, 'Action validation failed: <type> (...): Next is invalid'). The workflow keeps running and cannot be saved by anyone, API or builder. Never use this path for a rename -- rename-workflow skips the validator. Re-read before every write: a successful PUT bumps version and a later PUT built from a stale read 422s.",
-          reach: "source-only",
-          coveredBy: [
-            "edit_workflow",
-            "publish_workflow",
-            "repair_workflow"
-          ],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "workflows",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "locationId"
-            },
-            {
-              name: "wid"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "workflows/00-overview/10-caveats.md:141",
-            "workflows/10-anatomy/04-workflow-anatomy.md:25",
-            "workflows/10-anatomy/04-workflow-anatomy.md:416",
-            "workflows/10-anatomy/04-workflow-anatomy.md:566",
-            "workflows/10-anatomy/06-fields-glossary.md:133",
-            "workflows/40-rules/09-gotchas.md:49"
-          ]
-        },
-        {
-          id: "workflows--workflow-auto-save-put",
           method: "PUT",
           url: "https://backend.leadconnectorhq.com/workflow/{locationId}/{wid}/auto-save",
           path: "/workflow/{locationId}/{wid}/auto-save",
@@ -23005,9 +22322,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
-          operation: null,
+          operation: "updateAutoSave",
           service: "workflows",
-          tree: "documented",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -23017,15 +22334,22 @@ var init_define_ENDPOINT_CATALOG = __esm({
             }
           ],
           query: [],
-          body: null,
+          body: {
+            typeName: "{ [key: string]: any; }",
+            properties: null,
+            confidence: "open-map"
+          },
           returns: null,
           confidence: {
-            path: "documented",
+            path: "resolved",
             query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
+            body: "open-map",
+            returns: "none-observed"
           },
           sources: [
+            "services/BaseService.ts:42",
+            "workflows/10-anatomy/04-workflow-anatomy.md:428",
+            "workflows/10-anatomy/05-build-flow.md:23",
             "workflows/00-overview/10-caveats.md:140",
             "workflows/10-anatomy/04-workflow-anatomy.md:25",
             "workflows/10-anatomy/04-workflow-anatomy.md:415",
@@ -23034,270 +22358,68 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
-          id: "workflows--workflow-history",
-          method: "GET",
-          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/{wid}/history",
-          path: "/workflow/{locationId}/{wid}/history",
+          id: "workflow-service--delete",
+          aka: [
+            "/workflow/{locationId}/{id}",
+            "/workflow/{locationId}/{wid}"
+          ],
+          method: "DELETE",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/{workflowId}",
+          path: "/workflow/{locationId}/{workflowId}",
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
-          kind: "read",
-          reach: "proven",
-          coveredBy: [
-            "list_workflow_versions"
-          ],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "workflows",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "locationId"
-            },
-            {
-              name: "wid"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "workflows/20-api/version-history.md:20"
-          ]
-        },
-        {
-          id: "workflows--workflow-history-by-number",
-          method: "GET",
-          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/{wid}/history-by-number/{n}",
-          path: "/workflow/{locationId}/{wid}/history-by-number/{n}",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "read",
-          reach: "source-only",
-          coveredBy: [
-            "get_workflow_version"
-          ],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "workflows",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "locationId"
-            },
-            {
-              name: "wid"
-            },
-            {
-              name: "n"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "workflows/20-api/version-history.md:18"
-          ]
-        },
-        {
-          id: "workflows--workflow-history-get",
-          method: "GET",
-          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/{wid}/history/{versionId}",
-          path: "/workflow/{locationId}/{wid}/history/{versionId}",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "read",
-          reach: "source-only",
-          coveredBy: [
-            "get_workflow_version"
-          ],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "workflows",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "locationId"
-            },
-            {
-              name: "wid"
-            },
-            {
-              name: "versionId"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "workflows/20-api/version-history.md:19"
-          ]
-        },
-        {
-          id: "workflows--history-v2",
-          method: "GET",
-          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/{wid}/history/v2",
-          path: "/workflow/{locationId}/{wid}/history/v2",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "read",
-          reach: "proven",
-          coveredBy: [
-            "list_workflow_versions"
-          ],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "workflows",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "locationId"
-            },
-            {
-              name: "wid"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "workflows/20-api/version-history.md:17"
-          ]
-        },
-        {
-          id: "workflows--workflow-remove-stuck-statuses",
-          method: "POST",
-          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/{wid}/remove-stuck-statuses/{stepId}",
-          path: "/workflow/{locationId}/{wid}/remove-stuck-statuses/{stepId}",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "write",
+          kind: "destructive",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
-          operation: null,
+          operation: "delete",
           service: "workflows",
-          tree: "documented",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
             },
             {
-              name: "wid"
-            },
-            {
-              name: "stepId"
+              name: "workflowId"
             }
           ],
           query: [
             {
               name: "userId",
               type: "string",
-              required: false,
-              source: "documented"
+              required: true,
+              source: "url-literal"
             }
           ],
           body: null,
           returns: null,
           confidence: {
-            path: "documented",
-            query: "documented",
-            body: "unresolved",
-            returns: "unresolved"
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "none-observed"
           },
           sources: [
-            "workflows/50-runtime/forcing-and-removing-contacts.md:22"
+            "services/BaseService.ts:54",
+            "workflows/20-api/03-endpoints.md:370"
           ]
         },
         {
-          id: "workflows--workflow-requeue-stuck-statuses",
-          method: "POST",
-          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/{wid}/requeue-stuck-statuses/{stepId}",
-          path: "/workflow/{locationId}/{wid}/requeue-stuck-statuses/{stepId}",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "write",
-          reach: "source-only",
-          coveredBy: [
-            "fast_forward_contacts"
+          id: "workflow-service--find-by-id",
+          aka: [
+            "/workflow/{locationId}/{id}",
+            "/workflow/{locationId}/{wid}"
           ],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "workflows",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "locationId"
-            },
-            {
-              name: "wid"
-            },
-            {
-              name: "stepId"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "workflows/50-runtime/forcing-and-removing-contacts.md:18"
-          ]
-        },
-        {
-          id: "workflows--workflow-get-get-get",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/workflow/{locationId}/{workflowId}",
           path: "/workflow/{locationId}/{workflowId}",
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
+          note: `?version=N is ACCEPTED, silently IGNORED, and the CURRENT document is returned wearing its real version number (live 2026-09-02: ?version=1 -> "version": 3). Nothing errors, so a 'recovery' read can restore the corruption over itself and look successful. Use the version-history rail instead -- history / history-by-number -- which the typed get_workflow_version already does.`,
           reach: "source-only",
           coveredBy: [
             "build_workflow",
@@ -23314,15 +22436,16 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "publish_workflow",
             "push_snapshot",
             "repair_workflow",
-            "unpublish_workflows"
+            "unpublish_workflows",
+            "validate_workflow"
           ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
-          operation: null,
+          operation: "findById",
           service: "workflows",
-          tree: "documented",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -23342,23 +22465,35 @@ var init_define_ENDPOINT_CATALOG = __esm({
           body: null,
           returns: null,
           confidence: {
-            path: "documented",
-            query: "documented",
-            body: "unresolved",
-            returns: "unresolved"
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
           },
           sources: [
+            "services/BaseService.ts:30",
+            "workflows/20-api/03-endpoints.md:181",
+            "workflows/00-overview/10-caveats.md:138",
+            "workflows/10-anatomy/04-workflow-anatomy.md:40",
+            "workflows/10-anatomy/07-id-resolution.md:204",
+            "workflows/30-types/steps/if_else.md:34",
+            "workflows/40-rules/09-gotchas.md:386",
             "workflows/10-anatomy/workflow-json-schema.md:25"
           ]
         },
         {
-          id: "workflows--workflow-put-put-put",
+          id: "workflow-service--update",
+          aka: [
+            "/workflow/{locationId}/{id}",
+            "/workflow/{locationId}/{wid}"
+          ],
           method: "PUT",
           url: "https://backend.leadconnectorhq.com/workflow/{locationId}/{workflowId}",
           path: "/workflow/{locationId}/{workflowId}",
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
+          note: "The full-document commit re-runs the step validator over EVERY stored step, so it can be refused by a published, running workflow's own saved graph (INVALID_FIELD_VALUE, 'Action validation failed: <type> (...): Next is invalid'). The workflow keeps running and cannot be saved by anyone, API or builder. Never use this path for a rename -- rename-workflow skips the validator. Re-read before every write: a successful PUT bumps version and a later PUT built from a stale read 422s.",
           reach: "source-only",
           coveredBy: [
             "edit_workflow",
@@ -23369,9 +22504,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           transport: "json",
           responseMode: "json",
           extraHeaders: [],
-          operation: null,
+          operation: "update",
           service: "workflows",
-          tree: "documented",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -23381,17 +22516,27 @@ var init_define_ENDPOINT_CATALOG = __esm({
             }
           ],
           query: [],
-          body: null,
+          body: {
+            typeName: "{ [key: string]: any; }",
+            properties: null,
+            confidence: "open-map"
+          },
           returns: null,
           confidence: {
-            path: "documented",
+            path: "resolved",
             query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
+            body: "open-map",
+            returns: "none-observed"
           },
           sources: [
-            "workflows/30-types/triggers/conv_ai_autonomous_trigger.md:203",
-            "workflows/70-research/2026-08-26-flow-bot-probe.md:150"
+            "services/BaseService.ts:46",
+            "workflows/10-anatomy/04-workflow-anatomy.md:430",
+            "workflows/10-anatomy/05-build-flow.md:25",
+            "workflows/00-overview/10-caveats.md:141",
+            "workflows/10-anatomy/04-workflow-anatomy.md:25",
+            "workflows/10-anatomy/04-workflow-anatomy.md:416",
+            "workflows/10-anatomy/04-workflow-anatomy.md:566",
+            "workflows/10-anatomy/06-fields-glossary.md:133"
           ]
         },
         {
@@ -23459,7 +22604,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "states/workflow.ts:260"
+            "states/workflow.ts:276"
           ]
         },
         {
@@ -23501,7 +22646,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/WorkflowService.ts:568"
+            "services/WorkflowService.ts:570"
           ]
         },
         {
@@ -23546,11 +22691,14 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "states/app.ts:577"
+            "states/app.ts:596"
           ]
         },
         {
           id: "workflow-service--get-all-versions",
+          aka: [
+            "/workflow/{locationId}/{wid}/history"
+          ],
           method: "GET",
           url: "https://backend.leadconnectorhq.com/workflow/{locationId}/{workflowId}/history",
           path: "/workflow/{locationId}/{workflowId}/history",
@@ -23586,11 +22734,15 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/WorkflowService.ts:507"
+            "services/WorkflowService.ts:509",
+            "workflows/20-api/version-history.md:20"
           ]
         },
         {
           id: "workflow-service--get-version-by-number-and-workflow-id",
+          aka: [
+            "/workflow/{locationId}/{wid}/history-by-number/{n}"
+          ],
           method: "GET",
           url: "https://backend.leadconnectorhq.com/workflow/{locationId}/{workflowId}/history-by-number/{versionNumber}",
           path: "/workflow/{locationId}/{workflowId}/history-by-number/{versionNumber}",
@@ -23629,11 +22781,15 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/WorkflowService.ts:548"
+            "services/WorkflowService.ts:550",
+            "workflows/20-api/version-history.md:18"
           ]
         },
         {
           id: "workflow-service--get-version-by-id-and-workflow-id",
+          aka: [
+            "/workflow/{locationId}/{wid}/history/{versionId}"
+          ],
           method: "GET",
           url: "https://backend.leadconnectorhq.com/workflow/{locationId}/{workflowId}/history/{versionId}",
           path: "/workflow/{locationId}/{workflowId}/history/{versionId}",
@@ -23672,11 +22828,15 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/WorkflowService.ts:536"
+            "services/WorkflowService.ts:538",
+            "workflows/20-api/version-history.md:19"
           ]
         },
         {
           id: "workflow-service--get-history-v2",
+          aka: [
+            "/workflow/{locationId}/{wid}/history/v2"
+          ],
           method: "GET",
           url: "https://backend.leadconnectorhq.com/workflow/{locationId}/{workflowId}/history/v2",
           path: "/workflow/{locationId}/{workflowId}/history/v2",
@@ -23712,7 +22872,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/WorkflowService.ts:522"
+            "services/WorkflowService.ts:524",
+            "workflows/20-api/version-history.md:17"
           ]
         },
         {
@@ -23760,6 +22921,24 @@ var init_define_ENDPOINT_CATALOG = __esm({
               source: "url-literal"
             },
             {
+              name: "referenceId",
+              type: "string",
+              required: false,
+              source: "url-literal"
+            },
+            {
+              name: "referenceCreatedAt",
+              type: "string",
+              required: false,
+              source: "url-literal"
+            },
+            {
+              name: "referenceSequence",
+              type: "string",
+              required: false,
+              source: "url-literal"
+            },
+            {
               name: "executionId",
               type: "string",
               required: true,
@@ -23787,14 +22966,17 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/WorkflowService.ts:229",
-            "services/WorkflowService.ts:273",
-            "services/WorkflowService.ts:298",
-            "services/WorkflowService.ts:323"
+            "services/WorkflowService.ts:231",
+            "services/WorkflowService.ts:275",
+            "services/WorkflowService.ts:300",
+            "services/WorkflowService.ts:325"
           ]
         },
         {
           id: "workflow-service--remove-stuck-records",
+          aka: [
+            "/workflow/{locationId}/{wid}/remove-stuck-statuses/{stepId}"
+          ],
           method: "POST",
           url: "https://backend.leadconnectorhq.com/workflow/{locationId}/{workflowId}/remove-stuck-statuses/{stepId}",
           path: "/workflow/{locationId}/{workflowId}/remove-stuck-statuses/{stepId}",
@@ -23838,12 +23020,16 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/WorkflowService.ts:425",
-            "services/WorkflowService.ts:449"
+            "services/WorkflowService.ts:427",
+            "services/WorkflowService.ts:451",
+            "workflows/50-runtime/forcing-and-removing-contacts.md:22"
           ]
         },
         {
           id: "workflow-service--requeue-selected-stuck-contacts",
+          aka: [
+            "/workflow/{locationId}/{wid}/requeue-stuck-statuses/{stepId}"
+          ],
           method: "POST",
           url: "https://backend.leadconnectorhq.com/workflow/{locationId}/{workflowId}/requeue-stuck-statuses/{stepId}",
           path: "/workflow/{locationId}/{workflowId}/requeue-stuck-statuses/{stepId}",
@@ -23897,51 +23083,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/WorkflowService.ts:407"
-          ]
-        },
-        {
-          id: "workflow-service--requeue-stuck-records",
-          method: "POST",
-          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/{workflowId}/requeue-stuck-statuses/{stepId}{retrySteptrue}",
-          path: "/workflow/{locationId}/{workflowId}/requeue-stuck-statuses/{stepId}{retrySteptrue}",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "write",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: "requeueStuckRecords",
-          service: "workflows",
-          tree: "workflow-builder",
-          pathParams: [
-            {
-              name: "locationId"
-            },
-            {
-              name: "workflowId"
-            },
-            {
-              name: "stepId"
-            },
-            {
-              name: "retrySteptrue"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "resolved",
-            query: "none-observed",
-            body: "none-observed",
-            returns: "none-observed"
-          },
-          sources: [
-            "services/WorkflowService.ts:413"
+            "services/WorkflowService.ts:409",
+            "services/WorkflowService.ts:415",
+            "workflows/50-runtime/forcing-and-removing-contacts.md:18"
           ]
         },
         {
@@ -23983,7 +23127,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/WorkflowService.ts:462"
+            "services/WorkflowService.ts:464"
           ]
         },
         {
@@ -24075,7 +23219,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
                 doc: "Returns a list of values in the list."
               },
               {
-                name: "__@iterator@767",
+                name: "__@iterator@696",
                 type: "() => FormDataIterator<[string, FormDataEntryValue]>",
                 optional: false
               }
@@ -24090,9 +23234,85 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "states/app.ts:566",
+            "states/app.ts:585",
             "components/advanced-workflow-canvas/components/canvas/components/sticky-note/StickyNoteImageUpload.vue:38",
             "components/sticky-notes/v2/StickyNoteImageUpload.vue:45"
+          ]
+        },
+        {
+          id: "backend--validate-workflows",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/{workflowId}/validate-workflows",
+          path: "/workflow/{locationId}/{workflowId}/validate-workflows",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [
+            "validate_workflow"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "workflow-builder",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "workflowId"
+            }
+          ],
+          query: [],
+          body: {
+            typeName: "Record<string, unknown>",
+            properties: null,
+            confidence: "erased"
+          },
+          returns: {
+            typeName: "ValidateWorkflowResponse",
+            properties: [
+              {
+                name: "valid",
+                type: "boolean",
+                optional: false
+              },
+              {
+                name: "message",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "errorMessage",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "assetWarnings",
+                type: "unknown[]",
+                optional: true
+              },
+              {
+                name: "errorMetadata",
+                type: "{ validationFailure?: boolean; validationType?: string; errors?: Record<strin...",
+                optional: true
+              }
+            ],
+            confidence: "resolved"
+          },
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "erased",
+            returns: "resolved"
+          },
+          sources: [
+            "services/api/workflow-validation-service.ts:29",
+            "workflows/20-api/live-validation.md:18",
+            "workflows/40-rules/server-side-validation.md:18"
           ]
         },
         {
@@ -24140,7 +23360,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/WorkflowService.ts:385"
+            "services/WorkflowService.ts:387"
           ]
         },
         {
@@ -24188,7 +23408,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/WorkflowService.ts:368"
+            "services/WorkflowService.ts:370"
           ]
         },
         {
@@ -24223,7 +23443,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/WorkflowService.ts:690"
+            "services/WorkflowService.ts:710"
           ]
         },
         {
@@ -24653,7 +23873,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/WorkflowService.ts:603",
+            "services/WorkflowService.ts:623",
             "platform/20-api/snapshots-authoring.md:278",
             "platform/40-rules/snapshot-carry-matrix.md:108"
           ]
@@ -24694,7 +23914,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/WorkflowService.ts:596",
+            "services/WorkflowService.ts:616",
             "platform/20-api/snapshots-authoring.md:277"
           ]
         },
@@ -24750,7 +23970,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/WorkflowService.ts:653"
+            "services/WorkflowService.ts:673"
           ]
         },
         {
@@ -24787,7 +24007,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/WorkflowService.ts:149"
+            "services/WorkflowService.ts:151"
           ]
         },
         {
@@ -24968,7 +24188,391 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/WorkflowService.ts:612"
+            "services/WorkflowService.ts:632"
+          ]
+        },
+        {
+          id: "backend--domain-selection",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/email/domain-selection",
+          path: "/workflow/{locationId}/email/domain-selection",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "workflow-builder",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [
+            {
+              name: "workflowId",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            }
+          ],
+          body: null,
+          returns: {
+            typeName: "WorkflowDomainEntry[]",
+            properties: [
+              {
+                name: "length",
+                type: "number",
+                optional: false,
+                doc: "Gets or sets the length of the array. This is a number one higher than the highest index in the array."
+              },
+              {
+                name: "toString",
+                type: "() => string",
+                optional: false,
+                doc: "Returns a string representation of an array."
+              },
+              {
+                name: "toLocaleString",
+                type: "{ (): string; (locales: string | string[], options?: NumberFormatOptions & Da...",
+                optional: false,
+                doc: "Returns a string representation of an array. The elements are converted to string using their toLocaleString methods."
+              },
+              {
+                name: "pop",
+                type: "() => WorkflowDomainEntry",
+                optional: false,
+                doc: "Removes the last element from an array and returns it.\nIf the array is empty, undefined is returned and the array is not modified."
+              },
+              {
+                name: "push",
+                type: "(...items: WorkflowDomainEntry[]) => number",
+                optional: false,
+                doc: "Appends new elements to the end of an array, and returns the new length of the array."
+              },
+              {
+                name: "concat",
+                type: "{ (...items: ConcatArray<WorkflowDomainEntry>[]): WorkflowDomainEntry[]; (......",
+                optional: false,
+                doc: "Combines two or more arrays.\nThis method returns a new array without modifying any existing arrays."
+              },
+              {
+                name: "join",
+                type: "(separator?: string) => string",
+                optional: false,
+                doc: "Adds all the elements of an array into a string, separated by the specified separator string."
+              },
+              {
+                name: "reverse",
+                type: "() => WorkflowDomainEntry[]",
+                optional: false,
+                doc: "Reverses the elements in an array in place.\nThis method mutates the array and returns a reference to the same array."
+              },
+              {
+                name: "shift",
+                type: "() => WorkflowDomainEntry",
+                optional: false,
+                doc: "Removes the first element from an array and returns it.\nIf the array is empty, undefined is returned and the array is not modified."
+              },
+              {
+                name: "slice",
+                type: "(start?: number, end?: number) => WorkflowDomainEntry[]",
+                optional: false,
+                doc: "Returns a copy of a section of an array.\nFor both start and end, a negative index can be used to indicate an offset from the end of the array.\nFor example, -2 refers to the second to last element of the array."
+              },
+              {
+                name: "sort",
+                type: "(compareFn?: (a: WorkflowDomainEntry, b: WorkflowDomainEntry) => number) => W...",
+                optional: false,
+                doc: "Sorts an array in place.\nThis method mutates the array and returns a reference to the same array."
+              },
+              {
+                name: "splice",
+                type: "{ (start: number, deleteCount?: number): WorkflowDomainEntry[]; (start: numbe...",
+                optional: false,
+                doc: "Removes elements from an array and, if necessary, inserts new elements in their place, returning the deleted elements."
+              },
+              {
+                name: "unshift",
+                type: "(...items: WorkflowDomainEntry[]) => number",
+                optional: false,
+                doc: "Inserts new elements at the start of an array, and returns the new length of the array."
+              },
+              {
+                name: "indexOf",
+                type: "(searchElement: WorkflowDomainEntry, fromIndex?: number) => number",
+                optional: false,
+                doc: "Returns the index of the first occurrence of a value in an array, or -1 if it is not present."
+              },
+              {
+                name: "lastIndexOf",
+                type: "(searchElement: WorkflowDomainEntry, fromIndex?: number) => number",
+                optional: false,
+                doc: "Returns the index of the last occurrence of a specified value in an array, or -1 if it is not present."
+              },
+              {
+                name: "every",
+                type: "{ <S extends WorkflowDomainEntry>(predicate: (value: WorkflowDomainEntry, ind...",
+                optional: false,
+                doc: "Determines whether all the members of an array satisfy the specified test."
+              },
+              {
+                name: "some",
+                type: "(predicate: (value: WorkflowDomainEntry, index: number, array: WorkflowDomain...",
+                optional: false,
+                doc: "Determines whether the specified callback function returns true for any element of an array."
+              },
+              {
+                name: "forEach",
+                type: "(callbackfn: (value: WorkflowDomainEntry, index: number, array: WorkflowDomai...",
+                optional: false,
+                doc: "Performs the specified action for each element in an array."
+              },
+              {
+                name: "map",
+                type: "<U>(callbackfn: (value: WorkflowDomainEntry, index: number, array: WorkflowDo...",
+                optional: false,
+                doc: "Calls a defined callback function on each element of an array, and returns an array that contains the results."
+              },
+              {
+                name: "filter",
+                type: "{ <S extends WorkflowDomainEntry>(predicate: (value: WorkflowDomainEntry, ind...",
+                optional: false,
+                doc: "Returns the elements of an array that meet the condition specified in a callback function."
+              },
+              {
+                name: "reduce",
+                type: "{ (callbackfn: (previousValue: WorkflowDomainEntry, currentValue: WorkflowDom...",
+                optional: false,
+                doc: "Calls the specified callback function for all the elements in an array. The return value of the callback function is the accumulated result, and is provided as an argument in the next call to the callback function."
+              },
+              {
+                name: "reduceRight",
+                type: "{ (callbackfn: (previousValue: WorkflowDomainEntry, currentValue: WorkflowDom...",
+                optional: false,
+                doc: "Calls the specified callback function for all the elements in an array, in descending order. The return value of the callback function is the accumulated result, and is provided as an argument in the next call to the callback function."
+              },
+              {
+                name: "find",
+                type: "{ <S extends WorkflowDomainEntry>(predicate: (value: WorkflowDomainEntry, ind...",
+                optional: false,
+                doc: "Returns the value of the first element in the array where predicate is true, and undefined\notherwise."
+              },
+              {
+                name: "findIndex",
+                type: "(predicate: (value: WorkflowDomainEntry, index: number, obj: WorkflowDomainEn...",
+                optional: false,
+                doc: "Returns the index of the first element in the array where predicate is true, and -1\notherwise."
+              },
+              {
+                name: "fill",
+                type: "(value: WorkflowDomainEntry, start?: number, end?: number) => WorkflowDomainE...",
+                optional: false,
+                doc: "Changes all array elements from `start` to `end` index to a static `value` and returns the modified array"
+              },
+              {
+                name: "copyWithin",
+                type: "(target: number, start: number, end?: number) => WorkflowDomainEntry[]",
+                optional: false,
+                doc: "Returns the this object after copying a section of the array identified by start and end\nto the same array starting at position target"
+              },
+              {
+                name: "entries",
+                type: "() => ArrayIterator<[number, WorkflowDomainEntry]>",
+                optional: false,
+                doc: "Returns an iterable of key, value pairs for every entry in the array"
+              },
+              {
+                name: "keys",
+                type: "() => ArrayIterator<number>",
+                optional: false,
+                doc: "Returns an iterable of keys in the array"
+              },
+              {
+                name: "values",
+                type: "() => ArrayIterator<WorkflowDomainEntry>",
+                optional: false,
+                doc: "Returns an iterable of values in the array"
+              },
+              {
+                name: "includes",
+                type: "(searchElement: WorkflowDomainEntry, fromIndex?: number) => boolean",
+                optional: false,
+                doc: "Determines whether an array includes a certain element, returning true or false as appropriate."
+              },
+              {
+                name: "flatMap",
+                type: "<U, This = undefined>(callback: (this: This, value: WorkflowDomainEntry, inde...",
+                optional: false,
+                doc: "Calls a defined callback function on each element of an array. Then, flattens the result into\na new array.\nThis is identical to a map followed by flat with depth 1."
+              },
+              {
+                name: "flat",
+                type: "<A, D extends number = 1>(this: A, depth?: D) => FlatArray<A, D>[]",
+                optional: false,
+                doc: "Returns a new array with all sub-array elements concatenated into it recursively up to the\nspecified depth."
+              },
+              {
+                name: "at",
+                type: "(index: number) => WorkflowDomainEntry",
+                optional: false,
+                doc: "Returns the item located at the specified index."
+              },
+              {
+                name: "findLast",
+                type: "{ <S extends WorkflowDomainEntry>(predicate: (value: WorkflowDomainEntry, ind...",
+                optional: false,
+                doc: "Returns the value of the last element in the array where predicate is true, and undefined\notherwise."
+              },
+              {
+                name: "findLastIndex",
+                type: "(predicate: (value: WorkflowDomainEntry, index: number, array: WorkflowDomain...",
+                optional: false,
+                doc: "Returns the index of the last element in the array where predicate is true, and -1\notherwise."
+              },
+              {
+                name: "toReversed",
+                type: "() => WorkflowDomainEntry[]",
+                optional: false,
+                doc: "Returns a copy of an array with its elements reversed."
+              },
+              {
+                name: "toSorted",
+                type: "(compareFn?: (a: WorkflowDomainEntry, b: WorkflowDomainEntry) => number) => W...",
+                optional: false,
+                doc: "Returns a copy of an array with its elements sorted."
+              },
+              {
+                name: "toSpliced",
+                type: "{ (start: number, deleteCount: number, ...items: WorkflowDomainEntry[]): Work...",
+                optional: false,
+                doc: "Copies an array and removes elements and, if necessary, inserts new elements in their place. Returns the copied array.\nCopies an array and removes elements while returning the remaining elements."
+              },
+              {
+                name: "with",
+                type: "(index: number, value: WorkflowDomainEntry) => WorkflowDomainEntry[]",
+                optional: false,
+                doc: "Copies an array, then overwrites the value at the provided index with the\ngiven value. If the index is negative, then it replaces from the end\nof the array."
+              },
+              {
+                name: "__@iterator@696",
+                type: "() => ArrayIterator<WorkflowDomainEntry>",
+                optional: false,
+                doc: "Iterator"
+              },
+              {
+                name: "__@unscopables@698",
+                type: "{ [x: number]: boolean; length?: boolean; toString?: boolean; toLocaleString?...",
+                optional: false,
+                doc: "Is an object whose properties have the value 'true'\nwhen they will be absent when used in a 'with' statement."
+              }
+            ],
+            confidence: "resolved"
+          },
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "resolved"
+          },
+          sources: [
+            "services/api/domain-selection.service.ts:57",
+            "workflows/20-api/sender-domain.md:16"
+          ]
+        },
+        {
+          id: "backend--manage",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/email/domain-selection/manage",
+          path: "/workflow/{locationId}/email/domain-selection/manage",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "workflow-builder",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: {
+            typeName: "ManageWorkflowDomainSelectionPayload",
+            properties: [
+              {
+                name: "workflowId",
+                type: "string",
+                optional: false,
+                doc: "Workflow whose domain mapping is being changed."
+              },
+              {
+                name: "operation",
+                type: "WorkflowDomainSelectionOperation",
+                optional: false,
+                doc: "`delete` clears the mapping; `update` sets `newDomain`."
+              },
+              {
+                name: "currentDomain",
+                type: "string",
+                optional: true,
+                doc: "Currently-mapped domain to remove first, when one exists."
+              },
+              {
+                name: "newDomain",
+                type: "string",
+                optional: true,
+                doc: "Domain to map. Required when `operation` is `update`."
+              }
+            ],
+            confidence: "resolved"
+          },
+          returns: {
+            typeName: "ManageWorkflowDomainSelectionResponse",
+            properties: [
+              {
+                name: "success",
+                type: "boolean",
+                optional: false
+              },
+              {
+                name: "domain",
+                type: "string",
+                optional: false
+              },
+              {
+                name: "operation",
+                type: "WorkflowDomainSelectionOperation",
+                optional: false
+              },
+              {
+                name: "message",
+                type: "string",
+                optional: false
+              }
+            ],
+            confidence: "resolved"
+          },
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "resolved",
+            returns: "resolved"
+          },
+          sources: [
+            "services/api/domain-selection.service.ts:74",
+            "workflows/20-api/sender-domain.md:17"
           ]
         },
         {
@@ -25098,6 +24702,87 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/EmailService.ts:132"
+          ]
+        },
+        {
+          id: "backend--validate-from-email",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/email/validate-from-email",
+          path: "/workflow/{locationId}/email/validate-from-email",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "workflow-builder",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: {
+            typeName: "ValidateFromEmailPayload",
+            properties: [
+              {
+                name: "fromEmail",
+                type: "string",
+                optional: false,
+                doc: "The From Email address to validate."
+              },
+              {
+                name: "domain",
+                type: "string",
+                optional: false,
+                doc: "The sending domain the email will be aligned against."
+              }
+            ],
+            confidence: "resolved"
+          },
+          returns: {
+            typeName: "ValidateFromEmailResponse",
+            properties: [
+              {
+                name: "isFromEmailAllowed",
+                type: "boolean",
+                optional: false,
+                doc: "`false` when the From Email would fail DMARC alignment for `domain`."
+              },
+              {
+                name: "fromEmailSuggestions",
+                type: "string[]",
+                optional: false,
+                doc: "Suggested aligned addresses the user could switch to."
+              },
+              {
+                name: "message",
+                type: "string",
+                optional: false
+              },
+              {
+                name: "code",
+                type: "ValidateFromEmailWarningCode",
+                optional: true,
+                doc: "Warning code identifying the specific validation issue, when one applies."
+              }
+            ],
+            confidence: "resolved"
+          },
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "resolved",
+            returns: "resolved"
+          },
+          sources: [
+            "services/api/domain-selection.service.ts:151",
+            "workflows/20-api/sender-domain.md:18"
           ]
         },
         {
@@ -25564,8 +25249,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/WorkflowService.ts:76",
-            "services/WorkflowService.ts:117",
+            "services/WorkflowService.ts:78",
+            "services/WorkflowService.ts:119",
             "services/api/workflow-overview.service.ts:203",
             "services/ScheduledPauseService.ts:52",
             "workflows/00-overview/10-caveats.md:77",
@@ -25607,7 +25292,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/WorkflowService.ts:639"
+            "services/WorkflowService.ts:659"
           ]
         },
         {
@@ -25649,19 +25334,22 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/WorkflowService.ts:201"
+            "services/WorkflowService.ts:203"
           ]
         },
         {
           id: "workflow-service--update-only-triggers",
+          aka: [
+            "/workflow/{locationId}/only-triggers/{id}"
+          ],
           method: "PUT",
-          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/only-triggers/{id}",
-          path: "/workflow/{locationId}/only-triggers/{id}",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/only-triggers/{wid}",
+          path: "/workflow/{locationId}/only-triggers/{wid}",
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          summary: "Same route as the {wid} row \u2014 also live-proven INERT for trigger content, see that row.",
-          note: "Same route as the {wid} row; the miner produced both spellings from different call sites \u2014 see that row's note. This does not persist a trigger edit either.",
+          summary: "Accepted with 200 and bumps the workflow version \u2014 but does NOT change trigger content. Do not use this to save a trigger edit.",
+          note: "\u{1F534} Live-proven INERT for trigger content, both {oldTriggers,newTriggers} and {version,triggers} body shapes: 200, version bumped, stored trigger conditions/active/name unchanged on read-back \u2014 do not use this to save a trigger edit. The rail this project uses instead is a per-trigger PUT /workflow/{locationId}/trigger/{triggerId} carrying the WHOLE trigger record (see edit_workflow's modifyTrigger op / mcp-internal/core/tools.mjs publish_workflow); it IS live-proven for trigger CONTENT (conditions/name/targetActionId). `active` is a read-only projection of the trigger's own `status` field (`active === (status !== \"draft\")`) \u2014 no PUT body's `active` field controls it directly: a publish with zero trigger writes still activates every trigger sub-second after the publish PUT returns, and a per-trigger PUT with active:false against a published workflow returns 200 with the trigger staying active:true. Sending `status:\"published\"` on that same per-trigger PUT DOES activate a trigger on an already-published workflow, verified by read-back at +0.5s/+2s/+5s; `status:\"draft\"` deactivates it. A bogus `status` string is silently accepted and ignored (200, unchanged) \u2014 never trust the 200, always read back. publish_workflow (mcp-internal/core/tools.mjs), orchestrate.mjs's --publish step, and skills/create-ghl-workflow/scripts/edit.mjs's post-add check send exactly this PUT as a REPAIR \u2014 one per trigger still inactive after the publish PUT's own draft\u2192published cascade \u2014 before ever reporting failure. Separately, the full workflow PUT still 400s with INVALID_TRIGGER_CONDITION on conv_ai_autonomous_trigger \u2014 this endpoint is not a fix for that either.",
           reach: "proven",
           coveredBy: [],
           rawCallable: true,
@@ -25676,7 +25364,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
               name: "locationId"
             },
             {
-              name: "id"
+              name: "wid"
             }
           ],
           query: [],
@@ -25693,46 +25381,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/BaseService.ts:50"
-          ]
-        },
-        {
-          id: "workflows--workflow-only-triggers",
-          method: "PUT",
-          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/only-triggers/{wid}",
-          path: "/workflow/{locationId}/only-triggers/{wid}",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "write",
-          summary: "Accepted with 200 and bumps the workflow version \u2014 but does NOT change trigger content. Do not use this to save a trigger edit.",
-          note: "\u{1F534} Live-proven INERT for trigger content, both {oldTriggers,newTriggers} and {version,triggers} body shapes: 200, version bumped, stored trigger conditions/active/name unchanged on read-back \u2014 do not use this to save a trigger edit. The rail this project uses instead is a per-trigger PUT /workflow/{locationId}/trigger/{triggerId} carrying the WHOLE trigger record (see edit_workflow's modifyTrigger op / mcp-internal/core/tools.mjs publish_workflow); it IS live-proven for trigger CONTENT (conditions/name/targetActionId). `active` is a read-only projection of the trigger's own `status` field (`active === (status !== \"draft\")`) \u2014 no PUT body's `active` field controls it directly: a publish with zero trigger writes still activates every trigger sub-second after the publish PUT returns, and a per-trigger PUT with active:false against a published workflow returns 200 with the trigger staying active:true. Sending `status:\"published\"` on that same per-trigger PUT DOES activate a trigger on an already-published workflow, verified by read-back at +0.5s/+2s/+5s; `status:\"draft\"` deactivates it. A bogus `status` string is silently accepted and ignored (200, unchanged) \u2014 never trust the 200, always read back. publish_workflow (mcp-internal/core/tools.mjs), orchestrate.mjs's --publish step, and skills/create-ghl-workflow/scripts/edit.mjs's post-add check send exactly this PUT as a REPAIR \u2014 one per trigger still inactive after the publish PUT's own draft\u2192published cascade \u2014 before ever reporting failure. Separately, the full workflow PUT still 400s with INVALID_TRIGGER_CONDITION on conv_ai_autonomous_trigger \u2014 this endpoint is not a fix for that either.",
-          reach: "proven",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "workflows",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "locationId"
-            },
-            {
-              name: "wid"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
+            "services/BaseService.ts:50",
             "workflows/10-anatomy/04-workflow-anatomy.md:31",
             "workflows/30-types/triggers/conv_ai_autonomous_trigger.md:233",
             "workflows/40-rules/09-gotchas.md:225",
@@ -25775,7 +25424,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/WorkflowService.ts:211"
+            "services/WorkflowService.ts:213"
           ]
         },
         {
@@ -25810,7 +25459,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/WorkflowService.ts:668"
+            "services/WorkflowService.ts:688"
           ]
         },
         {
@@ -25924,7 +25573,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/WorkflowService.ts:192"
+            "services/WorkflowService.ts:194"
           ]
         },
         {
@@ -25963,7 +25612,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/WorkflowService.ts:166"
+            "services/WorkflowService.ts:168"
           ]
         },
         {
@@ -26003,7 +25652,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/WorkflowService.ts:178",
+            "services/WorkflowService.ts:180",
             "workflows/70-research/EDIT-OPS.md:169"
           ]
         },
@@ -26046,7 +25695,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/WorkflowService.ts:628"
+            "services/WorkflowService.ts:648"
           ]
         },
         {
@@ -26437,6 +26086,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
         },
         {
           id: "secret-manager-service--remove",
+          aka: [
+            "/workflow/{locationId}/secret-manager/{value}"
+          ],
           method: "DELETE",
           url: "https://backend.leadconnectorhq.com/workflow/{locationId}/secret-manager/{secretId}",
           path: "/workflow/{locationId}/secret-manager/{secretId}",
@@ -26470,46 +26122,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/SecretManagerService.ts:33"
-          ]
-        },
-        {
-          id: "backend--delete-secret",
-          method: "DELETE",
-          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/secret-manager/{value}",
-          path: "/workflow/{locationId}/secret-manager/{value}",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "destructive",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: false,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [
-            "Authorization"
-          ],
-          operation: "deleteSecret",
-          service: "workflows",
-          tree: "workflow-builder",
-          pathParams: [
-            {
-              name: "locationId"
-            },
-            {
-              name: "value"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "resolved",
-            query: "none-observed",
-            body: "none-observed",
-            returns: "none-observed"
-          },
-          sources: [
+            "services/SecretManagerService.ts:33",
             "components/actions/premium-actions/custom-webhook-components/CustomWebhookAuthorization.vue:628"
           ]
         },
@@ -26755,7 +26368,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "get_workflow_runtime_window",
             "get_workflow_stats",
             "publish_workflow",
-            "repair_workflow"
+            "repair_workflow",
+            "validate_workflow"
           ],
           rawCallable: true,
           transport: "json",
@@ -27382,7 +26996,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
                 doc: "Returns a list of values in the list."
               },
               {
-                name: "__@iterator@767",
+                name: "__@iterator@696",
                 type: "() => FormDataIterator<[string, FormDataEntryValue]>",
                 optional: false
               }
@@ -27557,8 +27171,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "services/api/workflow-asset-validation.ts:33",
             "workflows/30-types/steps/if_else.md:31",
-            "workflows/40-rules/server-side-validation.md:146",
-            "workflows/40-rules/server-side-validation.md:228"
+            "workflows/40-rules/server-side-validation.md:226"
           ]
         },
         {
@@ -27809,542 +27422,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/WorkflowService.ts:558",
+            "services/WorkflowService.ts:560",
             "workflows/70-research/ENDPOINT-SWEEP-2026-08-25.md:73"
-          ]
-        },
-        {
-          id: "backend--fetch-drives",
-          method: "GET",
-          url: "https://backend.leadconnectorhq.com/workflow/{root}/drives",
-          path: "/workflow/{root}/drives",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "read",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: "fetchDrives",
-          service: "workflows",
-          tree: "workflow-builder",
-          pathParams: [
-            {
-              name: "root"
-            }
-          ],
-          query: [
-            {
-              name: "locationId",
-              type: "unknown",
-              required: true,
-              source: "params"
-            },
-            {
-              name: "oAuthId",
-              type: "unknown",
-              required: true,
-              source: "params"
-            },
-            {
-              name: "pageToken",
-              type: "unknown",
-              required: true,
-              source: "params"
-            }
-          ],
-          body: null,
-          returns: {
-            typeName: "PaginatedResponse<DriveItem>",
-            properties: [
-              {
-                name: "data",
-                type: "DriveItem[]",
-                optional: false
-              },
-              {
-                name: "nextPageToken",
-                type: "string",
-                optional: true
-              }
-            ],
-            confidence: "resolved"
-          },
-          confidence: {
-            path: "resolved",
-            query: "resolved",
-            body: "none-observed",
-            returns: "resolved"
-          },
-          sources: [
-            "services/api/google-sheets-workflows-service.ts:54"
-          ]
-        },
-        {
-          id: "backend--fetch-slack-integrations",
-          method: "GET",
-          url: "https://backend.leadconnectorhq.com/workflow/{root}/integrations",
-          path: "/workflow/{root}/integrations",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "read",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: "fetchSlackIntegrations",
-          service: "workflows",
-          tree: "workflow-builder",
-          pathParams: [
-            {
-              name: "root"
-            }
-          ],
-          query: [
-            {
-              name: "locationId",
-              type: "unknown",
-              required: true,
-              source: "params"
-            }
-          ],
-          body: null,
-          returns: {
-            typeName: "ListResponse<SlackIntegrationItem>",
-            properties: [
-              {
-                name: "data",
-                type: "SlackIntegrationItem[]",
-                optional: false
-              }
-            ],
-            confidence: "resolved"
-          },
-          confidence: {
-            path: "resolved",
-            query: "resolved",
-            body: "none-observed",
-            returns: "resolved"
-          },
-          sources: [
-            "services/api/slack-workflows-service.ts:90"
-          ]
-        },
-        {
-          id: "backend--fetch-slack-private-channels",
-          method: "GET",
-          url: "https://backend.leadconnectorhq.com/workflow/{root}/private-channels",
-          path: "/workflow/{root}/private-channels",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "read",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: "fetchSlackPrivateChannels",
-          service: "workflows",
-          tree: "workflow-builder",
-          pathParams: [
-            {
-              name: "root"
-            }
-          ],
-          query: [
-            {
-              name: "locationId",
-              type: "unknown",
-              required: true,
-              source: "params"
-            },
-            {
-              name: "oAuthId",
-              type: "unknown",
-              required: true,
-              source: "params"
-            },
-            {
-              name: "cursor",
-              type: "unknown",
-              required: true,
-              source: "params"
-            }
-          ],
-          body: null,
-          returns: {
-            typeName: "PaginatedResponse<SlackChannelItem>",
-            properties: [
-              {
-                name: "data",
-                type: "SlackChannelItem[]",
-                optional: false
-              },
-              {
-                name: "nextCursor",
-                type: "string",
-                optional: true
-              }
-            ],
-            confidence: "resolved"
-          },
-          confidence: {
-            path: "resolved",
-            query: "resolved",
-            body: "none-observed",
-            returns: "resolved"
-          },
-          sources: [
-            "services/api/slack-workflows-service.ts:120"
-          ]
-        },
-        {
-          id: "backend--fetch-slack-public-channels",
-          method: "GET",
-          url: "https://backend.leadconnectorhq.com/workflow/{root}/public-channels",
-          path: "/workflow/{root}/public-channels",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "read",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: "fetchSlackPublicChannels",
-          service: "workflows",
-          tree: "workflow-builder",
-          pathParams: [
-            {
-              name: "root"
-            }
-          ],
-          query: [
-            {
-              name: "locationId",
-              type: "unknown",
-              required: true,
-              source: "params"
-            },
-            {
-              name: "oAuthId",
-              type: "unknown",
-              required: true,
-              source: "params"
-            },
-            {
-              name: "cursor",
-              type: "unknown",
-              required: true,
-              source: "params"
-            }
-          ],
-          body: null,
-          returns: {
-            typeName: "PaginatedResponse<SlackChannelItem>",
-            properties: [
-              {
-                name: "data",
-                type: "SlackChannelItem[]",
-                optional: false
-              },
-              {
-                name: "nextCursor",
-                type: "string",
-                optional: true
-              }
-            ],
-            confidence: "resolved"
-          },
-          confidence: {
-            path: "resolved",
-            query: "resolved",
-            body: "none-observed",
-            returns: "resolved"
-          },
-          sources: [
-            "services/api/slack-workflows-service.ts:103"
-          ]
-        },
-        {
-          id: "backend--fetch-spreadsheets",
-          method: "GET",
-          url: "https://backend.leadconnectorhq.com/workflow/{root}/spreadsheets",
-          path: "/workflow/{root}/spreadsheets",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "read",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: "fetchSpreadsheets",
-          service: "workflows",
-          tree: "workflow-builder",
-          pathParams: [
-            {
-              name: "root"
-            }
-          ],
-          query: [
-            {
-              name: "locationId",
-              type: "unknown",
-              required: true,
-              source: "params"
-            },
-            {
-              name: "oAuthId",
-              type: "unknown",
-              required: true,
-              source: "params"
-            },
-            {
-              name: "driveId",
-              type: "unknown",
-              required: true,
-              source: "params"
-            },
-            {
-              name: "pageToken",
-              type: "unknown",
-              required: true,
-              source: "params"
-            },
-            {
-              name: "searchTerm",
-              type: "unknown",
-              required: true,
-              source: "params"
-            }
-          ],
-          body: null,
-          returns: {
-            typeName: "PaginatedResponse<SpreadsheetItem>",
-            properties: [
-              {
-                name: "data",
-                type: "SpreadsheetItem[]",
-                optional: false
-              },
-              {
-                name: "nextPageToken",
-                type: "string",
-                optional: true
-              }
-            ],
-            confidence: "resolved"
-          },
-          confidence: {
-            path: "resolved",
-            query: "resolved",
-            body: "none-observed",
-            returns: "resolved"
-          },
-          sources: [
-            "services/api/google-sheets-workflows-service.ts:73"
-          ]
-        },
-        {
-          id: "backend--fetch-sheets",
-          method: "GET",
-          url: "https://backend.leadconnectorhq.com/workflow/{root}/spreadsheets/{spreadsheetId}/sheets",
-          path: "/workflow/{root}/spreadsheets/{spreadsheetId}/sheets",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "read",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: "fetchSheets",
-          service: "workflows",
-          tree: "workflow-builder",
-          pathParams: [
-            {
-              name: "root"
-            },
-            {
-              name: "spreadsheetId"
-            }
-          ],
-          query: [
-            {
-              name: "locationId",
-              type: "unknown",
-              required: true,
-              source: "params"
-            },
-            {
-              name: "oAuthId",
-              type: "unknown",
-              required: true,
-              source: "params"
-            }
-          ],
-          body: null,
-          returns: {
-            typeName: "ListResponse<SheetProperties>",
-            properties: [
-              {
-                name: "data",
-                type: "SheetProperties[]",
-                optional: false
-              }
-            ],
-            confidence: "resolved"
-          },
-          confidence: {
-            path: "resolved",
-            query: "resolved",
-            body: "none-observed",
-            returns: "resolved"
-          },
-          sources: [
-            "services/api/google-sheets-workflows-service.ts:90"
-          ]
-        },
-        {
-          id: "backend--fetch-sheet-headers",
-          method: "GET",
-          url: "https://backend.leadconnectorhq.com/workflow/{root}/spreadsheets/{spreadsheetId}/sheets/{sheetName}/headers",
-          path: "/workflow/{root}/spreadsheets/{spreadsheetId}/sheets/{sheetName}/headers",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "read",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: "fetchSheetHeaders",
-          service: "workflows",
-          tree: "workflow-builder",
-          pathParams: [
-            {
-              name: "root"
-            },
-            {
-              name: "spreadsheetId"
-            },
-            {
-              name: "sheetName"
-            }
-          ],
-          query: [
-            {
-              name: "locationId",
-              type: "unknown",
-              required: true,
-              source: "params"
-            },
-            {
-              name: "oAuthId",
-              type: "unknown",
-              required: true,
-              source: "params"
-            }
-          ],
-          body: null,
-          returns: {
-            typeName: "ListResponse<string>",
-            properties: [
-              {
-                name: "data",
-                type: "string[]",
-                optional: false
-              }
-            ],
-            confidence: "resolved"
-          },
-          confidence: {
-            path: "resolved",
-            query: "resolved",
-            body: "none-observed",
-            returns: "resolved"
-          },
-          sources: [
-            "services/api/google-sheets-workflows-service.ts:111"
-          ]
-        },
-        {
-          id: "backend--fetch-slack-users",
-          method: "GET",
-          url: "https://backend.leadconnectorhq.com/workflow/{root}/users",
-          path: "/workflow/{root}/users",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "read",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: "fetchSlackUsers",
-          service: "workflows",
-          tree: "workflow-builder",
-          pathParams: [
-            {
-              name: "root"
-            }
-          ],
-          query: [
-            {
-              name: "locationId",
-              type: "unknown",
-              required: true,
-              source: "params"
-            },
-            {
-              name: "oAuthId",
-              type: "unknown",
-              required: true,
-              source: "params"
-            },
-            {
-              name: "cursor",
-              type: "unknown",
-              required: true,
-              source: "params"
-            }
-          ],
-          body: null,
-          returns: {
-            typeName: "PaginatedResponse<SlackMemberItem>",
-            properties: [
-              {
-                name: "data",
-                type: "SlackMemberItem[]",
-                optional: false
-              },
-              {
-                name: "nextCursor",
-                type: "string",
-                optional: true
-              }
-            ],
-            confidence: "resolved"
-          },
-          confidence: {
-            path: "resolved",
-            query: "resolved",
-            body: "none-observed",
-            returns: "resolved"
-          },
-          sources: [
-            "services/api/slack-workflows-service.ts:133"
           ]
         },
         {
@@ -28371,12 +27450,27 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           query: [],
           body: {
-            typeName: '{ threadId: string; rating: "positive" | "negative"; whatWentWrong?: string; whatShouldHaveDone?: string; workflowId?: string; contactId?: string; workflowStepId?: string; }',
+            typeName: '{ threadId: string; workflowId: string; workflowLogId?: string; workflowLogCreatedAt?: string; rating: "positive" | "negative"; whatWentWrong?: string; whatShouldHaveDone?: string; contactId?: string; workflowStepId?: string; }',
             properties: [
               {
                 name: "threadId",
                 type: "string",
                 optional: false
+              },
+              {
+                name: "workflowId",
+                type: "string",
+                optional: false
+              },
+              {
+                name: "workflowLogId",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "workflowLogCreatedAt",
+                type: "string",
+                optional: true
               },
               {
                 name: "rating",
@@ -28390,11 +27484,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
               },
               {
                 name: "whatShouldHaveDone",
-                type: "string",
-                optional: true
-              },
-              {
-                name: "workflowId",
                 type: "string",
                 optional: true
               },
@@ -28434,7 +27523,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "resolved"
           },
           sources: [
-            "services/AgentTraceService.ts:401"
+            "services/AgentTraceService.ts:421"
           ]
         },
         {
@@ -28492,7 +27581,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "resolved"
           },
           sources: [
-            "services/AgentTraceService.ts:431"
+            "services/AgentTraceService.ts:451"
           ]
         },
         {
@@ -29038,7 +28127,396 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "resolved"
           },
           sources: [
-            "services/AgentTraceService.ts:457"
+            "services/AgentTraceService.ts:477"
+          ]
+        },
+        {
+          id: "backend--list-agent-skills",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/workflow/agent/{locationId}/skills",
+          path: "/workflow/agent/{locationId}/skills",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "listAgentSkills",
+          service: "workflows",
+          tree: "workflow-builder",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [
+            {
+              name: "search",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "page",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "limit",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: {
+            typeName: "IApiEnvelope<unknown>",
+            properties: [
+              {
+                name: "success",
+                type: "boolean",
+                optional: false,
+                doc: "False when the request failed despite a 2xx HTTP status."
+              },
+              {
+                name: "data",
+                type: "unknown",
+                optional: false,
+                doc: "The payload. Present when `success` is true."
+              },
+              {
+                name: "message",
+                type: "string",
+                optional: true,
+                doc: "Server-supplied failure reason. Present when `success` is false."
+              }
+            ],
+            confidence: "resolved"
+          },
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "resolved"
+          },
+          sources: [
+            "services/api/agent-skill-service.ts:118",
+            "workflows/20-api/agent-skills.md:16"
+          ]
+        },
+        {
+          id: "backend--create-agent-skill",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/workflow/agent/{locationId}/skills",
+          path: "/workflow/agent/{locationId}/skills",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "createAgentSkill",
+          service: "workflows",
+          tree: "workflow-builder",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: {
+            typeName: "z.infer<any>",
+            properties: null,
+            confidence: "erased"
+          },
+          returns: {
+            typeName: "IApiEnvelope<unknown>",
+            properties: [
+              {
+                name: "success",
+                type: "boolean",
+                optional: false,
+                doc: "False when the request failed despite a 2xx HTTP status."
+              },
+              {
+                name: "data",
+                type: "unknown",
+                optional: false,
+                doc: "The payload. Present when `success` is true."
+              },
+              {
+                name: "message",
+                type: "string",
+                optional: true,
+                doc: "Server-supplied failure reason. Present when `success` is false."
+              }
+            ],
+            confidence: "resolved"
+          },
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "erased",
+            returns: "resolved"
+          },
+          sources: [
+            "services/api/agent-skill-service.ts:155",
+            "workflows/20-api/agent-skills.md:19"
+          ]
+        },
+        {
+          id: "backend--delete-agent-skill",
+          method: "DELETE",
+          url: "https://backend.leadconnectorhq.com/workflow/agent/{locationId}/skills/{id}",
+          path: "/workflow/agent/{locationId}/skills/{id}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "deleteAgentSkill",
+          service: "workflows",
+          tree: "workflow-builder",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: {
+            typeName: "{ success?: boolean; message?: string; }",
+            properties: [
+              {
+                name: "success",
+                type: "boolean",
+                optional: true
+              },
+              {
+                name: "message",
+                type: "string",
+                optional: true
+              }
+            ],
+            confidence: "resolved"
+          },
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "resolved"
+          },
+          sources: [
+            "services/api/agent-skill-service.ts:195",
+            "workflows/20-api/agent-skills.md:21"
+          ]
+        },
+        {
+          id: "backend--get-agent-skill",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/workflow/agent/{locationId}/skills/{id}",
+          path: "/workflow/agent/{locationId}/skills/{id}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "getAgentSkill",
+          service: "workflows",
+          tree: "workflow-builder",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: {
+            typeName: "IApiEnvelope<unknown>",
+            properties: [
+              {
+                name: "success",
+                type: "boolean",
+                optional: false,
+                doc: "False when the request failed despite a 2xx HTTP status."
+              },
+              {
+                name: "data",
+                type: "unknown",
+                optional: false,
+                doc: "The payload. Present when `success` is true."
+              },
+              {
+                name: "message",
+                type: "string",
+                optional: true,
+                doc: "Server-supplied failure reason. Present when `success` is false."
+              }
+            ],
+            confidence: "resolved"
+          },
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "resolved"
+          },
+          sources: [
+            "services/api/agent-skill-service.ts:137",
+            "workflows/20-api/agent-skills.md:18"
+          ]
+        },
+        {
+          id: "backend--update-agent-skill",
+          method: "PUT",
+          url: "https://backend.leadconnectorhq.com/workflow/agent/{locationId}/skills/{id}",
+          path: "/workflow/agent/{locationId}/skills/{id}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "updateAgentSkill",
+          service: "workflows",
+          tree: "workflow-builder",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: {
+            typeName: "z.infer<any>",
+            properties: null,
+            confidence: "erased"
+          },
+          returns: {
+            typeName: "IApiEnvelope<unknown>",
+            properties: [
+              {
+                name: "success",
+                type: "boolean",
+                optional: false,
+                doc: "False when the request failed despite a 2xx HTTP status."
+              },
+              {
+                name: "data",
+                type: "unknown",
+                optional: false,
+                doc: "The payload. Present when `success` is true."
+              },
+              {
+                name: "message",
+                type: "string",
+                optional: true,
+                doc: "Server-supplied failure reason. Present when `success` is false."
+              }
+            ],
+            confidence: "resolved"
+          },
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "erased",
+            returns: "resolved"
+          },
+          sources: [
+            "services/api/agent-skill-service.ts:177",
+            "workflows/20-api/agent-skills.md:20"
+          ]
+        },
+        {
+          id: "backend--resolve-agent-skills",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/workflow/agent/{locationId}/skills/resolve",
+          path: "/workflow/agent/{locationId}/skills/resolve",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "resolveAgentSkills",
+          service: "workflows",
+          tree: "workflow-builder",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [
+            {
+              name: "ids",
+              type: "string",
+              required: true,
+              source: "params"
+            }
+          ],
+          body: null,
+          returns: {
+            typeName: "IApiEnvelope<unknown>",
+            properties: [
+              {
+                name: "success",
+                type: "boolean",
+                optional: false,
+                doc: "False when the request failed despite a 2xx HTTP status."
+              },
+              {
+                name: "data",
+                type: "unknown",
+                optional: false,
+                doc: "The payload. Present when `success` is true."
+              },
+              {
+                name: "message",
+                type: "string",
+                optional: true,
+                doc: "Server-supplied failure reason. Present when `success` is false."
+              }
+            ],
+            confidence: "resolved"
+          },
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "resolved"
+          },
+          sources: [
+            "services/api/agent-skill-service.ts:96",
+            "workflows/20-api/agent-skills.md:17"
           ]
         },
         {
@@ -29066,7 +28544,26 @@ var init_define_ENDPOINT_CATALOG = __esm({
               name: "threadId"
             }
           ],
-          query: [],
+          query: [
+            {
+              name: "workflowId",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "workflowLogId",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "workflowLogCreatedAt",
+              type: "unknown",
+              required: true,
+              source: "params"
+            }
+          ],
           body: null,
           returns: {
             typeName: "GetTraceResponse",
@@ -29081,12 +28578,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           confidence: {
             path: "resolved",
-            query: "none-observed",
+            query: "resolved",
             body: "none-observed",
             returns: "resolved"
           },
           sources: [
-            "services/AgentTraceService.ts:342"
+            "services/AgentTraceService.ts:361"
           ]
         },
         {
@@ -30434,7 +29931,56 @@ var init_define_ENDPOINT_CATALOG = __esm({
               name: "key"
             }
           ],
-          query: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            },
+            {
+              name: "integrationAccountId",
+              type: "string",
+              required: false,
+              source: "url-literal"
+            },
+            {
+              name: "fetchAll",
+              type: "string",
+              required: false,
+              source: "url-literal"
+            },
+            {
+              name: "filterField",
+              type: "string",
+              required: false,
+              source: "url-literal"
+            },
+            {
+              name: "page",
+              type: "string",
+              required: false,
+              source: "url-literal"
+            },
+            {
+              name: "limit",
+              type: "string",
+              required: false,
+              source: "url-literal"
+            },
+            {
+              name: "search",
+              type: "string",
+              required: false,
+              source: "url-literal"
+            },
+            {
+              name: "fetchAllPages",
+              type: "string",
+              required: false,
+              source: "url-literal"
+            }
+          ],
           body: {
             typeName: "{ [key: string]: unknown; }",
             properties: null,
@@ -30443,12 +29989,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
           returns: null,
           confidence: {
             path: "resolved",
-            query: "none-observed",
+            query: "resolved",
             body: "open-map",
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:279"
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:285"
           ]
         },
         {
@@ -30504,7 +30050,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:171"
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:177"
           ]
         },
         {
@@ -30533,17 +30079,24 @@ var init_define_ENDPOINT_CATALOG = __esm({
               name: "actionType"
             }
           ],
-          query: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
             path: "resolved",
-            query: "none-observed",
+            query: "resolved",
             body: "none-observed",
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:623"
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:654"
           ]
         },
         {
@@ -30572,7 +30125,20 @@ var init_define_ENDPOINT_CATALOG = __esm({
               name: "key"
             }
           ],
-          query: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            },
+            {
+              name: "integrationAccountId",
+              type: "string",
+              required: false,
+              source: "url-literal"
+            }
+          ],
           body: {
             typeName: "{ [key: string]: unknown; }",
             properties: null,
@@ -30581,12 +30147,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
           returns: null,
           confidence: {
             path: "resolved",
-            query: "none-observed",
+            query: "resolved",
             body: "open-map",
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:568"
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:599"
           ]
         },
         {
@@ -30644,7 +30210,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:210"
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:216"
           ]
         },
         {
@@ -30705,7 +30271,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:194"
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:200"
           ]
         },
         {
@@ -30785,7 +30351,20 @@ var init_define_ENDPOINT_CATALOG = __esm({
               name: "actionType"
             }
           ],
-          query: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            },
+            {
+              name: "integrationAccountId",
+              type: "string",
+              required: false,
+              source: "url-literal"
+            }
+          ],
           body: {
             typeName: "any",
             properties: null,
@@ -30794,12 +30373,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
           returns: null,
           confidence: {
             path: "resolved",
-            query: "none-observed",
+            query: "resolved",
             body: "primitive",
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:155"
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:161"
           ]
         },
         {
@@ -30845,11 +30424,14 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:138"
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:144"
           ]
         },
         {
           id: "workflows-marketplace-platform-service--get-action-stats",
+          aka: [
+            "/workflows-marketplace/actions/stats/{key}"
+          ],
           method: "GET",
           url: "https://backend.leadconnectorhq.com/workflows-marketplace/actions/stats/{actionKey}",
           path: "/workflows-marketplace/actions/stats/{actionKey}",
@@ -30884,46 +30466,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:321",
-            "workflows/70-research/VERSIONS-STATS-LOGS.md:305"
-          ]
-        },
-        {
-          id: "backend--stats",
-          method: "GET",
-          url: "https://backend.leadconnectorhq.com/workflows-marketplace/actions/stats/{key}",
-          path: "/workflows-marketplace/actions/stats/{key}",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "read",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "workflows",
-          tree: "workflow-builder",
-          pathParams: [
-            {
-              name: "key"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: {
-            typeName: "GetMarketPlaceStatsResponse",
-            properties: null,
-            confidence: "erased"
-          },
-          confidence: {
-            path: "resolved",
-            query: "none-observed",
-            body: "none-observed",
-            returns: "erased"
-          },
-          sources: [
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:327",
+            "workflows/70-research/VERSIONS-STATS-LOGS.md:305",
             "services/api/marketplace-stats-service.ts:7"
           ]
         },
@@ -30967,7 +30511,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:651",
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:682",
             "services/McpConnectionService.ts:154",
             "services/marketplaceServices/WorkflowMarketplaceService.ts:392",
             "workflows/20-api/03-endpoints.md:344",
@@ -31022,7 +30566,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:639"
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:670"
           ]
         },
         {
@@ -31084,7 +30628,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:471"
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:502"
           ]
         },
         {
@@ -31131,6 +30675,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
               type: "string",
               required: true,
               source: "url-literal"
+            },
+            {
+              name: "integrationAccountId",
+              type: "string",
+              required: false,
+              source: "url-literal"
             }
           ],
           body: null,
@@ -31142,7 +30692,316 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:407"
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:436"
+          ]
+        },
+        {
+          id: "backend--fetch-drives",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/workflows-marketplace/integration/google-sheets/drives",
+          path: "/workflows-marketplace/integration/google-sheets/drives",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "fetchDrives",
+          service: "workflows",
+          tree: "workflow-builder",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "oAuthId",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "pageToken",
+              type: "unknown",
+              required: true,
+              source: "params"
+            }
+          ],
+          body: null,
+          returns: {
+            typeName: "PaginatedResponse<DriveItem>",
+            properties: [
+              {
+                name: "data",
+                type: "DriveItem[]",
+                optional: false
+              },
+              {
+                name: "nextPageToken",
+                type: "string",
+                optional: true
+              }
+            ],
+            confidence: "resolved"
+          },
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "resolved"
+          },
+          sources: [
+            "services/api/google-sheets-workflows-service.ts:54"
+          ]
+        },
+        {
+          id: "backend--fetch-spreadsheets",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/workflows-marketplace/integration/google-sheets/spreadsheets",
+          path: "/workflows-marketplace/integration/google-sheets/spreadsheets",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "fetchSpreadsheets",
+          service: "workflows",
+          tree: "workflow-builder",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "oAuthId",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "driveId",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "pageToken",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "searchTerm",
+              type: "unknown",
+              required: true,
+              source: "params"
+            }
+          ],
+          body: null,
+          returns: {
+            typeName: "PaginatedResponse<SpreadsheetItem>",
+            properties: [
+              {
+                name: "data",
+                type: "SpreadsheetItem[]",
+                optional: false
+              },
+              {
+                name: "nextPageToken",
+                type: "string",
+                optional: true
+              }
+            ],
+            confidence: "resolved"
+          },
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "resolved"
+          },
+          sources: [
+            "services/api/google-sheets-workflows-service.ts:73"
+          ]
+        },
+        {
+          id: "backend--fetch-sheets",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/workflows-marketplace/integration/google-sheets/spreadsheets/{spreadsheetId}/sheets",
+          path: "/workflows-marketplace/integration/google-sheets/spreadsheets/{spreadsheetId}/sheets",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "fetchSheets",
+          service: "workflows",
+          tree: "workflow-builder",
+          pathParams: [
+            {
+              name: "spreadsheetId"
+            }
+          ],
+          query: [
+            {
+              name: "locationId",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "oAuthId",
+              type: "unknown",
+              required: true,
+              source: "params"
+            }
+          ],
+          body: null,
+          returns: {
+            typeName: "ListResponse<SheetProperties>",
+            properties: [
+              {
+                name: "data",
+                type: "SheetProperties[]",
+                optional: false
+              }
+            ],
+            confidence: "resolved"
+          },
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "resolved"
+          },
+          sources: [
+            "services/api/google-sheets-workflows-service.ts:90"
+          ]
+        },
+        {
+          id: "backend--fetch-sheet-headers",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/workflows-marketplace/integration/google-sheets/spreadsheets/{spreadsheetId}/sheets/{sheetName}/headers",
+          path: "/workflows-marketplace/integration/google-sheets/spreadsheets/{spreadsheetId}/sheets/{sheetName}/headers",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "fetchSheetHeaders",
+          service: "workflows",
+          tree: "workflow-builder",
+          pathParams: [
+            {
+              name: "spreadsheetId"
+            },
+            {
+              name: "sheetName"
+            }
+          ],
+          query: [
+            {
+              name: "locationId",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "oAuthId",
+              type: "unknown",
+              required: true,
+              source: "params"
+            }
+          ],
+          body: null,
+          returns: {
+            typeName: "ListResponse<string>",
+            properties: [
+              {
+                name: "data",
+                type: "string[]",
+                optional: false
+              }
+            ],
+            confidence: "resolved"
+          },
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "resolved"
+          },
+          sources: [
+            "services/api/google-sheets-workflows-service.ts:111"
+          ]
+        },
+        {
+          id: "backend--fetch-slack-integrations",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/workflows-marketplace/integration/slack/integrations",
+          path: "/workflows-marketplace/integration/slack/integrations",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "fetchSlackIntegrations",
+          service: "workflows",
+          tree: "workflow-builder",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "unknown",
+              required: true,
+              source: "params"
+            }
+          ],
+          body: null,
+          returns: {
+            typeName: "ListResponse<SlackIntegrationItem>",
+            properties: [
+              {
+                name: "data",
+                type: "SlackIntegrationItem[]",
+                optional: false
+              }
+            ],
+            confidence: "resolved"
+          },
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "resolved"
+          },
+          sources: [
+            "services/api/slack-workflows-service.ts:90"
           ]
         },
         {
@@ -31195,6 +31054,201 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "backend--fetch-slack-private-channels",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/workflows-marketplace/integration/slack/private-channels",
+          path: "/workflows-marketplace/integration/slack/private-channels",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "fetchSlackPrivateChannels",
+          service: "workflows",
+          tree: "workflow-builder",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "oAuthId",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "cursor",
+              type: "unknown",
+              required: true,
+              source: "params"
+            }
+          ],
+          body: null,
+          returns: {
+            typeName: "PaginatedResponse<SlackChannelItem>",
+            properties: [
+              {
+                name: "data",
+                type: "SlackChannelItem[]",
+                optional: false
+              },
+              {
+                name: "nextCursor",
+                type: "string",
+                optional: true
+              }
+            ],
+            confidence: "resolved"
+          },
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "resolved"
+          },
+          sources: [
+            "services/api/slack-workflows-service.ts:120"
+          ]
+        },
+        {
+          id: "backend--fetch-slack-public-channels",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/workflows-marketplace/integration/slack/public-channels",
+          path: "/workflows-marketplace/integration/slack/public-channels",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "fetchSlackPublicChannels",
+          service: "workflows",
+          tree: "workflow-builder",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "oAuthId",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "cursor",
+              type: "unknown",
+              required: true,
+              source: "params"
+            }
+          ],
+          body: null,
+          returns: {
+            typeName: "PaginatedResponse<SlackChannelItem>",
+            properties: [
+              {
+                name: "data",
+                type: "SlackChannelItem[]",
+                optional: false
+              },
+              {
+                name: "nextCursor",
+                type: "string",
+                optional: true
+              }
+            ],
+            confidence: "resolved"
+          },
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "resolved"
+          },
+          sources: [
+            "services/api/slack-workflows-service.ts:103"
+          ]
+        },
+        {
+          id: "backend--fetch-slack-users",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/workflows-marketplace/integration/slack/users",
+          path: "/workflows-marketplace/integration/slack/users",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "fetchSlackUsers",
+          service: "workflows",
+          tree: "workflow-builder",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "oAuthId",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "cursor",
+              type: "unknown",
+              required: true,
+              source: "params"
+            }
+          ],
+          body: null,
+          returns: {
+            typeName: "PaginatedResponse<SlackMemberItem>",
+            properties: [
+              {
+                name: "data",
+                type: "SlackMemberItem[]",
+                optional: false
+              },
+              {
+                name: "nextCursor",
+                type: "string",
+                optional: true
+              }
+            ],
+            confidence: "resolved"
+          },
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "resolved"
+          },
+          sources: [
+            "services/api/slack-workflows-service.ts:133"
+          ]
+        },
+        {
           id: "workflows-marketplace-platform-service--test-action",
           method: "POST",
           url: "https://backend.leadconnectorhq.com/workflows-marketplace/internal-actions/test-action",
@@ -31216,7 +31270,20 @@ var init_define_ENDPOINT_CATALOG = __esm({
           service: "workflows",
           tree: "workflow-builder",
           pathParams: [],
-          query: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            },
+            {
+              name: "integrationAccountId",
+              type: "string",
+              required: false,
+              source: "url-literal"
+            }
+          ],
           body: {
             typeName: "{ actionKey: string; actionValues: Record<string, unknown>; testRecordId?: string; workflowType?: string; }",
             properties: [
@@ -31246,12 +31313,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
           returns: null,
           confidence: {
             path: "resolved",
-            query: "none-observed",
+            query: "resolved",
             body: "resolved",
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:390"
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:411"
           ]
         },
         {
@@ -31323,7 +31390,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:350"
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:366"
           ]
         },
         {
@@ -31390,7 +31457,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:606"
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:637"
           ]
         },
         {
@@ -31421,10 +31488,16 @@ var init_define_ENDPOINT_CATALOG = __esm({
               type: "string",
               required: true,
               source: "url-literal"
+            },
+            {
+              name: "integrationAccountId",
+              type: "string",
+              required: false,
+              source: "url-literal"
             }
           ],
           body: {
-            typeName: "TestTriggerParams",
+            typeName: "{ triggerKey: string; triggerValues: { [key: string]: any; }; filters?: { field: string; operator?: string; value: any; }[]; lastProcessedValue?: any; }",
             properties: [
               {
                 name: "triggerKey",
@@ -31458,7 +31531,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:340"
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:356"
           ]
         },
         {
@@ -31489,10 +31562,16 @@ var init_define_ENDPOINT_CATALOG = __esm({
               type: "string",
               required: true,
               source: "url-literal"
+            },
+            {
+              name: "integrationAccountId",
+              type: "string",
+              required: false,
+              source: "url-literal"
             }
           ],
           body: {
-            typeName: "TestTriggerParams",
+            typeName: "{ triggerKey: string; triggerValues: { [key: string]: any; }; filters?: { field: string; operator?: string; value: any; }[]; lastProcessedValue?: any; }",
             properties: [
               {
                 name: "triggerKey",
@@ -31526,7 +31605,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:330"
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:341"
           ]
         },
         {
@@ -31557,10 +31636,16 @@ var init_define_ENDPOINT_CATALOG = __esm({
               type: "string",
               required: true,
               source: "url-literal"
+            },
+            {
+              name: "integrationAccountId",
+              type: "string",
+              required: false,
+              source: "url-literal"
             }
           ],
           body: {
-            typeName: "TestTriggerParams",
+            typeName: "{ triggerKey: string; triggerValues: { [key: string]: any; }; filters?: { field: string; operator?: string; value: any; }[]; lastProcessedValue?: any; }",
             properties: [
               {
                 name: "triggerKey",
@@ -31594,7 +31679,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:362"
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:383"
           ]
         },
         {
@@ -31644,7 +31729,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:124",
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:130",
             "_shared/bundle-locations.md:195",
             "marketplace-apps/10-anatomy/marketplace-rail.md:45",
             "marketplace-apps/10-anatomy/marketplace-rail.md:236",
@@ -31677,7 +31762,20 @@ var init_define_ENDPOINT_CATALOG = __esm({
               name: "key"
             }
           ],
-          query: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            },
+            {
+              name: "integrationAccountId",
+              type: "string",
+              required: false,
+              source: "url-literal"
+            }
+          ],
           body: {
             typeName: "{ [key: string]: unknown; }",
             properties: null,
@@ -31686,12 +31784,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
           returns: null,
           confidence: {
             path: "resolved",
-            query: "none-observed",
+            query: "resolved",
             body: "open-map",
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:596"
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:627"
           ]
         },
         {
@@ -31746,7 +31844,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:294"
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:300"
           ]
         },
         {
@@ -31829,7 +31927,20 @@ var init_define_ENDPOINT_CATALOG = __esm({
               name: "triggerType"
             }
           ],
-          query: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            },
+            {
+              name: "integrationAccountId",
+              type: "string",
+              required: false,
+              source: "url-literal"
+            }
+          ],
           body: {
             typeName: "any",
             properties: null,
@@ -31838,12 +31949,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
           returns: null,
           confidence: {
             path: "resolved",
-            query: "none-observed",
+            query: "resolved",
             body: "primitive",
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:312"
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:318"
           ]
         },
         {
@@ -31908,16 +32019,34 @@ var init_define_ENDPOINT_CATALOG = __esm({
           query: [
             {
               name: "locationId",
-              type: "string",
+              type: "unknown",
               required: true,
-              source: "live-probe"
+              source: "params"
+            },
+            {
+              name: "workflowId",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "requestGroupId",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "page",
+              type: "unknown",
+              required: true,
+              source: "params"
             }
           ],
           body: null,
           returns: null,
           confidence: {
             path: "resolved",
-            query: "none-observed",
+            query: "resolved",
             body: "none-observed",
             returns: "none-observed"
           },
@@ -31951,22 +32080,28 @@ var init_define_ENDPOINT_CATALOG = __esm({
           query: [
             {
               name: "locationId",
-              type: "string",
+              type: "unknown",
               required: true,
-              source: "live-probe"
+              source: "params"
             },
             {
               name: "workflowId",
-              type: "string",
+              type: "unknown",
               required: true,
-              source: "live-probe"
+              source: "params"
+            },
+            {
+              name: "page",
+              type: "unknown",
+              required: true,
+              source: "params"
             }
           ],
           body: null,
           returns: null,
           confidence: {
             path: "resolved",
-            query: "none-observed",
+            query: "resolved",
             body: "none-observed",
             returns: "none-observed"
           },
@@ -32000,16 +32135,22 @@ var init_define_ENDPOINT_CATALOG = __esm({
           query: [
             {
               name: "locationId",
-              type: "string",
+              type: "unknown",
               required: true,
-              source: "live-probe"
+              source: "params"
+            },
+            {
+              name: "page",
+              type: "unknown",
+              required: true,
+              source: "params"
             }
           ],
           body: null,
           returns: null,
           confidence: {
             path: "resolved",
-            query: "none-observed",
+            query: "resolved",
             body: "none-observed",
             returns: "none-observed"
           },
@@ -32052,6 +32193,162 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "workflows/20-api/smart-lists.md:75",
             "workflows/70-research/ENDPOINTS.md:76",
             "workflows/70-research/RUNTIME-DATA-2.md:72"
+          ]
+        },
+        {
+          id: "backend--create-log-export",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/workflows/logs/export",
+          path: "/workflows/logs/export",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "createLogExport",
+          service: "workflows",
+          tree: "workflow-builder",
+          pathParams: [],
+          query: [],
+          body: {
+            typeName: "CreateLogExportPayload",
+            properties: null,
+            confidence: "erased"
+          },
+          returns: {
+            typeName: "CreateLogExportResponse",
+            properties: null,
+            confidence: "erased"
+          },
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "erased",
+            returns: "erased"
+          },
+          sources: [
+            "services/api/log-export-service.ts:48",
+            "workflows/50-runtime/log-export.md:17"
+          ]
+        },
+        {
+          id: "backend--get-log-export-preview",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/workflows/logs/export/preview",
+          path: "/workflows/logs/export/preview",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "getLogExportPreview",
+          service: "workflows",
+          tree: "workflow-builder",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "workflowId",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "fromDate",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "toDate",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: {
+            typeName: "LogExportPreview",
+            properties: null,
+            confidence: "erased"
+          },
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "erased"
+          },
+          sources: [
+            "services/api/log-export-service.ts:32",
+            "workflows/50-runtime/log-export.md:16"
+          ]
+        },
+        {
+          id: "backend--get-log-export-status",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/workflows/logs/export/status",
+          path: "/workflows/logs/export/status",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "getLogExportStatus",
+          service: "workflows",
+          tree: "workflow-builder",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "workflowId",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "limit",
+              type: "unknown",
+              required: true,
+              source: "params"
+            }
+          ],
+          body: null,
+          returns: {
+            typeName: "LogExportStatusResponse",
+            properties: null,
+            confidence: "erased"
+          },
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "erased"
+          },
+          sources: [
+            "services/api/log-export-service.ts:62",
+            "workflows/50-runtime/log-export.md:18"
           ]
         },
         {
@@ -32669,13 +32966,13 @@ var init_define_ENDPOINT_CATALOG = __esm({
                 doc: "Copies an array, then overwrites the value at the provided index with the\ngiven value. If the index is negative, then it replaces from the end\nof the array."
               },
               {
-                name: "__@iterator@767",
+                name: "__@iterator@696",
                 type: "() => ArrayIterator<EnrollStat>",
                 optional: false,
                 doc: "Iterator"
               },
               {
-                name: "__@unscopables@769",
+                name: "__@unscopables@698",
                 type: "{ [x: number]: boolean; length?: boolean; toString?: boolean; toLocaleString?...",
                 optional: false,
                 doc: "Is an object whose properties have the value 'true'\nwhen they will be absent when used in a 'with' statement."
@@ -32972,13 +33269,13 @@ var init_define_ENDPOINT_CATALOG = __esm({
                 doc: "Copies an array, then overwrites the value at the provided index with the\ngiven value. If the index is negative, then it replaces from the end\nof the array."
               },
               {
-                name: "__@iterator@767",
+                name: "__@iterator@696",
                 type: "() => ArrayIterator<EnrollStat>",
                 optional: false,
                 doc: "Iterator"
               },
               {
-                name: "__@unscopables@769",
+                name: "__@unscopables@698",
                 type: "{ [x: number]: boolean; length?: boolean; toString?: boolean; toLocaleString?...",
                 optional: false,
                 doc: "Is an object whose properties have the value 'true'\nwhen they will be absent when used in a 'with' statement."
@@ -34459,6 +34756,51 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "ai-agents--super-agent-agents-delete",
+          aka: [
+            "/agent-studio/super-agent/agents/{id}"
+          ],
+          method: "DELETE",
+          url: "https://services.leadconnectorhq.com/agent-studio/super-agent/agents/{agentId}",
+          path: "/agent-studio/super-agent/agents/{agentId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "agentId"
+            }
+          ],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/12-ai-agents-api.md:225"
+          ]
+        },
+        {
           id: "ai-agents--super-agent-agents-get",
           method: "GET",
           url: "https://services.leadconnectorhq.com/agent-studio/super-agent/agents/{agentId}",
@@ -34507,6 +34849,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
         },
         {
           id: "ai-agents--super-agent-agents-put",
+          aka: [
+            "/agent-studio/super-agent/agents/{id}"
+          ],
           method: "PUT",
           url: "https://services.leadconnectorhq.com/agent-studio/super-agent/agents/{agentId}",
           path: "/agent-studio/super-agent/agents/{agentId}",
@@ -34540,85 +34885,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:220",
-            "ai-agents/20-api/12-ai-agents-api.md:228"
-          ]
-        },
-        {
-          id: "ai-agents--super-agent-agents-delete",
-          method: "DELETE",
-          url: "https://services.leadconnectorhq.com/agent-studio/super-agent/agents/{id}",
-          path: "/agent-studio/super-agent/agents/{id}",
-          origin: "https://services.leadconnectorhq.com",
-          rail: "ai",
-          kind: "destructive",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "ai-agents",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "id"
-            }
-          ],
-          query: [
-            {
-              name: "locationId",
-              type: "string",
-              required: false,
-              source: "documented"
-            }
-          ],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "documented",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:225"
-          ]
-        },
-        {
-          id: "ai-agents--super-agent-agents-put-put",
-          method: "PUT",
-          url: "https://services.leadconnectorhq.com/agent-studio/super-agent/agents/{id}",
-          path: "/agent-studio/super-agent/agents/{id}",
-          origin: "https://services.leadconnectorhq.com",
-          rail: "ai",
-          kind: "write",
-          reach: "source-only",
-          coveredBy: [
-            "create_studio_agent"
-          ],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "ai-agents",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "id"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
+            "ai-agents/20-api/12-ai-agents-api.md:228",
             "ai-agents/20-api/12-ai-agents-api.md:356"
           ]
         },
@@ -35098,6 +35365,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
         },
         {
           id: "ai-agents--ai-employees-employees-put",
+          aka: [
+            "/ai-employees/employees/{id}"
+          ],
           method: "PUT",
           url: "https://services.leadconnectorhq.com/ai-employees/employees/{agentId}",
           path: "/ai-employees/employees/{agentId}",
@@ -35131,43 +35401,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:75",
-            "ai-agents/20-api/12-ai-agents-api.md:107"
-          ]
-        },
-        {
-          id: "ai-agents--ai-employees-employees-put-put",
-          method: "PUT",
-          url: "https://services.leadconnectorhq.com/ai-employees/employees/{id}",
-          path: "/ai-employees/employees/{id}",
-          origin: "https://services.leadconnectorhq.com",
-          rail: "ai",
-          kind: "write",
-          reach: "source-only",
-          coveredBy: [
-            "update_convai_agent"
-          ],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "ai-agents",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "id"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
+            "ai-agents/20-api/12-ai-agents-api.md:107",
             "ai-agents/20-api/12-ai-agents-api.md:349"
           ]
         },
@@ -36229,6 +36463,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
         },
         {
           id: "brand-kit--brand-boards-voices-delete",
+          aka: [
+            "/brand-boards/voices/{locationId}/{id}"
+          ],
           method: "DELETE",
           url: "https://services.leadconnectorhq.com/brand-boards/voices/{locationId}/{brandVoiceId}",
           path: "/brand-boards/voices/{locationId}/{brandVoiceId}",
@@ -36262,11 +36499,16 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:53"
+            "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:53",
+            "brand-kit/20-api/brand-voices.md:25",
+            "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:158"
           ]
         },
         {
           id: "brand-kit--brand-boards-voices-get-get",
+          aka: [
+            "/brand-boards/voices/{locationId}/{id}"
+          ],
           method: "GET",
           url: "https://services.leadconnectorhq.com/brand-boards/voices/{locationId}/{brandVoiceId}",
           path: "/brand-boards/voices/{locationId}/{brandVoiceId}",
@@ -36301,11 +36543,16 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:51",
-            "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:95"
+            "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:95",
+            "brand-kit/20-api/brand-voices.md:20",
+            "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:153"
           ]
         },
         {
           id: "brand-kit--brand-boards-voices-patch",
+          aka: [
+            "/brand-boards/voices/{locationId}/{id}"
+          ],
           method: "PATCH",
           url: "https://services.leadconnectorhq.com/brand-boards/voices/{locationId}/{brandVoiceId}",
           path: "/brand-boards/voices/{locationId}/{brandVoiceId}",
@@ -36339,122 +36586,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:52"
-          ]
-        },
-        {
-          id: "brand-kit--brand-boards-voices-delete-delete",
-          method: "DELETE",
-          url: "https://services.leadconnectorhq.com/brand-boards/voices/{locationId}/{id}",
-          path: "/brand-boards/voices/{locationId}/{id}",
-          origin: "https://services.leadconnectorhq.com",
-          rail: "ai",
-          kind: "destructive",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "brand-kit",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "locationId"
-            },
-            {
-              name: "id"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "brand-kit/20-api/brand-voices.md:25",
-            "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:158"
-          ]
-        },
-        {
-          id: "brand-kit--brand-boards-voices-get-get-get",
-          method: "GET",
-          url: "https://services.leadconnectorhq.com/brand-boards/voices/{locationId}/{id}",
-          path: "/brand-boards/voices/{locationId}/{id}",
-          origin: "https://services.leadconnectorhq.com",
-          rail: "ai",
-          kind: "read",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "brand-kit",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "locationId"
-            },
-            {
-              name: "id"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "brand-kit/20-api/brand-voices.md:20",
-            "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:153"
-          ]
-        },
-        {
-          id: "brand-kit--brand-boards-voices-patch-patch",
-          method: "PATCH",
-          url: "https://services.leadconnectorhq.com/brand-boards/voices/{locationId}/{id}",
-          path: "/brand-boards/voices/{locationId}/{id}",
-          origin: "https://services.leadconnectorhq.com",
-          rail: "ai",
-          kind: "write",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "brand-kit",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "locationId"
-            },
-            {
-              name: "id"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
+            "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:52",
             "brand-kit/20-api/brand-voices.md:22",
             "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:155"
           ]
@@ -36703,6 +36835,44 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "calendars--schedules-event-calendar-get",
+          aka: [
+            "/calendars/schedules/event-calendar/{id}"
+          ],
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/calendars/schedules/event-calendar/{calendarId}",
+          path: "/calendars/schedules/event-calendar/{calendarId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "calendars",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "calendarId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "calendars/20-api/schedules.md:55"
+          ]
+        },
+        {
           id: "calendars--schedules-event-calendar",
           method: "PUT",
           url: "https://services.leadconnectorhq.com/calendars/schedules/event-calendar/{calendarId}",
@@ -36735,41 +36905,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "calendars/20-api/schedules.md:64"
-          ]
-        },
-        {
-          id: "calendars--schedules-event-calendar-get",
-          method: "GET",
-          url: "https://services.leadconnectorhq.com/calendars/schedules/event-calendar/{id}",
-          path: "/calendars/schedules/event-calendar/{id}",
-          origin: "https://services.leadconnectorhq.com",
-          rail: "ai",
-          kind: "read",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "calendars",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "id"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "calendars/20-api/schedules.md:55"
           ]
         },
         {
@@ -36842,8 +36977,20 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           query: [
             {
-              name: "authorization",
-              type: "string",
+              name: "skip",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "limit",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "search",
+              type: "unknown",
               required: true,
               source: "params"
             }
@@ -36942,19 +37089,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
               name: "templateId"
             }
           ],
-          query: [
-            {
-              name: "authorization",
-              type: "string",
-              required: true,
-              source: "params"
-            }
-          ],
+          query: [],
           body: null,
           returns: null,
           confidence: {
             path: "resolved",
-            query: "resolved",
+            query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
           },
@@ -37130,14 +37270,14 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           query: [
             {
-              name: "source-id",
+              name: "agencyUserId",
               type: "string",
               required: true,
               source: "params"
             },
             {
-              name: "authorization",
-              type: "string",
+              name: "email",
+              type: "unknown",
               required: true,
               source: "params"
             }
@@ -37227,25 +37367,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
               name: "locationId"
             }
           ],
-          query: [
-            {
-              name: "source-id",
-              type: "string",
-              required: true,
-              source: "params"
-            },
-            {
-              name: "authorization",
-              type: "string",
-              required: true,
-              source: "params"
-            }
-          ],
+          query: [],
           body: null,
           returns: null,
           confidence: {
             path: "resolved",
-            query: "resolved",
+            query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
           },
@@ -37377,6 +37504,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
         },
         {
           id: "ai-agents--conversations-ai-employee-configs-put-put",
+          aka: [
+            "/conversations-ai/employeeConfigs/{id}"
+          ],
           method: "PUT",
           url: "https://services.leadconnectorhq.com/conversations-ai/employeeConfigs/{configId}",
           path: "/conversations-ai/employeeConfigs/{configId}",
@@ -37410,43 +37540,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "ai-agents/20-api/conversation-ai-boundary.md:58",
-            "ai-agents/20-api/conversation-ai-per-contact-toggle.md:75"
-          ]
-        },
-        {
-          id: "ai-agents--conversations-ai-employee-configs-put-put-put",
-          method: "PUT",
-          url: "https://services.leadconnectorhq.com/conversations-ai/employeeConfigs/{id}",
-          path: "/conversations-ai/employeeConfigs/{id}",
-          origin: "https://services.leadconnectorhq.com",
-          rail: "ai",
-          kind: "write",
-          reach: "source-only",
-          coveredBy: [
-            "set_contact_ai_status"
-          ],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "ai-agents",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "id"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
+            "ai-agents/20-api/conversation-ai-per-contact-toggle.md:75",
             "ai-agents/20-api/conversation-ai-per-contact-toggle.md:121",
             "ai-agents/20-api/conversation-ai-per-contact-toggle.md:123"
           ]
@@ -37841,8 +37935,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
               source: "live-probe"
             },
             {
-              name: "authorization",
-              type: "string",
+              name: "locationId",
+              type: "unknown",
               required: true,
               source: "params"
             }
@@ -41300,18 +41394,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
               type: "string",
               required: true,
               source: "url-literal"
-            },
-            {
-              name: "source-id",
-              type: "string",
-              required: true,
-              source: "params"
-            },
-            {
-              name: "authorization",
-              type: "string",
-              required: true,
-              source: "params"
             }
           ],
           body: null,
@@ -41578,9 +41660,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
         },
         {
           id: "assignment-service--delete",
+          aka: [
+            "/membership/locations/{locationId}/assessments/assignment/{id}"
+          ],
           method: "DELETE",
-          url: "https://services.leadconnectorhq.com/membership/locations/{locationId}/assessments/assignment/{id}",
-          path: "/membership/locations/{locationId}/assessments/assignment/{id}",
+          url: "https://services.leadconnectorhq.com/membership/locations/{locationId}/assessments/assignment/{postId}",
+          path: "/membership/locations/{locationId}/assessments/assignment/{postId}",
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "destructive",
@@ -41603,7 +41688,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
               name: "locationId"
             },
             {
-              name: "id"
+              name: "postId"
             }
           ],
           query: [],
@@ -41621,9 +41706,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
         },
         {
           id: "assignment-service--find-by-id",
+          aka: [
+            "/membership/locations/{locationId}/assessments/assignment/{id}"
+          ],
           method: "GET",
-          url: "https://services.leadconnectorhq.com/membership/locations/{locationId}/assessments/assignment/{id}",
-          path: "/membership/locations/{locationId}/assessments/assignment/{id}",
+          url: "https://services.leadconnectorhq.com/membership/locations/{locationId}/assessments/assignment/{postId}",
+          path: "/membership/locations/{locationId}/assessments/assignment/{postId}",
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
@@ -41648,7 +41736,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
               name: "locationId"
             },
             {
-              name: "id"
+              name: "postId"
             }
           ],
           query: [],
@@ -41661,14 +41749,18 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/BaseService.ts:73"
+            "services/BaseService.ts:73",
+            "services/AssignmentService.ts:16"
           ]
         },
         {
           id: "assignment-service--update",
+          aka: [
+            "/membership/locations/{locationId}/assessments/assignment/{id}"
+          ],
           method: "PUT",
-          url: "https://services.leadconnectorhq.com/membership/locations/{locationId}/assessments/assignment/{id}",
-          path: "/membership/locations/{locationId}/assessments/assignment/{id}",
+          url: "https://services.leadconnectorhq.com/membership/locations/{locationId}/assessments/assignment/{postId}",
+          path: "/membership/locations/{locationId}/assessments/assignment/{postId}",
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "write",
@@ -41691,7 +41783,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
               name: "locationId"
             },
             {
-              name: "id"
+              name: "postId"
             }
           ],
           query: [],
@@ -41709,51 +41801,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/BaseService.ts:85"
-          ]
-        },
-        {
-          id: "assignment-service--find-by-post-id",
-          method: "GET",
-          url: "https://services.leadconnectorhq.com/membership/locations/{locationId}/assessments/assignment/{postId}",
-          path: "/membership/locations/{locationId}/assessments/assignment/{postId}",
-          origin: "https://services.leadconnectorhq.com",
-          rail: "ai",
-          kind: "read",
-          reach: "source-only",
-          coveredBy: [
-            "build_course"
-          ],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [
-            "channel",
-            "source",
-            "version",
-            "sourceId"
-          ],
-          operation: "findByPostId",
-          service: "memberships-courses",
-          tree: "memberships",
-          pathParams: [
-            {
-              name: "locationId"
-            },
-            {
-              name: "postId"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "resolved",
-            query: "none-observed",
-            body: "none-observed",
-            returns: "none-observed"
-          },
-          sources: [
-            "services/AssignmentService.ts:16"
           ]
         },
         {
@@ -42064,9 +42111,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
         },
         {
           id: "assessment-service-service--delete",
+          aka: [
+            "/membership/locations/{locationId}/assessments/quiz/assessmentStatus/{id}"
+          ],
           method: "DELETE",
-          url: "https://services.leadconnectorhq.com/membership/locations/{locationId}/assessments/quiz/assessmentStatus/{id}",
-          path: "/membership/locations/{locationId}/assessments/quiz/assessmentStatus/{id}",
+          url: "https://services.leadconnectorhq.com/membership/locations/{locationId}/assessments/quiz/assessmentStatus/{productId}",
+          path: "/membership/locations/{locationId}/assessments/quiz/assessmentStatus/{productId}",
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "destructive",
@@ -42089,7 +42139,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
               name: "locationId"
             },
             {
-              name: "id"
+              name: "productId"
             }
           ],
           query: [],
@@ -42107,9 +42157,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
         },
         {
           id: "assessment-service-service--find-by-id",
+          aka: [
+            "/membership/locations/{locationId}/assessments/quiz/assessmentStatus/{id}"
+          ],
           method: "GET",
-          url: "https://services.leadconnectorhq.com/membership/locations/{locationId}/assessments/quiz/assessmentStatus/{id}",
-          path: "/membership/locations/{locationId}/assessments/quiz/assessmentStatus/{id}",
+          url: "https://services.leadconnectorhq.com/membership/locations/{locationId}/assessments/quiz/assessmentStatus/{productId}",
+          path: "/membership/locations/{locationId}/assessments/quiz/assessmentStatus/{productId}",
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
@@ -42132,7 +42185,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
               name: "locationId"
             },
             {
-              name: "id"
+              name: "productId"
             }
           ],
           query: [],
@@ -42145,14 +42198,18 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/BaseService.ts:73"
+            "services/BaseService.ts:73",
+            "services/AssessmentStatusService.ts:18"
           ]
         },
         {
           id: "assessment-service-service--update",
+          aka: [
+            "/membership/locations/{locationId}/assessments/quiz/assessmentStatus/{id}"
+          ],
           method: "PUT",
-          url: "https://services.leadconnectorhq.com/membership/locations/{locationId}/assessments/quiz/assessmentStatus/{id}",
-          path: "/membership/locations/{locationId}/assessments/quiz/assessmentStatus/{id}",
+          url: "https://services.leadconnectorhq.com/membership/locations/{locationId}/assessments/quiz/assessmentStatus/{productId}",
+          path: "/membership/locations/{locationId}/assessments/quiz/assessmentStatus/{productId}",
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "write",
@@ -42175,7 +42232,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
               name: "locationId"
             },
             {
-              name: "id"
+              name: "productId"
             }
           ],
           query: [],
@@ -42193,49 +42250,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/BaseService.ts:85"
-          ]
-        },
-        {
-          id: "assessment-service-service--find-by-product-id",
-          method: "GET",
-          url: "https://services.leadconnectorhq.com/membership/locations/{locationId}/assessments/quiz/assessmentStatus/{productId}",
-          path: "/membership/locations/{locationId}/assessments/quiz/assessmentStatus/{productId}",
-          origin: "https://services.leadconnectorhq.com",
-          rail: "ai",
-          kind: "read",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [
-            "channel",
-            "source",
-            "version",
-            "sourceId"
-          ],
-          operation: "findByProductId",
-          service: "memberships-courses",
-          tree: "memberships",
-          pathParams: [
-            {
-              name: "locationId"
-            },
-            {
-              name: "productId"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "resolved",
-            query: "none-observed",
-            body: "none-observed",
-            returns: "none-observed"
-          },
-          sources: [
-            "services/AssessmentStatusService.ts:18"
           ]
         },
         {
@@ -42476,9 +42490,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
         },
         {
           id: "quiz-service--delete--delete-questions-id",
+          aka: [
+            "/membership/locations/{locationId}/assessments/quiz/questions/{id}"
+          ],
           method: "DELETE",
-          url: "https://services.leadconnectorhq.com/membership/locations/{locationId}/assessments/quiz/questions/{id}",
-          path: "/membership/locations/{locationId}/assessments/quiz/questions/{id}",
+          url: "https://services.leadconnectorhq.com/membership/locations/{locationId}/assessments/quiz/questions/{quizId}",
+          path: "/membership/locations/{locationId}/assessments/quiz/questions/{quizId}",
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "destructive",
@@ -42501,7 +42518,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
               name: "locationId"
             },
             {
-              name: "id"
+              name: "quizId"
             }
           ],
           query: [],
@@ -42519,9 +42536,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
         },
         {
           id: "quiz-service--find-by-id--get-questions-id",
+          aka: [
+            "/membership/locations/{locationId}/assessments/quiz/questions/{id}"
+          ],
           method: "GET",
-          url: "https://services.leadconnectorhq.com/membership/locations/{locationId}/assessments/quiz/questions/{id}",
-          path: "/membership/locations/{locationId}/assessments/quiz/questions/{id}",
+          url: "https://services.leadconnectorhq.com/membership/locations/{locationId}/assessments/quiz/questions/{quizId}",
+          path: "/membership/locations/{locationId}/assessments/quiz/questions/{quizId}",
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
@@ -42546,7 +42566,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
               name: "locationId"
             },
             {
-              name: "id"
+              name: "quizId"
             }
           ],
           query: [],
@@ -42559,14 +42579,18 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/BaseService.ts:73"
+            "services/BaseService.ts:73",
+            "services/QuestionService.ts:17"
           ]
         },
         {
           id: "quiz-service--update--put-questions-id",
+          aka: [
+            "/membership/locations/{locationId}/assessments/quiz/questions/{id}"
+          ],
           method: "PUT",
-          url: "https://services.leadconnectorhq.com/membership/locations/{locationId}/assessments/quiz/questions/{id}",
-          path: "/membership/locations/{locationId}/assessments/quiz/questions/{id}",
+          url: "https://services.leadconnectorhq.com/membership/locations/{locationId}/assessments/quiz/questions/{quizId}",
+          path: "/membership/locations/{locationId}/assessments/quiz/questions/{quizId}",
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "write",
@@ -42589,7 +42613,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
               name: "locationId"
             },
             {
-              name: "id"
+              name: "quizId"
             }
           ],
           query: [],
@@ -42607,51 +42631,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/BaseService.ts:85"
-          ]
-        },
-        {
-          id: "quiz-service--find-questions-by-quiz-id",
-          method: "GET",
-          url: "https://services.leadconnectorhq.com/membership/locations/{locationId}/assessments/quiz/questions/{quizId}",
-          path: "/membership/locations/{locationId}/assessments/quiz/questions/{quizId}",
-          origin: "https://services.leadconnectorhq.com",
-          rail: "ai",
-          kind: "read",
-          reach: "source-only",
-          coveredBy: [
-            "build_course"
-          ],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [
-            "channel",
-            "source",
-            "version",
-            "sourceId"
-          ],
-          operation: "findQuestionsByQuizId",
-          service: "memberships-courses",
-          tree: "memberships",
-          pathParams: [
-            {
-              name: "locationId"
-            },
-            {
-              name: "quizId"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "resolved",
-            query: "none-observed",
-            body: "none-observed",
-            returns: "none-observed"
-          },
-          sources: [
-            "services/QuestionService.ts:17"
           ]
         },
         {
@@ -43192,19 +43171,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
               name: "certificateAttachmentId"
             }
           ],
-          query: [
-            {
-              name: "authorization",
-              type: "string",
-              required: true,
-              source: "params"
-            }
-          ],
+          query: [],
           body: null,
           returns: null,
           confidence: {
             path: "resolved",
-            query: "resolved",
+            query: "none-observed",
             body: "none-observed",
             returns: "none-observed"
           },
@@ -43299,8 +43271,14 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           query: [
             {
-              name: "authorization",
-              type: "string",
+              name: "skip",
+              type: "0",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "limit",
+              type: "100",
               required: true,
               source: "params"
             }
@@ -43451,6 +43429,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
         },
         {
           id: "comment-service--delete-comment",
+          aka: [
+            "/membership/locations/{locationId}/comments/{id}"
+          ],
           method: "DELETE",
           url: "https://services.leadconnectorhq.com/membership/locations/{locationId}/comments/{commentId}",
           path: "/membership/locations/{locationId}/comments/{commentId}",
@@ -43489,57 +43470,18 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/CommentService.ts:47"
-          ]
-        },
-        {
-          id: "comment-service--delete",
-          method: "DELETE",
-          url: "https://services.leadconnectorhq.com/membership/locations/{locationId}/comments/{id}",
-          path: "/membership/locations/{locationId}/comments/{id}",
-          origin: "https://services.leadconnectorhq.com",
-          rail: "ai",
-          kind: "destructive",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [
-            "channel",
-            "source",
-            "version",
-            "sourceId"
-          ],
-          operation: "delete",
-          service: "memberships-courses",
-          tree: "memberships",
-          pathParams: [
-            {
-              name: "locationId"
-            },
-            {
-              name: "id"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "resolved",
-            query: "none-observed",
-            body: "none-observed",
-            returns: "none-observed"
-          },
-          sources: [
+            "services/CommentService.ts:47",
             "services/BaseService.ts:89"
           ]
         },
         {
           id: "comment-service--find-by-id",
+          aka: [
+            "/membership/locations/{locationId}/comments/{id}"
+          ],
           method: "GET",
-          url: "https://services.leadconnectorhq.com/membership/locations/{locationId}/comments/{id}",
-          path: "/membership/locations/{locationId}/comments/{id}",
+          url: "https://services.leadconnectorhq.com/membership/locations/{locationId}/comments/{commentId}",
+          path: "/membership/locations/{locationId}/comments/{commentId}",
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
@@ -43562,7 +43504,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
               name: "locationId"
             },
             {
-              name: "id"
+              name: "commentId"
             }
           ],
           query: [],
@@ -43580,9 +43522,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
         },
         {
           id: "comment-service--update",
+          aka: [
+            "/membership/locations/{locationId}/comments/{id}"
+          ],
           method: "PUT",
-          url: "https://services.leadconnectorhq.com/membership/locations/{locationId}/comments/{id}",
-          path: "/membership/locations/{locationId}/comments/{id}",
+          url: "https://services.leadconnectorhq.com/membership/locations/{locationId}/comments/{commentId}",
+          path: "/membership/locations/{locationId}/comments/{commentId}",
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "write",
@@ -43605,7 +43550,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
               name: "locationId"
             },
             {
-              name: "id"
+              name: "commentId"
             }
           ],
           query: [],
@@ -43881,7 +43826,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
                 doc: "Returns a list of values in the list."
               },
               {
-                name: "__@iterator@1057",
+                name: "__@iterator@889",
                 type: "() => FormDataIterator<[string, FormDataEntryValue]>",
                 optional: false
               }
@@ -44469,9 +44414,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
         },
         {
           id: "post-service--delete",
+          aka: [
+            "/membership/locations/{locationId}/posts/{id}"
+          ],
           method: "DELETE",
-          url: "https://services.leadconnectorhq.com/membership/locations/{locationId}/posts/{id}",
-          path: "/membership/locations/{locationId}/posts/{id}",
+          url: "https://services.leadconnectorhq.com/membership/locations/{locationId}/posts/{postId}",
+          path: "/membership/locations/{locationId}/posts/{postId}",
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "destructive",
@@ -44494,7 +44442,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
               name: "locationId"
             },
             {
-              name: "id"
+              name: "postId"
             }
           ],
           query: [],
@@ -44512,9 +44460,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
         },
         {
           id: "post-service--find-by-id",
+          aka: [
+            "/membership/locations/{locationId}/posts/{id}"
+          ],
           method: "GET",
-          url: "https://services.leadconnectorhq.com/membership/locations/{locationId}/posts/{id}",
-          path: "/membership/locations/{locationId}/posts/{id}",
+          url: "https://services.leadconnectorhq.com/membership/locations/{locationId}/posts/{postId}",
+          path: "/membership/locations/{locationId}/posts/{postId}",
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
@@ -44539,7 +44490,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
               name: "locationId"
             },
             {
-              name: "id"
+              name: "postId"
             }
           ],
           query: [],
@@ -44557,9 +44508,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
         },
         {
           id: "post-service--update",
+          aka: [
+            "/membership/locations/{locationId}/posts/{id}"
+          ],
           method: "PUT",
-          url: "https://services.leadconnectorhq.com/membership/locations/{locationId}/posts/{id}",
-          path: "/membership/locations/{locationId}/posts/{id}",
+          url: "https://services.leadconnectorhq.com/membership/locations/{locationId}/posts/{postId}",
+          path: "/membership/locations/{locationId}/posts/{postId}",
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "write",
@@ -44584,7 +44538,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
               name: "locationId"
             },
             {
-              name: "id"
+              name: "postId"
             }
           ],
           query: [],
@@ -44601,58 +44555,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/BaseService.ts:85"
-          ]
-        },
-        {
-          id: "services--posts",
-          method: "PUT",
-          url: "https://services.leadconnectorhq.com/membership/locations/{locationId}/posts/{postId}",
-          path: "/membership/locations/{locationId}/posts/{postId}",
-          origin: "https://services.leadconnectorhq.com",
-          rail: "ai",
-          kind: "write",
-          reach: "source-only",
-          coveredBy: [
-            "build_course"
-          ],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [
-            "Channel",
-            "Source",
-            "Version",
-            "channel",
-            "source",
-            "version",
-            "sourceId"
-          ],
-          operation: null,
-          service: "memberships-courses",
-          tree: "memberships",
-          pathParams: [
-            {
-              name: "locationId"
-            },
-            {
-              name: "postId"
-            }
-          ],
-          query: [],
-          body: {
-            typeName: "any",
-            properties: null,
-            confidence: "primitive"
-          },
-          returns: null,
-          confidence: {
-            path: "resolved",
-            query: "none-observed",
-            body: "primitive",
-            returns: "none-observed"
-          },
-          sources: [
+            "services/BaseService.ts:85",
             "restAgent.ts:279"
           ]
         },
@@ -45822,9 +45725,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
         },
         {
           id: "product-service--delete--delete-product-themes-id",
+          aka: [
+            "/membership/locations/{locationId}/products/product-themes/{id}"
+          ],
           method: "DELETE",
-          url: "https://services.leadconnectorhq.com/membership/locations/{locationId}/products/product-themes/{id}",
-          path: "/membership/locations/{locationId}/products/product-themes/{id}",
+          url: "https://services.leadconnectorhq.com/membership/locations/{locationId}/products/product-themes/{productId}",
+          path: "/membership/locations/{locationId}/products/product-themes/{productId}",
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "destructive",
@@ -45847,7 +45753,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
               name: "locationId"
             },
             {
-              name: "id"
+              name: "productId"
             }
           ],
           query: [],
@@ -45865,9 +45771,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
         },
         {
           id: "product-service--find-by-id--get-product-themes-id",
+          aka: [
+            "/membership/locations/{locationId}/products/product-themes/{id}"
+          ],
           method: "GET",
-          url: "https://services.leadconnectorhq.com/membership/locations/{locationId}/products/product-themes/{id}",
-          path: "/membership/locations/{locationId}/products/product-themes/{id}",
+          url: "https://services.leadconnectorhq.com/membership/locations/{locationId}/products/product-themes/{productId}",
+          path: "/membership/locations/{locationId}/products/product-themes/{productId}",
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
@@ -45890,7 +45799,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
               name: "locationId"
             },
             {
-              name: "id"
+              name: "productId"
             }
           ],
           query: [],
@@ -45903,14 +45812,18 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/BaseService.ts:73"
+            "services/BaseService.ts:73",
+            "services/ProductThemesService.ts:17"
           ]
         },
         {
           id: "product-service--update--put-product-themes-id",
+          aka: [
+            "/membership/locations/{locationId}/products/product-themes/{id}"
+          ],
           method: "PUT",
-          url: "https://services.leadconnectorhq.com/membership/locations/{locationId}/products/product-themes/{id}",
-          path: "/membership/locations/{locationId}/products/product-themes/{id}",
+          url: "https://services.leadconnectorhq.com/membership/locations/{locationId}/products/product-themes/{productId}",
+          path: "/membership/locations/{locationId}/products/product-themes/{productId}",
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "write",
@@ -45933,7 +45846,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
               name: "locationId"
             },
             {
-              name: "id"
+              name: "productId"
             }
           ],
           query: [],
@@ -45951,49 +45864,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/BaseService.ts:85"
-          ]
-        },
-        {
-          id: "product-service--get-customization-settings",
-          method: "GET",
-          url: "https://services.leadconnectorhq.com/membership/locations/{locationId}/products/product-themes/{productId}",
-          path: "/membership/locations/{locationId}/products/product-themes/{productId}",
-          origin: "https://services.leadconnectorhq.com",
-          rail: "ai",
-          kind: "read",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [
-            "channel",
-            "source",
-            "version",
-            "sourceId"
-          ],
-          operation: "getCustomizationSettings",
-          service: "memberships-courses",
-          tree: "memberships",
-          pathParams: [
-            {
-              name: "locationId"
-            },
-            {
-              name: "productId"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "resolved",
-            query: "none-observed",
-            body: "none-observed",
-            returns: "none-observed"
-          },
-          sources: [
-            "services/ProductThemesService.ts:17"
           ]
         },
         {
@@ -46918,9 +46788,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
         },
         {
           id: "site-info-service--delete",
+          aka: [
+            "/membership/locations/{locationId}/settings/site-info/{id}"
+          ],
           method: "DELETE",
-          url: "https://services.leadconnectorhq.com/membership/locations/{locationId}/settings/site-info/{id}",
-          path: "/membership/locations/{locationId}/settings/site-info/{id}",
+          url: "https://services.leadconnectorhq.com/membership/locations/{locationId}/settings/site-info/{siteInfoId}",
+          path: "/membership/locations/{locationId}/settings/site-info/{siteInfoId}",
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "destructive",
@@ -46943,7 +46816,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
               name: "locationId"
             },
             {
-              name: "id"
+              name: "siteInfoId"
             }
           ],
           query: [],
@@ -46961,9 +46834,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
         },
         {
           id: "site-info-service--find-by-id",
+          aka: [
+            "/membership/locations/{locationId}/settings/site-info/{id}"
+          ],
           method: "GET",
-          url: "https://services.leadconnectorhq.com/membership/locations/{locationId}/settings/site-info/{id}",
-          path: "/membership/locations/{locationId}/settings/site-info/{id}",
+          url: "https://services.leadconnectorhq.com/membership/locations/{locationId}/settings/site-info/{siteInfoId}",
+          path: "/membership/locations/{locationId}/settings/site-info/{siteInfoId}",
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
@@ -46986,7 +46862,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
               name: "locationId"
             },
             {
-              name: "id"
+              name: "siteInfoId"
             }
           ],
           query: [],
@@ -47004,9 +46880,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
         },
         {
           id: "site-info-service--update",
+          aka: [
+            "/membership/locations/{locationId}/settings/site-info/{id}"
+          ],
           method: "PUT",
-          url: "https://services.leadconnectorhq.com/membership/locations/{locationId}/settings/site-info/{id}",
-          path: "/membership/locations/{locationId}/settings/site-info/{id}",
+          url: "https://services.leadconnectorhq.com/membership/locations/{locationId}/settings/site-info/{siteInfoId}",
+          path: "/membership/locations/{locationId}/settings/site-info/{siteInfoId}",
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "write",
@@ -47029,7 +46908,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
               name: "locationId"
             },
             {
-              name: "id"
+              name: "siteInfoId"
             }
           ],
           query: [],
@@ -47046,49 +46925,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/BaseService.ts:85"
-          ]
-        },
-        {
-          id: "site-info-service--toggle-client-portal",
-          method: "PUT",
-          url: "https://services.leadconnectorhq.com/membership/locations/{locationId}/settings/site-info/{siteInfoId}",
-          path: "/membership/locations/{locationId}/settings/site-info/{siteInfoId}",
-          origin: "https://services.leadconnectorhq.com",
-          rail: "ai",
-          kind: "write",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [
-            "channel",
-            "source",
-            "version",
-            "sourceId"
-          ],
-          operation: "toggleClientPortal",
-          service: "memberships-courses",
-          tree: "memberships",
-          pathParams: [
-            {
-              name: "locationId"
-            },
-            {
-              name: "siteInfoId"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "resolved",
-            query: "none-observed",
-            body: "none-observed",
-            returns: "none-observed"
-          },
-          sources: [
+            "services/BaseService.ts:85",
             "services/SiteInfoService.ts:23"
           ]
         },
@@ -48467,42 +48304,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
         },
         {
           id: "pipelines-opportunities--pipelines-permissions-put",
-          method: "PUT",
-          url: "https://services.leadconnectorhq.com/opportunities/pipelines/permissions/{id}",
-          path: "/opportunities/pipelines/permissions/{id}",
-          origin: "https://services.leadconnectorhq.com",
-          rail: "ai",
-          kind: "write",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "pipelines-opportunities",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "id"
-            }
+          aka: [
+            "/opportunities/pipelines/permissions/{id}"
           ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "pipelines-opportunities/20-api/forecast.md:120",
-            "pipelines-opportunities/20-api/pipelines.md:119"
-          ]
-        },
-        {
-          id: "pipelines-opportunities--pipelines-permissions-put-put",
           method: "PUT",
           url: "https://services.leadconnectorhq.com/opportunities/pipelines/permissions/{pipelineId}",
           path: "/opportunities/pipelines/permissions/{pipelineId}",
@@ -48533,6 +48337,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
+            "pipelines-opportunities/20-api/forecast.md:120",
+            "pipelines-opportunities/20-api/pipelines.md:119",
             "pipelines-opportunities/20-api/pipelines.md:41"
           ]
         },
@@ -50029,80 +49835,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
-          id: "forms--get-surveys",
-          method: "GET",
-          url: "https://services.leadconnectorhq.com/surveys/{id}",
-          path: "/surveys/{id}",
-          origin: "https://services.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "read",
-          note: "Live-proven 2026-09-06: {survey:{\u2026, formData:{form, slides[]}}}. Survey save is POST /surveys/{id} {name, formData} (source-derived from the builder SPA; not executed).",
-          proof: "observed",
-          reach: "proven",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "forms",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "id"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "documented",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "forms/_data/endpoints.json",
-            "workflows/70-research/ENDPOINTS.md"
-          ]
-        },
-        {
-          id: "forms--surveys",
-          method: "POST",
-          url: "https://services.leadconnectorhq.com/surveys/{id}",
-          path: "/surveys/{id}",
-          origin: "https://services.leadconnectorhq.com",
-          rail: "ai",
-          kind: "write",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "forms",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "id"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "forms/20-api/surveys-and-quizzes.md:83",
-            "forms/20-api/surveys-and-quizzes.md:93"
-          ]
-        },
-        {
           id: "forms--surveys-delete",
           method: "DELETE",
           url: "https://services.leadconnectorhq.com/surveys/{surveyId}",
@@ -50135,6 +49867,86 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "forms/20-api/surveys-and-quizzes.md:38"
+          ]
+        },
+        {
+          id: "forms--get-surveys",
+          aka: [
+            "/surveys/{id}"
+          ],
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/surveys/{surveyId}",
+          path: "/surveys/{surveyId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          note: "Live-proven 2026-09-06: {survey:{\u2026, formData:{form, slides[]}}}. Survey save is POST /surveys/{id} {name, formData} (source-derived from the builder SPA; not executed).",
+          proof: "observed",
+          reach: "proven",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "forms",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "surveyId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "forms/_data/endpoints.json",
+            "workflows/70-research/ENDPOINTS.md"
+          ]
+        },
+        {
+          id: "forms--surveys",
+          aka: [
+            "/surveys/{id}"
+          ],
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/surveys/{surveyId}",
+          path: "/surveys/{surveyId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "forms",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "surveyId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "forms/20-api/surveys-and-quizzes.md:83",
+            "forms/20-api/surveys-and-quizzes.md:93"
           ]
         },
         {
@@ -50344,9 +50156,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
         },
         {
           id: "forms--surveys-folder-post-post-post",
+          aka: [
+            "/surveys/folder/{id}"
+          ],
           method: "POST",
-          url: "https://services.leadconnectorhq.com/surveys/folder/{id}",
-          path: "/surveys/folder/{id}",
+          url: "https://services.leadconnectorhq.com/surveys/folder/{folderId}",
+          path: "/surveys/folder/{folderId}",
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "write",
@@ -50361,7 +50176,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           tree: "documented",
           pathParams: [
             {
-              name: "id"
+              name: "folderId"
             }
           ],
           query: [],
@@ -51388,6 +51203,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
         },
         {
           id: "ai-agents--voice-ai-agents-get",
+          aka: [
+            "/voice-ai/agents/{id}"
+          ],
           method: "GET",
           url: "https://services.leadconnectorhq.com/voice-ai/agents/{agentId}",
           path: "/voice-ai/agents/{agentId}",
@@ -51431,11 +51249,16 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "ai-agents/20-api/12-ai-agents-api.md:138",
             "ai-agents/20-api/12-ai-agents-api.md:149",
             "ai-agents/20-api/12-ai-agents-api.md:351",
-            "ai-agents/20-api/voice-ai-boundary.md:58"
+            "ai-agents/20-api/voice-ai-boundary.md:58",
+            "ai-agents/20-api/voice-ai-boundary.md:21",
+            "ai-agents/20-api/voice-ai-boundary.md:22"
           ]
         },
         {
           id: "ai-agents--voice-ai-agents-put",
+          aka: [
+            "/voice-ai/agents/{id}"
+          ],
           method: "PUT",
           url: "https://services.leadconnectorhq.com/voice-ai/agents/{agentId}",
           path: "/voice-ai/agents/{agentId}",
@@ -51482,7 +51305,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:139",
-            "ai-agents/20-api/12-ai-agents-api.md:149"
+            "ai-agents/20-api/12-ai-agents-api.md:149",
+            "ai-agents/20-api/12-ai-agents-api.md:352"
           ]
         },
         {
@@ -51557,6 +51381,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
         },
         {
           id: "ai-agents--prompts-defaults",
+          aka: [
+            "/voice-ai/agents/{id}/prompts/defaults"
+          ],
           method: "GET",
           url: "https://services.leadconnectorhq.com/voice-ai/agents/{agentId}/prompts/defaults",
           path: "/voice-ai/agents/{agentId}/prompts/defaults",
@@ -51587,7 +51414,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/voice-ai-boundary.md:59"
+            "ai-agents/20-api/voice-ai-boundary.md:59",
+            "ai-agents/20-api/12-ai-agents-api.md:145"
           ]
         },
         {
@@ -51661,130 +51489,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "ai-agents/20-api/logs-deployment-email.md:99"
-          ]
-        },
-        {
-          id: "ai-agents--voice-ai-agents-get-get",
-          method: "GET",
-          url: "https://services.leadconnectorhq.com/voice-ai/agents/{id}",
-          path: "/voice-ai/agents/{id}",
-          origin: "https://services.leadconnectorhq.com",
-          rail: "ai",
-          kind: "read",
-          reach: "source-only",
-          coveredBy: [
-            "create_voiceai_agent",
-            "get_ai_configuration_bundle"
-          ],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "ai-agents",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "id"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/voice-ai-boundary.md:21",
-            "ai-agents/20-api/voice-ai-boundary.md:22"
-          ]
-        },
-        {
-          id: "ai-agents--voice-ai-agents-put-put",
-          method: "PUT",
-          url: "https://services.leadconnectorhq.com/voice-ai/agents/{id}",
-          path: "/voice-ai/agents/{id}",
-          origin: "https://services.leadconnectorhq.com",
-          rail: "ai",
-          kind: "write",
-          reach: "source-only",
-          coveredBy: [
-            "create_voiceai_agent"
-          ],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "ai-agents",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "id"
-            }
-          ],
-          query: [
-            {
-              name: "publishAgent",
-              type: "string",
-              required: false,
-              source: "documented"
-            },
-            {
-              name: "mode",
-              type: "string",
-              required: false,
-              source: "documented"
-            }
-          ],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "documented",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:352"
-          ]
-        },
-        {
-          id: "ai-agents--prompts-defaults-get",
-          method: "GET",
-          url: "https://services.leadconnectorhq.com/voice-ai/agents/{id}/prompts/defaults",
-          path: "/voice-ai/agents/{id}/prompts/defaults",
-          origin: "https://services.leadconnectorhq.com",
-          rail: "ai",
-          kind: "read",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "ai-agents",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "id"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:145"
           ]
         },
         {
@@ -52874,6 +52578,21 @@ var init_define_ENDPOINT_OVERLAY = __esm({
     define_ENDPOINT_OVERLAY_default = {
       _note: "Hand-maintained overlay over the source-mined endpoint catalogue. Keyed by WIRE IDENTITY 'METHOD /path' exactly as catalog/internal-endpoints.source.json records it -- not by id, which the source artefact owns. A generator never writes this file.\n\nkind    ranking metadata only (raw_request gates every non-GET on confirm regardless). Absent = defaults by method: GET read, DELETE destructive, else write.\nreach   whether a location-user Bearer actually gets through. 'refused' rows are real endpoints that will 401 from this rail, so surfacing them costs the caller a turn for nothing.\nnote    the one trap worth knowing BEFORE choosing this row.\nsummary what the call returns, in a sentence.\n\nWhen the extractor corrects a path, that key orphans and the build names it. That is intended: a corrected path is exactly when a human should re-check its note.\n\nRE-KEYED 2026-08-25 when the extractor moved to full wire paths and {param} braces. All 34 keys mapped cleanly, 0 ambiguous, 0 orphaned. The two entries that had been parked under  -- logs/v2 dateType and the contacts/search/2 silent-ignore -- now have rows and moved into place.\n\nREACH values from 2026-08-25 come from the F1 differential (knowledge/scripts/probe-reach-differential.mjs) on the designated test sub-account. They are recorded PER ENDPOINT, never per prefix: /workflow/campaign returns 401 while /workflow/{locationId}/list is read successfully every day, so a prefix-level verdict would be flatly wrong.\n\nrequiredQuery entries came from the F2 ledger: the endpoint was CALLED, it returned 400/422, and GHL named the key it wanted. That is knowledge the static extractor cannot produce -- the builder passes those keys through a spread it can only mark open-map.\n\nRequired-key discovery is ITERATIVE. An endpoint answers 400/422 naming one missing key; supply it and the next round names the next. A single probe pass under-reports, and requiredQuery should be treated as a floor rather than a complete list.",
       rows: {
+        "DELETE /agent-logs/logs/{sessionId}": {
+          kind: "write",
+          reach: "source-only",
+          summary: "Delete a conversation log.",
+          note: 'Present in the bundle API client and wired (delete error strings ship) but UI-unreachable \u2014 no row-action string exists for it. NEVER called during mapping; destructive and unproven. \u{1F534} CATALOGUE MISLABEL: this row is DELETE but its `kind` says "write". Any sweep that filters on kind alone will treat it as a safe write. Filter on METHOD as well as kind. Not probed \u2014 nothing is deleted.'
+        },
+        "DELETE /agent-logs/metrics-layouts/{layoutId}": {
+          kind: "write",
+          reach: "source-only",
+          summary: "Delete a Metrics dashboard layout.",
+          note: 'Never called during mapping; read-only sweep. \u{1F534} CATALOGUE MISLABEL: DELETE row whose `kind` says "write". Filter on METHOD as well as kind. Not probed.'
+        },
+        "DELETE /membership/.../products/{id}": {
+          note: '\u{1F534} THIS ROW IS UNCALLABLE: its path contains a literal "..." left by the source miner, so every request 404s. 15 rows are in this state, all on this service. 11 of them \u2014 including this one \u2014 duplicate a full-path row already in the catalogue; use that one instead. Measured 2026-09-10.'
+        },
         "DELETE /workflow/flowguard/blacklist/{type}/{id}": {
           reach: "refused",
           note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
@@ -52907,6 +52626,63 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           summary: "Agent Deployment as it really is: one row per channel {channel, providerId, enabled, allIdentifiers, specificIdentifiers[], includeTags, excludeTags}.",
           note: 'A Live_Chat row pinned to a DELETED widget id (specificIdentifiers) makes the agent silently mute \u2014 contacts created, no reply, no enrolment, no error anywhere. Fix: allIdentifiers:true, specificIdentifiers:[]. get_ai_configuration_bundle reads these rows per Conversation AI agent as of 0.47.0 and summarises rows with allIdentifiers:false in routingPinned \u2014 but it never checks whether the pinned identifiers still EXIST, so verify them against /chat-widget/list before trusting a pinned row. Executed on the sandbox 2026-09-10 on host:"ai" \u2014 returns a BARE ARRAY of routing rows {id, createdAt, deleted, locationId, channel, providerId, ...}, 11 of them here. Its POST twin is deliberately NOT probed: a new routing row can change WHICH agent answers an inbound conversation on the account, which is a behaviour change dressed as a create.'
         },
+        "GET /agent-logs/health": {
+          kind: "read",
+          reach: "proven-live",
+          summary: "Service health: {status, timestamp, traceId}.",
+          note: "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone \u2014 either credential reaches this surface)."
+        },
+        "GET /agent-logs/logs/{sessionId}": {
+          kind: "read",
+          reach: "proven",
+          summary: "Session detail: a 4-key summary plus EVERY interaction inline.",
+          note: "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone \u2014 either credential reaches this surface). Not the same as /summary: fewer summary keys, but all interactions, and it ignores page/limit. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
+          requiredQuery: [
+            "locationId"
+          ]
+        },
+        "GET /agent-logs/logs/{sessionId}/interactions": {
+          kind: "read",
+          reach: "proven",
+          summary: "One row per inbound message; each traceId IS that message\u2019s CRM id.",
+          note: "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone \u2014 either credential reaches this surface). Default limit is 100. A page past the end returns 200 empty; page=0 or negative returns 404. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
+          requiredQuery: [
+            "locationId"
+          ]
+        },
+        "GET /agent-logs/logs/{sessionId}/metrics": {
+          kind: "read",
+          reach: "proven",
+          summary: "Per-session metrics with a perInteraction[] series.",
+          note: "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone \u2014 either credential reaches this surface). A wrong id returns 200 with zeroes rather than 404. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
+          requiredQuery: [
+            "locationId"
+          ]
+        },
+        "GET /agent-logs/logs/{sessionId}/summary": {
+          kind: "read",
+          reach: "proven",
+          summary: "Session summary incl. totalInteractions, durationMs and per-product customConfigs.",
+          note: 'Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone \u2014 either credential reaches this surface). A trace id here 404s "No conversation data found for conversation". requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.',
+          requiredQuery: [
+            "locationId"
+          ]
+        },
+        "GET /agent-logs/logs/{traceId}/spans": {
+          kind: "read",
+          reach: "proven-live",
+          summary: "The per-message execution trace: splitter branch + reasoning, knowledge chunks, tool calls, model, tokens.",
+          note: 'Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone \u2014 either credential reaches this surface). Path id is the INBOUND MESSAGE id, not a session id (a session id 404s "No spans found for trace"). locationId is required. DO NOT send conversationId: the UI does, and it drops the ai_splitter span \u2014 the branch decision \u2014 from the trace.'
+        },
+        "GET /agent-logs/metrics-layouts": {
+          kind: "read",
+          reach: "proven",
+          summary: "Saved Metrics dashboard layouts for the location.",
+          note: "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone \u2014 either credential reaches this surface). Returns {layouts: []} when none exist \u2014 and the UI reacts to that by POSTing a default layout, so opening the Metrics tab in a browser WRITES. The populated shape is unproven. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
+          requiredQuery: [
+            "locationId"
+          ]
+        },
         "GET /ai-employees/actions/search": {
           reach: "proven",
           requiredQuery: [
@@ -52921,12 +52697,37 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         "GET /ai-employees/employees/list": {
           reach: "proven"
         },
+        "GET /ai-wrapper/plan/company": {
+          reach: "proven",
+          requiredQuery: [
+            "companyId"
+          ],
+          note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them."
+        },
+        "GET /ai-wrapper/plan/location": {
+          reach: "proven",
+          requiredQuery: [
+            "locationId"
+          ],
+          note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them."
+        },
+        "GET /ai-wrapper/usage/v2/fup-status": {
+          reach: "proven",
+          requiredQuery: [
+            "product"
+          ],
+          note: "requiredQuery proven live 2026-09-10: product."
+        },
         "GET /appengine/dialogflow/eliza-location-status/{locationId}": {
           reach: "proven"
         },
         "GET /associations/objectKey/{objectKey}": {
           reach: "refused",
           note: "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it."
+        },
+        "GET /brand-boards/{locationId}": {
+          reach: "proven",
+          note: "Executed 2026-09-10 \u2014 returns {brandBoards, totalCount, traceId}; zero boards on the sandbox, which is why its /default write twin has nothing to target and is not probed."
         },
         "GET /calendars/configuration/location/{locationId}": {
           reach: "proven"
@@ -53002,8 +52803,34 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           ],
           note: "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source."
         },
+        "GET /conversations/providers/mailgun/fetch/domain": {
+          reach: "proven",
+          kind: "read",
+          note: '\u{1F534} A 400 HERE IS AN ANSWER, NOT A FAILURE. On an account using LeadConnector email it returns 400 {"message":"No MailgunAccount found","canonicalCode":"CONVERSATIONS_SOMETHING_WENT_WRONG"} \u2014 which tells you the account is NOT on bring-your-own Mailgun. Not an auth problem and not a wrong path. Reproduced on GROM Sandbox 2026-09-11 on BOTH hosts \u2014 backend and services each answered the identical 400 with its own traceId, so this row is not host-specific.'
+        },
+        "GET /courses/analytics/locations/{locationId}/export/assessment-results": {
+          reach: "proven",
+          requiredQuery: [
+            "totalRows"
+          ],
+          note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them. requiredQuery proven live 2026-09-10: totalRows."
+        },
         "GET /custom-data/conversations": {
           reach: "proven"
+        },
+        "GET /email-isv/feature/domain/domain-selection-list": {
+          kind: "read",
+          note: 'Executed 2026-09-11: 422 ["domains must be a string","domains should not be empty","source should not be empty","source must be a valid enum value"]. The route exists; `source` is an enum whose members the error does NOT spell out, so it was not guessed.'
+        },
+        "GET /email-isv/feature/domain/list": {
+          reach: "proven",
+          kind: "read",
+          note: `Richer than /workflow/{locationId}/email/location-email-provider: fromName, fromEmail, warmup{mode,stage,status}, types[] with per-type percentages, defaultDomain, emailSentCount/emailSentLimit, ssl, ips, domainAddedDate. \u26A0\uFE0F Answers on BOTH hosts (services AND backend) \u2014 re-verified on GROM Sandbox 2026-09-11, where it returns []. The original capture saw only services, so "ai host" is where it was observed, not a constraint. \u{1F534} AN EMPTY ARRAY DOES NOT MEAN THE ACCOUNT HAS NO SENDING DOMAIN. GROM Sandbox returns [] while GET /workflow/{loc}/email/location-email-provider reports a live, actively warming domain (link.gromdigital.com, domainOwnershipType 'agency_owned'), and asking this rail for that domain by name answers 400 "not found in the system". This rail is scoped to LOCATION-OWNED domains only; an agency-owned domain is invisible to it. Read [] as 'no domain this location owns', never as an unconfigured account.`
+        },
+        "GET /email-isv/feature/domain/removal-allowed": {
+          reach: "proven",
+          kind: "read",
+          note: "Executed on GROM Sandbox 2026-09-11 \u2014 200 on a location with no domains."
         },
         "GET /emails/builder": {
           reach: "proven"
@@ -53018,6 +52845,14 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         "GET /emails/builder/settings/{locationId}": {
           reach: "proven"
         },
+        "GET /events-management/tickets": {
+          reach: "proven",
+          note: "Executed 2026-09-10 \u2014 returns {tickets, traceId}; empty on the sandbox."
+        },
+        "GET /forms": {
+          reach: "proven",
+          note: "Live-proven 2026-09-06 (knowledge corpus/forms). Needs locationId, skip, limit; type=form returns forms only \u2014 ANY other type value (or none) returns forms AND folders in one array. query= is a substring name search; parentId= filters to a folder. Rows carry no formData; GET /forms/{id} does. token-id or Bearer, services or backend \u2014 all reach. The full lifecycle (POST /forms/ create, POST /forms/{id} save {name, formData}, duplicate, restore-version, move-to-folder, folders) is proven in corpus/forms/20-api/forms.md but has no rows here yet: the builder is a separate SPA with a PUBLIC source map (sniffs/forms-2026-09-06/builder-app/tree/src) that the generator does not read \u2014 see plugin/STATUS-2026-09-06-forms-surface.md."
+        },
         "GET /forms/forms-list": {
           requiredQuery: [
             "locationId"
@@ -53025,8 +52860,51 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           note: 'Live-proven 2026-09-06: formIds MUST be one comma-joined string (formIds=a,b) \u2014 repeated or bracketed params 422 "formIds must be a string"; locationId is rejected ("property locationId should not exist"). Returns list rows without formData. The row id says get-form-by-id but the by-id read is GET /forms/{id} (unknown id \u2192 400 "Form does not exist", not 404).',
           reach: "proven"
         },
+        "GET /forms/submissions": {
+          reach: "proven",
+          requiredQuery: [
+            "limit"
+          ],
+          note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them. requiredQuery proven live 2026-09-10: limit."
+        },
+        "GET /forms/themes": {
+          reach: "proven",
+          requiredQuery: [
+            "locationId"
+          ],
+          note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them."
+        },
+        "GET /funnels/builder/get-versions": {
+          reach: "proven",
+          note: "Live-proven 2026-09-10. Answers a BARE ARRAY, newest first. The id key is snake_case `version_id` \u2014 a caller reading `.versions` or `row.versionId` gets undefined, publishes nothing, and sees no error. `updated_at` is a Firestore {_seconds,_nanoseconds} object, not a string, so sorting it as a string silently does nothing."
+        },
+        "GET /funnels/builder/prebuilt-section/hero/template/hero/hero": {
+          reach: "proven",
+          requiredQuery: [
+            "locationId"
+          ],
+          note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them."
+        },
         "GET /funnels/funnel/list": {
           reach: "proven"
+        },
+        "GET /funnels/page": {
+          reach: "proven",
+          requiredQuery: [
+            "funnelId",
+            "limit",
+            "offset"
+          ],
+          note: "requiredQuery proven live 2026-09-10: funnelId, limit, offset. \u{1F534} This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND \u2014 the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder."
+        },
+        "GET /funnels/page/product": {
+          reach: "proven",
+          requiredQuery: [
+            "funnelId",
+            "limit",
+            "offset"
+          ],
+          note: "requiredQuery proven live 2026-09-10: funnelId, limit, offset. \u{1F534} This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND \u2014 the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder."
         },
         "GET /hooks/inbound-webhook-request/reference/{triggerId}": {
           reach: "refused",
@@ -53121,6 +52999,9 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           ],
           note: "Live-probed 2026-08-25: the endpoint returned 422 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source."
         },
+        "GET /membership/.../categories": {
+          note: '\u{1F534} THIS ROW IS UNCALLABLE: its path contains a literal "..." left by the source miner, so every request 404s. 15 rows are in this state, all on this service. 11 of them \u2014 including this one \u2014 duplicate a full-path row already in the catalogue; use that one instead. Measured 2026-09-10.'
+        },
         "GET /membership/smart-list/categories": {
           reach: "refused",
           note: "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it."
@@ -53140,6 +53021,10 @@ var init_define_ENDPOINT_OVERLAY = __esm({
             "locationId"
           ],
           note: "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source."
+        },
+        "GET /opportunities/smart-filters": {
+          reach: "proven",
+          note: 'Executed on the designated sandbox 2026-09-10, write-parity sweep, read back on a separate request. \u{1F534} BOTH `pipelineId` AND `filterType` are required query params \u2014 locationId alone answers 400 "pipelineId can\'t be undefined" (code COMMON_PIPELINE_ID_UNDEFINED), and adding pipelineId alone then answers 422 naming filterType with its enum: **smartlist | smarttag**. With all three it returns {smartFilters, total, page, limit}. Its POST twin additionally requires a non-empty `color`, a non-empty `filters` array and `position` >= 1; the filter shape was not invented, so the write stays unproven.'
         },
         "GET /payment-links/": {
           reach: "proven",
@@ -53167,8 +53052,32 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           summary: "The full payment link with products and prices expanded. This IS the detail read.",
           note: "There is NO bare detail read -- GET /payment-links/{id} is a 404 'Cannot GET' (the route does not exist). preview is what both the editor and the public checkout use, and it answers UNAUTHENTICATED with config=true."
         },
+        "GET /payment-links/settings": {
+          reach: "proven",
+          requiredQuery: [
+            "altId",
+            "altType"
+          ],
+          note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them. requiredQuery proven live 2026-09-10: altId, altType. \u{1F534} This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND \u2014 the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder."
+        },
+        "GET /payments/coupon/list": {
+          reach: "proven",
+          requiredQuery: [
+            "altId",
+            "altType"
+          ],
+          note: "requiredQuery proven live 2026-09-10: altId, altType. \u{1F534} This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND \u2014 the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder."
+        },
         "GET /payments/integrations/entity-providers": {
           note: "Test vs Live is two layers: the provider integration holds a test key pair and a live key pair (one Stripe Connect fills both), and each payment link carries liveMode and asks this endpoint for the matching keys. Nothing validates a provider at link-save time -- a link saves fine in Live mode with no gateway connected, and the public Pay button is simply disabled."
+        },
+        "GET /payments/integrations/provider/connected": {
+          reach: "proven",
+          requiredQuery: [
+            "altId",
+            "altType"
+          ],
+          note: "requiredQuery proven live 2026-09-10: altId, altType. \u{1F534} This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND \u2014 the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder."
         },
         "GET /phone-system/call-dispositions": {
           reach: "proven",
@@ -53187,6 +53096,14 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         },
         "GET /phone-system/whatsapp/location/{locationId}/template": {
           reach: "proven"
+        },
+        "GET /products/": {
+          reach: "proven",
+          requiredQuery: [
+            "altId",
+            "locationId"
+          ],
+          note: "requiredQuery proven live 2026-09-10: altId, locationId. \u{1F534} This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND \u2014 the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder."
         },
         "GET /reputation/integrations/review-link-list": {
           reach: "refused",
@@ -53214,6 +53131,10 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           note: "Details drawer, assets grouped by product category. Executed through the plugin credential on the designated sandbox, 2026-09-10, as part of the snapshot parity run: list -> manifest -> conflicts -> create -> refresh, with the create read back on a separate request (snapshot count 8 -> 9 and the new snapshot found by name and id).",
           reach: "proven"
         },
+        "GET /snapshots/assets/asset-names": {
+          reach: "proven",
+          note: "Executed through the plugin credential on the designated sandbox, 2026-09-10, as part of the snapshot parity run: list -> manifest -> conflicts -> create -> refresh, with the create read back on a separate request (snapshot count 8 -> 9 and the new snapshot found by name and id)."
+        },
         "GET /snapshots/locations/v2/{companyId}/available": {
           requiredQuery: [
             "snapshotId"
@@ -53232,6 +53153,10 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         },
         "GET /snapshots/snapshot-versions/{snapshotId}": {
           note: "{version, locationId, createdAt} per refresh. Captured from the agency page's own session 2026-08-31; not yet proven through the plugin's credential."
+        },
+        "GET /snapshots/v2/preFetchAssets/{locationId}": {
+          reach: "proven",
+          note: "Executed through the plugin credential on the designated sandbox, 2026-09-10, as part of the snapshot parity run: list -> manifest -> conflicts -> create -> refresh, with the create read back on a separate request (snapshot count 8 -> 9 and the new snapshot found by name and id)."
         },
         "GET /snapshots/v2/{companyId}": {
           note: "Agency snapshot list (type=own|imported|shared|templates). Captured from the agency Account Snapshots page's own browser session 2026-08-31; not yet proven through the plugin's location-user Bearer. Executed through the plugin credential on the designated sandbox, 2026-09-10, as part of the snapshot parity run: list -> manifest -> conflicts -> create -> refresh, with the create read back on a separate request (snapshot count 8 -> 9 and the new snapshot found by name and id).",
@@ -53259,9 +53184,61 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           reach: "proven",
           note: "TWO catalogue rows exist for this path and they disagree on HOST. The one mined from bundle source (template-service--get-email-snippets-paginated) says backend, but that is almost certainly the app-wide axios default rather than a service prefix \u2014 the same trap the harvester documents for /workflow. The whole snippets surface was captured LIVE 2026-08-29 on services.leadconnectorhq.com (the ai rail: Bearer plus token-id), six calls end to end. USE SERVICES. The mined row is kept, not deleted: it is a real source observation."
         },
+        "GET /surveys": {
+          reach: "proven",
+          note: "Live-proven 2026-09-06: {surveys:[], total}; same params as GET /forms. POST /surveys/ {locationId, name, source} creates a survey PRE-SEEDED with one slide (a form starts at formData {}). /surveys/* does NOT mirror /forms/* path for path (corrected 2026-09-07 from a full call-site extraction of the builder SPA): the survey app uses /surveys/\u2026 only for list, create, read, save, image, restore-version, themes and theme-style, and calls the /forms/\u2026 routes for delete, duplicate, share, folder create/read/list/rename and move-to-folder. So /surveys/duplicate/{id}, /surveys/folder and /surveys/move-to-folder are paths nothing in the product calls \u2014 untested, existence unknown. Corpus: knowledge/corpus/forms/20-api/surveys-and-quizzes.md."
+        },
+        "GET /surveys/folder": {
+          reach: "proven",
+          requiredQuery: [
+            "locationId"
+          ],
+          note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them."
+        },
+        "GET /surveys/{id}": {
+          reach: "proven",
+          note: "Live-proven 2026-09-06: {survey:{\u2026, formData:{form, slides[]}}}. Survey save is POST /surveys/{id} {name, formData} (source-derived from the builder SPA; not executed)."
+        },
+        "GET /templates/category/list": {
+          reach: "proven",
+          requiredQuery: [
+            "limit",
+            "offset",
+            "product"
+          ],
+          note: "requiredQuery proven live 2026-09-10: limit, offset, product. \u{1F534} This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND \u2014 the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder."
+        },
+        "GET /templates/template-search/facets": {
+          reach: "proven",
+          requiredQuery: [
+            "product"
+          ],
+          note: "requiredQuery proven live 2026-09-10: product."
+        },
+        "GET /templates/template-search/suggestions": {
+          reach: "proven",
+          requiredQuery: [
+            "product"
+          ],
+          note: "requiredQuery proven live 2026-09-10: product."
+        },
         "GET /users/search": {
           reach: "refused",
           note: "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it."
+        },
+        "GET /vibe-ai/folders": {
+          reach: "proven",
+          requiredQuery: [
+            "alt_id"
+          ],
+          note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them. requiredQuery proven live 2026-09-10: alt_id."
+        },
+        "GET /vibe-ai/projects": {
+          reach: "proven",
+          requiredQuery: [
+            "alt_id"
+          ],
+          note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them. requiredQuery proven live 2026-09-10: alt_id."
         },
         "GET /workflow/agent/{locationId}/mcp-connections": {
           reach: "proven"
@@ -53357,7 +53334,7 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         "GET /workflow/{locationId}/workflow-templates": {
           reach: "proven"
         },
-        "GET /workflow/{locationId}/{wid}": {
+        "GET /workflow/{locationId}/{workflowId}": {
           note: `?version=N is ACCEPTED, silently IGNORED, and the CURRENT document is returned wearing its real version number (live 2026-09-02: ?version=1 -> "version": 3). Nothing errors, so a 'recovery' read can restore the corruption over itself and look successful. Use the version-history rail instead -- history / history-by-number -- which the typed get_workflow_version already does.`
         },
         "GET /workflow/{locationId}/{workflowId}/history": {
@@ -53471,9 +53448,69 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           summary: "Deactivates a payment link. Body {activeValue:false, altId, altType}.",
           note: "Deactivates but CANNOT reactivate: activeValue:true returns 400 'Error activating link. Please update automatic deactivation configuration to activate'. Reactivation is the full-document PUT with active:true. A deactivated link renders only 'Payment link deactivated / CODE:- PAYMENT_LINK_DEACTIVATED' to the customer -- no product, no form -- which is why a deposit link must never carry an automatic deactivation date."
         },
+        "POST /actions/dynamic-source-details/{key}": {
+          note: `\u{1F534} THE BASE IS /workflows-marketplace, NOT the service root. At the root this path answers 404 with an EMPTY body (or Express's "Cannot POST ..."), which reads like a dead endpoint; under /workflows-marketplace the same path answers from a real service \u2014 400 "Action does not exists for this key" / "Trigger does not exists for this key", or 403 "locationId is required". Route existence is proven; a 200 additionally needs a marketplace app installed on the account, which the sandbox has none of.`
+        },
+        "POST /actions/published/{type}/dynamic-fields": {
+          note: `\u{1F534} THE BASE IS /workflows-marketplace, NOT the service root. At the root this path answers 404 with an EMPTY body (or Express's "Cannot POST ..."), which reads like a dead endpoint; under /workflows-marketplace the same path answers from a real service \u2014 400 "Action does not exists for this key" / "Trigger does not exists for this key", or 403 "locationId is required". Route existence is proven; a 200 additionally needs a marketplace app installed on the account, which the sandbox has none of.`
+        },
+        "POST /actions/{type}/branches": {
+          note: `\u{1F534} THE BASE IS /workflows-marketplace, NOT the service root. At the root this path answers 404 with an EMPTY body (or Express's "Cannot POST ..."), which reads like a dead endpoint; under /workflows-marketplace the same path answers from a real service \u2014 400 "Action does not exists for this key" / "Trigger does not exists for this key", or 403 "locationId is required". Route existence is proven; a 200 additionally needs a marketplace app installed on the account, which the sandbox has none of.`
+        },
+        "POST /agent-logs/contacts": {
+          kind: "read",
+          reach: "proven",
+          summary: "Agent Logs Contacts tab: one row per contact with products, channels, conversation and token totals.",
+          note: "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone \u2014 either credential reaches this surface). Ignores the logs-only filters (contentSearch, metadataFilters, agentId, agentName, contactId) and emits NO nextPageToken, so it is hard-capped at offset 500. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
+          requiredQuery: [
+            "locationId"
+          ]
+        },
+        "POST /agent-logs/filter-values": {
+          kind: "read",
+          reach: "proven-live",
+          summary: "Dropdown values for one filter field, derived from that location\u2019s data.",
+          note: 'Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone \u2014 either credential reaches this surface). `field` is the one strictly validated enum: 422 "field must be one of the following values: agentName, channel, contactName, voiceName". limit caps at 100 and the list is never scoped by products/timeRange.'
+        },
+        "POST /agent-logs/logs": {
+          kind: "read",
+          reach: "proven",
+          summary: "Agent Logs Sessions table. A POST that READS (201).",
+          note: 'Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone \u2014 either credential reaches this surface). Offset ceiling: (page-1)*limit must be <=500 or 400 "Page too deep"; `limit` is uncapped and `pageToken` (body, and ONLY when `page` is omitted) walks past it. Values are never validated \u2014 a bogus timeRange/sortBy is silently ignored, a bogus product/channel filters to 0 rows. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.',
+          requiredQuery: [
+            "locationId"
+          ]
+        },
+        "POST /agent-logs/metrics": {
+          kind: "read",
+          reach: "proven",
+          summary: "Agent Logs Metrics tab: 35 widget datasets (overview, topModels/Tools/Agents/Contacts, time series, voice-call stats).",
+          note: "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone \u2014 either credential reaches this surface). A non-empty widgetIds \u2014 even a bogus value \u2014 drops voiceAiCallStats and callSentimentStats. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
+          requiredQuery: [
+            "locationId"
+          ]
+        },
+        "POST /agent-logs/metrics-layouts": {
+          kind: "write",
+          reach: "proven",
+          summary: "Create a Metrics dashboard layout.",
+          note: 'The UI calls this automatically when metrics-layouts is empty, seeding {name:"Default", isDefault:true, version:2}. Never called during mapping. Executed on the sandbox 2026-09-10, read back on a separate request (0 -> 1 layout, found by name). Body is exactly {locationId, name, widgets} with `widgets` at the TOP LEVEL \u2014 nesting it under a `layout` key answers 422 ["widgets must be an array"]. host:"ai" (services.leadconnectorhq.com); the read returns {status, layouts[], traceId} so a caller reading `.data` gets nothing.'
+        },
         "POST /appengine/workflow/sendElizaMailToAgencyAdmin": {
           kind: "destructive",
           note: "Sends a real email to the agency admin."
+        },
+        "POST /brand-boards/voices/{locationId}/default": {
+          reach: "proven",
+          note: "Executed on the sandbox 2026-09-10 against this project's own TEST-CAP brand voice: body {brandVoiceId, locationId}, answers 200 {success, message, brandVoiceId, locationId}, and the voice's isDefault read back false -> true on a separate request. NOTE the probe artifact is LEFT as the default \u2014 there is no obvious unset call on this rail, and the account has exactly one (test) voice, so nothing real was displaced."
+        },
+        "POST /communities/{locationId}/groups": {
+          reach: "proven",
+          note: 'Executed on the designated sandbox 2026-09-10, read back on a separate request. Body {name, description, locationId, slug}. \u{1F534} `slug` is REQUIRED and is announced in the MONGOOSE dialect \u2014 {"errors":{"slug":{"message":"Path `slug` is required."}}} \u2014 with no `message` array, so a reader parsing only the NestJS shape sees nothing. Proven by differential: 0 -> 1 group, found by name.'
+        },
+        "POST /contacts/search": {
+          reach: "proven",
+          note: 'Executed on the designated sandbox 2026-09-10, write-parity sweep, read back on a separate request. A READ-shaped POST. Body {locationId, page, pageLimit, filters:[]} returns {contacts:[...]} \u2014 an empty filters array is accepted and means "no filter", unlike scheduler-trigger/preview which refuses one.'
         },
         "POST /contacts/search/2": {
           note: "Silently ignores a filter it does not understand and returns 200 with a plausible WRONG row -- always run a baseline and a KNOWN-ZERO control, never a single query. Filter FIELDS and OPERATORS are validated (422, and an invalid operator prints the whole 22-value enum); COLUMN keys are not. Fields are snake_case (first_name works, firstName 422s). On a keyword field eq/contains/match are exact SYNONYMS -- `contains` is NOT substring; only `wildcard` with an explicit * is partial. `active_workflows_2`/`finished_workflows_2` filter workflow membership; `finished_workflows` WITHOUT the _2 validates and silently matches nothing. includeTotal:true is what makes `total` appear, and pageLimit:0 returns the count alone.",
@@ -53489,8 +53526,39 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         "POST /conversations/providers/tiktok/posts/{id}": {
           kind: "read"
         },
+        "POST /courses/.../product-themes": {
+          note: '\u{1F534} THIS ROW IS UNCALLABLE: its path contains a literal "..." left by the source miner, and unlike the other truncated rows it has NO full-path twin in the catalogue \u2014 the real path was lost in mining and needs re-capture before this endpoint can be reached at all. Measured 2026-09-10.'
+        },
+        "POST /courses/analytics/locations/{locationId}/members/count": {
+          note: "\u{1F534} ANSWERS 2xx TO AN EMPTY BODY. Measured 2026-09-10 on the sandbox: POST/PUT with `{}` returned 2xx. That is a HAZARD, not a capability \u2014 this rail has a known case (attach-offer-user) where an empty body is acknowledged with the same 200 a real grant returns, so a 2xx here says nothing about what was stored and may mean a real mutation ran with defaults. Never record this row as proven on an empty-body 2xx; supply a real body and read the object back."
+        },
         "POST /emails/tracking/links": {
           kind: "read"
+        },
+        "POST /events-management/event": {
+          note: 'Refuses with 422 ["type must be a valid enum value"] \u2014 the field is named but its MEMBERS are not, unlike sibling errors on this API which spell the vocabulary out ("product must be one of the following values: ask-ai, ..."). Supplying a value here would test the guess rather than the row, so it was left. This is what blocks the five read rows keyed on {eventId}: the sandbox holds zero events and one cannot be minted without the enum.'
+        },
+        "POST /events-management/tickets": {
+          note: 'Named its own requirements on 2026-09-10: {eventId, price, quantity} \u2014 price and quantity must be NUMBERS (filled with an empty string they answer "must be a number" indefinitely). Unproven because the sandbox holds zero events, so there is no eventId to attach a ticket to. Not a reach problem; a fixture problem.'
+        },
+        "POST /forms/folder/": {
+          reach: "proven",
+          note: 'Executed on the designated sandbox 2026-09-10, write-parity sweep, with a read-back on a separate request. \u{1F534} `productType` is REQUIRED and is not in any declared schema \u2014 omit it and the call answers 422 ["productType should not be empty","productType must be a string"]. "form" is proven; the folder list is also scoped by productType, so a folder created under one value is invisible to a read using another. Proven by differential: 0 -> 1 folder, found by name.'
+        },
+        "POST /funnels/builder/prebuilt-section": {
+          reach: "refused",
+          note: 'Answers 401 {"statusCode":401,"message":"Unauthorized Exception"} to a location credential, 2026-09-10, while its GET counterpart returns 17 sections on the same token. The 401 carries no field name, so unlike the usual GHL 401 this is a genuine permission boundary rather than a validation failure in disguise \u2014 saving a prebuilt section is very likely an agency-level gesture. Reading them is fine; writing one is not, from here.'
+        },
+        "POST /funnels/builder/publish-version": {
+          reach: "proven",
+          note: "Live-proven 2026-09-10 with a 4-step differential. Body {pageId, versionId, userId}; userId is the JWT's authClassId and omitting it 422s. A published version is stamped pageType:'live', NOT 'published'. \u{1F534} Publishing PINS the public page to that version: the renderer serves the newest live version if one exists and falls back to the newest draft only while a page has NEVER been published, so after the first publish every later autosave is invisible in public with a 201 on each one."
+        },
+        "POST /funnels/page/create-page": {
+          note: '\u{1F534} Body needs `step` as an OBJECT, not a name \u2014 422 ["step should not be empty","step must be an object"] otherwise. Supply the full create-step shape INCLUDING a client-minted step.id (rule 24: a server-minted step is unrepairable). With that body the call answered **524, a Cloudflare edge TIMEOUT**, on 2026-09-10. A 524 is an UNKNOWN, not a failure \u2014 the origin may still have committed. Checked afterwards and it wrote NOTHING: steps, pages and routing rows were all unchanged. Always read back after a 524 here rather than retrying blind, or a retry can double-create.'
+        },
+        "POST /knowledge-base/": {
+          reach: "proven",
+          note: "Executed on the sandbox 2026-09-11 \u2014 body {name, locationId} answers 201 and the base is readable immediately. Minted to unblock the three read rows keyed on {knowledgeBaseId}, which had no verdict purely because the account held no knowledge base."
         },
         "POST /locations/{locationId}/customValues": {
           reach: "proven",
@@ -53504,9 +53572,57 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         "POST /marketplace/core/apps/connection-status/bulk": {
           kind: "read"
         },
+        "POST /membership/.../categories": {
+          note: '\u{1F534} THIS ROW IS UNCALLABLE: its path contains a literal "..." left by the source miner, so every request 404s. 15 rows are in this state, all on this service. 11 of them \u2014 including this one \u2014 duplicate a full-path row already in the catalogue; use that one instead. Measured 2026-09-10.'
+        },
+        "POST /membership/.../certificate-attachments": {
+          note: '\u{1F534} THIS ROW IS UNCALLABLE: its path contains a literal "..." left by the source miner, so every request 404s. 15 rows are in this state, all on this service. 11 of them \u2014 including this one \u2014 duplicate a full-path row already in the catalogue; use that one instead. Measured 2026-09-10.'
+        },
+        "POST /membership/.../media/signed-url": {
+          note: '\u{1F534} THIS ROW IS UNCALLABLE: its path contains a literal "..." left by the source miner, so every request 404s. 15 rows are in this state, all on this service. 11 of them \u2014 including this one \u2014 duplicate a full-path row already in the catalogue; use that one instead. Measured 2026-09-10.'
+        },
+        "POST /membership/.../offers": {
+          note: '\u{1F534} THIS ROW IS UNCALLABLE: its path contains a literal "..." left by the source miner, so every request 404s. 15 rows are in this state, all on this service. 11 of them \u2014 including this one \u2014 duplicate a full-path row already in the catalogue; use that one instead. Measured 2026-09-10.'
+        },
+        "POST /membership/.../posts": {
+          note: '\u{1F534} THIS ROW IS UNCALLABLE: its path contains a literal "..." left by the source miner, so every request 404s. 15 rows are in this state, all on this service. 11 of them \u2014 including this one \u2014 duplicate a full-path row already in the catalogue; use that one instead. Measured 2026-09-10.'
+        },
+        "POST /membership/.../products": {
+          note: '\u{1F534} THIS ROW IS UNCALLABLE: its path contains a literal "..." left by the source miner, so every request 404s. 15 rows are in this state, all on this service. 11 of them \u2014 including this one \u2014 duplicate a full-path row already in the catalogue; use that one instead. Measured 2026-09-10.'
+        },
+        "POST /membership/.../videos": {
+          note: '\u{1F534} THIS ROW IS UNCALLABLE: its path contains a literal "..." left by the source miner, so every request 404s. 15 rows are in this state, all on this service. 11 of them \u2014 including this one \u2014 duplicate a full-path row already in the catalogue; use that one instead. Measured 2026-09-10.'
+        },
+        "POST /membership/locations/{locationId}/categories": {
+          reach: "proven",
+          note: 'Executed on the designated sandbox 2026-09-10, read back on a separate request. Body {title, locationId, productId} \u2014 a category belongs to a COURSE. \u{1F534} `productId` is announced in the SEQUELIZE dialect \u2014 {"msg":"notNull Violation: Category.productId cannot be null"} \u2014 again with no `message` array. Proven by differential: 1 -> 2 categories, found by title.'
+        },
+        "POST /membership/locations/{locationId}/comments/filtered": {
+          note: "\u{1F534} ANSWERS 2xx TO AN EMPTY BODY. Measured 2026-09-10 on the sandbox: POST/PUT with `{}` returned 2xx. That is a HAZARD, not a capability \u2014 this rail has a known case (attach-offer-user) where an empty body is acknowledged with the same 200 a real grant returns, so a 2xx here says nothing about what was stored and may mean a real mutation ran with defaults. Never record this row as proven on an empty-body 2xx; supply a real body and read the object back."
+        },
+        "POST /membership/locations/{locationId}/settings/builder-settings": {
+          note: "\u{1F534} ANSWERS 2xx TO AN EMPTY BODY. Measured 2026-09-10 on the sandbox: POST/PUT with `{}` returned 2xx. That is a HAZARD, not a capability \u2014 this rail has a known case (attach-offer-user) where an empty body is acknowledged with the same 200 a real grant returns, so a 2xx here says nothing about what was stored and may mean a real mutation ran with defaults. Never record this row as proven on an empty-body 2xx; supply a real body and read the object back."
+        },
+        "POST /membership/locations/{locationId}/settings/site-info": {
+          note: "\u{1F534} ANSWERS 2xx TO AN EMPTY BODY. Measured 2026-09-10 on the sandbox: POST/PUT with `{}` returned 2xx. That is a HAZARD, not a capability \u2014 this rail has a known case (attach-offer-user) where an empty body is acknowledged with the same 200 a real grant returns, so a 2xx here says nothing about what was stored and may mean a real mutation ran with defaults. Never record this row as proven on an empty-body 2xx; supply a real body and read the object back."
+        },
+        "POST /membership/smart-list/attach-offer-user": {
+          kind: "write",
+          summary: "Grants a published offer to a contact, which is what puts them in the course. Body is `{contactId, offerId, source:'admin'}` -- SINGULAR contactId, and no locationId (the location comes from the sourceid header the gateway already sends). Async: the response is an enqueue ack.",
+          note: 'Its 200 CARRIES NO INFORMATION ABOUT THE PAYLOAD. Live-proven on the test sub-account 2026-09-07: an empty body `{}`, fabricated ids, and the wrong key names each return the identical `200 {ok:true, msg:"The request to attach the offer to the user has been successfully queued"}` a real grant returns. The control that makes that a measurement: a nonexistent sibling path answers `404 {"msg":"Not found"}`, so the 200 is this route replying and not a catch-all. Two operators have now sent `{locationId, offerId, contactIds:[...]}` or `userIds:[...]`, been told it was queued, and granted nothing. The ONLY proof a grant landed is `GET services.../membership/locations/{loc}/products/user-progress/{productId}` containing the contactId you granted -- and check for THAT contact, not for a non-empty list, which passes on a pre-existing member. Revoke is a different path: DELETE /membership/smart-list/user-offer-management with a body.',
+          reach: "proven-live"
+        },
         "POST /objects/{objectKey}/records/search": {
           kind: "read",
           summary: "Search records of a custom object by filter."
+        },
+        "POST /opportunities/lost-reason": {
+          reach: "proven",
+          note: "Executed on the designated sandbox 2026-09-10, write-parity sweep, with a read-back on a separate request. Body {name, locationId}; locationId is also required in the QUERY. Proven by differential: 7 -> 8 reasons, found by name. Returns {lostReason:{_id,...}}."
+        },
+        "POST /opportunities/pipelines": {
+          reach: "proven",
+          note: "Executed on the designated sandbox 2026-09-10, write-parity sweep, read back on a separate request. Body {name, locationId, stages:[{name, position}]}. Proven by differential: 6 -> 7 pipelines, found by name."
         },
         "POST /phone-system/call-dispositions": {
           requiredQuery: [
@@ -53516,11 +53632,43 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           summary: 'Creates a call disposition. Body is {"name": "..."}.',
           note: `locationId must be in the QUERY. With it in the BODY only, the POST returns 403 {"message":"Forbidden resource","message_code":"FORBIDDEN"} -- which reads as a credential problem and is actually 'this request names no location'. Not referer-gated. The server assigns isDefault, orderingKey and meta.createdBy; sending them is accepted and ignored. call_status triggers match a disposition BY NAME (array value, contains-any), so the name must match exactly, case included.`
         },
+        "POST /snapshots-appengine/v2/snapshots": {
+          reach: "proven",
+          note: "Executed through the plugin credential on the designated sandbox, 2026-09-10, as part of the snapshot parity run: list -> manifest -> conflicts -> create -> refresh, with the create read back on a separate request (snapshot count 8 -> 9 and the new snapshot found by name and id)."
+        },
+        "POST /snapshots-appengine/v2/snapshots/{snapshotId}/refresh": {
+          reach: "proven",
+          note: "Executed through the plugin credential on the designated sandbox, 2026-09-10, as part of the snapshot parity run: list -> manifest -> conflicts -> create -> refresh, with the create read back on a separate request (snapshot count 8 -> 9 and the new snapshot found by name and id)."
+        },
+        "POST /snapshots/{snapshotId}/conflicts": {
+          reach: "proven",
+          note: "Executed through the plugin credential on the designated sandbox, 2026-09-10, as part of the snapshot parity run: list -> manifest -> conflicts -> create -> refresh, with the create read back on a separate request (snapshot count 8 -> 9 and the new snapshot found by name and id)."
+        },
+        "POST /snapshots/{snapshotId}/snapshot-preferences": {
+          note: '\u{1F534} Answers 201 {"success":true,"message":"Snapshot preferences upserted successfully"} and the value does NOT appear in the read-back (2026-09-10, on a snapshot this project created). Do not read that message as confirmation. Note the likely cause is on the caller side, not the server: the GET returns {"success":true,"data":[]} \u2014 preferences are a LIST \u2014 and the probe sent a single object, so the shape is probably wrong. Either way the message is not evidence of storage; read the preference back before believing it.'
+        },
+        "POST /snippets/{locationId}": {
+          reach: "proven",
+          note: 'Executed on the designated sandbox 2026-09-10, write-parity sweep, read back on a separate request. Body {name, locationId, body, type} \u2014 `type` is the channel ("sms" proven). Proven by differential: 7 -> 8 snippets, found by name.'
+        },
+        "POST /surveys/folder/": {
+          reach: "proven",
+          note: 'Executed on the designated sandbox 2026-09-10, write-parity sweep, read back on a separate request. \u{1F534} REFUSES `productType` \u2014 422 ["property productType should not exist"] \u2014 while its sibling POST /forms/folder/ REQUIRES it. Two folder endpoints on the same service with opposite contracts; do not copy one body to the other. Body is just {name, locationId}. Proven: 0 -> 1 folder, found by name.'
+        },
         "POST /templates/list": {
           kind: "read"
         },
         "POST /templates/template/load": {
           kind: "read"
+        },
+        "POST /triggers/dynamic-source-details/{key}": {
+          note: `\u{1F534} THE BASE IS /workflows-marketplace, NOT the service root. At the root this path answers 404 with an EMPTY body (or Express's "Cannot POST ..."), which reads like a dead endpoint; under /workflows-marketplace the same path answers from a real service \u2014 400 "Action does not exists for this key" / "Trigger does not exists for this key", or 403 "locationId is required". Route existence is proven; a 200 additionally needs a marketplace app installed on the account, which the sandbox has none of.`
+        },
+        "POST /triggers/dynamic-source/{key}": {
+          note: `\u{1F534} THE BASE IS /workflows-marketplace, NOT the service root. At the root this path answers 404 with an EMPTY body (or Express's "Cannot POST ..."), which reads like a dead endpoint; under /workflows-marketplace the same path answers from a real service \u2014 400 "Action does not exists for this key" / "Trigger does not exists for this key", or 403 "locationId is required". Route existence is proven; a 200 additionally needs a marketplace app installed on the account, which the sandbox has none of.`
+        },
+        "POST /triggers/published/{type}/dynamic-fields": {
+          note: `\u{1F534} THE BASE IS /workflows-marketplace, NOT the service root. At the root this path answers 404 with an EMPTY body (or Express's "Cannot POST ..."), which reads like a dead endpoint; under /workflows-marketplace the same path answers from a real service \u2014 400 "Action does not exists for this key" / "Trigger does not exists for this key", or 403 "locationId is required". Route existence is proven; a 200 additionally needs a marketplace app installed on the account, which the sandbox has none of.`
         },
         "POST /workflow/flowguard/blacklist/contact/{contactId}": {
           kind: "destructive",
@@ -53556,18 +53704,47 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         "POST /workflow/{locationId}/adwords": {
           kind: "read"
         },
+        "POST /workflow/{locationId}/ai/custom-code-ai": {
+          reach: "proven",
+          note: 'Executed on the designated sandbox 2026-09-10, workflows write-parity sweep. \u{1F534} workflowId and sessionId go in the QUERY STRING, not the body \u2014 sent in the body they are not seen and the endpoint answers 422 "Workflow ID is required" / "Session ID is required", one field per round. `messages` is a chat array [{role,content}] in the body; `prompt` is refused with "Messages are required". Proven: returned the generated snippet "{{input}}".'
+        },
+        "POST /workflow/{locationId}/ai/email-ai": {
+          note: 'Executed on the designated sandbox 2026-09-10, workflows write-parity sweep. \u{1F534} workflowId and sessionId go in the QUERY STRING, not the body \u2014 sent in the body they are not seen and the endpoint answers 422 "Workflow ID is required" / "Session ID is required", one field per round. `messages` is a chat array [{role,content}] in the body; `prompt` is refused with "Messages are required". With the same complete arguments it answers 500 "Something went wrong. Please try again later." \u2014 a server fault, not a caller defect. Left unproven deliberately.'
+        },
+        "POST /workflow/{locationId}/ai/sms-ai": {
+          reach: "proven",
+          note: 'Executed on the designated sandbox 2026-09-10, workflows write-parity sweep. \u{1F534} workflowId and sessionId go in the QUERY STRING, not the body \u2014 sent in the body they are not seen and the endpoint answers 422 "Workflow ID is required" / "Session ID is required", one field per round. `messages` is a chat array [{role,content}] in the body; `prompt` is refused with "Messages are required". Proven 200.'
+        },
         "POST /workflow/{locationId}/drip-schedule/preview": {
           kind: "read"
         },
         "POST /workflow/{locationId}/email/send-test-email": {
           kind: "destructive"
         },
+        "POST /workflow/{locationId}/folder": {
+          note: '\u{1F534} WRONG PATH IN THIS ROW: /workflow/{locationId}/folder answers 404 {"msg":"Not found"}. The real path is **/workflow/{locationId}/directory**, proven on the sandbox 2026-09-10 \u2014 body {name, locationId}, answers 200 {id}, and the folder count in /workflow/{locationId}/list went 6 -> 7 with the new folder found by name. Folders appear in that list as rows with type "directory".'
+        },
         "POST /workflow/{locationId}/run-single-action": {
           kind: "destructive",
           note: "Despite the name, run-single-action EXECUTES the action to produce its sample. For a send step that means a real message."
         },
+        "POST /workflow/{locationId}/scheduler-trigger/preview": {
+          reach: "proven",
+          note: 'Executed on the designated sandbox 2026-09-10 in the workflows write-parity run. \u{1F534} `conditions` must be a NON-EMPTY array or it answers 400 "conditions array is required and cannot be empty" \u2014 an empty array is refused, not treated as "no filter". Proven with [{field:"dayOfWeek",value:"monday"}]; returns {success:true, executions:[]}.'
+        },
         "POST /workflow/{locationId}/sms/send-test-sms": {
           kind: "destructive"
+        },
+        "POST /workflow/{locationId}/tags/create": {
+          note: 'Executed on the designated sandbox 2026-09-10, workflows write-parity sweep. Refused four body shapes ({name}, {tags:[]}, +locationId, +workflowId) with a bare-string 400 "Bad Request" \u2014 no validation detail, so the shape is still unknown. Not a reach failure; a shape we have not found.'
+        },
+        "POST /workflow/{locationId}/v3/ai/message": {
+          reach: "proven",
+          note: 'Executed on the designated sandbox 2026-09-10, workflows write-parity sweep. Body {sessionId, messages}; workflowId in the QUERY. Responds as an SSE STREAM (data: {"type":"data-workflow-event"...}) carrying a langfuse traceId, not a JSON object.'
+        },
+        "POST /workflow/{locationId}/v3/ai/wait": {
+          reach: "proven",
+          note: 'Executed on the designated sandbox 2026-09-10, workflows write-parity sweep. \u{1F534} Takes `prompt` (a string), NOT `messages` \u2014 the sibling v3/ai/message takes messages, so the two disagree. Body {sessionId, prompt, mode:"create"}, workflowId in the query. Returns {status:"proceed", mode, waitAttributes:{...}} \u2014 a ready-made wait step.'
         },
         "POST /workflow/{locationId}/{workflowId}/remove-stuck-statuses/{stepId}": {
           kind: "destructive"
@@ -53621,6 +53798,47 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           note: "A POST that RETURNS 201 for what is plainly a read. Its window is the last 30 days, unlike the 7-week enrollment chart beside it on the same screen. Executed on the designated sandbox 2026-09-10 in the workflows write-parity run. Answers 201 with [{total,matched}] as counted strings. Body {locationId, workflowId[]} \u2014 locationId is REQUIRED in the body, not the query.",
           reach: "proven"
         },
+        "PUT /agent-logs/metrics-layouts/{layoutId}": {
+          kind: "write",
+          reach: "source-only",
+          summary: "Update a Metrics dashboard layout.",
+          note: "Never called during mapping; read-only sweep."
+        },
+        "PUT /calendars/{calendarId}": {
+          reach: "proven",
+          note: 'Executed on the sandbox 2026-09-10 by round trip \u2014 description changed, read back on a separate request, restored. \u{1F534} THE READ SHAPE IS NOT THE WRITE SHAPE. Sending back what GET returns answers 422 twice over. First it names ten server-added properties that "should not exist" and must be stripped: id, deleted, dateAdded, dateUpdated, isSystemGenerated, locationId, createdBy, lastUpdatedBy, version, notificationStatus. Then it rejects `openHours` \u2014 the sub-object the GET itself returned \u2014 with "openHours.must be a valid day of week / daysOfTheWeek must be an array / hours must be an array". Dropping openHours entirely lands a 200 and leaves the stored hours alone. So a naive read-modify-write is refused, and the refusal arrives one layer at a time.'
+        },
+        "PUT /email-isv/feature/domain/set-default-headers/{domain}": {
+          kind: "write",
+          note: "\u{1F534} THE EMAIL SENDER DISPLAY NAME, and it is WRITABLE \u2014 it had been reported to a client as UI-only. Body {fromEmail, fromName}; send BOTH, the handler takes them together so omitting fromEmail may clear it. Scope key is companyId for entityType COMPANY, else locationId. \u26A0\uFE0F NOT PROVEN HERE \u2014 no reach. The only execution is a PEER SESSION's, on a CLIENT account this project may never write to, verified there by re-reading two independent services \u2014 fromEmail, warmup, defaultDomain and all eight types[] percentages survived untouched. \u{1F534} HIGH BLAST RADIUS, NEEDS EXPLICIT HUMAN APPROVAL: types[] read all eight rails at 100% (calendar, invoices, oneToOne, bulk-request, campaign, workflow, client-portal, client-portal-otp), so this one field is the sender identity on INVOICES and on replies staff type by hand in Conversations. It cannot be scoped to one rail. It could not be reproduced on GROM Sandbox: that account has zero sending domains, so there is nothing to address. Proving it needs a domain on a test sub-account AND the user's explicit word, because of the blast radius below. \u26A0\uFE0F SCOPE OF THE EVIDENCE: the one account behind this row read domainOwnershipType 'location_owned', type 'leadconnector'. The agency-owned and shared-domain shapes have never been seen, and a shared domain's headers are plausibly not a single location's to set \u2014 do not generalise this row to them. SCOPE: this addresses a domain from /email-isv/feature/domain/list, which carries only LOCATION-OWNED domains. On an account whose sending domain is agency-owned the list is empty and there is no reachable target at all \u2014 check list is non-empty before offering this as the way to change a sender name."
+        },
+        "PUT /membership/.../categories": {
+          note: '\u{1F534} THIS ROW IS UNCALLABLE: its path contains a literal "..." left by the source miner, and unlike the other truncated rows it has NO full-path twin in the catalogue \u2014 the real path was lost in mining and needs re-capture before this endpoint can be reached at all. Measured 2026-09-10.'
+        },
+        "PUT /membership/.../categories/{id}": {
+          note: '\u{1F534} THIS ROW IS UNCALLABLE: its path contains a literal "..." left by the source miner, so every request 404s. 15 rows are in this state, all on this service. 11 of them \u2014 including this one \u2014 duplicate a full-path row already in the catalogue; use that one instead. Measured 2026-09-10.'
+        },
+        "PUT /membership/.../posts": {
+          note: '\u{1F534} THIS ROW IS UNCALLABLE: its path contains a literal "..." left by the source miner, and unlike the other truncated rows it has NO full-path twin in the catalogue \u2014 the real path was lost in mining and needs re-capture before this endpoint can be reached at all. Measured 2026-09-10.'
+        },
+        "PUT /membership/.../posts/{id}": {
+          note: '\u{1F534} THIS ROW IS UNCALLABLE: its path contains a literal "..." left by the source miner, so every request 404s. 15 rows are in this state, all on this service. 11 of them \u2014 including this one \u2014 duplicate a full-path row already in the catalogue; use that one instead. Measured 2026-09-10.'
+        },
+        "PUT /membership/.../products": {
+          note: '\u{1F534} THIS ROW IS UNCALLABLE: its path contains a literal "..." left by the source miner, and unlike the other truncated rows it has NO full-path twin in the catalogue \u2014 the real path was lost in mining and needs re-capture before this endpoint can be reached at all. Measured 2026-09-10.'
+        },
+        "PUT /membership/locations/{locationId}/categories/sequence": {
+          note: "\u{1F534} ANSWERS 2xx TO AN EMPTY BODY. Measured 2026-09-10 on the sandbox: POST/PUT with `{}` returned 2xx. That is a HAZARD, not a capability \u2014 this rail has a known case (attach-offer-user) where an empty body is acknowledged with the same 200 a real grant returns, so a 2xx here says nothing about what was stored and may mean a real mutation ran with defaults. Never record this row as proven on an empty-body 2xx; supply a real body and read the object back."
+        },
+        "PUT /membership/locations/{locationId}/posts/material/sequence": {
+          note: "\u{1F534} ANSWERS 2xx TO AN EMPTY BODY. Measured 2026-09-10 on the sandbox: POST/PUT with `{}` returned 2xx. That is a HAZARD, not a capability \u2014 this rail has a known case (attach-offer-user) where an empty body is acknowledged with the same 200 a real grant returns, so a 2xx here says nothing about what was stored and may mean a real mutation ran with defaults. Never record this row as proven on an empty-body 2xx; supply a real body and read the object back."
+        },
+        "PUT /membership/locations/{locationId}/posts/sequence": {
+          note: "\u{1F534} ANSWERS 2xx TO AN EMPTY BODY. Measured 2026-09-10 on the sandbox: POST/PUT with `{}` returned 2xx. That is a HAZARD, not a capability \u2014 this rail has a known case (attach-offer-user) where an empty body is acknowledged with the same 200 a real grant returns, so a 2xx here says nothing about what was stored and may mean a real mutation ran with defaults. Never record this row as proven on an empty-body 2xx; supply a real body and read the object back."
+        },
+        "PUT /membership/locations/{locationId}/products/library-order": {
+          note: "\u{1F534} ANSWERS 2xx TO AN EMPTY BODY. Measured 2026-09-10 on the sandbox: POST/PUT with `{}` returned 2xx. That is a HAZARD, not a capability \u2014 this rail has a known case (attach-offer-user) where an empty body is acknowledged with the same 200 a real grant returns, so a 2xx here says nothing about what was stored and may mean a real mutation ran with defaults. Never record this row as proven on an empty-body 2xx; supply a real body and read the object back."
+        },
         "PUT /opportunities/pipelines/{pipelineId}": {
           kind: "write",
           requiredQuery: [
@@ -53645,6 +53863,10 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           kind: "destructive",
           note: "COMPANY-scope bulk write across sub-accounts, not one location."
         },
+        "PUT /workflow/{locationId}/auto-save/settings": {
+          reach: "proven",
+          note: "Executed on the designated sandbox 2026-09-10 in the workflows write-parity run. Round-tripped: isActive flipped, read back changed on a separate request, and restored. Send the whole settings document back, not a patch."
+        },
         "PUT /workflow/{locationId}/change-status": {
           kind: "destructive",
           reach: "proven-live",
@@ -53655,6 +53877,14 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           kind: "destructive",
           note: "Publishes or unpublishes a workflow. A live automation stops or starts."
         },
+        "PUT /workflow/{locationId}/error-notification/settings/is-active": {
+          reach: "proven",
+          note: "Executed on the designated sandbox 2026-09-10 in the workflows write-parity run. Round-tripped on {isActive}; read back changed and restored. Its read is GET /workflow/{locationId}/error-notification/settings."
+        },
+        "PUT /workflow/{locationId}/error-notification/settings/users": {
+          reach: "proven",
+          note: "Executed on the designated sandbox 2026-09-10 in the workflows write-parity run. Round-tripped on {users:[userId]}; read back changed ([] -> [id]) and restored."
+        },
         "PUT /workflow/{locationId}/move": {
           kind: "destructive",
           note: "Bulk move across workflows. Moving a PUBLISHED workflow is how a live automation ends up filed in a staging folder."
@@ -53662,12 +53892,6 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         "PUT /workflow/{locationId}/move-directory/{workflowId}": {
           summary: "Move ONE workflow between folders. The only route that accepts a null parent, i.e. the only way back to root.",
           note: 'The BATCH move cannot reach root -- null, "" and "root" all 404. Use this per-workflow route instead.'
-        },
-        "PUT /workflow/{locationId}/only-triggers/{id}": {
-          kind: "write",
-          reach: "proven",
-          summary: "Same route as the {wid} row \u2014 also live-proven INERT for trigger content, see that row.",
-          note: "Same route as the {wid} row; the miner produced both spellings from different call sites \u2014 see that row's note. This does not persist a trigger edit either."
         },
         "PUT /workflow/{locationId}/only-triggers/{wid}": {
           kind: "write",
@@ -53682,547 +53906,21 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         "PUT /workflow/{locationId}/permissions": {
           kind: "destructive"
         },
+        "PUT /workflow/{locationId}/rename-directory/{folderId}": {
+          reach: "proven",
+          note: 'Executed on the designated sandbox 2026-09-10 in the workflows write-parity run. Folder rename. Answers 200 {"msg":"Updated successfull","error":false} \u2014 note the typo and that `error:false` is the success signal. Read back changed and restored.'
+        },
         "PUT /workflow/{locationId}/rename-workflow/{workflowId}": {
           kind: "write",
           summary: 'Renames a workflow. Body is {"name": "..."}.',
           note: 'The only rename path that does NOT re-run the step validator. Use it instead of the full-document PUT, which re-validates every stored step and on a workflow whose own saved graph the validator now rejects fails outright with INVALID_FIELD_VALUE -- so a rename by full PUT can be refused on a workflow that is running perfectly well. \u26A0\uFE0F Do NOT rely on it leaving `version` alone: one account observed 4 -> 4 (2026-08-31) and another observed 1 -> 2 on a flow workflow (2026-09-02). The two disagree and the cause is not established, so re-read the digest before any expectedVersion write that follows a rename. Executed on the designated sandbox 2026-09-10 in the workflows write-parity run. \u{1F534} 404s on a FOLDER id, and the body is the bare string "Not Found" \u2014 which reads like a wrong route rather than a wrong object. GET /workflow/{locationId}/list returns BOTH (type "directory" x5 and "workflow" x95 on the sandbox); filter on type before renaming. Proven on a real workflow: {name} written, read back changed, restored.',
           reach: "proven"
         },
-        "PUT /workflow/{locationId}/{wid}": {
-          note: "The full-document commit re-runs the step validator over EVERY stored step, so it can be refused by a published, running workflow's own saved graph (INVALID_FIELD_VALUE, 'Action validation failed: <type> (...): Next is invalid'). The workflow keeps running and cannot be saved by anyone, API or builder. Never use this path for a rename -- rename-workflow skips the validator. Re-read before every write: a successful PUT bumps version and a later PUT built from a stale read 422s."
-        },
-        "POST /agent-logs/logs": {
-          kind: "read",
-          reach: "proven",
-          summary: "Agent Logs Sessions table. A POST that READS (201).",
-          note: 'Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone \u2014 either credential reaches this surface). Offset ceiling: (page-1)*limit must be <=500 or 400 "Page too deep"; `limit` is uncapped and `pageToken` (body, and ONLY when `page` is omitted) walks past it. Values are never validated \u2014 a bogus timeRange/sortBy is silently ignored, a bogus product/channel filters to 0 rows. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.',
-          requiredQuery: [
-            "locationId"
-          ]
-        },
-        "POST /agent-logs/contacts": {
-          kind: "read",
-          reach: "proven",
-          summary: "Agent Logs Contacts tab: one row per contact with products, channels, conversation and token totals.",
-          note: "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone \u2014 either credential reaches this surface). Ignores the logs-only filters (contentSearch, metadataFilters, agentId, agentName, contactId) and emits NO nextPageToken, so it is hard-capped at offset 500. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
-          requiredQuery: [
-            "locationId"
-          ]
-        },
-        "POST /agent-logs/metrics": {
-          kind: "read",
-          reach: "proven",
-          summary: "Agent Logs Metrics tab: 35 widget datasets (overview, topModels/Tools/Agents/Contacts, time series, voice-call stats).",
-          note: "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone \u2014 either credential reaches this surface). A non-empty widgetIds \u2014 even a bogus value \u2014 drops voiceAiCallStats and callSentimentStats. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
-          requiredQuery: [
-            "locationId"
-          ]
-        },
-        "POST /agent-logs/filter-values": {
-          kind: "read",
-          reach: "proven-live",
-          summary: "Dropdown values for one filter field, derived from that location\u2019s data.",
-          note: 'Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone \u2014 either credential reaches this surface). `field` is the one strictly validated enum: 422 "field must be one of the following values: agentName, channel, contactName, voiceName". limit caps at 100 and the list is never scoped by products/timeRange.'
-        },
-        "GET /agent-logs/logs/{sessionId}": {
-          kind: "read",
-          reach: "proven",
-          summary: "Session detail: a 4-key summary plus EVERY interaction inline.",
-          note: "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone \u2014 either credential reaches this surface). Not the same as /summary: fewer summary keys, but all interactions, and it ignores page/limit. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
-          requiredQuery: [
-            "locationId"
-          ]
-        },
-        "GET /agent-logs/logs/{sessionId}/summary": {
-          kind: "read",
-          reach: "proven",
-          summary: "Session summary incl. totalInteractions, durationMs and per-product customConfigs.",
-          note: 'Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone \u2014 either credential reaches this surface). A trace id here 404s "No conversation data found for conversation". requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.',
-          requiredQuery: [
-            "locationId"
-          ]
-        },
-        "GET /agent-logs/logs/{sessionId}/interactions": {
-          kind: "read",
-          reach: "proven",
-          summary: "One row per inbound message; each traceId IS that message\u2019s CRM id.",
-          note: "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone \u2014 either credential reaches this surface). Default limit is 100. A page past the end returns 200 empty; page=0 or negative returns 404. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
-          requiredQuery: [
-            "locationId"
-          ]
-        },
-        "GET /agent-logs/logs/{traceId}/spans": {
-          kind: "read",
-          reach: "proven-live",
-          summary: "The per-message execution trace: splitter branch + reasoning, knowledge chunks, tool calls, model, tokens.",
-          note: 'Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone \u2014 either credential reaches this surface). Path id is the INBOUND MESSAGE id, not a session id (a session id 404s "No spans found for trace"). locationId is required. DO NOT send conversationId: the UI does, and it drops the ai_splitter span \u2014 the branch decision \u2014 from the trace.'
-        },
-        "GET /agent-logs/logs/{sessionId}/metrics": {
-          kind: "read",
-          reach: "proven",
-          summary: "Per-session metrics with a perInteraction[] series.",
-          note: "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone \u2014 either credential reaches this surface). A wrong id returns 200 with zeroes rather than 404. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
-          requiredQuery: [
-            "locationId"
-          ]
-        },
-        "GET /agent-logs/metrics-layouts": {
-          kind: "read",
-          reach: "proven",
-          summary: "Saved Metrics dashboard layouts for the location.",
-          note: "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone \u2014 either credential reaches this surface). Returns {layouts: []} when none exist \u2014 and the UI reacts to that by POSTing a default layout, so opening the Metrics tab in a browser WRITES. The populated shape is unproven. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
-          requiredQuery: [
-            "locationId"
-          ]
-        },
-        "GET /agent-logs/health": {
-          kind: "read",
-          reach: "proven-live",
-          summary: "Service health: {status, timestamp, traceId}.",
-          note: "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone \u2014 either credential reaches this surface)."
-        },
-        "DELETE /agent-logs/logs/{sessionId}": {
-          kind: "write",
-          reach: "source-only",
-          summary: "Delete a conversation log.",
-          note: 'Present in the bundle API client and wired (delete error strings ship) but UI-unreachable \u2014 no row-action string exists for it. NEVER called during mapping; destructive and unproven. \u{1F534} CATALOGUE MISLABEL: this row is DELETE but its `kind` says "write". Any sweep that filters on kind alone will treat it as a safe write. Filter on METHOD as well as kind. Not probed \u2014 nothing is deleted.'
-        },
-        "POST /agent-logs/metrics-layouts": {
-          kind: "write",
-          reach: "proven",
-          summary: "Create a Metrics dashboard layout.",
-          note: 'The UI calls this automatically when metrics-layouts is empty, seeding {name:"Default", isDefault:true, version:2}. Never called during mapping. Executed on the sandbox 2026-09-10, read back on a separate request (0 -> 1 layout, found by name). Body is exactly {locationId, name, widgets} with `widgets` at the TOP LEVEL \u2014 nesting it under a `layout` key answers 422 ["widgets must be an array"]. host:"ai" (services.leadconnectorhq.com); the read returns {status, layouts[], traceId} so a caller reading `.data` gets nothing.'
-        },
-        "PUT /agent-logs/metrics-layouts/{layoutId}": {
-          kind: "write",
-          reach: "source-only",
-          summary: "Update a Metrics dashboard layout.",
-          note: "Never called during mapping; read-only sweep."
-        },
-        "DELETE /agent-logs/metrics-layouts/{layoutId}": {
-          kind: "write",
-          reach: "source-only",
-          summary: "Delete a Metrics dashboard layout.",
-          note: 'Never called during mapping; read-only sweep. \u{1F534} CATALOGUE MISLABEL: DELETE row whose `kind` says "write". Filter on METHOD as well as kind. Not probed.'
-        },
-        "GET /forms": {
-          reach: "proven",
-          note: "Live-proven 2026-09-06 (knowledge corpus/forms). Needs locationId, skip, limit; type=form returns forms only \u2014 ANY other type value (or none) returns forms AND folders in one array. query= is a substring name search; parentId= filters to a folder. Rows carry no formData; GET /forms/{id} does. token-id or Bearer, services or backend \u2014 all reach. The full lifecycle (POST /forms/ create, POST /forms/{id} save {name, formData}, duplicate, restore-version, move-to-folder, folders) is proven in corpus/forms/20-api/forms.md but has no rows here yet: the builder is a separate SPA with a PUBLIC source map (sniffs/forms-2026-09-06/builder-app/tree/src) that the generator does not read \u2014 see plugin/STATUS-2026-09-06-forms-surface.md."
-        },
-        "GET /surveys": {
-          reach: "proven",
-          note: "Live-proven 2026-09-06: {surveys:[], total}; same params as GET /forms. POST /surveys/ {locationId, name, source} creates a survey PRE-SEEDED with one slide (a form starts at formData {}). /surveys/* does NOT mirror /forms/* path for path (corrected 2026-09-07 from a full call-site extraction of the builder SPA): the survey app uses /surveys/\u2026 only for list, create, read, save, image, restore-version, themes and theme-style, and calls the /forms/\u2026 routes for delete, duplicate, share, folder create/read/list/rename and move-to-folder. So /surveys/duplicate/{id}, /surveys/folder and /surveys/move-to-folder are paths nothing in the product calls \u2014 untested, existence unknown. Corpus: knowledge/corpus/forms/20-api/surveys-and-quizzes.md."
-        },
-        "GET /surveys/{id}": {
-          reach: "proven",
-          note: "Live-proven 2026-09-06: {survey:{\u2026, formData:{form, slides[]}}}. Survey save is POST /surveys/{id} {name, formData} (source-derived from the builder SPA; not executed)."
-        },
-        "POST /membership/smart-list/attach-offer-user": {
-          kind: "write",
-          summary: "Grants a published offer to a contact, which is what puts them in the course. Body is `{contactId, offerId, source:'admin'}` -- SINGULAR contactId, and no locationId (the location comes from the sourceid header the gateway already sends). Async: the response is an enqueue ack.",
-          note: 'Its 200 CARRIES NO INFORMATION ABOUT THE PAYLOAD. Live-proven on the test sub-account 2026-09-07: an empty body `{}`, fabricated ids, and the wrong key names each return the identical `200 {ok:true, msg:"The request to attach the offer to the user has been successfully queued"}` a real grant returns. The control that makes that a measurement: a nonexistent sibling path answers `404 {"msg":"Not found"}`, so the 200 is this route replying and not a catch-all. Two operators have now sent `{locationId, offerId, contactIds:[...]}` or `userIds:[...]`, been told it was queued, and granted nothing. The ONLY proof a grant landed is `GET services.../membership/locations/{loc}/products/user-progress/{productId}` containing the contactId you granted -- and check for THAT contact, not for a non-empty list, which passes on a pre-existing member. Revoke is a different path: DELETE /membership/smart-list/user-offer-management with a body.',
-          reach: "proven-live"
-        },
-        "GET /funnels/builder/get-versions": {
-          reach: "proven",
-          note: "Live-proven 2026-09-10. Answers a BARE ARRAY, newest first. The id key is snake_case `version_id` \u2014 a caller reading `.versions` or `row.versionId` gets undefined, publishes nothing, and sees no error. `updated_at` is a Firestore {_seconds,_nanoseconds} object, not a string, so sorting it as a string silently does nothing."
-        },
-        "POST /funnels/builder/publish-version": {
-          reach: "proven",
-          note: "Live-proven 2026-09-10 with a 4-step differential. Body {pageId, versionId, userId}; userId is the JWT's authClassId and omitting it 422s. A published version is stamped pageType:'live', NOT 'published'. \u{1F534} Publishing PINS the public page to that version: the renderer serves the newest live version if one exists and falls back to the newest draft only while a page has NEVER been published, so after the first publish every later autosave is invisible in public with a 201 on each one."
-        },
-        "GET /snapshots/v2/preFetchAssets/{locationId}": {
-          reach: "proven",
-          note: "Executed through the plugin credential on the designated sandbox, 2026-09-10, as part of the snapshot parity run: list -> manifest -> conflicts -> create -> refresh, with the create read back on a separate request (snapshot count 8 -> 9 and the new snapshot found by name and id)."
-        },
-        "GET /snapshots/assets/asset-names": {
-          reach: "proven",
-          note: "Executed through the plugin credential on the designated sandbox, 2026-09-10, as part of the snapshot parity run: list -> manifest -> conflicts -> create -> refresh, with the create read back on a separate request (snapshot count 8 -> 9 and the new snapshot found by name and id)."
-        },
-        "POST /snapshots/{snapshotId}/conflicts": {
-          reach: "proven",
-          note: "Executed through the plugin credential on the designated sandbox, 2026-09-10, as part of the snapshot parity run: list -> manifest -> conflicts -> create -> refresh, with the create read back on a separate request (snapshot count 8 -> 9 and the new snapshot found by name and id)."
-        },
-        "POST /snapshots-appengine/v2/snapshots": {
-          reach: "proven",
-          note: "Executed through the plugin credential on the designated sandbox, 2026-09-10, as part of the snapshot parity run: list -> manifest -> conflicts -> create -> refresh, with the create read back on a separate request (snapshot count 8 -> 9 and the new snapshot found by name and id)."
-        },
-        "POST /snapshots-appengine/v2/snapshots/{snapshotId}/refresh": {
-          reach: "proven",
-          note: "Executed through the plugin credential on the designated sandbox, 2026-09-10, as part of the snapshot parity run: list -> manifest -> conflicts -> create -> refresh, with the create read back on a separate request (snapshot count 8 -> 9 and the new snapshot found by name and id)."
-        },
-        "GET /courses/analytics/locations/{locationId}/export/assessment-results": {
-          reach: "proven",
-          requiredQuery: [
-            "totalRows"
-          ],
-          note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them. requiredQuery proven live 2026-09-10: totalRows."
-        },
-        "GET /forms/themes": {
-          reach: "proven",
-          requiredQuery: [
-            "locationId"
-          ],
-          note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them."
-        },
-        "GET /funnels/builder/prebuilt-section/hero/template/hero/hero": {
-          reach: "proven",
-          requiredQuery: [
-            "locationId"
-          ],
-          note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them."
-        },
-        "GET /payment-links/settings": {
-          reach: "proven",
-          requiredQuery: [
-            "altId",
-            "altType"
-          ],
-          note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them. requiredQuery proven live 2026-09-10: altId, altType. \u{1F534} This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND \u2014 the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder."
-        },
-        "GET /vibe-ai/folders": {
-          reach: "proven",
-          requiredQuery: [
-            "alt_id"
-          ],
-          note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them. requiredQuery proven live 2026-09-10: alt_id."
-        },
-        "GET /vibe-ai/projects": {
-          reach: "proven",
-          requiredQuery: [
-            "alt_id"
-          ],
-          note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them. requiredQuery proven live 2026-09-10: alt_id."
-        },
-        "GET /ai-wrapper/plan/company": {
-          reach: "proven",
-          requiredQuery: [
-            "companyId"
-          ],
-          note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them."
-        },
-        "GET /ai-wrapper/plan/location": {
-          reach: "proven",
-          requiredQuery: [
-            "locationId"
-          ],
-          note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them."
-        },
-        "GET /forms/submissions": {
-          reach: "proven",
-          requiredQuery: [
-            "limit"
-          ],
-          note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them. requiredQuery proven live 2026-09-10: limit."
-        },
-        "GET /surveys/folder": {
-          reach: "proven",
-          requiredQuery: [
-            "locationId"
-          ],
-          note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them."
-        },
-        "POST /workflow/{locationId}/scheduler-trigger/preview": {
-          reach: "proven",
-          note: 'Executed on the designated sandbox 2026-09-10 in the workflows write-parity run. \u{1F534} `conditions` must be a NON-EMPTY array or it answers 400 "conditions array is required and cannot be empty" \u2014 an empty array is refused, not treated as "no filter". Proven with [{field:"dayOfWeek",value:"monday"}]; returns {success:true, executions:[]}.'
-        },
-        "PUT /workflow/{locationId}/auto-save/settings": {
-          reach: "proven",
-          note: "Executed on the designated sandbox 2026-09-10 in the workflows write-parity run. Round-tripped: isActive flipped, read back changed on a separate request, and restored. Send the whole settings document back, not a patch."
-        },
-        "PUT /workflow/{locationId}/error-notification/settings/is-active": {
-          reach: "proven",
-          note: "Executed on the designated sandbox 2026-09-10 in the workflows write-parity run. Round-tripped on {isActive}; read back changed and restored. Its read is GET /workflow/{locationId}/error-notification/settings."
-        },
-        "PUT /workflow/{locationId}/error-notification/settings/users": {
-          reach: "proven",
-          note: "Executed on the designated sandbox 2026-09-10 in the workflows write-parity run. Round-tripped on {users:[userId]}; read back changed ([] -> [id]) and restored."
-        },
-        "PUT /workflow/{locationId}/rename-directory/{folderId}": {
-          reach: "proven",
-          note: 'Executed on the designated sandbox 2026-09-10 in the workflows write-parity run. Folder rename. Answers 200 {"msg":"Updated successfull","error":false} \u2014 note the typo and that `error:false` is the success signal. Read back changed and restored.'
-        },
-        "POST /workflow/{locationId}/ai/custom-code-ai": {
-          reach: "proven",
-          note: 'Executed on the designated sandbox 2026-09-10, workflows write-parity sweep. \u{1F534} workflowId and sessionId go in the QUERY STRING, not the body \u2014 sent in the body they are not seen and the endpoint answers 422 "Workflow ID is required" / "Session ID is required", one field per round. `messages` is a chat array [{role,content}] in the body; `prompt` is refused with "Messages are required". Proven: returned the generated snippet "{{input}}".'
-        },
-        "POST /workflow/{locationId}/ai/sms-ai": {
-          reach: "proven",
-          note: 'Executed on the designated sandbox 2026-09-10, workflows write-parity sweep. \u{1F534} workflowId and sessionId go in the QUERY STRING, not the body \u2014 sent in the body they are not seen and the endpoint answers 422 "Workflow ID is required" / "Session ID is required", one field per round. `messages` is a chat array [{role,content}] in the body; `prompt` is refused with "Messages are required". Proven 200.'
-        },
-        "POST /workflow/{locationId}/ai/email-ai": {
-          note: 'Executed on the designated sandbox 2026-09-10, workflows write-parity sweep. \u{1F534} workflowId and sessionId go in the QUERY STRING, not the body \u2014 sent in the body they are not seen and the endpoint answers 422 "Workflow ID is required" / "Session ID is required", one field per round. `messages` is a chat array [{role,content}] in the body; `prompt` is refused with "Messages are required". With the same complete arguments it answers 500 "Something went wrong. Please try again later." \u2014 a server fault, not a caller defect. Left unproven deliberately.'
-        },
-        "POST /workflow/{locationId}/v3/ai/message": {
-          reach: "proven",
-          note: 'Executed on the designated sandbox 2026-09-10, workflows write-parity sweep. Body {sessionId, messages}; workflowId in the QUERY. Responds as an SSE STREAM (data: {"type":"data-workflow-event"...}) carrying a langfuse traceId, not a JSON object.'
-        },
-        "POST /workflow/{locationId}/v3/ai/wait": {
-          reach: "proven",
-          note: 'Executed on the designated sandbox 2026-09-10, workflows write-parity sweep. \u{1F534} Takes `prompt` (a string), NOT `messages` \u2014 the sibling v3/ai/message takes messages, so the two disagree. Body {sessionId, prompt, mode:"create"}, workflowId in the query. Returns {status:"proceed", mode, waitAttributes:{...}} \u2014 a ready-made wait step.'
-        },
-        "POST /actions/{type}/branches": {
-          note: `\u{1F534} THE BASE IS /workflows-marketplace, NOT the service root. At the root this path answers 404 with an EMPTY body (or Express's "Cannot POST ..."), which reads like a dead endpoint; under /workflows-marketplace the same path answers from a real service \u2014 400 "Action does not exists for this key" / "Trigger does not exists for this key", or 403 "locationId is required". Route existence is proven; a 200 additionally needs a marketplace app installed on the account, which the sandbox has none of.`
-        },
-        "POST /actions/published/{type}/dynamic-fields": {
-          note: `\u{1F534} THE BASE IS /workflows-marketplace, NOT the service root. At the root this path answers 404 with an EMPTY body (or Express's "Cannot POST ..."), which reads like a dead endpoint; under /workflows-marketplace the same path answers from a real service \u2014 400 "Action does not exists for this key" / "Trigger does not exists for this key", or 403 "locationId is required". Route existence is proven; a 200 additionally needs a marketplace app installed on the account, which the sandbox has none of.`
-        },
-        "POST /triggers/published/{type}/dynamic-fields": {
-          note: `\u{1F534} THE BASE IS /workflows-marketplace, NOT the service root. At the root this path answers 404 with an EMPTY body (or Express's "Cannot POST ..."), which reads like a dead endpoint; under /workflows-marketplace the same path answers from a real service \u2014 400 "Action does not exists for this key" / "Trigger does not exists for this key", or 403 "locationId is required". Route existence is proven; a 200 additionally needs a marketplace app installed on the account, which the sandbox has none of.`
-        },
-        "POST /actions/dynamic-source-details/{key}": {
-          note: `\u{1F534} THE BASE IS /workflows-marketplace, NOT the service root. At the root this path answers 404 with an EMPTY body (or Express's "Cannot POST ..."), which reads like a dead endpoint; under /workflows-marketplace the same path answers from a real service \u2014 400 "Action does not exists for this key" / "Trigger does not exists for this key", or 403 "locationId is required". Route existence is proven; a 200 additionally needs a marketplace app installed on the account, which the sandbox has none of.`
-        },
-        "POST /triggers/dynamic-source-details/{key}": {
-          note: `\u{1F534} THE BASE IS /workflows-marketplace, NOT the service root. At the root this path answers 404 with an EMPTY body (or Express's "Cannot POST ..."), which reads like a dead endpoint; under /workflows-marketplace the same path answers from a real service \u2014 400 "Action does not exists for this key" / "Trigger does not exists for this key", or 403 "locationId is required". Route existence is proven; a 200 additionally needs a marketplace app installed on the account, which the sandbox has none of.`
-        },
-        "POST /triggers/dynamic-source/{key}": {
-          note: `\u{1F534} THE BASE IS /workflows-marketplace, NOT the service root. At the root this path answers 404 with an EMPTY body (or Express's "Cannot POST ..."), which reads like a dead endpoint; under /workflows-marketplace the same path answers from a real service \u2014 400 "Action does not exists for this key" / "Trigger does not exists for this key", or 403 "locationId is required". Route existence is proven; a 200 additionally needs a marketplace app installed on the account, which the sandbox has none of.`
-        },
-        "POST /workflow/{locationId}/tags/create": {
-          note: 'Executed on the designated sandbox 2026-09-10, workflows write-parity sweep. Refused four body shapes ({name}, {tags:[]}, +locationId, +workflowId) with a bare-string 400 "Bad Request" \u2014 no validation detail, so the shape is still unknown. Not a reach failure; a shape we have not found.'
-        },
-        "PUT /membership/locations/{locationId}/categories/sequence": {
-          note: "\u{1F534} ANSWERS 2xx TO AN EMPTY BODY. Measured 2026-09-10 on the sandbox: POST/PUT with `{}` returned 2xx. That is a HAZARD, not a capability \u2014 this rail has a known case (attach-offer-user) where an empty body is acknowledged with the same 200 a real grant returns, so a 2xx here says nothing about what was stored and may mean a real mutation ran with defaults. Never record this row as proven on an empty-body 2xx; supply a real body and read the object back."
-        },
-        "POST /membership/locations/{locationId}/comments/filtered": {
-          note: "\u{1F534} ANSWERS 2xx TO AN EMPTY BODY. Measured 2026-09-10 on the sandbox: POST/PUT with `{}` returned 2xx. That is a HAZARD, not a capability \u2014 this rail has a known case (attach-offer-user) where an empty body is acknowledged with the same 200 a real grant returns, so a 2xx here says nothing about what was stored and may mean a real mutation ran with defaults. Never record this row as proven on an empty-body 2xx; supply a real body and read the object back."
-        },
-        "PUT /membership/locations/{locationId}/posts/material/sequence": {
-          note: "\u{1F534} ANSWERS 2xx TO AN EMPTY BODY. Measured 2026-09-10 on the sandbox: POST/PUT with `{}` returned 2xx. That is a HAZARD, not a capability \u2014 this rail has a known case (attach-offer-user) where an empty body is acknowledged with the same 200 a real grant returns, so a 2xx here says nothing about what was stored and may mean a real mutation ran with defaults. Never record this row as proven on an empty-body 2xx; supply a real body and read the object back."
-        },
-        "PUT /membership/locations/{locationId}/posts/sequence": {
-          note: "\u{1F534} ANSWERS 2xx TO AN EMPTY BODY. Measured 2026-09-10 on the sandbox: POST/PUT with `{}` returned 2xx. That is a HAZARD, not a capability \u2014 this rail has a known case (attach-offer-user) where an empty body is acknowledged with the same 200 a real grant returns, so a 2xx here says nothing about what was stored and may mean a real mutation ran with defaults. Never record this row as proven on an empty-body 2xx; supply a real body and read the object back."
-        },
-        "PUT /membership/locations/{locationId}/products/library-order": {
-          note: "\u{1F534} ANSWERS 2xx TO AN EMPTY BODY. Measured 2026-09-10 on the sandbox: POST/PUT with `{}` returned 2xx. That is a HAZARD, not a capability \u2014 this rail has a known case (attach-offer-user) where an empty body is acknowledged with the same 200 a real grant returns, so a 2xx here says nothing about what was stored and may mean a real mutation ran with defaults. Never record this row as proven on an empty-body 2xx; supply a real body and read the object back."
-        },
-        "POST /membership/locations/{locationId}/settings/builder-settings": {
-          note: "\u{1F534} ANSWERS 2xx TO AN EMPTY BODY. Measured 2026-09-10 on the sandbox: POST/PUT with `{}` returned 2xx. That is a HAZARD, not a capability \u2014 this rail has a known case (attach-offer-user) where an empty body is acknowledged with the same 200 a real grant returns, so a 2xx here says nothing about what was stored and may mean a real mutation ran with defaults. Never record this row as proven on an empty-body 2xx; supply a real body and read the object back."
-        },
-        "POST /membership/locations/{locationId}/settings/site-info": {
-          note: "\u{1F534} ANSWERS 2xx TO AN EMPTY BODY. Measured 2026-09-10 on the sandbox: POST/PUT with `{}` returned 2xx. That is a HAZARD, not a capability \u2014 this rail has a known case (attach-offer-user) where an empty body is acknowledged with the same 200 a real grant returns, so a 2xx here says nothing about what was stored and may mean a real mutation ran with defaults. Never record this row as proven on an empty-body 2xx; supply a real body and read the object back."
-        },
-        "POST /courses/analytics/locations/{locationId}/members/count": {
-          note: "\u{1F534} ANSWERS 2xx TO AN EMPTY BODY. Measured 2026-09-10 on the sandbox: POST/PUT with `{}` returned 2xx. That is a HAZARD, not a capability \u2014 this rail has a known case (attach-offer-user) where an empty body is acknowledged with the same 200 a real grant returns, so a 2xx here says nothing about what was stored and may mean a real mutation ran with defaults. Never record this row as proven on an empty-body 2xx; supply a real body and read the object back."
-        },
-        "GET /membership/.../categories": {
-          note: '\u{1F534} THIS ROW IS UNCALLABLE: its path contains a literal "..." left by the source miner, so every request 404s. 15 rows are in this state, all on this service. 11 of them \u2014 including this one \u2014 duplicate a full-path row already in the catalogue; use that one instead. Measured 2026-09-10.'
-        },
-        "POST /membership/.../categories": {
-          note: '\u{1F534} THIS ROW IS UNCALLABLE: its path contains a literal "..." left by the source miner, so every request 404s. 15 rows are in this state, all on this service. 11 of them \u2014 including this one \u2014 duplicate a full-path row already in the catalogue; use that one instead. Measured 2026-09-10.'
-        },
-        "PUT /membership/.../categories/{id}": {
-          note: '\u{1F534} THIS ROW IS UNCALLABLE: its path contains a literal "..." left by the source miner, so every request 404s. 15 rows are in this state, all on this service. 11 of them \u2014 including this one \u2014 duplicate a full-path row already in the catalogue; use that one instead. Measured 2026-09-10.'
-        },
-        "POST /membership/.../certificate-attachments": {
-          note: '\u{1F534} THIS ROW IS UNCALLABLE: its path contains a literal "..." left by the source miner, so every request 404s. 15 rows are in this state, all on this service. 11 of them \u2014 including this one \u2014 duplicate a full-path row already in the catalogue; use that one instead. Measured 2026-09-10.'
-        },
-        "POST /membership/.../media/signed-url": {
-          note: '\u{1F534} THIS ROW IS UNCALLABLE: its path contains a literal "..." left by the source miner, so every request 404s. 15 rows are in this state, all on this service. 11 of them \u2014 including this one \u2014 duplicate a full-path row already in the catalogue; use that one instead. Measured 2026-09-10.'
-        },
-        "POST /membership/.../offers": {
-          note: '\u{1F534} THIS ROW IS UNCALLABLE: its path contains a literal "..." left by the source miner, so every request 404s. 15 rows are in this state, all on this service. 11 of them \u2014 including this one \u2014 duplicate a full-path row already in the catalogue; use that one instead. Measured 2026-09-10.'
-        },
-        "POST /membership/.../posts": {
-          note: '\u{1F534} THIS ROW IS UNCALLABLE: its path contains a literal "..." left by the source miner, so every request 404s. 15 rows are in this state, all on this service. 11 of them \u2014 including this one \u2014 duplicate a full-path row already in the catalogue; use that one instead. Measured 2026-09-10.'
-        },
-        "PUT /membership/.../posts/{id}": {
-          note: '\u{1F534} THIS ROW IS UNCALLABLE: its path contains a literal "..." left by the source miner, so every request 404s. 15 rows are in this state, all on this service. 11 of them \u2014 including this one \u2014 duplicate a full-path row already in the catalogue; use that one instead. Measured 2026-09-10.'
-        },
-        "POST /membership/.../products": {
-          note: '\u{1F534} THIS ROW IS UNCALLABLE: its path contains a literal "..." left by the source miner, so every request 404s. 15 rows are in this state, all on this service. 11 of them \u2014 including this one \u2014 duplicate a full-path row already in the catalogue; use that one instead. Measured 2026-09-10.'
-        },
-        "DELETE /membership/.../products/{id}": {
-          note: '\u{1F534} THIS ROW IS UNCALLABLE: its path contains a literal "..." left by the source miner, so every request 404s. 15 rows are in this state, all on this service. 11 of them \u2014 including this one \u2014 duplicate a full-path row already in the catalogue; use that one instead. Measured 2026-09-10.'
-        },
-        "POST /membership/.../videos": {
-          note: '\u{1F534} THIS ROW IS UNCALLABLE: its path contains a literal "..." left by the source miner, so every request 404s. 15 rows are in this state, all on this service. 11 of them \u2014 including this one \u2014 duplicate a full-path row already in the catalogue; use that one instead. Measured 2026-09-10.'
-        },
-        "POST /courses/.../product-themes": {
-          note: '\u{1F534} THIS ROW IS UNCALLABLE: its path contains a literal "..." left by the source miner, and unlike the other truncated rows it has NO full-path twin in the catalogue \u2014 the real path was lost in mining and needs re-capture before this endpoint can be reached at all. Measured 2026-09-10.'
-        },
-        "PUT /membership/.../categories": {
-          note: '\u{1F534} THIS ROW IS UNCALLABLE: its path contains a literal "..." left by the source miner, and unlike the other truncated rows it has NO full-path twin in the catalogue \u2014 the real path was lost in mining and needs re-capture before this endpoint can be reached at all. Measured 2026-09-10.'
-        },
-        "PUT /membership/.../posts": {
-          note: '\u{1F534} THIS ROW IS UNCALLABLE: its path contains a literal "..." left by the source miner, and unlike the other truncated rows it has NO full-path twin in the catalogue \u2014 the real path was lost in mining and needs re-capture before this endpoint can be reached at all. Measured 2026-09-10.'
-        },
-        "PUT /membership/.../products": {
-          note: '\u{1F534} THIS ROW IS UNCALLABLE: its path contains a literal "..." left by the source miner, and unlike the other truncated rows it has NO full-path twin in the catalogue \u2014 the real path was lost in mining and needs re-capture before this endpoint can be reached at all. Measured 2026-09-10.'
-        },
-        "POST /opportunities/lost-reason": {
-          reach: "proven",
-          note: "Executed on the designated sandbox 2026-09-10, write-parity sweep, with a read-back on a separate request. Body {name, locationId}; locationId is also required in the QUERY. Proven by differential: 7 -> 8 reasons, found by name. Returns {lostReason:{_id,...}}."
-        },
-        "POST /forms/folder/": {
-          reach: "proven",
-          note: 'Executed on the designated sandbox 2026-09-10, write-parity sweep, with a read-back on a separate request. \u{1F534} `productType` is REQUIRED and is not in any declared schema \u2014 omit it and the call answers 422 ["productType should not be empty","productType must be a string"]. "form" is proven; the folder list is also scoped by productType, so a folder created under one value is invisible to a read using another. Proven by differential: 0 -> 1 folder, found by name.'
-        },
-        "POST /funnels/builder/prebuilt-section": {
-          reach: "refused",
-          note: 'Answers 401 {"statusCode":401,"message":"Unauthorized Exception"} to a location credential, 2026-09-10, while its GET counterpart returns 17 sections on the same token. The 401 carries no field name, so unlike the usual GHL 401 this is a genuine permission boundary rather than a validation failure in disguise \u2014 saving a prebuilt section is very likely an agency-level gesture. Reading them is fine; writing one is not, from here.'
-        },
-        "POST /snapshots/{snapshotId}/snapshot-preferences": {
-          note: '\u{1F534} Answers 201 {"success":true,"message":"Snapshot preferences upserted successfully"} and the value does NOT appear in the read-back (2026-09-10, on a snapshot this project created). Do not read that message as confirmation. Note the likely cause is on the caller side, not the server: the GET returns {"success":true,"data":[]} \u2014 preferences are a LIST \u2014 and the probe sent a single object, so the shape is probably wrong. Either way the message is not evidence of storage; read the preference back before believing it.'
-        },
-        "PUT /calendars/{calendarId}": {
-          reach: "proven",
-          note: 'Executed on the sandbox 2026-09-10 by round trip \u2014 description changed, read back on a separate request, restored. \u{1F534} THE READ SHAPE IS NOT THE WRITE SHAPE. Sending back what GET returns answers 422 twice over. First it names ten server-added properties that "should not exist" and must be stripped: id, deleted, dateAdded, dateUpdated, isSystemGenerated, locationId, createdBy, lastUpdatedBy, version, notificationStatus. Then it rejects `openHours` \u2014 the sub-object the GET itself returned \u2014 with "openHours.must be a valid day of week / daysOfTheWeek must be an array / hours must be an array". Dropping openHours entirely lands a 200 and leaves the stored hours alone. So a naive read-modify-write is refused, and the refusal arrives one layer at a time.'
-        },
-        "POST /opportunities/pipelines": {
-          reach: "proven",
-          note: "Executed on the designated sandbox 2026-09-10, write-parity sweep, read back on a separate request. Body {name, locationId, stages:[{name, position}]}. Proven by differential: 6 -> 7 pipelines, found by name."
-        },
-        "POST /snippets/{locationId}": {
-          reach: "proven",
-          note: 'Executed on the designated sandbox 2026-09-10, write-parity sweep, read back on a separate request. Body {name, locationId, body, type} \u2014 `type` is the channel ("sms" proven). Proven by differential: 7 -> 8 snippets, found by name.'
-        },
-        "POST /contacts/search": {
-          reach: "proven",
-          note: 'Executed on the designated sandbox 2026-09-10, write-parity sweep, read back on a separate request. A READ-shaped POST. Body {locationId, page, pageLimit, filters:[]} returns {contacts:[...]} \u2014 an empty filters array is accepted and means "no filter", unlike scheduler-trigger/preview which refuses one.'
-        },
-        "POST /surveys/folder/": {
-          reach: "proven",
-          note: 'Executed on the designated sandbox 2026-09-10, write-parity sweep, read back on a separate request. \u{1F534} REFUSES `productType` \u2014 422 ["property productType should not exist"] \u2014 while its sibling POST /forms/folder/ REQUIRES it. Two folder endpoints on the same service with opposite contracts; do not copy one body to the other. Body is just {name, locationId}. Proven: 0 -> 1 folder, found by name.'
-        },
-        "POST /workflow/{locationId}/folder": {
-          note: '\u{1F534} WRONG PATH IN THIS ROW: /workflow/{locationId}/folder answers 404 {"msg":"Not found"}. The real path is **/workflow/{locationId}/directory**, proven on the sandbox 2026-09-10 \u2014 body {name, locationId}, answers 200 {id}, and the folder count in /workflow/{locationId}/list went 6 -> 7 with the new folder found by name. Folders appear in that list as rows with type "directory".'
-        },
-        "GET /opportunities/smart-filters": {
-          reach: "proven",
-          note: 'Executed on the designated sandbox 2026-09-10, write-parity sweep, read back on a separate request. \u{1F534} BOTH `pipelineId` AND `filterType` are required query params \u2014 locationId alone answers 400 "pipelineId can\'t be undefined" (code COMMON_PIPELINE_ID_UNDEFINED), and adding pipelineId alone then answers 422 naming filterType with its enum: **smartlist | smarttag**. With all three it returns {smartFilters, total, page, limit}. Its POST twin additionally requires a non-empty `color`, a non-empty `filters` array and `position` >= 1; the filter shape was not invented, so the write stays unproven.'
-        },
-        "POST /brand-boards/voices/{locationId}/default": {
-          reach: "proven",
-          note: "Executed on the sandbox 2026-09-10 against this project's own TEST-CAP brand voice: body {brandVoiceId, locationId}, answers 200 {success, message, brandVoiceId, locationId}, and the voice's isDefault read back false -> true on a separate request. NOTE the probe artifact is LEFT as the default \u2014 there is no obvious unset call on this rail, and the account has exactly one (test) voice, so nothing real was displaced."
-        },
-        "POST /funnels/page/create-page": {
-          note: '\u{1F534} Body needs `step` as an OBJECT, not a name \u2014 422 ["step should not be empty","step must be an object"] otherwise. Supply the full create-step shape INCLUDING a client-minted step.id (rule 24: a server-minted step is unrepairable). With that body the call answered **524, a Cloudflare edge TIMEOUT**, on 2026-09-10. A 524 is an UNKNOWN, not a failure \u2014 the origin may still have committed. Checked afterwards and it wrote NOTHING: steps, pages and routing rows were all unchanged. Always read back after a 524 here rather than retrying blind, or a retry can double-create.'
-        },
-        "GET /brand-boards/{locationId}": {
-          reach: "proven",
-          note: "Executed 2026-09-10 \u2014 returns {brandBoards, totalCount, traceId}; zero boards on the sandbox, which is why its /default write twin has nothing to target and is not probed."
-        },
-        "GET /events-management/tickets": {
-          reach: "proven",
-          note: "Executed 2026-09-10 \u2014 returns {tickets, traceId}; empty on the sandbox."
-        },
         "PUT /workflow/{locationId}/workflow-ai/settings": {
           note: "Its GET returns an EMPTY OBJECT {} on the sandbox, so there is no baseline to diff a write against and no field whose type is known. Not probed: writing here would be inventing a schema and could not be verified either way."
         },
-        "GET /ai-wrapper/usage/v2/fup-status": {
-          reach: "proven",
-          requiredQuery: [
-            "product"
-          ],
-          note: "requiredQuery proven live 2026-09-10: product."
-        },
-        "GET /funnels/page": {
-          reach: "proven",
-          requiredQuery: [
-            "funnelId",
-            "limit",
-            "offset"
-          ],
-          note: "requiredQuery proven live 2026-09-10: funnelId, limit, offset. \u{1F534} This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND \u2014 the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder."
-        },
-        "GET /funnels/page/product": {
-          reach: "proven",
-          requiredQuery: [
-            "funnelId",
-            "limit",
-            "offset"
-          ],
-          note: "requiredQuery proven live 2026-09-10: funnelId, limit, offset. \u{1F534} This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND \u2014 the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder."
-        },
-        "GET /payments/coupon/list": {
-          reach: "proven",
-          requiredQuery: [
-            "altId",
-            "altType"
-          ],
-          note: "requiredQuery proven live 2026-09-10: altId, altType. \u{1F534} This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND \u2014 the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder."
-        },
-        "GET /payments/integrations/provider/connected": {
-          reach: "proven",
-          requiredQuery: [
-            "altId",
-            "altType"
-          ],
-          note: "requiredQuery proven live 2026-09-10: altId, altType. \u{1F534} This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND \u2014 the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder."
-        },
-        "GET /products/": {
-          reach: "proven",
-          requiredQuery: [
-            "altId",
-            "locationId"
-          ],
-          note: "requiredQuery proven live 2026-09-10: altId, locationId. \u{1F534} This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND \u2014 the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder."
-        },
-        "GET /templates/category/list": {
-          reach: "proven",
-          requiredQuery: [
-            "limit",
-            "offset",
-            "product"
-          ],
-          note: "requiredQuery proven live 2026-09-10: limit, offset, product. \u{1F534} This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND \u2014 the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder."
-        },
-        "GET /templates/template-search/facets": {
-          reach: "proven",
-          requiredQuery: [
-            "product"
-          ],
-          note: "requiredQuery proven live 2026-09-10: product."
-        },
-        "GET /templates/template-search/suggestions": {
-          reach: "proven",
-          requiredQuery: [
-            "product"
-          ],
-          note: "requiredQuery proven live 2026-09-10: product."
-        },
-        "POST /communities/{locationId}/groups": {
-          reach: "proven",
-          note: 'Executed on the designated sandbox 2026-09-10, read back on a separate request. Body {name, description, locationId, slug}. \u{1F534} `slug` is REQUIRED and is announced in the MONGOOSE dialect \u2014 {"errors":{"slug":{"message":"Path `slug` is required."}}} \u2014 with no `message` array, so a reader parsing only the NestJS shape sees nothing. Proven by differential: 0 -> 1 group, found by name.'
-        },
-        "POST /membership/locations/{locationId}/categories": {
-          reach: "proven",
-          note: 'Executed on the designated sandbox 2026-09-10, read back on a separate request. Body {title, locationId, productId} \u2014 a category belongs to a COURSE. \u{1F534} `productId` is announced in the SEQUELIZE dialect \u2014 {"msg":"notNull Violation: Category.productId cannot be null"} \u2014 again with no `message` array. Proven by differential: 1 -> 2 categories, found by title.'
-        },
-        "POST /events-management/tickets": {
-          note: 'Named its own requirements on 2026-09-10: {eventId, price, quantity} \u2014 price and quantity must be NUMBERS (filled with an empty string they answer "must be a number" indefinitely). Unproven because the sandbox holds zero events, so there is no eventId to attach a ticket to. Not a reach problem; a fixture problem.'
-        },
-        "POST /knowledge-base/": {
-          reach: "proven",
-          note: "Executed on the sandbox 2026-09-11 \u2014 body {name, locationId} answers 201 and the base is readable immediately. Minted to unblock the three read rows keyed on {knowledgeBaseId}, which had no verdict purely because the account held no knowledge base."
-        },
-        "POST /events-management/event": {
-          note: 'Refuses with 422 ["type must be a valid enum value"] \u2014 the field is named but its MEMBERS are not, unlike sibling errors on this API which spell the vocabulary out ("product must be one of the following values: ask-ai, ..."). Supplying a value here would test the guess rather than the row, so it was left. This is what blocks the five read rows keyed on {eventId}: the sandbox holds zero events and one cannot be minted without the enum.'
-        },
-        "PUT /email-isv/feature/domain/set-default-headers/{domain}": {
-          kind: "write",
-          note: "\u{1F534} THE EMAIL SENDER DISPLAY NAME, and it is WRITABLE \u2014 it had been reported to a client as UI-only. Body {fromEmail, fromName}; send BOTH, the handler takes them together so omitting fromEmail may clear it. Scope key is companyId for entityType COMPANY, else locationId. \u26A0\uFE0F NOT PROVEN HERE \u2014 no reach. The only execution is a PEER SESSION's, on a CLIENT account this project may never write to, verified there by re-reading two independent services \u2014 fromEmail, warmup, defaultDomain and all eight types[] percentages survived untouched. \u{1F534} HIGH BLAST RADIUS, NEEDS EXPLICIT HUMAN APPROVAL: types[] read all eight rails at 100% (calendar, invoices, oneToOne, bulk-request, campaign, workflow, client-portal, client-portal-otp), so this one field is the sender identity on INVOICES and on replies staff type by hand in Conversations. It cannot be scoped to one rail. It could not be reproduced on GROM Sandbox: that account has zero sending domains, so there is nothing to address. Proving it needs a domain on a test sub-account AND the user's explicit word, because of the blast radius below. \u26A0\uFE0F SCOPE OF THE EVIDENCE: the one account behind this row read domainOwnershipType 'location_owned', type 'leadconnector'. The agency-owned and shared-domain shapes have never been seen, and a shared domain's headers are plausibly not a single location's to set \u2014 do not generalise this row to them. SCOPE: this addresses a domain from /email-isv/feature/domain/list, which carries only LOCATION-OWNED domains. On an account whose sending domain is agency-owned the list is empty and there is no reachable target at all \u2014 check list is non-empty before offering this as the way to change a sender name."
-        },
-        "GET /email-isv/feature/domain/list": {
-          reach: "proven",
-          kind: "read",
-          note: `Richer than /workflow/{locationId}/email/location-email-provider: fromName, fromEmail, warmup{mode,stage,status}, types[] with per-type percentages, defaultDomain, emailSentCount/emailSentLimit, ssl, ips, domainAddedDate. \u26A0\uFE0F Answers on BOTH hosts (services AND backend) \u2014 re-verified on GROM Sandbox 2026-09-11, where it returns []. The original capture saw only services, so "ai host" is where it was observed, not a constraint. \u{1F534} AN EMPTY ARRAY DOES NOT MEAN THE ACCOUNT HAS NO SENDING DOMAIN. GROM Sandbox returns [] while GET /workflow/{loc}/email/location-email-provider reports a live, actively warming domain (link.gromdigital.com, domainOwnershipType 'agency_owned'), and asking this rail for that domain by name answers 400 "not found in the system". This rail is scoped to LOCATION-OWNED domains only; an agency-owned domain is invisible to it. Read [] as 'no domain this location owns', never as an unconfigured account.`
-        },
-        "GET /email-isv/feature/domain/removal-allowed": {
-          reach: "proven",
-          kind: "read",
-          note: "Executed on GROM Sandbox 2026-09-11 \u2014 200 on a location with no domains."
-        },
-        "GET /email-isv/feature/domain/domain-selection-list": {
-          kind: "read",
-          note: 'Executed 2026-09-11: 422 ["domains must be a string","domains should not be empty","source should not be empty","source must be a valid enum value"]. The route exists; `source` is an enum whose members the error does NOT spell out, so it was not guessed.'
-        },
-        "GET /conversations/providers/mailgun/fetch/domain": {
-          reach: "proven",
-          kind: "read",
-          note: '\u{1F534} A 400 HERE IS AN ANSWER, NOT A FAILURE. On an account using LeadConnector email it returns 400 {"message":"No MailgunAccount found","canonicalCode":"CONVERSATIONS_SOMETHING_WENT_WRONG"} \u2014 which tells you the account is NOT on bring-your-own Mailgun. Not an auth problem and not a wrong path. Reproduced on GROM Sandbox 2026-09-11 on BOTH hosts \u2014 backend and services each answered the identical 400 with its own traceId, so this row is not host-specific.'
+        "PUT /workflow/{locationId}/{workflowId}": {
+          note: "The full-document commit re-runs the step validator over EVERY stored step, so it can be refused by a published, running workflow's own saved graph (INVALID_FIELD_VALUE, 'Action validation failed: <type> (...): Next is invalid'). The workflow keeps running and cannot be saved by anyone, API or builder. Never use this path for a rename -- rename-workflow skips the validator. Re-read before every write: a successful PUT bumps version and a later PUT built from a stale read 422s."
         }
       }
     };
@@ -90209,7 +89907,8 @@ function checkLocationBinding({ tool, args, allowed, legacyLocationsEnvSet = fal
       }
     }
     for (const e of matchTemplates(url2.pathname, method, opts.endpoints ?? [])) {
-      for (const i of locationPositions(e.path ?? "")) {
+      const templates = [e.path ?? "", ...e.aka ?? []];
+      for (const i of templates.flatMap((t) => locationPositions(t))) {
         const v = segs[i];
         if (v && !allowed.has(v)) return fail(
           CODES.LOCATION_FORBIDDEN,
@@ -168970,6 +168669,31 @@ var CATALOG2 = true ? define_TOOL_CATALOG_default : (() => {
   }
 })();
 var PROVENANCE = /\s*\u2014\s*proof:[\s\S]*?risk:\s*([a-z-]+)\.?/i;
+function readServerValidation(json2) {
+  if (!json2 || typeof json2 !== "object" || typeof json2.valid !== "boolean") return null;
+  const assetWarnings = Array.isArray(json2.assetWarnings) ? json2.assetWarnings : [];
+  if (json2.valid) return { valid: true, layer: null, errorMessage: null, errors: [], assetWarnings };
+  const meta3 = json2.errorMetadata ?? {};
+  return {
+    valid: false,
+    layer: meta3.validationType ?? null,
+    errorMessage: json2.errorMessage ?? json2.message ?? null,
+    errors: (Array.isArray(meta3.errors) ? meta3.errors : []).map((e) => ({
+      message: e?.message ?? null,
+      ruleId: e?.ruleId ?? null,
+      severity: e?.severity ?? null,
+      source: e?.source ?? null,
+      stepId: e?.stepId ?? null,
+      stepName: e?.stepName ?? null,
+      stepType: e?.stepType ?? null,
+      triggerId: e?.triggerId ?? null,
+      triggerName: e?.triggerName ?? null,
+      triggerType: e?.triggerType ?? null
+    })),
+    assetWarnings,
+    note: "One layer per call: fix what this names and call again. Other layers may still fail."
+  };
+}
 var describe3 = (tool, fallback) => {
   const meta3 = CATALOG2[tool];
   if (!meta3?.description) return fallback;
@@ -170699,6 +170423,46 @@ var TOOLS2 = [
         }
       });
     })
+  },
+  {
+    name: "validate_workflow",
+    description: describe3(
+      "validate_workflow",
+      "Ask GHL's OWN server validator whether a workflow would pass: the check the builder runs live, debounced, on every edit (POST /workflow/{loc}/{wid}/validate-workflows). Validates the STORED document, or the stored document with `templates` swapped in, so a planned edit can be checked BEFORE it is saved. Writes nothing (proof: live 2026-09-11 on the sandbox: the document read back byte-identical after five calls, and a dangling next, stripped attributes and an unbound flow trigger each came back valid:false naming the rule, the step and the message; risk: read-only). READ `layer`: a failing call reports ONE layer. A structural or an action failure was reported IN PLACE OF a trigger failure the same document also had, so fix what it names and call again until valid. valid:true is not exhaustive either: an unknown step type passed."
+    ),
+    inputSchema: schema({
+      locationId: external_exports.string(),
+      workflowId: external_exports.string(),
+      // The builder validates its IN-MEMORY tree. Passing templates is that: the stored document
+      // with this array in place of workflowData.templates.
+      templates: external_exports.array(external_exports.object({}).passthrough()).optional()
+    }),
+    capabilities: [
+      { method: "GET", path: "/workflow/{loc}/{wid}" },
+      { method: "GET", path: "/workflow/{loc}/trigger" },
+      { method: "POST", path: "/workflow/{loc}/{wid}/validate-workflows" }
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const loc = encodeURIComponent(args.locationId);
+      const wid = encodeURIComponent(args.workflowId);
+      const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+      const doc = await gw.call("GET", `/workflow/${loc}/${wid}`);
+      if (!doc.ok) return fromHttp(doc.status, doc.json);
+      const trg = await gw.call("GET", `/workflow/${loc}/trigger?${new URLSearchParams({ workflowId: args.workflowId })}`);
+      if (!trg.ok) return fromHttp(trg.status, trg.json);
+      const triggers = Array.isArray(trg.json) ? trg.json : trg.json?.triggers ?? trg.json?.data ?? [];
+      const body = { ...doc.json, newTriggers: triggers };
+      if (args.templates) body.workflowData = { ...doc.json?.workflowData ?? {}, templates: args.templates };
+      const r = await gw.call("POST", `/workflow/${loc}/${wid}/validate-workflows`, body);
+      const verdict = readServerValidation(r.json);
+      if (!verdict) return fromHttp(r.status, r.json);
+      return ok({
+        workflowId: args.workflowId,
+        validated: args.templates ? "the stored document with the supplied templates" : "the stored document",
+        triggersSent: triggers.length,
+        ...verdict
+      });
+    }, args)
   },
   {
     name: "export_workflow",

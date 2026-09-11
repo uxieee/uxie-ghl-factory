@@ -222,7 +222,12 @@ export function checkLocationBinding({ tool, args, allowed, legacyLocationsEnvSe
       }
     }
     for (const e of matchTemplates(url.pathname, method, opts.endpoints ?? [])) {
-      for (const i of locationPositions(e.path ?? '')) {
+      // Every spelling of the route, not just the one that survived the catalogue's fold: a segment
+      // another tree calls {locationId} is a location whatever this row calls it, and reading only
+      // the canonical path turned a guard that failed closed on /lists/dynamic/{foreign} into one
+      // that allowed it.
+      const templates = [e.path ?? '', ...(e.aka ?? [])];
+      for (const i of templates.flatMap((t) => locationPositions(t))) {
         const v = segs[i];
         if (v && !allowed.has(v)) return fail(CODES.LOCATION_FORBIDDEN,
           `the request path targets ${v}, which this registration is not permitted to act on`,

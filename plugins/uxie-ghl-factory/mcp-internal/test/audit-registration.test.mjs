@@ -680,11 +680,15 @@ test('the full 51-tool registry and the normal stdio entry point are unchanged',
   // embedded formIds and 4 of 5 calendarIds on one account pointing at the SOURCE account, each
   // displaying the CORRECT name beside the wrong id. Read-only. It exists because every defect on
   // this rail returns 2xx, stores correctly, and renders a page that looks right to its builder.
-  assert.equal(TOOLS.length, 82, 'the audit profile is ADDITIVE; the full server keeps every tool');
+  // 82 -> 83: validate_workflow, once GHL's live validator was proven on the sandbox (2026-09-11):
+  // valid:false naming rule, step and message for three planted defects, and the document read back
+  // byte-identical after five calls. It POSTs, so it is outside the audit profile by construction,
+  // which is why it is its own tool rather than a key on check_workflow.
+  assert.equal(TOOLS.length, 83, 'the audit profile is ADDITIVE; the full server keeps every tool');
   assert.deepEqual(TOOLS.map((tool) => tool.name), [
     'set_token_file', 'auth_status', 'create_convai_agent', 'update_convai_agent', 'create_voiceai_agent',
     'create_studio_agent', 'get_contact_ai_status', 'set_contact_ai_status',
-    'list_workflows', 'get_workflow', 'get_workflow_digest', 'search_merge_tags', 'check_workflow', 'export_workflow',
+    'list_workflows', 'get_workflow', 'get_workflow_digest', 'search_merge_tags', 'check_workflow', 'validate_workflow', 'export_workflow',
     'get_workflow_logs', 'get_workflow_runtime_window', 'list_workflows_complete',
     'get_ai_configuration_bundle', 'get_contacts_at_step', 'get_workflow_stats', 'list_workflow_versions', 'get_workflow_version',
     'get_trigger_logs',

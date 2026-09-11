@@ -125,6 +125,37 @@ const CATALOG = typeof __HAS_CATALOG__ !== 'undefined'
 // precedence list would rot.
 const PROVENANCE = /\s*\u2014\s*proof:[\s\S]*?risk:\s*([a-z-]+)\.?/i;
 
+/**
+ * GHL's live validator answers 200 `{ valid: true, assetWarnings }` or 400 `{ valid: false,
+ * errorMessage, errorMetadata: { validationType, errors[] } }` (live 2026-09-11). Anything else is
+ * not a verdict: null, so the caller reports the HTTP failure instead of inventing a pass or a fail.
+ */
+function readServerValidation(json) {
+  if (!json || typeof json !== 'object' || typeof json.valid !== 'boolean') return null;
+  const assetWarnings = Array.isArray(json.assetWarnings) ? json.assetWarnings : [];
+  if (json.valid) return { valid: true, layer: null, errorMessage: null, errors: [], assetWarnings };
+  const meta = json.errorMetadata ?? {};
+  return {
+    valid: false,
+    layer: meta.validationType ?? null,
+    errorMessage: json.errorMessage ?? json.message ?? null,
+    errors: (Array.isArray(meta.errors) ? meta.errors : []).map((e) => ({
+      message: e?.message ?? null,
+      ruleId: e?.ruleId ?? null,
+      severity: e?.severity ?? null,
+      source: e?.source ?? null,
+      stepId: e?.stepId ?? null,
+      stepName: e?.stepName ?? null,
+      stepType: e?.stepType ?? null,
+      triggerId: e?.triggerId ?? null,
+      triggerName: e?.triggerName ?? null,
+      triggerType: e?.triggerType ?? null,
+    })),
+    assetWarnings,
+    note: 'One layer per call: fix what this names and call again. Other layers may still fail.',
+  };
+}
+
 const describe = (tool, fallback) => {
   const meta = CATALOG[tool];
   if (!meta?.description) return fallback;
@@ -2272,6 +2303,55 @@ export const TOOLS = [
         },
       });
     }),
+  },
+  {
+    name: 'validate_workflow',
+    description: describe('validate_workflow',
+      "Ask GHL's OWN server validator whether a workflow would pass: the check the builder runs live, "
+      + 'debounced, on every edit (POST /workflow/{loc}/{wid}/validate-workflows). Validates the STORED '
+      + 'document, or the stored document with `templates` swapped in, so a planned edit can be checked '
+      + 'BEFORE it is saved. Writes nothing (proof: live 2026-09-11 on the sandbox: the document read '
+      + 'back byte-identical after five calls, and a dangling next, stripped attributes and an unbound '
+      + 'flow trigger each came back valid:false naming the rule, the step and the message; risk: '
+      + 'read-only). READ `layer`: a failing call reports ONE layer. A structural or an action failure '
+      + 'was reported IN PLACE OF a trigger failure the same document also had, so fix what it names '
+      + 'and call again until valid. valid:true is not exhaustive either: an unknown step type passed.'),
+    inputSchema: schema({
+      locationId: z.string(),
+      workflowId: z.string(),
+      // The builder validates its IN-MEMORY tree. Passing templates is that: the stored document
+      // with this array in place of workflowData.templates.
+      templates: z.array(z.object({}).passthrough()).optional(),
+    }),
+    capabilities: [
+      { method: 'GET', path: '/workflow/{loc}/{wid}' },
+      { method: 'GET', path: '/workflow/{loc}/trigger' },
+      { method: 'POST', path: '/workflow/{loc}/{wid}/validate-workflows' },
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const loc = encodeURIComponent(args.locationId);
+      const wid = encodeURIComponent(args.workflowId);
+      const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+      const doc = await gw.call('GET', `/workflow/${loc}/${wid}`);
+      if (!doc.ok) return fromHttp(doc.status, doc.json);
+      // The document holds no triggers; the server validates them only from `newTriggers`. Sent
+      // without them the same unbound flow trigger came back valid:true, so an unreadable trigger
+      // list stops here rather than producing a verdict that skipped a layer.
+      const trg = await gw.call('GET', `/workflow/${loc}/trigger?${new URLSearchParams({ workflowId: args.workflowId })}`);
+      if (!trg.ok) return fromHttp(trg.status, trg.json);
+      const triggers = Array.isArray(trg.json) ? trg.json : (trg.json?.triggers ?? trg.json?.data ?? []);
+      const body = { ...doc.json, newTriggers: triggers };
+      if (args.templates) body.workflowData = { ...(doc.json?.workflowData ?? {}), templates: args.templates };
+      const r = await gw.call('POST', `/workflow/${loc}/${wid}/validate-workflows`, body);
+      const verdict = readServerValidation(r.json);
+      if (!verdict) return fromHttp(r.status, r.json);
+      return ok({
+        workflowId: args.workflowId,
+        validated: args.templates ? 'the stored document with the supplied templates' : 'the stored document',
+        triggersSent: triggers.length,
+        ...verdict,
+      });
+    }, args),
   },
   {
     name: 'export_workflow',

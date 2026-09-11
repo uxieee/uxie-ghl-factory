@@ -147,6 +147,72 @@ if (wid) {
   }
 }
 
+// ── 2b. the flow-entry guard, and the hatch that gets past it ────────────────────────────────
+// guardFlowEntry (edit-driver.mjs) refuses any op on a conv_ai_trigger and names
+// allowFlowTriggerEdit as the remedy. Until 2026-09-11 the edit_workflow schema did not declare that
+// flag, so the remedy the error named could not be passed — a dead end. This proves the hatch is
+// REACHABLE, with the same op sent twice and only the flag changed, and proves it with a no-change
+// patch so the hatched call writes nothing.
+//
+// SAFETY: an agent-type flow whose conv_ai_trigger is UNBOUND (no botId condition) and INACTIVE.
+// Unbound, no agent can enter it; inactive, it cannot fire at all. An unbound trigger with empty
+// conditions is exactly the any-match shape that makes an ACTIVE one dangerous, so inactivity is
+// asserted before anything else runs, and the section stops if it does not hold.
+console.log('\nflow-entry guard and its hatch');
+const flow = await call('build_workflow', { spec: {
+  name: NAME('flowentry'), workflowType: 'agent',
+  triggers: [{ ref: 'ft', type: 'conv_ai_trigger', name: 'Chat Initiated', filters: [] }],
+  graph: [{ ref: 'm', kind: 'action', type: 'conversationai_custom_message', name: 'Conformance message',
+    attributes: { message: 'TEST-CONF flow-entry probe', waitForReply: false } }],
+} });
+check(flow.ok === true, 'an agent-type flow with an UNBOUND conv_ai_trigger builds', flow.detail);
+const fwid = flow.data?.wid;
+if (fwid) left.push(`workflow ${fwid} (${NAME('flowentry')}, agent-type, trigger unbound and inactive)`);
+if (fwid) {
+  const trig = (await call('export_workflow', { workflowId: fwid })).data?.workflow?.triggers
+    ?? (await call('export_workflow', { workflowId: fwid })).data?.triggers ?? [];
+  const entry = (Array.isArray(trig) ? trig : []).find((t) => t.type === 'conv_ai_trigger');
+  const safe = entry && entry.active !== true && !(entry.conditions ?? []).some((c) => c?.field === 'botId');
+  check(Boolean(safe), 'PRECONDITION: the conv_ai_trigger is inactive and bound to no agent — nothing can enter or fire it',
+    JSON.stringify({ active: entry?.active, conditions: entry?.conditions }));
+  if (safe) {
+    const op = [{ op: 'modifyTrigger', name: 'Chat Initiated', trigger: { name: 'Chat Initiated' } }];
+    const guarded = await call('edit_workflow', { workflowId: fwid, confirm: true, acknowledgeDrift: true, ops: op });
+    check(guarded.ok === false && /refusing to touch a conv_ai_trigger/.test(String(guarded.detail)),
+      'WITHOUT the hatch, an op on the flow entry is REFUSED', String(guarded.detail).slice(0, 140));
+    check(/allowFlowTriggerEdit/.test(String(guarded.detail)), 'and the refusal names the hatch as its remedy');
+    const hatched = await call('edit_workflow', { workflowId: fwid, confirm: true, acknowledgeDrift: true,
+      allowFlowTriggerEdit: true, ops: op });
+    check(!/unsupported fields/.test(String(hatched.detail)),
+      'the tool schema ACCEPTS allowFlowTriggerEdit — the remedy is reachable, not a dead end', String(hatched.detail).slice(0, 140));
+    check(!/refusing to touch a conv_ai_trigger/.test(JSON.stringify(hatched)),
+      'WITH the hatch, the same op gets past the guard', `${hatched.code ?? ''} ${String(hatched.detail ?? '').slice(0, 140)}`);
+    check(/TRIGGER_NOOP/.test(JSON.stringify(hatched)),
+      'and a no-change patch is planned as a NOOP, so the proof itself writes nothing', JSON.stringify(hatched.data?.warnings ?? hatched.warnings ?? null).slice(0, 160));
+  }
+}
+
+  // validate_workflow on the same flow: GHL's own server validator. The unbound flow trigger is a
+  // real defect ("Bot is required"), which makes this flow a natural fixture for it.
+  if (fwid) {
+    const before = JSON.stringify((await call('export_workflow', { workflowId: fwid })).data ?? null);
+    const v = await call('validate_workflow', { workflowId: fwid });
+    check(v.ok === true && v.data?.valid === false && v.data?.layer === 'trigger',
+      'validate_workflow: the unbound flow trigger is refused by GHL\'s own validator, as a TRIGGER-layer verdict', JSON.stringify(v.data ?? v).slice(0, 200));
+    check((v.data?.errors ?? []).some((e) => e.ruleId === 'missing-required-field' && e.triggerType === 'conv_ai_trigger'),
+      'and it names the rule and the trigger, not just "invalid"');
+    const stored = (await call('export_workflow', { workflowId: fwid })).data;
+    const tpls = stored?.workflow?.workflowData?.templates ?? stored?.workflowData?.templates ?? stored?.templates ?? [];
+    if (tpls.length) {
+      const stripped = tpls.map((t, i) => (i === 0 ? { ...t, attributes: {} } : t));
+      const v2 = await call('validate_workflow', { workflowId: fwid, templates: stripped });
+      check(v2.data?.valid === false && v2.data?.layer === 'action',
+        'validate_workflow with edited templates: stripped attributes fail the ACTION layer, before any save', JSON.stringify(v2.data ?? v2).slice(0, 200));
+    } else check(false, 'the flow exported no templates to edit', JSON.stringify(stored).slice(0, 160));
+    const after = JSON.stringify((await call('export_workflow', { workflowId: fwid })).data ?? null);
+    check(before === after, 'validate_workflow wrote nothing: the export reads back identical after both calls');
+  }
+
 // ── 3. repair_workflow ──────────────────────────────────────────────────────────────────────
 // The riskiest tool in the plugin and, until tonight, the one with zero live proof: 12 endpoints,
 // a full-document PUT of workflowData.templates, and no receipt anywhere saying it had ever been

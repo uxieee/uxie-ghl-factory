@@ -86,13 +86,35 @@ const rawCallable = (row) => row.transport === 'json'
 const unmatchedOverlay = [];
 const seen = new Set(Object.keys(overlay));
 
+// An overlay key names a ROUTE, and a route's parameter NAMES are ours, not the server's. When the
+// catalogue settled on one spelling per route, three hand-written keys orphaned overnight -- which
+// is how the warning below, the loud one, gets trained into noise. So a key also matches by shape,
+// but only when exactly ONE key has that shape: two keys sharing a shape is a real ambiguity, and
+// a human settles that, not this script.
+const shapeOf = (method, path) => `${method} ${path.replace(/\{[^}]*\}/g, '{}')}`;
+const overlayByShape = new Map();
+for (const key of Object.keys(overlay)) {
+  const [method, ...rest] = key.split(' ');
+  const shape = shapeOf(method, rest.join(' '));
+  overlayByShape.set(shape, overlayByShape.has(shape) ? null : key);
+}
+const overlayKeyFor = (method, path) => {
+  const exact = `${method} ${path}`;
+  if (overlay[exact]) return exact;
+  return overlayByShape.get(shapeOf(method, path)) ?? exact;
+};
+
 const endpoints = source.endpoints.map((row) => {
-  const key = `${row.method} ${row.path}`;
+  const key = overlayKeyFor(row.method, row.path);
   const extra = overlay[key] ?? {};
   seen.delete(key);
   const covered = [...(coverage.get(`${row.method} ${normalize(row.path)}`) ?? [])].sort();
   return {
     id: row.id,
+    // Spellings this route was also written with. The location guard reads them: a template naming
+    // {locationId} decides whether a path targets another account, and the row that survived a
+    // fold may not be the one that named it.
+    ...(row.aka?.length ? { aka: row.aka } : {}),
     method: row.method,
     url: `${row.origin}${row.path}`,
     path: row.path,
@@ -174,8 +196,9 @@ for (const [key, tools] of coverage) {
   // they were the only rows that could not carry one. An overlay key aimed at an adopted row
   // orphaned instead, which trains a reader to ignore the orphan warning that is supposed to be
   // the loud one. Same precedence as everywhere else: a human who probed the endpoint wins.
-  const extra = overlay[`${method} ${wire}`] ?? {};
-  seen.delete(`${method} ${wire}`);
+  const adoptedKey = overlayKeyFor(method, wire);
+  const extra = overlay[adoptedKey] ?? {};
+  seen.delete(adoptedKey);
   adopted.push({
     id: `typed--${[...tools][0]}--${wire.split('/').filter((x) => x && !x.startsWith('{')).slice(-2).join('-') || 'call'}`,
     method,
@@ -232,7 +255,7 @@ if (unmatchedOverlay.length) {
 // already demoted for read-shaped intents; what curation buys is `destructive`, and that list is
 // seeded from the endpoints known to do real damage. The count is printed so it cannot be
 // forgotten, and it should shrink.
-const uncurated = endpoints.filter((e) => e.method !== 'GET' && e.method !== 'DELETE' && !overlay[`${e.method} ${e.path}`]?.kind);
+const uncurated = endpoints.filter((e) => e.method !== 'GET' && e.method !== 'DELETE' && !overlay[overlayKeyFor(e.method, e.path)]?.kind);
 
 const withSummary = endpoints.filter((e) => e.summary).length;
 const withNote = endpoints.filter((e) => e.note).length;

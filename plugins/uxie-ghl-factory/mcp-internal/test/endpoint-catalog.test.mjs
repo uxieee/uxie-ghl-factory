@@ -124,12 +124,29 @@ test('sidecar proof promotes reach exactly as far as it is allowed to', () => {
     const e = byKey.get(`${row.method} ${row.origin}${row.path}`);
     if (!e || !row.proof) continue;
     assert.equal(e.proof, row.proof, `${row.method} ${row.path} lost its proof in the build`);
-    const curated = overlay[`${row.method} ${row.path}`]?.reach;
+    // Resolved the way the BUILD resolves it: by shape when no key matches exactly, because a
+    // route's parameter names are ours and the catalogue renames them. Comparing exact keys here
+    // reported a curated reach as an unearned promotion.
+    const shape = (m, path) => `${m} ${path.replace(/\{[^}]*\}/g, '{}')}`;
+    const curatedKey = overlay[`${row.method} ${row.path}`]
+      ? `${row.method} ${row.path}`
+      : Object.keys(overlay).find((k) => shape(...k.split(/ (.*)/s).slice(0, 2)) === shape(row.method, row.path));
+    const curated = overlay[curatedKey]?.reach;
     if (curated) { assert.equal(e.reach, curated, 'the hand-curated overlay must outrank sidecar proof'); continue; }
     assert.equal(e.reach, row.proof === 'executed' ? 'proven' : 'source-only',
       `${row.method} ${row.path} carries proof:${row.proof} and reach:${e.reach}`);
   }
   assert.ok(catalog.endpoints.some((e) => e.proof === 'executed'), 'no executed rows reached the catalogue at all');
+});
+
+test('a folded spelling that names a location survives on the row, for the guard to read', () => {
+  // The catalogue folds /lists/dynamic/{locationId} into /lists/dynamic/{smartListId}: one route,
+  // one row. The location guard decides whether a path targets another account by finding
+  // {locationId} in a template, so the fold must not take that word out of its reach.
+  const row = catalog.endpoints.find((e) => e.method === 'GET' && e.path === '/lists/dynamic/{smartListId}');
+  assert.ok(row, 'the smart-list row must be in the catalogue');
+  assert.ok((row.aka ?? []).includes('/lists/dynamic/{locationId}'),
+    'the location-bearing spelling must survive as aka');
 });
 
 test('every overlay key resolves to a row', () => {

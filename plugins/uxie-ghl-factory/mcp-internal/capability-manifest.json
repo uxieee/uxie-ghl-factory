@@ -130,6 +130,21 @@
     "path": "/locations/{loc}/customValues"
   },
   {
+    "tool": "validate_workflow",
+    "method": "GET",
+    "path": "/workflow/{loc}/{wid}"
+  },
+  {
+    "tool": "validate_workflow",
+    "method": "GET",
+    "path": "/workflow/{loc}/trigger"
+  },
+  {
+    "tool": "validate_workflow",
+    "method": "POST",
+    "path": "/workflow/{loc}/{wid}/validate-workflows"
+  },
+  {
     "tool": "export_workflow",
     "method": "GET",
     "path": "/workflow/{loc}/{wid}"

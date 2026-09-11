@@ -4,7 +4,7 @@ MCP server exposing the `uxie-ghl-factory` plugin's proven GoHighLevel **interna
 engines as schema-validated tools. Complements the plugin's skills — the specialists
 design, this server executes.
 
-**Status: shipped in `uxie-ghl-factory` since 0.8.0 (17 tools then, 51 as of 0.51.0). The original 17 were all LIVE-PROVEN on GROM AU (2026-07-21); every tool added since carries its own `proof:` label in `tool-descriptions.json`.**
+**Status: shipped in `uxie-ghl-factory` since 0.8.0 (17 tools then, 83 as of 0.82.0). The original 17 were all LIVE-PROVEN on GROM AU (2026-07-21); every tool added since carries its own `proof:` label in `tool-descriptions.json`.**
 Every tool has been driven against a real account through a real MCP stdio session — see the
 per-tool ledgers below: the read tools; the confirm-gated workflow writes (`build_workflow`,
 `edit_workflow`, `publish_workflow`, `fast_forward_contacts`, non-GET `raw_request`); the
@@ -163,6 +163,7 @@ commit `dist/` — a test rebuilds-and-diffs so a stale bundle can't ship.
 | `get_trigger_logs` | why a trigger did/didn't fire: per-contact attempts with qualified, failedReason, actual vs expected value, plus ranked top-failed-reasons |
 | `get_account_workflow_overview` | the Workflow Overview page as data: location counts, weekly enrollment, Needs-Review list + error-email settings, batched enrolled/finished totals |
 | `test_custom_code` | run Custom Code in GHL's sandbox with sample inputData (the builder's Test button) — output validity + console, nothing touched |
+| `validate_workflow` | GHL's own server validator (the builder's live check) over the stored document or an edited `templates` array, with the stored triggers — `valid`, the failing `layer`, rule/step/message; writes nothing |
 | `pin_webhook_sample` | POST a sample to an inbound_webhook trigger's receiving URL, pin it as the trigger's reference, return its `{{inboundWebhookRequest.*}}` tags — preview + `confirm` (it REPLACES the active reference) |
 | `list_account_entities` | pipelines, calendars, users, forms, custom fields (all models), AI agents, workflows, custom values, trigger links, offers/products, SMS + email templates, store products, coupons, phone numbers, funnels, Facebook pages, document templates, object schemas — the resolver's 20 entity kinds |
 | `list_marketplace_apps` | third-party apps INSTALLED in a location, with each app's triggers/actions — `key`, `version`, `templateId`, full `customVars`/`inputs` schema (`compact:true` by default) |
