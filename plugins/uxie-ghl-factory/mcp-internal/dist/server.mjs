@@ -24205,7 +24205,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           reach: "source-only",
           coveredBy: [
-            "publish_workflow"
+            "edit_workflow",
+            "publish_workflow",
+            "repair_workflow"
           ],
           rawCallable: true,
           transport: "json",
@@ -39966,7 +39968,10 @@ var init_define_ENDPOINT_CATALOG = __esm({
           reach: "refused",
           coveredBy: [
             "build_workflow",
-            "pin_webhook_sample"
+            "edit_workflow",
+            "pin_webhook_sample",
+            "publish_workflow",
+            "repair_workflow"
           ],
           rawCallable: true,
           transport: "json",
@@ -96317,6 +96322,51 @@ var catalog_data_default = {
       ],
       lc_klaviyo_unsubscribe_profile: [
         "lc_klaviyo_new_event"
+      ]
+    },
+    requiredTriggersByAction: {
+      conversationai_ai_message: [
+        "conv_ai_autonomous_trigger",
+        "conv_ai_trigger"
+      ],
+      conversationai_ai_splitter: [
+        "conv_ai_autonomous_trigger",
+        "conv_ai_trigger"
+      ],
+      conversationai_book_appointment: [
+        "conv_ai_trigger",
+        "conv_ai_autonomous_trigger"
+      ],
+      conversationai_continue: [
+        "conv_ai_trigger",
+        "conv_ai_autonomous_trigger"
+      ],
+      conversationai_custom_message: [
+        "conv_ai_autonomous_trigger",
+        "conv_ai_trigger"
+      ],
+      conversationai_end: [
+        "conv_ai_autonomous_trigger",
+        "conv_ai_trigger"
+      ],
+      conversationai_objective: [
+        "conv_ai_trigger",
+        "conv_ai_autonomous_trigger"
+      ],
+      conversationai_transfer_bot: [
+        "conv_ai_trigger",
+        "conv_ai_autonomous_trigger"
+      ],
+      conversationai_services_booking: [
+        "conv_ai_trigger",
+        "conv_ai_autonomous_trigger"
+      ],
+      "tiktok-dm": [
+        "customer_reply"
+      ],
+      send_messenger_optin: [
+        "facebook_comment_on_post",
+        "customer_reply"
       ]
     },
     rules: [
@@ -163202,15 +163252,129 @@ function canNestRouterAt(parentId, templates, maxNesting, opts) {
 }
 var templateParentId = (t) => typeof t?.parent === "string" && t.parent || typeof t?.parentKey === "string" && t.parentKey || "";
 
+// ../skills/create-ghl-workflow/engine/router-branches.mjs
+init_define_BUILDER_VALIDATORS();
+init_define_CONTACT_FILTER_FIELDS();
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
+init_define_TOOL_CATALOG();
+var CONDITIONLESS = ["always_run", "fallback"];
+var NO_VALUE_OPERATORS = ["has_value", "has_no_value", "timeout"];
+var DATE_WORDS = ["today", "yesterday", "tomorrow"];
+var ABSOLUTE_DATE_OPERATORS = ["on", "between", "afterDate", "beforeDate"];
+var isConditionless = (branch) => CONDITIONLESS.includes(branch?.branchType ?? "custom");
+var isWithinLimits = (field, low = 0, high = 100) => Boolean(field) && field.length > low && field.length <= high;
+function isValidValue(c) {
+  if (DATE_WORDS.includes(c.conditionValueOperator)) return true;
+  if (c.conditionValueOperator && !ABSOLUTE_DATE_OPERATORS.includes(c.conditionValueOperator) && !c.conditionValueUnit) return false;
+  if (c.conditionValue == null || c.conditionValue.length === 0) return false;
+  return true;
+}
+function isValidCondition(c) {
+  if (!c?.conditionType || !c.conditionSubType || !c.conditionOperator) return false;
+  if (NO_VALUE_OPERATORS.includes(c.conditionOperator)) return true;
+  return isValidValue(c);
+}
+var segmentHasErrors = (s) => !(s?.conditions ?? []).every(isValidCondition);
+function hasIncompleteConditions(branch) {
+  if (isConditionless(branch)) return false;
+  const segments = branch?.segments ?? [];
+  return !segments.length || segments.some(segmentHasErrors);
+}
+function branchViolation(branch) {
+  const name = typeof branch?.name === "string" ? branch.name : "";
+  if (!name.trim().length) return "Branch name cannot be empty!";
+  if (!isWithinLimits(name)) return "Branch name should be less than 100 characters";
+  if (hasIncompleteConditions(branch)) return "Add at least one complete condition to every branch";
+  return void 0;
+}
+function incompleteBranchViolation(branches) {
+  for (const b of branches ?? []) {
+    const v = branchViolation(b);
+    if (v) return `${b?.name ?? ""}: ${v}`;
+  }
+  return void 0;
+}
+var ROUTING_CONDITION_FIELDS = ["conditionType", "conditionSubType", "conditionOperator", "conditionValue", "conditionValueOperator", "conditionValueUnit"];
+function canonicalFieldValue(value) {
+  if (value === void 0 || value === null) return JSON.stringify(null);
+  if (Array.isArray(value)) return JSON.stringify(value.map(canonicalFieldValue).sort());
+  return JSON.stringify(String(value));
+}
+var showConditionValueOptions = (c) => !(c.conditionOperator && NO_VALUE_OPERATORS.includes(c.conditionOperator));
+function valueOperatorType(c) {
+  if (!c.conditionValueOperator) return null;
+  if (DATE_WORDS.includes(c.conditionValueOperator)) return null;
+  if (["on", "afterDate", "beforeDate"].includes(c.conditionValueOperator)) return "datepicker";
+  return "relative";
+}
+function routingConditionFields(c) {
+  const { conditionType, conditionSubType, conditionOperator, conditionValue, conditionValueOperator, conditionValueUnit } = c;
+  if (showConditionValueOptions(c) === false) {
+    return { conditionType, conditionSubType, conditionOperator, conditionValue: void 0, conditionValueOperator: void 0, conditionValueUnit: void 0 };
+  }
+  if (conditionValueOperator && valueOperatorType(c) === null) {
+    return { conditionType, conditionSubType, conditionOperator, conditionValue: void 0, conditionValueOperator, conditionValueUnit: void 0 };
+  }
+  return { conditionType, conditionSubType, conditionOperator, conditionValue, conditionValueOperator, conditionValueUnit };
+}
+function canonicalCondition(c) {
+  const fields = routingConditionFields(c);
+  return JSON.stringify(ROUTING_CONDITION_FIELDS.map((field) => canonicalFieldValue(fields[field])));
+}
+function groupNode(operator, children) {
+  const flattened = children.flatMap((child) => child.kind === "group" && child.operator === operator ? child.children : [child]);
+  if (!flattened.length) return void 0;
+  if (flattened.length === 1) return flattened[0];
+  return { kind: "group", operator, children: flattened };
+}
+function serializeCanonicalNode(node) {
+  if (node.kind === "condition") return JSON.stringify(["condition", node.condition]);
+  return JSON.stringify(["group", node.operator, node.children.map(serializeCanonicalNode).sort()]);
+}
+var canonicalSegmentNode = (segment) => groupNode(segment?.operator, (segment?.conditions ?? []).map((condition) => ({ kind: "condition", condition: canonicalCondition(condition) })));
+function canonicalRouterBranchConditions(branch) {
+  if (isConditionless(branch) || hasIncompleteConditions(branch)) return "";
+  const segments = (branch.segments ?? []).map(canonicalSegmentNode).filter((node) => node !== void 0);
+  const root = groupNode(branch.operator, segments);
+  return root ? serializeCanonicalNode(root) : "";
+}
+function firstDuplicateRouterBranchPair(branches) {
+  const seen = /* @__PURE__ */ new Map();
+  for (const branch of branches ?? []) {
+    const canonical = canonicalRouterBranchConditions(branch);
+    if (!canonical) continue;
+    const original = seen.get(canonical);
+    if (!original) {
+      seen.set(canonical, branch);
+      continue;
+    }
+    if (original.id === branch.id) continue;
+    return { branch, original };
+  }
+  return void 0;
+}
+function duplicatePairViolation(branches) {
+  const pair = firstDuplicateRouterBranchPair(branches);
+  if (!pair) return void 0;
+  return `${pair.branch.name} has the same conditions as ${pair.original.name}. Change one of them so the router knows which path to take.`;
+}
+
 // ../skills/create-ghl-workflow/engine/graph-rules.mjs
 var has = (v) => v != null && v !== "" && !(Array.isArray(v) && !v.length);
 var present = (v) => !(v == null || v === "" || Array.isArray(v) && !v.length || typeof v === "object" && !Array.isArray(v) && !Object.keys(v).length);
+var CV_REGEX_TEST = /\{\{([^{}]+)\}\}/;
+var fromEmailNeedsDomain = (fromEmail) => Boolean(fromEmail) && !CV_REGEX_TEST.test(String(fromEmail)) && (!String(fromEmail).includes("@") || !String(fromEmail).includes("."));
 function evaluateWorkflowRules(doc, rules) {
   const V = rules?.vocab ?? {};
   const T = doc.templates ?? [];
   const TR = doc.triggers ?? [];
-  const F = [];
-  const fire = (rule, message) => F.push({ rule, message });
+  const F = [], A = [];
+  const fire = (rule, message, { atPublish = false } = {}) => {
+    if (!atPublish || doc.publishing) F.push({ rule, message });
+    else A.push({ rule, message: `${message} (a draft cannot run; this is refused when the workflow is published)` });
+  };
   const types = (list) => new Set(list ?? []);
   const hasTrigger = (t) => TR.some((x) => x?.type === t);
   if (doc.publishing && T.length === 0) fire("checkEmptyPublish", "a workflow cannot be published with zero steps");
@@ -163322,8 +163486,7 @@ function evaluateWorkflowRules(doc, rules) {
     const SDV = V.senderDomain;
     const fromEmail = doc.settings?.senderAddress?.from_email;
     const domain2 = doc.senderDomain;
-    const CV_REGEX_TEST = /\{\{([^{}]+)\}\}/;
-    if (SDV && domain2 && domain2 !== SDV.allDomains && fromEmail && !CV_REGEX_TEST.test(String(fromEmail)) && (!String(fromEmail).includes("@") || !String(fromEmail).includes(".")))
+    if (SDV && domain2 && domain2 !== SDV.allDomains && fromEmailNeedsDomain(fromEmail))
       fire("checkFromEmailFormat", `From Email '${fromEmail}' is not a full address, and this workflow sends from '${domain2}' \u2014 GHL refuses the save`);
   }
   {
@@ -163333,12 +163496,13 @@ function evaluateWorkflowRules(doc, rules) {
       for (const r of T.filter((t) => isRouterRoot(t, opts))) {
         const branches = r.attributes?.branches ?? [];
         const who = `router '${r.name ?? r.id}'`;
-        if (RV.maxBranches != null && branches.length > RV.maxBranches)
-          fire("validateRouterConditions", `${who} has ${branches.length} branches \u2014 GHL allows at most ${RV.maxBranches}`);
         const fallbacks = branches.filter((b) => b?.branchType === "fallback").length;
-        if (fallbacks > 1) fire("validateRouterConditions", `${who} has ${fallbacks} fallback branches \u2014 GHL allows one`);
-        if (fallbacks > 0 && branches.some((b) => b?.branchType === "always_run"))
-          fire("validateRouterConditions", `${who} has both an always-run branch and a fallback \u2014 the fallback can never run`);
+        const modelViolation = () => {
+          const m = incompleteBranchViolation(branches) ?? duplicatePairViolation(branches);
+          return m ? `${who}: ${m}` : null;
+        };
+        const violation = RV.maxBranches != null && branches.length > RV.maxBranches ? `${who} has ${branches.length} branches \u2014 GHL allows at most ${RV.maxBranches}` : fallbacks > 1 ? `${who} has ${fallbacks} fallback branches \u2014 GHL allows one` : fallbacks > 0 && branches.some((b) => b?.branchType === "always_run") ? `${who} has both an always-run branch and a fallback \u2014 the fallback can never run` : modelViolation();
+        if (violation) fire("validateRouterConditions", violation);
         if (RV.maxNesting != null && !canNestRouterAt(templateParentId(r), T, RV.maxNesting, opts))
           fire("validateRouterConditions", `${who} nests deeper than GHL's limit of ${RV.maxNesting} routers`);
       }
@@ -163350,18 +163514,87 @@ function evaluateWorkflowRules(doc, rules) {
       }
     }
   }
-  const A = [];
+  for (const t of T) {
+    const need = rules?.requiredTriggersByAction?.[t.type];
+    if (!need?.length || need.some(hasTrigger)) continue;
+    const list = need.length > 1 ? `${need.slice(0, -1).join(", ")} or ${need[need.length - 1]}` : need[0];
+    fire("validateRequiredTriggersForActions", `There is a problem with this workflow setup, "${t.name ?? t.id}" action requires ${list} trigger to be present. Please add the required trigger or remove this action.`, { atPublish: true });
+  }
+  const firstHook = TR.find((x) => x?.type === "inbound_webhook");
+  if (firstHook && doc.webhookReference !== void 0 && !doc.webhookReference?.payload)
+    fire("inboundWebhookTriggerValidator", "There is a problem with this workflow setup, Mapping Reference is required for the Inbound Webhook Trigger to function. Please map a request to be used as reference in your Inbound Webhook Trigger. (pin_webhook_sample maps one.)", { atPublish: true });
+  if (doc.creationSource === "workflow_ai" && !T.some((t) => t.type === "if_else" && t.attributes?.segments?.length)) {
+    const wasPublished = doc.status === "published";
+    const emit = !(!doc.publishing && wasPublished);
+    const ifFire = (message) => {
+      if (emit) fire("validateIfElseCondition", message, { atPublish: true });
+    };
+    const problem = "There is a problem with this workflow setup,";
+    const unstamped = T.find((t) => t.type === "if_else" && !t.nodeType);
+    if (unstamped) {
+      ifFire(doc.publishing && wasPublished ? `Unable to save: The condition "${unstamped.name}" is missing required configuration. Your published workflow will continue running with the previous version.` : `Unable to save: The condition "${unstamped.name}" is missing required configuration. Try creating a new workflow using AI.`);
+    } else {
+      for (const t of T.filter((x) => x.type === "if_else" && x.nodeType === "condition-node")) {
+        const tn = t.name;
+        if (!Array.isArray(t.next) || t.next.length < 2) {
+          ifFire(`${problem} "${tn}" condition requires at least two next nodes. Please add a next node to proceed.`);
+          continue;
+        }
+        const branches = t.attributes?.branches;
+        if (!branches?.length) {
+          ifFire(`${problem} "${tn}" condition requires at least one branch. Please add a branch to proceed.`);
+          continue;
+        }
+        for (const b of branches) {
+          const bn = b.name;
+          if (!b.segments?.length) {
+            ifFire(`${problem} branch "${bn}" in "${tn}" condition requires at least one segment. Please add a segment to proceed.`);
+            continue;
+          }
+          for (const s of b.segments) {
+            if (!s.conditions?.length) {
+              ifFire(`${problem} a segment in branch "${bn}" of "${tn}" condition requires at least one condition. Please add a condition to proceed.`);
+              continue;
+            }
+            for (const c of s.conditions) {
+              const at = `a condition in branch "${bn}" of "${tn}"`;
+              if (!c.conditionType) {
+                ifFire(`${problem} ${at} is missing a condition type. Please select a condition type to proceed.`);
+                continue;
+              }
+              if (!c.conditionSubType) {
+                ifFire(`${problem} ${at} is missing a condition field. Please select a condition field to proceed.`);
+                continue;
+              }
+              if (!c.conditionOperator) {
+                ifFire(`${problem} ${at} is missing a condition operator. Please select a condition operator to proceed.`);
+                continue;
+              }
+              if (["has_value", "has_no_value", "timeout"].includes(c.conditionOperator)) continue;
+              if (c.conditionValueOperator) {
+                if (["today", "yesterday", "tomorrow"].includes(c.conditionValueOperator)) continue;
+                if (!["on", "between", "afterDate", "beforeDate"].includes(c.conditionValueOperator) && !c.conditionValueUnit) {
+                  ifFire(`${problem} ${at} with relative date operator requires a time unit. Please select a time unit to proceed.`);
+                  continue;
+                }
+              }
+              if (!c.conditionValue || Array.isArray(c.conditionValue) && !c.conditionValue.length)
+                ifFire(`${problem} ${at} is missing a condition value. Please enter a condition value to proceed.`);
+            }
+          }
+        }
+      }
+    }
+  }
   for (const [trigType, acts] of Object.entries(rules?.disabledActionsByTrigger ?? {})) {
     if (!hasTrigger(trigType)) continue;
     const bad = new Set(acts);
     for (const t of T) if (bad.has(t.type)) A.push({ rule: "inCompatibleActions", message: `'${t.name ?? t.id}' (${t.type}) is greyed out in the builder while a '${trigType}' trigger is present \u2014 the UI cannot produce this combination` });
   }
-  const notEvaluable = [
-    "inboundWebhookTriggerValidator (builder module state)",
-    "validateIfElseCondition (workflow_ai-authored only)",
-    "validateRouterConditions: incompleteBranchViolation + duplicatePairViolation (computed on the RouterBranch model \u2014 branch.violation and firstDuplicateRouterBranchPair \u2014 not derivable from the stored document)"
-  ];
-  if (doc.senderDomain === void 0 && doc.settings?.senderAddress?.from_email)
+  const notEvaluable = [];
+  if (firstHook && doc.webhookReference === void 0)
+    notEvaluable.push("inboundWebhookTriggerValidator (needs the webhook's mapped sample: GET /hooks/inbound-webhook-request/reference/{triggerId})");
+  if (doc.senderDomain === void 0 && fromEmailNeedsDomain(doc.settings?.senderAddress?.from_email))
     notEvaluable.push("checkFromEmailFormat (needs this workflow's sending domain: GET /workflow/{loc}/email/domain-selection?workflowId=\u2026)");
   return { findings: F, advisories: A, notEvaluable };
 }
@@ -163374,7 +163607,8 @@ function rulesNeedTriggers(templates, rules) {
     ...V.appointmentBookingAction ? [V.appointmentBookingAction] : [],
     ...V.createOpportunity?.actionType ? [V.createOpportunity.actionType] : [],
     ...Object.values(V.triggerActionRestrictions ?? {}).flat(),
-    ...Object.keys(rules?.restrictedTriggersByAction ?? {})
+    ...Object.keys(rules?.restrictedTriggersByAction ?? {}),
+    ...Object.keys(rules?.requiredTriggersByAction ?? {})
   ]);
   return (templates ?? []).some((t) => care.has(t?.type));
 }
@@ -164037,6 +164271,8 @@ function validateDocument({
   settings = null,
   status = null,
   senderDomain,
+  webhookReference,
+  creationSource,
   catalog = loadCatalog(),
   marketplaceTypes = null,
   scope = null,
@@ -164046,7 +164282,7 @@ function validateDocument({
 } = {}) {
   const publishing = publishingFor(intent, status);
   const rulebook = catalog?.workflowRules;
-  const evaluated = rulebook ? evaluateWorkflowRules({ templates, triggers, settings, status, publishing, senderDomain }, rulebook) : { findings: [], advisories: [], notEvaluable: ["no rulebook in the catalog"] };
+  const evaluated = rulebook ? evaluateWorkflowRules({ templates, triggers, settings, status, publishing, senderDomain, webhookReference, creationSource }, rulebook) : { findings: [], advisories: [], notEvaluable: ["no rulebook in the catalog"] };
   const skipAll = skipWorkflowRules === true;
   const skipSet = new Set(Array.isArray(skipWorkflowRules) ? skipWorkflowRules : []);
   const isSkipped = (f) => skipAll || skipSet.has(f.rule);
@@ -164085,13 +164321,21 @@ async function validateForWrite({
   document,
   templates,
   triggers = [],
+  serverTriggers,
   baseline = null,
   allow = false,
+  creationSource,
   ...rest
 } = {}) {
   const steps = templates ?? document?.workflowData?.templates ?? [];
-  const offline = validateDocument({ ...rest, templates: steps, triggers, allow });
-  const server2 = call && wid ? await liveValidate(call, loc, wid, { document, templates, triggers }) : { ran: false, why: "no workflow id to validate against \u2014 GHL's validator needs one in its path" };
+  const offline = validateDocument({
+    ...rest,
+    templates: steps,
+    triggers,
+    allow,
+    creationSource: creationSource ?? document?.creationSource
+  });
+  const server2 = call && wid ? await liveValidate(call, loc, wid, { document, templates, triggers: serverTriggers ?? triggers }) : { ran: false, why: "no workflow id to validate against \u2014 GHL's validator needs one in its path" };
   let serverBlocking = [];
   if (server2.ran && server2.valid === false) {
     const before = new Set((baseline?.ran && baseline.valid === false ? baseline.findings : []).map(findingKey));
@@ -164497,12 +164741,15 @@ ${offline.summary}`;
   }
   const gate = await validateForWrite({
     // the DOCUMENT, never a separate template array: the gate must judge the bytes this write sends
+    // The rules see EVERY trigger (a flow's AI steps require its entry trigger, bound or not);
+    // GHL's validator is shown only the ones it can judge yet.
     intent: "build",
     call,
     loc,
     wid: WID,
     document: sent,
-    triggers: gateTriggers,
+    triggers: built.triggerBodies.map(swap),
+    serverTriggers: gateTriggers,
     settings: { senderAddress: sent.senderAddress },
     status: opts.publish === true ? "published" : "draft",
     catalog,
@@ -170250,6 +170497,20 @@ async function senderDomainFor(gw, loc, wid, fromEmail, catalog) {
   if (!Array.isArray(rows) || !rows.length) return void 0;
   return rows.find((d) => d?.selected)?.domain ?? catalog?.workflowRules?.vocab?.senderDomain?.allDomains ?? "ALL_DOMAINS";
 }
+async function webhookReferenceFor(gw, loc, triggers) {
+  const hook = (triggers ?? []).find((t) => t?.type === "inbound_webhook");
+  const tid = hook?.id ?? hook?._id;
+  if (!tid) return void 0;
+  let r;
+  try {
+    r = await gw.call("GET", `/hooks/inbound-webhook-request/reference/${encodeURIComponent(tid)}?${new URLSearchParams({ locationId: loc })}`);
+  } catch {
+    return void 0;
+  }
+  if (r?.status === 404) return { triggerId: tid, payload: null };
+  if (!r?.ok) return void 0;
+  return { triggerId: tid, payload: r.json?.payload ?? null };
+}
 async function workflowValidationGate({
   gw,
   loc,
@@ -170268,6 +170529,7 @@ async function workflowValidationGate({
   status = null,
   settings = null,
   senderDomain,
+  webhookReference,
   skipWorkflowRules = false
 }) {
   let marketplaceTypes = null;
@@ -170295,6 +170557,7 @@ async function workflowValidationGate({
     status,
     settings,
     senderDomain,
+    webhookReference,
     skipWorkflowRules
   });
   for (const f of v.engine.warnings) warnings.push(`VALIDATION ${f.check}: '${f.stepName ?? f.stepId}' (${f.type}): ${f.message}`);
@@ -173165,6 +173428,11 @@ var TOOLS2 = [
       // Read ONLY when a deleteStep/deleteContainer op targets a PUBLISHED workflow: contacts
       // parked on a deleted step are ejected (backlog 23), so the preview counts them first.
       { method: "GET", path: "/workflows/status/search/count-per-step" },
+      // The two workflow rules whose input the document does not carry: the sending domain (read ONLY
+      // when the From Email is not a full address) and the webhook's mapped sample (read ONLY when
+      // the workflow is published and has an inbound webhook trigger).
+      { method: "GET", path: "/workflow/{loc}/email/domain-selection" },
+      { method: "GET", path: "/hooks/inbound-webhook-request/reference/{triggerId}" },
       // Read ONLY for a replaceFieldId op: both ids must resolve on THIS account (backlog 29).
       { method: "GET", path: "/locations/{loc}/customFields/{id}" },
       // Marketplace index — read ONLY when an op carries marketplace:true.
@@ -173427,6 +173695,9 @@ var TOOLS2 = [
         if (listed.response.ok) gateTriggers = listed.triggers;
         else warnings.push(`VALIDATION: the trigger list could not be read (${listed.response.status}); GHL's trigger layer was not judged`);
       }
+      const editFromEmail = (commitBody.senderAddress ?? fresh.senderAddress)?.from_email;
+      const editSenderDomain = fromEmailNeedsDomain(editFromEmail) ? await senderDomainFor(gw, args.locationId, args.workflowId, editFromEmail, ctx.catalog) : void 0;
+      const editWebhookReference = fresh.status === "published" ? await webhookReferenceFor(gw, args.locationId, gateTriggers) : void 0;
       const validation = await workflowValidationGate({
         // No `templates` here on purpose: the gate must judge the DOCUMENT, whose templates the commit
         // body has already transformed (fillInputTriggerParams(stripNullNext(...))). Passing the raw
@@ -173446,6 +173717,8 @@ var TOOLS2 = [
         status: fresh.status,
         skipWorkflowRules: args.skipWorkflowRules,
         settings: { senderAddress: commitBody.senderAddress ?? fresh.senderAddress },
+        senderDomain: editSenderDomain,
+        webhookReference: editWebhookReference,
         // The path's own guards own these checks and their hatches; the gate must not overrule them.
         waive: /* @__PURE__ */ new Set([...args.allowOverCap === true ? ["FIELD_CAP"] : [], ...args.allowDanglingStepRefs === true ? ["STEP_REF"] : [], ...args.allowDanglingParentKeys === true ? ["PARENT_KEY"] : []])
       });
@@ -173781,7 +174054,11 @@ var TOOLS2 = [
       { method: "PUT", path: "/workflow/{loc}/{wid}" },
       // The pre-write ladder (shared helpers above edit_workflow): the action-schema catalog, the
       // stateless asset validator, the sandbox, and the readiness reads — read ONLY when the
-      // repair actually changes a step (a no-op document sends nothing new).
+      // repair actually changes a step (a no-op document sends nothing new). The two workflow-rule
+      // inputs the document does not carry are read as edit reads them: the sending domain only for
+      // a From Email that is not a full address, the webhook's sample only when this save re-publishes.
+      { method: "GET", path: "/workflow/{loc}/email/domain-selection" },
+      { method: "GET", path: "/hooks/inbound-webhook-request/reference/{triggerId}" },
       { method: "GET", path: "/workflows-marketplace/location/{loc}/assets" },
       { method: "POST", path: "/workflow/{loc}/validate-assets" },
       { method: "POST", path: "/workflow/custom-code/run-test" },
@@ -173921,6 +174198,8 @@ var TOOLS2 = [
         if (!listed.response.ok) return fromHttp(listed.response.status, listed.response.json);
         gateTriggers = listed.triggers;
       }
+      const repairFromEmail = fresh.senderAddress?.from_email;
+      const repairSenderDomain = fromEmailNeedsDomain(repairFromEmail) ? await senderDomainFor(gw, args.locationId, args.workflowId, repairFromEmail, catalog) : void 0;
       const validation = await workflowValidationGate({
         gw,
         loc: args.locationId,
@@ -173937,6 +174216,9 @@ var TOOLS2 = [
         status: fresh.status,
         skipWorkflowRules: args.skipWorkflowRules,
         settings: { senderAddress: fresh.senderAddress },
+        senderDomain: repairSenderDomain,
+        // as edit: the webhook's mapped sample is read only when this save re-publishes
+        webhookReference: fresh.status === "published" ? await webhookReferenceFor(gw, args.locationId, gateTriggers) : void 0,
         waive: /* @__PURE__ */ new Set([...args.allowOverCap === true ? ["FIELD_CAP"] : [], ...args.allowDanglingStepRefs === true ? ["STEP_REF"] : [], ...args.allowDanglingParentKeys === true ? ["PARENT_KEY"] : []])
       });
       if (validation.refusal) return validation.refusal;
@@ -174118,6 +174400,8 @@ var TOOLS2 = [
       { method: "GET", path: "/workflow/{loc}/trigger" },
       // checkFromEmailFormat needs the workflow's sending domain, which the document does not carry.
       { method: "GET", path: "/workflow/{loc}/email/domain-selection" },
+      // inboundWebhookTriggerValidator needs the webhook's mapped sample — read only when there is one.
+      { method: "GET", path: "/hooks/inbound-webhook-request/reference/{triggerId}" },
       { method: "PUT", path: "/workflow/{loc}/{wid}" },
       // REPAIR (added 2026-08-28): one per-trigger status write for any trigger still
       // inactive after the document PUT's own cascade — see the handler's measurement note.
@@ -174140,6 +174424,7 @@ var TOOLS2 = [
         current?.senderAddress?.from_email,
         publishCatalog
       );
+      const webhookReference = await webhookReferenceFor(gw, args.locationId, listed.triggers);
       const validation = await workflowValidationGate({
         gw,
         loc: args.locationId,
@@ -174158,7 +174443,8 @@ var TOOLS2 = [
         status: current?.status ?? null,
         skipWorkflowRules: args.skipWorkflowRules,
         settings: { senderAddress: current?.senderAddress },
-        senderDomain
+        senderDomain,
+        webhookReference
       });
       if (validation.refusal) return validation.refusal;
       const preview = {

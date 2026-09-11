@@ -11,6 +11,57 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [0.84.1] — 2026-09-12
+
+All 22 of GHL's live workflow rules are now replayed. 0.84.0 skipped three and gave a reason for
+each, and all three reasons were wrong.
+
+### Added
+
+- 🔴 **`validateRequiredTriggersForActions`**: an action needs one of the triggers its GHL metadata
+  names (the nine Conversation AI actions, Messenger opt-in, TikTok DM). 0.84.0 said the compiler
+  already enforced it; the compiler checks only when it is handed triggers, and skips the check with
+  none. Measured live: GHL's validator answers `valid:true` on an AI step with no trigger, and GHL's
+  server ACCEPTED the publish (stored status read back `published`). This replay is the only guard on
+  the API rail.
+- 🔴 **`inboundWebhookTriggerValidator`**: an inbound webhook needs a mapped sample. 0.84.0 said the
+  rule read builder state the document does not carry; one read supplies it
+  (`GET /hooks/inbound-webhook-request/reference/{triggerId}`, which answers 404 when none is mapped).
+  The refusal names the fix, `pin_webhook_sample`. Proven live: refused with no sample, passes once
+  one is pinned.
+- **`validateIfElseCondition`**: in a workflow Workflow AI wrote (stored `creationSource: workflow_ai`),
+  every if/else must be fully configured. 0.84.0 said the engine never meets such a workflow; an edit
+  does.
+- **Router: unfinished branches and duplicate branches**, ported from GHL's branch model
+  (`engine/router-branches.mjs`). Per router the gate reports the first rule broken, in GHL's order.
+  The duplicate check reads the stored conditions: a duplicate GHL sees only after rewriting a
+  condition on load (legacy date data, a re-bracketed subtype, a date-time custom field) is missed,
+  never invented.
+- **The From Email check runs on edit and repair**, not only on publish. The sending domain is read
+  only when the From Email is not a full address, so an ordinary edit makes no extra call.
+
+### Changed
+
+- The three rules about whether a workflow can RUN refuse on publish (which includes saving a
+  published workflow) and warn on a draft. GHL's builder refuses them on every save, but a build or
+  an edit can legitimately finish a workflow across several calls: the webhook sample, for one, is
+  pinned after the workflow exists.
+- Edit and repair read the webhook sample when the workflow is published. A read that fails for any
+  reason other than "none mapped" leaves the rule unjudged; it is never refused on our own error.
+- A build's rules layer sees every trigger, including a flow bot's entry trigger before its agent
+  exists, which GHL's validator is still not shown.
+
+### Fixed
+
+- The reasons for skipping rules were stated in `graph-rules.mjs`, the corpus and the contract test.
+  All three are replaced with the replays; `sniffs/validation-contract.test.mjs` defers nothing.
+- 🔴 **The census behind the gate's calibration had read one page.** `list_workflows` returns 100 rows
+  and says nothing about the rest; the sandbox holds 150, so the 0.84.0 census never saw 50 of its
+  workflows. The census scripts now walk every page, refuse to write a partial walk, and record any
+  workflow they could not read. Re-run over all 236 workflows and 3,803 steps on three accounts: the
+  replayed rules and the engine gate flag nothing outside probe and test flows, and the one published
+  hit is a real workflow with no webhook sample mapped, which GHL's builder now refuses too.
+
 ## [0.84.0] — 2026-09-12
 
 One validation entry point for every write, because publish had quietly been running fewer checks

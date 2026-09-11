@@ -74,6 +74,30 @@ test('validateForWrite adds GHL\'s verdict, and reports which layer refused', as
   assert.match(r.summary, /Fields is required/);
 });
 
+test('the rules about whether a workflow can RUN refuse a publish and warn on a draft', () => {
+  const ai = { id: 'a1', name: 'Reply', type: 'conversationai_custom_message', order: 0, next: null, attributes: {} };
+  const pub = validateDocument({ ...base, templates: [ai], intent: 'publish' });
+  assert.equal(pub.blockingLayer, 'workflow_rules');
+  assert.match(pub.summary, /validateRequiredTriggersForActions/);
+  const draft = validateDocument({ ...base, templates: [ai], intent: 'edit' });
+  assert.ok(!draft.blockedLayers.includes('workflow_rules'), 'a draft cannot run, so it is not refused');
+  assert.ok(draft.rules.advisories.some((a) => a.rule === 'validateRequiredTriggersForActions'), 'but it is not silent either');
+});
+
+test('validateForWrite reads creationSource off the document it judges', async () => {
+  const templates = [
+    { id: 'c', name: 'Check', type: 'if_else', order: 0, next: ['y', 'n'], attributes: { branches: [] } },
+    { id: 'y', name: 'Yes', type: 'if_else', nodeType: 'branch-yes', order: 0, next: null, attributes: {} },
+    { id: 'n', name: 'None', type: 'if_else', nodeType: 'branch-no', order: 1, next: null, attributes: { else: true } },
+  ];
+  const judged = (creationSource) => validateForWrite({ ...base, templates: undefined, intent: 'publish',
+    document: { creationSource, workflowData: { templates } } });
+  const ai = await judged('workflow_ai');
+  assert.ok(ai.rules.findings.some((f) => f.rule === 'validateIfElseCondition'), JSON.stringify(ai.rules.findings));
+  const human = await judged('builder');
+  assert.ok(!human.rules.findings.some((f) => f.rule === 'validateIfElseCondition'), 'GHL judges only Workflow-AI-authored if/else');
+});
+
 test('a build asks the offline layers before anything exists, and the server layer says why it could not run', async () => {
   const r = await validateForWrite({ ...base, intent: 'build' });
   assert.equal(r.server.ran, false);

@@ -787,6 +787,16 @@
   {
     "tool": "edit_workflow",
     "method": "GET",
+    "path": "/workflow/{loc}/email/domain-selection"
+  },
+  {
+    "tool": "edit_workflow",
+    "method": "GET",
+    "path": "/hooks/inbound-webhook-request/reference/{triggerId}"
+  },
+  {
+    "tool": "edit_workflow",
+    "method": "GET",
     "path": "/locations/{loc}/customFields/{id}"
   },
   {
@@ -902,6 +912,16 @@
   {
     "tool": "repair_workflow",
     "method": "GET",
+    "path": "/workflow/{loc}/email/domain-selection"
+  },
+  {
+    "tool": "repair_workflow",
+    "method": "GET",
+    "path": "/hooks/inbound-webhook-request/reference/{triggerId}"
+  },
+  {
+    "tool": "repair_workflow",
+    "method": "GET",
     "path": "/workflows-marketplace/location/{loc}/assets"
   },
   {
@@ -963,6 +983,11 @@
     "tool": "publish_workflow",
     "method": "GET",
     "path": "/workflow/{loc}/email/domain-selection"
+  },
+  {
+    "tool": "publish_workflow",
+    "method": "GET",
+    "path": "/hooks/inbound-webhook-request/reference/{triggerId}"
   },
   {
     "tool": "publish_workflow",

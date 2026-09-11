@@ -461,7 +461,9 @@ export async function orchestrate(ir, gw, opts = {}) {
   }
   const gate = await validateForWrite({
     // the DOCUMENT, never a separate template array: the gate must judge the bytes this write sends
-    intent: 'build', call, loc, wid: WID, document: sent, triggers: gateTriggers,
+    // The rules see EVERY trigger (a flow's AI steps require its entry trigger, bound or not);
+    // GHL's validator is shown only the ones it can judge yet.
+    intent: 'build', call, loc, wid: WID, document: sent, triggers: built.triggerBodies.map(swap), serverTriggers: gateTriggers,
     settings: { senderAddress: sent.senderAddress }, status: opts.publish === true ? 'published' : 'draft',
     catalog, marketplaceTypes: usesMarketplace ? null : new Set(), skipWorkflowRules: opts.skipWorkflowRules,
   });

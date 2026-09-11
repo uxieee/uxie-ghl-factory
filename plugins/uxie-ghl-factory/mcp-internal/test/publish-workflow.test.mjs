@@ -43,12 +43,15 @@ function publishGateway({
   // "a bogus/ignored `status` is silently accepted" pitfall — 200, unchanged — so the
   // verification tests below can prove the repair's 200 is never trusted on its own.
   repairActivates = true,
+  // the workflow's triggers, and what GET /hooks/inbound-webhook-request/reference/{tid} answers per trigger
+  initialTriggers = [{ id: 'tr1', name: 'Trigger', active: false }],
+  webhookReferences = {},
 } = {}) {
   const calls = [];
   let current = structuredClone(initial);
   let workflowGets = 0;
   const failingGets = new Set(failWorkflowGets);
-  let triggers = [{ id: 'tr1', name: 'Trigger', active: false }];
+  let triggers = structuredClone(initialTriggers);
   const gw = {
     loc: 'LOC',
     uid: 'USER',
@@ -64,6 +67,10 @@ function publishGateway({
       }
       if (method === 'GET' && path.startsWith('/workflow/LOC/email/domain-selection')) {
         return { status: 200, ok: true, json: structuredClone(domains) };
+      }
+      if (method === 'GET' && path.startsWith('/hooks/inbound-webhook-request/reference/')) {
+        const tid = decodeURIComponent(path.split('/').pop().split('?')[0]);
+        return structuredClone(webhookReferences[tid] ?? { status: 404, ok: false, json: { statusCode: 404, message: `${tid} was not found` } });
       }
       if (method === 'GET' && path === '/workflow/LOC/trigger?workflowId=WID') {
         return { status: 200, ok: true, json: { triggers: structuredClone(triggers) } };
@@ -377,6 +384,54 @@ test('allowValidationFailure publishes anyway, and still reports what it skipped
   assert.equal(result.ok, true, JSON.stringify(result).slice(0, 300));
   assert.equal(calls.some(({ method, path }) => method === 'PUT' && path === '/workflow/LOC/WID'), true);
   assert.match(JSON.stringify(result.data.warnings ?? []), /VALIDATION BYPASSED/);
+});
+
+// inboundWebhookTriggerValidator (0.84.1): GHL refuses to publish an inbound webhook with no mapped
+// sample. The sample is not in the document, so publish reads it. A 404 is GHL's "none mapped"
+// (measured 2026-09-12); any other failed read leaves the rule unjudged.
+const hookTrigger = { id: 'hk1', name: 'Inbound Webhook', type: 'inbound_webhook', active: false };
+
+test('publish refuses an inbound webhook with no mapped sample, and names the fix', async () => {
+  const { gw, calls } = publishGateway({ initialTriggers: [hookTrigger] });
+  const result = await publishTool().handler({ locationId: 'LOC', workflowId: 'WID', confirm: true }, deps(gw));
+  assert.ok(calls.some(({ method, path }) => method === 'GET' && path.startsWith('/hooks/inbound-webhook-request/reference/hk1?')));
+  assert.equal(result.ok, false);
+  assert.match(result.detail ?? '', /inboundWebhookTriggerValidator/);
+  assert.match(result.detail ?? '', /pin_webhook_sample/);
+  assert.equal(calls.some(({ method }) => method === 'PUT'), false, 'nothing is published');
+});
+
+test('publish passes the webhook rule once a sample is mapped', async () => {
+  const { gw } = publishGateway({ initialTriggers: [hookTrigger],
+    webhookReferences: { hk1: { status: 200, ok: true, json: { _id: 'ref', payload: { dealRef: 'D-1' } } } } });
+  const result = await publishTool().handler({ locationId: 'LOC', workflowId: 'WID' }, deps(gw));
+  assert.equal(result.code, 'CONFIRM_REQUIRED', JSON.stringify(result).slice(0, 300));
+  assert.ok(!JSON.stringify(result).includes('inboundWebhookTriggerValidator'));
+});
+
+test('a failed sample read leaves the webhook rule unjudged, never refused on our own error', async () => {
+  const { gw } = publishGateway({ initialTriggers: [hookTrigger],
+    webhookReferences: { hk1: { status: 503, ok: false, json: { message: 'unavailable' } } } });
+  const result = await publishTool().handler({ locationId: 'LOC', workflowId: 'WID' }, deps(gw));
+  assert.equal(result.code, 'CONFIRM_REQUIRED', JSON.stringify(result).slice(0, 300));
+  assert.match(JSON.stringify(result.data?.preview?.validation?.rules?.notEvaluable ?? []), /inboundWebhookTriggerValidator/);
+});
+
+test('publish reads no webhook sample when there is no inbound webhook trigger', async () => {
+  const { gw, calls } = publishGateway();
+  await publishTool().handler({ locationId: 'LOC', workflowId: 'WID' }, deps(gw));
+  assert.equal(calls.some(({ path }) => path.startsWith('/hooks/')), false);
+});
+
+test('publish refuses an AI step with none of the triggers it requires (validateRequiredTriggersForActions)', async () => {
+  // GHL's server validator answers valid:true here (live-70-required-trigger.json); the replay is the only guard.
+  const w = workflow();
+  w.workflowData = { templates: [{ id: 'a1', name: 'Reply', type: 'conversationai_custom_message', order: 0, next: null, attributes: {} }] };
+  const { gw, calls } = publishGateway({ initial: w, initialTriggers: [] });
+  const result = await publishTool().handler({ locationId: 'LOC', workflowId: 'WID', confirm: true }, deps(gw));
+  assert.equal(result.ok, false);
+  assert.match(result.detail ?? '', /validateRequiredTriggersForActions/);
+  assert.equal(calls.some(({ method }) => method === 'PUT'), false);
 });
 
 test("publish reads the workflow's sending domain, so checkFromEmailFormat can be judged", async () => {

@@ -1,11 +1,11 @@
 // WORKFLOW-level rules — GHL's second validation layer, mirrored.
 //
 // GHL validates at TWO levels. Per-step validators (enforce.mjs) answer "is this step
-// configured?". `utils/WorkflowValidator.ts` answers "is this WORKFLOW legal?" — 21 rules that
-// THROW and abort the save BEFORE any HTTP. They are graph-scoped and TRIGGER-aware: an action can
-// be illegal purely because of the trigger above it, a step can be illegal because of what else is
-// in the workflow. Found in the 2026-08-22 full-source sweep (research workflow-rules.json); until
-// then the engine could build documents the UI would refuse.
+// configured?". `utils/WorkflowValidator.ts` answers "is this WORKFLOW legal?" — 22 rules, any
+// finding of which aborts the save BEFORE any HTTP. They are graph-scoped and TRIGGER-aware: an
+// action can be illegal purely because of the trigger above it, a step can be illegal because of
+// what else is in the workflow. Found in the 2026-08-22 full-source sweep (research
+// workflow-rules.json); until then the engine could build documents the UI would refuse.
 //
 // Each check below cites its GHL rule NAME. The vocabulary it tests against (which actions are
 // banned inside loops, which triggers satisfy interactive messenger, the trigger/action restriction
@@ -18,31 +18,52 @@
 // Severity: GHL blocks; so does the engine (IRError 'WORKFLOW_RULE'). Hatch:
 // `skipWorkflowRules: true | ['ruleName']` — same grammar as skipEnforcement.
 //
-// Two of GHL's rules cannot be evaluated from the document alone and are reported as such, never
-// silently passed: inboundWebhookTriggerValidator reads builder module state; validateIfElseCondition
-// only runs for workflow_ai-authored workflows (creationSource), which the engine never is.
-// validateRequiredTriggersForActions is already enforced at compile by action-schema.mjs and is
-// cited, not duplicated.
+// Three rules ask whether the workflow can RUN at all: validateRequiredTriggersForActions,
+// inboundWebhookTriggerValidator, validateIfElseCondition. GHL's builder refuses them on every
+// save; the engine refuses them when the write PUBLISHES and warns on a draft. A draft cannot run,
+// and a build or edit legitimately completes a workflow across calls — the webhook sample is pinned
+// after the workflow exists, a trigger may arrive in a later edit. Silent is never an option.
+//
+// Two rules read inputs the document does not carry; the caller reads them and passes them in,
+// and without them the rule reports itself NOT EVALUABLE rather than passing:
+//   senderDomain      checkFromEmailFormat           GET /workflow/{loc}/email/domain-selection
+//   webhookReference  inboundWebhookTriggerValidator GET /hooks/inbound-webhook-request/reference/{triggerId}
+// creationSource, which validateIfElseCondition keys on, IS a stored document field.
 import { IRError } from './ir.mjs';
 import { isRouterRoot, isInsideRouterBranch, canNestRouterAt, templateParentId } from './router-graph.mjs';
+import { incompleteBranchViolation, duplicatePairViolation } from './router-branches.mjs';
 
 const has = (v) => v != null && v !== '' && !(Array.isArray(v) && !v.length);
 const present = (v) => !(v == null || v === '' || (Array.isArray(v) && !v.length) || (typeof v === 'object' && !Array.isArray(v) && !Object.keys(v).length));
+const CV_REGEX_TEST = /\{\{([^{}]+)\}\}/;          // utils/customVariableHelper.ts
 
 /**
- * Evaluate every rule. Returns { findings: [{rule, message}], notEvaluable: [rule] }.
- * @param doc   { templates, triggers, settings?, status?, publishing? }
+ * Could checkFromEmailFormat refuse this From Email on SOME sending domain? A full address passes on
+ * every domain and a merge field is exempt, so only a bare local part is worth reading the domain for.
+ */
+export const fromEmailNeedsDomain = (fromEmail) => Boolean(fromEmail) && !CV_REGEX_TEST.test(String(fromEmail))
+  && (!String(fromEmail).includes('@') || !String(fromEmail).includes('.'));
+
+/**
+ * Evaluate every rule. Returns { findings: [{rule, message}], advisories, notEvaluable: [rule] }.
+ * @param doc   { templates, triggers, settings?, status?, publishing?, senderDomain?, webhookReference?, creationSource? }
  *              triggers: the workflow's trigger docs/bodies ({type, name, conditions})
  *              settings: { senderAddress? } — the workflow document's own settings
- *              publishing: true when this write sets status 'published'
- * @param rules catalog.workflowRules ({ vocab, rules })
+ *              status: the workflow's STORED status; publishing: true when this write publishes
+ *              senderDomain / webhookReference: read by the caller (see the header); undefined = not read
+ *              creationSource: the stored document's creationSource
+ * @param rules catalog.workflowRules ({ vocab, rules, restrictedTriggersByAction, requiredTriggersByAction })
  */
 export function evaluateWorkflowRules(doc, rules) {
   const V = rules?.vocab ?? {};
   const T = doc.templates ?? [];
   const TR = doc.triggers ?? [];
-  const F = [];
-  const fire = (rule, message) => F.push({ rule, message });
+  const F = [], A = [];
+  // atPublish: a rule about whether the workflow can RUN — refused on publish, warned on a draft
+  const fire = (rule, message, { atPublish = false } = {}) => {
+    if (!atPublish || doc.publishing) F.push({ rule, message });
+    else A.push({ rule, message: `${message} (a draft cannot run; this is refused when the workflow is published)` });
+  };
   const types = (list) => new Set(list ?? []);
   const hasTrigger = (t) => TR.some((x) => x?.type === t);
 
@@ -181,9 +202,7 @@ export function evaluateWorkflowRules(doc, rules) {
     const SDV = V.senderDomain;
     const fromEmail = doc.settings?.senderAddress?.from_email;
     const domain = doc.senderDomain;
-    const CV_REGEX_TEST = /\{\{([^{}]+)\}\}/;          // utils/customVariableHelper.ts
-    if (SDV && domain && domain !== SDV.allDomains && fromEmail && !CV_REGEX_TEST.test(String(fromEmail))
-      && (!String(fromEmail).includes('@') || !String(fromEmail).includes('.')))
+    if (SDV && domain && domain !== SDV.allDomains && fromEmailNeedsDomain(fromEmail))
       fire('checkFromEmailFormat', `From Email '${fromEmail}' is not a full address, and this workflow sends from '${domain}' — GHL refuses the save`);
   }
 
@@ -191,9 +210,10 @@ export function evaluateWorkflowRules(doc, rules) {
   // its own publish path had drifted: "it never checked for two paths routing on the same
   // conditions, so a router made ambiguous anywhere but the branch panel went live". A router is
   // not an if/else — every branch evaluates — so two branches matching the same execution leave it
-  // with no single answer. Evaluable here: capacity, branch-type cardinality, nesting depth, and
-  // the steps GHL bans inside a branch. NOT evaluable: branch completeness and duplicate
-  // conditions, both computed on the RouterBranch model, declared below rather than approximated.
+  // with no single answer. Per router GHL reports the FIRST rule the branch list breaks, in its
+  // order (validateRouterBranches): capacity, branch-type cardinality, an unfinished branch, a
+  // duplicate pair — then nesting depth, then each step GHL bans inside a branch. The unfinished and
+  // duplicate halves read GHL's branch model, ported in router-branches.mjs.
   {
     const RV = V.router;
     if (RV) {
@@ -201,12 +221,13 @@ export function evaluateWorkflowRules(doc, rules) {
       for (const r of T.filter((t) => isRouterRoot(t, opts))) {
         const branches = r.attributes?.branches ?? [];
         const who = `router '${r.name ?? r.id}'`;
-        if (RV.maxBranches != null && branches.length > RV.maxBranches)
-          fire('validateRouterConditions', `${who} has ${branches.length} branches — GHL allows at most ${RV.maxBranches}`);
         const fallbacks = branches.filter((b) => b?.branchType === 'fallback').length;
-        if (fallbacks > 1) fire('validateRouterConditions', `${who} has ${fallbacks} fallback branches — GHL allows one`);
-        if (fallbacks > 0 && branches.some((b) => b?.branchType === 'always_run'))
-          fire('validateRouterConditions', `${who} has both an always-run branch and a fallback — the fallback can never run`);
+        const modelViolation = () => { const m = incompleteBranchViolation(branches) ?? duplicatePairViolation(branches); return m ? `${who}: ${m}` : null; };
+        const violation = RV.maxBranches != null && branches.length > RV.maxBranches ? `${who} has ${branches.length} branches — GHL allows at most ${RV.maxBranches}`
+          : fallbacks > 1 ? `${who} has ${fallbacks} fallback branches — GHL allows one`
+          : fallbacks > 0 && branches.some((b) => b?.branchType === 'always_run') ? `${who} has both an always-run branch and a fallback — the fallback can never run`
+          : modelViolation();
+        if (violation) fire('validateRouterConditions', violation);
         if (RV.maxNesting != null && !canNestRouterAt(templateParentId(r), T, RV.maxNesting, opts))
           fire('validateRouterConditions', `${who} nests deeper than GHL's limit of ${RV.maxNesting} routers`);
       }
@@ -219,20 +240,87 @@ export function evaluateWorkflowRules(doc, rules) {
     }
   }
 
+  // validateRequiredTriggersForActions — an action whose GHL metadata (getActionMetaData(type)
+  // .requiredTriggers, folded into catalog.workflowRules.requiredTriggersByAction) names required
+  // triggers needs ONE of them on the workflow. GHL's server validator does not check this —
+  // measured 2026-09-12, an AI step with no trigger answers valid:true — so this is the only guard.
+  // The message names trigger TYPES where GHL names display titles: types are what a caller writes.
+  for (const t of T) {
+    const need = rules?.requiredTriggersByAction?.[t.type];
+    if (!need?.length || need.some(hasTrigger)) continue;
+    const list = need.length > 1 ? `${need.slice(0, -1).join(', ')} or ${need[need.length - 1]}` : need[0];
+    fire('validateRequiredTriggersForActions', `There is a problem with this workflow setup, "${t.name ?? t.id}" action requires ${list} trigger to be present. Please add the required trigger or remove this action.`, { atPublish: true });
+  }
+
+  // inboundWebhookTriggerValidator — GHL reads the FIRST inbound_webhook trigger's mapped sample and
+  // refuses when the answer has no payload (a failed lookup counts as an answer: states/workflow.ts
+  // setInboundWebhookReference). `doc.webhookReference` is that answer, { triggerId, payload } or null.
+  const firstHook = TR.find((x) => x?.type === 'inbound_webhook');
+  if (firstHook && doc.webhookReference !== undefined && !doc.webhookReference?.payload)
+    fire('inboundWebhookTriggerValidator', 'There is a problem with this workflow setup, Mapping Reference is required for the Inbound Webhook Trigger to function. Please map a request to be used as reference in your Inbound Webhook Trigger. (pin_webhook_sample maps one.)', { atPublish: true });
+
+  // validateIfElseCondition — GHL judges only a workflow Workflow AI authored (stored creationSource
+  // 'workflow_ai'), and skips the rule entirely when any legacy if/else (attributes.segments) is
+  // present. Verbatim, `continue`s included: one finding per node, branch, segment or condition, as
+  // GHL reports them. GHL's hatch (shouldEmitValidationError) silences it when a published workflow
+  // is saved as a draft.
+  if (doc.creationSource === 'workflow_ai' && !T.some((t) => t.type === 'if_else' && t.attributes?.segments?.length)) {
+    const wasPublished = doc.status === 'published';
+    const emit = !(!doc.publishing && wasPublished);
+    const ifFire = (message) => { if (emit) fire('validateIfElseCondition', message, { atPublish: true }); };
+    const problem = 'There is a problem with this workflow setup,';
+    const unstamped = T.find((t) => t.type === 'if_else' && !t.nodeType);
+    if (unstamped) {
+      ifFire(doc.publishing && wasPublished
+        ? `Unable to save: The condition "${unstamped.name}" is missing required configuration. Your published workflow will continue running with the previous version.`
+        : `Unable to save: The condition "${unstamped.name}" is missing required configuration. Try creating a new workflow using AI.`);
+    } else {
+      for (const t of T.filter((x) => x.type === 'if_else' && x.nodeType === 'condition-node')) {
+        const tn = t.name;
+        if (!Array.isArray(t.next) || t.next.length < 2) { ifFire(`${problem} "${tn}" condition requires at least two next nodes. Please add a next node to proceed.`); continue; }
+        const branches = t.attributes?.branches;
+        if (!branches?.length) { ifFire(`${problem} "${tn}" condition requires at least one branch. Please add a branch to proceed.`); continue; }
+        for (const b of branches) {
+          const bn = b.name;
+          if (!b.segments?.length) { ifFire(`${problem} branch "${bn}" in "${tn}" condition requires at least one segment. Please add a segment to proceed.`); continue; }
+          for (const s of b.segments) {
+            if (!s.conditions?.length) { ifFire(`${problem} a segment in branch "${bn}" of "${tn}" condition requires at least one condition. Please add a condition to proceed.`); continue; }
+            for (const c of s.conditions) {
+              const at = `a condition in branch "${bn}" of "${tn}"`;
+              if (!c.conditionType) { ifFire(`${problem} ${at} is missing a condition type. Please select a condition type to proceed.`); continue; }
+              if (!c.conditionSubType) { ifFire(`${problem} ${at} is missing a condition field. Please select a condition field to proceed.`); continue; }
+              if (!c.conditionOperator) { ifFire(`${problem} ${at} is missing a condition operator. Please select a condition operator to proceed.`); continue; }
+              if (['has_value', 'has_no_value', 'timeout'].includes(c.conditionOperator)) continue;
+              if (c.conditionValueOperator) {
+                if (['today', 'yesterday', 'tomorrow'].includes(c.conditionValueOperator)) continue;
+                if (!['on', 'between', 'afterDate', 'beforeDate'].includes(c.conditionValueOperator) && !c.conditionValueUnit) {
+                  ifFire(`${problem} ${at} with relative date operator requires a time unit. Please select a time unit to proceed.`);
+                  continue;
+                }
+              }
+              if (!c.conditionValue || (Array.isArray(c.conditionValue) && !c.conditionValue.length))
+                ifFire(`${problem} ${at} is missing a condition value. Please enter a condition value to proceed.`);
+            }
+          }
+        }
+      }
+    }
+  }
+
   // ── ADVISORY (ui-disabled): combinations the UI cannot produce because the picker greys the
   // action out while the trigger is present (TriggerMain.inCompatibleActions) — nothing refuses
   // them on save, so these WARN rather than block. Vocab: catalog.workflowRules.disabledActionsByTrigger.
-  const A = [];
   for (const [trigType, acts] of Object.entries(rules?.disabledActionsByTrigger ?? {})) {
     if (!hasTrigger(trigType)) continue;
     const bad = new Set(acts);
     for (const t of T) if (bad.has(t.type)) A.push({ rule: 'inCompatibleActions', message: `'${t.name ?? t.id}' (${t.type}) is greyed out in the builder while a '${trigType}' trigger is present — the UI cannot produce this combination` });
   }
 
-  const notEvaluable = ['inboundWebhookTriggerValidator (builder module state)', 'validateIfElseCondition (workflow_ai-authored only)',
-    'validateRouterConditions: incompleteBranchViolation + duplicatePairViolation (computed on the RouterBranch model — branch.violation and firstDuplicateRouterBranchPair — not derivable from the stored document)'];
   // A rule whose INPUT is missing is reported as unjudged, never as passed.
-  if (doc.senderDomain === undefined && doc.settings?.senderAddress?.from_email)
+  const notEvaluable = [];
+  if (firstHook && doc.webhookReference === undefined)
+    notEvaluable.push("inboundWebhookTriggerValidator (needs the webhook's mapped sample: GET /hooks/inbound-webhook-request/reference/{triggerId})");
+  if (doc.senderDomain === undefined && fromEmailNeedsDomain(doc.settings?.senderAddress?.from_email))
     notEvaluable.push("checkFromEmailFormat (needs this workflow's sending domain: GET /workflow/{loc}/email/domain-selection?workflowId=…)");
   return { findings: F, advisories: A, notEvaluable };
 }
@@ -248,6 +336,7 @@ export function rulesNeedTriggers(templates, rules) {
     ...(V.contactChangedLoopActions ?? []), ...(V.interactiveMessengerActions ?? []), ...(V.ivrActionKeys ?? []),
     ...(V.appointmentBookingAction ? [V.appointmentBookingAction] : []), ...(V.createOpportunity?.actionType ? [V.createOpportunity.actionType] : []),
     ...Object.values(V.triggerActionRestrictions ?? {}).flat(), ...Object.keys(rules?.restrictedTriggersByAction ?? {}),
+    ...Object.keys(rules?.requiredTriggersByAction ?? {}),
   ]);
   return (templates ?? []).some((t) => care.has(t?.type));
 }

@@ -1,6 +1,6 @@
 // GENERATED from a read-only census of STORED, WORKING workflows (knowledge/sniffs/step-key-census-2026-09-11).
-// 162 workflows, 2602 steps across GROM Sandbox (mostly engine-built) and GROM
-// Digital AU (UI-built), measured 2026-09-11. KEYS ONLY: no values, ids or names.
+// 162 workflows, 2602 steps across the live-fire sandbox (mostly engine-built) and a UI-built
+// account, measured 2026-09-11. KEYS ONLY: no values, ids or names.
 //
 // Evidence that a key is REAL. Absence here is not evidence a key is invented: document-gate.mjs also
 // consults the type cards, the source models and the required fields. The census found that the cards'
@@ -9,14 +9,18 @@
 // account alone would have refused every workflow a human made on the advanced canvas
 // (advanceCanvasMeta, 93 steps on the UI-built account, none on the engine-built one).
 //
-// RE-CALIBRATED 2026-09-12 over a WIDER corpus — 184 workflows, 3,293 steps across three accounts
-// (`knowledge/sniffs/step-key-census-2026-09-11-2`, run by the committed `sniffs/step-key-census.mjs`):
-// no new top-level key, no new attribute key on any known type, no new inner type. The allowlists
-// below are current. The one type the wider sweep added, `wait_step`, is GoGHL's marketplace action
-// and every stored one carries isMarketplaceAction:true, which document-gate.mjs skips by design.
+// RE-CALIBRATED 2026-09-12 over EVERY workflow on three accounts — 236 workflows, 3,803 steps
+// (`knowledge/sniffs/step-key-census-2026-09-11-3`; the run before it listed one page of 100 and missed
+// 50 sandbox workflows). No new top-level key. The two step types seen for the first time
+// (`create_opportunity`, `google_sheets`) raise nothing in the engine gate. The one new `wait` shape —
+// `type: 'time_delay'` with `unit`/`value` — exists in no GHL model (WaitType, IWait) and sits in a
+// single probe leftover, so it is NOT added: the gate refusing it is correct. `wait_step` is GoGHL's
+// marketplace action and every stored one carries isMarketplaceAction:true, which document-gate.mjs
+// skips by design. The engine gate over all 236 flags nothing outside probe and test flows
+// (`knowledge/sniffs/engine-gate-census-2026-09-11*`).
 //
-// It also measured the CANVAS layer's calibration: 93 steps carry advanceCanvasMeta and ZERO steps
-// or triggers carry hasErrors:true, so refusing a publish on that flag refuses nothing that exists.
+// CANVAS layer: 93 steps carry advanceCanvasMeta and ZERO steps or triggers carry hasErrors:true, so
+// refusing a publish on that flag refuses nothing that exists.
 export const OBSERVED_TOP_LEVEL_KEYS = Object.freeze(["advanceCanvasMeta", "attributes", "cat", "comments", "id", "incompleteData", "isMarketplaceAction", "name", "next", "nodeType", "order", "parent", "parentKey", "sibling", "stepIndex", "type", "version", "workflowsActionType"]);
 
 export const OBSERVED_ATTRIBUTE_KEYS = Object.freeze({

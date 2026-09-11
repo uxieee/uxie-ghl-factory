@@ -57,6 +57,9 @@ function editGateway({
   // elsewhere) changed it in the gap. Keyed by trigger id; a value here OVERRIDES whatever
   // `active` the PUT body carried when the trigger is next read back.
   triggerActiveOverride = {},
+  // [(method, path) => boolean, response] pairs answered before the built-in routes, for reads a
+  // test needs to shape (the sending domain, a webhook's mapped sample).
+  extraRoutes = [],
 } = {}) {
   const calls = [];
   let current = structuredClone(initial);
@@ -73,6 +76,7 @@ function editGateway({
     uid: 'USER',
     call: async (method, path, body) => {
       calls.push({ method, path, body });
+      for (const [matches, response] of extraRoutes) if (matches(method, path)) return structuredClone(response);
       if (method === 'GET' && path.includes('/customFields/search')) {
         return structuredClone(customFieldsResponse);
       }
@@ -197,6 +201,30 @@ test('edit_workflow registers through a real McpServer with a permissive ops sch
   } finally {
     await client.close();
   }
+});
+
+// checkFromEmailFormat on edit (0.84.1): GHL refuses a bare From Email on a specific sending domain,
+// on every save. The domain is read only when the From Email could fail on SOME domain.
+const withFrom = (from_email, status = 'published') => ({ ...workflow({ status }), senderAddress: { from_name: 'Team', from_email } });
+const domainRoute = (domain) => [(m, p) => m === 'GET' && p.includes('/email/domain-selection'),
+  { status: 200, ok: true, json: { domains: [{ domain, selected: true }] } }];
+
+test('edit_workflow refuses a bare From Email on a specific sending domain (GHL\'s checkFromEmailFormat)', async () => {
+  const { gw, calls } = editGateway({ initial: withFrom('marketing'), extraRoutes: [domainRoute('mail.example.com')] });
+  const result = await editTool().handler({
+    locationId: 'LOC', workflowId: 'WID', ops: [{ op: 'deleteStep', stepId: 's2' }], confirm: true,
+  }, deps(gw));
+  assert.equal(result.ok, false);
+  assert.equal(result.code, 'ENGINE_ABORT', JSON.stringify(result).slice(0, 400));
+  assert.match(result.detail, /checkFromEmailFormat/);
+  assert.ok(calls.some(({ path }) => path.includes('/email/domain-selection?') && path.includes('workflowId=WID')));
+  assert.equal(calls.some(({ method, path }) => method === 'PUT' && path === '/workflow/LOC/WID'), false, 'nothing is written');
+});
+
+test('edit_workflow never reads the sending domain for a well-formed From Email', async () => {
+  const { gw, calls } = editGateway({ initial: withFrom('hello@example.com'), extraRoutes: [domainRoute('mail.example.com')] });
+  await editTool().handler({ locationId: 'LOC', workflowId: 'WID', ops: [{ op: 'deleteStep', stepId: 's2' }] }, deps(gw));
+  assert.equal(calls.some(({ path }) => path.includes('/email/domain-selection')), false);
 });
 
 test('edit_workflow preview applies ops but performs reads only', async () => {

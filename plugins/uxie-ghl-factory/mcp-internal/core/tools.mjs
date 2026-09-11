@@ -26,7 +26,7 @@ import { fetchEntities, fetchMarketplace, missingRequiredFields, orchestrate } f
 import { buildResolvers } from '../../skills/create-ghl-workflow/engine/resolve.mjs';
 import { editCommitBody } from '../../skills/create-ghl-workflow/engine/edit.mjs';
 import { stripNullNext, fillInputTriggerParams } from '../../skills/create-ghl-workflow/engine/terminals.mjs';
-import { checkWorkflowRules, rulesNeedTriggers } from '../../skills/create-ghl-workflow/engine/graph-rules.mjs';
+import { checkWorkflowRules, rulesNeedTriggers, fromEmailNeedsDomain } from '../../skills/create-ghl-workflow/engine/graph-rules.mjs';
 import { checkGraphContextRules } from '../../skills/create-ghl-workflow/engine/graph-context-rules.mjs';
 import { validateAssets, describeFinding } from '../../skills/create-ghl-workflow/engine/asset-preflight.mjs';
 import { planReadinessChecks, runReadinessChecks } from '../../skills/create-ghl-workflow/engine/preflight.mjs';
@@ -952,9 +952,29 @@ async function senderDomainFor(gw, loc, wid, fromEmail, catalog) {
     ?? catalog?.workflowRules?.vocab?.senderDomain?.allDomains ?? 'ALL_DOMAINS';
 }
 
+/**
+ * The first inbound_webhook trigger's mapped sample, as inboundWebhookTriggerValidator reads it
+ * (GHL: InboundWebhookRequestService.getReferenceById, states/workflow.ts). Undefined when there is
+ * no such trigger, when it has no id yet, or when the read itself failed: the rule then reports
+ * itself unjudged, because a failed read says nothing about the workflow. A 404 is GHL's answer for
+ * "no sample mapped" (measured 2026-09-12: 2 of 8 inbound_webhook triggers on three accounts) and
+ * comes back as { payload: null }, which the rule refuses, as the builder does.
+ */
+async function webhookReferenceFor(gw, loc, triggers) {
+  const hook = (triggers ?? []).find((t) => t?.type === 'inbound_webhook');
+  const tid = hook?.id ?? hook?._id;
+  if (!tid) return undefined;
+  let r;
+  try { r = await gw.call('GET', `/hooks/inbound-webhook-request/reference/${encodeURIComponent(tid)}?${new URLSearchParams({ locationId: loc })}`); }
+  catch { return undefined; }
+  if (r?.status === 404) return { triggerId: tid, payload: null };
+  if (!r?.ok) return undefined;
+  return { triggerId: tid, payload: r.json?.payload ?? null };
+}
+
 async function workflowValidationGate({
   gw, loc, wid, fresh, document, templates, triggers, scope, catalog, assets, allow, warnings, waive = null,
-  intent = 'edit', status = null, settings = null, senderDomain, skipWorkflowRules = false,
+  intent = 'edit', status = null, settings = null, senderDomain, webhookReference, skipWorkflowRules = false,
 }) {
   let marketplaceTypes = null;
   try { marketplaceTypes = assets ? new Set(parseActionSchema(assets).keys()) : null; } catch { marketplaceTypes = null; }
@@ -962,7 +982,7 @@ async function workflowValidationGate({
   const baseline = fresh ? await liveValidate(call, loc, wid, { document: fresh, triggers }) : null;
   const v = await validateForWrite({
     call, loc, wid, document, templates, triggers, catalog, marketplaceTypes, scope, waive, baseline, allow,
-    intent, status, settings, senderDomain, skipWorkflowRules,
+    intent, status, settings, senderDomain, webhookReference, skipWorkflowRules,
   });
   for (const f of v.engine.warnings) warnings.push(`VALIDATION ${f.check}: '${f.stepName ?? f.stepId}' (${f.type}): ${f.message}`);
   for (const f of v.canvas.warnings) warnings.push(`VALIDATION CANVAS: '${f.stepName ?? f.stepId}': ${f.message} (outside this write's scope)`);
@@ -4175,6 +4195,11 @@ export const TOOLS = [
       // Read ONLY when a deleteStep/deleteContainer op targets a PUBLISHED workflow: contacts
       // parked on a deleted step are ejected (backlog 23), so the preview counts them first.
       { method: 'GET', path: '/workflows/status/search/count-per-step' },
+      // The two workflow rules whose input the document does not carry: the sending domain (read ONLY
+      // when the From Email is not a full address) and the webhook's mapped sample (read ONLY when
+      // the workflow is published and has an inbound webhook trigger).
+      { method: 'GET', path: '/workflow/{loc}/email/domain-selection' },
+      { method: 'GET', path: '/hooks/inbound-webhook-request/reference/{triggerId}' },
       // Read ONLY for a replaceFieldId op: both ids must resolve on THIS account (backlog 29).
       { method: 'GET', path: '/locations/{loc}/customFields/{id}' },
       // Marketplace index — read ONLY when an op carries marketplace:true.
@@ -4528,6 +4553,15 @@ export const TOOLS = [
         if (listed.response.ok) gateTriggers = listed.triggers;
         else warnings.push(`VALIDATION: the trigger list could not be read (${listed.response.status}); GHL's trigger layer was not judged`);
       }
+      // checkFromEmailFormat needs the workflow's sending domain. Read it only when the From Email could
+      // fail on SOME domain, so an edit of a workflow with a well-formed address stays network-identical.
+      const editFromEmail = (commitBody.senderAddress ?? fresh.senderAddress)?.from_email;
+      const editSenderDomain = fromEmailNeedsDomain(editFromEmail)
+        ? await senderDomainFor(gw, args.locationId, args.workflowId, editFromEmail, ctx.catalog) : undefined;
+      // inboundWebhookTriggerValidator refuses only a PUBLISH, and saving a published workflow is one;
+      // a draft edit skips the read and the rule reports itself unjudged.
+      const editWebhookReference = fresh.status === 'published'
+        ? await webhookReferenceFor(gw, args.locationId, gateTriggers) : undefined;
       const validation = await workflowValidationGate({
         // No `templates` here on purpose: the gate must judge the DOCUMENT, whose templates the commit
         // body has already transformed (fillInputTriggerParams(stripNullNext(...))). Passing the raw
@@ -4536,6 +4570,7 @@ export const TOOLS = [
         scope: editTouchedIds, catalog: ctx.catalog, assets: marketplaceRaw?.assets, allow: args.allowValidationFailure === true, warnings,
         intent: 'edit', status: fresh.status, skipWorkflowRules: args.skipWorkflowRules,
         settings: { senderAddress: commitBody.senderAddress ?? fresh.senderAddress },
+        senderDomain: editSenderDomain, webhookReference: editWebhookReference,
         // The path's own guards own these checks and their hatches; the gate must not overrule them.
         waive: new Set([...(args.allowOverCap === true ? ['FIELD_CAP'] : []), ...(args.allowDanglingStepRefs === true ? ['STEP_REF'] : []), ...(args.allowDanglingParentKeys === true ? ['PARENT_KEY'] : [])]),
       });
@@ -4924,7 +4959,11 @@ export const TOOLS = [
       { method: 'PUT', path: '/workflow/{loc}/{wid}' },
       // The pre-write ladder (shared helpers above edit_workflow): the action-schema catalog, the
       // stateless asset validator, the sandbox, and the readiness reads — read ONLY when the
-      // repair actually changes a step (a no-op document sends nothing new).
+      // repair actually changes a step (a no-op document sends nothing new). The two workflow-rule
+      // inputs the document does not carry are read as edit reads them: the sending domain only for
+      // a From Email that is not a full address, the webhook's sample only when this save re-publishes.
+      { method: 'GET', path: '/workflow/{loc}/email/domain-selection' },
+      { method: 'GET', path: '/hooks/inbound-webhook-request/reference/{triggerId}' },
       { method: 'GET', path: '/workflows-marketplace/location/{loc}/assets' },
       { method: 'POST', path: '/workflow/{loc}/validate-assets' },
       { method: 'POST', path: '/workflow/custom-code/run-test' },
@@ -5071,11 +5110,18 @@ export const TOOLS = [
         if (!listed.response.ok) return fromHttp(listed.response.status, listed.response.json);
         gateTriggers = listed.triggers;
       }
+      // Same as edit: the sending domain is read only when the From Email could fail on some domain.
+      const repairFromEmail = fresh.senderAddress?.from_email;
+      const repairSenderDomain = fromEmailNeedsDomain(repairFromEmail)
+        ? await senderDomainFor(gw, args.locationId, args.workflowId, repairFromEmail, catalog) : undefined;
       const validation = await workflowValidationGate({
         gw, loc: args.locationId, wid: args.workflowId, fresh, document: commitBody, triggers: gateTriggers,
         scope: touchedIds, catalog, assets: null, allow: args.allowValidationFailure === true, warnings,
         intent: 'repair', status: fresh.status, skipWorkflowRules: args.skipWorkflowRules,
         settings: { senderAddress: fresh.senderAddress },
+        senderDomain: repairSenderDomain,
+        // as edit: the webhook's mapped sample is read only when this save re-publishes
+        webhookReference: fresh.status === 'published' ? await webhookReferenceFor(gw, args.locationId, gateTriggers) : undefined,
         waive: new Set([...(args.allowOverCap === true ? ['FIELD_CAP'] : []), ...(args.allowDanglingStepRefs === true ? ['STEP_REF'] : []), ...(args.allowDanglingParentKeys === true ? ['PARENT_KEY'] : [])]),
       });
       if (validation.refusal) return validation.refusal;
@@ -5280,6 +5326,8 @@ export const TOOLS = [
       { method: 'GET', path: '/workflow/{loc}/trigger' },
       // checkFromEmailFormat needs the workflow's sending domain, which the document does not carry.
       { method: 'GET', path: '/workflow/{loc}/email/domain-selection' },
+      // inboundWebhookTriggerValidator needs the webhook's mapped sample — read only when there is one.
+      { method: 'GET', path: '/hooks/inbound-webhook-request/reference/{triggerId}' },
       { method: 'PUT', path: '/workflow/{loc}/{wid}' },
       // REPAIR (added 2026-08-28): one per-trigger status write for any trigger still
       // inactive after the document PUT's own cascade — see the handler's measurement note.
@@ -5298,6 +5346,8 @@ export const TOOLS = [
       const publishCatalog = loadCatalog();
       const senderDomain = await senderDomainFor(gw, args.locationId, args.workflowId,
         current?.senderAddress?.from_email, publishCatalog);
+      // inboundWebhookTriggerValidator reads the webhook's mapped sample, which the document does not carry
+      const webhookReference = await webhookReferenceFor(gw, args.locationId, listed.triggers);
       const validation = await workflowValidationGate({
         gw, loc: args.locationId, wid: args.workflowId, fresh: null, document: current,
         triggers: listed.triggers,
@@ -5306,7 +5356,7 @@ export const TOOLS = [
         // no target) and the canvas's stored error flag — the two layers this path never ran.
         intent: 'publish', status: current?.status ?? null, skipWorkflowRules: args.skipWorkflowRules,
         settings: { senderAddress: current?.senderAddress },
-        senderDomain,
+        senderDomain, webhookReference,
       });
       if (validation.refusal) return validation.refusal;
 

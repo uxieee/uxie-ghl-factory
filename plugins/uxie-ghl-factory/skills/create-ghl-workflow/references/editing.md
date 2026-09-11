@@ -158,7 +158,7 @@ published over the API while the builder refused it on screen.
 
 | Layer | Catches | Blind to |
 |---|---|---|
-| **GHL's rules** (`WorkflowValidator`, replayed) | an empty publish · a goto with no target · loop bodies and unsupported actions inside them · trigger/action restrictions · router branch rules · From Email format | anything needing builder module state |
+| **GHL's rules** (`WorkflowValidator`, all 22 replayed) | an empty publish · a goto with no target · loop bodies and unsupported actions inside them · trigger/action restrictions · an action missing the trigger it requires · an inbound webhook with no mapped sample · router branch rules, including unfinished and duplicate branches · From Email format · a Workflow-AI if/else that is not fully configured | a router duplicate GHL sees only after rewriting a condition on load (legacy date data, a re-bracketed subtype, a date-time custom field): missed, never invented |
 | **Canvas** | a step or trigger the advanced canvas has flagged (`advanceCanvasMeta.hasErrors`) — what GHL's publish gate reads | anything the canvas has not re-evaluated |
 | **Engine** (`engine/document-gate.mjs`) | an invented attribute key · a wrong inner `attributes.type` · an unknown top-level step key · an unknown step type · missing required fields · GHL's own guards · field caps · dangling step references and parentKeys | anything that depends on the account |
 | **GHL's validator** (live) | a missing required field · a scalar of the wrong type · an invalid enum value · a referenced asset that does not exist · every structural defect | everything in the engine's row — it answers `valid:true` on all of it, and it ignores the document's `status`, so publish-only rules never fire there |
@@ -181,8 +181,10 @@ gate: the rules layer runs its publish-only rules and the canvas layer turns on.
   preview. Use them only when you know better.
 - **A rule whose input is missing is reported as unjudged, never as passed.**
 
-Every engine allowlist was calibrated against 2,602 stored, working steps on two accounts before it
-was allowed to block: zero findings on working workflows, eleven real defects in leftover test flows.
+Every layer is calibrated against stored, working workflows before it may block. Last measured over
+every workflow on three accounts (236 workflows, 3,803 steps): no finding on a working workflow; every
+finding sits in a probe or test flow, plus one real workflow with no webhook sample mapped, which
+GHL's own builder refuses as well.
 The same rule binds any new check — recalibrate before it blocks.
 
 `validate_workflow` asks GHL's half on its own, read-only: pass `templates` to check a planned tree.

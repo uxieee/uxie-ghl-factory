@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { loadCatalog } from './catalog.mjs';
-import { evaluateWorkflowRules, checkWorkflowRules } from './graph-rules.mjs';
+import { evaluateWorkflowRules, checkWorkflowRules, rulesNeedTriggers, fromEmailNeedsDomain } from './graph-rules.mjs';
 
 // GHL's second validation layer (WorkflowValidator) mirrored. The corpus replay (research repo,
 // replay-workflow-rules.mjs) proves 0 fires across 326 real workflows; these tests prove each rule
@@ -135,4 +135,155 @@ test('checkFromEmailFormat is NOT EVALUABLE without the sending domain, never si
   const r = evaluateWorkflowRules(withEmail('marketing', undefined), SD);
   assert.equal(r.findings.filter((f) => f.rule === 'checkFromEmailFormat').length, 0);
   assert.match(r.notEvaluable.join(' '), /checkFromEmailFormat/);
+});
+
+test('fromEmailNeedsDomain: only a From Email the rule could refuse is worth a domain read', () => {
+  assert.equal(fromEmailNeedsDomain('marketing'), true);
+  assert.equal(fromEmailNeedsDomain('marketing@example'), true);
+  assert.equal(fromEmailNeedsDomain('hello@example.com'), false, 'a full address passes on every domain');
+  assert.equal(fromEmailNeedsDomain('{{location.email}}'), false, 'a merge field is exempt');
+  assert.equal(fromEmailNeedsDomain(undefined), false);
+});
+
+test('checkFromEmailFormat: a full address is judged (it passes) even with no domain read', () => {
+  const r = evaluateWorkflowRules(withEmail('hello@example.com', undefined), SD);
+  assert.ok(!r.notEvaluable.some((n) => /checkFromEmailFormat/.test(n)), r.notEvaluable.join(' | '));
+});
+
+// ── The three rules about whether a workflow can RUN ─────────────────────────────────────────
+// GHL's builder refuses these on every save. The engine refuses them when the write PUBLISHES and
+// warns on a draft: a draft cannot run, and a build or edit legitimately completes the workflow
+// across calls (the webhook sample is pinned after the workflow exists; a trigger can be added in
+// a later edit). Silent is not an option either way.
+
+// validateRequiredTriggersForActions — getActionMetaData(type).requiredTriggers. Measured
+// 2026-09-12: GHL's server validator answers valid:true on an AI step with NO trigger
+// (live-70-required-trigger.json), so this replay is the only check there is.
+const RT = { requiredTriggersByAction: {
+  conversationai_custom_message: ['conv_ai_autonomous_trigger', 'conv_ai_trigger'], 'tiktok-dm': ['customer_reply'] } };
+const aiStep = () => step('a1', 'conversationai_custom_message', { name: 'Reply' });
+const required = (doc) => evaluateWorkflowRules(doc, RT);
+
+test('catalog carries every action\'s required triggers, from GHL\'s own action metadata', () => {
+  const m = R().requiredTriggersByAction ?? {};
+  assert.deepEqual([...(m.conversationai_custom_message ?? [])].sort(), ['conv_ai_autonomous_trigger', 'conv_ai_trigger']);
+  assert.deepEqual(m['tiktok-dm'], ['customer_reply']);
+  assert.equal(Object.keys(m).length, 11, Object.keys(m).join(', '));
+});
+
+test('validateRequiredTriggersForActions: publishing an AI step with no trigger is refused', () => {
+  const f = required({ templates: [aiStep()], triggers: [], publishing: true }).findings;
+  assert.deepEqual(f.map((x) => x.rule), ['validateRequiredTriggersForActions']);
+  assert.match(f[0].message, /"Reply" action requires conv_ai_autonomous_trigger or conv_ai_trigger trigger to be present/);
+});
+
+test('validateRequiredTriggersForActions: any ONE of the required triggers satisfies it', () => {
+  for (const t of ['conv_ai_trigger', 'conv_ai_autonomous_trigger'])
+    assert.deepEqual(required({ templates: [aiStep()], triggers: [trig(t)], publishing: true }).findings, [], t);
+  assert.equal(required({ templates: [step('d', 'tiktok-dm')], triggers: [trig('facebook_comment_on_post')], publishing: true }).findings.length, 1);
+});
+
+test('validateRequiredTriggersForActions: a draft is warned, never refused, never silent', () => {
+  const r = required({ templates: [aiStep()], triggers: [], publishing: false });
+  assert.deepEqual(r.findings, []);
+  assert.ok(r.advisories.some((a) => a.rule === 'validateRequiredTriggersForActions' && /publish/.test(a.message)));
+});
+
+test('rulesNeedTriggers: a required-trigger action makes an edit load the trigger list', () => {
+  assert.equal(rulesNeedTriggers([aiStep()], RT), true);
+  assert.equal(rulesNeedTriggers([step('s', 'sms')], RT), false);
+});
+
+// inboundWebhookTriggerValidator — GHL reads GET /hooks/inbound-webhook-request/reference/{triggerId}
+// for the FIRST inbound_webhook trigger and refuses when the answer has no payload. The reference is
+// not in the document, so the caller reads it and passes it in; without it the rule is unjudged.
+const hook = (id = 'T1') => ({ id, type: 'inbound_webhook', name: 'Inbound Webhook', conditions: [] });
+const hookDoc = (webhookReference, publishing = true) => ({ templates: [step('s', 'sms')], triggers: [hook()], publishing, webhookReference });
+const hookRule = (doc) => evaluateWorkflowRules(doc, {});
+
+test('inboundWebhookTriggerValidator: publishing with no mapped sample is refused', () => {
+  const f = hookRule(hookDoc({ triggerId: 'T1', payload: null })).findings;
+  assert.deepEqual(f.map((x) => x.rule), ['inboundWebhookTriggerValidator']);
+  assert.match(f[0].message, /Mapping Reference is required for the Inbound Webhook Trigger/);
+});
+
+test('inboundWebhookTriggerValidator: a mapped sample passes', () => {
+  assert.deepEqual(hookRule(hookDoc({ triggerId: 'T1', payload: { dealRef: 'D-1' } })).findings, []);
+});
+
+test('inboundWebhookTriggerValidator: without the reference read it is NOT EVALUABLE, never passed', () => {
+  const r = hookRule(hookDoc(undefined));
+  assert.deepEqual(r.findings, []);
+  assert.match(r.notEvaluable.join(' '), /inboundWebhookTriggerValidator/);
+});
+
+test('inboundWebhookTriggerValidator: a draft is warned; a workflow with no webhook trigger is not judged at all', () => {
+  const draft = hookRule(hookDoc({ triggerId: 'T1', payload: null }, false));
+  assert.deepEqual(draft.findings, []);
+  assert.ok(draft.advisories.some((a) => a.rule === 'inboundWebhookTriggerValidator'));
+  const none = hookRule({ templates: [step('s', 'sms')], triggers: [], publishing: true });
+  assert.ok(!none.notEvaluable.some((n) => /inboundWebhookTriggerValidator/.test(n)));
+});
+
+// validateIfElseCondition — GHL judges it only for creationSource 'workflow_ai' (a stored field on
+// the document). Shapes are the engine's own condition-node / branch-yes / branch-no.
+const cond = (over = {}) => ({ conditionType: 'contact_detail', conditionSubType: 'first_name', conditionOperator: 'is', conditionValue: 'Ann', ...over });
+const branch = (conditions, name = 'Yes') => ({ id: 'y', name, segments: conditions === null ? [] : [{ operator: 'and', conditions }] });
+const ifElse = (branches, over = {}) => [
+  step('c', 'if_else', { name: 'Check', nodeType: 'condition-node', next: ['y', 'n'], attributes: { branches }, ...over }),
+  step('y', 'if_else', { name: 'Yes', nodeType: 'branch-yes', attributes: { branches: [] } }),
+  step('n', 'if_else', { name: 'None', nodeType: 'branch-no', attributes: { else: true } }),
+];
+const ifMsgs = (templates, extra = {}) => evaluateWorkflowRules({ templates, triggers: [], publishing: true, creationSource: 'workflow_ai', ...extra }, {})
+  .findings.filter((f) => f.rule === 'validateIfElseCondition').map((f) => f.message);
+
+test('validateIfElseCondition: only a Workflow-AI-authored workflow is judged', () => {
+  assert.deepEqual(ifMsgs(ifElse([branch(null)]), { creationSource: 'builder' }), []);
+  assert.deepEqual(ifMsgs(ifElse([branch(null)]), { creationSource: undefined }), []);
+  assert.equal(ifMsgs(ifElse([branch(null)])).length, 1);
+});
+
+test('validateIfElseCondition: a complete condition passes; a legacy if/else skips the whole rule', () => {
+  assert.deepEqual(ifMsgs(ifElse([branch([cond()])])), []);
+  const legacy = [step('old', 'if_else', { attributes: { segments: [{ conditions: [] }] } }), ...ifElse([branch(null)])];
+  assert.deepEqual(ifMsgs(legacy), []);
+});
+
+test('validateIfElseCondition: an if/else node with no nodeType gets GHL\'s missing-configuration message', () => {
+  const t = ifElse([branch([cond()])]);
+  delete t[1].nodeType;
+  assert.match(ifMsgs(t)[0], /The condition "Yes" is missing required configuration\. Try creating a new workflow using AI/);
+  assert.match(ifMsgs(t, { status: 'published' })[0], /Your published workflow will continue running with the previous version/);
+});
+
+test('validateIfElseCondition: the structure checks, in GHL\'s order', () => {
+  assert.match(ifMsgs(ifElse([branch([cond()])], { next: ['y'] }))[0], /"Check" condition requires at least two next nodes/);
+  assert.match(ifMsgs(ifElse([]))[0], /"Check" condition requires at least one branch/);
+  assert.match(ifMsgs(ifElse([branch(null)]))[0], /branch "Yes" in "Check" condition requires at least one segment/);
+  assert.match(ifMsgs(ifElse([branch([])]))[0], /a segment in branch "Yes" of "Check" condition requires at least one condition/);
+});
+
+test('validateIfElseCondition: every missing part of a condition is named', () => {
+  const one = (over) => ifMsgs(ifElse([branch([cond(over)])]))[0] ?? '';
+  assert.match(one({ conditionType: '' }), /missing a condition type/);
+  assert.match(one({ conditionSubType: undefined }), /missing a condition field/);
+  assert.match(one({ conditionOperator: '' }), /missing a condition operator/);
+  assert.match(one({ conditionValue: '' }), /missing a condition value/);
+  assert.match(one({ conditionValue: [] }), /missing a condition value/);
+});
+
+test('validateIfElseCondition: operators and date words that need no value pass; a relative date needs a unit', () => {
+  for (const conditionOperator of ['has_value', 'has_no_value', 'timeout'])
+    assert.deepEqual(ifMsgs(ifElse([branch([cond({ conditionOperator, conditionValue: undefined })])])), [], conditionOperator);
+  for (const conditionValueOperator of ['today', 'yesterday', 'tomorrow'])
+    assert.deepEqual(ifMsgs(ifElse([branch([cond({ conditionValueOperator, conditionValue: undefined })])])), [], conditionValueOperator);
+  assert.match(ifMsgs(ifElse([branch([cond({ conditionValueOperator: 'inTheNext', conditionValue: 3 })])]))[0], /requires a time unit/);
+  assert.deepEqual(ifMsgs(ifElse([branch([cond({ conditionValueOperator: 'inTheNext', conditionValueUnit: 'days', conditionValue: 3 })])])), []);
+  assert.deepEqual(ifMsgs(ifElse([branch([cond({ conditionValueOperator: 'on', conditionValue: '2026-01-01' })])])), []);
+});
+
+test('validateIfElseCondition: a draft is warned, not refused', () => {
+  const r = evaluateWorkflowRules({ templates: ifElse([branch(null)]), triggers: [], publishing: false, creationSource: 'workflow_ai' }, {});
+  assert.deepEqual(r.findings, []);
+  assert.ok(r.advisories.some((a) => a.rule === 'validateIfElseCondition'));
 });

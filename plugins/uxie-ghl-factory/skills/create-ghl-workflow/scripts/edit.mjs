@@ -254,7 +254,8 @@ const body = editCommitBody(fresh, templates, diff, UID, { assumeAssociated, all
 // WORKFLOW-level rules need the trigger set even for step-only edits (an action can be illegal
 // purely because of the trigger above it) — one GET, same oracle GHL's builder runs pre-save.
 { const trig = rulesNeedTriggers(templates, ctx.catalog?.workflowRules) || triggerOps.length ? await listTriggers() : [];
-  checkWorkflowRules({ templates, triggers: trig, settings: { senderAddress: body.senderAddress ?? fresh.senderAddress }, publishing: fresh.status === 'published' },
+  checkWorkflowRules({ templates, triggers: trig, settings: { senderAddress: body.senderAddress ?? fresh.senderAddress },
+    publishing: fresh.status === 'published', status: fresh.status, creationSource: fresh.creationSource },
     ctx.catalog?.workflowRules, { skipWorkflowRules: process.argv.includes('--skip-workflow-rules'), warn: ctx.warn }); }
 const plan = triggerOps.length
   // workflowStatus is the TARGET WORKFLOW's own status — addTrigger/duplicateTrigger need it

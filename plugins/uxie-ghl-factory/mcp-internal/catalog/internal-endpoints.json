@@ -23960,7 +23960,9 @@
       "kind": "read",
       "reach": "source-only",
       "coveredBy": [
-        "publish_workflow"
+        "edit_workflow",
+        "publish_workflow",
+        "repair_workflow"
       ],
       "rawCallable": true,
       "transport": "json",
@@ -39721,7 +39723,10 @@
       "reach": "refused",
       "coveredBy": [
         "build_workflow",
-        "pin_webhook_sample"
+        "edit_workflow",
+        "pin_webhook_sample",
+        "publish_workflow",
+        "repair_workflow"
       ],
       "rawCallable": true,
       "transport": "json",

@@ -493,6 +493,51 @@
     "lc_klaviyo_new_event"
    ]
   },
+  "requiredTriggersByAction": {
+   "conversationai_ai_message": [
+    "conv_ai_autonomous_trigger",
+    "conv_ai_trigger"
+   ],
+   "conversationai_ai_splitter": [
+    "conv_ai_autonomous_trigger",
+    "conv_ai_trigger"
+   ],
+   "conversationai_book_appointment": [
+    "conv_ai_trigger",
+    "conv_ai_autonomous_trigger"
+   ],
+   "conversationai_continue": [
+    "conv_ai_trigger",
+    "conv_ai_autonomous_trigger"
+   ],
+   "conversationai_custom_message": [
+    "conv_ai_autonomous_trigger",
+    "conv_ai_trigger"
+   ],
+   "conversationai_end": [
+    "conv_ai_autonomous_trigger",
+    "conv_ai_trigger"
+   ],
+   "conversationai_objective": [
+    "conv_ai_trigger",
+    "conv_ai_autonomous_trigger"
+   ],
+   "conversationai_transfer_bot": [
+    "conv_ai_trigger",
+    "conv_ai_autonomous_trigger"
+   ],
+   "conversationai_services_booking": [
+    "conv_ai_trigger",
+    "conv_ai_autonomous_trigger"
+   ],
+   "tiktok-dm": [
+    "customer_reply"
+   ],
+   "send_messenger_optin": [
+    "facebook_comment_on_post",
+    "customer_reply"
+   ]
+  },
   "rules": [
    {
     "rule": "checkEmptyPublish",

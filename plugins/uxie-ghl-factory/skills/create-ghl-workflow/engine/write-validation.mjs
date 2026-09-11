@@ -57,16 +57,20 @@ const findingKey = (f) => `${f.ruleId ?? ''}|${f.where ?? ''}|${f.message ?? ''}
  * @param opts.skipWorkflowRules true | ['ruleName'] — the rules layer's own hatch
  * @param opts.senderDomain the workflow's sending domain, when known; without it checkFromEmailFormat
  *   reports itself unjudged rather than passing
+ * @param opts.webhookReference the first inbound_webhook trigger's mapped sample ({ triggerId, payload },
+ *   or null when GHL has none); without it inboundWebhookTriggerValidator reports itself unjudged
+ * @param opts.creationSource the stored document's creationSource; validateIfElseCondition keys on it
  */
 export function validateDocument({
   intent = 'edit', templates = [], triggers = [], settings = null, status = null, senderDomain,
+  webhookReference, creationSource,
   catalog = loadCatalog(), marketplaceTypes = null, scope = null, waive = null,
   skipWorkflowRules = false, allow = false,
 } = {}) {
   const publishing = publishingFor(intent, status);
   const rulebook = catalog?.workflowRules;
   const evaluated = rulebook
-    ? evaluateWorkflowRules({ templates, triggers, settings, status, publishing, senderDomain }, rulebook)
+    ? evaluateWorkflowRules({ templates, triggers, settings, status, publishing, senderDomain, webhookReference, creationSource }, rulebook)
     : { findings: [], advisories: [], notEvaluable: ['no rulebook in the catalog'] };
   const skipAll = skipWorkflowRules === true;
   const skipSet = new Set(Array.isArray(skipWorkflowRules) ? skipWorkflowRules : []);
@@ -108,14 +112,18 @@ export function validateDocument({
  * @param opts.baseline a server verdict for the document AS STORED (edit, repair). With one, only
  *   findings this write INTRODUCES block — a pre-existing defect must not freeze every later edit.
  *   Build and publish pass none, so everything blocks.
+ * @param opts.serverTriggers the triggers GHL's validator is shown, when they must differ from the
+ *   ones the rules judge: a build leaves a flow bot's unbound entry trigger out of GHL's call, but its
+ *   AI steps REQUIRE that trigger, so the rules must still see it.
  */
 export async function validateForWrite({
-  call, loc, wid, document, templates, triggers = [], baseline = null, allow = false, ...rest
+  call, loc, wid, document, templates, triggers = [], serverTriggers, baseline = null, allow = false, creationSource, ...rest
 } = {}) {
   const steps = templates ?? document?.workflowData?.templates ?? [];
-  const offline = validateDocument({ ...rest, templates: steps, triggers, allow });
+  const offline = validateDocument({ ...rest, templates: steps, triggers, allow,
+    creationSource: creationSource ?? document?.creationSource });
   const server = call && wid
-    ? await liveValidate(call, loc, wid, { document, templates, triggers })
+    ? await liveValidate(call, loc, wid, { document, templates, triggers: serverTriggers ?? triggers })
     : { ran: false, why: 'no workflow id to validate against — GHL\'s validator needs one in its path' };
   let serverBlocking = [];
   if (server.ran && server.valid === false) {

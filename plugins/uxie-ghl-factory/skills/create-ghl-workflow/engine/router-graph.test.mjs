@@ -9,7 +9,11 @@ import { evaluateWorkflowRules } from './graph-rules.mjs';
 
 const VOCAB = { vocab: { router: { maxBranches: 10, maxNesting: 10, disallowedBranchSteps: ['workflow_goal', 'goto'], laneNodeTypes: ['branch-yes', 'branch-no'], branchTypes: ['custom', 'always_run', 'fallback'] } } };
 const router = (id, branches, over = {}) => ({ id, name: id, type: 'router', attributes: { branches }, ...over });
-const branch = (id, branchType = 'custom') => ({ id, name: `b-${id}`, branchType });
+// A custom branch carries one COMPLETE condition, distinct per branch: GHL refuses an unfinished
+// branch and two branches on the same conditions, so a fixture without them tests those rules instead.
+const branch = (id, branchType = 'custom', segments = branchType === 'custom'
+  ? [{ operator: 'and', conditions: [{ conditionType: 'contact_detail', conditionSubType: 'first_name', conditionOperator: 'is', conditionValue: id }] }] : []) =>
+  ({ id, name: `b-${id}`, branchType, operator: 'and', segments });
 const step = (id, type, over = {}) => ({ id, name: id, type, attributes: {}, ...over });
 
 test('a router root is told from its lanes by the lane stamp', () => {
@@ -75,9 +79,31 @@ test('a legal router fires nothing', () => {
   assert.deepEqual(evaluateWorkflowRules({ templates: t }, VOCAB).findings.filter((f) => f.rule === 'validateRouterConditions'), []);
 });
 
-test('the two model-computed router checks are declared NOT evaluable, never silently passed', () => {
+const routerFindings = (templates) => evaluateWorkflowRules({ templates }, VOCAB).findings.filter((f) => f.rule === 'validateRouterConditions');
+
+test('validateRouterConditions: an unfinished branch is refused, named by its branch', () => {
+  const half = { id: 'bh', name: 'Half', branchType: 'custom', operator: 'and', segments: [] };
+  const findings = routerFindings([router('r1', [branch('b1'), half])]);
+  assert.equal(findings.length, 1);
+  assert.match(findings[0].message, /Half: Add at least one complete condition to every branch/);
+});
+
+test('validateRouterConditions: two branches on the same conditions are refused', () => {
+  const twin = { ...branch('b1'), id: 'b2', name: 'b-twin' };
+  const findings = routerFindings([router('r1', [branch('b1'), twin])]);
+  assert.equal(findings.length, 1);
+  assert.match(findings[0].message, /b-twin has the same conditions as b-b1/);
+});
+
+test('validateRouterConditions reports ONE violation per router, in GHL\'s order', () => {
+  // eleven branches, one of them unfinished: capacity is what GHL reports, not the branch
+  const many = [...Array.from({ length: 10 }, (_, i) => branch(`b${i}`)), { id: 'bh', name: 'Half', branchType: 'custom', segments: [] }];
+  const findings = routerFindings([router('r1', many)]);
+  assert.equal(findings.length, 1);
+  assert.match(findings[0].message, /11 branches/);
+});
+
+test('no router check is left unjudged', () => {
   const { notEvaluable } = evaluateWorkflowRules({ templates: [router('r1', [branch('b1')])] }, VOCAB);
-  const text = notEvaluable.join(' ');
-  assert.match(text, /incompleteBranch/i);
-  assert.match(text, /duplicate/i);
+  assert.ok(!notEvaluable.some((n) => /validateRouterConditions/.test(n)), notEvaluable.join(' | '));
 });
