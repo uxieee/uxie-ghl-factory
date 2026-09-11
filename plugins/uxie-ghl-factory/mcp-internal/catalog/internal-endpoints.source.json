@@ -20,16 +20,16 @@
     {
       "tree": "documented",
       "dir": "corpus",
-      "capturedAt": "2026-09-11T00:24:17.024Z",
+      "capturedAt": "2026-09-11T01:04:11.883Z",
       "hash": "corpus",
-      "fileCount": 815,
-      "endpoints": 815
+      "fileCount": 813,
+      "endpoints": 813
     }
   ],
   "note": "SOURCE-DERIVED ONLY, merged from every mined front-end. `tree` on each row says which app calls it. The plugin owns kind/note/summary/reach/coveredBy and merges them at read time. A row proves a GHL front-end calls that path — not that your token reaches it, and not that calling it is safe.",
-  "discoveredCallSites": 1275,
-  "skippedCallSites": 414,
-  "count": 1194,
+  "discoveredCallSites": 1273,
+  "skippedCallSites": 413,
+  "count": 1192,
   "endpoints": [
     {
       "id": "workflows--actions-branches",
@@ -5132,32 +5132,6 @@
       "serviceBasis": "declared"
     },
     {
-      "id": "forms--submission-v2",
-      "method": "GET",
-      "origin": "https://backend.leadconnectorhq.com",
-      "path": "/form/submission/v2/{submissionId}",
-      "authRail": "bearer",
-      "transport": "json",
-      "responseMode": "json",
-      "extraHeaders": [],
-      "tree": "documented",
-      "operation": null,
-      "service": "forms",
-      "query": [],
-      "body": null,
-      "returns": null,
-      "confidence": {
-        "path": "documented",
-        "query": "none-observed",
-        "body": "unresolved",
-        "returns": "unresolved"
-      },
-      "sources": [
-        "forms/20-api/public-renderer-and-submit.md:146"
-      ],
-      "serviceBasis": "declared"
-    },
-    {
       "id": "forms-service--get-forms",
       "method": "GET",
       "origin": "https://backend.leadconnectorhq.com",
@@ -5317,7 +5291,7 @@
       },
       "sources": [
         "forms/20-api/public-renderer-and-submit.md:37",
-        "forms/20-api/public-renderer-and-submit.md:145"
+        "forms/20-api/public-renderer-and-submit.md:164"
       ],
       "serviceBasis": "declared"
     },
@@ -5382,7 +5356,7 @@
       },
       "sources": [
         "forms/20-api/public-renderer-and-submit.md:36",
-        "forms/20-api/public-renderer-and-submit.md:145"
+        "forms/20-api/public-renderer-and-submit.md:164"
       ],
       "serviceBasis": "declared"
     },
@@ -30458,32 +30432,6 @@
       "sources": [
         "forms/20-api/neighbour-services.md:38",
         "forms/20-api/neighbour-services.md:61"
-      ],
-      "serviceBasis": "declared"
-    },
-    {
-      "id": "forms--submission-v2-get",
-      "method": "GET",
-      "origin": "https://services.leadconnectorhq.com",
-      "path": "/form/submission/v2/{submissionId}",
-      "authRail": "bearer+token-id",
-      "transport": "json",
-      "responseMode": "json",
-      "extraHeaders": [],
-      "tree": "documented",
-      "operation": null,
-      "service": "forms",
-      "query": [],
-      "body": null,
-      "returns": null,
-      "confidence": {
-        "path": "documented",
-        "query": "none-observed",
-        "body": "unresolved",
-        "returns": "unresolved"
-      },
-      "sources": [
-        "forms/20-api/forms.md:222"
       ],
       "serviceBasis": "declared"
     },

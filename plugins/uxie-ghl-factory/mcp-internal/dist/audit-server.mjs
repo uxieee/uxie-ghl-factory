@@ -246,7 +246,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
     define_ENDPOINT_CATALOG_default = {
       generated: "2026-09-11",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 1202,
+      count: 1200,
       endpoints: [
         {
           id: "workflows--actions-branches",
@@ -6698,41 +6698,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
-          id: "forms--submission-v2",
-          method: "GET",
-          url: "https://backend.leadconnectorhq.com/form/submission/v2/{submissionId}",
-          path: "/form/submission/v2/{submissionId}",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "read",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "forms",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "submissionId"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "forms/20-api/public-renderer-and-submit.md:146"
-          ]
-        },
-        {
           id: "forms-service--get-forms",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/forms",
@@ -6950,7 +6915,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "forms/20-api/public-renderer-and-submit.md:37",
-            "forms/20-api/public-renderer-and-submit.md:145"
+            "forms/20-api/public-renderer-and-submit.md:164"
           ]
         },
         {
@@ -7031,7 +6996,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "forms/20-api/public-renderer-and-submit.md:36",
-            "forms/20-api/public-renderer-and-submit.md:145"
+            "forms/20-api/public-renderer-and-submit.md:164"
           ]
         },
         {
@@ -38412,41 +38377,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "forms/20-api/neighbour-services.md:38",
             "forms/20-api/neighbour-services.md:61"
-          ]
-        },
-        {
-          id: "forms--submission-v2-get",
-          method: "GET",
-          url: "https://services.leadconnectorhq.com/form/submission/v2/{submissionId}",
-          path: "/form/submission/v2/{submissionId}",
-          origin: "https://services.leadconnectorhq.com",
-          rail: "ai",
-          kind: "read",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "forms",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "submissionId"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "forms/20-api/forms.md:222"
           ]
         },
         {
