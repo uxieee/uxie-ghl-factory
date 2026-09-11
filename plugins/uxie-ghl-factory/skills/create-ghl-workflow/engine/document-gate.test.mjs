@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { gateDocument, runValidationGate, knownAttributeKeys, STEP_TOP_LEVEL_KEYS } from './document-gate.mjs';
+import { gateDocument, knownAttributeKeys, STEP_TOP_LEVEL_KEYS } from './document-gate.mjs';
+import { validateForWrite } from './write-validation.mjs';
 import { loadCatalog } from './catalog.mjs';
 import { liveValidate } from './live-validate.mjs';
 
@@ -61,10 +62,10 @@ const refused = (message, ruleId) => ({ valid: false, errorMessage: message, err
 
 test('a server finding blocks a build; the hatch lets it through, still reported', async () => {
   const opts = { call: gw(refused('Fields is required.', 'x')), loc: 'L', wid: 'W', document: { workflowData: { templates: [ucf()] } }, catalog, marketplaceTypes: new Set() };
-  const r = await runValidationGate(opts);
+  const r = await validateForWrite(opts);
   assert.equal(r.blocked, true);
   assert.match(r.summary, /Fields is required/);
-  const hatched = await runValidationGate({ ...opts, allow: true });
+  const hatched = await validateForWrite({ ...opts, allow: true });
   assert.equal(hatched.blocked, false);
   assert.equal(hatched.serverBlocking.length, 1);
 });
@@ -75,14 +76,14 @@ test('on an edit, only a server finding the write INTRODUCES blocks', async () =
   // a hand-written one tested a finding shape the parser never emits.
   const baseline = await liveValidate(gw(pre), 'L', 'W', { document: { workflowData: { templates: [ucf()] } } });
   const opts = { call: gw(pre), loc: 'L', wid: 'W', document: { workflowData: { templates: [ucf()] } }, catalog, marketplaceTypes: new Set(), baseline };
-  const same = await runValidationGate(opts);
+  const same = await validateForWrite(opts);
   assert.equal(same.blocked, false, 'a pre-existing finding must not freeze the workflow');
-  const worse = await runValidationGate({ ...opts, call: gw(refused('Fields is required.', 'x')) });
+  const worse = await validateForWrite({ ...opts, call: gw(refused('Fields is required.', 'x')) });
   assert.equal(worse.blocked, true);
 });
 
 test('no verdict from the server is neither a pass nor a fail', async () => {
-  const r = await runValidationGate({ call: async () => ({ ok: false, status: 502, json: 'Bad Gateway' }), loc: 'L', wid: 'W', document: { workflowData: { templates: [ucf()] } }, catalog, marketplaceTypes: new Set() });
+  const r = await validateForWrite({ call: async () => ({ ok: false, status: 502, json: 'Bad Gateway' }), loc: 'L', wid: 'W', document: { workflowData: { templates: [ucf()] } }, catalog, marketplaceTypes: new Set() });
   assert.equal(r.server.ran, false);
   assert.equal(r.blocked, false, 'a transport failure is reported, not turned into a refusal');
 });

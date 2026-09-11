@@ -8,6 +8,15 @@
 // if/conditionName; the card lists only `else`), and that an allowlist built from the engine-built
 // account alone would have refused every workflow a human made on the advanced canvas
 // (advanceCanvasMeta, 93 steps on the UI-built account, none on the engine-built one).
+//
+// RE-CALIBRATED 2026-09-12 over a WIDER corpus — 184 workflows, 3,293 steps across three accounts
+// (`knowledge/sniffs/step-key-census-2026-09-11-2`, run by the committed `sniffs/step-key-census.mjs`):
+// no new top-level key, no new attribute key on any known type, no new inner type. The allowlists
+// below are current. The one type the wider sweep added, `wait_step`, is GoGHL's marketplace action
+// and every stored one carries isMarketplaceAction:true, which document-gate.mjs skips by design.
+//
+// It also measured the CANVAS layer's calibration: 93 steps carry advanceCanvasMeta and ZERO steps
+// or triggers carry hasErrors:true, so refusing a publish on that flag refuses nothing that exists.
 export const OBSERVED_TOP_LEVEL_KEYS = Object.freeze(["advanceCanvasMeta", "attributes", "cat", "comments", "id", "incompleteData", "isMarketplaceAction", "name", "next", "nodeType", "order", "parent", "parentKey", "sibling", "stepIndex", "type", "version", "workflowsActionType"]);
 
 export const OBSERVED_ATTRIBUTE_KEYS = Object.freeze({

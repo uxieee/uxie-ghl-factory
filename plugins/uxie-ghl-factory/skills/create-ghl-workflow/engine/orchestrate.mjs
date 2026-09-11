@@ -37,11 +37,10 @@ import { buildMarketplaceIndex } from './marketplace.mjs';
 import { walkNodes } from './ir.mjs';
 import { validateAssets, describeFinding } from './asset-preflight.mjs';
 import { parseServerValidation, describeServerFindings } from './server-validation.mjs';
-import { checkWorkflowRules } from './graph-rules.mjs';
 import { checkGraphContextRules } from './graph-context-rules.mjs';
 import { checkFieldCaps, describeCap } from './field-caps.mjs';
-import { gateDocument } from './document-gate.mjs';
-import { liveValidate, blocking } from './live-validate.mjs';
+import { validateDocument, validateForWrite } from './write-validation.mjs';
+import { blocking } from './live-validate.mjs';
 import { stripNullNext, fillInputTriggerParams } from './terminals.mjs';
 
 const BASE = 'https://backend.leadconnectorhq.com';
@@ -322,14 +321,8 @@ export async function orchestrate(ir, gw, opts = {}) {
   // WORKFLOW-level rules (GHL's WorkflowValidator — the layer that blocks a save before any
   // HTTP). Graph-scoped + trigger-aware, so it needs the compiled templates AND trigger bodies
   // together; that is only true here. Hatch: opts.skipWorkflowRules.
-  try {
-    checkWorkflowRules({ templates: built.autoSaveBody?.workflowData?.templates, triggers: built.triggerBodies, publishing: opts.publish === true },
-      catalog.workflowRules, { skipWorkflowRules: opts.skipWorkflowRules, warn: (m) => report.warnings.push(m) });
-  } catch (e) {
-    report.failurePhase = 'workflow_rules';
-    report.aborted = `${e.code ?? 'WORKFLOW_RULE'}: ${e.message}`;
-    return report;
-  }
+  // WORKFLOW-level rules run inside the validation gate below, with every other layer — one entry
+  // point per write, so no path can assemble a shorter list than another (write-validation.mjs).
   // Graph-CONTEXT rules: GHL validators that need the whole template list rather than one node's
   // attributes — goto placement (needs the parent) and math_operation's upstream reference (needs
   // every other math step). Both are result:'warning' in GHL, so both warn and neither aborts.
@@ -340,18 +333,33 @@ export async function orchestrate(ir, gw, opts = {}) {
   // schema layer (action-schema) is the general check; this names the four caps crossed live.
   for (const f of checkFieldCaps(built.autoSaveBody?.workflowData?.templates)) report.warnings.push(`FIELD_CAP: ${describeCap(f)}`);
 
-  // ── THE VALIDATION GATE, engine half (document-gate.mjs) — before ANYTHING is created. ──────
-  // The classes GHL's own validator answers valid:true on (an invented attribute key, a wrong inner
-  // attributes.type, an unknown top-level key, a corrupted type on an agent flow), plus refs, caps and
-  // required fields over the compiled document. A marketplace build leaves unknown types a warning:
-  // its steps carry isMarketplaceAction and the native catalogue does not list them.
-  const engineGate = gateDocument(built.autoSaveBody?.workflowData?.templates ?? [], { catalog, marketplaceTypes: usesMarketplace ? null : new Set() });
-  report.validation = { engine: { errors: engineGate.errors, warnings: engineGate.warnings.length } };
-  for (const f of engineGate.warnings) report.warnings.push(`VALIDATION ${f.check}: '${f.stepName ?? f.stepId}' (${f.type}): ${f.message}`);
-  if (engineGate.errors.length && opts.allowValidationFailure !== true) {
-    report.failurePhase = 'validation_engine';
-    report.aborted = `VALIDATION_GATE (engine): ${engineGate.errors.length} finding(s) GHL would have let through — nothing was created.\n`
-      + engineGate.errors.map((f) => `  ${f.check}: '${f.stepName ?? f.stepId}' (${f.type}): ${f.message}`).join('\n');
+  // ── THE VALIDATION GATE, offline half (write-validation.mjs) — before ANYTHING is created ──
+  // One call, every offline layer: GHL's WorkflowValidator rules (publish-only ones when this
+  // build publishes), the canvas's stored error flag, and the engine oracle — the classes GHL's
+  // own validator answers valid:true on. A marketplace build leaves unknown types a warning: its
+  // steps carry isMarketplaceAction and the native catalogue does not list them.
+  const offline = validateDocument({
+    intent: 'build',
+    templates: built.autoSaveBody?.workflowData?.templates ?? [],
+    triggers: built.triggerBodies ?? [],
+    settings: { senderAddress: built.autoSaveBody?.senderAddress ?? ir.settings?.senderAddress },
+    status: opts.publish === true ? 'published' : 'draft',
+    catalog,
+    marketplaceTypes: usesMarketplace ? null : new Set(),
+    skipWorkflowRules: opts.skipWorkflowRules,
+  });
+  report.validation = { intent: 'build', publishing: offline.publishing, engine: { errors: offline.engine.errors, warnings: offline.engine.warnings.length },
+    rules: { findings: offline.rules.findings, skipped: offline.rules.skipped.map((r) => r.rule), notEvaluable: offline.rules.notEvaluable },
+    canvas: { errors: offline.canvas.errors } };
+  for (const f of offline.engine.warnings) report.warnings.push(`VALIDATION ${f.check}: '${f.stepName ?? f.stepId}' (${f.type}): ${f.message}`);
+  for (const a of offline.rules.advisories ?? []) report.warnings.push(`WORKFLOW_RULE_SOFT: [${a.rule}] ${a.message}`);
+  for (const r of offline.rules.skipped) report.warnings.push(`WORKFLOW_RULE SKIPPED (skipWorkflowRules): [${r.rule}] ${r.message}`);
+  if (offline.blocked && opts.allowValidationFailure !== true) {
+    // The rules layer keeps the phase it has always aborted with; the rest are the gate's own.
+    report.failurePhase = offline.blockingLayer === 'workflow_rules' ? 'workflow_rules' : 'validation_engine';
+    report.aborted = offline.blockingLayer === 'workflow_rules'
+      ? `WORKFLOW_RULE: GHL's builder would REFUSE to save this workflow (WorkflowValidator):\n${offline.summary}`
+      : `VALIDATION_GATE (${offline.blockingLayer}): ${offline.engine.errors.length + offline.canvas.errors.length} finding(s) — nothing was created.\n${offline.summary}`;
     return report;
   }
 
@@ -451,9 +459,15 @@ export async function orchestrate(ir, gw, opts = {}) {
   if (gateTriggers.length < built.triggerBodies.length) {
     report.warnings.push('VALIDATION: the flow\'s entry trigger has no agent yet, so its trigger layer is judged when it is bound, not here');
   }
-  const serverGate = await liveValidate(call, loc, WID, { document: sent, triggers: gateTriggers });
+  const gate = await validateForWrite({
+    // the DOCUMENT, never a separate template array: the gate must judge the bytes this write sends
+    intent: 'build', call, loc, wid: WID, document: sent, triggers: gateTriggers,
+    settings: { senderAddress: sent.senderAddress }, status: opts.publish === true ? 'published' : 'draft',
+    catalog, marketplaceTypes: usesMarketplace ? null : new Set(), skipWorkflowRules: opts.skipWorkflowRules,
+  });
+  const serverGate = gate.server;
   report.validation.server = serverGate;
-  if (!serverGate.ran) report.warnings.push(`VALIDATION: GHL's validator gave no verdict (${serverGate.why}); only the engine half ran`);
+  if (!serverGate.ran) report.warnings.push(`VALIDATION: GHL's validator gave no verdict (${serverGate.why}); the offline layers still ran`);
   if (blocking(serverGate) && opts.allowValidationFailure !== true) {
     report.failurePhase = 'validation_server';
     report.aborted = `VALIDATION_GATE (GHL, layer ${serverGate.layer ?? '?'}): the server refused the compiled steps. Only the EMPTY draft `

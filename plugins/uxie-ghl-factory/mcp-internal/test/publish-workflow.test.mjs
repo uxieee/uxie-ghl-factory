@@ -36,6 +36,8 @@ function publishGateway({
   // trigger the cascade does NOT reach, so the REPAIR path below (added 2026-08-28) gets
   // exercised.
   triggersActivateOnPublish = true,
+  // the location's sending domains, as GET /workflow/{loc}/email/domain-selection answers them
+  domains = [],
   // Controls whether the REPAIR PUT (one per-trigger status write, sent only for a trigger
   // still inactive after the cascade) actually takes. false models the measured
   // "a bogus/ignored `status` is silently accepted" pitfall — 200, unchanged — so the
@@ -59,6 +61,9 @@ function publishGateway({
           return { status: 503, ok: false, json: { message: `workflow GET ${workflowGets} unavailable` } };
         }
         return { status: 200, ok: true, json: structuredClone(current) };
+      }
+      if (method === 'GET' && path.startsWith('/workflow/LOC/email/domain-selection')) {
+        return { status: 200, ok: true, json: structuredClone(domains) };
       }
       if (method === 'GET' && path === '/workflow/LOC/trigger?workflowId=WID') {
         return { status: 200, ok: true, json: { triggers: structuredClone(triggers) } };
@@ -336,4 +341,54 @@ test('publish PUT applied then transport throws reports an urgent ambiguous writ
   assert.equal(result.data.partialProgress.putOutcome.ambiguous, true);
   assert.equal(result.data.partialProgress.verification.attempted, false);
   assert.equal(current().status, 'published');
+});
+
+// ── the layers publish never ran (0.84.0) ────────────────────────────────────────────────────
+// GHL's browser publish gate runs THREE checks before it sends the status PUT: WorkflowValidator
+// as 'published', the canvas's stored hasErrors flag, and the per-field highlight map. Our publish
+// ran none of the first two — so an empty workflow, or a goto with no target, published over the
+// API while the builder refused it on screen. Every layer belongs to the intent now.
+
+test('publish refuses an EMPTY workflow — checkEmptyPublish, the rule only a publish runs', async () => {
+  const empty = workflow();
+  empty.workflowData.templates = [];
+  const { gw, calls } = publishGateway({ initial: empty });
+  const result = await publishTool().handler({ locationId: 'LOC', workflowId: 'WID', confirm: true }, deps(gw));
+  assert.equal(result.ok, false);
+  assert.match(result.detail ?? '', /WORKFLOW_RULE|empty/i);
+  assert.equal(calls.some(({ method }) => method === 'PUT'), false, 'nothing was written');
+});
+
+test("publish refuses a step the canvas itself has flagged", async () => {
+  const flagged = workflow();
+  flagged.workflowData.templates = [{ id: 's1', type: 'sms', name: 'Text', attributes: { type: 'sms', body: 'hi' }, next: null, advanceCanvasMeta: { hasErrors: true } }];
+  const { gw, calls } = publishGateway({ initial: flagged });
+  const result = await publishTool().handler({ locationId: 'LOC', workflowId: 'WID', confirm: true }, deps(gw));
+  assert.equal(result.ok, false);
+  assert.match(JSON.stringify(result.data?.validation ?? result), /CANVAS_HAS_ERRORS/);
+  assert.equal(calls.some(({ method }) => method === 'PUT'), false);
+});
+
+test('allowValidationFailure publishes anyway, and still reports what it skipped', async () => {
+  const empty = workflow();
+  empty.workflowData.templates = [];
+  const { gw, calls } = publishGateway({ initial: empty });
+  const result = await publishTool().handler({ locationId: 'LOC', workflowId: 'WID', confirm: true, allowValidationFailure: true }, deps(gw));
+  assert.equal(result.ok, true, JSON.stringify(result).slice(0, 300));
+  assert.equal(calls.some(({ method, path }) => method === 'PUT' && path === '/workflow/LOC/WID'), true);
+  assert.match(JSON.stringify(result.data.warnings ?? []), /VALIDATION BYPASSED/);
+});
+
+test("publish reads the workflow's sending domain, so checkFromEmailFormat can be judged", async () => {
+  // GHL: with a specific sending domain the From Email must be a full address; with All Domains it
+  // must be a local part. The domain is NOT in the document — it comes from domain-selection.
+  const w = workflow();
+  w.senderAddress = { from_name: 'Grom', from_email: 'marketing' };
+  const { gw, calls } = publishGateway({ initial: w, domains: [{ domain: 'mail.example.com', selected: true }] });
+  const result = await publishTool().handler({ locationId: 'LOC', workflowId: 'WID', confirm: true }, deps(gw));
+  assert.equal(calls.some(({ method, path }) => method === 'GET' && path.includes('/email/domain-selection')), true,
+    'the sending domain must be read, or the rule silently passes');
+  assert.equal(result.ok, false);
+  assert.match(result.detail ?? '', /From Email|checkFromEmailFormat/i);
+  assert.equal(calls.some(({ method }) => method === 'PUT'), false);
 });

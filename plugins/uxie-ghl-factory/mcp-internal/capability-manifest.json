@@ -961,6 +961,11 @@
   },
   {
     "tool": "publish_workflow",
+    "method": "GET",
+    "path": "/workflow/{loc}/email/domain-selection"
+  },
+  {
+    "tool": "publish_workflow",
     "method": "PUT",
     "path": "/workflow/{loc}/{wid}"
   },

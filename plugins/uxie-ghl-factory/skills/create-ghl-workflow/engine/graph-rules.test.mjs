@@ -108,3 +108,31 @@ test('advisory channel: a picker-disabled action under its trigger WARNS (never 
   assert.deepEqual(res, []);                                   // not a block
   assert.ok(warns.some((m) => /WORKFLOW_RULE_SOFT.*inCompatibleActions/.test(m)), JSON.stringify(warns));
 });
+
+// ── checkFromEmailFormat (GHL 2026-09-11, in validate()'s throw chain) ────────────────────────
+// Fires only when the workflow's SENDING DOMAIN is known (GET /workflow/{loc}/email/domain-selection)
+// and is a specific domain: with "All Domains" the From Email is a local part by design. A merge
+// field is exempt — it resolves at send time, so its literal text cannot be format-checked.
+const SD = { vocab: { senderDomain: { allDomains: 'ALL_DOMAINS' } } };
+const withEmail = (from_email, senderDomain) => ({ templates: [], settings: { senderAddress: { from_email } }, senderDomain });
+const firedFromEmail = (doc) => evaluateWorkflowRules(doc, SD).findings.filter((f) => f.rule === 'checkFromEmailFormat');
+
+test('checkFromEmailFormat: a specific sending domain requires a real address', () => {
+  assert.equal(firedFromEmail(withEmail('marketing', 'mail.example.com')).length, 1, 'no @');
+  assert.equal(firedFromEmail(withEmail('marketing@example', 'mail.example.com')).length, 1, 'no dot');
+  assert.equal(firedFromEmail(withEmail('hello@example.com', 'mail.example.com')).length, 0);
+});
+
+test('checkFromEmailFormat: a merge field is exempt, it resolves at send time', () => {
+  assert.equal(firedFromEmail(withEmail('{{location.email}}', 'mail.example.com')).length, 0);
+});
+
+test('checkFromEmailFormat: All Domains means the From Email is a local part by design', () => {
+  assert.equal(firedFromEmail(withEmail('marketing', 'ALL_DOMAINS')).length, 0);
+});
+
+test('checkFromEmailFormat is NOT EVALUABLE without the sending domain, never silently passed', () => {
+  const r = evaluateWorkflowRules(withEmail('marketing', undefined), SD);
+  assert.equal(r.findings.filter((f) => f.rule === 'checkFromEmailFormat').length, 0);
+  assert.match(r.notEvaluable.join(' '), /checkFromEmailFormat/);
+});

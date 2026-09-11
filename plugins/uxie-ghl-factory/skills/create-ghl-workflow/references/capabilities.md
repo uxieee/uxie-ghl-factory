@@ -4,7 +4,7 @@
 > Regenerate: `node scripts/query-catalog-cli.mjs --md > references/capabilities.md`
 > Look one type up (full shape card): `node scripts/query-catalog-cli.mjs <term>`
 
-**385 step types / 204 trigger types.** This index — not your recall of "what GHL supports" — is the capability truth. NEVER tell the user a step or trigger "isn't supported", and never substitute a webhook/custom-code workaround for a native action, without searching here first.
+**386 step types / 204 trigger types.** This index — not your recall of "what GHL supports" — is the capability truth. NEVER tell the user a step or trigger "isn't supported", and never substitute a webhook/custom-code workaround for a native action, without searching here first.
 
 **Native pause (every step type):** set IR `disabled: true` to emit top-level `advanceCanvasMeta.isDisabled: true`. This is the same per-action pause used by GHL's ⏸ button; it preserves the step config and skips that step at runtime.
 
@@ -24,7 +24,7 @@ Legend: ✅ verified-live (round-tripped against a live account) · ◐ bundle-d
 ### communication
 - ✅ `call` — attrs: `timeout`, `whisper_message`, `disable_detect_voicemail`, `call_connect`
 - ◐ `conversation_ai`
-- ✅ `email` — attrs: `html`, `from_name`, `from_email`, `subject`, `attachments`, `preHeader`, `template_id`, `cc`, `bcc`, `templatesource`, `to`, `testEmails` +18 more (see card)
+- ✅ `email` — attrs: `html`, `from_name`, `from_email`, `subject`, `attachments`, `preHeader`, `template_id`, `cc`, `bcc`, `templatesource`, `to`, `testEmails` +19 more (see card)
 - ◐ `fb_interactive_messenger`
 - ◐ `gmb`
 - ◐ `ig_interactive_messenger`
@@ -69,6 +69,7 @@ Legend: ✅ verified-live (round-tripped against a live account) · ◐ bundle-d
 
 ### external_ai_models
 - ✅ `chatgpt` — attrs: `type`, `apiKey`, `event`, `model`, `temperature`, `promptText`, `actionType`, `actionParams`, `memoryKey`, `excludeFromHistory`, `excludeInstructionsFromHistory`, `instructions`; premium
+- ◐ `workflow_ai_generate_image` — attrs: `model`, `prompt`, `additionalSettings`, `referenceImages`; premium
 
 ### internal
 - ✅ `add_to_workflow` — attrs: `input_trigger_params`, `type`, `workflow_id`
@@ -83,6 +84,7 @@ Legend: ✅ verified-live (round-tripped against a live account) · ◐ bundle-d
 - ✅ `math_operation` — attrs: `selectField`, `selectFieldtype`, `sourceCustomValueId`, `updateField`, `updateFieldType`, `targetCustomValueId`, `operators`, `operator`, `value`
 - ◐ `number_formatter` — attrs: `action`
 - ✅ `remove_from_workflow` — attrs: `type`, `workflow_id`, `includeCurrent`, `allWorkflows`
+- ◐ `router`
 - ✅ `text_formatter` — attrs: `type`, `extras`, `formatterType`, `field`; premium
 - ◐ `update_custom_value` — attrs: `name`, `custom_value_id`, `current_value`, `new_value`
 - ✅ `wait` — attrs: `type`, `startAfter`, `window`, `condition`, `appointmentStartAfter`, `appointmentCondition`, `appointmentSpecificStep`, `reply`, `replyLabel`, `emailEventSteps`, `emailEventStepsLabel`, `emailEventTypes` +45 more (see card)
@@ -147,7 +149,6 @@ Legend: ✅ verified-live (round-tripped against a live account) · ◐ bundle-d
 
 ### workflow_ai
 - ✅ `ai_agent` — attrs: `prompt`, `structuredResponse`, `model`, `tools`, `outputFormat`, `outputDescription`, `memoryEnabled`; premium
-- ◐ `workflow_ai_generate_image` — attrs: `model`, `prompt`, `additionalSettings`; premium
 
 ## Containers / control flow (IR node kinds)
 

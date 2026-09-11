@@ -28,7 +28,6 @@ import { danglingParentKeys } from './edit.mjs';
 import { checkFieldCaps, describeCap } from './field-caps.mjs';
 import { ENGINE_ATTR_KEYS } from './compiler.mjs';
 import { OBSERVED_TOP_LEVEL_KEYS, OBSERVED_ATTRIBUTE_KEYS, OBSERVED_INNER_TYPES } from './observed-step-keys.mjs';
-import { liveValidate } from './live-validate.mjs';
 
 export const STEP_TOP_LEVEL_KEYS = new Set(OBSERVED_TOP_LEVEL_KEYS);
 
@@ -133,30 +132,5 @@ export function gateDocument(templates = [], { catalog = loadCatalog(), marketpl
   };
 }
 
-const findingKey = (f) => `${f.ruleId ?? ''}|${f.where ?? ''}|${f.message ?? ''}`;
-
-/**
- * Both oracles, one verdict. The server half needs a workflow id, so a build runs it against the
- * freshly created empty draft with the compiled steps swapped in — before a single step is written.
- *
- * @param opts.baseline a server verdict for the document AS STORED. When given (edit, repair), only
- *   server findings the write INTRODUCES block: a flow bot mid-build or a pre-existing defect on an
- *   untouched step must not freeze every later edit. Build and publish pass none, so every finding blocks.
- * @param opts.allow the caller's hatch. Findings are still reported in full.
- */
-export async function runValidationGate({ call, loc, wid, document, templates, triggers, catalog, marketplaceTypes, scope, waive = null, baseline = null, allow = false } = {}) {
-  const steps = templates ?? document?.workflowData?.templates ?? [];
-  const engine = gateDocument(steps, { catalog, marketplaceTypes, scope, waive });
-  const server = call && wid ? await liveValidate(call, loc, wid, { document, templates, triggers }) : { ran: false, why: 'no workflow id to validate against' };
-  let serverBlocking = [];
-  if (server.ran && server.valid === false) {
-    const before = new Set((baseline?.ran && baseline.valid === false ? baseline.findings : []).map(findingKey));
-    serverBlocking = server.findings.filter((f) => f.severity !== 'warning' && !before.has(findingKey(f)));
-  }
-  const blocked = !allow && (engine.errors.length > 0 || serverBlocking.length > 0);
-  const lines = [
-    ...engine.errors.map((f) => `ENGINE ${f.check}: '${f.stepName ?? f.stepId ?? '?'}' (${f.type ?? '?'}): ${f.message}`),
-    ...serverBlocking.map((f) => `GHL ${server.layer ?? ''}: ${f.where}: ${f.message}${f.ruleId ? ` [${f.ruleId}]` : ''}`),
-  ];
-  return { blocked, engine, server, serverBlocking, preExisting: server.ran && baseline ? (server.findings?.length ?? 0) - serverBlocking.length : 0, summary: lines.join('\n') };
-}
+// The two-oracle gate that used to live here is write-validation.mjs: every write path asks THAT,
+// so no path can assemble a shorter list of layers than another. This file is the ENGINE oracle only.

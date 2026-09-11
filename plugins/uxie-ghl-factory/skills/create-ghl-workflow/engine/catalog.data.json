@@ -69,6 +69,26 @@
  ],
  "workflowRules": {
   "vocab": {
+   "router": {
+    "maxBranches": 10,
+    "maxNesting": 10,
+    "disallowedBranchSteps": [
+     "workflow_goal",
+     "goto"
+    ],
+    "laneNodeTypes": [
+     "branch-yes",
+     "branch-no"
+    ],
+    "branchTypes": [
+     "custom",
+     "always_run",
+     "fallback"
+    ]
+   },
+   "senderDomain": {
+    "allDomains": "ALL_DOMAINS"
+   },
    "actionsUnsupportedInsideLoop": [
     "loop",
     "workflow_goal",
@@ -129,6 +149,9 @@
     "user_replied"
    ],
    "triggerActionRestrictions": {
+    "contact_created": [
+     "create_update_contact"
+    ],
     "google_contacts_contact_created": [
      "googlecontact_create_contact",
      "find_or_create_contact"
@@ -353,32 +376,16 @@
    }
   },
   "validateChainOrder": [
-   "inboundWebhookTriggerValidator",
-   "createUpdateContactValidator",
-   "filterlessContactChangedLoopValidator",
-   "sheetsLookupValidator",
-   "checkEmptyPublish",
-   "checkDanglingGoto",
-   "checkMultipleGoal",
+   "collect",
    "checkUnsupportedActionsInsideLoop",
-   "checkSenderAddress",
-   "validateDeleteContact",
-   "validateInteractiveMessenger",
-   "validateAppointmentBooking",
-   "validateIVRActions",
-   "validateCreateOpportunity",
-   "validateTriggerActionRestrictions",
-   "validateRequiredTriggersForActions",
-   "validateIfElseCondition",
-   "validateWaitStep"
+   "checkFromEmailFormat"
   ],
   "skipHatch": {
    "fn": "throwIfNotSkippingValidationError",
    "appliesTo": [
-    "constructor",
-    "if",
-    "for",
-    "throwIfNotSkippingValidationError"
+    "validateIfElseCondition",
+    "validateRouterConditions",
+    "validateWaitStep"
    ],
    "effect": "a workflow whose CURRENT stored state is published, saved back to draft, skips these rules — so a clean save is not proof the document is legal"
   },
@@ -491,8 +498,7 @@
     "rule": "checkEmptyPublish",
     "runsOnSave": true,
     "reads": [
-     "templates",
-     "status"
+     "templates"
     ],
     "messages": [
      "Workflow cannot be published with empty actions. Please add some actions."
@@ -561,10 +567,36 @@
     "rule": "checkSenderAddress",
     "runsOnSave": true,
     "reads": [
-     "settings.senderAddress"
+     "builder settings state (fromEmail/fromName)"
     ],
     "messages": [
      "The Global Workflow Setting field \"From Name\" requires the \"From Email\" to be filled in also. Please fill in both fields to save this Workflow."
+    ]
+   },
+   {
+    "rule": "checkSenderDomainLocalPart",
+    "runsOnSave": false,
+    "reads": [
+     "senderDomain (GET /workflow/{loc}/email/domain-selection)",
+     "builder settings state (fromEmail/fromName)"
+    ],
+    "messages": [
+     {
+      "i18nKey": "from_email_local_part_invalid"
+     }
+    ]
+   },
+   {
+    "rule": "checkFromEmailFormat",
+    "runsOnSave": true,
+    "reads": [
+     "senderDomain (GET /workflow/{loc}/email/domain-selection)",
+     "builder settings state (fromEmail/fromName)"
+    ],
+    "messages": [
+     {
+      "i18nKey": "from_email_invalid_format"
+     }
     ]
    },
    {
@@ -700,6 +732,7 @@
     "reads": [
      "templates",
      "status",
+     "router branches",
      "creationSource",
      "builder module state (NOT in the document)"
     ],
@@ -738,15 +771,24 @@
     "skippableWhenAlreadyPublished": true
    },
    {
-    "rule": "throwIfNotSkippingValidationError",
+    "rule": "validateRouterConditions",
     "runsOnSave": true,
     "reads": [
-     "status",
-     "builder module state (NOT in the document)"
+     "templates",
+     "router branches"
     ],
     "messages": [
-     "throws TypeError"
-    ]
+     {
+      "fromCall": "formatRouterMessage"
+     },
+     {
+      "i18nKey": "router_conditions.nestingLimit"
+     },
+     {
+      "fromCall": "formatStepNotAllowedInRouterBranch"
+     }
+    ],
+    "skippableWhenAlreadyPublished": true
    },
    {
     "rule": "validateWaitStep",
@@ -3120,7 +3162,7 @@
    "phoneCall": 22,
    "contact": 60,
    "right_now": 16,
-   "location": 12,
+   "location": 13,
    "location_owner": 3,
    "message": 3,
    "user": 10,
@@ -3401,6 +3443,12 @@
     "group": "contactOptions"
    },
    {
+    "tag": "{{contact.facebookLeadId}}",
+    "label": "Facebook Lead Id",
+    "type": "TEXT",
+    "group": "contactOptions"
+   },
+   {
     "tag": "{{right_now.second}}",
     "label": "Second",
     "type": "TEXT",
@@ -3569,6 +3617,12 @@
     "group": "contactOptions"
    },
    {
+    "tag": "{{location.id}}",
+    "label": "ID",
+    "type": "TEXT",
+    "group": "contactOptions"
+   },
+   {
     "tag": "{{location_owner.first_name}}",
     "label": "First name",
     "type": "TEXT",
@@ -3583,12 +3637,6 @@
    {
     "tag": "{{location_owner.email}}",
     "label": "Email",
-    "type": "TEXT",
-    "group": "contactOptions"
-   },
-   {
-    "tag": "{{contact.facebookLeadId}}",
-    "label": "Facebook Lead Id",
     "type": "TEXT",
     "group": "contactOptions"
    },
@@ -4209,7 +4257,7 @@
     "group": "getAttributionFields"
    },
    {
-    "tag": "{{ contact.attributionSource.url }}",
+    "tag": "{{contact.attributionSource.url}}",
     "label": "URL",
     "type": "TEXT",
     "group": "getAttributionFields"
@@ -4323,7 +4371,7 @@
     "group": "getAttributionFields"
    },
    {
-    "tag": "{{ contact.lastAttributionSource.url }}",
+    "tag": "{{contact.lastAttributionSource.url}}",
     "label": "URL",
     "type": "TEXT",
     "group": "getAttributionFields"
@@ -5772,13 +5820,13 @@
     "tag": "{{order.line_items}}",
     "label": "Line Items",
     "type": null,
-    "group": "getCustomCodeOptions"
+    "group": "getShopifyArrayFields"
    },
    {
     "tag": "{{order.shipping_lines}}",
     "label": "Shipping Lines",
     "type": null,
-    "group": "getCustomCodeOptions"
+    "group": "getShopifyArrayFields"
    },
    {
     "tag": "{{inboundWebhookRequest}}",
@@ -6100,6 +6148,8 @@
   "loop_unsupported_action_error": "{action} cannot be placed inside a Loop. Move it outside the loop.",
   "loop_empty_body_error": "\"{name}\" has no actions inside it. Add at least one action inside the loop, or remove the loop.",
   "loop_unsupported_wait_error": "Conditional wait steps cannot be placed inside a Loop. Move them outside the loop or switch to a time-based wait.",
+  "from_email_local_part_invalid": "Email can't include {'@'} - enter only the part before the {'@'} (e.g., 'marketing')",
+  "from_email_invalid_format": "Please enter a valid email address.",
   "workflow.validation.ifElse.requiresNextNodes": "There is a problem with this workflow setup, \"{templateName}\" condition requires at least two next nodes. Please add a next node to proceed.",
   "workflow.validation.ifElse.requiresBranch": "There is a problem with this workflow setup, \"{templateName}\" condition requires at least one branch. Please add a branch to proceed.",
   "workflow.validation.ifElse.branchRequiresSegment": "There is a problem with this workflow setup, branch \"{branchName}\" in \"{templateName}\" condition requires at least one segment. Please add a segment to proceed.",
@@ -6109,6 +6159,7 @@
   "workflow.validation.ifElse.missingConditionOperator": "There is a problem with this workflow setup, a condition in branch \"{branchName}\" of \"{templateName}\" is missing a condition operator. Please select a condition operator to proceed.",
   "workflow.validation.ifElse.missingTimeUnit": "There is a problem with this workflow setup, a condition in branch \"{branchName}\" of \"{templateName}\" with relative date operator requires a time unit. Please select a time unit to proceed.",
   "workflow.validation.ifElse.missingConditionValue": "There is a problem with this workflow setup, a condition in branch \"{branchName}\" of \"{templateName}\" is missing a condition value. Please enter a condition value to proceed.",
+  "router_conditions.nestingLimit": "Cannot nest more than 10 routers",
   "workflow.validation.wait.malformedWaitStep": "There is a problem with this workflow setup, \"{waitStepName}\" has an invalid configuration. Please update the action with correct configuration.",
   "workflow.validation.wait.unsupportedBranchingWaitType": "There is a problem with this workflow setup, \"{waitStepName}\" action does not support branching for wait type \"{waitTypeLabel}\". Please update the action with correct configuration.",
   "workflow.validation.wait.requiresAtLeastTwoTransitions": "There is a problem with this workflow setup, \"{waitStepName}\" requires at least two transitions. Please add a transition to proceed.",
@@ -6375,7 +6426,7 @@
   "scheduler_interval_required": "Scheduler interval is required",
   "ivr_phone_number_required": "At least one phone number is required for IVR"
  },
- "stepCount": 385,
+ "stepCount": 386,
  "triggerCount": 204,
  "stepCapabilities": {
   "isDisabled": {
@@ -8630,7 +8681,12 @@
      {
       "name": "traffic_split",
       "optional": false,
-      "type": "TrafficSplit"
+      "type": "union",
+      "members": [
+       "equally",
+       "unevenly"
+      ],
+      "via": "TrafficSplit"
      },
      {
       "name": "traffic_weightage",
@@ -8945,7 +9001,11 @@
      {
       "name": "event",
       "optional": false,
-      "type": "IEventTypes"
+      "type": "union",
+      "members": [
+       "simple-prompt"
+      ],
+      "via": "IEventTypes"
      },
      {
       "name": "model",
@@ -10428,9 +10488,9 @@
       "optional": false,
       "type": "union",
       "members": [
-       "funnel_event",
-       "lead_event",
-       "instagram_dm"
+       "POST",
+       "GET",
+       "CUSTOM"
       ],
       "via": "EventType"
      },
@@ -10440,7 +10500,12 @@
       "type": "union",
       "members": [
        "GET",
-       "POST"
+       "POST",
+       "PUT",
+       "DELETE",
+       "PATCH",
+       "HEAD",
+       "OPTIONS"
       ],
       "via": "MethodType"
      },
@@ -12210,6 +12275,7 @@
     "testEmails",
     "userType",
     "selectedUser",
+    "linkedSnippetAttachmentUrls",
     "previewUrl",
     "createdAt",
     "updatedAt",
@@ -12318,6 +12384,11 @@
       "name": "attachments",
       "optional": true,
       "type": "IStoredFile[]"
+     },
+     {
+      "name": "linkedSnippetAttachmentUrls",
+      "optional": true,
+      "type": "string[]"
      },
      {
       "name": "previewUrl",
@@ -16518,7 +16589,15 @@
      {
       "name": "emailEventTypes",
       "optional": true,
-      "type": "EmailEventType[]"
+      "type": "union[]",
+      "members": [
+       "opened",
+       "clicked",
+       "unsubscribed",
+       "complained",
+       "failed"
+      ],
+      "via": "EmailEventType"
      },
      {
       "name": "windowCondition",
@@ -18749,152 +18828,6 @@
     "warn": []
    }
   },
-  "workflow_ai_generate_image": {
-   "type": "workflow_ai_generate_image",
-   "kind": "step",
-   "confidence": "bundle-derived",
-   "situational": [],
-   "premium": true,
-   "beta": false,
-   "isMultipathContainer": false,
-   "usesCustomInputs": false,
-   "section": "workflow_ai",
-   "display_name": "workflow.actions.generateImageAI.defaultActionName",
-   "requiredFields": [
-    "brandBoardId",
-    "brandVoiceId"
-   ],
-   "attrKeys": [
-    "model",
-    "prompt",
-    "additionalSettings"
-   ],
-   "modelFields": {
-    "interface": "IGenerateImageAI",
-    "source": "src/models/actions/premium-actions/GenerateImageAI.ts",
-    "required": [
-     "type",
-     "prompt",
-     "additionalSettings"
-    ],
-    "fields": [
-     {
-      "name": "type",
-      "optional": false,
-      "type": "typeof GENERATE_IMAGE_AI_TYPE"
-     },
-     {
-      "name": "model",
-      "optional": true,
-      "type": "union",
-      "members": [
-       "gpt-image-2",
-       "gpt-image-1.5",
-       "gpt-image-1-mini",
-       "gemini-3.1-flash-image",
-       "gemini-3-pro-image",
-       "gemini-2.5-flash-image"
-      ],
-      "via": "GenerateImageAIModel"
-     },
-     {
-      "name": "prompt",
-      "optional": false,
-      "type": "string"
-     },
-     {
-      "name": "additionalSettings",
-      "optional": false,
-      "type": "IGenerateImageAIAdditionalSettings"
-     }
-    ]
-   },
-   "variantRules": {
-    "validator": "generateImageAIValidator",
-    "source": "utils/validators/additional-action-validators.ts",
-    "variants": {
-     "*": {
-      "error": [
-       "brandBoardId",
-       "brandVoiceId"
-      ],
-      "warning": [
-       "prompt",
-       "model"
-      ]
-     }
-    }
-   },
-   "enforcement": {
-    "throw": [
-     {
-      "field": "prompt",
-      "variant": null,
-      "guard": "!attributes.prompt?.trim()",
-      "ast": {
-       "guard": {
-        "op": "not",
-        "a": {
-         "op": "trim",
-         "a": {
-          "op": "path",
-          "p": "prompt"
-         }
-        }
-       },
-       "outer": []
-      },
-      "support": "REQUIRED; corpus no sample"
-     },
-     {
-      "field": "model",
-      "variant": null,
-      "guard": "!attributes.model",
-      "ast": {
-       "guard": {
-        "op": "not",
-        "a": {
-         "op": "path",
-         "p": "model"
-        }
-       },
-       "outer": []
-      },
-      "support": "REQUIRED; corpus no sample"
-     }
-    ],
-    "warn": [
-     {
-      "field": "prompt",
-      "variant": null,
-      "guard": "attributes.prompt.length > GENERATE_IMAGE_AI_MAX_PROMPT_CHARS",
-      "ast": {
-       "guard": {
-        "op": "gt",
-        "a": {
-         "op": "len",
-         "a": {
-          "op": "path",
-          "p": "prompt"
-         }
-        },
-        "b": {
-         "op": "lit",
-         "v": 15000
-        }
-       },
-       "outer": []
-      },
-      "support": "RANGE; corpus no sample; warn-replay fired 0/0 in-scope published nodes"
-     }
-    ]
-   },
-   "uiDefaultsSource": {
-    "class": "GenerateImageAI",
-    "file": "models/actions/premium-actions/GenerateImageAI.ts",
-    "resolvedBy": "validator-generic"
-   }
-  },
   "create_custom_object": {
    "type": "create_custom_object",
    "kind": "step",
@@ -19404,6 +19337,30 @@
    "uiDefaultsSource": {
     "class": "RespondOnComment",
     "file": "models/actions/RespondOnComment.ts",
+    "resolvedBy": "factory-import"
+   }
+  },
+  "router": {
+   "type": "router",
+   "kind": "step",
+   "confidence": "bundle-derived",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "internal",
+   "display_name": "router",
+   "requiredFields": [],
+   "attrKeys": [],
+   "enforcement": {
+    "throw": [],
+    "warn": [],
+    "provenZero": "no-ghl-validator"
+   },
+   "uiDefaultsSource": {
+    "class": "Router",
+    "file": "models/conditions/Router.ts",
     "resolvedBy": "factory-import"
    }
   },
@@ -21345,6 +21302,158 @@
     "resolvedBy": "factory-namespace"
    }
   },
+  "workflow_ai_generate_image": {
+   "type": "workflow_ai_generate_image",
+   "kind": "step",
+   "confidence": "bundle-derived",
+   "situational": [],
+   "premium": true,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "external_ai_models",
+   "display_name": "workflow.actions.generateImageAI.defaultActionName",
+   "requiredFields": [
+    "brandBoardId",
+    "brandVoiceId"
+   ],
+   "attrKeys": [
+    "model",
+    "prompt",
+    "additionalSettings",
+    "referenceImages"
+   ],
+   "modelFields": {
+    "interface": "IGenerateImageAI",
+    "source": "src/models/actions/premium-actions/GenerateImageAI.ts",
+    "required": [
+     "type",
+     "prompt",
+     "additionalSettings"
+    ],
+    "fields": [
+     {
+      "name": "type",
+      "optional": false,
+      "type": "typeof GENERATE_IMAGE_AI_TYPE"
+     },
+     {
+      "name": "model",
+      "optional": true,
+      "type": "union",
+      "members": [
+       "gpt-image-2",
+       "gpt-image-2.5-flare",
+       "gpt-image-2.5-sunburst",
+       "gemini-3.1-flash-image",
+       "gemini-3-pro-image",
+       "gemini-2.5-flash-image"
+      ],
+      "via": "GenerateImageAIModel"
+     },
+     {
+      "name": "prompt",
+      "optional": false,
+      "type": "string"
+     },
+     {
+      "name": "additionalSettings",
+      "optional": false,
+      "type": "IGenerateImageAIAdditionalSettings"
+     },
+     {
+      "name": "referenceImages",
+      "optional": true,
+      "type": "GenerateImageAIReferenceImage[]"
+     }
+    ]
+   },
+   "variantRules": {
+    "validator": "generateImageAIValidator",
+    "source": "utils/validators/additional-action-validators.ts",
+    "variants": {
+     "*": {
+      "error": [
+       "brandBoardId",
+       "brandVoiceId"
+      ],
+      "warning": [
+       "prompt",
+       "model"
+      ]
+     }
+    }
+   },
+   "enforcement": {
+    "throw": [
+     {
+      "field": "prompt",
+      "variant": null,
+      "guard": "!attributes.prompt?.trim()",
+      "ast": {
+       "guard": {
+        "op": "not",
+        "a": {
+         "op": "trim",
+         "a": {
+          "op": "path",
+          "p": "prompt"
+         }
+        }
+       },
+       "outer": []
+      },
+      "support": "REQUIRED; corpus no sample"
+     },
+     {
+      "field": "model",
+      "variant": null,
+      "guard": "!attributes.model",
+      "ast": {
+       "guard": {
+        "op": "not",
+        "a": {
+         "op": "path",
+         "p": "model"
+        }
+       },
+       "outer": []
+      },
+      "support": "REQUIRED; corpus no sample"
+     }
+    ],
+    "warn": [
+     {
+      "field": "prompt",
+      "variant": null,
+      "guard": "attributes.prompt.length > GENERATE_IMAGE_AI_MAX_PROMPT_CHARS",
+      "ast": {
+       "guard": {
+        "op": "gt",
+        "a": {
+         "op": "len",
+         "a": {
+          "op": "path",
+          "p": "prompt"
+         }
+        },
+        "b": {
+         "op": "lit",
+         "v": 15000
+        }
+       },
+       "outer": []
+      },
+      "support": "RANGE; corpus no sample; warn-replay fired 0/0 in-scope published nodes"
+     }
+    ]
+   },
+   "uiDefaultsSource": {
+    "class": "GenerateImageAI",
+    "file": "models/actions/premium-actions/GenerateImageAI.ts",
+    "resolvedBy": "validator-generic"
+   }
+  },
   "add_appointment_booking_ai_bot": {
    "type": "add_appointment_booking_ai_bot",
    "kind": "step",
@@ -21811,9 +21920,8 @@
       "optional": false,
       "type": "union",
       "members": [
-       "update_field_data",
-       "add_field_data",
-       "clear_field_data"
+       "universal_analytics",
+       "google_analytics_4"
       ],
       "via": "ActionType"
      },
@@ -46497,9 +46605,6 @@
      "optionsSource": "dynamic"
     }
    ],
-   "filterOptionHelpers": [
-    "getTags"
-   ],
    "filterChecks": {
     "validator": "contactCreatedValidator",
     "assetChecks": [],
@@ -50767,38 +50872,6 @@
     "shapeRules": []
    }
   },
-  "user_log_in": {
-   "type": "user_log_in",
-   "kind": "trigger",
-   "masterType": "highlevel",
-   "category": "courses",
-   "premium": false,
-   "confidence": "bundle-derived",
-   "filterClass": "MembershipUserLogin",
-   "filterRows": [],
-   "filterRowsSource": "may-one-off",
-   "filterChecks": {
-    "validator": "membershipCourseValidator",
-    "assetChecks": [],
-    "customFieldSweeps": [
-     {
-      "resource": "custom_field",
-      "prefix": "contact.",
-      "excludeStandard": true,
-      "exclude": [
-       "product.id",
-       "category.id",
-       "lesson.id",
-       "offer.id",
-       "contact.tags"
-      ],
-      "severity": "warning",
-      "note": "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
-     }
-    ],
-    "shapeRules": []
-   }
-  },
   "invoice": {
    "type": "invoice",
    "kind": "trigger",
@@ -51927,6 +52000,17 @@
    },
    "loadMigration": "(triggerMain: TriggerMain) => UserCommentsOnPostFilter.migrateMessageBody(triggerMain, 'ig')"
   },
+  "user_log_in": {
+   "type": "user_log_in",
+   "kind": "trigger",
+   "masterType": "highlevel",
+   "category": "courses",
+   "premium": false,
+   "confidence": "bundle-derived",
+   "filterClass": "MembershipUserLogin",
+   "filterRows": [],
+   "filterRowsSource": "may-one-off"
+  },
   "conv_ai_trigger": {
    "type": "conv_ai_trigger",
    "kind": "trigger",
@@ -51935,9 +52019,6 @@
    "premium": false,
    "confidence": "verified-live",
    "example": "catalog/trigger-examples/conv_ai_trigger.json",
-   "filterChecks": {
-    "provenZero": "no-ghl-trigger-validator"
-   },
    "isGotoTrigger": false,
    "filterRows": [
     {

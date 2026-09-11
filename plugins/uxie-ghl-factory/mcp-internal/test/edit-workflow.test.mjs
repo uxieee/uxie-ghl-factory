@@ -1216,3 +1216,30 @@ test('the post-write intent lint sees the WHOLE document: an update under Opport
   assert.deepEqual(result.data.verify.intent.filter((f) => f.code === 'OPP_WRITE_UNBOUND_PATH'), []);
   assert.deepEqual(result.data.warnings.filter((w) => /MODIFY_NOT_NORMALISED/.test(w)), [], 'a same-shape row overwrite is not a suspect edit');
 });
+
+test('the gate judges EXACTLY the bytes the write will send — not the templates before the commit body transforms them', async () => {
+  // Caught live 2026-09-12 by the conformance suite: passing the raw template array alongside the
+  // commit body made GHL judge templates that still carried `next: null`, because the commit body
+  // sends fillInputTriggerParams(stripNullNext(...)). A correctly authored if_else was refused for a
+  // shape the write never sends. Whatever the gate asks about must be the document itself.
+  const { gw, calls } = editGateway();
+  const result = await editTool().handler(
+    { locationId: 'LOC', workflowId: 'WID', confirm: true,
+      ops: [{ op: 'appendStep', step: { type: 'sms', name: 'Added', attributes: { body: 'hi' } } }] },
+    deps(gw),
+  );
+  assert.equal(result.ok, true, JSON.stringify(result).slice(0, 200));
+  // The FIRST validate call is the baseline — the stored document's own verdict, by design. The
+  // LAST one is the judgement of what this write will send.
+  const validateCalls = calls.filter(({ path }) => path.endsWith('/validate-workflows'));
+  assert.equal(validateCalls.length, 2, 'a baseline and the candidate');
+  const validate = validateCalls.at(-1);
+  assert.ok(validate, 'the gate must ask GHL');
+  const committed = calls.filter(({ method, path }) => method === 'PUT' && path === '/workflow/LOC/WID').at(-1);
+  assert.ok(committed, 'the edit must commit');
+  assert.deepEqual(
+    validate.body.workflowData.templates,
+    committed.body.workflowData.templates,
+    'the document GHL judged and the document we sent must be the same templates',
+  );
+});

@@ -105,3 +105,27 @@ test('makeGatewayFactory forwards state.renewer so every tool call is covered', 
   await gw.call('GET', '/workflow/L1/list');
   assert.ok(calls.some((c) => c.url.endsWith(REFRESH_PATH)), 'the factory-built gateway renewed');
 });
+
+test('a gateway holding STALE credentials re-reads the file before declaring the token expired', async () => {
+  // Measured 2026-09-12. A process builds two gateways. The first finds the bearer dead, cold-starts
+  // from the 30-day token and rewrites the file. The second was built BEFORE that and holds the dead
+  // copy; it asks the shared renewer, which answers `backoff` because a refresh just ran — so it
+  // never re-read the file and threw TOKEN_EXPIRED, whose remediation reads "re-capture the token"
+  // and sends a human to a browser login they do not need. The credential was already fresh on disk.
+  const tokenFile = fixture(-100);                       // dead when this gateway is built
+  const calls = [];
+  const backoffRenewer = { maybeRenew: async () => ({ renewed: false, reason: 'backoff' }) };
+  const gw = makeGateway({ tokenFile, loc: 'L1', fetchImpl: fetchAll(calls), renewer: backoffRenewer, throttleMs: 0, jitterMs: 0 });
+  // …meanwhile the other gateway's cold start lands:
+  writeFileSync(tokenFile, formatTokenFile({ bearer: NEW_BEARER, tokenId: NEW_TID }), { mode: 0o600 });
+
+  const r = await gw.call('GET', '/workflow/L1/x');
+  assert.equal(r.status, 200, 'the call must go out on the credential that is on disk');
+  assert.equal(calls.at(-1).init.headers.authorization, `Bearer ${NEW_BEARER}`);
+});
+
+test('a token file that is still dead on disk DOES report TOKEN_EXPIRED', async () => {
+  const tokenFile = fixture(-100);
+  const gw = makeGateway({ tokenFile, loc: 'L1', fetchImpl: fetchAll([]), renewer: { maybeRenew: async () => ({ renewed: false, reason: 'backoff' }) }, throttleMs: 0, jitterMs: 0 });
+  await assert.rejects(() => gw.call('GET', '/workflow/L1/x'), (e) => e.code === 'TOKEN_EXPIRED');
+});

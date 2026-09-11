@@ -159,6 +159,18 @@ export function makeGateway({ tokenFile, loc, rail = 'jwt', fetchImpl = fetch, s
       if (!creds.tokenId) { const e = new Error('no token-id in capture file'); e.code = 'TOKEN_MISSING'; e.remediation = RECAPTURE; throw e; }
       h['token-id'] = creds.tokenId;
     } else {
+      // A dead bearer in THIS gateway is not proof the credential on disk is dead. Renewal is
+      // process-wide and shares one in-flight refresh: another gateway can cold-start, rewrite the
+      // file, and answer `backoff` to everyone else — leaving a gateway built before that moment
+      // holding the dead copy and reporting TOKEN_EXPIRED, whose remediation sends a human to a
+      // browser login they do not need. Measured 2026-09-12: a census script died exactly this way
+      // one minute after its own first call had renewed the file. Re-read before declaring death.
+      if (creds.secondsRemaining <= 0) {
+        try {
+          const onDisk = readCredentials({ tokenFile, allowExpired: true, legacyTokenFileEnv });
+          if (onDisk.secondsRemaining > 0) creds = onDisk;
+        } catch { /* unreadable: fall through to the honest TOKEN_EXPIRED below */ }
+      }
       if (creds.secondsRemaining <= 0) { const e = new Error('JWT exp is in the past'); e.code = 'TOKEN_EXPIRED'; e.remediation = RECAPTURE; throw e; }
       h.authorization = `Bearer ${creds.jwt}`;
     }

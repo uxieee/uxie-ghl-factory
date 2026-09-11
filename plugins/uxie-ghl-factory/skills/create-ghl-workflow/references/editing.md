@@ -144,32 +144,46 @@ This exists because the UNguarded version of it — GET, hand-edit the JSON, PUT
 only way to express some changes, and it skips every check above. Eight client workflows carried a
 dead pipeline-stage NAME to the wire through that route while the build reported clean.
 
-### The validation gate: every write, two oracles
+### The validation gate: every write, one entry point, four layers
 
 Every tool that writes a workflow — `build_workflow`, `edit_workflow`, `repair_workflow`,
 `publish_workflow` — runs the **validation gate** over the exact document it is about to send, and
-refuses on a finding. Nothing is written when it refuses; the error code is `VALIDATION_FAILED` and
-`data.validation` names every finding.
+refuses on a finding. Nothing is written when it refuses; `data.validation` names every finding and
+which layer refused.
 
-It runs two oracles because neither is enough alone:
+One entry point owns all four layers (`engine/write-validation.mjs`), because the alternative was
+measured: each path used to assemble its own checks, and `publish_workflow` had assembled fewer —
+it ran neither of GHL's own browser-side layers, so an empty workflow, or a goto with no target,
+published over the API while the builder refused it on screen.
 
-| | Catches | Blind to |
+| Layer | Catches | Blind to |
 |---|---|---|
+| **GHL's rules** (`WorkflowValidator`, replayed) | an empty publish · a goto with no target · loop bodies and unsupported actions inside them · trigger/action restrictions · router branch rules · From Email format | anything needing builder module state |
+| **Canvas** | a step or trigger the advanced canvas has flagged (`advanceCanvasMeta.hasErrors`) — what GHL's publish gate reads | anything the canvas has not re-evaluated |
 | **Engine** (`engine/document-gate.mjs`) | an invented attribute key · a wrong inner `attributes.type` · an unknown top-level step key · an unknown step type · missing required fields · GHL's own guards · field caps · dangling step references and parentKeys | anything that depends on the account |
-| **GHL** (its live validator) | a missing required field · a scalar of the wrong type · an invalid enum value · a referenced asset that does not exist · every structural defect | everything in the engine's first column — it answers `valid:true` on all of it |
+| **GHL's validator** (live) | a missing required field · a scalar of the wrong type · an invalid enum value · a referenced asset that does not exist · every structural defect | everything in the engine's row — it answers `valid:true` on all of it, and it ignores the document's `status`, so publish-only rules never fire there |
 
-- **Build:** the engine half runs before anything is created; GHL's half runs against the empty draft
-  before a single step is written. A refused build leaves only the empty draft.
-- **Edit and repair:** engine findings on steps you did not touch are warnings; a GHL finding blocks
-  only if **your write introduces it** — the stored document's own verdict is the baseline. So a
-  pre-existing problem, or a flow bot waiting for its agent, does not freeze every later edit.
-- **Publish:** the whole state, no baseline. Publishing is when every finding counts.
+**Publishing is a property of the write, not the tool.** `publish_workflow` publishes, and so does
+saving a workflow that is already published — the builder treats both the same way, and so does the
+gate: the rules layer runs its publish-only rules and the canvas layer turns on.
+
+- **Build:** the offline layers run before anything is created; GHL's validator runs against the
+  empty draft before a single step is written. A refused build leaves only the empty draft.
+- **Edit and repair:** findings on steps you did not touch are warnings; a GHL finding blocks only if
+  **your write introduces it** — the stored document's own verdict is the baseline. So a pre-existing
+  problem, or a flow bot waiting for its agent, does not freeze every later edit.
+- **Publish:** the whole state, no baseline, every layer. It also reads the workflow's sending domain
+  first, so `checkFromEmailFormat` can be judged rather than skipped.
 - **Hatches:** your specific hatch still wins for the check it owns (`allowOverCap`,
-  `allowDanglingStepRefs`, `allowDanglingParentKeys`). `allowValidationFailure: true` passes
-  everything else, and the findings are still reported in full. Use it only when you know better.
+  `allowDanglingStepRefs`, `allowDanglingParentKeys`); `skipWorkflowRules` (true, or a list of rule
+  names) covers GHL's rules; `allowValidationFailure: true` passes everything else. Findings are
+  always reported in full — and a publish that bypassed them says so on the result, not just the
+  preview. Use them only when you know better.
+- **A rule whose input is missing is reported as unjudged, never as passed.**
 
 Every engine allowlist was calibrated against 2,602 stored, working steps on two accounts before it
 was allowed to block: zero findings on working workflows, eleven real defects in leftover test flows.
+The same rule binds any new check — recalibrate before it blocks.
 
 `validate_workflow` asks GHL's half on its own, read-only: pass `templates` to check a planned tree.
 Read `layer` — a failing call reports ONE layer, and a structural or action failure is reported in

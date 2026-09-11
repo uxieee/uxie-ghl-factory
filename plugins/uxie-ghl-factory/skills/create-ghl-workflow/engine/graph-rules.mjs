@@ -24,6 +24,7 @@
 // validateRequiredTriggersForActions is already enforced at compile by action-schema.mjs and is
 // cited, not duplicated.
 import { IRError } from './ir.mjs';
+import { isRouterRoot, isInsideRouterBranch, canNestRouterAt, templateParentId } from './router-graph.mjs';
 
 const has = (v) => v != null && v !== '' && !(Array.isArray(v) && !v.length);
 const present = (v) => !(v == null || v === '' || (Array.isArray(v) && !v.length) || (typeof v === 'object' && !Array.isArray(v) && !Object.keys(v).length));
@@ -171,6 +172,53 @@ export function evaluateWorkflowRules(doc, rules) {
     }
   }
 
+  // checkFromEmailFormat — GHL 2026-09-11, throw-style, the tail of validate(). It reads the
+  // workflow's SENDING DOMAIN, which is not in the document: GET /workflow/{loc}/email/domain-selection
+  // (see corpus workflows/20-api/sender-domain.md). With "All Domains" the From Email is a local
+  // part by design, so the check is domain-specific only; a merge field is exempt because it
+  // resolves at send time and its literal text cannot be format-checked.
+  {
+    const SDV = V.senderDomain;
+    const fromEmail = doc.settings?.senderAddress?.from_email;
+    const domain = doc.senderDomain;
+    const CV_REGEX_TEST = /\{\{([^{}]+)\}\}/;          // utils/customVariableHelper.ts
+    if (SDV && domain && domain !== SDV.allDomains && fromEmail && !CV_REGEX_TEST.test(String(fromEmail))
+      && (!String(fromEmail).includes('@') || !String(fromEmail).includes('.')))
+      fire('checkFromEmailFormat', `From Email '${fromEmail}' is not a full address, and this workflow sends from '${domain}' — GHL refuses the save`);
+  }
+
+  // validateRouterConditions — GHL's newest workflow rule (2026-09-11), and one it added because
+  // its own publish path had drifted: "it never checked for two paths routing on the same
+  // conditions, so a router made ambiguous anywhere but the branch panel went live". A router is
+  // not an if/else — every branch evaluates — so two branches matching the same execution leave it
+  // with no single answer. Evaluable here: capacity, branch-type cardinality, nesting depth, and
+  // the steps GHL bans inside a branch. NOT evaluable: branch completeness and duplicate
+  // conditions, both computed on the RouterBranch model, declared below rather than approximated.
+  {
+    const RV = V.router;
+    if (RV) {
+      const opts = { laneNodeTypes: RV.laneNodeTypes };
+      for (const r of T.filter((t) => isRouterRoot(t, opts))) {
+        const branches = r.attributes?.branches ?? [];
+        const who = `router '${r.name ?? r.id}'`;
+        if (RV.maxBranches != null && branches.length > RV.maxBranches)
+          fire('validateRouterConditions', `${who} has ${branches.length} branches — GHL allows at most ${RV.maxBranches}`);
+        const fallbacks = branches.filter((b) => b?.branchType === 'fallback').length;
+        if (fallbacks > 1) fire('validateRouterConditions', `${who} has ${fallbacks} fallback branches — GHL allows one`);
+        if (fallbacks > 0 && branches.some((b) => b?.branchType === 'always_run'))
+          fire('validateRouterConditions', `${who} has both an always-run branch and a fallback — the fallback can never run`);
+        if (RV.maxNesting != null && !canNestRouterAt(templateParentId(r), T, RV.maxNesting, opts))
+          fire('validateRouterConditions', `${who} nests deeper than GHL's limit of ${RV.maxNesting} routers`);
+      }
+      const banned = new Set(RV.disallowedBranchSteps ?? []);
+      for (const t of T) {
+        if (!banned.has(t.type)) continue;
+        if (isInsideRouterBranch(templateParentId(t), T, opts))
+          fire('validateRouterConditions', `'${t.name ?? t.id}' (${t.type}) cannot sit inside a router branch`);
+      }
+    }
+  }
+
   // ── ADVISORY (ui-disabled): combinations the UI cannot produce because the picker greys the
   // action out while the trigger is present (TriggerMain.inCompatibleActions) — nothing refuses
   // them on save, so these WARN rather than block. Vocab: catalog.workflowRules.disabledActionsByTrigger.
@@ -181,7 +229,11 @@ export function evaluateWorkflowRules(doc, rules) {
     for (const t of T) if (bad.has(t.type)) A.push({ rule: 'inCompatibleActions', message: `'${t.name ?? t.id}' (${t.type}) is greyed out in the builder while a '${trigType}' trigger is present — the UI cannot produce this combination` });
   }
 
-  const notEvaluable = ['inboundWebhookTriggerValidator (builder module state)', 'validateIfElseCondition (workflow_ai-authored only)'];
+  const notEvaluable = ['inboundWebhookTriggerValidator (builder module state)', 'validateIfElseCondition (workflow_ai-authored only)',
+    'validateRouterConditions: incompleteBranchViolation + duplicatePairViolation (computed on the RouterBranch model — branch.violation and firstDuplicateRouterBranchPair — not derivable from the stored document)'];
+  // A rule whose INPUT is missing is reported as unjudged, never as passed.
+  if (doc.senderDomain === undefined && doc.settings?.senderAddress?.from_email)
+    notEvaluable.push("checkFromEmailFormat (needs this workflow's sending domain: GET /workflow/{loc}/email/domain-selection?workflowId=…)");
   return { findings: F, advisories: A, notEvaluable };
 }
 

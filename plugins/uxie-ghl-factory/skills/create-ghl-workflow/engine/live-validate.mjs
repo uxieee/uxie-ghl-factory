@@ -14,6 +14,11 @@
 //   NOT caught  an invented attribute key · a wrong inner attributes.type · an extra top-level step
 //               key · a number out of range · a corrupted step type on an AGENT flow
 // The engine's own guards cover that second row. This is an additional oracle, never a replacement.
+//
+// Re-measured 2026-09-12, after GHL shipped its publish gate: every verdict above is unchanged, and
+// 🔴 this endpoint IGNORES the document's `status`. Draft and published get the same answer, and an
+// EMPTY template list is valid:true even as 'published' — so checkEmptyPublish, and every other
+// publish-only rule, exists only in the browser. write-validation.mjs replays them.
 import { parseServerValidation, describeServerFindings } from './server-validation.mjs';
 
 export const livePath = (loc, wid) => `/workflow/${encodeURIComponent(loc)}/${encodeURIComponent(wid)}/validate-workflows`;

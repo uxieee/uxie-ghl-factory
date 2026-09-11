@@ -23959,7 +23959,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "publish_workflow"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",

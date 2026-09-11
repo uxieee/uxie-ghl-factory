@@ -11,6 +11,68 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [0.84.0] — 2026-09-12
+
+One validation entry point for every write, because publish had quietly been running fewer checks
+than the builder does — and three generators were losing data in silence.
+
+### Added
+
+- 🔴 **One entry point, four layers** (`engine/write-validation.mjs`). Every write — build, edit,
+  repair, publish — asks the same function, and the INTENT decides the layers. No path picks its own
+  any more, which is how the hole appeared in the first place.
+  - `workflow_rules` — GHL's own `WorkflowValidator`, replayed (19 of its 22 live rules).
+  - `canvas` — the advanced canvas's stored `advanceCanvasMeta.hasErrors`, which GHL's publish gate reads.
+  - `engine` — the classes GHL answers `valid:true` on.
+  - `server` — GHL's live validator, differential against the stored document.
+- 🔴 **`publish_workflow` runs GHL's own rules and the canvas flag.** It ran neither. Proven live on
+  the sandbox: publishing an empty workflow is now refused (`checkEmptyPublish`), and so is a step
+  the canvas has flagged. With the hatch, GHL's server ACCEPTED the empty publish — its publish-only
+  rules are browser-only, so this gate is the only thing on the API rail.
+- **Publishing is a property of the write**: saving an already-published workflow re-publishes it, so
+  it is judged as a publish — the builder's own rule.
+- **Two new GHL rules replayed**: `validateRouterConditions` for the new `router` step type (branch
+  capacity, one fallback, no always-run beside a fallback, nesting depth, no Go To or Goal inside a
+  branch — the model-computed halves are declared not evaluable rather than approximated) and
+  `checkFromEmailFormat`. Publish reads the workflow's sending domain
+  (`GET /workflow/{loc}/email/domain-selection`) so that rule can be judged instead of skipped.
+- **`skipWorkflowRules`** on `publish_workflow`, matching its siblings.
+
+### Fixed
+
+- 🔴 **The rule extractor found 6 of 22 rules.** GHL rewrote `WorkflowValidator` on 2026-09-11 from
+  throw-at-first-error to collect-everything; the extractor keyed on `throw new`, so 18 rules read as
+  helpers. `gen-catalog` takes each input from the newest capture that has it, so the next
+  regeneration anywhere would have silently deleted 16 of GHL's rules from the engine. It now
+  recognises both shapes, walks the call graph through `collect()`, and REFUSES to write when a rule
+  would vanish.
+- 🔴 **The carry-forward merge dropped required fields on 54 step types.** `og-action-ui-metadata.json`
+  layers validator-derived data over the previous capture's, because GHL's per-field validators mostly
+  report `warning` — only 2 of 62 types yield a required field on their own. The merge looked at the
+  immediately previous capture, which had no such file, returned silently, and every capture since
+  inherited the loss. It now walks back to the newest capture that actually holds the artifact, and a
+  coverage guard names any capture still carrying more.
+- 🔴 **Type aliases resolved by name across the whole tree, first declaration wins** — and GHL declares
+  `ActionType` in four files. Three step types carried WRONG enum members, two of them already shipped:
+  `custom_webhook.method` was `GET, POST` (a `PUT` webhook would have been refused) and
+  `google_analytics.action_type` carried the contact-field values. Aliases now resolve in the file that
+  declares the interface, then through its imports, and an ambiguous name resolves to nothing and is
+  reported by name.
+- **A gateway holding stale credentials reported `TOKEN_EXPIRED`** — whose remediation sends a human to
+  a browser login — when the token file had already been renewed by another gateway a second earlier.
+  It re-reads the file before declaring the credential dead. Measured: a census script died exactly
+  this way one minute after its own first call had renewed the file.
+
+### Changed
+
+- **Catalogue re-mined** from `bundle-2026-09-11`: 386 step types (the new `router`), 204 triggers
+  (`user_log_in` restored), `referenceImages` on the AI image action, `linkedSnippetAttachmentUrls` on
+  email, and the corrected enums above.
+- **A publish that bypassed validation says so on the RESULT**, not only in the preview it skipped.
+- `sniffs/step-key-census.mjs` is now a committed, re-runnable tool (it also counts canvas error
+  flags), and `sniffs/validation-contract.test.mjs` fails when GHL ships a rule nobody has replayed or
+  explicitly deferred.
+
 ## [0.83.0] — 2026-09-11
 
 A workflow validation gate on every write, because GHL's own validator answers valid on workflows that are wrong.
