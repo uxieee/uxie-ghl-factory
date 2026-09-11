@@ -40,6 +40,8 @@ import { parseServerValidation, describeServerFindings } from './server-validati
 import { checkWorkflowRules } from './graph-rules.mjs';
 import { checkGraphContextRules } from './graph-context-rules.mjs';
 import { checkFieldCaps, describeCap } from './field-caps.mjs';
+import { gateDocument } from './document-gate.mjs';
+import { liveValidate, blocking } from './live-validate.mjs';
 import { stripNullNext, fillInputTriggerParams } from './terminals.mjs';
 
 const BASE = 'https://backend.leadconnectorhq.com';
@@ -338,6 +340,21 @@ export async function orchestrate(ir, gw, opts = {}) {
   // schema layer (action-schema) is the general check; this names the four caps crossed live.
   for (const f of checkFieldCaps(built.autoSaveBody?.workflowData?.templates)) report.warnings.push(`FIELD_CAP: ${describeCap(f)}`);
 
+  // ── THE VALIDATION GATE, engine half (document-gate.mjs) — before ANYTHING is created. ──────
+  // The classes GHL's own validator answers valid:true on (an invented attribute key, a wrong inner
+  // attributes.type, an unknown top-level key, a corrupted type on an agent flow), plus refs, caps and
+  // required fields over the compiled document. A marketplace build leaves unknown types a warning:
+  // its steps carry isMarketplaceAction and the native catalogue does not list them.
+  const engineGate = gateDocument(built.autoSaveBody?.workflowData?.templates ?? [], { catalog, marketplaceTypes: usesMarketplace ? null : new Set() });
+  report.validation = { engine: { errors: engineGate.errors, warnings: engineGate.warnings.length } };
+  for (const f of engineGate.warnings) report.warnings.push(`VALIDATION ${f.check}: '${f.stepName ?? f.stepId}' (${f.type}): ${f.message}`);
+  if (engineGate.errors.length && opts.allowValidationFailure !== true) {
+    report.failurePhase = 'validation_engine';
+    report.aborted = `VALIDATION_GATE (engine): ${engineGate.errors.length} finding(s) GHL would have let through — nothing was created.\n`
+      + engineGate.errors.map((f) => `  ${f.check}: '${f.stepName ?? f.stepId}' (${f.type}): ${f.message}`).join('\n');
+    return report;
+  }
+
   const assetCheck = await validateAssets(call, loc, {
     templates: built.autoSaveBody?.workflowData?.templates,
     triggers: built.triggerBodies,
@@ -424,6 +441,25 @@ export async function orchestrate(ir, gw, opts = {}) {
   report.wid = WID;
   const swap = (o) => JSON.parse(JSON.stringify(o).split(ph).join(WID));
   const sent = swap(built.autoSaveBody);
+
+  // ── THE VALIDATION GATE, server half — against the EMPTY draft, before a single step is written. ──
+  // A refusal here leaves only the empty draft, named as it was asked for: nothing half-built.
+  // A flow bot's entry trigger is unbound by design until its agent exists (workflow-FIRST creation
+  // order), so it is left out of this call rather than refused for the one thing it cannot have yet.
+  const unboundFlowEntry = (t) => t?.type === 'conv_ai_trigger' && !(t.conditions ?? []).some((c) => c?.field === 'botId');
+  const gateTriggers = built.triggerBodies.map(swap).filter((t) => !unboundFlowEntry(t));
+  if (gateTriggers.length < built.triggerBodies.length) {
+    report.warnings.push('VALIDATION: the flow\'s entry trigger has no agent yet, so its trigger layer is judged when it is bound, not here');
+  }
+  const serverGate = await liveValidate(call, loc, WID, { document: sent, triggers: gateTriggers });
+  report.validation.server = serverGate;
+  if (!serverGate.ran) report.warnings.push(`VALIDATION: GHL's validator gave no verdict (${serverGate.why}); only the engine half ran`);
+  if (blocking(serverGate) && opts.allowValidationFailure !== true) {
+    report.failurePhase = 'validation_server';
+    report.aborted = `VALIDATION_GATE (GHL, layer ${serverGate.layer ?? '?'}): the server refused the compiled steps. Only the EMPTY draft `
+      + `${WID} exists — no step was written.\n  ${serverGate.summary}`;
+    return report;
+  }
   const s = await callAt('workflow_auto_save', 'PUT', `/workflow/${loc}/${WID}/auto-save`, sent);
   if (!s) return report;
   if (!s.ok) { report.failurePhase = 'workflow_auto_save'; report.aborted = `auto-save failed: ${s.status}`; return report; }

@@ -32,6 +32,8 @@ import { validateAssets, describeFinding } from '../../skills/create-ghl-workflo
 import { planReadinessChecks, runReadinessChecks } from '../../skills/create-ghl-workflow/engine/preflight.mjs';
 import { parseActionSchema, parseTriggerSchema, checkWorkflow, marketplaceDrift } from '../../skills/create-ghl-workflow/engine/action-schema.mjs';
 import { INNER_ATTRIBUTE_TYPE } from '../../skills/create-ghl-workflow/engine/required-fields.mjs';
+import { runValidationGate } from '../../skills/create-ghl-workflow/engine/document-gate.mjs';
+import { liveValidate } from '../../skills/create-ghl-workflow/engine/live-validate.mjs';
 import { HELPER_FIDELITY, compileValidators, runBuilderValidators, validatorNamesFor, validatorSource } from './builder-validators.mjs';
 import {
   applyOps,
@@ -923,6 +925,40 @@ function readTemplatesFile(path) {
 // shows an error badge and the drawer refuses to save. Refused by default; `allowOverCap:true`
 // writes anyway and keeps the finding as a FIELD_CAP warning. The general per-field layer is
 // still the live action schema (schemaViolations) — this table covers only what was measured.
+
+// THE WORKFLOW VALIDATION GATE on a write that is not a fresh build (edit, repair, publish).
+// Both oracles (document-gate.mjs): the engine half catches what GHL answers valid:true on, the GHL
+// half what the engine cannot know. Engine findings on steps this write did not touch are warnings;
+// GHL findings block only when the write INTRODUCES them, measured against the stored document's own
+// verdict, so a pre-existing defect or a flow bot mid-build cannot freeze every later edit. Publish
+// passes no baseline: publishing is the moment every finding counts. Hatch: allowValidationFailure.
+async function workflowValidationGate({ gw, loc, wid, fresh, document, triggers, scope, catalog, assets, allow, warnings, waive = null }) {
+  let marketplaceTypes = null;
+  try { marketplaceTypes = assets ? new Set(parseActionSchema(assets).keys()) : null; } catch { marketplaceTypes = null; }
+  const call = (method, path, body) => gw.call(method, path, body);
+  const baseline = fresh ? await liveValidate(call, loc, wid, { document: fresh, triggers }) : null;
+  const gate = await runValidationGate({ call, loc, wid, document, triggers, catalog, marketplaceTypes, scope, waive, baseline, allow });
+  for (const f of gate.engine.warnings) warnings.push(`VALIDATION ${f.check}: '${f.stepName ?? f.stepId}' (${f.type}): ${f.message}`);
+  if (!gate.server.ran) warnings.push(`VALIDATION: GHL's validator gave no verdict (${gate.server.why}); only the engine half ran`);
+  if (gate.preExisting > 0) warnings.push(`VALIDATION: GHL reports ${gate.preExisting} finding(s) the stored document already had; they do not block this write`);
+  const report = {
+    engine: { errors: gate.engine.errors, warnings: gate.engine.warnings.length },
+    server: { ran: gate.server.ran, valid: gate.server.valid ?? null, layer: gate.server.layer ?? null, introduced: gate.serverBlocking, ...(gate.server.ran ? {} : { why: gate.server.why }) },
+  };
+  if (!gate.blocked) {
+    if (allow && (gate.engine.errors.length || gate.serverBlocking.length)) warnings.push(`VALIDATION BYPASSED (allowValidationFailure): ${gate.summary}`);
+    return { report };
+  }
+  return {
+    report,
+    refusal: withFailureData(fail(CODES.VALIDATION_FAILED,
+      `The workflow validation gate refused this write. Nothing was written.\n${gate.summary}`,
+      'Fix what it names. ENGINE findings are defects GHL itself lets through and the builder then shows '
+      + 'wrong; GHL findings are its own validator refusing. Pass allowValidationFailure:true only if you are certain.'),
+    { validation: report }),
+  };
+}
+
 function fieldCapGate({ templates, scope, allowOverCap, warnings }) {
   const findings = checkFieldCaps(templates, { scope });
   if (!findings.length) return { findings, refusal: null };
@@ -2315,7 +2351,13 @@ export const TOOLS = [
       + 'flow trigger each came back valid:false naming the rule, the step and the message; risk: '
       + 'read-only). READ `layer`: a failing call reports ONE layer. A structural or an action failure '
       + 'was reported IN PLACE OF a trigger failure the same document also had, so fix what it names '
-      + 'and call again until valid. valid:true is not exhaustive either: an unknown step type passed.'),
+      + 'and call again until valid. 🔴 valid:true IS NOT A SCHEMA CHECK (measured 2026-09-11). It '
+      + 'CATCHES: a missing required field, a scalar of the wrong type, an invalid enum value, a '
+      + 'referenced asset that exists nowhere (layer `asset`), every structural defect, and a corrupted '
+      + 'step type on a native workflow. It does NOT catch: an invented attribute key, a wrong inner '
+      + '`attributes.type`, an extra top-level step key, a number out of range, or a corrupted step '
+      + 'type on an AGENT flow. That class is what check_workflow\'s nativeShapeIssues and the engine\'s '
+      + 'own guards are for; this tool does not replace them.'),
     inputSchema: schema({
       locationId: z.string(),
       workflowId: z.string(),
@@ -3947,6 +3989,7 @@ export const TOOLS = [
       // With spec.sampleWebhookPayload: POST the sample to each inbound_webhook trigger's receiving
       // URL and pin it as the reference so {{inboundWebhookRequest.*}} tags are real.
       pinWebhookSample: z.boolean().default(false),
+      allowValidationFailure: z.boolean().optional().describe('Write even though the workflow validation gate refused. The gate runs two oracles over the document: the engine half (defects GHL itself answers valid:true on) and GHL\'s live validator. Findings are still reported in full.'),
     }),
     capabilities: [
       { method: 'GET', path: '/opportunities/pipelines' },
@@ -3970,6 +4013,7 @@ export const TOOLS = [
       { method: 'PUT', path: '/hooks/inbound-webhook-request/set-as-reference/{requestId}' },
       { method: 'GET', path: '/hooks/inbound-webhook-request/reference/{triggerId}' },
       { method: 'GET', path: '/workflow/{loc}/{wid}' },
+      { method: 'POST', path: '/workflow/{loc}/{wid}/validate-workflows' },
     ],
     handler: async (args, deps) => guard(async () => {
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
@@ -3979,6 +4023,7 @@ export const TOOLS = [
         strictCustomCode: args.strictCustomCode === true,
         skipCustomCodeTest: args.skipCustomCodeTest === true,
         pinWebhookSample: args.pinWebhookSample === true,
+        allowValidationFailure: args.allowValidationFailure === true,
       });
       const data = buildWorkflowData(report, args.locationId);
       if (!report.aborted) return ok(data);
@@ -4072,6 +4117,7 @@ export const TOOLS = [
       expectedVersion: z.number().int().positive().optional(),
       acknowledgeDrift: z.boolean().optional(),
       confirm: z.boolean().default(false),
+      allowValidationFailure: z.boolean().optional().describe('Write even though the workflow validation gate refused. The gate runs two oracles over the document: the engine half (defects GHL itself answers valid:true on) and GHL\'s live validator. Findings are still reported in full.'),
     }),
     capabilities: [
       { method: 'GET', path: '/locations/{loc}/customFields/search' },
@@ -4111,6 +4157,7 @@ export const TOOLS = [
       { method: 'GET', path: '/phone-system/whatsapp/location/{loc}/phone-numbers' },
       { method: 'GET', path: '/workflow/{loc}/instagram/connected-accounts' },
       { method: 'GET', path: '/workflow/{loc}/email/location-email-provider' },
+      { method: 'POST', path: '/workflow/{loc}/{wid}/validate-workflows' },
     ],
     handler: async (args, deps) => guard(async () => {
       if (!Array.isArray(args.ops) || args.ops.length === 0) {
@@ -4429,6 +4476,25 @@ export const TOOLS = [
         });
       }
 
+      // GHL judges triggers ONLY from newTriggers, so the gate needs the live set even when no trigger
+      // op or workflow rule loaded it above: without it the trigger layer is silently skipped and an
+      // edit on a workflow whose trigger is broken reads valid (the first live run of the differential
+      // passed for exactly that wrong reason). An unreadable list does not sink the edit — the engine
+      // half and GHL's other layers still ran — but the report says the trigger layer was not judged.
+      let gateTriggers = existingTriggers;
+      if (!(triggerOps.length || rulesNeedTriggers(templates, ctx.catalog?.workflowRules))) {
+        const listed = await listWorkflowTriggers(gw, args.locationId, args.workflowId);
+        if (listed.response.ok) gateTriggers = listed.triggers;
+        else warnings.push(`VALIDATION: the trigger list could not be read (${listed.response.status}); GHL's trigger layer was not judged`);
+      }
+      const validation = await workflowValidationGate({
+        gw, loc: args.locationId, wid: args.workflowId, fresh, document: commitBody, triggers: gateTriggers,
+        scope: editTouchedIds, catalog: ctx.catalog, assets: marketplaceRaw?.assets, allow: args.allowValidationFailure === true, warnings,
+        // The path's own guards own these checks and their hatches; the gate must not overrule them.
+        waive: new Set([...(args.allowOverCap === true ? ['FIELD_CAP'] : []), ...(args.allowDanglingStepRefs === true ? ['STEP_REF'] : []), ...(args.allowDanglingParentKeys === true ? ['PARENT_KEY'] : [])]),
+      });
+      if (validation.refusal) return validation.refusal;
+
       const neededTags = collectOpTags(args.ops);
       let tagsToCreate = [];
       if (neededTags.length) {
@@ -4451,6 +4517,7 @@ export const TOOLS = [
       if (parkedOnDeletedSteps.length) preview.parkedOnDeletedSteps = parkedOnDeletedSteps;
       // The ported build-path pre-flight verdicts, visible while the edit can still be changed.
       if (assetPreflight) preview.assetPreflight = assetPreflight;
+      preview.validation = validation.report;
       if (customCodeTests.length) preview.customCodeTests = customCodeTests;
       if (readiness.length) preview.readiness = readiness;
       // Named in the preview so an over-cap prompt is visible while the edit can still be
@@ -4801,6 +4868,7 @@ export const TOOLS = [
       allowDanglingParentKeys: z.boolean().optional(),
       allowDanglingStepRefs: z.boolean().optional(),
       confirm: z.boolean().default(false),
+      allowValidationFailure: z.boolean().optional().describe('Write even though the workflow validation gate refused. The gate runs two oracles over the document: the engine half (defects GHL itself answers valid:true on) and GHL\'s live validator. Findings are still reported in full.'),
     }),
     capabilities: [
       { method: 'GET', path: '/workflow/{loc}/{wid}' },
@@ -4818,6 +4886,7 @@ export const TOOLS = [
       { method: 'GET', path: '/phone-system/whatsapp/location/{loc}/phone-numbers' },
       { method: 'GET', path: '/workflow/{loc}/instagram/connected-accounts' },
       { method: 'GET', path: '/workflow/{loc}/email/location-email-provider' },
+      { method: 'POST', path: '/workflow/{loc}/{wid}/validate-workflows' },
     ],
     handler: async (args, deps) => guard(async () => {
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
@@ -4954,7 +5023,23 @@ export const TOOLS = [
         readiness = await readinessFor({ gw, loc: args.locationId, templates: args.templates, touchedIds, catalog, warnings });
       }
 
+      // The GHL half judges triggers only from newTriggers, so it needs the live set even when no
+      // workflow rule asked for it above.
+      let gateTriggers = existingTriggers;
+      if (!rulesNeedTriggers(args.templates, catalog?.workflowRules)) {
+        const listed = await listWorkflowTriggers(gw, args.locationId, args.workflowId);
+        if (!listed.response.ok) return fromHttp(listed.response.status, listed.response.json);
+        gateTriggers = listed.triggers;
+      }
+      const validation = await workflowValidationGate({
+        gw, loc: args.locationId, wid: args.workflowId, fresh, document: commitBody, triggers: gateTriggers,
+        scope: touchedIds, catalog, assets: null, allow: args.allowValidationFailure === true, warnings,
+        waive: new Set([...(args.allowOverCap === true ? ['FIELD_CAP'] : []), ...(args.allowDanglingStepRefs === true ? ['STEP_REF'] : []), ...(args.allowDanglingParentKeys === true ? ['PARENT_KEY'] : [])]),
+      });
+      if (validation.refusal) return validation.refusal;
+
       const preview = {
+        validation: validation.report,
         diff,
         stepCount: { before: beforeTemplates.length, after: args.templates.length },
         version: fresh.version,
@@ -5145,6 +5230,7 @@ export const TOOLS = [
       locationId: z.string(),
       workflowId: z.string(),
       confirm: z.boolean().default(false),
+      allowValidationFailure: z.boolean().optional().describe('Write even though the workflow validation gate refused. The gate runs two oracles over the document: the engine half (defects GHL itself answers valid:true on) and GHL\'s live validator. Findings are still reported in full.'),
     }),
     capabilities: [
       { method: 'GET', path: '/workflow/{loc}/{wid}' },
@@ -5153,6 +5239,7 @@ export const TOOLS = [
       // REPAIR (added 2026-08-28): one per-trigger status write for any trigger still
       // inactive after the document PUT's own cascade — see the handler's measurement note.
       { method: 'PUT', path: '/workflow/{loc}/trigger/{tid}' },
+      { method: 'POST', path: '/workflow/{loc}/{wid}/validate-workflows' },
     ],
     handler: async (args, deps) => guard(async () => {
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
@@ -5162,7 +5249,16 @@ export const TOOLS = [
       const listed = await listWorkflowTriggers(gw, args.locationId, args.workflowId);
       if (!listed.response.ok) return fromHttp(listed.response.status, listed.response.json);
 
+      const publishWarnings = [];
+      const validation = await workflowValidationGate({
+        gw, loc: args.locationId, wid: args.workflowId, fresh: null, document: current, triggers: listed.triggers,
+        scope: null, catalog: loadCatalog(), assets: null, allow: args.allowValidationFailure === true, warnings: publishWarnings,
+      });
+      if (validation.refusal) return validation.refusal;
+
       const preview = {
+        validation: validation.report,
+        ...(publishWarnings.length ? { warnings: publishWarnings } : {}),
         current: { status: current?.status ?? null, version: current?.version ?? null },
         changes: {
           status: { from: current?.status ?? null, to: 'published' },

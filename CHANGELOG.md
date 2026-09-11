@@ -11,6 +11,50 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [0.83.0] — 2026-09-11
+
+A workflow validation gate on every write, because GHL's own validator answers valid on workflows that are wrong.
+
+### Added
+
+- 🔴 **The workflow validation gate.** `build_workflow`, `edit_workflow`, `repair_workflow` and
+  `publish_workflow` now judge the exact document they are about to send, and refuse on a finding —
+  `VALIDATION_FAILED`, nothing written, every finding named in `data.validation`. Two oracles, because
+  neither is enough alone:
+  - **Engine** (`engine/document-gate.mjs`): an invented attribute key, a wrong inner
+    `attributes.type`, an unknown top-level step key, an unknown step type, missing required fields,
+    GHL's own guards, field caps, dangling step references and parentKeys. GHL's validator answers
+    `valid:true` on the first five, measured.
+  - **GHL** (its live validator): missing required fields, wrong scalar types, invalid enums, assets
+    that do not exist in the account, and every structural defect.
+
+  Build runs the engine half before anything is created and GHL's half against the empty draft before
+  a step is written. Edit and repair block on a GHL finding only if the write INTRODUCES it, so a
+  pre-existing defect or a flow bot waiting for its agent does not freeze every later edit. Publish
+  judges the whole state. Hatch: `allowValidationFailure`; a path's own specific hatch
+  (`allowOverCap`, `allowDanglingStepRefs`, `allowDanglingParentKeys`) still wins for the check it owns.
+- **Calibrated before it blocks.** Every engine allowlist is evidence from 2,602 stored, working steps
+  on two accounts (one engine-built, one UI-built): 0 findings on any working workflow, 11 real
+  defects in leftover test flows. The type cards alone would have refused every stored `if_else`, and
+  an allowlist from the engine-built account alone would have refused every advanced-canvas workflow
+  a human made.
+
+### Fixed
+
+- 🔴 **Some engine guards were attached to paths, not documents.** The unknown-attribute-key guard
+  and the inner-type rule ran only inside the compiler, so an edit or a repair never met them, and
+  `modifyStep` merges attributes "as given" for seventeen types. An invented key on a
+  `custom_webhook` step was written; it is refused now, with the version unmoved (live). Dangling step
+  references and parentKeys already had their own commit-time guards on the edit path.
+- **`validate_workflow`'s description overclaimed.** It said an unknown step type passes the server;
+  that was masked by a trigger failure on an agent flow. Measured properly: a corrupted type is caught
+  on a native workflow and missed on an agent flow; an invented key, a wrong inner type, an extra step
+  key and an out-of-range number are missed everywhere.
+- `edit_workflow` sent GHL's validator no triggers on ordinary edits, so the trigger layer was never
+  judged; the gate always sends them now.
+- `npm run sync` built the catalogue before the capability manifest it reads, so a new capability
+  needed two passes.
+
 ## [0.82.0] — 2026-09-11
 
 GHL's own server validator as a tool, and the catalogue re-mined from this morning's builder.

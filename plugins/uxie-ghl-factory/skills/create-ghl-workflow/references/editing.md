@@ -144,19 +144,36 @@ This exists because the UNguarded version of it — GET, hand-edit the JSON, PUT
 only way to express some changes, and it skips every check above. Eight client workflows carried a
 dead pipeline-stage NAME to the wire through that route while the build reported clean.
 
-### Checking an edit before it is saved: `validate_workflow`
+### The validation gate: every write, two oracles
 
-`validate_workflow` asks GHL's own server validator, the one the builder calls live on every change,
-whether a workflow would pass. It writes nothing. Pass `templates` to validate the stored document with
-your edited tree in place, before `edit_workflow` or `repair_workflow` writes it.
+Every tool that writes a workflow — `build_workflow`, `edit_workflow`, `repair_workflow`,
+`publish_workflow` — runs the **validation gate** over the exact document it is about to send, and
+refuses on a finding. Nothing is written when it refuses; the error code is `VALIDATION_FAILED` and
+`data.validation` names every finding.
 
-- **Read `layer`.** A failing call reports ONE layer. A structural or action failure is reported
-  instead of a trigger failure the same document also has. Fix what it names and call again until
-  `valid: true`.
-- It always sends the workflow's stored triggers. Without them the server skips the trigger layer and
-  says valid, so the tool refuses to validate when it cannot read them.
-- `valid: true` is not exhaustive: an unknown step type passes. Keep `check_workflow` for the drawer
-  and native-shape classes the server does not check.
+It runs two oracles because neither is enough alone:
+
+| | Catches | Blind to |
+|---|---|---|
+| **Engine** (`engine/document-gate.mjs`) | an invented attribute key · a wrong inner `attributes.type` · an unknown top-level step key · an unknown step type · missing required fields · GHL's own guards · field caps · dangling step references and parentKeys | anything that depends on the account |
+| **GHL** (its live validator) | a missing required field · a scalar of the wrong type · an invalid enum value · a referenced asset that does not exist · every structural defect | everything in the engine's first column — it answers `valid:true` on all of it |
+
+- **Build:** the engine half runs before anything is created; GHL's half runs against the empty draft
+  before a single step is written. A refused build leaves only the empty draft.
+- **Edit and repair:** engine findings on steps you did not touch are warnings; a GHL finding blocks
+  only if **your write introduces it** — the stored document's own verdict is the baseline. So a
+  pre-existing problem, or a flow bot waiting for its agent, does not freeze every later edit.
+- **Publish:** the whole state, no baseline. Publishing is when every finding counts.
+- **Hatches:** your specific hatch still wins for the check it owns (`allowOverCap`,
+  `allowDanglingStepRefs`, `allowDanglingParentKeys`). `allowValidationFailure: true` passes
+  everything else, and the findings are still reported in full. Use it only when you know better.
+
+Every engine allowlist was calibrated against 2,602 stored, working steps on two accounts before it
+was allowed to block: zero findings on working workflows, eleven real defects in leftover test flows.
+
+`validate_workflow` asks GHL's half on its own, read-only: pass `templates` to check a planned tree.
+Read `layer` — a failing call reports ONE layer, and a structural or action failure is reported in
+place of a trigger failure the same document has.
 
 ### Retyping a step (including native → marketplace)
 

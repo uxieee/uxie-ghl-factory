@@ -23249,6 +23249,10 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "write",
           reach: "source-only",
           coveredBy: [
+            "build_workflow",
+            "edit_workflow",
+            "publish_workflow",
+            "repair_workflow",
             "validate_workflow"
           ],
           rawCallable: true,
@@ -163171,6 +163175,652 @@ function checkFieldCaps(templates, { scope = null } = {}) {
 }
 var describeCap = (f) => `'${f.name}' (${f.type}) ${f.field} is ${f.length} characters; the builder's cap is ${f.cap}. The server stores it verbatim and the round-trip reads clean; the builder shows an error badge and the drawer refuses to save.`;
 
+// ../skills/create-ghl-workflow/engine/document-gate.mjs
+init_define_BUILDER_VALIDATORS();
+init_define_CONTACT_FILTER_FIELDS();
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
+init_define_TOOL_CATALOG();
+
+// ../skills/create-ghl-workflow/engine/observed-step-keys.mjs
+init_define_BUILDER_VALIDATORS();
+init_define_CONTACT_FILTER_FIELDS();
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
+init_define_TOOL_CATALOG();
+var OBSERVED_TOP_LEVEL_KEYS = Object.freeze(["advanceCanvasMeta", "attributes", "cat", "comments", "id", "incompleteData", "isMarketplaceAction", "name", "next", "nodeType", "order", "parent", "parentKey", "sibling", "stepIndex", "type", "version", "workflowsActionType"]);
+var OBSERVED_ATTRIBUTE_KEYS = Object.freeze({
+  "add_contact_tag": [
+    "tags",
+    "type"
+  ],
+  "add_notes": [
+    "color",
+    "html",
+    "title",
+    "type"
+  ],
+  "add_to_workflow": [
+    "input_trigger_params",
+    "type",
+    "workflow_id"
+  ],
+  "array_functions": [
+    "action",
+    "math_functions",
+    "referencePath"
+  ],
+  "assign_user": [
+    "only_unassigned_contact",
+    "total_index",
+    "traffic_index",
+    "traffic_split",
+    "traffic_weightage",
+    "type",
+    "user_list"
+  ],
+  "chatgpt": [
+    "actionParams",
+    "actionType",
+    "apiKey",
+    "event",
+    "excludeFromHistory",
+    "excludeInstructionsFromHistory",
+    "memoryKey",
+    "model",
+    "promptText",
+    "temperature",
+    "type"
+  ],
+  "conversationai_ai_message": [
+    "__customInputs__",
+    "message",
+    "type",
+    "waitForReply"
+  ],
+  "conversationai_ai_splitter": [
+    "__customInputs__",
+    "__name__",
+    "cat",
+    "convertToMultipath",
+    "description",
+    "transitions",
+    "type"
+  ],
+  "conversationai_book_appointment": [
+    "__customInputs__",
+    "__name__",
+    "calendarId",
+    "cat",
+    "convertToMultipath",
+    "promptInstructions",
+    "transitions",
+    "type"
+  ],
+  "conversationai_continue": [
+    "__customInputs__",
+    "instructions",
+    "type"
+  ],
+  "conversationai_custom_message": [
+    "__customInputs__",
+    "message",
+    "type",
+    "waitForReply"
+  ],
+  "conversationai_end": [
+    "__customInputs__",
+    "message",
+    "sleepDuration",
+    "sleepEnabled",
+    "sleepUnit",
+    "type"
+  ],
+  "conversationai_objective": [
+    "__customInputs__",
+    "closingMessage",
+    "contactField",
+    "instructions",
+    "maxAttempts",
+    "objective",
+    "proceedIfNotMet",
+    "responseExample",
+    "skipIfFilled",
+    "type"
+  ],
+  "conversationai_services_booking": [
+    "__customInputs__",
+    "type"
+  ],
+  "conversationai_transfer_bot": [
+    "__customInputs__",
+    "assignedEmployeeId",
+    "type"
+  ],
+  "custom_code": [
+    "code",
+    "inputData",
+    "language",
+    "output"
+  ],
+  "custom_webhook": [
+    "authorization",
+    "body",
+    "event",
+    "headers",
+    "method",
+    "parameters",
+    "saveResponse",
+    "url",
+    "webhookResponse"
+  ],
+  "datetime_formatter": [
+    "action",
+    "compare",
+    "type"
+  ],
+  "dnd_contact": [
+    "dnd_contact",
+    "type"
+  ],
+  "email": [
+    "attachments",
+    "bcc",
+    "conditions",
+    "createdAt",
+    "fieldDefaults",
+    "from_email",
+    "from_name",
+    "html",
+    "htmlDefaults",
+    "isCloned",
+    "preHeader",
+    "previewUrl",
+    "subject",
+    "syncEnabled",
+    "templateCreationMode",
+    "template_id",
+    "templatesource",
+    "trackingOptions",
+    "updatedAt"
+  ],
+  "facebook_conversion_api": [
+    "access_token",
+    "connection_type",
+    "currency",
+    "customMapping",
+    "event_type",
+    "isCustomMappingEnabled",
+    "pixel_id",
+    "stage_name",
+    "type"
+  ],
+  "find_opportunity": [
+    "__customInputFields__",
+    "__customInputs__",
+    "__name__",
+    "cat",
+    "convertToMultipath",
+    "sorting",
+    "transitions",
+    "type"
+  ],
+  "goto": [
+    "targetNodeId",
+    "type"
+  ],
+  "if_else": [
+    "branches",
+    "conditionName",
+    "currentRecipeType",
+    "else",
+    "if",
+    "instructions",
+    "noneBranchName",
+    "operator",
+    "version"
+  ],
+  "internal_create_opportunity": [
+    "__customInputFields__",
+    "__customInputs__",
+    "pipelineId",
+    "type"
+  ],
+  "internal_notification": [
+    "email",
+    "notification",
+    "sms",
+    "type"
+  ],
+  "internal_update_opportunity": [
+    "__customInputFields__",
+    "__customInputs__",
+    "allowBackward",
+    "pipeline",
+    "stage",
+    "type"
+  ],
+  "loop": [
+    "items",
+    "limit",
+    "mode",
+    "type"
+  ],
+  "manual-call": [
+    "assignedUser",
+    "standardAssignedUser"
+  ],
+  "math_operation": [
+    "operators",
+    "selectField",
+    "selectFieldtype",
+    "sourceCustomValueId",
+    "targetCustomValueId",
+    "updateField",
+    "updateFieldType"
+  ],
+  "membership_grant_offer": [
+    "offer_id",
+    "type"
+  ],
+  "remove_contact_tag": [
+    "tags",
+    "type"
+  ],
+  "remove_from_workflow": [
+    "type",
+    "workflow_id"
+  ],
+  "send_outbound_whatsapp_message": [
+    "__customInputs__",
+    "__dynamicAttachments__",
+    "attachment",
+    "connected_phone",
+    "message",
+    "type"
+  ],
+  "sms": [
+    "attachments",
+    "body",
+    "template_id"
+  ],
+  "task-notification": [
+    "__customInputs__",
+    "assignedTo",
+    "body",
+    "dueDate",
+    "title",
+    "type"
+  ],
+  "transition": [
+    "description",
+    "type"
+  ],
+  "update_appointment_status": [
+    "category",
+    "status_type",
+    "type"
+  ],
+  "update_contact_field": [
+    "actionType",
+    "fields",
+    "type"
+  ],
+  "update_custom_value": [
+    "custom_value_id",
+    "name",
+    "new_value"
+  ],
+  "wait": [
+    "appointmentCondition",
+    "appointmentSpecificStep",
+    "appointmentStartAfter",
+    "cat",
+    "condition",
+    "convertToMultipath",
+    "dynamicSpecificDate",
+    "hybridActionType",
+    "isHybridAction",
+    "name",
+    "reply",
+    "replyLabel",
+    "specificDate",
+    "specificDateInputMode",
+    "specificDateOffsetDays",
+    "specificDateOffsetHours",
+    "specificDateOffsetMinutes",
+    "specificDatePassed",
+    "specificDateProceed",
+    "startAfter",
+    "timePeriodInputMode",
+    "transitions",
+    "type",
+    "unitInputMode",
+    "window",
+    "windowCondition"
+  ],
+  "webhook": [
+    "customData",
+    "headers",
+    "method",
+    "url"
+  ],
+  "workflow_ai_decision_maker": [
+    "__customInputs__",
+    "cat",
+    "convertToMultipath",
+    "information",
+    "instructions",
+    "transitions",
+    "type"
+  ],
+  "workflow_ai_intent_detection": [
+    "__customInputs__",
+    "__name__",
+    "cat",
+    "convertToMultipath",
+    "inputText",
+    "transitions",
+    "type"
+  ],
+  "workflow_goal": [
+    "action",
+    "op",
+    "segments",
+    "type"
+  ],
+  "workflow_split": [
+    "cat",
+    "condition",
+    "extras",
+    "name",
+    "paths",
+    "transitions",
+    "type"
+  ]
+});
+var OBSERVED_INNER_TYPES = Object.freeze({
+  "add_contact_tag": [
+    "add_contact_tag"
+  ],
+  "add_notes": [
+    "add_notes"
+  ],
+  "add_to_workflow": [
+    "add_to_workflow"
+  ],
+  "assign_user": [
+    "assign_user"
+  ],
+  "chatgpt": [
+    "chatgpt"
+  ],
+  "conversationai_ai_message": [
+    "conversationai_ai_message"
+  ],
+  "conversationai_ai_splitter": [
+    "conversationai_ai_splitter"
+  ],
+  "conversationai_book_appointment": [
+    "conversationai_book_appointment"
+  ],
+  "conversationai_continue": [
+    "conversationai_continue"
+  ],
+  "conversationai_custom_message": [
+    "conversationai_custom_message"
+  ],
+  "conversationai_end": [
+    "conversationai_end"
+  ],
+  "conversationai_objective": [
+    "conversationai_objective"
+  ],
+  "conversationai_services_booking": [
+    "conversationai_services_booking"
+  ],
+  "conversationai_transfer_bot": [
+    "conversationai_transfer_bot"
+  ],
+  "datetime_formatter": [
+    "datetime_formatter"
+  ],
+  "dnd_contact": [
+    "dnd_contact"
+  ],
+  "facebook_conversion_api": [
+    "facebook_conversion_api"
+  ],
+  "find_opportunity": [
+    "find_opportunity"
+  ],
+  "goto": [
+    "goto"
+  ],
+  "internal_create_opportunity": [
+    "internal_create_opportunity"
+  ],
+  "internal_notification": [
+    "email",
+    "notification",
+    "sms"
+  ],
+  "internal_update_opportunity": [
+    "internal_update_opportunity"
+  ],
+  "loop": [
+    "loop"
+  ],
+  "membership_grant_offer": [
+    "membership_grant_offer"
+  ],
+  "remove_contact_tag": [
+    "remove_contact_tag"
+  ],
+  "remove_from_workflow": [
+    "remove_from_workflow"
+  ],
+  "send_outbound_whatsapp_message": [
+    "send_outbound_whatsapp_message"
+  ],
+  "task-notification": [
+    "task_notification"
+  ],
+  "transition": [
+    "wait_condition",
+    "wait_reply",
+    "wait_timeout"
+  ],
+  "update_appointment_status": [
+    "update_appointment_status"
+  ],
+  "update_contact_field": [
+    "update_contact_field"
+  ],
+  "wait": [
+    "appointment",
+    "condition",
+    "reply",
+    "specific_date",
+    "time"
+  ],
+  "workflow_ai_decision_maker": [
+    "workflow_ai_decision_maker"
+  ],
+  "workflow_ai_intent_detection": [
+    "workflow_ai_intent_detection"
+  ],
+  "workflow_goal": [
+    "workflow_goal"
+  ],
+  "workflow_split": [
+    "workflow_split"
+  ]
+});
+
+// ../skills/create-ghl-workflow/engine/live-validate.mjs
+init_define_BUILDER_VALIDATORS();
+init_define_CONTACT_FILTER_FIELDS();
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
+init_define_TOOL_CATALOG();
+var livePath = (loc, wid) => `/workflow/${encodeURIComponent(loc)}/${encodeURIComponent(wid)}/validate-workflows`;
+async function liveValidate(call, loc, wid, { document, templates, triggers } = {}) {
+  if (!loc || !wid || !document) return { ran: false, why: "no location, workflow id or document to validate" };
+  const body = { ...document, newTriggers: Array.isArray(triggers) ? triggers : [] };
+  if (templates) body.workflowData = { ...document.workflowData ?? {}, templates };
+  let r;
+  try {
+    r = await call("POST", livePath(loc, wid), body);
+  } catch (e) {
+    return { ran: false, why: `the validator could not be reached: ${e?.message ?? e}` };
+  }
+  const json2 = r?.json;
+  if (!json2 || typeof json2 !== "object" || typeof json2.valid !== "boolean") {
+    return { ran: false, why: `the validator answered ${r?.status ?? "?"} with no verdict` };
+  }
+  const warnings = Array.isArray(json2.assetWarnings) ? json2.assetWarnings : [];
+  if (json2.valid) return { ran: true, valid: true, layer: null, findings: [], warnings, summary: "valid" };
+  const parsed = parseServerValidation(json2);
+  const findings = parsed?.findings ?? [{
+    message: json2.errorMessage ?? json2.message ?? "validation failed",
+    severity: "error",
+    where: "the workflow"
+  }];
+  return {
+    ran: true,
+    valid: false,
+    // A failing call reports ONE layer: a structural or action failure is reported IN PLACE OF a
+    // trigger failure the same document also has. Fix what it names and ask again.
+    layer: parsed?.validationType ?? json2.errorMetadata?.validationType ?? null,
+    findings,
+    warnings,
+    summary: parsed ? describeServerFindings(parsed) : findings[0].message
+  };
+}
+var blocking = (verdict) => verdict?.ran === true && verdict.valid === false && verdict.findings.some((f) => f.severity !== "warning");
+
+// ../skills/create-ghl-workflow/engine/document-gate.mjs
+var STEP_TOP_LEVEL_KEYS = new Set(OBSERVED_TOP_LEVEL_KEYS);
+var CONDITIONAL_ATTR_KEYS = { conversationai_objective: ["closingMessage", "tags"] };
+function knownAttributeKeys(type, card) {
+  const model = (card?.modelFields?.fields ?? []).map((f) => f?.name).filter(Boolean);
+  return /* @__PURE__ */ new Set([
+    ...card?.attrKeys ?? [],
+    ...(card?.requiredFields ?? []).map((k) => String(k).split(/[.[]/)[0]),
+    ...model,
+    ...OBSERVED_ATTRIBUTE_KEYS[type] ?? [],
+    ...CONDITIONAL_ATTR_KEYS[type] ?? [],
+    ...ENGINE_ATTR_KEYS
+  ]);
+}
+var finding = (check2, severity, t, message) => ({
+  check: check2,
+  severity,
+  stepId: t?.id ?? null,
+  stepName: t?.name ?? null,
+  type: t?.type ?? null,
+  message
+});
+function gateDocument(templates = [], { catalog = loadCatalog(), marketplaceTypes = null, scope = null, waive = null } = {}) {
+  const out = [];
+  for (const t of templates) {
+    if (!t || typeof t !== "object") continue;
+    for (const k of Object.keys(t)) {
+      if (!STEP_TOP_LEVEL_KEYS.has(k)) out.push(finding(
+        "TOP_LEVEL_KEY",
+        "error",
+        t,
+        `unknown top-level step key '${k}' \u2014 no stored step on either calibration account carries it`
+      ));
+    }
+    const card = catalog.step(t.type);
+    if (t.isMarketplaceAction === true) continue;
+    if (!card) {
+      if (marketplaceTypes?.has(t.type)) {
+        out.push(finding(
+          "MARKETPLACE_FLAG",
+          "warning",
+          t,
+          `'${t.type}' is a marketplace action stored without isMarketplaceAction:true \u2014 the rail's complete step shape carries it`
+        ));
+      } else {
+        out.push(finding(
+          "STEP_TYPE",
+          marketplaceTypes ? "error" : "warning",
+          t,
+          `'${t.type}' is not a known step type${marketplaceTypes ? ", native or marketplace" : " (marketplace types were not available to rule it out)"}. GHL does NOT catch this on an agent flow.`
+        ));
+      }
+      continue;
+    }
+    const attrs = t.attributes ?? {};
+    const innerAllowed = INNER_ATTRIBUTE_TYPE[t.type] ? /* @__PURE__ */ new Set([INNER_ATTRIBUTE_TYPE[t.type]]) : OBSERVED_INNER_TYPES[t.type] ? /* @__PURE__ */ new Set([...OBSERVED_INNER_TYPES[t.type], ...(card.modelFields?.fields ?? []).find((f) => f?.name === "type")?.members ?? []]) : null;
+    if (innerAllowed && "type" in attrs && !innerAllowed.has(attrs.type)) out.push(finding(
+      "INNER_TYPE",
+      "error",
+      t,
+      `attributes.type is ${JSON.stringify(attrs.type)}; '${t.type}' stores ${[...innerAllowed].map((v) => `'${v}'`).join(" or ")}. It saves, publishes and round-trips clean, and the builder's drawer then cannot bind it. GHL does not catch this.`
+    ));
+    const known = knownAttributeKeys(t.type, card);
+    const bad = Object.keys(attrs).filter((k) => !known.has(k));
+    if (bad.length) out.push(finding(
+      "ATTRIBUTE_KEY",
+      card.confidence === "verified-live" ? "error" : "warning",
+      t,
+      `unknown attribute key(s) [${bad.join(", ")}] \u2014 an invented key saves but moves nothing. GHL does not catch this.`
+    ));
+    const missing = requiredKeysFor(t.type).filter((k) => !isSupplied(t.type, k, attrs));
+    if (missing.length) out.push(finding("REQUIRED", "error", t, `missing required field(s): ${missing.join(", ")}`));
+    for (const r of card.enforcement?.throw ?? []) {
+      if (fires(r, attrs)) out.push(finding("ENFORCEMENT", "error", t, `GHL's own guard fires: ${r.field ?? ""} ${r.guard ?? ""}`.trim()));
+    }
+  }
+  for (const f of checkFieldCaps(templates)) {
+    out.push({ check: "FIELD_CAP", severity: "error", stepId: f.stepId ?? null, stepName: f.step ?? f.stepName ?? null, type: f.type ?? null, message: describeCap(f) });
+  }
+  for (const d of danglingParentKeys(templates)) {
+    out.push({ check: "PARENT_KEY", severity: "error", stepId: d.id, stepName: d.name, type: null, message: `parentKey points at '${d.parentKey}', which is not a step in this workflow` });
+  }
+  try {
+    checkStepRefs(templates);
+  } catch (e) {
+    out.push({ check: "STEP_REF", severity: "error", stepId: null, stepName: null, type: null, message: String(e.message).split("\n").slice(0, 4).join(" ") });
+  }
+  for (const f of out) if (scope && f.stepId && !scope.has(f.stepId) && f.severity === "error") f.severity = "warning";
+  for (const f of out) {
+    if (waive?.has(f.check) && f.severity === "error") {
+      f.severity = "warning";
+      f.message += " (acknowledged by the caller's own hatch)";
+    }
+  }
+  return {
+    errors: out.filter((f) => f.severity === "error"),
+    warnings: out.filter((f) => f.severity !== "error"),
+    checked: templates.length
+  };
+}
+var findingKey = (f) => `${f.ruleId ?? ""}|${f.where ?? ""}|${f.message ?? ""}`;
+async function runValidationGate({ call, loc, wid, document, templates, triggers, catalog, marketplaceTypes, scope, waive = null, baseline = null, allow = false } = {}) {
+  const steps = templates ?? document?.workflowData?.templates ?? [];
+  const engine = gateDocument(steps, { catalog, marketplaceTypes, scope, waive });
+  const server2 = call && wid ? await liveValidate(call, loc, wid, { document, templates, triggers }) : { ran: false, why: "no workflow id to validate against" };
+  let serverBlocking = [];
+  if (server2.ran && server2.valid === false) {
+    const before = new Set((baseline?.ran && baseline.valid === false ? baseline.findings : []).map(findingKey));
+    serverBlocking = server2.findings.filter((f) => f.severity !== "warning" && !before.has(findingKey(f)));
+  }
+  const blocked = !allow && (engine.errors.length > 0 || serverBlocking.length > 0);
+  const lines = [
+    ...engine.errors.map((f) => `ENGINE ${f.check}: '${f.stepName ?? f.stepId ?? "?"}' (${f.type ?? "?"}): ${f.message}`),
+    ...serverBlocking.map((f) => `GHL ${server2.layer ?? ""}: ${f.where}: ${f.message}${f.ruleId ? ` [${f.ruleId}]` : ""}`)
+  ];
+  return { blocked, engine, server: server2, serverBlocking, preExisting: server2.ran && baseline ? (server2.findings?.length ?? 0) - serverBlocking.length : 0, summary: lines.join("\n") };
+}
+
 // ../skills/create-ghl-workflow/engine/orchestrate.mjs
 function missingRequiredFields(step) {
   const keys = requiredKeysFor(step?.type);
@@ -163438,6 +164088,15 @@ async function orchestrate(ir, gw, opts = {}) {
     { warn: (m) => report.warnings.push(m), skipGraphContextRules: opts.skipGraphContextRules }
   );
   for (const f of checkFieldCaps(built.autoSaveBody?.workflowData?.templates)) report.warnings.push(`FIELD_CAP: ${describeCap(f)}`);
+  const engineGate = gateDocument(built.autoSaveBody?.workflowData?.templates ?? [], { catalog, marketplaceTypes: usesMarketplace ? null : /* @__PURE__ */ new Set() });
+  report.validation = { engine: { errors: engineGate.errors, warnings: engineGate.warnings.length } };
+  for (const f of engineGate.warnings) report.warnings.push(`VALIDATION ${f.check}: '${f.stepName ?? f.stepId}' (${f.type}): ${f.message}`);
+  if (engineGate.errors.length && opts.allowValidationFailure !== true) {
+    report.failurePhase = "validation_engine";
+    report.aborted = `VALIDATION_GATE (engine): ${engineGate.errors.length} finding(s) GHL would have let through \u2014 nothing was created.
+` + engineGate.errors.map((f) => `  ${f.check}: '${f.stepName ?? f.stepId}' (${f.type}): ${f.message}`).join("\n");
+    return report;
+  }
   const assetCheck = await validateAssets(call, loc, {
     templates: built.autoSaveBody?.workflowData?.templates,
     triggers: built.triggerBodies,
@@ -163531,6 +164190,20 @@ async function orchestrate(ir, gw, opts = {}) {
   report.wid = WID;
   const swap = (o) => JSON.parse(JSON.stringify(o).split(ph).join(WID));
   const sent = swap(built.autoSaveBody);
+  const unboundFlowEntry = (t) => t?.type === "conv_ai_trigger" && !(t.conditions ?? []).some((c2) => c2?.field === "botId");
+  const gateTriggers = built.triggerBodies.map(swap).filter((t) => !unboundFlowEntry(t));
+  if (gateTriggers.length < built.triggerBodies.length) {
+    report.warnings.push("VALIDATION: the flow's entry trigger has no agent yet, so its trigger layer is judged when it is bound, not here");
+  }
+  const serverGate = await liveValidate(call, loc, WID, { document: sent, triggers: gateTriggers });
+  report.validation.server = serverGate;
+  if (!serverGate.ran) report.warnings.push(`VALIDATION: GHL's validator gave no verdict (${serverGate.why}); only the engine half ran`);
+  if (blocking(serverGate) && opts.allowValidationFailure !== true) {
+    report.failurePhase = "validation_server";
+    report.aborted = `VALIDATION_GATE (GHL, layer ${serverGate.layer ?? "?"}): the server refused the compiled steps. Only the EMPTY draft ${WID} exists \u2014 no step was written.
+  ${serverGate.summary}`;
+    return report;
+  }
   const s = await callAt("workflow_auto_save", "PUT", `/workflow/${loc}/${WID}/auto-save`, sent);
   if (!s) return report;
   if (!s.ok) {
@@ -169192,14 +169865,14 @@ async function assetPreflightFor({ gw, loc, templates, triggers, companyId, touc
   const verdict = await validateAssets((m, p2, b) => gw.call(m, p2, b), loc, { templates, triggers, companyId });
   const assetPreflight = { phase: "pre-write", ...verdict };
   for (const w of assetPreflight.warnings ?? []) warnings.push(`asset: ${describeFinding(w)}`);
-  const blocking = [];
+  const blocking2 = [];
   for (const e of assetPreflight.errors ?? []) {
     if (e.stepId && !touchedIds.has(e.stepId)) warnings.push(`asset (pre-existing, untouched by this edit): ${describeFinding(e)}`);
-    else blocking.push(e);
+    else blocking2.push(e);
   }
-  if (blocking.length && ignoreAssetErrors === true) {
+  if (blocking2.length && ignoreAssetErrors === true) {
     const replacing = idsBeingReplaced(ops);
-    const stillOld = blocking.filter((e) => e.assetId && replacing.has(e.assetId));
+    const stillOld = blocking2.filter((e) => e.assetId && replacing.has(e.assetId));
     if (stillOld.length) {
       return { assetPreflight, refusal: withFailureData(fail(
         CODES.VALIDATION_FAILED,
@@ -169208,10 +169881,10 @@ async function assetPreflightFor({ gw, loc, templates, triggers, companyId, touc
       ), { assetPreflight, warnings }) };
     }
   }
-  if (blocking.length && ignoreAssetErrors !== true) {
+  if (blocking2.length && ignoreAssetErrors !== true) {
     return { assetPreflight, refusal: withFailureData(fail(
       CODES.VALIDATION_FAILED,
-      `GHL rejected ${blocking.length} asset reference(s) in this edit before any write: ` + blocking.map(describeFinding).join("; "),
+      `GHL rejected ${blocking2.length} asset reference(s) in this edit before any write: ` + blocking2.map(describeFinding).join("; "),
       "Create the missing objects or correct the references. ignoreAssetErrors:true writes the edit anyway and is for a reference you KNOW is about to exist \u2014 if the error names the reference this edit is meant to fix, the fix has not landed and hatching past it hides a failed re-point (R-96). This verdict describes the document BEFORE the write (phase: pre-write); a confirmed write re-checks the persisted document. Nothing was written."
     ), { assetPreflight, warnings }) };
   }
@@ -169249,6 +169922,40 @@ function readTemplatesFile(path) {
     return { failure: fail(CODES.VALIDATION_FAILED, "templatesPath holds no templates array.", "Accepted shapes: a bare array, {templates}, a workflow GET body {workflowData:{templates}}, or an export_workflow file {workflow:{workflowData:{templates}}}.") };
   }
   return { templates };
+}
+async function workflowValidationGate({ gw, loc, wid, fresh, document, triggers, scope, catalog, assets, allow, warnings, waive = null }) {
+  let marketplaceTypes = null;
+  try {
+    marketplaceTypes = assets ? new Set(parseActionSchema(assets).keys()) : null;
+  } catch {
+    marketplaceTypes = null;
+  }
+  const call = (method, path, body) => gw.call(method, path, body);
+  const baseline = fresh ? await liveValidate(call, loc, wid, { document: fresh, triggers }) : null;
+  const gate = await runValidationGate({ call, loc, wid, document, triggers, catalog, marketplaceTypes, scope, waive, baseline, allow });
+  for (const f of gate.engine.warnings) warnings.push(`VALIDATION ${f.check}: '${f.stepName ?? f.stepId}' (${f.type}): ${f.message}`);
+  if (!gate.server.ran) warnings.push(`VALIDATION: GHL's validator gave no verdict (${gate.server.why}); only the engine half ran`);
+  if (gate.preExisting > 0) warnings.push(`VALIDATION: GHL reports ${gate.preExisting} finding(s) the stored document already had; they do not block this write`);
+  const report = {
+    engine: { errors: gate.engine.errors, warnings: gate.engine.warnings.length },
+    server: { ran: gate.server.ran, valid: gate.server.valid ?? null, layer: gate.server.layer ?? null, introduced: gate.serverBlocking, ...gate.server.ran ? {} : { why: gate.server.why } }
+  };
+  if (!gate.blocked) {
+    if (allow && (gate.engine.errors.length || gate.serverBlocking.length)) warnings.push(`VALIDATION BYPASSED (allowValidationFailure): ${gate.summary}`);
+    return { report };
+  }
+  return {
+    report,
+    refusal: withFailureData(
+      fail(
+        CODES.VALIDATION_FAILED,
+        `The workflow validation gate refused this write. Nothing was written.
+${gate.summary}`,
+        "Fix what it names. ENGINE findings are defects GHL itself lets through and the builder then shows wrong; GHL findings are its own validator refusing. Pass allowValidationFailure:true only if you are certain."
+      ),
+      { validation: report }
+    )
+  };
 }
 function fieldCapGate({ templates, scope, allowOverCap, warnings }) {
   const findings = checkFieldCaps(templates, { scope });
@@ -170428,7 +171135,7 @@ var TOOLS2 = [
     name: "validate_workflow",
     description: describe3(
       "validate_workflow",
-      "Ask GHL's OWN server validator whether a workflow would pass: the check the builder runs live, debounced, on every edit (POST /workflow/{loc}/{wid}/validate-workflows). Validates the STORED document, or the stored document with `templates` swapped in, so a planned edit can be checked BEFORE it is saved. Writes nothing (proof: live 2026-09-11 on the sandbox: the document read back byte-identical after five calls, and a dangling next, stripped attributes and an unbound flow trigger each came back valid:false naming the rule, the step and the message; risk: read-only). READ `layer`: a failing call reports ONE layer. A structural or an action failure was reported IN PLACE OF a trigger failure the same document also had, so fix what it names and call again until valid. valid:true is not exhaustive either: an unknown step type passed."
+      "Ask GHL's OWN server validator whether a workflow would pass: the check the builder runs live, debounced, on every edit (POST /workflow/{loc}/{wid}/validate-workflows). Validates the STORED document, or the stored document with `templates` swapped in, so a planned edit can be checked BEFORE it is saved. Writes nothing (proof: live 2026-09-11 on the sandbox: the document read back byte-identical after five calls, and a dangling next, stripped attributes and an unbound flow trigger each came back valid:false naming the rule, the step and the message; risk: read-only). READ `layer`: a failing call reports ONE layer. A structural or an action failure was reported IN PLACE OF a trigger failure the same document also had, so fix what it names and call again until valid. \u{1F534} valid:true IS NOT A SCHEMA CHECK (measured 2026-09-11). It CATCHES: a missing required field, a scalar of the wrong type, an invalid enum value, a referenced asset that exists nowhere (layer `asset`), every structural defect, and a corrupted step type on a native workflow. It does NOT catch: an invented attribute key, a wrong inner `attributes.type`, an extra top-level step key, a number out of range, or a corrupted step type on an AGENT flow. That class is what check_workflow's nativeShapeIssues and the engine's own guards are for; this tool does not replace them."
     ),
     inputSchema: schema({
       locationId: external_exports.string(),
@@ -171965,7 +172672,8 @@ var TOOLS2 = [
       skipCustomCodeTest: external_exports.boolean().default(false),
       // With spec.sampleWebhookPayload: POST the sample to each inbound_webhook trigger's receiving
       // URL and pin it as the reference so {{inboundWebhookRequest.*}} tags are real.
-      pinWebhookSample: external_exports.boolean().default(false)
+      pinWebhookSample: external_exports.boolean().default(false),
+      allowValidationFailure: external_exports.boolean().optional().describe("Write even though the workflow validation gate refused. The gate runs two oracles over the document: the engine half (defects GHL itself answers valid:true on) and GHL's live validator. Findings are still reported in full.")
     }),
     capabilities: [
       { method: "GET", path: "/opportunities/pipelines" },
@@ -171988,7 +172696,8 @@ var TOOLS2 = [
       { method: "GET", path: "/hooks/inbound-webhook-request/trigger/{triggerId}" },
       { method: "PUT", path: "/hooks/inbound-webhook-request/set-as-reference/{requestId}" },
       { method: "GET", path: "/hooks/inbound-webhook-request/reference/{triggerId}" },
-      { method: "GET", path: "/workflow/{loc}/{wid}" }
+      { method: "GET", path: "/workflow/{loc}/{wid}" },
+      { method: "POST", path: "/workflow/{loc}/{wid}/validate-workflows" }
     ],
     handler: async (args, deps) => guard(async () => {
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
@@ -171997,7 +172706,8 @@ var TOOLS2 = [
         skipWorkflowRules: args.skipWorkflowRules,
         strictCustomCode: args.strictCustomCode === true,
         skipCustomCodeTest: args.skipCustomCodeTest === true,
-        pinWebhookSample: args.pinWebhookSample === true
+        pinWebhookSample: args.pinWebhookSample === true,
+        allowValidationFailure: args.allowValidationFailure === true
       });
       const data2 = buildWorkflowData(report, args.locationId);
       if (!report.aborted) return ok(data2);
@@ -172065,7 +172775,8 @@ var TOOLS2 = [
       // templates array, so an edit authored against an old graph simply erases the newer one.
       expectedVersion: external_exports.number().int().positive().optional(),
       acknowledgeDrift: external_exports.boolean().optional(),
-      confirm: external_exports.boolean().default(false)
+      confirm: external_exports.boolean().default(false),
+      allowValidationFailure: external_exports.boolean().optional().describe("Write even though the workflow validation gate refused. The gate runs two oracles over the document: the engine half (defects GHL itself answers valid:true on) and GHL's live validator. Findings are still reported in full.")
     }),
     capabilities: [
       { method: "GET", path: "/locations/{loc}/customFields/search" },
@@ -172104,7 +172815,8 @@ var TOOLS2 = [
       { method: "GET", path: "/phone-system/numbers" },
       { method: "GET", path: "/phone-system/whatsapp/location/{loc}/phone-numbers" },
       { method: "GET", path: "/workflow/{loc}/instagram/connected-accounts" },
-      { method: "GET", path: "/workflow/{loc}/email/location-email-provider" }
+      { method: "GET", path: "/workflow/{loc}/email/location-email-provider" },
+      { method: "POST", path: "/workflow/{loc}/{wid}/validate-workflows" }
     ],
     handler: async (args, deps) => guard(async () => {
       if (!Array.isArray(args.ops) || args.ops.length === 0) {
@@ -172342,6 +173054,28 @@ var TOOLS2 = [
           warnings
         });
       }
+      let gateTriggers = existingTriggers;
+      if (!(triggerOps.length || rulesNeedTriggers(templates, ctx.catalog?.workflowRules))) {
+        const listed = await listWorkflowTriggers(gw, args.locationId, args.workflowId);
+        if (listed.response.ok) gateTriggers = listed.triggers;
+        else warnings.push(`VALIDATION: the trigger list could not be read (${listed.response.status}); GHL's trigger layer was not judged`);
+      }
+      const validation = await workflowValidationGate({
+        gw,
+        loc: args.locationId,
+        wid: args.workflowId,
+        fresh,
+        document: commitBody,
+        triggers: gateTriggers,
+        scope: editTouchedIds,
+        catalog: ctx.catalog,
+        assets: marketplaceRaw?.assets,
+        allow: args.allowValidationFailure === true,
+        warnings,
+        // The path's own guards own these checks and their hatches; the gate must not overrule them.
+        waive: /* @__PURE__ */ new Set([...args.allowOverCap === true ? ["FIELD_CAP"] : [], ...args.allowDanglingStepRefs === true ? ["STEP_REF"] : [], ...args.allowDanglingParentKeys === true ? ["PARENT_KEY"] : []])
+      });
+      if (validation.refusal) return validation.refusal;
       const neededTags = collectOpTags(args.ops);
       let tagsToCreate = [];
       if (neededTags.length) {
@@ -172366,6 +173100,7 @@ var TOOLS2 = [
       if (stickyPlan.length) preview.stickyNotes = stickyPlan.map(({ op, method, path, body }) => ({ op, method, path, color: body.color, chars: body.content?.length }));
       if (parkedOnDeletedSteps.length) preview.parkedOnDeletedSteps = parkedOnDeletedSteps;
       if (assetPreflight) preview.assetPreflight = assetPreflight;
+      preview.validation = validation.report;
       if (customCodeTests.length) preview.customCodeTests = customCodeTests;
       if (readiness.length) preview.readiness = readiness;
       if (schemaViolations.length) {
@@ -172661,7 +173396,8 @@ var TOOLS2 = [
       deadBranchAcknowledged: external_exports.boolean().optional(),
       allowDanglingParentKeys: external_exports.boolean().optional(),
       allowDanglingStepRefs: external_exports.boolean().optional(),
-      confirm: external_exports.boolean().default(false)
+      confirm: external_exports.boolean().default(false),
+      allowValidationFailure: external_exports.boolean().optional().describe("Write even though the workflow validation gate refused. The gate runs two oracles over the document: the engine half (defects GHL itself answers valid:true on) and GHL's live validator. Findings are still reported in full.")
     }),
     capabilities: [
       { method: "GET", path: "/workflow/{loc}/{wid}" },
@@ -172678,7 +173414,8 @@ var TOOLS2 = [
       { method: "GET", path: "/phone-system/numbers" },
       { method: "GET", path: "/phone-system/whatsapp/location/{loc}/phone-numbers" },
       { method: "GET", path: "/workflow/{loc}/instagram/connected-accounts" },
-      { method: "GET", path: "/workflow/{loc}/email/location-email-provider" }
+      { method: "GET", path: "/workflow/{loc}/email/location-email-provider" },
+      { method: "POST", path: "/workflow/{loc}/{wid}/validate-workflows" }
     ],
     handler: async (args, deps) => guard(async () => {
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
@@ -172817,7 +173554,29 @@ var TOOLS2 = [
         assetPreflight = assets.assetPreflight;
         readiness = await readinessFor({ gw, loc: args.locationId, templates: args.templates, touchedIds, catalog, warnings });
       }
+      let gateTriggers = existingTriggers;
+      if (!rulesNeedTriggers(args.templates, catalog?.workflowRules)) {
+        const listed = await listWorkflowTriggers(gw, args.locationId, args.workflowId);
+        if (!listed.response.ok) return fromHttp(listed.response.status, listed.response.json);
+        gateTriggers = listed.triggers;
+      }
+      const validation = await workflowValidationGate({
+        gw,
+        loc: args.locationId,
+        wid: args.workflowId,
+        fresh,
+        document: commitBody,
+        triggers: gateTriggers,
+        scope: touchedIds,
+        catalog,
+        assets: null,
+        allow: args.allowValidationFailure === true,
+        warnings,
+        waive: /* @__PURE__ */ new Set([...args.allowOverCap === true ? ["FIELD_CAP"] : [], ...args.allowDanglingStepRefs === true ? ["STEP_REF"] : [], ...args.allowDanglingParentKeys === true ? ["PARENT_KEY"] : []])
+      });
+      if (validation.refusal) return validation.refusal;
       const preview = {
+        validation: validation.report,
         diff,
         stepCount: { before: beforeTemplates.length, after: args.templates.length },
         version: fresh.version,
@@ -172985,7 +173744,8 @@ var TOOLS2 = [
     inputSchema: schema({
       locationId: external_exports.string(),
       workflowId: external_exports.string(),
-      confirm: external_exports.boolean().default(false)
+      confirm: external_exports.boolean().default(false),
+      allowValidationFailure: external_exports.boolean().optional().describe("Write even though the workflow validation gate refused. The gate runs two oracles over the document: the engine half (defects GHL itself answers valid:true on) and GHL's live validator. Findings are still reported in full.")
     }),
     capabilities: [
       { method: "GET", path: "/workflow/{loc}/{wid}" },
@@ -172993,7 +173753,8 @@ var TOOLS2 = [
       { method: "PUT", path: "/workflow/{loc}/{wid}" },
       // REPAIR (added 2026-08-28): one per-trigger status write for any trigger still
       // inactive after the document PUT's own cascade — see the handler's measurement note.
-      { method: "PUT", path: "/workflow/{loc}/trigger/{tid}" }
+      { method: "PUT", path: "/workflow/{loc}/trigger/{tid}" },
+      { method: "POST", path: "/workflow/{loc}/{wid}/validate-workflows" }
     ],
     handler: async (args, deps) => guard(async () => {
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
@@ -173002,7 +173763,24 @@ var TOOLS2 = [
       const current = currentResponse.json;
       const listed = await listWorkflowTriggers(gw, args.locationId, args.workflowId);
       if (!listed.response.ok) return fromHttp(listed.response.status, listed.response.json);
+      const publishWarnings = [];
+      const validation = await workflowValidationGate({
+        gw,
+        loc: args.locationId,
+        wid: args.workflowId,
+        fresh: null,
+        document: current,
+        triggers: listed.triggers,
+        scope: null,
+        catalog: loadCatalog(),
+        assets: null,
+        allow: args.allowValidationFailure === true,
+        warnings: publishWarnings
+      });
+      if (validation.refusal) return validation.refusal;
       const preview = {
+        validation: validation.report,
+        ...publishWarnings.length ? { warnings: publishWarnings } : {},
         current: { status: current?.status ?? null, version: current?.version ?? null },
         changes: {
           status: { from: current?.status ?? null, to: "published" },

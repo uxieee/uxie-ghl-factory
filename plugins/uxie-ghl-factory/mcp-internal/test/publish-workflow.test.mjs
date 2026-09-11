@@ -143,7 +143,9 @@ test('publish_workflow preview reports current status/version and performs reads
   assert.equal(result.data.preview.changes.triggers.total, 1);
   assert.equal(result.data.preview.changes.triggers.willActivate, 1);
   assert.deepEqual(result.data.preview.changes.strips, ['autoSaveSession', 'autoSaveSessionId']);
-  assert.equal(calls.some(({ method }) => ['POST', 'PUT', 'DELETE'].includes(method)), false);
+  // validate-workflows is a POST that WRITES NOTHING (proven 2026-09-11: the document read back
+  // byte-identical after twelve calls), the same class as validate-assets: a read for this contract.
+  assert.equal(calls.some(({ method, path }) => ['POST', 'PUT', 'DELETE'].includes(method) && !path.endsWith('/validate-workflows')), false);
 });
 
 test('confirmed publish re-GETs immediately before PUT, uses that version, strips sessions, and verifies', async () => {

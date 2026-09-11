@@ -735,6 +735,11 @@
     "path": "/workflow/{loc}/{wid}"
   },
   {
+    "tool": "build_workflow",
+    "method": "POST",
+    "path": "/workflow/{loc}/{wid}/validate-workflows"
+  },
+  {
     "tool": "edit_workflow",
     "method": "GET",
     "path": "/locations/{loc}/customFields/search"
@@ -865,6 +870,11 @@
     "path": "/workflow/{loc}/email/location-email-provider"
   },
   {
+    "tool": "edit_workflow",
+    "method": "POST",
+    "path": "/workflow/{loc}/{wid}/validate-workflows"
+  },
+  {
     "tool": "repair_workflow",
     "method": "GET",
     "path": "/workflow/{loc}/{wid}"
@@ -925,6 +935,11 @@
     "path": "/workflow/{loc}/email/location-email-provider"
   },
   {
+    "tool": "repair_workflow",
+    "method": "POST",
+    "path": "/workflow/{loc}/{wid}/validate-workflows"
+  },
+  {
     "tool": "unpublish_workflows",
     "method": "PUT",
     "path": "/workflow/{loc}/change-status"
@@ -953,6 +968,11 @@
     "tool": "publish_workflow",
     "method": "PUT",
     "path": "/workflow/{loc}/trigger/{tid}"
+  },
+  {
+    "tool": "publish_workflow",
+    "method": "POST",
+    "path": "/workflow/{loc}/{wid}/validate-workflows"
   },
   {
     "tool": "list_workflow_folders",

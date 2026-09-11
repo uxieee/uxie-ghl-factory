@@ -238,7 +238,7 @@ function normalizeAttrs(node, attrs, ctx) {
 // more (parseIR canonicalises the wire names), and whitelisting them was the ONLY way a NAME could
 // reach the wire — the comment above claimed the resolver keeps the name beside the id, but on
 // this path the resolver never ran at all (F5-09 / T1-1).
-const ENGINE_ATTR_KEYS = new Set(['type', '__customInputs__', '__customInputFields__', '_template',
+export const ENGINE_ATTR_KEYS = new Set(['type', '__customInputs__', '__customInputFields__', '_template',
   'user', 'calendar', 'agent', 'employee', 'assignedEmployeeId']);
 
 // An invented attribute key (e.g. `message` instead of `body` on sms) saves fine

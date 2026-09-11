@@ -91,6 +91,12 @@ test('a purely native edit stays network-identical — no marketplace reads at a
     // custom VALUES complete the {{custom_values.*}} merge-tag check. Neither is a marketplace read.
     'GET /locations/LOC/customValues',
     'GET /workflow/LOC/WID?includeScheduledPauseInfo=true',
+    // The validation gate: the workflow's triggers (GHL judges them only from newTriggers), then GHL's
+    // live validator on the stored document (the baseline) and on the document this edit would write.
+    // All three write nothing; only a finding the edit INTRODUCES blocks.
+    'GET /workflow/LOC/trigger?workflowId=WID',
+    'POST /workflow/LOC/WID/validate-workflows',
+    'POST /workflow/LOC/WID/validate-workflows',
     'PUT /workflow/LOC/WID',
     'GET /workflow/LOC/WID?includeScheduledPauseInfo=true',
   ]);
@@ -195,7 +201,7 @@ test('the preview names the retype and writes nothing without confirm', async ()
   assert.deepEqual(result.data.preview.diff.modifiedSteps, ['s1']);
   assert.deepEqual(result.data.preview.idsAdded, []);
   assert.deepEqual(result.data.preview.idsRemoved, []);
-  // validate-assets is a stateless POST (payload in, verdict out — the asset pre-flight ported
-  // from the build path); the guard here is that the preview MUTATES nothing.
-  assert.equal(calls.some(({ method, path }) => method !== 'GET' && !path.endsWith('/validate-assets')), false);
+  // validate-assets and validate-workflows are stateless POSTs (payload in, verdict out; the second
+  // proven to write nothing on 2026-09-11); the guard here is that the preview MUTATES nothing.
+  assert.equal(calls.some(({ method, path }) => method !== 'GET' && !path.endsWith('/validate-assets') && !path.endsWith('/validate-workflows')), false);
 });

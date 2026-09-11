@@ -23004,6 +23004,10 @@
       "kind": "write",
       "reach": "source-only",
       "coveredBy": [
+        "build_workflow",
+        "edit_workflow",
+        "publish_workflow",
+        "repair_workflow",
         "validate_workflow"
       ],
       "rawCallable": true,

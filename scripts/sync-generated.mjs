@@ -106,8 +106,10 @@ if (hasKnowledge) {
   console.log('sync: knowledge/ not present — type-cards and source left as shipped');
 }
 run('skill-types ← type-cards.json copied into ghl-system-conventions + index rendered', 'node', [join(REPO, 'scripts/build-skill-types.mjs')]);
-run('catalogue   ← source + overlay + capability manifest', 'node', [join(MCP, 'scripts/build-endpoint-catalog.mjs')], MCP);
+// Manifests BEFORE the catalogue: the catalogue's coveredBy reads the capability manifest, so the
+// old order needed two passes whenever a tool gained a capability (a new tool read stale on the first).
 run('manifests   ← TOOLS + audit descriptors', 'npm', ['run', '-s', 'manifest'], MCP);
+run('catalogue   ← source + overlay + capability manifest', 'node', [join(MCP, 'scripts/build-endpoint-catalog.mjs')], MCP);
 run('dist        ← everything above, embedded', 'npm', ['run', '-s', 'build'], MCP);
 
 const changed = GENERATED.filter((f) => digest(f) !== before[f]);

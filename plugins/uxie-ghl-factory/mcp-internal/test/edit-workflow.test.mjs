@@ -212,7 +212,9 @@ test('edit_workflow preview applies ops but performs reads only', async () => {
   assert.deepEqual(result.data.preview.idsAdded, []);
   assert.deepEqual(result.data.preview.idsRemoved, ['s2']);
   assert.deepEqual(result.data.preview.diff.deletedSteps, ['s2']);
-  assert.equal(calls.some(({ method }) => ['POST', 'PUT', 'DELETE'].includes(method)), false,
+  // validate-workflows is a POST that WRITES NOTHING (proven 2026-09-11: the document read back
+  // byte-identical after twelve calls), the same class as validate-assets: a read for this contract.
+  assert.equal(calls.some(({ method, path }) => ['POST', 'PUT', 'DELETE'].includes(method) && !path.endsWith('/validate-workflows')), false,
     'missing-confirm preview must never write, including tag creation');
 });
 
@@ -266,7 +268,9 @@ test('edit_workflow refuses to guess attachTailTo for a mid-chain multi-branch c
   assert.equal(result.ok, false);
   assert.equal(result.code, 'ENGINE_ABORT');
   assert.match(result.detail, /attachTailTo/);
-  assert.equal(calls.some(({ method }) => ['POST', 'PUT', 'DELETE'].includes(method)), false);
+  // validate-workflows is a POST that WRITES NOTHING (proven 2026-09-11: the document read back
+  // byte-identical after twelve calls), the same class as validate-assets: a read for this contract.
+  assert.equal(calls.some(({ method, path }) => ['POST', 'PUT', 'DELETE'].includes(method) && !path.endsWith('/validate-workflows')), false);
 });
 
 // Split 2026-08-28 from one parametrized test that asserted `active:false` and
@@ -714,7 +718,7 @@ test('trigger preview on a DRAFT workflow tells the caller that a confirmed publ
   assert.match(result.data.preview.publishInstruction, /publish_workflow.*confirm:true/i);
   // validate-assets is a stateless POST (the asset pre-flight ported from the build path);
   // the guard here is that the preview MUTATES nothing.
-  assert.equal(calls.some(({ method, path }) => ['POST', 'PUT', 'DELETE'].includes(method) && !path.endsWith('/validate-assets')), false);
+  assert.equal(calls.some(({ method, path }) => ['POST', 'PUT', 'DELETE'].includes(method) && !path.endsWith('/validate-assets') && !path.endsWith('/validate-workflows')), false);
 });
 
 test('trigger preview on an ALREADY-PUBLISHED workflow tells the caller no separate publish is needed — the trigger will land active', async () => {
@@ -734,7 +738,7 @@ test('trigger preview on an ALREADY-PUBLISHED workflow tells the caller no separ
   assert.equal(result.data.preview.requiresPublish, false);
   assert.equal(result.data.preview.publishInstruction, null);
   // Same stateless-POST exemption as the draft-workflow preview test above.
-  assert.equal(calls.some(({ method, path }) => ['POST', 'PUT', 'DELETE'].includes(method) && !path.endsWith('/validate-assets')), false);
+  assert.equal(calls.some(({ method, path }) => ['POST', 'PUT', 'DELETE'].includes(method) && !path.endsWith('/validate-assets') && !path.endsWith('/validate-workflows')), false);
 });
 
 test('failed custom-field lookup stays unknown so engine passthrough remains available', async () => {

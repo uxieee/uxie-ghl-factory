@@ -33,6 +33,7 @@ import { tmpdir } from 'node:os';
 import { makeGatewayFactory, TOOLS } from '../../../mcp-internal/core/tools.mjs';
 import { DEFAULT_TOKEN_FILE } from '../../../mcp-internal/core/auth.mjs';
 import { makeRenewer, autoRenewEnabled } from '../../../mcp-internal/core/token-renewal.mjs';
+import { liveValidate } from '../engine/live-validate.mjs';
 
 const LOCATION = process.env.GHL_LOCATION || process.env.GHL_LOC;
 if (!LOCATION) {
@@ -212,6 +213,78 @@ if (fwid) {
     const after = JSON.stringify((await call('export_workflow', { workflowId: fwid })).data ?? null);
     check(before === after, 'validate_workflow wrote nothing: the export reads back identical after both calls');
   }
+
+// ── 2c. the WORKFLOW VALIDATION GATE — both oracles, on every write path ─────────────────────
+// GHL's own validator answers valid:true on documents that are wrong (an invented attribute key, a
+// wrong inner attributes.type, an extra top-level key...), so the gate runs the engine's checks as
+// well as GHL's, over the bytes each write would send. These assertions execute it against the real
+// account: a real build passes both halves, an edit GHL would accept is refused by the engine half
+// with nothing written, a pre-existing server finding does not freeze an unrelated edit, and publish
+// refuses a workflow GHL itself calls invalid.
+console.log('\nworkflow validation gate');
+const gateReport = built.data?.validation;
+check(gateReport?.server?.ran === true && gateReport?.server?.valid === true,
+  'BUILD: section 1\'s real build went through GHL\'s validator against the empty draft, and passed',
+  JSON.stringify(gateReport?.server ?? null).slice(0, 180));
+check(Array.isArray(gateReport?.engine?.errors) && gateReport.engine.errors.length === 0,
+  'BUILD: and through the engine half, with no finding', JSON.stringify(gateReport?.engine ?? null).slice(0, 160));
+if (wid) {
+  const before = (await call('export_workflow', { workflowId: wid })).data?.workflow;
+  const tpls = before?.workflowData?.templates ?? [];
+  const hook = tpls.find((t) => t.type === 'custom_webhook');
+  const op = [{ op: 'modifyStep', stepId: hook?.id, attrPatch: { inventedGateKey: 'TEST-CONF' } }];
+  // The control first: GHL's own validator, on exactly the document this edit would write. From the
+  // RAW stored document, not the export: export_workflow scrubs a webhook's authorization object to the
+  // string "<redacted>", and GHL rightly refuses THAT ("expected object, received string") whatever
+  // else the document carries — the first run of this control measured the scrub, not the key.
+  const rawDoc = before?.fileUrl ? await (await fetch(before.fileUrl)).json() : null;
+  const rawTpls = rawDoc?.workflowData?.templates ?? rawDoc?.templates ?? [];
+  check(rawTpls.length === tpls.length, 'CONTROL: the raw stored document was read, unscrubbed', `raw ${rawTpls.length} vs export ${tpls.length}`);
+  const edited = rawTpls.map((t) => (t.id === hook?.id ? { ...t, attributes: { ...t.attributes, inventedGateKey: 'TEST-CONF' } } : t));
+  // Straight through liveValidate — the call the gate itself makes — because the raw webhook step
+  // carries an `authorization` object, and validate_workflow's tool-argument credential guard refuses
+  // that key by name whatever its value ({type:"NONE", data:null} here). That guard is doing its job;
+  // it is simply not what this control is about.
+  const gwc = deps.makeGw({ loc: LOCATION, state });
+  const ghlOnly = await liveValidate((m, p, b) => gwc.call(m, p, b), LOCATION, wid, { document: rawDoc, templates: edited, triggers: [] });
+  check(ghlOnly.ran === true && ghlOnly.valid === true,
+    'CONTROL: GHL\'s validator calls a document with an invented attribute key VALID — the hole the engine half closes',
+    JSON.stringify(ghlOnly).slice(0, 160));
+  const refused = await call('edit_workflow', { workflowId: wid, confirm: true, acknowledgeDrift: true, ops: op });
+  check(refused.ok === false && refused.code === 'VALIDATION_FAILED' && /ATTRIBUTE_KEY/.test(String(refused.detail)) && /inventedGateKey/.test(String(refused.detail)),
+    'EDIT: the same edit is REFUSED by the engine half, naming the key', `${refused.code} ${String(refused.detail).slice(0, 160)}`);
+  const after = (await call('export_workflow', { workflowId: wid })).data?.workflow;
+  check(after?.version === before?.version && !JSON.stringify(after?.workflowData ?? {}).includes('inventedGateKey'),
+    'EDIT: and nothing was written — the version is unmoved and the key is nowhere in the stored document',
+    `version ${before?.version} -> ${after?.version}`);
+  const hatched = await call('edit_workflow', { workflowId: wid, acknowledgeDrift: true, allowValidationFailure: true, ops: op });
+  check(hatched.code === 'CONFIRM_REQUIRED' && JSON.stringify(hatched.data ?? {}).includes('VALIDATION BYPASSED'),
+    'EDIT: allowValidationFailure lets it through to the confirm step, and still reports what it bypassed (preview only — nothing written)',
+    `${hatched.code}`);
+}
+if (fwid) {
+  const flowTpls = (await call('export_workflow', { workflowId: fwid })).data?.workflow?.workflowData?.templates ?? [];
+  const step = flowTpls[0];
+  const rename = await call('edit_workflow', { workflowId: fwid, acknowledgeDrift: true,
+    ops: [{ op: 'renameStep', stepId: step?.id, name: `${step?.name ?? 'step'} (gate probe)` }] });
+  // Not vacuous: the server must actually have SEEN the flow's unbound trigger ("Bot is required") on the
+  // planned document — which it can only do if the edit sent the workflow's triggers. The first run of
+  // this assertion passed while the edit sent none, so the trigger layer was skipped and there was no
+  // finding to be differential about.
+  const seen = rename.data?.preview?.validation?.server;
+  check(seen?.ran === true && seen?.valid === false && seen?.layer === 'trigger',
+    'DIFFERENTIAL: the edit sent the flow\'s triggers, and GHL saw the unbound entry on the planned document',
+    JSON.stringify(seen ?? null).slice(0, 160));
+  check(rename.code === 'CONFIRM_REQUIRED' && (seen?.introduced ?? []).length === 0,
+    'DIFFERENTIAL: and the edit is NOT refused for it — the stored document already had it',
+    `${rename.code} ${String(rename.detail ?? '').slice(0, 120)}`);
+  check(JSON.stringify(rename.data ?? {}).includes('already had'),
+    'DIFFERENTIAL: and it says so, rather than hiding the pre-existing finding');
+  const pub = await call('publish_workflow', { workflowId: fwid });
+  check(pub.ok === false && pub.code === 'VALIDATION_FAILED' && /Bot is required/.test(String(pub.detail)),
+    'PUBLISH: the preview is refused — GHL itself calls this flow invalid, and publishing is when every finding counts',
+    `${pub.code} ${String(pub.detail).slice(0, 140)}`);
+}
 
 // ── 3. repair_workflow ──────────────────────────────────────────────────────────────────────
 // The riskiest tool in the plugin and, until tonight, the one with zero live proof: 12 endpoints,
