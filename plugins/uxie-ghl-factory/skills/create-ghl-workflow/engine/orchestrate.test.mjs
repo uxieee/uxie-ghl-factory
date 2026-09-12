@@ -730,3 +730,37 @@ test('no _placeholderId reaches the wire', async () => {
   assert.ok(posted.length);
   for (const p of posted) assert.equal('_placeholderId' in (p.body ?? {}), false, 'engine-only key leaked to the wire');
 });
+
+// Reported live 2026-09-12: a form_submission trigger authored to scope to ONE form was posted with
+// its filters missing, and the build answered `triggerIntegrity: {mismatch:false, warning:"every
+// authored trigger was posted and read back."}`. The count verification was true and useless — the
+// trigger EXISTED, it just matched every form in the account. A verifier that reads back the row and
+// never compares it to what was sent is the instrument measuring the wrong thing.
+const formScopedIR = () => ({
+  name: 'Form W',
+  triggers: [{ ref: 't', type: 'form_submission', name: 'Form Submitted',
+    filters: [{ field: 'form.id', operator: 'is-any-of', value: ['FORM_1'] }] }],
+  graph: [{ ref: 'a', kind: 'action', type: 'add_contact_tag', name: 'Tag', attributes: { tags: ['x'] } }],
+});
+const triggerRoutes = (storedConditions) => [
+  [(m, p) => m === 'POST' && p === '/workflow/LOC/trigger', { ok: true, status: 201, json: { id: 'trg1' } }],
+  [(m, p) => m === 'GET' && p === '/workflow/LOC/trigger?workflowId=WID_1',
+    { ok: true, status: 200, json: { triggers: [{ id: 'trg1', type: 'form_submission', name: 'Form Submitted', conditions: storedConditions }] } }],
+];
+
+test('a trigger whose FILTERS did not persist is reported — an unscoped trigger is not a clean build', async () => {
+  const { gw } = gwWith(triggerRoutes([]), mockGateway({ tags: ['x'] }));
+  const report = await orchestrate(formScopedIR(), gw);
+  assert.equal(report.aborted, null, JSON.stringify(report.aborted));
+  assert.equal(report.triggers.payloadMismatches.length, 1, JSON.stringify(report.triggers));
+  assert.deepEqual(report.triggers.payloadMismatches[0].missing, ['form.id']);
+  assert.ok(report.warnings.some((w) => /TRIGGER FILTERS/.test(w) && /form\.id/.test(w)), JSON.stringify(report.warnings));
+});
+
+test('a trigger read back with its filters is clean, and GHL seeding EXTRA conditions is not a mismatch', async () => {
+  const stored = [{ field: 'form.id', operator: 'is-any-of', value: ['FORM_1'] }, { field: 'seededByGhl', operator: 'is' }];
+  const { gw } = gwWith(triggerRoutes(stored), mockGateway({ tags: ['x'] }));
+  const report = await orchestrate(formScopedIR(), gw);
+  assert.deepEqual(report.triggers.payloadMismatches, []);
+  assert.ok(!report.warnings.some((w) => /TRIGGER FILTERS/.test(w)), JSON.stringify(report.warnings));
+});

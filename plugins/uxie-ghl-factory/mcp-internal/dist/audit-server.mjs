@@ -94979,10 +94979,37 @@ function walkNodes(nodes, visit) {
     for (const k of SCOPE_KEYS) walkNodes(n[k], visit);
   }
 }
+var KNOWN_TRIGGER_KEYS = /* @__PURE__ */ new Set([
+  "ref",
+  "type",
+  "name",
+  "filters",
+  "active",
+  "marketplace",
+  "masterType",
+  "target",
+  "targetActionId",
+  "convTriggerBotId"
+]);
+function checkTriggerKeys(triggers) {
+  for (const t of triggers ?? []) {
+    if (!t || typeof t !== "object") throw new IRError("TRIGGER_KEY", "each trigger must be an object");
+    const bad = Object.keys(t).filter((k) => !KNOWN_TRIGGER_KEYS.has(k));
+    if (!bad.length) continue;
+    const hint = bad.includes("conditions") ? " Filter rows are authored as `filters`; `conditions` is how GHL STORES them. Nothing here reads `conditions`, so the trigger would be posted with NO filters and fire on everything." : "";
+    throw new IRError(
+      "TRIGGER_KEY",
+      `trigger '${t.name ?? t.ref ?? t.type ?? "?"}' has unknown key(s) [${bad.join(", ")}] \u2014 the pipeline never reads these, so they would be silently discarded and the build would report success anyway.${hint} Known trigger keys: ${[...KNOWN_TRIGGER_KEYS].join(", ")}.`
+    );
+  }
+}
 function parseIR(ir, { externalRefs } = {}) {
-  if (!ir || typeof ir !== "object" || !Array.isArray(ir.triggers) || !Array.isArray(ir.graph))
-    throw new IRError("SCHEMA", "IR must have triggers[] and graph[]");
+  if (!ir || typeof ir !== "object" || !Array.isArray(ir.triggers) || !Array.isArray(ir.graph)) {
+    const alias = ir && typeof ir === "object" && !Array.isArray(ir.graph) && Array.isArray(ir.steps) ? " The step list was passed as `steps`; this IR spells it `graph`." : "";
+    throw new IRError("SCHEMA", `IR must have triggers[] and graph[].${alias}`);
+  }
   checkTopKeys(ir);
+  checkTriggerKeys(ir.triggers);
   const refs = collectRefs(ir);
   const seen = /* @__PURE__ */ new Set();
   for (const r of refs) {
@@ -164784,7 +164811,14 @@ ${offline.summary}`;
       const id = r.json?.id ?? r.json?._id ?? null;
       const honoured = placeholderId != null && id === placeholderId;
       if (placeholderId != null && !honoured) triggerRefRepair.mismatches.push({ placeholderId, id });
-      report.triggers.ids.push({ type: tb.type, name: tb.name ?? null, id, predetermined: placeholderId ?? null, honoured });
+      report.triggers.ids.push({
+        type: tb.type,
+        name: tb.name ?? null,
+        id,
+        predetermined: placeholderId ?? null,
+        honoured,
+        sentConditionFields: (tb.conditions ?? []).map((c2) => c2?.field).filter(Boolean)
+      });
     } else report.triggers.failed.push({
       type: tb.type,
       name: tb.name,
@@ -164825,6 +164859,17 @@ ${offline.summary}`;
     if (report.triggers.persisted === null) report.warnings.push("triggers: the post-build trigger re-list failed; the persisted count is UNKNOWN");
   } else {
     report.triggers.persisted = 0;
+  }
+  report.triggers.payloadMismatches = [];
+  for (const posted of report.triggers.ids) {
+    if (!posted.id || !posted.sentConditionFields?.length) continue;
+    const row = persistedTriggers.find((r) => (r?.id ?? r?._id) === posted.id);
+    if (!row) continue;
+    const stored = (row.conditions ?? []).map((c2) => c2?.field).filter(Boolean);
+    const missing = posted.sentConditionFields.filter((f) => !stored.includes(f));
+    if (!missing.length) continue;
+    report.triggers.payloadMismatches.push({ id: posted.id, type: posted.type, name: posted.name, missing, stored });
+    report.warnings.push(`\u{1F534} TRIGGER FILTERS NOT STORED: '${posted.name ?? posted.type}' was posted with [${missing.join(", ")}] and GHL stored [${stored.join(", ") || "no conditions"}]. The trigger EXISTS and is UNSCOPED \u2014 it fires on everything of its type. Re-apply the filters with edit_workflow modifyTrigger before using this workflow.`);
   }
   if (report.triggers.failed.length)
     report.warnings.push(`\u{1F534} TRIGGERS FAILED: ${report.triggers.failed.length} of ${report.triggers.authored} trigger POST(s) failed after retries \u2014 the draft has NO working trigger for each one. Fix before calling this done.`);
@@ -170240,7 +170285,8 @@ function buildWorkflowData(report, locationId) {
   const mismatch = new Set(counts).size !== 1;
   const trg = report.triggers ?? {};
   const failed = trg.failed?.length ?? 0;
-  const triggerMismatch = failed > 0 || Number.isInteger(trg.persisted) && Number.isInteger(trg.authored) && trg.persisted !== trg.authored;
+  const payloadMismatches = trg.payloadMismatches ?? [];
+  const triggerMismatch = failed > 0 || payloadMismatches.length > 0 || Number.isInteger(trg.persisted) && Number.isInteger(trg.authored) && trg.persisted !== trg.authored;
   return ok({
     ...report,
     countIntegrity: {
@@ -170256,7 +170302,8 @@ function buildWorkflowData(report, locationId) {
       failed,
       persisted: trg.persisted ?? null,
       mismatch: triggerMismatch,
-      warning: triggerMismatch ? `LOUD TRIGGER MISMATCH: authored=${trg.authored}, posted=${trg.posted}, failed=${failed}, persisted=${trg.persisted}. The draft has NO working trigger for each failed POST \u2014 fix before calling this done.` : "every authored trigger was posted and read back."
+      payloadMismatches,
+      warning: triggerMismatch ? `LOUD TRIGGER MISMATCH: authored=${trg.authored}, posted=${trg.posted}, failed=${failed}, persisted=${trg.persisted}${payloadMismatches.length ? `, and ${payloadMismatches.length} trigger(s) stored WITHOUT the filters that scope them (${payloadMismatches.map((m) => `${m.name ?? m.type}: ${m.missing.join(", ")}`).join("; ")}) \u2014 those fire on everything of their type` : ""}. The draft has NO working trigger for each failed POST \u2014 fix before calling this done.` : "every authored trigger was posted, read back, and stored carrying the filters it was authored with."
     },
     partial: mismatch || triggerMismatch,
     builderUrl: report.wid ? `https://app.gohighlevel.com/v2/location/${encodeURIComponent(locationId)}/automation/workflow/${encodeURIComponent(report.wid)}` : null,

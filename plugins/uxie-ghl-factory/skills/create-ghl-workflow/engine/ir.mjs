@@ -276,10 +276,44 @@ export function walkNodes(nodes, visit) {
   }
 }
 
+// Every key buildTrigger (compiler.mjs) actually reads, plus `active`, which parseIR defaults.
+const KNOWN_TRIGGER_KEYS = new Set(['ref', 'type', 'name', 'filters', 'active', 'marketplace',
+  'masterType', 'target', 'targetActionId', 'convTriggerBotId']);
+
+/**
+ * A trigger's filter rows are authored as `filters`. GHL STORES them as `conditions`, so anyone
+ * reading a stored trigger back reaches for `conditions` — and the rows vanish: buildTrigger reads
+ * `t.filters`, nothing reads `conditions`, and the trigger is posted UNSCOPED.
+ *
+ * Live 2026-09-12: a `form_submission` trigger meant for ONE form went live firing on every form in
+ * the account, while the build reported "every authored trigger was posted and read back". Same
+ * class as TOP_KEY and NODE_KEY, one level over.
+ */
+function checkTriggerKeys(triggers) {
+  for (const t of triggers ?? []) {
+    if (!t || typeof t !== 'object') throw new IRError('TRIGGER_KEY', 'each trigger must be an object');
+    const bad = Object.keys(t).filter((k) => !KNOWN_TRIGGER_KEYS.has(k));
+    if (!bad.length) continue;
+    const hint = bad.includes('conditions')
+      ? ' Filter rows are authored as `filters`; `conditions` is how GHL STORES them. Nothing here reads'
+        + ' `conditions`, so the trigger would be posted with NO filters and fire on everything.'
+      : '';
+    throw new IRError('TRIGGER_KEY',
+      `trigger '${t.name ?? t.ref ?? t.type ?? '?'}' has unknown key(s) [${bad.join(', ')}] — the pipeline never `
+      + `reads these, so they would be silently discarded and the build would report success anyway.${hint} `
+      + `Known trigger keys: ${[...KNOWN_TRIGGER_KEYS].join(', ')}.`);
+  }
+}
+
 export function parseIR(ir, { externalRefs } = {}) {
-  if (!ir || typeof ir !== 'object' || !Array.isArray(ir.triggers) || !Array.isArray(ir.graph))
-    throw new IRError('SCHEMA', 'IR must have triggers[] and graph[]');
+  if (!ir || typeof ir !== 'object' || !Array.isArray(ir.triggers) || !Array.isArray(ir.graph)) {
+    // Name what WAS sent, not only what is missing: `steps` is the first thing a caller reaches for.
+    const alias = ir && typeof ir === 'object' && !Array.isArray(ir.graph) && Array.isArray(ir.steps)
+      ? ' The step list was passed as `steps`; this IR spells it `graph`.' : '';
+    throw new IRError('SCHEMA', `IR must have triggers[] and graph[].${alias}`);
+  }
   checkTopKeys(ir);
+  checkTriggerKeys(ir.triggers);
   // triggers: [] is legal — trigger-less workflows are enrolled from another
   // workflow via add_to_workflow (the builder's "empty trigger tab" shape).
   // The build path simply has no trigger POSTs to make.

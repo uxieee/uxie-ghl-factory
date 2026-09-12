@@ -157,3 +157,38 @@ test('every top-level key the pipeline actually reads still parses', () => {
   });
   assert.ok(parseIR(ir));
 });
+
+// Reported 2026-09-12 from a live build: a trigger authored with GHL's OWN stored spelling —
+// `conditions: [{field:'form.id', operator:'is-any-of', value:[…]}]` — compiled to a trigger with
+// NO filters. buildTrigger reads `t.filters`; nothing read `conditions`, nothing refused it, and the
+// build reported "every authored trigger was posted and read back". The workflow went live
+// UNSCOPED: a form_submission trigger that fires on every form in the location. Same class as the
+// TOP_KEY and NODE_KEY guards, one level over.
+test('a trigger authored with `conditions` is refused, and told the IR spells it `filters`', () => {
+  const ir = validIR();
+  ir.triggers = [{ ref: 't1', type: 'form_submission', name: 'T',
+    conditions: [{ field: 'form.id', operator: 'is-any-of', value: ['abc'] }] }];
+  assert.throws(() => parseIR(ir), (e) => e.code === 'TRIGGER_KEY' && /conditions/.test(e.message) && /filters/.test(e.message));
+});
+
+test('an unknown trigger key is refused by name (TRIGGER_KEY), never silently discarded', () => {
+  const ir = validIR();
+  ir.triggers = [{ ref: 't1', type: 'contact_tag', name: 'T', filters: [], fitlers: [{ field: 'x' }] }];
+  assert.throws(() => parseIR(ir), (e) => e.code === 'TRIGGER_KEY' && /fitlers/.test(e.message));
+});
+
+test('every trigger key the pipeline actually reads still parses', () => {
+  const ir = validIR();
+  ir.triggers = [{ ref: 't1', type: 'contact_tag', name: 'T', filters: [], active: true,
+    marketplace: false, masterType: 'highlevel', target: 'a', targetActionId: null, convTriggerBotId: null }];
+  assert.ok(parseIR(ir));
+});
+
+// The same live build's first call: `steps: [...]` answered "IR must have triggers[] and graph[]",
+// which names what is missing but not what was sent instead.
+test('`steps` instead of `graph` is named, not just reported as a missing graph', () => {
+  const ir = validIR();
+  ir.steps = ir.graph;
+  delete ir.graph;
+  assert.throws(() => parseIR(ir), (e) => /steps/.test(e.message) && /graph/.test(e.message));
+});

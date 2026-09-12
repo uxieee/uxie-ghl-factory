@@ -514,7 +514,10 @@ export async function orchestrate(ir, gw, opts = {}) {
       // placeholder that appears in a condition has to be rewritten to the real id below.
       const honoured = placeholderId != null && id === placeholderId;
       if (placeholderId != null && !honoured) triggerRefRepair.mismatches.push({ placeholderId, id });
-      report.triggers.ids.push({ type: tb.type, name: tb.name ?? null, id, predetermined: placeholderId ?? null, honoured });
+      // Keep the filter FIELDS this POST actually carried: the re-list below compares them against
+      // what GHL stored, so a trigger that persisted UNSCOPED cannot read back as a clean build.
+      report.triggers.ids.push({ type: tb.type, name: tb.name ?? null, id, predetermined: placeholderId ?? null, honoured,
+        sentConditionFields: (tb.conditions ?? []).map((c) => c?.field).filter(Boolean) });
     } else report.triggers.failed.push({ type: tb.type, name: tb.name, status: r?.status,
       error: JSON.stringify(r?.json ?? '').slice(0, 160) });
   }
@@ -569,6 +572,27 @@ export async function orchestrate(ir, gw, opts = {}) {
   } else {
     report.triggers.persisted = 0;
   }
+  // PAYLOAD INTEGRITY, not just existence. `persisted` counts rows; it never asked whether the row
+  // says what was authored. Live 2026-09-12: a form_submission trigger authored to scope to one form
+  // was stored with `conditions: []` and the build reported every trigger posted and read back — the
+  // workflow was live and fired on EVERY form in the account. Only the dangerous direction is a
+  // finding: a field that was SENT and is not stored. GHL seeds conditions of its own
+  // (TriggerMain.addMandatoryFilters), so extra stored rows are expected and never a mismatch.
+  report.triggers.payloadMismatches = [];
+  for (const posted of report.triggers.ids) {
+    if (!posted.id || !posted.sentConditionFields?.length) continue;
+    const row = persistedTriggers.find((r) => (r?.id ?? r?._id) === posted.id);
+    if (!row) continue;                       // the count check above already owns a missing row
+    const stored = (row.conditions ?? []).map((c) => c?.field).filter(Boolean);
+    const missing = posted.sentConditionFields.filter((f) => !stored.includes(f));
+    if (!missing.length) continue;
+    report.triggers.payloadMismatches.push({ id: posted.id, type: posted.type, name: posted.name, missing, stored });
+    report.warnings.push(`🔴 TRIGGER FILTERS NOT STORED: '${posted.name ?? posted.type}' was posted with `
+      + `[${missing.join(', ')}] and GHL stored [${stored.join(', ') || 'no conditions'}]. The trigger EXISTS and is `
+      + `UNSCOPED — it fires on everything of its type. Re-apply the filters with edit_workflow modifyTrigger `
+      + `before using this workflow.`);
+  }
+
   if (report.triggers.failed.length)
     report.warnings.push(`🔴 TRIGGERS FAILED: ${report.triggers.failed.length} of ${report.triggers.authored} trigger POST(s) failed after retries — the draft has NO working trigger for each one. Fix before calling this done.`);
 

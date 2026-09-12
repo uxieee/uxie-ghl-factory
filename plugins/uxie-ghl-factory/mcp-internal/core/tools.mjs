@@ -570,7 +570,10 @@ function buildWorkflowData(report, locationId) {
   const mismatch = new Set(counts).size !== 1;
   const trg = report.triggers ?? {};
   const failed = trg.failed?.length ?? 0;
-  const triggerMismatch = failed > 0
+  // Payload, not just existence: a trigger can be posted, read back, counted — and stored with none
+  // of the filters that scope it (live 2026-09-12). orchestrate records those; they are a mismatch.
+  const payloadMismatches = trg.payloadMismatches ?? [];
+  const triggerMismatch = failed > 0 || payloadMismatches.length > 0
     || (Number.isInteger(trg.persisted) && Number.isInteger(trg.authored) && trg.persisted !== trg.authored);
   return ok({
     ...report,
@@ -589,9 +592,12 @@ function buildWorkflowData(report, locationId) {
       failed,
       persisted: trg.persisted ?? null,
       mismatch: triggerMismatch,
+      payloadMismatches,
       warning: triggerMismatch
-        ? `LOUD TRIGGER MISMATCH: authored=${trg.authored}, posted=${trg.posted}, failed=${failed}, persisted=${trg.persisted}. The draft has NO working trigger for each failed POST — fix before calling this done.`
-        : 'every authored trigger was posted and read back.',
+        ? `LOUD TRIGGER MISMATCH: authored=${trg.authored}, posted=${trg.posted}, failed=${failed}, persisted=${trg.persisted}`
+          + `${payloadMismatches.length ? `, and ${payloadMismatches.length} trigger(s) stored WITHOUT the filters that scope them (${payloadMismatches.map((m) => `${m.name ?? m.type}: ${m.missing.join(', ')}`).join('; ')}) — those fire on everything of their type` : ''}.`
+          + ` The draft has NO working trigger for each failed POST — fix before calling this done.`
+        : 'every authored trigger was posted, read back, and stored carrying the filters it was authored with.',
     },
     partial: mismatch || triggerMismatch,
     builderUrl: report.wid
