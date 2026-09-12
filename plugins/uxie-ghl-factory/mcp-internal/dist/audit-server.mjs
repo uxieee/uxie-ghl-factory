@@ -159723,8 +159723,9 @@ function emailAttributes(node, ctx) {
     attachments: a.attachments ?? [],
     fieldDefaults: a.fieldDefaults ?? { subject: {} }
   };
-  if (a.template_id) {
-    base.template_id = a.template_id;
+  const authoredTemplate = a.template_id === "none" ? "" : a.template_id;
+  if (authoredTemplate) {
+    base.template_id = authoredTemplate;
     base.templatesource = a.templatesource ?? "email-builder";
   } else {
     base.html = a.html ?? "";
@@ -173347,10 +173348,12 @@ var TOOLS2 = [
   },
   {
     name: "build_workflow",
-    description: describe3("build_workflow", "Build and verify a new workflow draft through the canonical dependency-aware orchestrator. This tool never publishes. A trigger POST that fails after retries is reported in data.triggerIntegrity and flips data.partial to true \u2014 the draft then has no working trigger for it."),
+    description: describe3("build_workflow", "Build and verify a new workflow draft through the canonical dependency-aware orchestrator. This tool never publishes. The spec is an IR with `triggers[]` and `graph[]` (the step list is `graph`, not `steps`), and a trigger's filter rows are `filters`. A trigger POST that fails after retries is reported in data.triggerIntegrity and flips data.partial to true \u2014 the draft then has no working trigger for it. data.triggerIntegrity also reports a trigger GHL stored WITHOUT the filters it was authored with: that trigger exists but is unscoped and fires on everything of its type."),
     inputSchema: schema({
       locationId: external_exports.string(),
-      spec: external_exports.object({}).passthrough(),
+      spec: external_exports.object({}).passthrough().describe(
+        "The workflow IR: {name, triggers: [{type, name, filters: [{field, operator, value}]}], graph: [{ref, kind, type, name, attributes}]}. The step list is `graph`, NOT `steps`. A trigger's filter rows are `filters` \u2014 `conditions` is how GHL STORES them and is refused here, because nothing reads it and the trigger would go live unscoped. `locationId` is this tool's own argument and does not belong inside spec."
+      ),
       ignoreUnresolved: external_exports.boolean().default(false),
       // hatch for GHL's WORKFLOW-level rules (graph-rules.mjs): true, or the GHL rule names to skip
       skipWorkflowRules: external_exports.union([external_exports.boolean(), external_exports.array(external_exports.string())]).optional(),

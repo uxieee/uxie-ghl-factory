@@ -8252,7 +8252,7 @@
      "type": "sentinel",
      "required": false,
      "default": "—",
-     "notes": "**Switch.** Triggers `selectTemplate` to clear `template_id` and `templatesource` and treats the email as inline. See § Notes."
+     "notes": "**Builder switch only.** `selectTemplate` clears `template_id`/`templatesource` and treats the email as inline — but sending `\"none\"` over the API is FAULTED by validate-assets like a bogus id. Omit the key instead. See § Notes."
     },
     {
      "name": "from_name",
@@ -8403,7 +8403,7 @@
     }
    ],
    "validator": "`sendEmailActionValidator` (length 582, result level `warning`). Per `sniffs/bundle/validators.json::sendEmailActionValidator`:",
-   "notes": "- **`template_id: \"none\"` is a sentinel, not a real id.** Sending the literal string `\"none\"` is functionally equivalent to omitting `template_id` — both put the email into inline-HTML mode. Don't confuse with a missing template causing a publish error.",
+   "notes": "- 🔴 **`template_id: \"none\"` is a sentinel the BUILDER understands — do not send it over the API.**",
    "hasCanonicalExample": true
   },
   {

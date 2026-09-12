@@ -981,12 +981,17 @@ function emailAttributes(node, ctx) {
     attachments: a.attachments ?? [],
     fieldDefaults: a.fieldDefaults ?? { subject: {} },
   };
-  if (a.template_id) {
+  // "none" is the BUILDER's inline switch (Email.ts::selectTemplate clears template_id and
+  // templatesource), and it is TRUTHY — so this branch used to emit template_id:"none" and GHL's
+  // validate-assets faulted it exactly like a bogus id: "Referenced Email Template does not exist or
+  // does not belong to this location" (proven live 2026-09-12; omitting the key, or "", is clean).
+  const authoredTemplate = a.template_id === 'none' ? '' : a.template_id;
+  if (authoredTemplate) {
     // template path: html lives in the template, not the step
-    base.template_id = a.template_id;
+    base.template_id = authoredTemplate;
     base.templatesource = a.templatesource ?? 'email-builder';
   } else {
-    // inline path: NO template_id key (a literal "none" errors); html on the step
+    // inline path: NO template_id key (a literal "none" is faulted on the wire); html on the step
     base.html = a.html ?? '';
     base.htmlDefaults = a.htmlDefaults ?? {};
   }

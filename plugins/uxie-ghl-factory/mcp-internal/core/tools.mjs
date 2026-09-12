@@ -4042,10 +4042,13 @@ export const TOOLS = [
   },
   {
     name: 'build_workflow',
-    description: describe('build_workflow', 'Build and verify a new workflow draft through the canonical dependency-aware orchestrator. This tool never publishes. A trigger POST that fails after retries is reported in data.triggerIntegrity and flips data.partial to true — the draft then has no working trigger for it.'),
+    description: describe('build_workflow', 'Build and verify a new workflow draft through the canonical dependency-aware orchestrator. This tool never publishes. The spec is an IR with `triggers[]` and `graph[]` (the step list is `graph`, not `steps`), and a trigger\'s filter rows are `filters`. A trigger POST that fails after retries is reported in data.triggerIntegrity and flips data.partial to true — the draft then has no working trigger for it. data.triggerIntegrity also reports a trigger GHL stored WITHOUT the filters it was authored with: that trigger exists but is unscoped and fires on everything of its type.'),
     inputSchema: schema({
       locationId: z.string(),
-      spec: z.object({}).passthrough(),
+      spec: z.object({}).passthrough().describe(
+        'The workflow IR: {name, triggers: [{type, name, filters: [{field, operator, value}]}], graph: [{ref, kind, type, name, attributes}]}. '
+        + 'The step list is `graph`, NOT `steps`. A trigger\'s filter rows are `filters` — `conditions` is how GHL STORES them and is refused here, '
+        + 'because nothing reads it and the trigger would go live unscoped. `locationId` is this tool\'s own argument and does not belong inside spec.'),
       ignoreUnresolved: z.boolean().default(false),
       // hatch for GHL's WORKFLOW-level rules (graph-rules.mjs): true, or the GHL rule names to skip
       skipWorkflowRules: z.union([z.boolean(), z.array(z.string())]).optional(),

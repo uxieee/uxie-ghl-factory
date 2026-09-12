@@ -816,3 +816,28 @@ test("appointmentCondition: 'appointment' is refused at compile, naming the real
         && /PAST-TIME behaviour/.test(e.message));
   for (const ok of ['skip', 'next', 'exit']) assert.doesNotThrow(() => build(ok), ok);
 });
+
+// `template_id: "none"` is the BUILDER's inline-mode switch, and this handler's own comment says a
+// literal "none" errors — but `if (a.template_id)` is truthy for it, so the step was emitted with
+// template_id:"none" and GHL's asset validator faults it exactly like a bogus id:
+// "Referenced Email Template does not exist or does not belong to this location"
+// (proven live 2026-09-12, knowledge/sniffs/live-2026-09-12-peer-batch2; omitting the key is clean).
+test('an email authored with template_id "none" compiles to the INLINE shape, not a dead template ref', () => {
+  const ir = { name: 'E', triggers: [{ ref: 't', type: 'contact_tag', name: 'T', filters: [] }], graph: [
+    { ref: 'e', kind: 'action', type: 'email', name: 'Mail', attributes: { subject: 'S', html: '<p>hi</p>', template_id: 'none' } },
+  ] };
+  const { autoSaveBody } = compile(ir, ctx());
+  const step = autoSaveBody.workflowData.templates.find((s) => s.type === 'email');
+  assert.equal('template_id' in step.attributes, false, 'the literal "none" must never reach the wire');
+  assert.equal('templatesource' in step.attributes, false);
+  assert.equal(step.attributes.html, '<p>hi</p>');
+});
+
+test('an email with a REAL template_id still compiles to the template shape', () => {
+  const ir = { name: 'E', triggers: [{ ref: 't', type: 'contact_tag', name: 'T', filters: [] }], graph: [
+    { ref: 'e', kind: 'action', type: 'email', name: 'Mail', attributes: { subject: 'S', template_id: '6a2632febba50b0bbd1031d2' } },
+  ] };
+  const step = compile(ir, ctx()).autoSaveBody.workflowData.templates.find((s) => s.type === 'email');
+  assert.equal(step.attributes.template_id, '6a2632febba50b0bbd1031d2');
+  assert.equal(step.attributes.templatesource, 'email-builder');
+});
