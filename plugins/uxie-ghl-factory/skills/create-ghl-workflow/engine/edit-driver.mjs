@@ -582,9 +582,9 @@ const OP_ACCEPTED_ARGS = {
   moveStep: ['stepId', 'afterId'],
   addBranch: ['containerId', 'name', 'conditions'],
   deleteContainer: ['containerId'],
-  replaceTag: ['oldTag', 'newTag', 'triggers'],
-  replaceFieldId: ['oldId', 'newId', 'triggers'],
-  replaceInAttributes: ['type', 'path', 'find', 'replace'],
+  replaceTag: ['oldTag', 'newTag', 'triggers', 'allowNoop'],
+  replaceFieldId: ['oldId', 'newId', 'triggers', 'allowNoop'],
+  replaceInAttributes: ['type', 'path', 'find', 'replace', 'allowNoop'],
   repairParentKeys: [],
   addStepNote: ['stepId', 'text'],
   duplicateStep: ['stepId', 'afterId'],
@@ -763,6 +763,35 @@ const requireStepFor = (templates, id, op) => {
   return hit;
 };
 
+// What each replace op searched for, for the message when it finds nothing.
+const REPLACE_SEARCHED = {
+  replaceInAttributes: (op) => `'${op.find}' at attributes.${op.path}${op.type ? ` on '${op.type}' steps` : ''}`,
+  replaceTag: (op) => `tag '${op.oldTag}'`,
+  replaceFieldId: (op) => `field id '${op.oldId}'`,
+};
+
+/**
+ * A replace op that matched NOTHING is a caller bug, not a no-op. Without this the engine consumed
+ * the op, wrote nothing, and its own verifier compared the stored record against itself and passed —
+ * the R-96 class this file refuses everywhere else. Reported 2026-09-12 from a live build:
+ * `replaceInAttributes` with `path: 'branches'` (an ARRAY; the op rewrites STRINGS) previewed as a
+ * successful op with an empty diff.
+ *
+ * `replaceTag` and `replaceFieldId` also fan out to the TRIGGER document, which this half never
+ * sees, so zero step matches is only evidence when the caller said `triggers: false`.
+ * Hatch: `allowNoop: true`, for re-running an edit whose replacement already landed.
+ */
+function guardReplaceNoop(op, result) {
+  if (op.allowNoop === true || (result?.replaced ?? 0) > 0) return result;
+  if (op.op !== 'replaceInAttributes' && op.triggers !== false) return result;
+  const hint = op.op === 'replaceInAttributes'
+    ? ` This op rewrites a STRING at one path: add '[]' per array level to reach inside one`
+      + ` (e.g. 'branches[].segments[].conditions[].conditionSubType'), and check the value is stored as a string.`
+    : '';
+  throw new Error(`${op.op}: nothing matched ${REPLACE_SEARCHED[op.op](op)} — no step was changed.${hint}`
+    + ` Nothing was written. Fix the op, or pass allowNoop:true if a zero-match re-run is what you meant.`);
+}
+
 export function applyOp(templates, op, { ctx, idGen }) {
   op = { ...op, op: canonicalOpName(op?.op) };
   checkOpShape(op);
@@ -807,7 +836,7 @@ export function applyOp(templates, op, { ctx, idGen }) {
     }
     case 'deleteStep': return deleteStep(templates, op.stepId);
     // Find & Replace, TAG mode (exact on tag arrays / tags-subtype conditions; string replace on customTags)
-    case 'replaceTag': return replaceTagInTemplates(templates, op.oldTag, op.newTag);
+    case 'replaceTag': return guardReplaceNoop(op, replaceTagInTemplates(templates, op.oldTag, op.newTag));
     // Action NOTES (node ⋯ → Notes): unshift {id, userId, timestamp, comment:HTML} onto step.comments[]
     case 'addStepNote': return addStepNote(templates, op.stepId, op.text, { uid: ctx?.uid, now: ctx?.now, idGen });
     // "Copy action" + "Copy here": a fresh-id copy right after the source (or op.afterId); containers/goals/loops/gotos refused
@@ -833,8 +862,8 @@ export function applyOp(templates, op, { ctx, idGen }) {
           + `Use deleteStep plus one of the subgraph splices.`);
       return { ...retypeStep(templates, op.stepId, sub.entry), refMap: sub.refMap };
     }
-    case 'replaceFieldId': return replaceFieldIdInTemplates(templates, op.oldId, op.newId);
-    case 'replaceInAttributes': return replaceInAttributes(templates, { type: op.type, path: op.path, find: op.find, replace: op.replace });
+    case 'replaceFieldId': return guardReplaceNoop(op, replaceFieldIdInTemplates(templates, op.oldId, op.newId));
+    case 'replaceInAttributes': return guardReplaceNoop(op, replaceInAttributes(templates, { type: op.type, path: op.path, find: op.find, replace: op.replace }));
     case 'renameStep': return renameStep(templates, op.stepId, op.name);
     case 'setStepDisabled': return setStepDisabled(templates, op.stepId, op.disabled);
     case 'disableStepsByType': return disableStepsByType(templates, op.type, op.disabled);

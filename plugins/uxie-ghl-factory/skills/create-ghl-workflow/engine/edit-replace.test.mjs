@@ -64,3 +64,43 @@ test('the ops route through the driver and replaceFieldId derives a trigger op l
   const { templates } = applyOps(tpls(), [{ op: 'replaceInAttributes', type: 'sms', path: 'body', find: 'OLD', replace: 'NEW' }], { ctx: {}, idGen: () => 'x' });
   assert.match(templates[3].attributes.body, /NEW stays/);
 });
+
+// A replace op that matches NOTHING used to preview as a SUCCESSFUL op with an empty diff — the
+// R-96 class this repo refuses everywhere else: the engine consumed the op, wrote nothing, and its
+// own verifier compared the stored record against itself and passed. Reported 2026-09-12 from a live
+// build: `{op:'replaceInAttributes', path:'branches', find:'<id>'}` on an if_else previewed ok with
+// diff.modifiedSteps:[] — `branches` is an ARRAY, and this op only rewrites STRINGS, so the caller
+// wanted `branches[].segments[].conditions[].conditionSubType`.
+const ifElseOnly = () => [tpls()[1]];
+
+test('replaceInAttributes that matches nothing ABORTS, and the message names the path syntax', () => {
+  assert.throws(
+    () => applyOps(ifElseOnly(), [{ op: 'replaceInAttributes', path: 'branches', find: 'OLD', replace: 'NEW' }], { ctx: {}, idGen: () => 'x' }),
+    (e) => /replaceInAttributes/.test(e.message) && /branches/.test(e.message) && /\[\]/.test(e.message),
+    'a zero-match replace must refuse, naming the path it searched and the [] expansion');
+});
+
+test('replaceInAttributes with the path that actually reaches the string still works', () => {
+  const { templates, diff } = applyOps(ifElseOnly(),
+    [{ op: 'replaceInAttributes', path: 'branches[].segments[].conditions[].conditionSubType', find: 'OLD', replace: 'NEW' }],
+    { ctx: {}, idGen: () => 'x' });
+  assert.equal(templates[0].attributes.branches[0].segments[0].conditions[0].conditionSubType, 'NEW');
+  assert.deepEqual(diff.modifiedSteps, ['b']);
+});
+
+test('allowNoop:true is the hatch — re-running an edit whose replacement already landed', () => {
+  const { diff } = applyOps(ifElseOnly(),
+    [{ op: 'replaceInAttributes', path: 'branches', find: 'OLD', replace: 'NEW', allowNoop: true }],
+    { ctx: {}, idGen: () => 'x' });
+  assert.deepEqual(diff.modifiedSteps, []);
+});
+
+test('a steps-only replaceTag that matches nothing aborts; one that fans out to triggers does NOT', () => {
+  assert.throws(
+    () => applyOps(ifElseOnly(), [{ op: 'replaceTag', oldTag: 'nope', newTag: 'new', triggers: false }], { ctx: {}, idGen: () => 'x' }),
+    /replaceTag/);
+  // default (triggers not false): the tag may live only in a trigger condition, which this half
+  // never sees — the trigger op is planned separately, so zero step matches is not evidence of a no-op
+  const { diff } = applyOps(ifElseOnly(), [{ op: 'replaceTag', oldTag: 'nope', newTag: 'new' }], { ctx: {}, idGen: () => 'x' });
+  assert.deepEqual(diff.modifiedSteps, []);
+});

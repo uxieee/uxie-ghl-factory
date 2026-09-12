@@ -165530,9 +165530,9 @@ var OP_ACCEPTED_ARGS = {
   moveStep: ["stepId", "afterId"],
   addBranch: ["containerId", "name", "conditions"],
   deleteContainer: ["containerId"],
-  replaceTag: ["oldTag", "newTag", "triggers"],
-  replaceFieldId: ["oldId", "newId", "triggers"],
-  replaceInAttributes: ["type", "path", "find", "replace"],
+  replaceTag: ["oldTag", "newTag", "triggers", "allowNoop"],
+  replaceFieldId: ["oldId", "newId", "triggers", "allowNoop"],
+  replaceInAttributes: ["type", "path", "find", "replace", "allowNoop"],
   repairParentKeys: [],
   addStepNote: ["stepId", "text"],
   duplicateStep: ["stepId", "afterId"],
@@ -165690,6 +165690,17 @@ var requireStepFor = (templates, id, op) => {
   if (!hit) throw new Error(`${op}: no step with id '${id}'`);
   return hit;
 };
+var REPLACE_SEARCHED = {
+  replaceInAttributes: (op) => `'${op.find}' at attributes.${op.path}${op.type ? ` on '${op.type}' steps` : ""}`,
+  replaceTag: (op) => `tag '${op.oldTag}'`,
+  replaceFieldId: (op) => `field id '${op.oldId}'`
+};
+function guardReplaceNoop(op, result) {
+  if (op.allowNoop === true || (result?.replaced ?? 0) > 0) return result;
+  if (op.op !== "replaceInAttributes" && op.triggers !== false) return result;
+  const hint = op.op === "replaceInAttributes" ? ` This op rewrites a STRING at one path: add '[]' per array level to reach inside one (e.g. 'branches[].segments[].conditions[].conditionSubType'), and check the value is stored as a string.` : "";
+  throw new Error(`${op.op}: nothing matched ${REPLACE_SEARCHED[op.op](op)} \u2014 no step was changed.${hint} Nothing was written. Fix the op, or pass allowNoop:true if a zero-match re-run is what you meant.`);
+}
 function applyOp(templates, op, { ctx, idGen }) {
   op = { ...op, op: canonicalOpName(op?.op) };
   checkOpShape(op);
@@ -165726,7 +165737,7 @@ function applyOp(templates, op, { ctx, idGen }) {
       return deleteStep(templates, op.stepId);
     // Find & Replace, TAG mode (exact on tag arrays / tags-subtype conditions; string replace on customTags)
     case "replaceTag":
-      return replaceTagInTemplates(templates, op.oldTag, op.newTag);
+      return guardReplaceNoop(op, replaceTagInTemplates(templates, op.oldTag, op.newTag));
     // Action NOTES (node ⋯ → Notes): unshift {id, userId, timestamp, comment:HTML} onto step.comments[]
     case "addStepNote":
       return addStepNote(templates, op.stepId, op.text, { uid: ctx?.uid, now: ctx?.now, idGen });
@@ -165754,9 +165765,9 @@ function applyOp(templates, op, { ctx, idGen }) {
       return { ...retypeStep(templates, op.stepId, sub.entry), refMap: sub.refMap };
     }
     case "replaceFieldId":
-      return replaceFieldIdInTemplates(templates, op.oldId, op.newId);
+      return guardReplaceNoop(op, replaceFieldIdInTemplates(templates, op.oldId, op.newId));
     case "replaceInAttributes":
-      return replaceInAttributes(templates, { type: op.type, path: op.path, find: op.find, replace: op.replace });
+      return guardReplaceNoop(op, replaceInAttributes(templates, { type: op.type, path: op.path, find: op.find, replace: op.replace }));
     case "renameStep":
       return renameStep(templates, op.stepId, op.name);
     case "setStepDisabled":
