@@ -11,6 +11,46 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [0.84.2] — 2026-09-14
+
+Three silent-success bugs, all found by a live client build: a write that consumed an op and
+changed nothing, a trigger that went live unscoped, and an email pointed at a template id GHL
+refuses. Each one reported success at the time.
+
+### Fixed
+
+- 🔴 **A trigger authored with `conditions` lost every filter, and the build called it verified.**
+  `buildTrigger` reads `filters`; `conditions` is how GHL STORES them, so anyone working from a
+  stored trigger reaches for the wrong key — nothing read it, nothing refused it, and a
+  `form_submission` trigger meant for ONE form went live firing on every form in the account.
+  `ir.mjs` now refuses an unknown trigger key by name (`TRIGGER_KEY`), the way `TOP_KEY` and
+  `NODE_KEY` already do one level up, and names `filters` when it sees `conditions`.
+- 🔴 **`triggerIntegrity` verified that a trigger EXISTED, not that it says what was authored.**
+  It counted rows, then reported "every authored trigger was posted and read back" — true, and
+  read as confirmation of correctness. The post-build re-list now compares the filter fields each
+  POST carried against the row GHL stored and reports any that are missing, in that direction only:
+  GHL seeds conditions of its own, so extra stored rows are expected and never a mismatch.
+- 🔴 **A replace op that matched NOTHING previewed as a successful op with an empty diff.**
+  `replaceInAttributes` with a path that stops at an array (`branches` rather than
+  `branches[].segments[].conditions[].conditionSubType`) consumed the op and wrote nothing — the
+  class where the engine's own verifier compares the stored record against itself and passes. Zero
+  matches now refuses, naming what it searched and the `[]` expansion. `replaceTag` and
+  `replaceFieldId` are judged this way only with `triggers: false`, since otherwise the match may
+  legitimately be in the trigger document. Hatch: `allowNoop: true`.
+- 🔴 **`template_id: "none"` reached the wire and GHL faulted it like a bogus id.** The string is
+  the builder's inline-mode switch, and it is truthy — so the email step took the template path.
+  `POST /workflow/{loc}/validate-assets` answers *"Referenced Email Template does not exist or does
+  not belong to this location"* for it, while omitting the key is clean (proven live 2026-09-12).
+  The handler's own comment already said a literal "none" errors; the code did not. The type card
+  claimed "none" was equivalent to omitting — corrected.
+
+### Changed
+
+- **`build_workflow` describes its spec.** The schema was a bare passthrough object, so a first call
+  could only fail by guessing: the step list is `graph` (not `steps`), a trigger's rows are
+  `filters`, and `locationId` is the tool's own argument, not part of `spec`.
+- **`edit_workflow`'s op reference** documents the zero-match refusal and its hatch.
+
 ## [0.84.1] — 2026-09-12
 
 All 22 of GHL's live workflow rules are now replayed. 0.84.0 skipped three and gave a reason for
