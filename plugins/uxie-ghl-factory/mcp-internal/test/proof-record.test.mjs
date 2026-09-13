@@ -89,3 +89,59 @@ test('build values accept chunk filenames as machine-derived values', () => {
   r.depends.builds['app'] = 'rW9hsvyrwCgaaySWzn6B.js';
   assert.ok(validateRecord(r).some((e) => /builds/.test(e)) === false, 'machine-derived build filename passes');
 });
+
+// Fix round 2: four critical schema fixes
+test('empty evidence array is refused (vacuous truth fix)', () => {
+  const r = good();
+  r.runs[0].evidence = [];
+  assert.ok(validateRecord(r).some((e) => /evidence/.test(e)), 'must refuse empty evidence array');
+});
+
+test('depends requires all four sub-objects to be present and be objects', () => {
+  const r = good();
+  r.depends = { hashedAt: '2026-09-10' };
+  const errs = validateRecord(r);
+  assert.ok(errs.some((e) => /depends\.endpoints/.test(e)), 'must require endpoints');
+  assert.ok(errs.some((e) => /depends\.builds/.test(e)), 'must require builds');
+  assert.ok(errs.some((e) => /depends\.code/.test(e)), 'must require code');
+
+  // All four present and empty works
+  r.depends = { hashedAt: '2026-09-10', endpoints: {}, builds: {}, code: {} };
+  assert.ok(validateRecord(r).some((e) => /depends/.test(e)) === false, 'all four present and empty passes');
+});
+
+test('ledger and row evidence require hyphens (blocks all-lowercase 20-char tokens)', () => {
+  const r = good();
+  // 20-char all-lowercase token without hyphens is refused in ledger arm
+  r.runs[0].evidence = ['ledger:abcdefghijklmnopqrst#test-claim'];
+  assert.ok(validateRecord(r).some((e) => /evidence/.test(e)), 'must refuse all-lowercase session in ledger');
+
+  // 20-char all-lowercase token without hyphens is refused in row arm
+  r.runs[0].evidence = ['row:abcdefghijklmnopqrst'];
+  assert.ok(validateRecord(r).some((e) => /evidence/.test(e)), 'must refuse all-lowercase in row');
+
+  // Real ledger entries with hyphens work (date format and claim slugs have hyphens)
+  r.runs[0].evidence = ['ledger:2026-09-10#workflow-trigger-fires'];
+  assert.ok(validateRecord(r).some((e) => /evidence/.test(e)) === false, 'date-format session accepts hyphenated slug');
+
+  r.runs[0].evidence = ['ledger:custom-session-id#claim-slug-form'];
+  assert.ok(validateRecord(r).some((e) => /evidence/.test(e)) === false, 'custom session id accepts hyphenated slug');
+
+  // Real proofRow entries work (all 133 contain hyphens)
+  r.runs[0].evidence = ['row:entities-tags-create'];
+  assert.ok(validateRecord(r).some((e) => /evidence/.test(e)) === false, 'real proofRow id validates');
+
+  r.runs[0].evidence = ['row:ai-agents--agent-logs-contacts'];
+  assert.ok(validateRecord(r).some((e) => /evidence/.test(e)) === false, 'real multi-hyphen proofRow id validates');
+});
+
+test('SSE HTTP method is accepted; other methods are still refused', () => {
+  const r = good();
+  // SSE is a real method in the catalogue (ai-agents--super-agents-build-sse)
+  r.depends.endpoints['SSE https://backend.leadconnectorhq.com /ai/stream'] = 'e'.repeat(64);
+  assert.ok(validateRecord(r).some((e) => /endpoints/.test(e)) === false, 'SSE method validates');
+
+  // Made-up methods are refused
+  r.depends.endpoints['FETCH https://backend.leadconnectorhq.com /data'] = 'f'.repeat(64);
+  assert.ok(validateRecord(r).some((e) => /endpoints/.test(e)), 'made-up FETCH method is refused');
+});

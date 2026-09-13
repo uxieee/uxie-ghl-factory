@@ -12,11 +12,13 @@ const DATE = /^\d{4}-\d{2}-\d{2}$/;
 const TOOL = /^[a-z0-9_]+$/;
 const SURFACE = /^[a-z0-9-]+$/;
 // corpus: paths are lowercase-kebab directory names with optional uppercase in the final filename, always with extension
-const EVIDENCE = /^(?:receipt:\d{4}-\d{2}-\d{2}-\d{4}|ledger:[a-z0-9-]+#[a-z0-9-]+|corpus:(?:[a-z0-9_-]+(?:\/[a-z0-9_.-]+)*\/[A-Za-z0-9_.-]+|[A-Za-z0-9_.-]+)\.[a-z0-9]+|row:[a-z0-9_-]+|commit:[0-9a-f]{7,40})$/;
+// ledger: session (dates or claimSlug-derived) and slug (from claimSlug) both contain hyphens
+// row: all proofRows contain hyphens
+const EVIDENCE = /^(?:receipt:\d{4}-\d{2}-\d{2}-\d{4}|ledger:[a-z0-9-]+-[a-z0-9-]+#[a-z0-9-]+-[a-z0-9-]+|corpus:(?:[a-z0-9_-]+(?:\/[a-z0-9_.-]+)*\/[A-Za-z0-9_.-]+|[A-Za-z0-9_.-]+)\.[a-z0-9]+|row:[a-z0-9-]+-[a-z0-9-]+|commit:[0-9a-f]{7,40})$/;
 const LOCATION = /^…[A-Za-z0-9]{4}$/;
 const ASSERTION = /^[a-z0-9-]{1,80}$/;
 const SUITE = /^[a-z0-9-]+$/;
-const ENDPOINT = /^(?:GET|POST|PUT|PATCH|DELETE) https:\/\/[a-z0-9.-]+ \/\S*$/;
+const ENDPOINT = /^(?:GET|POST|PUT|PATCH|DELETE|SSE) https:\/\/[a-z0-9.-]+ \/\S*$/;
 const HEX = /^[0-9a-f]{64}$/;
 const APP = /^[A-Za-z0-9_-]+$/;
 const BUILD = /^[A-Za-z0-9_./-]{1,80}$/;
@@ -42,7 +44,7 @@ export function validateRecord(rec) {
     if (!['suite', 'manual'].includes(r.how)) errs.push(`${w}.how: suite | manual`);
     if (r.proofClass !== undefined && !['live-runtime', 'live-canary'].includes(r.proofClass)) errs.push(`${w}.proofClass: live-runtime | live-canary`);
     if (r.suite !== undefined && !SUITE.test(r.suite)) errs.push(`${w}.suite: a suite name`);
-    if (!Array.isArray(r.evidence) || !r.evidence.every((e) => EVIDENCE.test(e))) errs.push(`${w}.evidence: only receipt: ledger: corpus: row: commit: references`);
+    if (!Array.isArray(r.evidence) || !r.evidence.length || !r.evidence.every((e) => EVIDENCE.test(e))) errs.push(`${w}.evidence: at least one receipt: ledger: corpus: row: commit: reference`);
     if (r.location !== undefined && !LOCATION.test(r.location)) errs.push(`${w}.location: last four characters only, as …abcd`);
     if (r.failures !== undefined && !(Array.isArray(r.failures) && r.failures.every((f) => ASSERTION.test(f)))) errs.push(`${w}.failures: assertion ids`);
     if (r.backfilled !== undefined && r.backfilled !== true) errs.push(`${w}.backfilled: true or absent`);
@@ -50,6 +52,9 @@ export function validateRecord(rec) {
   const d = rec.depends ?? {};
   keysOnly(d, ['hashedAt', 'endpoints', 'builds', 'code'], 'depends', errs);
   if (!DATE.test(d.hashedAt ?? '')) errs.push('depends.hashedAt: YYYY-MM-DD');
+  if (typeof d.endpoints !== 'object' || d.endpoints === null || Array.isArray(d.endpoints)) errs.push('depends.endpoints: an object');
+  if (typeof d.builds !== 'object' || d.builds === null || Array.isArray(d.builds)) errs.push('depends.builds: an object');
+  if (typeof d.code !== 'object' || d.code === null || Array.isArray(d.code)) errs.push('depends.code: an object');
   for (const [k, v] of Object.entries(d.endpoints ?? {})) if (!ENDPOINT.test(k) || !HEX.test(v)) errs.push(`depends.endpoints: bad entry "${k}"`);
   for (const [k, v] of Object.entries(d.builds ?? {})) {
     if (!APP.test(k) || !(v === null || Number.isInteger(v) || (typeof v === 'string' && BUILD.test(v)))) errs.push(`depends.builds: bad entry "${k}"`);
@@ -69,8 +74,16 @@ export function labelFor(rec) {
 
 export function loadRecords(dir) {
   if (!existsSync(dir)) return {};
-  return Object.fromEntries(readdirSync(dir).filter((f) => f.endsWith('.json'))
-    .map((f) => JSON.parse(readFileSync(join(dir, f), 'utf8'))).map((r) => [r.tool, r]));
+  const records = [];
+  for (const f of readdirSync(dir).filter((f) => f.endsWith('.json'))) {
+    try {
+      const rec = JSON.parse(readFileSync(join(dir, f), 'utf8'));
+      if (rec && rec.tool) records.push([rec.tool, rec]);
+    } catch (e) {
+      console.error(`proof-record: skipped malformed ${join(dir, f)}: ${e.message}`);
+    }
+  }
+  return Object.fromEntries(records);
 }
 
 export const failingTools = (dir) => Object.values(loadRecords(dir))
