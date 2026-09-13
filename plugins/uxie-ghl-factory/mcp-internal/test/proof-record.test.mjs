@@ -44,3 +44,48 @@ test('labels: latest fail wins; otherwise the latest pass and its class', () => 
 test('the three audit composites are named, and match the frozen test', () => {
   assert.deepEqual([...AUDIT_COMPOSITES].sort(), ['get_ai_configuration_bundle', 'get_workflow_runtime_window', 'list_workflows_complete']);
 });
+
+// Security rounds: preventing leakage of 20-char location IDs through machine-derived fields
+test('corpus: evidence refuses mixed-case tokens; accepts real corpus paths', () => {
+  const r = good();
+  // Attempt to sneak a 20-char location ID into corpus path
+  r.runs[0].evidence = ['corpus:foo/rW9hsvyrwCgaaySWzn6B'];
+  assert.ok(validateRecord(r).some((e) => /evidence/.test(e)), 'must refuse mixed-case in corpus path');
+
+  // Real corpus paths should still work
+  r.runs[0].evidence = ['corpus:workflows/index.md'];
+  assert.ok(validateRecord(r).some((e) => /evidence/.test(e)) === false, 'must accept real corpus path');
+
+  r.runs[0].evidence = ['corpus:ai-agents/20-api/agent-logs.md'];
+  assert.ok(validateRecord(r).some((e) => /evidence/.test(e)) === false, 'must accept multi-level corpus path');
+});
+
+test('endpoint paths accept templated location IDs as machine-derived values', () => {
+  const r = good();
+  // Templated paths with {} placeholders (from catalogue) are machine-derived, not user-typed
+  assert.ok(validateRecord(r).some((e) => /endpoints/.test(e)) === false, 'baseline templated path passes');
+
+  // Full location IDs in endpoint paths pass validation (machine-derived by builder)
+  r.depends.endpoints['GET https://backend.leadconnectorhq.com /contact/rW9hsvyrwCgaaySWzn6B'] = 'c'.repeat(64);
+  assert.ok(validateRecord(r).some((e) => /endpoints/.test(e)) === false, 'machine-derived endpoint with ID passes');
+});
+
+test('code keys accept file paths as machine-derived values', () => {
+  const r = good();
+  // Real code keys are file paths from our own tree
+  assert.ok(validateRecord(r).some((e) => /code/.test(e)) === false, 'baseline code key passes');
+
+  // Full location IDs in code paths pass validation (read from our tree, not user-typed)
+  r.depends.code['rW9hsvyrwCgaaySWzn6B/tools.mjs'] = 'd'.repeat(64);
+  assert.ok(validateRecord(r).some((e) => /code/.test(e)) === false, 'machine-derived code key passes');
+});
+
+test('build values accept chunk filenames as machine-derived values', () => {
+  const r = good();
+  // Build values are app names and filenames from GoHighLevel\'s manifest
+  assert.ok(validateRecord(r).some((e) => /builds/.test(e)) === false, 'baseline build value passes');
+
+  // Full location IDs in build filenames pass validation (read from GHL manifest, not user-typed)
+  r.depends.builds['app'] = 'rW9hsvyrwCgaaySWzn6B.js';
+  assert.ok(validateRecord(r).some((e) => /builds/.test(e)) === false, 'machine-derived build filename passes');
+});

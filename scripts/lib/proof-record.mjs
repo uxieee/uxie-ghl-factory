@@ -11,7 +11,8 @@ export const AUDIT_COMPOSITES = Object.freeze(['get_workflow_runtime_window', 'l
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
 const TOOL = /^[a-z0-9_]+$/;
 const SURFACE = /^[a-z0-9-]+$/;
-const EVIDENCE = /^(?:receipt:\d{4}-\d{2}-\d{2}-\d{4}|ledger:[a-z0-9-]+#[a-z0-9-]+|corpus:[a-z0-9-]+\/[A-Za-z0-9._/-]+|row:[a-z0-9_-]+|commit:[0-9a-f]{7,40})$/;
+// corpus: paths are lowercase-kebab directory names with optional uppercase in the final filename, always with extension
+const EVIDENCE = /^(?:receipt:\d{4}-\d{2}-\d{2}-\d{4}|ledger:[a-z0-9-]+#[a-z0-9-]+|corpus:(?:[a-z0-9_-]+(?:\/[a-z0-9_.-]+)*\/[A-Za-z0-9_.-]+|[A-Za-z0-9_.-]+)\.[a-z0-9]+|row:[a-z0-9_-]+|commit:[0-9a-f]{7,40})$/;
 const LOCATION = /^…[A-Za-z0-9]{4}$/;
 const ASSERTION = /^[a-z0-9-]{1,80}$/;
 const SUITE = /^[a-z0-9-]+$/;
