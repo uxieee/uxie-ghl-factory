@@ -165847,9 +165847,17 @@ function applyOps(templates, ops, { ctx, idGen }) {
   let tpls = templates;
   let diff = empty();
   const opRefs = /* @__PURE__ */ new Map();
+  const opResults = [];
   for (const op of ops ?? []) {
     const opCtx = { ...ctx, externalRefs: externalRefsOf(tpls, opRefs) };
     const r = applyOp(tpls, op, { ctx: opCtx, idGen });
+    opResults.push({
+      op: canonicalOpName(op?.op),
+      matched: r.replaced ?? null,
+      created: [...r.diff?.createdSteps ?? []],
+      modified: [...r.diff?.modifiedSteps ?? []],
+      deleted: [...r.diff?.deletedSteps ?? []]
+    });
     tpls = r.templates;
     diff = mergeDiff(diff, r.diff);
     for (const [ref, id] of r.refMap ?? []) {
@@ -165866,7 +165874,7 @@ function applyOps(templates, ops, { ctx, idGen }) {
     if (renumbered.changed.length)
       norm3.modifiedSteps = [.../* @__PURE__ */ new Set([...norm3.modifiedSteps, ...renumbered.changed])];
   }
-  return { templates: tpls, diff: norm3, opRefs };
+  return { templates: tpls, diff: norm3, opRefs, opResults };
 }
 
 // ../skills/create-ghl-workflow/engine/digest.mjs
@@ -170686,12 +170694,16 @@ function persistedMissingRequired(gotTemplates, touchedIds, warnings) {
   }
   return missingRequired;
 }
-function editPreview(ops, beforeTemplates, templates, diff, triggerPlan, neededTags, tagsToCreate, workflowStatus) {
+function editPreview(ops, beforeTemplates, templates, diff, triggerPlan, neededTags, tagsToCreate, workflowStatus, opResults = null) {
   const beforeIds = new Set(beforeTemplates.map((step) => step.id));
   const afterIds = new Set(templates.map((step) => step.id));
   const requiresPublish = triggerPlan.some((request) => triggerRequiresPublish(request, workflowStatus));
   return {
     opsApplied: ops.map((op) => op?.op ?? null),
+    // What each op did ON ITS OWN. `diff` merges them, so several ops against one step collapse into
+    // a single modifiedSteps entry and a caller cannot tell which of them matched. `matched` is a
+    // replace op's own hit count; null for ops that have no such notion.
+    ...opResults ? { opResults } : {},
     stepCount: { before: beforeTemplates.length, after: templates.length },
     idsAdded: [...afterIds].filter((id) => !beforeIds.has(id)),
     idsRemoved: [...beforeIds].filter((id) => !afterIds.has(id)),
@@ -173654,7 +173666,7 @@ var TOOLS2 = [
       }
       const settingsPatch = mergeSettingsOps(settingsOps);
       const stickyPlan = stickyOps.map((op) => planStickyNoteOp(op, { loc: args.locationId, wid: args.workflowId }));
-      const { templates, diff } = applyOps(beforeTemplates, stepOps, { ctx, idGen });
+      const { templates, diff, opResults } = applyOps(beforeTemplates, stepOps, { ctx, idGen });
       let parkedOnDeletedSteps = [];
       if (fresh.status === "published" && diff.deletedSteps?.length) {
         const counts = await safeGatewayCall(() => gw.call(
@@ -173800,7 +173812,8 @@ var TOOLS2 = [
         triggerPlan,
         neededTags,
         tagsToCreate,
-        fresh.status
+        fresh.status,
+        opResults
       );
       if (settingsPatch) {
         preview.settings = Object.fromEntries(Object.keys(settingsPatch).map((k) => [k, k === "statsView" ? commitBody.meta?.statsView ?? false : commitBody[k]]));

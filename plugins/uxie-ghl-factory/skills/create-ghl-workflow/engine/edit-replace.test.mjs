@@ -104,3 +104,18 @@ test('a steps-only replaceTag that matches nothing aborts; one that fans out to 
   const { diff } = applyOps(ifElseOnly(), [{ op: 'replaceTag', oldTag: 'nope', newTag: 'new' }], { ctx: {}, idGen: () => 'x' });
   assert.deepEqual(diff.modifiedSteps, []);
 });
+
+// Several ops against the SAME step collapse into one `modifiedSteps` entry, so the result could not
+// say which ops actually matched — reported 2026-09-14 after four replace ops plus a modifyStep on one
+// email step forced a read-back of the stored version to find out. applyOps reports each op's own outcome.
+test('applyOps reports a per-op outcome, so ops against one step are told apart', () => {
+  const { opResults } = applyOps(tpls(), [
+    { op: 'replaceInAttributes', type: 'sms', path: 'body', find: 'OLD', replace: 'NEW' },
+    { op: 'replaceInAttributes', type: 'sms', path: 'body', find: 'ABSENT', replace: 'X', allowNoop: true },
+    { op: 'renameStep', stepId: 'd', name: 'Renamed' },
+  ], { ctx: {}, idGen: () => 'x' });
+  assert.equal(opResults.length, 3);
+  assert.deepEqual(opResults[0], { op: 'replaceInAttributes', matched: 1, created: [], modified: ['d'], deleted: [] });
+  assert.deepEqual(opResults[1], { op: 'replaceInAttributes', matched: 0, created: [], modified: [], deleted: [] });
+  assert.deepEqual(opResults[2], { op: 'renameStep', matched: null, created: [], modified: ['d'], deleted: [] });
+});

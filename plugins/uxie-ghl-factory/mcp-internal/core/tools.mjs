@@ -1069,12 +1069,16 @@ function persistedMissingRequired(gotTemplates, touchedIds, warnings) {
   return missingRequired;
 }
 
-function editPreview(ops, beforeTemplates, templates, diff, triggerPlan, neededTags, tagsToCreate, workflowStatus) {
+function editPreview(ops, beforeTemplates, templates, diff, triggerPlan, neededTags, tagsToCreate, workflowStatus, opResults = null) {
   const beforeIds = new Set(beforeTemplates.map((step) => step.id));
   const afterIds = new Set(templates.map((step) => step.id));
   const requiresPublish = triggerPlan.some((request) => triggerRequiresPublish(request, workflowStatus));
   return {
     opsApplied: ops.map((op) => op?.op ?? null),
+    // What each op did ON ITS OWN. `diff` merges them, so several ops against one step collapse into
+    // a single modifiedSteps entry and a caller cannot tell which of them matched. `matched` is a
+    // replace op's own hit count; null for ops that have no such notion.
+    ...(opResults ? { opResults } : {}),
     stepCount: { before: beforeTemplates.length, after: templates.length },
     idsAdded: [...afterIds].filter((id) => !beforeIds.has(id)),
     idsRemoved: [...beforeIds].filter((id) => !afterIds.has(id)),
@@ -4419,7 +4423,7 @@ export const TOOLS = [
       // Sticky notes — a SEPARATE resource (POST/PATCH /workflows/sticky-note); planned now so a bad
       // note fails the preview, written after the step commit and trigger writes.
       const stickyPlan = stickyOps.map((op) => planStickyNoteOp(op, { loc: args.locationId, wid: args.workflowId }));
-      const { templates, diff } = applyOps(beforeTemplates, stepOps, { ctx, idGen });
+      const { templates, diff, opResults } = applyOps(beforeTemplates, stepOps, { ctx, idGen });
       // PARKED CONTACTS ON A DELETED STEP ARE EJECTED (backlog 23, D-83): the run ends with
       // `step_was_deleted_by_user`, and an autonomous trigger does not re-fire for them in that
       // session. Counted BEFORE the confirm gate on a PUBLISHED workflow only (a draft has no
@@ -4595,7 +4599,7 @@ export const TOOLS = [
       }
       const preview = editPreview(
         args.ops, beforeTemplates, templates, diff, triggerPlan, neededTags, tagsToCreate,
-        fresh.status,
+        fresh.status, opResults,
       );
       // Settings-tab changes (updateSettings ops): the exact values the commit body carries,
       // so a preview shows what the UI's Settings drawer would read back after the PUT.

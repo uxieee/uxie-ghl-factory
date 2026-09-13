@@ -902,9 +902,16 @@ export function applyOps(templates, ops, { ctx, idGen }) {
   let diff = empty();
   // refs authored by EARLIER ops in this call -> the ids they minted, so op 2 can target op 1.
   const opRefs = new Map();
+  // What each op did ON ITS OWN. The merged diff cannot answer that: several ops against one step
+  // collapse into a single `modifiedSteps` entry, so a caller with four replaces and a modifyStep on
+  // one email step had to read the stored version back to learn which replaces matched.
+  // `matched` is the replace ops' own count and null for every other op, which has no such notion.
+  const opResults = [];
   for (const op of ops ?? []) {
     const opCtx = { ...ctx, externalRefs: externalRefsOf(tpls, opRefs) };
     const r = applyOp(tpls, op, { ctx: opCtx, idGen });
+    opResults.push({ op: canonicalOpName(op?.op), matched: r.replaced ?? null,
+      created: [...(r.diff?.createdSteps ?? [])], modified: [...(r.diff?.modifiedSteps ?? [])], deleted: [...(r.diff?.deletedSteps ?? [])] });
     tpls = r.templates;
     diff = mergeDiff(diff, r.diff);
     // Record only refs this op actually MINTED — the seeded live ids/names map to themselves
@@ -933,5 +940,5 @@ export function applyOps(templates, ops, { ctx, idGen }) {
     if (renumbered.changed.length)
       norm.modifiedSteps = [...new Set([...norm.modifiedSteps, ...renumbered.changed])];
   }
-  return { templates: tpls, diff: norm, opRefs };
+  return { templates: tpls, diff: norm, opRefs, opResults };
 }
