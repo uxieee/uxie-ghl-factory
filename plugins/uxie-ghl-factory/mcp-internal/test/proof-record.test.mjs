@@ -145,3 +145,20 @@ test('SSE HTTP method is accepted; other methods are still refused', () => {
   r.depends.endpoints['FETCH https://backend.leadconnectorhq.com /data'] = 'f'.repeat(64);
   assert.ok(validateRecord(r).some((e) => /endpoints/.test(e)), 'made-up FETCH method is refused');
 });
+
+// Fix round 3: row: charset regression fix — allow [a-zA-Z0-9_:.-] not just [a-z0-9-]
+test('row: evidence accepts real proofRows with underscores, uppercase, and colons', () => {
+  const r = good();
+  // These four ids were refused by the broken pattern but are in the real catalogue
+  const realIds = [
+    'typed--list_account_entities--calendars',  // has underscore
+    'trigger-count-by-triggerId',               // has uppercase
+    'trigger-logs-triggerId',                   // has uppercase
+    'typed--get_studio_site_history--vibe-platform-documents:runQuery'  // underscore, uppercase, colon
+  ];
+
+  for (const id of realIds) {
+    r.runs[0].evidence = [`row:${id}`];
+    assert.ok(validateRecord(r).some((e) => /evidence/.test(e)) === false, `must accept ${id}`);
+  }
+});
