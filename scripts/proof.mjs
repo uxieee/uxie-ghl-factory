@@ -84,6 +84,24 @@ export function syncLabels(descriptions, records) {
   return { next, changed };
 }
 
+// Writes each record with `write`, stopping (never skipping) on the first one that fails
+// validation — a record that cannot validate is a signal, not something to swallow. On failure
+// the thrown message names how many were written, which tool failed and why, and that a re-run
+// is safe: already-written records are kept and backfill only ever writes tools with no record yet.
+export function backfillWrite(recs, write) {
+  let written = 0;
+  for (const rec of recs) {
+    try {
+      write(rec);
+      written += 1;
+    } catch (e) {
+      throw new Error(`backfill: wrote ${written} record(s), then ${rec.tool} failed validation:\n  ${e.message}\n`
+        + `the ${written} record(s) already written are kept — fix the cause and re-run; backfill skips tools that already have a record.`);
+    }
+  }
+  return written;
+}
+
 // ── effects ───────────────────────────────────────────────────────────────────────────────────
 async function loadContext({ offline }) {
   const knowledge = process.env.GHL_KNOWLEDGE_DIR ?? resolve(ROOT, '../knowledge');
@@ -171,8 +189,8 @@ async function main(argv) {
     const have = loadRecords(PROOFS);
     const recs = backfillFrom(readJSON(DESCRIPTIONS), { compute: (tool, at) => computeDepends(tool, ctx, at) }, today())
       .filter((r) => !have[r.tool]);
-    for (const r of recs) write(r);
-    console.log(`backfilled ${recs.length} record(s)`);
+    const written = backfillWrite(recs, write);
+    console.log(`backfilled ${written} record(s)`);
     return 0;
   }
   console.error('usage: proof.mjs record|rehash|backfill|from-receipt|validate|sync-labels — see the header');

@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { appendRun, rehash, backfillFrom, applyLabel, syncLabels } from '../../../../scripts/proof.mjs';
+import { appendRun, rehash, backfillFrom, applyLabel, syncLabels, backfillWrite } from '../../../../scripts/proof.mjs';
 
 const computed = (over = {}) => ({ surfaces: ['workflows'], depends: {
   hashedAt: '2026-09-14', endpoints: { 'POST https://backend.leadconnectorhq.com /workflow/{}': 'a'.repeat(64) },
@@ -54,4 +54,24 @@ test('syncLabels skips audit composites and tools with no entry, and reports wha
   assert.deepEqual(changed, ['build_workflow']);
   assert.equal(next.build_workflow.proof, 'live-runtime (2026-09-20)');
   assert.equal(syncLabels(next, records).changed.length, 0);
+});
+
+test('backfillWrite stops on the first failing tool and reports count written, the tool, and that a re-run is safe', () => {
+  const recs = [{ tool: 'build_workflow' }, { tool: 'get_workflow_stats' }, { tool: 'list_courses' }];
+  const write = (rec) => {
+    if (rec.tool === 'get_workflow_stats') {
+      throw new Error('refusing to write get_workflow_stats:\n  runs[0].evidence: at least one receipt: ledger: corpus: row: commit: reference');
+    }
+  };
+  let calls = 0;
+  let err;
+  try { backfillWrite(recs, (r) => { calls += 1; write(r); }); } catch (e) { err = e; }
+  assert.ok(err, 'backfillWrite must throw');
+  assert.equal(calls, 2, 'stops at the failing tool — never skips it and never continues past it');
+  assert.match(err.message, /wrote 1 record/);
+  assert.match(err.message, /get_workflow_stats failed validation/);
+  assert.match(err.message, /runs\[0\]\.evidence: at least one receipt: ledger: corpus: row: commit: reference/);
+  assert.match(err.message, /already written are kept/);
+  assert.match(err.message, /re-run/);
+  assert.match(err.message, /skips tools that already have a record/);
 });
