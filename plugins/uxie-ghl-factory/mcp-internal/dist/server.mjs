@@ -176545,9 +176545,10 @@ var TOOLS2 = [
           { preview }
         );
       }
+      const flatMirror = Object.fromEntries(["fields", "formAction", "style"].filter((k) => form.formData?.[k] !== void 0 && after[k] !== void 0).map((k) => [k, after[k]]));
       const saved = await gw.call("POST", `/forms/${id}`, {
         name,
-        formData: { ...form.formData ?? {}, form: after }
+        formData: { ...form.formData ?? {}, ...flatMirror, form: after }
       });
       if (!saved.ok) return fromHttp(saved.status, saved.json);
       const RENAMED = { redirect_url: "redirectUrl", ac_branding: "acBranding" };

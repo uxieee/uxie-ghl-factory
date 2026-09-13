@@ -7474,9 +7474,20 @@ export const TOOLS = [
       }
       // The whole document, including every key we are not touching. This is the entire reason the
       // tool exists: a bare POST of just the changed key silently deletes the rest.
+      //
+      // "Write both, trust neither." Some documents also carry FLAT fields/style/formAction beside
+      // `form` — a malformed save creates them, because the merge is at formData, one level above form.
+      // The widget renders `form` (proven live 2026-09-12), but a natively embedded funnel form was
+      // observed rendering the FLAT copy on one live page after a save that changed only `form`
+      // (unreplicated; no /forms/data capture). Re-sending a stale flat copy verbatim is how that page
+      // kept its old styling after a "successful" save. When the flat keys already exist they are kept
+      // equal to `form`; they are never created on a clean document.
+      const flatMirror = Object.fromEntries(['fields', 'formAction', 'style']
+        .filter((k) => form.formData?.[k] !== undefined && after[k] !== undefined)
+        .map((k) => [k, after[k]]));
       const saved = await gw.call('POST', `/forms/${id}`, {
         name,
-        formData: { ...(form.formData ?? {}), form: after },
+        formData: { ...(form.formData ?? {}), ...flatMirror, form: after },
       });
       if (!saved.ok) return fromHttp(saved.status, saved.json);
       // GHL renames two keys on write. Comparing on the names we SENT would report a mismatch on a
