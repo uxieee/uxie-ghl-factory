@@ -119,6 +119,23 @@ export function runsFromReceipt(receipt, stamp) {
   return out;
 }
 
+// Builds the records `from-receipt` will write, IN ORDER, folding each write's own result into the
+// base the next one appends onto. `have` is the on-disk snapshot taken once; everything after that
+// comes from the accumulator here, never from `have` again — so a tool exercised twice in the same
+// receipt gets both runs, the second appended onto the record the first just produced, rather than
+// both computed from the same stale pre-loop snapshot (which is what silently dropped a run: two
+// writes to the same tool, both built from `have[tool]`, the second overwriting the first's file).
+export function applyReceiptRuns(runs, have, computeFor) {
+  const acc = { ...have };
+  const out = [];
+  for (const { tool, run } of runs) {
+    const rec = { tool, ...appendRun(acc[tool] ?? null, run, computeFor(tool)) };
+    acc[tool] = rec;
+    out.push(rec);
+  }
+  return out;
+}
+
 // ── effects ───────────────────────────────────────────────────────────────────────────────────
 async function loadContext({ offline }) {
   const knowledge = process.env.GHL_KNOWLEDGE_DIR ?? resolve(ROOT, '../knowledge');
@@ -215,11 +232,15 @@ async function main(argv) {
     const file = join(ROOT, 'audits/live-proofs', `${arg}.json`);
     if (!existsSync(file)) throw new Error(`no receipt ${arg} on this machine`);
     const ctx = await loadContext({ offline });
-    const have = loadRecords(PROOFS);
     const runs = runsFromReceipt(readJSON(file), arg);
-    for (const { tool, run } of runs) write({ tool, ...appendRun(have[tool] ?? null, run, computeDepends(tool, ctx, today())) });
+    const recs = applyReceiptRuns(runs, loadRecords(PROOFS), (tool) => computeDepends(tool, ctx, today()));
+    let written = 0;
+    for (const rec of recs) { write(rec); written += 1; }
+    // `written` counts writes that actually happened, not runs.length — it can never claim more
+    // than what is on disk, even if a later write throws mid-loop (validation failure stops the
+    // loop here, same as everywhere else `write` is called).
     for (const { tool, run } of runs) console.log(`${run.result === 'pass' ? 'pass' : 'FAIL'}  ${tool}${run.failures ? `  ${run.failures.join(', ')}` : ''}`);
-    console.log(`recorded ${runs.length} run(s) from receipt ${arg}`);
+    console.log(`recorded ${written} run(s) from receipt ${arg}`);
     return 0;
   }
   console.error('usage: proof.mjs record|rehash|backfill|from-receipt|validate|sync-labels — see the header');

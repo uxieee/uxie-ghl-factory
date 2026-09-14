@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { appendRun, rehash, backfillFrom, applyLabel, syncLabels, backfillWrite, runsFromReceipt } from '../../../../scripts/proof.mjs';
+import { appendRun, rehash, backfillFrom, applyLabel, syncLabels, backfillWrite, runsFromReceipt, applyReceiptRuns } from '../../../../scripts/proof.mjs';
 
 const computed = (over = {}) => ({ surfaces: ['workflows'], depends: {
   hashedAt: '2026-09-14', endpoints: { 'POST https://backend.leadconnectorhq.com /workflow/{}': 'a'.repeat(64) },
@@ -90,4 +90,25 @@ test('runsFromReceipt: one run per exercised tool; nothing from an unverified su
   assert.deepEqual(runs.map((r) => [r.tool, r.run.result]), [['build_workflow', 'pass'], ['export_workflow', 'fail']]);
   assert.deepEqual(runs[1].run, { at: '2026-09-20', result: 'fail', how: 'suite', suite: 'workflows',
     evidence: ['receipt:2026-09-20-0930'], location: '…zn6B', failures: ['export-keeps-triggers'] });
+});
+
+test('applyReceiptRuns: a tool exercised twice in one receipt keeps BOTH runs, in order — not just the last write', () => {
+  // Regression for a real bug: from-receipt used to compute every write from the SAME pre-loop
+  // `have` snapshot, so the second write for a repeated tool clobbered the first on disk.
+  const runs = [
+    { tool: 'build_workflow', run: { at: '2026-09-20', result: 'pass', how: 'suite', suite: 'workflows', evidence: ['receipt:2026-09-20-0930'] } },
+    { tool: 'build_workflow', run: { at: '2026-09-20', result: 'fail', how: 'suite', suite: 'funnels', evidence: ['receipt:2026-09-20-0930'] } },
+  ];
+  const recs = applyReceiptRuns(runs, {}, () => computed());
+  assert.equal(recs.length, 2, 'one record snapshot is produced per run, so the count reported matches what gets written');
+  assert.equal(recs[1].runs.length, 2, 'the second write built on the first, not on the empty pre-loop snapshot');
+  assert.deepEqual(recs[1].runs.map((r) => r.result), ['pass', 'fail']);
+});
+
+test('applyReceiptRuns: a tool with an existing record from an earlier receipt keeps its prior runs', () => {
+  const priorRec = { tool: 'export_workflow', ...appendRun(null, { at: '2026-08-01', result: 'pass', how: 'suite', suite: 'workflows', evidence: ['receipt:2026-08-01-0930'] }, computed()) };
+  const runs = [{ tool: 'export_workflow', run: { at: '2026-09-20', result: 'fail', how: 'suite', suite: 'workflows', evidence: ['receipt:2026-09-20-0930'], failures: ['x'] } }];
+  const recs = applyReceiptRuns(runs, { export_workflow: priorRec }, () => computed());
+  assert.equal(recs.length, 1);
+  assert.deepEqual(recs[0].runs.map((r) => r.at), ['2026-08-01', '2026-09-20'], 'the older run from the earlier receipt is not lost');
 });
