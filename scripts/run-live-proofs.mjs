@@ -120,6 +120,12 @@ export function selectProofs(only) {
 /** Last four characters only. Enough to tell two accounts apart in a log; not enough to be one. */
 export const tail4 = (id) => (typeof id === 'string' && id.length >= 4 ? `…${id.slice(-4)}` : null);
 
+// The suite's own list of the tools it drove. Absent or unreadable is null — never an empty list,
+// which would read as "this suite exercised nothing" when the truth is "it did not say".
+export const readExercised = (file) => {
+  try { const v = JSON.parse(readFileSync(file, 'utf8')); return Array.isArray(v) ? v : null; } catch { return null; }
+};
+
 /**
  * Parse a suite's own summary line rather than trusting its exit code alone. `conformance.mjs`
  * prints `N passed, M failed, K skipped`, and the SKIPS matter: they are the member-session writes
@@ -196,10 +202,12 @@ if (invokedDirectly) {
   for (const p of selected) {
     if (!existsSync(p.script)) { results.push({ name: p.name, ok: false, error: 'script missing' }); continue; }
     console.log(`\n── ${p.name} ${'─'.repeat(Math.max(0, 60 - p.name.length))}`);
+    mkdirSync(RECEIPTS, { recursive: true });
+    const exercisedFile = join(RECEIPTS, `.exercised-${p.name}-${Date.now()}.json`);
     const t0 = Date.now();
     const r = spawnSync('node', [p.script], {
       cwd: dirname(p.script),
-      env: { ...process.env, GHL_TOKEN: creds.jwt, GHL_LOCATION: location },
+      env: { ...process.env, GHL_TOKEN: creds.jwt, GHL_LOCATION: location, GHL_EXERCISED_OUT: exercisedFile },
       encoding: 'utf8',
       stdio: ['ignore', 'pipe', 'pipe'],
     });
@@ -212,6 +220,7 @@ if (invokedDirectly) {
       ok: r.status === 0,
       exitCode: r.status,
       durationMs: Date.now() - t0,
+      exercised: readExercised(exercisedFile),
       // The suite's own count beats the exit code: a run that exits 0 having skipped everything is
       // not a run that proved anything.
       ...(summary ? { summary } : { summary: null, note: 'the suite printed no parseable summary line — treat this pass as unverified' }),

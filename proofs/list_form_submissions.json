@@ -1,0 +1,32 @@
+{
+  "tool": "list_form_submissions",
+  "surfaces": [
+    "forms"
+  ],
+  "runs": [
+    {
+      "at": "2026-09-06",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "row:forms-submissions"
+      ],
+      "backfilled": true
+    }
+  ],
+  "depends": {
+    "hashedAt": "2026-09-14",
+    "endpoints": {
+      "GET https://services.leadconnectorhq.com /forms/submissions": "844fc661a8a5ee24c5acc13d6956ec48a8377ebbfcebe15365448c4f66e66cac"
+    },
+    "builds": {
+      "formSurveyApp": 318
+    },
+    "code": {
+      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#list_form_submissions": "49618fc6dcb30e868ca9821ae93ec7906b9917c4db8438bbb2f84de85ce8424c",
+      "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "e65c2384aefb498ce49453dd2d6d8d1a1d8351fd6d337aef5256eb982e1db02f",
+      "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
+      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "2d59b12818ffe76fb105e5284c3d186aea8d07f6a457b7c6344ea2258ba6a1d6"
+    }
+  }
+}

@@ -3,7 +3,10 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { ALL_SURFACES, PROOFS, selectProofs, tail4, parseSummary } from '../../../../scripts/run-live-proofs.mjs';
+import { ALL_SURFACES, PROOFS, selectProofs, tail4, parseSummary, readExercised } from '../../../../scripts/run-live-proofs.mjs';
+import { mkdtempSync as mkdtempEx, writeFileSync as writeEx } from 'node:fs';
+import { join as joinEx } from 'node:path';
+import { tmpdir as tmpdirEx } from 'node:os';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const SCRIPT = resolve(HERE, '../../../../scripts/run-live-proofs.mjs');
@@ -100,5 +103,15 @@ test('the receipt records what is NOT proven, and derives it so it cannot contra
     assert.ok(ALL_SURFACES.includes(sf), `${sf} is claimed by a suite but is not in ALL_SURFACES — the denominator is wrong`);
     assert.ok(!noSuite.includes(sf), `${sf} is both proven and listed as unproven`);
   }
+});
+
+test('readExercised: an array when the suite wrote one, null when it did not', () => {
+  const dir = mkdtempEx(joinEx(tmpdirEx(), 'rx-'));
+  const f = joinEx(dir, 'x.json');
+  assert.equal(readExercised(f), null);
+  writeEx(f, JSON.stringify([{ tool: 'build_workflow', calls: 2, passed: 3, failed: 0, failures: [] }]));
+  assert.equal(readExercised(f)[0].tool, 'build_workflow');
+  writeEx(f, 'not json');
+  assert.equal(readExercised(f), null);
 });
 

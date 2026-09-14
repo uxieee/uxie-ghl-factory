@@ -37,6 +37,7 @@ import { fileURLToPath } from 'node:url';
 import {
   bumpManifestText, changelogSection, preflightFailures, releaseCommitMessage, releaseTitle,
 } from './release-lib.mjs';
+import { failingTools } from './lib/proof-record.mjs';
 
 const REPO = fileURLToPath(new URL('..', import.meta.url));
 const PLUGIN = join(REPO, 'plugins/uxie-ghl-factory');
@@ -91,6 +92,8 @@ const failures = preflightFailures({
   ahead: Number(git('rev-list', '--count', 'origin/main..HEAD')),
   dirty, untracked, current, next: version, section, today,
   tools: DRY ? {} : { gh: onPath('gh'), claude: flag('--no-install') ? true : onPath('claude') },
+  failing: failingTools(join(REPO, 'proofs')),
+  allowFailing: (opt('--allow-failing') ?? '').split(',').map((s) => s.trim()).filter(Boolean),
 });
 const hard = failures.filter((f) => !f.startsWith('note:'));
 for (const f of failures) console.log(`   ${f.startsWith('note:') ? '·' : '✗'} ${f}`);

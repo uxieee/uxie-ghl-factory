@@ -6,12 +6,20 @@
 // This test is the comparison that was missing. It is deliberately narrow: it judges only the
 // capability rows whose exact METHOD + PATH the catalogue already knows, so it can never invent a
 // verdict about an endpoint nobody has documented.
+//
+// COVERAGE, corrected 2026-09-14: the AI-rail discovery below used to scan each tool's source
+// block through a hand-rolled regex capped at 6000 characters per block. That cap silently
+// dropped any longer block from the scan entirely — not just list_marketplace_apps's (which sat
+// 77 characters over it), but 17 of the file's 83 tool blocks, a fifth of the surface, with the
+// test reading green throughout. It now uses `toolBlocks` from scripts/lib/code-deps.mjs, the
+// same uncapped block splitter core/proof-deps.mjs relies on, and scans all 83.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 import { TOOLS } from '../core/tools.mjs';
+import { toolBlocks } from '../../../../scripts/lib/code-deps.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const catalogue = JSON.parse(readFileSync(resolve(HERE, '../catalog/internal-endpoints.json'), 'utf8'));
@@ -19,12 +27,23 @@ const catalogue = JSON.parse(readFileSync(resolve(HERE, '../catalog/internal-end
 const BACKEND = 'https://backend.leadconnectorhq.com';
 const AI_HOST = 'https://services.leadconnectorhq.com';
 
+// A block's prose (design notes, live-proof writeups) routinely explains a rail decision in
+// English, and that English can itself contain the literal text "rail:'ai'" while arguing the
+// OPPOSITE of what it looks like it says (move_workflows's block does exactly this: "rail:'ai'
+// would demand ... this endpoint never needed"). So comments are stripped before the rail test
+// ever sees the block — this must judge only code that actually runs, never a description of it.
+const stripComments = (block) => block
+  .replace(/\/\*[\s\S]*?\*\//g, '')
+  .split('\n')
+  .filter((line) => !/^\s*\/\//.test(line))
+  .join('\n');
+
 // Tools whose handler builds its gateway with rail:'ai'. Read from the source rather than
 // maintained by hand, so a new AI-rail tool cannot silently escape this check.
 const SOURCE = readFileSync(resolve(HERE, '../core/tools.mjs'), 'utf8');
 const AI_RAIL_TOOLS = new Set();
-for (const m of SOURCE.matchAll(/name:\s*'([a-z_]+)'([\s\S]{0,6000}?)(?=\n  \{\n    (?:\/\/|name:)|\n\];)/g)) {
-  if (/rail:\s*'ai'/.test(m[2])) AI_RAIL_TOOLS.add(m[1]);
+for (const [name, block] of toolBlocks(SOURCE)) {
+  if (/rail:\s*'ai'/.test(stripComments(block))) AI_RAIL_TOOLS.add(name);
 }
 
 // A capability path is a template ({loc}, {wid}); the catalogue uses its own placeholder names.
@@ -78,6 +97,22 @@ test('every known host disagreement still carries a reason (the ledger cannot ro
   }
 });
 
+// A SINGLE named exception, keyed to one exact tool + capability — never a blanket path skip
+// the way KNOWN_HOST_DISAGREEMENTS is (that map silences a whole path family across every tool
+// that touches it; this silences nothing else that happens to share the path). The list_marketplace_apps
+// handler's own comment (core/tools.mjs, right above its `rail: 'ai'` gateway call) says the
+// module endpoint answered on the AI host with the dual credential rail and that this is what
+// was proven live; the catalogue row is source-mined (WorkflowMarketplaceService.ts:377) and says
+// backend. Both sides may be right — this platform already has surfaces (see
+// KNOWN_HOST_DISAGREEMENTS above) that answer identically on both hosts. Recorded as backlog row
+// bl-122-list-marketplace-apps-and-the-catalogue-disagree, which also records that this test was
+// only passing before because its per-tool source scan capped each block at 6000 characters and
+// this one sat just over the cap. Remove this exception once a single live GET per host settles
+// which host (or both) actually serves it.
+const NAMED_TOOL_PATH_EXCEPTIONS = new Set([
+  'list_marketplace_apps GET /marketplace/core/search/module',
+]);
+
 test('every tool capability the catalogue knows agrees with the catalogue on ORIGIN', () => {
   const rows = new Map();
   for (const e of catalogue.endpoints) rows.set(`${e.method} ${shape(e.path)}`, e);
@@ -90,6 +125,7 @@ test('every tool capability the catalogue knows agrees with the catalogue on ORI
       if (row.origin === 'https://rest.gohighlevel.com') continue;   // a different rail entirely
       const declared = c.origin ?? (AI_RAIL_TOOLS.has(tool.name) ? AI_HOST : BACKEND);
       if (row.origin === declared) continue;
+      if (NAMED_TOOL_PATH_EXCEPTIONS.has(`${tool.name} ${c.method} ${shape(c.path)}`)) continue;
       // A reviewed family is recorded, not silenced: anything outside the ledger fails.
       if (knownReason(c.path)) continue;
       bad.push(`${tool.name}: ${c.method} ${c.path} — tool implies ${declared}, catalogue says ${row.origin}`);

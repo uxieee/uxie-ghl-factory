@@ -1727,7 +1727,7 @@ export const TOOLS = [
   },
   {
     name: 'create_convai_agent',
-    description: `${describe('create_convai_agent', 'Create Conversation AI agent — proof: live-roundtrip (2026-07-11); risk: write')}. Confirmation-gated: preview compiles a no-write plan.`,
+    description: `${describe('create_convai_agent', 'Create Conversation AI agent')}. Confirmation-gated: preview compiles a no-write plan.`,
     inputSchema: schema({ locationId: z.string(), spec: z.object({}).passthrough(), confirm: z.boolean().default(false) }),
     capabilities: [
       { method: 'POST', path: '/ai-employees/employees' },
@@ -1756,7 +1756,7 @@ export const TOOLS = [
     // the update did NOT set are diffed before/after, and any movement fails the call.
     name: 'update_convai_agent',
     description: describe('update_convai_agent',
-      'Update a Conversation AI agent by READ-MERGE-WRITE — proof: engine; risk: write. GETs the current '
+      'Update a Conversation AI agent by READ-MERGE-WRITE GETs the current '
       + 'record, overlays your spec, applies the builder\'s own bot-type cleanup, PUTs the WHOLE record, '
       + 're-reads, and diffs every field the update did not set. A partial PUT resets omitted agent-level '
       + 'booleans (cancelEnabled/rescheduleEnabled measured live), so a partial is never sent. Any '
@@ -1815,7 +1815,7 @@ export const TOOLS = [
   },
   {
     name: 'create_voiceai_agent',
-    description: `${describe('create_voiceai_agent', 'Create Voice AI agent — proof: documented; risk: write')}. Live-proven end-to-end on GROM AU 2026-07-21 (create → full-replace update → verified). Confirmation-gated: preview compiles a no-write plan.`,
+    description: `${describe('create_voiceai_agent', 'Create Voice AI agent')}. Live-proven end-to-end on GROM AU 2026-07-21 (create → full-replace update → verified). Confirmation-gated: preview compiles a no-write plan.`,
     inputSchema: schema({ locationId: z.string(), spec: z.object({}).passthrough(), confirm: z.boolean().default(false) }),
     capabilities: [
       { method: 'POST', path: '/voice-ai/agents' },
@@ -1839,7 +1839,7 @@ export const TOOLS = [
   },
   {
     name: 'create_studio_agent',
-    description: `${describe('create_studio_agent', 'Create Agent Studio agent — proof: documented; risk: write')}. Live-proven end-to-end on GROM AU 2026-07-21 (SSE build → follow-up PUT → verified). Provide buildPrompt (the AI build instruction) and/or systemPrompt (the exact runtime prompt) — either alone works; both keeps their distinct roles. Confirmation-gated: preview compiles a no-write plan.`,
+    description: `${describe('create_studio_agent', 'Create Agent Studio agent')}. Live-proven end-to-end on GROM AU 2026-07-21 (SSE build → follow-up PUT → verified). Provide buildPrompt (the AI build instruction) and/or systemPrompt (the exact runtime prompt) — either alone works; both keeps their distinct roles. Confirmation-gated: preview compiles a no-write plan.`,
     inputSchema: schema({ locationId: z.string(), companyId: z.string().optional(), spec: z.object({}).passthrough(), confirm: z.boolean().default(false) }),
     capabilities: [
       { method: 'SSE', path: '/agent-studio/super-agents/build' },
@@ -1864,7 +1864,7 @@ export const TOOLS = [
     name: 'get_contact_ai_status',
     description: describe(
       'get_contact_ai_status',
-      'Read per-contact Conversation AI status — proof: live-runtime (2026-08-08); risk: read',
+      'Read per-contact Conversation AI status',
     )
       + '. This is the sparkles toggle in the conversation composer (Conversation AI Bot → Active/Inactive → '
       + 'Reactivate after N). Returns configId, status, sleepingTill, the reactivation pair and the assigned '
@@ -1889,7 +1889,7 @@ export const TOOLS = [
     name: 'set_contact_ai_status',
     description: describe(
       'set_contact_ai_status',
-      'Set per-contact Conversation AI status — proof: live-runtime (2026-08-08); risk: write',
+      'Set per-contact Conversation AI status',
     )
       + '. This is how you silence one agent for one contact while testing a live account, without touching the '
       + 'agent, the workflows, or DND. DND is the method this replaces and it is worse on every count: it blocks '
@@ -2077,7 +2077,7 @@ export const TOOLS = [
     // graph nobody actually looked at.
     name: 'get_workflow_digest',
     description: describe('get_workflow_digest',
-      'A COMPACT read of one workflow — proof: engine; risk: read-only. Identity, version and a '
+      'A COMPACT read of one workflow Identity, version and a '
       + 'structural fingerprint, the trigger set with its conditions, ONE line per step (wiring, '
       + 'outgoing references, merge tags, a text preview, flags, and which branch it sits on), and '
       + 'the linear chains. Roughly a tenth the size of export_workflow. Use it as the READ half of '
@@ -2123,7 +2123,7 @@ export const TOOLS = [
     // to be invented and shipped to real customers for three weeks.
     name: 'search_merge_tags',
     description: describe('search_merge_tags',
-      'Search the merge-tag inventory by INTENT — proof: engine; risk: read-only. Returns the '
+      'Search the merge-tag inventory by INTENT Returns the '
       + 'builder picker\'s static tags ranked against your phrase, and, given a locationId, this '
       + 'account\'s own custom FIELDS and custom VALUES joined in. A tag GHL cannot resolve renders '
       + 'as literal braces to the customer and nothing in GHL catches it, so author from this list '
@@ -3821,11 +3821,8 @@ export const TOOLS = [
     name: 'list_marketplace_apps',
     description: describe('list_marketplace_apps',
       'List the third-party marketplace apps INSTALLED in a sub-account, with each app\'s triggers and '
-      + 'actions — key, version, templateId, and the full customVars / inputs schema — proof: live-runtime '
-      + '(2026-08-16: the endpoint and its dual-credential rail were called against a real sub-account and '
-      + 'returned the installed app with appId/publisher; the handler itself is unit-tested against a mocked '
-      + 'gateway, not live-invoked); '
-      + 'risk: read. The workflow builder renders its own Add-trigger and Add-action panels from these two '
+      + 'actions — key, version, templateId, and the full customVars / inputs schema '
+      + 'The workflow builder renders its own Add-trigger and Add-action panels from these two '
       + 'reads, so the list is complete by construction ONLY when both GETs succeed; a failed leg reports '
       + '`complete:false` with that leg\'s data as null (never a silently empty list) and names which leg '
       + 'failed in `sources`, so a partial read can never be misread as "this app has none". Use it for '
@@ -4923,7 +4920,7 @@ export const TOOLS = [
     // whole document and runs all of it.
     name: 'repair_workflow',
     description: describe('repair_workflow',
-      'Full-document REPAIR of workflowData.templates — proof: engine; risk: write. Runs every edit guard: opportunity association, '
+      'Full-document REPAIR of workflowData.templates Runs every edit guard: opportunity association, '
       + 'required fields, dangling refs/parentKeys, goto loops, dead branches, workflow rules and merge '
       + 'tags — then the plain PUT and a round-trip verify. The sanctioned replacement for a hand-rolled '
       + 'PUT when the ops in edit_workflow cannot express the change; prefer edit_workflow when they can. '
@@ -6710,7 +6707,7 @@ export const TOOLS = [
       'Resolve a domain, slug or name to the GHL surface that owns it — AI Studio project or funnel. '
       + 'Call this FIRST for any "work on <site>" request: AI Studio projects and funnels are disjoint '
       + 'collections, so querying the wrong one returns an empty list that reads as "does not exist" '
-      + '— proof: live-runtime (2026-09-04); risk: read. Disjointness measured 2026-09-04 '
+      + 'Disjointness measured 2026-09-04 '
       + '(knowledge/sniffs/ai-studio-2026-09-04/sweep-19.mjs); the funnels leg runs on the token-id '
       + 'rail — the same sweep called it live and it succeeded, and '
       + 'knowledge/corpus/funnels/20-api/funnels-api.md documents the rail as proven-live 2026-08-25.'),
@@ -6780,7 +6777,7 @@ export const TOOLS = [
   },
   {
     name: 'list_studio_sites',
-    description: describe('list_studio_sites', 'List AI Studio (vibe) projects and folders for a sub-account — proof: live-runtime (2026-09-04); risk: read.'),
+    description: describe('list_studio_sites', 'List AI Studio (vibe) projects and folders for a sub-account'),
     inputSchema: schema({ locationId: z.string() }),
     capabilities: [{ method: 'GET', path: '/vibe-ai/projects' }, { method: 'GET', path: '/vibe-ai/folders' }],
     handler: async (args, deps) => guard(async () => {
@@ -6802,7 +6799,7 @@ export const TOOLS = [
   },
   {
     name: 'get_studio_site',
-    description: describe('get_studio_site', 'One AI Studio project: detail plus its page routes — proof: live-runtime (2026-09-04); risk: read.'),
+    description: describe('get_studio_site', 'One AI Studio project: detail plus its page routes'),
     inputSchema: schema({ locationId: z.string(), projectId: z.string() }),
     capabilities: [
       { method: 'GET', path: '/vibe-ai/projects/{projectId}' },
@@ -6823,7 +6820,7 @@ export const TOOLS = [
     name: 'read_studio_site_content',
     description: describe('read_studio_site_content',
       'Read an AI Studio site\'s source — every file with its content. This is how you read a site\'s '
-      + 'copy as structured text instead of scraping the published HTML — proof: live-runtime (2026-09-04); risk: read.'),
+      + 'copy as structured text instead of scraping the published HTML'),
     inputSchema: schema({ locationId: z.string(), projectId: z.string(),
       pathContains: z.string().optional(), maxBytes: z.number().optional() }),
     capabilities: [
@@ -6851,8 +6848,7 @@ export const TOOLS = [
     name: 'get_studio_site_history',
     description: describe('get_studio_site_history',
       'The build history of an AI Studio site: every prompt, every assistant turn, the versions each '
-      + 'minted, and the publish journal. Read from Firestore — there is no REST endpoint for this '
-      + '— proof: live-runtime (2026-09-04); risk: read.'),
+      + 'minted, and the publish journal. Read from Firestore — there is no REST endpoint for this'),
     inputSchema: schema({ locationId: z.string(), projectId: z.string(), limit: z.number().optional() }),
     capabilities: [
       { method: 'GET', path: '/vibe-ai/projects/{projectId}' },
@@ -6881,8 +6877,7 @@ export const TOOLS = [
   {
     name: 'get_studio_site_diffs',
     description: describe('get_studio_site_diffs',
-      'The per-file unified diffs a generation produced — exactly what the AI changed, file by file '
-      + '— proof: live-runtime (2026-09-04); risk: read.'),
+      'The per-file unified diffs a generation produced — exactly what the AI changed, file by file'),
     inputSchema: schema({ locationId: z.string(), projectId: z.string(), messageId: z.string().optional() }),
     capabilities: [
       { method: 'GET', path: '/vibe-ai/projects/{projectId}' },
@@ -6903,8 +6898,7 @@ export const TOOLS = [
     name: 'get_studio_preview',
     description: describe('get_studio_preview',
       'Get the sandbox preview URL for an AI Studio site, provisioning it if needed. Open it in a '
-      + 'BROWSER to check the work — a plain HTTP fetch returns a Cloudflare challenge '
-      + '— proof: live-runtime (2026-09-04); risk: read.'),
+      + 'BROWSER to check the work — a plain HTTP fetch returns a Cloudflare challenge'),
     inputSchema: schema({ locationId: z.string(), projectId: z.string() }),
     capabilities: [
       { method: 'GET', path: '/vibe-ai/projects/{projectId}' },
@@ -6940,8 +6934,7 @@ export const TOOLS = [
     name: 'create_studio_site',
     description: describe('create_studio_site',
       'Create an AI Studio project. WARNING: the server REWRITES the name you send and derives the '
-      + 'slug from the rewrite — this tool reports both so you can see it happen '
-      + '— proof: live-runtime (2026-09-04); risk: write.'),
+      + 'slug from the rewrite — this tool reports both so you can see it happen'),
     inputSchema: schema({ locationId: z.string(), name: z.string(), description: z.string().optional() }),
     capabilities: [{ method: 'POST', path: '/vibe-ai/projects' }],
     handler: async (args, deps) => guard(async () => {
@@ -6958,8 +6951,7 @@ export const TOOLS = [
     name: 'generate_studio_site',
     description: describe('generate_studio_site',
       'Send a prompt to the AI Studio builder and wait for the build. Preflights usage and reports '
-      + 'what the turn cost. This SPENDS money on the sub-account, metered in USD '
-      + '— proof: live-runtime (2026-09-04); risk: write.'),
+      + 'what the turn cost. This SPENDS money on the sub-account, metered in USD'),
     inputSchema: schema({ locationId: z.string(), projectId: z.string(), prompt: z.string(),
       waitSeconds: z.number().optional() }),
     capabilities: [
@@ -7033,7 +7025,7 @@ export const TOOLS = [
       'Resume a generation that had not finished when generate_studio_site (or a prior call to '
       + 'this tool) returned pending. Pass the SAME messageId — the chat receipt\'s message_id — '
       + 'so this only ever resolves the turn you started, never a stale terminal row already '
-      + 'sitting in the project\'s history — proof: live-runtime (2026-09-04); risk: read.'),
+      + 'sitting in the project\'s history'),
     inputSchema: schema({ locationId: z.string(), projectId: z.string(), messageId: z.string(),
       waitSeconds: z.number().optional() }),
     capabilities: [
@@ -7061,8 +7053,7 @@ export const TOOLS = [
       + 'stored question and picks the right continuation shape itself. For an INTEGRATION question '
       + '(question.kind is integration_input), `answer` is not free text — pass the id of the '
       + 'integration item the question offered (from question.integrationPrompt.items[].id), or the '
-      + 'literal string "dismiss" to decline the integration; the item id itself IS the answer '
-      + '— proof: live-runtime (2026-09-04); risk: write.'),
+      + 'literal string "dismiss" to decline the integration; the item id itself IS the answer'),
     inputSchema: schema({ locationId: z.string(), projectId: z.string(),
       questionMessageId: z.string(), answer: z.string() }),
     capabilities: [
@@ -7092,7 +7083,7 @@ export const TOOLS = [
   {
     name: 'cancel_studio_generation',
     description: describe('cancel_studio_generation',
-      'Cancel a running AI Studio generation — proof: live-runtime (2026-09-04); risk: write.'),
+      'Cancel a running AI Studio generation'),
     inputSchema: schema({ locationId: z.string(), projectId: z.string(), messageId: z.string() }),
     capabilities: [
       { method: 'GET', path: '/vibe-ai/projects/{projectId}' },
@@ -7111,8 +7102,7 @@ export const TOOLS = [
     name: 'set_studio_secrets',
     description: describe('set_studio_secrets',
       'Set project secrets for an AI Studio site. The write MERGES into the existing map, and values '
-      + 'are write-only — reads return names and timestamps only, never values '
-      + '— proof: live-runtime (2026-09-04); risk: write.'),
+      + 'are write-only — reads return names and timestamps only, never values'),
     inputSchema: schema({ locationId: z.string(), projectId: z.string(), secrets: z.record(z.string()) }),
     capabilities: [
       { method: 'GET', path: '/vibe-ai/projects/{projectId}' },
@@ -7135,7 +7125,7 @@ export const TOOLS = [
     name: 'publish_studio_site',
     description: describe('publish_studio_site',
       'Publish an AI Studio site to {slug}.vibepreview.com or its custom domain. OUTWARD-FACING: '
-      + 'this puts the site on the public internet. Requires confirm:true — proof: live-runtime (2026-09-04); risk: write.'),
+      + 'this puts the site on the public internet. Requires confirm:true'),
     inputSchema: schema({ locationId: z.string(), projectId: z.string(),
       versionId: z.string(), confirm: z.boolean().optional() }),
     capabilities: [
@@ -7163,7 +7153,7 @@ export const TOOLS = [
   {
     name: 'unpublish_studio_site',
     description: describe('unpublish_studio_site',
-      'Take an AI Studio site off the public internet. Requires confirm:true — proof: live-runtime (2026-09-04); risk: write.'),
+      'Take an AI Studio site off the public internet. Requires confirm:true'),
     inputSchema: schema({ locationId: z.string(), projectId: z.string(), confirm: z.boolean().optional() }),
     capabilities: [
       { method: 'POST', path: '/vibe-ai/projects/{projectId}/unpublish' },
@@ -8408,7 +8398,7 @@ export const TOOLS = [
   },
   {
     name: 'build_funnel_page',
-    description: `${describe('build_funnel_page', 'Compose a funnel page from native elements and write it — proof: live-roundtrip (2026-09-09); risk: write')}. `
+    description: `${describe('build_funnel_page', 'Compose a funnel page from native elements and write it')}. `
       + 'Preview by default; confirm:true autosaves the DRAFT. Emits the nodes AND the compiled '
       + 'stylesheet together, because the builder canvas styles a page from each node\'s `styles` '
       + 'while the PUBLIC renderer uses the compiled `sectionStyles` string keyed by node id — write '

@@ -1835,5 +1835,30 @@
       "aiemployee-service--get-employee-by-id",
       "aiemployee-service--update-employee"
     ]
+  },
+  "validate_workflow": {
+    "description": "Ask GHL's OWN server validator whether a workflow would pass: the check the builder runs live, debounced, on every edit (POST /workflow/{loc}/{wid}/validate-workflows). Validates the STORED document, or the stored document with `templates` swapped in, so a planned edit can be checked BEFORE it is saved. Writes nothing (proof: live 2026-09-11 on the sandbox: the document read back byte-identical after five calls, and a dangling next, stripped attributes and an unbound flow trigger each came back valid:false naming the rule, the step and the message; risk: read-only). READ `layer`: a failing call reports ONE layer. A structural or an action failure was reported IN PLACE OF a trigger failure the same document also had, so fix what it names and call again until valid. 🔴 valid:true IS NOT A SCHEMA CHECK (measured 2026-09-11). It CATCHES: a missing required field, a scalar of the wrong type, an invalid enum value, a referenced asset that exists nowhere (layer `asset`), every structural defect, and a corrupted step type on a native workflow. It does NOT catch: an invented attribute key, a wrong inner `attributes.type`, an extra top-level step key, a number out of range, or a corrupted step type on an AGENT flow. That class is what check_workflow's nativeShapeIssues and the engine's own guards are for; this tool does not replace them. Re-measured 2026-09-12 after GHL shipped its publish gate: every verdict identical, and 🔴 it IGNORES the document's `status` — the same document answers the same as draft or published, and an EMPTY workflow is valid:true even as published, so GHL's publish-only rules (checkEmptyPublish and the rest) live only in the browser. The engine replays them; see the validation gate.",
+    "risk": "read-only",
+    "proof": "live 2026-09-11 on the sandbox: the document read back byte-identical after five calls, and a dangling next, stripped attributes and an unbound flow trigger each came back valid:false naming the rule, the step and the message",
+    "proofRows": [
+      "workflow-read",
+      "triggers-list",
+      "workflow-validate"
+    ],
+    "proofFloorRows": [
+      "workflow-read",
+      "triggers-list",
+      "workflow-validate"
+    ],
+    "riskRows": [
+      "workflow-read",
+      "triggers-list",
+      "workflow-validate"
+    ],
+    "rows": [
+      "workflow-read",
+      "triggers-list",
+      "workflow-validate"
+    ]
   }
 }

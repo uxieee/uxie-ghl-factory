@@ -30,6 +30,7 @@
  */
 import { randomUUID } from 'node:crypto';
 import { makeGatewayFactory, TOOLS } from '../../../mcp-internal/core/tools.mjs';
+import { createExerciseLog } from '../../../mcp-internal/core/exercise-log.mjs';
 import { DEFAULT_TOKEN_FILE } from '../../../mcp-internal/core/auth.mjs';
 import { makeRenewer, autoRenewEnabled } from '../../../mcp-internal/core/token-renewal.mjs';
 
@@ -46,18 +47,23 @@ state.renewer = autoRenewEnabled(process.env) ? makeRenewer({ getTokenFile: () =
 const deps = { state, makeGw: (o = {}) => makeGatewayFactory({ state })(o) };
 const gw = deps.makeGw({ loc: LOCATION });
 const j = (r) => r.json?.data ?? r.json ?? {};
-const tool = (n) => TOOLS.find((t) => t.name === n);
+const log = createExerciseLog();
+// A crash mid-run must still leave a record of what had been driven up to that point — the explicit
+// log.write() calls below are harmless and clearer, but this is what survives an uncaught throw.
+process.on('exit', () => log.write());
+const tool = (n) => log.wrap(TOOLS.find((t) => t.name === n));
 
 let passed = 0, failed = 0, skipped = 0;
 const left = [];
-const ok = (m) => { passed++; console.log(`  PASS  ${m}`); };
-const bad = (m, extra) => { failed++; console.log(`  FAIL  ${m}${extra ? `  — ${extra}` : ''}`); };
+const ok = (m) => { log.result(true, m); passed++; console.log(`  PASS  ${m}`); };
+const bad = (m, extra) => { log.result(false, m); failed++; console.log(`  FAIL  ${m}${extra ? `  — ${extra}` : ''}`); };
 const skip = (m, why) => { skipped++; console.log(`  SKIP  ${m}  — ${why}`); };
 const check = (cond, m, extra) => (cond ? ok(m) : bad(m, extra));
 
 console.log(`funnels conformance — location …${LOCATION.slice(-4)}\n`);
 
 // 1. FUNNEL + STEP -----------------------------------------------------------------------------
+log.subject(false); // every check in this section runs through a raw gw.call, no tool of ours
 const created = await gw.call('POST', '/funnels/funnel/create', { locationId: LOCATION, name: NAME('FUNNEL'), type: 'funnel' });
 const funnel = j(created);
 const funnelId = funnel._id ?? funnel.id;
@@ -76,7 +82,7 @@ const step = (doc.steps ?? []).find((s) => s.id === STEP_ID);
 check(mk.status < 400 && !!step, 'create-step with a client-minted id produces a step that reads back BY THAT ID', `http ${mk.status}`);
 const pageId = step?.pages?.[0];
 check(!!pageId, 'the step carries the page the server minted');
-if (!pageId) { console.log(`\n${passed} passed, ${failed + 1} failed, ${skipped} skipped`); process.exit(1); }
+if (!pageId) { log.write(); console.log(`\n${passed} passed, ${failed + 1} failed, ${skipped} skipped`); process.exit(1); }
 
 // The read that DETECTS an id-less step, per verify-reads.md — funnel/list shows one looking fine.
 // 🔴 `offset` is REQUIRED (omitting it 422s, and the 422 body is a LIST of messages), the response
@@ -88,6 +94,7 @@ const row = pages.find((p) => (p._id ?? p.id) === pageId);
 check(!!row && !!(row.stepId ?? row.step_id), 'GET /funnels/page reports stepId — the only cheap detector for an id-less step');
 
 // 2. AUTHOR A PAGE -----------------------------------------------------------------------------
+log.subject('build_funnel_page'); // sections 2 and 3 both prove build_funnel_page (draft, then publish)
 const MARK = `TESTCONF${STAMP}`;
 const sections = [{ background: '#101014', padY: 72, maxWidth: 1080, columns: [{ widthPct: 100, elements: [
   { meta: 'heading', html: MARK, tag: 'h1', styles: { color: '#fff', fontSize: '40px', textAlign: 'center' } },
@@ -115,6 +122,7 @@ skip('the public URL serves the pinned version, not the newest draft',
   'needs a domain attached to a fresh funnel — outward-facing, not for an unattended suite');
 
 // 4. VERSIONS ----------------------------------------------------------------------------------
+log.subject(false); // a raw get-versions call, no tool of ours — attribute to nothing, not to a bystander
 const versions = (await gw.call('GET', `/funnels/builder/get-versions?pageId=${pageId}`)).json;
 check(Array.isArray(versions), 'get-versions answers a BARE ARRAY');
 check(Array.isArray(versions) && versions.every((v) => 'version_id' in v),
@@ -123,6 +131,7 @@ const secs = (versions ?? []).map((v) => v.updated_at?._seconds ?? 0);
 check(secs.every((s, i) => i === 0 || secs[i - 1] >= s), 'versions come back newest-first');
 
 // 5. THE AUDITOR -------------------------------------------------------------------------------
+log.subject('audit_site');
 const audit = await tool('audit_site').handler({ locationId: LOCATION, funnelId, maxPages: 10 }, deps);
 check(audit.ok === true, 'audit_site runs read-only against a live account', audit.ok ? '' : audit.detail);
 check(Array.isArray(audit.data?.coverage) && audit.data.coverage.length > 0, 'it reports COVERAGE, not just findings');
@@ -133,5 +142,6 @@ check(refChecks.some((c) => c.ran), 'at least one reference list loaded, so the 
 console.log(`\nLEFT IN PLACE (nothing is deleted):`);
 for (const l of left) console.log(`  ${l}`);
 console.log(`  step ${STEP_ID}, page ${pageId}`);
+log.write();
 console.log(`\n${passed} passed, ${failed} failed, ${skipped} skipped`);
 process.exit(failed > 0 ? 1 : 0);

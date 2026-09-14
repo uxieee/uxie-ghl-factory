@@ -1,0 +1,42 @@
+{
+  "tool": "create_smart_list",
+  "surfaces": [
+    "platform"
+  ],
+  "runs": [
+    {
+      "at": "2026-09-07",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "row:platform--contacts-smartlist",
+        "row:platform--contacts-smartlist-get",
+        "row:backend--2",
+        "row:platform--locations-custom-fields"
+      ],
+      "backfilled": true
+    }
+  ],
+  "depends": {
+    "hashedAt": "2026-09-14",
+    "endpoints": {
+      "GET https://backend.leadconnectorhq.com /contacts/smartlist/{}": "942b10d20e0a8ede0c27ae52c9dccd63b41e2e6b2dc36a2f571dbf5687e23b2e",
+      "GET https://backend.leadconnectorhq.com /locations/{}/customFields": "ddfd8b108e4edca220a7ec6fb20e7bcff3b7797a0db83aa91ca847eefe980d8e",
+      "POST https://backend.leadconnectorhq.com /contacts/search/2": "af3f3345e47668fbec26ea5426b145dc84e185626ed47ab37f9c4b60503381e8",
+      "POST https://backend.leadconnectorhq.com /contacts/smartlist": "6ce7afe6ee06b153f071f57a80cde1e292c43a212a37588dae78c0c27941b77c"
+    },
+    "builds": {
+      "contactsApp": 2531,
+      "customFieldsApp": 2079,
+      "snapshotsApp": 1969
+    },
+    "code": {
+      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#create_smart_list": "08887d86edcd3bd24fe65d98b3d4c37a5d5d3db071dc620fea2bc5b07dbe5bdc",
+      "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "e65c2384aefb498ce49453dd2d6d8d1a1d8351fd6d337aef5256eb982e1db02f",
+      "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
+      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "2d59b12818ffe76fb105e5284c3d186aea8d07f6a457b7c6344ea2258ba6a1d6",
+      "plugins/uxie-ghl-factory/mcp-internal/core/site-audit.mjs": "8985e6793428a18bc2ee4696c73ef7724bcbec4681d3c8c702507536da0e18cc",
+      "plugins/uxie-ghl-factory/mcp-internal/core/smart-lists.mjs": "28af158d41e0f361f9c84ec9268ac219ccfdc13f5c48d89bf5c8ad00b80f8fa6"
+    }
+  }
+}

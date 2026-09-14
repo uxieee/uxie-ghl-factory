@@ -116,3 +116,12 @@ test('preflight REFUSES when untracked files would be left out of the release', 
   assert.match(f[0], /git add/, 'and it must say what to do about them');
   assert.ok(!f[0].startsWith('note:'), 'this aborts the release; it is not advisory');
 });
+
+test('a release refuses while any tool\'s latest proof run failed, unless that tool is named', () => {
+  const base = { branch: 'main', behind: 0, ahead: 0, dirty: [], untracked: [], current: '0.84.2', next: '0.85.0',
+    section: { date: '2026-09-20', body: 'x' }, today: '2026-09-20', tools: {} };
+  const out = preflightFailures({ ...base, failing: ['build_workflow', 'edit_workflow'], allowFailing: ['edit_workflow'] });
+  assert.ok(out.some((f) => /build_workflow/.test(f) && /failing/.test(f)));
+  assert.ok(!out.some((f) => /edit_workflow/.test(f)));
+  assert.deepEqual(preflightFailures({ ...base, failing: [], allowFailing: [] }), []);
+});

@@ -1,0 +1,42 @@
+{
+  "tool": "get_agent_session",
+  "surfaces": [
+    "ai-agents"
+  ],
+  "runs": [
+    {
+      "at": "2026-09-03",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "row:ai-agents--logs-summary",
+        "row:ai-agents--logs-interactions",
+        "row:ai-agents--logs-metrics"
+      ],
+      "backfilled": true
+    }
+  ],
+  "depends": {
+    "hashedAt": "2026-09-14",
+    "endpoints": {
+      "GET https://services.leadconnectorhq.com /agent-logs/logs/{}/interactions": "f5cc92baa78c90a9cbc77eb5015c52826b9dc24a1a52049a9e005e6489e4309d",
+      "GET https://services.leadconnectorhq.com /agent-logs/logs/{}/metrics": "8a7a877fa325b0f9fb751d0f27058a9e598bbe0dda188dd568b2369b7634bafe",
+      "GET https://services.leadconnectorhq.com /agent-logs/logs/{}/summary": "ae14097800f7acf98016bf44a8429342eae49cdd8384e24fb06cb1713d3a557f"
+    },
+    "builds": {
+      "agentLogsApp": 635,
+      "agentStudioApp": 648,
+      "aiEmployeesApp": 2459,
+      "aiGrowthApp": 626,
+      "superagentsApp": 649,
+      "voiceAiApp": 652
+    },
+    "code": {
+      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#get_agent_session": "395af7738cc86370c09a0bbf262fdca9f5dc39b26c460641921ba8d3ad317bb7",
+      "plugins/uxie-ghl-factory/mcp-internal/core/agent-logs.mjs": "66be641f68392b70517d7ad6c3065ec3f4907bd66b19633242b3fa1ddb2af606",
+      "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "e65c2384aefb498ce49453dd2d6d8d1a1d8351fd6d337aef5256eb982e1db02f",
+      "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
+      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "2d59b12818ffe76fb105e5284c3d186aea8d07f6a457b7c6344ea2258ba6a1d6"
+    }
+  }
+}

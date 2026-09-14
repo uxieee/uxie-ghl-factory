@@ -1,0 +1,46 @@
+{
+  "tool": "build_funnel_page",
+  "surfaces": [
+    "funnels"
+  ],
+  "runs": [
+    {
+      "at": "2026-09-10",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "row:funnels--builder-autosave",
+        "row:funnels--page-data",
+        "row:funnels--builder-get-versions",
+        "row:funnels--builder-publish-version"
+      ],
+      "backfilled": true
+    }
+  ],
+  "depends": {
+    "hashedAt": "2026-09-14",
+    "endpoints": {
+      "GET https://backend.leadconnectorhq.com /funnels/builder/get-versions": "32754c990877d14c51c299475ab6da2d3cd5cad0760a62c446bd090f473891b6",
+      "GET https://backend.leadconnectorhq.com /funnels/builder/page/data": "5c9b751a79f30627fd0583d560a11f6ec65207c2a23f45a0bd190cb38b69d484",
+      "POST https://backend.leadconnectorhq.com /funnels/builder/autosave/{}": "0370ab525bdf9dbc5f979087907f6e40ce2c4ce13ac035bd4db60d9ff5439581",
+      "POST https://backend.leadconnectorhq.com /funnels/builder/publish-version": "a2d219d9fe999422fe67496c27a78c256e447f2814656df633c595d724730f97"
+    },
+    "builds": {
+      "domainConnectApp": 222,
+      "externalTrackingApp": 293,
+      "funnelWebsiteApp": 221,
+      "funnelWebsiteDomainApp": 222,
+      "redirectApp": 222,
+      "seoApp": 88,
+      "templateLibraryApp": 162
+    },
+    "code": {
+      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#build_funnel_page": "b014305bb1e3abdf17b5e3c5ed060d3643296a88cf0aac84d9738a1a2beeb2b5",
+      "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "e65c2384aefb498ce49453dd2d6d8d1a1d8351fd6d337aef5256eb982e1db02f",
+      "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
+      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "2d59b12818ffe76fb105e5284c3d186aea8d07f6a457b7c6344ea2258ba6a1d6",
+      "plugins/uxie-ghl-factory/mcp-internal/core/funnel-pages.mjs": "0b82747e750f80265070d34b6cdfa9644b596202c2fa110dda8a84f8aa45b49a",
+      "plugins/uxie-ghl-factory/mcp-internal/core/kind-defaults.mjs": "37129df88241ff6cb78638d2ad136d440f36f814cc62e1df3297206435d02102"
+    }
+  }
+}
