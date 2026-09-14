@@ -69,8 +69,11 @@ export function backfillFrom(descriptions, ctx, hashedAt) {
   return out;
 }
 
+// Replace the proof VALUE only. `[^;]+` used to swallow everything up to the semicolon, which ate
+// any `, floor: …` clause sitting between the two — the floor is the weakest evidence behind the
+// tool, so losing it makes the tool read stronger than it is. Stop at the first comma as well.
 export function applyLabel(entry, label) {
-  return { ...entry, proof: label, description: String(entry.description ?? '').replace(/proof:\s*[^;]+;/, `proof: ${label};`) };
+  return { ...entry, proof: label, description: String(entry.description ?? '').replace(/proof:\s*[^,;]+/, `proof: ${label}`) };
 }
 
 export function syncLabels(descriptions, records) {

@@ -44,6 +44,17 @@ test('applyLabel rewrites the proof field and the clause inside the description'
   assert.equal(e.description, 'Build — proof: failing (2026-09-20); risk: write');
 });
 
+// The floor is the WEAKEST evidence behind a tool; the proof is the strongest. Dropping the floor
+// when the proof is refreshed makes a tool read stronger than it is — the exact over-reading the
+// proof records exist to prevent. Two tools carrying `risk: destructive` lost theirs this way.
+test('applyLabel keeps a floor clause that sits between the proof and the semicolon', () => {
+  const e = applyLabel({ description: 'Build — proof: live-runtime (2026-09-10), floor: documented; risk: write', proof: 'live-runtime (2026-09-10)' }, 'live-runtime (2026-09-14)');
+  assert.equal(e.description, 'Build — proof: live-runtime (2026-09-14), floor: documented; risk: write');
+
+  const dated = applyLabel({ description: 'Edit — proof: live-runtime (2026-09-10), floor: live-roundtrip (2026-07-17); risk: destructive', proof: 'live-runtime (2026-09-10)' }, 'failing (2026-09-20)');
+  assert.equal(dated.description, 'Edit — proof: failing (2026-09-20), floor: live-roundtrip (2026-07-17); risk: destructive');
+});
+
 test('syncLabels skips audit composites and tools with no entry, and reports what changed', () => {
   const descriptions = { build_workflow: { description: 'B — proof: live-runtime (2026-09-10); risk: write', proof: 'live-runtime (2026-09-10)' } };
   const records = {

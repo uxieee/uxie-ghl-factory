@@ -1,6 +1,6 @@
 {
   "build_workflow": {
-    "description": "Build workflow — proof: live-runtime (2026-09-14); risk: write",
+    "description": "Build workflow — proof: live-runtime (2026-09-14), floor: documented; risk: write",
     "risk": "write",
     "proof": "live-runtime (2026-09-14)",
     "proofFloor": "documented",
@@ -77,7 +77,7 @@
     ]
   },
   "edit_workflow": {
-    "description": "Edit workflow — proof: live-runtime (2026-09-14); risk: destructive",
+    "description": "Edit workflow — proof: live-runtime (2026-09-14), floor: live-roundtrip (2026-07-17); risk: destructive",
     "risk": "destructive",
     "proof": "live-runtime (2026-09-14)",
     "proofFloor": "live-roundtrip (2026-07-17)",
@@ -104,7 +104,7 @@
     ]
   },
   "publish_workflow": {
-    "description": "Publish workflow — proof: live-runtime (2026-09-14); risk: destructive",
+    "description": "Publish workflow — proof: live-runtime (2026-09-14), floor: documented; risk: destructive",
     "risk": "destructive",
     "proof": "live-runtime (2026-09-14)",
     "proofFloor": "documented",
