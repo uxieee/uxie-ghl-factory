@@ -581,6 +581,45 @@ if (wid) {
     'get_trigger_logs finds no trigger activity, because there is no trigger to have any');
 }
 
+// ── 5b. check_workflow answers about references, and the answer is not vacuous ──────────────
+// bl-136: this tool reported "Resolve 0 Errors" about a workflow whose triggers pointed at a
+// calendar in a DIFFERENT sub-account. It was not lying — it replays GHL's step validators, and
+// GHL's step validators do not check whether a referenced object exists. The reference check is
+// now wired in under its own key. Two assertions, because either alone is worthless:
+//   1. it RAN. validateAssets fails OPEN by contract, returning zero errors when it could not
+//      check at all, so "0 broken" and "not checked" are the same shape and must be told apart.
+//   2. it DETECTS. A checker that reports zero on a clean document has proven nothing; this runs
+//      the same function over a fabricated dangling reference, against a control, and requires it
+//      to come back with errors. Nothing is written — the fabricated templates never leave memory.
+if (wid) {
+  log.subject('check_workflow');
+  const chk = await call('check_workflow', { workflowId: wid });
+  check(chk.data?.assetReferences?.ran === true,
+    'check_workflow RAN the asset-reference check — not merely returned zero',
+    chk.data?.assetReferences?.note);
+  check(/asset references:/.test(String(chk.data?.headline)),
+    'and the headline states that third scope, so two clean scopes cannot read as a whole-workflow verdict',
+    chk.data?.headline);
+  check((chk.data?.assetReferences?.errors ?? []).length === 0,
+    "the suite's own workflow references nothing broken", JSON.stringify(chk.data?.assetReferences?.errors));
+
+  // the differential, with a control
+  const { validateAssets, describeFinding } = await import('../engine/asset-preflight.mjs');
+  const gwDirect = deps.makeGw({ loc: LOCATION, state: deps.state });
+  const probeAssets = (templates) => validateAssets((m, p, b) => gwDirect.call(m, p, b), LOCATION, { templates, triggers: [] });
+  const control = await probeAssets([{ id: 's1', type: 'add_contact_tag', name: 'Control', attributes: { tags: ['test-conf'] } }]);
+  const dangling = await probeAssets([{ id: 's1', type: 'create_opportunity', name: 'Dangling',
+    attributes: { pipeline_id: '00000000-0000-4000-8000-000000000001',
+      pipeline_stage_id: '00000000-0000-4000-8000-000000000002', status: 'open', name: 'x' } }]);
+  check(control.checked === true && (control.errors ?? []).length === 0,
+    'CONTROL: a step referencing nothing reports no broken references', control.skipped ?? JSON.stringify(control.errors));
+  check(dangling.checked === true && (dangling.errors ?? []).length > 0,
+    'TEST: the same check over a DANGLING pipeline reference reports it — the check is not vacuous',
+    dangling.skipped ?? JSON.stringify((dangling.errors ?? []).map(describeFinding)));
+  check((dangling.errors ?? []).some((e) => /pipeline/i.test(describeFinding(e))),
+    'and names the pipeline, not just a count', JSON.stringify((dangling.errors ?? []).map(describeFinding)).slice(0, 160));
+}
+
 // ── 6. the account rail, and the silent cap ─────────────────────────────────────────────────
 // 🔴 THE POINT OF THIS SECTION. list_workflows stops at 100 rows and says nothing about it: the
 // envelope's own `count` reports the account total, so a caller who trusts the rows has silently

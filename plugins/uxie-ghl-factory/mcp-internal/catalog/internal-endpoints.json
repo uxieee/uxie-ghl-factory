@@ -25871,7 +25871,8 @@
       "reach": "source-only",
       "coveredBy": [
         "edit_workflow",
-        "repair_workflow"
+        "repair_workflow",
+        "search_merge_tags"
       ],
       "rawCallable": true,
       "transport": "json",

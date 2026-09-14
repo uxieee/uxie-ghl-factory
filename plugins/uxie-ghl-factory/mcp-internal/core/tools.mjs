@@ -2138,6 +2138,13 @@ export const TOOLS = [
       // Both OPTIONAL: without a locationId the handler makes no gateway call at all.
       { method: 'GET', path: '/locations/{loc}/customFields/search' },
       { method: 'GET', path: '/locations/{loc}/customValues' },
+      // A POST that WRITES NOTHING. GHL's own builder calls this to answer "does this pipeline /
+      // stage / calendar / user still exist" and folds the answer into the banner this tool
+      // reproduces. Declared because it is a POST and the capability manifest must say so, not
+      // because the tool mutates: the endpoint is a validator and the document is unchanged.
+      // Without it this tool reported "0 errors" about a workflow whose triggers pointed at a
+      // calendar in a DIFFERENT sub-account — see console bl-136.
+      { method: 'POST', path: '/workflow/{loc}/validate-assets' },
     ],
     handler: async (args, deps) => guard(async () => {
       const catalog = loadCatalog();
@@ -2331,16 +2338,59 @@ export const TOOLS = [
             crashed: r.crashed,
             mappedTypes: Object.keys(vname).length,
             helperFidelity: HELPER_FIDELITY,
-            note: 'A validator body exists for 61 step types. 57 more name one in the catalogue whose body was '
-              + 'never captured — mostly TRIGGER validators, which this capture does not cover — and the rest have '
-              + 'none at all. Read uncheckedByType before reading findings: zero findings over few validated steps '
-              + 'is not a clean workflow.',
+            note: 'A validator body exists for 114 step types as of 0.86.0, up from 61 — the trigger validators '
+              + 'were recovered when the capture behind this was re-mined off its four-month-old baseline. The rest '
+              + 'have no validator at all. Read uncheckedByType before reading findings: zero findings over few '
+              + 'validated steps is not a clean workflow. And read assetReferences: GHL\'s validators do not check '
+              + 'whether a referenced pipeline, calendar or user still exists.',
           };
+      })();
+
+      // ── do the references still exist? ──────────────────────────────────────────────────
+      // NOT folded into errorCount, exactly like marketplaceDrift: a clean GHL-validator result and
+      // a clean reference result are different claims and must stay separable.
+      //
+      // This tool answered "0 errors" about a workflow whose triggers pointed at a calendar in a
+      // DIFFERENT sub-account (console bl-136). It was not lying — it replays GHL's validators, GHL
+      // ships validators for part of the surface, and the bad references sat in the types its own
+      // uncheckedByType list named. But a cross-account reference is the likeliest defect after a
+      // snapshot load, and this is the tool an operator reaches for to check a loaded workflow.
+      //
+      // Fail-open and SAY SO: an unreachable validator must demote this to "not checked", never to
+      // "clean". A silent zero here would rebuild the exact false confidence this fixes.
+      const assetRefs = await (async () => {
+        try {
+          const v = await validateAssets((m, p, b) => gw.call(m, p, b), args.locationId, { templates, triggers: triggerList });
+          // 🔴 READ v.checked, NOT the absence of a throw. validateAssets FAILS OPEN by contract —
+          // a transport error, a non-200 or an unrecognised body all return
+          // { checked: false, skipped: '<why>' } with EMPTY error arrays, deliberately, so that a
+          // dead validator never blocks a build. Treating that as a result would report zero broken
+          // references for a check that never ran, which is the same false confidence this whole
+          // key exists to remove — rebuilt one level down.
+          if (v.checked !== true) {
+            return { ran: false, errors: [], warnings: [],
+              note: `asset reference check did NOT run — ${v.skipped ?? 'no reason given'}. This is `
+                + '"not checked", not "clean".' };
+          }
+          return {
+            ran: true,
+            errors: (v.errors ?? []).map(describeFinding),
+            warnings: (v.warnings ?? []).map(describeFinding),
+            note: 'Does each referenced pipeline, stage, calendar, user, tag and custom field still EXIST '
+              + 'on this location. Separate from errorCount on purpose: GHL\'s step validators do not check '
+              + 'references, so a zero there says nothing about these.',
+          };
+        } catch (e) {
+          return { ran: false, errors: [], warnings: [],
+            note: `asset reference check did NOT run (${String(e?.message ?? e).slice(0, 120)}) — this is `
+              + '"not checked", not "clean".' };
+        }
       })();
 
       return ok({
         schemaChecked: true,
         ...lintKeys,
+        assetReferences: assetRefs,
         workflowId: args.workflowId,
         name: body.json?.name,
         status: body.json?.status,
@@ -2352,9 +2402,18 @@ export const TOOLS = [
         // "Resolve 0 Errors" about a workflow whose builder banner said "Resolve 1 Errors" at
         // that same moment. The coverage note below was honest and was read past, because the
         // headline looked like the builder's verdict. It now states what it actually measured.
-        headline: bv.ran
-          ? `Resolve ${errors.length} Errors (marketplace schema: ${templates.filter((t) => actionSchema.has(t.type)).length} of ${templates.length} steps) · GHL validators: ${bv.findings.length} finding(s) over ${bv.validated} of ${templates.length}`
-          : `Resolve ${errors.length} Errors (${templates.filter((t) => actionSchema.has(t.type)).length} of ${templates.length} steps checked)`,
+        // Three scopes, three numbers, and the third was missing until 2026-09-15 (bl-136). A
+        // headline that reports two clean scopes and stays silent about the third reads as a
+        // verdict on the whole workflow, which is how "Resolve 0 Errors" got believed about a
+        // workflow with six broken references.
+        headline: [
+          bv.ran
+            ? `Resolve ${errors.length} Errors (marketplace schema: ${templates.filter((t) => actionSchema.has(t.type)).length} of ${templates.length} steps) · GHL validators: ${bv.findings.length} finding(s) over ${bv.validated} of ${templates.length}`
+            : `Resolve ${errors.length} Errors (${templates.filter((t) => actionSchema.has(t.type)).length} of ${templates.length} steps checked)`,
+          assetRefs.ran
+            ? `asset references: ${assetRefs.errors.length} broken, ${assetRefs.warnings.length} warning(s)`
+            : 'asset references: NOT CHECKED',
+        ].join(' · '),
         // Native steps the marketplace catalog does not describe, checked against the ONE thing
         // the type cards state exactly: their inner attributes.type. This is what a card-driven
         // pass over native steps catches, and it is the class the headline missed.
