@@ -11,6 +11,57 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [0.85.0] — 2026-09-14
+
+Every tool now carries a proof record saying when it last passed and what that proof depends on,
+and the plugin can re-prove itself live on demand. The honest headline: on the day this shipped,
+**9 of 67 records came from an executed run** — the other 58 were carried over from the hand-typed
+labels this work replaces, and they say so rather than reading as proof.
+
+### Added
+
+- **Proof records — one JSON per tool under `proofs/`, written only by `scripts/proof.mjs`.** A
+  record carries every run (`at`, `result`, `how`, `evidence`, the sandbox's last four characters)
+  and the dependencies that can undercut it: the endpoint rows the tool calls, the GHL app builds
+  behind them, and its own code. Endpoint identity is `METHOD origin /normalised-path`, never a
+  catalogue id — ids get renamed, routes do not. Code dependencies are COMPUTED from the tool's
+  block plus its static import closure, excluding the description, so editing a sentence never
+  invalidates a proof.
+- **Live suites record which tools they exercised, and how each fared.** A receipt now carries an
+  `exercised` array — calls, passes, failures, and the failing assertion ids — so
+  `proof.mjs from-receipt <stamp>` writes one run per tool the suite actually drove. An assertion
+  belongs to the tool whose handler ran most recently, overridable with `log.subject(name)`; a
+  read-back tool no longer takes credit for the write it was checking.
+- **The `ghl-recheck` skill** re-proves the tools live on the designated sandbox, records a run per
+  tool and a backlog row per failure, and **fixes nothing** — fixing is a separate session, started
+  on purpose. It refuses to run without `GHL_LIVE_PROOF_LOCATION` set rather than choosing an
+  account for you.
+- **`validate_workflow` has a proof record for the first time**, from a live run rather than a label.
+
+### Changed
+
+- **A release refuses to ship a tool whose latest proof run failed.** Proof labels are derived from
+  the records by `proof.mjs sync-labels`; the catalogue is the one source.
+- **`edit_workflow` reports what each op did on its own.** Four replace ops plus a `modifyStep`
+  against one step used to collapse into a single `modifiedSteps` entry, so the result could not say
+  which replaces matched — the caller had to read the stored version back to find out. `applyOps`
+  now returns `opResults`, one entry per op with its own created/modified/deleted ids and, for the
+  replace ops, its match count.
+- **`update_form_data` keeps existing flat copies equal to `form`.** Some form documents carry flat
+  `fields`/`style`/`formAction` beside `form` — a malformed save creates them. The tool wrote only
+  `form`, so a stale flat copy rode through verbatim. Write both, trust neither: flat keys are kept
+  equal to `form` where they already exist, and a clean document never gains them.
+
+### Fixed
+
+- **A run could be recorded as a pass having asserted nothing.** A tool whose handler ran only for
+  setup arrived as `calls: 3, passed: 0, failed: 0` and was written as a pass, resetting its 30-day
+  freshness clock. An entry with no assertions attributed to it now records nothing — and its
+  inverse, a failure attributed to a tool whose own handler never ran, is no longer dropped.
+- **The per-tool pass/FAIL report survives a mid-loop write failure**, so a schema violation on the
+  second tool no longer swallows the first tool's result — the list the recheck skill files
+  backlog rows from.
+
 ## [0.84.2] — 2026-09-14
 
 Three silent-success bugs, all found by a live client build: a write that consumed an op and
