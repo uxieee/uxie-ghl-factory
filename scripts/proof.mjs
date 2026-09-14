@@ -108,9 +108,12 @@ export function runsFromReceipt(receipt, stamp) {
     // A suite that printed no parseable summary proved nothing; its tool list is not trusted either.
     if (!r.summary || !Array.isArray(r.exercised)) continue;
     for (const e of r.exercised) {
-      // calls with no assertion attributed to this tool — setup-only, or every assertion attributed
-      // elsewhere by subject() — proved nothing about it and must not be recorded as a pass.
-      if (AUDIT_COMPOSITES.includes(e.tool) || !e.calls || (!e.passed && !e.failed)) continue;
+      // Skip on "no assertion attributed to this entry" — never on call count. A call with no
+      // assertion (setup-only, or every assertion attributed elsewhere by subject()) proved nothing
+      // and must not be recorded as a pass. But a real assertion FAILURE can be attributed to a tool
+      // by log.subject(name) without that tool's own handler ever running (calls: 0, failed: 1) —
+      // that is a genuine failure and must reach the record whatever the call count says.
+      if (AUDIT_COMPOSITES.includes(e.tool) || (!e.passed && !e.failed)) continue;
       out.push({ tool: e.tool, run: {
         at: stamp.slice(0, 10), result: e.failed ? 'fail' : 'pass', how: 'suite', suite: r.name,
         evidence: [`receipt:${stamp}`], ...(receipt.location ? { location: receipt.location } : {}),

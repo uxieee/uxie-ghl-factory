@@ -119,6 +119,21 @@ test('runsFromReceipt: an exercised entry with calls but no assertions attribute
     'setup_only asserted nothing and must not be recorded as a pass');
 });
 
+test('runsFromReceipt: a failure attributed via log.subject() with calls: 0 is still recorded — the skip is "no assertions", not "no calls"', () => {
+  // Regression: the skip used to be `!e.calls`, which dropped an entry whose OWN handler never ran
+  // (calls: 0) but which still carries a real assertion failure attributed to it by log.subject(name).
+  // A genuine failure must reach the record whatever the call count says.
+  const receipt = { location: '…zn6B', results: [
+    { name: 'workflows', summary: { passed: 5, failed: 1 }, exercised: [
+      { tool: 'build_workflow', calls: 2, passed: 5, failed: 0, failures: [] },
+      { tool: 'attributed_only', calls: 0, passed: 0, failed: 1, failures: ['assert-on-attributed-tool'] },
+    ] },
+  ] };
+  const runs = runsFromReceipt(receipt, '2026-09-20-0930');
+  assert.deepEqual(runs.map((r) => [r.tool, r.run.result]), [['build_workflow', 'pass'], ['attributed_only', 'fail']],
+    'a calls: 0, failed: 1 entry must record a failure, not be skipped silently');
+});
+
 test('writeReceiptRuns reports each written tool as it writes, so an earlier write survives a later one throwing', () => {
   const recs = [{ tool: 'build_workflow' }, { tool: 'export_workflow' }, { tool: 'list_courses' }];
   const runs = [
