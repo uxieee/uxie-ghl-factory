@@ -30,6 +30,7 @@
  */
 import { randomUUID } from 'node:crypto';
 import { makeGatewayFactory, TOOLS } from '../../../mcp-internal/core/tools.mjs';
+import { createExerciseLog } from '../../../mcp-internal/core/exercise-log.mjs';
 import { DEFAULT_TOKEN_FILE } from '../../../mcp-internal/core/auth.mjs';
 import { makeRenewer, autoRenewEnabled } from '../../../mcp-internal/core/token-renewal.mjs';
 
@@ -46,12 +47,13 @@ state.renewer = autoRenewEnabled(process.env) ? makeRenewer({ getTokenFile: () =
 const deps = { state, makeGw: (o = {}) => makeGatewayFactory({ state })(o) };
 const gw = deps.makeGw({ loc: LOCATION });
 const j = (r) => r.json?.data ?? r.json ?? {};
-const tool = (n) => TOOLS.find((t) => t.name === n);
+const log = createExerciseLog();
+const tool = (n) => log.wrap(TOOLS.find((t) => t.name === n));
 
 let passed = 0, failed = 0, skipped = 0;
 const left = [];
-const ok = (m) => { passed++; console.log(`  PASS  ${m}`); };
-const bad = (m, extra) => { failed++; console.log(`  FAIL  ${m}${extra ? `  — ${extra}` : ''}`); };
+const ok = (m) => { log.result(true, m); passed++; console.log(`  PASS  ${m}`); };
+const bad = (m, extra) => { log.result(false, m); failed++; console.log(`  FAIL  ${m}${extra ? `  — ${extra}` : ''}`); };
 const skip = (m, why) => { skipped++; console.log(`  SKIP  ${m}  — ${why}`); };
 const check = (cond, m, extra) => (cond ? ok(m) : bad(m, extra));
 
@@ -76,7 +78,7 @@ const step = (doc.steps ?? []).find((s) => s.id === STEP_ID);
 check(mk.status < 400 && !!step, 'create-step with a client-minted id produces a step that reads back BY THAT ID', `http ${mk.status}`);
 const pageId = step?.pages?.[0];
 check(!!pageId, 'the step carries the page the server minted');
-if (!pageId) { console.log(`\n${passed} passed, ${failed + 1} failed, ${skipped} skipped`); process.exit(1); }
+if (!pageId) { log.write(); console.log(`\n${passed} passed, ${failed + 1} failed, ${skipped} skipped`); process.exit(1); }
 
 // The read that DETECTS an id-less step, per verify-reads.md — funnel/list shows one looking fine.
 // 🔴 `offset` is REQUIRED (omitting it 422s, and the 422 body is a LIST of messages), the response
@@ -133,5 +135,6 @@ check(refChecks.some((c) => c.ran), 'at least one reference list loaded, so the 
 console.log(`\nLEFT IN PLACE (nothing is deleted):`);
 for (const l of left) console.log(`  ${l}`);
 console.log(`  step ${STEP_ID}, page ${pageId}`);
+log.write();
 console.log(`\n${passed} passed, ${failed} failed, ${skipped} skipped`);
 process.exit(failed > 0 ? 1 : 0);

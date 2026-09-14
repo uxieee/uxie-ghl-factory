@@ -31,6 +31,7 @@ import { writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { makeGatewayFactory, TOOLS } from '../../../mcp-internal/core/tools.mjs';
+import { createExerciseLog } from '../../../mcp-internal/core/exercise-log.mjs';
 import { DEFAULT_TOKEN_FILE } from '../../../mcp-internal/core/auth.mjs';
 import { makeRenewer, autoRenewEnabled } from '../../../mcp-internal/core/token-renewal.mjs';
 import { liveValidate } from '../engine/live-validate.mjs';
@@ -46,12 +47,14 @@ const NAME = (s) => `TEST-CONF-${s}-${STAMP}`;
 const state = { tokenFile: process.env.GHL_INTERNAL_TOK_FILE ?? DEFAULT_TOKEN_FILE, engineVersion: 'workflows-conformance', allowedLocations: null };
 state.renewer = autoRenewEnabled(process.env) ? makeRenewer({ getTokenFile: () => state.tokenFile }) : null;
 const deps = { state, makeGw: (o = {}) => makeGatewayFactory({ state })(o) };
-const tool = (n) => TOOLS.find((t) => t.name === n);
+const log = createExerciseLog();
+const tool = (n) => log.wrap(TOOLS.find((t) => t.name === n));
 const call = (n, args) => tool(n).handler({ locationId: LOCATION, ...args }, deps);
 
 let passed = 0, failed = 0;
 const left = [];
 const check = (cond, m, extra) => {
+  log.result(Boolean(cond), m);
   if (cond) { passed++; console.log(`  PASS  ${m}`); }
   else { failed++; console.log(`  FAIL  ${m}${extra ? `  — ${extra}` : ''}`); }
 };
@@ -428,5 +431,6 @@ console.log('  contact enrollment    — same reason; fast_forward_contacts move
 
 console.log(`\nLEFT IN PLACE (nothing is deleted):`);
 for (const l of left) console.log(`  ${l}`);
+log.write();
 console.log(`\n${passed} passed, ${failed} failed\n`);
 process.exit(failed ? 1 : 0);
