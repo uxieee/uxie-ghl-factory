@@ -50,7 +50,7 @@ const MCP = join(PLUGIN, 'mcp-internal');
 const ONLY = list('--only');
 const SKIP = list('--skip');
 
-const CHECKS = ['type-cards', 'skill-types', 'source', 'catalogue', 'manifests', 'dist'];
+const CHECKS = ['type-cards', 'skill-types', 'source', 'catalogue', 'manifests', 'proofs', 'dist'];
 for (const name of [...ONLY, ...SKIP]) {
   if (!CHECKS.includes(name)) { console.error(`freshness: unknown check "${name}" — one of ${CHECKS.join(', ')}`); process.exit(2); }
 }
@@ -212,6 +212,21 @@ if (wanted('manifests')) {
     }
     lines.length ? stale('manifests', lines, fix) : ok('manifests', `${JSON.parse(capShipped).length} capability rows`);
   } catch (e) { failed('manifests', e, fix); }
+}
+
+// ---------------------------------------------------------------------------------------------
+// proofs — every record valid, and every shipped proof label equal to its record
+// ---------------------------------------------------------------------------------------------
+if (wanted('proofs')) {
+  const proofScript = fileURLToPath(new URL('./proof.mjs', import.meta.url));
+  const fix = 'node scripts/proof.mjs sync-labels   (and fix any record `validate` names)';
+  try {
+    execFileSync('node', [proofScript, 'validate'], { encoding: 'utf8', stdio: 'pipe' });
+    try {
+      execFileSync('node', [proofScript, 'sync-labels', '--check'], { encoding: 'utf8', stdio: 'pipe' });
+      ok('proofs', 'records valid, labels match');
+    } catch (e) { stale('proofs', [String(e.stderr || e.stdout).trim()], fix); }
+  } catch (e) { stale('proofs', [String(e.stderr || e.stdout).trim()], fix); }
 }
 
 // ---------------------------------------------------------------------------------------------

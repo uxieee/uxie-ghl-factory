@@ -1,0 +1,42 @@
+{
+  "tool": "get_workflow_logs",
+  "surfaces": [
+    "workflows"
+  ],
+  "runs": [
+    {
+      "at": "2026-07-24",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "row:logs-count-per-step",
+        "row:logs-enrollment-history",
+        "row:logs-list-v2",
+        "row:workflow-enrollment-stats-cache"
+      ],
+      "backfilled": true
+    }
+  ],
+  "depends": {
+    "hashedAt": "2026-09-14",
+    "endpoints": {
+      "GET https://backend.leadconnectorhq.com /workflows/logs/v2": "9c833ee51d9f4ff175a6bfec24099a4ab8b5b574256c5b31f74363f149c4b57b",
+      "GET https://backend.leadconnectorhq.com /workflows/status/enroll-stats": "9247e25886284673b2f388696578be7c9becd96f598495ce1213fd44ea9ea9a2",
+      "GET https://backend.leadconnectorhq.com /workflows/status/search/count-per-step": "b3a90cd758f345cf6ea41e5d8685a4db7c3f7c0b1ea488a1c1ca83d54f7f99e4",
+      "GET https://backend.leadconnectorhq.com /workflows/status/search/enroll-stats-cache": "f661748195c2b184db7c0dbeef56964065f3ba7d1c4d8e8b27f044dccc0cfd86",
+      "GET https://backend.leadconnectorhq.com /workflows/status/search/workflow-with-filter": "d13cf5d00988c69dd57cbefafc2a046f59a5ae04feaf9889f49b8092c28051e8"
+    },
+    "builds": {
+      "adPublishingApp": 112,
+      "builder-chunks": "assets/index-Bbegn_x5.js",
+      "notificationApp": 261,
+      "reportingApp": 268
+    },
+    "code": {
+      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#get_workflow_logs": "719b1239a4285be3faf989b0484cc385fa52a2274a37999b1835a49a0927b863",
+      "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "e65c2384aefb498ce49453dd2d6d8d1a1d8351fd6d337aef5256eb982e1db02f",
+      "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
+      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "2d59b12818ffe76fb105e5284c3d186aea8d07f6a457b7c6344ea2258ba6a1d6"
+    }
+  }
+}

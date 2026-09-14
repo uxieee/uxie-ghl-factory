@@ -1,0 +1,55 @@
+{
+  "tool": "audit_site",
+  "surfaces": [
+    "funnels"
+  ],
+  "runs": [
+    {
+      "at": "2026-09-10",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "row:funnels-service--get-funnels",
+        "row:funnels--page-data",
+        "row:funnels--builder-get-versions",
+        "row:forms--get-forms",
+        "row:typed--list_account_entities--calendars",
+        "row:surveys-service--get-surveys",
+        "row:backend--custom-values"
+      ],
+      "backfilled": true
+    }
+  ],
+  "depends": {
+    "hashedAt": "2026-09-14",
+    "endpoints": {
+      "GET https://backend.leadconnectorhq.com /forms": "bdf9d72ff243a60858f56bbd82c63574d253c7db6f12df844d8b0b26014a0d4d",
+      "GET https://backend.leadconnectorhq.com /funnels/builder/get-versions": "32754c990877d14c51c299475ab6da2d3cd5cad0760a62c446bd090f473891b6",
+      "GET https://backend.leadconnectorhq.com /funnels/builder/page/data": "5c9b751a79f30627fd0583d560a11f6ec65207c2a23f45a0bd190cb38b69d484",
+      "GET https://backend.leadconnectorhq.com /funnels/domain": "c76e5cc483469cef7f62cffe860bea210358769d20dc09190d3ea7e629dc7c45",
+      "GET https://backend.leadconnectorhq.com /funnels/funnel/fetch/{}": "f8882ab1b0d06b2d4806af0b9032cc3373aaed5c54184a9f5fea3a984fb1bd9a",
+      "GET https://backend.leadconnectorhq.com /funnels/funnel/list": "a46307268f695398a8ae97eecb8b1e2c3174eef69d6fc11550b0857d5b6de8fb",
+      "GET https://backend.leadconnectorhq.com /funnels/lookup/list": "962f65054f5b6f0e185aacea82a8b71253217cad24eb73aabe3d7cc469e7f5c5",
+      "GET https://backend.leadconnectorhq.com /funnels/lookup/type/{}": "c5bb51298510f9baa33ad212c0a09dad4f3fb816ec857dec1a328838afa76a6b",
+      "GET https://backend.leadconnectorhq.com /locations/{}/customValues": "7528d8d44a9a81689c4ff5dc3875cd96f40b6c37d613bd11156e149b728ac054",
+      "GET https://backend.leadconnectorhq.com /surveys": "f3dafb61760af5b8846f45993eaeaa60237699ef7473f983c31f0784fe625e15",
+      "GET https://services.leadconnectorhq.com /forms": "26274ceeb0e0ea438bd972ae437cec72deaa929a2088b4b9cab7b3cdef6e8c02"
+    },
+    "builds": {
+      "domainConnectApp": 222,
+      "externalTrackingApp": 293,
+      "funnelWebsiteApp": 221,
+      "funnelWebsiteDomainApp": 222,
+      "redirectApp": 222,
+      "seoApp": 88,
+      "templateLibraryApp": 162
+    },
+    "code": {
+      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#audit_site": "a27d1cd18aee8661d6e4e8f7d3838752736922bbc2212047182fd2726a375a7a",
+      "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "e65c2384aefb498ce49453dd2d6d8d1a1d8351fd6d337aef5256eb982e1db02f",
+      "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
+      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "2d59b12818ffe76fb105e5284c3d186aea8d07f6a457b7c6344ea2258ba6a1d6",
+      "plugins/uxie-ghl-factory/mcp-internal/core/site-audit.mjs": "8985e6793428a18bc2ee4696c73ef7724bcbec4681d3c8c702507536da0e18cc"
+    }
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "tool": "answer_studio_question",
+  "surfaces": [
+    "ai-studio"
+  ],
+  "runs": [
+    {
+      "at": "2026-09-04",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "row:ai-studio--post-projects-chat"
+      ],
+      "backfilled": true
+    }
+  ],
+  "depends": {
+    "hashedAt": "2026-09-14",
+    "endpoints": {
+      "GET https://backend.leadconnectorhq.com /vibe-ai/projects/{}": "e1726301a58a1598f9b5e5475745537faa2329443b30258a8a5161d831a65a7f",
+      "POST https://backend.leadconnectorhq.com /vibe-ai/projects/{}/chat": "1a2666a672c15314a6364363e23f405cb8c7218080c51c37f244f02fa3e6bfa2"
+    },
+    "builds": {
+      "brandBoardsApp": 39,
+      "domainResellingApp": 222,
+      "vibeEditorApp": 330
+    },
+    "code": {
+      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#answer_studio_question": "86a2c99ddecb0eafa20b2efa162bafc366c1970bc910c8548bad2d2650d32325",
+      "plugins/uxie-ghl-factory/mcp-internal/core/ai-studio.mjs": "f9c293b95c24bd20530c4dcaa50b0652b0f859efe46acc45020756a20627e604",
+      "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "e65c2384aefb498ce49453dd2d6d8d1a1d8351fd6d337aef5256eb982e1db02f",
+      "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
+      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "2d59b12818ffe76fb105e5284c3d186aea8d07f6a457b7c6344ea2258ba6a1d6",
+      "plugins/uxie-ghl-factory/mcp-internal/core/location-binding.mjs": "601f6c7ed73a009666d196f9ea145740991fef8cc4c142baf4947030007f1e87"
+    }
+  }
+}

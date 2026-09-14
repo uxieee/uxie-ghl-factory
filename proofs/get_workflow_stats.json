@@ -1,0 +1,42 @@
+{
+  "tool": "get_workflow_stats",
+  "surfaces": [
+    "workflows"
+  ],
+  "runs": [
+    {
+      "at": "2026-08-22",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "row:stats-aggregate",
+        "row:trigger-count-by-triggerId",
+        "row:logs-count-per-step"
+      ],
+      "backfilled": true
+    }
+  ],
+  "depends": {
+    "hashedAt": "2026-09-14",
+    "endpoints": {
+      "GET https://backend.leadconnectorhq.com /conversations-reporting/emails/aggregate": "d9e9924739c97da35bf33527c030074ea3b2963542897391167a1e4933f698bd",
+      "GET https://backend.leadconnectorhq.com /conversations-reporting/messages/aggregate": "04970280444486a0e9c8f7378d81a6028436fdd936cc8f0612318e17a771634c",
+      "GET https://backend.leadconnectorhq.com /workflow/{}/trigger": "08350cea684b7ac76430d36af66e093c3753ee489a66e250efef0ba978eeb148",
+      "GET https://backend.leadconnectorhq.com /workflow/{}/{}": "d75bf4cca526ca32f133f5f381cb7a68530031528b4caa2d713addcae0c55ffc",
+      "GET https://backend.leadconnectorhq.com /workflows/status/search/count-per-step": "b3a90cd758f345cf6ea41e5d8685a4db7c3f7c0b1ea488a1c1ca83d54f7f99e4",
+      "GET https://backend.leadconnectorhq.com /workflows/trigger/logs/count-by-triggerId": "e4a8570f39262e862f128ee185a08ee1f0aa1dfa11d728649bb4fda82ed69439"
+    },
+    "builds": {
+      "adPublishingApp": 112,
+      "builder-chunks": "assets/index-Bbegn_x5.js",
+      "notificationApp": 261,
+      "reportingApp": 268
+    },
+    "code": {
+      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#get_workflow_stats": "0d261722203ac3519f8ca76ce82e58da2659bff0f135302b422adc9bf77e8dfa",
+      "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "e65c2384aefb498ce49453dd2d6d8d1a1d8351fd6d337aef5256eb982e1db02f",
+      "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
+      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "2d59b12818ffe76fb105e5284c3d186aea8d07f6a457b7c6344ea2258ba6a1d6"
+    }
+  }
+}

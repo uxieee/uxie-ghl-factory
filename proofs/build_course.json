@@ -1,0 +1,91 @@
+{
+  "tool": "build_course",
+  "surfaces": [
+    "memberships-courses"
+  ],
+  "runs": [
+    {
+      "at": "2026-09-10",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "row:memberships-assessment-assignment-create",
+        "row:memberships-assessment-quiz-create",
+        "row:memberships-assignment-read-by-post",
+        "row:memberships-category-create",
+        "row:memberships-credential-template-create",
+        "row:memberships-offer-create",
+        "row:memberships-offer-grant",
+        "row:memberships-offer-publish",
+        "row:memberships-offer-read",
+        "row:memberships-post-create",
+        "row:memberships-product-create",
+        "row:memberships-product-progress-read",
+        "row:memberships-quiz-questions-create",
+        "row:memberships-quiz-questions-list",
+        "row:memberships-quiz-read-by-post"
+      ],
+      "backfilled": true
+    }
+  ],
+  "depends": {
+    "hashedAt": "2026-09-14",
+    "endpoints": {
+      "GET https://backend.leadconnectorhq.com /membership/locations/{}/certificate-attachments/products/{}": "af5cec11d38db53cfdebc165812667a61316b863870b85d89c621d01492b3bec",
+      "GET https://services.leadconnectorhq.com /membership/locations/{}/assessments/assignment/{}": "746cc836b484b4e6cf6e5c93244151d344f854a702c34934fb59414390a5a21b",
+      "GET https://services.leadconnectorhq.com /membership/locations/{}/assessments/quiz/questions/{}": "d683adcd734937f72850d599b9e0de138731d75e794640f4396339a0efd8af77",
+      "GET https://services.leadconnectorhq.com /membership/locations/{}/assessments/quiz/{}": "a6726935cb38e6776db5e7ebec914ac1db4e0dfbca74edbf2a4c0250e6bcd9e6",
+      "GET https://services.leadconnectorhq.com /membership/locations/{}/certificate-attachments/products/{}": "532297be917405a52f3672d1e041beef26d435cd603fe2cb0a4a1876f9a53217",
+      "GET https://services.leadconnectorhq.com /membership/locations/{}/offers/{}": "cd49b47cdd7c12c9f5943c67ba36bbaa7310c33ccae9bedb410e851aa8ae8e42",
+      "GET https://services.leadconnectorhq.com /membership/locations/{}/posts/{}": "1fc1c66b74ad45cc744a2fdd0d7e6f34210b835cd6f5ac5e466f593449c52519",
+      "GET https://services.leadconnectorhq.com /membership/locations/{}/products/user-progress/{}": "eae7deb6c6d98eb7b3852ce44731b1daa0d3d95199c324e3d1f92f69b45ff426",
+      "POST https://backend.leadconnectorhq.com /assets-drm/assets": "55ec349f7e42c38964718ee6ca080986bb0c0af9f8d1ba082c14694d690161d6",
+      "POST https://backend.leadconnectorhq.com /assets-drm/assets/signed-url/upload": "2c4eeeaddb944e8010c5075966acd2f20f9143326370983d1234f04ada447751",
+      "POST https://backend.leadconnectorhq.com /certificates/locations/{}/templates": "a43037e1a9061ddd295a1561d691db9bdfd6320549b790786ebb0b8019de286d",
+      "POST https://backend.leadconnectorhq.com /courses/locations/{}/product-themes/{}": "3917e3c41813475bd90b1635726e35af6f2ba6496a6d743a702611a4797c319b",
+      "POST https://backend.leadconnectorhq.com /membership/locations/{}/assessments/assignment": "4f3e0f3d8fbbfd31517d6326ba060afad008cb7e8cf0a407b739716a9fb68714",
+      "POST https://backend.leadconnectorhq.com /membership/locations/{}/assessments/quiz": "6a18bba25d5f706d72f1aa633d1d653ec1661de1769297b49eee2e0025018880",
+      "POST https://backend.leadconnectorhq.com /membership/locations/{}/assessments/quiz/questions": "54740c08e125c0e62744a69406e6cef1e7660e48ab25798e2deb9b2ba4c275a6",
+      "POST https://backend.leadconnectorhq.com /membership/locations/{}/categories": "b82e38c88d1511a0978130c151534aa75dc5c6773528765739a56a27a683b9a9",
+      "POST https://backend.leadconnectorhq.com /membership/locations/{}/certificate-attachments": "f13a43bb5e533b403fb86f4cd76130bc83be45559a9269b2b7d1294df129f3dd",
+      "POST https://backend.leadconnectorhq.com /membership/locations/{}/media/signed-url": "228123bb62ad6ca0853a9e8cd30ac1e75d8bee42a3e2833bf0742abdecca90cb",
+      "POST https://backend.leadconnectorhq.com /membership/locations/{}/offers": "b217af629929c24212e2ed660c7164a7b8f6a50f2f57c36326b8d6419bbaadf1",
+      "POST https://backend.leadconnectorhq.com /membership/locations/{}/posts": "59626a08e559e07f6404f5186d0b7fc7d4cde89b597bbf91ec0c08e15c5545fe",
+      "POST https://backend.leadconnectorhq.com /membership/locations/{}/posts/material": "e321e2c81f440f3cefc9be88842f0ebf769d31d5be1fa2e545f8a165d014a733",
+      "POST https://backend.leadconnectorhq.com /membership/locations/{}/products": "82b2c00c5842b481cd51bbebd55840e97f1c270485104d58e5e9a612145cffb0",
+      "POST https://backend.leadconnectorhq.com /membership/locations/{}/videos": "82714865533016dfd6147df274421a907a3f92e35e00dcdaf022298f88cb8c45",
+      "POST https://services.leadconnectorhq.com /certificates/locations/{}/templates": "7484bb719efda3e4e51495db5be395b3a13d82c2e5e148c471aacc2a335b6fe3",
+      "POST https://services.leadconnectorhq.com /membership/locations/{}/assessments/assignment": "a3b4a803914cb783fc96b029b777d6ca2bdfdaf9fe226fd6ea0a3b4f8afa6518",
+      "POST https://services.leadconnectorhq.com /membership/locations/{}/assessments/quiz": "8492a92c525ae8386aec3952505a46ecca69a566361d649d8cdaea7585359f5e",
+      "POST https://services.leadconnectorhq.com /membership/locations/{}/assessments/quiz/questions": "803a0084806c0a8bb4ca9a84f028c3f832694c583a8c9f8fa0b1fcf821eebad6",
+      "POST https://services.leadconnectorhq.com /membership/locations/{}/categories": "099dc9c4c824d342ca9636f9c228581fa29a46df913fd5e1a6d75d2a271a7ede",
+      "POST https://services.leadconnectorhq.com /membership/locations/{}/certificate-attachments": "188f9246433a126ea95c563fca7ed861335208817f2f7334e496972467f420f8",
+      "POST https://services.leadconnectorhq.com /membership/locations/{}/media/signed-url": "68527ebcec51677b5db55367c2f97a96c90f2a657b89a65b88c492f008b74de7",
+      "POST https://services.leadconnectorhq.com /membership/locations/{}/offers": "6d375f0513861ee0d50cb40aa79baf18c90b541f9103804be46cb8ee772f2993",
+      "POST https://services.leadconnectorhq.com /membership/locations/{}/posts": "10b9bd1320d6060d4db849b0be7e10c2e1420477575ac2a72420b75637c7f848",
+      "POST https://services.leadconnectorhq.com /membership/locations/{}/posts/material": "b42f043898aedad013663424f4e80e40e3e4efce8b41e98e5b65d8523f86b8c4",
+      "POST https://services.leadconnectorhq.com /membership/locations/{}/products": "5c8deab8f70da1ce47d55dad805b8f5dc7f84d978c923daa203e79136fb5c49e",
+      "POST https://services.leadconnectorhq.com /membership/locations/{}/videos": "8a0611808737dd93beb93ad86263fd32cc37a2b82c227eab9cc304ce16a10ad8",
+      "PUT https://backend.leadconnectorhq.com /courses/locations/{}/product-themes/{}/theme/{}": "0d4713f09e8132fc6593c21769041b99e3844363ace43f8f5ea50406c230feb1",
+      "PUT https://backend.leadconnectorhq.com /membership/locations/{}/products/apply-theme/{}": "1a97cb2f49ea60f78ce15a65973bc5a65cce5882caa3f07f017aef0ca1d9bbc5",
+      "PUT https://services.leadconnectorhq.com /membership/locations/{}/offers/{}": "8f212e22e60aaa0b6b9a360465ac4fa69282e37afdf84bc6216763e79200b770",
+      "PUT https://services.leadconnectorhq.com /membership/locations/{}/posts/{}": "471c5e166b09c4c82de16ed7355290cc22a83deaea8e37b58fa17d4ddf26834f",
+      "PUT https://services.leadconnectorhq.com /membership/locations/{}/products/apply-theme/{}": "81f0bdd355c8c94a6f10ebbfb5b59587baa7d667c40f3b686f8b8faa2e537480"
+    },
+    "builds": {
+      "certificatesApp": 1945,
+      "membershipApp": 1957
+    },
+    "code": {
+      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#build_course": "5b9b85da236c81269bdd8048aaed5e5cb713e2c1ff0c406c32195a6ee2546005",
+      "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "e65c2384aefb498ce49453dd2d6d8d1a1d8351fd6d337aef5256eb982e1db02f",
+      "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
+      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "2d59b12818ffe76fb105e5284c3d186aea8d07f6a457b7c6344ea2258ba6a1d6",
+      "plugins/uxie-ghl-factory/skills/ghl-memberships/engine/api.mjs": "b103c2c9ff3ed263775cd2d804034a2aa7b9c7ed4751f2d5e82c56b8ba6ecd51",
+      "plugins/uxie-ghl-factory/skills/ghl-memberships/engine/assessments.mjs": "a1f3630ace4cd84fbd2e58b65e4d14c446754219043c744f3199347158d1603a",
+      "plugins/uxie-ghl-factory/skills/ghl-memberships/engine/course-builder.mjs": "cc26ab0a3b82785b33298449094922a51f464dfdfad178e95e78c7fb5e96671a",
+      "plugins/uxie-ghl-factory/skills/ghl-memberships/engine/credentials.mjs": "74d9202416cb056db3d88500fa11154223bf0c9524cedbfd8bf6100d2f991741",
+      "plugins/uxie-ghl-factory/skills/ghl-memberships/engine/members.mjs": "63f77956e88e2fa08868e0efcfc0ecace9a2a8dba84a92d9c8b8df5bf7abf404"
+    }
+  }
+}

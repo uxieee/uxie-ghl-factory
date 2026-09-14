@@ -1,0 +1,40 @@
+{
+  "tool": "fast_forward_contacts",
+  "surfaces": [
+    "workflows"
+  ],
+  "runs": [
+    {
+      "at": "2026-09-10",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "row:fast-forward-count-per-step",
+        "row:fast-forward-details-by-step",
+        "row:fast-forward-requeue-statuses"
+      ],
+      "backfilled": true
+    }
+  ],
+  "depends": {
+    "hashedAt": "2026-09-14",
+    "endpoints": {
+      "GET https://backend.leadconnectorhq.com /workflows/status/search/count-per-step": "b3a90cd758f345cf6ea41e5d8685a4db7c3f7c0b1ea488a1c1ca83d54f7f99e4",
+      "GET https://backend.leadconnectorhq.com /workflows/status/search/details-by-step": "4156ef34a4eaa885cdc6afbf1998f1bd48bc431b1ac8e9ed7222fcbac5ad054f",
+      "POST https://backend.leadconnectorhq.com /workflow/{}/{}/requeue-stuck-statuses/{}": "0ed9ff155efe5ac32d68abe0c4f79d877a681fa4ac8829f5b5e377c51f47f72c"
+    },
+    "builds": {
+      "adPublishingApp": 112,
+      "builder-chunks": "assets/index-Bbegn_x5.js",
+      "notificationApp": 261,
+      "reportingApp": 268
+    },
+    "code": {
+      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#fast_forward_contacts": "3113b182a5d55e56791d429edbb58f06d13dce4c819f1faab8f35c15e601cb13",
+      "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "e65c2384aefb498ce49453dd2d6d8d1a1d8351fd6d337aef5256eb982e1db02f",
+      "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
+      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "2d59b12818ffe76fb105e5284c3d186aea8d07f6a457b7c6344ea2258ba6a1d6",
+      "plugins/uxie-ghl-factory/skills/ghl-workflow-fast-forward/engine/ff.mjs": "61cd7a7ef9e02598180198c27d3b5e19546ece37890472d0aaf756cb39e1bb4f"
+    }
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "tool": "duplicate_workflow",
+  "surfaces": [
+    "workflows"
+  ],
+  "runs": [
+    {
+      "at": "2026-08-18",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "row:workflow-duplicate",
+        "row:workflow-duplicate-source-read",
+        "row:workflow-duplicate-trigger-read"
+      ],
+      "backfilled": true
+    }
+  ],
+  "depends": {
+    "hashedAt": "2026-09-14",
+    "endpoints": {
+      "GET https://backend.leadconnectorhq.com /workflow/{}/trigger": "08350cea684b7ac76430d36af66e093c3753ee489a66e250efef0ba978eeb148",
+      "GET https://backend.leadconnectorhq.com /workflow/{}/{}": "d75bf4cca526ca32f133f5f381cb7a68530031528b4caa2d713addcae0c55ffc",
+      "POST https://backend.leadconnectorhq.com /workflow/{}": "7a4d233f4a9cebf909e0cab6294270833da25990fc39fc7748586ea9881d6c77"
+    },
+    "builds": {
+      "adPublishingApp": 112,
+      "builder-chunks": "assets/index-Bbegn_x5.js",
+      "notificationApp": 261,
+      "reportingApp": 268
+    },
+    "code": {
+      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#duplicate_workflow": "5ba68164e4a8964ca36cd28f1bb11c41bd2db1d1873f18c57b065ac6c8dd8785",
+      "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "e65c2384aefb498ce49453dd2d6d8d1a1d8351fd6d337aef5256eb982e1db02f",
+      "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
+      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "2d59b12818ffe76fb105e5284c3d186aea8d07f6a457b7c6344ea2258ba6a1d6"
+    }
+  }
+}

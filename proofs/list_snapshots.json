@@ -1,0 +1,38 @@
+{
+  "tool": "list_snapshots",
+  "surfaces": [
+    "platform"
+  ],
+  "runs": [
+    {
+      "at": "2026-09-10",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "row:platform--snapshots-prefetch",
+        "row:platform--snapshots-create-appengine"
+      ],
+      "backfilled": true
+    }
+  ],
+  "depends": {
+    "hashedAt": "2026-09-14",
+    "endpoints": {
+      "GET https://backend.leadconnectorhq.com /locations/{}": "4875e8df14204f712f16f6ad95332c1e2ba7cea66195934526d61ead4a8eac53",
+      "GET https://backend.leadconnectorhq.com /snapshots/v2/{}": "efbd9a2fd7acebdda269bf8b0d1051d6d313e364fc8a870406e29d90a7cfa997",
+      "GET https://services.leadconnectorhq.com /snapshots/v2/{}": "a9c3b89e8a162e1bbb9b335097a69e8de12b9ac2d3bfc8fa8e2fa0a25724f859"
+    },
+    "builds": {
+      "contactsApp": 2531,
+      "customFieldsApp": 2079,
+      "snapshotsApp": 1969
+    },
+    "code": {
+      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#list_snapshots": "0750fdecfc26af688925bb71c28b1cbadaebccaab5e0bccf3df2f7949ce0ba03",
+      "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "e65c2384aefb498ce49453dd2d6d8d1a1d8351fd6d337aef5256eb982e1db02f",
+      "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
+      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "2d59b12818ffe76fb105e5284c3d186aea8d07f6a457b7c6344ea2258ba6a1d6",
+      "plugins/uxie-ghl-factory/mcp-internal/core/snapshots.mjs": "43cada8c70987a2c4d8b14a6c5d398565d582933fc5f0ea072c5dc91a6bec84c"
+    }
+  }
+}

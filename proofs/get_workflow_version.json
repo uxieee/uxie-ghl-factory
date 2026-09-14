@@ -1,0 +1,36 @@
+{
+  "tool": "get_workflow_version",
+  "surfaces": [
+    "workflows"
+  ],
+  "runs": [
+    {
+      "at": "2026-08-22",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "row:workflow-history"
+      ],
+      "backfilled": true
+    }
+  ],
+  "depends": {
+    "hashedAt": "2026-09-14",
+    "endpoints": {
+      "GET https://backend.leadconnectorhq.com /workflow/{}/{}/history-by-number/{}": "c67a3d11cb80e14b368a835e9ac2b5408a3d0d355348e31a6c8768a9003b6496",
+      "GET https://backend.leadconnectorhq.com /workflow/{}/{}/history/{}": "f04bf5d830b4d70013c13e415284c7c2f3068492afcfdb5136d16ec4bf6adeac"
+    },
+    "builds": {
+      "adPublishingApp": 112,
+      "builder-chunks": "assets/index-Bbegn_x5.js",
+      "notificationApp": 261,
+      "reportingApp": 268
+    },
+    "code": {
+      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#get_workflow_version": "13aeb7609e280670ae0ca44bef1f1d59d6f63a74e0bf13cc2ccc53ce8e0ce438",
+      "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "e65c2384aefb498ce49453dd2d6d8d1a1d8351fd6d337aef5256eb982e1db02f",
+      "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
+      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "2d59b12818ffe76fb105e5284c3d186aea8d07f6a457b7c6344ea2258ba6a1d6"
+    }
+  }
+}

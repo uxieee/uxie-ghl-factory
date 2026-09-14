@@ -1,0 +1,40 @@
+{
+  "tool": "get_trigger_logs",
+  "surfaces": [
+    "workflows"
+  ],
+  "runs": [
+    {
+      "at": "2026-08-22",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "row:trigger-logs-triggerId",
+        "row:trigger-logs-top-failed-reasons",
+        "row:trigger-count-by-triggerId"
+      ],
+      "backfilled": true
+    }
+  ],
+  "depends": {
+    "hashedAt": "2026-09-14",
+    "endpoints": {
+      "GET https://backend.leadconnectorhq.com /workflow/{}/trigger": "08350cea684b7ac76430d36af66e093c3753ee489a66e250efef0ba978eeb148",
+      "GET https://backend.leadconnectorhq.com /workflows/trigger/logs/count-by-triggerId": "e4a8570f39262e862f128ee185a08ee1f0aa1dfa11d728649bb4fda82ed69439",
+      "GET https://backend.leadconnectorhq.com /workflows/trigger/logs/top-failed-reasons": "9ed8bb8863d85b201bc73ef069ae4ee235ca42eadee789950dca791bc09ce0c2",
+      "GET https://backend.leadconnectorhq.com /workflows/trigger/logs/triggerId": "7ba8e5f84342b6aac7f3e3db16a9c52ae032ac77c69ac97a9dc66075a024d746"
+    },
+    "builds": {
+      "adPublishingApp": 112,
+      "builder-chunks": "assets/index-Bbegn_x5.js",
+      "notificationApp": 261,
+      "reportingApp": 268
+    },
+    "code": {
+      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#get_trigger_logs": "761aaa6b2e1aaa90388159ff67def10c72c4e86df0d543ec682bfb04a8446ddd",
+      "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "e65c2384aefb498ce49453dd2d6d8d1a1d8351fd6d337aef5256eb982e1db02f",
+      "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
+      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "2d59b12818ffe76fb105e5284c3d186aea8d07f6a457b7c6344ea2258ba6a1d6"
+    }
+  }
+}

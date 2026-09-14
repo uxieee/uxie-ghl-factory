@@ -68,8 +68,13 @@ export function releaseCommitMessage(version, title) {
 
 // Everything that must be true before a single file is touched. Returns the failures, all of
 // them, so one run reports every problem rather than the first.
-export function preflightFailures({ branch, behind, ahead, dirty, untracked = [], current, next, section, today, tools }) {
+export function preflightFailures({ branch, behind, ahead, dirty, untracked = [], current, next, section, today, tools, failing = [], allowFailing = [] }) {
   const out = [];
+  // A failing tool never ships under a proven label: sync-labels would write `failing (date)`, and a
+  // release that carries it must be a decision, named tool by tool, not an accident.
+  for (const tool of failing) {
+    if (!allowFailing.includes(tool)) out.push(`${tool}: its latest proof run is failing — fix and re-prove it, or pass --allow-failing ${tool}`);
+  }
   if (branch !== 'main') out.push(`on branch "${branch}" — releases are cut from main`);
   if (behind > 0) out.push(`main is ${behind} commit(s) behind origin/main — pull first (the 0.50.0 collision was exactly this)`);
   if (dirty.length) out.push(`tracked files are modified: ${dirty.join(', ')} — commit or stash before releasing`);

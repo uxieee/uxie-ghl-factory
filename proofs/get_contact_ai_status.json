@@ -1,0 +1,37 @@
+{
+  "tool": "get_contact_ai_status",
+  "surfaces": [
+    "ai-agents"
+  ],
+  "runs": [
+    {
+      "at": "2026-08-08",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "row:ai-convai-contact-config-read"
+      ],
+      "backfilled": true
+    }
+  ],
+  "depends": {
+    "hashedAt": "2026-09-14",
+    "endpoints": {
+      "GET https://services.leadconnectorhq.com /conversations-ai/employeeConfigs": "421c71f0fdb2b24bcf4da98c5cb06d8cf2a0962dfc7088ef9970ff637e3a70e6"
+    },
+    "builds": {
+      "agentLogsApp": 635,
+      "agentStudioApp": 648,
+      "aiEmployeesApp": 2459,
+      "aiGrowthApp": 626,
+      "superagentsApp": 649,
+      "voiceAiApp": 652
+    },
+    "code": {
+      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#get_contact_ai_status": "e6a8bd4d18da774d78291dfef25079ee3f801f45e8f5ae11f3af42494a54be4f",
+      "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "e65c2384aefb498ce49453dd2d6d8d1a1d8351fd6d337aef5256eb982e1db02f",
+      "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
+      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "2d59b12818ffe76fb105e5284c3d186aea8d07f6a457b7c6344ea2258ba6a1d6"
+    }
+  }
+}
