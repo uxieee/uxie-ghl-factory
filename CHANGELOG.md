@@ -61,6 +61,12 @@ labels this work replaces, and they say so rather than reading as proof.
 - **The per-tool pass/FAIL report survives a mid-loop write failure**, so a schema violation on the
   second tool no longer swallows the first tool's result — the list the recheck skill files
   backlog rows from.
+- **Refreshing a proof label no longer eats the evidence floor.** `sync-labels` rewrote the
+  description with a pattern that ran to the semicolon, so a `, floor: …` clause between the proof
+  and the `;` was swallowed. The floor is the WEAKEST evidence behind a tool and the proof is the
+  strongest — dropping it makes a tool read stronger than it is, which is the over-reading these
+  records exist to prevent. It hit `build_workflow`, `edit_workflow` and `publish_workflow`, two of
+  them `risk: destructive`; all three are restored.
 
 ## [0.84.2] — 2026-09-14
 
