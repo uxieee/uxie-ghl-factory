@@ -22,6 +22,16 @@
         "receipt:2026-09-14-1904"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-14",
+      "result": "pass",
+      "how": "suite",
+      "suite": "workflows",
+      "evidence": [
+        "receipt:2026-09-14-2132"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {

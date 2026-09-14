@@ -13,6 +13,16 @@
         "receipt:2026-09-14-1904"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-14",
+      "result": "pass",
+      "how": "suite",
+      "suite": "workflows",
+      "evidence": [
+        "receipt:2026-09-14-2132"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
@@ -40,7 +50,7 @@
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/compiler.mjs": "b3c265da6d123276cbfe81f72edc29697c486f51042b923b88995f88e5800edd",
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/contact-field-shapes.mjs": "748a11eee9bfb5fa4c2cf52c7d7f2040c161d619bfacf4dc0d16db6d0a81e520",
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/digest.mjs": "4f057a989ae6d48de1a686ad163d86b40dd987ad294f5c15375aa519db32c75c",
-      "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/edit.mjs": "a947986b498e55923201117c88d14f2c6cf3f346a9bea9d0dd7a77ca660d4d5b",
+      "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/edit.mjs": "a12a23f6cfc8cb032c91d54610f6b35fdba36f1481609e4af253d6c55d63cb82",
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/enforce.mjs": "a661a36c2e250cbb195650e05edc5927db420be2a3e0e4f678bd748353082a87",
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/goghl.mjs": "642a4cc325ebc30bf56a96f3c3aeab538fafe81ceecfbfa2bbd73ef8d4b248b0",
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/goto-loops.mjs": "60f939319f865b5411eccebab15dc873569242cb49e45f3398b8646883f75497",
