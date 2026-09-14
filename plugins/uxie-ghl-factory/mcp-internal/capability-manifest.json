@@ -1010,6 +1010,41 @@
     "path": "/workflow/{loc}/{wid}/validate-workflows"
   },
   {
+    "tool": "get_workflow_settings",
+    "method": "GET",
+    "path": "/workflow/{loc}/auto-save/settings"
+  },
+  {
+    "tool": "get_workflow_settings",
+    "method": "GET",
+    "path": "/workflow/{loc}/workflow-ai/settings"
+  },
+  {
+    "tool": "get_workflow_settings",
+    "method": "GET",
+    "path": "/workflow/{loc}/workflow-location-setting/settings"
+  },
+  {
+    "tool": "get_workflow_settings",
+    "method": "GET",
+    "path": "/workflow/{loc}/scheduled-pause/config"
+  },
+  {
+    "tool": "get_workflow_settings",
+    "method": "GET",
+    "path": "/workflow/{loc}/eliza-users"
+  },
+  {
+    "tool": "get_workflow_settings",
+    "method": "GET",
+    "path": "/workflow/{loc}/error-notification/{workflowId}"
+  },
+  {
+    "tool": "list_workflow_templates",
+    "method": "GET",
+    "path": "/workflow/{loc}/workflow-templates"
+  },
+  {
     "tool": "list_workflow_folders",
     "method": "GET",
     "path": "/workflow/{loc}/list"

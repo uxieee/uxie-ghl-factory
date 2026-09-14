@@ -1,0 +1,41 @@
+{
+  "tool": "get_workflow_settings",
+  "surfaces": [
+    "workflows"
+  ],
+  "runs": [
+    {
+      "at": "2026-09-14",
+      "result": "pass",
+      "how": "suite",
+      "suite": "workflows",
+      "evidence": [
+        "receipt:2026-09-14-2156"
+      ],
+      "location": "…zn6B"
+    }
+  ],
+  "depends": {
+    "hashedAt": "2026-09-14",
+    "endpoints": {
+      "GET https://backend.leadconnectorhq.com /workflow/{}/auto-save/settings": "2a2115f980d56e564a36ef8a9820659eb11a4650f8ad06fd3a93516a2844ab34",
+      "GET https://backend.leadconnectorhq.com /workflow/{}/eliza-users": "4de96ee6b2e2d8196114259b90ee81a390731760a46d366497ca5ab423e1935b",
+      "GET https://backend.leadconnectorhq.com /workflow/{}/error-notification/{}": "53f16b58c8299cd1ec54a64cd5c3100cf84061ac519ca479ff70566be742411b",
+      "GET https://backend.leadconnectorhq.com /workflow/{}/scheduled-pause/config": "8a9cb822491530d23ca84059e37f203ed1efe4b6f866a9fb0726b7e1f64c15b3",
+      "GET https://backend.leadconnectorhq.com /workflow/{}/workflow-ai/settings": "360d1ac9ea17b610b54d37955efd09368659aa2ce5379002246f743e75474ce2",
+      "GET https://backend.leadconnectorhq.com /workflow/{}/workflow-location-setting/settings": "969136a0d4759272936b0360fd7b75108a1cc4a76e49a8afc613e78ab66ccece"
+    },
+    "builds": {
+      "adPublishingApp": 112,
+      "builder-chunks": "assets/index-BZBeFyAW.js",
+      "notificationApp": 261,
+      "reportingApp": 268
+    },
+    "code": {
+      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#get_workflow_settings": "f303fdb736d95c7633638bf0abf3a195be0ef6ed96119fe6b089f4078c893403",
+      "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "e65c2384aefb498ce49453dd2d6d8d1a1d8351fd6d337aef5256eb982e1db02f",
+      "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
+      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "2d59b12818ffe76fb105e5284c3d186aea8d07f6a457b7c6344ea2258ba6a1d6"
+    }
+  }
+}

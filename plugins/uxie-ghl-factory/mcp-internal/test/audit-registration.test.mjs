@@ -684,7 +684,11 @@ test('the full 51-tool registry and the normal stdio entry point are unchanged',
   // valid:false naming rule, step and message for three planted defects, and the document read back
   // byte-identical after five calls. It POSTs, so it is outside the audit profile by construction,
   // which is why it is its own tool rather than a key on check_workflow.
-  assert.equal(TOOLS.length, 83, 'the audit profile is ADDITIVE; the full server keeps every tool');
+  // 83 -> 85: get_workflow_settings and list_workflow_templates (2026-09-15). Both are pure reads
+  // on the account-level workflow settings rail, which no tool reached: the six routes behind them
+  // had reach:null on the parity page — never PROBED, which is not the same as unreachable. All
+  // seven routes were executed live on the sandbox before either tool was written.
+  assert.equal(TOOLS.length, 85, 'the audit profile is ADDITIVE; the full server keeps every tool');
   assert.deepEqual(TOOLS.map((tool) => tool.name), [
     'set_token_file', 'auth_status', 'create_convai_agent', 'update_convai_agent', 'create_voiceai_agent',
     'create_studio_agent', 'get_contact_ai_status', 'set_contact_ai_status',
@@ -697,6 +701,7 @@ test('the full 51-tool registry and the normal stdio entry point are unchanged',
     'get_account_workflow_overview', 'test_custom_code', 'list_account_entities',
     'list_marketplace_apps', 'list_courses', 'build_course', 'build_workflow', 'edit_workflow',
     'repair_workflow', 'unpublish_workflows', 'publish_workflow', 'search_step_types', 'describe_step_type',
+    'get_workflow_settings', 'list_workflow_templates',
     'list_workflow_folders', 'create_workflow_folder',
     'duplicate_workflow', 'move_workflows', 'create_custom_field_folder',
     'pin_webhook_sample', 'fast_forward_contacts', 'raw_request',

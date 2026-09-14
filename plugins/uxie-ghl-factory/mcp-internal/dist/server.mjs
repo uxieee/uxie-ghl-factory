@@ -2421,7 +2421,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -8154,7 +8154,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          reach: "refused",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -21350,7 +21350,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           note: `?version=N is ACCEPTED, silently IGNORED, and the CURRENT document is returned wearing its real version number (live 2026-09-02: ?version=1 -> "version": 3). Nothing errors, so a 'recovery' read can restore the corruption over itself and look successful. Use the version-history rail instead -- history / history-by-number -- which the typed get_workflow_version already does.`,
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [
             "build_workflow",
             "check_workflow",
@@ -22706,7 +22706,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
-          coveredBy: [],
+          coveredBy: [
+            "get_workflow_settings"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -23099,7 +23101,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
-          coveredBy: [],
+          coveredBy: [
+            "get_workflow_settings"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -23133,7 +23137,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [
             "edit_workflow",
             "publish_workflow",
@@ -23771,7 +23775,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
-          coveredBy: [],
+          coveredBy: [
+            "get_workflow_settings"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -24722,7 +24728,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           summary: "Whether this workflow is paused on a schedule, and the window if so.",
           reach: "proven",
-          coveredBy: [],
+          coveredBy: [
+            "get_workflow_settings"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -26122,7 +26130,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
-          coveredBy: [],
+          coveredBy: [
+            "get_workflow_settings"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -26195,7 +26205,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
-          coveredBy: [],
+          coveredBy: [
+            "get_workflow_settings"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -26338,7 +26350,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
-          coveredBy: [],
+          coveredBy: [
+            "list_workflow_templates"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -29922,7 +29936,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -31277,7 +31291,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -34859,7 +34873,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -34897,7 +34911,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -37059,7 +37073,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "source-only",
+          reach: "refused",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -37091,7 +37105,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "ai",
           kind: "read",
           note: 'Executed 2026-09-11: 422 ["domains must be a string","domains should not be empty","source should not be empty","source must be a valid enum value"]. The route exists; `source` is an enum whose members the error does NOT spell out, so it was not guessed.',
-          reach: "source-only",
+          reach: "refused",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -37184,7 +37198,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "source-only",
+          reach: "refused",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -37249,7 +37263,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "source-only",
+          reach: "refused",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -37280,7 +37294,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "source-only",
+          reach: "refused",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -37547,7 +37561,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "source-only",
+          reach: "refused",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -38797,7 +38811,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -55766,9 +55780,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       check_workflow: {
-        description: "Read-only conformance check: replays GHL's own validators against a workflow \u2014 proof: unrecorded; risk: read",
+        description: "Read-only conformance check: replays GHL's own validators against a workflow \u2014 proof: live-runtime (2026-09-14); risk: read",
         risk: "read",
-        proof: "unrecorded",
+        proof: "live-runtime (2026-09-14)",
         proofFloor: "unrecorded",
         proofRows: [
           "workflow-service--find-by-id",
@@ -55950,6 +55964,46 @@ var init_define_TOOL_CATALOG = __esm({
           "workflow-read",
           "triggers-list",
           "workflow-validate"
+        ]
+      },
+      get_workflow_settings: {
+        description: "Read the account-level workflow settings rail \u2014 proof: live-runtime (2026-09-14); risk: read",
+        risk: "read",
+        proof: "live-runtime (2026-09-14)",
+        proofFloor: "source-derived (builder bundle 2026-09-14)",
+        rows: [
+          "workflow-settings-read",
+          "workflow-error-notification-read"
+        ],
+        riskRows: [
+          "workflow-settings-read",
+          "workflow-error-notification-read"
+        ],
+        proofRows: [
+          "workflow-settings-read",
+          "workflow-error-notification-read"
+        ],
+        proofFloorRows: [
+          "workflow-settings-read",
+          "workflow-error-notification-read"
+        ]
+      },
+      list_workflow_templates: {
+        description: "List the workflow templates GHL offers \u2014 proof: live-runtime (2026-09-14); risk: read",
+        risk: "read",
+        proof: "live-runtime (2026-09-14)",
+        proofFloor: "source-derived (builder bundle 2026-09-14)",
+        rows: [
+          "workflow-templates-list"
+        ],
+        riskRows: [
+          "workflow-templates-list"
+        ],
+        proofRows: [
+          "workflow-templates-list"
+        ],
+        proofFloorRows: [
+          "workflow-templates-list"
         ]
       }
     };
@@ -173865,6 +173919,101 @@ var TOOLS2 = [
       const caps = FIELD_CAPS[card.type];
       return { ok: true, data: caps ? { ...card, caps, capsNote: "Character caps measured live (the server stores an over-length value verbatim; the builder flags it). edit_workflow and repair_workflow refuse an over-cap value on a step they touch unless allowOverCap:true." } : card };
     })
+  },
+  // ── THE ACCOUNT-LEVEL WORKFLOW SETTINGS RAIL ────────────────────────────────────────────────
+  // Six routes the builder reads on load that no tool reached until 2026-09-15. They were not
+  // missing because they are hard — they were never PROBED. The parity page showed reach:null,
+  // which is indistinguishable from "unreachable" at a glance and is not the same thing.
+  //
+  // 🔴 THE REASON THIS IS ONE TOOL AND NOT SIX: every one of these routes answers 200 whether or
+  // not the account has a record, and three of them answer 200 with NOTHING —
+  // workflow-ai/settings and workflow-location-setting/settings return `{}`, and
+  // error-notification/{workflowId} returns a bare `null`. Measured on GROM Sandbox 2026-09-15.
+  // A caller reading one of those in isolation cannot tell "this account has no such
+  // configuration" from "this feature does not exist here" from "my call was wrong", and the
+  // temptation is to report the friendliest of the three. So each section carries its own
+  // `present` verdict and the empty case says which kind of empty it was, in the same words every
+  // time. Absence of a record is reported as absence of a RECORD, never as a feature being off.
+  {
+    name: "get_workflow_settings",
+    description: `${describe3("get_workflow_settings", "Read the account-level workflow settings rail \u2014 risk: read")}. Read the sub-account settings the workflow builder itself loads: auto-save, the workflow-AI settings, the location-level workflow settings, the scheduled-pause configuration, and the Eliza (AI employee) user list. Pass workflowId to also read that workflow's error-notification settings. \u{1F534} EVERY ONE OF THESE ROUTES ANSWERS 200 WHETHER OR NOT A RECORD EXISTS, and three answer 200 with an empty body (workflow-ai and workflow-location-setting return {}, error-notification returns null), so each section reports its own \`present\` flag and an empty one says "the account has no record on this route" \u2014 that is NOT the same as the feature being disabled, and must not be reported as though it were. A section that failed carries \`error\` instead, so one dead route never makes the other five look absent. \`present:true\` means GHL returned a RECORD, which may itself describe zero items \u2014 scheduled-pause answers {pauseConfigs: []} and eliza-users answers {users: []} on an account with none \u2014 so read the count off \`value\`, never off \`present\`.`,
+    inputSchema: schema({
+      locationId: external_exports.string(),
+      workflowId: external_exports.string().optional()
+    }),
+    capabilities: [
+      { method: "GET", path: "/workflow/{loc}/auto-save/settings" },
+      { method: "GET", path: "/workflow/{loc}/workflow-ai/settings" },
+      { method: "GET", path: "/workflow/{loc}/workflow-location-setting/settings" },
+      { method: "GET", path: "/workflow/{loc}/scheduled-pause/config" },
+      { method: "GET", path: "/workflow/{loc}/eliza-users" },
+      { method: "GET", path: "/workflow/{loc}/error-notification/{workflowId}" }
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+      const loc = encodeURIComponent(args.locationId);
+      const isEmpty = (v) => v === null || v === void 0 || Array.isArray(v) && v.length === 0 || typeof v === "object" && !Array.isArray(v) && Object.keys(v).length === 0;
+      const NO_RECORD = "the account has no record on this route (GHL answered 200 with an empty body) \u2014 this is NOT the same as the feature being disabled";
+      const section = async (path) => {
+        const r = await gw.call("GET", path);
+        if (!r.ok) {
+          const e = fromHttp(r.status, r.json);
+          return { present: null, error: e.detail ?? `GHL answered ${r.status}`, status: r.status };
+        }
+        return isEmpty(r.json) ? { present: false, note: NO_RECORD, value: r.json ?? null } : { present: true, value: r.json };
+      };
+      const out = {
+        autoSave: await section(`/workflow/${loc}/auto-save/settings`),
+        workflowAi: await section(`/workflow/${loc}/workflow-ai/settings`),
+        locationSettings: await section(`/workflow/${loc}/workflow-location-setting/settings`),
+        scheduledPause: await section(`/workflow/${loc}/scheduled-pause/config`),
+        elizaUsers: await section(`/workflow/${loc}/eliza-users`)
+      };
+      if (args.workflowId !== void 0) {
+        out.errorNotification = await section(`/workflow/${loc}/error-notification/${encodeURIComponent(args.workflowId)}`);
+      }
+      const sections = Object.entries(out);
+      const failed = sections.filter(([, v]) => v.present === null).map(([k]) => k);
+      const empty2 = sections.filter(([, v]) => v.present === false).map(([k]) => k);
+      return ok({
+        ...out,
+        // The headline states all three populations every time. A caller who reads only this line
+        // must not be able to mistake "five empty, one failed" for "clean".
+        headline: `${sections.length} section(s) read \u2014 ${sections.length - failed.length - empty2.length} with a record, ${empty2.length} with NO record (${empty2.join(", ") || "none"}), ${failed.length} FAILED (${failed.join(", ") || "none"})`,
+        readNote: args.workflowId === void 0 ? "error-notification was not read: it is per-workflow and needs workflowId." : void 0
+      });
+    }, args)
+  },
+  // Templates are the one route on this rail that carries real content on a fresh account — 28 rows
+  // on the sandbox — so it is its own tool rather than a section above: a caller listing templates
+  // wants a list, not a settings bundle with a list inside it.
+  {
+    name: "list_workflow_templates",
+    description: `${describe3("list_workflow_templates", "List the workflow templates GHL offers \u2014 risk: read")}. List the workflow TEMPLATES available to a sub-account \u2014 GHL's own starter recipes, each with an id, title, description and categories. These are the templates the builder shows in its "start from a template" picker, not workflows in the account: nothing here is installed, and the ids are template ids, not workflow ids. The response is a bare ARRAY, not an envelope.`,
+    inputSchema: schema({ locationId: external_exports.string() }),
+    capabilities: [{ method: "GET", path: "/workflow/{loc}/workflow-templates" }],
+    handler: async (args, deps) => guard(async () => {
+      const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+      const r = await gw.call("GET", `/workflow/${encodeURIComponent(args.locationId)}/workflow-templates`);
+      if (!r.ok) return fromHttp(r.status, r.json);
+      const rows = Array.isArray(r.json) ? r.json : r.json?.templates ?? r.json?.data ?? null;
+      if (!Array.isArray(rows)) {
+        return fail(
+          CODES.VALIDATION_FAILED,
+          `workflow-templates answered 200 but not with an array \u2014 top-level keys: ${Object.keys(r.json ?? {}).join(", ") || "(none)"}`,
+          "The response shape changed. Read it with raw_request before trusting a count from here."
+        );
+      }
+      return ok({
+        count: rows.length,
+        templates: rows.map((t) => ({
+          id: t.id ?? t._id ?? null,
+          title: t.title ?? t.name ?? null,
+          description: t.description ?? null,
+          categories: t.categories ?? []
+        }))
+      });
+    }, args)
   },
   // spends a read fetching them.
   {

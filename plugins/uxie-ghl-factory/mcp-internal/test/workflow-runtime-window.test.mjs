@@ -2368,6 +2368,17 @@ const AUDIT_CATALOG_ENTRIES = Object.freeze([
   'get_ai_configuration_bundle',
 ]);
 
+// NOT added to the list above, and the reason is worth stating rather than leaving to be inferred.
+// get_workflow_settings and list_workflow_templates (2026-09-15) cite row ids that appear in no
+// other entry — workflow-settings-read, workflow-error-notification-read, workflow-templates-list.
+// That is not the hole this test was written to close. The ids that motivated it were WRONG NAMES
+// for rows the reconciled matrix already had (`workflow-get` where the real row was
+// `workflow-read`). These three name routes the matrix never contained at all: they come out of the
+// workflow-builder bundle, they had reach:null until they were probed on 2026-09-15, and no
+// capability matrix in these repos has a row for them to match. Holding them to "another entry
+// already cites this" would require inventing a citer, which is worse than a new id. They are
+// new ids for new capabilities, and each names exactly what its tool reads.
+
 test('every row id the tool catalog cites — in EVERY entry — exists in the reconciled vocabulary', () => {
   // GENERALIZED from the runtime-window-only version. c0566c6 established
   // tool-descriptions.json as reconciled against the docs capability matrix. The

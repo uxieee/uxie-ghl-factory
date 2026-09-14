@@ -740,6 +740,68 @@ if (ovTotal !== total) {
   console.log(`  NOTE  the overview total (${ovTotal}) disagrees with the listing rails (${total}) — bl-132, undiagnosed`);
 }
 
+// ── 6b. the account-level settings rail, and the three routes that answer 200 with nothing ──
+// 🔴 WHY THIS SECTION EXISTS. Every route behind get_workflow_settings answers 200 whether or not
+// the account holds a record, and three answer 200 with an EMPTY body (workflow-ai and
+// workflow-location-setting return {}, error-notification returns a bare null). A tool over that
+// rail can look perfectly healthy while telling the caller nothing, and the friendly reading —
+// "the feature is off" — is a claim GHL never made. So the assertions below check the DISTINCTION
+// the tool is for, not merely that it returned.
+//
+// These routes had reach:null before 2026-09-15 — never probed, which on the parity page looks the
+// same as unreachable and is not.
+console.log('\nthe account settings rail');
+log.subject('get_workflow_settings');
+{
+  const st = await call('get_workflow_settings', { workflowId: wid });
+  check(st.ok === true, 'get_workflow_settings returns', st.detail);
+  const sections = ['autoSave', 'workflowAi', 'locationSettings', 'scheduledPause', 'elizaUsers', 'errorNotification'];
+  check(sections.every((k) => st.data?.[k] && 'present' in st.data[k]),
+    'every section carries its OWN present verdict — one rail-wide boolean could not express "3 of 6"',
+    JSON.stringify(Object.keys(st.data ?? {})));
+  check(sections.every((k) => st.data[k].present !== null),
+    'and no section FAILED on this account', JSON.stringify(sections.filter((k) => st.data[k].present === null)));
+  // The empty-body population is the point. It is allowed to be zero on some account, so this
+  // asserts the CONTRACT (an empty section explains which kind of empty it is) rather than a count.
+  const empties = sections.filter((k) => st.data[k].present === false);
+  check(empties.every((k) => /no record on this route/.test(st.data[k].note ?? '')
+    && /NOT the same as the feature being disabled/.test(st.data[k].note ?? '')),
+    `an empty section says WHICH kind of empty it is and refuses the friendly misreading (${empties.length} empty here)`,
+    JSON.stringify(empties.map((k) => st.data[k].note)).slice(0, 200));
+  check(empties.every((k) => st.data[k].error === undefined),
+    'and an empty section is not dressed up as a failure — empty and failed are different states',
+    JSON.stringify(empties));
+  check(/section\(s\) read/.test(st.data?.headline ?? '') && /FAILED/.test(st.data?.headline ?? ''),
+    'the headline names all three populations, so a caller reading one line cannot mistake empty for clean',
+    st.data?.headline);
+  // A record describing zero items is PRESENT. Asserted because conflating it with an empty body
+  // would make "no scheduled pauses" indistinguishable from "this route told us nothing".
+  check(st.data?.scheduledPause?.present === true && st.data?.scheduledPause?.value !== null,
+    'a record that describes zero items is PRESENT — {pauseConfigs: []} is an answer, not a silence',
+    JSON.stringify(st.data?.scheduledPause).slice(0, 140));
+
+  const noWf = await call('get_workflow_settings', {});
+  check(noWf.ok === true && !('errorNotification' in (noWf.data ?? {})),
+    'without workflowId the per-workflow section is ABSENT, not invented as empty',
+    JSON.stringify(Object.keys(noWf.data ?? {})));
+  check(/needs workflowId/.test(noWf.data?.readNote ?? ''),
+    'and the tool says why it was not read', noWf.data?.readNote);
+}
+
+log.subject('list_workflow_templates');
+{
+  const t = await call('list_workflow_templates', {});
+  check(t.ok === true, 'list_workflow_templates returns', t.detail);
+  check(Number.isInteger(t.data?.count) && t.data.count > 0,
+    'and GHL offers templates on this account — a zero here would mean the bare-ARRAY response shape drifted',
+    JSON.stringify(t.data?.count));
+  check(t.data.count === (t.data.templates ?? []).length,
+    'the count is the rows, not a number from the envelope', `${t.data?.count} vs ${(t.data?.templates ?? []).length}`);
+  check((t.data.templates ?? []).every((x) => typeof x.id === 'string' && x.id && typeof x.title === 'string' && x.title),
+    'every template carries an id and a title — the two fields that make the list actionable',
+    JSON.stringify((t.data.templates ?? []).filter((x) => !x.id || !x.title).slice(0, 3)));
+}
+
 // ── 7. folders, and moving something into one ───────────────────────────────────────────────
 console.log('\nfolders');
 log.subject('list_workflow_folders');

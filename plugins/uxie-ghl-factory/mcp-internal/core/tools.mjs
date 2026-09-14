@@ -5825,6 +5825,126 @@ export const TOOLS = [
         : card };
     }),
   },
+  // ── THE ACCOUNT-LEVEL WORKFLOW SETTINGS RAIL ────────────────────────────────────────────────
+  // Six routes the builder reads on load that no tool reached until 2026-09-15. They were not
+  // missing because they are hard — they were never PROBED. The parity page showed reach:null,
+  // which is indistinguishable from "unreachable" at a glance and is not the same thing.
+  //
+  // 🔴 THE REASON THIS IS ONE TOOL AND NOT SIX: every one of these routes answers 200 whether or
+  // not the account has a record, and three of them answer 200 with NOTHING —
+  // workflow-ai/settings and workflow-location-setting/settings return `{}`, and
+  // error-notification/{workflowId} returns a bare `null`. Measured on GROM Sandbox 2026-09-15.
+  // A caller reading one of those in isolation cannot tell "this account has no such
+  // configuration" from "this feature does not exist here" from "my call was wrong", and the
+  // temptation is to report the friendliest of the three. So each section carries its own
+  // `present` verdict and the empty case says which kind of empty it was, in the same words every
+  // time. Absence of a record is reported as absence of a RECORD, never as a feature being off.
+  {
+    name: 'get_workflow_settings',
+    description: `${describe('get_workflow_settings', 'Read the account-level workflow settings rail — risk: read')}. `
+      + 'Read the sub-account settings the workflow builder itself loads: auto-save, the workflow-AI '
+      + 'settings, the location-level workflow settings, the scheduled-pause configuration, and the '
+      + 'Eliza (AI employee) user list. Pass workflowId to also read that workflow\'s error-notification '
+      + 'settings. '
+      + '🔴 EVERY ONE OF THESE ROUTES ANSWERS 200 WHETHER OR NOT A RECORD EXISTS, and three answer 200 '
+      + 'with an empty body (workflow-ai and workflow-location-setting return {}, error-notification '
+      + 'returns null), so each section reports its own `present` flag and an empty one says "the account '
+      + 'has no record on this route" — that is NOT the same as the feature being disabled, and must not '
+      + 'be reported as though it were. A section that failed carries `error` instead, so one dead route '
+      + 'never makes the other five look absent. `present:true` means GHL returned a RECORD, which may '
+      + 'itself describe zero items — scheduled-pause answers {pauseConfigs: []} and eliza-users answers '
+      + '{users: []} on an account with none — so read the count off `value`, never off `present`.',
+    inputSchema: schema({
+      locationId: z.string(),
+      workflowId: z.string().optional(),
+    }),
+    capabilities: [
+      { method: 'GET', path: '/workflow/{loc}/auto-save/settings' },
+      { method: 'GET', path: '/workflow/{loc}/workflow-ai/settings' },
+      { method: 'GET', path: '/workflow/{loc}/workflow-location-setting/settings' },
+      { method: 'GET', path: '/workflow/{loc}/scheduled-pause/config' },
+      { method: 'GET', path: '/workflow/{loc}/eliza-users' },
+      { method: 'GET', path: '/workflow/{loc}/error-notification/{workflowId}' },
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+      const loc = encodeURIComponent(args.locationId);
+      // An empty OBJECT, an empty ARRAY and a null are all "no record" on this rail. A zero or a
+      // false is a real value and must never be swept in with them.
+      const isEmpty = (v) => v === null || v === undefined
+        || (Array.isArray(v) && v.length === 0)
+        || (typeof v === 'object' && !Array.isArray(v) && Object.keys(v).length === 0);
+      const NO_RECORD = 'the account has no record on this route (GHL answered 200 with an empty body) — this is NOT the same as the feature being disabled';
+      const section = async (path) => {
+        const r = await gw.call('GET', path);
+        if (!r.ok) {
+          const e = fromHttp(r.status, r.json);
+          return { present: null, error: e.detail ?? `GHL answered ${r.status}`, status: r.status };
+        }
+        return isEmpty(r.json)
+          ? { present: false, note: NO_RECORD, value: r.json ?? null }
+          : { present: true, value: r.json };
+      };
+      const out = {
+        autoSave: await section(`/workflow/${loc}/auto-save/settings`),
+        workflowAi: await section(`/workflow/${loc}/workflow-ai/settings`),
+        locationSettings: await section(`/workflow/${loc}/workflow-location-setting/settings`),
+        scheduledPause: await section(`/workflow/${loc}/scheduled-pause/config`),
+        elizaUsers: await section(`/workflow/${loc}/eliza-users`),
+      };
+      if (args.workflowId !== undefined) {
+        out.errorNotification = await section(`/workflow/${loc}/error-notification/${encodeURIComponent(args.workflowId)}`);
+      }
+      const sections = Object.entries(out);
+      const failed = sections.filter(([, v]) => v.present === null).map(([k]) => k);
+      const empty = sections.filter(([, v]) => v.present === false).map(([k]) => k);
+      return ok({
+        ...out,
+        // The headline states all three populations every time. A caller who reads only this line
+        // must not be able to mistake "five empty, one failed" for "clean".
+        headline: `${sections.length} section(s) read — ${sections.length - failed.length - empty.length} with a record, `
+          + `${empty.length} with NO record (${empty.join(', ') || 'none'}), ${failed.length} FAILED (${failed.join(', ') || 'none'})`,
+        readNote: args.workflowId === undefined
+          ? 'error-notification was not read: it is per-workflow and needs workflowId.'
+          : undefined,
+      });
+    }, args),
+  },
+  // Templates are the one route on this rail that carries real content on a fresh account — 28 rows
+  // on the sandbox — so it is its own tool rather than a section above: a caller listing templates
+  // wants a list, not a settings bundle with a list inside it.
+  {
+    name: 'list_workflow_templates',
+    description: `${describe('list_workflow_templates', 'List the workflow templates GHL offers — risk: read')}. `
+      + 'List the workflow TEMPLATES available to a sub-account — GHL\'s own starter recipes, each with '
+      + 'an id, title, description and categories. These are the templates the builder shows in its '
+      + '"start from a template" picker, not workflows in the account: nothing here is installed, and '
+      + 'the ids are template ids, not workflow ids. The response is a bare ARRAY, not an envelope.',
+    inputSchema: schema({ locationId: z.string() }),
+    capabilities: [{ method: 'GET', path: '/workflow/{loc}/workflow-templates' }],
+    handler: async (args, deps) => guard(async () => {
+      const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+      const r = await gw.call('GET', `/workflow/${encodeURIComponent(args.locationId)}/workflow-templates`);
+      if (!r.ok) return fromHttp(r.status, r.json);
+      // Measured 2026-09-15: a bare array. Tolerate an envelope in case GHL wraps it later rather
+      // than reporting zero templates on the day that happens.
+      const rows = Array.isArray(r.json) ? r.json : (r.json?.templates ?? r.json?.data ?? null);
+      if (!Array.isArray(rows)) {
+        return fail(CODES.VALIDATION_FAILED,
+          `workflow-templates answered 200 but not with an array — top-level keys: ${Object.keys(r.json ?? {}).join(', ') || '(none)'}`,
+          'The response shape changed. Read it with raw_request before trusting a count from here.');
+      }
+      return ok({
+        count: rows.length,
+        templates: rows.map((t) => ({
+          id: t.id ?? t._id ?? null,
+          title: t.title ?? t.name ?? null,
+          description: t.description ?? null,
+          categories: t.categories ?? [],
+        })),
+      });
+    }, args),
+  },
   // spends a read fetching them.
   {
     name: 'list_workflow_folders',
