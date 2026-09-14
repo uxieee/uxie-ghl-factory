@@ -24,7 +24,13 @@ const validatorSource = (readJson) => {
 };
 
 // Helpers the recovered validators call. PORTED, not recovered — reimplemented from the recovered
-// TypeScript in the bundle capture. Two are faithful transcriptions (`parseHTMLToBody`,
+// TypeScript in the bundle capture.
+//
+// Two were added on 2026-09-14 with the first non-May capture. `isWaitStepUnconfigured` is a
+// VERBATIM port of wait-validator.ts:5-19 and is not optional: GHL's waitValidator began calling it,
+// and without it every `wait` step — the largest attribute surface in the product, 57 fields —
+// threw ReferenceError instead of validating. `isEmpty` is lodash's, for the shapes customCodeValidator
+// passes it; the May capture called it too and nothing defined it, so custom_code threw as well. Two are faithful transcriptions (`parseHTMLToBody`,
 // `contactStandardFields`) and one is a faithful port including its fallback
 // (`getMathOperationSourceTypeFromTemplates`, from additional-action-validators.ts:320), and one
 // more found by RUNNING it — `isWithinLimits`, a faithful port from utils/validation.ts:157, which
@@ -49,11 +55,14 @@ const contactStandardFields = ['id','firstName','lastName','name','email','phone
 const requiresFieldValue = (a) => a === 'update_field_data' || a === 'add_field_data';
 const isMissingFieldValue = (value, date) => { if (isArray(value)) return value.length === 0; return value !== false && (value == null || value === '') && date !== 'currentDate' && value !== 0; };
 function isWithinLimits(field, low, high, countWords){ low = low ?? 0; high = high ?? 100; if(!field) return false; if(!countWords){ return field.length > low && field.length <= high; } const avgWordLength=7; const totalWords=field.trim().split(/\\s+/).length; const totalWordsByAvgLength=Math.round(field.trim().length/avgWordLength); return totalWords > low && totalWords <= high && totalWordsByAvgLength <= high; }
+function isEmpty(v){ if(v==null) return true; if(Array.isArray(v)||typeof v==='string') return v.length===0; if(typeof v==='object') return Object.keys(v).length===0; return false; }
+function isWaitStepUnconfigured(a){ if(!a||!a.type) return true; if(a.type==='time'&&!a.startAfter&&!a.window&&a.timePeriodInputMode!=='dynamic') return true; if(a.type==='specific_date'&&!a.specificDate&&!a.dynamicSpecificDate&&a.specificDateInputMode!=='dynamic') return true; if(a.type==='recurring_schedule'&&!a.recurringFrequency) return true; return false; }
 function getMathOperationSourceTypeFromTemplates(selectField, templates){ const m=String(selectField||'').match(/\\{\\{math_operation\\.(\\d+)\\.result\\}\\}/); if(!m||!templates||!templates.length) return null; const i=parseInt(m[1],10); const ops=templates.filter(x=>x.type==='math_operation'&&x.attributes); const byIdx=ops.find(x=>(x.stepIndex??0)===i); if(byIdx&&byIdx.attributes) return byIdx.attributes.selectFieldtype||'numerical'; const byOrder=ops[i]; if(!byOrder||!byOrder.attributes) return null; return byOrder.attributes.selectFieldtype||'numerical'; }
 `;
 
 export const HELPER_FIDELITY = 'The helper functions the validators call are reimplemented, not recovered. '
-  + 'parseHTMLToBody, contactStandardFields, isWithinLimits and getMathOperationSourceTypeFromTemplates are faithful; '
+  + 'parseHTMLToBody, contactStandardFields, isWithinLimits, isWaitStepUnconfigured and '
+  + 'getMathOperationSourceTypeFromTemplates are faithful; '
   + 'isValidHandleBar, isValidEmail, isValidURL, isValidNumeric and isValidPhone are behavioural '
   + 'approximations — isValidHandleBar only counts brace pairs. Treat a finding that turns on one of '
   + 'those as a hint to check by hand, not a verdict.';

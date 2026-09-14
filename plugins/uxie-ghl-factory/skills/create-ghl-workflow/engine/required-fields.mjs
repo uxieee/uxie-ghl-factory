@@ -681,15 +681,26 @@ export const COUPLED_FIELDS = {
   }],
 
   // webhook-validators.ts:104-133. Two content types, two different shapes, both warn.
+  //
+  // ⚠️ THIS ONE IS OURS NOW, deliberately narrower than GHL's was. GHL ran the same JSON.parse and
+  // DELETED it on 2026-09-14, saying so in the source: "rawData is compiled at execution time;
+  // merge fields make static JSON.parse invalid on save." They are right about the common case —
+  // a numeric field takes its merge tag unquoted, so `{"id": {{contact.id}}}` is the ordinary way
+  // to write a body and never parses until substitution. We had been warning on every one of those.
+  // But a body with no merge tag at all has no such excuse, and a trailing comma there really does
+  // 400 at run time, so the check is kept for that case and skipped for the rest. Deliberate
+  // divergence: the replayed-GHL layer in mcp-internal matches GHL exactly and no longer warns.
   custom_webhook: [{
-    when: (a) => a.body?.contentType === 'application/json' && typeof a.body?.rawData === 'string' && a.body.rawData.trim(),
+    when: (a) => a.body?.contentType === 'application/json' && typeof a.body?.rawData === 'string'
+      && a.body.rawData.trim() && !/\{\{.*?\}\}/s.test(a.body.rawData),
     check: (a) => {
       try { JSON.parse(a.body.rawData); return null; }
       catch { return 'declares application/json but its body is not parseable JSON'; }
     },
     severity: 'warn',
     why: 'The remote endpoint 400s at runtime rather than at build time, so this surfaces days '
-       + 'later as "the webhook stopped working".',
+       + 'later as "the webhook stopped working". Skipped when the body carries merge tags, which '
+       + 'are substituted at execution time and are not valid JSON before that.',
   }, {
     when: (a) => a.body?.contentType === 'application/x-www-form-urlencoded' && Array.isArray(a.body?.keyValueData),
     check: (a) => (a.body.keyValueData.some((r) => !r?.key?.trim() || r?.value === undefined || r?.value === null)

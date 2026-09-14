@@ -14,9 +14,9 @@
 // end asserts exactly that, so a generator that writes somewhere the gate does not read is
 // caught here and not at push time.
 import { execFileSync, spawnSync } from 'node:child_process';
-import { existsSync, readFileSync, writeFileSync, copyFileSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync, copyFileSync, readdirSync } from 'node:fs';
 import { createHash } from 'node:crypto';
-import { join, resolve } from 'node:path';
+import { join, resolve, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const REPO = fileURLToPath(new URL('..', import.meta.url));
@@ -70,13 +70,27 @@ if (hasKnowledge) {
   copyFileSync(join(KNOWLEDGE, 'corpus/platform/_data/contact-filter-fields.json'),
     join(MCP, 'catalog/contact-filter-fields.json'));
   if (!quiet) console.log('sync: filter-fields ← knowledge/corpus/platform/_data');
-  // GHL's own 67 action-validator bodies, recovered verbatim from the builder bundle.
-  // check_workflow compiles and replays them, so the plugin ships its own copy — but the capture
-  // lives in knowledge/sniffs and is re-mined when the bundle rotates, and a plugin holding a
-  // stale copy would replay validators the product no longer uses while reporting live coverage.
-  copyFileSync(join(KNOWLEDGE, 'sniffs/bundle/validators.json'),
-    join(MCP, 'catalog/builder-validators.json'));
-  if (!quiet) console.log('sync: builder-validators ← knowledge/sniffs/bundle/validators.json');
+  // GHL's own action- and trigger-validator bodies, recovered verbatim from the builder bundle.
+  // check_workflow compiles and replays them, so the plugin ships its own copy.
+  //
+  // 🔴 READ THE NEWEST CAPTURE, never the fixed `sniffs/bundle/` path this used to read. That path
+  // is the 2026-05-17 capture and nothing has ever written to it since: recapture.mjs creates
+  // `sniffs/bundle-<date>/`, so for four months this copied a May file into the plugin while the
+  // console reported live coverage. Measured when it was finally re-mined: 5 of 67 validators had
+  // drifted, one of them a rule GHL had DELETED (custom_webhook's JSON.parse warning, which we
+  // were still emitting on any body containing a merge field) and one a bound that had MOVED (the
+  // call timeout cap, 120s -> 600s). See backlog bl-125.
+  {
+    const dated = readdirSync(join(KNOWLEDGE, 'sniffs'))
+      .filter((d) => /^bundle-\d{4}-\d{2}-\d{2}/.test(d))
+      .filter((d) => existsSync(join(KNOWLEDGE, 'sniffs', d, 'validators.json')))
+      .sort();
+    const from = dated.length
+      ? join(KNOWLEDGE, 'sniffs', dated.at(-1), 'validators.json')
+      : join(KNOWLEDGE, 'sniffs/bundle/validators.json');
+    copyFileSync(from, join(MCP, 'catalog/builder-validators.json'));
+    if (!quiet) console.log(`sync: builder-validators ← ${relative(KNOWLEDGE, from)}`);
+  }
   // The funnel page builder's element contract, distilled from the corpus. build_funnel_page needs
   // three things per kind and nothing else: its tagName, whether it is insertable, and the list of
   // `extra` properties its factory declares — because the renderer reads extra.<prop>.value

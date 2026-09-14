@@ -15,7 +15,11 @@ test('every recovered validator compiles into ONE shared scope', () => {
   // ReferenceError at call time and the workflow reads as unvalidated for no visible reason.
   const bag = compileValidators(SOURCE);
   assert.ok(bag && !bag.error, `compile failed: ${bag?.error}`);
-  assert.equal(Object.keys(bag).length, 67);
+  // 67 until 2026-09-14, when the capture behind this file moved off the 2026-05-17 bundle for the
+  // first time (bl-125 — sync-generated.mjs had been copying the May file for four months because
+  // recapture.mjs writes bundle-<date>/ and nothing ever wrote sniffs/bundle/ again). The 43 extra
+  // are the TRIGGER validators, which the May extractor never produced.
+  assert.equal(Object.keys(bag).length, 110);
   assert.equal(typeof bag.waitValidator, 'function');
   assert.equal(typeof bag.validateTimeWait, 'function', 'the dispatch target must share the scope');
 });
@@ -111,13 +115,15 @@ test('a validator that throws is recorded as crashed, not silently skipped', () 
   assert.match(r.crashed[0].error, /helper missing/);
 });
 
-test('the type-to-validator map covers 61 types, and the shortfall is named not hidden', () => {
-  // 136 cards carry a Validator meta line and 118 name one, but only 61 have a body in the
-  // capture. The other 57 are mostly TRIGGER validators, which this capture does not include.
-  // Reporting "136 mapped" would overstate coverage by more than double.
+test('the type-to-validator map covers 114 types, and the shortfall is named not hidden', () => {
+  // 136 cards carry a Validator meta line and 118 name one. 61 had a body while this file came
+  // from the 2026-05-17 capture; the 2026-09-14 re-mine brought the trigger validators with it and
+  // took that to 114 — contact_created, form_submission, appointment, opportunity_* and 48 more
+  // gained one, and NOTHING lost one. The gap that remains is still reported rather than rounded
+  // up: naming 136 would overstate coverage.
   const bag = compileValidators(SOURCE);
   const vname = validatorNamesFor(CARDS, bag);
-  assert.equal(Object.keys(vname).length, 61,
+  assert.equal(Object.keys(vname).length, 114,
     'if this moves, the capture or the cards changed — read which, do not re-baseline');
   const named = CARDS.filter((c) => {
     const line = c.meta?.Validator;

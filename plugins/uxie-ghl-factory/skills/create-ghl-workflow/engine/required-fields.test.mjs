@@ -593,6 +593,20 @@ test('custom_webhook: a json contentType with unparseable body warns', () => {
   assert.equal(warnings.length, 0);
 });
 
+test('custom_webhook: a merge field in the body is not a JSON error', () => {
+  // GHL deleted its own version of this check on 2026-09-14, with the reason in the source:
+  // "rawData is compiled at execution time; merge fields make static JSON.parse invalid on save."
+  // A numeric field takes its merge tag UNQUOTED, so the ordinary way to write a webhook body is
+  // not valid JSON until the tags are substituted at run time. We warned on every one of them.
+  run('custom_webhook', { body: { contentType: 'application/json',
+    rawData: '{"id": {{contact.id}}, "name": "{{contact.first_name}}"}' } });
+  assert.equal(warnings.length, 0, 'a body holding merge tags must not be judged as static JSON');
+
+  // …and the check still earns its place on a body that has no merge tags to excuse it.
+  run('custom_webhook', { body: { contentType: 'application/json', rawData: '{"a": 1,}' } });
+  assert.equal(warnings.length, 1, 'malformed JSON with no merge tag is still worth a warning');
+});
+
 test('custom_webhook: form-encoded rows with an empty key or null value warn', () => {
   run('custom_webhook', { body: { contentType: 'application/x-www-form-urlencoded',
     keyValueData: [{ key: 'a', value: '1' }, { key: '  ', value: '2' }] } });
