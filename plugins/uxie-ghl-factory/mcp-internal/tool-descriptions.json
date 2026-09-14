@@ -1,8 +1,8 @@
 {
   "build_workflow": {
-    "description": "Build workflow — proof: live-runtime (2026-09-10), floor: documented; risk: write",
+    "description": "Build workflow — proof: live-runtime (2026-09-14); risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-09-10)",
+    "proof": "live-runtime (2026-09-14)",
     "proofFloor": "documented",
     "proofRows": [
       "entities-tags-create",
@@ -51,9 +51,9 @@
     ]
   },
   "export_workflow": {
-    "description": "Export workflow — proof: live-runtime (2026-09-10); risk: read",
+    "description": "Export workflow — proof: live-runtime (2026-09-14); risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-09-10)",
+    "proof": "live-runtime (2026-09-14)",
     "proofFloor": "documented",
     "proofRows": [
       "triggers-list",
@@ -77,9 +77,9 @@
     ]
   },
   "edit_workflow": {
-    "description": "Edit workflow — proof: live-runtime (2026-09-10), floor: live-roundtrip (2026-07-17); risk: destructive",
+    "description": "Edit workflow — proof: live-runtime (2026-09-14); risk: destructive",
     "risk": "destructive",
-    "proof": "live-runtime (2026-09-10)",
+    "proof": "live-runtime (2026-09-14)",
     "proofFloor": "live-roundtrip (2026-07-17)",
     "proofRows": [
       "triggers-create-for-edit"
@@ -104,9 +104,9 @@
     ]
   },
   "publish_workflow": {
-    "description": "Publish workflow — proof: live-runtime (2026-09-10), floor: documented; risk: destructive",
+    "description": "Publish workflow — proof: live-runtime (2026-09-14); risk: destructive",
     "risk": "destructive",
-    "proof": "live-runtime (2026-09-10)",
+    "proof": "live-runtime (2026-09-14)",
     "proofFloor": "documented",
     "proofRows": [
       "workflow-publish"
@@ -1561,9 +1561,9 @@
     ]
   },
   "unpublish_workflows": {
-    "description": "Stand published workflows back down to draft, in bulk — proof: live-runtime (2026-09-10); risk: write",
+    "description": "Stand published workflows back down to draft, in bulk — proof: live-runtime (2026-09-14); risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-09-10)",
+    "proof": "live-runtime (2026-09-14)",
     "proofFloor": "live-runtime (2026-09-09)",
     "proofRows": [
       "workflow-service--bulk-update-status"
@@ -1603,9 +1603,9 @@
     ]
   },
   "audit_site": {
-    "description": "Read-only audit of a GHL funnel or website — dangling references, missing merge tags, foreign locationIds, publish drift — proof: live-runtime (2026-09-10); risk: read",
+    "description": "Read-only audit of a GHL funnel or website — dangling references, missing merge tags, foreign locationIds, publish drift — proof: live-runtime (2026-09-14); risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-09-10)",
+    "proof": "live-runtime (2026-09-14)",
     "proofFloor": "live-runtime (2026-09-10)",
     "proofRows": [
       "funnels-service--get-funnels",
@@ -1645,9 +1645,9 @@
     ]
   },
   "build_funnel_page": {
-    "description": "Compose, validate and write a funnel page from native elements; optionally publish it — proof: live-runtime (2026-09-10); risk: write",
+    "description": "Compose, validate and write a funnel page from native elements; optionally publish it — proof: live-runtime (2026-09-14); risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-09-10)",
+    "proof": "live-runtime (2026-09-14)",
     "proofFloor": "live-runtime (2026-09-09)",
     "proofRows": [
       "funnels--builder-autosave",
@@ -1731,9 +1731,9 @@
     ]
   },
   "repair_workflow": {
-    "description": "Repair a workflow from an export or a raw templates body — proof: live-runtime (2026-09-10); risk: write",
+    "description": "Repair a workflow from an export or a raw templates body — proof: live-runtime (2026-09-14); risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-09-10)",
+    "proof": "live-runtime (2026-09-14)",
     "proofFloor": "unrecorded",
     "proofRows": [
       "workflow-service--find-by-id",
@@ -1837,9 +1837,9 @@
     ]
   },
   "validate_workflow": {
-    "description": "Ask GHL's OWN server validator whether a workflow would pass: the check the builder runs live, debounced, on every edit (POST /workflow/{loc}/{wid}/validate-workflows). Validates the STORED document, or the stored document with `templates` swapped in, so a planned edit can be checked BEFORE it is saved. Writes nothing (proof: live 2026-09-11 on the sandbox: the document read back byte-identical after five calls, and a dangling next, stripped attributes and an unbound flow trigger each came back valid:false naming the rule, the step and the message; risk: read-only). READ `layer`: a failing call reports ONE layer. A structural or an action failure was reported IN PLACE OF a trigger failure the same document also had, so fix what it names and call again until valid. 🔴 valid:true IS NOT A SCHEMA CHECK (measured 2026-09-11). It CATCHES: a missing required field, a scalar of the wrong type, an invalid enum value, a referenced asset that exists nowhere (layer `asset`), every structural defect, and a corrupted step type on a native workflow. It does NOT catch: an invented attribute key, a wrong inner `attributes.type`, an extra top-level step key, a number out of range, or a corrupted step type on an AGENT flow. That class is what check_workflow's nativeShapeIssues and the engine's own guards are for; this tool does not replace them. Re-measured 2026-09-12 after GHL shipped its publish gate: every verdict identical, and 🔴 it IGNORES the document's `status` — the same document answers the same as draft or published, and an EMPTY workflow is valid:true even as published, so GHL's publish-only rules (checkEmptyPublish and the rest) live only in the browser. The engine replays them; see the validation gate.",
+    "description": "Ask GHL's OWN server validator whether a workflow would pass: the check the builder runs live, debounced, on every edit (POST /workflow/{loc}/{wid}/validate-workflows). Validates the STORED document, or the stored document with `templates` swapped in, so a planned edit can be checked BEFORE it is saved. Writes nothing (proof: live-runtime (2026-09-14); risk: read-only). READ `layer`: a failing call reports ONE layer. A structural or an action failure was reported IN PLACE OF a trigger failure the same document also had, so fix what it names and call again until valid. 🔴 valid:true IS NOT A SCHEMA CHECK (measured 2026-09-11). It CATCHES: a missing required field, a scalar of the wrong type, an invalid enum value, a referenced asset that exists nowhere (layer `asset`), every structural defect, and a corrupted step type on a native workflow. It does NOT catch: an invented attribute key, a wrong inner `attributes.type`, an extra top-level step key, a number out of range, or a corrupted step type on an AGENT flow. That class is what check_workflow's nativeShapeIssues and the engine's own guards are for; this tool does not replace them. Re-measured 2026-09-12 after GHL shipped its publish gate: every verdict identical, and 🔴 it IGNORES the document's `status` — the same document answers the same as draft or published, and an EMPTY workflow is valid:true even as published, so GHL's publish-only rules (checkEmptyPublish and the rest) live only in the browser. The engine replays them; see the validation gate.",
     "risk": "read-only",
-    "proof": "live 2026-09-11 on the sandbox: the document read back byte-identical after five calls, and a dangling next, stripped attributes and an unbound flow trigger each came back valid:false naming the rule, the step and the message",
+    "proof": "live-runtime (2026-09-14)",
     "proofRows": [
       "workflow-read",
       "triggers-list",

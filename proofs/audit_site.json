@@ -18,6 +18,16 @@
         "row:backend--custom-values"
       ],
       "backfilled": true
+    },
+    {
+      "at": "2026-09-14",
+      "result": "pass",
+      "how": "suite",
+      "suite": "funnels",
+      "evidence": [
+        "receipt:2026-09-14-1019"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {

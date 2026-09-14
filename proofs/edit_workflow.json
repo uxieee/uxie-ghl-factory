@@ -12,6 +12,16 @@
         "row:triggers-create-for-edit"
       ],
       "backfilled": true
+    },
+    {
+      "at": "2026-09-14",
+      "result": "pass",
+      "how": "suite",
+      "suite": "workflows",
+      "evidence": [
+        "receipt:2026-09-14-1019"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
