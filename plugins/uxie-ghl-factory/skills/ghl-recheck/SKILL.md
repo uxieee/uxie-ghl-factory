@@ -45,6 +45,11 @@ node scripts/proof.mjs validate
 `from-receipt` writes a run only for a tool whose handler a suite actually called. The memberships
 suite calls no handler, so it proves no tool: say so in the report.
 
+If `validate` reports any error, put it in the report as its own line. Still work through §4 for
+whatever suite failures the receipt carries — recording those does not depend on validation passing
+— but do not run the `git commit` in §5. A proof record that fails its own schema check is not
+something to commit around; leave the tree as-is for the operator to look at.
+
 ## 4. Record failures in the backlog
 
 For each `FAIL <tool> <assertionId…>` line, when `$GHL_CONSOLE_DIR/bin/backlog.mjs` exists:
@@ -55,7 +60,12 @@ For each `FAIL <tool> <assertionId…>` line, when `$GHL_CONSOLE_DIR/bin/backlog
 2. If a row exists, append to it:
    `node "$GHL_CONSOLE_DIR/bin/backlog.mjs" update <id> --note "failed again in receipt <stamp>"`
 3. If none exists, add one:
-   `node "$GHL_CONSOLE_DIR/bin/backlog.mjs" add "check run: <tool> <assertionId>" --surface <tool's surface from plugin/proofs/<tool>.json> --basis executed --kind behaviour --source "check run" --body "receipt <stamp>, suite <suite>: <assertionId>"`
+   `node "$GHL_CONSOLE_DIR/bin/backlog.mjs" add "check run: <tool> <assertionId>" --surface <suite's surface, from §1> --basis executed --kind behaviour --source "check run" --body "receipt <stamp>, suite <suite>: <assertionId>. Also serves <any other entries in plugin/proofs/<tool>.json's surfaces array>."`
+
+`plugin/proofs/<tool>.json`'s `surfaces` is an array — some tools carry more than one (`find_ghl_site`
+carries `ai-studio` and `funnels` both). `--surface` takes one value: use the surface of the SUITE
+that just exercised the tool (§1's mapping), never a value picked from the array by hand, and name
+every other surface the tool also serves in `--body` so none of them is lost.
 
 Every command above uses only flags `backlog.mjs` accepts today (`add` takes `--surface`, `--basis`,
 `--kind`, `--body`, `--source`; `update` takes an id plus any of `--state`, `--note`, `--title`,
@@ -68,14 +78,27 @@ not installed, list the failures in the report instead and carry on.
 
 ## 5. Report — and stop
 
-One table:
+One table, tool as the row key:
 
-- passed tools
-- failed tools, with their assertion ids
-- surfaces with no suite
-- tools that are due, GHL shipped or stale **with no suite covering them**
+| tool | suite | result | assertion ids | surface(s) |
+|---|---|---|---|---|
+| `find_ghl_site` | `funnels` | pass | — | `ai-studio`, `funnels` |
+| `edit_workflow` | `workflows` | FAIL | `stepindex-per-type` | `workflows` |
 
-For the last row, open the console's Parity page or read `plugin/proofs/`. Those tools can only be
+Below the table, three plain lines:
+
+- **Surfaces with no suite** — a corpus surface absent from §1's mapping entirely (nothing ran, ever;
+  today's PROOFS covers only `workflows`, `funnels`, `memberships-courses`).
+- **Due** — a tool with a proof record, but its latest run is more than 30 days old (this project's
+  freshness constant; `global-constraints.md`).
+- **GHL shipped / stale, with no suite covering them** — a tool whose proof the platform itself has
+  undercut since it was recorded: **GHL shipped** means the app build behind its endpoints has moved
+  (the console's Parity page flags this as a build-drift warning); **stale** means `proof.mjs rehash`
+  refuses it outright because the tool's own code or endpoint hashes changed since it was proven. Both
+  need a live re-check to clear, and neither of the three suites above can do it for a tool their
+  mapping doesn't reach — say so by name.
+
+For that last line, open the console's Parity page or read `plugin/proofs/`. Those tools can only be
 re-proven by a session, by hand, and this skill does not do that.
 
 Then **commit** the new proof records and label changes:
