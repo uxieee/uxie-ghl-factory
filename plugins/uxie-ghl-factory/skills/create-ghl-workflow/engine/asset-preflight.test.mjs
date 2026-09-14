@@ -110,5 +110,24 @@ test('describeFinding names the step and the missing asset', () => {
 });
 
 test('describeFinding degrades when the finding is sparse', () => {
-  assert.equal(describeFinding({ message: 'boom' }), 'workflow: boom');
+  // Was 'workflow: boom' until 2026-09-15. Changed deliberately: no step attribution is a FACT about
+  // the finding (see the trigger-borne test below), and 'workflow:' asserted a document-level
+  // problem the payload never claimed.
+  assert.equal(describeFinding({ message: 'boom' }), 'unattributed (trigger-borne or document-level): boom');
+});
+
+// ── a finding with no step attribution must SAY SO ───────────────────────────────────────────
+// Live-measured 2026-09-15: a step-borne finding carries stepId/stepName/stepType; a trigger-borne
+// one carries all three null. The old rendering collapsed the second into 'workflow:', which reads
+// as a document-level problem and hides that the reference sits on a TRIGGER — a different repair
+// and a different failure mode (console bl-136, bl-137).
+test('describeFinding names an unattributed finding instead of calling it "workflow"', () => {
+  const stepBorne = { stepId: 's1', stepName: 'Step ref', stepType: 'create_opportunity',
+    assetType: 'pipeline', assetId: 'GHOST', message: 'Referenced Pipeline does not exist.' };
+  const triggerBorne = { stepId: null, stepName: null, stepType: null,
+    assetType: 'calendar', assetId: 'GHOST', message: 'Referenced Calendar does not exist.' };
+  assert.match(describeFinding(stepBorne), /^Step ref:/, 'a step-borne finding still leads with the step name');
+  assert.match(describeFinding(triggerBorne), /unattributed \(trigger-borne or document-level\)/,
+    'and one with no step attribution says that, rather than reading as a document-level problem');
+  assert.doesNotMatch(describeFinding(triggerBorne), /^workflow:/);
 });

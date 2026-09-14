@@ -161969,7 +161969,7 @@ function normalizeFinding(f) {
   };
 }
 function describeFinding(f) {
-  const where = f.stepName || f.stepType || f.stepId || "workflow";
+  const where = f.stepName || f.stepType || f.stepId || "unattributed (trigger-borne or document-level)";
   const what = f.message || f.ruleId || "asset problem";
   const id = f.assetId ? ` (${f.assetType ?? "asset"} ${f.assetId})` : "";
   return `${where}: ${what}${id}`;

@@ -618,6 +618,65 @@ if (wid) {
     dangling.skipped ?? JSON.stringify((dangling.errors ?? []).map(describeFinding)));
   check((dangling.errors ?? []).some((e) => /pipeline/i.test(describeFinding(e))),
     'and names the pipeline, not just a count', JSON.stringify((dangling.errors ?? []).map(describeFinding)).slice(0, 160));
+
+  // 🔴 TRIGGER-BORNE REFERENCES, AND THE COVERAGE ASYMMETRY. Measured 2026-09-15 with a positive
+  // control. Two facts this pins, both of which cost a session to establish:
+  //
+  //  1. A finding can belong to a TRIGGER, and GHL reports it with stepId/stepName/stepType all
+  //     null. `templates: []` below is load-bearing — with no steps at all, anything reported is
+  //     trigger-borne BY CONSTRUCTION rather than by inference from a null stepId. (Null alone is
+  //     only 'unattributed': a marketplace step's tag warning carries a null stepId too.) This
+  //     matters downstream because tools.mjs deliberately BLOCKS an unattributed error rather than
+  //     demoting it to legacy debt, so a dangling trigger calendar refuses edits to unrelated steps.
+  //
+  //  2. The SAME asset type is checked on a trigger and MISSED on a step: a ghost `calendarId` on
+  //     an `appointment_booking` step returns clean (asset-preflight.mjs's long-standing 'confirmed
+  //     MISS'), while the ghost calendar on the trigger below is caught. So coverage is per
+  //     REFERENCE SITE, not per asset type — never generalise from one site to the other.
+  //
+  // The condition shape is VERBATIM from a live sandbox trigger. Guessed shapes do not work: five
+  // variants (`calendar`, `calendar_id`, a `filters` array, a top-level `calendarId`) each returned
+  // byte-identical to the control, which discriminates nothing. The real field is `calendar.id`.
+  const apptTrigger = (calendarId) => ([{
+    type: 'appointment', masterType: 'highlevel', name: 'Conformance appointment trigger',
+    conditions: [
+      { field: 'appointment.eventType', operator: '==', value: 'normal', title: 'Event type', type: 'select' },
+      { field: 'calendar.id', operator: '==', value: calendarId, title: 'In calendar', type: 'select' },
+      { field: 'contactMode', operator: 'is-any-of', value: ['contact'] },
+    ],
+  }]);
+  const realCal = (await call('list_account_entities', { kinds: ['calendars'] })).data?.calendars?.[0]?.id;
+  check(typeof realCal === 'string' && realCal.length > 0,
+    'the account has a calendar to use as the POSITIVE CONTROL for the trigger check', String(realCal));
+  if (typeof realCal === 'string' && realCal) {
+    const trigControl = await validateAssets((m, p, b) => gwDirect.call(m, p, b), LOCATION,
+      { templates: [], triggers: apptTrigger(realCal) });
+    const trigGhost = await validateAssets((m, p, b) => gwDirect.call(m, p, b), LOCATION,
+      { templates: [], triggers: apptTrigger('00000000-0000-4000-8000-000000000009') });
+    check(trigControl.checked === true && (trigControl.errors ?? []).length === 0,
+      'CONTROL: a trigger naming a calendar that EXISTS reports nothing',
+      trigControl.skipped ?? JSON.stringify(trigControl.errors));
+    const borne = (trigGhost.errors ?? []).find((e) => e.assetType === 'calendar');
+    check(trigGhost.checked === true && !!borne,
+      'TEST: the same trigger with a GHOST calendar is reported — trigger references are checked, '
+        + 'so a clean step sweep is not a clean document',
+      trigGhost.skipped ?? JSON.stringify(trigGhost.errors));
+    check(!!borne && borne.stepId === null && borne.stepName === null && borne.stepType === null,
+      'and it arrives with NO step attribution — the shape tools.mjs treats as document-level and BLOCKS',
+      JSON.stringify(borne));
+    check(!!borne && !/^workflow:/.test(describeFinding(borne)) && /unattributed/.test(describeFinding(borne)),
+      'and it renders as unattributed rather than as a whole-workflow problem it is not',
+      borne ? describeFinding(borne) : 'no finding');
+
+    // The asymmetry, asserted rather than commented: same asset type, other reference site.
+    const stepCal = await validateAssets((m, p, b) => gwDirect.call(m, p, b), LOCATION, {
+      templates: [{ id: 's1', type: 'appointment_booking', name: 'Ghost cal step',
+        attributes: { calendarId: '00000000-0000-4000-8000-000000000009' } }], triggers: [] });
+    check(stepCal.checked === true && (stepCal.errors ?? []).length === 0,
+      'ASYMMETRY: the same ghost calendar on a STEP is NOT caught — coverage is per reference site, '
+        + 'not per asset type. A day GHL closes this gap fails here, which is the point',
+      stepCal.skipped ?? JSON.stringify(stepCal.errors));
+  }
 }
 
 // ── 6. the account rail, and the silent cap ─────────────────────────────────────────────────

@@ -1271,3 +1271,58 @@ test('the gate judges EXACTLY the bytes the write will send — not the template
     'the document GHL judged and the document we sent must be the same templates',
   );
 });
+
+// ── an asset error with NO step attribution BLOCKS; one on an untouched step only warns ──────────
+// 🔴 THIS BRANCH WAS UNTESTED UNTIL 2026-09-15, and it decides whether an edit is refused. The
+// harness's default gateway 404s validate-assets, so the whole preflight failed open in every other
+// test here and the routing below never ran.
+//
+// Why it matters: GHL reports a TRIGGER-borne reference with stepId/stepName/stepType all null
+// (measured live against a control — a ghost calendar in an `appointment` trigger's `calendar.id`
+// condition; see console bl-140). assetPreflightFor routes a null stepId to `blocking` on purpose —
+// it reads an unattributed finding as document-level, and the write replaces the document. The
+// consequence is the one bl-137 describes: a workflow whose TRIGGER names a dead calendar refuses
+// edits to steps that have nothing to do with it.
+//
+// The pair below is a differential, not two separate facts — same code path, same run, one field
+// different — so it pins the ROUTING rather than just "errors block".
+const assetRoute = (findings) => [
+  (method, path) => method === 'POST' && path.endsWith('/validate-assets'),
+  { status: 200, ok: true, json: { errors: findings, warnings: [] } },
+];
+const CAL_GHOST = {
+  ruleId: 'ASSET_CALENDAR_NOT_FOUND', assetType: 'calendar', assetId: 'GHOST-CAL',
+  message: 'Referenced Calendar does not exist or does not belong to this location.',
+  severity: 'error', stepId: null, stepName: null, stepType: null,
+};
+const editTouchingS1 = (gw) => editTool().handler({
+  locationId: 'LOC', workflowId: 'WID', confirm: true,
+  ops: [{ op: 'modifyStep', stepId: 's1', attrPatch: { tags: ['old'] } }],
+}, deps(gw));
+
+test('an asset error with NO step attribution REFUSES the edit, and nothing is written', async () => {
+  const { gw, calls } = editGateway({ existingTags: ['old'], extraRoutes: [assetRoute([CAL_GHOST])] });
+  const result = await editTouchingS1(gw);
+
+  assert.equal(result.ok, false, 'a trigger-borne dangling reference must not be written past');
+  assert.equal(result.code, 'VALIDATION_FAILED');
+  assert.match(result.detail, /GHOST-CAL/, 'the refusal names the asset, so the operator can act on it');
+  assert.doesNotMatch(result.detail, /^workflow:/, 'and does not claim a whole-workflow problem it did not measure');
+  assert.equal(
+    calls.some(({ method, path }) => method === 'PUT' || (method === 'POST' && !path.endsWith('/validate-assets') && !path.endsWith('/validate-workflows'))),
+    false,
+    'a refused preflight writes NOTHING — not the step commit, not a tag',
+  );
+});
+
+test('the SAME error attributed to an UNTOUCHED step only warns, and the edit proceeds', async () => {
+  const onUntouchedStep = { ...CAL_GHOST, stepId: 's2', stepName: 'Tail', stepType: 'add_contact_tag' };
+  const { gw } = editGateway({ existingTags: ['old'], extraRoutes: [assetRoute([onUntouchedStep])] });
+  const result = await editTouchingS1(gw);
+
+  assert.equal(result.ok, true, 'legacy debt on a step this edit never touched is not this edit’s problem');
+  assert.ok(
+    (result.data.warnings ?? []).some((w) => /pre-existing, untouched by this edit/.test(w) && /GHOST-CAL/.test(w)),
+    `the debt is still SURFACED, never swallowed — got ${JSON.stringify(result.data.warnings)}`,
+  );
+});

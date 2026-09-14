@@ -14,10 +14,24 @@
 // wait-validator marks as an error — came back `{errors:[],warnings:[]}`. Never describe this
 // as a shape or schema check, and never let its silence be read as "the step is well-formed".
 //
-// Coverage is per-asset-type and PARTIAL. Confirmed catches: a nonexistent workflow id on
-// `add_to_workflow` (ASSET_WORKFLOW_NOT_FOUND) and a nonexistent user id on `assign_user`
-// (ASSET_USER_NOT_FOUND). Confirmed MISS: a nonexistent `calendarId` on `appointment_booking`.
-// The full ruleId vocabulary and asset-type coverage are unmapped.
+// Coverage is PARTIAL and it is per REFERENCE SITE, not per asset type. That correction was
+// measured on GROM Sandbox 2026-09-15 against a positive control: the SAME ghost calendar id is
+// CAUGHT on an `appointment` trigger's `calendar.id` condition (ASSET_CALENDAR_NOT_FOUND) and
+// MISSED on an `appointment_booking` step's `calendarId`. So never reason "asset type X is
+// covered" — a site-by-site claim is the only kind the evidence supports.
+//
+// Confirmed catches: a nonexistent workflow id on `add_to_workflow` (ASSET_WORKFLOW_NOT_FOUND);
+// a nonexistent user id on `assign_user` (ASSET_USER_NOT_FOUND); a nonexistent calendar in an
+// `appointment` TRIGGER condition (ASSET_CALENDAR_NOT_FOUND). Confirmed MISS: a nonexistent
+// `calendarId` on an `appointment_booking` STEP. The full ruleId vocabulary is unmapped.
+//
+// TRIGGERS ARE VALIDATED, so a clean sweep of the steps is not a clean document. A trigger-borne
+// finding arrives with stepId, stepName and stepType all null. Proven by construction rather than
+// inferred: with `templates: []` — no steps at all — the ghost-calendar trigger still reports.
+// Null attribution alone means only "not attributed to a step" (a marketplace step's tag warning
+// carries a null stepId too), which is why describeFinding below refuses to name it a trigger.
+// The trigger condition field is `calendar.id`; five guessed spellings each returned identical to
+// the control, i.e. discriminated nothing. Pinned by conformance.mjs §5.
 // See docs/superpowers/notes/2026-08-21-workflow-shape-findings.md F3.
 //
 // ── FAIL-OPEN ─────────────────────────────────────────────────────────────────────────────
@@ -46,7 +60,17 @@ function normalizeFinding(f) {
 
 /** One-line human summary of a finding, for the build report and abort text. */
 export function describeFinding(f) {
-  const where = f.stepName || f.stepType || f.stepId || 'workflow';
+  // 🔴 NO STEP ATTRIBUTION IS INFORMATION, NOT A BLANK. Measured live 2026-09-15 against a control:
+  // a step-borne finding carries stepId + stepName + stepType; a TRIGGER-borne one carries all three
+  // as null. Rendering that as 'workflow:' read like a document-level problem and hid the single
+  // most useful fact about it — that the reference is on a TRIGGER, which is a different repair
+  // (modifyTrigger, not replaceInAttributes) and a different failure (the validation gate refuses
+  // the very edit that fixes it — see console bl-137).
+  //
+  // Stated as what is KNOWN rather than as a guess: a tag finding on a marketplace step was also
+  // reported with a null stepId, so null means 'not attributed to a step', not 'is a trigger'.
+  // Naming it 'trigger' would invent precision the payload does not carry.
+  const where = f.stepName || f.stepType || f.stepId || 'unattributed (trigger-borne or document-level)';
   const what = f.message || f.ruleId || 'asset problem';
   const id = f.assetId ? ` (${f.assetType ?? 'asset'} ${f.assetId})` : '';
   return `${where}: ${what}${id}`;
