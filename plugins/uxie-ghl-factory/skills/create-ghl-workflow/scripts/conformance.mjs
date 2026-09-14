@@ -442,11 +442,229 @@ if (wid) {
   }
 }
 
+// ── 5. the read rail, and the two traps that make it worth having ───────────────────────────
+// Added 2026-09-15. Until then this suite exercised 8 of the 27 tools on the workflows surface;
+// the other 19 had no suite at all, so their proof records could never be anything but a
+// carried-over label and 23 of the surface's 51 "usable" routes rested on one. Reads are cheap to
+// exercise and there was no reason for them to be uncovered except that nobody had done it.
+console.log('\nthe read rail');
+if (wid) {
+  const exported = await call('export_workflow', { workflowId: wid });
+  const steps = exported.data?.workflow?.workflowData?.templates ?? [];
+
+  log.subject('get_workflow');
+  const one = await call('get_workflow', { workflowId: wid });
+  check(one.data?.id === wid, 'get_workflow returns the workflow we asked for', `got ${one.data?.id}`);
+  check(one.data?.name === NAME('stepindex'), 'and its name, not a placeholder', one.data?.name);
+  check(one.data?.status === 'draft', 'and it agrees with the publish leg that the workflow is back to draft', one.data?.status);
+  check(one.data?.stepCount === steps.length,
+    'its stepCount agrees with the full export — two rails, one answer', `${one.data?.stepCount} vs ${steps.length}`);
+
+  log.subject('get_workflow_digest');
+  const dig = await call('get_workflow_digest', { workflowId: wid });
+  check(dig.data?.workflowId === wid, 'get_workflow_digest answers for the same workflow', dig.detail);
+  check(dig.data?.stepCount === steps.length, 'and counts the same steps as the export', `${dig.data?.stepCount} vs ${steps.length}`);
+  check(dig.data?.triggersRead === true,
+    'it reports that it READ the triggers — an empty trigger list means nothing if the read never happened');
+  check(Array.isArray(dig.data?.triggers) && dig.data.triggers.length === 0,
+    'and finds none, which is the precondition the publish leg depends on');
+
+  log.subject('list_workflow_versions');
+  const vers = await call('list_workflow_versions', { workflowId: wid, limit: 10, all: false });
+  check(Array.isArray(vers.data?.versions) && vers.data.versions.length > 0,
+    'list_workflow_versions returns the versions this run created — the suite edited it several times',
+    `got ${vers.data?.versions?.length}`);
+  check(vers.data?.count === vers.data?.versions?.length,
+    'and its count matches the rows it returned, rather than a total it did not fetch');
+
+  log.subject('get_workflow_version');
+  const newest = vers.data?.versions?.[0];
+  const vid = newest?.versionId ?? newest?.id ?? newest?.version;
+  if (vid !== undefined) {
+    const v = await call('get_workflow_version', { workflowId: wid, versionId: String(vid) });
+    check(v.ok === true, 'get_workflow_version fetches a version named by list_workflow_versions', v.detail);
+  } else {
+    check(false, 'get_workflow_version SKIPPED — list_workflow_versions returned no usable version id',
+      JSON.stringify(newest ?? {}).slice(0, 120));
+  }
+
+  // ── runtime reads against a workflow that has DEMONSTRABLY never run ──
+  // These assert ZERO, and zero is only meaningful because the precondition is proven, not assumed:
+  // this workflow has no triggers, and a trigger is the only path a contact can enter by. A runtime
+  // read that returned rows here would mean the tool is reading somebody else's workflow.
+  log.subject('get_workflow_stats');
+  const st = await call('get_workflow_stats', { workflowId: wid, days: 7, stepTypes: [], includeTriggers: true, includeContactsPerStep: false });
+  check(st.data?.workflowId === wid, 'get_workflow_stats answers for this workflow', st.detail);
+  check(Array.isArray(st.data?.steps) && st.data.steps.length === 0,
+    'and reports no step statistics for a workflow nobody has ever entered', `got ${st.data?.steps?.length}`);
+
+  log.subject('get_workflow_logs');
+  const lg = await call('get_workflow_logs', { workflowId: wid, limit: 10, allEnrollments: false, maxEnrollmentPages: 1, enrollmentTotals: false });
+  check(Array.isArray(lg.data?.logs) && lg.data.logs.length === 0, 'get_workflow_logs finds no executions', `got ${lg.data?.logs?.length}`);
+  check(Array.isArray(lg.data?.enrollments) && lg.data.enrollments.length === 0, 'and no enrolments — nothing can have entered a trigger-less draft');
+
+  log.subject('get_workflow_runtime_window');
+  // Epoch MILLISECONDS, not an ISO date. The tool rejects a 'YYYY-MM-DD' string outright with
+  // "fromDate must be a non-negative integer epoch-millisecond value" — found by this assertion
+  // failing on its first live run, which is the only reason it is written correctly here.
+  const toMs = Date.now(), fromMs = toMs - 7 * 864e5;
+  const rw = await call('get_workflow_runtime_window', { workflowId: wid, fromDate: fromMs, toDate: toMs,
+    eventTypes: [], stepIds: [], logPageSize: 20, maxLogPages: 1, maxLogRetries: 1, maxEnrollmentPages: 1, maxStepRosterPages: 1 });
+  check(rw.ok === true, 'get_workflow_runtime_window accepts an explicit date window', rw.detail);
+
+  log.subject('get_contacts_at_step');
+  const anyStep = steps[0]?.id;
+  if (anyStep) {
+    const at = await call('get_contacts_at_step', { workflowId: wid, stepId: String(anyStep), all: false, skip: 0, limit: 10 });
+    check(at.ok === true, 'get_contacts_at_step accepts a step id taken from the export', at.detail);
+  } else {
+    check(false, 'get_contacts_at_step SKIPPED — the export produced no step id');
+  }
+
+  log.subject('get_trigger_logs');
+  const tl = await call('get_trigger_logs', { workflowId: wid, days: 7, limit: 10, includeFailedReasons: false });
+  check(Array.isArray(tl.data?.triggers) && tl.data.triggers.length === 0,
+    'get_trigger_logs finds no trigger activity, because there is no trigger to have any');
+}
+
+// ── 6. the account rail, and the silent cap ─────────────────────────────────────────────────
+// 🔴 THE POINT OF THIS SECTION. list_workflows stops at 100 rows and says nothing about it: the
+// envelope's own `count` reports the account total, so a caller who trusts the rows has silently
+// censused a fraction of the account and has no way to tell. This asserts the cap EXISTS rather
+// than documenting it, and then asserts list_workflows_complete beats it — a differential, so a
+// day when GHL raises the cap fails here instead of being discovered by a wrong report.
+console.log('\nthe account rail');
+log.subject('list_workflows');
+const capped = await call('list_workflows', { limit: 200, offset: 0 });
+const rows = capped.data?.workflows ?? [];
+const total = capped.data?.count;
+check(typeof total === 'number' && total > 0, 'list_workflows reports an account total', String(total));
+// 🔴 THE 100-ROW CAP IS NOT REPRODUCIBLE AS OF 2026-09-15 — see console bl-131.
+// This assertion was written the other way round, expecting the cap, because a reference note of
+// 2026-09-11 records list_workflows stopping at 100 silently on this very account. Asked for 200
+// against 165 workflows, it returned all 165. So the rule is asserted in the direction it is now
+// TRUE, and it fails loudly the day a cap comes back — which is the only way a census built on
+// this rail finds out before a report does.
+if (total > 100) {
+  check(rows.length === total,
+    `list_workflows returned ALL ${total} rows for limit=200 — the 100-row cap recorded on 2026-09-11 does NOT reproduce`,
+    `asked 200, got ${rows.length} of ${total}`);
+} else {
+  check(false, `cap NOT EXERCISED — this account has only ${total} workflows, fewer than the 100 the old note describes. `
+    + 'Neither the cap nor its absence is proven here; run against an account with more than 100.');
+}
+
+log.subject('list_workflows_complete');
+const full = await call('list_workflows_complete', { pageSize: 100, maxPages: 10 });
+check(full.data?.complete === true, 'list_workflows_complete reports that it exhausted the pages', full.data?.terminalReason);
+check(full.data?.reportedTotal === total,
+  'and agrees with list_workflows about the account total — the two rails read the same account',
+  `${full.data?.reportedTotal} vs ${total}`);
+const fullRows = full.data?.workflows ?? [];
+check(fullRows.length === full.data?.reportedTotal,
+  'it returns EVERY row it reported, which is the whole reason it exists', `${fullRows.length} of ${full.data?.reportedTotal}`);
+check(fullRows.length === rows.length,
+  'and with the cap absent the two rails now return the SAME rows — list_workflows_complete is '
+  + 'currently belt-and-braces rather than the only correct census', `${fullRows.length} vs ${rows.length}`);
+
+log.subject('get_account_workflow_overview');
+const ov = await call('get_account_workflow_overview', { workflowIds: [], needsReviewLimit: 5 });
+const ovTotal = ov.data?.statistics?.totalWorkflows;
+check(typeof ovTotal === 'number' && ovTotal > 0, 'the account overview reports a total', String(ovTotal));
+// ⚠️ DELIBERATELY NOT ASSERTED EQUAL. Measured 2026-09-15: the overview said 225 while BOTH listing
+// rails said 165 on the same account in the same minute — a stable ~60 row disagreement about what
+// "total workflows" means. Asserting either number would pick a winner before anyone has worked out
+// which is right, and asserting inequality would enshrine a bug. It is recorded as console bl-132
+// and reported here so a run cannot pass while quietly disagreeing with itself.
+if (ovTotal !== total) {
+  console.log(`  NOTE  the overview total (${ovTotal}) disagrees with the listing rails (${total}) — bl-132, undiagnosed`);
+}
+
+// ── 7. folders, and moving something into one ───────────────────────────────────────────────
+console.log('\nfolders');
+log.subject('list_workflow_folders');
+const beforeFolders = await call('list_workflow_folders', { limit: 100, offset: 0 });
+check(Array.isArray(beforeFolders.data?.folders), 'list_workflow_folders returns folders', beforeFolders.detail);
+check((beforeFolders.data?.folders ?? []).every((f) => f.type === 'directory'),
+  "every row is type 'directory' — the listing is filtered, not a mixed bag of workflows and folders");
+
+log.subject('create_workflow_folder');
+const folder = await call('create_workflow_folder', { name: NAME('folder'), confirm: true });
+const fid = folder.data?.id ?? folder.data?.folderId ?? folder.data?.directoryId;
+check(folder.ok === true, 'create_workflow_folder creates a folder', folder.detail);
+check(typeof fid === 'string' && fid.length > 0,
+  'and reports its id — without one the read-back below would be vacuous', JSON.stringify(Object.keys(folder.data ?? {})));
+if (fid) {
+  left.push(`folder ${fid} (${NAME('folder')})`);
+  const afterFolders = await call('list_workflow_folders', { limit: 100, offset: 0 });
+  check((afterFolders.data?.folders ?? []).some((f) => f.id === fid),
+    'the folder reads back in a SEPARATE listing — not merely a 200 on the create');
+}
+
+log.subject('move_workflows');
+if (wid && fid) {
+  const moved = await call('move_workflows', { workflowIds: [wid], parentId: fid, toRoot: false, allowPublished: false, confirm: true });
+  check(moved.ok === true, 'move_workflows moves the draft into the folder', moved.detail);
+  // A DIFFERENT ENVELOPE from the unfiltered listing, and the difference is easy to miss:
+  // list_workflow_folders() returns {count, folders[]} of directories only, while the same tool
+  // WITH a parentId returns {count, folderId, folderName, contents[]} where contents carries the
+  // workflows too, each with type:'workflow' and its parentId. Reading .folders here found nothing
+  // and made a move that had actually worked look like a failure.
+  const inFolder = await call('list_workflow_folders', { parentId: fid, limit: 100, offset: 0 });
+  const kids = inFolder.data?.contents ?? [];
+  const mine = kids.find((k) => k.id === wid);
+  check(Boolean(mine), 'and the workflow reads back INSIDE that folder on a separate request',
+    `folder holds ${kids.length} row(s): ${JSON.stringify(kids.map((k) => k.id)).slice(0, 120)}`);
+  check(mine?.parentId === fid && mine?.type === 'workflow',
+    "the row names the folder as its parentId and types itself 'workflow', not 'directory'",
+    JSON.stringify(mine ?? {}).slice(0, 140));
+} else {
+  check(false, 'move_workflows SKIPPED — no workflow id or no folder id to move into');
+}
+
+log.subject('duplicate_workflow');
+if (wid) {
+  const dup = await call('duplicate_workflow', { workflowId: wid, newName: NAME('dup'), confirm: true });
+  const did = dup.data?.id ?? dup.data?.wid ?? dup.data?.workflowId;
+  check(dup.ok === true, 'duplicate_workflow copies the draft', dup.detail);
+  check(typeof did === 'string' && did.length > 0 && did !== wid,
+    'and the copy is a NEW workflow, not the original returned back', `${did} vs ${wid}`);
+  if (did) {
+    left.push(`workflow ${did} (${NAME('dup')}, duplicate)`);
+    const copy = await call('get_workflow', { workflowId: did });
+    check(copy.data?.name === NAME('dup'), 'the copy reads back under the new name', copy.data?.name);
+  }
+}
+
+// ── 8. the custom-code sandbox, and what it silently drops ──────────────────────────────────
+// A differential, not a smoke test: the same sandbox is asked for an OBJECT and then a PRIMITIVE.
+// The object round-trips; the primitive does not survive, which is why the engine requires
+// `output` to be an object and why a step returning a bare value reads as untested at runtime.
+console.log('\nthe custom-code sandbox');
+log.subject('test_custom_code');
+const obj = await call('test_custom_code', { code: 'return {slot: 1, txt: "x"}', language: 'javascript', inputData: {} });
+check(obj.data?.passed === true && obj.data?.hasError === false, 'test_custom_code runs javascript in GHL\'s sandbox', obj.data?.errorMessage);
+check(obj.data?.output?.slot === 1 && obj.data?.output?.txt === 'x',
+  'an OBJECT return survives the sandbox intact — both keys, both values', JSON.stringify(obj.data?.output));
+check(obj.data?.outputValid === true && JSON.stringify(obj.data?.outputKeys) === '["slot","txt"]',
+  'and the tool reports the keys a later step could reference as merge tags', JSON.stringify(obj.data?.outputKeys));
+
+const prim = await call('test_custom_code', { code: 'return 5', language: 'javascript', inputData: {} });
+check(prim.data?.output?.valueOf?.() !== 5 || prim.data?.outputValid === false,
+  'a PRIMITIVE return does NOT survive as a usable output — the sandbox drops it',
+  `output=${JSON.stringify(prim.data?.output)} outputValid=${prim.data?.outputValid}`);
+
 // ── coverage honesty ────────────────────────────────────────────────────────────────────────
 console.log('\nNOT COVERED by this suite, and not counted as passing:');
 console.log('  trigger activation    — a trigger is the ONLY enrolment path, so activating one is the');
 console.log('                          line between a draft nobody can enter and a live automation');
 console.log('  contact enrollment    — same reason; fast_forward_contacts moves real people');
+console.log('  fast_forward_contacts — REFUSED, not skipped. It advances real enrolments past a wait,');
+console.log('                          which fires whatever comes next at whoever is parked there.');
+console.log('                          There is no safe way to exercise it on an account with contacts.');
+console.log('  pin_webhook_sample    — needs an inbound-webhook TRIGGER, and this suite builds nothing');
+console.log('                          with a trigger by design. Covering it means a second fixture');
+console.log('                          whose trigger stays inactive — worth doing, not done here.');
 
 console.log(`\nLEFT IN PLACE (nothing is deleted):`);
 for (const l of left) console.log(`  ${l}`);

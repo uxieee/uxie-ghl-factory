@@ -33,9 +33,9 @@
     ]
   },
   "get_workflow": {
-    "description": "Get workflow — proof: documented; risk: read",
+    "description": "Get workflow — proof: live-runtime (2026-09-14); risk: read",
     "risk": "read",
-    "proof": "documented",
+    "proof": "live-runtime (2026-09-14)",
     "proofFloor": "documented",
     "proofRows": [
       "workflow-read"
@@ -124,9 +124,9 @@
     ]
   },
   "list_workflows": {
-    "description": "List workflows — proof: live-runtime (2026-09-10); risk: read",
+    "description": "List workflows — proof: live-runtime (2026-09-14); risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-09-10)",
+    "proof": "live-runtime (2026-09-14)",
     "proofFloor": "documented",
     "proofRows": [
       "workflow-list"
@@ -142,9 +142,9 @@
     ]
   },
   "get_workflow_logs": {
-    "description": "Get workflow logs — proof: live-runtime (2026-07-24), floor: documented; risk: read",
+    "description": "Get workflow logs — proof: live-runtime (2026-09-14), floor: documented; risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-07-24)",
+    "proof": "live-runtime (2026-09-14)",
     "proofFloor": "documented",
     "proofRows": [
       "logs-count-per-step",
@@ -287,9 +287,9 @@
     ]
   },
   "get_contacts_at_step": {
-    "description": "List contacts at step — proof: live-runtime (2026-07-18); risk: read",
+    "description": "List contacts at step — proof: live-runtime (2026-09-14); risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-07-18)",
+    "proof": "live-runtime (2026-09-14)",
     "proofFloor": "live-runtime (2026-07-18)",
     "proofRows": [
       "logs-details-by-step"
@@ -582,9 +582,9 @@
     ]
   },
   "list_workflow_folders": {
-    "description": "List workflow folders — proof: live-runtime (2026-08-18); risk: read",
+    "description": "List workflow folders — proof: live-runtime (2026-09-14); risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-08-18)",
+    "proof": "live-runtime (2026-09-14)",
     "proofFloor": "live-runtime (2026-08-18)",
     "proofRows": [
       "workflow-folder-list"
@@ -600,9 +600,9 @@
     ]
   },
   "create_workflow_folder": {
-    "description": "Create workflow folder — proof: live-runtime (2026-08-18); risk: write",
+    "description": "Create workflow folder — proof: live-runtime (2026-09-14); risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-08-18)",
+    "proof": "live-runtime (2026-09-14)",
     "proofFloor": "live-runtime (2026-08-18)",
     "proofRows": [
       "workflow-folder-create",
@@ -621,9 +621,9 @@
     ]
   },
   "duplicate_workflow": {
-    "description": "Duplicate workflow — proof: live-runtime (2026-08-18); risk: write",
+    "description": "Duplicate workflow — proof: live-runtime (2026-09-14); risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-08-18)",
+    "proof": "live-runtime (2026-09-14)",
     "proofFloor": "live-runtime (2026-08-18)",
     "proofRows": [
       "workflow-duplicate",
@@ -645,9 +645,9 @@
     ]
   },
   "move_workflows": {
-    "description": "Move workflows between folders and root — proof: live-runtime (2026-08-18); risk: write",
+    "description": "Move workflows between folders and root — proof: live-runtime (2026-09-14); risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-08-18)",
+    "proof": "live-runtime (2026-09-14)",
     "proofFloor": "live-runtime (2026-08-18)",
     "proofRows": [
       "workflow-move-batch",
@@ -694,9 +694,9 @@
     ]
   },
   "get_workflow_stats": {
-    "description": "Workflow stats view — proof: live-runtime (2026-08-22); risk: read",
+    "description": "Workflow stats view — proof: live-runtime (2026-09-14); risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-08-22)",
+    "proof": "live-runtime (2026-09-14)",
     "proofFloor": "live-runtime (2026-08-22)",
     "proofRows": [
       "stats-aggregate",
@@ -718,9 +718,9 @@
     ]
   },
   "list_workflow_versions": {
-    "description": "List workflow versions — proof: live-runtime (2026-08-22); risk: read",
+    "description": "List workflow versions — proof: live-runtime (2026-09-14); risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-08-22)",
+    "proof": "live-runtime (2026-09-14)",
     "proofFloor": "live-runtime (2026-08-22)",
     "proofRows": [
       "workflow-history"
@@ -736,9 +736,9 @@
     ]
   },
   "get_workflow_version": {
-    "description": "Get workflow version snapshot — proof: live-runtime (2026-08-22); risk: read",
+    "description": "Get workflow version snapshot — proof: live-runtime (2026-09-14); risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-08-22)",
+    "proof": "live-runtime (2026-09-14)",
     "proofFloor": "live-runtime (2026-08-22)",
     "proofRows": [
       "workflow-history"
@@ -754,9 +754,9 @@
     ]
   },
   "get_trigger_logs": {
-    "description": "Trigger attempt logs + top failed reasons — proof: live-runtime (2026-08-22); risk: read",
+    "description": "Trigger attempt logs + top failed reasons — proof: live-runtime (2026-09-14); risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-08-22)",
+    "proof": "live-runtime (2026-09-14)",
     "proofFloor": "live-runtime (2026-08-22)",
     "proofRows": [
       "trigger-logs-triggerId",
@@ -778,9 +778,9 @@
     ]
   },
   "get_account_workflow_overview": {
-    "description": "Workflow Overview page: statistics, weekly enrollment, Needs Review, enrollment totals — proof: live-runtime (2026-08-22); risk: read",
+    "description": "Workflow Overview page: statistics, weekly enrollment, Needs Review, enrollment totals — proof: live-runtime (2026-09-14); risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-08-22)",
+    "proof": "live-runtime (2026-09-14)",
     "proofFloor": "live-runtime (2026-08-22)",
     "proofRows": [
       "workflows-statistics",
@@ -808,9 +808,9 @@
     ]
   },
   "test_custom_code": {
-    "description": "Custom Code sandbox test-run (no account mutation) — proof: live-runtime (2026-08-22); risk: sandbox-exec",
+    "description": "Custom Code sandbox test-run (no account mutation) — proof: live-runtime (2026-09-14); risk: sandbox-exec",
     "risk": "sandbox-exec",
-    "proof": "live-runtime (2026-08-22)",
+    "proof": "live-runtime (2026-09-14)",
     "proofFloor": "live-runtime (2026-08-22)",
     "proofRows": [
       "custom-code-run-test"
@@ -1709,9 +1709,9 @@
     ]
   },
   "get_workflow_digest": {
-    "description": "Compact read of one workflow — identity, version, structure, merge tags per step — proof: unrecorded; risk: read",
+    "description": "Compact read of one workflow — identity, version, structure, merge tags per step — proof: live-runtime (2026-09-14); risk: read",
     "risk": "read",
-    "proof": "unrecorded",
+    "proof": "live-runtime (2026-09-14)",
     "proofFloor": "unrecorded",
     "proofRows": [
       "workflow-service--find-by-id",
