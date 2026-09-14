@@ -871,15 +871,6 @@
       "summary": "Deactivates a payment link. Body {activeValue:false, altId, altType}.",
       "note": "Deactivates but CANNOT reactivate: activeValue:true returns 400 'Error activating link. Please update automatic deactivation configuration to activate'. Reactivation is the full-document PUT with active:true. A deactivated link renders only 'Payment link deactivated / CODE:- PAYMENT_LINK_DEACTIVATED' to the customer -- no product, no form -- which is why a deposit link must never carry an automatic deactivation date."
     },
-    "POST /actions/dynamic-source-details/{key}": {
-      "note": "🔴 THE BASE IS /workflows-marketplace, NOT the service root. At the root this path answers 404 with an EMPTY body (or Express's \"Cannot POST ...\"), which reads like a dead endpoint; under /workflows-marketplace the same path answers from a real service — 400 \"Action does not exists for this key\" / \"Trigger does not exists for this key\", or 403 \"locationId is required\". Route existence is proven; a 200 additionally needs a marketplace app installed on the account, which the sandbox has none of."
-    },
-    "POST /actions/published/{type}/dynamic-fields": {
-      "note": "🔴 THE BASE IS /workflows-marketplace, NOT the service root. At the root this path answers 404 with an EMPTY body (or Express's \"Cannot POST ...\"), which reads like a dead endpoint; under /workflows-marketplace the same path answers from a real service — 400 \"Action does not exists for this key\" / \"Trigger does not exists for this key\", or 403 \"locationId is required\". Route existence is proven; a 200 additionally needs a marketplace app installed on the account, which the sandbox has none of."
-    },
-    "POST /actions/{type}/branches": {
-      "note": "🔴 THE BASE IS /workflows-marketplace, NOT the service root. At the root this path answers 404 with an EMPTY body (or Express's \"Cannot POST ...\"), which reads like a dead endpoint; under /workflows-marketplace the same path answers from a real service — 400 \"Action does not exists for this key\" / \"Trigger does not exists for this key\", or 403 \"locationId is required\". Route existence is proven; a 200 additionally needs a marketplace app installed on the account, which the sandbox has none of."
-    },
     "POST /agent-logs/contacts": {
       "kind": "read",
       "reach": "proven",
@@ -1084,13 +1075,7 @@
     "POST /templates/template/load": {
       "kind": "read"
     },
-    "POST /triggers/dynamic-source-details/{key}": {
-      "note": "🔴 THE BASE IS /workflows-marketplace, NOT the service root. At the root this path answers 404 with an EMPTY body (or Express's \"Cannot POST ...\"), which reads like a dead endpoint; under /workflows-marketplace the same path answers from a real service — 400 \"Action does not exists for this key\" / \"Trigger does not exists for this key\", or 403 \"locationId is required\". Route existence is proven; a 200 additionally needs a marketplace app installed on the account, which the sandbox has none of."
-    },
     "POST /triggers/dynamic-source/{key}": {
-      "note": "🔴 THE BASE IS /workflows-marketplace, NOT the service root. At the root this path answers 404 with an EMPTY body (or Express's \"Cannot POST ...\"), which reads like a dead endpoint; under /workflows-marketplace the same path answers from a real service — 400 \"Action does not exists for this key\" / \"Trigger does not exists for this key\", or 403 \"locationId is required\". Route existence is proven; a 200 additionally needs a marketplace app installed on the account, which the sandbox has none of."
-    },
-    "POST /triggers/published/{type}/dynamic-fields": {
       "note": "🔴 THE BASE IS /workflows-marketplace, NOT the service root. At the root this path answers 404 with an EMPTY body (or Express's \"Cannot POST ...\"), which reads like a dead endpoint; under /workflows-marketplace the same path answers from a real service — 400 \"Action does not exists for this key\" / \"Trigger does not exists for this key\", or 403 \"locationId is required\". Route existence is proven; a 200 additionally needs a marketplace app installed on the account, which the sandbox has none of."
     },
     "POST /workflow/flowguard/blacklist/contact/{contactId}": {
@@ -1182,13 +1167,13 @@
       "kind": "destructive"
     },
     "POST /workflows-marketplace/actions/dynamic-source-details/{key}": {
-      "kind": "read"
+      "note": "🔴 THE BASE IS /workflows-marketplace, NOT the service root. At the root this path answers 404 with an EMPTY body (or Express's \"Cannot POST ...\"), which reads like a dead endpoint; under /workflows-marketplace the same path answers from a real service — 400 \"Action does not exists for this key\" / \"Trigger does not exists for this key\", or 403 \"locationId is required\". Route existence is proven; a 200 additionally needs a marketplace app installed on the account, which the sandbox has none of."
     },
     "POST /workflows-marketplace/actions/published/{actionType}/dynamic-fields": {
-      "kind": "read"
+      "note": "🔴 THE BASE IS /workflows-marketplace, NOT the service root. At the root this path answers 404 with an EMPTY body (or Express's \"Cannot POST ...\"), which reads like a dead endpoint; under /workflows-marketplace the same path answers from a real service — 400 \"Action does not exists for this key\" / \"Trigger does not exists for this key\", or 403 \"locationId is required\". Route existence is proven; a 200 additionally needs a marketplace app installed on the account, which the sandbox has none of."
     },
     "POST /workflows-marketplace/actions/{actionType}/branches": {
-      "kind": "read"
+      "note": "🔴 THE BASE IS /workflows-marketplace, NOT the service root. At the root this path answers 404 with an EMPTY body (or Express's \"Cannot POST ...\"), which reads like a dead endpoint; under /workflows-marketplace the same path answers from a real service — 400 \"Action does not exists for this key\" / \"Trigger does not exists for this key\", or 403 \"locationId is required\". Route existence is proven; a 200 additionally needs a marketplace app installed on the account, which the sandbox has none of."
     },
     "POST /workflows-marketplace/integration-apps/reset-token/{appId}": {
       "kind": "destructive",
@@ -1202,10 +1187,10 @@
       "kind": "read"
     },
     "POST /workflows-marketplace/triggers/dynamic-source-details/{key}": {
-      "kind": "read"
+      "note": "🔴 THE BASE IS /workflows-marketplace, NOT the service root. At the root this path answers 404 with an EMPTY body (or Express's \"Cannot POST ...\"), which reads like a dead endpoint; under /workflows-marketplace the same path answers from a real service — 400 \"Action does not exists for this key\" / \"Trigger does not exists for this key\", or 403 \"locationId is required\". Route existence is proven; a 200 additionally needs a marketplace app installed on the account, which the sandbox has none of."
     },
     "POST /workflows-marketplace/triggers/published/{triggerType}/dynamic-fields": {
-      "kind": "read"
+      "note": "🔴 THE BASE IS /workflows-marketplace, NOT the service root. At the root this path answers 404 with an EMPTY body (or Express's \"Cannot POST ...\"), which reads like a dead endpoint; under /workflows-marketplace the same path answers from a real service — 400 \"Action does not exists for this key\" / \"Trigger does not exists for this key\", or 403 \"locationId is required\". Route existence is proven; a 200 additionally needs a marketplace app installed on the account, which the sandbox has none of."
     },
     "POST /workflows-marketplace/{assetType}/dynamic-source/{key}": {
       "kind": "read"

@@ -178,242 +178,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
     define_ENDPOINT_CATALOG_default = {
       generated: "2026-09-14",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 1174,
+      count: 1146,
       endpoints: [
-        {
-          id: "workflows--actions-branches",
-          method: "POST",
-          url: "https://backend.leadconnectorhq.com/actions/{type}/branches",
-          path: "/actions/{type}/branches",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "write",
-          note: `\u{1F534} THE BASE IS /workflows-marketplace, NOT the service root. At the root this path answers 404 with an EMPTY body (or Express's "Cannot POST ..."), which reads like a dead endpoint; under /workflows-marketplace the same path answers from a real service \u2014 400 "Action does not exists for this key" / "Trigger does not exists for this key", or 403 "locationId is required". Route existence is proven; a 200 additionally needs a marketplace app installed on the account, which the sandbox has none of.`,
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "workflows",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "type"
-            }
-          ],
-          query: [
-            {
-              name: "locationId",
-              type: "string",
-              required: false,
-              source: "documented"
-            },
-            {
-              name: "workflowId",
-              type: "string",
-              required: false,
-              source: "documented"
-            }
-          ],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "documented",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "workflows/70-research/ENDPOINTS.md:235"
-          ]
-        },
-        {
-          id: "workflows--actions-custom-input-fields",
-          method: "GET",
-          url: "https://backend.leadconnectorhq.com/actions/{type}/custom-input-fields",
-          path: "/actions/{type}/custom-input-fields",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "read",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "workflows",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "type"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "workflows/70-research/ENDPOINTS.md:238"
-          ]
-        },
-        {
-          id: "workflows--actions-dynamic-source-details",
-          method: "POST",
-          url: "https://backend.leadconnectorhq.com/actions/dynamic-source-details/{key}",
-          path: "/actions/dynamic-source-details/{key}",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "write",
-          note: `\u{1F534} THE BASE IS /workflows-marketplace, NOT the service root. At the root this path answers 404 with an EMPTY body (or Express's "Cannot POST ..."), which reads like a dead endpoint; under /workflows-marketplace the same path answers from a real service \u2014 400 "Action does not exists for this key" / "Trigger does not exists for this key", or 403 "locationId is required". Route existence is proven; a 200 additionally needs a marketplace app installed on the account, which the sandbox has none of.`,
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "workflows",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "key"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "workflows/70-research/ENDPOINTS.md:237"
-          ]
-        },
-        {
-          id: "workflows--actions-published",
-          method: "GET",
-          url: "https://backend.leadconnectorhq.com/actions/published/{key}",
-          path: "/actions/published/{key}",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "read",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "workflows",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "key"
-            }
-          ],
-          query: [
-            {
-              name: "locationId",
-              type: "string",
-              required: false,
-              source: "documented"
-            }
-          ],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "documented",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "workflows/70-research/ENDPOINTS.md:233"
-          ]
-        },
-        {
-          id: "workflows--published-dynamic-fields",
-          method: "POST",
-          url: "https://backend.leadconnectorhq.com/actions/published/{type}/dynamic-fields",
-          path: "/actions/published/{type}/dynamic-fields",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "write",
-          note: `\u{1F534} THE BASE IS /workflows-marketplace, NOT the service root. At the root this path answers 404 with an EMPTY body (or Express's "Cannot POST ..."), which reads like a dead endpoint; under /workflows-marketplace the same path answers from a real service \u2014 400 "Action does not exists for this key" / "Trigger does not exists for this key", or 403 "locationId is required". Route existence is proven; a 200 additionally needs a marketplace app installed on the account, which the sandbox has none of.`,
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "workflows",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "type"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "workflows/70-research/ENDPOINTS.md:234"
-          ]
-        },
-        {
-          id: "workflows--actions-stats",
-          method: "GET",
-          url: "https://backend.leadconnectorhq.com/actions/stats/{actionKey}",
-          path: "/actions/stats/{actionKey}",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "read",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "workflows",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "actionKey"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "workflows/70-research/ENDPOINTS.md:205",
-            "workflows/70-research/RAIL.md:114"
-          ]
-        },
         {
           id: "facebook-service--get-ad-account-by-id",
           method: "GET",
@@ -4323,39 +4089,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "memberships-courses/20-api/build-api.md:144"
-          ]
-        },
-        {
-          id: "workflows--custom-code-run-test",
-          method: "POST",
-          url: "https://backend.leadconnectorhq.com/custom-code/run-test",
-          path: "/custom-code/run-test",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "write",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "workflows",
-          tree: "documented",
-          pathParams: [],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "workflows/70-research/ACTION-DRAWERS-2.md:909",
-            "workflows/70-research/ACTION-DRAWERS-2.md:981",
-            "workflows/70-research/ACTION-DRAWERS-2.md:6632"
           ]
         },
         {
@@ -9234,200 +8967,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
-          id: "workflows--integration-apps-reset-token",
-          method: "POST",
-          url: "https://backend.leadconnectorhq.com/integration-apps/reset-token/{appId}",
-          path: "/integration-apps/reset-token/{appId}",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "write",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "workflows",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "appId"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "workflows/70-research/ENDPOINTS.md:239"
-          ]
-        },
-        {
-          id: "workflows--integration-install",
-          method: "POST",
-          url: "https://backend.leadconnectorhq.com/integration/{appId}/install",
-          path: "/integration/{appId}/install",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "write",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "workflows",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "appId"
-            }
-          ],
-          query: [
-            {
-              name: "locationId",
-              type: "string",
-              required: false,
-              source: "documented"
-            }
-          ],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "documented",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "workflows/70-research/ENDPOINTS.md:240"
-          ]
-        },
-        {
-          id: "workflows--integration-oauth",
-          method: "GET",
-          url: "https://backend.leadconnectorhq.com/integration/{appId}/oauth",
-          path: "/integration/{appId}/oauth",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "read",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "workflows",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "appId"
-            }
-          ],
-          query: [
-            {
-              name: "locationId",
-              type: "string",
-              required: false,
-              source: "documented"
-            },
-            {
-              name: "assetKey",
-              type: "string",
-              required: false,
-              source: "documented"
-            },
-            {
-              name: "assetType",
-              type: "string",
-              required: false,
-              source: "documented"
-            }
-          ],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "documented",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "workflows/70-research/ACTION-DRAWERS-2.md:6244",
-            "workflows/70-research/ENDPOINTS.md:240"
-          ]
-        },
-        {
-          id: "workflows--google-sheets-drives",
-          method: "GET",
-          url: "https://backend.leadconnectorhq.com/integration/google-sheets/drives",
-          path: "/integration/google-sheets/drives",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "read",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "workflows",
-          tree: "documented",
-          pathParams: [],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "workflows/70-research/ENDPOINTS.md:175"
-          ]
-        },
-        {
-          id: "workflows--oauth-start",
-          method: "GET",
-          url: "https://backend.leadconnectorhq.com/integration/slack/oauth/start",
-          path: "/integration/slack/oauth/start",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "read",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "workflows",
-          tree: "documented",
-          pathParams: [],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "workflows/70-research/ENDPOINTS.md:176"
-          ]
-        },
-        {
           id: "facebook-service--get-account-ids",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/integrations/facebook/{locationId}/allAdAccounts",
@@ -10042,193 +9581,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
-          id: "workflows--internal-actions-test-action",
-          method: "POST",
-          url: "https://backend.leadconnectorhq.com/internal-actions/test-action",
-          path: "/internal-actions/test-action",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "write",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "workflows",
-          tree: "documented",
-          pathParams: [],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "workflows/70-research/ENDPOINTS.md:209",
-            "workflows/70-research/RAIL.md:250"
-          ]
-        },
-        {
-          id: "workflows--internal-triggers-deregister-test-webhook",
-          method: "POST",
-          url: "https://backend.leadconnectorhq.com/internal-triggers/deregister-test-webhook",
-          path: "/internal-triggers/deregister-test-webhook",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "write",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "workflows",
-          tree: "documented",
-          pathParams: [],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "workflows/70-research/ENDPOINTS.md:97"
-          ]
-        },
-        {
-          id: "workflows--integration-webhook-operation",
-          method: "POST",
-          url: "https://backend.leadconnectorhq.com/internal-triggers/integration/webhook-operation",
-          path: "/internal-triggers/integration/webhook-operation",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "write",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "workflows",
-          tree: "documented",
-          pathParams: [],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "workflows/70-research/ENDPOINTS.md:99"
-          ]
-        },
-        {
-          id: "workflows--internal-triggers-register-test-polling",
-          method: "POST",
-          url: "https://backend.leadconnectorhq.com/internal-triggers/register-test-polling",
-          path: "/internal-triggers/register-test-polling",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "write",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "workflows",
-          tree: "documented",
-          pathParams: [],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "workflows/70-research/ENDPOINTS.md:96"
-          ]
-        },
-        {
-          id: "workflows--internal-triggers-register-test-webhook",
-          method: "POST",
-          url: "https://backend.leadconnectorhq.com/internal-triggers/register-test-webhook",
-          path: "/internal-triggers/register-test-webhook",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "write",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "workflows",
-          tree: "documented",
-          pathParams: [],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "workflows/70-research/ENDPOINTS.md:95"
-          ]
-        },
-        {
-          id: "workflows--internal-triggers-test-trigger",
-          method: "POST",
-          url: "https://backend.leadconnectorhq.com/internal-triggers/test-trigger",
-          path: "/internal-triggers/test-trigger",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "write",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "workflows",
-          tree: "documented",
-          pathParams: [],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "workflows/70-research/ENDPOINTS.md:98"
-          ]
-        },
-        {
           id: "platform--invoices-gen-url",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/invoices/gen-url",
@@ -10278,37 +9630,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "platform/20-api/payment-links.md:111"
-          ]
-        },
-        {
-          id: "workflows--ivr-get-mappings-by-phones",
-          method: "POST",
-          url: "https://backend.leadconnectorhq.com/ivr/get-mappings-by-phones",
-          path: "/ivr/get-mappings-by-phones",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "write",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "workflows",
-          tree: "documented",
-          pathParams: [],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "workflows/70-research/ENDPOINTS.md:215"
           ]
         },
         {
@@ -10845,48 +10166,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "components/smart-lists/services/smart-list-service.ts:46"
-          ]
-        },
-        {
-          id: "workflows--location-assets",
-          method: "GET",
-          url: "https://backend.leadconnectorhq.com/location/{locationId}/assets",
-          path: "/location/{locationId}/assets",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "read",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "workflows",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "locationId"
-            }
-          ],
-          query: [
-            {
-              name: "workflowTypes",
-              type: "string",
-              required: false,
-              source: "documented"
-            }
-          ],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "documented",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "workflows/70-research/ENDPOINTS.md:89"
           ]
         },
         {
@@ -14668,7 +13947,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "fetchData",
-          service: "memberships-courses",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -14686,7 +13965,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "models/Filters/membership.ts:66",
-            "memberships-courses/70-research/2026-07-18-internal-api-recon.md:53"
+            "memberships-courses/70-research/2026-07-18-internal-api-recon.md:53",
+            "workflows/70-research/ENDPOINTS.md:164"
           ]
         },
         {
@@ -17974,41 +17254,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
-          id: "workflows--smart-list-offers-products",
-          method: "GET",
-          url: "https://backend.leadconnectorhq.com/smart-list/offers-products/{locationId}",
-          path: "/smart-list/offers-products/{locationId}",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "read",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "workflows",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "locationId"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "workflows/70-research/ENDPOINTS.md:164"
-          ]
-        },
-        {
           id: "platform--snapshot-conflicts",
           method: "POST",
           url: "https://backend.leadconnectorhq.com/snapshots-appengine/snapshot/{snapshotId}/conflicts",
@@ -19194,99 +18439,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
-          id: "workflows--search-count-per-step",
-          method: "GET",
-          url: "https://backend.leadconnectorhq.com/status/search/count-per-step",
-          path: "/status/search/count-per-step",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "read",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "workflows",
-          tree: "documented",
-          pathParams: [],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "workflows/70-research/RUNTIME-DATA-2.md:68"
-          ]
-        },
-        {
-          id: "workflows--search-details-by-step",
-          method: "GET",
-          url: "https://backend.leadconnectorhq.com/status/search/details-by-step",
-          path: "/status/search/details-by-step",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "read",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "workflows",
-          tree: "documented",
-          pathParams: [],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "workflows/70-research/RUNTIME-DATA-2.md:69"
-          ]
-        },
-        {
-          id: "workflows--search-workflow-with-filter",
-          method: "GET",
-          url: "https://backend.leadconnectorhq.com/status/search/workflow-with-filter",
-          path: "/status/search/workflow-with-filter",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "read",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "workflows",
-          tree: "documented",
-          pathParams: [],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "workflows/70-research/RUNTIME-DATA-2.md:67"
-          ]
-        },
-        {
           id: "surveys-service--get-surveys",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/surveys",
@@ -19392,42 +18544,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
-          id: "workflows--triggers-dynamic-source-details",
-          method: "POST",
-          url: "https://backend.leadconnectorhq.com/triggers/dynamic-source-details/{key}",
-          path: "/triggers/dynamic-source-details/{key}",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "write",
-          note: `\u{1F534} THE BASE IS /workflows-marketplace, NOT the service root. At the root this path answers 404 with an EMPTY body (or Express's "Cannot POST ..."), which reads like a dead endpoint; under /workflows-marketplace the same path answers from a real service \u2014 400 "Action does not exists for this key" / "Trigger does not exists for this key", or 403 "locationId is required". Route existence is proven; a 200 additionally needs a marketplace app installed on the account, which the sandbox has none of.`,
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "workflows",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "key"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "workflows/70-research/ENDPOINTS.md:93"
-          ]
-        },
-        {
           id: "workflows--triggers-dynamic-source",
           method: "POST",
           url: "https://backend.leadconnectorhq.com/triggers/dynamic-source/{key}",
@@ -19461,124 +18577,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "workflows/70-research/ENDPOINTS.md:94"
-          ]
-        },
-        {
-          id: "workflows--triggers-options",
-          method: "GET",
-          url: "https://backend.leadconnectorhq.com/triggers/options/{key}/{field}",
-          path: "/triggers/options/{key}/{field}",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "read",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "workflows",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "key"
-            },
-            {
-              name: "field"
-            }
-          ],
-          query: [
-            {
-              name: "locationId",
-              type: "string",
-              required: false,
-              source: "documented"
-            },
-            {
-              name: "optionType",
-              type: "string",
-              required: false,
-              source: "documented"
-            }
-          ],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "documented",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "workflows/70-research/ENDPOINTS.md:92"
-          ]
-        },
-        {
-          id: "workflows--proposal-estimate-update-document-created-by-template-id",
-          method: "GET",
-          url: "https://backend.leadconnectorhq.com/triggers/options/proposal_estimate_update/documentCreatedByTemplateId",
-          path: "/triggers/options/proposal_estimate_update/documentCreatedByTemplateId",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "read",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "workflows",
-          tree: "documented",
-          pathParams: [],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "workflows/70-research/ENDPOINTS.md:103"
-          ]
-        },
-        {
-          id: "workflows--published-dynamic-fields-post",
-          method: "POST",
-          url: "https://backend.leadconnectorhq.com/triggers/published/{type}/dynamic-fields",
-          path: "/triggers/published/{type}/dynamic-fields",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "write",
-          note: `\u{1F534} THE BASE IS /workflows-marketplace, NOT the service root. At the root this path answers 404 with an EMPTY body (or Express's "Cannot POST ..."), which reads like a dead endpoint; under /workflows-marketplace the same path answers from a real service \u2014 400 "Action does not exists for this key" / "Trigger does not exists for this key", or 403 "locationId is required". Route existence is proven; a 200 additionally needs a marketplace app installed on the account, which the sandbox has none of.`,
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "workflows",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "type"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "workflows/70-research/ENDPOINTS.md:91"
           ]
         },
         {
@@ -28619,7 +27617,10 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "components/actions/premium-actions/custom-code-components/CustomCodeTest.vue:149",
             "workflows/70-research/CUSTOM-CODE-TEST.md:54",
-            "workflows/70-research/CUSTOM-CODE-TEST.md:62"
+            "workflows/70-research/CUSTOM-CODE-TEST.md:62",
+            "workflows/70-research/ACTION-DRAWERS-2.md:909",
+            "workflows/70-research/ACTION-DRAWERS-2.md:981",
+            "workflows/70-research/ACTION-DRAWERS-2.md:6632"
           ]
         },
         {
@@ -29374,7 +28375,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/IVRService.ts:25"
+            "services/IVRService.ts:25",
+            "workflows/70-research/ENDPOINTS.md:215"
           ]
         },
         {
@@ -29944,7 +28946,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           path: "/workflows-marketplace/actions/{actionType}/branches",
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
-          kind: "read",
+          kind: "write",
+          note: `\u{1F534} THE BASE IS /workflows-marketplace, NOT the service root. At the root this path answers 404 with an EMPTY body (or Express's "Cannot POST ..."), which reads like a dead endpoint; under /workflows-marketplace the same path answers from a real service \u2014 400 "Action does not exists for this key" / "Trigger does not exists for this key", or 403 "locationId is required". Route existence is proven; a 200 additionally needs a marketplace app installed on the account, which the sandbox has none of.`,
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -29990,7 +28993,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:177"
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:177",
+            "workflows/70-research/ENDPOINTS.md:235"
           ]
         },
         {
@@ -30036,7 +29040,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:654"
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:654",
+            "workflows/70-research/ENDPOINTS.md:238"
           ]
         },
         {
@@ -30046,7 +29051,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           path: "/workflows-marketplace/actions/dynamic-source-details/{key}",
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
-          kind: "read",
+          kind: "write",
+          note: `\u{1F534} THE BASE IS /workflows-marketplace, NOT the service root. At the root this path answers 404 with an EMPTY body (or Express's "Cannot POST ..."), which reads like a dead endpoint; under /workflows-marketplace the same path answers from a real service \u2014 400 "Action does not exists for this key" / "Trigger does not exists for this key", or 403 "locationId is required". Route existence is proven; a 200 additionally needs a marketplace app installed on the account, which the sandbox has none of.`,
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -30092,7 +29098,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:599"
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:599",
+            "workflows/70-research/ENDPOINTS.md:237"
           ]
         },
         {
@@ -30272,7 +29279,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           path: "/workflows-marketplace/actions/published/{actionType}/dynamic-fields",
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
-          kind: "read",
+          kind: "write",
+          note: `\u{1F534} THE BASE IS /workflows-marketplace, NOT the service root. At the root this path answers 404 with an EMPTY body (or Express's "Cannot POST ..."), which reads like a dead endpoint; under /workflows-marketplace the same path answers from a real service \u2014 400 "Action does not exists for this key" / "Trigger does not exists for this key", or 403 "locationId is required". Route existence is proven; a 200 additionally needs a marketplace app installed on the account, which the sandbox has none of.`,
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -30318,7 +29326,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:161"
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:161",
+            "workflows/70-research/ENDPOINTS.md:234"
           ]
         },
         {
@@ -30364,7 +29373,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:144"
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:144",
+            "workflows/70-research/ENDPOINTS.md:233"
           ]
         },
         {
@@ -30408,7 +29418,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:327",
             "workflows/70-research/VERSIONS-STATS-LOGS.md:305",
-            "services/api/marketplace-stats-service.ts:7"
+            "services/api/marketplace-stats-service.ts:7",
+            "workflows/70-research/ENDPOINTS.md:205",
+            "workflows/70-research/RAIL.md:114"
           ]
         },
         {
@@ -30506,7 +29518,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:670"
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:670",
+            "workflows/70-research/ENDPOINTS.md:239"
           ]
         },
         {
@@ -30568,7 +29581,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:502"
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:502",
+            "workflows/70-research/ENDPOINTS.md:240"
           ]
         },
         {
@@ -30632,7 +29646,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:436"
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:436",
+            "workflows/70-research/ACTION-DRAWERS-2.md:6244",
+            "workflows/70-research/ENDPOINTS.md:240"
           ]
         },
         {
@@ -30697,7 +29713,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "resolved"
           },
           sources: [
-            "services/api/google-sheets-workflows-service.ts:54"
+            "services/api/google-sheets-workflows-service.ts:54",
+            "workflows/70-research/ENDPOINTS.md:175"
           ]
         },
         {
@@ -30990,7 +30007,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/SlackService.ts:32"
+            "services/SlackService.ts:32",
+            "workflows/70-research/ENDPOINTS.md:176"
           ]
         },
         {
@@ -31258,7 +30276,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:411"
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:411",
+            "workflows/70-research/ENDPOINTS.md:209",
+            "workflows/70-research/RAIL.md:250"
           ]
         },
         {
@@ -31330,7 +30350,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:366"
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:366",
+            "workflows/70-research/ENDPOINTS.md:97"
           ]
         },
         {
@@ -31397,7 +30418,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:637"
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:637",
+            "workflows/70-research/ENDPOINTS.md:99"
           ]
         },
         {
@@ -31471,7 +30493,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:356"
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:356",
+            "workflows/70-research/ENDPOINTS.md:96"
           ]
         },
         {
@@ -31545,7 +30568,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:341"
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:341",
+            "workflows/70-research/ENDPOINTS.md:95"
           ]
         },
         {
@@ -31619,7 +30643,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:383"
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:383",
+            "workflows/70-research/ENDPOINTS.md:98"
           ]
         },
         {
@@ -31673,7 +30698,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "_shared/bundle-locations.md:195",
             "marketplace-apps/10-anatomy/marketplace-rail.md:45",
             "marketplace-apps/10-anatomy/marketplace-rail.md:236",
-            "workflows/10-anatomy/07-id-resolution.md:206"
+            "workflows/10-anatomy/07-id-resolution.md:206",
+            "workflows/70-research/ENDPOINTS.md:89"
           ]
         },
         {
@@ -31683,7 +30709,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           path: "/workflows-marketplace/triggers/dynamic-source-details/{key}",
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
-          kind: "read",
+          kind: "write",
+          note: `\u{1F534} THE BASE IS /workflows-marketplace, NOT the service root. At the root this path answers 404 with an EMPTY body (or Express's "Cannot POST ..."), which reads like a dead endpoint; under /workflows-marketplace the same path answers from a real service \u2014 400 "Action does not exists for this key" / "Trigger does not exists for this key", or 403 "locationId is required". Route existence is proven; a 200 additionally needs a marketplace app installed on the account, which the sandbox has none of.`,
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -31729,7 +30756,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:627"
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:627",
+            "workflows/70-research/ENDPOINTS.md:93"
           ]
         },
         {
@@ -31784,7 +30812,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:300"
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:300",
+            "workflows/70-research/ENDPOINTS.md:92"
           ]
         },
         {
@@ -31838,7 +30867,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "resolved"
           },
           sources: [
-            "services/api/document-template-service.ts:17"
+            "services/api/document-template-service.ts:17",
+            "workflows/70-research/ENDPOINTS.md:103"
           ]
         },
         {
@@ -31848,7 +30878,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           path: "/workflows-marketplace/triggers/published/{triggerType}/dynamic-fields",
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
-          kind: "read",
+          kind: "write",
+          note: `\u{1F534} THE BASE IS /workflows-marketplace, NOT the service root. At the root this path answers 404 with an EMPTY body (or Express's "Cannot POST ..."), which reads like a dead endpoint; under /workflows-marketplace the same path answers from a real service \u2014 400 "Action does not exists for this key" / "Trigger does not exists for this key", or 403 "locationId is required". Route existence is proven; a 200 additionally needs a marketplace app installed on the account, which the sandbox has none of.`,
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -31894,7 +30925,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:318"
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:318",
+            "workflows/70-research/ENDPOINTS.md:91"
           ]
         },
         {
@@ -32623,7 +31655,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "services/marketplaceServices/WorkflowMarketplaceService.ts:296",
             "workflows/50-runtime/11-runtime-logs.md:203",
             "workflows/50-runtime/11-runtime-logs.md:244",
-            "workflows/70-research/ENDPOINTS.md:196"
+            "workflows/70-research/ENDPOINTS.md:196",
+            "workflows/70-research/RUNTIME-DATA-2.md:69"
           ]
         },
         {
@@ -53391,15 +52424,6 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           summary: "Deactivates a payment link. Body {activeValue:false, altId, altType}.",
           note: "Deactivates but CANNOT reactivate: activeValue:true returns 400 'Error activating link. Please update automatic deactivation configuration to activate'. Reactivation is the full-document PUT with active:true. A deactivated link renders only 'Payment link deactivated / CODE:- PAYMENT_LINK_DEACTIVATED' to the customer -- no product, no form -- which is why a deposit link must never carry an automatic deactivation date."
         },
-        "POST /actions/dynamic-source-details/{key}": {
-          note: `\u{1F534} THE BASE IS /workflows-marketplace, NOT the service root. At the root this path answers 404 with an EMPTY body (or Express's "Cannot POST ..."), which reads like a dead endpoint; under /workflows-marketplace the same path answers from a real service \u2014 400 "Action does not exists for this key" / "Trigger does not exists for this key", or 403 "locationId is required". Route existence is proven; a 200 additionally needs a marketplace app installed on the account, which the sandbox has none of.`
-        },
-        "POST /actions/published/{type}/dynamic-fields": {
-          note: `\u{1F534} THE BASE IS /workflows-marketplace, NOT the service root. At the root this path answers 404 with an EMPTY body (or Express's "Cannot POST ..."), which reads like a dead endpoint; under /workflows-marketplace the same path answers from a real service \u2014 400 "Action does not exists for this key" / "Trigger does not exists for this key", or 403 "locationId is required". Route existence is proven; a 200 additionally needs a marketplace app installed on the account, which the sandbox has none of.`
-        },
-        "POST /actions/{type}/branches": {
-          note: `\u{1F534} THE BASE IS /workflows-marketplace, NOT the service root. At the root this path answers 404 with an EMPTY body (or Express's "Cannot POST ..."), which reads like a dead endpoint; under /workflows-marketplace the same path answers from a real service \u2014 400 "Action does not exists for this key" / "Trigger does not exists for this key", or 403 "locationId is required". Route existence is proven; a 200 additionally needs a marketplace app installed on the account, which the sandbox has none of.`
-        },
         "POST /agent-logs/contacts": {
           kind: "read",
           reach: "proven",
@@ -53604,13 +52628,7 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         "POST /templates/template/load": {
           kind: "read"
         },
-        "POST /triggers/dynamic-source-details/{key}": {
-          note: `\u{1F534} THE BASE IS /workflows-marketplace, NOT the service root. At the root this path answers 404 with an EMPTY body (or Express's "Cannot POST ..."), which reads like a dead endpoint; under /workflows-marketplace the same path answers from a real service \u2014 400 "Action does not exists for this key" / "Trigger does not exists for this key", or 403 "locationId is required". Route existence is proven; a 200 additionally needs a marketplace app installed on the account, which the sandbox has none of.`
-        },
         "POST /triggers/dynamic-source/{key}": {
-          note: `\u{1F534} THE BASE IS /workflows-marketplace, NOT the service root. At the root this path answers 404 with an EMPTY body (or Express's "Cannot POST ..."), which reads like a dead endpoint; under /workflows-marketplace the same path answers from a real service \u2014 400 "Action does not exists for this key" / "Trigger does not exists for this key", or 403 "locationId is required". Route existence is proven; a 200 additionally needs a marketplace app installed on the account, which the sandbox has none of.`
-        },
-        "POST /triggers/published/{type}/dynamic-fields": {
           note: `\u{1F534} THE BASE IS /workflows-marketplace, NOT the service root. At the root this path answers 404 with an EMPTY body (or Express's "Cannot POST ..."), which reads like a dead endpoint; under /workflows-marketplace the same path answers from a real service \u2014 400 "Action does not exists for this key" / "Trigger does not exists for this key", or 403 "locationId is required". Route existence is proven; a 200 additionally needs a marketplace app installed on the account, which the sandbox has none of.`
         },
         "POST /workflow/flowguard/blacklist/contact/{contactId}": {
@@ -53702,13 +52720,13 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           kind: "destructive"
         },
         "POST /workflows-marketplace/actions/dynamic-source-details/{key}": {
-          kind: "read"
+          note: `\u{1F534} THE BASE IS /workflows-marketplace, NOT the service root. At the root this path answers 404 with an EMPTY body (or Express's "Cannot POST ..."), which reads like a dead endpoint; under /workflows-marketplace the same path answers from a real service \u2014 400 "Action does not exists for this key" / "Trigger does not exists for this key", or 403 "locationId is required". Route existence is proven; a 200 additionally needs a marketplace app installed on the account, which the sandbox has none of.`
         },
         "POST /workflows-marketplace/actions/published/{actionType}/dynamic-fields": {
-          kind: "read"
+          note: `\u{1F534} THE BASE IS /workflows-marketplace, NOT the service root. At the root this path answers 404 with an EMPTY body (or Express's "Cannot POST ..."), which reads like a dead endpoint; under /workflows-marketplace the same path answers from a real service \u2014 400 "Action does not exists for this key" / "Trigger does not exists for this key", or 403 "locationId is required". Route existence is proven; a 200 additionally needs a marketplace app installed on the account, which the sandbox has none of.`
         },
         "POST /workflows-marketplace/actions/{actionType}/branches": {
-          kind: "read"
+          note: `\u{1F534} THE BASE IS /workflows-marketplace, NOT the service root. At the root this path answers 404 with an EMPTY body (or Express's "Cannot POST ..."), which reads like a dead endpoint; under /workflows-marketplace the same path answers from a real service \u2014 400 "Action does not exists for this key" / "Trigger does not exists for this key", or 403 "locationId is required". Route existence is proven; a 200 additionally needs a marketplace app installed on the account, which the sandbox has none of.`
         },
         "POST /workflows-marketplace/integration-apps/reset-token/{appId}": {
           kind: "destructive",
@@ -53722,10 +52740,10 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           kind: "read"
         },
         "POST /workflows-marketplace/triggers/dynamic-source-details/{key}": {
-          kind: "read"
+          note: `\u{1F534} THE BASE IS /workflows-marketplace, NOT the service root. At the root this path answers 404 with an EMPTY body (or Express's "Cannot POST ..."), which reads like a dead endpoint; under /workflows-marketplace the same path answers from a real service \u2014 400 "Action does not exists for this key" / "Trigger does not exists for this key", or 403 "locationId is required". Route existence is proven; a 200 additionally needs a marketplace app installed on the account, which the sandbox has none of.`
         },
         "POST /workflows-marketplace/triggers/published/{triggerType}/dynamic-fields": {
-          kind: "read"
+          note: `\u{1F534} THE BASE IS /workflows-marketplace, NOT the service root. At the root this path answers 404 with an EMPTY body (or Express's "Cannot POST ..."), which reads like a dead endpoint; under /workflows-marketplace the same path answers from a real service \u2014 400 "Action does not exists for this key" / "Trigger does not exists for this key", or 403 "locationId is required". Route existence is proven; a 200 additionally needs a marketplace app installed on the account, which the sandbox has none of.`
         },
         "POST /workflows-marketplace/{assetType}/dynamic-source/{key}": {
           kind: "read"
@@ -55105,9 +54123,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       get_workflow: {
-        description: "Get workflow \u2014 proof: documented; risk: read",
+        description: "Get workflow \u2014 proof: live-runtime (2026-09-14); risk: read",
         risk: "read",
-        proof: "documented",
+        proof: "live-runtime (2026-09-14)",
         proofFloor: "documented",
         proofRows: [
           "workflow-read"
@@ -55196,9 +54214,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       list_workflows: {
-        description: "List workflows \u2014 proof: live-runtime (2026-09-10); risk: read",
+        description: "List workflows \u2014 proof: live-runtime (2026-09-14); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-10)",
+        proof: "live-runtime (2026-09-14)",
         proofFloor: "documented",
         proofRows: [
           "workflow-list"
@@ -55214,9 +54232,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       get_workflow_logs: {
-        description: "Get workflow logs \u2014 proof: live-runtime (2026-07-24), floor: documented; risk: read",
+        description: "Get workflow logs \u2014 proof: live-runtime (2026-09-14), floor: documented; risk: read",
         risk: "read",
-        proof: "live-runtime (2026-07-24)",
+        proof: "live-runtime (2026-09-14)",
         proofFloor: "documented",
         proofRows: [
           "logs-count-per-step",
@@ -55359,9 +54377,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       get_contacts_at_step: {
-        description: "List contacts at step \u2014 proof: live-runtime (2026-07-18); risk: read",
+        description: "List contacts at step \u2014 proof: live-runtime (2026-09-14); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-07-18)",
+        proof: "live-runtime (2026-09-14)",
         proofFloor: "live-runtime (2026-07-18)",
         proofRows: [
           "logs-details-by-step"
@@ -55654,9 +54672,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       list_workflow_folders: {
-        description: "List workflow folders \u2014 proof: live-runtime (2026-08-18); risk: read",
+        description: "List workflow folders \u2014 proof: live-runtime (2026-09-14); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-08-18)",
+        proof: "live-runtime (2026-09-14)",
         proofFloor: "live-runtime (2026-08-18)",
         proofRows: [
           "workflow-folder-list"
@@ -55672,9 +54690,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       create_workflow_folder: {
-        description: "Create workflow folder \u2014 proof: live-runtime (2026-08-18); risk: write",
+        description: "Create workflow folder \u2014 proof: live-runtime (2026-09-14); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-08-18)",
+        proof: "live-runtime (2026-09-14)",
         proofFloor: "live-runtime (2026-08-18)",
         proofRows: [
           "workflow-folder-create",
@@ -55693,9 +54711,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       duplicate_workflow: {
-        description: "Duplicate workflow \u2014 proof: live-runtime (2026-08-18); risk: write",
+        description: "Duplicate workflow \u2014 proof: live-runtime (2026-09-14); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-08-18)",
+        proof: "live-runtime (2026-09-14)",
         proofFloor: "live-runtime (2026-08-18)",
         proofRows: [
           "workflow-duplicate",
@@ -55717,9 +54735,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       move_workflows: {
-        description: "Move workflows between folders and root \u2014 proof: live-runtime (2026-08-18); risk: write",
+        description: "Move workflows between folders and root \u2014 proof: live-runtime (2026-09-14); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-08-18)",
+        proof: "live-runtime (2026-09-14)",
         proofFloor: "live-runtime (2026-08-18)",
         proofRows: [
           "workflow-move-batch",
@@ -55766,9 +54784,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       get_workflow_stats: {
-        description: "Workflow stats view \u2014 proof: live-runtime (2026-08-22); risk: read",
+        description: "Workflow stats view \u2014 proof: live-runtime (2026-09-14); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-08-22)",
+        proof: "live-runtime (2026-09-14)",
         proofFloor: "live-runtime (2026-08-22)",
         proofRows: [
           "stats-aggregate",
@@ -55790,9 +54808,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       list_workflow_versions: {
-        description: "List workflow versions \u2014 proof: live-runtime (2026-08-22); risk: read",
+        description: "List workflow versions \u2014 proof: live-runtime (2026-09-14); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-08-22)",
+        proof: "live-runtime (2026-09-14)",
         proofFloor: "live-runtime (2026-08-22)",
         proofRows: [
           "workflow-history"
@@ -55808,9 +54826,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       get_workflow_version: {
-        description: "Get workflow version snapshot \u2014 proof: live-runtime (2026-08-22); risk: read",
+        description: "Get workflow version snapshot \u2014 proof: live-runtime (2026-09-14); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-08-22)",
+        proof: "live-runtime (2026-09-14)",
         proofFloor: "live-runtime (2026-08-22)",
         proofRows: [
           "workflow-history"
@@ -55826,9 +54844,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       get_trigger_logs: {
-        description: "Trigger attempt logs + top failed reasons \u2014 proof: live-runtime (2026-08-22); risk: read",
+        description: "Trigger attempt logs + top failed reasons \u2014 proof: live-runtime (2026-09-14); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-08-22)",
+        proof: "live-runtime (2026-09-14)",
         proofFloor: "live-runtime (2026-08-22)",
         proofRows: [
           "trigger-logs-triggerId",
@@ -55850,9 +54868,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       get_account_workflow_overview: {
-        description: "Workflow Overview page: statistics, weekly enrollment, Needs Review, enrollment totals \u2014 proof: live-runtime (2026-08-22); risk: read",
+        description: "Workflow Overview page: statistics, weekly enrollment, Needs Review, enrollment totals \u2014 proof: live-runtime (2026-09-14); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-08-22)",
+        proof: "live-runtime (2026-09-14)",
         proofFloor: "live-runtime (2026-08-22)",
         proofRows: [
           "workflows-statistics",
@@ -55880,9 +54898,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       test_custom_code: {
-        description: "Custom Code sandbox test-run (no account mutation) \u2014 proof: live-runtime (2026-08-22); risk: sandbox-exec",
+        description: "Custom Code sandbox test-run (no account mutation) \u2014 proof: live-runtime (2026-09-14); risk: sandbox-exec",
         risk: "sandbox-exec",
-        proof: "live-runtime (2026-08-22)",
+        proof: "live-runtime (2026-09-14)",
         proofFloor: "live-runtime (2026-08-22)",
         proofRows: [
           "custom-code-run-test"
@@ -56781,9 +55799,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       get_workflow_digest: {
-        description: "Compact read of one workflow \u2014 identity, version, structure, merge tags per step \u2014 proof: unrecorded; risk: read",
+        description: "Compact read of one workflow \u2014 identity, version, structure, merge tags per step \u2014 proof: live-runtime (2026-09-14); risk: read",
         risk: "read",
-        proof: "unrecorded",
+        proof: "live-runtime (2026-09-14)",
         proofFloor: "unrecorded",
         proofRows: [
           "workflow-service--find-by-id",
