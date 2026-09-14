@@ -48,6 +48,9 @@ const state = { tokenFile: process.env.GHL_INTERNAL_TOK_FILE ?? DEFAULT_TOKEN_FI
 state.renewer = autoRenewEnabled(process.env) ? makeRenewer({ getTokenFile: () => state.tokenFile }) : null;
 const deps = { state, makeGw: (o = {}) => makeGatewayFactory({ state })(o) };
 const log = createExerciseLog();
+// A crash mid-run must still leave a record of what had been driven up to that point — the explicit
+// log.write() calls below are harmless and clearer, but this is what survives an uncaught throw.
+process.on('exit', () => log.write());
 const tool = (n) => log.wrap(TOOLS.find((t) => t.name === n));
 const call = (n, args) => tool(n).handler({ locationId: LOCATION, ...args }, deps);
 
@@ -73,6 +76,7 @@ console.log(`\nWORKFLOWS CONFORMANCE  location …${LOCATION.slice(-4)}  ${new D
 // per-type 1-based index, so the reference rendered empty at runtime behind a clean write. This
 // is the assertion that proves the fix against GHL rather than against the compiler's own opinion.
 console.log('stepIndex numbering');
+log.subject('build_workflow'); // every read-back below proves what build_workflow produced
 const built = await call('build_workflow', {
   spec: { name: NAME('stepindex'), triggers: [], graph: [tag(1), code(1), hook(1), code(2)] },
 });
@@ -108,6 +112,7 @@ if (wid) {
 // A refusal is only worth anything if the document is untouched afterwards. Each of these reads
 // the workflow back on a separate request and asserts the template count did not move.
 console.log('\nguards refuse before writing');
+log.subject('edit_workflow'); // every refusal/acceptance below is proving edit_workflow's guards
 const countTemplates = async () => {
   const r = await call('export_workflow', { workflowId: wid });
   return (r.data?.workflow?.workflowData?.templates ?? []).length;
@@ -163,6 +168,7 @@ if (wid) {
 // conditions is exactly the any-match shape that makes an ACTIVE one dangerous, so inactivity is
 // asserted before anything else runs, and the section stops if it does not hold.
 console.log('\nflow-entry guard and its hatch');
+log.subject('build_workflow'); // proves what build_workflow produced (the unbound, inactive trigger)
 const flow = await call('build_workflow', { spec: {
   name: NAME('flowentry'), workflowType: 'agent',
   triggers: [{ ref: 'ft', type: 'conv_ai_trigger', name: 'Chat Initiated', filters: [] }],
@@ -180,6 +186,7 @@ if (fwid) {
   check(Boolean(safe), 'PRECONDITION: the conv_ai_trigger is inactive and bound to no agent — nothing can enter or fire it',
     JSON.stringify({ active: entry?.active, conditions: entry?.conditions }));
   if (safe) {
+    log.subject('edit_workflow'); // everything below proves edit_workflow's flow-entry guard and hatch
     const op = [{ op: 'modifyTrigger', name: 'Chat Initiated', trigger: { name: 'Chat Initiated' } }];
     const guarded = await call('edit_workflow', { workflowId: fwid, confirm: true, acknowledgeDrift: true, ops: op });
     check(guarded.ok === false && /refusing to touch a conv_ai_trigger/.test(String(guarded.detail)),
@@ -199,6 +206,7 @@ if (fwid) {
   // validate_workflow on the same flow: GHL's own server validator. The unbound flow trigger is a
   // real defect ("Bot is required"), which makes this flow a natural fixture for it.
   if (fwid) {
+    log.subject('validate_workflow'); // this whole block proves validate_workflow, via read-backs
     const before = JSON.stringify((await call('export_workflow', { workflowId: fwid })).data ?? null);
     const v = await call('validate_workflow', { workflowId: fwid });
     check(v.ok === true && v.data?.valid === false && v.data?.layer === 'trigger',
@@ -225,6 +233,7 @@ if (fwid) {
 // with nothing written, a pre-existing server finding does not freeze an unrelated edit, and publish
 // refuses a workflow GHL itself calls invalid.
 console.log('\nworkflow validation gate');
+log.subject('build_workflow'); // these two check built.data?.validation, from section 1's build_workflow call
 const gateReport = built.data?.validation;
 check(gateReport?.server?.ran === true && gateReport?.server?.valid === true,
   'BUILD: section 1\'s real build went through GHL\'s validator against the empty draft, and passed',
@@ -240,6 +249,7 @@ if (wid) {
   // RAW stored document, not the export: export_workflow scrubs a webhook's authorization object to the
   // string "<redacted>", and GHL rightly refuses THAT ("expected object, received string") whatever
   // else the document carries — the first run of this control measured the scrub, not the key.
+  log.subject(false); // both CONTROL checks below run through a raw fetch / raw gw.call, no tool of ours — proves nothing about one
   const rawDoc = before?.fileUrl ? await (await fetch(before.fileUrl)).json() : null;
   const rawTpls = rawDoc?.workflowData?.templates ?? rawDoc?.templates ?? [];
   check(rawTpls.length === tpls.length, 'CONTROL: the raw stored document was read, unscrubbed', `raw ${rawTpls.length} vs export ${tpls.length}`);
@@ -253,6 +263,7 @@ if (wid) {
   check(ghlOnly.ran === true && ghlOnly.valid === true,
     'CONTROL: GHL\'s validator calls a document with an invented attribute key VALID — the hole the engine half closes',
     JSON.stringify(ghlOnly).slice(0, 160));
+  log.subject('edit_workflow'); // back to proving edit_workflow: the refusal, and the hatch past it
   const refused = await call('edit_workflow', { workflowId: wid, confirm: true, acknowledgeDrift: true, ops: op });
   check(refused.ok === false && refused.code === 'VALIDATION_FAILED' && /ATTRIBUTE_KEY/.test(String(refused.detail)) && /inventedGateKey/.test(String(refused.detail)),
     'EDIT: the same edit is REFUSED by the engine half, naming the key', `${refused.code} ${String(refused.detail).slice(0, 160)}`);
@@ -266,6 +277,7 @@ if (wid) {
     `${hatched.code}`);
 }
 if (fwid) {
+  log.subject('edit_workflow'); // the DIFFERENTIAL block proves edit_workflow's pre-existing-finding behaviour
   const flowTpls = (await call('export_workflow', { workflowId: fwid })).data?.workflow?.workflowData?.templates ?? [];
   const step = flowTpls[0];
   const rename = await call('edit_workflow', { workflowId: fwid, acknowledgeDrift: true,
@@ -283,6 +295,7 @@ if (fwid) {
     `${rename.code} ${String(rename.detail ?? '').slice(0, 120)}`);
   check(JSON.stringify(rename.data ?? {}).includes('already had'),
     'DIFFERENTIAL: and it says so, rather than hiding the pre-existing finding');
+  log.subject('publish_workflow'); // this assertion proves publish_workflow refuses an invalid flow
   const pub = await call('publish_workflow', { workflowId: fwid });
   check(pub.ok === false && pub.code === 'VALIDATION_FAILED' && /Bot is required/.test(String(pub.detail)),
     'PUBLISH: the preview is refused — GHL itself calls this flow invalid, and publishing is when every finding counts',
@@ -302,6 +315,7 @@ if (fwid) {
 // validator on the far side.
 console.log('\nrepair_workflow');
 if (wid) {
+  log.subject('export_workflow'); // this assertion is specifically about export_workflow's own scrub behaviour
   const exported = await call('export_workflow', { workflowId: wid });
   const tpls = exported.data?.workflow?.workflowData?.templates ?? [];
   const fileUrl = exported.data?.workflow?.fileUrl;
@@ -313,6 +327,7 @@ if (wid) {
     JSON.stringify(webhook?.attributes?.authorization));
 
   // and what GHL actually stores there — read from the document itself, not through our scrub
+  log.subject(false); // a raw fetch of the stored document, not any of our tools
   let realAuth;
   if (fileUrl) {
     const raw = await (await fetch(fileUrl)).json();
@@ -331,6 +346,7 @@ if (wid) {
   const scrubTmp = join(tmpdir(), `ghl-conformance-scrubbed-${STAMP}.json`);
   writeFileSync(scrubTmp, JSON.stringify({ templates: scrubbed }, null, 1), { mode: 0o600 });
   left.push(`templates file ${scrubTmp}`);
+  log.subject('repair_workflow'); // everything from here proves repair_workflow, via read-backs through export_workflow
   const refused = await call('repair_workflow', { workflowId: wid, templatesPath: scrubTmp, confirm: true });
   check(refused.ok === false, 'repair_workflow REFUSES a document still carrying redaction placeholders', `${refused.code}`);
   check(/redaction placeholder/i.test(String(refused.detail)) && /authorization/.test(String(refused.detail)),
@@ -390,6 +406,7 @@ if (wid) {
 // It is unpublished again immediately, and the final state is asserted.
 console.log('\npublish / unpublish');
 if (wid) {
+  log.subject(false); // the cumulative object state from earlier tools, not a fresh call's effect
   const pre = await call('export_workflow', { workflowId: wid });
   const triggers = pre.data?.triggers ?? [];
   const steps = (pre.data?.workflow?.workflowData?.templates ?? []);
@@ -402,6 +419,7 @@ if (wid) {
     'PRECONDITION: and no step that could message anyone even if it somehow ran',
     sends.map((t) => t.type).join(', '));
 
+  log.subject('publish_workflow'); // covers the publish leg, whether it runs or is skipped below
   if (triggers.length === 0 && sends.length === 0) {
     const pub = await call('publish_workflow', { workflowId: wid, confirm: true });
     check(pub.ok === true, 'publish_workflow publishes a draft', pub.detail);
@@ -411,6 +429,7 @@ if (wid) {
       'the workflow reads back as published on a SEPARATE request — not merely a 200',
       `status ${live.data?.workflow?.status}`);
 
+    log.subject('unpublish_workflows');
     const un = await call('unpublish_workflows', { workflowIds: [wid], confirm: true });
     check(un.ok === true, 'unpublish_workflows takes it back down', un.detail);
 

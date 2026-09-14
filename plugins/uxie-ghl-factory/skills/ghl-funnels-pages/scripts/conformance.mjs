@@ -48,6 +48,9 @@ const deps = { state, makeGw: (o = {}) => makeGatewayFactory({ state })(o) };
 const gw = deps.makeGw({ loc: LOCATION });
 const j = (r) => r.json?.data ?? r.json ?? {};
 const log = createExerciseLog();
+// A crash mid-run must still leave a record of what had been driven up to that point — the explicit
+// log.write() calls below are harmless and clearer, but this is what survives an uncaught throw.
+process.on('exit', () => log.write());
 const tool = (n) => log.wrap(TOOLS.find((t) => t.name === n));
 
 let passed = 0, failed = 0, skipped = 0;
@@ -60,6 +63,7 @@ const check = (cond, m, extra) => (cond ? ok(m) : bad(m, extra));
 console.log(`funnels conformance — location …${LOCATION.slice(-4)}\n`);
 
 // 1. FUNNEL + STEP -----------------------------------------------------------------------------
+log.subject(false); // every check in this section runs through a raw gw.call, no tool of ours
 const created = await gw.call('POST', '/funnels/funnel/create', { locationId: LOCATION, name: NAME('FUNNEL'), type: 'funnel' });
 const funnel = j(created);
 const funnelId = funnel._id ?? funnel.id;
@@ -90,6 +94,7 @@ const row = pages.find((p) => (p._id ?? p.id) === pageId);
 check(!!row && !!(row.stepId ?? row.step_id), 'GET /funnels/page reports stepId — the only cheap detector for an id-less step');
 
 // 2. AUTHOR A PAGE -----------------------------------------------------------------------------
+log.subject('build_funnel_page'); // sections 2 and 3 both prove build_funnel_page (draft, then publish)
 const MARK = `TESTCONF${STAMP}`;
 const sections = [{ background: '#101014', padY: 72, maxWidth: 1080, columns: [{ widthPct: 100, elements: [
   { meta: 'heading', html: MARK, tag: 'h1', styles: { color: '#fff', fontSize: '40px', textAlign: 'center' } },
@@ -117,6 +122,7 @@ skip('the public URL serves the pinned version, not the newest draft',
   'needs a domain attached to a fresh funnel — outward-facing, not for an unattended suite');
 
 // 4. VERSIONS ----------------------------------------------------------------------------------
+log.subject(false); // a raw get-versions call, no tool of ours — attribute to nothing, not to a bystander
 const versions = (await gw.call('GET', `/funnels/builder/get-versions?pageId=${pageId}`)).json;
 check(Array.isArray(versions), 'get-versions answers a BARE ARRAY');
 check(Array.isArray(versions) && versions.every((v) => 'version_id' in v),
@@ -125,6 +131,7 @@ const secs = (versions ?? []).map((v) => v.updated_at?._seconds ?? 0);
 check(secs.every((s, i) => i === 0 || secs[i - 1] >= s), 'versions come back newest-first');
 
 // 5. THE AUDITOR -------------------------------------------------------------------------------
+log.subject('audit_site');
 const audit = await tool('audit_site').handler({ locationId: LOCATION, funnelId, maxPages: 10 }, deps);
 check(audit.ok === true, 'audit_site runs read-only against a live account', audit.ok ? '' : audit.detail);
 check(Array.isArray(audit.data?.coverage) && audit.data.coverage.length > 0, 'it reports COVERAGE, not just findings');
