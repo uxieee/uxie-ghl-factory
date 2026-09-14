@@ -11,6 +11,55 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [0.86.0] — 2026-09-15
+
+`check_workflow` had been replaying GHL's validators as they stood on **2026-05-17**. Four months of
+drift, and the cost was live: it warned on webhook bodies that were correct, and it could not
+validate 53 step types at all.
+
+### Fixed
+
+- **The validator capture was four months stale, and nothing could have refreshed it.**
+  `catalog/builder-validators.json` was byte-identical to the May capture. `sync-generated.mjs`
+  copied it from a fixed path that nothing has written since — `recapture.mjs` creates
+  `bundle-<date>/`, and no capture since May emitted `validators.json` at all, because the modern
+  extractors emit a *parsed* rule structure while `check_workflow` needs the verbatim bodies it
+  evaluates. A new `extract-validators.mjs` recovers them from the entry chunk's sourcemap; the sync
+  now reads the newest capture; `recapture.mjs` runs the extractor first, so this cannot lapse again.
+- **`custom_webhook` no longer warns `invalid_json_format` on a body containing merge tags.** GHL
+  deleted that check on 2026-09-14, saying why in its own source: *"rawData is compiled at execution
+  time; merge fields make static JSON.parse invalid on save."* A numeric field takes its tag
+  unquoted, so `{"id": {{contact.id}}}` is the ordinary way to write a webhook body and never parses
+  until substitution. **We had been warning on every one of them** — our replay had become stricter
+  than GHL's, which is the two-oracle rule failing in the direction it exists to catch.
+- **The `call` action's timeout cap was 120 seconds; GHL's is 600.** A valid 300-second timeout was
+  reported as out of range.
+- **`arrayFunctions`, `socialMessage` and `sendEmailAction` regained checks GHL had added** —
+  `field_is_required`, the Instagram and Messenger message requirements, and the two page-integration
+  checks.
+- **Every `wait` step threw `ReferenceError` instead of validating.** GHL's `waitValidator` began
+  calling `isWaitStepUnconfigured`, which the replay prelude did not supply. Ported verbatim from
+  `wait-validator.ts`. `isEmpty` was missing the same way and took `custom_code` down with it.
+
+### Added
+
+- **53 step types gained a validator**, none lost one. The recovery brought the TRIGGER validators
+  with it — `contact_created`, `form_submission`, `appointment`, the `opportunity_*` family,
+  `task_added` and 48 more — which the May extractor never produced. 67 validators became 110, and
+  the type-to-validator map went from 61 to 114.
+- **The workflows conformance suite covers 24 of 27 tools, up from 8.** The reads, the account rail,
+  folders and the custom-code sandbox. Two tools stay uncovered *on purpose* and are printed rather
+  than skipped: `fast_forward_contacts` is refused outright — it advances real enrolments past a wait
+  and fires whatever comes next at whoever is parked there — and `pin_webhook_sample` needs a trigger,
+  which this suite builds nothing with by design.
+
+### Changed
+
+- **One endpoint, one catalogue row.** The catalogue recorded a path twice whenever a research note
+  wrote it the way a developer types it (`/custom-code/run-test`) and the miner recorded the URL
+  actually sent (`/workflow/custom-code/run-test`). 28 such pairs on the workflows surface alone,
+  none of which could ever be reached by a tool. Catalogue 1167 → 1139 rows.
+
 ## [0.85.0] — 2026-09-14
 
 Every tool now carries a proof record saying when it last passed and what that proof depends on,
