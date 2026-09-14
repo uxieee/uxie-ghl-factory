@@ -589,10 +589,18 @@ if (wid) {
 // day when GHL raises the cap fails here instead of being discovered by a wrong report.
 console.log('\nthe account rail');
 log.subject('list_workflows');
-const capped = await call('list_workflows', { limit: 200, offset: 0 });
-const rows = capped.data?.workflows ?? [];
-const total = capped.data?.count;
+// THE LIMIT IS DERIVED FROM THE ACCOUNT, NEVER A CONSTANT. Written as limit:200 this passed four
+// runs and then failed four in a row — not because GHL changed, but because THIS SUITE had grown
+// the account past 200. It creates workflows on every run and tears nothing down by design, and by
+// 2026-09-15 it had left 90 TEST-CONF-* workflows in an account of 214. An assertion whose truth
+// depends on a constant larger than the account has an expiry date, and the thing that expires it
+// is the suite itself. Ask for one row to learn the total, then ask for more than the total.
+const probe = await call('list_workflows', { limit: 1, offset: 0 });
+const total = probe.data?.count;
 check(typeof total === 'number' && total > 0, 'list_workflows reports an account total', String(total));
+const askFor = Math.max(200, (total ?? 0) + 50);
+const capped = await call('list_workflows', { limit: askFor, offset: 0 });
+const rows = capped.data?.workflows ?? [];
 // 🔴 THE 100-ROW CAP IS NOT REPRODUCIBLE AS OF 2026-09-15 — see console bl-131.
 // This assertion was written the other way round, expecting the cap, because a reference note of
 // 2026-09-11 records list_workflows stopping at 100 silently on this very account. Asked for 200
@@ -601,15 +609,15 @@ check(typeof total === 'number' && total > 0, 'list_workflows reports an account
 // this rail finds out before a report does.
 if (total > 100) {
   check(rows.length === total,
-    `list_workflows returned ALL ${total} rows for limit=200 — the 100-row cap recorded on 2026-09-11 does NOT reproduce`,
-    `asked 200, got ${rows.length} of ${total}`);
+    `list_workflows returned ALL ${total} rows for limit=${askFor} — the 100-row cap recorded on 2026-09-11 does NOT reproduce`,
+    `asked ${askFor}, got ${rows.length} of ${total}`);
 } else {
   check(false, `cap NOT EXERCISED — this account has only ${total} workflows, fewer than the 100 the old note describes. `
     + 'Neither the cap nor its absence is proven here; run against an account with more than 100.');
 }
 
 log.subject('list_workflows_complete');
-const full = await call('list_workflows_complete', { pageSize: 100, maxPages: 10 });
+const full = await call('list_workflows_complete', { pageSize: 100, maxPages: Math.ceil((total ?? 100) / 100) + 2 });
 check(full.data?.complete === true, 'list_workflows_complete reports that it exhausted the pages', full.data?.terminalReason);
 check(full.data?.reportedTotal === total,
   'and agrees with list_workflows about the account total — the two rails read the same account',
