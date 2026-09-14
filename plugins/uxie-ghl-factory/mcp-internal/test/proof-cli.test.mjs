@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { appendRun, rehash, backfillFrom, applyLabel, syncLabels, backfillWrite } from '../../../../scripts/proof.mjs';
+import { appendRun, rehash, backfillFrom, applyLabel, syncLabels, backfillWrite, runsFromReceipt } from '../../../../scripts/proof.mjs';
 
 const computed = (over = {}) => ({ surfaces: ['workflows'], depends: {
   hashedAt: '2026-09-14', endpoints: { 'POST https://backend.leadconnectorhq.com /workflow/{}': 'a'.repeat(64) },
@@ -74,4 +74,20 @@ test('backfillWrite stops on the first failing tool and reports count written, t
   assert.match(err.message, /already written are kept/);
   assert.match(err.message, /re-run/);
   assert.match(err.message, /skips tools that already have a record/);
+});
+
+test('runsFromReceipt: one run per exercised tool; nothing from an unverified suite or an audit composite', () => {
+  const receipt = { location: '…zn6B', results: [
+    { name: 'workflows', summary: { passed: 54, failed: 1 }, exercised: [
+      { tool: 'build_workflow', calls: 2, passed: 5, failed: 0, failures: [] },
+      { tool: 'export_workflow', calls: 18, passed: 30, failed: 1, failures: ['export-keeps-triggers'] },
+      { tool: 'list_workflows_complete', calls: 1, passed: 1, failed: 0, failures: [] },
+    ] },
+    { name: 'funnels', summary: null, exercised: [{ tool: 'audit_site', calls: 1, passed: 1, failed: 0, failures: [] }] },
+    { name: 'memberships', summary: { passed: 40, failed: 0 }, exercised: [] },
+  ] };
+  const runs = runsFromReceipt(receipt, '2026-09-20-0930');
+  assert.deepEqual(runs.map((r) => [r.tool, r.run.result]), [['build_workflow', 'pass'], ['export_workflow', 'fail']]);
+  assert.deepEqual(runs[1].run, { at: '2026-09-20', result: 'fail', how: 'suite', suite: 'workflows',
+    evidence: ['receipt:2026-09-20-0930'], location: '…zn6B', failures: ['export-keeps-triggers'] });
 });

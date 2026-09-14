@@ -102,6 +102,23 @@ export function backfillWrite(recs, write) {
   return written;
 }
 
+export function runsFromReceipt(receipt, stamp) {
+  const out = [];
+  for (const r of receipt.results ?? []) {
+    // A suite that printed no parseable summary proved nothing; its tool list is not trusted either.
+    if (!r.summary || !Array.isArray(r.exercised)) continue;
+    for (const e of r.exercised) {
+      if (AUDIT_COMPOSITES.includes(e.tool) || !e.calls) continue;
+      out.push({ tool: e.tool, run: {
+        at: stamp.slice(0, 10), result: e.failed ? 'fail' : 'pass', how: 'suite', suite: r.name,
+        evidence: [`receipt:${stamp}`], ...(receipt.location ? { location: receipt.location } : {}),
+        ...(e.failures?.length ? { failures: [...new Set(e.failures)] } : {}),
+      } });
+    }
+  }
+  return out;
+}
+
 // ── effects ───────────────────────────────────────────────────────────────────────────────────
 async function loadContext({ offline }) {
   const knowledge = process.env.GHL_KNOWLEDGE_DIR ?? resolve(ROOT, '../knowledge');
@@ -191,6 +208,18 @@ async function main(argv) {
       .filter((r) => !have[r.tool]);
     const written = backfillWrite(recs, write);
     console.log(`backfilled ${written} record(s)`);
+    return 0;
+  }
+  if (cmd === 'from-receipt') {
+    if (!/^\d{4}-\d{2}-\d{2}-\d{4}$/.test(arg ?? '')) throw new Error('from-receipt needs a receipt stamp YYYY-MM-DD-HHMM');
+    const file = join(ROOT, 'audits/live-proofs', `${arg}.json`);
+    if (!existsSync(file)) throw new Error(`no receipt ${arg} on this machine`);
+    const ctx = await loadContext({ offline });
+    const have = loadRecords(PROOFS);
+    const runs = runsFromReceipt(readJSON(file), arg);
+    for (const { tool, run } of runs) write({ tool, ...appendRun(have[tool] ?? null, run, computeDepends(tool, ctx, today())) });
+    for (const { tool, run } of runs) console.log(`${run.result === 'pass' ? 'pass' : 'FAIL'}  ${tool}${run.failures ? `  ${run.failures.join(', ')}` : ''}`);
+    console.log(`recorded ${runs.length} run(s) from receipt ${arg}`);
     return 0;
   }
   console.error('usage: proof.mjs record|rehash|backfill|from-receipt|validate|sync-labels — see the header');
