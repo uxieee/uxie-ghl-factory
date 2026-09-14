@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { appendRun, rehash, backfillFrom, applyLabel, syncLabels, backfillWrite, runsFromReceipt, applyReceiptRuns } from '../../../../scripts/proof.mjs';
+import { appendRun, rehash, backfillFrom, applyLabel, syncLabels, backfillWrite, runsFromReceipt, applyReceiptRuns, writeReceiptRuns } from '../../../../scripts/proof.mjs';
 
 const computed = (over = {}) => ({ surfaces: ['workflows'], depends: {
   hashedAt: '2026-09-14', endpoints: { 'POST https://backend.leadconnectorhq.com /workflow/{}': 'a'.repeat(64) },
@@ -103,6 +103,34 @@ test('applyReceiptRuns: a tool exercised twice in one receipt keeps BOTH runs, i
   assert.equal(recs.length, 2, 'one record snapshot is produced per run, so the count reported matches what gets written');
   assert.equal(recs[1].runs.length, 2, 'the second write built on the first, not on the empty pre-loop snapshot');
   assert.deepEqual(recs[1].runs.map((r) => r.result), ['pass', 'fail']);
+});
+
+test('runsFromReceipt: an exercised entry with calls but no assertions attributed records nothing — a pass with calls, a fail with calls, a no-assertion entry with calls', () => {
+  const receipt = { location: '…zn6B', results: [
+    { name: 'workflows', summary: { passed: 5, failed: 1 }, exercised: [
+      // setup-only or fully subject()-attributed-elsewhere: calls happened, nothing was asserted against it.
+      { tool: 'setup_only', calls: 3, passed: 0, failed: 0, failures: [] },
+      { tool: 'build_workflow', calls: 2, passed: 5, failed: 0, failures: [] },
+      { tool: 'export_workflow', calls: 1, passed: 0, failed: 1, failures: ['export-keeps-triggers'] },
+    ] },
+  ] };
+  const runs = runsFromReceipt(receipt, '2026-09-20-0930');
+  assert.deepEqual(runs.map((r) => r.tool), ['build_workflow', 'export_workflow'],
+    'setup_only asserted nothing and must not be recorded as a pass');
+});
+
+test('writeReceiptRuns reports each written tool as it writes, so an earlier write survives a later one throwing', () => {
+  const recs = [{ tool: 'build_workflow' }, { tool: 'export_workflow' }, { tool: 'list_courses' }];
+  const runs = [
+    { tool: 'build_workflow', run: { result: 'pass' } },
+    { tool: 'export_workflow', run: { result: 'fail', failures: ['export-keeps-triggers'] } },
+    { tool: 'list_courses', run: { result: 'pass' } },
+  ];
+  const lines = [];
+  const write = (rec) => { if (rec.tool === 'list_courses') throw new Error('refusing to write list_courses: bad shape'); };
+  assert.throws(() => writeReceiptRuns(recs, runs, write, (l) => lines.push(l)), /refusing to write list_courses/);
+  assert.deepEqual(lines, ['pass  build_workflow', 'FAIL  export_workflow  export-keeps-triggers'],
+    'the two tools already written are reported even though the third threw');
 });
 
 test('applyReceiptRuns: a tool with an existing record from an earlier receipt keeps its prior runs', () => {

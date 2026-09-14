@@ -108,7 +108,9 @@ export function runsFromReceipt(receipt, stamp) {
     // A suite that printed no parseable summary proved nothing; its tool list is not trusted either.
     if (!r.summary || !Array.isArray(r.exercised)) continue;
     for (const e of r.exercised) {
-      if (AUDIT_COMPOSITES.includes(e.tool) || !e.calls) continue;
+      // calls with no assertion attributed to this tool — setup-only, or every assertion attributed
+      // elsewhere by subject() — proved nothing about it and must not be recorded as a pass.
+      if (AUDIT_COMPOSITES.includes(e.tool) || !e.calls || (!e.passed && !e.failed)) continue;
       out.push({ tool: e.tool, run: {
         at: stamp.slice(0, 10), result: e.failed ? 'fail' : 'pass', how: 'suite', suite: r.name,
         evidence: [`receipt:${stamp}`], ...(receipt.location ? { location: receipt.location } : {}),
@@ -134,6 +136,22 @@ export function applyReceiptRuns(runs, have, computeFor) {
     out.push(rec);
   }
   return out;
+}
+
+// Writes and reports each record AS it writes — never batching the report until the whole loop
+// succeeds — so a validation failure partway through still leaves the pass/FAIL lines for every
+// record already on disk, which is what the ghl-recheck skill's step 4 needs to record backlog
+// rows even when the run stops early. `recs` and `runs` are the same length and index-aligned
+// (both built by applyReceiptRuns / runsFromReceipt in the same order).
+export function writeReceiptRuns(recs, runs, write, log) {
+  let written = 0;
+  for (let i = 0; i < recs.length; i += 1) {
+    write(recs[i]);
+    written += 1;
+    const { tool, run } = runs[i];
+    log(`${run.result === 'pass' ? 'pass' : 'FAIL'}  ${tool}${run.failures ? `  ${run.failures.join(', ')}` : ''}`);
+  }
+  return written;
 }
 
 // ── effects ───────────────────────────────────────────────────────────────────────────────────
@@ -234,12 +252,12 @@ async function main(argv) {
     const ctx = await loadContext({ offline });
     const runs = runsFromReceipt(readJSON(file), arg);
     const recs = applyReceiptRuns(runs, loadRecords(PROOFS), (tool) => computeDepends(tool, ctx, today()));
-    let written = 0;
-    for (const rec of recs) { write(rec); written += 1; }
     // `written` counts writes that actually happened, not runs.length — it can never claim more
     // than what is on disk, even if a later write throws mid-loop (validation failure stops the
-    // loop here, same as everywhere else `write` is called).
-    for (const { tool, run } of runs) console.log(`${run.result === 'pass' ? 'pass' : 'FAIL'}  ${tool}${run.failures ? `  ${run.failures.join(', ')}` : ''}`);
+    // loop here, same as everywhere else `write` is called). Each pass/FAIL line prints as its
+    // record lands on disk, so a mid-loop throw still leaves the lines for everything already
+    // written — not swallowed along with the exception.
+    const written = writeReceiptRuns(recs, runs, write, (line) => console.log(line));
     console.log(`recorded ${written} run(s) from receipt ${arg}`);
     return 0;
   }
