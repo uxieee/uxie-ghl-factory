@@ -533,3 +533,44 @@ test('replaceInAttributes reaches __customInputFields__[].value and branches[].s
   assert.equal(r2.templates[1].attributes.branches[0].segments[0].conditions[0].conditionValue, 'NEWSTAGE');
   assert.deepEqual(r2.diff.modifiedSteps, ['c']);
 });
+
+
+// ── an ARRAY OF SCALARS, and the crash that guarded it ───────────────────────────────────────
+// Reported live 2026-09-15 while re-pointing 22 workflows after a cross-account snapshot load.
+// assign_user.user_list is UserId[] — a bare string array — and a snapshot NEVER remaps user ids,
+// because users are not an asset category. So a foreign user id in user_list is guaranteed on every
+// load, and replaceInAttributes was the one op that could not reach it: user_list, user_list[],
+// userId, assignTo, users[], selectedUsers[] all matched 0 while the preflight was simultaneously
+// naming that exact step as holding a foreign user.
+test('replaceInAttributes reaches an array of SCALARS, not just arrays of objects', () => {
+  const stored = [{ id: 's1', type: 'assign_user', attributes: { user_list: ['OLDUSER', 'KEEPUSER'] } }];
+  const r = edit.replaceInAttributes(stored, { path: 'user_list[]', find: 'OLDUSER', replace: 'NEWUSER' });
+  assert.equal(r.replaced, 1, 'one element replaced');
+  assert.deepEqual(r.templates[0].attributes.user_list, ['NEWUSER', 'KEEPUSER'],
+    'the matching element is replaced and the others are untouched');
+});
+
+test('a path that addresses nothing REFUSES, it does not crash', () => {
+  // `path: 'user_list[]'` inside a multi-op call returned ENGINE_ABORT
+  // "Cannot read properties of undefined (reading 'endsWith')" and took the whole batch with it.
+  // An unguarded destructure of an empty segment list is not a validation error, it is a crash,
+  // and a crash in one op must never abort the others.
+  const stored = [{ id: 's1', type: 'assign_user', attributes: { user_list: ['A'] } }];
+  // A MISSING path is a refusal with a message, and that is correct — asserting it does not throw
+  // would have removed a good validation error. The distinction being pinned here is that a
+  // refusal NAMES the problem, while a crash does not.
+  assert.throws(() => edit.replaceInAttributes(stored, { path: '', find: 'A', replace: 'B' }),
+    /needs a path/, 'a missing path is refused BY NAME');
+  // A path that is present but addresses nothing must return a no-op, not an ENGINE_ABORT.
+  const r = edit.replaceInAttributes(stored, { path: '[]', find: 'A', replace: 'B' });
+  assert.equal(r.replaced, 0, 'a path that matches nothing replaces nothing');
+  assert.deepEqual(r.templates[0].attributes.user_list, ['A'], 'and changes nothing');
+});
+
+test('an array of objects still works — the scalar case must not regress it', () => {
+  const stored = [{ id: 's1', type: 'x', attributes: { rows: [{ value: 'OLD' }, { value: 'KEEP' }] } }];
+  const r = edit.replaceInAttributes(stored, { path: 'rows[].value', find: 'OLD', replace: 'NEW' });
+  assert.equal(r.replaced, 1);
+  assert.equal(r.templates[0].attributes.rows[0].value, 'NEW');
+  assert.equal(r.templates[0].attributes.rows[1].value, 'KEEP');
+});

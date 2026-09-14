@@ -1270,10 +1270,30 @@ export function replaceInAttributes(templates, { type, path, find, replace } = {
     const attrs = JSON.parse(JSON.stringify(t.attributes));
     let changed = false;
     const visit = (obj, segs) => {
+      // An empty segment list is a path that addresses nothing — `''`, `'[]'`, or the tail of a
+      // recursion that ran out. Destructuring it gives head === undefined and `head.endsWith`
+      // THROWS, which surfaced as ENGINE_ABORT "Cannot read properties of undefined (reading
+      // 'endsWith')" and aborted every other op in the same batch. A malformed path is a refusal,
+      // never a crash, and one bad op must not take its siblings with it.
+      if (!segs.length) return;
       const [head, ...rest] = segs;
       if (head.endsWith('[]')) {
         const arr = obj?.[head.slice(0, -2)];
-        if (Array.isArray(arr)) arr.forEach((x) => visit(x, rest));
+        if (!Array.isArray(arr)) return;
+        // An array of SCALARS — `user_list[]` over assign_user's UserId[]. With no segment left
+        // there is no property to descend into, so the element IS the value. Without this the op
+        // could only ever reach arrays of OBJECTS, and a snapshot load never remaps user ids
+        // (users are not an asset category), which made this the one defect the op could not fix.
+        if (!rest.length) {
+          arr.forEach((x, i) => {
+            if (typeof x === 'string' && x.includes(find)) {
+              arr[i] = x.split(find).join(replace);
+              changed = true; replaced++;
+            }
+          });
+          return;
+        }
+        arr.forEach((x) => visit(x, rest));
         return;
       }
       if (rest.length) { if (obj?.[head] && typeof obj[head] === 'object') visit(obj[head], rest); return; }

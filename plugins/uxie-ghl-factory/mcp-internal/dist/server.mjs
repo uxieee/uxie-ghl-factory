@@ -161783,10 +161783,22 @@ function replaceInAttributes(templates, { type, path, find, replace } = {}) {
     const attrs = JSON.parse(JSON.stringify(t.attributes));
     let changed = false;
     const visit = (obj, segs) => {
+      if (!segs.length) return;
       const [head, ...rest] = segs;
       if (head.endsWith("[]")) {
         const arr = obj?.[head.slice(0, -2)];
-        if (Array.isArray(arr)) arr.forEach((x) => visit(x, rest));
+        if (!Array.isArray(arr)) return;
+        if (!rest.length) {
+          arr.forEach((x, i) => {
+            if (typeof x === "string" && x.includes(find)) {
+              arr[i] = x.split(find).join(replace);
+              changed = true;
+              replaced++;
+            }
+          });
+          return;
+        }
+        arr.forEach((x) => visit(x, rest));
         return;
       }
       if (rest.length) {
