@@ -24,6 +24,46 @@
         "receipt:2026-09-14-1019"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-14",
+      "result": "pass",
+      "how": "suite",
+      "suite": "workflows",
+      "evidence": [
+        "receipt:2026-09-14-1842"
+      ],
+      "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-14",
+      "result": "pass",
+      "how": "suite",
+      "suite": "workflows",
+      "evidence": [
+        "receipt:2026-09-14-1845"
+      ],
+      "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-14",
+      "result": "pass",
+      "how": "suite",
+      "suite": "workflows",
+      "evidence": [
+        "receipt:2026-09-14-1848"
+      ],
+      "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-14",
+      "result": "pass",
+      "how": "suite",
+      "suite": "workflows",
+      "evidence": [
+        "receipt:2026-09-14-1850"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
@@ -93,7 +133,7 @@
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/opp-shapes.mjs": "5484d3b6ab152fc69450b666af4e792b7b5a5d30e7a0d287456c661e9ade68e9",
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/orchestrate.mjs": "52a6d5e481bb8622de239b4230f0802958b8595bd4a272f1d1d1db6a31716c37",
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/preflight.mjs": "efe0b8c0763d066d5ec63720847c7bfc1a4378d1770e9712d0a52f3105789a90",
-      "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/required-fields.mjs": "0fdc729f84bda1cf62f1edbeafb8477be3b54082f8c40ee538ec25f5e1713338",
+      "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/required-fields.mjs": "6c0e1af01f7936d1cb376c63fc65130553fbe33b332fa8d6b0409a8b567129b1",
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/resolve.mjs": "b1a1bc1cd47129d54c46005af9be9c32c8a5289d7a41dafa4c91c14e03887b0f",
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/router-branches.mjs": "29555ae63ff44865d2b82eaeabc1280c416aa77732cc401e9f23f74c30d179ce",
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/router-graph.mjs": "a919a41108ba6a78373911e49d9676f3e1178ffab7f4b9e9d1ca99a89bc365d4",
