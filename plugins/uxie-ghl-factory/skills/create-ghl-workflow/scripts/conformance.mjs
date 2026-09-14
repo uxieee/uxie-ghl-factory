@@ -113,12 +113,60 @@ if (wid) {
 // the workflow back on a separate request and asserts the template count did not move.
 console.log('\nguards refuse before writing');
 log.subject('edit_workflow'); // every refusal/acceptance below is proving edit_workflow's guards
-const countTemplates = async () => {
+// IDS, NOT A COUNT. A count says the document moved; it cannot say WHAT moved, and those are two
+// different bugs with opposite fixes. This assertion failed 1 run in 4 on 2026-09-15 (bl-129) and
+// the count could not distinguish (a) the guard writing before it refuses — a release blocker —
+// from (b) a lagging read of an EARLIER write on a rail with known read-after-write lag, which
+// would make the test flaky and the tool innocent. The symmetric difference names the template, and
+// the template names the cause: if it is the step the refused edit tried to append, it is (a).
+//
+// SETTLE-AWARE, and this is the fix for six assertions rather than one (bl-135). This rail has
+// read-after-write lag: across 12 live runs on 2026-09-15 every intermittent failure sat
+// immediately downstream of a single read taken straight after a write. One run returned an export
+// with NO templates at all and took three assertions down with it. A single read is not evidence
+// about a document that was just written.
+//
+// So: read until TWO CONSECUTIVE reads agree, and if they never do, FAIL saying exactly that. This
+// is not a retry-until-green — a retry wrapper hides a real failure by construction. It establishes
+// that the thing being asserted about has stopped moving, which is a precondition of the assertion
+// meaning anything, and it reports loudly when that precondition cannot be met.
+const exportOnce = async () => {
   const r = await call('export_workflow', { workflowId: wid });
-  return (r.data?.workflow?.workflowData?.templates ?? []).length;
+  return { r, ids: (r.data?.workflow?.workflowData?.templates ?? []).map((t) => `${t.type}:${t.id}`) };
+};
+const settled = async (what = 'the document') => {
+  let prev = null;
+  for (let attempt = 0; attempt < 6; attempt++) {
+    const { r, ids } = await exportOnce();
+    if (prev !== null && JSON.stringify(prev) === JSON.stringify(ids)) return { r, ids };
+    prev = ids;
+    await new Promise((res) => setTimeout(res, 400));
+  }
+  check(false, `${what} never settled — six reads, no two consecutive agreed`,
+    `last read: ${JSON.stringify(prev)} — the assertions that follow are about a document still in motion`);
+  return { r: null, ids: prev ?? [] };
+};
+const templateIds = async () => (await settled()).ids;
+const diffOf = (before, after) => {
+  const b = new Set(before), a = new Set(after);
+  return {
+    appeared: after.filter((x) => !b.has(x)),
+    vanished: before.filter((x) => !a.has(x)),
+  };
+};
+const unchangedSince = async (before, label) => {
+  const after = await templateIds();
+  const { appeared, vanished } = diffOf(before, after);
+  const same = appeared.length === 0 && vanished.length === 0;
+  check(same, label,
+    same ? '' : `appeared: ${JSON.stringify(appeared)}  vanished: ${JSON.stringify(vanished)}  `
+      + `(before ${before.length}, after ${after.length}) — if an APPEARED template is the step the `
+      + 'refused edit tried to append, the guard wrote before refusing; if it is from an earlier '
+      + 'step in this run, the read lagged and the TEST is at fault, not the tool');
+  return after;
 };
 if (wid) {
-  const before = await countTemplates();
+  let before = await templateIds();
 
   // kind:'step' — the value our own catalogue teaches via describe_step_type
   const badKind = await call('edit_workflow', { workflowId: wid, confirm: true, ops: [
@@ -127,7 +175,7 @@ if (wid) {
   check(badKind.ok === false, "an unrecognised node kind ('step') is REFUSED, not compiled to an empty step", JSON.stringify(badKind.data ?? {}).slice(0, 120));
   check(/KIND_UNKNOWN|kind/i.test(`${badKind.code} ${badKind.detail}`), 'the refusal names the kind problem', badKind.detail);
   check(/describe_step_type/.test(String(badKind.detail)), 'and names the catalogue collision that taught it');
-  check(await countTemplates() === before, 'the document is UNCHANGED after the refusal');
+  before = await unchangedSince(before, 'the document is UNCHANGED after the refusal');
 
   // a trigger-filter condition smuggled onto a container through attrPatch
   const gate = await call('edit_workflow', { workflowId: wid, confirm: true, deadBranchAcknowledged: true, ops: [
@@ -140,7 +188,6 @@ if (wid) {
     const after = await call('export_workflow', { workflowId: wid });
     const tpls2 = after.data?.workflow?.workflowData?.templates ?? [];
     const container = tpls2.find((t) => t.nodeType === 'condition-node');
-    const mid = await countTemplates();
     const smuggle = await call('edit_workflow', { workflowId: wid, confirm: true, ops: [
       { op: 'modifyStep', stepId: container?.id, attrPatch: {
         branches: [{ segments: [{ conditions: [{ field: 'email', operator: 'is', value: 'a@b.com' }] }] }] } }] });
@@ -149,6 +196,11 @@ if (wid) {
     // Compare the CONTAINER's branches, not the template count. The count is subject to the
     // document store settling after the previous write and produced a false failure once; the
     // branches array is what the guard actually protects.
+    //
+    // 2026-09-15: the FIRST guard assertion, forty lines up, was still comparing counts and failed
+    // 1 live run in 4 (bl-129). This note had already identified why and the other site was never
+    // migrated — so the same defect was diagnosed here, fixed here, and left in place there. Both
+    // now compare identity rather than quantity.
     const post = await call('export_workflow', { workflowId: wid });
     const postContainer = (post.data?.workflow?.workflowData?.templates ?? []).find((t) => t.id === container?.id);
     check(JSON.stringify(postContainer?.attributes?.branches) === JSON.stringify(container?.attributes?.branches),
@@ -449,8 +501,10 @@ if (wid) {
 // exercise and there was no reason for them to be uncovered except that nobody had done it.
 console.log('\nthe read rail');
 if (wid) {
-  const exported = await call('export_workflow', { workflowId: wid });
-  const steps = exported.data?.workflow?.workflowData?.templates ?? [];
+  // Settled, not a bare read: run 1951 of 2026-09-15 got an export with no templates here and took
+  // get_workflow, get_workflow_digest and get_contacts_at_step down together on one short read.
+  const { r: exported } = await settled('the export the read rail compares against');
+  const steps = exported?.data?.workflow?.workflowData?.templates ?? [];
 
   log.subject('get_workflow');
   const one = await call('get_workflow', { workflowId: wid });
@@ -643,14 +697,31 @@ if (wid) {
 console.log('\nthe custom-code sandbox');
 log.subject('test_custom_code');
 const obj = await call('test_custom_code', { code: 'return {slot: 1, txt: "x"}', language: 'javascript', inputData: {} });
-check(obj.data?.passed === true && obj.data?.hasError === false, 'test_custom_code runs javascript in GHL\'s sandbox', obj.data?.errorMessage);
-check(obj.data?.output?.slot === 1 && obj.data?.output?.txt === 'x',
-  'an OBJECT return survives the sandbox intact — both keys, both values', JSON.stringify(obj.data?.output));
-check(obj.data?.outputValid === true && JSON.stringify(obj.data?.outputKeys) === '["slot","txt"]',
-  'and the tool reports the keys a later step could reference as merge tags', JSON.stringify(obj.data?.outputKeys));
+// GHL's sandbox is a REMOTE EXECUTOR and it is not always up: this section failed all three of its
+// assertions in one run of four on 2026-09-15 while the primitive check beside it passed, which is
+// the signature of the service faulting rather than the contract changing. So the transport is
+// asserted FIRST and separately, and the two content assertions below only run if it held. An
+// assertion that reports "an object return did not survive the sandbox" when the sandbox was simply
+// unavailable is a false finding about GHL, which is worse than no finding.
+const sandboxUp = obj.ok === true && obj.data?.hasError === false;
+check(sandboxUp, "test_custom_code runs javascript in GHL's sandbox",
+  `ok=${obj.ok} code=${obj.code ?? '-'} hasError=${obj.data?.hasError} errorMessage=${obj.data?.errorMessage ?? '-'} `
+  + `detail=${String(obj.detail ?? '').slice(0, 100)} — if this is a transport or 5xx failure the two `
+  + 'content assertions below are SKIPPED, not failed: the sandbox being down says nothing about the contract');
+if (sandboxUp) {
+  check(obj.data?.passed === true, 'and reports the run as passed', obj.data?.errorMessage);
+  check(obj.data?.output?.slot === 1 && obj.data?.output?.txt === 'x',
+    'an OBJECT return survives the sandbox intact — both keys, both values', JSON.stringify(obj.data?.output));
+  check(obj.data?.outputValid === true && JSON.stringify(obj.data?.outputKeys) === '["slot","txt"]',
+    'and the tool reports the keys a later step could reference as merge tags', JSON.stringify(obj.data?.outputKeys));
+} else {
+  console.log('  SKIP  the two content assertions — the sandbox did not run, so it proved nothing either way');
+}
 
 const prim = await call('test_custom_code', { code: 'return 5', language: 'javascript', inputData: {} });
-check(prim.data?.output?.valueOf?.() !== 5 || prim.data?.outputValid === false,
+if (prim.ok !== true) {
+  console.log('  SKIP  the primitive-return check — the sandbox did not answer this call either');
+} else check(prim.data?.output?.valueOf?.() !== 5 || prim.data?.outputValid === false,
   'a PRIMITIVE return does NOT survive as a usable output — the sandbox drops it',
   `output=${JSON.stringify(prim.data?.output)} outputValid=${prim.data?.outputValid}`);
 
