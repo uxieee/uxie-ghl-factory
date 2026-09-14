@@ -495,6 +495,7 @@ test('the resolver reports which surface owns a host', () => {
 });
 
 import { TOOLS } from '../core/tools.mjs';
+import { loadRecords, labelFor } from '../../../../scripts/lib/proof-record.mjs';
 
 const findGhlSiteTool = () => TOOLS.find((t) => t.name === 'find_ghl_site');
 
@@ -1068,15 +1069,20 @@ const AI_STUDIO_TOOL_NAMES = [
   'cancel_studio_generation', 'set_studio_secrets', 'publish_studio_site', 'unpublish_studio_site',
 ];
 
-test('all fifteen AI Studio tools ship "proof: live-runtime (2026-09-04)" — the label the live-fire receipt earned', () => {
+test('all fifteen AI Studio tools ship the proof label their record earned', () => {
   assert.equal(AI_STUDIO_TOOL_NAMES.length, 15);
+  // The date is no longer pinned here. A record is the only thing that can move a label, and
+  // proof.mjs sync-labels is the only thing that writes one — so this asserts they agree.
+  const records = loadRecords(fileURLToPath(new URL('../../../../proofs/', import.meta.url)));
   for (const name of AI_STUDIO_TOOL_NAMES) {
     const tool = TOOLS.find((t) => t.name === name);
     assert.ok(tool, `${name} must be registered`);
-    assert.match(tool.description, /proof: live-runtime \(2026-09-04\)/,
-      `${name}'s description must carry "proof: live-runtime (2026-09-04)" — earned by STATUS-2026-09-04-ai-studio-live-fire.md; a NEWER date needs a newer receipt, an OLDER label is a regression`);
+    assert.ok(records[name], `${name} has no proof record — run node scripts/proof.mjs backfill`);
+    const label = labelFor(records[name]);
+    assert.ok(tool.description.includes(`proof: ${label};`),
+      `${name}'s shipped label must equal its record (${label}) — run node scripts/proof.mjs sync-labels`);
     assert.doesNotMatch(tool.description, /proof: (?:external-receipt-required|engine source)\b/,
-      `${name} must not claim a stronger proof status than the catalogue actually earned`);
+      `${name} must not claim a stronger proof status than its record earned`);
   }
 });
 
@@ -1088,7 +1094,7 @@ test('all fifteen AI Studio tools ship "proof: live-runtime (2026-09-04)" — th
 // present). This test reads the actual SOURCE TEXT of the `describe(name, fallback)` call sites
 // for these 15 tools, so it fails if the fallback string itself regresses even though the catalog
 // currently masks it.
-test('the AI Studio tools\' describe() FALLBACK strings (not just the catalogue-shipped text) say live-runtime (2026-09-04)', () => {
+test('the AI Studio tools\' describe() FALLBACK strings carry no proof label', () => {
   const source = readFileSync(resolve(HERE_DIR, '../core/tools.mjs'), 'utf8');
   for (const name of AI_STUDIO_TOOL_NAMES) {
     // Find the describe('<name>', ...) call site and check ITS fallback string, not the
@@ -1097,8 +1103,8 @@ test('the AI Studio tools\' describe() FALLBACK strings (not just the catalogue-
     const call = new RegExp(`describe\\('${name}'[\\s\\S]{0,1600}?\\)\\)?,`);
     const match = call.exec(source);
     assert.ok(match, `must find the describe() call site for ${name}`);
-    assert.doesNotMatch(match[0], /proof: engine source/,
-      `${name}'s describe() fallback string must not still read "proof: engine source"`);
+    assert.doesNotMatch(match[0], /proof:/,
+      `${name}'s describe() fallback string must carry no proof label at all — the record is the only source`);
   }
 });
 

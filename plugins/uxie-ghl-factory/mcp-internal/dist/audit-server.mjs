@@ -56975,6 +56975,31 @@ var init_define_TOOL_CATALOG = __esm({
           "aiemployee-service--get-employee-by-id",
           "aiemployee-service--update-employee"
         ]
+      },
+      validate_workflow: {
+        description: "Ask GHL's OWN server validator whether a workflow would pass: the check the builder runs live, debounced, on every edit (POST /workflow/{loc}/{wid}/validate-workflows). Validates the STORED document, or the stored document with `templates` swapped in, so a planned edit can be checked BEFORE it is saved. Writes nothing (proof: live 2026-09-11 on the sandbox: the document read back byte-identical after five calls, and a dangling next, stripped attributes and an unbound flow trigger each came back valid:false naming the rule, the step and the message; risk: read-only). READ `layer`: a failing call reports ONE layer. A structural or an action failure was reported IN PLACE OF a trigger failure the same document also had, so fix what it names and call again until valid. \u{1F534} valid:true IS NOT A SCHEMA CHECK (measured 2026-09-11). It CATCHES: a missing required field, a scalar of the wrong type, an invalid enum value, a referenced asset that exists nowhere (layer `asset`), every structural defect, and a corrupted step type on a native workflow. It does NOT catch: an invented attribute key, a wrong inner `attributes.type`, an extra top-level step key, a number out of range, or a corrupted step type on an AGENT flow. That class is what check_workflow's nativeShapeIssues and the engine's own guards are for; this tool does not replace them. Re-measured 2026-09-12 after GHL shipped its publish gate: every verdict identical, and \u{1F534} it IGNORES the document's `status` \u2014 the same document answers the same as draft or published, and an EMPTY workflow is valid:true even as published, so GHL's publish-only rules (checkEmptyPublish and the rest) live only in the browser. The engine replays them; see the validation gate.",
+        risk: "read-only",
+        proof: "live 2026-09-11 on the sandbox: the document read back byte-identical after five calls, and a dangling next, stripped attributes and an unbound flow trigger each came back valid:false naming the rule, the step and the message",
+        proofRows: [
+          "workflow-read",
+          "triggers-list",
+          "workflow-validate"
+        ],
+        proofFloorRows: [
+          "workflow-read",
+          "triggers-list",
+          "workflow-validate"
+        ],
+        riskRows: [
+          "workflow-read",
+          "triggers-list",
+          "workflow-validate"
+        ],
+        rows: [
+          "workflow-read",
+          "triggers-list",
+          "workflow-validate"
+        ]
       }
     };
   }
@@ -171190,7 +171215,7 @@ var TOOLS2 = [
   },
   {
     name: "create_convai_agent",
-    description: `${describe3("create_convai_agent", "Create Conversation AI agent \u2014 proof: live-roundtrip (2026-07-11); risk: write")}. Confirmation-gated: preview compiles a no-write plan.`,
+    description: `${describe3("create_convai_agent", "Create Conversation AI agent")}. Confirmation-gated: preview compiles a no-write plan.`,
     inputSchema: schema({ locationId: external_exports.string(), spec: external_exports.object({}).passthrough(), confirm: external_exports.boolean().default(false) }),
     capabilities: [
       { method: "POST", path: "/ai-employees/employees" },
@@ -171223,7 +171248,7 @@ var TOOLS2 = [
     name: "update_convai_agent",
     description: describe3(
       "update_convai_agent",
-      "Update a Conversation AI agent by READ-MERGE-WRITE \u2014 proof: engine; risk: write. GETs the current record, overlays your spec, applies the builder's own bot-type cleanup, PUTs the WHOLE record, re-reads, and diffs every field the update did not set. A partial PUT resets omitted agent-level booleans (cancelEnabled/rescheduleEnabled measured live), so a partial is never sent. Any collateral change fails with AGENT_COLLATERAL_CHANGED. Previews by default; confirm:true writes."
+      "Update a Conversation AI agent by READ-MERGE-WRITE GETs the current record, overlays your spec, applies the builder's own bot-type cleanup, PUTs the WHOLE record, re-reads, and diffs every field the update did not set. A partial PUT resets omitted agent-level booleans (cancelEnabled/rescheduleEnabled measured live), so a partial is never sent. Any collateral change fails with AGENT_COLLATERAL_CHANGED. Previews by default; confirm:true writes."
     ),
     inputSchema: schema({
       locationId: external_exports.string(),
@@ -171284,7 +171309,7 @@ var TOOLS2 = [
   },
   {
     name: "create_voiceai_agent",
-    description: `${describe3("create_voiceai_agent", "Create Voice AI agent \u2014 proof: documented; risk: write")}. Live-proven end-to-end on GROM AU 2026-07-21 (create \u2192 full-replace update \u2192 verified). Confirmation-gated: preview compiles a no-write plan.`,
+    description: `${describe3("create_voiceai_agent", "Create Voice AI agent")}. Live-proven end-to-end on GROM AU 2026-07-21 (create \u2192 full-replace update \u2192 verified). Confirmation-gated: preview compiles a no-write plan.`,
     inputSchema: schema({ locationId: external_exports.string(), spec: external_exports.object({}).passthrough(), confirm: external_exports.boolean().default(false) }),
     capabilities: [
       { method: "POST", path: "/voice-ai/agents" },
@@ -171311,7 +171336,7 @@ var TOOLS2 = [
   },
   {
     name: "create_studio_agent",
-    description: `${describe3("create_studio_agent", "Create Agent Studio agent \u2014 proof: documented; risk: write")}. Live-proven end-to-end on GROM AU 2026-07-21 (SSE build \u2192 follow-up PUT \u2192 verified). Provide buildPrompt (the AI build instruction) and/or systemPrompt (the exact runtime prompt) \u2014 either alone works; both keeps their distinct roles. Confirmation-gated: preview compiles a no-write plan.`,
+    description: `${describe3("create_studio_agent", "Create Agent Studio agent")}. Live-proven end-to-end on GROM AU 2026-07-21 (SSE build \u2192 follow-up PUT \u2192 verified). Provide buildPrompt (the AI build instruction) and/or systemPrompt (the exact runtime prompt) \u2014 either alone works; both keeps their distinct roles. Confirmation-gated: preview compiles a no-write plan.`,
     inputSchema: schema({ locationId: external_exports.string(), companyId: external_exports.string().optional(), spec: external_exports.object({}).passthrough(), confirm: external_exports.boolean().default(false) }),
     capabilities: [
       { method: "SSE", path: "/agent-studio/super-agents/build" },
@@ -171339,7 +171364,7 @@ var TOOLS2 = [
     name: "get_contact_ai_status",
     description: describe3(
       "get_contact_ai_status",
-      "Read per-contact Conversation AI status \u2014 proof: live-runtime (2026-08-08); risk: read"
+      "Read per-contact Conversation AI status"
     ) + ". This is the sparkles toggle in the conversation composer (Conversation AI Bot \u2192 Active/Inactive \u2192 Reactivate after N). Returns configId, status, sleepingTill, the reactivation pair and the assigned employee id. NOT purely read-only: the GET AUTO-CREATES the config when the contact has none, which is exactly why it works on a contact that has never been messaged and why it is the way to obtain the configId that set_contact_ai_status writes to. conversationId is optional \u2014 omitted and empty both return the same config.",
     inputSchema: schema({
       locationId: external_exports.string(),
@@ -171358,7 +171383,7 @@ var TOOLS2 = [
     name: "set_contact_ai_status",
     description: describe3(
       "set_contact_ai_status",
-      "Set per-contact Conversation AI status \u2014 proof: live-runtime (2026-08-08); risk: write"
+      "Set per-contact Conversation AI status"
     ) + ". This is how you silence one agent for one contact while testing a live account, without touching the agent, the workflows, or DND. DND is the method this replaces and it is worse on every count: it blocks the whole channel including your own real outbound, and set within a second of a send it makes the send itself fail. This touches only the bot, for only this contact. Resolves the configId itself via the read (which creates the config if the contact has none), then reads the state back after the write and reports it \u2014 a clean 200 is not proof. Omitting the reactivation pair means OFF INDEFINITELY, which the API allows and the UI forbids (the UI forces a reactivation of at least 1). The PUT REPLACES that pair rather than merging it, so this tool always sends the whole intent. Confirmation-gated: without confirm:true it previews the exact body and makes no call at all.",
     inputSchema: schema({
       locationId: external_exports.string(),
@@ -171536,7 +171561,7 @@ var TOOLS2 = [
     name: "get_workflow_digest",
     description: describe3(
       "get_workflow_digest",
-      "A COMPACT read of one workflow \u2014 proof: engine; risk: read-only. Identity, version and a structural fingerprint, the trigger set with its conditions, ONE line per step (wiring, outgoing references, merge tags, a text preview, flags, and which branch it sits on), and the linear chains. Roughly a tenth the size of export_workflow. Use it as the READ half of an edit: pass the version back as expectedVersion so a concurrent change is refused rather than overwritten."
+      "A COMPACT read of one workflow Identity, version and a structural fingerprint, the trigger set with its conditions, ONE line per step (wiring, outgoing references, merge tags, a text preview, flags, and which branch it sits on), and the linear chains. Roughly a tenth the size of export_workflow. Use it as the READ half of an edit: pass the version back as expectedVersion so a concurrent change is refused rather than overwritten."
     ),
     inputSchema: schema({
       locationId: external_exports.string(),
@@ -171576,7 +171601,7 @@ var TOOLS2 = [
     name: "search_merge_tags",
     description: describe3(
       "search_merge_tags",
-      "Search the merge-tag inventory by INTENT \u2014 proof: engine; risk: read-only. Returns the builder picker's static tags ranked against your phrase, and, given a locationId, this account's own custom FIELDS and custom VALUES joined in. A tag GHL cannot resolve renders as literal braces to the customer and nothing in GHL catches it, so author from this list rather than from memory."
+      "Search the merge-tag inventory by INTENT Returns the builder picker's static tags ranked against your phrase, and, given a locationId, this account's own custom FIELDS and custom VALUES joined in. A tag GHL cannot resolve renders as literal braces to the customer and nothing in GHL catches it, so author from this list rather than from memory."
     ),
     inputSchema: schema({
       intent: external_exports.string(),
@@ -173162,7 +173187,7 @@ var TOOLS2 = [
     name: "list_marketplace_apps",
     description: describe3(
       "list_marketplace_apps",
-      "List the third-party marketplace apps INSTALLED in a sub-account, with each app's triggers and actions \u2014 key, version, templateId, and the full customVars / inputs schema \u2014 proof: live-runtime (2026-08-16: the endpoint and its dual-credential rail were called against a real sub-account and returned the installed app with appId/publisher; the handler itself is unit-tested against a mocked gateway, not live-invoked); risk: read. The workflow builder renders its own Add-trigger and Add-action panels from these two reads, so the list is complete by construction ONLY when both GETs succeed; a failed leg reports `complete:false` with that leg's data as null (never a silently empty list) and names which leg failed in `sources`, so a partial read can never be misread as \"this app has none\". Use it for account recon, to confirm an app is installed before building a workflow that references it, and to read the current version/templateId a marketplace step must bind to. compact:true (the default) returns identity plus keys and versions only \u2014 a single app's full schema is large."
+      "List the third-party marketplace apps INSTALLED in a sub-account, with each app's triggers and actions \u2014 key, version, templateId, and the full customVars / inputs schema The workflow builder renders its own Add-trigger and Add-action panels from these two reads, so the list is complete by construction ONLY when both GETs succeed; a failed leg reports `complete:false` with that leg's data as null (never a silently empty list) and names which leg failed in `sources`, so a partial read can never be misread as \"this app has none\". Use it for account recon, to confirm an app is installed before building a workflow that references it, and to read the current version/templateId a marketplace step must bind to. compact:true (the default) returns identity plus keys and versions only \u2014 a single app's full schema is large."
     ),
     inputSchema: schema({
       locationId: external_exports.string(),
@@ -174082,7 +174107,7 @@ var TOOLS2 = [
     name: "repair_workflow",
     description: describe3(
       "repair_workflow",
-      "Full-document REPAIR of workflowData.templates \u2014 proof: engine; risk: write. Runs every edit guard: opportunity association, required fields, dangling refs/parentKeys, goto loops, dead branches, workflow rules and merge tags \u2014 then the plain PUT and a round-trip verify. The sanctioned replacement for a hand-rolled PUT when the ops in edit_workflow cannot express the change; prefer edit_workflow when they can. Previews by default; confirm:true writes. expectedVersion refuses a stale read (VERSION_CONFLICT). Guard hatches: allowGotoLoops, deadBranchAcknowledged, allowDanglingParentKeys, allowDanglingStepRefs. Also runs the build path's pre-write ladder over the steps the repair changes: graph-context rules, GHL's action schema and asset-reference validator (hatch: ignoreAssetErrors), the custom-code sandbox (skipCustomCodeTest / strictCustomCode), account-readiness signals, and a builder-required-field + opportunity-intent check on the persisted document."
+      "Full-document REPAIR of workflowData.templates Runs every edit guard: opportunity association, required fields, dangling refs/parentKeys, goto loops, dead branches, workflow rules and merge tags \u2014 then the plain PUT and a round-trip verify. The sanctioned replacement for a hand-rolled PUT when the ops in edit_workflow cannot express the change; prefer edit_workflow when they can. Previews by default; confirm:true writes. expectedVersion refuses a stale read (VERSION_CONFLICT). Guard hatches: allowGotoLoops, deadBranchAcknowledged, allowDanglingParentKeys, allowDanglingStepRefs. Also runs the build path's pre-write ladder over the steps the repair changes: graph-context rules, GHL's action schema and asset-reference validator (hatch: ignoreAssetErrors), the custom-code sandbox (skipCustomCodeTest / strictCustomCode), account-readiness signals, and a builder-required-field + opportunity-intent check on the persisted document."
     ),
     inputSchema: schema({
       locationId: external_exports.string(),
@@ -175702,7 +175727,7 @@ var TOOLS2 = [
     name: "find_ghl_site",
     description: describe3(
       "find_ghl_site",
-      'Resolve a domain, slug or name to the GHL surface that owns it \u2014 AI Studio project or funnel. Call this FIRST for any "work on <site>" request: AI Studio projects and funnels are disjoint collections, so querying the wrong one returns an empty list that reads as "does not exist" \u2014 proof: live-runtime (2026-09-04); risk: read. Disjointness measured 2026-09-04 (knowledge/sniffs/ai-studio-2026-09-04/sweep-19.mjs); the funnels leg runs on the token-id rail \u2014 the same sweep called it live and it succeeded, and knowledge/corpus/funnels/20-api/funnels-api.md documents the rail as proven-live 2026-08-25.'
+      'Resolve a domain, slug or name to the GHL surface that owns it \u2014 AI Studio project or funnel. Call this FIRST for any "work on <site>" request: AI Studio projects and funnels are disjoint collections, so querying the wrong one returns an empty list that reads as "does not exist" Disjointness measured 2026-09-04 (knowledge/sniffs/ai-studio-2026-09-04/sweep-19.mjs); the funnels leg runs on the token-id rail \u2014 the same sweep called it live and it succeeded, and knowledge/corpus/funnels/20-api/funnels-api.md documents the rail as proven-live 2026-08-25.'
     ),
     inputSchema: schema({ locationId: external_exports.string(), site: external_exports.string() }),
     capabilities: [
@@ -175753,7 +175778,7 @@ var TOOLS2 = [
   },
   {
     name: "list_studio_sites",
-    description: describe3("list_studio_sites", "List AI Studio (vibe) projects and folders for a sub-account \u2014 proof: live-runtime (2026-09-04); risk: read."),
+    description: describe3("list_studio_sites", "List AI Studio (vibe) projects and folders for a sub-account"),
     inputSchema: schema({ locationId: external_exports.string() }),
     capabilities: [{ method: "GET", path: "/vibe-ai/projects" }, { method: "GET", path: "/vibe-ai/folders" }],
     handler: async (args, deps) => guard(async () => {
@@ -175781,7 +175806,7 @@ var TOOLS2 = [
   },
   {
     name: "get_studio_site",
-    description: describe3("get_studio_site", "One AI Studio project: detail plus its page routes \u2014 proof: live-runtime (2026-09-04); risk: read."),
+    description: describe3("get_studio_site", "One AI Studio project: detail plus its page routes"),
     inputSchema: schema({ locationId: external_exports.string(), projectId: external_exports.string() }),
     capabilities: [
       { method: "GET", path: "/vibe-ai/projects/{projectId}" },
@@ -175804,7 +175829,7 @@ var TOOLS2 = [
     name: "read_studio_site_content",
     description: describe3(
       "read_studio_site_content",
-      "Read an AI Studio site's source \u2014 every file with its content. This is how you read a site's copy as structured text instead of scraping the published HTML \u2014 proof: live-runtime (2026-09-04); risk: read."
+      "Read an AI Studio site's source \u2014 every file with its content. This is how you read a site's copy as structured text instead of scraping the published HTML"
     ),
     inputSchema: schema({
       locationId: external_exports.string(),
@@ -175849,7 +175874,7 @@ var TOOLS2 = [
     name: "get_studio_site_history",
     description: describe3(
       "get_studio_site_history",
-      "The build history of an AI Studio site: every prompt, every assistant turn, the versions each minted, and the publish journal. Read from Firestore \u2014 there is no REST endpoint for this \u2014 proof: live-runtime (2026-09-04); risk: read."
+      "The build history of an AI Studio site: every prompt, every assistant turn, the versions each minted, and the publish journal. Read from Firestore \u2014 there is no REST endpoint for this"
     ),
     inputSchema: schema({ locationId: external_exports.string(), projectId: external_exports.string(), limit: external_exports.number().optional() }),
     capabilities: [
@@ -175891,7 +175916,7 @@ var TOOLS2 = [
     name: "get_studio_site_diffs",
     description: describe3(
       "get_studio_site_diffs",
-      "The per-file unified diffs a generation produced \u2014 exactly what the AI changed, file by file \u2014 proof: live-runtime (2026-09-04); risk: read."
+      "The per-file unified diffs a generation produced \u2014 exactly what the AI changed, file by file"
     ),
     inputSchema: schema({ locationId: external_exports.string(), projectId: external_exports.string(), messageId: external_exports.string().optional() }),
     capabilities: [
@@ -175921,7 +175946,7 @@ var TOOLS2 = [
     name: "get_studio_preview",
     description: describe3(
       "get_studio_preview",
-      "Get the sandbox preview URL for an AI Studio site, provisioning it if needed. Open it in a BROWSER to check the work \u2014 a plain HTTP fetch returns a Cloudflare challenge \u2014 proof: live-runtime (2026-09-04); risk: read."
+      "Get the sandbox preview URL for an AI Studio site, provisioning it if needed. Open it in a BROWSER to check the work \u2014 a plain HTTP fetch returns a Cloudflare challenge"
     ),
     inputSchema: schema({ locationId: external_exports.string(), projectId: external_exports.string() }),
     capabilities: [
@@ -175953,7 +175978,7 @@ var TOOLS2 = [
     name: "create_studio_site",
     description: describe3(
       "create_studio_site",
-      "Create an AI Studio project. WARNING: the server REWRITES the name you send and derives the slug from the rewrite \u2014 this tool reports both so you can see it happen \u2014 proof: live-runtime (2026-09-04); risk: write."
+      "Create an AI Studio project. WARNING: the server REWRITES the name you send and derives the slug from the rewrite \u2014 this tool reports both so you can see it happen"
     ),
     inputSchema: schema({ locationId: external_exports.string(), name: external_exports.string(), description: external_exports.string().optional() }),
     capabilities: [{ method: "POST", path: "/vibe-ai/projects" }],
@@ -175977,7 +176002,7 @@ var TOOLS2 = [
     name: "generate_studio_site",
     description: describe3(
       "generate_studio_site",
-      "Send a prompt to the AI Studio builder and wait for the build. Preflights usage and reports what the turn cost. This SPENDS money on the sub-account, metered in USD \u2014 proof: live-runtime (2026-09-04); risk: write."
+      "Send a prompt to the AI Studio builder and wait for the build. Preflights usage and reports what the turn cost. This SPENDS money on the sub-account, metered in USD"
     ),
     inputSchema: schema({
       locationId: external_exports.string(),
@@ -176060,7 +176085,7 @@ var TOOLS2 = [
     name: "get_studio_generation_status",
     description: describe3(
       "get_studio_generation_status",
-      "Resume a generation that had not finished when generate_studio_site (or a prior call to this tool) returned pending. Pass the SAME messageId \u2014 the chat receipt's message_id \u2014 so this only ever resolves the turn you started, never a stale terminal row already sitting in the project's history \u2014 proof: live-runtime (2026-09-04); risk: read."
+      "Resume a generation that had not finished when generate_studio_site (or a prior call to this tool) returned pending. Pass the SAME messageId \u2014 the chat receipt's message_id \u2014 so this only ever resolves the turn you started, never a stale terminal row already sitting in the project's history"
     ),
     inputSchema: schema({
       locationId: external_exports.string(),
@@ -176097,7 +176122,7 @@ var TOOLS2 = [
     name: "answer_studio_question",
     description: describe3(
       "answer_studio_question",
-      'Answer a question the AI Studio builder asked mid-build. Pass the answer; the tool reads the stored question and picks the right continuation shape itself. For an INTEGRATION question (question.kind is integration_input), `answer` is not free text \u2014 pass the id of the integration item the question offered (from question.integrationPrompt.items[].id), or the literal string "dismiss" to decline the integration; the item id itself IS the answer \u2014 proof: live-runtime (2026-09-04); risk: write.'
+      'Answer a question the AI Studio builder asked mid-build. Pass the answer; the tool reads the stored question and picks the right continuation shape itself. For an INTEGRATION question (question.kind is integration_input), `answer` is not free text \u2014 pass the id of the integration item the question offered (from question.integrationPrompt.items[].id), or the literal string "dismiss" to decline the integration; the item id itself IS the answer'
     ),
     inputSchema: schema({
       locationId: external_exports.string(),
@@ -176142,7 +176167,7 @@ var TOOLS2 = [
     name: "cancel_studio_generation",
     description: describe3(
       "cancel_studio_generation",
-      "Cancel a running AI Studio generation \u2014 proof: live-runtime (2026-09-04); risk: write."
+      "Cancel a running AI Studio generation"
     ),
     inputSchema: schema({ locationId: external_exports.string(), projectId: external_exports.string(), messageId: external_exports.string() }),
     capabilities: [
@@ -176164,7 +176189,7 @@ var TOOLS2 = [
     name: "set_studio_secrets",
     description: describe3(
       "set_studio_secrets",
-      "Set project secrets for an AI Studio site. The write MERGES into the existing map, and values are write-only \u2014 reads return names and timestamps only, never values \u2014 proof: live-runtime (2026-09-04); risk: write."
+      "Set project secrets for an AI Studio site. The write MERGES into the existing map, and values are write-only \u2014 reads return names and timestamps only, never values"
     ),
     inputSchema: schema({ locationId: external_exports.string(), projectId: external_exports.string(), secrets: external_exports.record(external_exports.string()) }),
     capabilities: [
@@ -176191,7 +176216,7 @@ var TOOLS2 = [
     name: "publish_studio_site",
     description: describe3(
       "publish_studio_site",
-      "Publish an AI Studio site to {slug}.vibepreview.com or its custom domain. OUTWARD-FACING: this puts the site on the public internet. Requires confirm:true \u2014 proof: live-runtime (2026-09-04); risk: write."
+      "Publish an AI Studio site to {slug}.vibepreview.com or its custom domain. OUTWARD-FACING: this puts the site on the public internet. Requires confirm:true"
     ),
     inputSchema: schema({
       locationId: external_exports.string(),
@@ -176230,7 +176255,7 @@ var TOOLS2 = [
     name: "unpublish_studio_site",
     description: describe3(
       "unpublish_studio_site",
-      "Take an AI Studio site off the public internet. Requires confirm:true \u2014 proof: live-runtime (2026-09-04); risk: write."
+      "Take an AI Studio site off the public internet. Requires confirm:true"
     ),
     inputSchema: schema({ locationId: external_exports.string(), projectId: external_exports.string(), confirm: external_exports.boolean().optional() }),
     capabilities: [
@@ -177315,7 +177340,7 @@ var TOOLS2 = [
   },
   {
     name: "build_funnel_page",
-    description: `${describe3("build_funnel_page", "Compose a funnel page from native elements and write it \u2014 proof: live-roundtrip (2026-09-09); risk: write")}. Preview by default; confirm:true autosaves the DRAFT. Emits the nodes AND the compiled stylesheet together, because the builder canvas styles a page from each node's \`styles\` while the PUBLIC renderer uses the compiled \`sectionStyles\` string keyed by node id \u2014 write only one and the page looks right in the builder and naked in public. Enforces the contract autosave will not: \`meta\` against the closed set of 60 kinds, every declared \`extra\` property present (the renderer reads extra.<prop>.value UNGUARDED, so a missing one 500s the whole page while autosave still answers 201), \`col.extra.bgImage\`, \`general.general.fontsToLoad\` and \`colors\`, and child[] holding node IDS that resolve. Verifies by reading the page back on a separate request; pass verifyUrl to also poll the public render for your own copy \u2014 one request there is not a measurement, since the first can serve the previous compile.`,
+    description: `${describe3("build_funnel_page", "Compose a funnel page from native elements and write it")}. Preview by default; confirm:true autosaves the DRAFT. Emits the nodes AND the compiled stylesheet together, because the builder canvas styles a page from each node's \`styles\` while the PUBLIC renderer uses the compiled \`sectionStyles\` string keyed by node id \u2014 write only one and the page looks right in the builder and naked in public. Enforces the contract autosave will not: \`meta\` against the closed set of 60 kinds, every declared \`extra\` property present (the renderer reads extra.<prop>.value UNGUARDED, so a missing one 500s the whole page while autosave still answers 201), \`col.extra.bgImage\`, \`general.general.fontsToLoad\` and \`colors\`, and child[] holding node IDS that resolve. Verifies by reading the page back on a separate request; pass verifyUrl to also poll the public render for your own copy \u2014 one request there is not a measurement, since the first can serve the previous compile.`,
     inputSchema: schema({
       locationId: external_exports.string(),
       funnelId: external_exports.string(),
