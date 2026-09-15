@@ -11,6 +11,62 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [0.87.0] — 2026-09-15
+
+`check_workflow` reported **zero broken asset references on a workflow with six**, because it never
+checked. Two of the three things below are that same shape: a tool that looked clean while answering
+a narrower question than the caller asked.
+
+### Fixed
+
+- **`check_workflow` reported zero errors about references it never checked.** It replays GHL's
+  per-action validators, and GHL ships none for the step types where dangling references actually
+  collect — a peer session found a workflow whose triggers pointed at a calendar in a *different*
+  sub-account, with `check_workflow` calling it clean and `edit_workflow`'s preflight reporting six
+  errors on the same document in the same minute. `check_workflow` now runs GHL's own reference
+  validator as a third scope and the headline states all three. 🔴 It reports **`asset references:
+  NOT CHECKED`** when the check did not run: `validateAssets` fails open by design, so absence of a
+  throw is not a clean verdict, and the first wiring of this fix read it as one — a live run then
+  caught that, reporting `did NOT run (triggers is not defined)`.
+- **`replaceInAttributes` could not reach an array of scalars, and a malformed path aborted the whole
+  batch.** `assign_user.user_list` is a bare `UserId[]`; the visitor descended only into arrays of
+  *objects*, so every path tried matched nothing while the asset preflight was simultaneously naming
+  that step as holding a foreign user id. Guaranteed on every snapshot load: users are not an asset
+  category, so a load never remaps a user id.
+- **An asset finding with no step attribution rendered as `workflow: …`**, which reads as a
+  document-level problem and hid the most useful fact about it — that the reference sits on a
+  **trigger**, which is a different repair (`modifyTrigger`, not `replaceInAttributes`). It now reads
+  `unattributed (trigger-borne or document-level)`. Not "trigger": a marketplace step's tag warning
+  carries a null `stepId` too, so null means only *not attributed to a step*.
+
+### Added
+
+- **`get_workflow_settings`** — the account-level rail the builder itself loads: auto-save,
+  workflow-AI, location settings, scheduled-pause config, Eliza users, and (with `workflowId`) that
+  workflow's error-notification settings. 🔴 **Every route here answers 200 whether or not a record
+  exists, and three answer 200 with nothing** — `workflow-ai` and `workflow-location-setting` return
+  `{}`, `error-notification` returns a bare `null`. So each section carries its own verdict:
+  `present: true` (a record, which may itself describe zero items — scheduled-pause answers
+  `{pauseConfigs: []}`, so counts come off `value`), `present: false` (empty body, and the note says
+  this is **not** the feature being disabled), `present: null` (the read failed, with the reason).
+  Empty and failed are different states, and the headline names all three populations.
+- **`list_workflow_templates`** — the 28 starter recipes GHL offers a sub-account. Answers with a
+  bare array; on any other shape it fails loudly rather than reporting zero, because a wrong zero
+  reads exactly like an empty account.
+
+### Changed
+
+- **`validateAssets`' coverage note was wrong since August.** It said coverage is *per asset type*;
+  it is per **reference site**. Measured against a positive control: the same ghost calendar id is
+  **caught** in an `appointment` trigger's `calendar.id` condition and **missed** on an
+  `appointment_booking` step's `calendarId`. Triggers are validated, so a clean sweep of the steps is
+  not a clean document. The conformance suite now asserts the step-side miss, so the day GHL closes
+  it fails there instead of being discovered by a wrong report.
+- **Workflow tool proofs re-run after the 2026-09-14 builder redeploy.** Five were stale because this
+  release's own code changed the files their proofs hash. Workflows parity: 51 routes covered and
+  usable, 58 after the two new tools, **zero stale, zero shipped, zero failing**, every covered route
+  confirmed by an executed run rather than a backfilled label.
+
 ## [0.86.0] — 2026-09-15
 
 `check_workflow` had been replaying GHL's validators as they stood on **2026-05-17**. Four months of
