@@ -13,9 +13,9 @@ commit bodies carry the detail.
 
 ## [0.87.0] — 2026-09-15
 
-`check_workflow` reported **zero broken asset references on a workflow with six**, because it never
-checked. Two of the three things below are that same shape: a tool that looked clean while answering
-a narrower question than the caller asked.
+`check_workflow` reported zero broken references on a workflow with six. It had never checked them —
+and two of the three fixes below are that same shape: a tool that looked clean while quietly
+answering a narrower question than the caller asked.
 
 ### Fixed
 
