@@ -10,10 +10,8 @@
 // (~/.uxie-ghl-internal-mcp/tok.txt) resolves inside it rather than to whatever real credential
 // file happens to exist on the machine running the suite.
 //
-// Parametrised over BOTH stdio entry points, not just the full server: the audit rail has the
-// identical silent-wrong-account hazard (core/auth.mjs's guard is entry-point-agnostic, and
-// stdio-audit.mjs computes legacyTokenFileEnv the same way stdio.mjs does), and auth_status is
-// one of the audit profile's own tools — see test/audit-registration.test.mjs.
+// core/auth.mjs's guard is entry-point-agnostic, so this is asserted through the one stdio
+// entry point the server has.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtempSync, writeFileSync } from 'node:fs';
@@ -27,7 +25,6 @@ import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js'
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ENTRY_POINTS = [
   { label: 'stdio.mjs', path: resolve(HERE, '../stdio.mjs') },
-  { label: 'stdio-audit.mjs', path: resolve(HERE, '../stdio-audit.mjs') },
 ];
 
 const b64 = (o) => Buffer.from(JSON.stringify(o)).toString('base64url');

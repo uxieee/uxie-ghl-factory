@@ -132,18 +132,17 @@ test('set_token_file and auth_status reject token-id credentials in direct-call 
 });
 
 // ---------------------------------------------------------------------------
-// Task 6: the audit composites' descriptions are FROZEN
+// The receipt-gated composites' descriptions are FROZEN
 // ---------------------------------------------------------------------------
 //
-// These strings are baked into dist/audit-server.mjs and are what an operator reads at the
-// moment they decide how far to trust an audit. They must stay invariant across a canary:
-// a bundled description rewritten after a successful live run would turn a per-capability,
-// expiring receipt into a blanket claim that no longer matches the proof index.
-test('every audit composite carries the frozen proof, risk and canary labels', async () => {
-  const { AUDIT_TOOL_NAMES } = await import('../core/audit-profile.mjs');
+// These strings are what an operator reads at the moment they decide how far to trust a
+// sweep. They must stay invariant across a canary: a description rewritten after a
+// successful live run would turn a per-capability, expiring receipt into a blanket claim
+// that no longer matches the proof index. (Until 2026-09-16 these three were also the
+// composites of a second, read-only audit server; that server is gone, the labels are not.)
+test('every receipt-gated composite carries the frozen proof, risk and canary labels', async () => {
   const composites = ['get_workflow_runtime_window', 'list_workflows_complete', 'get_ai_configuration_bundle'];
   for (const name of composites) {
-    assert.ok(AUDIT_TOOL_NAMES.includes(name), `${name} must be in the audit profile`);
     const tool = TOOLS.find((candidate) => candidate.name === name);
     assert.ok(tool, `${name} is not registered`);
     assert.match(tool.description, /proof: external-receipt-required/,

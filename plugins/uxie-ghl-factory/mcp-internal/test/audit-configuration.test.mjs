@@ -37,7 +37,6 @@ import { readFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { AUDIT_CAPABILITIES } from '../core/audit-capabilities.mjs';
 import { makeAuditCircuit, makeAuditGateway, makeAuditLimiter } from '../core/audit-gateway.mjs';
-import { AUDIT_TOOL_NAMES } from '../core/audit-profile.mjs';
 import { TOOLS, processAuditPacing } from '../core/tools.mjs';
 import {
   AI_BUNDLE_CAPABILITY_IDS,
@@ -2042,9 +2041,7 @@ test('callers cannot omit a surface, however hard they try', async () => {
 test('the audit composites do not reuse list_account_entities or its best-effort fallbacks', () => {
   // `fetchEntities` answers a failed AI read with `catch { return {} }` and an unreadable
   // envelope with `arrayFrom(...) ?? []`. Both are structurally forbidden here (plan line
-  // 550), and the tool itself is absent from the audit profile.
-  assert.ok(!AUDIT_TOOL_NAMES.includes('list_account_entities'),
-    'list_account_entities must not be in the audit profile');
+  // 550).
   const source = readFileSync(new URL('../core/audit-configuration.mjs', import.meta.url), 'utf8');
   assert.doesNotMatch(source, /fetchEntities/, 'the audit composites must not call the best-effort sweeper');
   assert.doesNotMatch(source, /orchestrate\.mjs/, 'the audit composites must not import the build engine');
@@ -2353,7 +2350,7 @@ test('the tools return the stable error contract rather than throwing on bad arg
 // 404ms of REAL sleeps; and the moment anybody adds a 429-shaped stub here, the process circuit
 // latches and every later test in this file inherits it. (2) The injection point itself needs
 // exercising: `deps.auditLimiter ?? pacing.limiter` reduced to `pacing.limiter` kills nothing
-// otherwise, and Task 5's stdio-audit driver injects exactly this pair.
+// otherwise, and the composite's caller injects exactly this pair.
 const injectedPacing = () => {
   const circuit = makeAuditCircuit();
   let scheduled = 0;
@@ -2426,7 +2423,7 @@ test('the roster tool builds only the backend rail it actually reads', async () 
 
 test('an injected limiter and circuit win over the process-wide pair, for BOTH audit composites', async () => {
   // Task 3 has exactly this test for the runtime window; without it here, dropping either `??`
-  // in tools.mjs kills nothing — and Task 5's stdio-audit.mjs injects ONE shared pair across
+  // in tools.mjs kills nothing — and the composite's caller injects ONE shared pair across
   // every audit tool. A dropped `??` there means that tool silently paces against a second
   // limiter and latches a second circuit, so a 429 the driver already absorbed is re-earned.
   for (const [name, args, json] of [

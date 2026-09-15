@@ -1,7 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { TOOLS } from '../core/tools.mjs';
-import { AUDIT_TOOL_NAMES, toolsForProfile } from '../core/audit-profile.mjs';
 import { AUDIT_CAPABILITIES } from '../core/audit-capabilities.mjs';
 
 const tool = TOOLS.find((t) => t.name === 'list_marketplace_apps');
@@ -110,12 +109,6 @@ test('both legs failing still fails the whole call explicitly, unchanged', async
   };
   const res = await tool.handler({ locationId: 'LOC', type: 'both', compact: true }, failBoth);
   assert.equal(res.ok, false, 'both legs failing must still surface as an explicit tool failure');
-});
-
-test('list_marketplace_apps is in the audit profile', () => {
-  assert.ok(AUDIT_TOOL_NAMES.includes('list_marketplace_apps'));
-  const selected = toolsForProfile('audit');
-  assert.ok(selected.some((t) => t.name === 'list_marketplace_apps'));
 });
 
 // The tool declares ONE bare-path capability, not two: `/marketplace/core/search/module`

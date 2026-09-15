@@ -80,9 +80,6 @@ the whole entry and drop `GHL_INTERNAL_TOK_FILE` with it.
   place would silently widen reads from the registration's intended bound set to every account
   the credential reaches, while writes kept looking safe because they were already refused.
   Checked from the old name's presence only, never its value.
-- The **audit profile does not read this variable at all** — it is structurally read-only
-  (GET-only capabilities, enforced in the server, not by this guard), so location binding is
-  moot for it.
 
 **Guard limits.** The binding guard sits at the MCP tool choke point — it does not reach the
 plugin's standalone CLI scripts, which call the GHL backend directly with a location id passed
@@ -267,45 +264,35 @@ machine-branchable:
 | `LEGACY_LOCATIONS_ENV` | this registration sets the old `GHL_LOCATIONS` (renamed to `GHL_INTERNAL_LOCATIONS` in 0.43.0) but not the new one — refused on reads and writes rather than silently widening reads to every location the credential reaches |
 | `HTTP_<n>` | any other upstream status |
 
-## Audit profile
+## The receipt-gated composites
 
-A second, structurally read-only entry point (`stdio-audit.mjs`, bundled as
-`dist/audit-server.mjs`) for the weekly whole-account auditor. It is a separate server with a
-separate registry, not a flag on the full one, and it publishes exactly seven tools:
-`auth_status`, `list_workflows_complete`, `get_workflow`, `export_workflow`,
-`get_workflow_runtime_window`, `get_ai_configuration_bundle`, `list_marketplace_apps`.
+`list_workflows_complete`, `get_workflow_runtime_window` and `get_ai_configuration_bundle`
+answer through the audit gateway (`core/audit-gateway.mjs`) rather than the ordinary one, so
+they get capability-descriptor validation against `core/audit-capabilities.mjs`, response
+identity inspection, a shared limiter and a shared circuit. Each is labelled
+`proof: external-receipt-required; risk: read` and each keeps null and `[]` rigorously apart:
+a failed or unreadable component is `complete:false` with a null payload, never an empty list.
 
-Only three of those seven carry the audit evidence contract. `list_workflows_complete`,
-`get_workflow_runtime_window` and `get_ai_configuration_bundle` go through the audit gateway,
-so they get capability-descriptor validation, response identity inspection, the shared limiter
-and the shared circuit. `get_workflow`, `export_workflow` and `list_marketplace_apps` are the
-ordinary read tools: in the audit process they have the read-only wrapper below them and
-nothing else, so a rate limit during one of them neither latches the circuit nor is recorded
-as evidence. `auth_status` makes no request at all.
+They were built for a second, structurally read-only server (`stdio-audit.mjs`, bundled as
+`dist/audit-server.mjs`) that published seven tools behind two independent locks. **That
+server was removed on 2026-09-16 at the owner's instruction.** What went: the second entry
+point, its launcher, its bundle, its registry filter (`core/audit-profile.mjs`), its
+read-only gateway wrapper (`core/audit-readonly.mjs`), its receipt machinery
+(`core/audit-proof.mjs`, `scripts/audit-canary.mjs`) and its policy manifest. What stayed:
+everything above — the descriptors, the gateway, the composites and their contracts, which
+the main server uses on every call. Git history has the rest.
 
-### What is excluded, and what that does and does not mean
+Read this in one place if you are weighing the composites' guarantees: they are about
+COMPLETENESS, not about permission. Nothing in this repository now prevents a write tool from
+being called against any account the credential reaches; that is what location binding and the
+confirmation gates are for.
 
-`raw_request`, `set_token_file`, every write, every confirmation-gated tool, and the readers
-`list_account_entities`, `list_workflows`, `get_workflow_logs` and `get_contacts_at_step` are
-all absent from the audit registry. Each of the last four fails a completeness requirement in
-its own way: `list_account_entities` and `get_workflow_logs` substitute an empty array for a
-failed component, `list_workflows` reads one offset page and never reconciles the reported
-count, and `get_contacts_at_step` reports `complete: true` unconditionally.
+### What the composites deliberately do NOT reuse
 
-Read-only-ness rests on TWO independent locks:
-
-1. **The registry filter.** `toolsForProfile('audit')` selects the seven tools from a literal.
-   No environment variable and no argv input can widen it.
-2. **A gateway wrapper** (`core/audit-readonly.mjs`), installed under every tool because every
-   tool obtains its gateway from `deps.makeGw` and `stdio-audit.mjs` is the only construction
-   site. Only a `GET` to one of the two approved audit origins can leave the process; a
-   body-bearing request and the SSE `stream` channel are refused outright.
-
-Be precise about what this is not. `dist/audit-server.mjs` **still contains** the write
-handlers as unreachable dead code, because `core/tools.mjs` declares every tool in one array
-literal and esbuild has nothing to tree-shake. The audit bundle is in fact marginally larger
-than the full server. Read-only-ness is a property of these two locks, not of the artefact,
-and nothing in this repository should be read as claiming otherwise.
+`list_account_entities` and `get_workflow_logs` substitute an empty array for a failed
+component, `list_workflows` reads one offset page and never reconciles the reported count, and
+`get_contacts_at_step` reports `complete: true` unconditionally. Each fails a completeness
+requirement in its own way, and a composite that called one would inherit it.
 
 ### `get_workflow_runtime_window`
 
@@ -413,7 +400,7 @@ capture exists for Voice AI or Agent Studio, so their `routingRead`/`routingPinn
 Authentication continues to come from the configured token file. The location JWT is
 short-lived, and the Agent Studio and AI surfaces additionally require the elevated
 agency-admin `token-id`, which expires independently. On the `ai` rail that credential is
-asserted to reach only `services.leadconnectorhq.com`; no audit tool constructs the other
+asserted to reach only `services.leadconnectorhq.com`; no composite constructs the other
 rail that can carry it.
 
 A run that outlives a credential does not degrade quietly, but the code it surfaces depends on
@@ -444,23 +431,18 @@ this account. No completeness claim in this profile derives from it.
 
 ### Proof model, and the human-gated canary stop line
 
-Every audit composite is labelled `proof: external-receipt-required; risk: read`. That label
-is frozen: it is baked into the committed bundle and is **not** rewritten after a successful
-canary. Proof is resolved per capability from an external proof index instead, where each
-receipt binds a capability descriptor hash, a manifest hash, the exact canaried bundle hash,
-and an expiry. The absence of an unexpired receipt for a capability applicable to a run is
-machine-enforced and cannot support a Full audit.
+Every receipt-gated composite is labelled `proof: external-receipt-required; risk: read`, and
+that label is frozen — `test/tools.test.mjs` pins it. It is NOT rewritten after a successful
+live run, because a description edited on success turns a per-capability, expiring receipt
+into a blanket claim.
+
+🔴 The receipt machinery that the label refers to went with the audit server on 2026-09-16
+(`core/audit-proof.mjs`, `scripts/audit-canary.mjs`, the policy manifest and its hash). The
+label is now a statement about what these composites have NOT been proven to do, with nothing
+left that can mint the proof. Read it as a caveat, not as a gate.
 
 The composite completeness contracts are **offline-proven only**. They have never been run
-end-to-end against a live account, and **no receipt exists**. Task 7 is the bounded, read-only
-live canary that would produce the first ones. It requires explicit human approval, a freshly
-captured credential, named location and workflow ids, and an approved closed window. Do not
-start it from the plan alone.
-
-The executor IS now built (`scripts/audit-canary.mjs`, 2026-07-27) — it was a planner that
-refused to run for its first two months, which meant "spend the canary carefully" was advice
-about something nobody could execute. It drives the **committed bundle** over stdio, not the
-source, because a receipt for code that was never packaged proves nothing about what ships.
+end-to-end against a live account.
 
 Running it still requires all four gates (`--live`, `GHL_AUDIT_CANARY_APPROVED=1`, a named
 `--approver`, and an approved closed window); a dry run remains the default and makes no
@@ -485,7 +467,7 @@ imply live correct:
   than vanishing, but the shape itself is unverified.
 - **Envelope shapes.** `readTotal` requires a root-level finite `total`; the roster row and
   agent-record envelope key lists are likewise unverified against live payloads.
-- **Docs-matrix rows.** Seven audit routes carry no row in the capability matrix, and the
+- **Docs-matrix rows.** Seven composite routes carry no row in the capability matrix, and the
   matrix itself lives outside this repository: `/workflows/status/enroll-stats` (the legacy
   enrollment-totals fallback, read on every runtime-window run), `/voice-ai/agents/simple`,
   `/voice-ai/agents/{agentId}`, `/ai-employees/employees/{agentId}`,
@@ -498,14 +480,6 @@ imply live correct:
 - **Detail identity.** The bundle assumes a detail body's `_id`/`id` equals the discovery
   row's. If that is wrong for a product, every agent falsely mismatches and that component's
   configuration is dropped.
-- ~~**Launcher.** `launch.mjs` resolves `dist/server.mjs` only; the audit bundle has no
-  launcher yet.~~ **CLOSED 2026-07-27.** `launch-audit.mjs` resolves `dist/audit-server.mjs`
-  and nothing else. Two files rather than a flag on one: a flag has to default to something,
-  and a full-by-default launcher hands an operator who mistyped it the entire write registry
-  while they believe they are read-only. It REFUSES to start when no installed build ships an
-  audit bundle rather than downgrading, and `test/launchers.test.mjs` pins that — including
-  the composed rule (newest build that HAS an audit bundle, not "fail because the newest one
-  lacks it") and semver ordering, since `0.9.0` sorts after `0.10.0` as a string.
 
 ## Live envelope recon — 2026-07-27, GROM AU (`wdzEoUZnXO9tB3PPzcot`)
 

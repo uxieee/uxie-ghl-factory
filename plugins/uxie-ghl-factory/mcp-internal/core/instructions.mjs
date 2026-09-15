@@ -66,18 +66,3 @@ is /uxie-ghl-factory:internal-connect's BIND mode, which discovers the agency, p
 binding, and writes it additively with the user's confirmation. Never rebind with a bare
 \`claude mcp add\`: on an existing registration it rewrites the whole server entry and drops every
 env var not on that command line. Do not retry the refused call until the binding is confirmed.`;
-
-export const AUDIT_INSTRUCTIONS = `GoHighLevel internal API — READ-ONLY audit profile.
-
-This profile is structurally read-only: the registry admits GET capabilities only, and that lock
-lives in the server, not in configuration. There is no escape hatch and no arbitrary-request tool
-here by design. If you need one, you are on the wrong profile.
-
-AUTH AND HEADERS ARE ADDED FOR YOU. Never set them.
-
-Every composite reports completeness explicitly. A failure is complete:false with a coded warning
-and a null payload — never an empty list, which would read as "there is nothing there". Do not
-collapse the two.
-
-A description that says proof: external-receipt-required means THIS RAIL HAS NEVER BEEN
-LIVE-PROVEN. A live canary is required before its output may be published as an audit finding.`;

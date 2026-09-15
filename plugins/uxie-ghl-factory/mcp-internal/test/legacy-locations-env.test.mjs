@@ -9,7 +9,7 @@
 //
 // Only stdio.mjs is covered: the audit profile has never read GHL_LOCATIONS/
 // GHL_INTERNAL_LOCATIONS at all (README.md "Location binding" section, "moot for it") and
-// still doesn't — stdio-audit.mjs's state carries no allowedLocations/legacyLocationsEnv.
+// still doesn't.
 //
 // Technique: every scenario points GHL_INTERNAL_TOK_FILE at a file that does not exist, so a
 // call that gets PAST the location guard reaches readCredentials() and fails with

@@ -55,13 +55,11 @@ const CFG = join(homedir(), '.claude.json');
 const folder = process.cwd().split(String.fromCharCode(92)).join('/');
 const cfg = readConfig(CFG);
 const srv = findRegistration(cfg, folder, 'uxie-ghl-internal-mcp');        // EXACT key. Never a suffix.
-const audit = findRegistration(cfg, folder, 'uxie-ghl-internal-mcp-audit');
 const keys = Object.keys(cfg.projects ?? {});
 console.log(JSON.stringify({
   folder,
   projectKeyPresent: keys.includes(folder),
   registered: Boolean(srv),
-  auditProfileRegistered: Boolean(audit),
   boundTo: srv?.env?.GHL_INTERNAL_LOCATIONS ?? null,
   tokenFileSet: Boolean(srv?.env?.GHL_INTERNAL_TOK_FILE),
   // PRESENCE — what rule 6 says to leave alone. Present is not the same as refused.
@@ -84,10 +82,10 @@ and stop.** That is a path mismatch (a moved folder, a symlink, a `/Users/<user>
 leftover), not an unregistered folder, and `connect` would create a second registration beside the
 first. Ask which path is real. Do **not** match on the suffix — see rule 2.
 
-If `registered` is false but `auditProfileRegistered` is true, **say so and ask before doing
-anything.** `mode` is derived from the full server alone, so an audit-only folder selects
-`connect` — whose step 4 would then `claude mcp add` the full, write-capable server into a folder
-somebody deliberately made read-only, and a folder offering both offers the write tools. Only the
+🔴 A folder may still carry a legacy `uxie-ghl-internal-mcp-audit` registration. The read-only
+audit server it points at was REMOVED on 2026-09-16, so that registration can no longer start.
+Say so and let the user decide whether to drop it; do not register the full, write-capable
+server into a folder somebody deliberately made read-only without asking first. Only the
 user can say whether this folder is meant to gain them.
 
 ## The rules every mode obeys
@@ -158,12 +156,9 @@ to this repo, a report, or a commit message.
 - **Launcher (stable, shared):** `~/.uxie-ghl-internal-mcp/launch.mjs` — a copy of the plugin's
   `mcp-internal/launch.mjs`, so the project config points at a path that survives plugin
   updates (it resolves the newest installed plugin build at run time).
-- **Audit launcher (stable, shared):** `~/.uxie-ghl-internal-mcp/launch-audit.mjs` — the same
-  arrangement for the READ-ONLY audit profile (7 tools, every capability a GET). Two separate
-  files rather than a flag on one: a flag has to default to something, and a full-by-default
-  launcher hands an operator who mistyped it every write tool in the registry while they
-  believe they are read-only. The audit launcher REFUSES to start if no installed build ships
-  `dist/audit-server.mjs`; it never downgrades to the full server.
+  🔴 There is no longer a second, read-only launcher. `launch-audit.mjs` and the audit server
+  it resolved were removed on 2026-09-16; a `~/.uxie-ghl-internal-mcp/launch-audit.mjs` left
+  over from an earlier install is dead and starts nothing.
 - **Browser profile (per token file, 0.51.0):** `~/.uxie-ghl-internal-mcp/profiles/<project>-<hash>`,
   derived by `capture-token.mjs` from the token file it is about to write —
   `GHL_INTERNAL_PW_PROFILE` overrides it, `--print-profile-dir` prints it without opening Chrome.
@@ -193,10 +188,7 @@ bound to a client, and check `auth_status` rather than the browser for which acc
    ```bash
    mkdir -p "$HOME/.uxie-ghl-internal-mcp"
    cp "${CLAUDE_PLUGIN_ROOT}/mcp-internal/launch.mjs" "$HOME/.uxie-ghl-internal-mcp/launch.mjs"
-   cp "${CLAUDE_PLUGIN_ROOT}/mcp-internal/launch-audit.mjs" "$HOME/.uxie-ghl-internal-mcp/launch-audit.mjs"
    ```
-   Copy BOTH. A stable home holding only the full launcher is how the audit profile ends up
-   unreachable — the failure this step exists to prevent.
 
 2. **Capture the token to the project-local file** (leak-safe). Open the Playwright browser in a
    profile belonging to THIS folder — never the machine's default, and never the profile another
@@ -261,19 +253,6 @@ bound to a client, and check `auth_status` rather than the browser for which acc
    `LOCATION_UNBOUND`, which is the correct state until step 5 has been confirmed. Reads are what
    discovery needs, so nothing is blocked by waiting.
 
-   **For a read-only audit project**, register the audit profile INSTEAD (a different server
-   name, so the two never collide in one folder):
-   ```bash
-   claude mcp add --transport stdio --scope local \
-     -e GHL_INTERNAL_TOK_FILE="$(pwd)/.ghl/uxie-ghl-internal-mcp-tok.txt" \
-     uxie-ghl-internal-mcp-audit \
-     -- node "$HOME/.uxie-ghl-internal-mcp/launch-audit.mjs"
-   ```
-   Registering both in one folder defeats the point: read-only-ness is a property of which
-   server the caller reaches, and a folder offering both offers the write tools too. The audit
-   profile is structurally read-only and **never takes a binding** — skip step 5 for it entirely,
-   and in step 6 expect `allowedLocations: null`, which is correct rather than a gap.
-
 5. **Discover and propose.** Run **Shared: discovery**, then **Shared: reconcile** with `BOUND`
    empty, then **Shared: propose and write**. Every account in the agency lands in `missing`; the
    proposal is the subset this folder should serve, which is a decision for the user, not a
@@ -282,10 +261,8 @@ bound to a client, and check `auth_status` rather than the browser for which acc
 6. **Verify.** The server must connect; call `auth_status` (claims only) and confirm
    `allowedLocations` equals the number of ids you wrote, then call one real read tool —
    **`list_workflows_complete`**, against an account this registration reaches — and confirm `ok`.
-   Use that name on BOTH profiles: the audit profile ships seven tools and `list_workflows` is not
-   one of them, so naming it here would hand a correctly-set-up audit folder an unknown-tool error
-   on its last step, which reads exactly like a broken registration. A brand-new registration may
-   need the user to reload/approve before the tools appear.
+   Not `list_workflows`: it stops at 100 rows silently, so a pass on it proves less than it
+   looks. A brand-new registration may need the user to reload/approve before the tools appear.
 
 ---
 
@@ -375,7 +352,7 @@ for (const o of result.overlaps) {
 // marked so the sweep in tier 2 does not have to re-derive any of it.
 console.log('\n  TIER 2 INPUTS:');
 for (const f of result.folders) {
-  if (f.server.endsWith('-audit')) { console.log(`    ${f.folder}\n        EXEMPT — ${f.server} never takes a binding; do not run discovery for it.`); continue; }
+  if (f.server.endsWith('-audit')) { console.log(`    ${f.folder}\n        DEAD — ${f.server} points at the audit server removed 2026-09-16; propose dropping the registration.`); continue; }
   const blocked = f.flags.find((x) => x.startsWith('credential-') || x === 'no-token-file-configured');
   console.log(`    ${f.folder}\n        bound=[${[...new Set(f.ids)].join(',')}]  ${blocked ? `SKIP — ${blocked}` : 'eligible (needs .ghl/agency.json)'}`);
 }
@@ -384,9 +361,10 @@ NODE
 
 Reading the output:
 
-- **`unbound` on a `uxie-ghl-internal-mcp-audit` row is correct, not a defect.** `listRegistrations`
-  enumerates the audit profile because its name shares the prefix, but that profile is structurally
-  read-only and never takes a binding. Label it exempt in the report and propose nothing for it.
+- **A `uxie-ghl-internal-mcp-audit` row is a DEAD registration, not an unbound one.** It points at
+  the read-only audit server removed on 2026-09-16 and can no longer start. `listRegistrations`
+  still enumerates it because its name shares the prefix. Report it as dead and propose dropping
+  it; never propose a binding for it.
 - **A repeated identical folder name in an overlap row is a typo in that one binding**, per the NOTE
   the snippet prints — not two folders reaching the same account. Fix it by deduping that binding.
 - **`boundCount` counts entries, not distinct ids**, so a duplicated id inflates it. Compare it
@@ -404,9 +382,9 @@ command's job because it needs a live credential **per agency** (rule 3). Work f
 **TIER 2 INPUTS** block the tier-1 snippet prints — it already carries the bound ids and marks the
 rows that cannot or must not be checked.
 
-- Skip every row marked **EXEMPT**. A `uxie-ghl-internal-mcp-audit` row never takes a binding, so
-  running discovery for it would report the agency's whole roster as `missing` against a
-  registration that is correct by design.
+- Skip every row marked **DEAD**. A `uxie-ghl-internal-mcp-audit` row points at a server that no
+  longer exists, so running discovery for it would report the agency's whole roster as `missing`
+  against a registration that should simply be removed.
 - Skip every row marked **SKIP** — its credential cannot be read, so tier 2 cannot run for it.
 
 For each remaining row where `<folder>/.ghl/agency.json` exists:

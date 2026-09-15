@@ -7,8 +7,8 @@
 //   skill-types  that type-cards.json  →  skills/ghl-system-conventions/{catalog/type-cards.json, references/ghl-types-index.md}
 //   source       knowledge/catalog/internal-endpoints.source.json  →  mcp-internal/catalog/ (delivered by the miner)
 //   catalogue    source + endpoint-overlay.json + capability-manifest  →  mcp-internal/catalog/internal-endpoints.json
-//   manifests    core/tools.mjs + core/audit-capabilities.mjs  →  capability-manifest.json, audit-capability-manifest.json
-//   dist         everything above, embedded  →  dist/server.mjs, dist/audit-server.mjs
+//   manifests    core/tools.mjs  →  capability-manifest.json
+//   dist         everything above, embedded  →  dist/server.mjs
 //
 // Nothing runs these on a corpus change, and a stale copy is worse than a missing one: it looks
 // like knowledge while teaching the wrong field set, the wrong reach, the wrong tool coverage.
@@ -187,7 +187,7 @@ if (wanted('catalogue')) {
 }
 
 // ---------------------------------------------------------------------------------------------
-// 4. manifests — compiled from TOOLS and the audit descriptors; never read back the other way
+// 4. manifests — compiled from TOOLS; never read back the other way
 // ---------------------------------------------------------------------------------------------
 if (wanted('manifests')) {
   const fix = 'cd plugins/uxie-ghl-factory/mcp-internal && npm run manifest && npm run build';
@@ -196,19 +196,11 @@ if (wanted('manifests')) {
     const render = (v) => `${JSON.stringify(v, null, 2)}\n`;
     const capShipped = readFileSync(join(MCP, 'capability-manifest.json'), 'utf8');
     const capFresh = render(gen.buildCapabilityManifest());
-    const auditShipped = readFileSync(join(MCP, 'audit-capability-manifest.json'), 'utf8');
-    const auditFresh = render(gen.buildAuditManifest());
     const lines = [];
     if (capShipped !== capFresh) {
       const key = (r) => `${r.tool} ${r.method} ${r.path}`;
       const d = diffById(JSON.parse(capShipped), JSON.parse(capFresh), key, 'capability rows');
       lines.push('capability-manifest.json:', ...(d.lines.length ? d.lines : ['same rows, different bytes']));
-    }
-    if (auditShipped !== auditFresh) {
-      const a = JSON.parse(auditShipped), b = JSON.parse(auditFresh);
-      lines.push('audit-capability-manifest.json:',
-        `   manifestHash ${a.manifestHash} → ${b.manifestHash}`,
-        `   tools ${JSON.stringify(a.tools)} → ${JSON.stringify(b.tools)}`);
     }
     lines.length ? stale('manifests', lines, fix) : ok('manifests', `${JSON.parse(capShipped).length} capability rows`);
   } catch (e) { failed('manifests', e, fix); }
@@ -240,7 +232,6 @@ if (wanted('dist')) {
     const lines = [];
     for (const [label, options, outfile] of [
       ['dist/server.mjs', cfg.buildOptions, cfg.OUTFILE],
-      ['dist/audit-server.mjs', cfg.auditBuildOptions, cfg.AUDIT_OUTFILE],
     ]) {
       // absWorkingDir: esbuild writes each module's path into the bundle as a comment, RELATIVE to
       // the working dir. `npm run build` runs inside mcp-internal, so a rebuild from anywhere else
@@ -250,7 +241,7 @@ if (wanted('dist')) {
       const committed = existsSync(outfile) ? readFileSync(outfile, 'utf8') : '';
       if (fresh !== committed) lines.push(`${label}: ${committed.length} bytes committed, ${fresh.length} bytes when rebuilt from source`);
     }
-    lines.length ? stale('dist', lines, fix) : ok('dist', 'both bundles match a rebuild from source');
+    lines.length ? stale('dist', lines, fix) : ok('dist', 'the bundle matches a rebuild from source');
   } catch (e) { failed('dist', e, fix); }
 }
 
