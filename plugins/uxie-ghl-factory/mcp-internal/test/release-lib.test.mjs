@@ -125,3 +125,17 @@ test('a release refuses while any tool\'s latest proof run failed, unless that t
   assert.ok(!out.some((f) => /edit_workflow/.test(f)));
   assert.deepEqual(preflightFailures({ ...base, failing: [], allowFailing: [] }), []);
 });
+
+// 🔴 SNAKE_CASE SURVIVES THE TITLE. Observed in the 0.87.0 release, not imagined: releaseTitle
+// stripped `_` as markdown emphasis and published "checkworkflow reported zero broken references",
+// mangling the tool name the entry was about. This changelog is mostly ABOUT snake_case tool names,
+// and its emphasis is always **bold**, so underscores are identifiers far more often than markup.
+test('releaseTitle keeps underscores — a tool name is not markdown emphasis', () => {
+  const body = '`check_workflow` reported zero broken references on a workflow with six. It had never checked.';
+  assert.equal(releaseTitle(body), 'check_workflow reported zero broken references on a workflow with six');
+});
+
+test('releaseTitle still strips backticks and asterisks', () => {
+  assert.equal(releaseTitle('`get_workflow_settings` reads the **account-level** rail. More text.'),
+    'get_workflow_settings reads the account-level rail');
+});

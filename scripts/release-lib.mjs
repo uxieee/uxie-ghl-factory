@@ -44,7 +44,11 @@ export function releaseTitle(body, override) {
   if (override && override.trim()) return override.trim();
   const para = String(body).split(/\n\s*\n/).map((p) => p.trim()).find((p) => p && !p.startsWith('#') && !p.startsWith('-'));
   if (!para) return '';
-  const flat = para.replace(/\s+/g, ' ').replace(/[`*_]/g, '');
+  // Strip backticks and asterisks, NOT underscores. Stripping `_` as markdown emphasis turned
+  // `check_workflow` into "checkworkflow" in the 0.87.0 release title — and snake_case tool names
+  // are what this changelog is mostly ABOUT, while emphasis here is always written `**bold**`.
+  // Underscore-italics would keep their underscores; mangling every tool name is the worse trade.
+  const flat = para.replace(/\s+/g, ' ').replace(/[`*]/g, '');
   const sentence = /^(.+?[.!?])(\s|$)/.exec(flat)?.[1] ?? flat;
   const clean = sentence.replace(/[.!?]$/, '');
   if (clean.length <= 80) return clean;
