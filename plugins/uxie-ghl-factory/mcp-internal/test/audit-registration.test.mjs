@@ -691,7 +691,11 @@ test('the full 51-tool registry and the normal stdio entry point are unchanged',
   // 85 -> 86: find_workflows_using (2026-09-15). A read over POST /workflows/es/search, GHL's
   // Elasticsearch index of every step and trigger — it answers "which workflows contain X" for a
   // whole account in one request, where the alternative is exporting every workflow and grepping.
-  assert.equal(TOOLS.length, 86, 'the audit profile is ADDITIVE; the full server keeps every tool');
+  // 86 -> 88: describe_marketplace_action and get_ai_agent_options (2026-09-15). Both are reads over
+  // routes that were USABLE-UNUSED — proven reachable with no tool. Marketplace actions are the step
+  // types describe_step_type knows least about (their schema lives on the app, not the catalogue),
+  // and the ai_agent rail says which models and MCP connections a step may legally reference.
+  assert.equal(TOOLS.length, 88, 'the audit profile is ADDITIVE; the full server keeps every tool');
   assert.deepEqual(TOOLS.map((tool) => tool.name), [
     'set_token_file', 'auth_status', 'create_convai_agent', 'update_convai_agent', 'create_voiceai_agent',
     'create_studio_agent', 'get_contact_ai_status', 'set_contact_ai_status',
@@ -704,7 +708,7 @@ test('the full 51-tool registry and the normal stdio entry point are unchanged',
     'get_account_workflow_overview', 'test_custom_code', 'list_account_entities',
     'list_marketplace_apps', 'list_courses', 'build_course', 'build_workflow', 'edit_workflow',
     'repair_workflow', 'unpublish_workflows', 'publish_workflow', 'search_step_types', 'describe_step_type',
-    'find_workflows_using',
+    'describe_marketplace_action', 'get_ai_agent_options', 'find_workflows_using',
     'get_workflow_settings', 'list_workflow_templates',
     'list_workflow_folders', 'create_workflow_folder',
     'duplicate_workflow', 'move_workflows', 'create_custom_field_folder',

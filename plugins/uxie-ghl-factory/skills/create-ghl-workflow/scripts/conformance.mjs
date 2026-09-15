@@ -845,6 +845,63 @@ log.subject('find_workflows_using');
   check(empty.ok === false, 'an empty type list is REFUSED rather than matching the whole index', empty.code);
 }
 
+// ── 6d. the marketplace and ai_agent option rails ───────────────────────────────────────────
+// 🔴 BOTH OF THESE RAILS SAY "NO SUCH THING" WITH A 200. The marketplace action route answers 200
+// carrying only a traceId for a key that does not exist, and the agent rail wraps failures as
+// {success:false} inside a 200. A tool over either can look healthy while describing nothing, so
+// these assertions check the REFUSAL as hard as the success.
+console.log('\nthe marketplace and agent option rails');
+log.subject('describe_marketplace_action');
+{
+  const apps = await call('list_marketplace_apps', {});
+  const key = (apps.data?.apps ?? apps.data?.installed ?? [])
+    .flatMap((a) => a.actions ?? []).map((x) => x.key).find(Boolean);
+  check(apps.ok === true, 'list_marketplace_apps answers, so a real action key can be derived rather than hardcoded', apps.detail);
+  if (key) {
+    const d = await call('describe_marketplace_action', { actionKey: key });
+    check(d.ok === true, `describe_marketplace_action resolves a REAL key ('${key}')`, d.detail);
+    check(typeof d.data?.appId === 'string' && d.data.appId.length > 0,
+      'and names the owning app, which is what makes the install status readable', JSON.stringify(d.data?.appId));
+    check(d.data?.app && 'installed' in d.data.app,
+      'and reports whether that app is installed here — false is an ANSWER, not an error',
+      JSON.stringify(d.data?.app));
+  } else {
+    check(false, 'the account exposes at least one marketplace action key to test against',
+      'no installed app declared an action key — cannot test this rail vacuously');
+  }
+  // 🔴 THE CONTROL THAT MATTERS. Without it, a tool that described every key as an empty schema
+  // would pass everything above.
+  const ghost = await call('describe_marketplace_action', { actionKey: 'TEST-CONF-no-such-action-key' });
+  check(ghost.ok === false && /no marketplace action published/.test(ghost.detail ?? ''),
+    'CONTROL: an unknown key is REFUSED — this rail answers 200 with an empty body, so a tool that '
+      + 'trusts the status describes actions that do not exist',
+    `${ghost.ok} ${String(ghost.detail).slice(0, 80)}`);
+  const native = await call('describe_marketplace_action', { actionKey: 'wait' });
+  check(native.ok === false, 'and a NATIVE step type is refused too — it is not on this rail at all', native.code);
+}
+
+log.subject('get_ai_agent_options');
+{
+  const a = await call('get_ai_agent_options', {});
+  check(a.ok === true, 'get_ai_agent_options answers', a.detail);
+  check(Number.isInteger(a.data?.models?.count) && a.data.models.count > 0,
+    'and the account can pick at least one model — a zero here means the envelope shape moved',
+    JSON.stringify(a.data?.models?.count ?? a.data?.models));
+  check(typeof a.data?.models?.defaultModelId === 'string' && a.data.models.defaultModelId,
+    'and names the DEFAULT model, which is what an ai_agent step gets when it names none',
+    JSON.stringify(a.data?.models?.defaultModelId));
+  check((a.data?.models?.models ?? []).every((m) => m.id && typeof m.contextWindow === 'number'),
+    'every model carries an id and a context window — the two facts that decide whether a prompt fits',
+    JSON.stringify((a.data?.models?.models ?? []).filter((m) => !m.id || typeof m.contextWindow !== 'number').slice(0, 2)));
+  check(Number.isInteger(a.data?.mcpConnections?.count) && Number.isInteger(a.data?.oauth2Tokens?.count),
+    'MCP connections and their oauth tokens both report a COUNT — zero is a real answer here, and is '
+      + 'why an ai_agent step referencing a connectionId on this account would not resolve',
+    JSON.stringify([a.data?.mcpConnections?.count, a.data?.oauth2Tokens?.count]));
+  check(/10 COMBINED/.test(a.data?.toolCapNote ?? ''),
+    'and the response carries the 10-tool cap, which is shared between built-in tools and MCP connections',
+    a.data?.toolCapNote);
+}
+
 // ── 7. folders, and moving something into one ───────────────────────────────────────────────
 console.log('\nfolders');
 log.subject('list_workflow_folders');

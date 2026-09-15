@@ -1,19 +1,9 @@
 {
-  "tool": "find_workflows_using",
+  "tool": "describe_marketplace_action",
   "surfaces": [
     "workflows"
   ],
   "runs": [
-    {
-      "at": "2026-09-15",
-      "result": "pass",
-      "how": "suite",
-      "suite": "workflows",
-      "evidence": [
-        "receipt:2026-09-15-1013"
-      ],
-      "location": "…zn6B"
-    },
     {
       "at": "2026-09-15",
       "result": "pass",
@@ -28,14 +18,17 @@
   "depends": {
     "hashedAt": "2026-09-15",
     "endpoints": {
-      "POST https://backend.leadconnectorhq.com /workflows/es/search": "d854677d2fa2e5bec62be7f35e16615c9488ec17ca3f843c25b209d6efdb3a97"
+      "GET https://backend.leadconnectorhq.com /workflows-marketplace/actions/options/{}": "4714a407b6a3e1e6ff7f8474721ec28caba1945fe775daeb8b01a6a7ce1c6c68",
+      "GET https://backend.leadconnectorhq.com /workflows-marketplace/actions/published/{}": "0062bcd495ce7bc6ad025830d1b3cfd340c9f3e7e34f76458c32441f334af892",
+      "GET https://backend.leadconnectorhq.com /workflows-marketplace/actions/{}/custom-input-fields": "38e9c2337b1c5fd7efe683565917cd925d88e7f6647b327957b44752972a7141",
+      "GET https://backend.leadconnectorhq.com /workflows-marketplace/integration/{}/oauth": "065347133579a2c352759c3413857c4876eca8eae7f656028796bf132636733c"
     },
     "builds": {
       "builder-chunks": "assets/index-BZBeFyAW.js",
       "reportingApp": 268
     },
     "code": {
-      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#find_workflows_using": "24d7255342b04f914e8adf2d9109f50ffd5ecfca4dc2eb1a28519c16f37a8d70",
+      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#describe_marketplace_action": "22a14a673cc0db1c61a1dd9fac65936bd16731e3a5d316cb5371dce8c8bf7fba",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "e65c2384aefb498ce49453dd2d6d8d1a1d8351fd6d337aef5256eb982e1db02f",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
       "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "2d59b12818ffe76fb105e5284c3d186aea8d07f6a457b7c6344ea2258ba6a1d6"

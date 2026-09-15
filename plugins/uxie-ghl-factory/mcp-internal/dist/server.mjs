@@ -26546,7 +26546,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
-          coveredBy: [],
+          coveredBy: [
+            "get_ai_agent_options"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -26867,7 +26869,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
-          coveredBy: [],
+          coveredBy: [
+            "get_ai_agent_options"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -27037,7 +27041,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
-          coveredBy: [],
+          coveredBy: [
+            "get_ai_agent_options"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -29021,7 +29027,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
-          coveredBy: [],
+          coveredBy: [
+            "describe_marketplace_action"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -29126,7 +29134,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
-          coveredBy: [],
+          coveredBy: [
+            "describe_marketplace_action"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -29354,7 +29364,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
-          coveredBy: [],
+          coveredBy: [
+            "describe_marketplace_action"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -29609,7 +29621,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
-          coveredBy: [],
+          coveredBy: [
+            "describe_marketplace_action"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -56024,6 +56038,42 @@ var init_define_TOOL_CATALOG = __esm({
         ],
         riskRows: [
           "workflow-es-search"
+        ]
+      },
+      describe_marketplace_action: {
+        description: "Describe a marketplace action \u2014 its published schema and whether its app is connected \u2014 proof: live-runtime (2026-09-15); risk: read",
+        risk: "read",
+        proof: "live-runtime (2026-09-15)",
+        proofFloor: "source-derived (builder bundle 2026-09-14)",
+        rows: [
+          "marketplace-action-schema"
+        ],
+        proofRows: [
+          "marketplace-action-schema"
+        ],
+        proofFloorRows: [
+          "marketplace-action-schema"
+        ],
+        riskRows: [
+          "marketplace-action-schema"
+        ]
+      },
+      get_ai_agent_options: {
+        description: "List the models and MCP connections an ai_agent step can use \u2014 proof: live-runtime (2026-09-15); risk: read",
+        risk: "read",
+        proof: "live-runtime (2026-09-15)",
+        proofFloor: "source-derived (builder bundle 2026-09-14)",
+        rows: [
+          "workflow-agent-options"
+        ],
+        proofRows: [
+          "workflow-agent-options"
+        ],
+        proofFloorRows: [
+          "workflow-agent-options"
+        ],
+        riskRows: [
+          "workflow-agent-options"
         ]
       }
     };
@@ -173953,6 +174003,137 @@ var TOOLS2 = [
       const caps = FIELD_CAPS[card.type];
       return { ok: true, data: caps ? { ...card, caps, capsNote: "Character caps measured live (the server stores an over-length value verbatim; the builder flags it). edit_workflow and repair_workflow refuse an over-cap value on a step they touch unless allowOverCap:true." } : card };
     })
+  },
+  // ── THE MARKETPLACE ACTION RAIL ─────────────────────────────────────────────────────────────
+  // Marketplace steps are the compiler's weakest area: their field schema does not ship in the
+  // step-type catalogue the way a native action's does, so `describe_step_type` has little to say
+  // about them. GHL publishes that schema on a route nothing covered until 2026-09-15.
+  //
+  // 🔴 EVERY ROUTE HERE NEEDS `locationId` AS A QUERY PARAMETER AND ANSWERS 403 WITHOUT IT. That 403
+  // reads exactly like "you need the app installed", and was mis-diagnosed that way for a whole
+  // session — the sandbox had a marketplace app the entire time and it was never relevant. A
+  // sibling set of routes answers 403 with "This endpoint is only allowed in staging environment",
+  // which IS permanent. Two different 403s, one of them fixable by a query parameter.
+  {
+    name: "describe_marketplace_action",
+    description: `${describe3("describe_marketplace_action", "Describe a marketplace action \u2014 its published schema and whether its app is connected \u2014 risk: read")}. Read what a MARKETPLACE (third-party app) workflow action actually accepts: its published template, the custom variables it declares, its branch configuration, and \u2014 because the schema names the owning app \u2014 whether that app is installed and OAuth-connected on this sub-account. Marketplace actions are the step types \`describe_step_type\` knows least about, because their field schema lives on the app rather than in the step-type catalogue. Pass the action KEY as it appears in a step's \`type\` (e.g. \`imessage_a\`). Sections that answer empty are reported as \`present:false\` with the reason, never merged into the schema as though the action declared nothing.`,
+    inputSchema: schema({
+      locationId: external_exports.string(),
+      actionKey: external_exports.string()
+    }),
+    capabilities: [
+      { method: "GET", path: "/workflows-marketplace/actions/published/{key}" },
+      { method: "GET", path: "/workflows-marketplace/actions/options/{key}" },
+      { method: "GET", path: "/workflows-marketplace/actions/{actionType}/custom-input-fields" },
+      { method: "GET", path: "/workflows-marketplace/integration/{appId}/oauth" }
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const key = String(args.actionKey ?? "").trim();
+      if (!key) return fail(
+        CODES.VALIDATION_FAILED,
+        "actionKey must be a non-empty action key",
+        "Use the key as it appears in a step's `type`, e.g. imessage_a. list_marketplace_apps lists the installed apps and their actions."
+      );
+      const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+      const loc = encodeURIComponent(args.locationId);
+      const k = encodeURIComponent(key);
+      const get3 = async (path) => {
+        const r = await gw.call("GET", `${path}${path.includes("?") ? "&" : "?"}locationId=${loc}`);
+        return r.ok ? { ok: true, json: r.json } : { ok: false, status: r.status, detail: fromHttp(r.status, r.json).detail };
+      };
+      const published = await get3(`/workflows-marketplace/actions/published/${k}`);
+      if (!published.ok) {
+        return fail(
+          CODES.VALIDATION_FAILED,
+          `no published schema for action '${key}' \u2014 GHL answered ${published.status}`,
+          'Check the key against a step\'s `type`, or list_marketplace_apps for what is installed. A 403 mentioning "staging environment" means the route is permanently unavailable in production.'
+        );
+      }
+      const schemaBody = published.json ?? {};
+      if (!schemaBody.templateId && !schemaBody.appId && !schemaBody._id) {
+        return fail(
+          CODES.VALIDATION_FAILED,
+          `no marketplace action published under the key '${key}' \u2014 GHL answered 200 with an empty body (keys: ${Object.keys(schemaBody).join(", ") || "none"}), which is how this rail says "no such action"`,
+          "Use the key exactly as it appears in a step's `type` (e.g. imessage_a). list_marketplace_apps lists installed apps and their action keys. A NATIVE step type is not on this rail at all \u2014 use describe_step_type for those."
+        );
+      }
+      const appId = schemaBody.appId ?? null;
+      const options = await get3(`/workflows-marketplace/actions/options/${k}`);
+      const custom2 = await get3(`/workflows-marketplace/actions/${k}/custom-input-fields`);
+      const meaningful = (j) => {
+        const keys = Object.keys(j ?? {}).filter((x) => x !== "traceId");
+        return keys.length > 0 && keys.some((x) => j[x] !== null && j[x] !== void 0);
+      };
+      const section = (r) => !r.ok ? { present: null, error: r.detail } : meaningful(r.json) ? { present: true, value: r.json } : { present: false, note: "GHL answered 200 with no content beyond a traceId \u2014 this action declares none here, which is NOT the same as the read failing" };
+      const out = {
+        actionKey: key,
+        appId,
+        schema: {
+          templateId: schemaBody.templateId ?? null,
+          branchesConfig: schemaBody.branchesConfig ?? null,
+          customVars: schemaBody.customVars ?? [],
+          customVarsJson: schemaBody.customVarsJson ?? null
+        },
+        options: section(options),
+        customInputFields: section(custom2)
+      };
+      if (appId) {
+        const oauth = await get3(`/workflows-marketplace/integration/${encodeURIComponent(appId)}/oauth`);
+        out.app = oauth.ok ? { installed: oauth.json?.isIntegrationInstalled ?? null, connectedHere: oauth.json?.isLocationHasIntegration ?? null } : { installed: null, connectedHere: null, error: oauth.detail };
+      } else {
+        out.app = { installed: null, connectedHere: null, note: "the published schema named no appId, so the install status was not read" };
+      }
+      return ok(out);
+    }, args)
+  },
+  // ── THE AI AGENT STEP'S OWN RAIL ────────────────────────────────────────────────────────────
+  // What an `ai_agent` step can be configured WITH: which models the account may pick, and which MCP
+  // servers it can call as tools. The connection itself is a LOCATION-level document; the step only
+  // stores a `connectionId` into it (models/actions/AIAgent.ts). So without this read, a caller
+  // cannot know what values are even legal on the step.
+  {
+    name: "get_ai_agent_options",
+    description: `${describe3("get_ai_agent_options", "List the models and MCP connections an ai_agent step can use \u2014 risk: read")}. Read what an \`ai_agent\` workflow step may be configured with on this sub-account: the MODELS it can pick (with context window, tool support, reasoning level and which is default) and the MCP CONNECTIONS available as tools, plus the OAuth tokens those connections can bind to. \u{1F534} An ai_agent step stores only a \`connectionId\` in \`attributes.mcpConnections[]\`; the connection itself is a separate location-level document, so a connectionId that is not in this list will not resolve. GHL caps built-in tools + MCP connections at 10 COMBINED. This tool READS the options; creating an MCP connection is a write and is not covered here.`,
+    inputSchema: schema({ locationId: external_exports.string() }),
+    capabilities: [
+      { method: "GET", path: "/workflow/agent/{loc}/models" },
+      { method: "GET", path: "/workflow/agent/{loc}/mcp-connections" },
+      { method: "GET", path: "/workflow/agent/{loc}/mcp-connections/oauth2-tokens" }
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+      const loc = encodeURIComponent(args.locationId);
+      const read = async (path) => {
+        const r = await gw.call("GET", path);
+        if (!r.ok) return { present: null, error: fromHttp(r.status, r.json).detail };
+        if (r.json && typeof r.json === "object" && "success" in r.json && r.json.success !== true) {
+          return { present: null, error: `GHL answered 200 with success:false \u2014 ${r.json.message ?? "no reason given"}` };
+        }
+        return { present: true, value: r.json?.data ?? r.json };
+      };
+      const models = await read(`/workflow/agent/${loc}/models`);
+      const conns = await read(`/workflow/agent/${loc}/mcp-connections`);
+      const tokens = await read(`/workflow/agent/${loc}/mcp-connections/oauth2-tokens`);
+      const list = Array.isArray(models.value?.models) ? models.value.models : [];
+      return ok({
+        models: models.present === true ? {
+          count: list.length,
+          defaultModelId: models.value?.defaultModelId ?? null,
+          models: list.map((m) => ({
+            id: m.id,
+            displayName: m.displayName,
+            provider: m.provider,
+            contextWindow: m.contextWindow,
+            supportsTools: m.supportsTools,
+            deprecated: m.deprecated,
+            recommended: m.recommended
+          }))
+        } : models,
+        mcpConnections: conns.present === true ? { count: (conns.value ?? []).length, connections: conns.value ?? [] } : conns,
+        oauth2Tokens: tokens.present === true ? { count: (tokens.value ?? []).length, tokens: tokens.value ?? [] } : tokens,
+        toolCapNote: "GHL caps attributes.tools + attributes.mcpConnections at 10 COMBINED (AIAgent.MAX_TOOLS)."
+      });
+    }, args)
   },
   // ── "WHICH WORKFLOWS CONTAIN X" IN ONE REQUEST ──────────────────────────────────────────────
   // POST /workflows/es/search is an Elasticsearch index over workflow SUB-DOCUMENTS: one document

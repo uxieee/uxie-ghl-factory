@@ -26369,7 +26369,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
-      "coveredBy": [],
+      "coveredBy": [
+        "get_ai_agent_options"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -26690,7 +26692,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
-      "coveredBy": [],
+      "coveredBy": [
+        "get_ai_agent_options"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -26860,7 +26864,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
-      "coveredBy": [],
+      "coveredBy": [
+        "get_ai_agent_options"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -28844,7 +28850,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
-      "coveredBy": [],
+      "coveredBy": [
+        "describe_marketplace_action"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -28949,7 +28957,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
-      "coveredBy": [],
+      "coveredBy": [
+        "describe_marketplace_action"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -29177,7 +29187,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
-      "coveredBy": [],
+      "coveredBy": [
+        "describe_marketplace_action"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -29432,7 +29444,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
-      "coveredBy": [],
+      "coveredBy": [
+        "describe_marketplace_action"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",

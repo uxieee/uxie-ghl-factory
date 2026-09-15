@@ -1918,5 +1918,41 @@
     "riskRows": [
       "workflow-es-search"
     ]
+  },
+  "describe_marketplace_action": {
+    "description": "Describe a marketplace action — its published schema and whether its app is connected — proof: live-runtime (2026-09-15); risk: read",
+    "risk": "read",
+    "proof": "live-runtime (2026-09-15)",
+    "proofFloor": "source-derived (builder bundle 2026-09-14)",
+    "rows": [
+      "marketplace-action-schema"
+    ],
+    "proofRows": [
+      "marketplace-action-schema"
+    ],
+    "proofFloorRows": [
+      "marketplace-action-schema"
+    ],
+    "riskRows": [
+      "marketplace-action-schema"
+    ]
+  },
+  "get_ai_agent_options": {
+    "description": "List the models and MCP connections an ai_agent step can use — proof: live-runtime (2026-09-15); risk: read",
+    "risk": "read",
+    "proof": "live-runtime (2026-09-15)",
+    "proofFloor": "source-derived (builder bundle 2026-09-14)",
+    "rows": [
+      "workflow-agent-options"
+    ],
+    "proofRows": [
+      "workflow-agent-options"
+    ],
+    "proofFloorRows": [
+      "workflow-agent-options"
+    ],
+    "riskRows": [
+      "workflow-agent-options"
+    ]
   }
 }

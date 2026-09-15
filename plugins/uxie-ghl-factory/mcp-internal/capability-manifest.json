@@ -1010,6 +1010,41 @@
     "path": "/workflow/{loc}/{wid}/validate-workflows"
   },
   {
+    "tool": "describe_marketplace_action",
+    "method": "GET",
+    "path": "/workflows-marketplace/actions/published/{key}"
+  },
+  {
+    "tool": "describe_marketplace_action",
+    "method": "GET",
+    "path": "/workflows-marketplace/actions/options/{key}"
+  },
+  {
+    "tool": "describe_marketplace_action",
+    "method": "GET",
+    "path": "/workflows-marketplace/actions/{actionType}/custom-input-fields"
+  },
+  {
+    "tool": "describe_marketplace_action",
+    "method": "GET",
+    "path": "/workflows-marketplace/integration/{appId}/oauth"
+  },
+  {
+    "tool": "get_ai_agent_options",
+    "method": "GET",
+    "path": "/workflow/agent/{loc}/models"
+  },
+  {
+    "tool": "get_ai_agent_options",
+    "method": "GET",
+    "path": "/workflow/agent/{loc}/mcp-connections"
+  },
+  {
+    "tool": "get_ai_agent_options",
+    "method": "GET",
+    "path": "/workflow/agent/{loc}/mcp-connections/oauth2-tokens"
+  },
+  {
     "tool": "find_workflows_using",
     "method": "POST",
     "path": "/workflows/es/search"
