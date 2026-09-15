@@ -4,8 +4,8 @@ import { readFileSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
-  bumpManifestText, changelogSection, compareSemver, parseSemver, preflightFailures,
-  releaseCommitMessage, releaseTitle,
+  bumpManifestText, changelogSection, compareSemver, parseSemver, porcelainPaths,
+  preflightFailures, releaseCommitMessage, releaseTitle,
 } from '../../../../scripts/release-lib.mjs';
 
 // scripts/release.mjs is the one door a version leaves through. Its rules live in release-lib.mjs
@@ -138,4 +138,28 @@ test('releaseTitle keeps underscores — a tool name is not markdown emphasis', 
 test('releaseTitle still strips backticks and asterisks', () => {
   assert.equal(releaseTitle('`get_workflow_settings` reads the **account-level** rail. More text.'),
     'get_workflow_settings reads the account-level rail');
+});
+
+// Cutting 0.88.0, the preflight said `tracked files are modified: HANGELOG.md`. The file is
+// CHANGELOG.md. The old parser split the output of a helper that .trim()s, which ate the leading
+// space of the FIRST line only — so the first dirty path, and only ever the first, lost a character
+// and the message pointed at a file that does not exist. Parse by column, off untrimmed text.
+test('porcelainPaths keeps the first character of the first path', () => {
+  const { dirty, untracked } = porcelainPaths(' M CHANGELOG.md\n M scripts/release.mjs\n?? notes.md\n');
+  assert.deepEqual(dirty, ['CHANGELOG.md', 'scripts/release.mjs']);
+  assert.deepEqual(untracked, ['notes.md']);
+});
+
+test('porcelainPaths reads every status column, not just the unstaged one', () => {
+  // staged-only (M in column 1), staged+unstaged (MM), and a rename report the file that exists now.
+  const { dirty } = porcelainPaths('M  a.mjs\nMM b.mjs\nR  old/name.mjs -> new/name.mjs\nA  c.mjs\n');
+  assert.deepEqual(dirty, ['a.mjs', 'b.mjs', 'new/name.mjs', 'c.mjs']);
+  // ` -> ` inside an ordinary modified path is NOT a rename and must survive intact.
+  assert.deepEqual(porcelainPaths(' M docs/a -> b.md\n').dirty, ['docs/a -> b.md']);
+});
+
+test('porcelainPaths unquotes the quoted form git uses for non-ASCII paths', () => {
+  assert.deepEqual(porcelainPaths(' M "plugins/caf\\303\\251.mjs"\n').dirty, ['plugins/caf\\303\\251.mjs']);
+  assert.deepEqual(porcelainPaths('').dirty, []);
+  assert.deepEqual(porcelainPaths('\n\n').dirty, []);
 });

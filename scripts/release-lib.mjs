@@ -70,6 +70,27 @@ export function releaseCommitMessage(version, title) {
   return `release: ${version} — ${title}`;
 }
 
+// `git status --porcelain` is COLUMNAR: two status characters, a space, then the path — and the
+// first column is a SPACE for an unstaged change. So any caller that trims the whole output loses
+// the first character of the FIRST path. Cutting 0.88.0 reported `tracked files are modified:
+// HANGELOG.md`, sending the reader after a file that does not exist. Same class as releaseTitle
+// eating underscores: a transform that looks cosmetic, mangling an identifier. Parse by COLUMN.
+export function porcelainPaths(text) {
+  const dirty = [];
+  const untracked = [];
+  for (const line of String(text).split('\n')) {
+    if (line.length < 4) continue; // blank, or too short to carry a path
+    const code = line.slice(0, 2);
+    let path = line.slice(3);
+    // A rename or copy reads `R  old -> new`; the file that now exists is the destination.
+    const arrow = path.indexOf(' -> ');
+    if ((code[0] === 'R' || code[0] === 'C') && arrow !== -1) path = path.slice(arrow + 4);
+    if (path.length > 1 && path.startsWith('"') && path.endsWith('"')) path = path.slice(1, -1);
+    (code === '??' ? untracked : dirty).push(path);
+  }
+  return { dirty, untracked };
+}
+
 // Everything that must be true before a single file is touched. Returns the failures, all of
 // them, so one run reports every problem rather than the first.
 export function preflightFailures({ branch, behind, ahead, dirty, untracked = [], current, next, section, today, tools, failing = [], allowFailing = [] }) {

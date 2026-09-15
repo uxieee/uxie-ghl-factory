@@ -11,6 +11,92 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [0.88.0] — 2026-09-16
+
+Three of the five changes below came from reading a surface we are not allowed to call. GHL keeps
+two loop rules on its model source rather than in its rule registry; GHL's own caller carries the
+body shape for its workflow search index; the search validator hands over its filter vocabulary in
+a 422. None of that is reachable by asking the API nicely, and all of it is now enforced or exposed.
+
+The other thread is a trap that cost time twice: **two different rails answer "no such thing" with
+a 200.** `ok` on those rails means the request was well-formed, never that the thing exists.
+
+### Added
+
+- **`find_workflows_using` — "which workflows contain X", in one request.** `POST /workflows/es/search`
+  is an Elasticsearch index over workflow *sub-documents*: one per step and one per trigger, each
+  carrying the step's full meta and an ES join back to its parent workflow. Nothing covered it, and
+  the question was being answered by exporting all 224 workflows and grepping — which is how bl-136,
+  bl-140 and bl-144 were each found. The filter grammar (`docKey`, `docType`, `childNode has_child`)
+  was established live against controls, with the validator handing over its own vocabulary on a 422.
+  🔴 **Unfiltered, the endpoint reports 4161 on an account holding 224 workflows, because it counts
+  DOCUMENTS.** Each mode now states which thing it counted in the payload (`countIs`), and conformance
+  asserts `steps >= workflows` — the invariant that makes the two distinguishable at a glance.
+  🔴 Attribute search is deliberately **not** exposed: no operator was found that the `meta` field
+  accepts, and the errors flip with the value *type*, so the friendlier message is not evidence that
+  nested search works. A tool built on it would silently return nothing. console bl-148.
+- **`describe_marketplace_action` — what a third-party app action actually accepts.** Its published
+  template, declared custom vars, branch config, and — because the schema names the owning app —
+  whether that app is installed and OAuth-connected here. Marketplace actions are the step types
+  `describe_step_type` knows least about, because their field schema lives on the app rather than in
+  the catalogue.
+- **`get_ai_agent_options` — what an `ai_agent` step may legally be configured with.** 32 models with
+  context window and tool support, the MCP connections available, and the OAuth tokens they bind to.
+  An `ai_agent` step stores only a `connectionId` into a separate location-level document, so a
+  `connectionId` absent from this list will not resolve — and 🔴 the **10-tool cap is shared** between
+  built-in tools and MCP connections, not per-kind.
+
+### Fixed
+
+- 🔴 **A 200 carrying only a `traceId` is not an answer, and the first cut of `describe_marketplace_action`
+  fell for it** — returning `ok:true` describing a nonexistent action with a schema full of nulls.
+  Caught by running the control, not by the tests. It now reads the *body*. The agent rail is the same
+  shape — `{success:false}` inside a 200 — and is now treated as a failure rather than an empty list.
+  Related: every marketplace route needs `locationId` as a **query** parameter and answers 403 without
+  it, which reads exactly like "install the app"; a sibling set answers 403 "only allowed in staging
+  environment", which is permanent. Two different 403s, one fixable by a query parameter.
+- 🔴 **A GUESS may not gate a proof.** Workflows read 58 covered / 0 CONFIRMED an hour after a clean
+  121/121 live run, every one of its 27 tools demoted by "GHL shipped adPublishingApp 112 → 113".
+  `buildDeps` took `tier1.length ? tier1 : list`, and no surface has a tier-1 app, so the fallback
+  fired everywhere and every listed app gated whatever its confidence. The guess was *contradicted*,
+  not merely unproven: zero of 311 capability rows touch an `/ad-publishing` or `/notification` path,
+  and that app shipped seven builds in seventeen days — a signal firing every 1.3 days for an
+  unverified reason is not a signal. Confidence `GUESS` is now recorded in the map and never gates.
+  An entry with no confidence field is *not* a guess; demoting every unannotated legacy row would be
+  the opposite bug. **workflows: confirmed 0 → 58. All surfaces: confirmed 127 → 148, shipped 12 → 0.**
+- **The preflight named a file that does not exist.** Cutting this very release, it reported
+  `tracked files are modified: HANGELOG.md`. The file is `CHANGELOG.md`. `git status --porcelain` is
+  columnar and the first column is a *space* for an unstaged change, so trimming the whole output ate
+  the leading space of the first line — and only ever the first, which is why it survived every
+  earlier release that happened to list two files. Parsing is now by column, off untrimmed text, in a
+  tested `porcelainPaths`, and it reads staged, rename and quoted-path forms the old slice did not.
+- **A tool name is not markdown emphasis.** `releaseTitle` stripped underscores along with backticks
+  and asterisks, so 0.87.0 shipped as "checkworkflow reported zero broken references on a workflow
+  with six". This changelog is mostly *about* snake_case tool names and writes emphasis as `**bold**`,
+  so `_` is an identifier far more often than markup. Observed in the 0.87.0 release, not hypothesised.
+
+### Changed
+
+- 🔴 **The two loop rules GHL keeps on its model, not in its registry, are now enforced.** The
+  2026-09-15 registry diff found 22 of GHL's 25 declared chain-order rules firing; it could not see
+  these two, because they live on `models/actions/Loop.ts` as `itemsError` and `hasErrors`. The
+  important one is a **backend rule with a silent failure**, in GHL's own words: the backend accepts
+  exactly one `{{ ... }}` expression and nothing else, and *"anything concatenated compiles to a
+  string, which then ITERATES ZERO TIMES."* So a loop with items `"{{a}} and {{b}}"` saves, publishes,
+  runs and quietly does nothing. The pattern is GHL's own, character for character, and its comment
+  says it mirrors the backend rather than adding to it — enforcing it cannot make us stricter than the
+  server, only earlier and clearer. Empty items and the loop name are enforced alongside it. **Nested
+  loops were not re-implemented**: `loop` is already the first member of `vocab.actionsUnsupportedInsideLoop`,
+  so a nested loop fires the existing rule. It was on the gap list and that was wrong; a test now pins
+  the existing rule.
+- **`skipHatch` is documented as deliberately unimplemented, at the call site.** The fourth block of
+  `workflowRules` is consumed nowhere, and the next reader would reasonably treat that as a TODO.
+  Implementing it would be a regression: GHL skips three validators when a workflow whose *stored*
+  state is published is saved back to draft, which both guarantees broken published workflows exist
+  and means our gate is strictest on exactly that population. Adopting the hatch would silently pass
+  documents that crash GHL's own backend on `window.start.split`. That is the mechanism behind bl-137,
+  not a separate bug.
+
 ## [0.87.0] — 2026-09-15
 
 `check_workflow` reported zero broken references on a workflow with six. It had never checked them —

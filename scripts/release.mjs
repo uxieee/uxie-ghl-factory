@@ -35,7 +35,8 @@ import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
-  bumpManifestText, changelogSection, preflightFailures, releaseCommitMessage, releaseTitle,
+  bumpManifestText, changelogSection, porcelainPaths, preflightFailures, releaseCommitMessage,
+  releaseTitle,
 } from './release-lib.mjs';
 import { failingTools } from './lib/proof-record.mjs';
 
@@ -76,8 +77,6 @@ const section = changelogSection(changelogText, version);
 // and toISOString() said "still yesterday" to an entry dated after local midnight.
 const d = new Date();
 const today = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-const porcelain = git('status', '--porcelain').split('\n').filter(Boolean);
-const dirty = porcelain.filter((l) => !l.startsWith('??')).map((l) => l.slice(3));
 // 🔴 Step 7 stages with `git add -u`, which re-adds TRACKED files only. A genuinely new file — a new
 // core module, a new test, a new skill reference — is untracked, so it is not staged, not committed,
 // and not in the release, while every gate stays green: privacy scans the working tree, freshness
@@ -85,7 +84,12 @@ const dirty = porcelain.filter((l) => !l.startsWith('??')).map((l) => l.slice(3)
 // six such files and they were staged by hand; nothing here would have caught it.
 // Untracked-and-ignored files (audits/, node_modules) never appear in --porcelain without -uall,
 // so this lists only files a person actually added and has not yet decided about.
-const untracked = porcelain.filter((l) => l.startsWith('??')).map((l) => l.slice(3));
+//
+// NOT git() — that trims, and the leading space of the first porcelain line is SIGNIFICANT.
+const { dirty, untracked } = porcelainPaths(
+  execFileSync('git', ['status', '--porcelain'], { cwd: REPO, encoding: 'utf8' }),
+);
+
 const failures = preflightFailures({
   branch: git('branch', '--show-current'),
   behind: Number(git('rev-list', '--count', 'HEAD..origin/main')),
