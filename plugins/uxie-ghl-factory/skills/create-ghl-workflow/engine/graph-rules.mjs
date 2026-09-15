@@ -116,6 +116,38 @@ export function evaluateWorkflowRules(doc, rules) {
   }
   for (const t of T) if (t.type === 'loop' && !T.some((c) => c.parentContainerId === t.id)) fire('checkLoopHasBody', `loop '${t.name ?? t.id}' has no body steps — an empty loop re-runs the step after it on every iteration`);
 
+  // 🔴 loop `items` — A BACKEND RULE WHOSE FAILURE IS SILENT. Recovered verbatim from GHL's own
+  // model (models/actions/Loop.ts), which states it plainly: "the backend accepts exactly one
+  // `{{ ... }}` expression and nothing else (WorkflowTreeStructuralValidator, rule
+  // loop-items-single-expression). Anything concatenated compiles to a string, which then ITERATES
+  // ZERO TIMES." So a loop with `items: "{{a}} and {{b}}"` or `"Items: {{x}}"` saves, publishes,
+  // runs, and quietly does nothing — the worst shape of defect this engine exists to refuse.
+  //
+  // The pattern is GHL's, character for character, not a reconstruction. Its own comment says the
+  // model mirrors the backend rather than adding to it, so a loop that passes here cannot be
+  // rejected on `items` later — enforcing it costs us nothing and buys a silent failure.
+  //
+  // GHL's rule REGISTRY names neither of these (they live on the model as `itemsError` and
+  // `hasErrors`), which is why the 2026-09-15 registry diff could not see them. The rule ids below
+  // are therefore the i18n keys — the only names GHL gives them.
+  const LOOP_ITEMS_SINGLE_EXPRESSION = /^\{\{\s*[^{}]+\s*\}\}$/;
+  for (const t of T) {
+    if (t.type !== 'loop') continue;
+    const items = String(t.attributes?.items ?? '').trim();
+    if (!items) {
+      fire('loop_items_required', `loop '${t.name ?? t.id}' has no items expression — choose the list to loop over`);
+    } else if (!LOOP_ITEMS_SINGLE_EXPRESSION.test(items)) {
+      fire('loop_items_single_expression', `loop '${t.name ?? t.id}' items must be ONE {{expression}} that resolves to a list — `
+        + `'${items.slice(0, 60)}' concatenates, which compiles to a string and iterates ZERO times (silently)`);
+    }
+    // isWithinLimits(name, 0, 100): length > 0 && <= 100. Applied by GHL to the loop's NAME via
+    // hasErrors, so a nameless or over-long loop is refused at save.
+    const nm = String(t.name ?? '');
+    if (nm.length === 0 || nm.length > 100) {
+      fire('loop_name_length_error', `loop '${t.id}' name must be 1-100 characters (${nm.length}/100)`);
+    }
+  }
+
   // checkSenderAddress
   const sa = doc.settings?.senderAddress;
   if (sa?.from_name && !sa?.from_email) fire('checkSenderAddress', 'settings.senderAddress has from_name but no from_email');

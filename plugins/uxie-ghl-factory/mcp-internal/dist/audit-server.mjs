@@ -162482,6 +162482,20 @@ function evaluateWorkflowRules(doc, rules) {
     if (t.type === "wait" && bannedWaits.has(t.attributes?.type)) fire("checkUnsupportedWaitTypesInsideLoop", `wait '${t.name ?? t.id}' of type '${t.attributes?.type}' cannot sit inside a loop body (time-based waits only)`);
   }
   for (const t of T) if (t.type === "loop" && !T.some((c) => c.parentContainerId === t.id)) fire("checkLoopHasBody", `loop '${t.name ?? t.id}' has no body steps \u2014 an empty loop re-runs the step after it on every iteration`);
+  const LOOP_ITEMS_SINGLE_EXPRESSION = /^\{\{\s*[^{}]+\s*\}\}$/;
+  for (const t of T) {
+    if (t.type !== "loop") continue;
+    const items = String(t.attributes?.items ?? "").trim();
+    if (!items) {
+      fire("loop_items_required", `loop '${t.name ?? t.id}' has no items expression \u2014 choose the list to loop over`);
+    } else if (!LOOP_ITEMS_SINGLE_EXPRESSION.test(items)) {
+      fire("loop_items_single_expression", `loop '${t.name ?? t.id}' items must be ONE {{expression}} that resolves to a list \u2014 '${items.slice(0, 60)}' concatenates, which compiles to a string and iterates ZERO times (silently)`);
+    }
+    const nm = String(t.name ?? "");
+    if (nm.length === 0 || nm.length > 100) {
+      fire("loop_name_length_error", `loop '${t.id}' name must be 1-100 characters (${nm.length}/100)`);
+    }
+  }
   const sa = doc.settings?.senderAddress;
   if (sa?.from_name && !sa?.from_email) fire("checkSenderAddress", "settings.senderAddress has from_name but no from_email");
   if (V.contactChangedTrigger && TR.some((x) => x?.type === V.contactChangedTrigger && !present(x.conditions))) {

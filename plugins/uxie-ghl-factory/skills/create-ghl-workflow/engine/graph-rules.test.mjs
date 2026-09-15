@@ -287,3 +287,55 @@ test('validateIfElseCondition: a draft is warned, not refused', () => {
   assert.deepEqual(r.findings, []);
   assert.ok(r.advisories.some((a) => a.rule === 'validateIfElseCondition'));
 });
+
+// ── loop `items`: a backend rule whose failure is SILENT ─────────────────────────────────────
+// 🔴 Recovered from GHL's own model (models/actions/Loop.ts) on 2026-09-15, which states the
+// consequence itself: the backend accepts exactly one {{ }} expression, and "anything concatenated
+// compiles to a string, which then ITERATES ZERO TIMES". A loop built that way saves, publishes,
+// runs and quietly does nothing.
+//
+// GHL's rule REGISTRY names neither this nor the name-length rule — they live on the model as
+// itemsError/hasErrors — which is exactly why the registry diff that found bl-143 could not see
+// them. Reading the model, not the registry, is what surfaced them.
+const loopDoc = (items, name = 'My loop') => ({
+  templates: [
+    { id: 'L1', type: 'loop', name, attributes: { type: 'loop', items, limit: null, mode: 'sequential' } },
+    { id: 'b1', type: 'add_contact_tag', name: 'In loop', parentContainerId: 'L1', attributes: { tags: ['x'] } },
+  ],
+  triggers: [{ type: 'contact_created' }],
+  status: 'draft',
+});
+const rulesOf = (doc) => evaluateWorkflowRules(doc, R()).findings.map((f) => f.rule);
+
+test('a loop whose items is ONE expression is clean — the control that keeps the rest honest', () => {
+  assert.deepEqual(rulesOf(loopDoc('{{ inboundWebhookRequest.items }}')), []);
+  assert.deepEqual(rulesOf(loopDoc('{{contact.tags}}')), [], 'no inner spaces is still a single expression');
+});
+
+test('a CONCATENATED items expression is refused — it compiles to a string and iterates zero times', () => {
+  assert.deepEqual(rulesOf(loopDoc('{{a}} and {{b}}')), ['loop_items_single_expression']);
+  assert.deepEqual(rulesOf(loopDoc('Items: {{x}}')), ['loop_items_single_expression']);
+  const msg = evaluateWorkflowRules(loopDoc('{{a}} {{b}}'), R()).findings[0].message;
+  assert.match(msg, /ZERO times/, 'the message must name the CONSEQUENCE — a silent no-op is not self-evident');
+});
+
+test('an empty items expression is refused separately from a malformed one', () => {
+  assert.deepEqual(rulesOf(loopDoc('')), ['loop_items_required']);
+  assert.deepEqual(rulesOf(loopDoc('   ')), ['loop_items_required'], 'whitespace is empty, as GHL trims first');
+});
+
+test('the loop name obeys isWithinLimits(0, 100) — GHL applies it through hasErrors', () => {
+  assert.deepEqual(rulesOf(loopDoc('{{ x }}', 'L'.repeat(100))), [], '100 is allowed');
+  assert.deepEqual(rulesOf(loopDoc('{{ x }}', 'L'.repeat(101))), ['loop_name_length_error']);
+  assert.deepEqual(rulesOf(loopDoc('{{ x }}', '')), ['loop_name_length_error'], 'a nameless loop is refused too');
+});
+
+// Nested loops were ALREADY covered and I nearly re-implemented them: `loop` is the first member of
+// vocab.actionsUnsupportedInsideLoop, so a loop carrying a parentContainerId fires the existing rule.
+test('a NESTED loop still fires the existing unsupported-action rule, not a new one', () => {
+  const doc = loopDoc('{{ x }}');
+  doc.templates.push({ id: 'L2', type: 'loop', name: 'Inner', parentContainerId: 'L1',
+    attributes: { type: 'loop', items: '{{ y }}', limit: null, mode: 'sequential' } });
+  const fired = rulesOf(doc);
+  assert.ok(fired.includes('checkUnsupportedActionsInsideLoop'), `got ${JSON.stringify(fired)}`);
+});
