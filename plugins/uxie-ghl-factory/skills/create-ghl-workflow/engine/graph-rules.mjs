@@ -54,6 +54,36 @@ export const fromEmailNeedsDomain = (fromEmail) => Boolean(fromEmail) && !CV_REG
  *              creationSource: the stored document's creationSource
  * @param rules catalog.workflowRules ({ vocab, rules, restrictedTriggersByAction, requiredTriggersByAction })
  */
+// 🔴 `workflowRules.skipHatch` IS DELIBERATELY NOT IMPLEMENTED, and implementing it would be a
+// regression. Read this before "finishing" it.
+//
+// GHL's builder carries a hatch (`throwIfNotSkippingValidationError`) that SKIPS
+// validateIfElseCondition, validateRouterConditions and validateWaitStep when a workflow whose
+// CURRENT STORED STATE is published is saved back to draft. The catalogue records its own effect
+// line: "a clean save is not proof the document is legal."
+//
+// Two consequences, and they point in opposite directions:
+//
+// 1. IT GUARANTEES THE BROKEN POPULATION IS NON-EMPTY. A published workflow can accumulate
+//    if_else / router / wait violations precisely because GHL stopped checking them the moment it
+//    was published. Those documents are real, they are in client accounts, and they are exactly the
+//    ones an operator reaches for our tools to repair.
+//
+// 2. WE ARE STRICTEST WHERE GHL IS MOST PERMISSIVE. validateWaitStep fires with no atPublish flag,
+//    so it refuses on a draft AND on a published document; and publishingFor() treats a stored
+//    `published` status as a publish, which ESCALATES the atPublish rules (validateIfElseCondition
+//    among them) from advisory to refusal on that same population. Measured 2026-09-15: a wait step
+//    with a stringified window is a hard finding at status 'draft' and at status 'published' alike.
+//
+// That is the mechanism behind console bl-137 — "the validation gate refuses the very document you
+// need to inspect". It is not an accident and it is not fixed by adopting the hatch. The rules being
+// skipped are not cosmetic: a stringified `window` crashes GHL's own backend on
+// `window.start.split`. Adopting skipHatch would make us silently pass exactly the documents that
+// crash at runtime, which is the two-oracle rule failing in the direction it exists to catch.
+//
+// So the hatch is recorded as GHL BEHAVIOUR (why broken published workflows exist), never as a rule
+// we mirror. If the refusal needs softening for repair flows, that is a decision about the EDIT
+// path's hatches, not about deleting a rule. See bl-137 and bl-146.
 export function evaluateWorkflowRules(doc, rules) {
   const V = rules?.vocab ?? {};
   const T = doc.templates ?? [];
