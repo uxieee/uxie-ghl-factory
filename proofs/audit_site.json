@@ -47,12 +47,9 @@
     },
     "builds": {
       "domainConnectApp": 222,
-      "externalTrackingApp": 293,
       "funnelWebsiteApp": 221,
       "funnelWebsiteDomainApp": 222,
-      "redirectApp": 222,
-      "seoApp": 88,
-      "templateLibraryApp": 162
+      "redirectApp": 222
     },
     "code": {
       "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#audit_site": "a27d1cd18aee8661d6e4e8f7d3838752736922bbc2212047182fd2726a375a7a",

@@ -56,9 +56,7 @@
       "PUT https://backend.leadconnectorhq.com /workflow/{}/move-directory/{}": "8d129a25048b35f02860127acf96d8c77c0fd9dffd3a253e6b3090bcb397a9ac"
     },
     "builds": {
-      "adPublishingApp": 112,
       "builder-chunks": "assets/index-BZBeFyAW.js",
-      "notificationApp": 261,
       "reportingApp": 268
     },
     "code": {

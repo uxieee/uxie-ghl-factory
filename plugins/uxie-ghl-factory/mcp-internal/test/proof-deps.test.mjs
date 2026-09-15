@@ -68,3 +68,46 @@ test('build deps: tier-1 apps, else all mapped apps, plus the builder pin for wo
   assert.deepEqual(buildDeps(['workflows'], map, { apps, builderEntry: 'assets/index-X.js' }), { automationApp: 7, 'builder-chunks': 'assets/index-X.js' });
   assert.deepEqual(buildDeps(['brand-kit'], map, { apps }), {});
 });
+
+// 🔴 A GUESS MAY NOT GATE A PROOF. Observed 2026-09-15: adPublishingApp — tier 3, confidence GUESS,
+// no stated reason, and touched by ZERO capability rows — shipped 112→113 and demoted all 27
+// workflow tools to `shipped`, holding `confirmed` at 0. It had shipped seven times in seventeen
+// days. The old fallback (`tier1.length ? tier1 : list`) made every listed app gate, because no
+// surface has a tier-1 app. Console bl-145.
+test('a GUESS-confidence app is recorded in the map but never gates a proof', () => {
+  const map = { surfaces: {
+    workflows: [
+      { app: 'reportingApp', tier: 2, confidence: 'LIKELY' },
+      { app: 'adPublishingApp', tier: 3, confidence: 'GUESS' },
+      { app: 'notificationApp', tier: 3, confidence: 'GUESS' },
+    ],
+    funnels: [{ app: 'funnelsApp', tier: 2, confidence: 'CERTAIN' }, { app: 'guessyApp', tier: 3, confidence: 'guess' }],
+    allguess: [{ app: 'guessyApp', tier: 3, confidence: 'GUESS' }],
+    noconfidence: [{ app: 'reportingApp', tier: 2 }],
+  } };
+  const apps = new Map([['reportingApp', { build: 268 }], ['adPublishingApp', { build: 113 }],
+    ['notificationApp', { build: 261 }], ['funnelsApp', { build: 3 }], ['guessyApp', { build: 9 }]]);
+
+  assert.deepEqual(buildDeps(['workflows'], map, { apps, builderEntry: 'assets/index-X.js' }),
+    { 'builder-chunks': 'assets/index-X.js', reportingApp: 268 },
+    'the two GUESS apps are dropped; the LIKELY one and the builder SPA still gate');
+  assert.deepEqual(buildDeps(['funnels'], map, { apps }), { funnelsApp: 3 }, 'case-insensitive');
+
+  // Every app a guess → nothing gates, which is the honest answer: we have no credible build
+  // dependency for that surface. It must not silently fall back to gating on the guesses again.
+  assert.deepEqual(buildDeps(['allguess'], map, { apps }), {});
+
+  // An entry with NO confidence is not a guess — absence of the field is not a claim of ignorance,
+  // and demoting every unannotated legacy row would be a second, opposite bug.
+  assert.deepEqual(buildDeps(['noconfidence'], map, { apps }), { reportingApp: 268 });
+});
+
+// The builder SPA is the RIGHT kind of dependency and must survive the change: the workflow builder
+// is its own app, the federated manifest cannot see it, and its 2026-09-14 redeploy correctly
+// demoted these tools. This fix is against guesses driving the signal, not against build drift.
+test('the workflow builder SPA still gates even when every federated app for the surface is a guess', () => {
+  const map = { surfaces: { workflows: [{ app: 'adPublishingApp', tier: 3, confidence: 'GUESS' }] } };
+  const apps = new Map([['adPublishingApp', { build: 113 }]]);
+  assert.deepEqual(buildDeps(['workflows'], map, { apps, builderEntry: 'assets/index-Y.js' }),
+    { 'builder-chunks': 'assets/index-Y.js' });
+});

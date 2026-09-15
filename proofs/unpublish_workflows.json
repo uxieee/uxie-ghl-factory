@@ -101,9 +101,7 @@
       "PUT https://backend.leadconnectorhq.com /workflow/{}/change-status": "f4c4ee19c1a9aa149f4c5b249f6d0a265e3c6138e7e1092d2ddbb0a414e3f131"
     },
     "builds": {
-      "adPublishingApp": 112,
       "builder-chunks": "assets/index-BZBeFyAW.js",
-      "notificationApp": 261,
       "reportingApp": 268
     },
     "code": {

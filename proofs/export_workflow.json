@@ -104,9 +104,7 @@
       "GET https://backend.leadconnectorhq.com /workflows/sticky-notes-all": "710087540aff20effc6afc629c6b502098bb574e0d7a3ac8d249f052cd2d2310"
     },
     "builds": {
-      "adPublishingApp": 112,
       "builder-chunks": "assets/index-BZBeFyAW.js",
-      "notificationApp": 261,
       "reportingApp": 268
     },
     "code": {

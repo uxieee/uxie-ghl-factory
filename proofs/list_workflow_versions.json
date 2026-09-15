@@ -51,9 +51,7 @@
       "GET https://backend.leadconnectorhq.com /workflow/{}/{}/history/v2": "4d01a3548d7aec57b62c0cd41d3eb2bbcf5f3c5a689dd52dc1443971b52e3c4b"
     },
     "builds": {
-      "adPublishingApp": 112,
       "builder-chunks": "assets/index-BZBeFyAW.js",
-      "notificationApp": 261,
       "reportingApp": 268
     },
     "code": {

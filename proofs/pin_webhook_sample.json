@@ -27,9 +27,7 @@
       "PUT https://services.leadconnectorhq.com /hooks/inbound-webhook-request/set-as-reference/{}": "04e319c7cbc76d23cd3ffa1a50518ac7ac49435ee488ba44ba5a7c1f707b231c"
     },
     "builds": {
-      "adPublishingApp": 112,
-      "builder-chunks": "assets/index-Bbegn_x5.js",
-      "notificationApp": 261,
+      "builder-chunks": "assets/index-BZBeFyAW.js",
       "reportingApp": 268
     },
     "code": {

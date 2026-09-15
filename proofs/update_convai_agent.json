@@ -25,11 +25,11 @@
     },
     "builds": {
       "agentLogsApp": 635,
-      "agentStudioApp": 648,
-      "aiEmployeesApp": 2459,
-      "aiGrowthApp": 626,
+      "agentStudioApp": 653,
+      "aiEmployeesApp": 2527,
+      "aiGrowthApp": 654,
       "superagentsApp": 649,
-      "voiceAiApp": 652
+      "voiceAiApp": 656
     },
     "code": {
       "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#update_convai_agent": "b6498840a13c057551ced65a30911c4856850387f0ae225dd2fec96cd145c829",

@@ -20,7 +20,7 @@
       "GET https://services.leadconnectorhq.com /forms/submissions": "844fc661a8a5ee24c5acc13d6956ec48a8377ebbfcebe15365448c4f66e66cac"
     },
     "builds": {
-      "formSurveyApp": 318
+      "formSurveyApp": 320
     },
     "code": {
       "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#list_form_submissions": "49618fc6dcb30e868ca9821ae93ec7906b9917c4db8438bbb2f84de85ce8424c",

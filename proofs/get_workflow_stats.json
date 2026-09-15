@@ -57,9 +57,7 @@
       "GET https://backend.leadconnectorhq.com /workflows/trigger/logs/count-by-triggerId": "e4a8570f39262e862f128ee185a08ee1f0aa1dfa11d728649bb4fda82ed69439"
     },
     "builds": {
-      "adPublishingApp": 112,
       "builder-chunks": "assets/index-BZBeFyAW.js",
-      "notificationApp": 261,
       "reportingApp": 268
     },
     "code": {

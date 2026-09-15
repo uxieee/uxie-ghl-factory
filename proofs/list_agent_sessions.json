@@ -21,11 +21,11 @@
     },
     "builds": {
       "agentLogsApp": 635,
-      "agentStudioApp": 648,
-      "aiEmployeesApp": 2459,
-      "aiGrowthApp": 626,
+      "agentStudioApp": 653,
+      "aiEmployeesApp": 2527,
+      "aiGrowthApp": 654,
       "superagentsApp": 649,
-      "voiceAiApp": 652
+      "voiceAiApp": 656
     },
     "code": {
       "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#list_agent_sessions": "e6913486011343655a5b22fddbf402969fd08d6ca9a312bf12c6f314a24f5c72",

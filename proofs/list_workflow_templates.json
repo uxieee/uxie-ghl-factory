@@ -21,9 +21,7 @@
       "GET https://backend.leadconnectorhq.com /workflow/{}/workflow-templates": "f5b249f91960ff6f62a757dd718abf6e99f2e2c43fa91f4ab0f30348f3bac902"
     },
     "builds": {
-      "adPublishingApp": 112,
       "builder-chunks": "assets/index-BZBeFyAW.js",
-      "notificationApp": 261,
       "reportingApp": 268
     },
     "code": {

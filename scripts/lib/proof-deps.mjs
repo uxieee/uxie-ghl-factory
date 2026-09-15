@@ -57,10 +57,29 @@ export function primarySurfaces(tool, manifest, index) {
   return [...votes].filter(([, n]) => n === top).map(([s]) => s).sort();
 }
 
+// 🔴 A GUESS MAY NOT GATE A PROOF. Until 2026-09-15 this took `tier1.length ? tier1 : list`, and
+// since NO surface in app-surface-map.json has a tier-1 app, the fallback fired everywhere and every
+// listed app became a gating dependency whatever its confidence. `workflows` lists adPublishingApp
+// and notificationApp at tier 3, both `confidence: "GUESS"`, neither carrying a `why` — and
+// adPublishingApp shipped seven builds in seventeen days, so all 27 workflow tools were demoted to
+// `shipped` roughly every 1.3 days and `confirmed` sat at 0 permanently. A signal that fires that
+// often for an unverified reason is not a signal.
+//
+// The guess was not merely unproven, it was contradicted: zero of the 311 capability rows touch an
+// /ad-publishing or /notification path, so those builds cannot bear on whether our tools work.
+//
+// Nothing is lost. The map still lists every app with its confidence and tier — that is where the
+// "these might be related" knowledge belongs, and raising a confidence there is what promotes an app
+// back into gating. `depends` accepts only four keys (proof-record.mjs keysOnly), so a non-gating
+// copy inside the record is not available and would duplicate the map anyway.
+//
+// Deliberately NOT extended to tiers: tier is about how central an app is, confidence is about
+// whether we KNOW. Only the second belongs in a gate. See console bl-145.
+const GATES = (a) => String(a?.confidence ?? '').toUpperCase() !== 'GUESS';
 export function buildDeps(surfaces, map, { apps, builderEntry = null }) {
   const out = {};
   for (const s of surfaces) {
-    const list = (map.surfaces?.[s] ?? []).filter((a) => a?.app);
+    const list = (map.surfaces?.[s] ?? []).filter((a) => a?.app).filter(GATES);
     const tier1 = list.filter((a) => a.tier === 1);
     for (const a of (tier1.length ? tier1 : list)) out[a.app] = apps.get(a.app)?.build ?? null;
     // The workflow builder is its own SPA; the federated manifest cannot see it.
