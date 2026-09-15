@@ -5825,6 +5825,115 @@ export const TOOLS = [
         : card };
     }),
   },
+  // ── "WHICH WORKFLOWS CONTAIN X" IN ONE REQUEST ──────────────────────────────────────────────
+  // POST /workflows/es/search is an Elasticsearch index over workflow SUB-DOCUMENTS: one document
+  // per STEP and per TRIGGER, carrying the step's full `meta` (id, type, name, order, attributes)
+  // and an ES join field back to its workflow. Until 2026-09-15 nothing covered it, and the
+  // question it answers was being answered by exporting every workflow and grepping — that is how
+  // bl-136, bl-140 and bl-144 were each found.
+  //
+  // Body shape read from GHL's own caller (WorkflowMarketplaceService.getWorkflowsFromEs), not
+  // guessed: { locationId, pageLimit, offset, filters, sort }.
+  //
+  // 🔴 TWO COUNTS THAT ARE NOT THE SAME NUMBER, and conflating them is the trap this endpoint sets.
+  // Unfiltered it reports 4161 on an account holding 224 workflows, because it counts DOCUMENTS.
+  // `wait` matches 438 step documents living in 61 workflows. So the response labels which one it
+  // is rather than returning a bare `count` for the caller to misread.
+  //
+  // WHAT IS PROVEN (live, against controls, 2026-09-15) and therefore what this exposes:
+  //   docKey eq|contains_set <type>                       the step/trigger TYPE
+  //   docType eq action|trigger                            which kind of document
+  //   childNode has_child [<inner filters>]                the join: parents whose CHILD matches
+  // Arithmetic that confirms the set operator is a real union: internal_create_opportunity alone
+  // 50, wait alone 438, both together 488.
+  //
+  // 🔴 WHAT IS NOT PROVEN, and is deliberately NOT exposed: searching inside `meta.attributes`.
+  // No operator was found that `meta` accepts. The errors flip with the value TYPE — an object
+  // gives "Invalid value for 'nested' operator", an array gives "Invalid Operator (nested)" — so
+  // the first message is NOT evidence that nested is supported, and a tool built on it would
+  // silently return nothing. Attribute questions still need an export. See console bl-148.
+  {
+    name: 'find_workflows_using',
+    description: `${describe('find_workflows_using', 'Find which workflows contain a step or trigger type — risk: read')}. `
+      + 'Answer "which workflows use X" for a whole sub-account in ONE request, instead of exporting every '
+      + 'workflow and searching. Pass one or more step/trigger TYPE names (as `describe_step_type` spells '
+      + 'them, e.g. `wait`, `internal_create_opportunity`, `appointment`). '
+      + 'returns:"workflows" (default) lists the workflows containing any of them; returns:"steps" lists the '
+      + 'matching step documents themselves, each with its workflowId and its stored attributes. '
+      + '🔴 The two modes count DIFFERENT THINGS and the response says which: `wait` matches 438 step '
+      + 'documents across 61 workflows. Never report one as the other. '
+      + '🔴 It CANNOT filter on attribute VALUES — "which workflows reference pipeline X" is not answerable '
+      + 'here (GHL exposes no working operator for the attributes sub-document); that still needs an export.',
+    inputSchema: schema({
+      locationId: z.string(),
+      types: z.array(z.string()).min(1),
+      returns: z.enum(['workflows', 'steps']).default('workflows'),
+      kind: z.enum(['action', 'trigger', 'any']).default('any'),
+      limit: z.number().default(100),
+      offset: z.number().default(0),
+    }),
+    capabilities: [{ method: 'POST', path: '/workflows/es/search' }],
+    handler: async (args, deps) => guard(async () => {
+      const types = (args.types ?? []).filter((t) => typeof t === 'string' && t.trim());
+      if (!types.length) {
+        return fail(CODES.VALIDATION_FAILED, 'types must hold at least one step or trigger type name',
+          'Pass the type as describe_step_type spells it, e.g. ["wait"]. A search with no type would match the whole index.');
+      }
+      const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+      const byType = { field: 'docKey', operator: 'contains_set', value: types };
+      // Default via ?? rather than relying on the zod default: the schema only runs when the tool is
+      // called through the MCP server. Tests and the conformance suite call handlers DIRECTLY, and a
+      // missing `kind` then built `{docType eq undefined}`, which GHL rejects with 422 "Invalid value
+      // for 'eq' operator for 'docType' field". Caught on the tool's first live run.
+      const kind = args.kind ?? 'any';
+      const returns = args.returns ?? 'workflows';
+      const byKind = kind === 'any' ? null : { field: 'docType', operator: 'eq', value: kind };
+      // returns:'workflows' asks the PARENT documents whose child matches — the kind filter belongs
+      // INSIDE the join, because it describes the child, not the workflow.
+      const filters = returns === 'workflows'
+        ? [{ field: 'childNode', operator: 'has_child', value: [byType, ...(byKind ? [byKind] : [])] }]
+        : [byType, ...(byKind ? [byKind] : [])];
+      const r = await gw.call('POST', '/workflows/es/search', {
+        locationId: args.locationId, pageLimit: args.limit ?? 100, offset: args.offset ?? 0, filters,
+      });
+      if (!r.ok) return fromHttp(r.status, r.json);
+      const rows = r.json?.workflows ?? [];
+      if (!Array.isArray(rows)) {
+        return fail(CODES.VALIDATION_FAILED,
+          `es/search answered ${r.status} but not with a rows array — keys: ${Object.keys(r.json ?? {}).join(', ') || '(none)'}`,
+          'The response shape changed. Read it with raw_request before trusting a count from here.');
+      }
+      const total = r.json?.count ?? null;
+      if (returns === 'workflows') {
+        return ok({
+          countIs: 'workflows containing at least one of these types',
+          count: total,
+          searched: types,
+          workflows: rows.map((w) => ({
+            id: w.id ?? w.workflowId ?? null, name: w.name ?? null,
+            status: w.status ?? null, paused: w.paused ?? null, folderId: w.parentId ?? null,
+          })),
+          note: 'count is WORKFLOWS here. returns:"steps" counts step DOCUMENTS instead, and the two differ — '
+            + 'one workflow can hold several matching steps.',
+        });
+      }
+      return ok({
+        countIs: 'step/trigger documents matching these types',
+        count: total,
+        searched: types,
+        steps: rows.map((w) => ({
+          workflowId: w.workflowJoinField?.parent ?? null,
+          stepId: w.meta?.id ?? null,
+          type: w.meta?.type ?? w.docKey ?? null,
+          docType: w.docType ?? null,
+          name: w.meta?.name ?? null,
+          attributes: w.meta?.attributes ?? null,
+        })),
+        note: 'count is step DOCUMENTS, not workflows — several may live in one workflow. Attributes are '
+          + 'returned as stored, but CANNOT be filtered on server-side (see the tool description).',
+      });
+    }, args),
+  },
   // ── THE ACCOUNT-LEVEL WORKFLOW SETTINGS RAIL ────────────────────────────────────────────────
   // Six routes the builder reads on load that no tool reached until 2026-09-15. They were not
   // missing because they are hard — they were never PROBED. The parity page showed reach:null,

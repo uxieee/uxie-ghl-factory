@@ -23,10 +23,20 @@
         "receipt:2026-09-14-2156"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-15",
+      "result": "pass",
+      "how": "suite",
+      "suite": "workflows",
+      "evidence": [
+        "receipt:2026-09-15-1013"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
-    "hashedAt": "2026-09-14",
+    "hashedAt": "2026-09-15",
     "endpoints": {
       "GET https://backend.leadconnectorhq.com /locations/{}/customFields/search": "243cf31ac9bf9947d7ecc4a4a0f6c8f758286fe2701bc88e201f2e12ff03759f",
       "GET https://backend.leadconnectorhq.com /locations/{}/customValues": "7528d8d44a9a81689c4ff5dc3875cd96f40b6c37d613bd11156e149b728ac054",
@@ -58,7 +68,7 @@
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/goto-loops.mjs": "60f939319f865b5411eccebab15dc873569242cb49e45f3398b8646883f75497",
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/graph-context-rules.mjs": "48062cf2092d0ae355a8cf5b99d159767eadc5b9358fc3f23d8a1502821386cb",
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/graph-refs.mjs": "f5fb0d87fe6a96560e0c75d75a4c520abf597fa86ec19ecd87dc3b1a6c5d845c",
-      "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/graph-rules.mjs": "f78e27d66d65017f500364180d7875904e7adab9bd0dc9645bc63b7cad559a7f",
+      "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/graph-rules.mjs": "790da1ad1aa5b9e9ad8beabe740b345fd342c9f2558245326180723d3c8bc4b6",
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/ifelse-vocab.mjs": "a6f12e4656e8aa6c41e624ec0ac5017dd3019281340598be07cf0e9c60e59694",
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/ir.mjs": "fcbf1a3f0c03dc067668addca54ee05ea89445caf946ffb6f0328d99921f145a",
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/lints/doctrine.mjs": "ac09563e77caa81c3ccf75b2c5c87747dff2eddc85734c934cfb8a9789160dcb",

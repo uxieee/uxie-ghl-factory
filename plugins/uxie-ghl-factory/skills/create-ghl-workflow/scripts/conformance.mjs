@@ -802,6 +802,49 @@ log.subject('list_workflow_templates');
     JSON.stringify((t.data.templates ?? []).filter((x) => !x.id || !x.title).slice(0, 3)));
 }
 
+// ── 6c. the ES index: two counts that are not the same number ───────────────────────────────
+// 🔴 THE POINT. POST /workflows/es/search indexes one document per STEP and per TRIGGER, so its
+// `count` is DOCUMENTS — 4161 unfiltered on an account holding 224 workflows. find_workflows_using
+// exposes two modes over it and they count different things; a caller who reads one as the other is
+// wrong by a large factor, silently. These assertions pin the DIFFERENCE, not either number.
+console.log('\nthe workflow content index');
+log.subject('find_workflows_using');
+{
+  // A step type the suite's own build guarantees exists, so this cannot pass vacuously on an
+  // account that happens to hold none.
+  const TYPE = 'wait';
+  const wfs = await call('find_workflows_using', { types: [TYPE] });
+  const steps = await call('find_workflows_using', { types: [TYPE], returns: 'steps' });
+  check(wfs.ok === true && steps.ok === true, 'find_workflows_using answers in both modes',
+    JSON.stringify([wfs.detail, steps.detail]));
+  check(Number.isInteger(wfs.data?.count) && wfs.data.count > 0,
+    `and finds workflows using '${TYPE}' — a zero would mean the index or the join shape moved`,
+    JSON.stringify(wfs.data?.count));
+  check(/workflows/.test(wfs.data?.countIs ?? '') && /documents/.test(steps.data?.countIs ?? ''),
+    'each mode SAYS which thing it counted, in the payload rather than only in the docs',
+    JSON.stringify([wfs.data?.countIs, steps.data?.countIs]));
+  check(steps.data.count >= wfs.data.count,
+    'step documents are never FEWER than the workflows holding them — the invariant that makes the '
+      + 'two counts distinguishable at a glance',
+    `${steps.data?.count} steps vs ${wfs.data?.count} workflows`);
+  check((wfs.data?.workflows ?? []).every((w) => w.id && w.name),
+    'every workflow row carries an id and a name, so the answer is actionable without a second read',
+    JSON.stringify((wfs.data?.workflows ?? []).filter((w) => !w.id || !w.name).slice(0, 3)));
+  check((steps.data?.steps ?? []).every((x) => x.workflowId && x.stepId),
+    'and every step row says WHICH workflow it lives in — otherwise the match is unactionable',
+    JSON.stringify((steps.data?.steps ?? []).filter((x) => !x.workflowId || !x.stepId).slice(0, 3)));
+
+  // 🔴 NEGATIVE CONTROL. Without it, an index that silently returned everything, or nothing, would
+  // pass every assertion above.
+  const ghost = await call('find_workflows_using', { types: ['TEST-CONF-no-such-step-type'] });
+  check(ghost.ok === true && ghost.data?.count === 0 && (ghost.data?.workflows ?? []).length === 0,
+    'CONTROL: a step type that does not exist matches NOTHING — the filter is real, not ignored',
+    JSON.stringify(ghost.data?.count));
+
+  const empty = await call('find_workflows_using', { types: [] });
+  check(empty.ok === false, 'an empty type list is REFUSED rather than matching the whole index', empty.code);
+}
+
 // ── 7. folders, and moving something into one ───────────────────────────────────────────────
 console.log('\nfolders');
 log.subject('list_workflow_folders');

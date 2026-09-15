@@ -1010,6 +1010,11 @@
     "path": "/workflow/{loc}/{wid}/validate-workflows"
   },
   {
+    "tool": "find_workflows_using",
+    "method": "POST",
+    "path": "/workflows/es/search"
+  },
+  {
     "tool": "get_workflow_settings",
     "method": "GET",
     "path": "/workflow/{loc}/auto-save/settings"

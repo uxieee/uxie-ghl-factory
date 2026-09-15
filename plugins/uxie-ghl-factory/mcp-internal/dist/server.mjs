@@ -31156,7 +31156,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           summary: "Query workflows server-side by trigger type, action type, status, tags or name \u2014 the smart-list search.",
           note: `Answers "which workflows contain step type X" in ONE request. The alternative is exporting every workflow and searching templates, which is hundreds of requests on a real account. Live-proven 2026-08-26: the body is JUST {locationId} \u2014 it 422s on triggerTypes/limit/skip ("property X should not exist"), so do not send the obvious paging keys, and it returns 201 for what is a read. The action docs it returns carry the STORED attributes, which is how a marketplace step's real key spelling is discovered.`,
           reach: "proven",
-          coveredBy: [],
+          coveredBy: [
+            "find_workflows_using"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -54105,9 +54107,9 @@ var init_define_TOOL_CATALOG = __esm({
   "<define:__TOOL_CATALOG__>"() {
     define_TOOL_CATALOG_default = {
       build_workflow: {
-        description: "Build workflow \u2014 proof: live-runtime (2026-09-14), floor: documented; risk: write",
+        description: "Build workflow \u2014 proof: live-runtime (2026-09-15), floor: documented; risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-14)",
+        proof: "live-runtime (2026-09-15)",
         proofFloor: "documented",
         proofRows: [
           "entities-tags-create",
@@ -54138,9 +54140,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       get_workflow: {
-        description: "Get workflow \u2014 proof: live-runtime (2026-09-14); risk: read",
+        description: "Get workflow \u2014 proof: live-runtime (2026-09-15); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-14)",
+        proof: "live-runtime (2026-09-15)",
         proofFloor: "documented",
         proofRows: [
           "workflow-read"
@@ -54156,9 +54158,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       export_workflow: {
-        description: "Export workflow \u2014 proof: live-runtime (2026-09-14); risk: read",
+        description: "Export workflow \u2014 proof: live-runtime (2026-09-15); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-14)",
+        proof: "live-runtime (2026-09-15)",
         proofFloor: "documented",
         proofRows: [
           "triggers-list",
@@ -54182,9 +54184,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       edit_workflow: {
-        description: "Edit workflow \u2014 proof: live-runtime (2026-09-14), floor: live-roundtrip (2026-07-17); risk: destructive",
+        description: "Edit workflow \u2014 proof: live-runtime (2026-09-15), floor: live-roundtrip (2026-07-17); risk: destructive",
         risk: "destructive",
-        proof: "live-runtime (2026-09-14)",
+        proof: "live-runtime (2026-09-15)",
         proofFloor: "live-roundtrip (2026-07-17)",
         proofRows: [
           "triggers-create-for-edit"
@@ -54209,9 +54211,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       publish_workflow: {
-        description: "Publish workflow \u2014 proof: live-runtime (2026-09-14), floor: documented; risk: destructive",
+        description: "Publish workflow \u2014 proof: live-runtime (2026-09-15), floor: documented; risk: destructive",
         risk: "destructive",
-        proof: "live-runtime (2026-09-14)",
+        proof: "live-runtime (2026-09-15)",
         proofFloor: "documented",
         proofRows: [
           "workflow-publish"
@@ -54229,9 +54231,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       list_workflows: {
-        description: "List workflows \u2014 proof: live-runtime (2026-09-14); risk: read",
+        description: "List workflows \u2014 proof: live-runtime (2026-09-15); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-14)",
+        proof: "live-runtime (2026-09-15)",
         proofFloor: "documented",
         proofRows: [
           "workflow-list"
@@ -54247,9 +54249,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       get_workflow_logs: {
-        description: "Get workflow logs \u2014 proof: live-runtime (2026-09-14), floor: documented; risk: read",
+        description: "Get workflow logs \u2014 proof: live-runtime (2026-09-15), floor: documented; risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-14)",
+        proof: "live-runtime (2026-09-15)",
         proofFloor: "documented",
         proofRows: [
           "logs-count-per-step",
@@ -54392,9 +54394,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       get_contacts_at_step: {
-        description: "List contacts at step \u2014 proof: live-runtime (2026-09-14); risk: read",
+        description: "List contacts at step \u2014 proof: live-runtime (2026-09-15); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-14)",
+        proof: "live-runtime (2026-09-15)",
         proofFloor: "live-runtime (2026-07-18)",
         proofRows: [
           "logs-details-by-step"
@@ -54687,9 +54689,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       list_workflow_folders: {
-        description: "List workflow folders \u2014 proof: live-runtime (2026-09-14); risk: read",
+        description: "List workflow folders \u2014 proof: live-runtime (2026-09-15); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-14)",
+        proof: "live-runtime (2026-09-15)",
         proofFloor: "live-runtime (2026-08-18)",
         proofRows: [
           "workflow-folder-list"
@@ -54705,9 +54707,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       create_workflow_folder: {
-        description: "Create workflow folder \u2014 proof: live-runtime (2026-09-14); risk: write",
+        description: "Create workflow folder \u2014 proof: live-runtime (2026-09-15); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-14)",
+        proof: "live-runtime (2026-09-15)",
         proofFloor: "live-runtime (2026-08-18)",
         proofRows: [
           "workflow-folder-create",
@@ -54726,9 +54728,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       duplicate_workflow: {
-        description: "Duplicate workflow \u2014 proof: live-runtime (2026-09-14); risk: write",
+        description: "Duplicate workflow \u2014 proof: live-runtime (2026-09-15); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-14)",
+        proof: "live-runtime (2026-09-15)",
         proofFloor: "live-runtime (2026-08-18)",
         proofRows: [
           "workflow-duplicate",
@@ -54750,9 +54752,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       move_workflows: {
-        description: "Move workflows between folders and root \u2014 proof: live-runtime (2026-09-14); risk: write",
+        description: "Move workflows between folders and root \u2014 proof: live-runtime (2026-09-15); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-14)",
+        proof: "live-runtime (2026-09-15)",
         proofFloor: "live-runtime (2026-08-18)",
         proofRows: [
           "workflow-move-batch",
@@ -54799,9 +54801,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       get_workflow_stats: {
-        description: "Workflow stats view \u2014 proof: live-runtime (2026-09-14); risk: read",
+        description: "Workflow stats view \u2014 proof: live-runtime (2026-09-15); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-14)",
+        proof: "live-runtime (2026-09-15)",
         proofFloor: "live-runtime (2026-08-22)",
         proofRows: [
           "stats-aggregate",
@@ -54823,9 +54825,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       list_workflow_versions: {
-        description: "List workflow versions \u2014 proof: live-runtime (2026-09-14); risk: read",
+        description: "List workflow versions \u2014 proof: live-runtime (2026-09-15); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-14)",
+        proof: "live-runtime (2026-09-15)",
         proofFloor: "live-runtime (2026-08-22)",
         proofRows: [
           "workflow-history"
@@ -54841,9 +54843,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       get_workflow_version: {
-        description: "Get workflow version snapshot \u2014 proof: live-runtime (2026-09-14); risk: read",
+        description: "Get workflow version snapshot \u2014 proof: live-runtime (2026-09-15); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-14)",
+        proof: "live-runtime (2026-09-15)",
         proofFloor: "live-runtime (2026-08-22)",
         proofRows: [
           "workflow-history"
@@ -54859,9 +54861,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       get_trigger_logs: {
-        description: "Trigger attempt logs + top failed reasons \u2014 proof: live-runtime (2026-09-14); risk: read",
+        description: "Trigger attempt logs + top failed reasons \u2014 proof: live-runtime (2026-09-15); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-14)",
+        proof: "live-runtime (2026-09-15)",
         proofFloor: "live-runtime (2026-08-22)",
         proofRows: [
           "trigger-logs-triggerId",
@@ -54883,9 +54885,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       get_account_workflow_overview: {
-        description: "Workflow Overview page: statistics, weekly enrollment, Needs Review, enrollment totals \u2014 proof: live-runtime (2026-09-14); risk: read",
+        description: "Workflow Overview page: statistics, weekly enrollment, Needs Review, enrollment totals \u2014 proof: live-runtime (2026-09-15); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-14)",
+        proof: "live-runtime (2026-09-15)",
         proofFloor: "live-runtime (2026-08-22)",
         proofRows: [
           "workflows-statistics",
@@ -54913,9 +54915,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       test_custom_code: {
-        description: "Custom Code sandbox test-run (no account mutation) \u2014 proof: live-runtime (2026-09-14); risk: sandbox-exec",
+        description: "Custom Code sandbox test-run (no account mutation) \u2014 proof: live-runtime (2026-09-15); risk: sandbox-exec",
         risk: "sandbox-exec",
-        proof: "live-runtime (2026-09-14)",
+        proof: "live-runtime (2026-09-15)",
         proofFloor: "live-runtime (2026-08-22)",
         proofRows: [
           "custom-code-run-test"
@@ -55666,9 +55668,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       unpublish_workflows: {
-        description: "Stand published workflows back down to draft, in bulk \u2014 proof: live-runtime (2026-09-14); risk: write",
+        description: "Stand published workflows back down to draft, in bulk \u2014 proof: live-runtime (2026-09-15); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-14)",
+        proof: "live-runtime (2026-09-15)",
         proofFloor: "live-runtime (2026-09-09)",
         proofRows: [
           "workflow-service--bulk-update-status"
@@ -55780,9 +55782,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       check_workflow: {
-        description: "Read-only conformance check: replays GHL's own validators against a workflow \u2014 proof: live-runtime (2026-09-14); risk: read",
+        description: "Read-only conformance check: replays GHL's own validators against a workflow \u2014 proof: live-runtime (2026-09-15); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-14)",
+        proof: "live-runtime (2026-09-15)",
         proofFloor: "unrecorded",
         proofRows: [
           "workflow-service--find-by-id",
@@ -55814,9 +55816,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       get_workflow_digest: {
-        description: "Compact read of one workflow \u2014 identity, version, structure, merge tags per step \u2014 proof: live-runtime (2026-09-14); risk: read",
+        description: "Compact read of one workflow \u2014 identity, version, structure, merge tags per step \u2014 proof: live-runtime (2026-09-15); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-14)",
+        proof: "live-runtime (2026-09-15)",
         proofFloor: "unrecorded",
         proofRows: [
           "workflow-service--find-by-id",
@@ -55836,9 +55838,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       repair_workflow: {
-        description: "Repair a workflow from an export or a raw templates body \u2014 proof: live-runtime (2026-09-14); risk: write",
+        description: "Repair a workflow from an export or a raw templates body \u2014 proof: live-runtime (2026-09-15); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-14)",
+        proof: "live-runtime (2026-09-15)",
         proofFloor: "unrecorded",
         proofRows: [
           "workflow-service--find-by-id",
@@ -55942,9 +55944,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       validate_workflow: {
-        description: "Ask GHL's OWN server validator whether a workflow would pass: the check the builder runs live, debounced, on every edit (POST /workflow/{loc}/{wid}/validate-workflows). Validates the STORED document, or the stored document with `templates` swapped in, so a planned edit can be checked BEFORE it is saved. Writes nothing (proof: live-runtime (2026-09-14); risk: read-only). READ `layer`: a failing call reports ONE layer. A structural or an action failure was reported IN PLACE OF a trigger failure the same document also had, so fix what it names and call again until valid. \u{1F534} valid:true IS NOT A SCHEMA CHECK (measured 2026-09-11). It CATCHES: a missing required field, a scalar of the wrong type, an invalid enum value, a referenced asset that exists nowhere (layer `asset`), every structural defect, and a corrupted step type on a native workflow. It does NOT catch: an invented attribute key, a wrong inner `attributes.type`, an extra top-level step key, a number out of range, or a corrupted step type on an AGENT flow. That class is what check_workflow's nativeShapeIssues and the engine's own guards are for; this tool does not replace them. Re-measured 2026-09-12 after GHL shipped its publish gate: every verdict identical, and \u{1F534} it IGNORES the document's `status` \u2014 the same document answers the same as draft or published, and an EMPTY workflow is valid:true even as published, so GHL's publish-only rules (checkEmptyPublish and the rest) live only in the browser. The engine replays them; see the validation gate.",
+        description: "Ask GHL's OWN server validator whether a workflow would pass: the check the builder runs live, debounced, on every edit (POST /workflow/{loc}/{wid}/validate-workflows). Validates the STORED document, or the stored document with `templates` swapped in, so a planned edit can be checked BEFORE it is saved. Writes nothing (proof: live-runtime (2026-09-15); risk: read-only). READ `layer`: a failing call reports ONE layer. A structural or an action failure was reported IN PLACE OF a trigger failure the same document also had, so fix what it names and call again until valid. \u{1F534} valid:true IS NOT A SCHEMA CHECK (measured 2026-09-11). It CATCHES: a missing required field, a scalar of the wrong type, an invalid enum value, a referenced asset that exists nowhere (layer `asset`), every structural defect, and a corrupted step type on a native workflow. It does NOT catch: an invented attribute key, a wrong inner `attributes.type`, an extra top-level step key, a number out of range, or a corrupted step type on an AGENT flow. That class is what check_workflow's nativeShapeIssues and the engine's own guards are for; this tool does not replace them. Re-measured 2026-09-12 after GHL shipped its publish gate: every verdict identical, and \u{1F534} it IGNORES the document's `status` \u2014 the same document answers the same as draft or published, and an EMPTY workflow is valid:true even as published, so GHL's publish-only rules (checkEmptyPublish and the rest) live only in the browser. The engine replays them; see the validation gate.",
         risk: "read-only",
-        proof: "live-runtime (2026-09-14)",
+        proof: "live-runtime (2026-09-15)",
         proofRows: [
           "workflow-read",
           "triggers-list",
@@ -55967,9 +55969,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       get_workflow_settings: {
-        description: "Read the account-level workflow settings rail \u2014 proof: live-runtime (2026-09-14); risk: read",
+        description: "Read the account-level workflow settings rail \u2014 proof: live-runtime (2026-09-15); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-14)",
+        proof: "live-runtime (2026-09-15)",
         proofFloor: "source-derived (builder bundle 2026-09-14)",
         rows: [
           "workflow-settings-read",
@@ -55989,9 +55991,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       list_workflow_templates: {
-        description: "List the workflow templates GHL offers \u2014 proof: live-runtime (2026-09-14); risk: read",
+        description: "List the workflow templates GHL offers \u2014 proof: live-runtime (2026-09-15); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-14)",
+        proof: "live-runtime (2026-09-15)",
         proofFloor: "source-derived (builder bundle 2026-09-14)",
         rows: [
           "workflow-templates-list"
@@ -56004,6 +56006,24 @@ var init_define_TOOL_CATALOG = __esm({
         ],
         proofFloorRows: [
           "workflow-templates-list"
+        ]
+      },
+      find_workflows_using: {
+        description: "Find which workflows contain a step or trigger type \u2014 proof: live-runtime (2026-09-15); risk: read",
+        risk: "read",
+        proof: "live-runtime (2026-09-15)",
+        proofFloor: "source-derived (builder bundle 2026-09-14)",
+        rows: [
+          "workflow-es-search"
+        ],
+        proofRows: [
+          "workflow-es-search"
+        ],
+        proofFloorRows: [
+          "workflow-es-search"
+        ],
+        riskRows: [
+          "workflow-es-search"
         ]
       }
     };
@@ -173919,6 +173939,107 @@ var TOOLS2 = [
       const caps = FIELD_CAPS[card.type];
       return { ok: true, data: caps ? { ...card, caps, capsNote: "Character caps measured live (the server stores an over-length value verbatim; the builder flags it). edit_workflow and repair_workflow refuse an over-cap value on a step they touch unless allowOverCap:true." } : card };
     })
+  },
+  // ── "WHICH WORKFLOWS CONTAIN X" IN ONE REQUEST ──────────────────────────────────────────────
+  // POST /workflows/es/search is an Elasticsearch index over workflow SUB-DOCUMENTS: one document
+  // per STEP and per TRIGGER, carrying the step's full `meta` (id, type, name, order, attributes)
+  // and an ES join field back to its workflow. Until 2026-09-15 nothing covered it, and the
+  // question it answers was being answered by exporting every workflow and grepping — that is how
+  // bl-136, bl-140 and bl-144 were each found.
+  //
+  // Body shape read from GHL's own caller (WorkflowMarketplaceService.getWorkflowsFromEs), not
+  // guessed: { locationId, pageLimit, offset, filters, sort }.
+  //
+  // 🔴 TWO COUNTS THAT ARE NOT THE SAME NUMBER, and conflating them is the trap this endpoint sets.
+  // Unfiltered it reports 4161 on an account holding 224 workflows, because it counts DOCUMENTS.
+  // `wait` matches 438 step documents living in 61 workflows. So the response labels which one it
+  // is rather than returning a bare `count` for the caller to misread.
+  //
+  // WHAT IS PROVEN (live, against controls, 2026-09-15) and therefore what this exposes:
+  //   docKey eq|contains_set <type>                       the step/trigger TYPE
+  //   docType eq action|trigger                            which kind of document
+  //   childNode has_child [<inner filters>]                the join: parents whose CHILD matches
+  // Arithmetic that confirms the set operator is a real union: internal_create_opportunity alone
+  // 50, wait alone 438, both together 488.
+  //
+  // 🔴 WHAT IS NOT PROVEN, and is deliberately NOT exposed: searching inside `meta.attributes`.
+  // No operator was found that `meta` accepts. The errors flip with the value TYPE — an object
+  // gives "Invalid value for 'nested' operator", an array gives "Invalid Operator (nested)" — so
+  // the first message is NOT evidence that nested is supported, and a tool built on it would
+  // silently return nothing. Attribute questions still need an export. See console bl-148.
+  {
+    name: "find_workflows_using",
+    description: `${describe3("find_workflows_using", "Find which workflows contain a step or trigger type \u2014 risk: read")}. Answer "which workflows use X" for a whole sub-account in ONE request, instead of exporting every workflow and searching. Pass one or more step/trigger TYPE names (as \`describe_step_type\` spells them, e.g. \`wait\`, \`internal_create_opportunity\`, \`appointment\`). returns:"workflows" (default) lists the workflows containing any of them; returns:"steps" lists the matching step documents themselves, each with its workflowId and its stored attributes. \u{1F534} The two modes count DIFFERENT THINGS and the response says which: \`wait\` matches 438 step documents across 61 workflows. Never report one as the other. \u{1F534} It CANNOT filter on attribute VALUES \u2014 "which workflows reference pipeline X" is not answerable here (GHL exposes no working operator for the attributes sub-document); that still needs an export.`,
+    inputSchema: schema({
+      locationId: external_exports.string(),
+      types: external_exports.array(external_exports.string()).min(1),
+      returns: external_exports.enum(["workflows", "steps"]).default("workflows"),
+      kind: external_exports.enum(["action", "trigger", "any"]).default("any"),
+      limit: external_exports.number().default(100),
+      offset: external_exports.number().default(0)
+    }),
+    capabilities: [{ method: "POST", path: "/workflows/es/search" }],
+    handler: async (args, deps) => guard(async () => {
+      const types = (args.types ?? []).filter((t) => typeof t === "string" && t.trim());
+      if (!types.length) {
+        return fail(
+          CODES.VALIDATION_FAILED,
+          "types must hold at least one step or trigger type name",
+          'Pass the type as describe_step_type spells it, e.g. ["wait"]. A search with no type would match the whole index.'
+        );
+      }
+      const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+      const byType = { field: "docKey", operator: "contains_set", value: types };
+      const kind = args.kind ?? "any";
+      const returns = args.returns ?? "workflows";
+      const byKind = kind === "any" ? null : { field: "docType", operator: "eq", value: kind };
+      const filters = returns === "workflows" ? [{ field: "childNode", operator: "has_child", value: [byType, ...byKind ? [byKind] : []] }] : [byType, ...byKind ? [byKind] : []];
+      const r = await gw.call("POST", "/workflows/es/search", {
+        locationId: args.locationId,
+        pageLimit: args.limit ?? 100,
+        offset: args.offset ?? 0,
+        filters
+      });
+      if (!r.ok) return fromHttp(r.status, r.json);
+      const rows = r.json?.workflows ?? [];
+      if (!Array.isArray(rows)) {
+        return fail(
+          CODES.VALIDATION_FAILED,
+          `es/search answered ${r.status} but not with a rows array \u2014 keys: ${Object.keys(r.json ?? {}).join(", ") || "(none)"}`,
+          "The response shape changed. Read it with raw_request before trusting a count from here."
+        );
+      }
+      const total = r.json?.count ?? null;
+      if (returns === "workflows") {
+        return ok({
+          countIs: "workflows containing at least one of these types",
+          count: total,
+          searched: types,
+          workflows: rows.map((w) => ({
+            id: w.id ?? w.workflowId ?? null,
+            name: w.name ?? null,
+            status: w.status ?? null,
+            paused: w.paused ?? null,
+            folderId: w.parentId ?? null
+          })),
+          note: 'count is WORKFLOWS here. returns:"steps" counts step DOCUMENTS instead, and the two differ \u2014 one workflow can hold several matching steps.'
+        });
+      }
+      return ok({
+        countIs: "step/trigger documents matching these types",
+        count: total,
+        searched: types,
+        steps: rows.map((w) => ({
+          workflowId: w.workflowJoinField?.parent ?? null,
+          stepId: w.meta?.id ?? null,
+          type: w.meta?.type ?? w.docKey ?? null,
+          docType: w.docType ?? null,
+          name: w.meta?.name ?? null,
+          attributes: w.meta?.attributes ?? null
+        })),
+        note: "count is step DOCUMENTS, not workflows \u2014 several may live in one workflow. Attributes are returned as stored, but CANNOT be filtered on server-side (see the tool description)."
+      });
+    }, args)
   },
   // ── THE ACCOUNT-LEVEL WORKFLOW SETTINGS RAIL ────────────────────────────────────────────────
   // Six routes the builder reads on load that no tool reached until 2026-09-15. They were not
