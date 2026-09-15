@@ -13,10 +13,11 @@ commit bodies carry the detail.
 
 ## [0.88.0] — 2026-09-16
 
-Three of the five changes below came from reading a surface we are not allowed to call. GHL keeps
-two loop rules on its model source rather than in its rule registry; GHL's own caller carries the
-body shape for its workflow search index; the search validator hands over its filter vocabulary in
-a 422. None of that is reachable by asking the API nicely, and all of it is now enforced or exposed.
+A loop can save, publish, run, and iterate zero times. GHL knows — its own model source says so —
+it just never declared it as a rule, which is why the registry diff that read 22 of 25 chain-order
+rules could not see it. Three of the changes below came the same way, from reading a surface we are
+not allowed to call: GHL's model source, GHL's own caller, and a validator handing over its filter
+vocabulary in a 422.
 
 The other thread is a trap that cost time twice: **two different rails answer "no such thing" with
 a 200.** `ok` on those rails means the request was well-formed, never that the thing exists.
