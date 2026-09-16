@@ -18711,6 +18711,20 @@
      "notes": "{ type: \"seconds\" | \"minutes\" | \"hour\" | \"days\", value: number, when: \"after\" | ... }`. Required for `time`. 90.7%. The drawer's unit VALUES are `seconds`, `minutes`, `hour` (singular) and `days` — `startAfterTypeOptions` (Wait.ts:1588, bundle-2026-08-21-3) maps the plural LABEL \"hours\" to the value `hour`. The TS interface still declares `'minutes' | 'hours' | 'days'`, and stored workflows contain both spellings (`startAfter` blocks in corpus+sniffs: minutes ×71, days ×10, hours ×4, hour ×1) — so a stored `hours` was written by an API call, not the drawer. Whether the scheduler honours it is UNPROVEN; the engine accepts it with a warning."
     },
     {
+     "name": "specificDatePassed",
+     "type": "string",
+     "required": "conditional",
+     "default": "skip` (compiler + GHL model)",
+     "notes": "\"next\" | \"exit\" | \"specific_step\" | \"skip\"` — what happens when a `specific_date` wait's date is ALREADY PAST. Drawer: *If date has already passed*. `next` = Continue to next action (released immediately, fails LOUD); `exit` = Exit from automation; `skip` = **Skip outbound communication** (proceeds with messages SUPPRESSED, fails SILENT) — note this is NOT \"skip the step\", the contact still advances; `specific_step` = Go to specific step, and the validator refuses without `specificDateStep`. 🔴 The default is `skip`, the SILENT one: author `\"next\"` explicitly if a stale date should be visible. 🔴 The drawer's radio falls back to `next` for DISPLAY when the key is absent, while the model writes `skip` on its own save — an API step that omits it reads in the builder as something it is not, so always write the key."
+    },
+    {
+     "name": "specificDateProceed",
+     "type": "string",
+     "required": "conditional",
+     "default": "on",
+     "notes": "on` and `after` accepted (live-probed 2026-09-16 via `validate_workflow`, with a nonsense control that was correctly refused naming the field and value). If `before`/`after`, at least one of `specificDateOffsetDays/Hours/Minutes` must be non-zero. Not exhaustively enumerated."
+    },
+    {
      "name": "appointmentStartAfter",
      "type": "object",
      "required": "conditional",
