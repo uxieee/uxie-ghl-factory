@@ -1,5 +1,5 @@
 {
-  "generated": "2026-09-15",
+  "generated": "2026-09-16",
   "trees": [
     {
       "tree": "workflow-builder",
@@ -20,16 +20,16 @@
     {
       "tree": "documented",
       "dir": "corpus",
-      "capturedAt": "2026-09-11T02:18:43.858Z",
+      "capturedAt": "2026-09-16T01:16:44.785Z",
       "hash": "corpus",
-      "fileCount": 837,
-      "endpoints": 837
+      "fileCount": 851,
+      "endpoints": 851
     }
   ],
   "note": "SOURCE-DERIVED ONLY, merged from every mined front-end. `tree` on each row says which app calls it. The plugin owns kind/note/summary/reach/coveredBy and merges them at read time. A row proves a GHL front-end calls that path — not that your token reaches it, and not that calling it is safe.",
-  "discoveredCallSites": 1312,
-  "skippedCallSites": 539,
-  "count": 1139,
+  "discoveredCallSites": 1326,
+  "skippedCallSites": 582,
+  "count": 1152,
   "endpoints": [
     {
       "id": "facebook-service--get-ad-account-by-id",
@@ -2551,7 +2551,7 @@
         "services/marketplaceServices/EmailStatsReportService.ts:10",
         "services/api/email-stats-service.ts:14",
         "workflows/70-research/ENDPOINTS.md:204",
-        "workflows/70-research/RAIL.md:108",
+        "workflows/70-research/RAIL.md:122",
         "workflows/70-research/STATS-RAILS.md:38"
       ],
       "serviceClass": "EmailStatsReportService",
@@ -2599,7 +2599,7 @@
         "services/marketplaceServices/EmailStatsReportService.ts:14",
         "services/api/email-stats-service.ts:9",
         "services/marketplaceServices/WorkflowStatsService.ts:28",
-        "workflows/70-research/RAIL.md:109",
+        "workflows/70-research/RAIL.md:123",
         "workflows/70-research/STATS-RAILS.md:25",
         "workflows/70-research/VERSIONS-STATS-LOGS.md:302"
       ],
@@ -2634,7 +2634,7 @@
       "sources": [
         "services/marketplaceServices/SmsStatsReportService.ts:12",
         "services/api/sms-stats-service.ts:13",
-        "workflows/70-research/RAIL.md:113"
+        "workflows/70-research/RAIL.md:127"
       ],
       "serviceClass": "SmsStatsReportService",
       "serviceBasis": "unattributed"
@@ -2703,7 +2703,7 @@
         "Version"
       ],
       "operation": "getMessageById",
-      "service": "conversations",
+      "service": null,
       "query": [],
       "body": null,
       "returns": null,
@@ -2717,7 +2717,7 @@
         "services/marketplaceServices/ConversationMessageService.ts:10"
       ],
       "serviceClass": "ConversationMessageService",
-      "serviceBasis": "inferred-from-path"
+      "serviceBasis": "unattributed"
     },
     {
       "id": "email-service--get-preference-sub-types",
@@ -2733,7 +2733,7 @@
         "location-id"
       ],
       "operation": "getPreferenceSubTypes",
-      "service": "conversations",
+      "service": null,
       "query": [
         {
           "name": "locationId",
@@ -2754,7 +2754,7 @@
         "services/EmailService.ts:234"
       ],
       "serviceClass": "EmailService",
-      "serviceBasis": "inferred-from-path"
+      "serviceBasis": "unattributed"
     },
     {
       "id": "conversations--fetch-domain",
@@ -2804,7 +2804,7 @@
         "Version"
       ],
       "operation": "getTikTokPosts",
-      "service": "conversations",
+      "service": null,
       "query": [
         {
           "name": "locationId",
@@ -2848,7 +2848,7 @@
         "workflows/70-research/ENDPOINTS.md:173"
       ],
       "serviceClass": "TikTokService",
-      "serviceBasis": "inferred-from-path"
+      "serviceBasis": "unattributed"
     },
     {
       "id": "tik-tok-service--get-tik-tok-post-by-id",
@@ -2865,7 +2865,7 @@
         "Version"
       ],
       "operation": "getTikTokPostById",
-      "service": "conversations",
+      "service": null,
       "query": [
         {
           "name": "locationId",
@@ -2896,7 +2896,7 @@
         "services/marketplaceServices/TikTokService.ts:25"
       ],
       "serviceClass": "TikTokService",
-      "serviceBasis": "inferred-from-path"
+      "serviceBasis": "unattributed"
     },
     {
       "id": "ask-ai--copilot-sample-messages",
@@ -5321,7 +5321,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "forms/20-api/forms.md:226",
+        "forms/20-api/forms.md:240",
         "forms/20-api/public-renderer-and-submit.md:16",
         "forms/20-api/public-renderer-and-submit.md:35",
         "forms/20-api/public-renderer-and-submit.md:51",
@@ -6483,6 +6483,32 @@
       "serviceBasis": "declared"
     },
     {
+      "id": "funnels--lookup-exists",
+      "method": "POST",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/funnels/lookup/exists",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "funnels",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/20-api/url-redirects.md:62"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
       "id": "funnels--lookup-list",
       "method": "GET",
       "origin": "https://backend.leadconnectorhq.com",
@@ -6547,6 +6573,96 @@
       },
       "sources": [
         "funnels/10-anatomy/domains-and-public-urls.md:167"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "funnels--redirect-list",
+      "method": "GET",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/funnels/lookup/redirect/list",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "funnels",
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "limit",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "offset",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/20-api/url-redirects.md:36"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "funnels--regex-bulk",
+      "method": "GET",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/funnels/lookup/redirect/regex/bulk",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "funnels",
+      "query": [
+        {
+          "name": "domains",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/20-api/url-redirects.md:47"
       ],
       "serviceBasis": "declared"
     },
@@ -7050,7 +7166,7 @@
       "tree": "workflow-builder",
       "extraHeaders": [],
       "operation": "getAccountIds",
-      "service": null,
+      "service": "ai-agents",
       "query": [
         {
           "name": "query",
@@ -7087,7 +7203,7 @@
         "services/FacebookService.ts:56"
       ],
       "serviceClass": "FacebookService",
-      "serviceBasis": "unattributed"
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "facebook-service--check-connection",
@@ -7100,7 +7216,7 @@
       "tree": "workflow-builder",
       "extraHeaders": [],
       "operation": "checkConnection",
-      "service": null,
+      "service": "ai-agents",
       "query": [],
       "body": null,
       "returns": null,
@@ -7116,7 +7232,7 @@
         "workflows/70-research/ENDPOINTS.md:170"
       ],
       "serviceClass": "FacebookService",
-      "serviceBasis": "unattributed"
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "facebook-service--get-pages",
@@ -7133,7 +7249,7 @@
         "Version"
       ],
       "operation": "getPages",
-      "service": null,
+      "service": "ai-agents",
       "query": [
         {
           "name": "getAll",
@@ -7154,7 +7270,7 @@
         "services/marketplaceServices/FacebookService.ts:39"
       ],
       "serviceClass": "FacebookService",
-      "serviceBasis": "unattributed"
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "facebook-service--get-lead-gen-froms",
@@ -7167,7 +7283,7 @@
       "tree": "workflow-builder",
       "extraHeaders": [],
       "operation": "getLeadGenFroms",
-      "service": null,
+      "service": "ai-agents",
       "query": [],
       "body": null,
       "returns": null,
@@ -7182,7 +7298,7 @@
         "workflows/70-research/ENDPOINTS.md:169"
       ],
       "serviceClass": "FacebookService",
-      "serviceBasis": "unattributed"
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "facebook-service--get-lead-gen-pages",
@@ -7195,7 +7311,7 @@
       "tree": "workflow-builder",
       "extraHeaders": [],
       "operation": "getLeadGenPages",
-      "service": null,
+      "service": "ai-agents",
       "query": [],
       "body": null,
       "returns": null,
@@ -7209,7 +7325,7 @@
         "services/FacebookService.ts:148"
       ],
       "serviceClass": "FacebookService",
-      "serviceBasis": "unattributed"
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "facebook-service--get-posts",
@@ -7226,7 +7342,7 @@
         "Version"
       ],
       "operation": "getPosts",
-      "service": null,
+      "service": "ai-agents",
       "query": [
         {
           "name": "locationId",
@@ -7278,7 +7394,7 @@
         "services/marketplaceServices/FacebookService.ts:123"
       ],
       "serviceClass": "FacebookService",
-      "serviceBasis": "unattributed"
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "backend--fetch-google-connections",
@@ -7291,7 +7407,7 @@
       "tree": "workflow-builder",
       "extraHeaders": [],
       "operation": "fetchGoogleConnections",
-      "service": null,
+      "service": "ai-agents",
       "query": [
         {
           "name": "locationId",
@@ -7323,7 +7439,7 @@
         "workflows/30-types/steps/google_sheets.md:104"
       ],
       "serviceClass": null,
-      "serviceBasis": "unattributed"
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "google-sheets-service--get-google-oauth-start-url",
@@ -7341,7 +7457,7 @@
         "Version"
       ],
       "operation": "getGoogleOAuthStartUrl",
-      "service": null,
+      "service": "ai-agents",
       "query": [
         {
           "name": "locationId",
@@ -7368,7 +7484,7 @@
         "services/GoogleSheetsService.ts:14"
       ],
       "serviceClass": "GoogleSheetsService",
-      "serviceBasis": "unattributed"
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "facebook-service--get-ig-posts",
@@ -7385,7 +7501,7 @@
         "Version"
       ],
       "operation": "getIgPosts",
-      "service": null,
+      "service": "ai-agents",
       "query": [
         {
           "name": "locationId",
@@ -7437,7 +7553,7 @@
         "services/marketplaceServices/FacebookService.ts:137"
       ],
       "serviceClass": "FacebookService",
-      "serviceBasis": "unattributed"
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "workflow-marketplace-service--fetch-single-app-details",
@@ -7450,7 +7566,7 @@
       "tree": "workflow-builder",
       "extraHeaders": [],
       "operation": "fetchSingleAppDetails",
-      "service": null,
+      "service": "ai-agents",
       "query": [],
       "body": null,
       "returns": null,
@@ -7464,7 +7580,7 @@
         "services/marketplaceServices/WorkflowMarketplaceService.ts:414"
       ],
       "serviceClass": "WorkflowMarketplaceService",
-      "serviceBasis": "unattributed"
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "workflow-marketplace-service--fetch-payment-plans",
@@ -7477,7 +7593,7 @@
       "tree": "workflow-builder",
       "extraHeaders": [],
       "operation": "fetchPaymentPlans",
-      "service": null,
+      "service": "ai-agents",
       "query": [
         {
           "name": "locationId",
@@ -7498,7 +7614,7 @@
         "services/marketplaceServices/WorkflowMarketplaceService.ts:442"
       ],
       "serviceClass": "WorkflowMarketplaceService",
-      "serviceBasis": "unattributed"
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "backend--get-tik-tok-forms",
@@ -7511,7 +7627,7 @@
       "tree": "workflow-builder",
       "extraHeaders": [],
       "operation": "getTikTokForms",
-      "service": null,
+      "service": "ai-agents",
       "query": [
         {
           "name": "locationId",
@@ -7536,7 +7652,7 @@
         "models/Triggers/FilterState.ts:1487"
       ],
       "serviceClass": null,
-      "serviceBasis": "unattributed"
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "backend--get-tik-tok-forms--get-id-mapped-pages",
@@ -7549,7 +7665,7 @@
       "tree": "workflow-builder",
       "extraHeaders": [],
       "operation": "getTikTokForms",
-      "service": null,
+      "service": "ai-agents",
       "query": [],
       "body": null,
       "returns": {
@@ -7567,7 +7683,7 @@
         "models/Triggers/FilterState.ts:1494"
       ],
       "serviceClass": null,
-      "serviceBasis": "unattributed"
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "platform--invoices-gen-url",
@@ -8126,17 +8242,46 @@
       },
       "sources": [
         "services/marketplaceServices/OpportunityCustomFieldService.ts:9",
-        "platform/20-api/custom-fields-and-values.md:122",
+        "platform/20-api/custom-fields-and-values.md:141",
         "platform/30-types/contact-filter-dsl.md:54",
         "workflows/10-anatomy/07-id-resolution.md:85",
         "workflows/10-anatomy/07-id-resolution.md:185",
         "workflows/70-research/ENDPOINTS.md:124",
-        "platform/20-api/custom-fields-and-values.md:148"
+        "platform/20-api/custom-fields-and-values.md:167"
       ],
       "serviceClass": "OpportunityCustomFieldService",
       "serviceBasis": "unattributed",
       "aka": [
         "/locations/{id}/customFields"
+      ]
+    },
+    {
+      "id": "platform--locations-custom-fields-post",
+      "method": "POST",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/locations/{locationId}/customFields",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "platform",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "platform/20-api/custom-fields-and-values.md:105"
+      ],
+      "serviceBasis": "declared",
+      "aka": [
+        "/locations/{L}/customFields"
       ]
     },
     {
@@ -8460,8 +8605,8 @@
         "services/CustomFieldService.ts:32",
         "forms/20-api/neighbour-services.md:20",
         "platform/20-api/custom-fields-and-values.md:24",
-        "platform/20-api/custom-fields-and-values.md:126",
-        "platform/20-api/custom-fields-and-values.md:142"
+        "platform/20-api/custom-fields-and-values.md:145",
+        "platform/20-api/custom-fields-and-values.md:161"
       ],
       "serviceClass": "CustomFieldService",
       "serviceBasis": "unattributed"
@@ -18588,7 +18733,8 @@
       },
       "sources": [
         "services/api/domain-selection.service.ts:57",
-        "workflows/20-api/sender-domain.md:16"
+        "workflows/20-api/sender-domain.md:16",
+        "workflows/40-rules/validation-gate.md:95"
       ],
       "serviceClass": null,
       "serviceBasis": "inferred-from-path"
@@ -20720,8 +20866,9 @@
       },
       "sources": [
         "services/api/workflow-asset-validation.ts:33",
+        "workflows/30-types/steps/email.md:144",
         "workflows/30-types/steps/if_else.md:31",
-        "workflows/40-rules/server-side-validation.md:226"
+        "workflows/40-rules/server-side-validation.md:229"
       ],
       "serviceClass": null,
       "serviceBasis": "inferred-from-path"
@@ -22062,6 +22209,8 @@
       },
       "sources": [
         "services/FlowGuardService.ts:86",
+        "workflows/50-runtime/flowguard-platform-guardrails.md:18",
+        "workflows/50-runtime/flowguard-platform-guardrails.md:19",
         "workflows/70-research/ENDPOINT-SWEEP-2026-08-25.md:76"
       ],
       "serviceClass": "FlowGuardService",
@@ -23555,7 +23704,7 @@
         "workflows/70-research/VERSIONS-STATS-LOGS.md:305",
         "services/api/marketplace-stats-service.ts:7",
         "workflows/70-research/ENDPOINTS.md:205",
-        "workflows/70-research/RAIL.md:114"
+        "workflows/70-research/RAIL.md:128"
       ],
       "serviceClass": "WorkflowsMarketplacePlatformService",
       "serviceBasis": "inferred-from-path",
@@ -24329,7 +24478,7 @@
       "sources": [
         "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:411",
         "workflows/70-research/ENDPOINTS.md:209",
-        "workflows/70-research/RAIL.md:250"
+        "workflows/70-research/RAIL.md:264"
       ],
       "serviceBasis": "declared"
     },
@@ -25421,7 +25570,7 @@
         "services/marketplaceServices/WorkflowMarketplaceService.ts:237",
         "workflows/50-runtime/11-runtime-logs.md:190",
         "workflows/50-runtime/11-runtime-logs.md:246",
-        "workflows/70-research/RAIL.md:120",
+        "workflows/70-research/RAIL.md:134",
         "workflows/70-research/RUNTIME-DATA-2.md:70"
       ],
       "serviceClass": "WorkflowMarketplaceService",
@@ -25467,7 +25616,7 @@
         "workflows/50-runtime/11-runtime-logs.md:145",
         "workflows/50-runtime/11-runtime-logs.md:242",
         "workflows/70-research/ENDPOINTS.md:193",
-        "workflows/70-research/RAIL.md:101"
+        "workflows/70-research/RAIL.md:115"
       ],
       "serviceBasis": "declared"
     },
@@ -25828,7 +25977,7 @@
         "services/marketplaceServices/WorkflowMarketplaceService.ts:203",
         "workflows/50-runtime/11-runtime-logs.md:188",
         "workflows/70-research/ENDPOINTS.md:194",
-        "workflows/70-research/RAIL.md:120",
+        "workflows/70-research/RAIL.md:134",
         "workflows/70-research/RUNTIME-DATA-2.md:71"
       ],
       "serviceClass": "WorkflowMarketplaceService",
@@ -26655,8 +26804,34 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/agent-deployment-routing.md:87",
+        "ai-agents/20-api/agent-deployment-routing.md:105",
         "workflows/50-runtime/flow-bot-four-node-certification.md:55"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "ai-agents--routing-config-configs-get",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/agent-deployment/routing-config/configs/{rowId}",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/agent-deployment-routing.md:75"
       ],
       "serviceBasis": "declared"
     },
@@ -26682,7 +26857,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/agent-deployment-routing.md:69",
+        "ai-agents/20-api/agent-deployment-routing.md:87",
         "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:99"
       ],
       "serviceBasis": "declared"
@@ -28111,7 +28286,7 @@
       },
       "sources": [
         "forms/00-overview/forms-surveys-quizzes.md:57",
-        "forms/20-api/forms.md:224",
+        "forms/20-api/forms.md:238",
         "forms/20-api/public-renderer-and-submit.md:130"
       ],
       "serviceBasis": "declared"
@@ -29110,7 +29285,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/agent-deployment-routing.md:122"
+        "ai-agents/20-api/agent-deployment-routing.md:140",
+        "ai-agents/20-api/agent-deployment-routing.md:356"
       ],
       "serviceBasis": "declared"
     },
@@ -29723,6 +29899,46 @@
       },
       "sources": [
         "conversations/20-api/email-sending-domains.md:103"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "ai-agents--providers-search",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/conversations/providers/search",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/agent-deployment-routing.md:382",
+        "ai-agents/20-api/agent-deployment-routing.md:417"
       ],
       "serviceBasis": "declared"
     },
@@ -30521,7 +30737,7 @@
         "forms/10-anatomy/form-object.md:73",
         "forms/20-api/forms.md:38",
         "forms/20-api/forms.md:82",
-        "forms/20-api/forms.md:133"
+        "forms/20-api/forms.md:147"
       ],
       "serviceBasis": "declared"
     },
@@ -30685,6 +30901,32 @@
       "serviceBasis": "declared"
     },
     {
+      "id": "forms--forms-data-get",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/forms/data",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "forms",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "forms/20-api/forms.md:123"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
       "id": "forms--get-forms-data",
       "method": "GET",
       "origin": "https://services.leadconnectorhq.com",
@@ -30780,7 +31022,7 @@
         "forms/_data/endpoints.json",
         "forms/20-api/forms.md",
         "forms/20-api/forms.md:40",
-        "forms/20-api/forms.md:190"
+        "forms/20-api/forms.md:204"
       ],
       "serviceBasis": "declared"
     },
@@ -30949,7 +31191,7 @@
         "forms/_data/endpoints.json",
         "forms/20-api/forms.md",
         "forms/20-api/forms.md:37",
-        "forms/20-api/forms.md:210",
+        "forms/20-api/forms.md:224",
         "forms/40-rules/validators-and-quirks.md:89"
       ],
       "serviceBasis": "declared"
@@ -31019,7 +31261,7 @@
         "forms/20-api/forms.md",
         "forms/20-api/folders.md:26",
         "forms/20-api/forms.md:41",
-        "forms/20-api/forms.md:204",
+        "forms/20-api/forms.md:218",
         "forms/40-rules/validators-and-quirks.md:92"
       ],
       "serviceBasis": "declared"
@@ -31050,7 +31292,7 @@
         "forms/_data/endpoints.json",
         "forms/20-api/forms.md",
         "forms/20-api/forms.md:42",
-        "forms/20-api/forms.md:197"
+        "forms/20-api/forms.md:211"
       ],
       "serviceBasis": "declared"
     },
@@ -31167,7 +31409,7 @@
         "forms/20-api/forms.md",
         "forms/00-overview/forms-surveys-quizzes.md:54",
         "forms/20-api/forms.md:47",
-        "forms/20-api/forms.md:218",
+        "forms/20-api/forms.md:232",
         "forms/20-api/public-renderer-and-submit.md:102"
       ],
       "serviceBasis": "declared"
@@ -31433,6 +31675,8 @@
       },
       "sources": [
         "services/marketplaceServices/InboundWebhookRequestService.ts:20",
+        "workflows/40-rules/publish-gate.md:91",
+        "workflows/40-rules/validation-gate.md:97",
         "workflows/70-research/INBOUND-WEBHOOK.md:34"
       ],
       "serviceClass": "InboundWebhookRequestService",
@@ -31531,6 +31775,39 @@
       ],
       "serviceClass": "InboundWebhookRequestService",
       "serviceBasis": "inferred-from-path"
+    },
+    {
+      "id": "ai-agents--facebook-pages",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/integrations/facebook/{locationId}/pages",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [
+        {
+          "name": "getAll",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/agent-deployment-routing.md:353"
+      ],
+      "serviceBasis": "declared"
     },
     {
       "id": "ai-agents--knowledge-base",
@@ -32500,7 +32777,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/agent-deployment-routing.md:49"
+        "ai-agents/20-api/agent-deployment-routing.md:55",
+        "ai-agents/20-api/agent-deployment-routing.md:357"
       ],
       "serviceBasis": "declared"
     },
@@ -38598,6 +38876,131 @@
       "serviceBasis": "declared"
     },
     {
+      "id": "ai-agents--routing-config-configs-get-get",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/routing-config/configs",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "agentId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/agent-deployment-routing.md:225",
+        "ai-agents/20-api/agent-deployment-routing.md:416"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "ai-agents--routing-config-configs-post-post",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/routing-config/configs",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/agent-deployment-routing.md:227"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "ai-agents--routing-config-configs-get-get-get",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/routing-config/configs/{rowId}",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/agent-deployment-routing.md:226",
+        "ai-agents/20-api/agent-deployment-routing.md:415"
+      ],
+      "serviceBasis": "declared",
+      "aka": [
+        "/routing-config/configs/{id}"
+      ]
+    },
+    {
+      "id": "ai-agents--routing-config-configs-patch-patch",
+      "method": "PATCH",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/routing-config/configs/{rowId}",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/agent-deployment-routing.md:228"
+      ],
+      "serviceBasis": "declared",
+      "aka": [
+        "/routing-config/configs/{id}"
+      ]
+    },
+    {
       "id": "platform--snapshot-get-assets-get",
       "method": "GET",
       "origin": "https://services.leadconnectorhq.com",
@@ -39136,6 +39539,39 @@
       },
       "sources": [
         "conversations/20-api/snippets.md:58"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "ai-agents--social-media-posting-accounts",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/social-media-posting/{locationId}/accounts",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [
+        {
+          "name": "platform",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/agent-deployment-routing.md:355"
       ],
       "serviceBasis": "declared"
     },
