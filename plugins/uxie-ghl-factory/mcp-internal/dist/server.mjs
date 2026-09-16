@@ -178,7 +178,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
     define_ENDPOINT_CATALOG_default = {
       generated: "2026-09-16",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 1159,
+      count: 1160,
       endpoints: [
         {
           id: "facebook-service--get-ad-account-by-id",
@@ -1734,7 +1734,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
-          id: "calendars--calendars",
+          id: "shared--calendars",
           aka: [
             "/calendars/{id}"
           ],
@@ -1770,6 +1770,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
+            "_shared/conformance/three-tiers-of-write-verification.md:47",
             "calendars/20-api/events-and-appointments.md:24",
             "calendars/20-api/events-and-appointments.md:85",
             "calendars/40-rules/appointment-status-semantics.md:19",
@@ -1777,7 +1778,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
-          id: "calendars--calendars-put",
+          id: "shared--calendars-put",
           aka: [
             "/calendars/{id}"
           ],
@@ -1812,6 +1813,10 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
+            "_shared/conformance/three-tiers-of-write-verification.md:11",
+            "_shared/conformance/three-tiers-of-write-verification.md:23",
+            "_shared/conformance/three-tiers-of-write-verification.md:35",
+            "_shared/conformance/three-tiers-of-write-verification.md:46",
             "calendars/40-rules/calendar-put-replaces-it-does-not-merge.md:23",
             "calendars/40-rules/calendar-put-replaces-it-does-not-merge.md:4",
             "calendars/40-rules/index.md:19"
@@ -16177,7 +16182,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/PhoneSystemService.ts:36"
+            "services/marketplaceServices/PhoneSystemService.ts:36",
+            "workflows/50-runtime/sms-readiness-gates-a-workflow.md:16"
           ]
         },
         {
@@ -17337,7 +17343,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "workflows/20-api/agency-premium-features.md:82"
+            "workflows/20-api/agency-premium-features.md:82",
+            "workflows/20-api/agency-premium-features.md:126"
           ]
         },
         {
@@ -17368,7 +17375,74 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "workflows/20-api/agency-premium-features.md:51"
+            "workflows/20-api/agency-premium-features.md:51",
+            "workflows/20-api/agency-premium-features.md:124"
+          ]
+        },
+        {
+          id: "funnels--schema-markup-schemas",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/schema-markup/schemas/{schemaMarkupId}",
+          path: "/schema-markup/schemas/{schemaMarkupId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "schemaMarkupId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/20-api/schema-markup.md:16"
+          ]
+        },
+        {
+          id: "funnels--schemas-save",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/schema-markup/schemas/save",
+          path: "/schema-markup/schemas/save",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/20-api/schema-markup.md:17"
           ]
         },
         {
@@ -23739,8 +23813,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "services/api/workflow-overview.service.ts:260",
             "conversations/20-api/email-sending-domains.md:44",
-            "conversations/20-api/email-sending-domains.md:147",
-            "conversations/20-api/email-sending-domains.md:180",
+            "conversations/20-api/email-sending-domains.md:190",
             "workflows/20-api/03-endpoints.md:297",
             "workflows/70-research/ENDPOINT-SWEEP-2026-08-25.md:71"
           ]
@@ -25121,7 +25194,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "resolved"
           },
           sources: [
-            "hooks/api/use-scheduler-preview.ts:26"
+            "hooks/api/use-scheduler-preview.ts:26",
+            "_shared/conformance/a-success-that-equals-the-null-result.md:18"
           ]
         },
         {
@@ -35894,7 +35968,10 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
-          id: "calendars--calendars-put-put-put",
+          id: "calendars--calendars-put-put",
+          aka: [
+            "/calendars/{id}"
+          ],
           method: "PUT",
           url: "https://services.leadconnectorhq.com/calendars/{calendarId}",
           path: "/calendars/{calendarId}",
@@ -35926,7 +36003,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "calendars/20-api/schedules.md:73"
+            "calendars/20-api/schedules.md:73",
+            "calendars/20-api/schedules.md:85",
+            "calendars/20-api/schedules.md:98"
           ]
         },
         {
@@ -36066,7 +36145,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "calendars/20-api/schedules.md:91"
+            "calendars/20-api/schedules.md:120"
           ]
         },
         {
@@ -37100,7 +37179,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "conversations/20-api/email-sending-domains.md:102",
-            "conversations/20-api/email-sending-domains.md:183"
+            "conversations/20-api/email-sending-domains.md:193"
           ]
         },
         {
@@ -37486,37 +37565,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
-          id: "conversations--domain-link-gromdigital-com",
-          method: "GET",
-          url: "https://services.leadconnectorhq.com/email-isv/feature/domain/link.gromdigital.com",
-          path: "/email-isv/feature/domain/link.gromdigital.com",
-          origin: "https://services.leadconnectorhq.com",
-          rail: "ai",
-          kind: "read",
-          reach: "refused",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "conversations",
-          tree: "documented",
-          pathParams: [],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "conversations/20-api/email-sending-domains.md:152"
-          ]
-        },
-        {
           id: "conversations--domain-list",
           method: "GET",
           url: "https://services.leadconnectorhq.com/email-isv/feature/domain/list",
@@ -37546,8 +37594,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "conversations/20-api/email-sending-domains.md:75",
-            "conversations/20-api/email-sending-domains.md:151",
-            "conversations/20-api/email-sending-domains.md:179"
+            "conversations/20-api/email-sending-domains.md:189"
           ]
         },
         {
