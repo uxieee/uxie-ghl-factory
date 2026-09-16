@@ -260,9 +260,10 @@ bound to a client, and check `auth_status` rather than the browser for which acc
 
 6. **Verify.** The server must connect; call `auth_status` (claims only) and confirm
    `allowedLocations` equals the number of ids you wrote, then call one real read tool —
-   **`list_workflows_complete`**, against an account this registration reaches — and confirm `ok`.
-   Not `list_workflows`: it stops at 100 rows silently, so a pass on it proves less than it
-   looks. A brand-new registration may need the user to reload/approve before the tools appear.
+   **`list_workflows`**, against an account this registration reaches — and confirm `ok` AND
+   `complete:true`. `ok` alone is not enough: the walk reports a short or contradicted read as
+   `complete:false` with a null roster, which is a real answer and not a broken registration.
+   A brand-new registration may need the user to reload/approve before the tools appear.
 
 ---
 

@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { validateRecord, labelFor, AUDIT_COMPOSITES } from '../../../../scripts/lib/proof-record.mjs';
+import { validateRecord, labelFor, LABEL_FROZEN_TOOLS } from '../../../../scripts/lib/proof-record.mjs';
 
 const good = () => ({
   tool: 'build_workflow', surfaces: ['workflows'],
@@ -41,8 +41,17 @@ test('labels: latest fail wins; otherwise the latest pass and its class', () => 
   assert.equal(labelFor(c), 'live-canary (2026-09-10)');
 });
 
-test('the three audit composites are named, and match the frozen test', () => {
-  assert.deepEqual([...AUDIT_COMPOSITES].sort(), ['get_ai_configuration_bundle', 'get_workflow_runtime_window', 'list_workflows_complete']);
+// These three carry a FROZEN description label, so syncLabels may never rewrite it. They are
+// otherwise ordinary tools in this proof system — the exclusion that kept them out entirely
+// went with core/audit-proof.mjs on 2026-09-16, and an exclusion whose alternative no longer
+// exists is just "unprovable forever".
+test('the label-frozen tools are named, and match the frozen description test', () => {
+  assert.deepEqual([...LABEL_FROZEN_TOOLS].sort(), ['get_ai_configuration_bundle', 'get_workflow_runtime_window', 'list_workflows']);
+});
+
+test('a label-frozen tool may still carry a proof record', () => {
+  const r = good(); r.tool = 'list_workflows';
+  assert.deepEqual(validateRecord(r), [], 'the old exclusion made these three unprovable forever');
 });
 
 // Security rounds: preventing leakage of 20-char location IDs through machine-derived fields

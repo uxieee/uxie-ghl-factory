@@ -20,6 +20,7 @@ import {
   getAiConfigurationBundle,
   listWorkflowsComplete,
   validateAiBundleInput,
+  ROSTER_STATUS_VALUES,
   validateRosterInput,
 } from './audit-configuration.mjs';
 import { fetchEntities, fetchMarketplace, missingRequiredFields, orchestrate } from '../../skills/create-ghl-workflow/engine/orchestrate.mjs';
@@ -2010,38 +2011,6 @@ export const TOOLS = [
     }, args),
   },
   {
-    name: 'list_workflows',
-    description: describe('list_workflows', 'List workflows in a location.'),
-    inputSchema: schema({
-      locationId: z.string(),
-      // Modeled as a free string, not z.enum: the SDK's invalid_enum_value error echoes the
-      // received value BEFORE our scrubber runs, so a credential passed here would leak. We
-      // validate the allowed set inside the handler, downstream of the secret scrub (SC2).
-      status: z.string().optional(),
-      search: z.string().optional(),
-      limit: z.number().default(100),
-      offset: z.number().default(0),
-    }),
-    capabilities: [{ method: 'GET', path: '/workflow/{loc}/list' }],
-    handler: async (args, deps) => guard(async () => {
-      if (args.status !== undefined && !['published', 'draft'].includes(args.status)) {
-        return fail(CODES.VALIDATION_FAILED, 'status must be "published" or "draft" (value withheld)',
-          'Pass status:"published" or status:"draft", or omit it.');
-      }
-      const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
-      const q = new URLSearchParams({
-        type: 'workflow', limit: String(args.limit ?? 100), offset: String(args.offset ?? 0),
-        sortBy: 'name', sortOrder: 'asc', includeCustomObjects: 'true', includeObjectiveBuilder: 'true',
-      });
-      if (args.status) q.set('status', args.status);
-      if (args.search) q.set('search', args.search);
-      const r = await gw.call('GET', `/workflow/${encodeURIComponent(args.locationId)}/list?${q}`);
-      if (!r.ok) return fromHttp(r.status, r.json);
-      const rows = (r.json.rows ?? []).map((w) => ({ id: w._id ?? w.id, name: w.name, status: w.status, version: w.version, updatedAt: w.updatedAt }));
-      return ok({ count: r.json.count ?? rows.length, workflows: rows });
-    }, args),
-  },
-  {
     name: 'get_workflow',
     description: describe('get_workflow', 'Get one workflow summary.'),
     inputSchema: schema({
@@ -2952,13 +2921,22 @@ export const TOOLS = [
     }, args),
   },
   {
-    name: 'list_workflows_complete',
+    name: 'list_workflows',
     description: describe(
-      'list_workflows_complete',
-      'Walk the workflow roster to a reconciled terminal proof — proof: external-receipt-required; risk: read. A failed, contradicted or budget-exhausted walk is complete:false with a coded warning and a null roster, never an empty list. Live canary required before Full audit.',
+      'list_workflows',
+      'Every workflow in a location, walked to a reconciled terminal proof — proof: external-receipt-required; risk: read. '
+      + 'Optional `status` (published|draft) and `search` filter the walk, and the reconciled total is then the total FOR THAT FILTER. '
+      + 'A failed, contradicted or budget-exhausted walk is complete:false with a coded warning and a null roster, never an empty list — '
+      + 'so a short answer can never read as a complete one. Live canary required before Full audit.',
     ),
     inputSchema: schema({
       locationId: z.string(),
+      // Modeled as free strings, not z.enum: the SDK's invalid_enum_value error echoes the
+      // received value BEFORE our scrubber runs, so a credential passed here would leak. The
+      // allowed set is checked in the handler below, downstream of the secret scrub (SC2),
+      // against the same ROSTER_STATUS_VALUES the capability descriptor allows.
+      status: z.string().optional(),
+      search: z.string().optional(),
       // Bounded HERE as well as in the composite: the descriptor's own limit bound is 100,
       // and a schema that admitted more would hand the composite a budget its own validator
       // would then refuse — two copies of one rule disagreeing.
@@ -2977,6 +2955,17 @@ export const TOOLS = [
       { method: 'GET', path: '/workflow/{loc}/list' },
     ],
     handler: async (args, deps) => guard(async () => {
+      // `status` is checked HERE, ahead of validateRosterInput, purely to keep ONE error code
+      // for one kind of mistake. The walk's own validator would also refuse it, but under
+      // INVALID_AUDIT_CONFIGURATION_INPUT — while a JWT-shaped status is caught earlier still
+      // by the argument scrubber under VALIDATION_FAILED. Two invalid statuses returning two
+      // different codes from one tool is a contract a caller cannot switch on, and this tool
+      // inherited VALIDATION_FAILED from the one-page list_workflows it replaced (SC2).
+      // The value is never echoed: the SDK's invalid_enum_value error would print it.
+      if (args?.status !== undefined && !ROSTER_STATUS_VALUES.includes(args.status)) {
+        return fail(CODES.VALIDATION_FAILED, 'status must be "published" or "draft" (value withheld)',
+          'Pass status:"published" or status:"draft", or omit it.');
+      }
       // Validated BEFORE the gateway is constructed, for the same reason the runtime window
       // is: building one first spends a credential read for a request that was never legal.
       const config = validateRosterInput(args ?? {});

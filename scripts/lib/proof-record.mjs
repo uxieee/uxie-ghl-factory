@@ -4,9 +4,16 @@
 import { readdirSync, readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 
-// Frozen at `external-receipt-required` by MI/test/tools.test.mjs and governed by core/audit-proof.mjs's
-// own expiring receipt chain. No record is written for them and no label is synced onto them.
-export const AUDIT_COMPOSITES = Object.freeze(['get_workflow_runtime_window', 'list_workflows_complete', 'get_ai_configuration_bundle']);
+// These three answer through the completeness rail and are frozen at
+// `external-receipt-required` by MI/test/tools.test.mjs. Until 2026-09-16 they were EXCLUDED
+// from this proof system, because core/audit-proof.mjs governed them with its own expiring
+// receipt chain. That file went with the read-only audit server, and an exclusion whose
+// alternative no longer exists means "unprovable forever" — so they are ordinary tools here
+// now. They read `unproven` until somebody runs them, which is the true statement.
+//
+// Their tool DESCRIPTION label stays frozen regardless: syncLabels may not overwrite it,
+// because the description is what an operator reads when deciding how far to trust a sweep.
+export const LABEL_FROZEN_TOOLS = Object.freeze(['get_workflow_runtime_window', 'list_workflows', 'get_ai_configuration_bundle']);
 
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
 const TOOL = /^[a-z0-9_]+$/;
@@ -33,7 +40,6 @@ export function validateRecord(rec) {
   if (!rec || typeof rec !== 'object') return ['record is not an object'];
   keysOnly(rec, ['tool', 'surfaces', 'runs', 'depends'], 'record', errs);
   if (!TOOL.test(rec.tool ?? '')) errs.push('tool: not a tool name');
-  if (AUDIT_COMPOSITES.includes(rec.tool)) errs.push(`${rec.tool}: an audit composite — governed by core/audit-proof.mjs, never a proof record`);
   if (!Array.isArray(rec.surfaces) || !rec.surfaces.length || !rec.surfaces.every((s) => SURFACE.test(s))) errs.push('surfaces: a non-empty list of surface names');
   if (!Array.isArray(rec.runs) || !rec.runs.length) errs.push('runs: at least one run');
   (rec.runs ?? []).forEach((r, i) => {

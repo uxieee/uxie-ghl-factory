@@ -29,7 +29,7 @@ test('backfill takes live labels only, keeps their date and class, cites proofRo
     build_workflow: { description: 'Build — proof: live-runtime (2026-09-10); risk: write', proof: 'live-runtime (2026-09-10)', proofRows: ['workflow-create'] },
     pin_webhook_sample: { description: 'Pin — proof: live-canary (2026-08-22); risk: write', proof: 'live-canary (2026-08-22)', proofRows: [] },
     list_courses: { description: 'List — proof: documented; risk: read', proof: 'documented' },
-    list_workflows_complete: { description: 'x — proof: external-receipt-required; risk: read', proof: 'external-receipt-required' },
+    list_workflows: { description: 'x — proof: external-receipt-required; risk: read', proof: 'external-receipt-required' },
   };
   const recs = backfillFrom(descriptions, { compute: () => computed() }, '2026-09-14');
   assert.deepEqual(recs.map((r) => r.tool).sort(), ['build_workflow', 'pin_webhook_sample']);
@@ -87,18 +87,24 @@ test('backfillWrite stops on the first failing tool and reports count written, t
   assert.match(err.message, /skips tools that already have a record/);
 });
 
-test('runsFromReceipt: one run per exercised tool; nothing from an unverified suite or an audit composite', () => {
+// `list_workflows` sat in this case as the composite that had to be SKIPPED, because
+// core/audit-proof.mjs governed the three composites instead. That file went on 2026-09-16,
+// so they are ordinary tools here now and a suite run records for them like any other. The
+// unverified-suite half of this test is untouched: `funnels` carries summary:null and still
+// contributes nothing.
+test('runsFromReceipt: one run per exercised tool, and nothing from an unverified suite', () => {
   const receipt = { location: '…zn6B', results: [
     { name: 'workflows', summary: { passed: 54, failed: 1 }, exercised: [
       { tool: 'build_workflow', calls: 2, passed: 5, failed: 0, failures: [] },
       { tool: 'export_workflow', calls: 18, passed: 30, failed: 1, failures: ['export-keeps-triggers'] },
-      { tool: 'list_workflows_complete', calls: 1, passed: 1, failed: 0, failures: [] },
+      { tool: 'list_workflows', calls: 1, passed: 1, failed: 0, failures: [] },
     ] },
     { name: 'funnels', summary: null, exercised: [{ tool: 'audit_site', calls: 1, passed: 1, failed: 0, failures: [] }] },
     { name: 'memberships', summary: { passed: 40, failed: 0 }, exercised: [] },
   ] };
   const runs = runsFromReceipt(receipt, '2026-09-20-0930');
-  assert.deepEqual(runs.map((r) => [r.tool, r.run.result]), [['build_workflow', 'pass'], ['export_workflow', 'fail']]);
+  assert.deepEqual(runs.map((r) => [r.tool, r.run.result]),
+    [['build_workflow', 'pass'], ['export_workflow', 'fail'], ['list_workflows', 'pass']]);
   assert.deepEqual(runs[1].run, { at: '2026-09-20', result: 'fail', how: 'suite', suite: 'workflows',
     evidence: ['receipt:2026-09-20-0930'], location: '…zn6B', failures: ['export-keeps-triggers'] });
 });

@@ -679,53 +679,54 @@ if (wid) {
   }
 }
 
-// ── 6. the account rail, and the silent cap ─────────────────────────────────────────────────
-// 🔴 THE POINT OF THIS SECTION. list_workflows stops at 100 rows and says nothing about it: the
-// envelope's own `count` reports the account total, so a caller who trusts the rows has silently
-// censused a fraction of the account and has no way to tell. This asserts the cap EXISTS rather
-// than documenting it, and then asserts list_workflows_complete beats it — a differential, so a
-// day when GHL raises the cap fails here instead of being discovered by a wrong report.
+// ── 6. the account rail ─────────────────────────────────────────────────────
+// 🔴 WHAT THIS SECTION USED TO BE, AND WHY IT IS NOT THAT ANY MORE. Until 2026-09-16 there were
+// two listing tools: a one-page `list_workflows` that stopped silently at the row cap, and
+// `list_workflows_complete` that walked and reconciled. This section was a DIFFERENTIAL between
+// them — assert the cap exists on one rail, assert the other beats it. They were merged into one
+// tool, so that differential would now compare a tool against itself and discriminate nothing.
+//
+// What survives is the invariant that actually matters and is still checkable with one rail:
+// the walk must return EVERY row it reports, and its reported total must equal the total the
+// account reports for a one-row probe. A cap, if GHL brings one back, now shows up as
+// complete:false or as a row/total mismatch — both of which fail here.
 console.log('\nthe account rail');
 log.subject('list_workflows');
-// THE LIMIT IS DERIVED FROM THE ACCOUNT, NEVER A CONSTANT. Written as limit:200 this passed four
+// THE LIMIT IS DERIVED FROM THE ACCOUNT, NEVER A CONSTANT. Written as a literal this passed four
 // runs and then failed four in a row — not because GHL changed, but because THIS SUITE had grown
-// the account past 200. It creates workflows on every run and tears nothing down by design, and by
-// 2026-09-15 it had left 90 TEST-CONF-* workflows in an account of 214. An assertion whose truth
-// depends on a constant larger than the account has an expiry date, and the thing that expires it
-// is the suite itself. Ask for one row to learn the total, then ask for more than the total.
-const probe = await call('list_workflows', { limit: 1, offset: 0 });
-const total = probe.data?.count;
+// the account past it. It creates workflows on every run and tears nothing down by design.
+const probe = await call('list_workflows', { pageSize: 1, maxPages: 1 });
+const total = probe.data?.reportedTotal;
 check(typeof total === 'number' && total > 0, 'list_workflows reports an account total', String(total));
-const askFor = Math.max(200, (total ?? 0) + 50);
-const capped = await call('list_workflows', { limit: askFor, offset: 0 });
-const rows = capped.data?.workflows ?? [];
-// 🔴 THE 100-ROW CAP IS NOT REPRODUCIBLE AS OF 2026-09-15 — see console bl-131.
-// This assertion was written the other way round, expecting the cap, because a reference note of
-// 2026-09-11 records list_workflows stopping at 100 silently on this very account. Asked for 200
-// against 165 workflows, it returned all 165. So the rule is asserted in the direction it is now
-// TRUE, and it fails loudly the day a cap comes back — which is the only way a census built on
-// this rail finds out before a report does.
-if (total > 100) {
-  check(rows.length === total,
-    `list_workflows returned ALL ${total} rows for limit=${askFor} — the 100-row cap recorded on 2026-09-11 does NOT reproduce`,
-    `asked ${askFor}, got ${rows.length} of ${total}`);
-} else {
-  check(false, `cap NOT EXERCISED — this account has only ${total} workflows, fewer than the 100 the old note describes. `
-    + 'Neither the cap nor its absence is proven here; run against an account with more than 100.');
+// A one-page walk of a multi-page account MUST refuse to call itself complete. This is the
+// positive control for every completeness claim below: if a truncated walk still said
+// complete:true, the assertions that follow would prove nothing.
+if (total > 1) {
+  check(probe.data?.complete === false,
+    'a 1-page budget against a larger account is complete:FALSE — a short walk never reads as a whole one',
+    `complete=${probe.data?.complete} for ${total} workflows`);
+  check((probe.data?.workflows ?? null) === null,
+    'and it publishes a NULL roster rather than a partial list', JSON.stringify(probe.data?.workflows)?.slice(0, 40));
 }
 
-log.subject('list_workflows_complete');
-const full = await call('list_workflows_complete', { pageSize: 100, maxPages: Math.ceil((total ?? 100) / 100) + 2 });
-check(full.data?.complete === true, 'list_workflows_complete reports that it exhausted the pages', full.data?.terminalReason);
+const full = await call('list_workflows', { pageSize: 100, maxPages: Math.ceil((total ?? 100) / 100) + 2 });
+check(full.data?.complete === true, 'given enough budget it exhausts the pages', full.data?.terminalReason);
 check(full.data?.reportedTotal === total,
-  'and agrees with list_workflows about the account total — the two rails read the same account',
-  `${full.data?.reportedTotal} vs ${total}`);
+  'and reconciles to the same account total the one-row probe reported', `${full.data?.reportedTotal} vs ${total}`);
 const fullRows = full.data?.workflows ?? [];
 check(fullRows.length === full.data?.reportedTotal,
   'it returns EVERY row it reported, which is the whole reason it exists', `${fullRows.length} of ${full.data?.reportedTotal}`);
-check(fullRows.length === rows.length,
-  'and with the cap absent the two rails now return the SAME rows — list_workflows_complete is '
-  + 'currently belt-and-braces rather than the only correct census', `${fullRows.length} vs ${rows.length}`);
+
+// The filters moved onto the walk in the merge, so the reconciled total must be the total FOR
+// THE FILTER — not the account total. A filter that was accepted and ignored would show up
+// here as a published count equal to the unfiltered one.
+const published = await call('list_workflows', { status: 'published', pageSize: 100, maxPages: 20 });
+check(published.data?.complete === true, 'a filtered walk also reaches a terminal proof', published.data?.terminalReason);
+check((published.data?.reportedTotal ?? 0) <= total,
+  'and its reconciled total is the total FOR THE FILTER, never the account total',
+  `published ${published.data?.reportedTotal} vs account ${total}`);
+check((published.data?.workflows ?? []).every((w) => w.status === 'published'),
+  'every row a status-filtered walk returns carries that status');
 
 log.subject('get_account_workflow_overview');
 const ov = await call('get_account_workflow_overview', { workflowIds: [], needsReviewLimit: 5 });

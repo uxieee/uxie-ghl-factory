@@ -2362,9 +2362,16 @@ const CATALOG_ROW_FIELDS = Object.freeze(['rows', 'proofRows', 'proofFloorRows',
 // The entries this plan ADDED to a catalog that c0566c6 had already reconciled against the
 // docs capability matrix. They are the ones that can invent a row id, because everything else
 // in the file predates them and IS the reconciliation.
+//
+// `list_workflows` LEFT this set on 2026-09-16. It was here as the newly-added roster-walk
+// composite (then named list_workflows_complete), corroborated by the one-page list_workflows
+// that cited the same `workflow-list` row. The two were merged into one tool, so the composite
+// absorbed the very entry that vouched for it and became the sole citer of that row — which is
+// the `entities-calendars-list` situation the exemption below already describes, not an
+// invented id. Holding it to "another entry already cites this" would now fail for the one
+// reason the rule was never about.
 const AUDIT_CATALOG_ENTRIES = Object.freeze([
   'get_workflow_runtime_window',
-  'list_workflows_complete',
   'get_ai_configuration_bundle',
 ]);
 

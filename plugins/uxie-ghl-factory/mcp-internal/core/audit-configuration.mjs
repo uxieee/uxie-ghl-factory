@@ -314,11 +314,29 @@ const boundedInteger = (value, { min, max, fallback, name }) => {
   return value;
 };
 
+// Mirrors `workflow_roster_list`'s allowedQueryValues. Kept as one constant so the schema,
+// this validator and the descriptor cannot drift into three different opinions.
+export const ROSTER_STATUS_VALUES = Object.freeze(['published', 'draft']);
+
 export function validateRosterInput(input = {}) {
   const source = input ?? {};
   if (!isNonEmptyString(source.locationId)) throw invalidInput('locationId must be a non-empty string');
+  // `status` and `search` were only ever reachable through the old one-page `list_workflows`,
+  // which forced a caller to choose between FILTERS and a reconciled count. The capability
+  // descriptor `workflow_roster_list` has always declared both as optionalQueryKeys, with
+  // `status` bounded to published|draft — so carrying them here widens no policy. Validated
+  // against the same values the descriptor allows, and REFUSED rather than dropped: a filter
+  // silently ignored would report a reconciled total for a question nobody asked.
+  if (source.status !== undefined && !ROSTER_STATUS_VALUES.includes(source.status)) {
+    throw invalidInput(`status must be one of ${ROSTER_STATUS_VALUES.join(', ')} when supplied`);
+  }
+  if (source.search !== undefined && !isNonEmptyString(source.search)) {
+    throw invalidInput('search must be a non-empty string when supplied');
+  }
   return {
     locationId: source.locationId,
+    status: source.status ?? null,
+    search: source.search ?? null,
     pageSize: boundedInteger(source.pageSize, { min: 1, max: ROSTER_MAX_PAGE_SIZE, fallback: ROSTER_DEFAULTS.pageSize, name: 'pageSize' }),
     maxPages: boundedInteger(source.maxPages, { min: 1, max: MAX_PAGE_BUDGET, fallback: ROSTER_DEFAULTS.maxPages, name: 'maxPages' }),
   };
@@ -770,6 +788,11 @@ export async function listWorkflowsComplete({ auditGateway, input } = {}) {
         sortOrder: 'asc',
         includeCustomObjects: 'true',
         includeObjectiveBuilder: 'true',
+        // Optional, and ABSENT rather than empty when unset: the descriptor lists them as
+        // optionalQueryKeys, and an empty `search=` is a different question from no search.
+        // They ride every page, so the reconciled total is the total FOR THE FILTER.
+        ...(config.status === null ? {} : { status: config.status }),
+        ...(config.search === null ? {} : { search: config.search }),
       };
       pagination.attempted += 1;
       const response = await read(query);

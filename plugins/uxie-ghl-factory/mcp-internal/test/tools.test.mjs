@@ -93,6 +93,10 @@ test('SC2: an invalid status/host is rejected in-handler without echoing the val
   for (const bad of ['archived', jwtish]) {
     const s = await listWf.handler({ locationId: 'L', status: bad }, deps);
     assert.equal(s.ok, false);
+    // list_workflows became the reconciled roster walk on 2026-09-16 and this contract did
+    // NOT change: the walk's own input validator refuses a bad `status`, and guard() maps it
+    // to the same VALIDATION_FAILED the one-page tool returned. The rest of SC2 is the point —
+    // the value is never echoed, and no gateway is constructed (`deps.makeGw` throws).
     assert.equal(s.code, 'VALIDATION_FAILED');
     assert.doesNotMatch(JSON.stringify(s), /archived|eyJ|payloadpayload/);
     const h = await raw.handler({ locationId: 'L', method: 'GET', path: '/x', host: bad }, deps);
@@ -141,7 +145,7 @@ test('set_token_file and auth_status reject token-id credentials in direct-call 
 // that no longer matches the proof index. (Until 2026-09-16 these three were also the
 // composites of a second, read-only audit server; that server is gone, the labels are not.)
 test('every receipt-gated composite carries the frozen proof, risk and canary labels', async () => {
-  const composites = ['get_workflow_runtime_window', 'list_workflows_complete', 'get_ai_configuration_bundle'];
+  const composites = ['get_workflow_runtime_window', 'list_workflows', 'get_ai_configuration_bundle'];
   for (const name of composites) {
     const tool = TOOLS.find((candidate) => candidate.name === name);
     assert.ok(tool, `${name} is not registered`);
@@ -158,7 +162,7 @@ test('every receipt-gated composite carries the frozen proof, risk and canary la
 });
 
 test('no audit composite description promises an empty result on failure', () => {
-  for (const name of ['get_workflow_runtime_window', 'list_workflows_complete', 'get_ai_configuration_bundle']) {
+  for (const name of ['get_workflow_runtime_window', 'list_workflows', 'get_ai_configuration_bundle']) {
     const tool = TOOLS.find((candidate) => candidate.name === name);
     assert.match(tool.description, /never an empty/i,
       `${name} must state that a failure is never an empty result — that is the whole contract`);

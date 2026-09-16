@@ -151,7 +151,7 @@ commit `dist/` — a test rebuilds-and-diffs so a stale bundle can't ship.
 | `export_workflow` | workflow body + triggers + sticky notes |
 | `get_workflow_logs` | executions, per-step counts, enrollment roster; `executionId` = one run's full step trace |
 | `get_workflow_runtime_window` | one workflow's complete, evidence-qualified runtime window (see **Audit profile**) |
-| `list_workflows_complete` | the whole roster walked to a reconciled terminal proof (see **Audit profile**) |
+| `list_workflows` | the whole roster walked to a reconciled terminal proof; optional `status`/`search` filter the walk (see **The receipt-gated composites**) |
 | `get_ai_configuration_bundle` | Conversation AI + Voice AI + Agent Studio discovery and detail (see **Audit profile**) |
 | `get_contacts_at_step` | contacts parked at or processed by one step, paginated to the reported total |
 | `get_workflow_stats` | the builder's Stats view as data: per-step SMS/email aggregates, per-trigger attempted/matched, contacts per step (last 30 days) |
@@ -266,7 +266,7 @@ machine-branchable:
 
 ## The receipt-gated composites
 
-`list_workflows_complete`, `get_workflow_runtime_window` and `get_ai_configuration_bundle`
+`list_workflows`, `get_workflow_runtime_window` and `get_ai_configuration_bundle`
 answer through the audit gateway (`core/audit-gateway.mjs`) rather than the ordinary one, so
 they get capability-descriptor validation against `core/audit-capabilities.mjs`, response
 identity inspection, a shared limiter and a shared circuit. Each is labelled
@@ -290,9 +290,14 @@ confirmation gates are for.
 ### What the composites deliberately do NOT reuse
 
 `list_account_entities` and `get_workflow_logs` substitute an empty array for a failed
-component, `list_workflows` reads one offset page and never reconciles the reported count, and
-`get_contacts_at_step` reports `complete: true` unconditionally. Each fails a completeness
-requirement in its own way, and a composite that called one would inherit it.
+component, and `get_contacts_at_step` reports `complete: true` unconditionally. Each fails a
+completeness requirement in its own way, and a composite that called one would inherit it.
+
+A fourth used to be on this list: the one-page `list_workflows`, which read a single offset
+page and never reconciled the reported count. On 2026-09-16 it was MERGED INTO the roster walk
+rather than left beside it — it forced a caller to choose between the `status`/`search` filters
+and a reconciled count, and the capability descriptor had always permitted both. One tool now
+answers the question, and a short read can no longer look like a complete one.
 
 ### `get_workflow_runtime_window`
 
@@ -372,7 +377,7 @@ Two output fields are easy to misread. `enrollmentTotals` is workflow-wide and a
 the workflow definition does not contain is refused locally with `STEP_ROSTER_UNSEALED` and
 `contacts: null`, without a read.
 
-### `list_workflows_complete` and `get_ai_configuration_bundle`
+### `list_workflows` and `get_ai_configuration_bundle`
 
 The roster walks by offset and publishes only when the unique workflow count equals a
 **stable** reported total; it reports one flat completeness verdict, because it is a single

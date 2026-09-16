@@ -15,7 +15,7 @@ With `uxie-ghl-internal-mcp` registered, this is one call and no browser:
 |---|---|
 | the full body, triggers and sticky notes in one read | `export_workflow` |
 | a summary rather than the whole graph | `get_workflow` |
-| what exists on the account | `list_workflows`, `list_workflows_complete` |
+| what exists on the account | `list_workflows` (walks the whole roster; check `complete`) |
 | a specific saved version | `get_workflow_version`, `list_workflow_versions` |
 
 They handle auth, throttling and the read-back. **Prefer them.** Everything below is the fallback

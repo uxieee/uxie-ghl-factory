@@ -11,6 +11,39 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [Unreleased]
+
+### Changed
+
+- 🔴 **`list_workflows` and `list_workflows_complete` are one tool.** Both called
+  `GET /workflow/{loc}/list`. The first read a single offset page and never reconciled the total
+  the envelope itself reported, so an account with more workflows than the page size got a
+  truncated answer that looked exactly like a complete one. The second walked and reconciled but
+  exposed **no `status` or `search`** — so a caller had to choose between the filters and a
+  correct count. The capability descriptor `workflow_roster_list` had declared `status` and
+  `search` as `optionalQueryKeys` the whole time, so carrying them on the walk widened no policy.
+  `list_workflows` now always walks, always reconciles, and takes `status`/`search`; the reconciled
+  total is then the total **for that filter**. `offset` is gone — it existed only to let a caller
+  ask for page 2 and never learn there was a page 3. Registry 88 → 87.
+- 🔴 **A hostile `locationId` is now REFUSED rather than encoded.** The old tool interpolated
+  `encodeURIComponent(locationId)` into a path and sent the call; the walk binds it through the
+  completeness rail, which rejects any path variable that is not a single safe decoded segment
+  before issuing a request. Both are safe against path injection — only one declines to address an
+  account that cannot exist. Real GHL location ids are alphanumeric, so no legitimate call changes.
+  The `VALIDATION_FAILED` contract for a bad `status` is unchanged, and is now asserted at the tool
+  boundary so that two invalid statuses cannot return two different codes.
+- **The three receipt-gated composites are ordinary tools in the proof system again.** They had
+  been excluded from `proofs/` because `core/audit-proof.mjs` governed them with its own expiring
+  receipt chain. That file was removed with the audit server, and an exclusion whose alternative no
+  longer exists just means "unprovable forever". Their *description* label stays frozen —
+  `syncLabels` may not rewrite it — but they accumulate runs like anything else.
+- **The conformance suite's cap differential is gone, and says why.** It asserted a cap on one
+  listing rail and asserted the other beat it. With one rail left, that comparison would have been
+  a tool against itself, discriminating nothing. It now pins the invariant that survives: a
+  one-page budget against a larger account must report `complete:false` with a **null** roster (the
+  positive control), a full walk must return every row it reports, and a filtered walk's reconciled
+  total must be the total for the filter.
+
 ## [0.88.0] — 2026-09-16
 
 A loop can save, publish, run, and iterate zero times. GHL knows — its own model source says so —

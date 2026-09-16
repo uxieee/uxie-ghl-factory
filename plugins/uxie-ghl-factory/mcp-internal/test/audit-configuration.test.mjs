@@ -2297,7 +2297,7 @@ test('every detail read carries the location and nothing else', async () => {
 const tool = (name) => TOOLS.find((candidate) => candidate.name === name);
 
 test('both composites are registered as GET-only tools with no confirmation field', () => {
-  for (const name of ['list_workflows_complete', 'get_ai_configuration_bundle']) {
+  for (const name of ['list_workflows', 'get_ai_configuration_bundle']) {
     const registered = tool(name);
     assert.ok(registered, `${name} is not registered`);
     assert.ok(registered.capabilities.length > 0, `${name} with no capabilities is an escape hatch`);
@@ -2309,7 +2309,7 @@ test('both composites are registered as GET-only tools with no confirmation fiel
 });
 
 test('the tool schemas apply the plan defaults and reject out-of-range budgets', () => {
-  const roster = tool('list_workflows_complete').inputSchema;
+  const roster = tool('list_workflows').inputSchema;
   const parsedRoster = roster.parse({ locationId: LOC });
   assert.equal(parsedRoster.pageSize, ROSTER_DEFAULTS.pageSize);
   assert.equal(parsedRoster.maxPages, ROSTER_DEFAULTS.maxPages);
@@ -2331,12 +2331,12 @@ test('the tool schemas apply the plan defaults and reject out-of-range budgets',
 });
 
 test('the tools return the stable error contract rather than throwing on bad arguments', async () => {
-  for (const name of ['list_workflows_complete', 'get_ai_configuration_bundle']) {
+  for (const name of ['list_workflows', 'get_ai_configuration_bundle']) {
     const result = await tool(name).handler(undefined, undefined);
     assert.equal(typeof result?.ok, 'boolean', `${name} must return the error contract`);
   }
   const explode = () => { throw new Error('a gateway must not be constructed for invalid input'); };
-  const rejected = await tool('list_workflows_complete').handler(
+  const rejected = await tool('list_workflows').handler(
     { locationId: '', pageSize: 100, maxPages: 100 },
     { state: { tokenFile: '/x' }, makeGw: explode },
   );
@@ -2365,7 +2365,7 @@ test('the AI bundle tool builds ONLY the ai rail it actually reads', async () =>
   // REVISED (adversarial review): this test used to assert BOTH rails were built. All six of
   // this bundle's capabilities declare `authRail:'ai'`, and `makeGateway` reads credentials at
   // construction, so the jwt gateway was a credential read this composite could never use —
-  // the exact objection `list_workflows_complete` states 46 lines above about building an
+  // the exact objection `list_workflows` states 46 lines above about building an
   // unused rail. An absent slot fails closed at call time with MISSING_AUTH_RAIL, and no
   // capability here would ever reach the backend slot to trigger it.
   //
@@ -2402,7 +2402,7 @@ test('the AI bundle tool builds ONLY the ai rail it actually reads', async () =>
 test('the roster tool builds only the backend rail it actually reads', async () => {
   const built = [];
   const pacing = injectedPacing();
-  await tool('list_workflows_complete').handler(
+  await tool('list_workflows').handler(
     { locationId: LOC, pageSize: 100, maxPages: 100 },
     {
       state: { tokenFile: '/x' },
@@ -2427,7 +2427,7 @@ test('an injected limiter and circuit win over the process-wide pair, for BOTH a
   // every audit tool. A dropped `??` there means that tool silently paces against a second
   // limiter and latches a second circuit, so a 429 the driver already absorbed is re-earned.
   for (const [name, args, json] of [
-    ['list_workflows_complete', { locationId: LOC, pageSize: 100, maxPages: 100 }, { workflows: [] }],
+    ['list_workflows', { locationId: LOC, pageSize: 100, maxPages: 100 }, { workflows: [] }],
     ['get_ai_configuration_bundle', { locationId: LOC, companyId: COMPANY, maxPages: 100 }, { agents: [] }],
   ]) {
     const pacing = injectedPacing();

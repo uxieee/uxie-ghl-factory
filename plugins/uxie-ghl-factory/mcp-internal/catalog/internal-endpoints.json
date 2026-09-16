@@ -23930,7 +23930,6 @@
         "create_workflow_folder",
         "list_workflow_folders",
         "list_workflows",
-        "list_workflows_complete",
         "move_workflows"
       ],
       "rawCallable": true,

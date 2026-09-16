@@ -413,14 +413,49 @@ test('list_account_entities treats malformed successful payloads as empty best-e
     'every malformed successful payload degrades to an empty array');
 });
 
-test('list_workflows encodes a hostile location id as one path segment', async () => {
-  const gw = gwStub({ '/workflow/': { rows: [] } });
-  const locationId = 'L /?&=#';
-  const result = await tool('list_workflows').handler({ locationId }, deps(gw));
+// list_workflows became the reconciled roster walk on 2026-09-16, and the protection against
+// a hostile location id got STRONGER rather than merely moving. The old one-page tool
+// interpolated `encodeURIComponent(locationId)` into a template and sent the call. The
+// completeness rail refuses the binding outright: a path variable that is not a single safe
+// decoded segment is INVALID_PATH_BINDING before any request is issued. Encoding-and-sending
+// and refusing are both safe against path injection, but only one of them declines to address
+// an account that cannot exist — real GHL location ids are alphanumeric.
+test('list_workflows REFUSES a hostile location id before issuing any call', async () => {
+  const gw = gwStub({ '/workflow/': { workflows: [], total: 0 } });
+  gw.rail = 'jwt';
+  const result = await tool('list_workflows').handler({ locationId: 'L /?&=#' }, deps(gw));
 
-  assert.equal(result.ok, true);
-  assert.match(gw.calls[0].path, new RegExp(`^/workflow/${encodeURIComponent(locationId)}/list\\?`));
-  assert.doesNotMatch(gw.calls[0].path, /\/workflow\/L \/\?/);
+  assert.equal(result.ok, false, 'a location id spanning path segments must not be addressed');
+  assert.equal(result.code, 'INVALID_PATH_BINDING');
+  assert.equal(gw.calls.length, 0, 'a rejected binding makes ZERO network calls');
+  // The refusal may not echo the hostile value back to the caller.
+  assert.doesNotMatch(JSON.stringify(result), /L \/\?&=#/);
+});
+
+// The ordinary path still has to work, or the test above proves only that everything fails.
+// The completeness rail calls `callWithMeta`, not `call`, and reads a `rail` tag at
+// construction — so this needs its own stub rather than the plain gwStub above.
+test('list_workflows walks and reconciles an ordinary location id', async () => {
+  const calls = [];
+  const rail = {
+    rail: 'jwt',
+    async callWithMeta(method, target) {
+      calls.push({ method, path: String(target) });
+      return {
+        status: 200, ok: true, retryAfterMs: null, capturedAt: '2026-09-16T00:00:00.000Z',
+        json: { workflows: [], total: 0 },
+      };
+    },
+  };
+  const result = await tool('list_workflows').handler(
+    { locationId: 'LOC123' }, { state: { tokenFile: '/x' }, makeGw: () => rail },
+  );
+
+  assert.equal(result.ok, true, `walk failed: ${result.code ?? ''} ${result.detail ?? ''}`);
+  assert.ok(calls.length > 0, 'the walk must have issued at least one page read');
+  assert.match(calls[0].path, /^\/workflow\/LOC123\/list\?/);
+  // Zero rows reconciled against a reported zero is a COMPLETE answer, not an empty failure.
+  assert.equal(result.data.complete, true);
 });
 
 test('raw_request refuses non-GET without making a gateway call', async () => {

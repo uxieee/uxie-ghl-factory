@@ -16,7 +16,7 @@ import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { catalogIndex, endpointHashes, primarySurfaces, buildDeps } from './lib/proof-deps.mjs';
 import { codeDeps } from './lib/code-deps.mjs';
-import { validateRecord, loadRecords, labelFor, AUDIT_COMPOSITES } from './lib/proof-record.mjs';
+import { validateRecord, loadRecords, labelFor, LABEL_FROZEN_TOOLS } from './lib/proof-record.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(HERE, '..');
@@ -57,7 +57,7 @@ export function rehash(rec, computed) {
 export function backfillFrom(descriptions, ctx, hashedAt) {
   const out = [];
   for (const [tool, entry] of Object.entries(descriptions)) {
-    if (AUDIT_COMPOSITES.includes(tool)) continue;
+    if (LABEL_FROZEN_TOOLS.includes(tool)) continue;
     const m = /^(live-runtime|live-canary) \((\d{4}-\d{2}-\d{2})\)/.exec(entry.proof ?? '');
     if (!m) continue;
     const computed = ctx.compute(tool, hashedAt);
@@ -79,7 +79,7 @@ export function applyLabel(entry, label) {
 export function syncLabels(descriptions, records) {
   const next = { ...descriptions }; const changed = [];
   for (const [tool, rec] of Object.entries(records).sort(([a], [b]) => a.localeCompare(b))) {
-    if (AUDIT_COMPOSITES.includes(tool) || !next[tool]) continue;
+    if (LABEL_FROZEN_TOOLS.includes(tool) || !next[tool]) continue;
     const label = labelFor(rec);
     if (next[tool].proof === label) continue;
     next[tool] = applyLabel(next[tool], label); changed.push(tool);
@@ -116,7 +116,7 @@ export function runsFromReceipt(receipt, stamp) {
       // and must not be recorded as a pass. But a real assertion FAILURE can be attributed to a tool
       // by log.subject(name) without that tool's own handler ever running (calls: 0, failed: 1) —
       // that is a genuine failure and must reach the record whatever the call count says.
-      if (AUDIT_COMPOSITES.includes(e.tool) || (!e.passed && !e.failed)) continue;
+      if (!e.passed && !e.failed) continue;
       out.push({ tool: e.tool, run: {
         at: stamp.slice(0, 10), result: e.failed ? 'fail' : 'pass', how: 'suite', suite: r.name,
         evidence: [`receipt:${stamp}`], ...(receipt.location ? { location: receipt.location } : {}),
@@ -219,7 +219,7 @@ async function main(argv) {
     return 0;
   }
   if (cmd === 'record') {
-    if (!arg || AUDIT_COMPOSITES.includes(arg)) throw new Error(`record needs a tool that is not an audit composite (got ${arg})`);
+    if (!arg) throw new Error('record needs a tool name');
     const ctx = await loadContext({ offline });
     const existing = loadRecords(PROOFS)[arg] ?? null;
     const run = {

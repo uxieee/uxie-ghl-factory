@@ -24107,7 +24107,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "create_workflow_folder",
             "list_workflow_folders",
             "list_workflows",
-            "list_workflows_complete",
             "move_workflows"
           ],
           rawCallable: true,
@@ -54120,388 +54119,64 @@ var define_TOOL_CATALOG_default;
 var init_define_TOOL_CATALOG = __esm({
   "<define:__TOOL_CATALOG__>"() {
     define_TOOL_CATALOG_default = {
-      build_workflow: {
-        description: "Build workflow \u2014 proof: live-runtime (2026-09-15), floor: documented; risk: write",
+      answer_studio_question: {
+        description: "Answer studio question \u2014 proof: live-runtime (2026-09-04); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-15)",
-        proofFloor: "documented",
+        proof: "live-runtime (2026-09-04)",
+        proofFloor: "live-runtime (2026-09-04)",
         proofRows: [
-          "entities-tags-create",
-          "entities-tags-list",
-          "triggers-create"
+          "ai-studio--post-projects-chat"
         ],
         proofFloorRows: [
-          "entities-email-builder-create",
-          "entities-email-builder-data"
+          "ai-studio--post-projects-chat"
         ],
         riskRows: [
-          "entities-email-builder-create",
-          "entities-email-builder-data",
-          "entities-tags-create",
-          "triggers-create",
-          "workflow-create",
-          "workflow-update"
+          "ai-studio--post-projects-chat"
         ],
         rows: [
-          "entities-email-builder-create",
-          "entities-email-builder-data",
-          "entities-tags-create",
-          "entities-tags-list",
-          "triggers-create",
-          "workflow-build-verify",
-          "workflow-create",
-          "workflow-update"
+          "ai-studio--post-projects-chat"
         ]
       },
-      get_workflow: {
-        description: "Get workflow \u2014 proof: live-runtime (2026-09-15); risk: read",
+      audit_site: {
+        description: "Read-only audit of a GHL funnel or website \u2014 dangling references, missing merge tags, foreign locationIds, publish drift \u2014 proof: live-runtime (2026-09-14); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-15)",
-        proofFloor: "documented",
+        proof: "live-runtime (2026-09-14)",
+        proofFloor: "live-runtime (2026-09-10)",
         proofRows: [
-          "workflow-read"
+          "funnels-service--get-funnels",
+          "funnels--page-data",
+          "funnels--builder-get-versions",
+          "forms--get-forms",
+          "typed--list_account_entities--calendars",
+          "surveys-service--get-surveys",
+          "backend--custom-values"
         ],
         proofFloorRows: [
-          "workflow-read"
+          "funnels-service--get-funnels",
+          "funnels--page-data",
+          "funnels--builder-get-versions",
+          "forms--get-forms",
+          "typed--list_account_entities--calendars",
+          "surveys-service--get-surveys",
+          "backend--custom-values"
         ],
         riskRows: [
-          "workflow-read"
+          "funnels-service--get-funnels",
+          "funnels--page-data",
+          "funnels--builder-get-versions",
+          "forms--get-forms",
+          "typed--list_account_entities--calendars",
+          "surveys-service--get-surveys",
+          "backend--custom-values"
         ],
         rows: [
-          "workflow-read"
-        ]
-      },
-      export_workflow: {
-        description: "Export workflow \u2014 proof: live-runtime (2026-09-15); risk: read",
-        risk: "read",
-        proof: "live-runtime (2026-09-15)",
-        proofFloor: "documented",
-        proofRows: [
-          "triggers-list",
-          "workflow-export-read",
-          "workflow-sticky-notes-list"
-        ],
-        proofFloorRows: [
-          "triggers-list",
-          "workflow-export-read",
-          "workflow-sticky-notes-list"
-        ],
-        riskRows: [
-          "triggers-list",
-          "workflow-export-read",
-          "workflow-sticky-notes-list"
-        ],
-        rows: [
-          "triggers-list",
-          "workflow-export-read",
-          "workflow-sticky-notes-list"
-        ]
-      },
-      edit_workflow: {
-        description: "Edit workflow \u2014 proof: live-runtime (2026-09-15), floor: live-roundtrip (2026-07-17); risk: destructive",
-        risk: "destructive",
-        proof: "live-runtime (2026-09-15)",
-        proofFloor: "live-roundtrip (2026-07-17)",
-        proofRows: [
-          "triggers-create-for-edit"
-        ],
-        proofFloorRows: [
-          "triggers-delete",
-          "triggers-list-for-edit",
-          "triggers-update",
-          "workflow-edit",
-          "workflow-edit-read"
-        ],
-        riskRows: [
-          "triggers-delete"
-        ],
-        rows: [
-          "triggers-create-for-edit",
-          "triggers-delete",
-          "triggers-list-for-edit",
-          "triggers-update",
-          "workflow-edit",
-          "workflow-edit-read"
-        ]
-      },
-      publish_workflow: {
-        description: "Publish workflow \u2014 proof: live-runtime (2026-09-15), floor: documented; risk: destructive",
-        risk: "destructive",
-        proof: "live-runtime (2026-09-15)",
-        proofFloor: "documented",
-        proofRows: [
-          "workflow-publish"
-        ],
-        proofFloorRows: [
-          "triggers-list-for-publish"
-        ],
-        riskRows: [
-          "workflow-publish"
-        ],
-        rows: [
-          "triggers-list-for-publish",
-          "workflow-publish",
-          "workflow-publish-read"
-        ]
-      },
-      list_workflows: {
-        description: "List workflows \u2014 proof: live-runtime (2026-09-15); risk: read",
-        risk: "read",
-        proof: "live-runtime (2026-09-15)",
-        proofFloor: "documented",
-        proofRows: [
-          "workflow-list"
-        ],
-        proofFloorRows: [
-          "workflow-list"
-        ],
-        riskRows: [
-          "workflow-list"
-        ],
-        rows: [
-          "workflow-list"
-        ]
-      },
-      get_workflow_logs: {
-        description: "Get workflow logs \u2014 proof: live-runtime (2026-09-15), floor: documented; risk: read",
-        risk: "read",
-        proof: "live-runtime (2026-09-15)",
-        proofFloor: "documented",
-        proofRows: [
-          "logs-count-per-step",
-          "logs-enrollment-history",
-          "logs-list-v2",
-          "workflow-enrollment-stats-cache"
-        ],
-        proofFloorRows: [
-          "workflow-enrollment-stats"
-        ],
-        riskRows: [
-          "logs-count-per-step",
-          "logs-enrollment-history",
-          "logs-list-v2",
-          "workflow-enrollment-stats",
-          "workflow-enrollment-stats-cache"
-        ],
-        rows: [
-          "logs-count-per-step",
-          "logs-enrollment-history",
-          "logs-list-v2",
-          "workflow-enrollment-stats",
-          "workflow-enrollment-stats-cache"
-        ]
-      },
-      get_workflow_runtime_window: {
-        description: "Collect one workflow's complete, evidence-qualified runtime window (definition, executions read by cursor over a dateType=custom window (the window is INERT without that switch \u2014 the endpoint otherwise serves a silent 30-day default), enrollment walk, per-step counts, requested step rosters, enrollment totals) \u2014 proof: external-receipt-required; risk: read. Every failure is complete:false with a coded warning, never an empty window. `complete` covers RUNTIME EVENT COVERAGE only: the separate configurationBinding field records that nothing on this rail proves the captured definition governed the events in the window, so no consumer may claim it did. Live canary required before Full audit.",
-        risk: "read",
-        proof: "external-receipt-required",
-        proofFloor: "external-receipt-required",
-        proofRows: [
-          "logs-count-per-step",
-          "logs-details-by-step",
-          "logs-enrollment-history",
-          "logs-list-v2",
-          "triggers-list",
-          "workflow-enrollment-stats-cache",
-          "workflow-read",
-          "workflow-sticky-notes-list"
-        ],
-        proofFloorRows: [
-          "logs-count-per-step",
-          "logs-details-by-step",
-          "logs-enrollment-history",
-          "logs-list-v2",
-          "triggers-list",
-          "workflow-enrollment-stats-cache",
-          "workflow-read",
-          "workflow-sticky-notes-list"
-        ],
-        riskRows: [
-          "logs-count-per-step",
-          "logs-details-by-step",
-          "logs-enrollment-history",
-          "logs-list-v2",
-          "triggers-list",
-          "workflow-enrollment-stats-cache",
-          "workflow-read",
-          "workflow-sticky-notes-list"
-        ],
-        rows: [
-          "logs-count-per-step",
-          "logs-details-by-step",
-          "logs-enrollment-history",
-          "logs-list-v2",
-          "triggers-list",
-          "workflow-enrollment-stats-cache",
-          "workflow-read",
-          "workflow-sticky-notes-list"
-        ],
-        undocumentedCapabilities: [
-          {
-            path: "/workflows/status/enroll-stats",
-            reason: "This tool reads nine routes and only eight of them are cited above; no catalog entry cites a row for the enroll-stats summary. Recorded rather than invented, for the reason given on get_ai_configuration_bundle."
-          }
-        ]
-      },
-      list_workflows_complete: {
-        description: "Walk the whole workflow roster to a reconciled terminal proof \u2014 proof: external-receipt-required; risk: read. The offset walk records every page, applied query, unique-progress step and reported total, and publishes only when the unique count equals a STABLE reported total. A failed page, a conflicting duplicate, a moving total, a stalled offset or an exhausted page budget is complete:false with a coded warning and a null roster, never an empty list. Live canary required before Full audit.",
-        risk: "read",
-        proof: "external-receipt-required",
-        proofFloor: "external-receipt-required",
-        proofRows: [
-          "workflow-list"
-        ],
-        proofFloorRows: [
-          "workflow-list"
-        ],
-        riskRows: [
-          "workflow-list"
-        ],
-        rows: [
-          "workflow-list"
-        ],
-        undocumentedCapabilities: []
-      },
-      get_ai_configuration_bundle: {
-        description: "Sweep Conversation AI, Voice AI and Agent Studio discovery plus per-agent detail \u2014 proof: external-receipt-required; risk: read. All three surfaces are always attempted and always reported; a 403, 404, rate limit, malformed envelope, missing detail or unavailable company context makes that component complete:false with items null, never an empty agent list. An empty surface is complete only after a terminal, schema-valid discovery response. Per Conversation AI agent it also reads the Agent-Deployment routing rows (one row per channel, published verbatim on the item); rows pinned to specific identifiers (allIdentifiers:false) are summarised in routingPinned \u2014 legal live config reported for review, never a failure. Live canary required before Full audit.",
-        risk: "read",
-        proof: "external-receipt-required",
-        proofFloor: "external-receipt-required",
-        proofRows: [
-          "entities-ai-employees-agents-list"
-        ],
-        proofFloorRows: [
-          "entities-ai-employees-agents-list"
-        ],
-        riskRows: [
-          "entities-ai-employees-agents-list"
-        ],
-        rows: [
-          "entities-ai-employees-agents-list"
-        ],
-        _rowsNote: "This entry used to also cite `entities-voice-ai-agents-list`, which is the row for list_account_entities's BARE /voice-ai/agents \u2014 precisely the legacy route core/audit-configuration.mjs goes out of its way to disavow. This bundle reads /voice-ai/agents/simple, a different capability with a different receipt, so the citation was removed rather than corrected: the matrix that defines row ids is not in this repository (the README defines none, and a repo-wide grep finds row ids only in this file), so there is no id to correct it to and inventing one would mint documentation provenance that does not exist.",
-        undocumentedCapabilities: [
-          {
-            path: "/voice-ai/agents/simple",
-            reason: "New to the audit descriptor set and cited by no existing catalog entry. The docs capability matrix that defines row ids is not in this repository, so no row id may be invented for it."
-          },
-          {
-            path: "/voice-ai/agents/{agentId}",
-            reason: "The Voice AI per-agent detail route. No catalog entry cites a row for it; see above."
-          },
-          {
-            path: "/ai-employees/employees/{agentId}",
-            reason: "The Conversation AI per-agent detail route. No catalog entry cites a row for it; see above."
-          },
-          {
-            path: "/agent-studio/agents/agents-with-folders",
-            reason: "New to the audit descriptor set and cited by no existing catalog entry; see above."
-          },
-          {
-            path: "/agent-studio/super-agent/agents/{agentId}",
-            reason: "The Agent Studio per-agent detail route. No catalog entry cites a row for it; see above."
-          },
-          {
-            path: "/agent-deployment/routing-config/configs",
-            reason: "The Agent-Deployment routing route, added to the audit descriptor set with the per-agent routing read. No catalog entry cites a matrix row for it, and the matrix that defines row ids is not in this repository, so the gap is recorded rather than an id invented; see above."
-          }
-        ]
-      },
-      get_contacts_at_step: {
-        description: "List contacts at step \u2014 proof: live-runtime (2026-09-15); risk: read",
-        risk: "read",
-        proof: "live-runtime (2026-09-15)",
-        proofFloor: "live-runtime (2026-07-18)",
-        proofRows: [
-          "logs-details-by-step"
-        ],
-        proofFloorRows: [
-          "logs-details-by-step"
-        ],
-        riskRows: [
-          "logs-details-by-step"
-        ],
-        rows: [
-          "logs-details-by-step"
-        ]
-      },
-      fast_forward_contacts: {
-        description: "Fast-forward contacts \u2014 proof: live-runtime (2026-09-10); risk: write",
-        risk: "write",
-        proof: "live-runtime (2026-09-10)",
-        proofFloor: "live-runtime (2026-07-18)",
-        proofRows: [
-          "fast-forward-count-per-step",
-          "fast-forward-details-by-step",
-          "fast-forward-requeue-statuses"
-        ],
-        proofFloorRows: [
-          "fast-forward-count-per-step",
-          "fast-forward-details-by-step",
-          "fast-forward-requeue-statuses"
-        ],
-        riskRows: [
-          "fast-forward-count-per-step",
-          "fast-forward-details-by-step",
-          "fast-forward-requeue-statuses"
-        ],
-        rows: [
-          "fast-forward-count-per-step",
-          "fast-forward-details-by-step",
-          "fast-forward-requeue-statuses"
-        ]
-      },
-      list_account_entities: {
-        description: "List account entities \u2014 proof: live-runtime (2026-07-18), floor: documented; risk: read",
-        risk: "read",
-        proof: "live-runtime (2026-07-18)",
-        proofFloor: "documented",
-        proofRows: [
-          "entities-ai-employees-agents-list",
-          "entities-custom-fields-search"
-        ],
-        proofFloorRows: [
-          "entities-voice-ai-agents-list"
-        ],
-        riskRows: [
-          "entities-ai-employees-agents-list",
-          "entities-calendars-list",
-          "entities-custom-fields-search",
-          "entities-forms-list",
-          "entities-pipelines-list",
-          "entities-users-list",
-          "entities-voice-ai-agents-list"
-        ],
-        rows: [
-          "entities-ai-employees-agents-list",
-          "entities-calendars-list",
-          "entities-custom-fields-search",
-          "entities-forms-list",
-          "entities-pipelines-list",
-          "entities-users-list",
-          "entities-voice-ai-agents-list"
-        ]
-      },
-      list_marketplace_apps: {
-        description: "List the third-party marketplace apps INSTALLED in a sub-account, with each app's triggers and actions \u2014 key, version, templateId, and the full customVars / inputs schema \u2014 proof: live-runtime (2026-08-16: the endpoint and its dual-credential rail were called against a real sub-account and returned the installed app with appId/publisher; the handler itself is unit-tested against a mocked gateway, not live-invoked); risk: read. The workflow builder renders its own Add-trigger and Add-action panels from these two reads, so the list is complete by construction ONLY when both GETs succeed; a failed leg reports `complete:false` with that leg's data as null (never a silently empty list) and names which leg failed in `sources`, so a partial read can never be misread as \"this app has none\". Use it for account recon, to confirm an app is installed before building a workflow that references it, and to read the current version/templateId a marketplace step must bind to. compact:true (the default) returns identity plus keys and versions only \u2014 a single app's full schema is large.",
-        risk: "read",
-        proof: "documented",
-        proofFloor: "documented",
-        proofRows: [
-          "marketplace-modules-triggers-list",
-          "marketplace-modules-actions-list"
-        ],
-        proofFloorRows: [
-          "marketplace-modules-triggers-list",
-          "marketplace-modules-actions-list"
-        ],
-        riskRows: [
-          "marketplace-modules-triggers-list",
-          "marketplace-modules-actions-list"
-        ],
-        rows: [
-          "marketplace-modules-triggers-list",
-          "marketplace-modules-actions-list"
+          "funnels-service--get-funnels",
+          "funnels--page-data",
+          "funnels--builder-get-versions",
+          "forms--get-forms",
+          "typed--list_account_entities--calendars",
+          "surveys-service--get-surveys",
+          "backend--custom-values"
         ]
       },
       build_course: {
@@ -54594,22 +54269,163 @@ var init_define_TOOL_CATALOG = __esm({
           "memberships-video-upload-url-create"
         ]
       },
-      list_courses: {
-        description: "List courses \u2014 proof: documented; risk: read",
-        risk: "read",
-        proof: "documented",
-        proofFloor: "documented",
+      build_funnel_page: {
+        description: "Compose, validate and write a funnel page from native elements; optionally publish it \u2014 proof: live-runtime (2026-09-14); risk: write",
+        risk: "write",
+        proof: "live-runtime (2026-09-14)",
+        proofFloor: "live-runtime (2026-09-09)",
         proofRows: [
-          "memberships-products-list"
+          "funnels--builder-autosave",
+          "funnels--page-data",
+          "funnels--builder-get-versions",
+          "funnels--builder-publish-version"
         ],
         proofFloorRows: [
-          "memberships-products-list"
+          "funnels--builder-autosave",
+          "funnels--page-data",
+          "funnels--builder-get-versions",
+          "funnels--builder-publish-version"
         ],
         riskRows: [
-          "memberships-products-list"
+          "funnels--builder-autosave",
+          "funnels--page-data",
+          "funnels--builder-get-versions",
+          "funnels--builder-publish-version"
         ],
         rows: [
-          "memberships-products-list"
+          "funnels--builder-autosave",
+          "funnels--page-data",
+          "funnels--builder-get-versions",
+          "funnels--builder-publish-version"
+        ]
+      },
+      build_workflow: {
+        description: "Build workflow \u2014 proof: live-runtime (2026-09-15), floor: documented; risk: write",
+        risk: "write",
+        proof: "live-runtime (2026-09-15)",
+        proofFloor: "documented",
+        proofRows: [
+          "entities-tags-create",
+          "entities-tags-list",
+          "triggers-create"
+        ],
+        proofFloorRows: [
+          "entities-email-builder-create",
+          "entities-email-builder-data"
+        ],
+        riskRows: [
+          "entities-email-builder-create",
+          "entities-email-builder-data",
+          "entities-tags-create",
+          "triggers-create",
+          "workflow-create",
+          "workflow-update"
+        ],
+        rows: [
+          "entities-email-builder-create",
+          "entities-email-builder-data",
+          "entities-tags-create",
+          "entities-tags-list",
+          "triggers-create",
+          "workflow-build-verify",
+          "workflow-create",
+          "workflow-update"
+        ]
+      },
+      cancel_studio_generation: {
+        description: "Cancel studio generation \u2014 proof: live-runtime (2026-09-04); risk: write",
+        risk: "write",
+        proof: "live-runtime (2026-09-04)",
+        proofFloor: "live-runtime (2026-09-04)",
+        proofRows: [
+          "ai-studio--post-projects-chat-cancel"
+        ],
+        proofFloorRows: [
+          "ai-studio--post-projects-chat-cancel"
+        ],
+        riskRows: [
+          "ai-studio--post-projects-chat-cancel"
+        ],
+        rows: [
+          "ai-studio--post-projects-chat-cancel"
+        ]
+      },
+      check_smart_lists: {
+        description: "Audit smart lists for filters the contacts screen will silently discard \u2014 proof: live-runtime (2026-09-07); risk: read",
+        risk: "read",
+        proof: "live-runtime (2026-09-07)",
+        proofFloor: "live-runtime (2026-09-07)",
+        proofRows: [
+          "smartlist-search",
+          "smartlist-detail"
+        ],
+        proofFloorRows: [
+          "smartlist-search",
+          "smartlist-detail"
+        ],
+        riskRows: [
+          "smartlist-search",
+          "smartlist-detail"
+        ],
+        rows: [
+          "smartlist-search",
+          "smartlist-detail"
+        ]
+      },
+      check_snapshot_conflicts: {
+        description: "See what loading a snapshot would collide with \u2014 proof: live-runtime (2026-09-10); risk: read",
+        risk: "read",
+        proof: "live-runtime (2026-09-10)",
+        proofFloor: "live-runtime (2026-09-10)",
+        proofRows: [
+          "platform--snapshots-prefetch",
+          "platform--snapshots-create-appengine"
+        ],
+        proofFloorRows: [
+          "platform--snapshots-prefetch",
+          "platform--snapshots-create-appengine"
+        ],
+        riskRows: [
+          "platform--snapshots-prefetch",
+          "platform--snapshots-create-appengine"
+        ],
+        rows: [
+          "platform--snapshots-prefetch",
+          "platform--snapshots-create-appengine"
+        ]
+      },
+      check_workflow: {
+        description: "Read-only conformance check: replays GHL's own validators against a workflow \u2014 proof: live-runtime (2026-09-15); risk: read",
+        risk: "read",
+        proof: "live-runtime (2026-09-15)",
+        proofFloor: "unrecorded",
+        proofRows: [
+          "workflow-service--find-by-id",
+          "trigger-service--find-all",
+          "workflows-marketplace-platform-service--get-actions-and-triggers",
+          "custom-field-service--get-contact-custom-fields",
+          "backend--custom-values"
+        ],
+        proofFloorRows: [
+          "workflow-service--find-by-id",
+          "trigger-service--find-all",
+          "workflows-marketplace-platform-service--get-actions-and-triggers",
+          "custom-field-service--get-contact-custom-fields",
+          "backend--custom-values"
+        ],
+        riskRows: [
+          "workflow-service--find-by-id",
+          "trigger-service--find-all",
+          "workflows-marketplace-platform-service--get-actions-and-triggers",
+          "custom-field-service--get-contact-custom-fields",
+          "backend--custom-values"
+        ],
+        rows: [
+          "workflow-service--find-by-id",
+          "trigger-service--find-all",
+          "workflows-marketplace-platform-service--get-actions-and-triggers",
+          "custom-field-service--get-contact-custom-fields",
+          "backend--custom-values"
         ]
       },
       create_convai_agent: {
@@ -54630,22 +54446,103 @@ var init_define_TOOL_CATALOG = __esm({
           "ai-convai-agent-create"
         ]
       },
-      create_voiceai_agent: {
-        description: "Create Voice AI agent \u2014 proof: live-runtime (2026-09-10); risk: write",
+      create_custom_field_folder: {
+        description: "Create custom field folder \u2014 proof: live-runtime (2026-08-18); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-10)",
-        proofFloor: "live-runtime (2026-07-21)",
+        proof: "live-runtime (2026-08-18)",
+        proofFloor: "live-runtime (2026-08-18)",
         proofRows: [
-          "ai-voiceai-agent-create"
+          "entities-custom-field-folder-create",
+          "entities-custom-field-folder-list"
         ],
         proofFloorRows: [
-          "ai-voiceai-agent-create"
+          "entities-custom-field-folder-create",
+          "entities-custom-field-folder-list"
         ],
         riskRows: [
-          "ai-voiceai-agent-create"
+          "entities-custom-field-folder-create"
         ],
         rows: [
-          "ai-voiceai-agent-create"
+          "entities-custom-field-folder-create",
+          "entities-custom-field-folder-list"
+        ]
+      },
+      create_form: {
+        description: "Create a form and save its document \u2014 proof: live-runtime (2026-09-06); risk: write",
+        risk: "write",
+        proof: "live-runtime (2026-09-06)",
+        proofFloor: "live-runtime (2026-09-06)",
+        proofRows: [
+          "forms-create",
+          "forms-save",
+          "forms-detail"
+        ],
+        proofFloorRows: [
+          "forms-create",
+          "forms-save",
+          "forms-detail"
+        ],
+        riskRows: [
+          "forms-create",
+          "forms-save",
+          "forms-detail"
+        ],
+        rows: [
+          "forms-create",
+          "forms-save",
+          "forms-detail"
+        ]
+      },
+      create_smart_list: {
+        description: "Create a smart list whose filter the contacts screen will actually apply \u2014 proof: live-runtime (2026-09-07); risk: write",
+        risk: "write",
+        proof: "live-runtime (2026-09-07)",
+        proofFloor: "live-runtime (2026-09-07)",
+        proofRows: [
+          "platform--contacts-smartlist",
+          "platform--contacts-smartlist-get",
+          "backend--2",
+          "platform--locations-custom-fields"
+        ],
+        proofFloorRows: [
+          "platform--contacts-smartlist",
+          "platform--contacts-smartlist-get",
+          "backend--2",
+          "platform--locations-custom-fields"
+        ],
+        riskRows: [
+          "platform--contacts-smartlist",
+          "platform--contacts-smartlist-get",
+          "backend--2",
+          "platform--locations-custom-fields"
+        ],
+        rows: [
+          "platform--contacts-smartlist",
+          "platform--contacts-smartlist-get",
+          "backend--2",
+          "platform--locations-custom-fields"
+        ]
+      },
+      create_snapshot: {
+        description: "Capture a sub-account into an agency snapshot \u2014 proof: live-runtime (2026-09-10); risk: write",
+        risk: "write",
+        proof: "live-runtime (2026-09-10)",
+        proofFloor: "live-runtime (2026-09-10)",
+        proofRows: [
+          "platform--snapshots-prefetch",
+          "platform--snapshots-create-appengine"
+        ],
+        proofFloorRows: [
+          "platform--snapshots-prefetch",
+          "platform--snapshots-create-appengine"
+        ],
+        riskRows: [
+          "platform--snapshots-prefetch",
+          "platform--snapshots-create-appengine"
+        ],
+        rows: [
+          "platform--snapshots-prefetch",
+          "platform--snapshots-create-appengine"
         ]
       },
       create_studio_agent: {
@@ -54666,58 +54563,40 @@ var init_define_TOOL_CATALOG = __esm({
           "ai-studio-agent-build"
         ]
       },
-      get_contact_ai_status: {
-        description: "Read per-contact Conversation AI status \u2014 proof: live-runtime (2026-08-08); risk: read",
-        risk: "read",
-        proof: "live-runtime (2026-08-08)",
-        proofFloor: "live-runtime (2026-08-08)",
+      create_studio_site: {
+        description: "Create studio site \u2014 proof: live-runtime (2026-09-04); risk: write",
+        risk: "write",
+        proof: "live-runtime (2026-09-04)",
+        proofFloor: "live-runtime (2026-09-04)",
         proofRows: [
-          "ai-convai-contact-config-read"
+          "ai-studio--post-projects"
         ],
         proofFloorRows: [
-          "ai-convai-contact-config-read"
+          "ai-studio--post-projects"
         ],
         riskRows: [
-          "ai-convai-contact-config-read"
+          "ai-studio--post-projects"
         ],
         rows: [
-          "ai-convai-contact-config-read"
+          "ai-studio--post-projects"
         ]
       },
-      set_contact_ai_status: {
-        description: "Set per-contact Conversation AI status \u2014 proof: live-runtime (2026-09-10); risk: write",
+      create_voiceai_agent: {
+        description: "Create Voice AI agent \u2014 proof: live-runtime (2026-09-10); risk: write",
         risk: "write",
         proof: "live-runtime (2026-09-10)",
-        proofFloor: "live-runtime (2026-08-08)",
+        proofFloor: "live-runtime (2026-07-21)",
         proofRows: [
-          "ai-convai-contact-config-update"
+          "ai-voiceai-agent-create"
         ],
         proofFloorRows: [
-          "ai-convai-contact-config-update"
+          "ai-voiceai-agent-create"
         ],
         riskRows: [
-          "ai-convai-contact-config-update"
+          "ai-voiceai-agent-create"
         ],
         rows: [
-          "ai-convai-contact-config-update"
-        ]
-      },
-      list_workflow_folders: {
-        description: "List workflow folders \u2014 proof: live-runtime (2026-09-15); risk: read",
-        risk: "read",
-        proof: "live-runtime (2026-09-15)",
-        proofFloor: "live-runtime (2026-08-18)",
-        proofRows: [
-          "workflow-folder-list"
-        ],
-        proofFloorRows: [
-          "workflow-folder-list"
-        ],
-        riskRows: [
-          "workflow-folder-list"
-        ],
-        rows: [
-          "workflow-folder-list"
+          "ai-voiceai-agent-create"
         ]
       },
       create_workflow_folder: {
@@ -54740,6 +54619,32 @@ var init_define_TOOL_CATALOG = __esm({
           "workflow-folder-create",
           "workflow-folder-list-for-create"
         ]
+      },
+      describe_marketplace_action: {
+        description: "Describe a marketplace action \u2014 its published schema and whether its app is connected \u2014 proof: live-runtime (2026-09-15); risk: read",
+        risk: "read",
+        proof: "live-runtime (2026-09-15)",
+        proofFloor: "source-derived (builder bundle 2026-09-14)",
+        rows: [
+          "marketplace-action-schema"
+        ],
+        proofRows: [
+          "marketplace-action-schema"
+        ],
+        proofFloorRows: [
+          "marketplace-action-schema"
+        ],
+        riskRows: [
+          "marketplace-action-schema"
+        ]
+      },
+      describe_step_type: {
+        description: "Describe one workflow step or trigger type \u2014 proof: source-derived (284 corpus cards); risk: read",
+        risk: "read",
+        proof: "source-derived (corpus 30-types, 2026-08-25)",
+        proofFloor: "documented",
+        rows: [],
+        riskRows: []
       },
       duplicate_workflow: {
         description: "Duplicate workflow \u2014 proof: live-runtime (2026-09-15); risk: write",
@@ -54765,137 +54670,149 @@ var init_define_TOOL_CATALOG = __esm({
           "workflow-duplicate-trigger-read"
         ]
       },
-      move_workflows: {
-        description: "Move workflows between folders and root \u2014 proof: live-runtime (2026-09-15); risk: write",
+      edit_workflow: {
+        description: "Edit workflow \u2014 proof: live-runtime (2026-09-15), floor: live-roundtrip (2026-07-17); risk: destructive",
+        risk: "destructive",
+        proof: "live-runtime (2026-09-15)",
+        proofFloor: "live-roundtrip (2026-07-17)",
+        proofRows: [
+          "triggers-create-for-edit"
+        ],
+        proofFloorRows: [
+          "triggers-delete",
+          "triggers-list-for-edit",
+          "triggers-update",
+          "workflow-edit",
+          "workflow-edit-read"
+        ],
+        riskRows: [
+          "triggers-delete"
+        ],
+        rows: [
+          "triggers-create-for-edit",
+          "triggers-delete",
+          "triggers-list-for-edit",
+          "triggers-update",
+          "workflow-edit",
+          "workflow-edit-read"
+        ]
+      },
+      export_workflow: {
+        description: "Export workflow \u2014 proof: live-runtime (2026-09-15); risk: read",
+        risk: "read",
+        proof: "live-runtime (2026-09-15)",
+        proofFloor: "documented",
+        proofRows: [
+          "triggers-list",
+          "workflow-export-read",
+          "workflow-sticky-notes-list"
+        ],
+        proofFloorRows: [
+          "triggers-list",
+          "workflow-export-read",
+          "workflow-sticky-notes-list"
+        ],
+        riskRows: [
+          "triggers-list",
+          "workflow-export-read",
+          "workflow-sticky-notes-list"
+        ],
+        rows: [
+          "triggers-list",
+          "workflow-export-read",
+          "workflow-sticky-notes-list"
+        ]
+      },
+      fast_forward_contacts: {
+        description: "Fast-forward contacts \u2014 proof: live-runtime (2026-09-10); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-15)",
-        proofFloor: "live-runtime (2026-08-18)",
+        proof: "live-runtime (2026-09-10)",
+        proofFloor: "live-runtime (2026-07-18)",
         proofRows: [
-          "workflow-move-batch",
-          "workflow-move-folder-resolve",
-          "workflow-move-single",
-          "workflow-move-subject-read"
+          "fast-forward-count-per-step",
+          "fast-forward-details-by-step",
+          "fast-forward-requeue-statuses"
         ],
         proofFloorRows: [
-          "workflow-move-batch",
-          "workflow-move-folder-resolve",
-          "workflow-move-single",
-          "workflow-move-subject-read"
+          "fast-forward-count-per-step",
+          "fast-forward-details-by-step",
+          "fast-forward-requeue-statuses"
         ],
         riskRows: [
-          "workflow-move-batch",
-          "workflow-move-single"
+          "fast-forward-count-per-step",
+          "fast-forward-details-by-step",
+          "fast-forward-requeue-statuses"
         ],
         rows: [
-          "workflow-move-batch",
-          "workflow-move-folder-resolve",
-          "workflow-move-single",
-          "workflow-move-subject-read"
+          "fast-forward-count-per-step",
+          "fast-forward-details-by-step",
+          "fast-forward-requeue-statuses"
         ]
       },
-      create_custom_field_folder: {
-        description: "Create custom field folder \u2014 proof: live-runtime (2026-08-18); risk: write",
+      find_ghl_site: {
+        description: "Find ghl site \u2014 proof: live-runtime (2026-09-04); risk: read",
+        risk: "read",
+        proof: "live-runtime (2026-09-04)",
+        proofFloor: "live-runtime (2026-09-04)",
+        proofRows: [
+          "ai-studio--get-projects",
+          "funnels-service--get-funnels"
+        ],
+        proofFloorRows: [
+          "ai-studio--get-projects",
+          "funnels-service--get-funnels"
+        ],
+        riskRows: [
+          "ai-studio--get-projects",
+          "funnels-service--get-funnels"
+        ],
+        rows: [
+          "ai-studio--get-projects",
+          "funnels-service--get-funnels"
+        ]
+      },
+      find_workflows_using: {
+        description: "Find which workflows contain a step or trigger type \u2014 proof: live-runtime (2026-09-15); risk: read",
+        risk: "read",
+        proof: "live-runtime (2026-09-15)",
+        proofFloor: "source-derived (builder bundle 2026-09-14)",
+        rows: [
+          "workflow-es-search"
+        ],
+        proofRows: [
+          "workflow-es-search"
+        ],
+        proofFloorRows: [
+          "workflow-es-search"
+        ],
+        riskRows: [
+          "workflow-es-search"
+        ]
+      },
+      generate_studio_site: {
+        description: "Generate studio site \u2014 proof: live-runtime (2026-09-04); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-08-18)",
-        proofFloor: "live-runtime (2026-08-18)",
+        proof: "live-runtime (2026-09-04)",
+        proofFloor: "live-runtime (2026-09-04)",
         proofRows: [
-          "entities-custom-field-folder-create",
-          "entities-custom-field-folder-list"
+          "ai-studio--get-projects-usage-policy",
+          "ai-studio--post-projects-chat",
+          "typed--get_studio_site_history--vibe-platform-documents:runQuery"
         ],
         proofFloorRows: [
-          "entities-custom-field-folder-create",
-          "entities-custom-field-folder-list"
+          "ai-studio--get-projects-usage-policy",
+          "ai-studio--post-projects-chat",
+          "typed--get_studio_site_history--vibe-platform-documents:runQuery"
         ],
         riskRows: [
-          "entities-custom-field-folder-create"
+          "ai-studio--get-projects-usage-policy",
+          "ai-studio--post-projects-chat",
+          "typed--get_studio_site_history--vibe-platform-documents:runQuery"
         ],
         rows: [
-          "entities-custom-field-folder-create",
-          "entities-custom-field-folder-list"
-        ]
-      },
-      get_workflow_stats: {
-        description: "Workflow stats view \u2014 proof: live-runtime (2026-09-15); risk: read",
-        risk: "read",
-        proof: "live-runtime (2026-09-15)",
-        proofFloor: "live-runtime (2026-08-22)",
-        proofRows: [
-          "stats-aggregate",
-          "trigger-count-by-triggerId",
-          "logs-count-per-step"
-        ],
-        proofFloorRows: [
-          "stats-aggregate"
-        ],
-        riskRows: [
-          "stats-aggregate",
-          "trigger-count-by-triggerId",
-          "logs-count-per-step"
-        ],
-        rows: [
-          "stats-aggregate",
-          "trigger-count-by-triggerId",
-          "logs-count-per-step"
-        ]
-      },
-      list_workflow_versions: {
-        description: "List workflow versions \u2014 proof: live-runtime (2026-09-15); risk: read",
-        risk: "read",
-        proof: "live-runtime (2026-09-15)",
-        proofFloor: "live-runtime (2026-08-22)",
-        proofRows: [
-          "workflow-history"
-        ],
-        proofFloorRows: [
-          "workflow-history"
-        ],
-        riskRows: [
-          "workflow-history"
-        ],
-        rows: [
-          "workflow-history"
-        ]
-      },
-      get_workflow_version: {
-        description: "Get workflow version snapshot \u2014 proof: live-runtime (2026-09-15); risk: read",
-        risk: "read",
-        proof: "live-runtime (2026-09-15)",
-        proofFloor: "live-runtime (2026-08-22)",
-        proofRows: [
-          "workflow-history"
-        ],
-        proofFloorRows: [
-          "workflow-history"
-        ],
-        riskRows: [
-          "workflow-history"
-        ],
-        rows: [
-          "workflow-history"
-        ]
-      },
-      get_trigger_logs: {
-        description: "Trigger attempt logs + top failed reasons \u2014 proof: live-runtime (2026-09-15); risk: read",
-        risk: "read",
-        proof: "live-runtime (2026-09-15)",
-        proofFloor: "live-runtime (2026-08-22)",
-        proofRows: [
-          "trigger-logs-triggerId",
-          "trigger-logs-top-failed-reasons",
-          "trigger-count-by-triggerId"
-        ],
-        proofFloorRows: [
-          "trigger-logs-triggerId"
-        ],
-        riskRows: [
-          "trigger-logs-triggerId",
-          "trigger-logs-top-failed-reasons",
-          "trigger-count-by-triggerId"
-        ],
-        rows: [
-          "trigger-logs-triggerId",
-          "trigger-logs-top-failed-reasons",
-          "trigger-count-by-triggerId"
+          "ai-studio--get-projects-usage-policy",
+          "ai-studio--post-projects-chat",
+          "typed--get_studio_site_history--vibe-platform-documents:runQuery"
         ]
       },
       get_account_workflow_overview: {
@@ -54928,80 +54845,43 @@ var init_define_TOOL_CATALOG = __esm({
           "status-enroll-stats-cache"
         ]
       },
-      test_custom_code: {
-        description: "Custom Code sandbox test-run (no account mutation) \u2014 proof: live-runtime (2026-09-15); risk: sandbox-exec",
-        risk: "sandbox-exec",
-        proof: "live-runtime (2026-09-15)",
-        proofFloor: "live-runtime (2026-08-22)",
-        proofRows: [
-          "custom-code-run-test"
-        ],
-        proofFloorRows: [
-          "custom-code-run-test"
-        ],
-        riskRows: [
-          "custom-code-run-test"
-        ],
-        rows: [
-          "custom-code-run-test"
-        ]
-      },
-      pin_webhook_sample: {
-        description: "Inbound-webhook sample \u2192 reference pin \u2192 merge tags \u2014 proof: live-canary (2026-08-22); risk: write (replaces the trigger's reference)",
-        risk: "write",
-        proof: "live-canary (2026-08-22)",
-        proofFloor: "live-canary (2026-08-22)",
-        proofRows: [
-          "hooks-webhook-trigger-post",
-          "hooks-inbound-webhook-request-trigger",
-          "hooks-set-as-reference",
-          "hooks-reference"
-        ],
-        proofFloorRows: [
-          "hooks-set-as-reference"
-        ],
-        riskRows: [
-          "hooks-set-as-reference"
-        ],
-        rows: [
-          "hooks-webhook-trigger-post",
-          "hooks-inbound-webhook-request-trigger",
-          "hooks-set-as-reference",
-          "hooks-reference"
-        ]
-      },
-      search_step_types: {
-        description: "Search workflow step and trigger types \u2014 proof: source-derived (284 corpus cards); risk: read",
-        risk: "read",
-        proof: "source-derived (corpus 30-types, 2026-08-25)",
-        proofFloor: "documented",
-        rows: [],
-        riskRows: []
-      },
-      describe_step_type: {
-        description: "Describe one workflow step or trigger type \u2014 proof: source-derived (284 corpus cards); risk: read",
-        risk: "read",
-        proof: "source-derived (corpus 30-types, 2026-08-25)",
-        proofFloor: "documented",
-        rows: [],
-        riskRows: []
-      },
-      list_agent_sessions: {
-        description: "Agent Logs sessions \u2014 the AI Agents log table, filterable and cursor-paged \u2014 proof: live-runtime (2026-09-03); risk: read",
+      get_agent_message_trace: {
+        description: "Why the AI said it: the node-by-node span trace for one message, digested \u2014 proof: live-runtime (2026-09-03); risk: read",
         risk: "read",
         proof: "live-runtime (2026-09-03)",
         proofFloor: "live-runtime (2026-09-03)",
         proofRows: [
-          "ai-agents--agent-logs-logs"
+          "ai-agents--logs-spans",
+          "ai-agents--logs-interactions"
         ],
         proofFloorRows: [
-          "ai-agents--agent-logs-logs"
+          "ai-agents--logs-spans"
         ],
         riskRows: [
-          "ai-agents--agent-logs-logs"
+          "ai-agents--logs-spans",
+          "ai-agents--logs-interactions"
         ],
         rows: [
-          "ai-agents--agent-logs-logs"
+          "ai-agents--logs-spans",
+          "ai-agents--logs-interactions"
+        ]
+      },
+      get_agent_metrics: {
+        description: "Agent Logs metrics dashboard \u2014 tokens, latency, success rates, top models/tools/agents, time series \u2014 proof: live-runtime (2026-09-03); risk: read",
+        risk: "read",
+        proof: "live-runtime (2026-09-03)",
+        proofFloor: "live-runtime (2026-09-03)",
+        proofRows: [
+          "ai-agents--agent-logs-metrics"
+        ],
+        proofFloorRows: [
+          "ai-agents--agent-logs-metrics"
+        ],
+        riskRows: [
+          "ai-agents--agent-logs-metrics"
+        ],
+        rows: [
+          "ai-agents--agent-logs-metrics"
         ]
       },
       get_agent_session: {
@@ -55028,25 +54908,67 @@ var init_define_TOOL_CATALOG = __esm({
           "ai-agents--logs-metrics"
         ]
       },
-      get_agent_message_trace: {
-        description: "Why the AI said it: the node-by-node span trace for one message, digested \u2014 proof: live-runtime (2026-09-03); risk: read",
+      get_ai_agent_options: {
+        description: "List the models and MCP connections an ai_agent step can use \u2014 proof: live-runtime (2026-09-15); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-03)",
-        proofFloor: "live-runtime (2026-09-03)",
+        proof: "live-runtime (2026-09-15)",
+        proofFloor: "source-derived (builder bundle 2026-09-14)",
+        rows: [
+          "workflow-agent-options"
+        ],
         proofRows: [
-          "ai-agents--logs-spans",
-          "ai-agents--logs-interactions"
+          "workflow-agent-options"
         ],
         proofFloorRows: [
-          "ai-agents--logs-spans"
+          "workflow-agent-options"
         ],
         riskRows: [
-          "ai-agents--logs-spans",
-          "ai-agents--logs-interactions"
+          "workflow-agent-options"
+        ]
+      },
+      get_ai_configuration_bundle: {
+        description: "Sweep Conversation AI, Voice AI and Agent Studio discovery plus per-agent detail \u2014 proof: external-receipt-required; risk: read. All three surfaces are always attempted and always reported; a 403, 404, rate limit, malformed envelope, missing detail or unavailable company context makes that component complete:false with items null, never an empty agent list. An empty surface is complete only after a terminal, schema-valid discovery response. Per Conversation AI agent it also reads the Agent-Deployment routing rows (one row per channel, published verbatim on the item); rows pinned to specific identifiers (allIdentifiers:false) are summarised in routingPinned \u2014 legal live config reported for review, never a failure. Live canary required before Full audit.",
+        risk: "read",
+        proof: "external-receipt-required",
+        proofFloor: "external-receipt-required",
+        proofRows: [
+          "entities-ai-employees-agents-list"
+        ],
+        proofFloorRows: [
+          "entities-ai-employees-agents-list"
+        ],
+        riskRows: [
+          "entities-ai-employees-agents-list"
         ],
         rows: [
-          "ai-agents--logs-spans",
-          "ai-agents--logs-interactions"
+          "entities-ai-employees-agents-list"
+        ],
+        _rowsNote: "This entry used to also cite `entities-voice-ai-agents-list`, which is the row for list_account_entities's BARE /voice-ai/agents \u2014 precisely the legacy route core/audit-configuration.mjs goes out of its way to disavow. This bundle reads /voice-ai/agents/simple, a different capability with a different receipt, so the citation was removed rather than corrected: the matrix that defines row ids is not in this repository (the README defines none, and a repo-wide grep finds row ids only in this file), so there is no id to correct it to and inventing one would mint documentation provenance that does not exist.",
+        undocumentedCapabilities: [
+          {
+            path: "/voice-ai/agents/simple",
+            reason: "New to the audit descriptor set and cited by no existing catalog entry. The docs capability matrix that defines row ids is not in this repository, so no row id may be invented for it."
+          },
+          {
+            path: "/voice-ai/agents/{agentId}",
+            reason: "The Voice AI per-agent detail route. No catalog entry cites a row for it; see above."
+          },
+          {
+            path: "/ai-employees/employees/{agentId}",
+            reason: "The Conversation AI per-agent detail route. No catalog entry cites a row for it; see above."
+          },
+          {
+            path: "/agent-studio/agents/agents-with-folders",
+            reason: "New to the audit descriptor set and cited by no existing catalog entry; see above."
+          },
+          {
+            path: "/agent-studio/super-agent/agents/{agentId}",
+            reason: "The Agent Studio per-agent detail route. No catalog entry cites a row for it; see above."
+          },
+          {
+            path: "/agent-deployment/routing-config/configs",
+            reason: "The Agent-Deployment routing route, added to the audit descriptor set with the per-agent routing read. No catalog entry cites a matrix row for it, and the matrix that defines row ids is not in this repository, so the gap is recorded rather than an id invented; see above."
+          }
         ]
       },
       get_ai_response_details: {
@@ -55067,146 +54989,88 @@ var init_define_TOOL_CATALOG = __esm({
           "ai-agents--interactions-response-details"
         ]
       },
-      list_agent_contacts: {
-        description: "Agent Logs contacts \u2014 per-contact AI activity aggregates \u2014 proof: live-runtime (2026-09-03); risk: read",
+      get_contact_ai_status: {
+        description: "Read per-contact Conversation AI status \u2014 proof: live-runtime (2026-08-08); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-03)",
-        proofFloor: "live-runtime (2026-09-03)",
+        proof: "live-runtime (2026-08-08)",
+        proofFloor: "live-runtime (2026-08-08)",
         proofRows: [
-          "ai-agents--agent-logs-contacts"
+          "ai-convai-contact-config-read"
         ],
         proofFloorRows: [
-          "ai-agents--agent-logs-contacts"
+          "ai-convai-contact-config-read"
         ],
         riskRows: [
-          "ai-agents--agent-logs-contacts"
+          "ai-convai-contact-config-read"
         ],
         rows: [
-          "ai-agents--agent-logs-contacts"
+          "ai-convai-contact-config-read"
         ]
       },
-      get_agent_metrics: {
-        description: "Agent Logs metrics dashboard \u2014 tokens, latency, success rates, top models/tools/agents, time series \u2014 proof: live-runtime (2026-09-03); risk: read",
+      get_contacts_at_step: {
+        description: "List contacts at step \u2014 proof: live-runtime (2026-09-15); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-03)",
-        proofFloor: "live-runtime (2026-09-03)",
+        proof: "live-runtime (2026-09-15)",
+        proofFloor: "live-runtime (2026-07-18)",
         proofRows: [
-          "ai-agents--agent-logs-metrics"
+          "logs-details-by-step"
         ],
         proofFloorRows: [
-          "ai-agents--agent-logs-metrics"
+          "logs-details-by-step"
         ],
         riskRows: [
-          "ai-agents--agent-logs-metrics"
+          "logs-details-by-step"
         ],
         rows: [
-          "ai-agents--agent-logs-metrics"
+          "logs-details-by-step"
         ]
       },
-      find_ghl_site: {
-        description: "Find ghl site \u2014 proof: live-runtime (2026-09-04); risk: read",
+      get_form: {
+        description: "Read one form and its stored document \u2014 proof: live-runtime (2026-09-06); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-04)",
-        proofFloor: "live-runtime (2026-09-04)",
+        proof: "live-runtime (2026-09-06)",
+        proofFloor: "live-runtime (2026-09-06)",
         proofRows: [
-          "ai-studio--get-projects",
-          "funnels-service--get-funnels"
+          "forms-detail",
+          "forms-public-data"
         ],
         proofFloorRows: [
-          "ai-studio--get-projects",
-          "funnels-service--get-funnels"
+          "forms-detail",
+          "forms-public-data"
         ],
         riskRows: [
-          "ai-studio--get-projects",
-          "funnels-service--get-funnels"
+          "forms-detail",
+          "forms-public-data"
         ],
         rows: [
-          "ai-studio--get-projects",
-          "funnels-service--get-funnels"
+          "forms-detail",
+          "forms-public-data"
         ]
       },
-      list_studio_sites: {
-        description: "List studio sites \u2014 proof: live-runtime (2026-09-04); risk: read",
+      get_snapshot_manifest: {
+        description: "Read everything a sub-account could put in a snapshot \u2014 proof: live-runtime (2026-09-10); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-04)",
-        proofFloor: "live-runtime (2026-09-04)",
+        proof: "live-runtime (2026-09-10)",
+        proofFloor: "live-runtime (2026-09-10)",
         proofRows: [
-          "ai-studio--get-projects",
-          "ai-studio--get-folders"
+          "platform--snapshots-prefetch",
+          "platform--snapshots-create-appengine"
         ],
         proofFloorRows: [
-          "ai-studio--get-projects",
-          "ai-studio--get-folders"
+          "platform--snapshots-prefetch",
+          "platform--snapshots-create-appengine"
         ],
         riskRows: [
-          "ai-studio--get-projects",
-          "ai-studio--get-folders"
+          "platform--snapshots-prefetch",
+          "platform--snapshots-create-appengine"
         ],
         rows: [
-          "ai-studio--get-projects",
-          "ai-studio--get-folders"
+          "platform--snapshots-prefetch",
+          "platform--snapshots-create-appengine"
         ]
       },
-      get_studio_site: {
-        description: "Get studio site \u2014 proof: live-runtime (2026-09-04); risk: read",
-        risk: "read",
-        proof: "live-runtime (2026-09-04)",
-        proofFloor: "live-runtime (2026-09-04)",
-        proofRows: [
-          "ai-studio--get-projects--documented",
-          "ai-studio--get-projects-routes"
-        ],
-        proofFloorRows: [
-          "ai-studio--get-projects--documented",
-          "ai-studio--get-projects-routes"
-        ],
-        riskRows: [
-          "ai-studio--get-projects--documented",
-          "ai-studio--get-projects-routes"
-        ],
-        rows: [
-          "ai-studio--get-projects--documented",
-          "ai-studio--get-projects-routes"
-        ]
-      },
-      read_studio_site_content: {
-        description: "Read studio site content \u2014 proof: live-runtime (2026-09-04); risk: read",
-        risk: "read",
-        proof: "live-runtime (2026-09-04)",
-        proofFloor: "live-runtime (2026-09-04)",
-        proofRows: [
-          "ai-studio--get-projects-files"
-        ],
-        proofFloorRows: [
-          "ai-studio--get-projects-files"
-        ],
-        riskRows: [
-          "ai-studio--get-projects-files"
-        ],
-        rows: [
-          "ai-studio--get-projects-files"
-        ]
-      },
-      get_studio_site_history: {
-        description: "Get studio site history \u2014 proof: live-runtime (2026-09-04); risk: read",
-        risk: "read",
-        proof: "live-runtime (2026-09-04)",
-        proofFloor: "live-runtime (2026-09-04)",
-        proofRows: [
-          "typed--get_studio_site_history--vibe-platform-documents:runQuery"
-        ],
-        proofFloorRows: [
-          "typed--get_studio_site_history--vibe-platform-documents:runQuery"
-        ],
-        riskRows: [
-          "typed--get_studio_site_history--vibe-platform-documents:runQuery"
-        ],
-        rows: [
-          "typed--get_studio_site_history--vibe-platform-documents:runQuery"
-        ]
-      },
-      get_studio_site_diffs: {
-        description: "Get studio site diffs \u2014 proof: live-runtime (2026-09-04); risk: read",
+      get_studio_generation_status: {
+        description: "Get studio generation status \u2014 proof: live-runtime (2026-09-04); risk: read",
         risk: "read",
         proof: "live-runtime (2026-09-04)",
         proofFloor: "live-runtime (2026-09-04)",
@@ -55245,8 +55109,30 @@ var init_define_TOOL_CATALOG = __esm({
           "ai-studio--post-projects-sandbox"
         ]
       },
-      get_studio_generation_status: {
-        description: "Get studio generation status \u2014 proof: live-runtime (2026-09-04); risk: read",
+      get_studio_site: {
+        description: "Get studio site \u2014 proof: live-runtime (2026-09-04); risk: read",
+        risk: "read",
+        proof: "live-runtime (2026-09-04)",
+        proofFloor: "live-runtime (2026-09-04)",
+        proofRows: [
+          "ai-studio--get-projects--documented",
+          "ai-studio--get-projects-routes"
+        ],
+        proofFloorRows: [
+          "ai-studio--get-projects--documented",
+          "ai-studio--get-projects-routes"
+        ],
+        riskRows: [
+          "ai-studio--get-projects--documented",
+          "ai-studio--get-projects-routes"
+        ],
+        rows: [
+          "ai-studio--get-projects--documented",
+          "ai-studio--get-projects-routes"
+        ]
+      },
+      get_studio_site_diffs: {
+        description: "Get studio site diffs \u2014 proof: live-runtime (2026-09-04); risk: read",
         risk: "read",
         proof: "live-runtime (2026-09-04)",
         proofFloor: "live-runtime (2026-09-04)",
@@ -55263,150 +55149,334 @@ var init_define_TOOL_CATALOG = __esm({
           "typed--get_studio_site_history--vibe-platform-documents:runQuery"
         ]
       },
-      create_studio_site: {
-        description: "Create studio site \u2014 proof: live-runtime (2026-09-04); risk: write",
-        risk: "write",
+      get_studio_site_history: {
+        description: "Get studio site history \u2014 proof: live-runtime (2026-09-04); risk: read",
+        risk: "read",
         proof: "live-runtime (2026-09-04)",
         proofFloor: "live-runtime (2026-09-04)",
         proofRows: [
-          "ai-studio--post-projects"
-        ],
-        proofFloorRows: [
-          "ai-studio--post-projects"
-        ],
-        riskRows: [
-          "ai-studio--post-projects"
-        ],
-        rows: [
-          "ai-studio--post-projects"
-        ]
-      },
-      generate_studio_site: {
-        description: "Generate studio site \u2014 proof: live-runtime (2026-09-04); risk: write",
-        risk: "write",
-        proof: "live-runtime (2026-09-04)",
-        proofFloor: "live-runtime (2026-09-04)",
-        proofRows: [
-          "ai-studio--get-projects-usage-policy",
-          "ai-studio--post-projects-chat",
           "typed--get_studio_site_history--vibe-platform-documents:runQuery"
         ],
         proofFloorRows: [
-          "ai-studio--get-projects-usage-policy",
-          "ai-studio--post-projects-chat",
           "typed--get_studio_site_history--vibe-platform-documents:runQuery"
         ],
         riskRows: [
-          "ai-studio--get-projects-usage-policy",
-          "ai-studio--post-projects-chat",
           "typed--get_studio_site_history--vibe-platform-documents:runQuery"
         ],
         rows: [
-          "ai-studio--get-projects-usage-policy",
-          "ai-studio--post-projects-chat",
           "typed--get_studio_site_history--vibe-platform-documents:runQuery"
         ]
       },
-      answer_studio_question: {
-        description: "Answer studio question \u2014 proof: live-runtime (2026-09-04); risk: write",
-        risk: "write",
-        proof: "live-runtime (2026-09-04)",
-        proofFloor: "live-runtime (2026-09-04)",
+      get_trigger_logs: {
+        description: "Trigger attempt logs + top failed reasons \u2014 proof: live-runtime (2026-09-15); risk: read",
+        risk: "read",
+        proof: "live-runtime (2026-09-15)",
+        proofFloor: "live-runtime (2026-08-22)",
         proofRows: [
-          "ai-studio--post-projects-chat"
+          "trigger-logs-triggerId",
+          "trigger-logs-top-failed-reasons",
+          "trigger-count-by-triggerId"
         ],
         proofFloorRows: [
-          "ai-studio--post-projects-chat"
+          "trigger-logs-triggerId"
         ],
         riskRows: [
-          "ai-studio--post-projects-chat"
+          "trigger-logs-triggerId",
+          "trigger-logs-top-failed-reasons",
+          "trigger-count-by-triggerId"
         ],
         rows: [
-          "ai-studio--post-projects-chat"
+          "trigger-logs-triggerId",
+          "trigger-logs-top-failed-reasons",
+          "trigger-count-by-triggerId"
         ]
       },
-      cancel_studio_generation: {
-        description: "Cancel studio generation \u2014 proof: live-runtime (2026-09-04); risk: write",
-        risk: "write",
-        proof: "live-runtime (2026-09-04)",
-        proofFloor: "live-runtime (2026-09-04)",
+      get_workflow: {
+        description: "Get workflow \u2014 proof: live-runtime (2026-09-15); risk: read",
+        risk: "read",
+        proof: "live-runtime (2026-09-15)",
+        proofFloor: "documented",
         proofRows: [
-          "ai-studio--post-projects-chat-cancel"
+          "workflow-read"
         ],
         proofFloorRows: [
-          "ai-studio--post-projects-chat-cancel"
+          "workflow-read"
         ],
         riskRows: [
-          "ai-studio--post-projects-chat-cancel"
+          "workflow-read"
         ],
         rows: [
-          "ai-studio--post-projects-chat-cancel"
+          "workflow-read"
         ]
       },
-      set_studio_secrets: {
-        description: "Set studio secrets \u2014 proof: live-runtime (2026-09-04); risk: write",
-        risk: "write",
-        proof: "live-runtime (2026-09-04)",
-        proofFloor: "live-runtime (2026-09-04)",
+      get_workflow_digest: {
+        description: "Compact read of one workflow \u2014 identity, version, structure, merge tags per step \u2014 proof: live-runtime (2026-09-15); risk: read",
+        risk: "read",
+        proof: "live-runtime (2026-09-15)",
+        proofFloor: "unrecorded",
         proofRows: [
-          "ai-studio--put-projects-secrets",
-          "ai-studio--get-projects-secrets"
+          "workflow-service--find-by-id",
+          "trigger-service--find-all"
         ],
         proofFloorRows: [
-          "ai-studio--put-projects-secrets",
-          "ai-studio--get-projects-secrets"
+          "workflow-service--find-by-id",
+          "trigger-service--find-all"
         ],
         riskRows: [
-          "ai-studio--put-projects-secrets",
-          "ai-studio--get-projects-secrets"
+          "workflow-service--find-by-id",
+          "trigger-service--find-all"
         ],
         rows: [
-          "ai-studio--put-projects-secrets",
-          "ai-studio--get-projects-secrets"
+          "workflow-service--find-by-id",
+          "trigger-service--find-all"
         ]
       },
-      publish_studio_site: {
-        description: "Publish studio site \u2014 proof: live-runtime (2026-09-04); risk: write",
-        risk: "write",
-        proof: "live-runtime (2026-09-04)",
-        proofFloor: "live-runtime (2026-09-04)",
+      get_workflow_logs: {
+        description: "Get workflow logs \u2014 proof: live-runtime (2026-09-15), floor: documented; risk: read",
+        risk: "read",
+        proof: "live-runtime (2026-09-15)",
+        proofFloor: "documented",
         proofRows: [
-          "ai-studio--post-projects-publish",
-          "ai-studio--get-projects--documented"
+          "logs-count-per-step",
+          "logs-enrollment-history",
+          "logs-list-v2",
+          "workflow-enrollment-stats-cache"
         ],
         proofFloorRows: [
-          "ai-studio--post-projects-publish",
-          "ai-studio--get-projects--documented"
+          "workflow-enrollment-stats"
         ],
         riskRows: [
-          "ai-studio--post-projects-publish",
-          "ai-studio--get-projects--documented"
+          "logs-count-per-step",
+          "logs-enrollment-history",
+          "logs-list-v2",
+          "workflow-enrollment-stats",
+          "workflow-enrollment-stats-cache"
         ],
         rows: [
-          "ai-studio--post-projects-publish",
-          "ai-studio--get-projects--documented"
+          "logs-count-per-step",
+          "logs-enrollment-history",
+          "logs-list-v2",
+          "workflow-enrollment-stats",
+          "workflow-enrollment-stats-cache"
         ]
       },
-      unpublish_studio_site: {
-        description: "Unpublish studio site \u2014 proof: live-runtime (2026-09-04); risk: write",
-        risk: "write",
-        proof: "live-runtime (2026-09-04)",
-        proofFloor: "live-runtime (2026-09-04)",
+      get_workflow_runtime_window: {
+        description: "Collect one workflow's complete, evidence-qualified runtime window (definition, executions read by cursor over a dateType=custom window (the window is INERT without that switch \u2014 the endpoint otherwise serves a silent 30-day default), enrollment walk, per-step counts, requested step rosters, enrollment totals) \u2014 proof: external-receipt-required; risk: read. Every failure is complete:false with a coded warning, never an empty window. `complete` covers RUNTIME EVENT COVERAGE only: the separate configurationBinding field records that nothing on this rail proves the captured definition governed the events in the window, so no consumer may claim it did. Live canary required before Full audit.",
+        risk: "read",
+        proof: "external-receipt-required",
+        proofFloor: "external-receipt-required",
         proofRows: [
-          "ai-studio--post-projects-unpublish",
-          "ai-studio--get-projects--documented"
+          "logs-count-per-step",
+          "logs-details-by-step",
+          "logs-enrollment-history",
+          "logs-list-v2",
+          "triggers-list",
+          "workflow-enrollment-stats-cache",
+          "workflow-read",
+          "workflow-sticky-notes-list"
         ],
         proofFloorRows: [
-          "ai-studio--post-projects-unpublish",
-          "ai-studio--get-projects--documented"
+          "logs-count-per-step",
+          "logs-details-by-step",
+          "logs-enrollment-history",
+          "logs-list-v2",
+          "triggers-list",
+          "workflow-enrollment-stats-cache",
+          "workflow-read",
+          "workflow-sticky-notes-list"
         ],
         riskRows: [
-          "ai-studio--post-projects-unpublish",
-          "ai-studio--get-projects--documented"
+          "logs-count-per-step",
+          "logs-details-by-step",
+          "logs-enrollment-history",
+          "logs-list-v2",
+          "triggers-list",
+          "workflow-enrollment-stats-cache",
+          "workflow-read",
+          "workflow-sticky-notes-list"
         ],
         rows: [
-          "ai-studio--post-projects-unpublish",
-          "ai-studio--get-projects--documented"
+          "logs-count-per-step",
+          "logs-details-by-step",
+          "logs-enrollment-history",
+          "logs-list-v2",
+          "triggers-list",
+          "workflow-enrollment-stats-cache",
+          "workflow-read",
+          "workflow-sticky-notes-list"
+        ],
+        undocumentedCapabilities: [
+          {
+            path: "/workflows/status/enroll-stats",
+            reason: "This tool reads nine routes and only eight of them are cited above; no catalog entry cites a row for the enroll-stats summary. Recorded rather than invented, for the reason given on get_ai_configuration_bundle."
+          }
+        ]
+      },
+      get_workflow_settings: {
+        description: "Read the account-level workflow settings rail \u2014 proof: live-runtime (2026-09-15); risk: read",
+        risk: "read",
+        proof: "live-runtime (2026-09-15)",
+        proofFloor: "source-derived (builder bundle 2026-09-14)",
+        rows: [
+          "workflow-settings-read",
+          "workflow-error-notification-read"
+        ],
+        riskRows: [
+          "workflow-settings-read",
+          "workflow-error-notification-read"
+        ],
+        proofRows: [
+          "workflow-settings-read",
+          "workflow-error-notification-read"
+        ],
+        proofFloorRows: [
+          "workflow-settings-read",
+          "workflow-error-notification-read"
+        ]
+      },
+      get_workflow_stats: {
+        description: "Workflow stats view \u2014 proof: live-runtime (2026-09-15); risk: read",
+        risk: "read",
+        proof: "live-runtime (2026-09-15)",
+        proofFloor: "live-runtime (2026-08-22)",
+        proofRows: [
+          "stats-aggregate",
+          "trigger-count-by-triggerId",
+          "logs-count-per-step"
+        ],
+        proofFloorRows: [
+          "stats-aggregate"
+        ],
+        riskRows: [
+          "stats-aggregate",
+          "trigger-count-by-triggerId",
+          "logs-count-per-step"
+        ],
+        rows: [
+          "stats-aggregate",
+          "trigger-count-by-triggerId",
+          "logs-count-per-step"
+        ]
+      },
+      get_workflow_version: {
+        description: "Get workflow version snapshot \u2014 proof: live-runtime (2026-09-15); risk: read",
+        risk: "read",
+        proof: "live-runtime (2026-09-15)",
+        proofFloor: "live-runtime (2026-08-22)",
+        proofRows: [
+          "workflow-history"
+        ],
+        proofFloorRows: [
+          "workflow-history"
+        ],
+        riskRows: [
+          "workflow-history"
+        ],
+        rows: [
+          "workflow-history"
+        ]
+      },
+      list_account_entities: {
+        description: "List account entities \u2014 proof: live-runtime (2026-07-18), floor: documented; risk: read",
+        risk: "read",
+        proof: "live-runtime (2026-07-18)",
+        proofFloor: "documented",
+        proofRows: [
+          "entities-ai-employees-agents-list",
+          "entities-custom-fields-search"
+        ],
+        proofFloorRows: [
+          "entities-voice-ai-agents-list"
+        ],
+        riskRows: [
+          "entities-ai-employees-agents-list",
+          "entities-calendars-list",
+          "entities-custom-fields-search",
+          "entities-forms-list",
+          "entities-pipelines-list",
+          "entities-users-list",
+          "entities-voice-ai-agents-list"
+        ],
+        rows: [
+          "entities-ai-employees-agents-list",
+          "entities-calendars-list",
+          "entities-custom-fields-search",
+          "entities-forms-list",
+          "entities-pipelines-list",
+          "entities-users-list",
+          "entities-voice-ai-agents-list"
+        ]
+      },
+      list_agent_contacts: {
+        description: "Agent Logs contacts \u2014 per-contact AI activity aggregates \u2014 proof: live-runtime (2026-09-03); risk: read",
+        risk: "read",
+        proof: "live-runtime (2026-09-03)",
+        proofFloor: "live-runtime (2026-09-03)",
+        proofRows: [
+          "ai-agents--agent-logs-contacts"
+        ],
+        proofFloorRows: [
+          "ai-agents--agent-logs-contacts"
+        ],
+        riskRows: [
+          "ai-agents--agent-logs-contacts"
+        ],
+        rows: [
+          "ai-agents--agent-logs-contacts"
+        ]
+      },
+      list_agent_sessions: {
+        description: "Agent Logs sessions \u2014 the AI Agents log table, filterable and cursor-paged \u2014 proof: live-runtime (2026-09-03); risk: read",
+        risk: "read",
+        proof: "live-runtime (2026-09-03)",
+        proofFloor: "live-runtime (2026-09-03)",
+        proofRows: [
+          "ai-agents--agent-logs-logs"
+        ],
+        proofFloorRows: [
+          "ai-agents--agent-logs-logs"
+        ],
+        riskRows: [
+          "ai-agents--agent-logs-logs"
+        ],
+        rows: [
+          "ai-agents--agent-logs-logs"
+        ]
+      },
+      list_courses: {
+        description: "List courses \u2014 proof: documented; risk: read",
+        risk: "read",
+        proof: "documented",
+        proofFloor: "documented",
+        proofRows: [
+          "memberships-products-list"
+        ],
+        proofFloorRows: [
+          "memberships-products-list"
+        ],
+        riskRows: [
+          "memberships-products-list"
+        ],
+        rows: [
+          "memberships-products-list"
+        ]
+      },
+      list_form_submissions: {
+        description: "List form submissions \u2014 proof: live-runtime (2026-09-06); risk: read",
+        risk: "read",
+        proof: "live-runtime (2026-09-06)",
+        proofFloor: "live-runtime (2026-09-06)",
+        proofRows: [
+          "forms-submissions"
+        ],
+        proofFloorRows: [
+          "forms-submissions"
+        ],
+        riskRows: [
+          "forms-submissions"
+        ],
+        rows: [
+          "forms-submissions"
         ]
       },
       list_forms: {
@@ -55431,92 +55501,26 @@ var init_define_TOOL_CATALOG = __esm({
           "forms-count"
         ]
       },
-      get_form: {
-        description: "Read one form and its stored document \u2014 proof: live-runtime (2026-09-06); risk: read",
+      list_marketplace_apps: {
+        description: "List the third-party marketplace apps INSTALLED in a sub-account, with each app's triggers and actions \u2014 key, version, templateId, and the full customVars / inputs schema \u2014 proof: live-runtime (2026-08-16: the endpoint and its dual-credential rail were called against a real sub-account and returned the installed app with appId/publisher; the handler itself is unit-tested against a mocked gateway, not live-invoked); risk: read. The workflow builder renders its own Add-trigger and Add-action panels from these two reads, so the list is complete by construction ONLY when both GETs succeed; a failed leg reports `complete:false` with that leg's data as null (never a silently empty list) and names which leg failed in `sources`, so a partial read can never be misread as \"this app has none\". Use it for account recon, to confirm an app is installed before building a workflow that references it, and to read the current version/templateId a marketplace step must bind to. compact:true (the default) returns identity plus keys and versions only \u2014 a single app's full schema is large.",
         risk: "read",
-        proof: "live-runtime (2026-09-06)",
-        proofFloor: "live-runtime (2026-09-06)",
+        proof: "documented",
+        proofFloor: "documented",
         proofRows: [
-          "forms-detail",
-          "forms-public-data"
+          "marketplace-modules-triggers-list",
+          "marketplace-modules-actions-list"
         ],
         proofFloorRows: [
-          "forms-detail",
-          "forms-public-data"
+          "marketplace-modules-triggers-list",
+          "marketplace-modules-actions-list"
         ],
         riskRows: [
-          "forms-detail",
-          "forms-public-data"
+          "marketplace-modules-triggers-list",
+          "marketplace-modules-actions-list"
         ],
         rows: [
-          "forms-detail",
-          "forms-public-data"
-        ]
-      },
-      create_form: {
-        description: "Create a form and save its document \u2014 proof: live-runtime (2026-09-06); risk: write",
-        risk: "write",
-        proof: "live-runtime (2026-09-06)",
-        proofFloor: "live-runtime (2026-09-06)",
-        proofRows: [
-          "forms-create",
-          "forms-save",
-          "forms-detail"
-        ],
-        proofFloorRows: [
-          "forms-create",
-          "forms-save",
-          "forms-detail"
-        ],
-        riskRows: [
-          "forms-create",
-          "forms-save",
-          "forms-detail"
-        ],
-        rows: [
-          "forms-create",
-          "forms-save",
-          "forms-detail"
-        ]
-      },
-      update_form_data: {
-        description: "Edit a form's stored document safely \u2014 proof: live-runtime (2026-09-06); risk: write",
-        risk: "write",
-        proof: "live-runtime (2026-09-06)",
-        proofFloor: "live-runtime (2026-09-06)",
-        proofRows: [
-          "forms-detail",
-          "forms-save"
-        ],
-        proofFloorRows: [
-          "forms-detail",
-          "forms-save"
-        ],
-        riskRows: [
-          "forms-detail",
-          "forms-save"
-        ],
-        rows: [
-          "forms-detail",
-          "forms-save"
-        ]
-      },
-      list_form_submissions: {
-        description: "List form submissions \u2014 proof: live-runtime (2026-09-06); risk: read",
-        risk: "read",
-        proof: "live-runtime (2026-09-06)",
-        proofFloor: "live-runtime (2026-09-06)",
-        proofRows: [
-          "forms-submissions"
-        ],
-        proofFloorRows: [
-          "forms-submissions"
-        ],
-        riskRows: [
-          "forms-submissions"
-        ],
-        rows: [
-          "forms-submissions"
+          "marketplace-modules-triggers-list",
+          "marketplace-modules-actions-list"
         ]
       },
       list_snapshots: {
@@ -55541,162 +55545,193 @@ var init_define_TOOL_CATALOG = __esm({
           "platform--snapshots-create-appengine"
         ]
       },
-      get_snapshot_manifest: {
-        description: "Read everything a sub-account could put in a snapshot \u2014 proof: live-runtime (2026-09-10); risk: read",
+      list_studio_sites: {
+        description: "List studio sites \u2014 proof: live-runtime (2026-09-04); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-10)",
-        proofFloor: "live-runtime (2026-09-10)",
+        proof: "live-runtime (2026-09-04)",
+        proofFloor: "live-runtime (2026-09-04)",
         proofRows: [
-          "platform--snapshots-prefetch",
-          "platform--snapshots-create-appengine"
+          "ai-studio--get-projects",
+          "ai-studio--get-folders"
         ],
         proofFloorRows: [
-          "platform--snapshots-prefetch",
-          "platform--snapshots-create-appengine"
+          "ai-studio--get-projects",
+          "ai-studio--get-folders"
         ],
         riskRows: [
-          "platform--snapshots-prefetch",
-          "platform--snapshots-create-appengine"
+          "ai-studio--get-projects",
+          "ai-studio--get-folders"
         ],
         rows: [
-          "platform--snapshots-prefetch",
-          "platform--snapshots-create-appengine"
+          "ai-studio--get-projects",
+          "ai-studio--get-folders"
         ]
       },
-      check_snapshot_conflicts: {
-        description: "See what loading a snapshot would collide with \u2014 proof: live-runtime (2026-09-10); risk: read",
+      list_workflow_folders: {
+        description: "List workflow folders \u2014 proof: live-runtime (2026-09-15); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-10)",
-        proofFloor: "live-runtime (2026-09-10)",
+        proof: "live-runtime (2026-09-15)",
+        proofFloor: "live-runtime (2026-08-18)",
         proofRows: [
-          "platform--snapshots-prefetch",
-          "platform--snapshots-create-appengine"
+          "workflow-folder-list"
         ],
         proofFloorRows: [
-          "platform--snapshots-prefetch",
-          "platform--snapshots-create-appengine"
+          "workflow-folder-list"
         ],
         riskRows: [
-          "platform--snapshots-prefetch",
-          "platform--snapshots-create-appengine"
+          "workflow-folder-list"
         ],
         rows: [
-          "platform--snapshots-prefetch",
-          "platform--snapshots-create-appengine"
+          "workflow-folder-list"
         ]
       },
-      create_snapshot: {
-        description: "Capture a sub-account into an agency snapshot \u2014 proof: live-runtime (2026-09-10); risk: write",
-        risk: "write",
-        proof: "live-runtime (2026-09-10)",
-        proofFloor: "live-runtime (2026-09-10)",
-        proofRows: [
-          "platform--snapshots-prefetch",
-          "platform--snapshots-create-appengine"
-        ],
-        proofFloorRows: [
-          "platform--snapshots-prefetch",
-          "platform--snapshots-create-appengine"
-        ],
-        riskRows: [
-          "platform--snapshots-prefetch",
-          "platform--snapshots-create-appengine"
-        ],
-        rows: [
-          "platform--snapshots-prefetch",
-          "platform--snapshots-create-appengine"
-        ]
-      },
-      refresh_snapshot: {
-        description: "Re-capture a snapshot without losing its curation \u2014 proof: live-runtime (2026-09-10); risk: write",
-        risk: "write",
-        proof: "live-runtime (2026-09-10)",
-        proofFloor: "live-runtime (2026-09-10)",
-        proofRows: [
-          "platform--snapshots-prefetch",
-          "platform--snapshots-create-appengine"
-        ],
-        proofFloorRows: [
-          "platform--snapshots-prefetch",
-          "platform--snapshots-create-appengine"
-        ],
-        riskRows: [
-          "platform--snapshots-prefetch",
-          "platform--snapshots-create-appengine"
-        ],
-        rows: [
-          "platform--snapshots-prefetch",
-          "platform--snapshots-create-appengine"
-        ]
-      },
-      create_smart_list: {
-        description: "Create a smart list whose filter the contacts screen will actually apply \u2014 proof: live-runtime (2026-09-07); risk: write",
-        risk: "write",
-        proof: "live-runtime (2026-09-07)",
-        proofFloor: "live-runtime (2026-09-07)",
-        proofRows: [
-          "platform--contacts-smartlist",
-          "platform--contacts-smartlist-get",
-          "backend--2",
-          "platform--locations-custom-fields"
-        ],
-        proofFloorRows: [
-          "platform--contacts-smartlist",
-          "platform--contacts-smartlist-get",
-          "backend--2",
-          "platform--locations-custom-fields"
-        ],
-        riskRows: [
-          "platform--contacts-smartlist",
-          "platform--contacts-smartlist-get",
-          "backend--2",
-          "platform--locations-custom-fields"
-        ],
-        rows: [
-          "platform--contacts-smartlist",
-          "platform--contacts-smartlist-get",
-          "backend--2",
-          "platform--locations-custom-fields"
-        ]
-      },
-      check_smart_lists: {
-        description: "Audit smart lists for filters the contacts screen will silently discard \u2014 proof: live-runtime (2026-09-07); risk: read",
+      list_workflow_templates: {
+        description: "List the workflow templates GHL offers \u2014 proof: live-runtime (2026-09-15); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-07)",
-        proofFloor: "live-runtime (2026-09-07)",
-        proofRows: [
-          "smartlist-search",
-          "smartlist-detail"
-        ],
-        proofFloorRows: [
-          "smartlist-search",
-          "smartlist-detail"
+        proof: "live-runtime (2026-09-15)",
+        proofFloor: "source-derived (builder bundle 2026-09-14)",
+        rows: [
+          "workflow-templates-list"
         ],
         riskRows: [
-          "smartlist-search",
-          "smartlist-detail"
+          "workflow-templates-list"
         ],
-        rows: [
-          "smartlist-search",
-          "smartlist-detail"
+        proofRows: [
+          "workflow-templates-list"
+        ],
+        proofFloorRows: [
+          "workflow-templates-list"
         ]
       },
-      unpublish_workflows: {
-        description: "Stand published workflows back down to draft, in bulk \u2014 proof: live-runtime (2026-09-15); risk: write",
+      list_workflow_versions: {
+        description: "List workflow versions \u2014 proof: live-runtime (2026-09-15); risk: read",
+        risk: "read",
+        proof: "live-runtime (2026-09-15)",
+        proofFloor: "live-runtime (2026-08-22)",
+        proofRows: [
+          "workflow-history"
+        ],
+        proofFloorRows: [
+          "workflow-history"
+        ],
+        riskRows: [
+          "workflow-history"
+        ],
+        rows: [
+          "workflow-history"
+        ]
+      },
+      list_workflows: {
+        description: "Every workflow in a location, walked to a reconciled terminal proof \u2014 proof: external-receipt-required; risk: read. Optional `status` (published|draft) and `search` filter the walk, and the reconciled total is then the total FOR THAT FILTER. A failed, contradicted or budget-exhausted walk is complete:false with a coded warning and a null roster, never an empty list \u2014 so a short answer can never read as a complete one. Live canary required before Full audit.",
+        risk: "read",
+        proof: "external-receipt-required",
+        proofFloor: "external-receipt-required",
+        proofRows: [
+          "workflow-list"
+        ],
+        proofFloorRows: [
+          "workflow-list"
+        ],
+        riskRows: [
+          "workflow-list"
+        ],
+        rows: [
+          "workflow-list"
+        ],
+        undocumentedCapabilities: []
+      },
+      move_workflows: {
+        description: "Move workflows between folders and root \u2014 proof: live-runtime (2026-09-15); risk: write",
         risk: "write",
         proof: "live-runtime (2026-09-15)",
-        proofFloor: "live-runtime (2026-09-09)",
+        proofFloor: "live-runtime (2026-08-18)",
         proofRows: [
-          "workflow-service--bulk-update-status"
+          "workflow-move-batch",
+          "workflow-move-folder-resolve",
+          "workflow-move-single",
+          "workflow-move-subject-read"
         ],
         proofFloorRows: [
-          "workflow-service--bulk-update-status"
+          "workflow-move-batch",
+          "workflow-move-folder-resolve",
+          "workflow-move-single",
+          "workflow-move-subject-read"
         ],
         riskRows: [
-          "workflow-service--bulk-update-status"
+          "workflow-move-batch",
+          "workflow-move-single"
         ],
         rows: [
-          "workflow-service--bulk-update-status"
+          "workflow-move-batch",
+          "workflow-move-folder-resolve",
+          "workflow-move-single",
+          "workflow-move-subject-read"
+        ]
+      },
+      pin_webhook_sample: {
+        description: "Inbound-webhook sample \u2192 reference pin \u2192 merge tags \u2014 proof: live-canary (2026-08-22); risk: write (replaces the trigger's reference)",
+        risk: "write",
+        proof: "live-canary (2026-08-22)",
+        proofFloor: "live-canary (2026-08-22)",
+        proofRows: [
+          "hooks-webhook-trigger-post",
+          "hooks-inbound-webhook-request-trigger",
+          "hooks-set-as-reference",
+          "hooks-reference"
+        ],
+        proofFloorRows: [
+          "hooks-set-as-reference"
+        ],
+        riskRows: [
+          "hooks-set-as-reference"
+        ],
+        rows: [
+          "hooks-webhook-trigger-post",
+          "hooks-inbound-webhook-request-trigger",
+          "hooks-set-as-reference",
+          "hooks-reference"
+        ]
+      },
+      publish_studio_site: {
+        description: "Publish studio site \u2014 proof: live-runtime (2026-09-04); risk: write",
+        risk: "write",
+        proof: "live-runtime (2026-09-04)",
+        proofFloor: "live-runtime (2026-09-04)",
+        proofRows: [
+          "ai-studio--post-projects-publish",
+          "ai-studio--get-projects--documented"
+        ],
+        proofFloorRows: [
+          "ai-studio--post-projects-publish",
+          "ai-studio--get-projects--documented"
+        ],
+        riskRows: [
+          "ai-studio--post-projects-publish",
+          "ai-studio--get-projects--documented"
+        ],
+        rows: [
+          "ai-studio--post-projects-publish",
+          "ai-studio--get-projects--documented"
+        ]
+      },
+      publish_workflow: {
+        description: "Publish workflow \u2014 proof: live-runtime (2026-09-15), floor: documented; risk: destructive",
+        risk: "destructive",
+        proof: "live-runtime (2026-09-15)",
+        proofFloor: "documented",
+        proofRows: [
+          "workflow-publish"
+        ],
+        proofFloorRows: [
+          "triggers-list-for-publish"
+        ],
+        riskRows: [
+          "workflow-publish"
+        ],
+        rows: [
+          "triggers-list-for-publish",
+          "workflow-publish",
+          "workflow-publish-read"
         ]
       },
       push_snapshot: {
@@ -55723,132 +55758,44 @@ var init_define_TOOL_CATALOG = __esm({
           "workflow-service--find-by-id"
         ]
       },
-      audit_site: {
-        description: "Read-only audit of a GHL funnel or website \u2014 dangling references, missing merge tags, foreign locationIds, publish drift \u2014 proof: live-runtime (2026-09-14); risk: read",
+      read_studio_site_content: {
+        description: "Read studio site content \u2014 proof: live-runtime (2026-09-04); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-14)",
+        proof: "live-runtime (2026-09-04)",
+        proofFloor: "live-runtime (2026-09-04)",
+        proofRows: [
+          "ai-studio--get-projects-files"
+        ],
+        proofFloorRows: [
+          "ai-studio--get-projects-files"
+        ],
+        riskRows: [
+          "ai-studio--get-projects-files"
+        ],
+        rows: [
+          "ai-studio--get-projects-files"
+        ]
+      },
+      refresh_snapshot: {
+        description: "Re-capture a snapshot without losing its curation \u2014 proof: live-runtime (2026-09-10); risk: write",
+        risk: "write",
+        proof: "live-runtime (2026-09-10)",
         proofFloor: "live-runtime (2026-09-10)",
         proofRows: [
-          "funnels-service--get-funnels",
-          "funnels--page-data",
-          "funnels--builder-get-versions",
-          "forms--get-forms",
-          "typed--list_account_entities--calendars",
-          "surveys-service--get-surveys",
-          "backend--custom-values"
+          "platform--snapshots-prefetch",
+          "platform--snapshots-create-appengine"
         ],
         proofFloorRows: [
-          "funnels-service--get-funnels",
-          "funnels--page-data",
-          "funnels--builder-get-versions",
-          "forms--get-forms",
-          "typed--list_account_entities--calendars",
-          "surveys-service--get-surveys",
-          "backend--custom-values"
+          "platform--snapshots-prefetch",
+          "platform--snapshots-create-appengine"
         ],
         riskRows: [
-          "funnels-service--get-funnels",
-          "funnels--page-data",
-          "funnels--builder-get-versions",
-          "forms--get-forms",
-          "typed--list_account_entities--calendars",
-          "surveys-service--get-surveys",
-          "backend--custom-values"
+          "platform--snapshots-prefetch",
+          "platform--snapshots-create-appengine"
         ],
         rows: [
-          "funnels-service--get-funnels",
-          "funnels--page-data",
-          "funnels--builder-get-versions",
-          "forms--get-forms",
-          "typed--list_account_entities--calendars",
-          "surveys-service--get-surveys",
-          "backend--custom-values"
-        ]
-      },
-      build_funnel_page: {
-        description: "Compose, validate and write a funnel page from native elements; optionally publish it \u2014 proof: live-runtime (2026-09-14); risk: write",
-        risk: "write",
-        proof: "live-runtime (2026-09-14)",
-        proofFloor: "live-runtime (2026-09-09)",
-        proofRows: [
-          "funnels--builder-autosave",
-          "funnels--page-data",
-          "funnels--builder-get-versions",
-          "funnels--builder-publish-version"
-        ],
-        proofFloorRows: [
-          "funnels--builder-autosave",
-          "funnels--page-data",
-          "funnels--builder-get-versions",
-          "funnels--builder-publish-version"
-        ],
-        riskRows: [
-          "funnels--builder-autosave",
-          "funnels--page-data",
-          "funnels--builder-get-versions",
-          "funnels--builder-publish-version"
-        ],
-        rows: [
-          "funnels--builder-autosave",
-          "funnels--page-data",
-          "funnels--builder-get-versions",
-          "funnels--builder-publish-version"
-        ]
-      },
-      check_workflow: {
-        description: "Read-only conformance check: replays GHL's own validators against a workflow \u2014 proof: live-runtime (2026-09-15); risk: read",
-        risk: "read",
-        proof: "live-runtime (2026-09-15)",
-        proofFloor: "unrecorded",
-        proofRows: [
-          "workflow-service--find-by-id",
-          "trigger-service--find-all",
-          "workflows-marketplace-platform-service--get-actions-and-triggers",
-          "custom-field-service--get-contact-custom-fields",
-          "backend--custom-values"
-        ],
-        proofFloorRows: [
-          "workflow-service--find-by-id",
-          "trigger-service--find-all",
-          "workflows-marketplace-platform-service--get-actions-and-triggers",
-          "custom-field-service--get-contact-custom-fields",
-          "backend--custom-values"
-        ],
-        riskRows: [
-          "workflow-service--find-by-id",
-          "trigger-service--find-all",
-          "workflows-marketplace-platform-service--get-actions-and-triggers",
-          "custom-field-service--get-contact-custom-fields",
-          "backend--custom-values"
-        ],
-        rows: [
-          "workflow-service--find-by-id",
-          "trigger-service--find-all",
-          "workflows-marketplace-platform-service--get-actions-and-triggers",
-          "custom-field-service--get-contact-custom-fields",
-          "backend--custom-values"
-        ]
-      },
-      get_workflow_digest: {
-        description: "Compact read of one workflow \u2014 identity, version, structure, merge tags per step \u2014 proof: live-runtime (2026-09-15); risk: read",
-        risk: "read",
-        proof: "live-runtime (2026-09-15)",
-        proofFloor: "unrecorded",
-        proofRows: [
-          "workflow-service--find-by-id",
-          "trigger-service--find-all"
-        ],
-        proofFloorRows: [
-          "workflow-service--find-by-id",
-          "trigger-service--find-all"
-        ],
-        riskRows: [
-          "workflow-service--find-by-id",
-          "trigger-service--find-all"
-        ],
-        rows: [
-          "workflow-service--find-by-id",
-          "trigger-service--find-all"
+          "platform--snapshots-prefetch",
+          "platform--snapshots-create-appengine"
         ]
       },
       repair_workflow: {
@@ -55935,6 +55882,112 @@ var init_define_TOOL_CATALOG = __esm({
           "backend--custom-values"
         ]
       },
+      search_step_types: {
+        description: "Search workflow step and trigger types \u2014 proof: source-derived (284 corpus cards); risk: read",
+        risk: "read",
+        proof: "source-derived (corpus 30-types, 2026-08-25)",
+        proofFloor: "documented",
+        rows: [],
+        riskRows: []
+      },
+      set_contact_ai_status: {
+        description: "Set per-contact Conversation AI status \u2014 proof: live-runtime (2026-09-10); risk: write",
+        risk: "write",
+        proof: "live-runtime (2026-09-10)",
+        proofFloor: "live-runtime (2026-08-08)",
+        proofRows: [
+          "ai-convai-contact-config-update"
+        ],
+        proofFloorRows: [
+          "ai-convai-contact-config-update"
+        ],
+        riskRows: [
+          "ai-convai-contact-config-update"
+        ],
+        rows: [
+          "ai-convai-contact-config-update"
+        ]
+      },
+      set_studio_secrets: {
+        description: "Set studio secrets \u2014 proof: live-runtime (2026-09-04); risk: write",
+        risk: "write",
+        proof: "live-runtime (2026-09-04)",
+        proofFloor: "live-runtime (2026-09-04)",
+        proofRows: [
+          "ai-studio--put-projects-secrets",
+          "ai-studio--get-projects-secrets"
+        ],
+        proofFloorRows: [
+          "ai-studio--put-projects-secrets",
+          "ai-studio--get-projects-secrets"
+        ],
+        riskRows: [
+          "ai-studio--put-projects-secrets",
+          "ai-studio--get-projects-secrets"
+        ],
+        rows: [
+          "ai-studio--put-projects-secrets",
+          "ai-studio--get-projects-secrets"
+        ]
+      },
+      test_custom_code: {
+        description: "Custom Code sandbox test-run (no account mutation) \u2014 proof: live-runtime (2026-09-15); risk: sandbox-exec",
+        risk: "sandbox-exec",
+        proof: "live-runtime (2026-09-15)",
+        proofFloor: "live-runtime (2026-08-22)",
+        proofRows: [
+          "custom-code-run-test"
+        ],
+        proofFloorRows: [
+          "custom-code-run-test"
+        ],
+        riskRows: [
+          "custom-code-run-test"
+        ],
+        rows: [
+          "custom-code-run-test"
+        ]
+      },
+      unpublish_studio_site: {
+        description: "Unpublish studio site \u2014 proof: live-runtime (2026-09-04); risk: write",
+        risk: "write",
+        proof: "live-runtime (2026-09-04)",
+        proofFloor: "live-runtime (2026-09-04)",
+        proofRows: [
+          "ai-studio--post-projects-unpublish",
+          "ai-studio--get-projects--documented"
+        ],
+        proofFloorRows: [
+          "ai-studio--post-projects-unpublish",
+          "ai-studio--get-projects--documented"
+        ],
+        riskRows: [
+          "ai-studio--post-projects-unpublish",
+          "ai-studio--get-projects--documented"
+        ],
+        rows: [
+          "ai-studio--post-projects-unpublish",
+          "ai-studio--get-projects--documented"
+        ]
+      },
+      unpublish_workflows: {
+        description: "Stand published workflows back down to draft, in bulk \u2014 proof: live-runtime (2026-09-15); risk: write",
+        risk: "write",
+        proof: "live-runtime (2026-09-15)",
+        proofFloor: "live-runtime (2026-09-09)",
+        proofRows: [
+          "workflow-service--bulk-update-status"
+        ],
+        proofFloorRows: [
+          "workflow-service--bulk-update-status"
+        ],
+        riskRows: [
+          "workflow-service--bulk-update-status"
+        ],
+        rows: [
+          "workflow-service--bulk-update-status"
+        ]
+      },
       update_convai_agent: {
         description: "Update a Conversation AI agent by read-merge-write \u2014 proof: live-runtime (2026-09-10); risk: write",
         risk: "write",
@@ -55955,6 +56008,28 @@ var init_define_TOOL_CATALOG = __esm({
         rows: [
           "aiemployee-service--get-employee-by-id",
           "aiemployee-service--update-employee"
+        ]
+      },
+      update_form_data: {
+        description: "Edit a form's stored document safely \u2014 proof: live-runtime (2026-09-06); risk: write",
+        risk: "write",
+        proof: "live-runtime (2026-09-06)",
+        proofFloor: "live-runtime (2026-09-06)",
+        proofRows: [
+          "forms-detail",
+          "forms-save"
+        ],
+        proofFloorRows: [
+          "forms-detail",
+          "forms-save"
+        ],
+        riskRows: [
+          "forms-detail",
+          "forms-save"
+        ],
+        rows: [
+          "forms-detail",
+          "forms-save"
         ]
       },
       validate_workflow: {
@@ -55980,100 +56055,6 @@ var init_define_TOOL_CATALOG = __esm({
           "workflow-read",
           "triggers-list",
           "workflow-validate"
-        ]
-      },
-      get_workflow_settings: {
-        description: "Read the account-level workflow settings rail \u2014 proof: live-runtime (2026-09-15); risk: read",
-        risk: "read",
-        proof: "live-runtime (2026-09-15)",
-        proofFloor: "source-derived (builder bundle 2026-09-14)",
-        rows: [
-          "workflow-settings-read",
-          "workflow-error-notification-read"
-        ],
-        riskRows: [
-          "workflow-settings-read",
-          "workflow-error-notification-read"
-        ],
-        proofRows: [
-          "workflow-settings-read",
-          "workflow-error-notification-read"
-        ],
-        proofFloorRows: [
-          "workflow-settings-read",
-          "workflow-error-notification-read"
-        ]
-      },
-      list_workflow_templates: {
-        description: "List the workflow templates GHL offers \u2014 proof: live-runtime (2026-09-15); risk: read",
-        risk: "read",
-        proof: "live-runtime (2026-09-15)",
-        proofFloor: "source-derived (builder bundle 2026-09-14)",
-        rows: [
-          "workflow-templates-list"
-        ],
-        riskRows: [
-          "workflow-templates-list"
-        ],
-        proofRows: [
-          "workflow-templates-list"
-        ],
-        proofFloorRows: [
-          "workflow-templates-list"
-        ]
-      },
-      find_workflows_using: {
-        description: "Find which workflows contain a step or trigger type \u2014 proof: live-runtime (2026-09-15); risk: read",
-        risk: "read",
-        proof: "live-runtime (2026-09-15)",
-        proofFloor: "source-derived (builder bundle 2026-09-14)",
-        rows: [
-          "workflow-es-search"
-        ],
-        proofRows: [
-          "workflow-es-search"
-        ],
-        proofFloorRows: [
-          "workflow-es-search"
-        ],
-        riskRows: [
-          "workflow-es-search"
-        ]
-      },
-      describe_marketplace_action: {
-        description: "Describe a marketplace action \u2014 its published schema and whether its app is connected \u2014 proof: live-runtime (2026-09-15); risk: read",
-        risk: "read",
-        proof: "live-runtime (2026-09-15)",
-        proofFloor: "source-derived (builder bundle 2026-09-14)",
-        rows: [
-          "marketplace-action-schema"
-        ],
-        proofRows: [
-          "marketplace-action-schema"
-        ],
-        proofFloorRows: [
-          "marketplace-action-schema"
-        ],
-        riskRows: [
-          "marketplace-action-schema"
-        ]
-      },
-      get_ai_agent_options: {
-        description: "List the models and MCP connections an ai_agent step can use \u2014 proof: live-runtime (2026-09-15); risk: read",
-        risk: "read",
-        proof: "live-runtime (2026-09-15)",
-        proofFloor: "source-derived (builder bundle 2026-09-14)",
-        rows: [
-          "workflow-agent-options"
-        ],
-        proofRows: [
-          "workflow-agent-options"
-        ],
-        proofFloorRows: [
-          "workflow-agent-options"
-        ],
-        riskRows: [
-          "workflow-agent-options"
         ]
       }
     };
@@ -92803,11 +92784,20 @@ var boundedInteger2 = (value, { min, max, fallback, name }) => {
   }
   return value;
 };
+var ROSTER_STATUS_VALUES = Object.freeze(["published", "draft"]);
 function validateRosterInput(input = {}) {
   const source = input ?? {};
   if (!isNonEmptyString2(source.locationId)) throw invalidInput("locationId must be a non-empty string");
+  if (source.status !== void 0 && !ROSTER_STATUS_VALUES.includes(source.status)) {
+    throw invalidInput(`status must be one of ${ROSTER_STATUS_VALUES.join(", ")} when supplied`);
+  }
+  if (source.search !== void 0 && !isNonEmptyString2(source.search)) {
+    throw invalidInput("search must be a non-empty string when supplied");
+  }
   return {
     locationId: source.locationId,
+    status: source.status ?? null,
+    search: source.search ?? null,
     pageSize: boundedInteger2(source.pageSize, { min: 1, max: ROSTER_MAX_PAGE_SIZE, fallback: ROSTER_DEFAULTS.pageSize, name: "pageSize" }),
     maxPages: boundedInteger2(source.maxPages, { min: 1, max: MAX_PAGE_BUDGET, fallback: ROSTER_DEFAULTS.maxPages, name: "maxPages" })
   };
@@ -93100,7 +93090,12 @@ async function listWorkflowsComplete({ auditGateway, input } = {}) {
         sortBy: "name",
         sortOrder: "asc",
         includeCustomObjects: "true",
-        includeObjectiveBuilder: "true"
+        includeObjectiveBuilder: "true",
+        // Optional, and ABSENT rather than empty when unset: the descriptor lists them as
+        // optionalQueryKeys, and an empty `search=` is a different question from no search.
+        // They ride every page, so the reconciled total is the total FOR THE FILTER.
+        ...config2.status === null ? {} : { status: config2.status },
+        ...config2.search === null ? {} : { search: config2.search }
       };
       pagination.attempted += 1;
       const response = await read(query);
@@ -170602,46 +170597,6 @@ var TOOLS2 = [
     }, args)
   },
   {
-    name: "list_workflows",
-    description: describe3("list_workflows", "List workflows in a location."),
-    inputSchema: schema({
-      locationId: external_exports.string(),
-      // Modeled as a free string, not z.enum: the SDK's invalid_enum_value error echoes the
-      // received value BEFORE our scrubber runs, so a credential passed here would leak. We
-      // validate the allowed set inside the handler, downstream of the secret scrub (SC2).
-      status: external_exports.string().optional(),
-      search: external_exports.string().optional(),
-      limit: external_exports.number().default(100),
-      offset: external_exports.number().default(0)
-    }),
-    capabilities: [{ method: "GET", path: "/workflow/{loc}/list" }],
-    handler: async (args, deps) => guard(async () => {
-      if (args.status !== void 0 && !["published", "draft"].includes(args.status)) {
-        return fail(
-          CODES.VALIDATION_FAILED,
-          'status must be "published" or "draft" (value withheld)',
-          'Pass status:"published" or status:"draft", or omit it.'
-        );
-      }
-      const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
-      const q3 = new URLSearchParams({
-        type: "workflow",
-        limit: String(args.limit ?? 100),
-        offset: String(args.offset ?? 0),
-        sortBy: "name",
-        sortOrder: "asc",
-        includeCustomObjects: "true",
-        includeObjectiveBuilder: "true"
-      });
-      if (args.status) q3.set("status", args.status);
-      if (args.search) q3.set("search", args.search);
-      const r = await gw.call("GET", `/workflow/${encodeURIComponent(args.locationId)}/list?${q3}`);
-      if (!r.ok) return fromHttp(r.status, r.json);
-      const rows = (r.json.rows ?? []).map((w) => ({ id: w._id ?? w.id, name: w.name, status: w.status, version: w.version, updatedAt: w.updatedAt }));
-      return ok({ count: r.json.count ?? rows.length, workflows: rows });
-    }, args)
-  },
-  {
     name: "get_workflow",
     description: describe3("get_workflow", "Get one workflow summary."),
     inputSchema: schema({
@@ -171393,13 +171348,19 @@ var TOOLS2 = [
     }, args)
   },
   {
-    name: "list_workflows_complete",
+    name: "list_workflows",
     description: describe3(
-      "list_workflows_complete",
-      "Walk the workflow roster to a reconciled terminal proof \u2014 proof: external-receipt-required; risk: read. A failed, contradicted or budget-exhausted walk is complete:false with a coded warning and a null roster, never an empty list. Live canary required before Full audit."
+      "list_workflows",
+      "Every workflow in a location, walked to a reconciled terminal proof \u2014 proof: external-receipt-required; risk: read. Optional `status` (published|draft) and `search` filter the walk, and the reconciled total is then the total FOR THAT FILTER. A failed, contradicted or budget-exhausted walk is complete:false with a coded warning and a null roster, never an empty list \u2014 so a short answer can never read as a complete one. Live canary required before Full audit."
     ),
     inputSchema: schema({
       locationId: external_exports.string(),
+      // Modeled as free strings, not z.enum: the SDK's invalid_enum_value error echoes the
+      // received value BEFORE our scrubber runs, so a credential passed here would leak. The
+      // allowed set is checked in the handler below, downstream of the secret scrub (SC2),
+      // against the same ROSTER_STATUS_VALUES the capability descriptor allows.
+      status: external_exports.string().optional(),
+      search: external_exports.string().optional(),
       // Bounded HERE as well as in the composite: the descriptor's own limit bound is 100,
       // and a schema that admitted more would hand the composite a budget its own validator
       // would then refuse — two copies of one rule disagreeing.
@@ -171418,6 +171379,13 @@ var TOOLS2 = [
       { method: "GET", path: "/workflow/{loc}/list" }
     ],
     handler: async (args, deps) => guard(async () => {
+      if (args?.status !== void 0 && !ROSTER_STATUS_VALUES.includes(args.status)) {
+        return fail(
+          CODES.VALIDATION_FAILED,
+          'status must be "published" or "draft" (value withheld)',
+          'Pass status:"published" or status:"draft", or omit it.'
+        );
+      }
       const config2 = validateRosterInput(args ?? {});
       if (typeof deps?.makeGw !== "function") {
         return fail(
