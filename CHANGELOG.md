@@ -11,7 +11,32 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
-## [Unreleased]
+## [0.90.0] — 2026-09-17
+
+The `wait` card said eight subtypes; there are thirteen. Everything in this release is a correction
+to something the plugin was already saying confidently — which is the worst kind, because nothing
+failed while it was wrong.
+
+### Changed
+
+- 🔴 **`wait` has THIRTEEN subtypes, not eight.** `waitValidator` dispatches on `time`, `condition`,
+  `reply`, `appointment`, `service_booking`, `rental_booking`, `attendee_event_date`, `overdue`,
+  `email_event`, `link_clicked`, `user_replied`, `specific_date` and `recurring_schedule`. The eight
+  the card listed were the ones with corpus instances, not the ones GHL accepts — the page was built
+  from an older validator capture and five cases have landed since. Same drift class as the
+  four-month-stale capture fixed in 0.86.0: nothing *fails* when a new case appears, it just goes
+  undocumented and an author never learns the subtype exists. The compiler authors `specific_date`
+  in full and does **not** author `recurring_schedule`, `user_replied`, `rental_booking` or
+  `attendee_event_date`, and the card now says so rather than leaving the gap to be inferred.
+- 🔴 **`specificDatePassed` defaults to the SILENT failure mode, and the card now warns you.** When a
+  `specific_date` wait's date is already past, GHL does not strand the contact — it does one of four
+  author-chosen things: `next` (released immediately, fails loud), `exit`, `specific_step`, or
+  `skip`. `skip` is *"Skip outbound communication"* — the contact still advances, their messages are
+  suppressed — and it is what our compiler writes when you omit the key. So a stale date produces
+  contacts flowing silently past the wait with nothing reporting it. Author `'next'` explicitly if
+  you want a stale date to be visible. A second trap in the same field: the builder's radio falls
+  back to `next` for *display* when the key is absent while the model writes `skip` on save, so an
+  API-authored step reads in the drawer as something it is not. Always write the key.
 
 ### Fixed
 
@@ -30,6 +55,15 @@ commit bodies carry the detail.
   is still refused and still demoted, and a test pins that in both directions.
   This is the narrow fix. The full one — a credential dimension across the ledger, the overlay and
   `console/lib/parity` at once — is console **bl-152**, and is not done.
+- **A recorded proof that was the endpoint's null result.** `POST /workflow/{loc}/scheduler-trigger/preview`
+  was marked `proven` citing `{success:true, executions:[]}`. That is what it returns for an invented
+  field name too, and for a full monthly schedule — byte-identical. It does parse the body (an
+  invalid `timezone` answers 400) and it does refuse an empty `conditions` array, so both of those
+  survive as real findings; what it does *not* do is discriminate on `conditions`, the only field
+  anyone would call it for, and `executions` has never been observed non-empty. The note says so now.
+  The general rule is written once in the corpus rather than five times: **an endpoint whose success
+  response is identical to its null response is not proven by a success response** — run the nonsense
+  control before recording a proof. Five instances of that shape turned up in a single day.
 
 ## [0.89.0] — 2026-09-16
 
