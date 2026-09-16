@@ -1693,6 +1693,11 @@ const assertProjectLocation = async (api, projectId, locationId) => {
   return { project, error: null };
 };
 
+// `get_workflow_digest`'s `include` vocabulary. ONE value, and it ADDS the untrimmed document
+// rather than filtering anything — kept as a named constant so the schema comment, the handler
+// check and the description cannot drift into three different opinions about what is legal.
+const DIGEST_INCLUDE_VALUES = Object.freeze(['raw']);
+
 export const TOOLS = [
   {
     name: 'set_token_file',
@@ -2051,10 +2056,15 @@ export const TOOLS = [
       + 'outgoing references, merge tags, a text preview, flags, and which branch it sits on), and '
       + 'the linear chains. Roughly a tenth the size of export_workflow. Use it as the READ half of '
       + 'an edit: pass the version back as expectedVersion so a concurrent change is refused rather '
-      + 'than overwritten.'),
+      + 'than overwritten. `include` only ADDS: the single value "raw" attaches the untrimmed '
+      + 'document, which makes the response LARGER than export_workflow. It does not filter, and '
+      + 'there is no way to ask for a subset — a caller wanting only triggers should read the '
+      + '`triggers` key off the normal response.'),
     inputSchema: schema({
       locationId: z.string(),
       workflowId: z.string(),
+      // Free strings, not z.enum: the SDK's invalid_enum_value error echoes the received value
+      // BEFORE the secret scrubber runs (SC2). The allowed set is checked in the handler.
       include: z.array(z.string()).optional(),
     }),
     capabilities: [
@@ -2062,12 +2072,25 @@ export const TOOLS = [
       { method: 'GET', path: '/workflow/{loc}/trigger' },
     ],
     handler: async (args, deps) => guard(async () => {
+      // 🔴 `include` is ADDITIVE and recognises exactly one value. It used to accept any string
+      // and silently ignore it, so `include:["triggers"]` returned the FULL document while reading
+      // like a filter that had been applied — a peer session abandoned a 59-workflow sweep over
+      // the payload size that request was supposed to have reduced. An argument that is accepted
+      // and ignored is the same silent-success class this server exists to refuse, so an
+      // unrecognised value is now a hard failure. The value is not echoed back (SC2).
+      const includes = args.include ?? [];
+      const unknown = includes.filter((k) => !DIGEST_INCLUDE_VALUES.includes(k));
+      if (unknown.length) {
+        return fail(CODES.VALIDATION_FAILED,
+          `include accepts only ${DIGEST_INCLUDE_VALUES.map((v) => `"${v}"`).join(', ')} (${unknown.length} unrecognised value(s) withheld)`,
+          'include only ADDS to the response; it cannot filter it. Omit it, or pass include:["raw"] to attach the untrimmed document.');
+      }
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
       const doc = await getWorkflow(gw, args.locationId, args.workflowId);
       if (!doc.ok) return fromHttp(doc.status, doc.json);
       const listed = await listWorkflowTriggers(gw, args.locationId, args.workflowId);
       const triggers = listed?.response?.ok ? (listed.triggers ?? []) : [];
-      const digest = digestWorkflow({ doc: doc.json, triggers, include: args.include ?? [] });
+      const digest = digestWorkflow({ doc: doc.json, triggers, include: includes });
       // Record what this agent actually saw, so a later write can tell whether the graph moved.
       readCache(deps.state).write(args.locationId, args.workflowId, {
         readAt: new Date().toISOString(),

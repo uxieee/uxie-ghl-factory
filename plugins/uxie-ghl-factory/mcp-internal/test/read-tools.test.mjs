@@ -603,3 +603,34 @@ test('a failed trigger read is reported as UNKNOWN, never as an empty trigger se
   assert.equal(res.data.triggersRead, false);
   assert.match(res.data.note, /EMPTY rather than known-empty/);
 });
+
+// An argument that is ACCEPTED AND IGNORED is the silent-success class this server exists to
+// refuse. `get_workflow_digest`'s `include` recognises exactly one value and only ever ADDS —
+// but it used to take any string, so `include:["triggers"]` returned the FULL document while
+// reading like a filter that had been applied. A peer session abandoned a 59-workflow sweep over
+// the payload size that request was supposed to have reduced. Reported 2026-09-16.
+test('get_workflow_digest REFUSES an unrecognised include, before spending a network call', async () => {
+  let calls = 0;
+  const gw = { call: async () => { calls += 1; return { ok: true, status: 200, json: {} }; } };
+  const result = await tool('get_workflow_digest').handler(
+    { locationId: 'LOC123', workflowId: 'WF123', include: ['triggers'] }, deps(gw),
+  );
+
+  assert.equal(result.ok, false);
+  assert.equal(result.code, 'VALIDATION_FAILED');
+  assert.equal(calls, 0, 'a request that was never legal must not spend a credential read');
+  // SC2: the rejected value is never echoed back.
+  assert.doesNotMatch(JSON.stringify(result), /triggers/);
+});
+
+// The positive control. Without it the test above proves only that everything fails.
+test('get_workflow_digest accepts include:["raw"] and proceeds to the read', async () => {
+  let calls = 0;
+  const gw = { call: async () => { calls += 1; return { ok: false, status: 404, json: { message: 'x' } }; } };
+  const result = await tool('get_workflow_digest').handler(
+    { locationId: 'LOC123', workflowId: 'WF123', include: ['raw'] }, deps(gw),
+  );
+
+  assert.ok(calls > 0, 'a legal include must reach the gateway');
+  assert.notEqual(result.code, 'VALIDATION_FAILED');
+});

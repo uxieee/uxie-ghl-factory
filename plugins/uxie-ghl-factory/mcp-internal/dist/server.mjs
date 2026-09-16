@@ -170823,6 +170823,7 @@ var assertProjectLocation = async (api, projectId, locationId) => {
   }
   return { project, error: null };
 };
+var DIGEST_INCLUDE_VALUES = Object.freeze(["raw"]);
 var TOOLS2 = [
   {
     name: "set_token_file",
@@ -171160,11 +171161,13 @@ var TOOLS2 = [
     name: "get_workflow_digest",
     description: describe3(
       "get_workflow_digest",
-      "A COMPACT read of one workflow Identity, version and a structural fingerprint, the trigger set with its conditions, ONE line per step (wiring, outgoing references, merge tags, a text preview, flags, and which branch it sits on), and the linear chains. Roughly a tenth the size of export_workflow. Use it as the READ half of an edit: pass the version back as expectedVersion so a concurrent change is refused rather than overwritten."
+      'A COMPACT read of one workflow Identity, version and a structural fingerprint, the trigger set with its conditions, ONE line per step (wiring, outgoing references, merge tags, a text preview, flags, and which branch it sits on), and the linear chains. Roughly a tenth the size of export_workflow. Use it as the READ half of an edit: pass the version back as expectedVersion so a concurrent change is refused rather than overwritten. `include` only ADDS: the single value "raw" attaches the untrimmed document, which makes the response LARGER than export_workflow. It does not filter, and there is no way to ask for a subset \u2014 a caller wanting only triggers should read the `triggers` key off the normal response.'
     ),
     inputSchema: schema({
       locationId: external_exports.string(),
       workflowId: external_exports.string(),
+      // Free strings, not z.enum: the SDK's invalid_enum_value error echoes the received value
+      // BEFORE the secret scrubber runs (SC2). The allowed set is checked in the handler.
       include: external_exports.array(external_exports.string()).optional()
     }),
     capabilities: [
@@ -171172,12 +171175,21 @@ var TOOLS2 = [
       { method: "GET", path: "/workflow/{loc}/trigger" }
     ],
     handler: async (args, deps) => guard(async () => {
+      const includes = args.include ?? [];
+      const unknown2 = includes.filter((k) => !DIGEST_INCLUDE_VALUES.includes(k));
+      if (unknown2.length) {
+        return fail(
+          CODES.VALIDATION_FAILED,
+          `include accepts only ${DIGEST_INCLUDE_VALUES.map((v) => `"${v}"`).join(", ")} (${unknown2.length} unrecognised value(s) withheld)`,
+          'include only ADDS to the response; it cannot filter it. Omit it, or pass include:["raw"] to attach the untrimmed document.'
+        );
+      }
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
       const doc = await getWorkflow(gw, args.locationId, args.workflowId);
       if (!doc.ok) return fromHttp(doc.status, doc.json);
       const listed = await listWorkflowTriggers(gw, args.locationId, args.workflowId);
       const triggers = listed?.response?.ok ? listed.triggers ?? [] : [];
-      const digest = digestWorkflow({ doc: doc.json, triggers, include: args.include ?? [] });
+      const digest = digestWorkflow({ doc: doc.json, triggers, include: includes });
       readCache(deps.state).write(args.locationId, args.workflowId, {
         readAt: (/* @__PURE__ */ new Date()).toISOString(),
         version: doc.json?.version ?? null,

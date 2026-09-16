@@ -13,6 +13,20 @@ commit bodies carry the detail.
 
 ## [Unreleased]
 
+### Fixed
+
+- 🔴 **`get_workflow_digest` accepted any `include` value and silently ignored it.** It recognises
+  exactly one — `"raw"` — and it only ever ADDS (attaching the untrimmed document, which makes the
+  response *larger* than `export_workflow`). It never filtered. So `include:["triggers"]` returned
+  the full document while reading like a filter that had been applied, and a peer session abandoned
+  a 59-workflow digest sweep over the payload size that request was supposed to have reduced. An
+  argument that is accepted and ignored is the same silent-success class this server exists to
+  refuse. An unrecognised value is now `VALIDATION_FAILED`, raised **before** the gateway is built
+  so a request that was never legal cannot spend a credential read, and the rejected value is not
+  echoed back (SC2). The description now says what `include` does and, more usefully, what it
+  cannot do. Two tests, one of them the positive control that `include:["raw"]` still reaches the
+  read.
+
 ### Changed
 
 - 🔴 **`list_workflows` and `list_workflows_complete` are one tool.** Both called
