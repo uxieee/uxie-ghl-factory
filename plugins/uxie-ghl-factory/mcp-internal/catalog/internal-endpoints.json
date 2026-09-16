@@ -1368,7 +1368,10 @@
       "rail": "workflow",
       "kind": "read",
       "note": "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
-      "reach": "refused",
+      "reach": "proven",
+      "refusedFor": [
+        "location-user-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -15957,7 +15960,10 @@
       "rail": "workflow",
       "kind": "read",
       "note": "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
-      "reach": "refused",
+      "reach": "proven",
+      "refusedFor": [
+        "location-user-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -16501,7 +16507,10 @@
       "rail": "workflow",
       "kind": "read",
       "note": "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
-      "reach": "refused",
+      "reach": "proven",
+      "refusedFor": [
+        "location-user-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -18617,7 +18626,10 @@
       "rail": "workflow",
       "kind": "read",
       "note": "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
-      "reach": "refused",
+      "reach": "proven",
+      "refusedFor": [
+        "location-user-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -27549,7 +27561,10 @@
       "rail": "workflow",
       "kind": "read",
       "note": "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
-      "reach": "refused",
+      "reach": "proven",
+      "refusedFor": [
+        "location-user-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -29456,7 +29471,10 @@
       "rail": "workflow",
       "kind": "read",
       "note": "Live-probed 2026-08-25: 403 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
-      "reach": "refused",
+      "reach": "proven",
+      "refusedFor": [
+        "location-user-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",

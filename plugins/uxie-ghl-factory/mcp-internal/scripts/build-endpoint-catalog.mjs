@@ -92,6 +92,42 @@ const seen = new Set(Object.keys(overlay));
 // but only when exactly ONE key has that shape: two keys sharing a shape is a real ambiguity, and
 // a human settles that, not this script.
 const shapeOf = (method, path) => `${method} ${path.replace(/\{[^}]*\}/g, '{}')}`;
+
+// 🔴 REACH IS A FUNCTION OF (ROUTE, CREDENTIAL CLASS), and this catalogue records ONE value.
+//
+// Five overlay rows say `refused` while the live ledger says `proven` for the same route. Neither
+// is stale. Each overlay note says which credential it used — "401 for a LOCATION-USER Bearer WITH
+// the marketplace headers. The path is real; this credential class does not reach it." — and the
+// ledger's runs are on an agency-admin credential. Both measurements are correct.
+//
+// Collapsing that to `refused` is not a labelling nit: core/tools.mjs docks a refused row 60 points
+// in search ranking, so the catalogue was HIDING routes an agency credential reaches from the tool
+// whose job is finding routes. Flipping them to `proven` would lie to a location-user caller
+// instead — a one-way error in whichever direction wins.
+//
+// So keep BOTH. A route some credential provably reaches is reachable, and the refusal survives in
+// `refusedFor` as the scoping fact it always was. This is the narrow fix; the full one is a
+// credential dimension across the ledger, the overlay and console/lib/parity at once (console
+// bl-152), and doing that unilaterally is how these two artefacts drifted apart to begin with.
+const CREDENTIAL_UNKNOWN = 'unrecorded-credential-class';
+function resolveReach(extra, probedRow, row) {
+  const overlayReach = extra.reach;
+  const probedReach = probedRow?.reach;
+  const fallback = row.proof === 'executed' ? 'proven' : 'source-only';
+
+  if (overlayReach === 'refused' && probedReach === 'proven') {
+    return {
+      reach: 'proven',
+      // The overlay carries no credential FIELD, only prose. Naming the class here would be
+      // inventing structure from a sentence, so the marker records THAT a class was refused and
+      // points at the note that says which. bl-152 is where the real field belongs.
+      refusedFor: [extra.credentialClass ?? CREDENTIAL_UNKNOWN],
+      ...(extra.note ? {} : {}),
+    };
+  }
+  return { reach: overlayReach ?? probedReach ?? fallback };
+}
+
 const overlayByShape = new Map();
 for (const key of Object.keys(overlay)) {
   const [method, ...rest] = key.split(' ');
@@ -138,12 +174,12 @@ const endpoints = source.endpoints.map((row) => {
     // nothing — it was read out of a bundle and never called.
     ...(row.proof ? { proof: row.proof } : {}),
     // PRECEDENCE, most authoritative first. The overlay is a human who probed the endpoint and
-    // wrote down what happened, so it always wins. Below it, a live probe verdict — measured, but
-    // by a script that only knows two answers. Below that, a sidecar author's `executed` claim,
-    // which this code cannot verify. Absent all three, the row is a guess and says so.
-    reach: extra.reach
-      ?? probed[`${row.method} ${row.origin}${row.path}`]?.reach
-      ?? (row.proof === 'executed' ? 'proven' : 'source-only'),
+    // wrote down what happened, so it wins — EXCEPT for the one case resolveReach handles below,
+    // where the two disagree because they used different credentials. Under the overlay, a live
+    // probe verdict: measured, but by a script that only knows two answers. Under that, a sidecar
+    // author's `executed` claim, which this code cannot verify. Absent all three, the row is a
+    // guess and says so.
+    ...resolveReach(extra, probed[`${row.method} ${row.origin}${row.path}`], row),
     coveredBy: covered,
     rawCallable: rawCallable(row),
     transport: row.transport,

@@ -11,6 +11,26 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [Unreleased]
+
+### Fixed
+
+- 🔴 **The catalogue was hiding six routes an agency credential reaches.** `reach` is recorded as
+  one value per route, but it is a function of *(route, credential class)*. Six overlay rows said
+  `refused` — measured on a **location-user Bearer**, as each note has always stated — while the
+  live probe ledger said `proven` on an agency-admin credential. Neither record is stale; both
+  measurements are correct. The collapse mattered because `search_endpoints` docks a refused row 60
+  points, so the tool whose job is finding routes was demoting routes that work. Flipping them to
+  `proven` would have lied to a location-user caller instead — a one-way error in whichever
+  direction won. Both are now kept: the row resolves to `proven` and the refusal survives as
+  `refusedFor: ["location-user-bearer"]`, taken from the overlay note that states it rather than
+  inferred. `search_endpoints` returns it, so a caller who hits a 401 can tell "wrong credential
+  class for this route" from "the catalogue is wrong" — the second reading sends people re-probing
+  what is already known. Refused rows: 46 → 38. FlowGuard, which no credential class here reaches,
+  is still refused and still demoted, and a test pins that in both directions.
+  This is the narrow fix. The full one — a credential dimension across the ledger, the overlay and
+  `console/lib/parity` at once — is console **bl-152**, and is not done.
+
 ## [0.89.0] — 2026-09-16
 
 An argument that is accepted and ignored reports success while doing nothing. Three sessions hit

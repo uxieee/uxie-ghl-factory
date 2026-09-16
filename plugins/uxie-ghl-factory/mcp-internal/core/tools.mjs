@@ -300,6 +300,9 @@ const endpointWords = (e) => ({
   summary: e.summary ?? overlayFor(e).summary,
   note: e.note ?? overlayFor(e).note,
   reach: e.reach ?? overlayFor(e).reach,
+  // Set only on a row that one credential class provably reaches and another was refused on.
+  // It rides with `reach` rather than replacing it, because both measurements are true.
+  refusedFor: e.refusedFor ?? overlayFor(e).refusedFor,
 });
 
 // Verbs that mean the caller intends to CHANGE something. `add` and `set` are deliberately absent:
@@ -372,6 +375,12 @@ const scoreEndpoint = (e, terms, verbs = intentVerbs(terms)) => {
   // those rows were ranking FIRST for several read-shaped questions because their paths carry
   // "workflow", "step" and "contact". Demoted, not hidden: the path is real, and a caller with a
   // higher credential class may still want it.
+  //
+  // 🔴 "A caller with a higher credential class may still want it" used to be a comment with no
+  // field behind it, and it cost six rows: routes an agency-admin credential provably reaches were
+  // carrying the overlay's LOCATION-USER refusal, taking -60, and hiding from the tool whose job is
+  // finding routes (console bl-152). Those now resolve to `proven` + `refusedFor` in the catalogue
+  // build, so they are not penalised here — and a row that no credential has reached still is.
   if (endpointWords(e).reach === 'refused') score -= 60;
   return score;
 };
@@ -420,6 +429,10 @@ const endpointStub = (e) => {
     // a row nobody had annotated yet, so an agent could not tell "we know this is unreached" from
     // "nobody has looked". `proof` rides along when the corpus recorded one.
     reach: w.reach ?? 'source-only',
+    // A `proven` row that some OTHER credential class was refused on. Without this a caller who
+    // hits a 401 on it has no way to tell "my credential is the wrong class for this route" from
+    // "the catalogue is wrong", and the second reading sends them re-probing something already known.
+    ...(w.refusedFor ? { refusedFor: w.refusedFor } : {}),
     ...(e.proof ? { proof: e.proof } : {}),
     ...(e.rawCallable === false ? { rawCallable: false } : {}),
   };
@@ -7123,6 +7136,7 @@ export const TOOLS = [
         ...(w.summary ? { summary: w.summary } : {}),
         ...(w.note ? { note: w.note } : {}),
         reach: w.reach ?? 'source-only',
+        ...(w.refusedFor ? { refusedFor: w.refusedFor } : {}),
         status: 'source-derived',
         meaning: 'The GHL builder calls this path. That is NOT proof your token reaches it, nor '
                + 'that calling it is safe — some rows are permission-gated.',

@@ -18,15 +18,18 @@
     },
     "DELETE /workflow/flowguard/blacklist/{type}/{id}": {
       "reach": "refused",
-      "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
+      "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class.",
+      "credentialClass": "location-user-bearer"
     },
     "DELETE /workflow/flowguard/rate-limiting/bypass/{id}": {
       "reach": "refused",
-      "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
+      "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class.",
+      "credentialClass": "location-user-bearer"
     },
     "GET /ad-publishing/facebook/custom-audience": {
       "reach": "refused",
-      "note": "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it."
+      "note": "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
+      "credentialClass": "location-user-bearer"
     },
     "GET /ad-publishing/facebook/pages": {
       "reach": "proven"
@@ -146,7 +149,8 @@
     },
     "GET /associations/objectKey/{objectKey}": {
       "reach": "refused",
-      "note": "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it."
+      "note": "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
+      "credentialClass": "location-user-bearer"
     },
     "GET /brand-boards/{locationId}": {
       "reach": "proven",
@@ -331,7 +335,8 @@
     },
     "GET /hooks/inbound-webhook-request/reference/{triggerId}": {
       "reach": "refused",
-      "note": "Live-probed 2026-08-25: 403 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it."
+      "note": "Live-probed 2026-08-25: 403 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
+      "credentialClass": "location-user-bearer"
     },
     "GET /integrations/facebook/{locationId}/allAdAccounts": {
       "reach": "proven"
@@ -385,7 +390,8 @@
     },
     "GET /locations/search": {
       "reach": "refused",
-      "note": "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it."
+      "note": "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
+      "credentialClass": "location-user-bearer"
     },
     "GET /locations/{locationId}/customFields": {
       "reach": "proven"
@@ -427,7 +433,8 @@
     },
     "GET /membership/smart-list/categories": {
       "reach": "refused",
-      "note": "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it."
+      "note": "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
+      "credentialClass": "location-user-bearer"
     },
     "GET /membership/smart-list/location/{locationId}/workflow": {
       "reach": "proven"
@@ -437,7 +444,8 @@
     },
     "GET /oauth/whitelabel/{id}": {
       "reach": "refused",
-      "note": "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it."
+      "note": "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
+      "credentialClass": "location-user-bearer"
     },
     "GET /opportunities/lost-reason": {
       "requiredQuery": [
@@ -515,7 +523,8 @@
     },
     "GET /phone-system/twilio-accounts": {
       "reach": "refused",
-      "note": "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it."
+      "note": "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
+      "credentialClass": "location-user-bearer"
     },
     "GET /phone-system/whatsapp/location/{locationId}/template": {
       "reach": "proven"
@@ -530,7 +539,8 @@
     },
     "GET /reputation/integrations/review-link-list": {
       "reach": "refused",
-      "note": "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it."
+      "note": "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
+      "credentialClass": "location-user-bearer"
     },
     "GET /reselling/configuration/location/{locationId}/starter_plus_workflow_premium_actions_triggers": {
       "reach": "proven"
@@ -647,7 +657,8 @@
     },
     "GET /users/search": {
       "reach": "refused",
-      "note": "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it."
+      "note": "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
+      "credentialClass": "location-user-bearer"
     },
     "GET /vibe-ai/folders": {
       "reach": "proven",
@@ -674,31 +685,38 @@
     },
     "GET /workflow/campaign": {
       "reach": "refused",
-      "note": "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it."
+      "note": "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
+      "credentialClass": "location-user-bearer"
     },
     "GET /workflow/flowguard/auth": {
       "reach": "refused",
-      "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
+      "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class.",
+      "credentialClass": "location-user-bearer"
     },
     "GET /workflow/flowguard/blacklist/contact": {
       "reach": "refused",
-      "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
+      "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class.",
+      "credentialClass": "location-user-bearer"
     },
     "GET /workflow/flowguard/blacklist/step": {
       "reach": "refused",
-      "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
+      "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class.",
+      "credentialClass": "location-user-bearer"
     },
     "GET /workflow/flowguard/blacklist/workflow": {
       "reach": "refused",
-      "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
+      "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class.",
+      "credentialClass": "location-user-bearer"
     },
     "GET /workflow/flowguard/rate-limiting/bypass": {
       "reach": "refused",
-      "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
+      "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class.",
+      "credentialClass": "location-user-bearer"
     },
     "GET /workflow/flowguard/workflow-rendering/{workflowId}": {
       "reach": "refused",
-      "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
+      "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class.",
+      "credentialClass": "location-user-bearer"
     },
     "GET /workflow/{locationId}": {
       "reach": "proven"
@@ -768,7 +786,8 @@
     },
     "GET /workflows-marketplace/integration-apps": {
       "reach": "refused",
-      "note": "Live-probed 2026-08-25: 403 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it."
+      "note": "Live-probed 2026-08-25: 403 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
+      "credentialClass": "location-user-bearer"
     },
     "GET /workflows-marketplace/location/{locationId}/assets": {
       "reach": "proven"
@@ -1081,26 +1100,31 @@
     "POST /workflow/flowguard/blacklist/contact/{contactId}": {
       "kind": "destructive",
       "reach": "refused",
-      "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
+      "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class.",
+      "credentialClass": "location-user-bearer"
     },
     "POST /workflow/flowguard/blacklist/step/{stepId}": {
       "kind": "destructive",
       "reach": "refused",
-      "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
+      "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class.",
+      "credentialClass": "location-user-bearer"
     },
     "POST /workflow/flowguard/blacklist/workflow/{workflowId}": {
       "kind": "destructive",
       "reach": "refused",
-      "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
+      "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class.",
+      "credentialClass": "location-user-bearer"
     },
     "POST /workflow/flowguard/loop-lock/{workflowId}": {
       "reach": "refused",
-      "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
+      "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class.",
+      "credentialClass": "location-user-bearer"
     },
     "POST /workflow/flowguard/rate-limiting/bypass": {
       "kind": "destructive",
       "reach": "refused",
-      "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
+      "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class.",
+      "credentialClass": "location-user-bearer"
     },
     "POST /workflow/ivr/get-mappings-by-phones": {
       "kind": "read"

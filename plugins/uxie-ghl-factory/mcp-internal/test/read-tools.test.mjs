@@ -634,3 +634,46 @@ test('get_workflow_digest accepts include:["raw"] and proceeds to the read', asy
   assert.ok(calls > 0, 'a legal include must reach the gateway');
   assert.notEqual(result.code, 'VALIDATION_FAILED');
 });
+
+// console bl-152. `reach` is a function of (route, CREDENTIAL CLASS) and this catalogue records
+// one value. Six overlay rows said `refused` — measured on a LOCATION-USER Bearer, as each note
+// states — while the live ledger said `proven` on an agency-admin credential. Both measurements
+// are correct. Collapsing them to `refused` docked those rows 60 points in search ranking, so the
+// catalogue hid routes an agency credential reaches from the tool whose job is finding routes.
+// Keeping BOTH is the fix: reachable is reachable, and the refusal survives as the scoping fact.
+test('a route one credential class reaches is not filed as refused, and says who was refused', async () => {
+  const { readFileSync } = await import('node:fs');
+  const catalogue = JSON.parse(
+    readFileSync(new URL('../catalog/internal-endpoints.json', import.meta.url), 'utf8'),
+  ).endpoints;
+
+  const split = catalogue.filter((e) => e.refusedFor);
+  assert.ok(split.length > 0, 'the credential-split rows must survive regeneration');
+  for (const row of split) {
+    assert.equal(row.reach, 'proven',
+      `${row.method} ${row.path}: a route a credential provably reaches may not read as refused`);
+    assert.ok(Array.isArray(row.refusedFor) && row.refusedFor.length > 0,
+      `${row.method} ${row.path}: the refusal must survive as data, not be dropped`);
+    // Never the placeholder: the class is taken from the overlay note that states it, and a row
+    // that reached this state without one is a marker with nothing behind it.
+    assert.ok(!row.refusedFor.includes('unrecorded-credential-class'),
+      `${row.method} ${row.path}: refusedFor must name a real credential class`);
+  }
+});
+
+// The positive control. Without it the test above passes just as well on a catalogue that marked
+// EVERYTHING proven — which is the lie in the opposite direction.
+test('a route no credential has reached is still refused, and still demoted', async () => {
+  const { readFileSync } = await import('node:fs');
+  const catalogue = JSON.parse(
+    readFileSync(new URL('../catalog/internal-endpoints.json', import.meta.url), 'utf8'),
+  ).endpoints;
+
+  const refused = catalogue.filter((e) => e.reach === 'refused');
+  assert.ok(refused.length > 0, 'flipping every refusal to proven would be the opposite error');
+  assert.ok(refused.some((e) => e.path.includes('/flowguard/')),
+    'FlowGuard is gated on its own permission and no credential class here reaches it');
+  for (const row of refused) {
+    assert.ok(!row.refusedFor, `${row.path}: refused + refusedFor is contradictory`);
+  }
+});

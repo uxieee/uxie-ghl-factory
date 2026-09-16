@@ -1545,7 +1545,10 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           note: "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
-          reach: "refused",
+          reach: "proven",
+          refusedFor: [
+            "location-user-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -16134,7 +16137,10 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           note: "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
-          reach: "refused",
+          reach: "proven",
+          refusedFor: [
+            "location-user-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -16678,7 +16684,10 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           note: "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
-          reach: "refused",
+          reach: "proven",
+          refusedFor: [
+            "location-user-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -18794,7 +18803,10 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           note: "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
-          reach: "refused",
+          reach: "proven",
+          refusedFor: [
+            "location-user-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -27726,7 +27738,10 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           note: "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
-          reach: "refused",
+          reach: "proven",
+          refusedFor: [
+            "location-user-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -29633,7 +29648,10 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           note: "Live-probed 2026-08-25: 403 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
-          reach: "refused",
+          reach: "proven",
+          refusedFor: [
+            "location-user-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -52128,15 +52146,18 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         },
         "DELETE /workflow/flowguard/blacklist/{type}/{id}": {
           reach: "refused",
-          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
+          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class.",
+          credentialClass: "location-user-bearer"
         },
         "DELETE /workflow/flowguard/rate-limiting/bypass/{id}": {
           reach: "refused",
-          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
+          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class.",
+          credentialClass: "location-user-bearer"
         },
         "GET /ad-publishing/facebook/custom-audience": {
           reach: "refused",
-          note: "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it."
+          note: "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
+          credentialClass: "location-user-bearer"
         },
         "GET /ad-publishing/facebook/pages": {
           reach: "proven"
@@ -52256,7 +52277,8 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         },
         "GET /associations/objectKey/{objectKey}": {
           reach: "refused",
-          note: "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it."
+          note: "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
+          credentialClass: "location-user-bearer"
         },
         "GET /brand-boards/{locationId}": {
           reach: "proven",
@@ -52441,7 +52463,8 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         },
         "GET /hooks/inbound-webhook-request/reference/{triggerId}": {
           reach: "refused",
-          note: "Live-probed 2026-08-25: 403 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it."
+          note: "Live-probed 2026-08-25: 403 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
+          credentialClass: "location-user-bearer"
         },
         "GET /integrations/facebook/{locationId}/allAdAccounts": {
           reach: "proven"
@@ -52495,7 +52518,8 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         },
         "GET /locations/search": {
           reach: "refused",
-          note: "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it."
+          note: "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
+          credentialClass: "location-user-bearer"
         },
         "GET /locations/{locationId}/customFields": {
           reach: "proven"
@@ -52537,7 +52561,8 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         },
         "GET /membership/smart-list/categories": {
           reach: "refused",
-          note: "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it."
+          note: "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
+          credentialClass: "location-user-bearer"
         },
         "GET /membership/smart-list/location/{locationId}/workflow": {
           reach: "proven"
@@ -52547,7 +52572,8 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         },
         "GET /oauth/whitelabel/{id}": {
           reach: "refused",
-          note: "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it."
+          note: "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
+          credentialClass: "location-user-bearer"
         },
         "GET /opportunities/lost-reason": {
           requiredQuery: [
@@ -52625,7 +52651,8 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         },
         "GET /phone-system/twilio-accounts": {
           reach: "refused",
-          note: "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it."
+          note: "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
+          credentialClass: "location-user-bearer"
         },
         "GET /phone-system/whatsapp/location/{locationId}/template": {
           reach: "proven"
@@ -52640,7 +52667,8 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         },
         "GET /reputation/integrations/review-link-list": {
           reach: "refused",
-          note: "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it."
+          note: "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
+          credentialClass: "location-user-bearer"
         },
         "GET /reselling/configuration/location/{locationId}/starter_plus_workflow_premium_actions_triggers": {
           reach: "proven"
@@ -52757,7 +52785,8 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         },
         "GET /users/search": {
           reach: "refused",
-          note: "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it."
+          note: "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
+          credentialClass: "location-user-bearer"
         },
         "GET /vibe-ai/folders": {
           reach: "proven",
@@ -52784,31 +52813,38 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         },
         "GET /workflow/campaign": {
           reach: "refused",
-          note: "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it."
+          note: "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
+          credentialClass: "location-user-bearer"
         },
         "GET /workflow/flowguard/auth": {
           reach: "refused",
-          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
+          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class.",
+          credentialClass: "location-user-bearer"
         },
         "GET /workflow/flowguard/blacklist/contact": {
           reach: "refused",
-          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
+          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class.",
+          credentialClass: "location-user-bearer"
         },
         "GET /workflow/flowguard/blacklist/step": {
           reach: "refused",
-          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
+          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class.",
+          credentialClass: "location-user-bearer"
         },
         "GET /workflow/flowguard/blacklist/workflow": {
           reach: "refused",
-          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
+          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class.",
+          credentialClass: "location-user-bearer"
         },
         "GET /workflow/flowguard/rate-limiting/bypass": {
           reach: "refused",
-          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
+          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class.",
+          credentialClass: "location-user-bearer"
         },
         "GET /workflow/flowguard/workflow-rendering/{workflowId}": {
           reach: "refused",
-          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
+          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class.",
+          credentialClass: "location-user-bearer"
         },
         "GET /workflow/{locationId}": {
           reach: "proven"
@@ -52878,7 +52914,8 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         },
         "GET /workflows-marketplace/integration-apps": {
           reach: "refused",
-          note: "Live-probed 2026-08-25: 403 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it."
+          note: "Live-probed 2026-08-25: 403 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
+          credentialClass: "location-user-bearer"
         },
         "GET /workflows-marketplace/location/{locationId}/assets": {
           reach: "proven"
@@ -53191,26 +53228,31 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         "POST /workflow/flowguard/blacklist/contact/{contactId}": {
           kind: "destructive",
           reach: "refused",
-          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
+          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class.",
+          credentialClass: "location-user-bearer"
         },
         "POST /workflow/flowguard/blacklist/step/{stepId}": {
           kind: "destructive",
           reach: "refused",
-          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
+          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class.",
+          credentialClass: "location-user-bearer"
         },
         "POST /workflow/flowguard/blacklist/workflow/{workflowId}": {
           kind: "destructive",
           reach: "refused",
-          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
+          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class.",
+          credentialClass: "location-user-bearer"
         },
         "POST /workflow/flowguard/loop-lock/{workflowId}": {
           reach: "refused",
-          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
+          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class.",
+          credentialClass: "location-user-bearer"
         },
         "POST /workflow/flowguard/rate-limiting/bypass": {
           kind: "destructive",
           reach: "refused",
-          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
+          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class.",
+          credentialClass: "location-user-bearer"
         },
         "POST /workflow/ivr/get-mappings-by-phones": {
           kind: "read"
@@ -169719,7 +169761,10 @@ var endpointKind = (e) => e.kind ?? overlayFor(e).kind ?? (e.method === "GET" ? 
 var endpointWords = (e) => ({
   summary: e.summary ?? overlayFor(e).summary,
   note: e.note ?? overlayFor(e).note,
-  reach: e.reach ?? overlayFor(e).reach
+  reach: e.reach ?? overlayFor(e).reach,
+  // Set only on a row that one credential class provably reaches and another was refused on.
+  // It rides with `reach` rather than replacing it, because both measurements are true.
+  refusedFor: e.refusedFor ?? overlayFor(e).refusedFor
 });
 var MUTATION_VERBS = /* @__PURE__ */ new Set([
   "create",
@@ -169839,6 +169884,10 @@ var endpointStub = (e) => {
     // a row nobody had annotated yet, so an agent could not tell "we know this is unreached" from
     // "nobody has looked". `proof` rides along when the corpus recorded one.
     reach: w.reach ?? "source-only",
+    // A `proven` row that some OTHER credential class was refused on. Without this a caller who
+    // hits a 401 on it has no way to tell "my credential is the wrong class for this route" from
+    // "the catalogue is wrong", and the second reading sends them re-probing something already known.
+    ...w.refusedFor ? { refusedFor: w.refusedFor } : {},
     ...e.proof ? { proof: e.proof } : {},
     ...e.rawCallable === false ? { rawCallable: false } : {}
   };
@@ -175692,6 +175741,7 @@ var TOOLS2 = [
         ...w.summary ? { summary: w.summary } : {},
         ...w.note ? { note: w.note } : {},
         reach: w.reach ?? "source-only",
+        ...w.refusedFor ? { refusedFor: w.refusedFor } : {},
         status: "source-derived",
         meaning: "The GHL builder calls this path. That is NOT proof your token reaches it, nor that calling it is safe \u2014 some rows are permission-gated.",
         pathParams: hit.pathParams ?? [],
