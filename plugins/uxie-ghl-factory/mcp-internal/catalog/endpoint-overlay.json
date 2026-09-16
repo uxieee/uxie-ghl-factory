@@ -1162,7 +1162,7 @@
     },
     "POST /workflow/{locationId}/scheduler-trigger/preview": {
       "reach": "proven",
-      "note": "Executed on the designated sandbox 2026-09-10 in the workflows write-parity run. 🔴 `conditions` must be a NON-EMPTY array or it answers 400 \"conditions array is required and cannot be empty\" — an empty array is refused, not treated as \"no filter\". Proven with [{field:\"dayOfWeek\",value:\"monday\"}]; returns {success:true, executions:[]}."
+      "note": "Executed on the designated sandbox 2026-09-10 in the workflows write-parity run. 🔴 `conditions` must be a NON-EMPTY array or it answers 400 \"conditions array is required and cannot be empty\" — an empty array is refused, not treated as \"no filter\". 🔴 BUT THE RESPONSE DOES NOT DISCRIMINATE ON `conditions`: measured 2026-09-16 with a control, an invented field name (`utter_nonsense_field`/`banana`) and a full monthly schedule both return the SAME {success:true, executions:[]} as the example this row used to cite as its proof. `executions` has never been observed non-empty. The endpoint DOES parse the body — an invalid `timezone` answers 400 — so this is reachability plus a timezone rule, NOT proof that the preview previews anything. See _shared/conformance/a-success-that-equals-the-null-result.md."
     },
     "POST /workflow/{locationId}/sms/send-test-sms": {
       "kind": "destructive"

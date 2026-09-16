@@ -18694,7 +18694,7 @@
      "type": "string",
      "required": true,
      "default": "—",
-     "notes": "Discriminator: `\"time\" | \"condition\" | \"reply\" | \"appointment\" | \"service_booking\" | \"overdue\" | \"email_event\" | \"link_clicked\"`. 100% of corpus."
+     "notes": "Discriminator, THIRTEEN values: `\"time\" | \"condition\" | \"reply\" | \"appointment\" | \"service_booking\" | \"rental_booking\" | \"attendee_event_date\" | \"overdue\" | \"email_event\" | \"link_clicked\" | \"user_replied\" | \"specific_date\" | \"recurring_schedule\"`. 🔴 This row listed EIGHT until 2026-09-16 — the eight with corpus instances, not the ones GHL accepts; `waitValidator` dispatches on all thirteen. Engine support: the compiler authors `specific_date` in full and does NOT author `recurring_schedule`, `user_replied`, `rental_booking` or `attendee_event_date`. See the sub-validator table for each one's required fields."
     },
     {
      "name": "name",
