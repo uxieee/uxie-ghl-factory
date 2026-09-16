@@ -11,9 +11,39 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
-## [Unreleased]
+## [0.89.0] — 2026-09-16
+
+An argument that is accepted and ignored reports success while doing nothing. Three sessions hit
+that same class in three different places on the same day — a bare array read as an envelope, an
+author shape stored verbatim that moves nothing, and an `include` that filters nothing — and one of
+the three was ours. It is the class this server exists to refuse.
+
+Two tools also became one, and a second server went away.
+
+### Removed
+
+- 🔴 **The read-only audit profile is gone**, at the owner's instruction. It was a SECOND MCP server
+  — its own entry point (`stdio-audit.mjs`), launcher and bundle — publishing seven GET-only tools
+  behind two independent locks, registered in one client folder. Removed with it: the registry
+  filter, the read-only gateway wrapper, the receipt machinery (`core/audit-proof.mjs`,
+  `scripts/audit-canary.mjs`), the policy manifest and its generation/freshness/diff gates, the
+  second bin entry and esbuild target, and ~86 tests.
+  **Kept deliberately**: `audit-gateway.mjs`, `audit-capabilities.mjs`, `audit-configuration.mjs`.
+  Three main-server tools answer through that gateway — deleting modules because their names start
+  with "audit" would have broken three shipped tools. Their descriptors, identity inspection,
+  shared limiter and circuit, and every completeness contract are untouched.
+  🔴 Those three still carry `proof: external-receipt-required` and **nothing can mint that receipt
+  any more** — the canary went with the server. The label is now a caveat, not a gate; the README
+  and its contract test both say so, because a frozen label pointing at absent machinery is exactly
+  the overclaim those guards exist to catch.
 
 ### Fixed
+
+- **`npm run build` had been throwing `ReferenceError: AUDIT_OUTFILE is not defined`** since the
+  audit removal — the deleted call left its `console.log` behind. It survived two commits because
+  the build was run as `>/dev/null 2>&1` with the exit code never read, and nothing downstream
+  contradicted it: the freshness gate rebuilds *in memory* from `esbuild-config.mjs` rather than
+  shelling out, so `dist ok` was true and meaningless about the script.
 
 - 🔴 **`get_workflow_digest` accepted any `include` value and silently ignored it.** It recognises
   exactly one — `"raw"` — and it only ever ADDS (attaching the untrimmed document, which makes the
