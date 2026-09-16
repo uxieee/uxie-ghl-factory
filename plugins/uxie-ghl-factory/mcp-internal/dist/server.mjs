@@ -171692,7 +171692,10 @@ var TOOLS2 = [
   },
   {
     name: "get_workflow_logs",
-    description: describe3("get_workflow_logs", "Read executions, enrollment and per-step contact counts; executionId returns one run's full step trace."),
+    description: describe3(
+      "get_workflow_logs",
+      `Read executions, enrollment and per-step contact counts; executionId returns one run's full step trace. \u{1F534} AN EMPTY LOG IS AMBIGUOUS: [] means the same thing for "the trigger never matched" and for "enrolled, not yet fired". Confirm from an independent source (the contact's own tags or fields) before concluding a workflow is broken \u2014 or that it is fine.`
+    ),
     inputSchema: schema({
       locationId: external_exports.string(),
       workflowId: external_exports.string(),
@@ -172067,7 +172070,7 @@ var TOOLS2 = [
     name: "get_contacts_at_step",
     description: describe3(
       "get_contacts_at_step",
-      "List the contacts parked at / processed by one workflow step, paginated to the full total."
+      `List the contacts parked at / processed by one workflow step, paginated to the full total. \u{1F534} AN EMPTY RESULT IS AMBIGUOUS: total:0 means the same thing for "nobody was ever enrolled" and for "enrolled, not yet fired", and this endpoint cannot tell them apart however many times you call it. A workflow whose trigger filter GHL did not recognise reads exactly like one that simply has not run yet. Break the tie from an INDEPENDENT source \u2014 the contact's own tags, fields or conversation \u2014 not by re-reading this.`
     ),
     inputSchema: schema({
       locationId: external_exports.string(),
