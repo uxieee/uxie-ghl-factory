@@ -1744,8 +1744,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          summary: "One calendar's full configuration, including team members and open hours.",
-          note: "Read `autoConfirm` before building an appointment rail. autoConfirm:true means an appointment is BORN `confirmed`, so a workflow trigger filtered status==new never fires for anything an agent books. An API-created appointment can force the status, which is how a test rig hides this from itself.",
+          summary: "One calendar's full configuration. \u{1F534} Its `openHours` does NOT control availability \u2014 see the note.",
+          note: "\u{1F534} `openHours` ON THIS RECORD IS ACCEPTED, STORED, READ BACK AND IGNORED by the free-slots engine. Availability lives in the SCHEDULES store, not here: a location's default schedule auto-binds to every new calendar and overrides the openHours you sent. Proven twice, independently \u2014 2026-09-03 and 2026-09-17 on two different accounts, and reproduced on a third, so it is platform-wide. A calendar set to Saturday-only served Mon\u2013Fri; set to 11:00\u201315:00 Mon\u2013Sat it served 08:00\u201316:15, which is the DEFAULT schedule. To change availability use PUT /calendars/schedules/{id} with the calendar id in `calendarIds`. \u2014\u2014 Read `autoConfirm` before building an appointment rail. autoConfirm:true means an appointment is BORN `confirmed`, so a workflow trigger filtered status==new never fires for anything an agent books. An API-created appointment can force the status, which is how a test rig hides this from itself.",
           reach: "proven",
           coveredBy: [],
           rawCallable: true,
@@ -35969,6 +35969,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
+          summary: "\u{1F534} NOT the list route \u2014 400s. Use GET /calendars/schedules/search?locationId= instead.",
+          note: 'This path collides with /calendars/{calendarId} and answers 400 "Calendar not found for id: schedules". GET by a real schedule id works (/calendars/schedules/{scheduleId}); only the bare collection path is broken.',
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -36000,6 +36002,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "write",
+          summary: "THE way to set a calendar's days and hours. Availability lives here, not in the calendar's openHours.",
+          note: 'Body: {rules:[{day:"monday",type:"wday",intervals:[{from:"09:00",to:"18:00"}]}, \u2026], name, timezone, isDefault, calendarIds:[\u2026]}. \u{1F534} `calendarIds` IS THE BINDING \u2014 a PUT that rewrites `rules` on a schedule whose calendarIds does not contain the target calendar is accepted, stored, and changes no slots. Adding the calendar id makes the same PUT take effect immediately. No userId/locationId in the body. Proven live 2026-09-03 and again 2026-09-17.',
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -36146,6 +36150,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
+          summary: "LIST availability schedules for a location \u2014 this is the real list route for calendar opening hours.",
+          note: '\u{1F534} NOTE THE `/search`. A bare GET /calendars/schedules routes to /calendars/{calendarId} and answers 400 "Calendar not found for id: schedules" \u2014 two sessions have lost time to that collision. Takes ?locationId=. A schedule governs a calendar only while that calendar\'s id is in its `calendarIds`; editing an UNBOUND schedule is accepted, stored and inert.',
           reach: "proven",
           coveredBy: [],
           rawCallable: true,
@@ -52300,8 +52306,8 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         },
         "GET /calendars/{calendarId}": {
           reach: "proven",
-          summary: "One calendar's full configuration, including team members and open hours.",
-          note: "Read `autoConfirm` before building an appointment rail. autoConfirm:true means an appointment is BORN `confirmed`, so a workflow trigger filtered status==new never fires for anything an agent books. An API-created appointment can force the status, which is how a test rig hides this from itself."
+          summary: "One calendar's full configuration. \u{1F534} Its `openHours` does NOT control availability \u2014 see the note.",
+          note: "\u{1F534} `openHours` ON THIS RECORD IS ACCEPTED, STORED, READ BACK AND IGNORED by the free-slots engine. Availability lives in the SCHEDULES store, not here: a location's default schedule auto-binds to every new calendar and overrides the openHours you sent. Proven twice, independently \u2014 2026-09-03 and 2026-09-17 on two different accounts, and reproduced on a third, so it is platform-wide. A calendar set to Saturday-only served Mon\u2013Fri; set to 11:00\u201315:00 Mon\u2013Sat it served 08:00\u201316:15, which is the DEFAULT schedule. To change availability use PUT /calendars/schedules/{id} with the calendar id in `calendarIds`. \u2014\u2014 Read `autoConfirm` before building an appointment rail. autoConfirm:true means an appointment is BORN `confirmed`, so a workflow trigger filtered status==new never fires for anything an agent books. An API-created appointment can force the status, which is how a test rig hides this from itself."
         },
         "GET /chat-widget/list": {
           requiredQuery: [
@@ -53481,6 +53487,18 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         },
         "PUT /workflow/{locationId}/{workflowId}": {
           note: "The full-document commit re-runs the step validator over EVERY stored step, so it can be refused by a published, running workflow's own saved graph (INVALID_FIELD_VALUE, 'Action validation failed: <type> (...): Next is invalid'). The workflow keeps running and cannot be saved by anyone, API or builder. Never use this path for a rename -- rename-workflow skips the validator. Re-read before every write: a successful PUT bumps version and a later PUT built from a stale read 422s."
+        },
+        "GET /calendars/schedules/search": {
+          summary: "LIST availability schedules for a location \u2014 this is the real list route for calendar opening hours.",
+          note: '\u{1F534} NOTE THE `/search`. A bare GET /calendars/schedules routes to /calendars/{calendarId} and answers 400 "Calendar not found for id: schedules" \u2014 two sessions have lost time to that collision. Takes ?locationId=. A schedule governs a calendar only while that calendar\'s id is in its `calendarIds`; editing an UNBOUND schedule is accepted, stored and inert.'
+        },
+        "PUT /calendars/schedules/{id}": {
+          summary: "THE way to set a calendar's days and hours. Availability lives here, not in the calendar's openHours.",
+          note: 'Body: {rules:[{day:"monday",type:"wday",intervals:[{from:"09:00",to:"18:00"}]}, \u2026], name, timezone, isDefault, calendarIds:[\u2026]}. \u{1F534} `calendarIds` IS THE BINDING \u2014 a PUT that rewrites `rules` on a schedule whose calendarIds does not contain the target calendar is accepted, stored, and changes no slots. Adding the calendar id makes the same PUT take effect immediately. No userId/locationId in the body. Proven live 2026-09-03 and again 2026-09-17.'
+        },
+        "GET /calendars/schedules": {
+          summary: "\u{1F534} NOT the list route \u2014 400s. Use GET /calendars/schedules/search?locationId= instead.",
+          note: 'This path collides with /calendars/{calendarId} and answers 400 "Calendar not found for id: schedules". GET by a real schedule id works (/calendars/schedules/{scheduleId}); only the bare collection path is broken.'
         }
       }
     };
