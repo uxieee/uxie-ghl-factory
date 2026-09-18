@@ -233,12 +233,30 @@ export function parseValidationRule(rule) {
   if (len) return (v) => v == null || CMP[len[1]](String(v).length, Number(len[2]));
   const num = rule.match(NUM_RULE);
   if (num) return (v) => v == null || v === '' || !Number.isFinite(Number(v)) || CMP[num[1]](Number(v), Number(num[2]));
-  if (!rule.startsWith('(')) {                       // a bare regex source
-    try { const re = new RegExp(rule); return (v) => v == null || v === '' || re.test(String(v)); }
-    catch { return null; }
-  }
-  return null;
+  // "NOT PARENTHESISED" IS NOT "A REGEX". That test was the whole classifier, and it read three
+  // other shapes GHL ships as regex SOURCE — each one then failed every real value (live 2026-09-19:
+  // a valid https URL and a non-empty prompt were both reported as builder errors):
+  //   isValidURL / isValidEmail / isValidNumeric   a NAMED rule the builder implements itself
+  //   value => Number.isInteger(…)                 an arrow function with an unparenthesised param
+  //   /\S/                                         a regex LITERAL, slashes and all
+  if (/^\s*\w+\s*=>/.test(rule) || rule.startsWith('(')) return null;   // function source: never evaluated
+  if (/^[A-Za-z_]\w*$/.test(rule)) return NAMED_RULES[rule] ?? null;     // unknown name: skipped and reported
+  const literal = rule.match(/^\/(.+)\/([a-z]*)$/s);
+  try {
+    const re = literal ? new RegExp(literal[1], literal[2].replace(/[^imsu]/g, '')) : new RegExp(rule);
+    return (v) => v == null || v === '' || re.test(String(v));
+  } catch { return null; }
 }
+
+// The builder's named rules, re-implemented rather than fetched. Deliberately PERMISSIVE: a rule
+// here may only fail a value the builder would certainly fail. A merge tag is never judged — it is
+// not a URL or an email until runtime resolves it.
+const hasMergeTag = (v) => /\{\{.+?\}\}/.test(String(v));
+const NAMED_RULES = Object.freeze({
+  isValidURL: (v) => { if (v == null || v === '' || hasMergeTag(v)) return true; try { return /^https?:$/.test(new URL(String(v)).protocol); } catch { return false; } },
+  isValidEmail: (v) => v == null || v === '' || hasMergeTag(v) || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(v)),
+  isValidNumeric: (v) => v == null || v === '' || hasMergeTag(v) || Number.isFinite(Number(v)),
+});
 
 /** Rule violations for one step. Blank values are the required-check's job, not this one. */
 export function violationsForStep(step, schema) {

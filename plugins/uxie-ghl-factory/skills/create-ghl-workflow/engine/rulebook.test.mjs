@@ -233,3 +233,16 @@ test('custom_date_reminder resolves the field by id, fieldKey or name, and refus
   assert.throws(() => buildTrigger({ ref: 't', type: 'custom_date_reminder', name: 'D', config: {}, filters: [] }, c, 'WID', new Map()),
     (e) => e.code === 'MISSING_FIELD' && /Custom Date Field is required/.test(e.message));
 });
+
+// masterType by the builder's own rule (TriggerMain.setTrigger): labelled asset -> 'internal',
+// unlabelled third-party -> 'marketplace'. GHL's validator REFUSES 'marketplace' on a first-party trigger.
+test('a marketplace trigger is masterType internal when GHL labels the asset, marketplace only when it does not', () => {
+  const entry = (publisher, installed) => ({ key: 'k', version: '1.1', templateId: undefined, inputs: [], customVars: [], filters: [], publisher, firstParty: publisher === 'INTERNAL', installed, appName: 'X' });
+  const mk = (e) => ({ ...ctx(), marketplace: { get: (key, kind) => (kind === 'trigger' ? e : undefined), readFailed: {} } });
+  const build = (e) => buildTrigger({ ref: 't', type: 'event_registration', marketplace: true, name: 'T', filters: [] }, mk(e), 'WID', new Map());
+  assert.equal(build(entry('INTERNAL', false)).masterType, 'internal', 'first-party: built although nothing is "installed"');
+  assert.equal(build(entry('INTEGRATION_AI', true)).masterType, 'internal');
+  assert.equal(build(entry(null, true)).masterType, 'marketplace');
+  assert.throws(() => build(entry(null, false)), /NOT installed/, 'control: a third-party app that is not installed is still refused');
+  assert.throws(() => build(entry('INTEGRATION_AI', false)), /NOT installed/, 'and so is a hosted integration with no connection');
+});

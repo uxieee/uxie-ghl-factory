@@ -24,6 +24,16 @@ const entryFrom = (kind, appName, raw) => ({
   filters: Array.isArray(raw.filters) ? raw.filters : [],
   branchesConfig: raw.branchesConfig ?? null,
   info: raw.info ?? null,
+  // GHL's OWN label for who publishes this asset, read off the payload and never inferred:
+  //   'INTERNAL'        first-party — GHL's own step or trigger, shown in the panel beside the
+  //                     native ones. There is NO app behind it and nothing to install.
+  //   'INTEGRATION_AI'  a GHL-hosted integration with an appId (Asana, Notion, Jotform…).
+  //   absent            a true third-party marketplace app — install truth applies.
+  // Measured 2026-09-19 on the live assets payload: 85 actions + 53 triggers are INTERNAL, and
+  // every one of them was being refused as MARKETPLACE_APP_NOT_INSTALLED, because "installed" means
+  // "appears in the third-party module list" and a first-party asset never can.
+  publisher: raw.workflowsActionType ?? raw.workflowsTriggerType ?? null,
+  firstParty: (raw.workflowsActionType ?? raw.workflowsTriggerType) === 'INTERNAL',
 });
 
 // The assets payload nests twice: apps, then their actions/triggers.

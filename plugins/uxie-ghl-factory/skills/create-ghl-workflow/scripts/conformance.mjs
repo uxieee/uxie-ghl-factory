@@ -863,7 +863,9 @@ if (hwid && htid) {
   check(mine.length === 0, 'and the refusal came BEFORE the POST — no request carrying this run\'s payload was recorded against the ghost id', `recorded=${mine.length}`);
   // THE FENCE, asserted last.
   log.subject(false);
-  const fence = (await call('export_workflow', { workflowId: hwid })).data;
+  const fenceRes = await call('export_workflow', { workflowId: hwid });
+  check(fenceRes.ok === true, 'FENCE: the read that the fence rests on answered', `${fenceRes.code ?? ''} ${String(fenceRes.detail ?? '').slice(0, 240)}`);
+  const fence = fenceRes.data;
   const trig = (fence?.triggers ?? []).find((t) => (t.id ?? t._id) === htid);
   check(fence?.workflow?.status === 'draft' && trig && trig.active !== true,
     'FENCE: after all of it the workflow is still a DRAFT and the trigger is still INACTIVE', `status=${fence?.workflow?.status} active=${trig?.active}`);
@@ -903,6 +905,38 @@ if (swid) {
   const sFence = (await call('export_workflow', { workflowId: swid })).data;
   check(sFence?.workflow?.status === 'draft' && (sFence?.triggers ?? []).every((t) => t.active !== true),
     'FENCE: still a DRAFT, both scheduler triggers still INACTIVE', `status=${sFence?.workflow?.status}`);
+}
+
+// ── GHL's FIRST-PARTY panel items: steps and triggers that arrive through the marketplace list ──
+// 138 of them were unbuildable: refused as "app not installed" (there is no app), and their
+// triggers emitted masterType 'marketplace', which GHL's validator rejects. Both fixed 2026-09-19.
+console.log('\nfirst-party marketplace items');
+log.subject('build_workflow');
+const fpBuilt = await call('build_workflow', { spec: { name: NAME('firstparty'),
+  triggers: [{ ref: 'ev', type: 'event_registration', marketplace: true, name: 'TEST-CONF event registration (inactive)', filters: [] }],
+  graph: [
+    { ref: 'c', kind: 'action', type: 'internal_comment_action', marketplace: true, name: 'Internal comment', attributes: { message_rich_text: '<p>TEST-CONF</p>' } },
+    { ref: 'good', kind: 'action', type: 'workflow_ai_analyze_image', marketplace: true, name: 'Image VALID url', attributes: { model: 'gpt-5.6-luna', image: 'https://example.com/a.png', prompt: 'Describe it.', detailLevel: 'auto' } },
+    { ref: 'bad', kind: 'action', type: 'workflow_ai_analyze_image', marketplace: true, name: 'Image INVALID url', attributes: { model: 'gpt-5.6-luna', image: 'not a url', prompt: 'Describe it.', detailLevel: 'auto' } }] } });
+const fpwid = fpBuilt.data?.wid;
+check(fpBuilt.ok === true && typeof fpwid === 'string', 'build_workflow builds first-party marketplace items — no "app not installed" refusal', `${fpBuilt.code ?? ''} ${String(fpBuilt.detail ?? '').slice(0, 220)}`);
+if (fpwid) {
+  left.push(`workflow ${fpwid} (${NAME('firstparty')}, event_registration trigger INACTIVE)`);
+  log.subject(false);
+  const fp = (await call('export_workflow', { workflowId: fpwid })).data;
+  const fpTrig = (fp?.triggers ?? [])[0];
+  log.subject('build_workflow');
+  check(fpTrig?.masterType === 'internal' && fpTrig?.type === 'event_registration',
+    'READ-BACK: the trigger is stored masterType "internal" — GHL\'s validator refuses "marketplace" on a first-party trigger', `${fpTrig?.type} / ${fpTrig?.masterType}`);
+  check(fp?.workflow?.status === 'draft' && fpTrig?.active !== true, 'FENCE: still a DRAFT, trigger INACTIVE', `status=${fp?.workflow?.status} active=${fpTrig?.active}`);
+  log.subject('check_workflow');
+  const fpCheck = await call('check_workflow', { workflowId: fpwid });
+  const errsFor = (name) => (fpCheck.data?.errors ?? []).filter((e) => (e.step ?? e.name ?? e.stepName) === name);
+  check(fpCheck.ok === true && errsFor('Image VALID url').length === 0,
+    'check_workflow reports NO schema error on a valid https URL and a non-empty prompt (isValidURL and "/\\S/" used to be run as regex source and failed every value)',
+    JSON.stringify(errsFor('Image VALID url')).slice(0, 200));
+  check(errsFor('Image INVALID url').length > 0,
+    'CONTROL: the same step with "not a url" IS reported — the rule is enforced, not switched off', JSON.stringify(fpCheck.data?.errors ?? []).slice(0, 200));
 }
 
 log.subject('list_account_entities');

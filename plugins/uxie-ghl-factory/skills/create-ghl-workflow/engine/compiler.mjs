@@ -112,7 +112,9 @@ export function marketplaceEntry(node, ctx, kind) {
           + `this locationId to see what is actually there, or drop the marketplace flag if you `
           + `meant a native step.`);
   }
-  if (!entry.installed) {
+  // A FIRST-PARTY asset has no app to install (marketplace.mjs, `firstParty`). Gating it on the
+  // third-party module list refused 138 of GHL's own steps and triggers outright.
+  if (!entry.installed && entry.firstParty !== true) {
     // A failed INSTALL-TRUTH read is not evidence the app is uninstalled. This is the exact
     // sentence that sent an operator to install an app that was already there (F5-11).
     if (readFailed[modulesLeg])
@@ -176,7 +178,7 @@ function marketplaceAttributes(node, ctx) {
     if (coerced === undefined) continue;
     out[f.field] = coerced;
     ctx?.warn?.(`MARKETPLACE_DEFAULT_FILLED: step '${node.ref}' (${node.type}) left '${f.field}' `
-      + `blank; filled it with the value "${entry.appName}" declares in its own schema (${coerced}). `
+      + `blank; filled it with the value "${entry.appName}" declares in its own schema (${typeof coerced === 'object' ? JSON.stringify(coerced) : coerced}). `
       + `Confirm this is what you intend.`);
   }
 
@@ -2038,10 +2040,17 @@ export function buildTrigger(t, ctx, wid, refMap) {
     }
   }
   let marketplaceFields = {};
+  let marketplaceMasterType = 'marketplace';
   if (t.marketplace === true) {
     // A marketplace TRIGGER is always a trigger key — never an action key.
     const entry = marketplaceEntry({ type: t.type, ref: t.name ?? t.type }, ctx, 'trigger');
     marketplaceFields = { version: entry.version, templateId: entry.templateId };
+    // masterType, by the builder's own rule (TriggerMain.setTrigger): an asset GHL LABELS
+    // (workflowsTriggerType — INTERNAL or INTEGRATION_AI) is 'internal'; only an unlabelled
+    // third-party app's trigger is 'marketplace'. Emitting 'marketplace' for all of them made GHL's
+    // validator refuse every first-party trigger: "Master Type has an invalid value". UI-built
+    // evidence agrees — 16 stored triggers carry 'internal', none of 710 carries 'marketplace'.
+    marketplaceMasterType = entry.publisher ? 'internal' : 'marketplace';
     // A marketplace condition addresses the event payload by dotted path, and the stored
     // shape carries `id` and `field` as the SAME string. It also carries the filter's TYPE and
     // TITLE, and its operator defaults per type exactly as the drawer pre-selects one — the row
@@ -2182,7 +2191,7 @@ export function buildTrigger(t, ctx, wid, refMap) {
     ...(cdr ? { custom_date_reminder_config: cdr.config, match_year: cdr.matchYear } : {}),
     conditions,
     type: t.type,
-    masterType: t.marketplace === true ? 'marketplace' : (t.masterType ?? meta?.masterType ?? 'highlevel'),
+    masterType: t.marketplace === true ? marketplaceMasterType : (t.masterType ?? meta?.masterType ?? 'highlevel'),
     ...marketplaceFields,
     name: t.name,
     actions: [{ workflow_id: wid, type: 'add_to_workflow' }],

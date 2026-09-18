@@ -215,3 +215,22 @@ test('marketplaceEntry: a failed install read is MARKETPLACE_READ_FAILED, never 
   const ctxNoAssets = { marketplace: { get: () => undefined, readFailed: { assets: true, actions: false, triggers: false } } };
   assert.throws(() => marketplaceEntry(node, ctxNoAssets, 'trigger'), (e) => e.code === 'MARKETPLACE_READ_FAILED');
 });
+
+// GHL LABELS its own assets. 138 first-party steps and triggers were refused as "app not installed"
+// because install truth is read from the THIRD-PARTY module list, where a first-party asset never is.
+test('an asset GHL labels INTERNAL is firstParty; INTEGRATION_AI and unlabelled assets are not', () => {
+  const idx = buildMarketplaceIndex({
+    assets: {
+      actions: [{ appName: 'communication', actions: [{ key: 'internal_comment_action', version: '1.2', workflowsActionType: 'INTERNAL', inputs: [] }] },
+        { appName: 'Jotform', actions: [{ key: 'lc_jotform_create_submission', version: '1.0', workflowsActionType: 'INTEGRATION_AI', inputs: [] }] },
+        { appName: 'Some App', actions: [{ key: 'third_party_send', version: '1.0', inputs: [] }] }],
+      triggers: [{ appName: 'Events Management', triggers: [{ key: 'event_registration', version: '1.1', workflowsTriggerType: 'INTERNAL' }] }],
+    },
+    modules: { actions: [], triggers: [] },
+  });
+  const a = idx.get('internal_comment_action', 'action');
+  assert.equal(a.firstParty, true); assert.equal(a.publisher, 'INTERNAL'); assert.equal(a.installed, false, 'it is not "installed" — there is nothing to install');
+  assert.equal(idx.get('lc_jotform_create_submission', 'action').firstParty, false, 'a hosted integration still needs its connection');
+  assert.equal(idx.get('third_party_send', 'action').publisher, null);
+  assert.equal(idx.get('event_registration', 'trigger').firstParty, true);
+});

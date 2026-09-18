@@ -159051,16 +159051,29 @@ function parseValidationRule(rule) {
   if (len) return (v) => v == null || CMP[len[1]](String(v).length, Number(len[2]));
   const num = rule.match(NUM_RULE);
   if (num) return (v) => v == null || v === "" || !Number.isFinite(Number(v)) || CMP[num[1]](Number(v), Number(num[2]));
-  if (!rule.startsWith("(")) {
-    try {
-      const re = new RegExp(rule);
-      return (v) => v == null || v === "" || re.test(String(v));
-    } catch {
-      return null;
-    }
+  if (/^\s*\w+\s*=>/.test(rule) || rule.startsWith("(")) return null;
+  if (/^[A-Za-z_]\w*$/.test(rule)) return NAMED_RULES[rule] ?? null;
+  const literal2 = rule.match(/^\/(.+)\/([a-z]*)$/s);
+  try {
+    const re = literal2 ? new RegExp(literal2[1], literal2[2].replace(/[^imsu]/g, "")) : new RegExp(rule);
+    return (v) => v == null || v === "" || re.test(String(v));
+  } catch {
+    return null;
   }
-  return null;
 }
+var hasMergeTag = (v) => /\{\{.+?\}\}/.test(String(v));
+var NAMED_RULES = Object.freeze({
+  isValidURL: (v) => {
+    if (v == null || v === "" || hasMergeTag(v)) return true;
+    try {
+      return /^https?:$/.test(new URL(String(v)).protocol);
+    } catch {
+      return false;
+    }
+  },
+  isValidEmail: (v) => v == null || v === "" || hasMergeTag(v) || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(v)),
+  isValidNumeric: (v) => v == null || v === "" || hasMergeTag(v) || Number.isFinite(Number(v))
+});
 function violationsForStep(step, schema2) {
   const spec = schema2?.get?.(step?.type);
   if (!spec) return [];
@@ -160089,7 +160102,7 @@ function marketplaceEntry(node, ctx, kind) {
       existsAsOtherKind ? `'${node.type}' on '${node.ref}' is flagged marketplace:true and was looked up as a marketplace ${kind}, but '${node.type}' is only published in this location as a marketplace ${otherKind}. This node is using a ${otherKind} key in a ${kind} slot \u2014 fix the type, or move this node to where a ${otherKind} key belongs.` : `'${node.type}' on '${node.ref}' is flagged marketplace:true but no installed or available marketplace ${kind} in this location publishes that key. Run list_marketplace_apps for this locationId to see what is actually there, or drop the marketplace flag if you meant a native step.`
     );
   }
-  if (!entry.installed) {
+  if (!entry.installed && entry.firstParty !== true) {
     if (readFailed[modulesLeg])
       throw new IRError(
         "MARKETPLACE_READ_FAILED",
@@ -160113,7 +160126,7 @@ function marketplaceAttributes(node, ctx) {
     const coerced = coerceDefault(f.value, f.fieldType);
     if (coerced === void 0) continue;
     out[f.field] = coerced;
-    ctx?.warn?.(`MARKETPLACE_DEFAULT_FILLED: step '${node.ref}' (${node.type}) left '${f.field}' blank; filled it with the value "${entry.appName}" declares in its own schema (${coerced}). Confirm this is what you intend.`);
+    ctx?.warn?.(`MARKETPLACE_DEFAULT_FILLED: step '${node.ref}' (${node.type}) left '${f.field}' blank; filled it with the value "${entry.appName}" declares in its own schema (${typeof coerced === "object" ? JSON.stringify(coerced) : coerced}). Confirm this is what you intend.`);
   }
   const missing = entry.inputs.filter((f) => f?.required === true && f.field && f.field !== "DYNAMIC" && blank(out[f.field])).map((f) => f.field);
   if (missing.length)
@@ -161570,9 +161583,11 @@ function buildTrigger(t, ctx, wid, refMap) {
     }
   }
   let marketplaceFields = {};
+  let marketplaceMasterType = "marketplace";
   if (t.marketplace === true) {
     const entry = marketplaceEntry({ type: t.type, ref: t.name ?? t.type }, ctx, "trigger");
     marketplaceFields = { version: entry.version, templateId: entry.templateId };
+    marketplaceMasterType = entry.publisher ? "internal" : "marketplace";
     const table = ctx?.catalog?.marketplaceFilterOperators ?? null;
     conditions = conditions.map((c) => {
       const ftype = marketplaceFilterType(entry, c.field);
@@ -161656,7 +161671,7 @@ function buildTrigger(t, ctx, wid, refMap) {
     ...cdr ? { custom_date_reminder_config: cdr.config, match_year: cdr.matchYear } : {},
     conditions,
     type: t.type,
-    masterType: t.marketplace === true ? "marketplace" : t.masterType ?? meta3?.masterType ?? "highlevel",
+    masterType: t.marketplace === true ? marketplaceMasterType : t.masterType ?? meta3?.masterType ?? "highlevel",
     ...marketplaceFields,
     name: t.name,
     actions: [{ workflow_id: wid, type: "add_to_workflow" }],
@@ -163878,7 +163893,17 @@ var entryFrom = (kind, appName, raw) => ({
   // decides its operator menu. Without it every marketplace filter was treated as a string.
   filters: Array.isArray(raw.filters) ? raw.filters : [],
   branchesConfig: raw.branchesConfig ?? null,
-  info: raw.info ?? null
+  info: raw.info ?? null,
+  // GHL's OWN label for who publishes this asset, read off the payload and never inferred:
+  //   'INTERNAL'        first-party — GHL's own step or trigger, shown in the panel beside the
+  //                     native ones. There is NO app behind it and nothing to install.
+  //   'INTEGRATION_AI'  a GHL-hosted integration with an appId (Asana, Notion, Jotform…).
+  //   absent            a true third-party marketplace app — install truth applies.
+  // Measured 2026-09-19 on the live assets payload: 85 actions + 53 triggers are INTERNAL, and
+  // every one of them was being refused as MARKETPLACE_APP_NOT_INSTALLED, because "installed" means
+  // "appears in the third-party module list" and a first-party asset never can.
+  publisher: raw.workflowsActionType ?? raw.workflowsTriggerType ?? null,
+  firstParty: (raw.workflowsActionType ?? raw.workflowsTriggerType) === "INTERNAL"
 });
 function parseMarketplaceActions(assets) {
   const byKey = /* @__PURE__ */ new Map();

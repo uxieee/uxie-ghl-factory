@@ -8,7 +8,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { parseActionSchema, missingForStep, checkWorkflow, defaultsFor,
-  checkWorkflowOffline, fetchActionSchema } from './action-schema.mjs';
+  checkWorkflowOffline, fetchActionSchema, parseValidationRule } from './action-schema.mjs';
 import ASSETS from './fixtures/action-schema.sample.json' with { type: 'json' };
 
 const schema = parseActionSchema(ASSETS);
@@ -136,4 +136,17 @@ test('fetchActionSchema parses a good response', async () => {
     return { ok: true, json: ASSETS };
   }, 'LOC');
   assert.ok(s.size >= 11);
+});
+
+test('rule strings that are NOT regex source are never run as one (each used to fail every valid value)', () => {
+  const url = parseValidationRule('isValidURL');
+  assert.equal(url('https://example.com/a.png'), true); assert.equal(url('not a url'), false);
+  assert.equal(url('{{contact.image_url}}'), true, 'a merge tag is not judged until runtime resolves it');
+  assert.equal(parseValidationRule('isValidEmail')('sample@example.com'), true); assert.equal(parseValidationRule('isValidEmail')('nope'), false);
+  assert.equal(parseValidationRule('isValidNumeric')('12.5'), true);
+  assert.equal(parseValidationRule('isSomethingNew'), null, 'an unknown named rule is SKIPPED, not guessed');
+  assert.equal(parseValidationRule('value => Number.isInteger(Number(value))'), null, 'an unparenthesised arrow function is source text, not a regex');
+  const lit = parseValidationRule('/\\S/');
+  assert.equal(lit('Describe this image.'), true, 'a regex LITERAL loses its slashes before it is compiled'); assert.equal(lit('   '), false);
+  assert.equal(parseValidationRule('^\\d{1,10}$')('12345'), true, 'control: a bare regex source still works');
 });
