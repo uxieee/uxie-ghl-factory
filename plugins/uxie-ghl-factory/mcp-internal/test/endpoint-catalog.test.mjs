@@ -71,14 +71,24 @@ test('an overlay row aimed at an adopted endpoint reaches it, rather than orphan
   // one silently orphaned — on exactly the rows where a note is worth most, because a shipped tool
   // calls them every run. `attach-offer-user` is the case that found it: its 200 says
   // "successfully queued" for an empty body, and nothing in the catalogue said so.
-  const adopted = catalog.endpoints.filter((e) => e.tree === 'typed-tool');
-  const annotated = adopted.filter((e) => overlay[`${e.method} ${e.path}`]);
-  assert.ok(annotated.length, 'no adopted row is annotated — if that is deliberate, delete this test');
+  //
+  // 2026-09-19: this used to assert that some `tree: 'typed-tool'` row was annotated, and that
+  // premise died honestly — `attach-offer-user` is now DOCUMENTED by a corpus page, so it is no
+  // longer adopted, and no adopted row carries an overlay note today. The invariant the original
+  // bug violated is not about which tree a row came from: it is that an overlay row aimed at a
+  // catalogue row REACHES it. So that is what is asserted, over every tree, which also covers the
+  // adopted ones the day one is annotated again.
+  const annotated = catalog.endpoints.filter((e) => overlay[`${e.method} ${e.path}`]);
+  assert.ok(annotated.length > 50, `only ${annotated.length} catalogue rows match an overlay row — the join is broken`);
   for (const e of annotated) {
     const o = overlay[`${e.method} ${e.path}`];
     if (o.note) assert.equal(e.note, o.note, `${e.id} dropped its overlay note`);
     if (o.summary) assert.equal(e.summary, o.summary, `${e.id} dropped its overlay summary`);
   }
+  // and the overlay itself must not accumulate rows that match nothing.
+  const keys = new Set(catalog.endpoints.map((e) => `${e.method} ${e.path}`));
+  const orphans = Object.keys(overlay).filter((k) => !keys.has(k));
+  assert.deepEqual(orphans, [], `overlay rows matching no endpoint: ${orphans.join(', ')}`);
 });
 
 test('one row per endpoint — no method+origin+path ships twice', () => {

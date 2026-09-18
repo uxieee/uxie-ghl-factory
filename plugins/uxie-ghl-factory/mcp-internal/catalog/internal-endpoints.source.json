@@ -20,16 +20,16 @@
     {
       "tree": "documented",
       "dir": "corpus",
-      "capturedAt": "2026-09-18T22:01:51.778Z",
+      "capturedAt": "2026-09-18T22:36:52.763Z",
       "hash": "corpus",
-      "fileCount": 865,
-      "endpoints": 865
+      "fileCount": 820,
+      "endpoints": 820
     }
   ],
   "note": "SOURCE-DERIVED ONLY, merged from every mined front-end. `tree` on each row says which app calls it. The plugin owns kind/note/summary/reach/coveredBy and merges them at read time. A row proves a GHL front-end calls that path — not that your token reaches it, and not that calling it is safe.",
-  "discoveredCallSites": 1340,
+  "discoveredCallSites": 1295,
   "skippedCallSites": 692,
-  "count": 1158,
+  "count": 1138,
   "endpoints": [
     {
       "id": "facebook-service--get-ad-account-by-id",
@@ -1198,32 +1198,6 @@
       "serviceBasis": "inferred-from-path"
     },
     {
-      "id": "workflows--meters-public",
-      "method": "POST",
-      "origin": "https://backend.leadconnectorhq.com",
-      "path": "/billing/usage/meters/public",
-      "authRail": "bearer",
-      "transport": "json",
-      "responseMode": "json",
-      "extraHeaders": [],
-      "tree": "documented",
-      "operation": null,
-      "service": "workflows",
-      "query": [],
-      "body": null,
-      "returns": null,
-      "confidence": {
-        "path": "documented",
-        "query": "none-observed",
-        "body": "unresolved",
-        "returns": "unresolved"
-      },
-      "sources": [
-        "workflows/70-research/ENDPOINTS.md:242"
-      ],
-      "serviceBasis": "declared"
-    },
-    {
       "id": "workflows--blacklist",
       "method": "POST",
       "origin": "https://backend.leadconnectorhq.com",
@@ -1602,7 +1576,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "memberships-courses/20-api/build-api.md:301"
+        "memberships-courses/20-api/build-api.md:301",
+        "workflows/40-rules/marketplace-asset-publisher-classes.md:103"
       ],
       "serviceBasis": "declared"
     },
@@ -1680,7 +1655,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "memberships-courses/20-api/endpoints.md:112"
+        "memberships-courses/20-api/endpoints.md:112",
+        "workflows/40-rules/marketplace-asset-publisher-classes.md:103"
       ],
       "serviceBasis": "declared"
     },
@@ -5038,32 +5014,6 @@
       "serviceBasis": "declared"
     },
     {
-      "id": "workflows--facebook-connection",
-      "method": "GET",
-      "origin": "https://backend.leadconnectorhq.com",
-      "path": "/facebook/{locationId}/connection",
-      "authRail": "bearer",
-      "transport": "json",
-      "responseMode": "json",
-      "extraHeaders": [],
-      "tree": "documented",
-      "operation": null,
-      "service": "workflows",
-      "query": [],
-      "body": null,
-      "returns": null,
-      "confidence": {
-        "path": "documented",
-        "query": "none-observed",
-        "body": "unresolved",
-        "returns": "unresolved"
-      },
-      "sources": [
-        "workflows/70-research/ENDPOINTS.md:167"
-      ],
-      "serviceBasis": "declared"
-    },
-    {
       "id": "forms-service--get-forms",
       "method": "GET",
       "origin": "https://backend.leadconnectorhq.com",
@@ -5448,32 +5398,6 @@
       },
       "sources": [
         "funnels/20-api/funnel-ai.md:46"
-      ],
-      "serviceBasis": "declared"
-    },
-    {
-      "id": "workflows--funnel-list",
-      "method": "GET",
-      "origin": "https://backend.leadconnectorhq.com",
-      "path": "/funnel/list",
-      "authRail": "bearer",
-      "transport": "json",
-      "responseMode": "json",
-      "extraHeaders": [],
-      "tree": "documented",
-      "operation": null,
-      "service": "workflows",
-      "query": [],
-      "body": null,
-      "returns": null,
-      "confidence": {
-        "path": "documented",
-        "query": "none-observed",
-        "body": "unresolved",
-        "returns": "unresolved"
-      },
-      "sources": [
-        "workflows/70-research/ENDPOINTS.md:152"
       ],
       "serviceBasis": "declared"
     },
@@ -7052,40 +6976,6 @@
       "serviceBasis": "declared"
     },
     {
-      "id": "workflows--google-connections",
-      "method": "GET",
-      "origin": "https://backend.leadconnectorhq.com",
-      "path": "/google/connections",
-      "authRail": "bearer",
-      "transport": "json",
-      "responseMode": "json",
-      "extraHeaders": [],
-      "tree": "documented",
-      "operation": null,
-      "service": "workflows",
-      "query": [
-        {
-          "name": "locationId",
-          "type": "string",
-          "required": false,
-          "source": "documented"
-        }
-      ],
-      "body": null,
-      "returns": null,
-      "confidence": {
-        "path": "documented",
-        "query": "documented",
-        "body": "unresolved",
-        "returns": "unresolved"
-      },
-      "sources": [
-        "workflows/70-research/ENDPOINTS.md:113",
-        "workflows/70-research/ENDPOINTS.md:174"
-      ],
-      "serviceBasis": "declared"
-    },
-    {
       "id": "workflows--iatf-preview-proxy",
       "method": "POST",
       "origin": "https://backend.leadconnectorhq.com",
@@ -7109,86 +6999,6 @@
       "sources": [
         "workflows/70-research/ENDPOINTS.md:241",
         "workflows/70-research/INVENTORY.md:192"
-      ],
-      "serviceBasis": "declared"
-    },
-    {
-      "id": "workflows--inbound-webhook-request-reference",
-      "method": "GET",
-      "origin": "https://backend.leadconnectorhq.com",
-      "path": "/inbound-webhook-request/reference/{triggerId}",
-      "authRail": "bearer",
-      "transport": "json",
-      "responseMode": "json",
-      "extraHeaders": [],
-      "tree": "documented",
-      "operation": null,
-      "service": "workflows",
-      "query": [],
-      "body": null,
-      "returns": null,
-      "confidence": {
-        "path": "documented",
-        "query": "none-observed",
-        "body": "unresolved",
-        "returns": "unresolved"
-      },
-      "sources": [
-        "workflows/70-research/ENDPOINTS.md:101",
-        "workflows/70-research/STEP-OUTPUTS.md:92"
-      ],
-      "serviceBasis": "declared"
-    },
-    {
-      "id": "workflows--inbound-webhook-request-set-as-reference",
-      "method": "PUT",
-      "origin": "https://backend.leadconnectorhq.com",
-      "path": "/inbound-webhook-request/set-as-reference/{requestId}",
-      "authRail": "bearer",
-      "transport": "json",
-      "responseMode": "json",
-      "extraHeaders": [],
-      "tree": "documented",
-      "operation": null,
-      "service": "workflows",
-      "query": [],
-      "body": null,
-      "returns": null,
-      "confidence": {
-        "path": "documented",
-        "query": "none-observed",
-        "body": "unresolved",
-        "returns": "unresolved"
-      },
-      "sources": [
-        "workflows/70-research/ENDPOINTS.md:102",
-        "workflows/70-research/STEP-OUTPUTS.md:92"
-      ],
-      "serviceBasis": "declared"
-    },
-    {
-      "id": "workflows--inbound-webhook-request-trigger",
-      "method": "GET",
-      "origin": "https://backend.leadconnectorhq.com",
-      "path": "/inbound-webhook-request/trigger/{triggerId}",
-      "authRail": "bearer",
-      "transport": "json",
-      "responseMode": "json",
-      "extraHeaders": [],
-      "tree": "documented",
-      "operation": null,
-      "service": "workflows",
-      "query": [],
-      "body": null,
-      "returns": null,
-      "confidence": {
-        "path": "documented",
-        "query": "none-observed",
-        "body": "unresolved",
-        "returns": "unresolved"
-      },
-      "sources": [
-        "workflows/70-research/ENDPOINTS.md:100"
       ],
       "serviceBasis": "declared"
     },
@@ -8239,8 +8049,7 @@
         "returns": "none-observed"
       },
       "sources": [
-        "services/marketplaceServices/LocationsService.ts:11",
-        "ai-agents/20-api/conversation-ai-boundary.md:47"
+        "services/marketplaceServices/LocationsService.ts:11"
       ],
       "serviceClass": "LocationsService",
       "serviceBasis": "unattributed"
@@ -8322,39 +8131,6 @@
       ]
     },
     {
-      "id": "memberships-courses--locations-categories",
-      "method": "GET",
-      "origin": "https://backend.leadconnectorhq.com",
-      "path": "/locations/{locationId}/categories",
-      "authRail": "bearer",
-      "transport": "json",
-      "responseMode": "json",
-      "extraHeaders": [],
-      "tree": "documented",
-      "operation": null,
-      "service": "memberships-courses",
-      "query": [
-        {
-          "name": "productId",
-          "type": "string",
-          "required": false,
-          "source": "documented"
-        }
-      ],
-      "body": null,
-      "returns": null,
-      "confidence": {
-        "path": "documented",
-        "query": "documented",
-        "body": "unresolved",
-        "returns": "unresolved"
-      },
-      "sources": [
-        "memberships-courses/20-api/theming-and-custom-code.md:138"
-      ],
-      "serviceBasis": "declared"
-    },
-    {
       "id": "memberships-courses--locations-categories-put",
       "method": "PUT",
       "origin": "https://backend.leadconnectorhq.com",
@@ -8377,97 +8153,6 @@
       },
       "sources": [
         "memberships-courses/20-api/theming-and-custom-code.md:137"
-      ],
-      "serviceBasis": "declared"
-    },
-    {
-      "id": "memberships-courses--categories-check-valid-drip-config",
-      "method": "GET",
-      "origin": "https://backend.leadconnectorhq.com",
-      "path": "/locations/{locationId}/categories/check-valid-drip-config/{categoryId}",
-      "authRail": "bearer",
-      "transport": "json",
-      "responseMode": "json",
-      "extraHeaders": [],
-      "tree": "documented",
-      "operation": null,
-      "service": "memberships-courses",
-      "query": [
-        {
-          "name": "days",
-          "type": "string",
-          "required": false,
-          "source": "documented"
-        },
-        {
-          "name": "date",
-          "type": "string",
-          "required": false,
-          "source": "documented"
-        }
-      ],
-      "body": null,
-      "returns": null,
-      "confidence": {
-        "path": "documented",
-        "query": "documented",
-        "body": "unresolved",
-        "returns": "unresolved"
-      },
-      "sources": [
-        "memberships-courses/20-api/theming-and-custom-code.md:134"
-      ],
-      "serviceBasis": "declared"
-    },
-    {
-      "id": "memberships-courses--categories-get-drip-days-range",
-      "method": "GET",
-      "origin": "https://backend.leadconnectorhq.com",
-      "path": "/locations/{locationId}/categories/get-drip-days-range/{categoryId}",
-      "authRail": "bearer",
-      "transport": "json",
-      "responseMode": "json",
-      "extraHeaders": [],
-      "tree": "documented",
-      "operation": null,
-      "service": "memberships-courses",
-      "query": [],
-      "body": null,
-      "returns": null,
-      "confidence": {
-        "path": "documented",
-        "query": "none-observed",
-        "body": "unresolved",
-        "returns": "unresolved"
-      },
-      "sources": [
-        "memberships-courses/20-api/theming-and-custom-code.md:133"
-      ],
-      "serviceBasis": "declared"
-    },
-    {
-      "id": "memberships-courses--categories-sequence",
-      "method": "PUT",
-      "origin": "https://backend.leadconnectorhq.com",
-      "path": "/locations/{locationId}/categories/sequence",
-      "authRail": "bearer",
-      "transport": "json",
-      "responseMode": "json",
-      "extraHeaders": [],
-      "tree": "documented",
-      "operation": null,
-      "service": "memberships-courses",
-      "query": [],
-      "body": null,
-      "returns": null,
-      "confidence": {
-        "path": "documented",
-        "query": "none-observed",
-        "body": "unresolved",
-        "returns": "unresolved"
-      },
-      "sources": [
-        "memberships-courses/20-api/theming-and-custom-code.md:144"
       ],
       "serviceBasis": "declared"
     },
@@ -8741,32 +8426,6 @@
       "serviceBasis": "declared"
     },
     {
-      "id": "memberships-courses--permission-category",
-      "method": "PUT",
-      "origin": "https://backend.leadconnectorhq.com",
-      "path": "/locations/{locationId}/posts/bulk/permission/category/{categoryId}",
-      "authRail": "bearer",
-      "transport": "json",
-      "responseMode": "json",
-      "extraHeaders": [],
-      "tree": "documented",
-      "operation": null,
-      "service": "memberships-courses",
-      "query": [],
-      "body": null,
-      "returns": null,
-      "confidence": {
-        "path": "documented",
-        "query": "none-observed",
-        "body": "unresolved",
-        "returns": "unresolved"
-      },
-      "sources": [
-        "memberships-courses/20-api/theming-and-custom-code.md:143"
-      ],
-      "serviceBasis": "declared"
-    },
-    {
       "id": "memberships-courses--locations-products",
       "method": "GET",
       "origin": "https://backend.leadconnectorhq.com",
@@ -8793,146 +8452,6 @@
       "serviceBasis": "declared"
     },
     {
-      "id": "memberships-courses--products-apply-theme",
-      "method": "PUT",
-      "origin": "https://backend.leadconnectorhq.com",
-      "path": "/locations/{locationId}/products/apply-theme/{productId}",
-      "authRail": "bearer",
-      "transport": "json",
-      "responseMode": "json",
-      "extraHeaders": [],
-      "tree": "documented",
-      "operation": null,
-      "service": "memberships-courses",
-      "query": [
-        {
-          "name": "template_id",
-          "type": "string",
-          "required": false,
-          "source": "documented"
-        }
-      ],
-      "body": null,
-      "returns": null,
-      "confidence": {
-        "path": "documented",
-        "query": "documented",
-        "body": "unresolved",
-        "returns": "unresolved"
-      },
-      "sources": [
-        "memberships-courses/20-api/theming-and-custom-code.md:94"
-      ],
-      "serviceBasis": "declared"
-    },
-    {
-      "id": "memberships-courses--products-clone",
-      "method": "POST",
-      "origin": "https://backend.leadconnectorhq.com",
-      "path": "/locations/{locationId}/products/clone/{productId}",
-      "authRail": "bearer",
-      "transport": "json",
-      "responseMode": "json",
-      "extraHeaders": [],
-      "tree": "documented",
-      "operation": null,
-      "service": "memberships-courses",
-      "query": [],
-      "body": null,
-      "returns": null,
-      "confidence": {
-        "path": "documented",
-        "query": "none-observed",
-        "body": "unresolved",
-        "returns": "unresolved"
-      },
-      "sources": [
-        "memberships-courses/20-api/theming-and-custom-code.md:146"
-      ],
-      "serviceBasis": "declared"
-    },
-    {
-      "id": "memberships-courses--products-customizations",
-      "method": "GET",
-      "origin": "https://backend.leadconnectorhq.com",
-      "path": "/locations/{locationId}/products/customizations",
-      "authRail": "bearer",
-      "transport": "json",
-      "responseMode": "json",
-      "extraHeaders": [],
-      "tree": "documented",
-      "operation": null,
-      "service": "memberships-courses",
-      "query": [],
-      "body": null,
-      "returns": null,
-      "confidence": {
-        "path": "documented",
-        "query": "none-observed",
-        "body": "unresolved",
-        "returns": "unresolved"
-      },
-      "sources": [
-        "memberships-courses/20-api/theming-and-custom-code.md:36"
-      ],
-      "serviceBasis": "declared"
-    },
-    {
-      "id": "memberships-courses--products-customizations-post",
-      "method": "POST",
-      "origin": "https://backend.leadconnectorhq.com",
-      "path": "/locations/{locationId}/products/customizations",
-      "authRail": "bearer",
-      "transport": "json",
-      "responseMode": "json",
-      "extraHeaders": [],
-      "tree": "documented",
-      "operation": null,
-      "service": "memberships-courses",
-      "query": [],
-      "body": null,
-      "returns": null,
-      "confidence": {
-        "path": "documented",
-        "query": "none-observed",
-        "body": "unresolved",
-        "returns": "unresolved"
-      },
-      "sources": [
-        "memberships-courses/20-api/theming-and-custom-code.md:54"
-      ],
-      "serviceBasis": "declared"
-    },
-    {
-      "id": "memberships-courses--products-customizations-put",
-      "method": "PUT",
-      "origin": "https://backend.leadconnectorhq.com",
-      "path": "/locations/{locationId}/products/customizations/{productId}",
-      "authRail": "bearer",
-      "transport": "json",
-      "responseMode": "json",
-      "extraHeaders": [],
-      "tree": "documented",
-      "operation": null,
-      "service": "memberships-courses",
-      "query": [],
-      "body": null,
-      "returns": null,
-      "confidence": {
-        "path": "documented",
-        "query": "none-observed",
-        "body": "unresolved",
-        "returns": "unresolved"
-      },
-      "sources": [
-        "memberships-courses/20-api/theming-and-custom-code.md:55"
-      ],
-      "serviceBasis": "declared",
-      "aka": [
-        "/locations/{locationId}/products/customizations/{id}"
-      ]
-    },
-    {
       "id": "memberships-courses--products-customizations-get",
       "method": "GET",
       "origin": "https://backend.leadconnectorhq.com",
@@ -8955,91 +8474,6 @@
       },
       "sources": [
         "memberships-courses/20-api/theming-and-custom-code.md:39"
-      ],
-      "serviceBasis": "declared"
-    },
-    {
-      "id": "memberships-courses--products-library-order",
-      "method": "PUT",
-      "origin": "https://backend.leadconnectorhq.com",
-      "path": "/locations/{locationId}/products/library-order",
-      "authRail": "bearer",
-      "transport": "json",
-      "responseMode": "json",
-      "extraHeaders": [],
-      "tree": "documented",
-      "operation": null,
-      "service": "memberships-courses",
-      "query": [],
-      "body": null,
-      "returns": null,
-      "confidence": {
-        "path": "documented",
-        "query": "none-observed",
-        "body": "unresolved",
-        "returns": "unresolved"
-      },
-      "sources": [
-        "memberships-courses/20-api/theming-and-custom-code.md:145"
-      ],
-      "serviceBasis": "declared"
-    },
-    {
-      "id": "memberships-courses--products-location-themes",
-      "method": "POST",
-      "origin": "https://backend.leadconnectorhq.com",
-      "path": "/locations/{locationId}/products/location-themes",
-      "authRail": "bearer",
-      "transport": "json",
-      "responseMode": "json",
-      "extraHeaders": [],
-      "tree": "documented",
-      "operation": null,
-      "service": "memberships-courses",
-      "query": [],
-      "body": null,
-      "returns": null,
-      "confidence": {
-        "path": "documented",
-        "query": "none-observed",
-        "body": "unresolved",
-        "returns": "unresolved"
-      },
-      "sources": [
-        "memberships-courses/20-api/theming-and-custom-code.md:93"
-      ],
-      "serviceBasis": "declared"
-    },
-    {
-      "id": "memberships-courses--products-product-themes",
-      "method": "GET",
-      "origin": "https://backend.leadconnectorhq.com",
-      "path": "/locations/{locationId}/products/product-themes/{productId}",
-      "authRail": "bearer",
-      "transport": "json",
-      "responseMode": "json",
-      "extraHeaders": [],
-      "tree": "documented",
-      "operation": null,
-      "service": "memberships-courses",
-      "query": [
-        {
-          "name": "template_id",
-          "type": "string",
-          "required": false,
-          "source": "documented"
-        }
-      ],
-      "body": null,
-      "returns": null,
-      "confidence": {
-        "path": "documented",
-        "query": "documented",
-        "body": "unresolved",
-        "returns": "unresolved"
-      },
-      "sources": [
-        "memberships-courses/20-api/theming-and-custom-code.md:44"
       ],
       "serviceBasis": "declared"
     },
@@ -9234,8 +8668,7 @@
         "returns": "none-observed"
       },
       "sources": [
-        "services/marketplaceServices/TemplateService.ts:284",
-        "workflows/70-research/ENDPOINTS.md:157"
+        "services/marketplaceServices/TemplateService.ts:284"
       ],
       "serviceClass": "TemplateService",
       "serviceBasis": "unattributed"
@@ -9270,84 +8703,6 @@
       ],
       "serviceClass": "TemplateService",
       "serviceBasis": "unattributed"
-    },
-    {
-      "id": "memberships-courses--locations-upsell-offers",
-      "method": "GET",
-      "origin": "https://backend.leadconnectorhq.com",
-      "path": "/locations/{locationId}/upsell-offers",
-      "authRail": "bearer",
-      "transport": "json",
-      "responseMode": "json",
-      "extraHeaders": [],
-      "tree": "documented",
-      "operation": null,
-      "service": "memberships-courses",
-      "query": [],
-      "body": null,
-      "returns": null,
-      "confidence": {
-        "path": "documented",
-        "query": "none-observed",
-        "body": "unresolved",
-        "returns": "unresolved"
-      },
-      "sources": [
-        "memberships-courses/20-api/theming-and-custom-code.md:155"
-      ],
-      "serviceBasis": "declared"
-    },
-    {
-      "id": "memberships-courses--upsell-offers-offers",
-      "method": "GET",
-      "origin": "https://backend.leadconnectorhq.com",
-      "path": "/locations/{locationId}/upsell-offers/offers/{offerId}",
-      "authRail": "bearer",
-      "transport": "json",
-      "responseMode": "json",
-      "extraHeaders": [],
-      "tree": "documented",
-      "operation": null,
-      "service": "memberships-courses",
-      "query": [],
-      "body": null,
-      "returns": null,
-      "confidence": {
-        "path": "documented",
-        "query": "none-observed",
-        "body": "unresolved",
-        "returns": "unresolved"
-      },
-      "sources": [
-        "memberships-courses/20-api/theming-and-custom-code.md:156"
-      ],
-      "serviceBasis": "declared"
-    },
-    {
-      "id": "memberships-courses--user-purchase-categories",
-      "method": "GET",
-      "origin": "https://backend.leadconnectorhq.com",
-      "path": "/locations/{locationId}/user-purchase/categories",
-      "authRail": "bearer",
-      "transport": "json",
-      "responseMode": "json",
-      "extraHeaders": [],
-      "tree": "documented",
-      "operation": null,
-      "service": "memberships-courses",
-      "query": [],
-      "body": null,
-      "returns": null,
-      "confidence": {
-        "path": "documented",
-        "query": "none-observed",
-        "body": "unresolved",
-        "returns": "unresolved"
-      },
-      "sources": [
-        "memberships-courses/20-api/theming-and-custom-code.md:153"
-      ],
-      "serviceBasis": "declared"
     },
     {
       "id": "locations-service--search-locations",
@@ -10729,7 +10084,8 @@
       "sources": [
         "memberships-courses/20-api/build-api.md:108",
         "memberships-courses/20-api/offers.md:41",
-        "memberships-courses/70-research/2026-07-18-internal-api-recon.md:75"
+        "memberships-courses/70-research/2026-07-18-internal-api-recon.md:75",
+        "workflows/40-rules/marketplace-asset-publisher-classes.md:104"
       ],
       "serviceBasis": "declared"
     },
@@ -10953,6 +10309,32 @@
       "serviceBasis": "declared"
     },
     {
+      "id": "workflows--user-purchase-no-of-users-purchased-offer",
+      "method": "GET",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/membership/locations/{locationId}/user-purchase/no-of-users-purchasedOffer/{offerId}",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "workflows",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "workflows/40-rules/marketplace-asset-publisher-classes.md:104"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
       "id": "memberships-courses--locations-videos",
       "method": "POST",
       "origin": "https://backend.leadconnectorhq.com",
@@ -11001,6 +10383,32 @@
       },
       "sources": [
         "memberships-courses/20-api/endpoints.md:75"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "workflows--smart-list-attach-offer-user",
+      "method": "POST",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/membership/smart-list/attach-offer-user",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "workflows",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "workflows/40-rules/marketplace-asset-publisher-classes.md:108"
       ],
       "serviceBasis": "declared"
     },
@@ -11124,7 +10532,7 @@
       "tree": "workflow-builder",
       "extraHeaders": [],
       "operation": "fetchData",
-      "service": "workflows",
+      "service": "memberships-courses",
       "query": [],
       "body": null,
       "returns": null,
@@ -11136,10 +10544,10 @@
       },
       "sources": [
         "models/Filters/membership.ts:66",
-        "memberships-courses/70-research/2026-07-18-internal-api-recon.md:53",
-        "workflows/70-research/ENDPOINTS.md:164"
+        "memberships-courses/70-research/2026-07-18-internal-api-recon.md:53"
       ],
-      "serviceBasis": "declared"
+      "serviceClass": "LocationMembership",
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "memberships-courses--user-hl-user-details",
@@ -13113,6 +12521,32 @@
       },
       "sources": [
         "funnels/60-recipes/build-a-multi-step-funnel.md:25"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "workflows--products-price",
+      "method": "PUT",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/products/{productId}/price/{priceId}",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "workflows",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "workflows/40-rules/marketplace-asset-publisher-classes.md:102"
       ],
       "serviceBasis": "declared"
     },
@@ -22298,12 +21732,10 @@
       "sources": [
         "components/actions/premium-actions/custom-code-components/CustomCodeTest.vue:149",
         "workflows/70-research/CUSTOM-CODE-TEST.md:54",
-        "workflows/70-research/CUSTOM-CODE-TEST.md:62",
-        "workflows/70-research/ACTION-DRAWERS-2.md:909",
-        "workflows/70-research/ACTION-DRAWERS-2.md:981",
-        "workflows/70-research/ACTION-DRAWERS-2.md:6632"
+        "workflows/70-research/CUSTOM-CODE-TEST.md:62"
       ],
-      "serviceBasis": "declared"
+      "serviceClass": null,
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "flow-guard-service--get-auth-config",
@@ -22910,10 +22342,10 @@
         "returns": "none-observed"
       },
       "sources": [
-        "services/IVRService.ts:25",
-        "workflows/70-research/ENDPOINTS.md:215"
+        "services/IVRService.ts:25"
       ],
-      "serviceBasis": "declared"
+      "serviceClass": "IVRService",
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "custom-webhook-service--delete-token",
@@ -23563,10 +22995,10 @@
         "returns": "none-observed"
       },
       "sources": [
-        "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:599",
-        "workflows/70-research/ENDPOINTS.md:237"
+        "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:599"
       ],
-      "serviceBasis": "declared"
+      "serviceClass": "WorkflowsMarketplacePlatformService",
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "workflows--actions-dynamic-source",
@@ -23835,10 +23267,10 @@
         "returns": "none-observed"
       },
       "sources": [
-        "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:144",
-        "workflows/70-research/ENDPOINTS.md:233"
+        "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:144"
       ],
-      "serviceBasis": "declared"
+      "serviceClass": "WorkflowsMarketplacePlatformService",
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "workflows-marketplace-platform-service--get-action-stats",
@@ -23868,9 +23300,7 @@
       "sources": [
         "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:327",
         "workflows/70-research/VERSIONS-STATS-LOGS.md:305",
-        "services/api/marketplace-stats-service.ts:7",
-        "workflows/70-research/ENDPOINTS.md:205",
-        "workflows/70-research/RAIL.md:128"
+        "services/api/marketplace-stats-service.ts:7"
       ],
       "serviceClass": "WorkflowsMarketplacePlatformService",
       "serviceBasis": "inferred-from-path",
@@ -23957,10 +23387,10 @@
         "returns": "none-observed"
       },
       "sources": [
-        "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:670",
-        "workflows/70-research/ENDPOINTS.md:239"
+        "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:670"
       ],
-      "serviceBasis": "declared"
+      "serviceClass": "WorkflowsMarketplacePlatformService",
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "workflows-marketplace-platform-service--initiate-oauth-authorization",
@@ -24010,10 +23440,10 @@
         "returns": "none-observed"
       },
       "sources": [
-        "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:502",
-        "workflows/70-research/ENDPOINTS.md:240"
+        "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:502"
       ],
-      "serviceBasis": "declared"
+      "serviceClass": "WorkflowsMarketplacePlatformService",
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "workflows-marketplace-platform-service--fetch-integration-oauth-token",
@@ -24066,11 +23496,10 @@
         "returns": "none-observed"
       },
       "sources": [
-        "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:436",
-        "workflows/70-research/ACTION-DRAWERS-2.md:6244",
-        "workflows/70-research/ENDPOINTS.md:240"
+        "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:436"
       ],
-      "serviceBasis": "declared"
+      "serviceClass": "WorkflowsMarketplacePlatformService",
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "backend--fetch-drives",
@@ -24128,10 +23557,10 @@
         "returns": "resolved"
       },
       "sources": [
-        "services/api/google-sheets-workflows-service.ts:54",
-        "workflows/70-research/ENDPOINTS.md:175"
+        "services/api/google-sheets-workflows-service.ts:54"
       ],
-      "serviceBasis": "declared"
+      "serviceClass": null,
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "backend--fetch-spreadsheets",
@@ -24390,10 +23819,10 @@
         "returns": "none-observed"
       },
       "sources": [
-        "services/SlackService.ts:32",
-        "workflows/70-research/ENDPOINTS.md:176"
+        "services/SlackService.ts:32"
       ],
-      "serviceBasis": "declared"
+      "serviceClass": "SlackService",
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "backend--fetch-slack-private-channels",
@@ -24642,11 +24071,10 @@
         "returns": "none-observed"
       },
       "sources": [
-        "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:411",
-        "workflows/70-research/ENDPOINTS.md:209",
-        "workflows/70-research/RAIL.md:264"
+        "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:411"
       ],
-      "serviceBasis": "declared"
+      "serviceClass": "WorkflowsMarketplacePlatformService",
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "workflows-marketplace-platform-service--deregister-test-webhook",
@@ -24711,10 +24139,10 @@
         "returns": "none-observed"
       },
       "sources": [
-        "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:366",
-        "workflows/70-research/ENDPOINTS.md:97"
+        "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:366"
       ],
-      "serviceBasis": "declared"
+      "serviceClass": "WorkflowsMarketplacePlatformService",
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "workflows-marketplace-platform-service--fetch-webhook-status",
@@ -24774,10 +24202,10 @@
         "returns": "none-observed"
       },
       "sources": [
-        "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:637",
-        "workflows/70-research/ENDPOINTS.md:99"
+        "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:637"
       ],
-      "serviceBasis": "declared"
+      "serviceClass": "WorkflowsMarketplacePlatformService",
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "workflows-marketplace-platform-service--register-test-polling",
@@ -24844,10 +24272,10 @@
         "returns": "none-observed"
       },
       "sources": [
-        "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:356",
-        "workflows/70-research/ENDPOINTS.md:96"
+        "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:356"
       ],
-      "serviceBasis": "declared"
+      "serviceClass": "WorkflowsMarketplacePlatformService",
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "workflows-marketplace-platform-service--register-test-webhook",
@@ -24914,10 +24342,10 @@
         "returns": "none-observed"
       },
       "sources": [
-        "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:341",
-        "workflows/70-research/ENDPOINTS.md:95"
+        "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:341"
       ],
-      "serviceBasis": "declared"
+      "serviceClass": "WorkflowsMarketplacePlatformService",
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "workflows-marketplace-platform-service--test-trigger",
@@ -24984,10 +24412,10 @@
         "returns": "none-observed"
       },
       "sources": [
-        "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:383",
-        "workflows/70-research/ENDPOINTS.md:98"
+        "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:383"
       ],
-      "serviceBasis": "declared"
+      "serviceClass": "WorkflowsMarketplacePlatformService",
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "workflows-marketplace-platform-service--get-actions-and-triggers",
@@ -25029,7 +24457,8 @@
         "workflows/10-anatomy/07-id-resolution.md:206",
         "workflows/40-rules/marketplace-asset-publisher-classes.md:10"
       ],
-      "serviceBasis": "declared"
+      "serviceClass": "WorkflowsMarketplacePlatformService",
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "workflows-marketplace-platform-service--fetch-trigger-dynamic-source-details",
@@ -25074,10 +24503,10 @@
         "returns": "none-observed"
       },
       "sources": [
-        "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:627",
-        "workflows/70-research/ENDPOINTS.md:93"
+        "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:627"
       ],
-      "serviceBasis": "declared"
+      "serviceClass": "WorkflowsMarketplacePlatformService",
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "workflows-marketplace-platform-service--fetch-trigger-filter-list-options",
@@ -25168,10 +24597,10 @@
         "returns": "resolved"
       },
       "sources": [
-        "services/api/document-template-service.ts:17",
-        "workflows/70-research/ENDPOINTS.md:103"
+        "services/api/document-template-service.ts:17"
       ],
-      "serviceBasis": "declared"
+      "serviceClass": null,
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "workflows-marketplace-platform-service--get-trigger-dynamic-fields",
@@ -25784,7 +25213,8 @@
         "workflows/70-research/ENDPOINTS.md:193",
         "workflows/70-research/RAIL.md:115"
       ],
-      "serviceBasis": "declared"
+      "serviceClass": "WorkflowMarketplaceService",
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "workflow-marketplace-service--get-contact-details-per-step",
@@ -25849,10 +25279,10 @@
         "services/marketplaceServices/WorkflowMarketplaceService.ts:296",
         "workflows/50-runtime/11-runtime-logs.md:203",
         "workflows/50-runtime/11-runtime-logs.md:244",
-        "workflows/70-research/ENDPOINTS.md:196",
-        "workflows/70-research/RUNTIME-DATA-2.md:69"
+        "workflows/70-research/ENDPOINTS.md:196"
       ],
-      "serviceBasis": "declared"
+      "serviceClass": "WorkflowMarketplaceService",
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "workflow-marketplace-service--get-enrollment-stats",
@@ -26498,7 +25928,8 @@
         "workflows/70-research/ENDPOINTS.md:195",
         "workflows/70-research/VERSIONS-STATS-LOGS.md:549"
       ],
-      "serviceBasis": "declared"
+      "serviceClass": "WorkflowMarketplaceService",
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "backend--sticky-note--delete-workflows-sticky-note",
@@ -38892,7 +38323,7 @@
         "sourceId"
       ],
       "operation": null,
-      "service": "forms",
+      "service": null,
       "query": [],
       "body": {
         "typeName": "CreatePaymentProduct",
@@ -38931,7 +38362,7 @@
         "restAgent.ts:183"
       ],
       "serviceClass": null,
-      "serviceBasis": "inferred-from-path"
+      "serviceBasis": "unattributed"
     },
     {
       "id": "forms--products",
@@ -39005,7 +38436,7 @@
         "sourceId"
       ],
       "operation": null,
-      "service": "memberships-courses",
+      "service": null,
       "query": [],
       "body": null,
       "returns": null,
@@ -39019,7 +38450,7 @@
         "restAgent.ts:158"
       ],
       "serviceClass": null,
-      "serviceBasis": "inferred-from-path"
+      "serviceBasis": "unattributed"
     },
     {
       "id": "services--prices--put-prices-price-id",
@@ -39040,7 +38471,7 @@
         "sourceId"
       ],
       "operation": null,
-      "service": "memberships-courses",
+      "service": null,
       "query": [],
       "body": {
         "typeName": "PaymentPayload",
@@ -39058,7 +38489,7 @@
         "restAgent.ts:166"
       ],
       "serviceClass": null,
-      "serviceBasis": "inferred-from-path"
+      "serviceBasis": "unattributed"
     },
     {
       "id": "funnels--library-templates",
