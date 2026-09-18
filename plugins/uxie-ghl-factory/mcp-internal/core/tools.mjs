@@ -3119,7 +3119,8 @@ export const TOOLS = [
       + 'and for "enrolled, not yet fired", and this endpoint cannot tell them apart however many times you '
       + 'call it. A workflow whose trigger filter GHL did not recognise reads exactly like one that simply '
       + 'has not run yet. Break the tie from an INDEPENDENT source \u2014 the contact\'s own tags, fields or '
-      + 'conversation \u2014 not by re-reading this.',
+      + 'conversation \u2014 not by re-reading this. When the step is a DRIP with contacts queued, a `drip` block adds '
+      + 'GHL\'s own queue: how many are held, the next batch time, the completion ETA and who is next.',
     ),
     inputSchema: schema({
       locationId: z.string(),
@@ -3132,16 +3133,42 @@ export const TOOLS = [
     }),
     capabilities: [
       { method: 'GET', path: '/workflows/status/search/details-by-step' },
+      { method: 'GET', path: '/workflow/{loc}/drip-schedule/{wid}/step/{stepId}/stats' },
+      { method: 'GET', path: '/workflow/{loc}/drip-schedule/{wid}/step/{stepId}/contacts' },
     ],
     handler: async (args, deps) => guard(async () => {
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+      // THE DRIP QUEUE. A contact held in a drip is "in" the step and the roster below cannot say
+      // whether the queue is draining. GHL's drip-schedule routes can — but ONLY when something is
+      // queued: a real drip step with an empty queue, a wait step and a step id that does not exist
+      // all answer the identical empty body (live 2026-09-19), and with three contacts queued the
+      // same route reported contactsInDrip:3, a next batch and an ETA while the wait and ghost
+      // controls stayed empty. So an ACTIVE answer is reported and an empty one is NOT — it would
+      // be a claim ("this drip is idle") the route cannot support for a step it may not even know.
+      const dripBlock = async () => {
+        try {
+          const base = `/workflow/${encodeURIComponent(args.locationId)}/drip-schedule/${encodeURIComponent(args.workflowId)}/step/${encodeURIComponent(args.stepId)}`;
+          const st = await gw.call('GET', `${base}/stats`);
+          const j = st.ok ? st.json : null;
+          if (!j || !(j.hasQueuedContacts === true || Number(j.contactsInDrip) > 0)) return {};
+          const q = await gw.call('GET', `${base}/contacts`);
+          const schedules = Array.isArray(q.json?.schedules) ? q.json.schedules : [];
+          return { drip: {
+            contactsInDrip: j.contactsInDrip, hasQueuedContacts: j.hasQueuedContacts,
+            nextBatch: j.nextBatch ?? null, completionETA: j.completionETA ?? null,
+            queued: schedules.map((c) => ({ contactId: c.contactId, contactName: c.contactName ?? null, batchTime: c.batchTime ?? null, status: c.status ?? null })),
+            queuedTotal: q.json?.total ?? schedules.length,
+            note: 'GHL\'s own drip queue for this step. Reported only while something is queued: an EMPTY answer from this route is identical for an idle drip, a non-drip step and a step id that does not exist, so its absence here says nothing.',
+          } };
+        } catch { return {}; }
+      };
       // Reuse the fast-forward engine's live-proven details-by-step walker — it
       // pages at pageSize and walks to the reported totalCount, throwing (→ the
       // error contract via guard) if pagination stalls.
       const ff = makeFF({ gw });
       if (args.all !== false) {
         const contacts = await ff.allParked(args.workflowId, args.stepId, { pageSize: args.limit ?? 50 });
-        return ok({ stepId: args.stepId, contacts, total: contacts.length, complete: true });
+        return ok({ stepId: args.stepId, contacts, total: contacts.length, complete: true, ...(await dripBlock()) });
       }
       const page = await ff.parkedAt(args.workflowId, args.stepId, {
         skip: args.skip ?? 0,
@@ -3155,6 +3182,7 @@ export const TOOLS = [
         contacts: rows,
         total,
         complete: (args.skip ?? 0) + rows.length >= total,
+        ...(await dripBlock()),
       });
     }, args),
   },

@@ -87,3 +87,11 @@ test('no verdict from the server is neither a pass nor a fail', async () => {
   assert.equal(r.server.ran, false);
   assert.equal(r.blocked, false, 'a transport failure is reported, not turned into a refusal');
 });
+
+test('a key GHL\'s SERVER stamps on save is not an invented key — but an invented one beside it still is', () => {
+  const drip = (extra) => [{ id: 's1', name: 'Drip', type: 'drip', attributes: { type: 'drip', batchSize: 1, interval: { timeUnit: 'minutes', value: 1 }, ...extra } }];
+  const keyFindings = (tpl) => { const r = gateDocument(tpl, { catalog, marketplaceTypes: new Set() }); return [...r.errors, ...r.warnings].filter((f) => f.check === 'ATTRIBUTE_KEY'); };
+  assert.deepEqual(keyFindings(drip({ configuredAt: '2026-09-18T19:49:11.397Z' })), [], 'the server\'s own stamp must not block a publish');
+  const bad = keyFindings(drip({ configuredAt: 'x', inventedKey: 1 }));
+  assert.equal(bad.length, 1); assert.match(bad[0].message, /inventedKey/); assert.doesNotMatch(bad[0].message, /configuredAt/);
+});

@@ -23559,7 +23559,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           provenFor: [
             "agency-admin-bearer"
           ],
-          coveredBy: [],
+          coveredBy: [
+            "get_contacts_at_step"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -23622,7 +23624,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           provenFor: [
             "agency-admin-bearer"
           ],
-          coveredBy: [],
+          coveredBy: [
+            "get_contacts_at_step"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -56206,9 +56210,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       fast_forward_contacts: {
-        description: "Fast-forward contacts \u2014 proof: live-runtime (2026-09-10); risk: write",
+        description: "Fast-forward contacts \u2014 proof: live-runtime (2026-09-18); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-10)",
+        proof: "live-runtime (2026-09-18)",
         proofFloor: "live-runtime (2026-07-18)",
         proofRows: [
           "fast-forward-count-per-step",
@@ -165184,6 +165188,7 @@ var OBSERVED_INNER_TYPES = Object.freeze({
 // ../skills/create-ghl-workflow/engine/document-gate.mjs
 var STEP_TOP_LEVEL_KEYS = new Set(OBSERVED_TOP_LEVEL_KEYS);
 var CONDITIONAL_ATTR_KEYS = { conversationai_objective: ["closingMessage", "tags"] };
+var SERVER_WRITTEN_ATTR_KEYS = { drip: ["configuredAt"] };
 function knownAttributeKeys(type, card) {
   const model = (card?.modelFields?.fields ?? []).map((f) => f?.name).filter(Boolean);
   return /* @__PURE__ */ new Set([
@@ -165192,6 +165197,7 @@ function knownAttributeKeys(type, card) {
     ...model,
     ...OBSERVED_ATTRIBUTE_KEYS[type] ?? [],
     ...CONDITIONAL_ATTR_KEYS[type] ?? [],
+    ...SERVER_WRITTEN_ATTR_KEYS[type] ?? [],
     ...ENGINE_ATTR_KEYS
   ]);
 }
@@ -173520,7 +173526,7 @@ var TOOLS2 = [
     name: "get_contacts_at_step",
     description: describe3(
       "get_contacts_at_step",
-      `List the contacts parked at / processed by one workflow step, paginated to the full total. \u{1F534} AN EMPTY RESULT IS AMBIGUOUS: total:0 means the same thing for "nobody was ever enrolled" and for "enrolled, not yet fired", and this endpoint cannot tell them apart however many times you call it. A workflow whose trigger filter GHL did not recognise reads exactly like one that simply has not run yet. Break the tie from an INDEPENDENT source \u2014 the contact's own tags, fields or conversation \u2014 not by re-reading this.`
+      'List the contacts parked at / processed by one workflow step, paginated to the full total. \u{1F534} AN EMPTY RESULT IS AMBIGUOUS: total:0 means the same thing for "nobody was ever enrolled" and for "enrolled, not yet fired", and this endpoint cannot tell them apart however many times you call it. A workflow whose trigger filter GHL did not recognise reads exactly like one that simply has not run yet. Break the tie from an INDEPENDENT source \u2014 the contact\'s own tags, fields or conversation \u2014 not by re-reading this. When the step is a DRIP with contacts queued, a `drip` block adds GHL\'s own queue: how many are held, the next batch time, the completion ETA and who is next.'
     ),
     inputSchema: schema({
       locationId: external_exports.string(),
@@ -173532,14 +173538,37 @@ var TOOLS2 = [
       limit: external_exports.number().int().positive().default(50)
     }),
     capabilities: [
-      { method: "GET", path: "/workflows/status/search/details-by-step" }
+      { method: "GET", path: "/workflows/status/search/details-by-step" },
+      { method: "GET", path: "/workflow/{loc}/drip-schedule/{wid}/step/{stepId}/stats" },
+      { method: "GET", path: "/workflow/{loc}/drip-schedule/{wid}/step/{stepId}/contacts" }
     ],
     handler: async (args, deps) => guard(async () => {
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+      const dripBlock = async () => {
+        try {
+          const base = `/workflow/${encodeURIComponent(args.locationId)}/drip-schedule/${encodeURIComponent(args.workflowId)}/step/${encodeURIComponent(args.stepId)}`;
+          const st = await gw.call("GET", `${base}/stats`);
+          const j = st.ok ? st.json : null;
+          if (!j || !(j.hasQueuedContacts === true || Number(j.contactsInDrip) > 0)) return {};
+          const q3 = await gw.call("GET", `${base}/contacts`);
+          const schedules = Array.isArray(q3.json?.schedules) ? q3.json.schedules : [];
+          return { drip: {
+            contactsInDrip: j.contactsInDrip,
+            hasQueuedContacts: j.hasQueuedContacts,
+            nextBatch: j.nextBatch ?? null,
+            completionETA: j.completionETA ?? null,
+            queued: schedules.map((c) => ({ contactId: c.contactId, contactName: c.contactName ?? null, batchTime: c.batchTime ?? null, status: c.status ?? null })),
+            queuedTotal: q3.json?.total ?? schedules.length,
+            note: "GHL's own drip queue for this step. Reported only while something is queued: an EMPTY answer from this route is identical for an idle drip, a non-drip step and a step id that does not exist, so its absence here says nothing."
+          } };
+        } catch {
+          return {};
+        }
+      };
       const ff = makeFF({ gw });
       if (args.all !== false) {
         const contacts = await ff.allParked(args.workflowId, args.stepId, { pageSize: args.limit ?? 50 });
-        return ok({ stepId: args.stepId, contacts, total: contacts.length, complete: true });
+        return ok({ stepId: args.stepId, contacts, total: contacts.length, complete: true, ...await dripBlock() });
       }
       const page = await ff.parkedAt(args.workflowId, args.stepId, {
         skip: args.skip ?? 0,
@@ -173552,7 +173581,8 @@ var TOOLS2 = [
         stepId: args.stepId,
         contacts: rows,
         total,
-        complete: (args.skip ?? 0) + rows.length >= total
+        complete: (args.skip ?? 0) + rows.length >= total,
+        ...await dripBlock()
       });
     }, args)
   },

@@ -1206,14 +1206,91 @@ if (prim.ok !== true) {
   'a PRIMITIVE return does NOT survive as a usable output — the sandbox drops it',
   `output=${JSON.stringify(prim.data?.output)} outputValid=${prim.data?.outputValid}`);
 
+// ── RUNTIME: a real enrolment, on contacts this suite creates ───────────────────────────────
+// Authorised by the operator 2026-09-19 ("if we need to enroll contacts to prove it, then we do
+// that"), under three fences that make it harmless, each asserted rather than intended:
+//   • the contacts are CREATED HERE and carry no email and no phone — nothing can be sent to them
+//   • the workflow has NO TRIGGER, so the only way in is the enrol call below
+//   • its steps are drip, tag, wait, tag — none of them sends anything to anyone
+// It is unpublished again at the end. This is the only section that proves anything RUNS.
+console.log('\nruntime: enrolment, drip queue, fast-forward');
+{
+  const gwr = deps.makeGw({ loc: LOCATION, state });
+  const TAG_DRIP = `test-conf-${STAMP}-past-drip`, TAG_WAIT = `test-conf-${STAMP}-past-wait`;
+  log.subject('build_workflow');
+  const rt = await call('build_workflow', { spec: { name: NAME('runtime'), triggers: [], graph: [
+    { ref: 'd', kind: 'action', type: 'drip', name: 'Drip Mode', attributes: { batchSize: 1, interval: { timeUnit: 'minutes', value: 1 }, type: 'drip' } },
+    { ref: 't1', kind: 'action', type: 'add_contact_tag', name: 'Tag past drip', attributes: { tags: [TAG_DRIP] } },
+    { ref: 'w', kind: 'wait', name: 'Wait 7 days', config: { unit: 'days', value: 7, when: 'after' } },
+    { ref: 't2', kind: 'action', type: 'add_contact_tag', name: 'Tag past wait', attributes: { tags: [TAG_WAIT] } }] } });
+  const rwid = rt.data?.wid;
+  check(rt.ok === true && typeof rwid === 'string', 'build_workflow creates the trigger-less runtime probe', `${rt.code ?? ''} ${String(rt.detail ?? '').slice(0, 200)}`);
+  if (rwid) {
+    left.push(`workflow ${rwid} (${NAME('runtime')}, was PUBLISHED for the run and unpublished after)`);
+    const tpls = (await call('export_workflow', { workflowId: rwid })).data?.workflow?.workflowData?.templates ?? [];
+    const dripId = tpls.find((t) => t.type === 'drip')?.id, waitId = tpls.find((t) => t.type === 'wait')?.id;
+
+    log.subject('publish_workflow');
+    const pub = await call('publish_workflow', { workflowId: rwid, confirm: true });
+    check(pub.ok === true && pub.data?.verify?.status === 'published' && pub.data?.verify?.totalTriggers === 0,
+      'publish_workflow publishes a workflow that carries a drip step — GHL stamps `configuredAt` onto it on save, and the engine gate must not call that an invented key',
+      `${pub.code ?? ''} ${String(pub.detail ?? '').slice(0, 240)}`);
+
+    log.subject(false);
+    const mk = async (n) => (await gwr.call('POST', '/contacts/', { locationId: LOCATION, firstName: 'TEST-CONF', lastName: `${STAMP}-${n} (no email, no phone)`, tags: ['test-conf'] }));
+    const made = [await mk('a'), await mk('b'), await mk('c'), await mk('d')].map((r) => r.json?.contact ?? r.json);
+    const ids = made.map((c) => c?.id).filter(Boolean);
+    check(ids.length === 4 && made.every((c) => !c.email && !c.phone), 'FENCE: four contacts created by this run, none with an email or a phone', JSON.stringify(made.map((c) => [Boolean(c?.id), c?.email ?? null, c?.phone ?? null])));
+    for (const id of ids) left.push(`contact ${id} (TEST-CONF ${STAMP}, no email, no phone)`);
+    const tagsOf = async (id) => { const r = await gwr.call('GET', `/contacts/${id}`); return (r.json?.contact ?? r.json)?.tags ?? []; };
+    const until = async (fn, { tries = 12, ms = 5000 } = {}) => { for (let i = 0; i < tries; i++) { const v = await fn(); if (v) return v; await new Promise((r) => setTimeout(r, ms)); } return null; };
+
+    if (pub.ok && ids.length === 4 && dripId && waitId) {
+      // ONE contact first: it clears the drip at once (the first batch is immediate) and parks at the wait.
+      const e1 = await gwr.call('POST', `/contacts/${ids[0]}/workflow/${rwid}`, { eventStartTime: '' });
+      check(e1.ok === true, 'the enrol call is accepted — which proves nothing yet', `${e1.status}`);
+      const ran = await until(async () => (await tagsOf(ids[0])).includes(TAG_DRIP));
+      check(ran === true, 'EFFECT: the contact\'s OWN RECORD gains the first tag — the workflow really ran, read from a source the workflow does not control', JSON.stringify(await tagsOf(ids[0])));
+
+      log.subject('get_contacts_at_step');
+      const parked = await until(async () => { const r = await call('get_contacts_at_step', { workflowId: rwid, stepId: waitId }); return (r.data?.contacts ?? []).some((c) => JSON.stringify(c).includes(ids[0])) ? r : null; });
+      check(Boolean(parked), 'get_contacts_at_step finds that contact parked at the wait step', String(parked?.data?.total));
+      check(parked && !('drip' in parked.data), 'CONTROL: a WAIT step gets no `drip` block', JSON.stringify(Object.keys(parked?.data ?? {})));
+
+      // THREE at once into a batch-of-one drip: one leaves immediately, the rest must queue.
+      log.subject(false);
+      for (const id of ids.slice(1)) await gwr.call('POST', `/contacts/${id}/workflow/${rwid}`, { eventStartTime: '' });
+      log.subject('get_contacts_at_step');
+      const queued = await until(async () => { const r = await call('get_contacts_at_step', { workflowId: rwid, stepId: dripId }); return r.data?.drip ? r : null; }, { tries: 8, ms: 3000 });
+      check(Boolean(queued) && queued.data.drip.contactsInDrip >= 1 && queued.data.drip.nextBatch?.scheduledAt && queued.data.drip.queued.every((q) => ids.includes(q.contactId)),
+        'DIFFERENTIAL: on the DRIP step the same tool reports GHL\'s queue — held count, next batch, and only contacts this run enrolled', JSON.stringify(queued?.data?.drip ?? null).slice(0, 220));
+
+      log.subject('fast_forward_contacts');
+      const before = await tagsOf(ids[0]);
+      const ffp = await call('fast_forward_contacts', { workflowId: rwid, stepId: waitId, contactId: ids[0] });
+      check(ffp.code === 'CONFIRM_REQUIRED' && ffp.data?.preview?.count === 1 && !(await tagsOf(ids[0])).includes(TAG_WAIT),
+        'fast_forward_contacts previews exactly ONE enrolment and moves nobody', `${ffp.code} count=${ffp.data?.preview?.count}`);
+      const ffc = await call('fast_forward_contacts', { workflowId: rwid, stepId: waitId, contactId: ids[0], previewToken: ffp.data?.preview?.previewToken, confirm: true });
+      check(ffc.ok === true && ffc.data?.moved === 1, 'with the preview token and confirm it reports one moved', `${ffc.code ?? ''} ${JSON.stringify(ffc.data ?? ffc.detail ?? {}).slice(0, 160)}`);
+      const past = await until(async () => (await tagsOf(ids[0])).includes(TAG_WAIT));
+      check(past === true && !before.includes(TAG_WAIT), 'EFFECT: the step AFTER the 7-day wait ran — the second tag is on the contact\'s own record, and was not before', JSON.stringify(await tagsOf(ids[0])));
+      const others = await Promise.all(ids.slice(1).map(tagsOf));
+      check(others.every((t) => !t.includes(TAG_WAIT)), 'CONTROL: the contacts that were NOT fast-forwarded do not have it', JSON.stringify(others.map((t) => t.includes(TAG_WAIT))));
+    }
+
+    log.subject('unpublish_workflows');
+    const un = await call('unpublish_workflows', { workflowIds: [rwid], confirm: true });
+    const st = (await call('get_workflow', { workflowId: rwid })).data?.status;
+    check(un.ok === true && st === 'draft', 'FENCE: the runtime probe is a DRAFT again when the section ends', `${un.code ?? ''} status=${st}`);
+  }
+}
+
 // ── coverage honesty ────────────────────────────────────────────────────────────────────────
 console.log('\nNOT COVERED by this suite, and not counted as passing:');
 console.log('  trigger activation    — a trigger is the ONLY enrolment path, so activating one is the');
 console.log('                          line between a draft nobody can enter and a live automation');
-console.log('  contact enrollment    — same reason; fast_forward_contacts moves real people');
-console.log('  fast_forward_contacts — REFUSED, not skipped. It advances real enrolments past a wait,');
-console.log('                          which fires whatever comes next at whoever is parked there.');
-console.log('                          There is no safe way to exercise it on an account with contacts.');
+console.log('                          (the runtime section enrols by DIRECT CALL into a trigger-less workflow)');
+console.log('  anything that SENDS   — sms, email, calls. The runtime contacts carry no email and no phone.');
 
 console.log(`\nLEFT IN PLACE (nothing is deleted):`);
 for (const l of left) console.log(`  ${l}`);

@@ -36,6 +36,15 @@ export const STEP_TOP_LEVEL_KEYS = new Set(OBSERVED_TOP_LEVEL_KEYS);
 // moment proceedIfNotMet is true (required-fields.mjs, the asset's conditional fields).
 const CONDITIONAL_ATTR_KEYS = { conversationai_objective: ['closingMessage', 'tags'] };
 
+// Keys GHL's SERVER writes onto a step when the document is saved. The author never sends them and
+// the builder's front-end source does not contain them, so no model, card or asset lists them — and
+// a census taken before the server started writing one cannot have seen it either. Without this the
+// gate refuses to PUBLISH a workflow this engine built a minute earlier, calling the server's own
+// stamp "an invented key". Found the first time a drip workflow was published through this path
+// (live 2026-09-19: sent {batchSize, interval, type}; read back with `configuredAt` added — a key
+// absent from all 3,803 steps of the 2026-09-12 census, so GHL began writing it after that).
+const SERVER_WRITTEN_ATTR_KEYS = { drip: ['configuredAt'] };
+
 /** Every attribute key this type is known to carry, from every evidence source there is. */
 export function knownAttributeKeys(type, card) {
   const model = (card?.modelFields?.fields ?? []).map((f) => f?.name).filter(Boolean);
@@ -45,6 +54,7 @@ export function knownAttributeKeys(type, card) {
     ...model,
     ...(OBSERVED_ATTRIBUTE_KEYS[type] ?? []),
     ...(CONDITIONAL_ATTR_KEYS[type] ?? []),
+    ...(SERVER_WRITTEN_ATTR_KEYS[type] ?? []),
     ...ENGINE_ATTR_KEYS,
   ]);
 }

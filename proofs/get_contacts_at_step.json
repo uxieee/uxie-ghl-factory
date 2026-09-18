@@ -112,11 +112,23 @@
         "receipt:2026-09-18-1752"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-18",
+      "result": "pass",
+      "how": "suite",
+      "suite": "workflows",
+      "evidence": [
+        "receipt:2026-09-18-1955"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
     "hashedAt": "2026-09-18",
     "endpoints": {
+      "GET https://backend.leadconnectorhq.com /workflow/{}/drip-schedule/{}/step/{}/contacts": "49397599973a7bcf4c36c24d583abbef45a8a007587d66247b962d3c7237f2af",
+      "GET https://backend.leadconnectorhq.com /workflow/{}/drip-schedule/{}/step/{}/stats": "fe8b1a10d9b304f07577c47f1fe75f4e7cdd2876dd11045165bfdd8259da9e72",
       "GET https://backend.leadconnectorhq.com /workflows/status/search/details-by-step": "4156ef34a4eaa885cdc6afbf1998f1bd48bc431b1ac8e9ed7222fcbac5ad054f"
     },
     "builds": {
@@ -124,7 +136,7 @@
       "reportingApp": 272
     },
     "code": {
-      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#get_contacts_at_step": "0501bfa74db466c20a061ce9369355d244c04ae5f9f3132c7da3c41856c1c91b",
+      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#get_contacts_at_step": "97aed57090a777cba90a4b6dd0c4a42332e7af626c153354eb67a448f1b3e0fd",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "e65c2384aefb498ce49453dd2d6d8d1a1d8351fd6d337aef5256eb982e1db02f",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
       "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "2d59b12818ffe76fb105e5284c3d186aea8d07f6a457b7c6344ea2258ba6a1d6",

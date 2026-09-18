@@ -327,6 +327,8 @@ test('get_contacts_at_step walks details-by-step to the reported total', async (
     calls: [], loc: 'L', uid: 'u',
     call: async (method, path) => {
       gw.calls.push({ method, path });
+      // The drip-schedule read: an EMPTY answer, which is what a non-drip step gives.
+      if (path.includes('/drip-schedule/')) return { status: 200, ok: true, json: { hasQueuedContacts: false, contactsInDrip: 0, nextBatch: null, completionETA: null, configVersions: [] } };
       const skip = Number(new URL(`http://x${path}`).searchParams.get('skip'));
       const rows = skip === 0
         ? [{ _id: 's1', contactId: 'c1' }, { _id: 's2', contactId: 'c2' }]
@@ -343,7 +345,31 @@ test('get_contacts_at_step walks details-by-step to the reported total', async (
   assert.equal(result.data.total, 3);
   assert.equal(result.data.contacts.length, 3);
   assert.equal(result.data.complete, true);
-  assert.ok(gw.calls.every((c) => c.path.includes('currentStepId=step9')));
+  assert.ok(gw.calls.filter((c) => !c.path.includes('/drip-schedule/')).every((c) => c.path.includes('currentStepId=step9')));
+  assert.equal('drip' in result.data, false, 'an EMPTY drip answer is identical for an idle drip, a wait step and a ghost id — so it is not reported');
+  assert.equal(gw.calls.filter((c) => c.path.includes('/drip-schedule/')).length, 1, 'and the queue listing is not even fetched');
+});
+
+test('get_contacts_at_step adds GHL\'s drip queue when — and only when — something is queued', async () => {
+  const gw = { calls: [], loc: 'L', uid: 'u', call: async (method, path) => {
+    gw.calls.push({ method, path });
+    if (path.endsWith('/stats')) return { status: 200, ok: true, json: { hasQueuedContacts: true, contactsInDrip: 3, nextBatch: { contactCount: 1, scheduledAt: '2026-09-18T19:52:35.294Z' }, completionETA: '2026-09-18T19:54:35.294Z', configVersions: [{}] } };
+    if (path.endsWith('/contacts')) return { status: 200, ok: true, json: { total: 3, schedules: [{ contactId: 'c1', contactName: 'A', batchTime: '2026-09-18T19:52:35.294Z', status: 'next_up', dripConfig: {} }] } };
+    return { status: 200, ok: true, json: { totalCount: 0, rows: [] } };
+  } };
+  const result = await tool('get_contacts_at_step').handler({ locationId: 'L', workflowId: 'w1', stepId: 'dripStep' }, deps(gw));
+  assert.equal(result.data.drip.contactsInDrip, 3); assert.equal(result.data.drip.completionETA, '2026-09-18T19:54:35.294Z');
+  assert.deepEqual(result.data.drip.queued, [{ contactId: 'c1', contactName: 'A', batchTime: '2026-09-18T19:52:35.294Z', status: 'next_up' }]);
+  assert.ok(gw.calls.some((c) => c.path === '/workflow/L/drip-schedule/w1/step/dripStep/stats'));
+});
+
+test('a failing drip read never fails the roster', async () => {
+  const gw = { calls: [], loc: 'L', uid: 'u', call: async (method, path) => {
+    if (path.includes('/drip-schedule/')) throw new Error('down');
+    return { status: 200, ok: true, json: { totalCount: 1, rows: [{ _id: 's1', contactId: 'c1' }] } };
+  } };
+  const result = await tool('get_contacts_at_step').handler({ locationId: 'L', workflowId: 'w1', stepId: 's' }, deps(gw));
+  assert.equal(result.ok, true); assert.equal(result.data.total, 1); assert.equal('drip' in result.data, false);
 });
 
 test('get_contacts_at_step surfaces an upstream failure as the error contract', async () => {

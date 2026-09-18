@@ -23382,7 +23382,9 @@
       "provenFor": [
         "agency-admin-bearer"
       ],
-      "coveredBy": [],
+      "coveredBy": [
+        "get_contacts_at_step"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -23445,7 +23447,9 @@
       "provenFor": [
         "agency-admin-bearer"
       ],
-      "coveredBy": [],
+      "coveredBy": [
+        "get_contacts_at_step"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",

@@ -280,6 +280,16 @@
     "path": "/workflows/status/search/details-by-step"
   },
   {
+    "tool": "get_contacts_at_step",
+    "method": "GET",
+    "path": "/workflow/{loc}/drip-schedule/{wid}/step/{stepId}/stats"
+  },
+  {
+    "tool": "get_contacts_at_step",
+    "method": "GET",
+    "path": "/workflow/{loc}/drip-schedule/{wid}/step/{stepId}/contacts"
+  },
+  {
     "tool": "get_workflow_stats",
     "method": "GET",
     "path": "/workflow/{loc}/{wid}"

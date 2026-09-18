@@ -8052,6 +8052,13 @@
      "required": true,
      "default": "\"minutes\"",
      "notes": "Per validator, has unit-specific maximums."
+    },
+    {
+     "name": "configuredAt",
+     "type": "ISO-8601 string",
+     "required": false,
+     "default": "—",
+     "notes": "🔴 GHL's SERVER stamps this onto the step when the document is saved; the builder's front-end never sends it and it appears nowhere in the recovered source. Never author it. A key check that treats it as invented refuses to publish a workflow the engine itself built. `[proven-live]` 2026-09-19: sent `{batchSize, interval, type}`, read back with `configuredAt` added."
     }
    ],
    "validator": "`dripValidator` (length 778, result level `warning`). Per `sniffs/bundle/validators.json::dripValidator`:",
