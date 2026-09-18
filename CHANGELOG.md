@@ -11,6 +11,60 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [0.92.0] — 2026-09-18
+
+Four guesses replaced with measurements. Two of them were guesses *in the proposals for this
+release* — what GHL's server does to a trigger filter, and which billing field gates a premium
+step — and both were wrong until they were checked against a live account.
+
+### Added
+
+- **An unknown trigger filter field is no longer passed through silently.** GHL stores a filter it
+  does not understand with the same 200 as one it does. 🔴 It was believed the server "enriches" a
+  recognised filter with `title`/`type`; it does not — those are written by the CLIENT (the builder
+  UI, or this compiler's `expandFilter`), and the server stores `conditions` verbatim. Proven live:
+  an invented filter read back bare and byte-identical. So the check is at compile time:
+  `TRIGGER_FILTER_UNKNOWN` warns when a field is in neither row source. There are now two, because
+  the recovered drawer model misses 9 of 35 UI-stored rows (pipeline stage, lesson, category…) and a
+  model-only warning would be wrong 26% of the time: `catalog/observed-trigger-filters.json` holds
+  the shape (never a value) of what UI-built triggers were seen to store, and lean filters on those
+  rows are now FILLED with their title/type instead of being sent bare. Warn only, never block.
+- **Preflight reads premium opt-in instead of reporting `checked:false`.** It makes the builder's
+  own call — `GET /saas-billing-v2/billing-config/LOCATION/{loc}/{product}?optIn=true` for both
+  product keys — which a location Bearer reaches with no `companyId`. 🔴 `config.enabled` is NOT the
+  gate (false on every sub-account of an agency whose premium steps run daily; it tracks
+  rebilling); `config.optIn` is. 🔴 The `optIn` query param changes the answer by its PRESENCE, not
+  its value. `optIn:false` is reported `ok:null`, never `false`: the builder falls back to a
+  reselling subscription this rail does not read.
+- **Preflight `sms_readiness`.** A location with a good number can still be unable to send.
+  `GET /phone-system/twilio-accounts` — raw fields; only the two booleans GHL names itself
+  (suspended, cool-off) set `ok:false`. Status strings are printed, never judged.
+- **`reachForYou` on `search_endpoints` / `describe_endpoint`.** The caller's credential class is
+  read off the token-id claims, and a result says so only where the evidence does not cover that
+  class: `refused` for it, or `unproven-for-your-class` when only other classes reached the route.
+
+### Changed
+
+- **Reach is resolved per credential class, in one place.** The catalogue build merges the reach
+  ledger's per-class verdicts with the overlay's into `reach` + `provenFor` + `refusedFor`. An
+  unattributable verdict still decides `reach` but is never listed as a class, and `proven-live`
+  survives a ledger 200. Catalogue: refused 37 → 33, proven 371 → 378, 8 split rows.
+
+### Fixed
+
+- 🔴 **Seven routes were recorded `refused` and never were** — the two agency billing rosters for
+  the second time. A bare `403 Forbidden resource` names no argument; the rosters needed
+  `companyId` as a query parameter. Their rows now say so and declare it.
+- **Four workflows traps the corpus had in red and the catalogue rows did not carry:** the two
+  rosters above, every `/flowguard/*` route (400 without `location_id` hides the real 401), and the
+  workflow list (flow bots silently omitted without `includeObjectiveBuilder=true`).
+
+### Not proven
+
+- `reachForYou: 'refused'` is unit-tested only — no location-user credential is held here.
+- That a bare filter on a REAL field fails at runtime. The warning says "no client knows this row",
+  never "this trigger is dead".
+
 ## [0.91.0] — 2026-09-18
 
 Search sent someone at a trap. A peer asked the right question about calendar availability, and
