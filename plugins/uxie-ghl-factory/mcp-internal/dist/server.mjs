@@ -9572,6 +9572,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
+          summary: "The location's Google integration connections.",
+          note: "\u{1F534} SECRETS-BEARING \u2014 do not store or log the response. Proven live 2026-09-19 (200), and the body carries a Google OAuth REFRESH TOKEN in clear text alongside the connection row. Treat it like /workflow/{loc}/secret-manager: reachable, deliberately not harvested, never written to a fixture, a sniff or a corpus page. Recorded here so the next probe knows BEFORE calling it.",
           reach: "proven",
           provenFor: [
             "agency-admin-bearer"
@@ -25958,8 +25960,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          summary: "Per-branch results for an A/B split step.",
-          reach: "source-only",
+          summary: "Per-path counts for a workflow_split step: {totalContactsEntered, <stepId>: <count>, \u2026}. Query: workflowId, stepId, pathIds[] (all three).",
+          note: "Proven live 2026-09-19. \u{1F534} It needs ALL THREE args \u2014 workflowId alone answers 500, and NO args answers 404 'Workflow not found'. CONTROL: a ghost workflowId with the other two present answers 404 'Workflow not found', so a 200 here is about the workflow. Client: services/api/split-stats.ts, axios baseURL = backend\u2026/workflow, params {workflowId, stepId, pathIds}.",
+          reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -53527,7 +53533,11 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           reach: "proven"
         },
         "GET /integrations/google/connections": {
-          reach: "proven"
+          summary: "The location's Google integration connections.",
+          note: "\u{1F534} SECRETS-BEARING \u2014 do not store or log the response. Proven live 2026-09-19 (200), and the body carries a Google OAuth REFRESH TOKEN in clear text alongside the connection row. Treat it like /workflow/{loc}/secret-manager: reachable, deliberately not harvested, never written to a fixture, a sniff or a corpus page. Recorded here so the next probe knows BEFORE calling it.",
+          reach: "proven",
+          credentialClass: "agency-admin-bearer",
+          kind: "read"
         },
         "GET /integrations/tiktok": {
           reach: "proven"
@@ -53964,7 +53974,11 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           reach: "proven"
         },
         "GET /workflow/{locationId}/split/stats": {
-          summary: "Per-branch results for an A/B split step."
+          summary: "Per-path counts for a workflow_split step: {totalContactsEntered, <stepId>: <count>, \u2026}. Query: workflowId, stepId, pathIds[] (all three).",
+          note: "Proven live 2026-09-19. \u{1F534} It needs ALL THREE args \u2014 workflowId alone answers 500, and NO args answers 404 'Workflow not found'. CONTROL: a ghost workflowId with the other two present answers 404 'Workflow not found', so a 200 here is about the workflow. Client: services/api/split-stats.ts, axios baseURL = backend\u2026/workflow, params {workflowId, stepId, pathIds}.",
+          reach: "proven",
+          credentialClass: "agency-admin-bearer",
+          kind: "read"
         },
         "GET /workflow/{locationId}/workflow-ai/settings": {
           reach: "proven"

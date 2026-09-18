@@ -9395,6 +9395,8 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
+      "summary": "The location's Google integration connections.",
+      "note": "🔴 SECRETS-BEARING — do not store or log the response. Proven live 2026-09-19 (200), and the body carries a Google OAuth REFRESH TOKEN in clear text alongside the connection row. Treat it like /workflow/{loc}/secret-manager: reachable, deliberately not harvested, never written to a fixture, a sniff or a corpus page. Recorded here so the next probe knows BEFORE calling it.",
       "reach": "proven",
       "provenFor": [
         "agency-admin-bearer"
@@ -25781,8 +25783,12 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "summary": "Per-branch results for an A/B split step.",
-      "reach": "source-only",
+      "summary": "Per-path counts for a workflow_split step: {totalContactsEntered, <stepId>: <count>, …}. Query: workflowId, stepId, pathIds[] (all three).",
+      "note": "Proven live 2026-09-19. 🔴 It needs ALL THREE args — workflowId alone answers 500, and NO args answers 404 'Workflow not found'. CONTROL: a ghost workflowId with the other two present answers 404 'Workflow not found', so a 200 here is about the workflow. Client: services/api/split-stats.ts, axios baseURL = backend…/workflow, params {workflowId, stepId, pathIds}.",
+      "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
