@@ -75,3 +75,44 @@ test('suggestTags: edit distance and shared words, namespace-scoped, at most 4',
   assert.ok(suggestTags('{{appointment.day}}', cands).length <= 4);
   assert.deepEqual(suggestTags('{{appointment.day}}', cands).filter((t) => !t.startsWith('{{appointment.')), []);
 });
+
+// A first-party step's OWN outputs are referenced as {{<customVarPrefix>.<stepIndex>.<field>}}.
+// Proven live 2026-09-19: {{workflow_ai_analyze_image.1.response}} rendered the model's actual
+// answer — while the build that wrote it warned "a namespace the picker does not list … it will
+// render literally". The namespace comes from the document's OWN steps, so a typo still warns.
+test('a marketplace action step in the document owns its output namespace; an absent one still warns', () => {
+  const marketplace = { get: (key, kind) => (kind === 'action' && key === 'workflow_ai_analyze_image'
+    ? { key, customVarPrefix: 'workflow_ai_analyze_image' } : undefined) };
+  const doc = [
+    { id: 'a', type: 'workflow_ai_analyze_image', name: 'AI', attributes: {} },
+    { id: 's', type: 'sms', name: 'S', attributes: { body: '{{workflow_ai_analyze_image.1.response}}' } },
+  ];
+  const warned = [];
+  checkMergeTags(doc, catalog, { marketplace, warn: (m) => warned.push(m) });
+  assert.deepEqual(warned, []);
+  // CONTROL 1: the same tag with NO such step in the document is still an unknown namespace.
+  const orphan = [];
+  checkMergeTags(tpl('{{workflow_ai_analyze_image.1.response}}'), catalog, { marketplace, warn: (m) => orphan.push(m) });
+  assert.equal(orphan.filter((m) => /unknown|does not list/.test(m)).length, 1);
+  // CONTROL 2: a typo'd namespace warns even while the real step is present.
+  const typo = [];
+  checkMergeTags([doc[0], { id: 's', type: 'sms', name: 'S', attributes: { body: '{{workflow_ai_analyse_image.1.response}}' } }],
+    catalog, { marketplace, warn: (m) => typo.push(m) });
+  assert.equal(typo.filter((m) => /does not list/.test(m)).length, 1);
+});
+
+// On the EDIT path compileSubgraph compiles the edited step ALONE, so the producers live only in
+// ctx.graphTemplates — the same channel externalRefs uses. Without this an in-place correction to a
+// step that prints an AI step's output warned about a tag the runtime resolves.
+test('the whole live graph counts as the document on the edit path (ctx.graphTemplates)', () => {
+  const marketplace = { get: (key, kind) => (kind === 'action' && key === 'workflow_ai_email_parser'
+    ? { key, customVarPrefix: 'workflow_ai_email_parser' } : undefined) };
+  const editedAlone = tpl('{{workflow_ai_email_parser.1.full_name}}');
+  const graphTemplates = [{ id: 'p', type: 'workflow_ai_email_parser', name: 'P', attributes: {} }, ...editedAlone];
+  const warned = [];
+  checkMergeTags(editedAlone, catalog, { marketplace, graphTemplates, warn: (m) => warned.push(m) });
+  assert.deepEqual(warned, []);
+  const control = [];   // same edit, no such producer anywhere
+  checkMergeTags(editedAlone, catalog, { marketplace, graphTemplates: [], warn: (m) => control.push(m) });
+  assert.equal(control.filter((m) => /does not list/.test(m)).length, 1);
+});

@@ -19,6 +19,11 @@ const entryFrom = (kind, appName, raw) => ({
   templateId: raw.templateId,
   inputs: Array.isArray(raw.inputs) ? raw.inputs : [],
   customVars: Array.isArray(raw.customVars) ? raw.customVars : [],
+  // The namespace this asset's OUTPUTS are referenced under: {{<customVarPrefix>.<stepIndex>.<reference>}}.
+  // The builder falls back to the key when the asset declares no prefix (preview-cv-mappings.ts:171).
+  // 🔴 Proven live 2026-09-19: those tags DO resolve at runtime. Without this the merge-tag check
+  // called a correct reference "a namespace the picker does not list — it will render literally".
+  customVarPrefix: typeof raw.customVarPrefix === 'string' && raw.customVarPrefix ? raw.customVarPrefix : raw.key,
   // The app's own declared filter schema — where a filter's fieldType lives, which is what
   // decides its operator menu. Without it every marketplace filter was treated as a string.
   filters: Array.isArray(raw.filters) ? raw.filters : [],

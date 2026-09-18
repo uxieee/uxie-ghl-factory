@@ -17,6 +17,9 @@
 //                (isTriggerTypePresent) — vocabulary complete, resolvability is a later check
 //                                                                   → unknown key = WARNING
 //   ownedElsewhere  step outputs / webhook paths (step-outputs.mjs, webhook-rail.mjs) → skipped
+//                   PLUS the output namespace of every marketplace/first-party ACTION step in
+//                   THIS document (its asset's customVarPrefix) — passed in as opts.assetOutputs,
+//                   because those tags resolve and the picker's static inventory never lists them
 //   anything else   {{appt.time}}, {{contactt.name}}               → WARNING
 // Hatches: ctx.skipMergeTagCheck (skip all), ctx.strictMergeTags === false (errors → warnings).
 import { IRError } from './ir.mjs';
@@ -145,7 +148,7 @@ export function evaluateMergeTags(templates, mergeTags, opts = {}) {
         msg: `unbalanced merge-tag braces (${opens} '{{' vs ${closes} '}}') in "${s.slice(0, 60)}${s.length > 60 ? '…' : ''}"` });
       for (const m of s.matchAll(TOKEN)) {
         const ns = m[1], full = `{{${ns}${compact(m[2])}}}`;
-        if (P.ignore.has(ns) || P.ownedElsewhere.has(ns) || staticTags.has(full)) continue;
+        if (P.ignore.has(ns) || P.ownedElsewhere.has(ns) || opts?.assetOutputs?.has?.(ns) || staticTags.has(full)) continue;
         const candidates = [...staticTags];
         const push = (severity, kind, msg) => out.push({ where, kind, severity, ns, tag: full, suggestions: suggestTags(full, candidates), msg });
         if (P.perLocation[ns]) {
@@ -166,9 +169,27 @@ export function evaluateMergeTags(templates, mergeTags, opts = {}) {
   return out;
 }
 
+/**
+ * The output namespaces the DOCUMENT ITSELF produces: one per marketplace/first-party action step,
+ * named by its asset's customVarPrefix. Scoped to steps that are actually present, so a typo'd
+ * namespace still warns — an account-wide list would silence every asset key in the catalogue.
+ */
+export function assetOutputNamespaces(templates, ctx) {
+  const out = new Set();
+  // ctx.graphTemplates is the WHOLE live graph on the edit path, where `templates` is the single
+  // step being compiled; on the build path they are the same document and this is a no-op union.
+  for (const t of [...(templates ?? []), ...(ctx?.graphTemplates ?? [])]) {
+    if (!t || typeof t.type !== 'string') continue;
+    const entry = ctx?.marketplace?.get?.(t.type, 'action');
+    const ns = entry?.customVarPrefix ?? (entry ? t.type : null);
+    if (ns) out.add(String(ns));
+  }
+  return out;
+}
+
 export function checkMergeTags(templates, catalog, ctx) {
   if (ctx?.skipMergeTagCheck === true) return [];
-  const F = evaluateMergeTags(templates, catalog?.mergeTags, { customFields: ctx?.customFields, customValues: ctx?.customValues });
+  const F = evaluateMergeTags(templates, catalog?.mergeTags, { customFields: ctx?.customFields, customValues: ctx?.customValues, assetOutputs: assetOutputNamespaces(templates, ctx) });
   const errors = F.filter((f) => f.severity === 'error');
   for (const f of F) if (f.severity === 'warning') ctx?.warn?.(`MERGE_TAG_SOFT: ${f.where}: ${f.msg}`);
   if (errors.length && ctx?.strictMergeTags === false) { for (const f of errors) ctx?.warn?.(`MERGE_TAG: ${f.where}: ${f.msg}`); return F; }

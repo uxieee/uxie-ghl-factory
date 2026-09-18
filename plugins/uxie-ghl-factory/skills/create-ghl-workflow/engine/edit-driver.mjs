@@ -908,7 +908,11 @@ export function applyOps(templates, ops, { ctx, idGen }) {
   // `matched` is the replace ops' own count and null for every other op, which has no such notion.
   const opResults = [];
   for (const op of ops ?? []) {
-    const opCtx = { ...ctx, externalRefs: externalRefsOf(tpls, opRefs) };
+    // `graphTemplates` for the same reason as `externalRefs`: compileSubgraph compiles the edited
+    // step ALONE, so a check that asks "does this document produce that namespace?" would see a
+    // one-step document and answer no. A first-party step's output tag then drew "the picker does
+    // not list it — it will render literally" for a tag proven to resolve (2026-09-19).
+    const opCtx = { ...ctx, externalRefs: externalRefsOf(tpls, opRefs), graphTemplates: tpls };
     const r = applyOp(tpls, op, { ctx: opCtx, idGen });
     opResults.push({ op: canonicalOpName(op?.op), matched: r.replaced ?? null,
       created: [...(r.diff?.createdSteps ?? [])], modified: [...(r.diff?.modifiedSteps ?? [])], deleted: [...(r.diff?.deletedSteps ?? [])] });

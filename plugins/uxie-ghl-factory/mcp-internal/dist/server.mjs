@@ -159909,7 +159909,7 @@ function evaluateMergeTags(templates, mergeTags, opts = {}) {
       });
       for (const m of s.matchAll(TOKEN)) {
         const ns = m[1], full = `{{${ns}${compact(m[2])}}}`;
-        if (P.ignore.has(ns) || P.ownedElsewhere.has(ns) || staticTags.has(full)) continue;
+        if (P.ignore.has(ns) || P.ownedElsewhere.has(ns) || opts?.assetOutputs?.has?.(ns) || staticTags.has(full)) continue;
         const candidates = [...staticTags];
         const push = (severity, kind, msg) => out.push({ where, kind, severity, ns, tag: full, suggestions: suggestTags(full, candidates), msg });
         if (P.perLocation[ns]) {
@@ -159938,9 +159938,19 @@ function evaluateMergeTags(templates, mergeTags, opts = {}) {
   for (const f of out) if (f.suggestions.length) f.msg += ` (did you mean ${f.suggestions.join(", ")}?)`;
   return out;
 }
+function assetOutputNamespaces(templates, ctx) {
+  const out = /* @__PURE__ */ new Set();
+  for (const t of [...templates ?? [], ...ctx?.graphTemplates ?? []]) {
+    if (!t || typeof t.type !== "string") continue;
+    const entry = ctx?.marketplace?.get?.(t.type, "action");
+    const ns = entry?.customVarPrefix ?? (entry ? t.type : null);
+    if (ns) out.add(String(ns));
+  }
+  return out;
+}
 function checkMergeTags(templates, catalog, ctx) {
   if (ctx?.skipMergeTagCheck === true) return [];
-  const F = evaluateMergeTags(templates, catalog?.mergeTags, { customFields: ctx?.customFields, customValues: ctx?.customValues });
+  const F = evaluateMergeTags(templates, catalog?.mergeTags, { customFields: ctx?.customFields, customValues: ctx?.customValues, assetOutputs: assetOutputNamespaces(templates, ctx) });
   const errors = F.filter((f) => f.severity === "error");
   for (const f of F) if (f.severity === "warning") ctx?.warn?.(`MERGE_TAG_SOFT: ${f.where}: ${f.msg}`);
   if (errors.length && ctx?.strictMergeTags === false) {
@@ -164188,6 +164198,11 @@ var entryFrom = (kind, appName, raw) => ({
   templateId: raw.templateId,
   inputs: Array.isArray(raw.inputs) ? raw.inputs : [],
   customVars: Array.isArray(raw.customVars) ? raw.customVars : [],
+  // The namespace this asset's OUTPUTS are referenced under: {{<customVarPrefix>.<stepIndex>.<reference>}}.
+  // The builder falls back to the key when the asset declares no prefix (preview-cv-mappings.ts:171).
+  // 🔴 Proven live 2026-09-19: those tags DO resolve at runtime. Without this the merge-tag check
+  // called a correct reference "a namespace the picker does not list — it will render literally".
+  customVarPrefix: typeof raw.customVarPrefix === "string" && raw.customVarPrefix ? raw.customVarPrefix : raw.key,
   // The app's own declared filter schema — where a filter's fieldType lives, which is what
   // decides its operator menu. Without it every marketplace filter was treated as a string.
   filters: Array.isArray(raw.filters) ? raw.filters : [],
@@ -167300,7 +167315,7 @@ function applyOps(templates, ops, { ctx, idGen }) {
   const opRefs = /* @__PURE__ */ new Map();
   const opResults = [];
   for (const op of ops ?? []) {
-    const opCtx = { ...ctx, externalRefs: externalRefsOf(tpls, opRefs) };
+    const opCtx = { ...ctx, externalRefs: externalRefsOf(tpls, opRefs), graphTemplates: tpls };
     const r = applyOp(tpls, op, { ctx: opCtx, idGen });
     opResults.push({
       op: canonicalOpName(op?.op),

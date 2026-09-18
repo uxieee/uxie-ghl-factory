@@ -1322,6 +1322,28 @@ console.log('\nruntime: enrolment, drip queue, fast-forward');
       log.subject('build_workflow');
       check(fr.ok === true && frPub.ok === true && Boolean(convId), 'a first-party step builds, publishes, and its contact has a conversation to comment on', `${fr.code ?? ''} ${frPub.code ?? ''} conv=${Boolean(convId)}`);
       check(landed === true, 'EFFECT: the internal comment is IN THE CONVERSATION — the first-party step RAN, read from the conversations endpoint rather than the workflow\'s own log', String(landed));
+      // A FIRST-PARTY STEP'S OWN OUTPUT TAG. {{<customVarPrefix>.<stepIndex>.<field>}} resolves —
+      // proven live 2026-09-19, the image step's answer and the parser's fields rendered in a
+      // comment — but the picker's static inventory lists no such namespace, so the merge-tag check
+      // called all three "will render literally". BUILD ONLY: these steps bill per RUN, and a draft
+      // that is never enrolled costs nothing.
+      log.subject('build_workflow');
+      const aiSpec = (tag) => ({ name: NAME('firstparty-output-tag'), triggers: [], graph: [
+        { ref: 'a', kind: 'action', type: 'workflow_ai_analyze_image', marketplace: true, name: 'AI analyze image',
+          attributes: { model: 'gpt-5.6-luna', image: 'https://www.gstatic.com/webp/gallery/1.jpg', prompt: 'Describe this image.', detailLevel: 'low' } },
+        { ref: 'c', kind: 'action', type: 'internal_comment_action', marketplace: true, name: 'Print it', attributes: { message_rich_text: `<p>${tag}</p>` } }] });
+      const aiBuild = await call('build_workflow', { spec: aiSpec('{{workflow_ai_analyze_image.1.response}}') });
+      if (aiBuild.data?.wid) left.push(`workflow ${aiBuild.data.wid} (${NAME('firstparty-output-tag')}, NEVER published — the AI steps bill per run)`);
+      const literal = (w) => (w ?? []).filter((x) => /namespace the picker does not list/.test(String(x)));
+      check(aiBuild.ok === true && literal(aiBuild.data?.warnings).length === 0,
+        'a first-party step\'s OWN output tag is not called "it will render literally"', JSON.stringify(literal(aiBuild.data?.warnings)).slice(0, 200));
+      // CONTROL: the same shape with a typo'd namespace still warns — the rule is the document's
+      // own producers, not "anything that looks like a step output".
+      const typo = await call('build_workflow', { spec: { ...aiSpec('{{workflow_ai_analyse_image.1.response}}'), name: NAME('firstparty-output-tag-typo') } });
+      if (typo.data?.wid) left.push(`workflow ${typo.data.wid} (${NAME('firstparty-output-tag-typo')}, NEVER published — control for the typo'd namespace)`);
+      check(literal(typo.data?.warnings).length === 1,
+        'CONTROL: a typo in that namespace is still reported', JSON.stringify(literal(typo.data?.warnings)).slice(0, 200));
+
       if (stockItem) {
         const moved = landed === true ? await until(async () => (await stockOf()) === stockBefore + 1) : null;
         check(moved === true, 'EFFECT: Update Inventory RAN — the stock count on the products service is exactly one higher than before the enrolment', `${stockBefore} -> ${await stockOf()}`);
