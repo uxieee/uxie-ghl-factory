@@ -26189,7 +26189,12 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "write",
-      "reach": "source-only",
+      "summary": "Rate an ai_agent run. Body {locationId, threadId, workflowId, workflowLogId, workflowLogCreatedAt, rating:'positive'|'negative', whatWentWrong?, whatShouldHaveDone?, contactId?, workflowStepId?} -> 200 {success:true}.",
+      "note": "Proven live 2026-09-19 on a probe thread, READ BACK on the GET: {submitted:false} -> {submitted:true, rating:'positive'}. The 200 body is only {success:true}, so the read-back is the proof. Writes a human judgement against an agent run — harmless, but it is a WRITE and there is no proven way to withdraw one.",
+      "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -26289,7 +26294,12 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "summary": "Whether a human rated that agent run: {success, data:{submitted, rating?, hasDetails?}}.",
+      "note": "🔴 TRAP: a 200 {submitted:false} is ALSO what a NONEXISTENT thread returns — real and ghost were byte-identical before any feedback existed, so this route discriminates NOTHING on its own. Proven 2026-09-19 only by forcing a differential: POST the feedback, after which the real thread answers {submitted:true, rating:'positive', hasDetails:false} while the ghost still answers {submitted:false}.",
+      "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -26848,6 +26858,8 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
+      "summary": "The models an ai_agent step may choose: {success, data:{models:[{id, familyId, displayName, publisher, provider, reasoningLevel, isDefaultReasoning, …}]}}.",
+      "note": "Proven live 2026-09-19. Read it instead of hard-coding a model id — the step card's observed value (gpt-5-nano) is not what this account is offered today.",
       "reach": "proven",
       "provenFor": [
         "agency-admin-bearer"
@@ -27297,7 +27309,12 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "summary": "The ai_agent step's reasoning trace for one run: {success, data:{trace:[{node:'llm'|'tool', input, output, summary}]}}. Optional query workflowId, workflowLogId, workflowLogCreatedAt (a legacy-checkpoint fallback).",
+      "note": "Proven live 2026-09-19 with a control. 🔴 The threadId is NOT a workflow or contact id: it is on the ai_agent step's own EXECUTION LOG at meta.actionFrom.response.threadId (completed) or meta.data.meta.threadId (waiting), shaped '<ULID>:<uuid>:<epoch-ms>'. Only step type `ai_agent` produces one — invoke_managed_agents logs an executionId instead and has no trace. CONTROL: a ghost threadId answers 404 'Trace not found for the given thread ID', so a 200 is about the thread. The three query params are OPTIONAL: the same trace came back without them. The log row also carries a langfuseTraceUrl and tokenUsage.",
+      "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
