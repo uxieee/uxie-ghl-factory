@@ -12,10 +12,11 @@ written in the system-book idiom the operator reads every day; the example asset
 
 ## File
 
-- **One HTML file, fully self-contained.** Opens from `file://` with no CDN, no remote
-  fonts, no fetch. Diagrams are mermaid, and the mermaid library is **inlined into the
-  file** (~3.3MB) — lift the bundle from the system book or the example asset rather than
-  linking a CDN.
+- **One HTML file, fully self-contained.** Opens from `file://` with no CDN and no fetch.
+  Diagrams are mermaid, and the mermaid library is **inlined into the file** (~3.3MB) — lift
+  the bundle from the example asset rather than linking a CDN. The one remote request is the
+  Google Fonts stylesheet (see *The look*); every font stack ends in system faces, so the file
+  still reads correctly offline.
 - **Fixed sidebar nav**: overview, system map, pipeline, one entry per workflow, then
   reference sections (data, AI, copy appendix, open questions).
 - **Full-width layout, no dead space.** Prose caps around 70ch for readability; frames,
@@ -23,19 +24,49 @@ written in the system-book idiom the operator reads every day; the example asset
   interaction — detail appears on demand or not at all.
 - **Light and dark both work, with a visible toggle.** Define the palette as CSS custom
   properties in three places: `:root` (light), `@media (prefers-color-scheme:dark)` guarded
-  with `:root:not([data-theme="light"])`, and `:root[data-theme="dark"]`. A small button in
-  the sidebar cycles **auto → light → dark**, writes `data-theme` on `<html>` (removing it for
-  auto), and remembers the choice in `localStorage` inside a try/catch. Reading the document
-  on a bright screen and reading it at night are different jobs, and following the OS is not
-  always what the reader wants.
+  with `:root:not([data-theme="light"])`, and `:root[data-theme="dark"]`. The toggle is
+  **light and dark only, no auto mode.** The first load follows the OS once; after that a
+  small button in the sidebar (`theme: light` / `theme: dark`) flips between the two and
+  remembers the choice in `localStorage` inside a try/catch. `data-theme` is always stamped
+  on `<html>`.
 - **Diagrams are themed from the page palette, so the toggle has to re-render them.** Mermaid
   reads its `themeVariables` once at `initialize()` and REPLACES each source block with an SVG.
   A theme change therefore has to: restore the stashed source text into every `.mermaid`
   element, drop their `data-processed` attribute, re-`initialize()` with freshly read computed
   properties, and re-`run()`. Stash the sources on the first render or the second one finds
-  empty divs. Same applies when the system flips underneath you while on auto — listen to
-  `matchMedia('(prefers-color-scheme:dark)')`. Any hand-built SVG (the system map) should use
-  `var(--token)` for every fill and stroke so it rethemes with no JavaScript at all.
+  empty divs. Any hand-built SVG (the system map) should use `var(--token)` for every fill
+  and stroke so it rethemes with no JavaScript at all.
+- **Wait for `document.fonts.ready` before the first mermaid render.** Mermaid measures label
+  text when it lays out; rendered before IBM Plex arrives, it measures the fallback face and
+  the labels clip once Plex swaps in. Mermaid's `fontFamily` is IBM Plex Sans, not mono.
+- **The example's app script already declares `MM`** (the map's position helper). Name
+  nothing else `MM` when extending it.
+
+## The look
+
+Taken from the system book the operator prefers. The full stylesheet, light and dark tokens
+included, is the `<style>` block of the example asset; lift it whole rather than restyling.
+
+- **Ground and panels**: cool paper ground (`#f2f4f7` light, `#12161c` dark), flat white
+  (or dark) panels, square corners, no rounded cards, no shadows.
+- **Type**: Archivo condensed (`font-stretch:87.5%`, weight 700) for display and section
+  labels, IBM Plex Sans for body, IBM Plex Mono for stamps, chips and trigger lines. Loaded
+  from Google Fonts with system fallbacks.
+- **Left index**: a plain sticky nav with no background panel. Links are marked by a 2px
+  left rule that turns accent on hover and on the active section; group labels are small
+  uppercase Archivo eyebrows.
+- **Masthead** (the first section): mono stamp line, 36px Archivo `h2`, lede, closed by a
+  2px solid ink rule. Section `h2` is 25px Archivo; `h3` is 13px uppercase, letter-spaced, `--ink-3`.
+- **Panels**: 1px line border plus a 5px coloured left edge (blue general, green workflow,
+  orange new). Callouts are a soft fill plus a 4px left rule: green `.note`, amber `.q`
+  for open questions.
+- **Tables**: panel background, 1px border, header row on `--panel-2` with uppercase
+  Archivo 12px labels.
+- **Chips and pills**: chips are small mono, 3px radius, soft fills (`.tok`, `.status`);
+  pills are 10px-radius mono on `--panel-2`.
+- The older token names (`--ground`, `--surface`, `--stop`, `--warn`, `--human`, `--fill`,
+  `--fs`, `--fm`, `--fserif`) are aliased onto the new palette, so the hand-built map SVG
+  and the mermaid `themeVariables` follow without touching their code.
 
 ## 1. System map — interactive wiring flow
 
@@ -60,11 +91,12 @@ are wired to each other.
 
 One `.wf` card per workflow, stacked full-width in numbering order:
 
-- **Header**: serif workflow number, name, then the trigger line in mono across the full
-  width (`Trigger: Appointment · status = confirmed · calendar = Smile Assessment`).
+- **Header**: the workflow number as a small mono chip, name, then the trigger line in mono
+  across the full width (`Trigger: Appointment · status = confirmed · calendar = Smile Assessment`).
 - **Settings pills**: stop-on-response with its reason, quiet hours, re-entry, and the
   removal contract both directions (`removes from 01, 03, 06, 09` / `removed by 05, 07, 12`).
-- **A mermaid `flowchart TD`, centered in the card.** The shape vocabulary:
+- **A mermaid `flowchart TD`, centered in the card** on the card's green left edge. The
+  shape vocabulary:
   - `([...])` stadium — trigger at top, exits and terminal outcomes
   - `[...]` — actions, in GHL vocabulary with the config that matters in the label
   - `[/"Wait: ..."/]` — waits, including the `appointmentCondition` where relevant
@@ -79,6 +111,15 @@ One `.wf` card per workflow, stacked full-width in numbering order:
   paragraph defends it.
 
 ## 3. Diagrams are click-to-enlarge
+
+Every workflow diagram sits in **one fixed-size window, 520px tall**, scaled to fit whole and
+centred, like a zoomed-out fit view, so a 4-node and a 12-node flow take the same room on the
+page. The CSS is `.diagram{height:520px;overflow:hidden;align-items:center}`, the
+`pre.mermaid` inside it `width:100%;height:100%;display:flex` centred, and its `svg`
+`width:100%!important;height:100%!important;max-width:none!important`; all three reset to
+`auto` inside `#lbstage` so the lightbox gets the natural size. This needs mermaid's
+`flowchart:{useMaxWidth:false}`, so every svg keeps its width and height attributes plus a
+`viewBox`.
 
 Every diagram (map and workflows) opens in a lightbox: hover shows "click to enlarge",
 click opens it fitted to the window, then pinch / ⌘-scroll zooms toward the cursor,

@@ -11,6 +11,65 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [0.93.0] — 2026-09-19
+
+GHL shipped twenty new first-party steps and triggers through the Add-step panel, not the builder
+bundle. Every one of them was refused, mis-shaped or unnumbered by this engine. All twenty are now
+authored, and each action that could be run WAS run against a live account, with its effect read
+from the service that owns it rather than from the workflow's own log.
+
+### Fixed
+
+- 🔴 **A first-party step stored with `isMarketplaceAction: true` is SKIPPED at runtime.** It saves,
+  validates, publishes and enrols clean, then the execution log says *"Action Insufficient Data
+  Error - No app integration found for this action"* — the premium-actions worker looked for an app
+  id and found `""`. The builder writes `workflowsActionType: "<label>"` for a LABELLED asset
+  (`INTERNAL`, `INTEGRATION_AI`) and `isMarketplaceAction` only for an unlabelled third-party one.
+  The compiler now does the same, with `stepIndex` when the asset declares `showStepIndex`. Proven
+  by differential on one step corrected in place: `skipped` → `success`, the comment read back from
+  the CONVERSATION. Nothing before runtime reports the wrong key.
+- 🔴 **A first-party step's own output tag was called literal text.** `{{<customVarPrefix>.<stepIndex>.<reference>}}`
+  resolves — an AI image step's answer and an AI email parser's author-invented fields both rendered
+  in a comment — but the picker lists no such namespace, so the merge-tag check warned all three
+  "will render literally". The vocabulary is now the document's OWN marketplace steps, and on the
+  edit path `ctx.graphTemplates`, since `compileSubgraph` compiles the edited step alone. A typo'd
+  namespace still warns.
+- **The build gate was told "marketplace types unknown" on a build that had just read them**, so a
+  correct first-party step drew `'x' is not a known step type`. The marketplace index now exposes
+  its action keys — `null`, never an empty set, when the assets read failed, because empty would
+  turn "unknown" into "ruled out".
+- **The drip catalogue rows said the queue was unobservable.** It is observable while contacts are
+  queued; enrolment proved it, and the rows now say so.
+
+### Added
+
+- **`stepIndex` is minted per step TYPE**, matching `utils/step_index.ts` — two different AI steps
+  are both `.1.`.
+- **Catalogue rows** for the managed-agent publish route, the agent dropdown, certificate/badge
+  template creation, the issued-badge registry, and the two Add-step-panel dropdown routes. 🔴 The
+  per-field options form answers `{options: []}` for a real field and a nonexistent one alike — use
+  the all-fields form, which an unknown action key refuses with `400`.
+- **Live-suite runs for five first-party actions**, each asserting an effect off another service:
+  Update Inventory (stock count), Issue Badge (certificates registry), Grant and Revoke course
+  access (the offer's member count), and Add Internal Comments (the conversation). The two AI steps
+  are BUILT there and never enrolled — they bill per run.
+- 🔴 **A course grant to a contact with NO EMAIL logs `success` and does nothing.** The admin attach
+  route answers `200 "queued"` too. The suite's member contact carries a reserved-domain address
+  with email DND on, so nothing is sent.
+
+### Changed
+
+- **The `ghl-system-conventions` pre-build example and its spec are restyled** — condensed display
+  type, flat panels with a coloured left edge, a light/dark toggle remembered per reader, and
+  mermaid diagrams fitted to a 520px window and redrawn once the fonts have loaded. The standalone
+  mirror picks it up with this release.
+
+### Proof
+
+Live suite 201/201 on the designated test sub-account, receipt `2026-09-18-2214`; 2640 unit tests.
+All 33 workflows tools carry a `current` executed proof. Not proven: the three Jotform panel items
+(`INTEGRATION_AI` — no account here has that connection).
+
 ## [0.92.1] — 2026-09-19
 
 The workflows live suite had not run for four days. Run before this release, it failed 2 of 144 —
