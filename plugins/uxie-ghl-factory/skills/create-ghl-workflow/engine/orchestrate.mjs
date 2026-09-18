@@ -536,6 +536,14 @@ export async function orchestrate(ir, gw, opts = {}) {
     if (!fresh.ok) {
       report.warnings.push('🔴 TRIGGER REFS UNREPAIRED: could not re-read the workflow to repair '
         + 'placeholder trigger ids; those branches can never match. Re-run the build.');
+    } else if (fresh.json == null) {
+      // A 200 with an EMPTY BODY. JSON.stringify(undefined) is `undefined`, not a string, so the
+      // substitution loop below would throw "Cannot read properties of undefined (reading
+      // 'includes')" — an ENGINE_ABORT that names nothing the caller can act on. GHL does answer
+      // 200 with no body on some rails, so treat it as the unreadable re-read it is.
+      report.warnings.push('🔴 TRIGGER REFS UNREPAIRED: the workflow re-read answered 200 with an '
+        + 'empty body, so placeholder trigger ids could not be repaired; those branches can never '
+        + 'match. Re-run the build.');
     } else {
       let body = JSON.stringify(fresh.json);
       for (const { placeholderId, id } of triggerRefRepair.mismatches) {

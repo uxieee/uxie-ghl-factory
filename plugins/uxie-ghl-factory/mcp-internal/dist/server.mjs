@@ -164601,6 +164601,8 @@ ${offline.summary}`;
     if (!fresh) return report;
     if (!fresh.ok) {
       report.warnings.push("\u{1F534} TRIGGER REFS UNREPAIRED: could not re-read the workflow to repair placeholder trigger ids; those branches can never match. Re-run the build.");
+    } else if (fresh.json == null) {
+      report.warnings.push("\u{1F534} TRIGGER REFS UNREPAIRED: the workflow re-read answered 200 with an empty body, so placeholder trigger ids could not be repaired; those branches can never match. Re-run the build.");
     } else {
       let body = JSON.stringify(fresh.json);
       for (const { placeholderId, id } of triggerRefRepair.mismatches) {
