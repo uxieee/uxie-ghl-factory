@@ -178,6 +178,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -329,6 +332,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -376,6 +382,9 @@
       "kind": "read",
       "note": "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -504,6 +513,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -654,6 +666,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -704,6 +719,9 @@
       "note": "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
       "proof": "executed",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -779,6 +797,9 @@
       "kind": "read",
       "proof": "executed",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -857,6 +878,9 @@
       "kind": "read",
       "proof": "executed",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -935,6 +959,9 @@
       "kind": "read",
       "proof": "executed",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -1014,6 +1041,9 @@
       "note": "requiredQuery proven live 2026-09-10: product.",
       "proof": "executed",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -1059,6 +1089,9 @@
       "kind": "read",
       "proof": "executed",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -1097,6 +1130,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -1689,6 +1725,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -1858,6 +1897,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -1931,6 +1973,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -2085,6 +2130,9 @@
       "summary": "The account's chat widgets {chatWidgets:[{_id, chatType, name, default, settings, creationSource, createdAt, updatedAt}], totalCount}; chatType=liveChat filters to Live-chat widgets (the Agent Deployment picker's read).",
       "note": "offset and limit are REQUIRED as number strings — omit them and BOTH hosts answer 422 naming exactly those keys (proven 2026-08-31). Answers byte-identically on backend and services. A widget id pinned in an agent's routing row dies with the widget; route on All widgets instead. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them. requiredQuery proven live 2026-09-10: limit, offset. 🔴 This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND — the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder.",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -2253,6 +2301,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -2323,6 +2374,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -2532,6 +2586,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -2574,6 +2631,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -3119,6 +3179,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -3218,6 +3281,9 @@
       "kind": "read",
       "note": "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [
         "get_workflow_stats"
       ],
@@ -3325,6 +3391,9 @@
       "kind": "read",
       "note": "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [
         "get_workflow_stats"
       ],
@@ -3692,6 +3761,9 @@
       "kind": "read",
       "note": "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them. requiredQuery proven live 2026-09-10: totalRows.",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -3931,6 +4003,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -4393,6 +4468,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -4563,6 +4641,9 @@
       "kind": "read",
       "note": "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -4787,6 +4868,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -5427,6 +5511,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -5544,6 +5631,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -5796,6 +5886,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -6204,6 +6297,9 @@
       "kind": "read",
       "note": "Executed 2026-09-10 — returns {tickets, traceId}; empty on the sandbox.",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -6698,6 +6794,9 @@
       "kind": "read",
       "note": "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -7043,6 +7142,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -7315,6 +7417,9 @@
       "kind": "read",
       "note": "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -7484,6 +7589,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [
         "audit_site"
       ],
@@ -7830,6 +7938,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [
         "audit_site",
         "find_ghl_site"
@@ -8231,7 +8342,10 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -8937,6 +9051,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -8995,6 +9112,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -9032,6 +9152,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -9114,6 +9237,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -9222,6 +9348,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -9470,6 +9599,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -9651,6 +9783,9 @@
       "kind": "read",
       "note": "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -10139,6 +10274,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [
         "check_snapshot_conflicts",
         "create_snapshot",
@@ -10393,6 +10531,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [
         "check_smart_lists",
         "create_smart_list"
@@ -10651,6 +10792,9 @@
       "kind": "read",
       "note": "documentType=folder&model=all lists custom-FIELD folders ONLY with includeStandards=true — with includeStandards=false (the plugin's habitual value on FIELD searches) the same query returns [], which reads as 'this account has no folders' and is false (proven 2026-08-30).",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [
         "build_workflow",
         "check_workflow",
@@ -10730,6 +10874,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [
         "audit_site",
         "build_workflow",
@@ -10818,6 +10965,9 @@
       "summary": "documentType=folder lists custom-value folders under customValueFolders: {id, name, documentType, fieldsCount, …}.",
       "note": "Answers byte-identically on BOTH backend and services (differential 2026-08-31) — either rail works.",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -11321,6 +11471,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [
         "build_workflow",
         "edit_workflow"
@@ -11472,6 +11625,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -11681,7 +11837,13 @@
       "rail": "workflow",
       "kind": "read",
       "note": "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
-      "reach": "refused",
+      "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
+      "refusedFor": [
+        "location-user-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -12143,6 +12305,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -13077,6 +13242,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [
         "list_courses"
       ],
@@ -13294,6 +13462,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -13894,6 +14065,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -13943,6 +14117,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -13979,7 +14156,10 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "refused",
+      "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -14347,6 +14527,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -14690,6 +14873,9 @@
       "kind": "read",
       "note": "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -14784,6 +14970,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [
         "build_workflow",
         "edit_workflow",
@@ -14827,6 +15016,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [
         "build_workflow",
         "edit_workflow",
@@ -15192,6 +15384,9 @@
       "kind": "read",
       "note": "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them. requiredQuery proven live 2026-09-10: altId, altType. 🔴 This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND — the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder.",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -15280,6 +15475,9 @@
       "kind": "read",
       "note": "requiredQuery proven live 2026-09-10: altId, altType. 🔴 This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND — the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder.",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -15359,6 +15557,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -15464,6 +15665,9 @@
       "kind": "read",
       "note": "requiredQuery proven live 2026-09-10: altId, altType. 🔴 This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND — the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder.",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -15627,6 +15831,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -15668,6 +15875,9 @@
       "summary": "The account's call dispositions {dispositions:[{id, name, isDefault, orderingKey, meta.createdBy, isDeleted}], totalRecords, isCreateButtonVisible}; call_status triggers match these BY NAME.",
       "note": "?includeDeleted=true returns ONLY the soft-deleted rows, not the union -- the name reads like 'include', the behaviour is 'only'. Every account ships the SAME SIX system defaults (proven 2026-09-02: a sandbox listing four returned exactly the two missing ones, Follow Up and Requested Appointment, under includeDeleted=true, both isDefault:true with a deletedAt). A short list means somebody soft-deleted defaults, not that defaults vary by account. call_status triggers match BY NAME.",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -15845,6 +16055,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -15883,6 +16096,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [
         "edit_workflow",
         "repair_workflow"
@@ -15924,6 +16140,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -16514,6 +16733,9 @@
       "kind": "read",
       "note": "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "refusedFor": [
         "location-user-bearer"
       ],
@@ -16594,6 +16816,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -16633,6 +16858,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -16672,6 +16900,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -16754,6 +16985,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -16848,6 +17082,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -16917,6 +17154,9 @@
       "summary": "Is a billed product (premium workflow actions, external AI models) opted in for ONE sub-account. The builder's own check; the build preflight reads it.",
       "note": "entityType=LOCATION, product = workflow_premium_actions | workflow_ai; a location Bearer reaches it and companyId is NOT needed. TRAP: the optIn query param changes the ANSWER by its PRESENCE, not its value -- ?optIn=true and ?optIn=false both return config.optIn:true, omitting it returns false, same account same minute. Send ?optIn=true as the builder does. TRAP: config.enabled is NOT the gate -- it was false on all 18 sub-accounts of an agency whose premium steps run daily (it tracks rebilling); the builder gates on config.optIn and, when false, falls back to a reselling subscription. A nonsense product answers 404 Product not found. Executed on the designated sandbox 2026-09-18.",
       "reach": "proven",
+      "provenFor": [
+        "location-user-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -17103,6 +17343,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -17149,6 +17392,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -17181,6 +17427,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -17864,6 +18113,9 @@
       "kind": "read",
       "note": "Executed through the plugin credential on the designated sandbox, 2026-09-10, as part of the snapshot parity run: list -> manifest -> conflicts -> create -> refresh, with the create read back on a separate request (snapshot count 8 -> 9 and the new snapshot found by name and id).",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [
         "get_snapshot_manifest"
       ],
@@ -18200,6 +18452,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -18414,6 +18669,9 @@
       "kind": "read",
       "note": "Executed through the plugin credential on the designated sandbox, 2026-09-10, as part of the snapshot parity run: list -> manifest -> conflicts -> create -> refresh, with the create read back on a separate request (snapshot count 8 -> 9 and the new snapshot found by name and id).",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [
         "create_snapshot",
         "get_snapshot_manifest"
@@ -18466,6 +18724,9 @@
       "kind": "read",
       "note": "TWO catalogue rows exist for this path and they disagree on HOST. The one mined from bundle source (template-service--get-email-snippets-paginated) says backend, but that is almost certainly the app-wide axios default rather than a service prefix — the same trap the harvester documents for /workflow. The whole snippets surface was captured LIVE 2026-08-29 on services.leadconnectorhq.com (the ai rail: Bearer plus token-id), six calls end to end. USE SERVICES. The mined row is kept, not deleted: it is a real source observation.",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -18703,6 +18964,9 @@
       "kind": "read",
       "note": "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "refusedFor": [
         "location-user-bearer"
       ],
@@ -18828,6 +19092,9 @@
       "kind": "read",
       "proof": "executed",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -18874,6 +19141,9 @@
       "note": "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them. requiredQuery proven live 2026-09-10: alt_id.",
       "proof": "executed",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [
         "list_studio_sites"
       ],
@@ -19065,6 +19335,9 @@
       "note": "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them. requiredQuery proven live 2026-09-10: alt_id.",
       "proof": "executed",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [
         "find_ghl_site",
         "list_studio_sites"
@@ -21200,6 +21473,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -21433,6 +21709,9 @@
       "kind": "read",
       "note": "?version=N is ACCEPTED, silently IGNORED, and the CURRENT document is returned wearing its real version number (live 2026-09-02: ?version=1 -> \"version\": 3). Nothing errors, so a 'recovery' read can restore the corruption over itself and look successful. Use the version-history rail instead -- history / history-by-number -- which the typed get_workflow_version already does.",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [
         "build_workflow",
         "check_workflow",
@@ -21718,6 +21997,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [
         "list_workflow_versions"
       ],
@@ -21856,6 +22138,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [
         "list_workflow_versions"
       ],
@@ -22788,6 +23073,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [
         "get_workflow_settings"
       ],
@@ -23183,6 +23471,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [
         "get_workflow_settings"
       ],
@@ -23220,6 +23511,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [
         "edit_workflow",
         "publish_workflow",
@@ -23610,6 +23904,9 @@
       "kind": "read",
       "note": "Answers 201 (not 200) on a GET. ⚠️ NOT BACKEND-ONLY — the catalogue row is mined from backend source, but it answers 201 with an identical body on services.leadconnectorhq.com too (verified GROM Sandbox 2026-09-11). Returns provider.domain, provider.domainOwnershipType ('agency_owned' | 'location_owned'), warmupInfo{warmupStage,warmupStatus,warmupMode}, type and applyRateLimit. 🔴 THIS IS THE READ THAT TELLS YOU AN ACCOUNT HAS A SENDING DOMAIN AT ALL — /email-isv/feature/domain/list returns [] for an agency-owned domain, so use this one before concluding an account is unconfigured.",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [
         "edit_workflow",
         "repair_workflow"
@@ -23857,6 +24154,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [
         "get_workflow_settings"
       ],
@@ -23898,6 +24198,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [
         "get_account_workflow_overview"
       ],
@@ -23995,6 +24298,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [
         "get_account_workflow_overview"
       ],
@@ -24145,6 +24451,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [
         "edit_workflow",
         "repair_workflow"
@@ -24185,6 +24494,9 @@
       "summary": "The workflow roster for a location; also lists FOLDERS when asked for them.",
       "note": "Folders list under type=directory. type=folder returns count 0 rather than an error, which reads as \"this account has no folders\".",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [
         "create_workflow_folder",
         "list_workflow_folders",
@@ -24809,6 +25121,9 @@
       "kind": "read",
       "summary": "Whether this workflow is paused on a schedule, and the window if so.",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [
         "get_workflow_settings"
       ],
@@ -25246,6 +25561,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -25386,6 +25704,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [
         "check_workflow",
         "duplicate_workflow",
@@ -26213,6 +26534,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [
         "get_workflow_settings"
       ],
@@ -26288,6 +26612,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [
         "get_workflow_settings"
       ],
@@ -26433,6 +26760,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [
         "list_workflow_templates"
       ],
@@ -26629,6 +26959,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [
         "get_ai_agent_options"
       ],
@@ -26952,6 +27285,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [
         "get_ai_agent_options"
       ],
@@ -27124,6 +27460,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [
         "get_ai_agent_options"
       ],
@@ -27638,6 +27977,9 @@
       "kind": "read",
       "note": "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "refusedFor": [
         "location-user-bearer"
       ],
@@ -28221,6 +28563,9 @@
       "kind": "read",
       "proof": "executed",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -28326,6 +28671,9 @@
       "kind": "read",
       "proof": "executed",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -29343,6 +29691,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -29548,6 +29899,9 @@
       "kind": "read",
       "note": "Live-probed 2026-08-25: 403 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "refusedFor": [
         "location-user-bearer"
       ],
@@ -30042,6 +30396,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -30776,6 +31133,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [
         "check_workflow",
         "edit_workflow",
@@ -30945,6 +31305,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -31156,6 +31519,9 @@
       "kind": "read",
       "note": "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -31211,6 +31577,9 @@
       "kind": "read",
       "note": "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -31399,6 +31768,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -31456,6 +31828,9 @@
       "summary": "Execution log rows for one workflow; executionId returns one run's full step trace.",
       "note": "dateType=custom is REQUIRED whenever fromDate/toDate are sent, or the window is IGNORED and you get a day-snapped ~30-day default behind a 200. action=first/next drives the cursor. fromDate=0 for true full history. Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [
         "get_workflow_logs",
         "get_workflow_runtime_window"
@@ -31515,6 +31890,9 @@
       "kind": "read",
       "summary": "Enrollment counts for the last 7 weeks, for the Automation Overview chart.",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [
         "get_account_workflow_overview"
       ],
@@ -31559,6 +31937,9 @@
       "kind": "read",
       "summary": "Account-level automation KPIs: total workflows, published workflows, total enrollments.",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [
         "get_account_workflow_overview"
       ],
@@ -31657,6 +32038,9 @@
       "summary": "How many contacts are sitting at each step right now.",
       "note": "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source. Wants BOTH locationId and workflowId. Discovered iteratively: the endpoint names ONE missing key at a time, so a single probe round under-reports what it needs.",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [
         "edit_workflow",
         "fast_forward_contacts",
@@ -31791,6 +32175,9 @@
       "kind": "read",
       "note": "Live-probed 2026-08-25: the endpoint returned 400 naming workflowId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [
         "get_account_workflow_overview"
       ],
@@ -32402,6 +32789,9 @@
       "kind": "read",
       "note": "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [
         "get_workflow_logs",
         "get_workflow_runtime_window"
@@ -32660,6 +33050,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [
         "export_workflow",
         "get_workflow_runtime_window"
@@ -32794,6 +33187,9 @@
       "kind": "read",
       "note": "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [
         "get_trigger_logs",
         "get_workflow_stats"
@@ -32959,6 +33355,9 @@
       "summary": "Agent Deployment as it really is: one row per channel {channel, providerId, enabled, allIdentifiers, specificIdentifiers[], includeTags, excludeTags}.",
       "note": "A Live_Chat row pinned to a DELETED widget id (specificIdentifiers) makes the agent silently mute — contacts created, no reply, no enrolment, no error anywhere. Fix: allIdentifiers:true, specificIdentifiers:[]. get_ai_configuration_bundle reads these rows per Conversation AI agent as of 0.47.0 and summarises rows with allIdentifiers:false in routingPinned — but it never checks whether the pinned identifiers still EXIST, so verify them against /chat-widget/list before trusting a pinned row. Executed on the sandbox 2026-09-10 on host:\"ai\" — returns a BARE ARRAY of routing rows {id, createdAt, deleted, locationId, channel, providerId, ...}, 11 of them here. Its POST twin is deliberately NOT probed: a new routing row can change WHICH agent answers an inbound conversation on the account, which is a behaviour change dressed as a create.",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [
         "get_ai_configuration_bundle"
       ],
@@ -33191,6 +33590,9 @@
       "summary": "Service health: {status, timestamp, traceId}.",
       "note": "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone — either credential reaches this surface).",
       "reach": "proven-live",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -33592,6 +33994,9 @@
       "summary": "Saved Metrics dashboard layouts for the location.",
       "note": "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone — either credential reaches this surface). Returns {layouts: []} when none exist — and the UI reacts to that by POSTing a default layout, so opening the Metrics tab in a browser WRITES. The populated shape is unproven. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -33769,6 +34174,9 @@
       "rail": "ai",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -33813,6 +34221,9 @@
       "rail": "ai",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -34280,6 +34691,9 @@
       "rail": "ai",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -34646,6 +35060,9 @@
       "rail": "ai",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -34678,6 +35095,9 @@
       "rail": "ai",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -34827,6 +35247,9 @@
       "kind": "read",
       "note": "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -34866,6 +35289,9 @@
       "kind": "read",
       "note": "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -34904,6 +35330,9 @@
       "rail": "ai",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -35016,6 +35445,9 @@
       "rail": "ai",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -35054,6 +35486,9 @@
       "rail": "ai",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -35125,6 +35560,9 @@
       "kind": "read",
       "note": "Executed 2026-09-10 — returns {brandBoards, totalCount, traceId}; zero boards on the sandbox, which is why its /default write twin has nothing to target and is not probed.",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -35382,6 +35820,9 @@
       "kind": "read",
       "proof": "executed",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -35419,6 +35860,9 @@
       "rail": "ai",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -35455,6 +35899,9 @@
       "kind": "read",
       "proof": "executed",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -35562,6 +36009,9 @@
       "rail": "ai",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -36057,6 +36507,9 @@
       "summary": "LIST availability schedules for a location — this is the real list route for calendar opening hours.",
       "note": "🔴 NOTE THE `/search`. A bare GET /calendars/schedules routes to /calendars/{calendarId} and answers 400 \"Calendar not found for id: schedules\" — two sessions have lost time to that collision. Takes ?locationId=. A schedule governs a calendar only while that calendar's id is in its `calendarIds`; editing an UNBOUND schedule is accepted, stored and inert.",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -36095,6 +36548,9 @@
       "rail": "ai",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -36254,6 +36710,9 @@
       "summary": "The account's chat widgets {chatWidgets:[{_id, chatType, name, default, settings, creationSource, createdAt, updatedAt}], totalCount}; chatType=liveChat filters to Live-chat widgets (the Agent Deployment picker's read).",
       "note": "offset and limit are REQUIRED as number strings — omit them and BOTH hosts answer 422 naming exactly those keys (proven 2026-08-31). Answers byte-identically on backend and services. A widget id pinned in an agent's routing row dies with the widget; route on All widgets instead. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them. requiredQuery proven live 2026-09-10: limit, offset. 🔴 This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND — the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder.",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -36488,6 +36947,9 @@
       "rail": "ai",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -36696,6 +37158,9 @@
       "rail": "ai",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -37093,6 +37558,9 @@
       "kind": "read",
       "note": "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them. requiredQuery proven live 2026-09-10: totalRows.",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -37237,7 +37705,7 @@
       "origin": "https://services.leadconnectorhq.com",
       "rail": "ai",
       "kind": "read",
-      "reach": "source-only",
+      "reach": "refused",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -37272,7 +37740,10 @@
       "origin": "https://services.leadconnectorhq.com",
       "rail": "ai",
       "kind": "read",
-      "reach": "refused",
+      "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -37399,6 +37870,9 @@
       "kind": "read",
       "note": "Richer than /workflow/{locationId}/email/location-email-provider: fromName, fromEmail, warmup{mode,stage,status}, types[] with per-type percentages, defaultDomain, emailSentCount/emailSentLimit, ssl, ips, domainAddedDate. ⚠️ Answers on BOTH hosts (services AND backend) — re-verified on GROM Sandbox 2026-09-11, where it returns []. The original capture saw only services, so \"ai host\" is where it was observed, not a constraint. 🔴 AN EMPTY ARRAY DOES NOT MEAN THE ACCOUNT HAS NO SENDING DOMAIN. GROM Sandbox returns [] while GET /workflow/{loc}/email/location-email-provider reports a live, actively warming domain (link.gromdigital.com, domainOwnershipType 'agency_owned'), and asking this rail for that domain by name answers 400 \"not found in the system\". This rail is scoped to LOCATION-OWNED domains only; an agency-owned domain is invisible to it. Read [] as 'no domain this location owns', never as an unconfigured account.",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -37494,6 +37968,9 @@
       "kind": "read",
       "note": "Executed on GROM Sandbox 2026-09-11 — 200 on a location with no domains.",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -37858,6 +38335,9 @@
       "kind": "read",
       "note": "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -37934,6 +38414,9 @@
       "kind": "read",
       "proof": "executed",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [
         "audit_site",
         "build_workflow",
@@ -38213,6 +38696,9 @@
       "kind": "read",
       "proof": "executed",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [
         "list_forms"
       ],
@@ -38330,6 +38816,9 @@
       "kind": "read",
       "proof": "executed",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -38410,6 +38899,9 @@
       "kind": "read",
       "proof": "executed",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -38805,6 +39297,9 @@
       "note": "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them. requiredQuery proven live 2026-09-10: limit.",
       "proof": "executed",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [
         "list_form_submissions"
       ],
@@ -38969,6 +39464,9 @@
       "note": "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
       "proof": "executed",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -39010,6 +39508,9 @@
       "rail": "ai",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -39315,6 +39816,9 @@
       "rail": "ai",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -39568,6 +40072,9 @@
       "rail": "ai",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -40024,6 +40531,9 @@
       "kind": "read",
       "summary": "Open-gap totals per knowledge base.",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -40485,6 +40995,9 @@
       "summary": "documentType=folder lists custom-value folders under customValueFolders: {id, name, documentType, fieldsCount, …}.",
       "note": "Answers byte-identically on BOTH backend and services (differential 2026-08-31) — either rail works.",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -40525,6 +41038,9 @@
       "rail": "ai",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -40580,7 +41096,13 @@
       "rail": "ai",
       "kind": "read",
       "note": "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
-      "reach": "refused",
+      "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
+      "refusedFor": [
+        "location-user-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -40727,6 +41249,9 @@
       "rail": "ai",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -40767,6 +41292,9 @@
       "rail": "ai",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -41926,6 +42454,9 @@
       "rail": "ai",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [
         "list_courses"
       ],
@@ -43129,6 +43660,9 @@
       "rail": "ai",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -43352,6 +43886,9 @@
       "rail": "ai",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -44164,6 +44701,9 @@
       "rail": "ai",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [
         "list_courses"
       ],
@@ -45207,6 +45747,9 @@
       "rail": "ai",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -45426,6 +45969,9 @@
       "rail": "ai",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -45684,6 +46230,9 @@
       "rail": "ai",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -45902,6 +46451,9 @@
       "rail": "ai",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -45943,6 +46495,9 @@
       "rail": "ai",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -46172,6 +46727,9 @@
       "rail": "ai",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -46212,6 +46770,9 @@
       "rail": "ai",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -46638,6 +47199,9 @@
       "rail": "ai",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -46942,7 +47506,10 @@
       "origin": "https://services.leadconnectorhq.com",
       "rail": "ai",
       "kind": "read",
-      "reach": "refused",
+      "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -47135,6 +47702,9 @@
       "kind": "read",
       "note": "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -47243,6 +47813,9 @@
       "rail": "ai",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [
         "build_workflow",
         "edit_workflow",
@@ -47585,6 +48158,9 @@
       "rail": "ai",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -47953,6 +48529,9 @@
       "rail": "ai",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -47984,6 +48563,9 @@
       "rail": "ai",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -48126,6 +48708,9 @@
       "kind": "read",
       "note": "requiredQuery proven live 2026-09-10: altId, locationId. 🔴 This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND — the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder.",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -48914,6 +49499,9 @@
       "kind": "read",
       "note": "TWO catalogue rows exist for this path and they disagree on HOST. The one mined from bundle source (template-service--get-email-snippets-paginated) says backend, but that is almost certainly the app-wide axios default rather than a service prefix — the same trap the harvester documents for /workflow. The whole snippets surface was captured LIVE 2026-08-29 on services.leadconnectorhq.com (the ai rail: Bearer plus token-id), six calls end to end. USE SERVICES. The mined row is kept, not deleted: it is a real source observation.",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -49116,6 +49704,9 @@
       "rail": "ai",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -49158,6 +49749,9 @@
       "rail": "ai",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -49192,7 +49786,10 @@
       "origin": "https://services.leadconnectorhq.com",
       "rail": "ai",
       "kind": "read",
-      "reach": "source-only",
+      "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -49456,6 +50053,9 @@
       "kind": "read",
       "note": "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -49800,6 +50400,9 @@
       "kind": "read",
       "note": "requiredQuery proven live 2026-09-10: limit, offset, product. 🔴 This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND — the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder.",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -49892,6 +50495,9 @@
       "kind": "read",
       "note": "requiredQuery proven live 2026-09-10: product.",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -49950,6 +50556,9 @@
       "kind": "read",
       "note": "requiredQuery proven live 2026-09-10: product.",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -49994,6 +50603,9 @@
       "rail": "ai",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -51361,6 +51973,9 @@
       "rail": "ai",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -51431,6 +52046,9 @@
       "rail": "ai",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -51497,6 +52115,9 @@
       "rail": "ai",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -51852,6 +52473,9 @@
       "rail": "ai",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -51962,6 +52586,9 @@
       "rail": "ai",
       "kind": "read",
       "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [
         "edit_workflow",
         "repair_workflow"

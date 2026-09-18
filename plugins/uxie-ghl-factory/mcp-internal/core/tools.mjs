@@ -30,6 +30,7 @@ import { stripNullNext, fillInputTriggerParams } from '../../skills/create-ghl-w
 import { checkWorkflowRules, rulesNeedTriggers, fromEmailNeedsDomain } from '../../skills/create-ghl-workflow/engine/graph-rules.mjs';
 import { checkGraphContextRules } from '../../skills/create-ghl-workflow/engine/graph-context-rules.mjs';
 import { validateAssets, describeFinding } from '../../skills/create-ghl-workflow/engine/asset-preflight.mjs';
+import { callerCredentialClass, reachForCaller } from './credential-class.mjs';
 import { planReadinessChecks, runReadinessChecks } from '../../skills/create-ghl-workflow/engine/preflight.mjs';
 import { parseActionSchema, parseTriggerSchema, checkWorkflow, marketplaceDrift } from '../../skills/create-ghl-workflow/engine/action-schema.mjs';
 import { INNER_ATTRIBUTE_TYPE } from '../../skills/create-ghl-workflow/engine/required-fields.mjs';
@@ -303,6 +304,8 @@ const endpointWords = (e) => ({
   // Set only on a row that one credential class provably reaches and another was refused on.
   // It rides with `reach` rather than replacing it, because both measurements are true.
   refusedFor: e.refusedFor ?? overlayFor(e).refusedFor,
+  // The NAMED classes that reached it. With refusedFor, what reachForCaller reads.
+  provenFor: e.provenFor,
 });
 
 // Verbs that mean the caller intends to CHANGE something. `add` and `set` are deliberately absent:
@@ -415,8 +418,9 @@ const staticFilterFields = () => {
 // 235 rows carry the same value, so it never discriminated between two candidates while occupying
 // the most budget-sensitive payload on the rail. What replaces it is what a caller actually picks
 // on -- what the endpoint does, what it returns, and the one trap.
-const endpointStub = (e) => {
+const endpointStub = (e, callerClass = null) => {
   const w = endpointWords(e);
+  const forYou = reachForCaller(w, callerClass);
   return {
     id: e.id,
     method: e.method,
@@ -433,6 +437,8 @@ const endpointStub = (e) => {
     // hits a 401 on it has no way to tell "my credential is the wrong class for this route" from
     // "the catalogue is wrong", and the second reading sends them re-probing something already known.
     ...(w.refusedFor ? { refusedFor: w.refusedFor } : {}),
+    // Said only when it DIFFERS from `reach` — `proven` for the caller's own class adds nothing.
+    ...(forYou && forYou !== 'proven' ? { reachForYou: forYou } : {}),
     ...(e.proof ? { proof: e.proof } : {}),
     ...(e.rawCallable === false ? { rawCallable: false } : {}),
   };
@@ -7060,8 +7066,10 @@ export const TOOLS = [
       + 'project knows: the workflow builder, memberships and courses, conversation AI, voice AI, '
       + 'agent studio, funnels, calendars, media, billing. Not workflows only. '
       + 'Returns compact stubs — id, method, path, kind, and where known a one-line summary, the '
-      + 'typed tool that already covers it, the one trap worth knowing, and whether a location '
-      + 'token has been proven to reach it. Call describe_endpoint with the id you pick. '
+      + 'typed tool that already covers it, the one trap worth knowing, and whether a credential '
+      + 'has been proven to reach it. Reach is PER CREDENTIAL CLASS: refusedFor names classes that '
+      + 'were refused, and reachForYou appears when the evidence does not cover YOUR class (refused '
+      + 'for it, or reached only by others). Call describe_endpoint with the id you pick. '
       + 'Use this whenever no typed tool obviously covers what you need, BEFORE reaching for '
       + 'raw_request. Reads no account data. '
       + 'A hit proves a GHL front-end calls that path — NOT that your token reaches it, and not '
@@ -7072,7 +7080,8 @@ export const TOOLS = [
       limit: z.number().default(10),
     }),
     capabilities: [],
-    handler: async (args) => guard(async () => {
+    handler: async (args, deps) => guard(async () => {
+      const callerClass = callerCredentialClass(deps?.state);
       const terms = cardWords(args.intent);
       let pool = endpoints();
       if (!pool.length) {
@@ -7095,7 +7104,10 @@ export const TOOLS = [
               + `(the URL segment), or drop the method filter.` } };
       }
       return { ok: true, data: {
-        results: ranked.map((x) => endpointStub(x.e)),
+        results: ranked.map((x) => endpointStub(x.e, callerClass)),
+        // Reach is per credential class. A result carries `reachForYou` only where the evidence
+        // does NOT already cover this class: refused for it, or reached only by other classes.
+        ...(callerClass ? { yourCredentialClass: callerClass } : {}),
         total: pool.filter((e) => scoreEndpoint(e, terms, verbs) > 0).length,
         next: 'describe_endpoint with the method and path you want',
       } };
@@ -7117,7 +7129,8 @@ export const TOOLS = [
       path: z.string().optional().describe('the full wire path, if addressing by method+path'),
     }),
     capabilities: [],
-    handler: async (args) => guard(async () => {
+    handler: async (args, deps) => guard(async () => {
+      const callerClass = callerCredentialClass(deps?.state);
       const pool = endpoints();
       // Addressed by id first. method+path was the only key, and it is fragile: a path is what the
       // miner CORRECTS when it learns something, so anything holding one goes stale by design.
@@ -7145,7 +7158,10 @@ export const TOOLS = [
         ...(w.summary ? { summary: w.summary } : {}),
         ...(w.note ? { note: w.note } : {}),
         reach: w.reach ?? 'source-only',
+        ...(w.provenFor ? { provenFor: w.provenFor } : {}),
         ...(w.refusedFor ? { refusedFor: w.refusedFor } : {}),
+        ...(callerClass ? { yourCredentialClass: callerClass } : {}),
+        ...(reachForCaller(w, callerClass) ? { reachForYou: reachForCaller(w, callerClass) } : {}),
         status: 'source-derived',
         meaning: 'The GHL builder calls this path. That is NOT proof your token reaches it, nor '
                + 'that calling it is safe — some rows are permission-gated.',

@@ -105,27 +105,37 @@ const shapeOf = (method, path) => `${method} ${path.replace(/\{[^}]*\}/g, '{}')}
 // whose job is finding routes. Flipping them to `proven` would lie to a location-user caller
 // instead — a one-way error in whichever direction wins.
 //
-// So keep BOTH. A route some credential provably reaches is reachable, and the refusal survives in
-// `refusedFor` as the scoping fact it always was. This is the narrow fix; the full one is a
-// credential dimension across the ledger, the overlay and console/lib/parity at once (console
-// bl-152), and doing that unilaterally is how these two artefacts drifted apart to begin with.
+// So keep BOTH, PER CLASS. The ledger records one verdict per credential class (`byClass`, read off
+// the probing token's own claims — knowledge/scripts/lib/reach-ledger.mjs) and an overlay row names
+// the class its hand-written verdict came from (`credentialClass`). They are merged into one map,
+// the overlay winning WITHIN a class because a human wrote down what happened, and the row says:
+//   reach       proven if ANY class reached it, else refused if any was refused, else the fallback
+//   provenFor   the NAMED classes that reached it
+//   refusedFor  the NAMED classes that were refused
+// An UNRECORDED verdict still decides `reach` — it is a real measurement — but is never listed in
+// provenFor/refusedFor: a refusal nobody can attribute scopes nothing, and naming a placeholder as
+// a class is how a caller gets warned off a route on no evidence.
+// This is the ONE resolver. console/lib reads these fields off the built catalogue instead of
+// re-deriving them, which is how the two artefacts came to disagree in three different ways.
 const CREDENTIAL_UNKNOWN = 'unrecorded-credential-class';
 function resolveReach(extra, probedRow, row) {
-  const overlayReach = extra.reach;
-  const probedReach = probedRow?.reach;
   const fallback = row.proof === 'executed' ? 'proven' : 'source-only';
-
-  if (overlayReach === 'refused' && probedReach === 'proven') {
-    return {
-      reach: 'proven',
-      // The overlay carries no credential FIELD, only prose. Naming the class here would be
-      // inventing structure from a sentence, so the marker records THAT a class was refused and
-      // points at the note that says which. bl-152 is where the real field belongs.
-      refusedFor: [extra.credentialClass ?? CREDENTIAL_UNKNOWN],
-      ...(extra.note ? {} : {}),
-    };
-  }
-  return { reach: overlayReach ?? probedReach ?? fallback };
+  const by = {};
+  for (const [cls, v] of Object.entries(probedRow?.byClass ?? (probedRow?.reach ? { [CREDENTIAL_UNKNOWN]: probedRow } : {}))) by[cls] = v.reach;
+  // `proven-live` is the overlay's STRONGER label (executed AND read back on a separate request). It
+  // counts as proven for its class and survives as the row's label — a ledger 200 must not demote it.
+  const overlayLive = extra.reach === 'proven-live';
+  if (extra.reach === 'proven' || extra.reach === 'refused' || overlayLive) by[extra.credentialClass ?? CREDENTIAL_UNKNOWN] = overlayLive ? 'proven' : extra.reach;
+  const named = (verdict) => Object.keys(by).filter((c) => by[c] === verdict && c !== CREDENTIAL_UNKNOWN).sort();
+  const verdicts = Object.values(by);
+  const reach = overlayLive ? 'proven-live' : verdicts.includes('proven') ? 'proven' : verdicts.includes('refused') ? 'refused' : (extra.reach ?? fallback);
+  const provenFor = named('proven'); const refusedFor = named('refused');
+  return {
+    reach,
+    ...(provenFor.length ? { provenFor } : {}),
+    // refused + refusedFor would say the same thing twice; the list matters only on a SPLIT row.
+    ...(reach !== 'refused' && refusedFor.length ? { refusedFor } : {}),
+  };
 }
 
 const overlayByShape = new Map();

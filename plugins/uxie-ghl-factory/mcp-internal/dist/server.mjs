@@ -355,6 +355,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -506,6 +509,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -553,6 +559,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           note: "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -681,6 +690,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -831,6 +843,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -881,6 +896,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
           proof: "executed",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -956,6 +974,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           proof: "executed",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -1034,6 +1055,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           proof: "executed",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -1112,6 +1136,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           proof: "executed",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -1191,6 +1218,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           note: "requiredQuery proven live 2026-09-10: product.",
           proof: "executed",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -1236,6 +1266,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           proof: "executed",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -1274,6 +1307,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -1866,6 +1902,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -2035,6 +2074,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -2108,6 +2150,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -2262,6 +2307,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           summary: "The account's chat widgets {chatWidgets:[{_id, chatType, name, default, settings, creationSource, createdAt, updatedAt}], totalCount}; chatType=liveChat filters to Live-chat widgets (the Agent Deployment picker's read).",
           note: "offset and limit are REQUIRED as number strings \u2014 omit them and BOTH hosts answer 422 naming exactly those keys (proven 2026-08-31). Answers byte-identically on backend and services. A widget id pinned in an agent's routing row dies with the widget; route on All widgets instead. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them. requiredQuery proven live 2026-09-10: limit, offset. \u{1F534} This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND \u2014 the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder.",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -2430,6 +2478,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -2500,6 +2551,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -2709,6 +2763,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -2751,6 +2808,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -3296,6 +3356,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -3395,6 +3458,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           note: "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [
             "get_workflow_stats"
           ],
@@ -3502,6 +3568,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           note: "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [
             "get_workflow_stats"
           ],
@@ -3869,6 +3938,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them. requiredQuery proven live 2026-09-10: totalRows.",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -4108,6 +4180,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -4570,6 +4645,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -4740,6 +4818,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -4964,6 +5045,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -5604,6 +5688,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -5721,6 +5808,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -5973,6 +6063,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -6381,6 +6474,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           note: "Executed 2026-09-10 \u2014 returns {tickets, traceId}; empty on the sandbox.",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -6875,6 +6971,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -7220,6 +7319,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -7492,6 +7594,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -7661,6 +7766,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [
             "audit_site"
           ],
@@ -8007,6 +8115,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [
             "audit_site",
             "find_ghl_site"
@@ -8408,7 +8519,10 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -9114,6 +9228,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -9172,6 +9289,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -9209,6 +9329,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -9291,6 +9414,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -9399,6 +9525,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -9647,6 +9776,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -9828,6 +9960,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           note: "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -10316,6 +10451,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [
             "check_snapshot_conflicts",
             "create_snapshot",
@@ -10570,6 +10708,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [
             "check_smart_lists",
             "create_smart_list"
@@ -10828,6 +10969,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           note: "documentType=folder&model=all lists custom-FIELD folders ONLY with includeStandards=true \u2014 with includeStandards=false (the plugin's habitual value on FIELD searches) the same query returns [], which reads as 'this account has no folders' and is false (proven 2026-08-30).",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [
             "build_workflow",
             "check_workflow",
@@ -10907,6 +11051,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [
             "audit_site",
             "build_workflow",
@@ -10995,6 +11142,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           summary: "documentType=folder lists custom-value folders under customValueFolders: {id, name, documentType, fieldsCount, \u2026}.",
           note: "Answers byte-identically on BOTH backend and services (differential 2026-08-31) \u2014 either rail works.",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -11498,6 +11648,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [
             "build_workflow",
             "edit_workflow"
@@ -11649,6 +11802,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -11858,7 +12014,13 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           note: "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
-          reach: "refused",
+          reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
+          refusedFor: [
+            "location-user-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -12320,6 +12482,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -13254,6 +13419,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [
             "list_courses"
           ],
@@ -13471,6 +13639,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -14071,6 +14242,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -14120,6 +14294,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -14156,7 +14333,10 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "refused",
+          reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -14524,6 +14704,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -14867,6 +15050,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           note: "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -14961,6 +15147,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [
             "build_workflow",
             "edit_workflow",
@@ -15004,6 +15193,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [
             "build_workflow",
             "edit_workflow",
@@ -15369,6 +15561,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them. requiredQuery proven live 2026-09-10: altId, altType. \u{1F534} This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND \u2014 the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder.",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -15457,6 +15652,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           note: "requiredQuery proven live 2026-09-10: altId, altType. \u{1F534} This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND \u2014 the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder.",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -15536,6 +15734,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -15641,6 +15842,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           note: "requiredQuery proven live 2026-09-10: altId, altType. \u{1F534} This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND \u2014 the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder.",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -15804,6 +16008,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -15845,6 +16052,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           summary: "The account's call dispositions {dispositions:[{id, name, isDefault, orderingKey, meta.createdBy, isDeleted}], totalRecords, isCreateButtonVisible}; call_status triggers match these BY NAME.",
           note: "?includeDeleted=true returns ONLY the soft-deleted rows, not the union -- the name reads like 'include', the behaviour is 'only'. Every account ships the SAME SIX system defaults (proven 2026-09-02: a sandbox listing four returned exactly the two missing ones, Follow Up and Requested Appointment, under includeDeleted=true, both isDefault:true with a deletedAt). A short list means somebody soft-deleted defaults, not that defaults vary by account. call_status triggers match BY NAME.",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -16022,6 +16232,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -16060,6 +16273,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [
             "edit_workflow",
             "repair_workflow"
@@ -16101,6 +16317,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -16691,6 +16910,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           note: "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           refusedFor: [
             "location-user-bearer"
           ],
@@ -16771,6 +16993,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -16810,6 +17035,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -16849,6 +17077,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -16931,6 +17162,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -17025,6 +17259,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -17094,6 +17331,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           summary: "Is a billed product (premium workflow actions, external AI models) opted in for ONE sub-account. The builder's own check; the build preflight reads it.",
           note: "entityType=LOCATION, product = workflow_premium_actions | workflow_ai; a location Bearer reaches it and companyId is NOT needed. TRAP: the optIn query param changes the ANSWER by its PRESENCE, not its value -- ?optIn=true and ?optIn=false both return config.optIn:true, omitting it returns false, same account same minute. Send ?optIn=true as the builder does. TRAP: config.enabled is NOT the gate -- it was false on all 18 sub-accounts of an agency whose premium steps run daily (it tracks rebilling); the builder gates on config.optIn and, when false, falls back to a reselling subscription. A nonsense product answers 404 Product not found. Executed on the designated sandbox 2026-09-18.",
           reach: "proven",
+          provenFor: [
+            "location-user-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -17280,6 +17520,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -17326,6 +17569,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -17358,6 +17604,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -18041,6 +18290,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           note: "Executed through the plugin credential on the designated sandbox, 2026-09-10, as part of the snapshot parity run: list -> manifest -> conflicts -> create -> refresh, with the create read back on a separate request (snapshot count 8 -> 9 and the new snapshot found by name and id).",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [
             "get_snapshot_manifest"
           ],
@@ -18377,6 +18629,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -18591,6 +18846,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           note: "Executed through the plugin credential on the designated sandbox, 2026-09-10, as part of the snapshot parity run: list -> manifest -> conflicts -> create -> refresh, with the create read back on a separate request (snapshot count 8 -> 9 and the new snapshot found by name and id).",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [
             "create_snapshot",
             "get_snapshot_manifest"
@@ -18643,6 +18901,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           note: "TWO catalogue rows exist for this path and they disagree on HOST. The one mined from bundle source (template-service--get-email-snippets-paginated) says backend, but that is almost certainly the app-wide axios default rather than a service prefix \u2014 the same trap the harvester documents for /workflow. The whole snippets surface was captured LIVE 2026-08-29 on services.leadconnectorhq.com (the ai rail: Bearer plus token-id), six calls end to end. USE SERVICES. The mined row is kept, not deleted: it is a real source observation.",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -18880,6 +19141,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           note: "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           refusedFor: [
             "location-user-bearer"
           ],
@@ -19005,6 +19269,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           proof: "executed",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -19051,6 +19318,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them. requiredQuery proven live 2026-09-10: alt_id.",
           proof: "executed",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [
             "list_studio_sites"
           ],
@@ -19242,6 +19512,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them. requiredQuery proven live 2026-09-10: alt_id.",
           proof: "executed",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [
             "find_ghl_site",
             "list_studio_sites"
@@ -21377,6 +21650,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -21610,6 +21886,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           note: `?version=N is ACCEPTED, silently IGNORED, and the CURRENT document is returned wearing its real version number (live 2026-09-02: ?version=1 -> "version": 3). Nothing errors, so a 'recovery' read can restore the corruption over itself and look successful. Use the version-history rail instead -- history / history-by-number -- which the typed get_workflow_version already does.`,
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [
             "build_workflow",
             "check_workflow",
@@ -21895,6 +22174,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [
             "list_workflow_versions"
           ],
@@ -22033,6 +22315,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [
             "list_workflow_versions"
           ],
@@ -22965,6 +23250,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [
             "get_workflow_settings"
           ],
@@ -23360,6 +23648,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [
             "get_workflow_settings"
           ],
@@ -23397,6 +23688,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [
             "edit_workflow",
             "publish_workflow",
@@ -23787,6 +24081,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           note: "Answers 201 (not 200) on a GET. \u26A0\uFE0F NOT BACKEND-ONLY \u2014 the catalogue row is mined from backend source, but it answers 201 with an identical body on services.leadconnectorhq.com too (verified GROM Sandbox 2026-09-11). Returns provider.domain, provider.domainOwnershipType ('agency_owned' | 'location_owned'), warmupInfo{warmupStage,warmupStatus,warmupMode}, type and applyRateLimit. \u{1F534} THIS IS THE READ THAT TELLS YOU AN ACCOUNT HAS A SENDING DOMAIN AT ALL \u2014 /email-isv/feature/domain/list returns [] for an agency-owned domain, so use this one before concluding an account is unconfigured.",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [
             "edit_workflow",
             "repair_workflow"
@@ -24034,6 +24331,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [
             "get_workflow_settings"
           ],
@@ -24075,6 +24375,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [
             "get_account_workflow_overview"
           ],
@@ -24172,6 +24475,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [
             "get_account_workflow_overview"
           ],
@@ -24322,6 +24628,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [
             "edit_workflow",
             "repair_workflow"
@@ -24362,6 +24671,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           summary: "The workflow roster for a location; also lists FOLDERS when asked for them.",
           note: 'Folders list under type=directory. type=folder returns count 0 rather than an error, which reads as "this account has no folders".',
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [
             "create_workflow_folder",
             "list_workflow_folders",
@@ -24986,6 +25298,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           summary: "Whether this workflow is paused on a schedule, and the window if so.",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [
             "get_workflow_settings"
           ],
@@ -25423,6 +25738,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -25563,6 +25881,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [
             "check_workflow",
             "duplicate_workflow",
@@ -26390,6 +26711,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [
             "get_workflow_settings"
           ],
@@ -26465,6 +26789,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [
             "get_workflow_settings"
           ],
@@ -26610,6 +26937,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [
             "list_workflow_templates"
           ],
@@ -26806,6 +27136,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [
             "get_ai_agent_options"
           ],
@@ -27129,6 +27462,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [
             "get_ai_agent_options"
           ],
@@ -27301,6 +27637,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [
             "get_ai_agent_options"
           ],
@@ -27815,6 +28154,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           note: "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           refusedFor: [
             "location-user-bearer"
           ],
@@ -28398,6 +28740,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           proof: "executed",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -28503,6 +28848,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           proof: "executed",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -29520,6 +29868,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -29725,6 +30076,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           note: "Live-probed 2026-08-25: 403 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           refusedFor: [
             "location-user-bearer"
           ],
@@ -30219,6 +30573,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -30953,6 +31310,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [
             "check_workflow",
             "edit_workflow",
@@ -31122,6 +31482,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -31333,6 +31696,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           note: "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -31388,6 +31754,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           note: "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -31576,6 +31945,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -31633,6 +32005,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           summary: "Execution log rows for one workflow; executionId returns one run's full step trace.",
           note: "dateType=custom is REQUIRED whenever fromDate/toDate are sent, or the window is IGNORED and you get a day-snapped ~30-day default behind a 200. action=first/next drives the cursor. fromDate=0 for true full history. Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [
             "get_workflow_logs",
             "get_workflow_runtime_window"
@@ -31692,6 +32067,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           summary: "Enrollment counts for the last 7 weeks, for the Automation Overview chart.",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [
             "get_account_workflow_overview"
           ],
@@ -31736,6 +32114,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           summary: "Account-level automation KPIs: total workflows, published workflows, total enrollments.",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [
             "get_account_workflow_overview"
           ],
@@ -31834,6 +32215,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           summary: "How many contacts are sitting at each step right now.",
           note: "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source. Wants BOTH locationId and workflowId. Discovered iteratively: the endpoint names ONE missing key at a time, so a single probe round under-reports what it needs.",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [
             "edit_workflow",
             "fast_forward_contacts",
@@ -31968,6 +32352,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           note: "Live-probed 2026-08-25: the endpoint returned 400 naming workflowId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [
             "get_account_workflow_overview"
           ],
@@ -32579,6 +32966,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           note: "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [
             "get_workflow_logs",
             "get_workflow_runtime_window"
@@ -32837,6 +33227,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [
             "export_workflow",
             "get_workflow_runtime_window"
@@ -32971,6 +33364,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           note: "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [
             "get_trigger_logs",
             "get_workflow_stats"
@@ -33136,6 +33532,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           summary: "Agent Deployment as it really is: one row per channel {channel, providerId, enabled, allIdentifiers, specificIdentifiers[], includeTags, excludeTags}.",
           note: 'A Live_Chat row pinned to a DELETED widget id (specificIdentifiers) makes the agent silently mute \u2014 contacts created, no reply, no enrolment, no error anywhere. Fix: allIdentifiers:true, specificIdentifiers:[]. get_ai_configuration_bundle reads these rows per Conversation AI agent as of 0.47.0 and summarises rows with allIdentifiers:false in routingPinned \u2014 but it never checks whether the pinned identifiers still EXIST, so verify them against /chat-widget/list before trusting a pinned row. Executed on the sandbox 2026-09-10 on host:"ai" \u2014 returns a BARE ARRAY of routing rows {id, createdAt, deleted, locationId, channel, providerId, ...}, 11 of them here. Its POST twin is deliberately NOT probed: a new routing row can change WHICH agent answers an inbound conversation on the account, which is a behaviour change dressed as a create.',
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [
             "get_ai_configuration_bundle"
           ],
@@ -33368,6 +33767,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           summary: "Service health: {status, timestamp, traceId}.",
           note: "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone \u2014 either credential reaches this surface).",
           reach: "proven-live",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -33769,6 +34171,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           summary: "Saved Metrics dashboard layouts for the location.",
           note: "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone \u2014 either credential reaches this surface). Returns {layouts: []} when none exist \u2014 and the UI reacts to that by POSTing a default layout, so opening the Metrics tab in a browser WRITES. The populated shape is unproven. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -33946,6 +34351,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "ai",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -33990,6 +34398,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "ai",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -34457,6 +34868,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "ai",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -34823,6 +35237,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "ai",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -34855,6 +35272,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "ai",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -35004,6 +35424,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -35043,6 +35466,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -35081,6 +35507,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "ai",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -35193,6 +35622,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "ai",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -35231,6 +35663,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "ai",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -35302,6 +35737,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           note: "Executed 2026-09-10 \u2014 returns {brandBoards, totalCount, traceId}; zero boards on the sandbox, which is why its /default write twin has nothing to target and is not probed.",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -35559,6 +35997,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           proof: "executed",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -35596,6 +36037,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "ai",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -35632,6 +36076,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           proof: "executed",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -35739,6 +36186,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "ai",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -36234,6 +36684,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           summary: "LIST availability schedules for a location \u2014 this is the real list route for calendar opening hours.",
           note: '\u{1F534} NOTE THE `/search`. A bare GET /calendars/schedules routes to /calendars/{calendarId} and answers 400 "Calendar not found for id: schedules" \u2014 two sessions have lost time to that collision. Takes ?locationId=. A schedule governs a calendar only while that calendar\'s id is in its `calendarIds`; editing an UNBOUND schedule is accepted, stored and inert.',
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -36272,6 +36725,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "ai",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -36431,6 +36887,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           summary: "The account's chat widgets {chatWidgets:[{_id, chatType, name, default, settings, creationSource, createdAt, updatedAt}], totalCount}; chatType=liveChat filters to Live-chat widgets (the Agent Deployment picker's read).",
           note: "offset and limit are REQUIRED as number strings \u2014 omit them and BOTH hosts answer 422 naming exactly those keys (proven 2026-08-31). Answers byte-identically on backend and services. A widget id pinned in an agent's routing row dies with the widget; route on All widgets instead. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them. requiredQuery proven live 2026-09-10: limit, offset. \u{1F534} This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND \u2014 the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder.",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -36665,6 +37124,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "ai",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -36873,6 +37335,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "ai",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -37270,6 +37735,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them. requiredQuery proven live 2026-09-10: totalRows.",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -37414,7 +37882,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "source-only",
+          reach: "refused",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -37449,7 +37917,10 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "refused",
+          reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -37576,6 +38047,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           note: `Richer than /workflow/{locationId}/email/location-email-provider: fromName, fromEmail, warmup{mode,stage,status}, types[] with per-type percentages, defaultDomain, emailSentCount/emailSentLimit, ssl, ips, domainAddedDate. \u26A0\uFE0F Answers on BOTH hosts (services AND backend) \u2014 re-verified on GROM Sandbox 2026-09-11, where it returns []. The original capture saw only services, so "ai host" is where it was observed, not a constraint. \u{1F534} AN EMPTY ARRAY DOES NOT MEAN THE ACCOUNT HAS NO SENDING DOMAIN. GROM Sandbox returns [] while GET /workflow/{loc}/email/location-email-provider reports a live, actively warming domain (link.gromdigital.com, domainOwnershipType 'agency_owned'), and asking this rail for that domain by name answers 400 "not found in the system". This rail is scoped to LOCATION-OWNED domains only; an agency-owned domain is invisible to it. Read [] as 'no domain this location owns', never as an unconfigured account.`,
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -37671,6 +38145,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           note: "Executed on GROM Sandbox 2026-09-11 \u2014 200 on a location with no domains.",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -38035,6 +38512,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -38111,6 +38591,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           proof: "executed",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [
             "audit_site",
             "build_workflow",
@@ -38390,6 +38873,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           proof: "executed",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [
             "list_forms"
           ],
@@ -38507,6 +38993,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           proof: "executed",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -38587,6 +39076,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           proof: "executed",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -38982,6 +39474,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them. requiredQuery proven live 2026-09-10: limit.",
           proof: "executed",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [
             "list_form_submissions"
           ],
@@ -39146,6 +39641,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
           proof: "executed",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -39187,6 +39685,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "ai",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -39492,6 +39993,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "ai",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -39745,6 +40249,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "ai",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -40201,6 +40708,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           summary: "Open-gap totals per knowledge base.",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -40662,6 +41172,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           summary: "documentType=folder lists custom-value folders under customValueFolders: {id, name, documentType, fieldsCount, \u2026}.",
           note: "Answers byte-identically on BOTH backend and services (differential 2026-08-31) \u2014 either rail works.",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -40702,6 +41215,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "ai",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -40757,7 +41273,13 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "ai",
           kind: "read",
           note: "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
-          reach: "refused",
+          reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
+          refusedFor: [
+            "location-user-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -40904,6 +41426,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "ai",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -40944,6 +41469,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "ai",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -42103,6 +42631,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "ai",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [
             "list_courses"
           ],
@@ -43306,6 +43837,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "ai",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -43529,6 +44063,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "ai",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -44341,6 +44878,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "ai",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [
             "list_courses"
           ],
@@ -45384,6 +45924,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "ai",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -45603,6 +46146,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "ai",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -45861,6 +46407,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "ai",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -46079,6 +46628,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "ai",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -46120,6 +46672,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "ai",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -46349,6 +46904,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "ai",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -46389,6 +46947,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "ai",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -46815,6 +47376,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "ai",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -47119,7 +47683,10 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "refused",
+          reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -47312,6 +47879,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           note: "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -47420,6 +47990,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "ai",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [
             "build_workflow",
             "edit_workflow",
@@ -47762,6 +48335,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "ai",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -48130,6 +48706,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "ai",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -48161,6 +48740,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "ai",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -48303,6 +48885,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           note: "requiredQuery proven live 2026-09-10: altId, locationId. \u{1F534} This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND \u2014 the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder.",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -49091,6 +49676,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           note: "TWO catalogue rows exist for this path and they disagree on HOST. The one mined from bundle source (template-service--get-email-snippets-paginated) says backend, but that is almost certainly the app-wide axios default rather than a service prefix \u2014 the same trap the harvester documents for /workflow. The whole snippets surface was captured LIVE 2026-08-29 on services.leadconnectorhq.com (the ai rail: Bearer plus token-id), six calls end to end. USE SERVICES. The mined row is kept, not deleted: it is a real source observation.",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -49293,6 +49881,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "ai",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -49335,6 +49926,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "ai",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -49369,7 +49963,10 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -49633,6 +50230,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           note: "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -49977,6 +50577,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           note: "requiredQuery proven live 2026-09-10: limit, offset, product. \u{1F534} This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND \u2014 the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder.",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -50069,6 +50672,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           note: "requiredQuery proven live 2026-09-10: product.",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -50127,6 +50733,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           note: "requiredQuery proven live 2026-09-10: product.",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -50171,6 +50780,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "ai",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -51538,6 +52150,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "ai",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -51608,6 +52223,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "ai",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -51674,6 +52292,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "ai",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -52029,6 +52650,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "ai",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -52139,6 +52763,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "ai",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [
             "edit_workflow",
             "repair_workflow"
@@ -165229,6 +165856,41 @@ function sortKeysDeep(o) {
   return o;
 }
 
+// core/credential-class.mjs
+init_define_BUILDER_VALIDATORS();
+init_define_CONTACT_FILTER_FIELDS();
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
+init_define_TOOL_CATALOG();
+var CREDENTIAL_CLASSES = Object.freeze([
+  "agency-admin-bearer",
+  "agency-user-bearer",
+  "location-admin-bearer",
+  "location-user-bearer",
+  "public-pit"
+]);
+function credentialClassFromClaims(claims) {
+  const scope = claims?.scope === "agency" ? "agency" : claims?.scope === "account" ? "location" : null;
+  const role = claims?.role === "admin" ? "admin" : claims?.role === "user" ? "user" : null;
+  return scope && role ? `${scope}-${role}-bearer` : null;
+}
+function callerCredentialClass(state2) {
+  try {
+    const creds = readCredentials({ tokenFile: state2?.tokenFile, allowExpired: true, legacyTokenFileEnv: state2?.legacyTokenFileEnv });
+    return creds.tokenId ? credentialClassFromClaims(safeTokenIdClaims(creds.tokenId)) : null;
+  } catch {
+    return null;
+  }
+}
+function reachForCaller(row, callerClass) {
+  if (!callerClass) return null;
+  if (row?.refusedFor?.includes(callerClass)) return "refused";
+  if (row?.provenFor?.includes(callerClass)) return "proven";
+  if (row?.provenFor?.length) return "unproven-for-your-class";
+  return null;
+}
+
 // core/builder-validators.mjs
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
@@ -170230,7 +170892,9 @@ var endpointWords = (e) => ({
   reach: e.reach ?? overlayFor(e).reach,
   // Set only on a row that one credential class provably reaches and another was refused on.
   // It rides with `reach` rather than replacing it, because both measurements are true.
-  refusedFor: e.refusedFor ?? overlayFor(e).refusedFor
+  refusedFor: e.refusedFor ?? overlayFor(e).refusedFor,
+  // The NAMED classes that reached it. With refusedFor, what reachForCaller reads.
+  provenFor: e.provenFor
 });
 var MUTATION_VERBS = /* @__PURE__ */ new Set([
   "create",
@@ -170336,8 +171000,9 @@ var staticFilterFields = () => {
   }
   return FILTER_FIELDS;
 };
-var endpointStub = (e) => {
+var endpointStub = (e, callerClass = null) => {
   const w = endpointWords(e);
+  const forYou = reachForCaller(w, callerClass);
   return {
     id: e.id,
     method: e.method,
@@ -170354,6 +171019,8 @@ var endpointStub = (e) => {
     // hits a 401 on it has no way to tell "my credential is the wrong class for this route" from
     // "the catalogue is wrong", and the second reading sends them re-probing something already known.
     ...w.refusedFor ? { refusedFor: w.refusedFor } : {},
+    // Said only when it DIFFERS from `reach` — `proven` for the caller's own class adds nothing.
+    ...forYou && forYou !== "proven" ? { reachForYou: forYou } : {},
     ...e.proof ? { proof: e.proof } : {},
     ...e.rawCallable === false ? { rawCallable: false } : {}
   };
@@ -176139,14 +176806,15 @@ var TOOLS2 = [
   },
   {
     name: "search_endpoints",
-    description: `${describe3("search_endpoints", "Search the internal API surface \u2014 risk: read")}. Ranked search over ${endpoints().length} internal endpoints across EVERY GHL surface this project knows: the workflow builder, memberships and courses, conversation AI, voice AI, agent studio, funnels, calendars, media, billing. Not workflows only. Returns compact stubs \u2014 id, method, path, kind, and where known a one-line summary, the typed tool that already covers it, the one trap worth knowing, and whether a location token has been proven to reach it. Call describe_endpoint with the id you pick. Use this whenever no typed tool obviously covers what you need, BEFORE reaching for raw_request. Reads no account data. A hit proves a GHL front-end calls that path \u2014 NOT that your token reaches it, and not that calling it is safe.`,
+    description: `${describe3("search_endpoints", "Search the internal API surface \u2014 risk: read")}. Ranked search over ${endpoints().length} internal endpoints across EVERY GHL surface this project knows: the workflow builder, memberships and courses, conversation AI, voice AI, agent studio, funnels, calendars, media, billing. Not workflows only. Returns compact stubs \u2014 id, method, path, kind, and where known a one-line summary, the typed tool that already covers it, the one trap worth knowing, and whether a credential has been proven to reach it. Reach is PER CREDENTIAL CLASS: refusedFor names classes that were refused, and reachForYou appears when the evidence does not cover YOUR class (refused for it, or reached only by others). Call describe_endpoint with the id you pick. Use this whenever no typed tool obviously covers what you need, BEFORE reaching for raw_request. Reads no account data. A hit proves a GHL front-end calls that path \u2014 NOT that your token reaches it, and not that calling it is safe.`,
     inputSchema: schema({
       intent: external_exports.string().describe('what you want to do, in plain words \u2014 e.g. "list workflow folders", "erroring workflows", "scheduled pause"'),
       method: external_exports.string().trim().optional().describe("filter to one HTTP method, e.g. GET"),
       limit: external_exports.number().default(10)
     }),
     capabilities: [],
-    handler: async (args) => guard(async () => {
+    handler: async (args, deps) => guard(async () => {
+      const callerClass = callerCredentialClass(deps?.state);
       const terms = cardWords(args.intent);
       let pool = endpoints();
       if (!pool.length) {
@@ -176168,7 +176836,10 @@ var TOOLS2 = [
         } };
       }
       return { ok: true, data: {
-        results: ranked.map((x) => endpointStub(x.e)),
+        results: ranked.map((x) => endpointStub(x.e, callerClass)),
+        // Reach is per credential class. A result carries `reachForYou` only where the evidence
+        // does NOT already cover this class: refused for it, or reached only by other classes.
+        ...callerClass ? { yourCredentialClass: callerClass } : {},
         total: pool.filter((e) => scoreEndpoint(e, terms, verbs) > 0).length,
         next: "describe_endpoint with the method and path you want"
       } };
@@ -176183,7 +176854,8 @@ var TOOLS2 = [
       path: external_exports.string().optional().describe("the full wire path, if addressing by method+path")
     }),
     capabilities: [],
-    handler: async (args) => guard(async () => {
+    handler: async (args, deps) => guard(async () => {
+      const callerClass = callerCredentialClass(deps?.state);
       const pool = endpoints();
       let hit = args.id ? pool.find((e) => e.id === args.id) : null;
       if (!hit && args.method && args.path) {
@@ -176210,7 +176882,10 @@ var TOOLS2 = [
         ...w.summary ? { summary: w.summary } : {},
         ...w.note ? { note: w.note } : {},
         reach: w.reach ?? "source-only",
+        ...w.provenFor ? { provenFor: w.provenFor } : {},
         ...w.refusedFor ? { refusedFor: w.refusedFor } : {},
+        ...callerClass ? { yourCredentialClass: callerClass } : {},
+        ...reachForCaller(w, callerClass) ? { reachForYou: reachForCaller(w, callerClass) } : {},
         status: "source-derived",
         meaning: "The GHL builder calls this path. That is NOT proof your token reaches it, nor that calling it is safe \u2014 some rows are permission-gated.",
         pathParams: hit.pathParams ?? [],
