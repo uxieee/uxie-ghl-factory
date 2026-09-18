@@ -17568,6 +17568,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
+          summary: "AGENCY roster: every sub-account's billing config for external AI model steps (optIn, enabled, markup, basePrice). For ONE sub-account use the per-location route instead.",
+          note: "TRAP: companyId is REQUIRED as a QUERY param (?companyId=&skip=0&limit=15&query=). Omit it and the route answers a BARE 403 'Forbidden resource' that names no argument and reads exactly like a permission refusal -- this row was recorded 'refused' twice on that. TRAP: config.enabled is NOT 'can run premium steps' (false on every sub-account of a working agency; it tracks rebilling) -- read config.optIn. hit[0].count is the agency total and ignores limit; locations.length is one page.",
           reach: "proven",
           provenFor: [
             "agency-admin-bearer"
@@ -17581,7 +17583,14 @@ var init_define_ENDPOINT_CATALOG = __esm({
           service: "workflows",
           tree: "documented",
           pathParams: [],
-          query: [],
+          query: [
+            {
+              name: "companyId",
+              type: "string",
+              required: true,
+              source: "live-probe"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
@@ -17603,6 +17612,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
+          summary: "AGENCY roster: every sub-account's billing config for premium workflow actions (optIn, enabled, markup, basePrice). For ONE sub-account use the per-location route instead.",
+          note: "TRAP: companyId is REQUIRED as a QUERY param (?companyId=&skip=0&limit=15&query=). Omit it and the route answers a BARE 403 'Forbidden resource' that names no argument and reads exactly like a permission refusal -- this row was recorded 'refused' twice on that. TRAP: config.enabled is NOT 'can run premium steps' (false on every sub-account of a working agency; it tracks rebilling) -- read config.optIn. hit[0].count is the agency total and ignores limit; locations.length is one page.",
           reach: "proven",
           provenFor: [
             "agency-admin-bearer"
@@ -17616,7 +17627,14 @@ var init_define_ENDPOINT_CATALOG = __esm({
           service: "workflows",
           tree: "documented",
           pathParams: [],
-          query: [],
+          query: [
+            {
+              name: "companyId",
+              type: "string",
+              required: true,
+              source: "live-probe"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
@@ -24669,7 +24687,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           summary: "The workflow roster for a location; also lists FOLDERS when asked for them.",
-          note: 'Folders list under type=directory. type=folder returns count 0 rather than an error, which reads as "this account has no folders".',
+          note: `Folders list under type=directory. type=folder returns count 0 rather than an error, which reads as "this account has no folders". TRAP: without &includeObjectiveBuilder=true every workflowType:'agent' workflow (a Conversation AI flow bot) is SILENTLY omitted -- 200, no error, count simply excludes it; proven on four accounts. A roster showing no flow bot is not evidence the account has none. The typed list_workflows sends the flag.`,
           reach: "proven",
           provenFor: [
             "agency-admin-bearer"
@@ -28257,7 +28275,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class.",
+          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class. TRAP: WITHOUT location_id every flowguard route answers 400, which reads as an argument problem and invites another probing session; WITH it, 401 -- the 401 is the real answer.",
           reach: "refused",
           coveredBy: [],
           rawCallable: true,
@@ -28299,7 +28317,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "destructive",
-          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class.",
+          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class. TRAP: WITHOUT location_id every flowguard route answers 400, which reads as an argument problem and invites another probing session; WITH it, 401 -- the 401 is the real answer.",
           reach: "refused",
           coveredBy: [],
           rawCallable: true,
@@ -28348,7 +28366,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class.",
+          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class. TRAP: WITHOUT location_id every flowguard route answers 400, which reads as an argument problem and invites another probing session; WITH it, 401 -- the 401 is the real answer.",
           reach: "refused",
           coveredBy: [],
           rawCallable: true,
@@ -28380,7 +28398,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "destructive",
-          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class.",
+          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class. TRAP: WITHOUT location_id every flowguard route answers 400, which reads as an argument problem and invites another probing session; WITH it, 401 -- the 401 is the real answer.",
           reach: "refused",
           coveredBy: [],
           rawCallable: true,
@@ -28416,7 +28434,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class.",
+          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class. TRAP: WITHOUT location_id every flowguard route answers 400, which reads as an argument problem and invites another probing session; WITH it, 401 -- the 401 is the real answer.",
           reach: "refused",
           coveredBy: [],
           rawCallable: true,
@@ -28448,7 +28466,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "destructive",
-          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class.",
+          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class. TRAP: WITHOUT location_id every flowguard route answers 400, which reads as an argument problem and invites another probing session; WITH it, 401 -- the 401 is the real answer.",
           reach: "refused",
           coveredBy: [],
           rawCallable: true,
@@ -28484,7 +28502,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class.",
+          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class. TRAP: WITHOUT location_id every flowguard route answers 400, which reads as an argument problem and invites another probing session; WITH it, 401 -- the 401 is the real answer.",
           reach: "refused",
           coveredBy: [],
           rawCallable: true,
@@ -28516,7 +28534,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "destructive",
-          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class.",
+          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class. TRAP: WITHOUT location_id every flowguard route answers 400, which reads as an argument problem and invites another probing session; WITH it, 401 -- the 401 is the real answer.",
           reach: "refused",
           coveredBy: [],
           rawCallable: true,
@@ -28552,7 +28570,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class.",
+          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class. TRAP: WITHOUT location_id every flowguard route answers 400, which reads as an argument problem and invites another probing session; WITH it, 401 -- the 401 is the real answer.",
           reach: "refused",
           coveredBy: [],
           rawCallable: true,
@@ -28588,7 +28606,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class.",
+          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class. TRAP: WITHOUT location_id every flowguard route answers 400, which reads as an argument problem and invites another probing session; WITH it, 401 -- the 401 is the real answer.",
           reach: "refused",
           coveredBy: [],
           rawCallable: true,
@@ -28620,7 +28638,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "destructive",
-          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class.",
+          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class. TRAP: WITHOUT location_id every flowguard route answers 400, which reads as an argument problem and invites another probing session; WITH it, 401 -- the 401 is the real answer.",
           reach: "refused",
           coveredBy: [],
           rawCallable: true,
@@ -28656,7 +28674,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "destructive",
-          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class.",
+          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class. TRAP: WITHOUT location_id every flowguard route answers 400, which reads as an argument problem and invites another probing session; WITH it, 401 -- the 401 is the real answer.",
           reach: "refused",
           coveredBy: [],
           rawCallable: true,
@@ -28702,7 +28720,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class.",
+          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class. TRAP: WITHOUT location_id every flowguard route answers 400, which reads as an argument problem and invites another probing session; WITH it, 401 -- the 401 is the real answer.",
           reach: "refused",
           coveredBy: [],
           rawCallable: true,
@@ -52828,12 +52846,12 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         },
         "DELETE /workflow/flowguard/blacklist/{type}/{id}": {
           reach: "refused",
-          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class.",
+          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class. TRAP: WITHOUT location_id every flowguard route answers 400, which reads as an argument problem and invites another probing session; WITH it, 401 -- the 401 is the real answer.",
           credentialClass: "location-user-bearer"
         },
         "DELETE /workflow/flowguard/rate-limiting/bypass/{id}": {
           reach: "refused",
-          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class.",
+          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class. TRAP: WITHOUT location_id every flowguard route answers 400, which reads as an argument problem and invites another probing session; WITH it, 401 -- the 401 is the real answer.",
           credentialClass: "location-user-bearer"
         },
         "GET /ad-publishing/facebook/custom-audience": {
@@ -53364,6 +53382,20 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         "GET /reselling/subscription/location/{locationId}": {
           reach: "proven"
         },
+        "GET /saas-billing-v2/billing-config/locations/workflow_ai": {
+          summary: "AGENCY roster: every sub-account's billing config for external AI model steps (optIn, enabled, markup, basePrice). For ONE sub-account use the per-location route instead.",
+          note: "TRAP: companyId is REQUIRED as a QUERY param (?companyId=&skip=0&limit=15&query=). Omit it and the route answers a BARE 403 'Forbidden resource' that names no argument and reads exactly like a permission refusal -- this row was recorded 'refused' twice on that. TRAP: config.enabled is NOT 'can run premium steps' (false on every sub-account of a working agency; it tracks rebilling) -- read config.optIn. hit[0].count is the agency total and ignores limit; locations.length is one page.",
+          requiredQuery: ["companyId"],
+          reach: "proven",
+          credentialClass: "agency-admin-bearer"
+        },
+        "GET /saas-billing-v2/billing-config/locations/workflow_premium_actions": {
+          summary: "AGENCY roster: every sub-account's billing config for premium workflow actions (optIn, enabled, markup, basePrice). For ONE sub-account use the per-location route instead.",
+          note: "TRAP: companyId is REQUIRED as a QUERY param (?companyId=&skip=0&limit=15&query=). Omit it and the route answers a BARE 403 'Forbidden resource' that names no argument and reads exactly like a permission refusal -- this row was recorded 'refused' twice on that. TRAP: config.enabled is NOT 'can run premium steps' (false on every sub-account of a working agency; it tracks rebilling) -- read config.optIn. hit[0].count is the agency total and ignores limit; locations.length is one page.",
+          requiredQuery: ["companyId"],
+          reach: "proven",
+          credentialClass: "agency-admin-bearer"
+        },
         "GET /saas-billing-v2/billing-config/{entityType}/{entityId}/{product}": {
           summary: "Is a billed product (premium workflow actions, external AI models) opted in for ONE sub-account. The builder's own check; the build preflight reads it.",
           note: "entityType=LOCATION, product = workflow_premium_actions | workflow_ai; a location Bearer reaches it and companyId is NOT needed. TRAP: the optIn query param changes the ANSWER by its PRESENCE, not its value -- ?optIn=true and ?optIn=false both return config.optIn:true, omitting it returns false, same account same minute. Send ?optIn=true as the builder does. TRAP: config.enabled is NOT the gate -- it was false on all 18 sub-accounts of an agency whose premium steps run daily (it tracks rebilling); the builder gates on config.optIn and, when false, falls back to a reselling subscription. A nonsense product answers 404 Product not found. Executed on the designated sandbox 2026-09-18.",
@@ -53506,32 +53538,32 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         },
         "GET /workflow/flowguard/auth": {
           reach: "refused",
-          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class.",
+          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class. TRAP: WITHOUT location_id every flowguard route answers 400, which reads as an argument problem and invites another probing session; WITH it, 401 -- the 401 is the real answer.",
           credentialClass: "location-user-bearer"
         },
         "GET /workflow/flowguard/blacklist/contact": {
           reach: "refused",
-          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class.",
+          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class. TRAP: WITHOUT location_id every flowguard route answers 400, which reads as an argument problem and invites another probing session; WITH it, 401 -- the 401 is the real answer.",
           credentialClass: "location-user-bearer"
         },
         "GET /workflow/flowguard/blacklist/step": {
           reach: "refused",
-          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class.",
+          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class. TRAP: WITHOUT location_id every flowguard route answers 400, which reads as an argument problem and invites another probing session; WITH it, 401 -- the 401 is the real answer.",
           credentialClass: "location-user-bearer"
         },
         "GET /workflow/flowguard/blacklist/workflow": {
           reach: "refused",
-          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class.",
+          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class. TRAP: WITHOUT location_id every flowguard route answers 400, which reads as an argument problem and invites another probing session; WITH it, 401 -- the 401 is the real answer.",
           credentialClass: "location-user-bearer"
         },
         "GET /workflow/flowguard/rate-limiting/bypass": {
           reach: "refused",
-          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class.",
+          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class. TRAP: WITHOUT location_id every flowguard route answers 400, which reads as an argument problem and invites another probing session; WITH it, 401 -- the 401 is the real answer.",
           credentialClass: "location-user-bearer"
         },
         "GET /workflow/flowguard/workflow-rendering/{workflowId}": {
           reach: "refused",
-          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class.",
+          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class. TRAP: WITHOUT location_id every flowguard route answers 400, which reads as an argument problem and invites another probing session; WITH it, 401 -- the 401 is the real answer.",
           credentialClass: "location-user-bearer"
         },
         "GET /workflow/{locationId}": {
@@ -53565,7 +53597,7 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         },
         "GET /workflow/{locationId}/list": {
           summary: "The workflow roster for a location; also lists FOLDERS when asked for them.",
-          note: 'Folders list under type=directory. type=folder returns count 0 rather than an error, which reads as "this account has no folders".',
+          note: `Folders list under type=directory. type=folder returns count 0 rather than an error, which reads as "this account has no folders". TRAP: without &includeObjectiveBuilder=true every workflowType:'agent' workflow (a Conversation AI flow bot) is SILENTLY omitted -- 200, no error, count simply excludes it; proven on four accounts. A roster showing no flow bot is not evidence the account has none. The typed list_workflows sends the flag.`,
           reach: "proven"
         },
         "GET /workflow/{locationId}/premium-tier-usage/{tier}": {
@@ -53916,30 +53948,30 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         "POST /workflow/flowguard/blacklist/contact/{contactId}": {
           kind: "destructive",
           reach: "refused",
-          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class.",
+          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class. TRAP: WITHOUT location_id every flowguard route answers 400, which reads as an argument problem and invites another probing session; WITH it, 401 -- the 401 is the real answer.",
           credentialClass: "location-user-bearer"
         },
         "POST /workflow/flowguard/blacklist/step/{stepId}": {
           kind: "destructive",
           reach: "refused",
-          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class.",
+          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class. TRAP: WITHOUT location_id every flowguard route answers 400, which reads as an argument problem and invites another probing session; WITH it, 401 -- the 401 is the real answer.",
           credentialClass: "location-user-bearer"
         },
         "POST /workflow/flowguard/blacklist/workflow/{workflowId}": {
           kind: "destructive",
           reach: "refused",
-          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class.",
+          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class. TRAP: WITHOUT location_id every flowguard route answers 400, which reads as an argument problem and invites another probing session; WITH it, 401 -- the 401 is the real answer.",
           credentialClass: "location-user-bearer"
         },
         "POST /workflow/flowguard/loop-lock/{workflowId}": {
           reach: "refused",
-          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class.",
+          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class. TRAP: WITHOUT location_id every flowguard route answers 400, which reads as an argument problem and invites another probing session; WITH it, 401 -- the 401 is the real answer.",
           credentialClass: "location-user-bearer"
         },
         "POST /workflow/flowguard/rate-limiting/bypass": {
           kind: "destructive",
           reach: "refused",
-          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class.",
+          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class. TRAP: WITHOUT location_id every flowguard route answers 400, which reads as an argument problem and invites another probing session; WITH it, 401 -- the 401 is the real answer.",
           credentialClass: "location-user-bearer"
         },
         "POST /workflow/ivr/get-mappings-by-phones": {
