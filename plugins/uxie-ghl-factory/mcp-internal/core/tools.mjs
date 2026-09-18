@@ -6706,8 +6706,14 @@ export const TOOLS = [
     ),
     inputSchema: schema({
       locationId: z.string(),
-      // From build_workflow's report.webhookUrls[].triggerId / report.triggers.ids, or get_workflow.
+      // From build_workflow's webhookUrls[].triggerId / triggers.ids, or export_workflow.
       triggerId: z.string(),
+      // REQUIRED, and not for convenience: GHL's receiving URL is unauthenticated and accepts a POST
+      // for ANY trigger id, records it, and lets it be pinned as the "reference" of a trigger that
+      // does not exist. The live suite proved it 2026-09-19 — a nonsense id returned ok:true and a
+      // full set of merge tags that could never resolve. Triggers can only be listed per workflow,
+      // so the workflow id is what makes the id checkable before anything is sent.
+      workflowId: z.string(),
       samplePayload: z.record(z.unknown()),
       // Skip the POST and pin the newest already-received request instead (e.g. the real system
       // already fired once).
@@ -6741,6 +6747,21 @@ export const TOOLS = [
       }
       const gw = deps.makeGw({ loc, state: deps.state });
       const lq = new URLSearchParams({ locationId: loc });
+      // BEFORE ANYTHING IS SENT: this workflow owns a trigger with this id, and it is an inbound webhook.
+      const owned = await gw.call('GET', `/workflow/${encodeURIComponent(loc)}/trigger?${new URLSearchParams({ workflowId: args.workflowId })}`);
+      if (!owned.ok) return fromHttp(owned.status, owned.json);
+      const ownedRows = Array.isArray(owned.json) ? owned.json : (owned.json?.triggers ?? owned.json?.data ?? []);
+      const target = ownedRows.find((t) => (t?.id ?? t?._id) === args.triggerId);
+      if (!target) {
+        return fail(CODES.VALIDATION_FAILED,
+          `workflow ${args.workflowId} has no trigger with id ${args.triggerId} (it has ${ownedRows.length}). Nothing was posted.`,
+          'GHL would have ACCEPTED this: its receiving URL records a sample for any id and pins it to a trigger that does not exist. Read the id off build_workflow\'s webhookUrls[] or export_workflow\'s triggers[].');
+      }
+      if (target.type !== 'inbound_webhook') {
+        return fail(CODES.VALIDATION_FAILED,
+          `trigger ${args.triggerId} is a '${target.type}' trigger, not inbound_webhook. Nothing was posted.`,
+          'Only an inbound_webhook trigger has a receiving URL and a pinned reference.');
+      }
       let posted = null;
       if (args.pinLatestExisting !== true) {
         const p = await gw.call('POST', `/hooks/${encodeURIComponent(loc)}/webhook-trigger/${tid}`, args.samplePayload, 'https://services.leadconnectorhq.com');

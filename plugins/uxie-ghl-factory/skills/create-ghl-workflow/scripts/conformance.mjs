@@ -814,6 +814,61 @@ log.subject('list_workflow_templates');
 // exposes two modes over it and they count different things; a caller who reads one as the other is
 // wrong by a large factor, silently. These assertions pin the DIFFERENCE, not either number.
 console.log('\nthe workflow content index');
+// ── inbound webhook: the ONE fixture with a trigger ─────────────────────────────────────────
+// Every other build here is trigger-less by design. This one carries an inbound_webhook trigger and
+// the whole section is fenced by the two facts that keep it harmless: the workflow stays a DRAFT and
+// the trigger stays INACTIVE — both asserted AFTER the pin, because "we did not activate it" is a
+// claim about the account, not about our intentions. A draft enrols nobody, so the sample POST is
+// recorded as a request and goes nowhere else.
+console.log('\ninbound webhook sample');
+log.subject('build_workflow');
+const hookBuilt = await call('build_workflow', { spec: { name: NAME('webhook'),
+  triggers: [{ ref: 'wh', type: 'inbound_webhook', name: 'TEST-CONF inbound (stays inactive)', filters: [] }],
+  graph: [{ ref: 'w', kind: 'wait', name: 'Wait 1 day', config: { unit: 'days', value: 1, when: 'after' } }] } });
+const hwid = hookBuilt.data?.wid;
+// The build's report IS `data` — `data.webhookUrls`, not `data.report.webhookUrls`. The first run of
+// this section read the wrong level, found no id, and skipped every assertion below it.
+const htid = hookBuilt.data?.webhookUrls?.[0]?.triggerId ?? hookBuilt.data?.triggers?.ids?.[0];
+check(hookBuilt.ok === true && typeof htid === 'string', 'build_workflow creates a draft with an inbound_webhook trigger and reports its id',
+  `${hookBuilt.code ?? ''} ${String(hookBuilt.detail ?? '').slice(0, 160)} ${JSON.stringify(hookBuilt.data?.triggers ?? null).slice(0, 120)}`);
+if (hwid) left.push(`workflow ${hwid} (${NAME('webhook')}, inbound_webhook trigger INACTIVE, one pinned sample)`);
+if (hwid && htid) {
+  log.subject('pin_webhook_sample');
+  const sample = { probe: `TEST-CONF-${STAMP}`, nested: { n: 1 }, list: ['a'] };
+  const gwh = deps.makeGw({ loc: LOCATION, state });
+  const listed = () => gwh.call('GET', `/hooks/inbound-webhook-request/trigger/${htid}?${new URLSearchParams({ limit: '10', locationId: LOCATION })}`);
+  const preview = await call('pin_webhook_sample', { workflowId: hwid, triggerId: htid, samplePayload: sample });
+  const afterPreview = await listed();
+  check(preview.ok === true && preview.data?.preview === true && Array.isArray(afterPreview.json) && afterPreview.json.length === 0,
+    'without confirm it is a PREVIEW, and nothing was posted — the trigger still has zero recorded requests',
+    `preview=${preview.data?.preview} recorded=${JSON.stringify(afterPreview.json)?.slice(0, 80)}`);
+  const pinned = await call('pin_webhook_sample', { workflowId: hwid, triggerId: htid, samplePayload: sample, confirm: true });
+  check(pinned.ok === true, 'with confirm it posts the sample, finds it, and pins it', `${pinned.code ?? ''} ${String(pinned.detail ?? '').slice(0, 200)}`);
+  const tags = JSON.stringify(pinned.data ?? {});
+  check(tags.includes('{{inboundWebhookRequest.nested.n}}') && tags.includes('{{inboundWebhookRequest.probe}}'),
+    'and returns the merge tags the payload makes real, nested paths included', tags.slice(0, 200));
+  // READ BACK ON A SEPARATE REQUEST, not from the tool's own answer.
+  const ref = await gwh.call('GET', `/hooks/inbound-webhook-request/reference/${htid}?${new URLSearchParams({ locationId: LOCATION })}`);
+  check(ref.ok === true && JSON.stringify(ref.json ?? {}).includes(sample.probe),
+    'READ-BACK: the trigger\'s reference, fetched separately, carries THIS run\'s payload', `${ref.status} ${JSON.stringify(ref.json ?? null).slice(0, 120)}`);
+  // CONTROL: a trigger that does not exist must not "succeed". Same tool, same payload.
+  // This control is why the tool takes a workflowId at all: GHL itself accepts a sample for ANY id.
+  const GHOST = 'zzNotATriggerId000000';
+  const ghost = await call('pin_webhook_sample', { workflowId: hwid, triggerId: GHOST, samplePayload: sample, confirm: true, maxPolls: 1, pollMs: 500 });
+  check(ghost.ok === false && /Nothing was posted/.test(String(ghost.detail)), 'CONTROL: the same call against a trigger id that does not exist is REFUSED', `${ghost.ok} ${ghost.code ?? ''}`);
+  log.subject(false);
+  const ghostRows = await gwh.call('GET', `/hooks/inbound-webhook-request/trigger/${GHOST}?${new URLSearchParams({ limit: '10', locationId: LOCATION })}`);
+  const mine = (Array.isArray(ghostRows.json) ? ghostRows.json : []).filter((r) => JSON.stringify(r?.payload ?? {}).includes(sample.probe));
+  log.subject('pin_webhook_sample');
+  check(mine.length === 0, 'and the refusal came BEFORE the POST — no request carrying this run\'s payload was recorded against the ghost id', `recorded=${mine.length}`);
+  // THE FENCE, asserted last.
+  log.subject(false);
+  const fence = (await call('export_workflow', { workflowId: hwid })).data;
+  const trig = (fence?.triggers ?? []).find((t) => (t.id ?? t._id) === htid);
+  check(fence?.workflow?.status === 'draft' && trig && trig.active !== true,
+    'FENCE: after all of it the workflow is still a DRAFT and the trigger is still INACTIVE', `status=${fence?.workflow?.status} active=${trig?.active}`);
+}
+
 log.subject('search_merge_tags');
 {
   // Three claims, each with its control: the static inventory answers with no account at all; a
@@ -1040,9 +1095,6 @@ console.log('  contact enrollment    — same reason; fast_forward_contacts move
 console.log('  fast_forward_contacts — REFUSED, not skipped. It advances real enrolments past a wait,');
 console.log('                          which fires whatever comes next at whoever is parked there.');
 console.log('                          There is no safe way to exercise it on an account with contacts.');
-console.log('  pin_webhook_sample    — needs an inbound-webhook TRIGGER, and this suite builds nothing');
-console.log('                          with a trigger by design. Covering it means a second fixture');
-console.log('                          whose trigger stays inactive — worth doing, not done here.');
 
 console.log(`\nLEFT IN PLACE (nothing is deleted):`);
 for (const l of left) console.log(`  ${l}`);

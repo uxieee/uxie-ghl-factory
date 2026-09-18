@@ -332,7 +332,7 @@ sample in the IR and let the engine check every reference before anything is sav
   option) and the build itself POSTs the sample to the receiving URL, waits for GHL to record it,
   pins it as the reference and reports `report.webhookPins[] = {triggerId, requestId, referenceId,
   tagCount, mergeTags, error}` (live-proven GROM AU 2026-08-22, 4 tags). After the fact, the MCP
-  tool does the same: `pin_webhook_sample { locationId, triggerId, samplePayload, confirm:true }` (POSTs the sample
+  tool does the same: `pin_webhook_sample { locationId, workflowId, triggerId, samplePayload, confirm:true }` (POSTs the sample
   to the receiving URL — unauthenticated by design — waits for GHL to record it, PUTs
   set-as-reference, returns the merge tags). Live-proven on a GROM AU canary 2026-08-22. Pinning
   REPLACES the active reference: on a live workflow only do it with a payload shaped like the

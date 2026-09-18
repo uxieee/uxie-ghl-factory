@@ -121,6 +121,7 @@ test('pin_webhook_sample: previews without confirm; with confirm POSTs to the ho
     calls, loc: 'L', uid: 'u',
     call: async (method, path, body, base) => {
       calls.push({ method, path, body, base });
+      if (path.startsWith('/workflow/L/trigger?')) return { status: 200, ok: true, json: [{ id: 'trg1', type: 'inbound_webhook' }, { id: 'trgTag', type: 'contact_tag' }] };
       if (path.startsWith('/hooks/L/webhook-trigger/trg1')) return { status: 200, ok: true, json: { status: 'Success: test request received' } };
       if (path.startsWith('/hooks/inbound-webhook-request/trigger/trg1')) return { status: 200, ok: true, json: [
         { _id: 'reqOld', payload: { dealRefId: 'OLD', headers: { host: 'x' } } },
@@ -132,15 +133,25 @@ test('pin_webhook_sample: previews without confirm; with confirm POSTs to the ho
     },
   };
   const d = { ...deps(gw), sleep: async () => {} };
-  const pv = await tool('pin_webhook_sample').handler({ locationId: 'L', triggerId: 'trg1', samplePayload: sample }, d);
+  const pv = await tool('pin_webhook_sample').handler({ locationId: 'L', workflowId: 'W', triggerId: 'trg1', samplePayload: sample }, d);
   assert.equal(pv.ok, true); assert.equal(pv.data.preview, true); assert.equal(calls.length, 0, 'preview makes no call');
-  const r = await tool('pin_webhook_sample').handler({ locationId: 'L', triggerId: 'trg1', samplePayload: sample, confirm: true }, d);
+  const r = await tool('pin_webhook_sample').handler({ locationId: 'L', workflowId: 'W', triggerId: 'trg1', samplePayload: sample, confirm: true }, d);
   assert.equal(r.ok, true, JSON.stringify(r));
-  assert.equal(calls[0].method, 'POST'); assert.equal(calls[0].base, 'https://services.leadconnectorhq.com'); assert.deepEqual(calls[0].body, sample);
+  assert.equal(calls[0].method, 'GET'); assert.match(calls[0].path, /^\/workflow\/L\/trigger\?workflowId=W/, 'ownership is read BEFORE anything is posted');
+  assert.equal(calls[1].method, 'POST'); assert.equal(calls[1].base, 'https://services.leadconnectorhq.com'); assert.deepEqual(calls[1].body, sample);
   assert.equal(r.data.requestId, 'reqNew'); assert.equal(r.data.referenceId, 'ref1');
   assert.deepEqual(r.data.mergeTags, { 'lead.email': '{{inboundWebhookRequest.lead.email}}', dealRefId: '{{inboundWebhookRequest.dealRefId}}', 'items.0.sku': '{{inboundWebhookRequest.items.0.sku}}' });
   assert.equal(r.data.headerTagsOmitted, 1);
   assert.ok(calls.some((c) => c.method === 'PUT' && c.path.includes('set-as-reference/reqNew')));
+
+  // GHL accepts a sample for ANY id and pins it to a trigger that does not exist (live 2026-09-19).
+  // Both refusals must land before a single POST.
+  for (const [triggerId, why] of [['trgGhost', /no trigger with id trgGhost/], ['trgTag', /'contact_tag' trigger, not inbound_webhook/]]) {
+    calls.length = 0;
+    const bad = await tool('pin_webhook_sample').handler({ locationId: 'L', workflowId: 'W', triggerId, samplePayload: sample, confirm: true }, d);
+    assert.equal(bad.ok, false); assert.match(bad.detail, why); assert.match(bad.detail, /Nothing was posted/);
+    assert.equal(calls.some((c) => c.method !== 'GET'), false, 'a refused pin makes no write');
+  }
 });
 
 // F5-35: DELETE /contacts/{id}/workflow/{wid} on the PUBLIC rail ends a live run, and the roster

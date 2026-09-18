@@ -16,10 +16,20 @@
         "row:hooks-reference"
       ],
       "backfilled": true
+    },
+    {
+      "at": "2026-09-18",
+      "result": "pass",
+      "how": "suite",
+      "suite": "workflows",
+      "evidence": [
+        "receipt:2026-09-18-1655"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
-    "hashedAt": "2026-09-14",
+    "hashedAt": "2026-09-18",
     "endpoints": {
       "GET https://services.leadconnectorhq.com /hooks/inbound-webhook-request/reference/{}": "f5b8fde80ab6ee603c01397f99a1f21e5b06dcfba67b060a5b767f4fefa7a16e",
       "GET https://services.leadconnectorhq.com /hooks/inbound-webhook-request/trigger/{}": "0d68749767914a2a0b43e83293ed77732ae49e49af869fe1b2d103883643e4f0",
@@ -28,10 +38,10 @@
     },
     "builds": {
       "builder-chunks": "assets/index-BZBeFyAW.js",
-      "reportingApp": 268
+      "reportingApp": 272
     },
     "code": {
-      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#pin_webhook_sample": "568090ed1cee03c955f44e036d69fb0e1b7a27c28f602596ca68abdf08a5eb40",
+      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#pin_webhook_sample": "2787f7e5e8963fd00a8219c677efd97716c881c085293418f99dabb6bca27dc1",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "e65c2384aefb498ce49453dd2d6d8d1a1d8351fd6d337aef5256eb982e1db02f",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
       "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "2d59b12818ffe76fb105e5284c3d186aea8d07f6a457b7c6344ea2258ba6a1d6"

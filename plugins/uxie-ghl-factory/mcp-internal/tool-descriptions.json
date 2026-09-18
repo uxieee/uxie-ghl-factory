@@ -1549,9 +1549,9 @@
     ]
   },
   "pin_webhook_sample": {
-    "description": "Inbound-webhook sample → reference pin → merge tags — proof: live-canary (2026-08-22); risk: write (replaces the trigger's reference)",
+    "description": "Inbound-webhook sample → reference pin → merge tags — proof: live-runtime (2026-09-18); risk: write (replaces the trigger's reference)",
     "risk": "write",
-    "proof": "live-canary (2026-08-22)",
+    "proof": "live-runtime (2026-09-18)",
     "proofFloor": "live-canary (2026-08-22)",
     "proofRows": [
       "hooks-webhook-trigger-post",
