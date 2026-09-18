@@ -1290,8 +1290,24 @@ console.log('\nruntime: enrolment, drip queue, fast-forward');
     if (pub.ok && ids.length === 4) {
       log.subject('build_workflow');
       const COMMENT = `<p>TEST-CONF ${STAMP} internal comment</p>`;
+      // A SECOND first-party step whose effect is a NUMBER on another service: Update Inventory.
+      // Its dropdown is GHL's own options route — the ALL-fields form, because the per-field form
+      // answers `{options:[]}` for a real field and a nonsense one alike. The value is the PRICE id,
+      // and only prices with inventory tracking ON are offered. FENCE: a TEST-named product only.
+      log.subject(false);
+      const invOpts = await gwr.call('GET', `/workflows-marketplace/actions/options/update_inventory?locationId=${LOCATION}&optionType=default`);
+      const stockItem = (invOpts.json?.product ?? []).find((o) => /^TEST-/.test(String(o.label ?? '')));
+      const stockOf = async () => ((await gwr.call('GET', `/products/inventory?altId=${LOCATION}&altType=location&limit=100`)).json?.inventory ?? [])
+        .find((i) => i._id === stockItem?.value)?.availableQuantity;
+      const stockBefore = stockItem ? await stockOf() : null;
+      log.subject('build_workflow');
       const fr = await call('build_workflow', { spec: { name: NAME('firstparty-run'), triggers: [], graph: [
-        { ref: 'c', kind: 'action', type: 'internal_comment_action', marketplace: true, name: 'Internal comment', attributes: { message_rich_text: COMMENT } }] } });
+        { ref: 'c', kind: 'action', type: 'internal_comment_action', marketplace: true, name: 'Internal comment', attributes: { message_rich_text: COMMENT } },
+        ...(stockItem ? [{ ref: 'i', kind: 'action', type: 'update_inventory', marketplace: true, name: 'Add one to stock', attributes: { product: stockItem.value, update_type: 'increment_by', value: 1 } }] : [])] } });
+      // The build had READ the account's assets; a gate that is then told "marketplace types unknown"
+      // calls a correct first-party step "not a known step type".
+      check(!(fr.data?.warnings ?? []).some((w) => /is not a known step type/.test(String(w))),
+        'the build does not call a first-party step it just looked up "not a known step type"', JSON.stringify(fr.data?.warnings ?? []).slice(0, 240));
       const frwid = fr.data?.wid;
       if (frwid) left.push(`workflow ${frwid} (${NAME('firstparty-run')}, published for the run and unpublished after)`);
       const frPub = frwid ? await call('publish_workflow', { workflowId: frwid, confirm: true }) : { ok: false };
@@ -1306,6 +1322,10 @@ console.log('\nruntime: enrolment, drip queue, fast-forward');
       log.subject('build_workflow');
       check(fr.ok === true && frPub.ok === true && Boolean(convId), 'a first-party step builds, publishes, and its contact has a conversation to comment on', `${fr.code ?? ''} ${frPub.code ?? ''} conv=${Boolean(convId)}`);
       check(landed === true, 'EFFECT: the internal comment is IN THE CONVERSATION — the first-party step RAN, read from the conversations endpoint rather than the workflow\'s own log', String(landed));
+      if (stockItem) {
+        const moved = landed === true ? await until(async () => (await stockOf()) === stockBefore + 1) : null;
+        check(moved === true, 'EFFECT: Update Inventory RAN — the stock count on the products service is exactly one higher than before the enrolment', `${stockBefore} -> ${await stockOf()}`);
+      } else console.log('  NOTE  no TEST-named product with inventory tracking on — the Update Inventory run was NOT exercised');
       if (frwid) await call('unpublish_workflows', { workflowIds: [frwid], confirm: true });
     }
 

@@ -345,7 +345,7 @@ export async function orchestrate(ir, gw, opts = {}) {
     settings: { senderAddress: built.autoSaveBody?.senderAddress ?? ir.settings?.senderAddress },
     status: opts.publish === true ? 'published' : 'draft',
     catalog,
-    marketplaceTypes: usesMarketplace ? null : new Set(),
+    marketplaceTypes: usesMarketplace ? (marketplace.actionTypes?.() ?? null) : new Set(),
     skipWorkflowRules: opts.skipWorkflowRules,
   });
   report.validation = { intent: 'build', publishing: offline.publishing, engine: { errors: offline.engine.errors, warnings: offline.engine.warnings.length },
@@ -465,7 +465,7 @@ export async function orchestrate(ir, gw, opts = {}) {
     // GHL's validator is shown only the ones it can judge yet.
     intent: 'build', call, loc, wid: WID, document: sent, triggers: built.triggerBodies.map(swap), serverTriggers: gateTriggers,
     settings: { senderAddress: sent.senderAddress }, status: opts.publish === true ? 'published' : 'draft',
-    catalog, marketplaceTypes: usesMarketplace ? null : new Set(), skipWorkflowRules: opts.skipWorkflowRules,
+    catalog, marketplaceTypes: usesMarketplace ? (marketplace.actionTypes?.() ?? null) : new Set(), skipWorkflowRules: opts.skipWorkflowRules,
   });
   const serverGate = gate.server;
   report.validation.server = serverGate;

@@ -234,3 +234,23 @@ test('an asset GHL labels INTERNAL is firstParty; INTEGRATION_AI and unlabelled 
   assert.equal(idx.get('third_party_send', 'action').publisher, null);
   assert.equal(idx.get('event_registration', 'trigger').firstParty, true);
 });
+
+// The document gate needs the account's action keys to tell a first-party step from a typo. Handing
+// it NULL while the index held them made a correct `workflowsActionType` step draw "not a known
+// step type (marketplace types were not available…)" on a build that had just read them.
+test('actionTypes() is the set of action keys, and NULL — never empty — when the assets read failed', async () => {
+  const { gateDocument } = await import('./document-gate.mjs');
+  // A key with NO native card: a carded key never reaches the step-type branch and would test
+  // nothing. Every key in the captured fixture has a card, so one first-party asset is added.
+  const key = 'zz_first_party_not_in_catalogue';
+  const assets = { ...ASSETS, actions: [...ASSETS.actions, { appName: 'GHL', actions: [{ key, workflowsActionType: 'INTERNAL', inputs: [] }] }] };
+  const index = buildMarketplaceIndex({ assets, modules: MODULES });
+  const types = index.actionTypes();
+  assert.ok(types instanceof Set && types.has(key));
+  const step = [{ id: 's1', type: key, name: 'x', order: 0, attributes: {}, workflowsActionType: 'INTERNAL' }];
+  const known = gateDocument(step, { marketplaceTypes: types });
+  assert.deepEqual([...known.errors, ...known.warnings].filter((f) => f.check === 'STEP_TYPE'), []);
+  const blind = gateDocument(step, { marketplaceTypes: null });   // the control: the old behaviour
+  assert.equal(blind.warnings.filter((f) => f.check === 'STEP_TYPE').length, 1);
+  assert.equal(buildMarketplaceIndex({ assets: ASSETS, modules: MODULES, legs: { assets: 'failed' } }).actionTypes(), null);
+});

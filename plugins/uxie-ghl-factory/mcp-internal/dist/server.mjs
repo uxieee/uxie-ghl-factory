@@ -163998,6 +163998,10 @@ function buildMarketplaceIndex({ assets, modules, legs } = {}) {
     // one it means. There is deliberately no default/fallback/"whichever exists" path —
     // a silent fallback is how the original bug (triggers always winning a collision)
     // survived undetected. Every caller of `.get` on this index must pass kind.
+    // The action keys this account's Add-step panel offers, for the document gate — or NULL when
+    // the assets read failed, because an empty set would turn "unknown" into "ruled out" and
+    // promote every marketplace step to a STEP_TYPE error.
+    actionTypes: () => legs?.assets === "failed" ? null : new Set(byKind.action.keys()),
     get: (key, kind) => {
       if (kind !== "action" && kind !== "trigger") {
         throw new Error(
@@ -165720,7 +165724,7 @@ async function orchestrate(ir, gw, opts = {}) {
     settings: { senderAddress: built.autoSaveBody?.senderAddress ?? ir.settings?.senderAddress },
     status: opts.publish === true ? "published" : "draft",
     catalog,
-    marketplaceTypes: usesMarketplace ? null : /* @__PURE__ */ new Set(),
+    marketplaceTypes: usesMarketplace ? marketplace.actionTypes?.() ?? null : /* @__PURE__ */ new Set(),
     skipWorkflowRules: opts.skipWorkflowRules
   });
   report.validation = {
@@ -165852,7 +165856,7 @@ ${offline.summary}`;
     settings: { senderAddress: sent.senderAddress },
     status: opts.publish === true ? "published" : "draft",
     catalog,
-    marketplaceTypes: usesMarketplace ? null : /* @__PURE__ */ new Set(),
+    marketplaceTypes: usesMarketplace ? marketplace.actionTypes?.() ?? null : /* @__PURE__ */ new Set(),
     skipWorkflowRules: opts.skipWorkflowRules
   });
   const serverGate = gate.server;
