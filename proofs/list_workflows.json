@@ -62,22 +62,36 @@
         "receipt:2026-09-15-1120"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-18",
+      "result": "pass",
+      "how": "suite",
+      "suite": "workflows",
+      "evidence": [
+        "receipt:2026-09-18-1622"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
-    "hashedAt": "2026-09-15",
+    "hashedAt": "2026-09-18",
     "endpoints": {
       "GET https://backend.leadconnectorhq.com /workflow/{}/list": "c3a30133ae951cb061dce33d9bf73e80273ed161cade4401a663efa490030075"
     },
     "builds": {
       "builder-chunks": "assets/index-BZBeFyAW.js",
-      "reportingApp": 268
+      "reportingApp": 272
     },
     "code": {
-      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#list_workflows": "ec8997669911deaf90f41a9b59b5b1cb5734678e31d0dfaa9c97de4cc52ad9e1",
+      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#list_workflows": "a1a659865216cb5cfff5a46456a73bfd4622e03638e881b1b9852b12a8e84eda",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "e65c2384aefb498ce49453dd2d6d8d1a1d8351fd6d337aef5256eb982e1db02f",
+      "plugins/uxie-ghl-factory/mcp-internal/core/audit-configuration.mjs": "63ebae9749e9adaa1ce75a5c7839799451622b4c700eef49e3d4eeed9f449603",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
-      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "2d59b12818ffe76fb105e5284c3d186aea8d07f6a457b7c6344ea2258ba6a1d6"
+      "plugins/uxie-ghl-factory/mcp-internal/core/auth.mjs": "467b14cd1ab05c33a228d0f51ecfc9483950c4b77aaf5d8c91acdb1effc0723a",
+      "plugins/uxie-ghl-factory/mcp-internal/core/build-provenance.mjs": "6cabad4e34366c6ff6ab1886b20c3ad24f924b477d9145f0b2969a5ec62ed997",
+      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "2d59b12818ffe76fb105e5284c3d186aea8d07f6a457b7c6344ea2258ba6a1d6",
+      "plugins/uxie-ghl-factory/mcp-internal/core/gateway.mjs": "dd5308b287f2e4b89d546b50e90fdb9e176fedd0095a9d946cdb0d53d34295ec"
     }
   }
 }

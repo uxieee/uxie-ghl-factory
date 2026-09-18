@@ -138,7 +138,7 @@ const WARNING_KEYS = Object.freeze(['code', 'component', 'detail', 'detailSample
 // falsy = "nothing was cut") nor a private scratch field leaked into a published artifact.
 const ROSTER_RESULT_KEYS = Object.freeze([
   'appliedQueries', 'boundLocationId', 'capabilityVersion', 'capturedAt', 'complete',
-  'envelopeShape', 'locationBinding', 'pagination', 'rateLimit', 'reportedTotal',
+  'envelopeShape', 'locationBinding', 'pagination', 'partialWorkflows', 'rateLimit', 'reportedTotal',
   'sourceRoutes', 'terminalReason', 'totalHistory', 'truncated', 'uniqueCount',
   'uniqueProgress', 'warnings', 'workflows',
 ]);
@@ -554,7 +554,15 @@ function assertRosterExpectations(result, gateway, expected) {
       'the first roster query must carry exactly the descriptor-declared keys and pinned values');
   }
   if (has('workflowIds')) {
-    assert.deepEqual((result.workflows ?? []).map((row) => String(row._id ?? row.id)), expected.workflowIds);
+    // An INCOMPLETE walk publishes no roster: the rows it read are evidence and live under
+    // `partialWorkflows`, never under the key a caller reads as "every workflow".
+    if (!result.complete) {
+      assert.equal(result.workflows, null, 'an incomplete walk must not publish rows under `workflows`');
+    } else {
+      assert.equal(result.partialWorkflows, null, 'a complete walk has no partial');
+    }
+    const rows = result.complete ? result.workflows : result.partialWorkflows;
+    assert.deepEqual((rows ?? []).map((row) => String(row._id ?? row.id)), expected.workflowIds);
   }
   if (has('workflowsNull')) {
     // null, not []: an empty array is a claim that the account has no workflows, and this

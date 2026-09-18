@@ -319,7 +319,12 @@ if (wid) {
   const refused = await call('edit_workflow', { workflowId: wid, confirm: true, acknowledgeDrift: true, ops: op });
   check(refused.ok === false && refused.code === 'VALIDATION_FAILED' && /ATTRIBUTE_KEY/.test(String(refused.detail)) && /inventedGateKey/.test(String(refused.detail)),
     'EDIT: the same edit is REFUSED by the engine half, naming the key', `${refused.code} ${String(refused.detail).slice(0, 160)}`);
-  const after = (await call('export_workflow', { workflowId: wid })).data?.workflow;
+  // A FAILED READ IS NOT A MOVED VERSION. On 2026-09-19 this check failed as "version 3 -> undefined":
+  // the read-back itself had not answered, and the message could not say so — it read as "the edit
+  // wrote something". The read is checked first and reports its own failure.
+  const afterRes = await call('export_workflow', { workflowId: wid });
+  check(afterRes.ok === true, 'EDIT: the read-back after the refusal answered', `${afterRes.code} ${String(afterRes.detail ?? '').slice(0, 200)}`);
+  const after = afterRes.data?.workflow;
   check(after?.version === before?.version && !JSON.stringify(after?.workflowData ?? {}).includes('inventedGateKey'),
     'EDIT: and nothing was written — the version is unmoved and the key is nowhere in the stored document',
     `version ${before?.version} -> ${after?.version}`);

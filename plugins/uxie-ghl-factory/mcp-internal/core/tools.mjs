@@ -2972,8 +2972,8 @@ export const TOOLS = [
       'list_workflows',
       'Every workflow in a location, walked to a reconciled terminal proof — proof: external-receipt-required; risk: read. '
       + 'Optional `status` (published|draft) and `search` filter the walk, and the reconciled total is then the total FOR THAT FILTER. '
-      + 'A failed, contradicted or budget-exhausted walk is complete:false with a coded warning and a null roster, never an empty list — '
-      + 'so a short answer can never read as a complete one. Live canary required before Full audit.',
+      + 'A failed, contradicted or budget-exhausted walk is complete:false with a coded warning and workflows:null — never an empty or partial list — '
+      + 'so a short answer can never read as a complete one; the rows it did read are under partialWorkflows. Live canary required before Full audit.',
     ),
     inputSchema: schema({
       locationId: z.string(),

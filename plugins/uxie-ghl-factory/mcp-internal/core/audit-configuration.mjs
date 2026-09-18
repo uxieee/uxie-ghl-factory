@@ -746,7 +746,16 @@ export async function listWorkflowsComplete({ auditGateway, input } = {}) {
       uniqueCount,
       uniqueProgress,
       warnings,
-      workflows,
+      // AN INCOMPLETE WALK PUBLISHES NO ROSTER. `workflows` is the key every caller reads, and a
+      // partial array under it is a short answer that reads as a whole one to anyone who does
+      // not also check `complete` — the defect the one-page list tool had for months. The live
+      // suite caught this on 2026-09-19: a 1-page budget returned complete:false AND one row
+      // under `workflows`. The rows are still real evidence, so they are kept — under a name
+      // nobody mistakes for the roster.
+      workflows: complete ? workflows : null,
+      // Always present, so the result has ONE shape: null on a complete walk and on a walk that
+      // never read a page.
+      partialWorkflows: complete ? null : workflows,
     };
   };
 
