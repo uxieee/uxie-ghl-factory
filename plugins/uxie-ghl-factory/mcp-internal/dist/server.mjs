@@ -1582,6 +1582,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           note: "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           refusedFor: [
             "location-user-bearer"
           ],
@@ -14871,6 +14874,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -15013,6 +15019,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
+          note: 'DEAD IN SOURCE: the only call site (WorkflowTypeService.fetchWorkflowTypeEnabled) is commented out and returns {enabled:false} locally. The live host answers 404 "Cannot GET" -- no route handler. Nothing to use.',
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -16858,6 +16865,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
+          note: 'Required: companyId (400 "Company ID missing") and then userId (422). Reached, not yet answered 200.',
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -17442,7 +17450,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          summary: "The AGENCY-level billing config for one product (workflow_premium_actions | workflow_ai).",
+          note: "Agency scope. For whether ONE sub-account may run premium steps use the LOCATION route and read config.optIn -- config.enabled is not the gate. Executed 2026-09-19.",
+          reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -21358,7 +21371,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          summary: "Event + ticket options for the Events trigger filters: {events, eventTickets}.",
+          note: "TRAP: this row's path is MIS-MINED. {base} is the services HOST the builder computes (config.servicesURL with .backend. swapped for .services.), not a path segment. The real call is GET https://services.leadconnectorhq.com/events-management/events/options?locationId= -- executed 200 on the sandbox 2026-09-19; the Bearer alone is enough.",
+          reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: false,
           transport: "json",
@@ -21466,7 +21484,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          summary: "AGENCY view of per-sub-account workflow settings: {locations, pagination}.",
+          note: "The first path segment is the COMPANY id, not a location id. Answers 200 with or without ?locationId. Executed on the designated sandbox 2026-09-19.",
+          reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -22143,6 +22166,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
+          note: 'Answers 400 {"msg":"URL is required"} -- it downloads something BY URL, it is not a workflow export. Use export_workflow for the document.',
           reach: "source-only",
           coveredBy: [],
           rawCallable: false,
@@ -23519,7 +23543,10 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -23577,7 +23604,10 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -25039,7 +25069,10 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           summary: "Premium-action CONSUMPTION for one tier on this sub-account.",
           note: "Consumption only. Whether the product is opted in for this sub-account is a separate read: GET /saas-billing-v2/billing-config/LOCATION/{locationId}/workflow_premium_actions?optIn=true, reachable with a location Bearer.",
-          reach: "source-only",
+          reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -25541,7 +25574,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          summary: "The workflow secret store for a location, by type.",
+          note: 'Requires ?type= (400 "Missing required fields: type" without it). A NONSENSE type still answers 200 {success,message,data}, so a 200 here proves reach and nothing about the type vocabulary. This route returns SECRETS: it was probed with a nonsense type only and no value was read. Executed 2026-09-19.',
+          reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -30049,6 +30087,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
+          summary: "Execution stats for one marketplace/premium action step over a window.",
+          note: 'Bare 403 "locationId is required" without it, then 422 naming the rest: workflowStepId, workflowId, startAt, endAt are ALL required. A nonsense actionKey gets the same 422, so the key is validated after the query. Reached, not yet answered 200.',
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -30067,7 +30107,38 @@ var init_define_ENDPOINT_CATALOG = __esm({
               name: "actionKey"
             }
           ],
-          query: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "live-probe"
+            },
+            {
+              name: "workflowId",
+              type: "string",
+              required: true,
+              source: "live-probe"
+            },
+            {
+              name: "workflowStepId",
+              type: "string",
+              required: true,
+              source: "live-probe"
+            },
+            {
+              name: "startAt",
+              type: "string",
+              required: true,
+              source: "live-probe"
+            },
+            {
+              name: "endAt",
+              type: "string",
+              required: true,
+              source: "live-probe"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
@@ -31651,7 +31722,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          note: "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
+          note: "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source. Re-probed 2026-09-19: requestGroupId AND workflowId are required too, each named by its own 422. Reached, not yet answered 200.",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -31901,6 +31972,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
+          note: 'Required: locationId, workflowId, fromDate, toDate (422 names the dates, then 400 "workflowId is required"). Reached, not yet answered 200.',
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -33099,6 +33171,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
+          note: `?_id= is the STICKY NOTE's Mongo ObjectId, not a workflow id: a workflow uuid answers 500 "Cast to ObjectId failed ... model stickynotes". Read note ids off export_workflow first.`,
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -39954,7 +40027,10 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [
             "build_workflow",
             "pin_webhook_sample"
@@ -53385,14 +53461,18 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         "GET /saas-billing-v2/billing-config/locations/workflow_ai": {
           summary: "AGENCY roster: every sub-account's billing config for external AI model steps (optIn, enabled, markup, basePrice). For ONE sub-account use the per-location route instead.",
           note: "TRAP: companyId is REQUIRED as a QUERY param (?companyId=&skip=0&limit=15&query=). Omit it and the route answers a BARE 403 'Forbidden resource' that names no argument and reads exactly like a permission refusal -- this row was recorded 'refused' twice on that. TRAP: config.enabled is NOT 'can run premium steps' (false on every sub-account of a working agency; it tracks rebilling) -- read config.optIn. hit[0].count is the agency total and ignores limit; locations.length is one page.",
-          requiredQuery: ["companyId"],
+          requiredQuery: [
+            "companyId"
+          ],
           reach: "proven",
           credentialClass: "agency-admin-bearer"
         },
         "GET /saas-billing-v2/billing-config/locations/workflow_premium_actions": {
           summary: "AGENCY roster: every sub-account's billing config for premium workflow actions (optIn, enabled, markup, basePrice). For ONE sub-account use the per-location route instead.",
           note: "TRAP: companyId is REQUIRED as a QUERY param (?companyId=&skip=0&limit=15&query=). Omit it and the route answers a BARE 403 'Forbidden resource' that names no argument and reads exactly like a permission refusal -- this row was recorded 'refused' twice on that. TRAP: config.enabled is NOT 'can run premium steps' (false on every sub-account of a working agency; it tracks rebilling) -- read config.optIn. hit[0].count is the agency total and ignores limit; locations.length is one page.",
-          requiredQuery: ["companyId"],
+          requiredQuery: [
+            "companyId"
+          ],
           reach: "proven",
           credentialClass: "agency-admin-bearer"
         },
@@ -53645,9 +53725,11 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         },
         "GET /workflows/copyWorkflow/internalLogList": {
           requiredQuery: [
-            "locationId"
+            "locationId",
+            "requestGroupId",
+            "workflowId"
           ],
-          note: "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source."
+          note: "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source. Re-probed 2026-09-19: requestGroupId AND workflowId are required too, each named by its own 422. Reached, not yet answered 200."
         },
         "GET /workflows/copyWorkflow/logList": {
           requiredQuery: [
@@ -54213,6 +54295,72 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         "GET /calendars/schedules": {
           summary: "\u{1F534} NOT the list route \u2014 400s. Use GET /calendars/schedules/search?locationId= instead.",
           note: 'This path collides with /calendars/{calendarId} and answers 400 "Calendar not found for id: schedules". GET by a real schedule id works (/calendars/schedules/{scheduleId}); only the bare collection path is broken.'
+        },
+        "GET /workflow/{companyId}/workflow-company-setting/location-settings": {
+          summary: "AGENCY view of per-sub-account workflow settings: {locations, pagination}.",
+          note: "The first path segment is the COMPANY id, not a location id. Answers 200 with or without ?locationId. Executed on the designated sandbox 2026-09-19.",
+          reach: "proven",
+          credentialClass: "agency-admin-bearer"
+        },
+        "GET /saas-billing-v2/billing-config/COMPANY/{companyId}/{product}": {
+          summary: "The AGENCY-level billing config for one product (workflow_premium_actions | workflow_ai).",
+          note: "Agency scope. For whether ONE sub-account may run premium steps use the LOCATION route and read config.optIn -- config.enabled is not the gate. Executed 2026-09-19.",
+          reach: "proven",
+          credentialClass: "agency-admin-bearer"
+        },
+        "GET /workflow/{base}/events-management/events/options": {
+          summary: "Event + ticket options for the Events trigger filters: {events, eventTickets}.",
+          note: "TRAP: this row's path is MIS-MINED. {base} is the services HOST the builder computes (config.servicesURL with .backend. swapped for .services.), not a path segment. The real call is GET https://services.leadconnectorhq.com/events-management/events/options?locationId= -- executed 200 on the sandbox 2026-09-19; the Bearer alone is enough.",
+          reach: "proven",
+          credentialClass: "agency-admin-bearer"
+        },
+        "GET /workflow/{locationId}/secret-manager": {
+          summary: "The workflow secret store for a location, by type.",
+          note: 'Requires ?type= (400 "Missing required fields: type" without it). A NONSENSE type still answers 200 {success,message,data}, so a 200 here proves reach and nothing about the type vocabulary. This route returns SECRETS: it was probed with a nonsense type only and no value was read. Executed 2026-09-19.',
+          requiredQuery: [
+            "type"
+          ],
+          reach: "proven",
+          credentialClass: "agency-admin-bearer"
+        },
+        "GET /workflows-marketplace/actions/stats/{actionKey}": {
+          summary: "Execution stats for one marketplace/premium action step over a window.",
+          note: 'Bare 403 "locationId is required" without it, then 422 naming the rest: workflowStepId, workflowId, startAt, endAt are ALL required. A nonsense actionKey gets the same 422, so the key is validated after the query. Reached, not yet answered 200.',
+          requiredQuery: [
+            "locationId",
+            "workflowId",
+            "workflowStepId",
+            "startAt",
+            "endAt"
+          ]
+        },
+        "GET /workflows/logs/export/preview": {
+          note: 'Required: locationId, workflowId, fromDate, toDate (422 names the dates, then 400 "workflowId is required"). Reached, not yet answered 200.',
+          requiredQuery: [
+            "locationId",
+            "workflowId",
+            "fromDate",
+            "toDate"
+          ]
+        },
+        "GET /workflows/sticky-note": {
+          note: `?_id= is the STICKY NOTE's Mongo ObjectId, not a workflow id: a workflow uuid answers 500 "Cast to ObjectId failed ... model stickynotes". Read note ids off export_workflow first.`,
+          requiredQuery: [
+            "_id"
+          ]
+        },
+        "GET /reporting/notification/automation/workflows/unpublished": {
+          note: 'Required: companyId (400 "Company ID missing") and then userId (422). Reached, not yet answered 200.',
+          requiredQuery: [
+            "companyId",
+            "userId"
+          ]
+        },
+        "GET /workflow/{locationId}/{workflowId}/download": {
+          note: 'Answers 400 {"msg":"URL is required"} -- it downloads something BY URL, it is not a workflow export. Use export_workflow for the document.'
+        },
+        "GET /objects/{workflowType}/enabled": {
+          note: 'DEAD IN SOURCE: the only call site (WorkflowTypeService.fetchWorkflowTypeEnabled) is commented out and returns {enabled:false} locally. The live host answers 404 "Cannot GET" -- no route handler. Nothing to use.'
         }
       }
     };
