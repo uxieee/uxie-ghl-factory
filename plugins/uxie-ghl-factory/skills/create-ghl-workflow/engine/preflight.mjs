@@ -13,15 +13,28 @@
 //   Instagram  GET /workflow/{loc}/instagram/connected-accounts?unique=true   {pages:[…]}
 //   Email      GET /workflow/{loc}/email/location-email-provider   {provider:{domain,…},
 //              warmupInfo:{warmupStage,warmupStatus,warmupMode}, type}
-// Known-unverifiable from this rail (reported as `checked:false`, never guessed): premium
-// credits/rebilling (SaaS app's plane), Facebook page linkage (no discovery route recovered),
-// Slack (/integration/slack/integrations 404s on this rail), review platforms.
+//   Premium    GET /saas-billing-v2/billing-config/LOCATION/{loc}/{product}?optIn=true
+//              product = workflow_premium_actions | workflow_ai   {data:[{config:{optIn,enabled,
+//              basePrice,markup}, productAvailability}]}   (live-proven test sub-account 2026-09-18)
+//              This is the builder's OWN call (SaasService.checkForWorkflowBillingPlan) and it gates
+//              the step drawer on `config.optIn`. 🔴 The `optIn` query param switches the ANSWER by
+//              its PRESENCE, not its value: with it (even `optIn=false`) the route returns the
+//              effective opt-in the agency roster also reports; without it, a raw `optIn:false`.
+//              🔴 `config.enabled` is NOT the gate — it was false on every sub-account of an agency
+//              whose premium steps run daily. It is reported, never judged.
+//   SMS ready  GET /phone-system/twilio-accounts?entityId={loc}&entityType=LOCATION  (UPPERCASE)
+//              Raw fields only. What each status value MEANS for deliverability is not established,
+//              so this check never sets ok:false — it puts the fields in front of a human.
+// Known-unverifiable from this rail (reported as `checked:false`, never guessed): wallet BALANCE,
+// Facebook page linkage (no discovery route recovered), Slack (/integration/slack/integrations
+// 404s on this rail), review platforms.
 
 const SMS_TYPES = new Set(['sms', 'manual-sms']);
 const IG_TYPES = new Set(['instagram-dm', 'ig_interactive_messenger']);
 const IG_TRIGGERS = new Set(['ig_comment_on_post', 'ig_follower_added']);
 const FB_TYPES = new Set(['messenger', 'fb_interactive_messenger']);
 const FB_TRIGGERS = new Set(['facebook_comment_on_post', 'facebook_lead_gen']);
+const PREMIUM_PRODUCTS = Object.freeze(['workflow_premium_actions', 'workflow_ai']);
 const isWhatsApp = (t) => /whatsapp/i.test(t ?? '');
 
 /** Pure: which checks does THIS compiled workflow need? Returns [{key, why:[…]}]. */
@@ -30,7 +43,7 @@ export function planReadinessChecks({ templates = [], triggerTypes = [], setting
   const need = (key, why) => { const e = plan.get(key) ?? { key, why: [] }; if (!e.why.includes(why)) e.why.push(why); plan.set(key, e); };
   for (const t of templates) {
     const ty = t?.type; if (!ty) continue;
-    if (SMS_TYPES.has(ty)) need('sms_number', `step '${t.name ?? t.id}' (${ty})`);
+    if (SMS_TYPES.has(ty)) { need('sms_number', `step '${t.name ?? t.id}' (${ty})`); need('sms_readiness', `step '${t.name ?? t.id}' (${ty})`); }
     if (isWhatsApp(ty)) need('whatsapp', `step '${t.name ?? t.id}' (${ty})`);
     if (IG_TYPES.has(ty)) need('instagram', `step '${t.name ?? t.id}' (${ty})`);
     if (FB_TYPES.has(ty)) need('facebook', `step '${t.name ?? t.id}' (${ty})`);
@@ -64,6 +77,25 @@ export async function runReadinessChecks(plan, { call, loc }) {
       const j = await g(`/phone-system/numbers?${lq}`);
       const nums = Array.isArray(j?.phoneNumbers) ? j.phoneNumbers : [];
       out.push({ key, why, checked: j != null, ok: nums.length > 0, detail: nums.length ? `${nums.length} number(s): ${nums.map((n) => n.title ?? n.value).join(', ')}` : 'NO SMS number provisioned on this location — SMS steps will not send' });
+    } else if (key === 'sms_readiness') {
+      // A location with a good number can still be unable to send. RAW FIELDS ONLY: the two
+      // booleans GHL names itself (suspended, cool-off) are the only things judged; every STATUS
+      // STRING is printed as-is, because what each value means for delivery is not established.
+      const j = await g(`/phone-system/twilio-accounts?${new URLSearchParams({ entityId: String(loc), entityType: 'LOCATION' })}`);
+      const c = j?.compliance ?? {};
+      const reg = (r) => `brand=${r?.brandData?.status || '∅'}, campaign=${r?.campaignStatus || '∅'}`;
+      const suspended = j?.blacklistConfig?.isLocationSuspended === true;
+      const coolOff = j?.isvConfiguration?.isLocationInCoolOffPeriod === true;
+      out.push({
+        key, why, checked: j != null, ok: j == null ? null : (suspended || coolOff ? false : null),
+        detail: j == null ? 'SMS account state not readable'
+          : `${suspended ? '🔴 LOCATION SUSPENDED for SMS. ' : ''}${coolOff ? '🔴 location is in an SMS COOL-OFF period. ' : ''}`
+            + `subaccount=${j.twilioSubaccount?.status ?? '∅'}; suspended=${j.blacklistConfig?.isLocationSuspended ?? '∅'} (till ${j.blacklistConfig?.smsSuspensionTill ?? '∅'}); `
+            + `coolOff=${j.isvConfiguration?.isLocationInCoolOffPeriod ?? '∅'} (limit suspension till ${j.isvConfiguration?.smsLimitSuspensionTill || '∅'}); `
+            + `A2P customerProfile=${c.customerProfileStatus || '∅'}; starter[${reg(c.starterRegistration)}]; standard[${reg(c.standardRegistration)}]; `
+            + `brands=${Array.isArray(c.brands) ? c.brands.length : '∅'}, campaigns=${Array.isArray(c.campaigns) ? c.campaigns.length : '∅'}; tollFree=${j.tollFreeData && Object.keys(j.tollFreeData).length ? 'present' : '∅'}. `
+            + 'Status strings are reported, not judged: an empty A2P registration matters for US/CA long-code traffic and may be irrelevant elsewhere.',
+      });
     } else if (key === 'whatsapp') {
       const j = await g(`/phone-system/whatsapp/location/${lp}/phone-numbers`);
       const nums = Array.isArray(j) ? j : (Array.isArray(j?.phoneNumbers) ? j.phoneNumbers : []);
@@ -80,7 +112,26 @@ export async function runReadinessChecks(plan, { call, loc }) {
     } else if (key === 'gated_type') {
       out.push({ key, why, checked: false, ok: null, detail: 'this type is availability-gated per location (e.g. loop allowlist) — the build may save but the type can be non-functional here; the gate list is not readable from this rail' });
     } else if (key === 'premium') {
-      out.push({ key, why: [`premium step type(s): ${why.join(', ')}`], checked: false, ok: null, detail: 'premium (credit-billed) steps — wallet/rebilling state is the SaaS plane and not verifiable from this rail; confirm credits or rebilling are enabled for this location' });
+      // Both product keys, always: which premium type bills under which key is source-known only
+      // for chatgpt + ai_agent (workflow_ai), so the verdict never depends on a guessed mapping.
+      const rows = [];
+      for (const product of PREMIUM_PRODUCTS) {
+        const j = await g(`/saas-billing-v2/billing-config/LOCATION/${lp}/${product}?optIn=true`);
+        const d = Array.isArray(j?.data) ? j.data[0] : null;
+        rows.push({ product, read: d?.config != null, config: d?.config ?? null, available: d?.productAvailability ?? null });
+      }
+      const read = rows.filter((r) => r.read);
+      const off = read.filter((r) => r.config.optIn !== true);
+      const fmt = (r) => r.read ? `${r.product}: optIn=${r.config.optIn}, enabled=${r.config.enabled}, basePrice=${r.config.basePrice}, available=${r.available}` : `${r.product}: not readable`;
+      out.push({
+        key, why: [`premium step type(s): ${why.join(', ')}`],
+        checked: read.length === rows.length,
+        // optIn:false is NOT ok:false — GHL's builder falls back to a reselling subscription this
+        // rail does not read, so the honest answer is "unverified", with the reason.
+        ok: read.length === rows.length && off.length === 0 ? true : null,
+        detail: `${rows.map(fmt).join(' | ')}${off.length ? ` — NOT opted in: ${off.map((r) => r.product).join(', ')}${off.some((r) => r.product === 'workflow_ai') ? ' (workflow_ai bills chatgpt + ai_agent steps)' : ''}. GHL's builder shows the "enable premium actions" wall for this product unless the location holds a workflow reselling subscription, which is not checked here` : ''}. Wallet balance is not read.`,
+        products: rows,
+      });
     } else if (key === 'facebook') {
       out.push({ key, why, checked: false, ok: null, detail: 'Facebook page linkage has no discovery route on this rail — verify the page connection in Integrations before relying on FB steps/triggers' });
     } else {

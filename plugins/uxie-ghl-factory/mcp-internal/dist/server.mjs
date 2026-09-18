@@ -17091,7 +17091,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          summary: "Is a billed product (premium workflow actions, external AI models) opted in for ONE sub-account. The builder's own check; the build preflight reads it.",
+          note: "entityType=LOCATION, product = workflow_premium_actions | workflow_ai; a location Bearer reaches it and companyId is NOT needed. TRAP: the optIn query param changes the ANSWER by its PRESENCE, not its value -- ?optIn=true and ?optIn=false both return config.optIn:true, omitting it returns false, same account same minute. Send ?optIn=true as the builder does. TRAP: config.enabled is NOT the gate -- it was false on all 18 sub-accounts of an agency whose premium steps run daily (it tracks rebilling); the builder gates on config.optIn and, when false, falls back to a reselling subscription. A nonsense product answers 404 Product not found. Executed on the designated sandbox 2026-09-18.",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -24706,7 +24708,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           summary: "Premium-action CONSUMPTION for one tier on this sub-account.",
-          note: 'Consumption only. Entitlement and rebilling are set at AGENCY scope (saas-billing-v2 billing-config, product key workflow_premium_actions) and are invisible from inside the sub-account, so this alone cannot answer "why did a premium step not run".',
+          note: "Consumption only. Whether the product is opted in for this sub-account is a separate read: GET /saas-billing-v2/billing-config/LOCATION/{locationId}/workflow_premium_actions?optIn=true, reachable with a location Bearer.",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -52735,6 +52737,12 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         "GET /reselling/subscription/location/{locationId}": {
           reach: "proven"
         },
+        "GET /saas-billing-v2/billing-config/{entityType}/{entityId}/{product}": {
+          summary: "Is a billed product (premium workflow actions, external AI models) opted in for ONE sub-account. The builder's own check; the build preflight reads it.",
+          note: "entityType=LOCATION, product = workflow_premium_actions | workflow_ai; a location Bearer reaches it and companyId is NOT needed. TRAP: the optIn query param changes the ANSWER by its PRESENCE, not its value -- ?optIn=true and ?optIn=false both return config.optIn:true, omitting it returns false, same account same minute. Send ?optIn=true as the builder does. TRAP: config.enabled is NOT the gate -- it was false on all 18 sub-accounts of an agency whose premium steps run daily (it tracks rebilling); the builder gates on config.optIn and, when false, falls back to a reselling subscription. A nonsense product answers 404 Product not found. Executed on the designated sandbox 2026-09-18.",
+          reach: "proven",
+          credentialClass: "location-user-bearer"
+        },
         "GET /saas-billing-v2/billing-config/LOCATION/{locationId}/conversation_AI": {
           reach: "proven"
         },
@@ -52935,7 +52943,7 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         },
         "GET /workflow/{locationId}/premium-tier-usage/{tier}": {
           summary: "Premium-action CONSUMPTION for one tier on this sub-account.",
-          note: 'Consumption only. Entitlement and rebilling are set at AGENCY scope (saas-billing-v2 billing-config, product key workflow_premium_actions) and are invisible from inside the sub-account, so this alone cannot answer "why did a premium step not run".'
+          note: "Consumption only. Whether the product is opted in for this sub-account is a separate read: GET /saas-billing-v2/billing-config/LOCATION/{locationId}/workflow_premium_actions?optIn=true, reachable with a location Bearer."
         },
         "GET /workflow/{locationId}/scheduled-pause/config": {
           summary: "Whether this workflow is paused on a schedule, and the window if so.",
@@ -161084,6 +161092,7 @@ var IG_TYPES = /* @__PURE__ */ new Set(["instagram-dm", "ig_interactive_messenge
 var IG_TRIGGERS = /* @__PURE__ */ new Set(["ig_comment_on_post", "ig_follower_added"]);
 var FB_TYPES = /* @__PURE__ */ new Set(["messenger", "fb_interactive_messenger"]);
 var FB_TRIGGERS = /* @__PURE__ */ new Set(["facebook_comment_on_post", "facebook_lead_gen"]);
+var PREMIUM_PRODUCTS = Object.freeze(["workflow_premium_actions", "workflow_ai"]);
 var isWhatsApp = (t) => /whatsapp/i.test(t ?? "");
 function planReadinessChecks({ templates = [], triggerTypes = [], settings = {}, catalog = null } = {}) {
   const plan = /* @__PURE__ */ new Map();
@@ -161095,7 +161104,10 @@ function planReadinessChecks({ templates = [], triggerTypes = [], settings = {},
   for (const t of templates) {
     const ty = t?.type;
     if (!ty) continue;
-    if (SMS_TYPES.has(ty)) need("sms_number", `step '${t.name ?? t.id}' (${ty})`);
+    if (SMS_TYPES.has(ty)) {
+      need("sms_number", `step '${t.name ?? t.id}' (${ty})`);
+      need("sms_readiness", `step '${t.name ?? t.id}' (${ty})`);
+    }
     if (isWhatsApp(ty)) need("whatsapp", `step '${t.name ?? t.id}' (${ty})`);
     if (IG_TYPES.has(ty)) need("instagram", `step '${t.name ?? t.id}' (${ty})`);
     if (FB_TYPES.has(ty)) need("facebook", `step '${t.name ?? t.id}' (${ty})`);
@@ -161129,6 +161141,19 @@ async function runReadinessChecks(plan, { call, loc }) {
       const j = await g(`/phone-system/numbers?${lq}`);
       const nums = Array.isArray(j?.phoneNumbers) ? j.phoneNumbers : [];
       out.push({ key, why, checked: j != null, ok: nums.length > 0, detail: nums.length ? `${nums.length} number(s): ${nums.map((n) => n.title ?? n.value).join(", ")}` : "NO SMS number provisioned on this location \u2014 SMS steps will not send" });
+    } else if (key === "sms_readiness") {
+      const j = await g(`/phone-system/twilio-accounts?${new URLSearchParams({ entityId: String(loc), entityType: "LOCATION" })}`);
+      const c = j?.compliance ?? {};
+      const reg = (r) => `brand=${r?.brandData?.status || "\u2205"}, campaign=${r?.campaignStatus || "\u2205"}`;
+      const suspended = j?.blacklistConfig?.isLocationSuspended === true;
+      const coolOff = j?.isvConfiguration?.isLocationInCoolOffPeriod === true;
+      out.push({
+        key,
+        why,
+        checked: j != null,
+        ok: j == null ? null : suspended || coolOff ? false : null,
+        detail: j == null ? "SMS account state not readable" : `${suspended ? "\u{1F534} LOCATION SUSPENDED for SMS. " : ""}${coolOff ? "\u{1F534} location is in an SMS COOL-OFF period. " : ""}subaccount=${j.twilioSubaccount?.status ?? "\u2205"}; suspended=${j.blacklistConfig?.isLocationSuspended ?? "\u2205"} (till ${j.blacklistConfig?.smsSuspensionTill ?? "\u2205"}); coolOff=${j.isvConfiguration?.isLocationInCoolOffPeriod ?? "\u2205"} (limit suspension till ${j.isvConfiguration?.smsLimitSuspensionTill || "\u2205"}); A2P customerProfile=${c.customerProfileStatus || "\u2205"}; starter[${reg(c.starterRegistration)}]; standard[${reg(c.standardRegistration)}]; brands=${Array.isArray(c.brands) ? c.brands.length : "\u2205"}, campaigns=${Array.isArray(c.campaigns) ? c.campaigns.length : "\u2205"}; tollFree=${j.tollFreeData && Object.keys(j.tollFreeData).length ? "present" : "\u2205"}. Status strings are reported, not judged: an empty A2P registration matters for US/CA long-code traffic and may be irrelevant elsewhere.`
+      });
     } else if (key === "whatsapp") {
       const j = await g(`/phone-system/whatsapp/location/${lp}/phone-numbers`);
       const nums = Array.isArray(j) ? j : Array.isArray(j?.phoneNumbers) ? j.phoneNumbers : [];
@@ -161145,7 +161170,25 @@ async function runReadinessChecks(plan, { call, loc }) {
     } else if (key === "gated_type") {
       out.push({ key, why, checked: false, ok: null, detail: "this type is availability-gated per location (e.g. loop allowlist) \u2014 the build may save but the type can be non-functional here; the gate list is not readable from this rail" });
     } else if (key === "premium") {
-      out.push({ key, why: [`premium step type(s): ${why.join(", ")}`], checked: false, ok: null, detail: "premium (credit-billed) steps \u2014 wallet/rebilling state is the SaaS plane and not verifiable from this rail; confirm credits or rebilling are enabled for this location" });
+      const rows = [];
+      for (const product of PREMIUM_PRODUCTS) {
+        const j = await g(`/saas-billing-v2/billing-config/LOCATION/${lp}/${product}?optIn=true`);
+        const d = Array.isArray(j?.data) ? j.data[0] : null;
+        rows.push({ product, read: d?.config != null, config: d?.config ?? null, available: d?.productAvailability ?? null });
+      }
+      const read = rows.filter((r) => r.read);
+      const off = read.filter((r) => r.config.optIn !== true);
+      const fmt2 = (r) => r.read ? `${r.product}: optIn=${r.config.optIn}, enabled=${r.config.enabled}, basePrice=${r.config.basePrice}, available=${r.available}` : `${r.product}: not readable`;
+      out.push({
+        key,
+        why: [`premium step type(s): ${why.join(", ")}`],
+        checked: read.length === rows.length,
+        // optIn:false is NOT ok:false — GHL's builder falls back to a reselling subscription this
+        // rail does not read, so the honest answer is "unverified", with the reason.
+        ok: read.length === rows.length && off.length === 0 ? true : null,
+        detail: `${rows.map(fmt2).join(" | ")}${off.length ? ` \u2014 NOT opted in: ${off.map((r) => r.product).join(", ")}${off.some((r) => r.product === "workflow_ai") ? " (workflow_ai bills chatgpt + ai_agent steps)" : ""}. GHL's builder shows the "enable premium actions" wall for this product unless the location holds a workflow reselling subscription, which is not checked here` : ""}. Wallet balance is not read.`,
+        products: rows
+      });
     } else if (key === "facebook") {
       out.push({ key, why, checked: false, ok: null, detail: "Facebook page linkage has no discovery route on this rail \u2014 verify the page connection in Integrations before relying on FB steps/triggers" });
     } else {
