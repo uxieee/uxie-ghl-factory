@@ -11,6 +11,37 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [0.92.1] — 2026-09-19
+
+The workflows live suite had not run for four days. Run before this release, it failed 2 of 144 —
+and one was a contract breach that shipped in 0.92.0 under 2622 green unit tests.
+
+### Fixed
+
+- 🔴 **`list_workflows`: an incomplete walk published a partial roster.** A 1-page budget against a
+  larger account answered `complete:false` AND one row under `workflows` — a short answer readable as
+  a whole one by any caller that does not also check `complete`, which is the exact failure the tool's
+  description promises cannot happen. `workflows` is now `null` unless the walk is complete. The rows
+  it did read are real evidence and are kept under `partialWorkflows` (always present; `null` on a
+  complete walk).
+- **The live suite could not tell a failed read from a moved version.** "version 3 -> undefined" was a
+  read-back that did not answer, reported as though the refused edit had written. The read is now
+  asserted first and reports its own failure. Not reproduced in two further runs.
+
+### Added
+
+- **Live suite section for `search_merge_tags`** — static inventory, a nonsense-phrase control, the
+  with/without-`locationId` differential, and a custom value found by a name read off the account.
+- **Eleven workflows reads classified** by hand-argued probes: four proven, five reached with their
+  required arguments now declared on the row, one MIS-MINED path (`{base}` is the services host, not
+  a segment: `GET services…/events-management/events/options`), one dead in GHL's own source.
+
+### Proof
+
+Live suite 149/149 on the designated test sub-account; 30 of 32 workflows tools carry a `current`
+executed proof. Not proven: `pin_webhook_sample` (needs an inbound-webhook fixture),
+`fast_forward_contacts` (unprovable by policy — it moves real enrolments).
+
 ## [0.92.0] — 2026-09-18
 
 Four guesses replaced with measurements. Two of them were guesses *in the proposals for this
