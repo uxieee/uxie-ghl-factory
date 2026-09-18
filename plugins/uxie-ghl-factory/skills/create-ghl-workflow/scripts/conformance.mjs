@@ -814,6 +814,39 @@ log.subject('list_workflow_templates');
 // exposes two modes over it and they count different things; a caller who reads one as the other is
 // wrong by a large factor, silently. These assertions pin the DIFFERENCE, not either number.
 console.log('\nthe workflow content index');
+log.subject('search_merge_tags');
+{
+  // Three claims, each with its control: the static inventory answers with no account at all; a
+  // locationId JOINS this account's own fields and values in; and a nonsense phrase returns
+  // nothing — without that last one, "it found tags" would be true of a tool that returns the
+  // same ten rows for every question.
+  const offline = await call('search_merge_tags', { intent: 'contact first name', locationId: undefined });
+  const live = await call('search_merge_tags', { intent: 'contact first name' });
+  const nonsense = await call('search_merge_tags', { intent: 'zzqx vrrk plomb' });
+  check(offline.ok === true && (offline.data?.tags ?? []).length > 0 && offline.data.tags.every((t) => /^\{\{.+\}\}$/.test(t.tag)),
+    'search_merge_tags answers from the static picker inventory, and every hit is a {{tag}}', JSON.stringify(offline.data?.searched));
+  check(nonsense.ok === true && (nonsense.data?.tags ?? []).length === 0,
+    'CONTROL: a nonsense phrase finds NOTHING — the ranking discriminates', JSON.stringify((nonsense.data?.tags ?? []).slice(0, 2)));
+  check((live.data?.searched?.perLocation ?? 0) > 0 && !(offline.data?.searched?.perLocation > 0),
+    'DIFFERENTIAL: with a locationId the account\'s own fields and values are joined in; without one they are not',
+    JSON.stringify([offline.data?.searched, live.data?.searched]));
+  // A per-location tag must be FINDABLE, not merely counted. The name comes off the account, never
+  // a literal: a suite that hard-codes a custom value passes until somebody renames it.
+  log.subject(false); // a raw read, to learn a name — proves nothing about the tool
+  const gwm = deps.makeGw({ loc: LOCATION, state });
+  const cv = await gwm.call('GET', `/locations/${LOCATION}/customValues`);
+  const named = (cv.json?.customValues ?? []).find((v) => typeof v?.name === 'string' && v.name.trim().split(/\s+/).length >= 2);
+  log.subject('search_merge_tags');
+  if (named) {
+    const hit = await call('search_merge_tags', { intent: named.name, limit: 10 });
+    check((hit.data?.tags ?? []).some((t) => t.source !== 'picker'),
+      'and a custom value that exists on the account is FOUND by its own name, marked as not-from-the-picker',
+      JSON.stringify((hit.data?.tags ?? []).map((t) => t.source)));
+  } else {
+    check(false, 'the account holds a custom value with a multi-word name to search for', `customValues: ${(cv.json?.customValues ?? []).length}`);
+  }
+}
+
 log.subject('find_workflows_using');
 {
   // A step type the suite's own build guarantees exists, so this cannot pass vacuously on an

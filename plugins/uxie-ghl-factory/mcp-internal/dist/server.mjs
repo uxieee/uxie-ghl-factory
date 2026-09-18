@@ -57310,9 +57310,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       search_merge_tags: {
-        description: "Search the merge-tag picker's static tags plus this account's own custom values \u2014 proof: unrecorded; risk: read",
+        description: "Search the merge-tag picker's static tags plus this account's own custom values \u2014 proof: live-runtime (2026-09-18); risk: read",
         risk: "read",
-        proof: "unrecorded",
+        proof: "live-runtime (2026-09-18)",
         proofFloor: "unrecorded",
         proofRows: [
           "custom-field-service--get-contact-custom-fields",

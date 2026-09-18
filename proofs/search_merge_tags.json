@@ -1,0 +1,42 @@
+{
+  "tool": "search_merge_tags",
+  "surfaces": [
+    "workflows"
+  ],
+  "runs": [
+    {
+      "at": "2026-09-18",
+      "result": "pass",
+      "how": "suite",
+      "suite": "workflows",
+      "evidence": [
+        "receipt:2026-09-18-1627"
+      ],
+      "location": "…zn6B"
+    }
+  ],
+  "depends": {
+    "hashedAt": "2026-09-18",
+    "endpoints": {
+      "GET https://backend.leadconnectorhq.com /locations/{}/customFields/search": "243cf31ac9bf9947d7ecc4a4a0f6c8f758286fe2701bc88e201f2e12ff03759f",
+      "GET https://backend.leadconnectorhq.com /locations/{}/customValues": "7528d8d44a9a81689c4ff5dc3875cd96f40b6c37d613bd11156e149b728ac054",
+      "POST https://backend.leadconnectorhq.com /workflow/{}/validate-assets": "c20cfea15e92c2f773c04a40f625895ca13e1d81f14a4f0fa312bd80b9715ca0"
+    },
+    "builds": {
+      "builder-chunks": "assets/index-BZBeFyAW.js",
+      "reportingApp": 272
+    },
+    "code": {
+      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#search_merge_tags": "73620d4ed2259a448e97ed13094de42c6f5a3d0118c5b40ba873bd21045a0691",
+      "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "e65c2384aefb498ce49453dd2d6d8d1a1d8351fd6d337aef5256eb982e1db02f",
+      "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
+      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "2d59b12818ffe76fb105e5284c3d186aea8d07f6a457b7c6344ea2258ba6a1d6",
+      "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/catalog.data.json": "739408295c55f40fe20f2323c02904838d994f7e026f47abde7d0f987c72fb04",
+      "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/catalog.mjs": "3f916a17f8a3614927e2cb573e0191c90dc381872f08b6025ce3bc992756dad4",
+      "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/ir.mjs": "fcbf1a3f0c03dc067668addca54ee05ea89445caf946ffb6f0328d99921f145a",
+      "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/merge-tags.mjs": "88e91ac8efed449c27a804727a30ab2b572829dd660d9949c4c525989f3e2752",
+      "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/required-fields.mjs": "6c0e1af01f7936d1cb376c63fc65130553fbe33b332fa8d6b0409a8b567129b1",
+      "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/text-rules.mjs": "bd4fd0a206cac9f5d37ac9a6b9f2a7932b7542dc58e1344aedb5887de174713e"
+    }
+  }
+}
