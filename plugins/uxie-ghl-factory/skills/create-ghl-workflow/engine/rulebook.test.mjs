@@ -246,3 +246,18 @@ test('a marketplace trigger is masterType internal when GHL labels the asset, ma
   assert.throws(() => build(entry(null, false)), /NOT installed/, 'control: a third-party app that is not installed is still refused');
   assert.throws(() => build(entry('INTEGRATION_AI', false)), /NOT installed/, 'and so is a hosted integration with no connection');
 });
+
+// WHICH WORKER RUNS A STEP is one top-level key. The builder writes exactly one of two, and the wrong
+// one builds, validates and publishes clean, then is SKIPPED at runtime ("No app integration found").
+test('a marketplace STEP carries workflowsActionType when GHL labels the asset, isMarketplaceAction only when it does not', async () => {
+  const { compile } = await import('./compiler.mjs');
+  const entry = (publisher, showStepIndex) => ({ key: 'k', version: '1.0', templateId: undefined, inputs: [], customVars: [], filters: [], publisher, firstParty: publisher === 'INTERNAL', showStepIndex, installed: publisher !== 'INTERNAL', appName: 'X' });
+  const build = (e) => compile({ name: 'W', triggers: [], graph: [{ ref: 's', kind: 'action', type: 'some_asset_step', marketplace: true, name: 'S', attributes: {} }] },
+    { ...ctx(), marketplace: { get: (key, kind) => (kind === 'action' ? e : undefined), readFailed: {} } }).autoSaveBody.workflowData.templates[0];
+  const first = build(entry('INTERNAL', false));
+  assert.equal(first.workflowsActionType, 'INTERNAL'); assert.equal('isMarketplaceAction' in first, false); assert.equal('stepIndex' in first, false, 'no stepIndex unless the asset says showStepIndex');
+  const hosted = build(entry('INTEGRATION_AI', true));
+  assert.equal(hosted.workflowsActionType, 'INTEGRATION_AI'); assert.equal(hosted.stepIndex, 1, 'numbered per type, never left as the null placeholder');
+  const third = build(entry(null, false));
+  assert.equal(third.isMarketplaceAction, true); assert.equal('workflowsActionType' in third, false, 'control: an unlabelled third-party app keeps the old shape');
+});

@@ -85,6 +85,10 @@ export function gateDocument(templates = [], { catalog = loadCatalog(), marketpl
     }
     const card = catalog.step(t.type);
     if (t.isMarketplaceAction === true) continue;
+    // A LABELLED asset step (first-party or hosted integration) carries `workflowsActionType`
+    // INSTEAD of isMarketplaceAction — that is the builder's own shape, not a missing flag. It has no
+    // native card to check its keys against; its inputs are checked against the asset schema.
+    if (!card && typeof t.workflowsActionType === 'string' && marketplaceTypes?.has(t.type)) continue;
     if (!card) {
       if (marketplaceTypes?.has(t.type)) {
         out.push(finding('MARKETPLACE_FLAG', 'warning', t,

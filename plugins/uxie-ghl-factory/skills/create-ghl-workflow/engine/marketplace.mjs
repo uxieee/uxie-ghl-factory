@@ -33,6 +33,9 @@ const entryFrom = (kind, appName, raw) => ({
   // every one of them was being refused as MARKETPLACE_APP_NOT_INSTALLED, because "installed" means
   // "appears in the third-party module list" and a first-party asset never can.
   publisher: raw.workflowsActionType ?? raw.workflowsTriggerType ?? null,
+  // The builder carries a stepIndex on a LABELLED action only when the asset says so
+  // (Marketplace.ts: `workflowsActionType && showStepIndex`).
+  showStepIndex: raw.showStepIndex === true,
   firstParty: (raw.workflowsActionType ?? raw.workflowsTriggerType) === 'INTERNAL',
 });
 

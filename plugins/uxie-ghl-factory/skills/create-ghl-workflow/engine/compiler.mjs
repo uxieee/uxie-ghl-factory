@@ -1656,7 +1656,19 @@ export function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
     // Root-scope linear steps stay lean; steps inside a branch carry `parent`
     // (= the branch-entry id) while `parentKey` advances along the chain.
     const tmpl = { id, type: typeFor(n), name: n.name, order: i, attributes: attributesFor(n, ctx), next, parentKey };
-    if (n.marketplace === true) tmpl.isMarketplaceAction = true;
+    if (n.marketplace === true) {
+      // WHICH WORKER RUNS THIS STEP is decided by one top-level key, and the builder writes exactly
+      // one of two (Marketplace.ts): an asset GHL LABELS carries `workflowsActionType` with that
+      // label; only an unlabelled third-party app's step carries `isMarketplaceAction: true`.
+      // Stamping isMarketplaceAction on a first-party step builds, validates and publishes clean —
+      // and at RUNTIME GHL routes it to the third-party app worker, finds no app, and SKIPS it:
+      // "No app integration found for this action" (live 2026-09-19, the first time one was run).
+      const asset = marketplaceEntry({ type: n.type, ref: n.ref }, ctx, 'action');
+      if (asset.publisher) {
+        tmpl.workflowsActionType = asset.publisher;
+        if (asset.showStepIndex) tmpl.stepIndex = null; // numbered below, per type, like every other
+      } else tmpl.isMarketplaceAction = true;
+    }
     if (parentScopeId !== null) tmpl.parent = parentScopeId;
     templates.push(withStepDisabled(n, tmpl, ctx));
   });
@@ -2345,7 +2357,10 @@ export function compile(ir, ctx) {
     // per-location index, not the offline native catalog — so this offline scan
     // must not also judge them, or every installed third-party app would 404 here.
     const unknown = [...new Set(templates
-      .filter((t) => t.isMarketplaceAction !== true && !ctx.catalog.step(t.type))
+      // …and that includes a LABELLED asset step, which carries `workflowsActionType` instead of
+      // isMarketplaceAction (the builder's shape) and was validated against the same live index.
+      .filter((t) => t.isMarketplaceAction !== true && !ctx.catalog.step(t.type)
+        && !(typeof t.workflowsActionType === 'string' && ctx?.marketplace?.get?.(t.type, 'action')))
       .map((t) => t.type))];
     if (unknown.length) {
       const known = ctx.catalog.allSteps();
@@ -2398,7 +2413,7 @@ export function compile(ir, ctx) {
     const meta = ctx.catalog.step(t.type);
     if (meta && meta.situational?.includes('workflowsActionType') && !('workflowsActionType' in t))
       t.workflowsActionType = 'INTERNAL';
-    if (requiresStepIndex(t) && !('stepIndex' in t)) {
+    if (t.stepIndex === null || (requiresStepIndex(t) && !('stepIndex' in t))) {
       const next = (stepIndexCounter.get(t.type) ?? 0) + 1;
       stepIndexCounter.set(t.type, next);
       t.stepIndex = next;

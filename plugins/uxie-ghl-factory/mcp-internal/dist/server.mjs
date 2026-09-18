@@ -161298,7 +161298,13 @@ function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
       return;
     }
     const tmpl = { id, type: typeFor(n), name: n.name, order: i, attributes: attributesFor(n, ctx), next, parentKey };
-    if (n.marketplace === true) tmpl.isMarketplaceAction = true;
+    if (n.marketplace === true) {
+      const asset = marketplaceEntry({ type: n.type, ref: n.ref }, ctx, "action");
+      if (asset.publisher) {
+        tmpl.workflowsActionType = asset.publisher;
+        if (asset.showStepIndex) tmpl.stepIndex = null;
+      } else tmpl.isMarketplaceAction = true;
+    }
     if (parentScopeId !== null) tmpl.parent = parentScopeId;
     templates.push(withStepDisabled(n, tmpl, ctx));
   });
@@ -161770,7 +161776,7 @@ function compile(ir, ctx) {
       `${missing.length} authored node(s) never reached the built payload: ${missing.join(", ")}. They were silently discarded \u2014 without this check the build would have reported a clean round-trip for an incomplete workflow. Usually this means a node carries a child scope (onFound/onEvent/\u2026) that its type has no container handler for.`
     );
   if (!ctx.allowUnknownStepTypes) {
-    const unknown2 = [...new Set(templates.filter((t) => t.isMarketplaceAction !== true && !ctx.catalog.step(t.type)).map((t) => t.type))];
+    const unknown2 = [...new Set(templates.filter((t) => t.isMarketplaceAction !== true && !ctx.catalog.step(t.type) && !(typeof t.workflowsActionType === "string" && ctx?.marketplace?.get?.(t.type, "action"))).map((t) => t.type))];
     if (unknown2.length) {
       const known = ctx.catalog.allSteps();
       const near = (bad) => known.filter((k) => k.includes(bad) || bad.includes(k)).slice(0, 3);
@@ -161785,7 +161791,7 @@ function compile(ir, ctx) {
     const meta3 = ctx.catalog.step(t.type);
     if (meta3 && meta3.situational?.includes("workflowsActionType") && !("workflowsActionType" in t))
       t.workflowsActionType = "INTERNAL";
-    if (requiresStepIndex(t) && !("stepIndex" in t)) {
+    if (t.stepIndex === null || requiresStepIndex(t) && !("stepIndex" in t)) {
       const next = (stepIndexCounter.get(t.type) ?? 0) + 1;
       stepIndexCounter.set(t.type, next);
       t.stepIndex = next;
@@ -163907,6 +163913,9 @@ var entryFrom = (kind, appName, raw) => ({
   // every one of them was being refused as MARKETPLACE_APP_NOT_INSTALLED, because "installed" means
   // "appears in the third-party module list" and a first-party asset never can.
   publisher: raw.workflowsActionType ?? raw.workflowsTriggerType ?? null,
+  // The builder carries a stepIndex on a LABELLED action only when the asset says so
+  // (Marketplace.ts: `workflowsActionType && showStepIndex`).
+  showStepIndex: raw.showStepIndex === true,
   firstParty: (raw.workflowsActionType ?? raw.workflowsTriggerType) === "INTERNAL"
 });
 function parseMarketplaceActions(assets) {
@@ -165223,6 +165232,7 @@ function gateDocument(templates = [], { catalog = loadCatalog(), marketplaceType
     }
     const card = catalog.step(t.type);
     if (t.isMarketplaceAction === true) continue;
+    if (!card && typeof t.workflowsActionType === "string" && marketplaceTypes?.has(t.type)) continue;
     if (!card) {
       if (marketplaceTypes?.has(t.type)) {
         out.push(finding(

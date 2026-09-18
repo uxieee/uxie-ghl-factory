@@ -172,6 +172,16 @@
         "receipt:2026-09-18-1955"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-18",
+      "result": "pass",
+      "how": "suite",
+      "suite": "workflows",
+      "evidence": [
+        "receipt:2026-09-18-2021"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
@@ -200,9 +210,9 @@
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/action-schema.mjs": "3f2375148566c72c236b8872d35b8719356c5f662f94e8a83a4c08fa0c7d18f6",
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/catalog.data.json": "739408295c55f40fe20f2323c02904838d994f7e026f47abde7d0f987c72fb04",
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/catalog.mjs": "3f916a17f8a3614927e2cb573e0191c90dc381872f08b6025ce3bc992756dad4",
-      "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/compiler.mjs": "420bdb78d7b6356b1a1a7fbd6b0eb4c2adef7b3d97c81907f19c9caf73ade66a",
+      "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/compiler.mjs": "5bf91c8bc1932f80ab571487e517e3d4c8d7860de360ebd3bac6ca607881a9f4",
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/contact-field-shapes.mjs": "748a11eee9bfb5fa4c2cf52c7d7f2040c161d619bfacf4dc0d16db6d0a81e520",
-      "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/document-gate.mjs": "7c03ba9a939890974373b6357b9b3aaafc800c4608acd05cd31fa15d7677c19b",
+      "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/document-gate.mjs": "9029cee0233155dd00171a6e76005bc6c4850cf4c64b22c251422b94e19ad49b",
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/edit.mjs": "a12a23f6cfc8cb032c91d54610f6b35fdba36f1481609e4af253d6c55d63cb82",
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/enforce.mjs": "a661a36c2e250cbb195650e05edc5927db420be2a3e0e4f678bd748353082a87",
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/field-caps.mjs": "66ffa0d723257e3e8a8ebe6390df1c22c77d1f9d594d7d3a512f55f74e74155d",

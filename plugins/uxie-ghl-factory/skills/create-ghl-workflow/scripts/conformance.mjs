@@ -715,7 +715,9 @@ if (total > 1) {
 }
 
 const full = await call('list_workflows', { pageSize: 100, maxPages: Math.ceil((total ?? 100) / 100) + 2 });
-check(full.data?.complete === true, 'given enough budget it exhausts the pages', full.data?.terminalReason);
+// The detail names every page's status: a bare FAIL here cost a run to diagnose (2026-09-19).
+check(full.data?.complete === true, 'given enough budget it exhausts the pages',
+  `${full.code ?? ''} ${full.data?.terminalReason ?? ''} pages=${JSON.stringify((full.data?.sourceRoutes ?? []).map((r) => r.status ?? r.failureClass))} pagination=${JSON.stringify(full.data?.pagination)} rateLimit=${JSON.stringify(full.data?.rateLimit)}`);
 check(full.data?.reportedTotal === total,
   'and reconciles to the same account total the one-row probe reported', `${full.data?.reportedTotal} vs ${total}`);
 const fullRows = full.data?.workflows ?? [];
@@ -928,6 +930,10 @@ if (fpwid) {
   log.subject('build_workflow');
   check(fpTrig?.masterType === 'internal' && fpTrig?.type === 'event_registration',
     'READ-BACK: the trigger is stored masterType "internal" — GHL\'s validator refuses "marketplace" on a first-party trigger', `${fpTrig?.type} / ${fpTrig?.masterType}`);
+  const fpStep = (fp?.workflow?.workflowData?.templates ?? []).find((t) => t.type === 'internal_comment_action');
+  check(fpStep?.workflowsActionType === 'INTERNAL' && !('isMarketplaceAction' in (fpStep ?? {})),
+    'READ-BACK: the first-party STEP is stored with workflowsActionType "INTERNAL" and NOT isMarketplaceAction — the builder writes exactly one of the two, and the wrong one is skipped at runtime',
+    JSON.stringify({ workflowsActionType: fpStep?.workflowsActionType, isMarketplaceAction: fpStep?.isMarketplaceAction }));
   check(fp?.workflow?.status === 'draft' && fpTrig?.active !== true, 'FENCE: still a DRAFT, trigger INACTIVE', `status=${fp?.workflow?.status} active=${fpTrig?.active}`);
   log.subject('check_workflow');
   const fpCheck = await call('check_workflow', { workflowId: fpwid });
@@ -1276,6 +1282,31 @@ console.log('\nruntime: enrolment, drip queue, fast-forward');
       check(past === true && !before.includes(TAG_WAIT), 'EFFECT: the step AFTER the 7-day wait ran — the second tag is on the contact\'s own record, and was not before', JSON.stringify(await tagsOf(ids[0])));
       const others = await Promise.all(ids.slice(1).map(tagsOf));
       check(others.every((t) => !t.includes(TAG_WAIT)), 'CONTROL: the contacts that were NOT fast-forwarded do not have it', JSON.stringify(others.map((t) => t.includes(TAG_WAIT))));
+    }
+
+    // DOES A FIRST-PARTY STEP ACTUALLY RUN? Built, validated and published clean, 'Add Internal
+    // Comments' was SKIPPED at runtime ("No app integration found for this action") until its stored
+    // shape matched the builder's. Only an execution can see that, so this is one.
+    if (pub.ok && ids.length === 4) {
+      log.subject('build_workflow');
+      const COMMENT = `<p>TEST-CONF ${STAMP} internal comment</p>`;
+      const fr = await call('build_workflow', { spec: { name: NAME('firstparty-run'), triggers: [], graph: [
+        { ref: 'c', kind: 'action', type: 'internal_comment_action', marketplace: true, name: 'Internal comment', attributes: { message_rich_text: COMMENT } }] } });
+      const frwid = fr.data?.wid;
+      if (frwid) left.push(`workflow ${frwid} (${NAME('firstparty-run')}, published for the run and unpublished after)`);
+      const frPub = frwid ? await call('publish_workflow', { workflowId: frwid, confirm: true }) : { ok: false };
+      log.subject(false);
+      const conv = await gwr.call('POST', '/conversations/', { locationId: LOCATION, contactId: ids[3] });
+      const convId = conv.json?.conversation?.id ?? conv.json?.id ?? conv.json?.conversationId;
+      if (frPub.ok && convId) await gwr.call('POST', `/contacts/${ids[3]}/workflow/${frwid}`, { eventStartTime: '' });
+      const landed = frPub.ok && convId ? await until(async () => {
+        const m = await gwr.call('GET', `/conversations/${convId}/messages?limit=10`);
+        return (m.json?.messages?.messages ?? m.json?.messages ?? []).some((x) => String(x.body ?? '').includes(`TEST-CONF ${STAMP} internal comment`));
+      }) : null;
+      log.subject('build_workflow');
+      check(fr.ok === true && frPub.ok === true && Boolean(convId), 'a first-party step builds, publishes, and its contact has a conversation to comment on', `${fr.code ?? ''} ${frPub.code ?? ''} conv=${Boolean(convId)}`);
+      check(landed === true, 'EFFECT: the internal comment is IN THE CONVERSATION — the first-party step RAN, read from the conversations endpoint rather than the workflow\'s own log', String(landed));
+      if (frwid) await call('unpublish_workflows', { workflowIds: [frwid], confirm: true });
     }
 
     log.subject('unpublish_workflows');
