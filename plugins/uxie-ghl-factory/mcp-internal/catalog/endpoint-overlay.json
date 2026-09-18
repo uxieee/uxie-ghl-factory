@@ -1460,15 +1460,29 @@
     },
     "GET /workflow/{locationId}/drip-schedule/{workflowId}/step/{stepId}/stats": {
       "summary": "Drip queue status for one step: {hasQueuedContacts, contactsInDrip, nextBatch, completionETA, configVersions}.",
-      "note": "TRAP: a 200 here proves NOTHING about the step. Measured 2026-09-19 on one draft: a real drip step, a WAIT step and a step id that does not exist all answer the IDENTICAL empty body. The route never 404s and never says \"not a drip\", so it only discriminates once contacts are actually queued -- which needs a live enrolment and has not been observed. Do not build on an empty answer from it.",
+      "note": "TRAP: an EMPTY answer proves nothing about the step. A real drip step, a WAIT step and a step id that does not exist all answer the IDENTICAL empty body; the route never 404s and never says \"not a drip\". It DISCRIMINATES ONLY WHILE CONTACTS ARE QUEUED: proven live 2026-09-19 by enrolling three probe-created contacts into a batch-of-one drip -- contactsInDrip, nextBatch.scheduledAt and completionETA then populate. get_contacts_at_step reads it and reports a `drip` block only when the queue is non-empty.",
       "reach": "proven",
       "credentialClass": "agency-admin-bearer"
     },
     "GET /workflow/{locationId}/drip-schedule/{workflowId}/step/{stepId}/contacts": {
       "summary": "Contacts queued in one drip step, paged: {schedules, page, limit, total, totalPages}.",
-      "note": "TRAP: a 200 here proves NOTHING about the step. Measured 2026-09-19 on one draft: a real drip step, a WAIT step and a step id that does not exist all answer the IDENTICAL empty body. The route never 404s and never says \"not a drip\", so it only discriminates once contacts are actually queued -- which needs a live enrolment and has not been observed. Do not build on an empty answer from it.",
+      "note": "TRAP: an EMPTY answer proves nothing about the step -- a real drip step, a WAIT step and a nonexistent step id answer the IDENTICAL empty body. It lists `schedules` ONLY while contacts are queued: proven live 2026-09-19 with three probe-created contacts in a batch-of-one drip. get_contacts_at_step reads it for the `drip.queued` rows.",
       "reach": "proven",
       "credentialClass": "agency-admin-bearer"
+    },
+    "GET /workflows-marketplace/actions/options/{key}": {
+      "summary": "Every dropdown of one Add-step panel action in one call: {<fieldName>: [{label, value, description}]}. Query: locationId, optionType=default (workflowId optional).",
+      "note": "This is the form to use. Unknown action key -> 400 'Action is not present', so an answer IS about the key. Serves fields declared with `fetchOptions {serviceName, route}`; the underlying service routes (e.g. products inventory/workflow-select-options) refuse a location Bearer ('not yet supported by the IAM Service') -- this proxy is the only door. Fields declared with `dynamicSource` are NOT here: POST .../actions/dynamic-source/{key}. Proven live 2026-09-19: update_inventory.product lists ONLY prices with inventory tracking ON, and the value is the PRICE id, not the product id (turning tracking on for one test price moved it from absent to listed).",
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "read"
+    },
+    "GET /workflows-marketplace/actions/options/{key}/{fieldName}": {
+      "summary": "One field's dropdown options for an Add-step panel action: {options: [...]}.",
+      "note": "TRAP: answered {options: []} for update_inventory/product while the ALL-fields form (same minute, same account) listed the option -- and answered the identical empty body for a field name that does not exist. An empty answer from this form discriminates nothing; use GET .../actions/options/{key}. Measured 2026-09-19.",
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "read"
     }
   }
 }
