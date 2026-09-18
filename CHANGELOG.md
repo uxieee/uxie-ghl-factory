@@ -11,6 +11,53 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [0.91.0] — 2026-09-18
+
+Search sent someone at a trap. A peer asked the right question about calendar availability, and
+`search_endpoints` ranked first the one field that is accepted, stored and ignored — so they spent an
+afternoon re-deriving, by live-fire on a client account, a surface the corpus had mapped two weeks
+earlier. Everything here is the catalogue or a description catching up with what was already known.
+
+### Fixed
+
+- 🔴 **`search_endpoints` pointed at the `openHours` trap and hid the working route.** For "set which
+  days and hours a calendar is available", it ranked `GET /calendars/{calendarId}` first with the
+  summary *"…including team members and open hours"*, offered the bare `/calendars/schedules` path
+  that 400s, and never returned `/calendars/schedules/search` — proven, documented, and the real list
+  route. Root cause was not ranking: the corpus had the knowledge and the catalogue rows carried no
+  summary or note, so ranking had nothing to work with. Four rows now say what is true — the calendar
+  row WARNS (in the summary, not only the note, because search reads both) that `openHours` does not
+  control availability; `PUT /calendars/schedules/{id}` is named as the way to set hours, with
+  `calendarIds` as the binding; the `/search` route is named as the list route; the bare path is
+  labelled as the 400 it is. `openHours` inertness is now proven on three sub-accounts.
+- **A 200 with an empty body no longer crashes the trigger-ref repair.** `JSON.stringify(undefined)`
+  is `undefined`, not a string, so the substitution loop threw *"Cannot read properties of undefined
+  (reading 'includes')"* — an `ENGINE_ABORT` naming nothing a caller can act on. Found while chasing a
+  peer's report of that exact string on a triggerless build; **that report does not reproduce on
+  0.90.0** (run in-process and live) and stays open as console bl-153.
+
+### Changed
+
+- 🔴 **`get_contacts_at_step` and `get_workflow_logs` now say an empty result is AMBIGUOUS.**
+  `total: 0` and `[]` are what a healthy workflow returns before it has fired, and also what a
+  workflow whose trigger filter GHL never recognised returns forever. Neither tool can tell those
+  apart at any call count. A peer's published workflow enrolled nobody and both reads looked benign;
+  the tie was broken by reading the contact's own tags. The descriptions say so on BOTH sides —
+  "broken" and "fine" are both wrong conclusions available from the same empty answer.
+
+### Added
+
+- **Schema Markup (JSON-LD) is in the catalogue** — `GET /schema-markup/schemas/{schemaMarkupId}` and
+  `POST /schema-markup/schemas/save`, absent until now though the app pin was already correct.
+  🔴 `/funnels/schema-markup` answers a 403 that reads like a scope refusal and is a wrong-prefix
+  signal. Unusually for this platform the validator is real and server-side, so a 201 means something.
+
+### Removed
+
+- **A catalogue row that was never an endpoint.** `GET /email-isv/feature/domain/<a real host>` was a
+  concrete VALUE of `{domain}`, minted because the harvester read a measured transcript as a
+  declaration. Fixed at source with `harvest:skip`.
+
 ## [0.90.0] — 2026-09-17
 
 The `wait` card said eight subtypes; there are thirteen. Everything in this release is a correction
