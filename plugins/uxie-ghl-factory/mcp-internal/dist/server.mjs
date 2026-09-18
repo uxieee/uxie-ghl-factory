@@ -23553,6 +23553,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
+          summary: "Contacts queued in one drip step, paged: {schedules, page, limit, total, totalPages}.",
+          note: 'TRAP: a 200 here proves NOTHING about the step. Measured 2026-09-19 on one draft: a real drip step, a WAIT step and a step id that does not exist all answer the IDENTICAL empty body. The route never 404s and never says "not a drip", so it only discriminates once contacts are actually queued -- which needs a live enrolment and has not been observed. Do not build on an empty answer from it.',
           reach: "proven",
           provenFor: [
             "agency-admin-bearer"
@@ -23614,6 +23616,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
+          summary: "Drip queue status for one step: {hasQueuedContacts, contactsInDrip, nextBatch, completionETA, configVersions}.",
+          note: 'TRAP: a 200 here proves NOTHING about the step. Measured 2026-09-19 on one draft: a real drip step, a WAIT step and a step id that does not exist all answer the IDENTICAL empty body. The route never 404s and never says "not a drip", so it only discriminates once contacts are actually queued -- which needs a live enrolment and has not been observed. Do not build on an empty answer from it.',
           reach: "proven",
           provenFor: [
             "agency-admin-bearer"
@@ -25163,7 +25167,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "write",
           note: 'Executed on the designated sandbox 2026-09-10 in the workflows write-parity run. Folder rename. Answers 200 {"msg":"Updated successfull","error":false} \u2014 note the typo and that `error:false` is the success signal. Read back changed and restored.',
           reach: "proven",
-          coveredBy: [],
+          coveredBy: [
+            "create_workflow_folder"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -25511,7 +25517,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "write",
           note: 'Executed on the designated sandbox 2026-09-10 in the workflows write-parity run. \u{1F534} `conditions` must be a NON-EMPTY array or it answers 400 "conditions array is required and cannot be empty" \u2014 an empty array is refused, not treated as "no filter". \u{1F534} BUT THE RESPONSE DOES NOT DISCRIMINATE ON `conditions`: measured 2026-09-16 with a control, an invented field name (`utter_nonsense_field`/`banana`) and a full monthly schedule both return the SAME {success:true, executions:[]} as the example this row used to cite as its proof. `executions` has never been observed non-empty. The endpoint DOES parse the body \u2014 an invalid `timezone` answers 400 \u2014 so this is reachability plus a timezone rule, NOT proof that the preview previews anything. See _shared/conformance/a-success-that-equals-the-null-result.md.',
           reach: "proven",
-          coveredBy: [],
+          coveredBy: [
+            "check_workflow"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -54374,6 +54382,18 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         },
         "GET /objects/{workflowType}/enabled": {
           note: 'DEAD IN SOURCE: the only call site (WorkflowTypeService.fetchWorkflowTypeEnabled) is commented out and returns {enabled:false} locally. The live host answers 404 "Cannot GET" -- no route handler. Nothing to use.'
+        },
+        "GET /workflow/{locationId}/drip-schedule/{workflowId}/step/{stepId}/stats": {
+          summary: "Drip queue status for one step: {hasQueuedContacts, contactsInDrip, nextBatch, completionETA, configVersions}.",
+          note: 'TRAP: a 200 here proves NOTHING about the step. Measured 2026-09-19 on one draft: a real drip step, a WAIT step and a step id that does not exist all answer the IDENTICAL empty body. The route never 404s and never says "not a drip", so it only discriminates once contacts are actually queued -- which needs a live enrolment and has not been observed. Do not build on an empty answer from it.',
+          reach: "proven",
+          credentialClass: "agency-admin-bearer"
+        },
+        "GET /workflow/{locationId}/drip-schedule/{workflowId}/step/{stepId}/contacts": {
+          summary: "Contacts queued in one drip step, paged: {schedules, page, limit, total, totalPages}.",
+          note: 'TRAP: a 200 here proves NOTHING about the step. Measured 2026-09-19 on one draft: a real drip step, a WAIT step and a step id that does not exist all answer the IDENTICAL empty body. The route never 404s and never says "not a drip", so it only discriminates once contacts are actually queued -- which needs a live enrolment and has not been observed. Do not build on an empty answer from it.',
+          reach: "proven",
+          credentialClass: "agency-admin-bearer"
         }
       }
     };
@@ -56839,9 +56859,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       list_account_entities: {
-        description: "List account entities \u2014 proof: live-runtime (2026-07-18), floor: documented; risk: read",
+        description: "List account entities \u2014 proof: live-runtime (2026-09-18), floor: documented; risk: read",
         risk: "read",
-        proof: "live-runtime (2026-07-18)",
+        proof: "live-runtime (2026-09-18)",
         proofFloor: "documented",
         proofRows: [
           "entities-ai-employees-agents-list",
@@ -162346,6 +162366,24 @@ var ENTITY_REGISTRY = [
       standard: x.standard ?? x.type === "SYSTEM_DEFINED"
     })
   },
+  // Events + their tickets — what the Events triggers' filters choose from (the builder's own
+  // fetchEventsOptions). One endpoint, two arrays, so two rows on the same path. The rows are
+  // {value,label} rather than {id,name}: this is an OPTIONS endpoint, already shaped for a picker.
+  // Deleted events are excluded upstream. Live 2026-09-19. Calendar GROUPS and WhatsApp TEMPLATES
+  // were considered and left out: the test account holds none of either, so their row shape could
+  // not be verified, and a projection nobody has seen run is a guess with a schema.
+  {
+    key: "events",
+    path: (loc) => `/events-management/events/options?${q(loc)}`,
+    pick: (j) => recordsFrom(j?.events),
+    project: (x) => ({ id: x.value, name: x.label })
+  },
+  {
+    key: "eventTickets",
+    path: (loc) => `/events-management/events/options?${q(loc)}`,
+    pick: (j) => recordsFrom(j?.eventTickets),
+    project: (x) => ({ id: x.value, name: x.label })
+  },
   // ── Added by Phase 5. Both are NAMEABLE things a workflow step refers to, and neither was
   //    fetched, so neither could be authored by name.
   //
@@ -166091,6 +166129,54 @@ function reachForCaller(row, callerClass) {
   if (row?.provenFor?.includes(callerClass)) return "proven";
   if (row?.provenFor?.length) return "unproven-for-your-class";
   return null;
+}
+
+// ../skills/create-ghl-workflow/engine/scheduler-preview.mjs
+init_define_BUILDER_VALIDATORS();
+init_define_CONTACT_FILTER_FIELDS();
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
+init_define_TOOL_CATALOG();
+var SCHEDULER_TRIGGER_TYPE = "scheduler_trigger";
+function schedulerPreviewBody(trigger, timezone) {
+  if (trigger?.type !== SCHEDULER_TRIGGER_TYPE) return null;
+  const conditions = (trigger.conditions ?? []).filter((c) => c && c.field && c.field !== "scheduler.interval" && c.value !== void 0 && c.value !== null && c.value !== "").map((c) => ({ field: c.field, value: c.value }));
+  const cfg = trigger.schedule_config ?? {};
+  const scheduleConfig = {};
+  if (cfg.stop_at) scheduleConfig.stop_at = cfg.stop_at;
+  if (cfg.skip_weekends !== void 0) scheduleConfig.skip_weekends = cfg.skip_weekends;
+  const id = trigger.id ?? trigger._id;
+  return { timezone, conditions, scheduleConfig, ...id ? { triggerId: id } : {} };
+}
+function interpretSchedulerPreview(trigger, timezone, res) {
+  const base = { triggerId: trigger.id ?? trigger._id ?? null, name: trigger.name ?? null, timezone };
+  if (!res?.ok) {
+    return {
+      ...base,
+      checked: false,
+      executions: null,
+      detail: `GHL's preview did not answer (${res?.status ?? "no status"}${res?.json?.error ? `: ${res.json.error}` : ""}) \u2014 when this trigger fires is UNKNOWN, not fine.`
+    };
+  }
+  const executions = Array.isArray(res.json?.executions) ? res.json.executions : null;
+  if (executions === null) return { ...base, checked: false, executions: null, detail: "GHL answered 200 without an `executions` list \u2014 unreadable, so unknown." };
+  if (executions.length === 0) {
+    return {
+      ...base,
+      checked: true,
+      neverFires: true,
+      executions,
+      detail: "\u{1F534} GHL computes NO upcoming executions for this schedule. It will save, validate and publish, and never run. Usual causes: skip_weekends with weekend-only days, a stop_at already in the past, or an interval with no matching day/time rows."
+    };
+  }
+  return {
+    ...base,
+    checked: true,
+    neverFires: false,
+    executions,
+    detail: `next ${executions.length} execution(s), as UTC instants computed for ${timezone}: ${executions.join(", ")}`
+  };
 }
 
 // core/builder-validators.mjs
@@ -172686,12 +172772,18 @@ var TOOLS2 = [
       locationId: external_exports.string(),
       workflowId: external_exports.string(),
       // Client policy, inline. Without it the handler looks for .ghl/<locationId>/lint-pack.json.
-      lintPack: external_exports.object({}).passthrough().optional()
+      lintPack: external_exports.object({}).passthrough().optional(),
+      // IANA zone to compute a scheduler trigger's next executions in. There is no safe default to
+      // borrow — the builder itself previews in the BROWSER's zone — so it is UTC unless you say, and
+      // the result states which zone it used.
+      timezone: external_exports.string().optional()
     }),
     capabilities: [
       { method: "GET", path: "/workflow/{loc}/{wid}" },
       { method: "GET", path: "/workflow/{loc}/trigger" },
       { method: "GET", path: "/workflows-marketplace/location/{loc}/assets" },
+      // Only when the workflow carries a scheduler trigger. Read-shaped: it computes, writes nothing.
+      { method: "POST", path: "/workflow/{loc}/scheduler-trigger/preview" },
       // Best-effort, for the merge-tag lint's per-location vocabulary. Their absence only
       // demotes that one check to "unverifiable"; it never blocks the read.
       { method: "GET", path: "/locations/{loc}/customFields/search" },
@@ -172757,7 +172849,23 @@ var TOOLS2 = [
         }
       );
       for (const e of doctrine.errors) lints.notEvaluable.push(`doctrine pack: ${e}`);
+      const schedulerTriggers = triggerList.filter((t) => t?.type === SCHEDULER_TRIGGER_TYPE);
+      const schedulerPreview = [];
+      for (const t of schedulerTriggers) {
+        const zone = args.timezone ?? "UTC";
+        let res;
+        try {
+          res = await gw.call("POST", `/workflow/${loc}/scheduler-trigger/preview`, schedulerPreviewBody(t, zone));
+        } catch (e) {
+          res = { ok: false, status: null, json: { error: e.message } };
+        }
+        schedulerPreview.push(interpretSchedulerPreview(t, zone, res));
+      }
       const lintKeys = {
+        ...schedulerTriggers.length ? {
+          schedulerPreview,
+          schedulerPreviewNote: `GHL's own computation of the next executions, in ${args.timezone ?? "UTC (no timezone was passed)"}. neverFires:true means GHL computes NO upcoming run for a schedule that still saves and publishes. ADVISORY \u2014 not part of errorCount.`
+        } : {},
         lints,
         lintNote: "lints are ADVISORY findings from the engine's own layers (platform), generic authoring hygiene, and this project's lint pack \u2014 a separate key, never part of errorCount. notEvaluable names what could NOT be checked, which is not the same as clean."
       };
@@ -174217,7 +174325,7 @@ var TOOLS2 = [
     name: "list_account_entities",
     description: describe3(
       "list_account_entities",
-      "Sweep the account objects a workflow spec may name: pipelines (+stages), calendars, users, forms, custom fields (all models), AI agents, workflows, custom values, trigger links, membership offers + products, SMS/WhatsApp templates, email-builder templates, store products, coupons, phone numbers, funnels, Facebook pages, document templates, custom-object schemas, opportunity LOST REASONS and call DISPOSITIONS \u2014 the same entity kinds the build resolver uses. One row per kind in engine/entities.mjs, so the list here cannot drift from what the sweep actually returns."
+      "Sweep the account objects a workflow spec may name: pipelines (+stages), calendars, users, forms, custom fields (all models), AI agents, workflows, custom values, trigger links, membership offers + products, SMS/WhatsApp templates, email-builder templates, store products, coupons, phone numbers, funnels, Facebook pages, document templates, custom-object schemas, EVENTS and event tickets, opportunity LOST REASONS and call DISPOSITIONS \u2014 the same entity kinds the build resolver uses. One row per kind in engine/entities.mjs, so the list here cannot drift from what the sweep actually returns."
     ),
     inputSchema: schema({ locationId: external_exports.string() }),
     capabilities: [
@@ -176280,15 +176388,19 @@ var TOOLS2 = [
   },
   {
     name: "create_workflow_folder",
-    description: `${describe3("create_workflow_folder", "Create workflow folder \u2014 risk: write")}. Preview by default; pass confirm:true to write. Returns the new folder id, verified by reading it back out of the folder list \u2014 the create response is a bare id and echoes nothing else.`,
+    description: `${describe3("create_workflow_folder", "Create workflow folder \u2014 risk: write")}. Pass folderId to RENAME that folder to \`name\` instead of creating one (verified by read-back). Preview by default; pass confirm:true to write. Returns the new folder id, verified by reading it back out of the folder list \u2014 the create response is a bare id and echoes nothing else.`,
     inputSchema: schema({
       locationId: external_exports.string(),
       name: external_exports.string(),
       parentId: external_exports.string().optional(),
+      // Given, this RENAMES that folder to `name` instead of creating one. There was no way to fix a
+      // folder's name without the UI, so a wrong one was permanent.
+      folderId: external_exports.string().optional(),
       confirm: external_exports.boolean().default(false)
     }),
     capabilities: [
       { method: "POST", path: "/workflow/{loc}/directory" },
+      { method: "PUT", path: "/workflow/{loc}/rename-directory/{folderId}" },
       { method: "GET", path: "/workflow/{loc}/list" }
     ],
     handler: async (args, deps) => guard(async () => {
@@ -176301,6 +176413,34 @@ var TOOLS2 = [
       }
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
       const loc = encodeURIComponent(args.locationId);
+      if (args.folderId) {
+        if (args.parentId) return fail(CODES.VALIDATION_FAILED, "folderId renames a folder; parentId is for creating one. Pass one, not both.", "To move a folder use the builder; to rename it drop parentId.");
+        const listFolders = async () => (await gw.call("GET", `/workflow/${loc}/list?type=directory&limit=200&offset=0`)).json?.rows ?? [];
+        const target = (await listFolders()).find((row) => (row.id ?? row._id) === args.folderId);
+        if (!target) return fail(CODES.VALIDATION_FAILED, "the folder id does not exist in this sub-account. Nothing was written.", "Run list_workflow_folders to get a real folder id.");
+        if (target.name === args.name) return ok({ renamed: false, noop: true, folderId: args.folderId, name: args.name, note: "The folder already has this name. Nothing was written." });
+        if (args.confirm !== true) {
+          return withFailureData(
+            fail(CODES.CONFIRM_REQUIRED, "Folder rename preview is ready; no write was sent.", "Repeat the request with confirm:true to rename it."),
+            { preview: { renames: { folderId: args.folderId, from: target.name, to: args.name } } }
+          );
+        }
+        const put = await gw.call("PUT", `/workflow/${loc}/rename-directory/${encodeURIComponent(args.folderId)}`, { name: args.name });
+        if (!put.ok) return fromHttp(put.status, put.json);
+        const found2 = await gw.readBackUntil(async () => {
+          const row = (await listFolders()).find((r) => (r.id ?? r._id) === args.folderId);
+          return row?.name === args.name ? row : null;
+        }, { pollMs: 1e3, maxPolls: 3 });
+        return ok({
+          renamed: true,
+          verified: Boolean(found2.hit),
+          readBackAttempts: found2.attempts,
+          folderId: args.folderId,
+          from: target.name,
+          to: args.name,
+          ...found2.hit ? {} : { note: `The rename answered ${put.status}, but the folder list still shows the old name after ${found2.attempts} read-backs.` }
+        });
+      }
       const preview = { creates: { name: args.name, parentId: args.parentId ?? null } };
       if (args.confirm !== true) {
         return withFailureData(

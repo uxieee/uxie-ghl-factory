@@ -73,6 +73,16 @@
         "receipt:2026-09-18-1655"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-18",
+      "result": "pass",
+      "how": "suite",
+      "suite": "workflows",
+      "evidence": [
+        "receipt:2026-09-18-1735"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
@@ -82,14 +92,15 @@
       "GET https://backend.leadconnectorhq.com /locations/{}/customValues": "7528d8d44a9a81689c4ff5dc3875cd96f40b6c37d613bd11156e149b728ac054",
       "GET https://backend.leadconnectorhq.com /workflow/{}/trigger": "08350cea684b7ac76430d36af66e093c3753ee489a66e250efef0ba978eeb148",
       "GET https://backend.leadconnectorhq.com /workflow/{}/{}": "d75bf4cca526ca32f133f5f381cb7a68530031528b4caa2d713addcae0c55ffc",
-      "GET https://backend.leadconnectorhq.com /workflows-marketplace/location/{}/assets": "75227c99a31e68a0cb165fcd0df8a205a7cef4d8140377a64bed664f5ba3880f"
+      "GET https://backend.leadconnectorhq.com /workflows-marketplace/location/{}/assets": "75227c99a31e68a0cb165fcd0df8a205a7cef4d8140377a64bed664f5ba3880f",
+      "POST https://backend.leadconnectorhq.com /workflow/{}/scheduler-trigger/preview": "eb273ac17cee1ae1536d7f3709c697dd716ecc34a20154710d4fe94650ccb06e"
     },
     "builds": {
       "builder-chunks": "assets/index-BZBeFyAW.js",
       "reportingApp": 272
     },
     "code": {
-      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#check_workflow": "500f62666e2e79fa270b90ed3330d97c58565651789a971822771857f584a342",
+      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#check_workflow": "b9b555c91e52889a4f6e312a220fca6406636881dca3df5c9047a1d58db8c5db",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "e65c2384aefb498ce49453dd2d6d8d1a1d8351fd6d337aef5256eb982e1db02f",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
       "plugins/uxie-ghl-factory/mcp-internal/core/builder-validators.mjs": "c819a5c11247c72ff7072318507a384cf605dd32b32267d0b4f7d118438eb490",
@@ -125,6 +136,7 @@
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/required-fields.mjs": "6c0e1af01f7936d1cb376c63fc65130553fbe33b332fa8d6b0409a8b567129b1",
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/router-branches.mjs": "29555ae63ff44865d2b82eaeabc1280c416aa77732cc401e9f23f74c30d179ce",
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/router-graph.mjs": "a919a41108ba6a78373911e49d9676f3e1178ffab7f4b9e9d1ca99a89bc365d4",
+      "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/scheduler-preview.mjs": "0135959d5f13aabbf24ef33d2c97679002841a6d88c3c068cbfa7090f40b0563",
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/settings.mjs": "fd3f90117e2b7a5b555bbb995182f086138c88d49666d7d10dd374f8c744831c",
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/step-notes.mjs": "76b941685f6b63a3cba288c7391b68b1b4e0c9e4ae10f9b7f90fd75d4999f91e",
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/step-outputs.mjs": "094c2caf9d20a08d8d682eb747efe7b27d3f617ba4d34b6aa2fd0f186a096c78",

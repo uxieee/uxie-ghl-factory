@@ -1257,9 +1257,9 @@
     ]
   },
   "list_account_entities": {
-    "description": "List account entities — proof: live-runtime (2026-07-18), floor: documented; risk: read",
+    "description": "List account entities — proof: live-runtime (2026-09-18), floor: documented; risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-07-18)",
+    "proof": "live-runtime (2026-09-18)",
     "proofFloor": "documented",
     "proofRows": [
       "entities-ai-employees-agents-list",

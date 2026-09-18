@@ -93,20 +93,31 @@
         "receipt:2026-09-18-1655"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-18",
+      "result": "pass",
+      "how": "suite",
+      "suite": "workflows",
+      "evidence": [
+        "receipt:2026-09-18-1735"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
     "hashedAt": "2026-09-18",
     "endpoints": {
       "GET https://backend.leadconnectorhq.com /workflow/{}/list": "c3a30133ae951cb061dce33d9bf73e80273ed161cade4401a663efa490030075",
-      "POST https://backend.leadconnectorhq.com /workflow/{}/directory": "74bd563d57513b08d253b365b8a94d75edf6db7b197be9b2c460fece861dcc12"
+      "POST https://backend.leadconnectorhq.com /workflow/{}/directory": "74bd563d57513b08d253b365b8a94d75edf6db7b197be9b2c460fece861dcc12",
+      "PUT https://backend.leadconnectorhq.com /workflow/{}/rename-directory/{}": "d9a2e956019b45a4b6991c30260690ccc7d617ab5cd75e7cfeb82a767f7cbf65"
     },
     "builds": {
       "builder-chunks": "assets/index-BZBeFyAW.js",
       "reportingApp": 272
     },
     "code": {
-      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#create_workflow_folder": "7100f71c16eac210b2d6aa2ca23eaaa7f38691139b7da4d88fe0159c04dd9f69",
+      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#create_workflow_folder": "66bde16fca27ecd223b24c2b8da3059b6666f6cd91eff77d635b06719bc9eb17",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "e65c2384aefb498ce49453dd2d6d8d1a1d8351fd6d337aef5256eb982e1db02f",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
       "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "2d59b12818ffe76fb105e5284c3d186aea8d07f6a457b7c6344ea2258ba6a1d6"

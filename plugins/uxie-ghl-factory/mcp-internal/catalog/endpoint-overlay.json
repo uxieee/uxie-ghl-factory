@@ -1457,6 +1457,18 @@
     },
     "GET /objects/{workflowType}/enabled": {
       "note": "DEAD IN SOURCE: the only call site (WorkflowTypeService.fetchWorkflowTypeEnabled) is commented out and returns {enabled:false} locally. The live host answers 404 \"Cannot GET\" -- no route handler. Nothing to use."
+    },
+    "GET /workflow/{locationId}/drip-schedule/{workflowId}/step/{stepId}/stats": {
+      "summary": "Drip queue status for one step: {hasQueuedContacts, contactsInDrip, nextBatch, completionETA, configVersions}.",
+      "note": "TRAP: a 200 here proves NOTHING about the step. Measured 2026-09-19 on one draft: a real drip step, a WAIT step and a step id that does not exist all answer the IDENTICAL empty body. The route never 404s and never says \"not a drip\", so it only discriminates once contacts are actually queued -- which needs a live enrolment and has not been observed. Do not build on an empty answer from it.",
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer"
+    },
+    "GET /workflow/{locationId}/drip-schedule/{workflowId}/step/{stepId}/contacts": {
+      "summary": "Contacts queued in one drip step, paged: {schedules, page, limit, total, totalPages}.",
+      "note": "TRAP: a 200 here proves NOTHING about the step. Measured 2026-09-19 on one draft: a real drip step, a WAIT step and a step id that does not exist all answer the IDENTICAL empty body. The route never 404s and never says \"not a drip\", so it only discriminates once contacts are actually queued -- which needs a live enrolment and has not been observed. Do not build on an empty answer from it.",
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer"
     }
   }
 }

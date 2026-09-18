@@ -385,7 +385,8 @@ test('list_account_entities reuses the canonical best-effort entity sweep', asyn
   // 7 -> 12 (2026-08-22): + workflows list, custom values, trigger links, offers, membership products
   // 21 -> 23 (2026-08-29): the sweep is a REGISTRY now (engine/entities.mjs), and Phase 5 added
   // opportunity lost reasons and call dispositions as rows. 21 registry rows + 2 agent endpoints.
-  assert.equal(gw.calls.length, 23);
+  // 23 -> 25 (2026-09-19): + events and eventTickets (one options endpoint, two rows).
+  assert.equal(gw.calls.length, 25);
 });
 
 test('list_account_entities treats malformed successful payloads as empty best-effort arrays', async () => {
@@ -405,7 +406,7 @@ test('list_account_entities treats malformed successful payloads as empty best-e
   assert.equal(result.ok, true);
   assert.deepEqual(Object.keys(result.data).sort(), [
     'agents', 'calendars', 'callDispositions', 'coupons', 'customFields', 'customValues',
-    'documentTemplates', 'emailTemplates', 'fbPages', 'forms', 'funnels', 'lostReasons',
+    'documentTemplates', 'emailTemplates', 'eventTickets', 'events', 'fbPages', 'forms', 'funnels', 'lostReasons',
     'membershipProducts', 'objects', 'offers', 'phoneNumbers', 'pipelines', 'products',
     'smsTemplates', 'triggerLinks', 'users', 'workflows',
   ].sort());

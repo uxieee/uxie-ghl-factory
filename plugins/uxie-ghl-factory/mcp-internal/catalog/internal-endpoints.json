@@ -23376,6 +23376,8 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
+      "summary": "Contacts queued in one drip step, paged: {schedules, page, limit, total, totalPages}.",
+      "note": "TRAP: a 200 here proves NOTHING about the step. Measured 2026-09-19 on one draft: a real drip step, a WAIT step and a step id that does not exist all answer the IDENTICAL empty body. The route never 404s and never says \"not a drip\", so it only discriminates once contacts are actually queued -- which needs a live enrolment and has not been observed. Do not build on an empty answer from it.",
       "reach": "proven",
       "provenFor": [
         "agency-admin-bearer"
@@ -23437,6 +23439,8 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
+      "summary": "Drip queue status for one step: {hasQueuedContacts, contactsInDrip, nextBatch, completionETA, configVersions}.",
+      "note": "TRAP: a 200 here proves NOTHING about the step. Measured 2026-09-19 on one draft: a real drip step, a WAIT step and a step id that does not exist all answer the IDENTICAL empty body. The route never 404s and never says \"not a drip\", so it only discriminates once contacts are actually queued -- which needs a live enrolment and has not been observed. Do not build on an empty answer from it.",
       "reach": "proven",
       "provenFor": [
         "agency-admin-bearer"
@@ -24986,7 +24990,9 @@
       "kind": "write",
       "note": "Executed on the designated sandbox 2026-09-10 in the workflows write-parity run. Folder rename. Answers 200 {\"msg\":\"Updated successfull\",\"error\":false} — note the typo and that `error:false` is the success signal. Read back changed and restored.",
       "reach": "proven",
-      "coveredBy": [],
+      "coveredBy": [
+        "create_workflow_folder"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -25334,7 +25340,9 @@
       "kind": "write",
       "note": "Executed on the designated sandbox 2026-09-10 in the workflows write-parity run. 🔴 `conditions` must be a NON-EMPTY array or it answers 400 \"conditions array is required and cannot be empty\" — an empty array is refused, not treated as \"no filter\". 🔴 BUT THE RESPONSE DOES NOT DISCRIMINATE ON `conditions`: measured 2026-09-16 with a control, an invented field name (`utter_nonsense_field`/`banana`) and a full monthly schedule both return the SAME {success:true, executions:[]} as the example this row used to cite as its proof. `executions` has never been observed non-empty. The endpoint DOES parse the body — an invalid `timezone` answers 400 — so this is reachability plus a timezone rule, NOT proof that the preview previews anything. See _shared/conformance/a-success-that-equals-the-null-result.md.",
       "reach": "proven",
-      "coveredBy": [],
+      "coveredBy": [
+        "check_workflow"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",

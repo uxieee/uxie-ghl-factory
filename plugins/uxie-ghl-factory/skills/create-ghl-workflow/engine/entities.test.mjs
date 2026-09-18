@@ -62,3 +62,13 @@ test('registryResolvers builds name lookups from projected rows, case-insensitiv
   assert.equal(r.callDisposition('booked'), 'Booked');
   assert.equal(r.callDisposition(''), undefined);
 });
+
+test('events and eventTickets read the two arrays of ONE options envelope, as {id,name}', () => {
+  const ev = ENTITY_REGISTRY.find((e) => e.key === 'events');
+  const tk = ENTITY_REGISTRY.find((e) => e.key === 'eventTickets');
+  const envelope = { events: [{ value: 'EV1', label: 'Open Day' }], eventTickets: [{ value: 'TK1', label: 'VIP' }], traceId: 't' };
+  assert.deepEqual(ev.pick(envelope).map(ev.project), [{ id: 'EV1', name: 'Open Day' }]);
+  assert.deepEqual(tk.pick(envelope).map(tk.project), [{ id: 'TK1', name: 'VIP' }]);
+  assert.equal(ev.path('L'), tk.path('L'), 'same endpoint');
+  assert.deepEqual(ev.pick({ traceId: 't' }), [], 'an envelope with no events array is an empty list, not a crash');
+});

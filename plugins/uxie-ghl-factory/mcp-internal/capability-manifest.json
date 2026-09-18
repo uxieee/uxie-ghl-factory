@@ -121,6 +121,11 @@
   },
   {
     "tool": "check_workflow",
+    "method": "POST",
+    "path": "/workflow/{loc}/scheduler-trigger/preview"
+  },
+  {
+    "tool": "check_workflow",
     "method": "GET",
     "path": "/locations/{loc}/customFields/search"
   },
@@ -1138,6 +1143,11 @@
     "tool": "create_workflow_folder",
     "method": "POST",
     "path": "/workflow/{loc}/directory"
+  },
+  {
+    "tool": "create_workflow_folder",
+    "method": "PUT",
+    "path": "/workflow/{loc}/rename-directory/{folderId}"
   },
   {
     "tool": "create_workflow_folder",

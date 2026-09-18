@@ -31,6 +31,7 @@ import { checkWorkflowRules, rulesNeedTriggers, fromEmailNeedsDomain } from '../
 import { checkGraphContextRules } from '../../skills/create-ghl-workflow/engine/graph-context-rules.mjs';
 import { validateAssets, describeFinding } from '../../skills/create-ghl-workflow/engine/asset-preflight.mjs';
 import { callerCredentialClass, reachForCaller } from './credential-class.mjs';
+import { SCHEDULER_TRIGGER_TYPE, schedulerPreviewBody, interpretSchedulerPreview } from '../../skills/create-ghl-workflow/engine/scheduler-preview.mjs';
 import { planReadinessChecks, runReadinessChecks } from '../../skills/create-ghl-workflow/engine/preflight.mjs';
 import { parseActionSchema, parseTriggerSchema, checkWorkflow, marketplaceDrift } from '../../skills/create-ghl-workflow/engine/action-schema.mjs';
 import { INNER_ATTRIBUTE_TYPE } from '../../skills/create-ghl-workflow/engine/required-fields.mjs';
@@ -2226,11 +2227,17 @@ export const TOOLS = [
       workflowId: z.string(),
           // Client policy, inline. Without it the handler looks for .ghl/<locationId>/lint-pack.json.
       lintPack: z.object({}).passthrough().optional(),
+      // IANA zone to compute a scheduler trigger's next executions in. There is no safe default to
+      // borrow — the builder itself previews in the BROWSER's zone — so it is UTC unless you say, and
+      // the result states which zone it used.
+      timezone: z.string().optional(),
     }),
     capabilities: [
       { method: 'GET', path: '/workflow/{loc}/{wid}' },
       { method: 'GET', path: '/workflow/{loc}/trigger' },
       { method: 'GET', path: '/workflows-marketplace/location/{loc}/assets' },
+      // Only when the workflow carries a scheduler trigger. Read-shaped: it computes, writes nothing.
+      { method: 'POST', path: '/workflow/{loc}/scheduler-trigger/preview' },
       // Best-effort, for the merge-tag lint's per-location vocabulary. Their absence only
       // demotes that one check to "unverifiable"; it never blocks the read.
       { method: 'GET', path: '/locations/{loc}/customFields/search' },
@@ -2299,7 +2306,22 @@ export const TOOLS = [
       );
       for (const e of doctrine.errors) lints.notEvaluable.push(`doctrine pack: ${e}`);
 
+      // SCHEDULER TRIGGERS: when does GHL say this fires? Advisory, its own key, never in errorCount.
+      // An EMPTY list is the finding — a schedule that saves, validates, publishes and never runs.
+      const schedulerTriggers = triggerList.filter((t) => t?.type === SCHEDULER_TRIGGER_TYPE);
+      const schedulerPreview = [];
+      for (const t of schedulerTriggers) {
+        const zone = args.timezone ?? 'UTC';
+        let res;
+        try { res = await gw.call('POST', `/workflow/${loc}/scheduler-trigger/preview`, schedulerPreviewBody(t, zone)); }
+        catch (e) { res = { ok: false, status: null, json: { error: e.message } }; }
+        schedulerPreview.push(interpretSchedulerPreview(t, zone, res));
+      }
+
       const lintKeys = {
+        ...(schedulerTriggers.length ? { schedulerPreview,
+          schedulerPreviewNote: `GHL's own computation of the next executions, in ${args.timezone ?? 'UTC (no timezone was passed)'}. `
+            + 'neverFires:true means GHL computes NO upcoming run for a schedule that still saves and publishes. ADVISORY — not part of errorCount.' } : {}),
         lints,
         lintNote: 'lints are ADVISORY findings from the engine\'s own layers (platform), generic '
           + 'authoring hygiene, and this project\'s lint pack — a separate key, never part of '
@@ -3896,7 +3918,7 @@ export const TOOLS = [
       'Sweep the account objects a workflow spec may name: pipelines (+stages), calendars, users, forms, '
       + 'custom fields (all models), AI agents, workflows, custom values, trigger links, membership offers '
       + '+ products, SMS/WhatsApp templates, email-builder templates, store products, coupons, phone numbers, '
-      + 'funnels, Facebook pages, document templates, custom-object schemas, opportunity LOST REASONS '
+      + 'funnels, Facebook pages, document templates, custom-object schemas, EVENTS and event tickets, opportunity LOST REASONS '
       + 'and call DISPOSITIONS — the same entity kinds the build resolver uses. One row per kind in '
       + "engine/entities.mjs, so the list here cannot drift from what the sweep actually returns.",
     ),
@@ -6308,6 +6330,7 @@ export const TOOLS = [
   {
     name: 'create_workflow_folder',
     description: `${describe('create_workflow_folder', 'Create workflow folder — risk: write')}. `
+      + 'Pass folderId to RENAME that folder to `name` instead of creating one (verified by read-back). '
       + 'Preview by default; '
       + 'pass confirm:true to write. Returns the new folder id, verified by reading it back out of the '
       + 'folder list — the create response is a bare id and echoes nothing else.',
@@ -6315,10 +6338,14 @@ export const TOOLS = [
       locationId: z.string(),
       name: z.string(),
       parentId: z.string().optional(),
+      // Given, this RENAMES that folder to `name` instead of creating one. There was no way to fix a
+      // folder's name without the UI, so a wrong one was permanent.
+      folderId: z.string().optional(),
       confirm: z.boolean().default(false),
     }),
     capabilities: [
       { method: 'POST', path: '/workflow/{loc}/directory' },
+      { method: 'PUT', path: '/workflow/{loc}/rename-directory/{folderId}' },
       { method: 'GET', path: '/workflow/{loc}/list' },
     ],
     handler: async (args, deps) => guard(async () => {
@@ -6328,6 +6355,27 @@ export const TOOLS = [
       }
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
       const loc = encodeURIComponent(args.locationId);
+      if (args.folderId) {
+        if (args.parentId) return fail(CODES.VALIDATION_FAILED, 'folderId renames a folder; parentId is for creating one. Pass one, not both.', 'To move a folder use the builder; to rename it drop parentId.');
+        const listFolders = async () => (await gw.call('GET', `/workflow/${loc}/list?type=directory&limit=200&offset=0`)).json?.rows ?? [];
+        const target = (await listFolders()).find((row) => (row.id ?? row._id) === args.folderId);
+        if (!target) return fail(CODES.VALIDATION_FAILED, 'the folder id does not exist in this sub-account. Nothing was written.', 'Run list_workflow_folders to get a real folder id.');
+        if (target.name === args.name) return ok({ renamed: false, noop: true, folderId: args.folderId, name: args.name, note: 'The folder already has this name. Nothing was written.' });
+        if (args.confirm !== true) {
+          return withFailureData(
+            fail(CODES.CONFIRM_REQUIRED, 'Folder rename preview is ready; no write was sent.', 'Repeat the request with confirm:true to rename it.'),
+            { preview: { renames: { folderId: args.folderId, from: target.name, to: args.name } } });
+        }
+        const put = await gw.call('PUT', `/workflow/${loc}/rename-directory/${encodeURIComponent(args.folderId)}`, { name: args.name });
+        if (!put.ok) return fromHttp(put.status, put.json);
+        // The folder index lags a write by a second or two (same as create) — poll the read-back.
+        const found = await gw.readBackUntil(async () => {
+          const row = (await listFolders()).find((r) => (r.id ?? r._id) === args.folderId);
+          return row?.name === args.name ? row : null;
+        }, { pollMs: 1000, maxPolls: 3 });
+        return ok({ renamed: true, verified: Boolean(found.hit), readBackAttempts: found.attempts, folderId: args.folderId, from: target.name, to: args.name,
+          ...(found.hit ? {} : { note: `The rename answered ${put.status}, but the folder list still shows the old name after ${found.attempts} read-backs.` }) });
+      }
       const preview = { creates: { name: args.name, parentId: args.parentId ?? null } };
       if (args.confirm !== true) {
         return withFailureData(

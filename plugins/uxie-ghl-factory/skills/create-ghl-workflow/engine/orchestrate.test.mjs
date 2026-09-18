@@ -231,7 +231,7 @@ test('fetchEntities degrades malformed and failed endpoint payloads to empty arr
   const degraded = await fetchEntities({ call, loc: 'LOC' });
   assert.deepEqual(Object.keys(degraded).sort(), [
     'agents', 'calendars', 'callDispositions', 'coupons', 'customFields', 'customValues',
-    'documentTemplates', 'emailTemplates', 'fbPages', 'forms', 'funnels', 'lostReasons',
+    'documentTemplates', 'emailTemplates', 'eventTickets', 'events', 'fbPages', 'forms', 'funnels', 'lostReasons',
     'membershipProducts', 'objects', 'offers', 'phoneNumbers', 'pipelines', 'products',
     'smsTemplates', 'triggerLinks', 'users', 'workflows',
   ].sort());
@@ -253,7 +253,8 @@ test('fetchEntities URL-encodes hostile location ids in every request', async ()
   const queryValue = new URLSearchParams({ locationId }).toString();
   const pathValue = encodeURIComponent(locationId);
   // 21 registry rows + the two agent endpoints. Phase 5 added lostReasons and callDispositions.
-  assert.equal(calls.length, 23);
+  // 23 -> 25 (2026-09-19): + events and eventTickets (one options endpoint, two rows).
+  assert.equal(calls.length, 25);
   // legs that carry the location in the PATH (must be encodeURIComponent'd there)
   const pathLegs = [
     new RegExp(`^/locations/${pathValue}/customFields/search\\?`),

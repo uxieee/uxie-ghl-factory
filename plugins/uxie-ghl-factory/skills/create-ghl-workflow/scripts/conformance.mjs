@@ -869,6 +869,59 @@ if (hwid && htid) {
     'FENCE: after all of it the workflow is still a DRAFT and the trigger is still INACTIVE', `status=${fence?.workflow?.status} active=${trig?.active}`);
 }
 
+// ── scheduler preview: a trigger that fires, and one that NEVER does ────────────────────────
+// Both triggers are inactive on a draft. The second is a real authoring mistake — days with no
+// times — that saves, validates and publishes cleanly and that GHL computes zero executions for.
+console.log('\nscheduler preview');
+log.subject('build_workflow');
+const schedBuilt = await call('build_workflow', { spec: { name: NAME('scheduler'),
+  triggers: [
+    { ref: 'fires', type: 'scheduler_trigger', name: 'TEST-CONF mondays 09:00', filters: [
+      { field: 'scheduler.interval', value: 'weekly' }, { field: 'scheduler.weekly.days', value: ['monday'] }, { field: 'scheduler.weekly.times', value: ['09:00'] }] },
+    { ref: 'never', type: 'scheduler_trigger', name: 'TEST-CONF days but no times', filters: [
+      { field: 'scheduler.interval', value: 'weekly' }, { field: 'scheduler.weekly.days', value: ['monday'] }] }],
+  graph: [{ ref: 'w', kind: 'wait', name: 'Wait 1 day', config: { unit: 'days', value: 1, when: 'after' } }] } });
+const swid = schedBuilt.data?.wid;
+check(schedBuilt.ok === true && typeof swid === 'string', 'build_workflow creates a draft with two scheduler triggers', `${schedBuilt.code ?? ''} ${String(schedBuilt.detail ?? '').slice(0, 200)}`);
+if (swid) {
+  left.push(`workflow ${swid} (${NAME('scheduler')}, two scheduler triggers INACTIVE)`);
+  log.subject('check_workflow');
+  const london = await call('check_workflow', { workflowId: swid, timezone: 'Europe/London' });
+  const rows = london.data?.schedulerPreview ?? [];
+  const fires = rows.find((r) => /mondays/.test(r.name ?? '')), never = rows.find((r) => /no times/.test(r.name ?? ''));
+  check(london.ok === true && rows.length === 2 && rows.every((r) => r.checked === true), 'check_workflow previews BOTH scheduler triggers through GHL', JSON.stringify(rows.map((r) => [r.name, r.checked])));
+  const inLondon = (iso) => new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/London', weekday: 'long', hour: '2-digit', minute: '2-digit', hour12: false }).format(new Date(iso));
+  check(fires?.neverFires === false && fires.executions.length > 0 && fires.executions.every((e) => /^Monday.*09:00$/.test(inLondon(e))),
+    'the Monday 09:00 trigger: every instant GHL returns IS a Monday 09:00 in the zone asked for', JSON.stringify((fires?.executions ?? []).slice(0, 2).map(inLondon)));
+  check(never?.neverFires === true && never.executions.length === 0,
+    '🔴 the days-with-no-times trigger is reported neverFires — it built, and GHL computes no run for it', JSON.stringify(never ?? null).slice(0, 160));
+  const sydney = await call('check_workflow', { workflowId: swid, timezone: 'Australia/Sydney' });
+  const sFires = (sydney.data?.schedulerPreview ?? []).find((r) => /mondays/.test(r.name ?? ''));
+  check(sFires?.executions?.[0] && sFires.executions[0] !== fires?.executions?.[0],
+    'DIFFERENTIAL: the same trigger previewed in another zone gives DIFFERENT instants — the zone is really read', `${fires?.executions?.[0]} vs ${sFires?.executions?.[0]}`);
+  log.subject(false);
+  const sFence = (await call('export_workflow', { workflowId: swid })).data;
+  check(sFence?.workflow?.status === 'draft' && (sFence?.triggers ?? []).every((t) => t.active !== true),
+    'FENCE: still a DRAFT, both scheduler triggers still INACTIVE', `status=${sFence?.workflow?.status}`);
+}
+
+log.subject('list_account_entities');
+{
+  // The sweep must agree with a RAW read of the same endpoint — ids and names, not just a count —
+  // so a projection that silently maps the wrong keys cannot pass. The expectation comes off the
+  // account: a suite that hard-codes "one event" passes until somebody adds a second.
+  const swept = await call('list_account_entities', { kinds: ['events', 'eventTickets'] });
+  log.subject(false);
+  const rawEv = await deps.makeGw({ loc: LOCATION, state }).call('GET', `/events-management/events/options?${new URLSearchParams({ locationId: LOCATION })}`);
+  log.subject('list_account_entities');
+  const want = (rawEv.json?.events ?? []).map((e) => `${e.value}|${e.label}`).sort();
+  const got = (swept.data?.events ?? []).map((e) => `${e.id}|${e.name}`).sort();
+  check(swept.ok === true && rawEv.ok === true && JSON.stringify(got) === JSON.stringify(want),
+    'list_account_entities returns the account\'s EVENTS, id-for-id and name-for-name with a raw read', `${got.length} vs raw ${want.length}`);
+  check(want.length > 0, 'and the account holds at least one event, so that agreement is not two empty lists agreeing', String(want.length));
+  check(Array.isArray(swept.data?.eventTickets), 'eventTickets comes back as a list (possibly empty) from the same sweep', JSON.stringify(swept.data?.eventTickets)?.slice(0, 60));
+}
+
 log.subject('search_merge_tags');
 {
   // Three claims, each with its control: the static inventory answers with no account at all; a
@@ -1015,6 +1068,38 @@ if (fid) {
   const afterFolders = await call('list_workflow_folders', { limit: 100, offset: 0 });
   check((afterFolders.data?.folders ?? []).some((f) => f.id === fid),
     'the folder reads back in a SEPARATE listing — not merely a 200 on the create');
+}
+
+// ── rename, both kinds ──────────────────────────────────────────────────────────────────────
+// A wrong name used to be permanent: the rule is iterate-in-place, never spawn a v2, and nothing
+// could fix a FOLDER's name without the UI. The workflow rename (updateSettings.name) shipped long
+// before and had never been run live by this suite.
+if (fid) {
+  log.subject('create_workflow_folder');
+  const RENAMED = NAME('folder-renamed');
+  const ghostFolder = await call('create_workflow_folder', { folderId: 'zzNotAFolderId', name: RENAMED, confirm: true });
+  check(ghostFolder.ok === false, 'CONTROL: renaming a folder id that does not exist is refused', `${ghostFolder.ok} ${ghostFolder.code ?? ''}`);
+  const foldersBefore = (await call('list_workflow_folders', { limit: 200, offset: 0 })).data?.folders ?? [];
+  const renamedFolder = await call('create_workflow_folder', { folderId: fid, name: RENAMED, confirm: true });
+  check(renamedFolder.ok === true && renamedFolder.data?.renamed === true && renamedFolder.data?.verified === true,
+    'create_workflow_folder with a folderId RENAMES it, verified', `${renamedFolder.code ?? ''} ${JSON.stringify(renamedFolder.data ?? {}).slice(0, 160)}`);
+  const foldersAfter = (await call('list_workflow_folders', { limit: 200, offset: 0 })).data?.folders ?? [];
+  check(foldersAfter.find((f) => f.id === fid)?.name === RENAMED && foldersAfter.length === foldersBefore.length,
+    'READ-BACK: a separate listing shows the new name on the SAME id, and no folder was created',
+    `${foldersAfter.find((f) => f.id === fid)?.name} | ${foldersBefore.length} -> ${foldersAfter.length}`);
+  left.push(`   (folder ${fid} was renamed to ${RENAMED})`);
+}
+if (wid) {
+  log.subject('edit_workflow');
+  const beforeName = (await call('get_workflow', { workflowId: wid })).data;
+  const NEWNAME = NAME('stepindex-renamed');
+  const renamedWf = await call('edit_workflow', { workflowId: wid, confirm: true, acknowledgeDrift: true, ops: [{ op: 'updateSettings', settings: { name: NEWNAME } }] });
+  check(renamedWf.ok === true, 'edit_workflow updateSettings{name} renames a workflow in place', `${renamedWf.code ?? ''} ${String(renamedWf.detail ?? '').slice(0, 200)}`);
+  const afterName = (await call('get_workflow', { workflowId: wid })).data;
+  check(afterName?.name === NEWNAME && afterName?.status === beforeName?.status && afterName?.stepCount === beforeName?.stepCount,
+    'READ-BACK: the new name landed, and status and step count are untouched',
+    `${afterName?.name} | ${beforeName?.status} -> ${afterName?.status} | steps ${beforeName?.stepCount} -> ${afterName?.stepCount}`);
+  left.push(`   (workflow ${wid} was renamed to ${NEWNAME})`);
 }
 
 log.subject('move_workflows');

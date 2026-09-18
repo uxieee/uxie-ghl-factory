@@ -91,6 +91,17 @@ export const ENTITY_REGISTRY = [
     project: (x) => ({ key: x.key, id: x.id || x._id, singular: x.labels?.singular, plural: x.labels?.plural,
       standard: x.standard ?? (x.type === 'SYSTEM_DEFINED') }) },
 
+  // Events + their tickets — what the Events triggers' filters choose from (the builder's own
+  // fetchEventsOptions). One endpoint, two arrays, so two rows on the same path. The rows are
+  // {value,label} rather than {id,name}: this is an OPTIONS endpoint, already shaped for a picker.
+  // Deleted events are excluded upstream. Live 2026-09-19. Calendar GROUPS and WhatsApp TEMPLATES
+  // were considered and left out: the test account holds none of either, so their row shape could
+  // not be verified, and a projection nobody has seen run is a guess with a schema.
+  { key: 'events', path: (loc) => `/events-management/events/options?${q(loc)}`,
+    pick: (j) => recordsFrom(j?.events), project: (x) => ({ id: x.value, name: x.label }) },
+  { key: 'eventTickets', path: (loc) => `/events-management/events/options?${q(loc)}`,
+    pick: (j) => recordsFrom(j?.eventTickets), project: (x) => ({ id: x.value, name: x.label }) },
+
   // ── Added by Phase 5. Both are NAMEABLE things a workflow step refers to, and neither was
   //    fetched, so neither could be authored by name.
   //

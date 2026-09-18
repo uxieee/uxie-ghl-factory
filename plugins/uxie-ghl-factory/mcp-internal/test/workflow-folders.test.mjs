@@ -22,6 +22,7 @@ const workflow = (over = {}) => ({
 });
 
 function gateway({
+  renameIsInert = false,
   workflows = { w1: workflow() },
   triggers = {},
   folders = FOLDERS,
@@ -59,6 +60,12 @@ function gateway({
         const id = path.split('/')[3].split('?')[0];
         if (!store[id]) return { status: 404, ok: false, json: { message: 'not found' } };
         return { status: 200, ok: true, json: structuredClone(store[id]) };
+      }
+      if (method === 'PUT' && path.startsWith('/workflow/LOC/rename-directory/')) {
+        const dir = dirs.find((d) => d.id === path.split('/').pop());
+        if (!body?.name) return { status: 422, ok: false, json: { msg: 'Name is not provided', error: true } };
+        if (dir && !renameIsInert) dir.name = body.name;
+        return { status: 200, ok: true, json: { id: dir?.id ?? null } };
       }
       if (method === 'POST' && path === '/workflow/LOC/directory') {
         if (createFolderResponse) return structuredClone(createFolderResponse);
@@ -148,6 +155,36 @@ test('create_workflow_folder writes the directory body and verifies by read-back
   assert.equal(result.data.folder.name, 'WA staging 2');
   const post = calls.find(({ method, path }) => method === 'POST' && path === '/workflow/LOC/directory');
   assert.deepEqual(post.body, { type: 'directory', name: 'WA staging 2', updatedBy: 'USER', parentId: null });
+});
+
+test('create_workflow_folder with folderId RENAMES: previews, writes {name}, and verifies by read-back', async () => {
+  const { gw, calls } = gateway();
+  const preview = await tool('create_workflow_folder').handler({ locationId: 'LOC', folderId: 'fold-2', name: 'Archive 2026' }, deps(gw));
+  assert.equal(preview.code, 'CONFIRM_REQUIRED');
+  assert.deepEqual(preview.data.preview.renames, { folderId: 'fold-2', from: 'Archive', to: 'Archive 2026' });
+  assert.deepEqual(wrote(calls), [], 'a preview writes nothing');
+  const done = await tool('create_workflow_folder').handler({ locationId: 'LOC', folderId: 'fold-2', name: 'Archive 2026', confirm: true }, deps(gw));
+  assert.equal(done.ok, true); assert.equal(done.data.renamed, true); assert.equal(done.data.verified, true);
+  const put = calls.find(({ method }) => method === 'PUT');
+  assert.equal(put.path, '/workflow/LOC/rename-directory/fold-2'); assert.deepEqual(put.body, { name: 'Archive 2026' });
+  assert.equal(calls.some(({ method, path }) => method === 'POST' && path === '/workflow/LOC/directory'), false, 'a rename never creates a folder');
+});
+
+test('a folder rename that answers 200 and changes nothing is reported UNVERIFIED, not renamed-and-fine', async () => {
+  const { gw } = gateway({ renameIsInert: true });
+  const done = await tool('create_workflow_folder').handler({ locationId: 'LOC', folderId: 'fold-2', name: 'Archive 2026', confirm: true }, { ...deps(gw), sleep: async () => {} });
+  assert.equal(done.data.verified, false); assert.match(done.data.note, /still shows the old name/);
+});
+
+test('folder rename refuses a folder that does not exist, a same-name no-op writes nothing, and parentId is refused', async () => {
+  const { gw, calls } = gateway();
+  const ghost = await tool('create_workflow_folder').handler({ locationId: 'LOC', folderId: 'nope', name: 'X', confirm: true }, deps(gw));
+  assert.equal(ghost.ok, false); assert.match(ghost.detail, /does not exist/);
+  const same = await tool('create_workflow_folder').handler({ locationId: 'LOC', folderId: 'fold-2', name: 'Archive', confirm: true }, deps(gw));
+  assert.equal(same.data.noop, true);
+  const both = await tool('create_workflow_folder').handler({ locationId: 'LOC', folderId: 'fold-2', parentId: 'fold-1', name: 'X', confirm: true }, deps(gw));
+  assert.equal(both.ok, false);
+  assert.deepEqual(wrote(calls), [], 'none of the three wrote');
 });
 
 test('create_workflow_folder fails loudly when the create returns no id', async () => {
