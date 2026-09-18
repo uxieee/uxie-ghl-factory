@@ -1327,6 +1327,54 @@ console.log('\nruntime: enrolment, drip queue, fast-forward');
         check(moved === true, 'EFFECT: Update Inventory RAN — the stock count on the products service is exactly one higher than before the enrolment', `${stockBefore} -> ${await stockOf()}`);
       } else console.log('  NOTE  no TEST-named product with inventory tracking on — the Update Inventory run was NOT exercised');
       if (frwid) await call('unpublish_workflows', { workflowIds: [frwid], confirm: true });
+
+      // THREE MORE first-party steps, each with an effect on ANOTHER service: Issue Badge (the
+      // certificates registry), Grant and Revoke course access (the course's own enrolment list).
+      // Fixtures are found through GHL's own dropdown routes and must be TEST-named. 🔴 A course
+      // grant to a contact with NO EMAIL is logged `success` and does NOTHING — so this contact has
+      // one, on a reserved undeliverable domain, with email DND on: nothing is sent.
+      log.subject(false);
+      const badge = ((await gwr.call('GET', `/workflows-marketplace/actions/options/issue_badge_workflow?locationId=${LOCATION}&optionType=default`)).json?.templateId ?? [])
+        .find((o) => /^TEST-/.test(String(o.label ?? '')));
+      const course = ((await gwr.call('POST', `/workflows-marketplace/actions/dynamic-source/membership_course_grant_access?locationId=${LOCATION}&filterField=membership_default_courses`, {})).json?.membership_default_courses ?? [])
+        .find((o) => /^TEST-/.test(String(o.label ?? '')));
+      if (!badge || !course) console.log(`  NOTE  badge template ${badge ? 'found' : 'MISSING'}, priced test course ${course ? 'found' : 'MISSING'} — those runs were NOT exercised`);
+      else {
+        const mc = await gwr.call('POST', '/contacts/', { locationId: LOCATION, firstName: 'TEST-CONF', lastName: `member-${STAMP}`, email: `test-conf-member-${STAMP}@example.com`, dnd: true, dndSettings: { Email: { status: 'active', message: 'probe contact: never email', code: '' } } });
+        const mid = mc.json?.contact?.id;
+        if (mid) left.push(`contact ${mid} (TEST-CONF member-${STAMP}, reserved-domain email, email DND on)`);
+        const issuedTo = async () => ((await gwr.call('GET', `/certificates/locations/${LOCATION}/registry?skip=0&limit=50&search=`)).json?.issuedCertificates ?? []).filter((c) => c.contactId === mid).length;
+        const members = async () => (await gwr.call('GET', `/membership/locations/${LOCATION}/user-purchase/no-of-users-purchasedOffer/${course.value}`)).json?.userCount;
+        const [badges0, members0] = [await issuedTo(), await members()];
+        const runOne = async (name, graph) => {
+          log.subject('build_workflow');
+          const b = await call('build_workflow', { spec: { name: NAME(name), triggers: [], graph } });
+          const id = b.data?.wid; if (id) left.push(`workflow ${id} (${NAME(name)}, published for the run and unpublished after)`);
+          const p = id ? await call('publish_workflow', { workflowId: id, confirm: true }) : { ok: false };
+          log.subject(false);
+          if (p.ok && mid) await gwr.call('POST', `/contacts/${mid}/workflow/${id}`, { eventStartTime: '' });
+          return { id, ok: b.ok === true && p.ok === true, code: `${b.code ?? ''} ${p.code ?? ''}` };
+        };
+        const g = await runOne('firstparty-badge-grant', [
+          { ref: 'b', kind: 'action', type: 'issue_badge_workflow', marketplace: true, name: 'Issue test badge', attributes: { templateId: badge.value } },
+          { ref: 'g', kind: 'action', type: 'membership_course_grant_access', marketplace: true, name: 'Grant test course', attributes: { membership_default_courses: course.value } }]);
+        const badged = g.ok ? await until(async () => (await issuedTo()) === badges0 + 1) : null;
+        const granted = g.ok ? await until(async () => (await members()) === members0 + 1, { tries: 10, ms: 4000 }) : null;
+        log.subject('build_workflow');
+        check(g.ok, 'Issue Badge and Grant course access build and publish', g.code);
+        check(badged === true, 'EFFECT: Issue Badge RAN — the certificates registry holds one more badge for this contact', `${badges0} -> ${await issuedTo()}`);
+        check(granted === true, 'EFFECT: Grant course access RAN — the offer\'s member count on the memberships service is one higher', `${members0} -> ${await members()}`);
+        if (g.id) await call('unpublish_workflows', { workflowIds: [g.id], confirm: true });
+        if (granted === true) {
+          // 🔴 the revoke step's field is SINGULAR (`membership_default_course`); the grant's is plural.
+          const r = await runOne('firstparty-revoke', [
+            { ref: 'r', kind: 'action', type: 'membership_default_course_revoke', marketplace: true, name: 'Revoke test course', attributes: { membership_default_course: course.value } }]);
+          const revoked = r.ok ? await until(async () => (await members()) === members0, { tries: 10, ms: 4000 }) : null;
+          log.subject('build_workflow');
+          check(revoked === true, 'EFFECT: Revoke course access RAN — the member count is back where it started', `${await members()} vs ${members0}`);
+          if (r.id) await call('unpublish_workflows', { workflowIds: [r.id], confirm: true });
+        }
+      }
     }
 
     log.subject('unpublish_workflows');

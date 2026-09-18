@@ -1483,6 +1483,34 @@
       "reach": "proven",
       "credentialClass": "agency-admin-bearer",
       "kind": "read"
+    },
+    "POST /agent-studio/super-agent/agents/{agentId}/publish": {
+      "summary": "Publish a Managed (super) agent's draft: returns the agent with status 'published', a new versionId and a triggerId on every trigger. Body {locationId}.",
+      "note": "Proven live 2026-09-19 on a test agent. A Managed Agent appears in the workflow step 'Invoke Managed Agents' ONLY once it (a) carries a trigger of type `workflows` and (b) is PUBLISHED -- with the trigger saved but the agent still a draft, the dropdown stayed empty. An unknown sub-route 404s, so the 201 is about this route.",
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "write"
+    },
+    "GET /agent-studio/workflows/dropdown": {
+      "summary": "The agents a workflow step may invoke: {options:[{value: agentId, label, versionId, agentType}]}. Query: agentType=managed|flow, locationId.",
+      "note": "Any other agentType answers 400 'agentType must be one of: flow, managed', so an empty list is about the account. Lists only PUBLISHED agents carrying a `workflows` trigger. Managed-agent trigger vocabulary (from GHL's own 400): chat ALONE, or any mix of form, tag, schedule, appointment_booked, appointment_status, contact_created, opportunity_created, opportunity_status_changed, facebook_lead_gen, survey_submission; `workflows` combines with either. Measured 2026-09-19.",
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "read"
+    },
+    "POST /certificates/locations/{locationId}/templates": {
+      "summary": "Create a certificate or badge template. Minimal body {title, type:'badge'|'certificate'}; empty body -> 400 'title should not be empty'.",
+      "note": "Proven live 2026-09-19: {title, type:'badge'} -> 201, listed by GET .../templates with type 'badge', and offered by the workflow step Issue Badge (the sibling Issue Certificate dropdown stayed empty -- the type is honoured). The CREATE response carries type 'TEMPLATE_CREATED' (an event name); the stored type is on the list read.",
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "write"
+    },
+    "GET /certificates/locations/{locationId}/registry": {
+      "summary": "Issued certificates and badges: {issuedCertificates:[{template, contactId, altId, downloadUrl}], totalCount}. Query skip, limit, search.",
+      "note": "The read that proves the Issue Badge workflow step RAN: altId is `issue_badge_workflow_{loc}_{templateId}_{contactId}_{ts}`. Proven live 2026-09-19.",
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "read"
     }
   }
 }

@@ -20,16 +20,16 @@
     {
       "tree": "documented",
       "dir": "corpus",
-      "capturedAt": "2026-09-16T19:46:33.415Z",
+      "capturedAt": "2026-09-18T22:01:51.778Z",
       "hash": "corpus",
-      "fileCount": 855,
-      "endpoints": 855
+      "fileCount": 865,
+      "endpoints": 865
     }
   ],
   "note": "SOURCE-DERIVED ONLY, merged from every mined front-end. `tree` on each row says which app calls it. The plugin owns kind/note/summary/reach/coveredBy and merges them at read time. A row proves a GHL front-end calls that path — not that your token reaches it, and not that calling it is safe.",
-  "discoveredCallSites": 1330,
+  "discoveredCallSites": 1340,
   "skippedCallSites": 692,
-  "count": 1153,
+  "count": 1158,
   "endpoints": [
     {
       "id": "facebook-service--get-ad-account-by-id",
@@ -1300,7 +1300,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "_shared/conformance/three-tiers-of-write-verification.md:47",
+        "_shared/conformance/three-tiers-of-write-verification.md:70",
         "calendars/20-api/events-and-appointments.md:24",
         "calendars/20-api/events-and-appointments.md:85",
         "calendars/40-rules/appointment-status-semantics.md:19",
@@ -1337,7 +1337,7 @@
         "_shared/conformance/three-tiers-of-write-verification.md:11",
         "_shared/conformance/three-tiers-of-write-verification.md:23",
         "_shared/conformance/three-tiers-of-write-verification.md:35",
-        "_shared/conformance/three-tiers-of-write-verification.md:46",
+        "_shared/conformance/three-tiers-of-write-verification.md:69",
         "calendars/40-rules/calendar-put-replaces-it-does-not-merge.md:23",
         "calendars/40-rules/calendar-put-replaces-it-does-not-merge.md:4",
         "calendars/40-rules/index.md:19"
@@ -2086,6 +2086,33 @@
       "serviceBasis": "declared"
     },
     {
+      "id": "shared--contacts",
+      "method": "PUT",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/contacts/{contactId}",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": null,
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "_shared/conformance/three-tiers-of-write-verification.md:46"
+      ],
+      "serviceClass": "_shared",
+      "serviceBasis": "unattributed"
+    },
+    {
       "id": "calendars--contacts-appointments",
       "method": "GET",
       "origin": "https://backend.leadconnectorhq.com",
@@ -2143,7 +2170,7 @@
       "id": "workflows--contacts",
       "method": "GET",
       "origin": "https://backend.leadconnectorhq.com",
-      "path": "/contacts/{id}",
+      "path": "/contacts/{contactId}",
       "authRail": "bearer",
       "transport": "json",
       "responseMode": "json",
@@ -2163,7 +2190,10 @@
       "sources": [
         "workflows/50-runtime/forcing-and-removing-contacts.md:149"
       ],
-      "serviceBasis": "declared"
+      "serviceBasis": "declared",
+      "aka": [
+        "/contacts/{id}"
+      ]
     },
     {
       "id": "ask-ai--contacts-search",
@@ -13679,6 +13709,39 @@
       "serviceBasis": "declared"
     },
     {
+      "id": "workflows--billing-config-location",
+      "method": "GET",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/saas-billing-v2/billing-config/LOCATION/{locationId}/{product}",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "workflows",
+      "query": [
+        {
+          "name": "optIn",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "workflows/20-api/agency-premium-features.md:170"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
       "id": "saas-service--check-conversation-aieligibility",
       "method": "GET",
       "origin": "https://backend.leadconnectorhq.com",
@@ -20412,7 +20475,8 @@
         "returns": "none-observed"
       },
       "sources": [
-        "services/BaseService.ts:30"
+        "services/BaseService.ts:30",
+        "workflows/40-rules/inbound-webhook-accepts-any-trigger-id.md:40"
       ],
       "serviceClass": "TriggerService",
       "serviceBasis": "inferred-from-path"
@@ -23505,6 +23569,45 @@
       "serviceBasis": "declared"
     },
     {
+      "id": "workflows--actions-dynamic-source",
+      "method": "POST",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/workflows-marketplace/actions/dynamic-source/{key}",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "workflows",
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "filterField",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "workflows/40-rules/marketplace-asset-publisher-classes.md:79"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
       "id": "workflows-marketplace-platform-service--fetch-action-input-all-options",
       "method": "GET",
       "origin": "https://backend.leadconnectorhq.com",
@@ -23549,7 +23652,8 @@
         "returns": "none-observed"
       },
       "sources": [
-        "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:216"
+        "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:216",
+        "workflows/40-rules/marketplace-asset-publisher-classes.md:78"
       ],
       "serviceClass": "WorkflowsMarketplacePlatformService",
       "serviceBasis": "inferred-from-path"
@@ -24923,7 +25027,7 @@
         "marketplace-apps/10-anatomy/marketplace-rail.md:45",
         "marketplace-apps/10-anatomy/marketplace-rail.md:236",
         "workflows/10-anatomy/07-id-resolution.md:206",
-        "workflows/70-research/ENDPOINTS.md:89"
+        "workflows/40-rules/marketplace-asset-publisher-classes.md:10"
       ],
       "serviceBasis": "declared"
     },
@@ -27538,12 +27642,39 @@
       "sources": [
         "ai-agents/20-api/12-ai-agents-api.md:220",
         "ai-agents/20-api/12-ai-agents-api.md:228",
+        "ai-agents/20-api/managed-agent-workflow-invocation.md:22",
         "ai-agents/20-api/12-ai-agents-api.md:356"
       ],
       "serviceBasis": "declared",
       "aka": [
         "/agent-studio/super-agent/agents/{id}"
       ]
+    },
+    {
+      "id": "ai-agents--agents-publish",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/agent-studio/super-agent/agents/{agentId}/publish",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/managed-agent-workflow-invocation.md:21"
+      ],
+      "serviceBasis": "declared"
     },
     {
       "id": "ai-agents--super-agent-agents-delete",
@@ -27610,7 +27741,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/12-ai-agents-api.md:222"
+        "ai-agents/20-api/12-ai-agents-api.md:222",
+        "ai-agents/20-api/managed-agent-workflow-invocation.md:23"
       ],
       "serviceBasis": "declared"
     },
@@ -27668,6 +27800,32 @@
       },
       "sources": [
         "ai-agents/20-api/12-ai-agents-api.md:228"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "ai-agents--workflows-dropdown",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/agent-studio/workflows/dropdown",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/managed-agent-workflow-invocation.md:20"
       ],
       "serviceBasis": "declared"
     },
@@ -31676,10 +31834,15 @@
         "returns": "unresolved"
       },
       "sources": [
+        "workflows/40-rules/inbound-webhook-accepts-any-trigger-id.md:15",
+        "workflows/40-rules/inbound-webhook-accepts-any-trigger-id.md:9",
         "workflows/70-research/INBOUND-WEBHOOK.md:20",
         "workflows/70-research/INBOUND-WEBHOOK.md:86"
       ],
-      "serviceBasis": "declared"
+      "serviceBasis": "declared",
+      "aka": [
+        "/hooks/{locationId}/webhook-trigger/{ghostId}"
+      ]
     },
     {
       "id": "inbound-webhook-request-service--get-reference-by-id",
@@ -31717,10 +31880,14 @@
         "services/marketplaceServices/InboundWebhookRequestService.ts:20",
         "workflows/40-rules/publish-gate.md:91",
         "workflows/40-rules/validation-gate.md:97",
-        "workflows/70-research/INBOUND-WEBHOOK.md:34"
+        "workflows/70-research/INBOUND-WEBHOOK.md:34",
+        "workflows/40-rules/inbound-webhook-accepts-any-trigger-id.md:18"
       ],
       "serviceClass": "InboundWebhookRequestService",
-      "serviceBasis": "inferred-from-path"
+      "serviceBasis": "inferred-from-path",
+      "aka": [
+        "/hooks/inbound-webhook-request/reference/{ghostId}"
+      ]
     },
     {
       "id": "inbound-webhook-request-service--save-reference",
@@ -31766,6 +31933,7 @@
       },
       "sources": [
         "services/marketplaceServices/InboundWebhookRequestService.ts:26",
+        "workflows/40-rules/inbound-webhook-accepts-any-trigger-id.md:17",
         "workflows/70-research/INBOUND-WEBHOOK.md:35"
       ],
       "serviceClass": "InboundWebhookRequestService",
@@ -31811,10 +31979,14 @@
       },
       "sources": [
         "services/marketplaceServices/InboundWebhookRequestService.ts:13",
-        "workflows/70-research/INBOUND-WEBHOOK.md:33"
+        "workflows/70-research/INBOUND-WEBHOOK.md:33",
+        "workflows/40-rules/inbound-webhook-accepts-any-trigger-id.md:16"
       ],
       "serviceClass": "InboundWebhookRequestService",
-      "serviceBasis": "inferred-from-path"
+      "serviceBasis": "inferred-from-path",
+      "aka": [
+        "/hooks/inbound-webhook-request/trigger/{ghostId}"
+      ]
     },
     {
       "id": "ai-agents--facebook-pages",

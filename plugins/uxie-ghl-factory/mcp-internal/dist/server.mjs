@@ -178,7 +178,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
     define_ENDPOINT_CATALOG_default = {
       generated: "2026-09-18",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 1160,
+      count: 1165,
       endpoints: [
         {
           id: "facebook-service--get-ad-account-by-id",
@@ -1809,7 +1809,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "_shared/conformance/three-tiers-of-write-verification.md:47",
+            "_shared/conformance/three-tiers-of-write-verification.md:70",
             "calendars/20-api/events-and-appointments.md:24",
             "calendars/20-api/events-and-appointments.md:85",
             "calendars/40-rules/appointment-status-semantics.md:19",
@@ -1855,7 +1855,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "_shared/conformance/three-tiers-of-write-verification.md:11",
             "_shared/conformance/three-tiers-of-write-verification.md:23",
             "_shared/conformance/three-tiers-of-write-verification.md:35",
-            "_shared/conformance/three-tiers-of-write-verification.md:46",
+            "_shared/conformance/three-tiers-of-write-verification.md:69",
             "calendars/40-rules/calendar-put-replaces-it-does-not-merge.md:23",
             "calendars/40-rules/calendar-put-replaces-it-does-not-merge.md:4",
             "calendars/40-rules/index.md:19"
@@ -2152,6 +2152,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
+          summary: "Issued certificates and badges: {issuedCertificates:[{template, contactId, altId, downloadUrl}], totalCount}. Query skip, limit, search.",
+          note: "The read that proves the Issue Badge workflow step RAN: altId is `issue_badge_workflow_{loc}_{templateId}_{contactId}_{ts}`. Proven live 2026-09-19.",
           reach: "proven",
           provenFor: [
             "agency-admin-bearer"
@@ -2270,7 +2272,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          reach: "source-only",
+          summary: "Create a certificate or badge template. Minimal body {title, type:'badge'|'certificate'}; empty body -> 400 'title should not be empty'.",
+          note: "Proven live 2026-09-19: {title, type:'badge'} -> 201, listed by GET .../templates with type 'badge', and offered by the workflow step Issue Badge (the sibling Issue Certificate dropdown stayed empty -- the type is honoured). The CREATE response carries type 'TEMPLATE_CREATED' (an event name); the stored type is on the list read.",
+          reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [
             "build_course"
           ],
@@ -2842,6 +2849,79 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "workflows--contacts",
+          aka: [
+            "/contacts/{id}"
+          ],
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/contacts/{contactId}",
+          path: "/contacts/{contactId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "contactId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/50-runtime/forcing-and-removing-contacts.md:149"
+          ]
+        },
+        {
+          id: "shared--contacts",
+          method: "PUT",
+          url: "https://backend.leadconnectorhq.com/contacts/{contactId}",
+          path: "/contacts/{contactId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: null,
+          tree: "documented",
+          pathParams: [
+            {
+              name: "contactId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "_shared/conformance/three-tiers-of-write-verification.md:46"
+          ]
+        },
+        {
           id: "calendars--contacts-appointments",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/contacts/{contactId}/appointments",
@@ -2916,41 +2996,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "workflows/50-runtime/forcing-and-removing-contacts.md:30"
-          ]
-        },
-        {
-          id: "workflows--contacts",
-          method: "GET",
-          url: "https://backend.leadconnectorhq.com/contacts/{id}",
-          path: "/contacts/{id}",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "read",
-          reach: "proven",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "workflows",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "id"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "workflows/50-runtime/forcing-and-removing-contacts.md:149"
           ]
         },
         {
@@ -17535,6 +17580,51 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "workflows--billing-config-location",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/saas-billing-v2/billing-config/LOCATION/{locationId}/{product}",
+          path: "/saas-billing-v2/billing-config/LOCATION/{locationId}/{product}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "product"
+            }
+          ],
+          query: [
+            {
+              name: "optIn",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/20-api/agency-premium-features.md:170"
+          ]
+        },
+        {
           id: "saas-service--check-conversation-aieligibility",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/saas-billing-v2/billing-config/LOCATION/{locationId}/conversation_AI",
@@ -26143,7 +26233,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/BaseService.ts:30"
+            "services/BaseService.ts:30",
+            "workflows/40-rules/inbound-webhook-accepts-any-trigger-id.md:40"
           ]
         },
         {
@@ -29819,6 +29910,54 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "workflows--actions-dynamic-source",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/workflows-marketplace/actions/dynamic-source/{key}",
+          path: "/workflows-marketplace/actions/dynamic-source/{key}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "key"
+            }
+          ],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "filterField",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/40-rules/marketplace-asset-publisher-classes.md:79"
+          ]
+        },
+        {
           id: "workflows-marketplace-platform-service--fetch-action-input-all-options",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/workflows-marketplace/actions/options/{key}",
@@ -29880,7 +30019,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:216"
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:216",
+            "workflows/40-rules/marketplace-asset-publisher-classes.md:78"
           ]
         },
         {
@@ -31479,7 +31619,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "marketplace-apps/10-anatomy/marketplace-rail.md:45",
             "marketplace-apps/10-anatomy/marketplace-rail.md:236",
             "workflows/10-anatomy/07-id-resolution.md:206",
-            "workflows/70-research/ENDPOINTS.md:89"
+            "workflows/40-rules/marketplace-asset-publisher-classes.md:10"
           ]
         },
         {
@@ -34729,7 +34869,48 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:220",
             "ai-agents/20-api/12-ai-agents-api.md:228",
+            "ai-agents/20-api/managed-agent-workflow-invocation.md:22",
             "ai-agents/20-api/12-ai-agents-api.md:356"
+          ]
+        },
+        {
+          id: "ai-agents--agents-publish",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/agent-studio/super-agent/agents/{agentId}/publish",
+          path: "/agent-studio/super-agent/agents/{agentId}/publish",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          summary: "Publish a Managed (super) agent's draft: returns the agent with status 'published', a new versionId and a triggerId on every trigger. Body {locationId}.",
+          note: "Proven live 2026-09-19 on a test agent. A Managed Agent appears in the workflow step 'Invoke Managed Agents' ONLY once it (a) carries a trigger of type `workflows` and (b) is PUBLISHED -- with the trigger saved but the agent still a draft, the dropdown stayed empty. An unknown sub-route 404s, so the 201 is about this route.",
+          reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "agentId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/managed-agent-workflow-invocation.md:21"
           ]
         },
         {
@@ -34771,7 +34952,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:222"
+            "ai-agents/20-api/12-ai-agents-api.md:222",
+            "ai-agents/20-api/managed-agent-workflow-invocation.md:23"
           ]
         },
         {
@@ -34841,6 +35023,42 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:228"
+          ]
+        },
+        {
+          id: "ai-agents--workflows-dropdown",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/agent-studio/workflows/dropdown",
+          path: "/agent-studio/workflows/dropdown",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          summary: "The agents a workflow step may invoke: {options:[{value: agentId, label, versionId, agentType}]}. Query: agentType=managed|flow, locationId.",
+          note: "Any other agentType answers 400 'agentType must be one of: flow, managed', so an empty list is about the account. Lists only PUBLISHED agents carrying a `workflows` trigger. Managed-agent trigger vocabulary (from GHL's own 400): chat ALONE, or any mix of form, tag, schedule, appointment_booked, appointment_status, contact_created, opportunity_created, opportunity_status_changed, facebook_lead_gen, survey_submission; `workflows` combines with either. Measured 2026-09-19.",
+          reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/managed-agent-workflow-invocation.md:20"
           ]
         },
         {
@@ -36914,7 +37132,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "write",
-          reach: "source-only",
+          summary: "Create a certificate or badge template. Minimal body {title, type:'badge'|'certificate'}; empty body -> 400 'title should not be empty'.",
+          note: "Proven live 2026-09-19: {title, type:'badge'} -> 201, listed by GET .../templates with type 'badge', and offered by the workflow step Issue Badge (the sibling Issue Certificate dropdown stayed empty -- the type is honoured). The CREATE response carries type 'TEMPLATE_CREATED' (an event name); the stored type is on the list read.",
+          reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [
             "build_course"
           ],
@@ -39897,6 +40120,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
         },
         {
           id: "workflows--hooks-webhook-trigger",
+          aka: [
+            "/hooks/{locationId}/webhook-trigger/{ghostId}"
+          ],
           method: "POST",
           url: "https://services.leadconnectorhq.com/hooks/{locationId}/webhook-trigger/{triggerId}",
           path: "/hooks/{locationId}/webhook-trigger/{triggerId}",
@@ -39933,12 +40159,17 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
+            "workflows/40-rules/inbound-webhook-accepts-any-trigger-id.md:15",
+            "workflows/40-rules/inbound-webhook-accepts-any-trigger-id.md:9",
             "workflows/70-research/INBOUND-WEBHOOK.md:20",
             "workflows/70-research/INBOUND-WEBHOOK.md:86"
           ]
         },
         {
           id: "inbound-webhook-request-service--get-reference-by-id",
+          aka: [
+            "/hooks/inbound-webhook-request/reference/{ghostId}"
+          ],
           method: "GET",
           url: "https://services.leadconnectorhq.com/hooks/inbound-webhook-request/reference/{triggerId}",
           path: "/hooks/inbound-webhook-request/reference/{triggerId}",
@@ -39990,7 +40221,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "services/marketplaceServices/InboundWebhookRequestService.ts:20",
             "workflows/40-rules/publish-gate.md:91",
             "workflows/40-rules/validation-gate.md:97",
-            "workflows/70-research/INBOUND-WEBHOOK.md:34"
+            "workflows/70-research/INBOUND-WEBHOOK.md:34",
+            "workflows/40-rules/inbound-webhook-accepts-any-trigger-id.md:18"
           ]
         },
         {
@@ -40050,11 +40282,15 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/marketplaceServices/InboundWebhookRequestService.ts:26",
+            "workflows/40-rules/inbound-webhook-accepts-any-trigger-id.md:17",
             "workflows/70-research/INBOUND-WEBHOOK.md:35"
           ]
         },
         {
           id: "inbound-webhook-request-service--get-requests-by-trigger-id",
+          aka: [
+            "/hooks/inbound-webhook-request/trigger/{ghostId}"
+          ],
           method: "GET",
           url: "https://services.leadconnectorhq.com/hooks/inbound-webhook-request/trigger/{triggerId}",
           path: "/hooks/inbound-webhook-request/trigger/{triggerId}",
@@ -40109,7 +40345,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/marketplaceServices/InboundWebhookRequestService.ts:13",
-            "workflows/70-research/INBOUND-WEBHOOK.md:33"
+            "workflows/70-research/INBOUND-WEBHOOK.md:33",
+            "workflows/40-rules/inbound-webhook-accepts-any-trigger-id.md:16"
           ]
         },
         {
@@ -54419,6 +54656,34 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         "GET /workflows-marketplace/actions/options/{key}/{fieldName}": {
           summary: "One field's dropdown options for an Add-step panel action: {options: [...]}.",
           note: "TRAP: answered {options: []} for update_inventory/product while the ALL-fields form (same minute, same account) listed the option -- and answered the identical empty body for a field name that does not exist. An empty answer from this form discriminates nothing; use GET .../actions/options/{key}. Measured 2026-09-19.",
+          reach: "proven",
+          credentialClass: "agency-admin-bearer",
+          kind: "read"
+        },
+        "POST /agent-studio/super-agent/agents/{agentId}/publish": {
+          summary: "Publish a Managed (super) agent's draft: returns the agent with status 'published', a new versionId and a triggerId on every trigger. Body {locationId}.",
+          note: "Proven live 2026-09-19 on a test agent. A Managed Agent appears in the workflow step 'Invoke Managed Agents' ONLY once it (a) carries a trigger of type `workflows` and (b) is PUBLISHED -- with the trigger saved but the agent still a draft, the dropdown stayed empty. An unknown sub-route 404s, so the 201 is about this route.",
+          reach: "proven",
+          credentialClass: "agency-admin-bearer",
+          kind: "write"
+        },
+        "GET /agent-studio/workflows/dropdown": {
+          summary: "The agents a workflow step may invoke: {options:[{value: agentId, label, versionId, agentType}]}. Query: agentType=managed|flow, locationId.",
+          note: "Any other agentType answers 400 'agentType must be one of: flow, managed', so an empty list is about the account. Lists only PUBLISHED agents carrying a `workflows` trigger. Managed-agent trigger vocabulary (from GHL's own 400): chat ALONE, or any mix of form, tag, schedule, appointment_booked, appointment_status, contact_created, opportunity_created, opportunity_status_changed, facebook_lead_gen, survey_submission; `workflows` combines with either. Measured 2026-09-19.",
+          reach: "proven",
+          credentialClass: "agency-admin-bearer",
+          kind: "read"
+        },
+        "POST /certificates/locations/{locationId}/templates": {
+          summary: "Create a certificate or badge template. Minimal body {title, type:'badge'|'certificate'}; empty body -> 400 'title should not be empty'.",
+          note: "Proven live 2026-09-19: {title, type:'badge'} -> 201, listed by GET .../templates with type 'badge', and offered by the workflow step Issue Badge (the sibling Issue Certificate dropdown stayed empty -- the type is honoured). The CREATE response carries type 'TEMPLATE_CREATED' (an event name); the stored type is on the list read.",
+          reach: "proven",
+          credentialClass: "agency-admin-bearer",
+          kind: "write"
+        },
+        "GET /certificates/locations/{locationId}/registry": {
+          summary: "Issued certificates and badges: {issuedCertificates:[{template, contactId, altId, downloadUrl}], totalCount}. Query skip, limit, search.",
+          note: "The read that proves the Issue Badge workflow step RAN: altId is `issue_badge_workflow_{loc}_{templateId}_{contactId}_{ts}`. Proven live 2026-09-19.",
           reach: "proven",
           credentialClass: "agency-admin-bearer",
           kind: "read"
