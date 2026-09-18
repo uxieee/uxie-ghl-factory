@@ -740,6 +740,36 @@
     "path": "/workflow/{loc}/{wid}/validate-workflows"
   },
   {
+    "tool": "build_workflow",
+    "method": "GET",
+    "path": "/phone-system/numbers"
+  },
+  {
+    "tool": "build_workflow",
+    "method": "GET",
+    "path": "/phone-system/twilio-accounts"
+  },
+  {
+    "tool": "build_workflow",
+    "method": "GET",
+    "path": "/phone-system/whatsapp/location/{loc}/phone-numbers"
+  },
+  {
+    "tool": "build_workflow",
+    "method": "GET",
+    "path": "/workflow/{loc}/instagram/connected-accounts"
+  },
+  {
+    "tool": "build_workflow",
+    "method": "GET",
+    "path": "/workflow/{loc}/email/location-email-provider"
+  },
+  {
+    "tool": "build_workflow",
+    "method": "GET",
+    "path": "/saas-billing-v2/billing-config/{entityType}/{entityId}/{product}"
+  },
+  {
     "tool": "edit_workflow",
     "method": "GET",
     "path": "/locations/{loc}/customFields/search"
@@ -867,6 +897,16 @@
   {
     "tool": "edit_workflow",
     "method": "GET",
+    "path": "/phone-system/twilio-accounts"
+  },
+  {
+    "tool": "edit_workflow",
+    "method": "GET",
+    "path": "/saas-billing-v2/billing-config/{entityType}/{entityId}/{product}"
+  },
+  {
+    "tool": "edit_workflow",
+    "method": "GET",
     "path": "/phone-system/whatsapp/location/{loc}/phone-numbers"
   },
   {
@@ -938,6 +978,16 @@
     "tool": "repair_workflow",
     "method": "GET",
     "path": "/phone-system/numbers"
+  },
+  {
+    "tool": "repair_workflow",
+    "method": "GET",
+    "path": "/phone-system/twilio-accounts"
+  },
+  {
+    "tool": "repair_workflow",
+    "method": "GET",
+    "path": "/saas-billing-v2/billing-config/{entityType}/{entityId}/{product}"
   },
   {
     "tool": "repair_workflow",

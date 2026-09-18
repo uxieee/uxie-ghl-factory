@@ -16107,6 +16107,7 @@
         "agency-admin-bearer"
       ],
       "coveredBy": [
+        "build_workflow",
         "edit_workflow",
         "repair_workflow"
       ],
@@ -16195,7 +16196,11 @@
       "refusedFor": [
         "location-user-bearer"
       ],
-      "coveredBy": [],
+      "coveredBy": [
+        "build_workflow",
+        "edit_workflow",
+        "repair_workflow"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -16363,6 +16368,7 @@
       "kind": "read",
       "reach": "source-only",
       "coveredBy": [
+        "build_workflow",
         "edit_workflow",
         "repair_workflow"
       ],
@@ -17165,7 +17171,11 @@
       "provenFor": [
         "location-user-bearer"
       ],
-      "coveredBy": [],
+      "coveredBy": [
+        "build_workflow",
+        "edit_workflow",
+        "repair_workflow"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -23956,6 +23966,7 @@
         "agency-admin-bearer"
       ],
       "coveredBy": [
+        "build_workflow",
         "edit_workflow",
         "repair_workflow"
       ],
@@ -24503,6 +24514,7 @@
         "agency-admin-bearer"
       ],
       "coveredBy": [
+        "build_workflow",
         "edit_workflow",
         "repair_workflow"
       ],
@@ -52684,6 +52696,7 @@
         "agency-admin-bearer"
       ],
       "coveredBy": [
+        "build_workflow",
         "edit_workflow",
         "repair_workflow"
       ],

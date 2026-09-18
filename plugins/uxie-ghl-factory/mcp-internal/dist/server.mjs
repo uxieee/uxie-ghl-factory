@@ -16284,6 +16284,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "agency-admin-bearer"
           ],
           coveredBy: [
+            "build_workflow",
             "edit_workflow",
             "repair_workflow"
           ],
@@ -16372,7 +16373,11 @@ var init_define_ENDPOINT_CATALOG = __esm({
           refusedFor: [
             "location-user-bearer"
           ],
-          coveredBy: [],
+          coveredBy: [
+            "build_workflow",
+            "edit_workflow",
+            "repair_workflow"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -16540,6 +16545,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           reach: "source-only",
           coveredBy: [
+            "build_workflow",
             "edit_workflow",
             "repair_workflow"
           ],
@@ -17342,7 +17348,11 @@ var init_define_ENDPOINT_CATALOG = __esm({
           provenFor: [
             "location-user-bearer"
           ],
-          coveredBy: [],
+          coveredBy: [
+            "build_workflow",
+            "edit_workflow",
+            "repair_workflow"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -24133,6 +24143,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "agency-admin-bearer"
           ],
           coveredBy: [
+            "build_workflow",
             "edit_workflow",
             "repair_workflow"
           ],
@@ -24680,6 +24691,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "agency-admin-bearer"
           ],
           coveredBy: [
+            "build_workflow",
             "edit_workflow",
             "repair_workflow"
           ],
@@ -52861,6 +52873,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "agency-admin-bearer"
           ],
           coveredBy: [
+            "build_workflow",
             "edit_workflow",
             "repair_workflow"
           ],
@@ -174464,7 +174477,15 @@ var TOOLS2 = [
       { method: "PUT", path: "/hooks/inbound-webhook-request/set-as-reference/{requestId}" },
       { method: "GET", path: "/hooks/inbound-webhook-request/reference/{triggerId}" },
       { method: "GET", path: "/workflow/{loc}/{wid}" },
-      { method: "POST", path: "/workflow/{loc}/{wid}/validate-workflows" }
+      { method: "POST", path: "/workflow/{loc}/{wid}/validate-workflows" },
+      // ACCOUNT-READINESS PREFLIGHT (engine/preflight.mjs) runs on every build and reads these only
+      // when the compiled workflow uses the channel. Declared so the catalogue counts them as USED.
+      { method: "GET", path: "/phone-system/numbers" },
+      { method: "GET", path: "/phone-system/twilio-accounts" },
+      { method: "GET", path: "/phone-system/whatsapp/location/{loc}/phone-numbers" },
+      { method: "GET", path: "/workflow/{loc}/instagram/connected-accounts" },
+      { method: "GET", path: "/workflow/{loc}/email/location-email-provider" },
+      { method: "GET", path: "/saas-billing-v2/billing-config/{entityType}/{entityId}/{product}" }
     ],
     handler: async (args, deps) => guard(async () => {
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
@@ -174585,6 +174606,10 @@ var TOOLS2 = [
       { method: "POST", path: "/workflow/{loc}/validate-assets" },
       { method: "POST", path: "/workflow/custom-code/run-test" },
       { method: "GET", path: "/phone-system/numbers" },
+      // The two preflight reads added in 0.92.0. Undeclared, the catalogue filed both routes as
+      // proven-but-UNUSED while every build with an SMS or premium step was calling them.
+      { method: "GET", path: "/phone-system/twilio-accounts" },
+      { method: "GET", path: "/saas-billing-v2/billing-config/{entityType}/{entityId}/{product}" },
       { method: "GET", path: "/phone-system/whatsapp/location/{loc}/phone-numbers" },
       { method: "GET", path: "/workflow/{loc}/instagram/connected-accounts" },
       { method: "GET", path: "/workflow/{loc}/email/location-email-provider" },
@@ -175196,6 +175221,10 @@ var TOOLS2 = [
       { method: "POST", path: "/workflow/{loc}/validate-assets" },
       { method: "POST", path: "/workflow/custom-code/run-test" },
       { method: "GET", path: "/phone-system/numbers" },
+      // The two preflight reads added in 0.92.0. Undeclared, the catalogue filed both routes as
+      // proven-but-UNUSED while every build with an SMS or premium step was calling them.
+      { method: "GET", path: "/phone-system/twilio-accounts" },
+      { method: "GET", path: "/saas-billing-v2/billing-config/{entityType}/{entityId}/{product}" },
       { method: "GET", path: "/phone-system/whatsapp/location/{loc}/phone-numbers" },
       { method: "GET", path: "/workflow/{loc}/instagram/connected-accounts" },
       { method: "GET", path: "/workflow/{loc}/email/location-email-provider" },
