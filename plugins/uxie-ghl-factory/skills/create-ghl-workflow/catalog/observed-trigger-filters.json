@@ -1,0 +1,341 @@
+{
+  "affiliate_new_lead": [
+    {
+      "field": "campaign",
+      "id": "campaign",
+      "title": "Campaign",
+      "type": "select",
+      "operators": [
+        "=="
+      ]
+    }
+  ],
+  "appointment": [
+    {
+      "field": "appointment.status",
+      "title": "Appointment status is",
+      "type": "select",
+      "operators": [
+        "=="
+      ]
+    }
+  ],
+  "call_status": [
+    {
+      "field": "call_status",
+      "title": "Call Status",
+      "type": "multiselect",
+      "operators": [
+        "contains-any"
+      ]
+    }
+  ],
+  "category_completed": [
+    {
+      "field": "membership.product.id",
+      "title": "Product",
+      "type": "multiselect",
+      "operators": [
+        "is-any-of"
+      ]
+    },
+    {
+      "field": "membership.category.id",
+      "title": "Category",
+      "type": "multiselect",
+      "operators": [
+        "is-any-of"
+      ]
+    }
+  ],
+  "conv_ai_autonomous_trigger": [
+    {
+      "field": "customTriggerType",
+      "title": "",
+      "type": "input",
+      "operators": [
+        "eq"
+      ]
+    },
+    {
+      "field": "customTriggerDescription",
+      "title": "",
+      "type": "input",
+      "operators": [
+        "eq"
+      ]
+    },
+    {
+      "field": "customTriggerPriority",
+      "title": "",
+      "type": "input",
+      "operators": [
+        "eq"
+      ]
+    },
+    {
+      "field": "customTriggerSensitivity",
+      "title": "",
+      "type": "input",
+      "operators": [
+        "eq"
+      ]
+    }
+  ],
+  "conv_ai_trigger": [
+    {
+      "field": "botId",
+      "title": "",
+      "type": "input",
+      "operators": [
+        "=="
+      ]
+    }
+  ],
+  "customer_appointment": [
+    {
+      "field": "calendar.id",
+      "title": "In calendar",
+      "type": "select",
+      "operators": [
+        "=="
+      ]
+    }
+  ],
+  "form_submission": [
+    {
+      "field": "form.id",
+      "title": "Form is",
+      "type": "string",
+      "operators": [
+        "is-any-of"
+      ]
+    }
+  ],
+  "lesson_completed": [
+    {
+      "field": "membership.product.id",
+      "title": "Product",
+      "type": "multiselect",
+      "operators": [
+        "is-any-of"
+      ]
+    },
+    {
+      "field": "membership.category.id",
+      "title": "Category",
+      "type": "multiselect",
+      "operators": [
+        "is-any-of"
+      ]
+    },
+    {
+      "field": "membership.lesson.id",
+      "title": "Lesson",
+      "type": "multiselect",
+      "operators": [
+        "is-any-of"
+      ]
+    }
+  ],
+  "lesson_started": [
+    {
+      "field": "membership.product.id",
+      "title": "Product",
+      "type": "multiselect",
+      "operators": [
+        "is-any-of"
+      ]
+    },
+    {
+      "field": "membership.category.id",
+      "title": "Category",
+      "type": "multiselect",
+      "operators": [
+        "is-any-of"
+      ]
+    }
+  ],
+  "mailgun_email_event": [
+    {
+      "field": "mailgun.event",
+      "title": "Event",
+      "type": "select",
+      "operators": [
+        "=="
+      ]
+    }
+  ],
+  "opportunity_changed": [
+    {
+      "field": "opportunity.assignedTo",
+      "title": "Assigned to",
+      "type": "select",
+      "operators": [
+        "=="
+      ]
+    }
+  ],
+  "opportunity_created": [
+    {
+      "field": "opportunity.pipelineId",
+      "title": "In pipeline",
+      "type": "select",
+      "operators": [
+        "=="
+      ]
+    },
+    {
+      "field": "opportunity.pipelineStageId",
+      "title": "Pipeline stage",
+      "type": "select",
+      "operators": [
+        "=="
+      ]
+    }
+  ],
+  "opportunity_decay": [
+    {
+      "field": "opportunity.pipelineId",
+      "title": "In pipeline",
+      "type": "select",
+      "operators": [
+        "=="
+      ]
+    },
+    {
+      "field": "opportunity.pipelineStageId",
+      "title": "Pipeline stage",
+      "type": "select",
+      "operators": [
+        "=="
+      ]
+    },
+    {
+      "field": "opportunity.lastActionDate",
+      "title": "Duration in days",
+      "type": "number",
+      "operators": [
+        "time-diff-now-gte"
+      ]
+    }
+  ],
+  "opportunity_status_changed": [
+    {
+      "field": "opportunity.oldStatus",
+      "id": "moved-from-status",
+      "title": "Moved from status",
+      "type": "select",
+      "operators": [
+        "=="
+      ]
+    },
+    {
+      "field": "opportunity.status",
+      "id": "moved-to-status",
+      "title": "Moved to status",
+      "type": "select",
+      "operators": [
+        "=="
+      ]
+    }
+  ],
+  "order_submission": [
+    {
+      "field": "order.line_item_global_product_ids",
+      "title": "Global Product",
+      "type": "select",
+      "operators": [
+        "is-in-array"
+      ]
+    }
+  ],
+  "pipeline_stage_updated": [
+    {
+      "field": "opportunity.pipelineId",
+      "title": "In pipeline",
+      "type": "select",
+      "operators": [
+        "=="
+      ]
+    }
+  ],
+  "proposal_estimate_update": [
+    {
+      "field": "status",
+      "id": "status",
+      "title": "Status",
+      "type": "select",
+      "operators": [
+        "=="
+      ]
+    }
+  ],
+  "scheduler_trigger": [
+    {
+      "field": "scheduler.interval",
+      "title": "Interval",
+      "type": "select",
+      "operators": [
+        "=="
+      ]
+    },
+    {
+      "field": "scheduler.weekly.days",
+      "title": "On days",
+      "type": "multiselect",
+      "operators": [
+        "=="
+      ]
+    },
+    {
+      "field": "scheduler.weekly.times",
+      "title": "At what time",
+      "type": "multiselect",
+      "operators": [
+        "=="
+      ]
+    }
+  ],
+  "survey_submission": [
+    {
+      "field": "survey.id",
+      "title": "Survey is",
+      "type": "string",
+      "operators": [
+        "is-any-of"
+      ]
+    }
+  ],
+  "task_added": [
+    {
+      "field": "task.assignedTo",
+      "title": "Assigned User",
+      "type": "select",
+      "operators": [
+        "=="
+      ]
+    }
+  ],
+  "task_due_date_reminder": [
+    {
+      "field": "task.dueDate",
+      "id": "before-days-in-number",
+      "title": "Before no. of days",
+      "type": "number",
+      "operators": [
+        "time-diff-now-lte"
+      ]
+    }
+  ],
+  "trigger_link": [
+    {
+      "field": "link.id",
+      "title": "Trigger link",
+      "type": "select",
+      "operators": [
+        "=="
+      ]
+    }
+  ]
+}

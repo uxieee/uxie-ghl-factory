@@ -18,6 +18,7 @@ import { applyUiDefaults } from './ui-defaults.mjs';
 import { checkIfElseVocab } from './ifelse-vocab.mjs';
 import { checkMergeTags } from './merge-tags.mjs';
 import { gotoLoops } from './goto-loops.mjs';
+import OBSERVED_TRIGGER_FILTERS from '../catalog/observed-trigger-filters.json' with { type: 'json' };
 
 // NINE step types take a DEDICATED attribute builder instead of the generic normalizeAttrs path,
 // and normalizeAttrs is where enforceRequiredFields is wired. So every one of them reached GHL
@@ -1864,7 +1865,35 @@ function expandFilter(f, rows, extra = {}) {
     // not express it at all (F5-26). Instantiate from the catalog's row template.
     const instantiated = instantiateRowTemplate(f, key, extra);
     if (instantiated) return instantiated;
-    return f; // unknown row — passthrough whatever was given
+    // Unknown row — passthrough whatever was given, but never silently. GHL stores a filter it does
+    // not understand with the same 200 as one it does, and the trigger then matches on nothing (or
+    // everything). The model is the only place the difference is visible, so it is said here. With
+    // no model for this trigger type there is nothing to compare against, and that is said too.
+    const triggerType = extra?.meta?.type ?? extra?.meta?.id ?? '?';
+    // SECOND ROW SOURCE. The recovered drawer model omits dependent rows the drawer only adds once a
+    // parent is chosen (pipeline stage, lesson, category) — 9 of 35 UI-stored conditions miss it. A
+    // UI-written trigger of this type was SEEN to store this field, so its title/type/id are filled
+    // from that observation. The authored operator always wins; one is supplied only when exactly one
+    // was ever observed, and that is said.
+    const seen = (OBSERVED_TRIGGER_FILTERS[triggerType] ?? []).find((r) => r.field === key || r.id === key || norm(r.title) === norm(key));
+    if (seen) {
+      const operator = f.operator ?? (seen.operators.length === 1 ? seen.operators[0] : undefined);
+      if (!f.operator)
+        extra?.ctx?.warn?.(operator
+          ? `TRIGGER_FILTER_OPERATOR_FILLED: filter '${key}' on '${triggerType}' named no operator; '${operator}' is the only one a UI-built trigger was seen to store, so it is used.`
+          : `🔴 TRIGGER_FILTER_NO_OPERATOR: filter '${key}' on '${triggerType}' names no operator and more than one was observed (${seen.operators.join(', ')}). It is sent without one.`);
+      const { on: _on, ...rest } = f;
+      return { ...rest, field: seen.field, ...(operator ? { operator } : {}), title: f.title ?? seen.title, type: f.type ?? seen.type, ...(seen.id ? { id: f.id ?? seen.id } : {}) };
+    }
+    if (rows.length > 0 || (OBSERVED_TRIGGER_FILTERS[triggerType] ?? []).length > 0)
+      extra?.ctx?.warn?.(`🔴 TRIGGER_FILTER_UNKNOWN: filter '${key}' (operator '${f.operator ?? 'none'}') is not a row the `
+        + `'${triggerType}' drawer offers — it is sent AS AUTHORED, with no title/type, and GHL accepts a filter it does not `
+        + `understand without complaint. Rows this trigger offers: ${[...new Set([...rows.map((r) => `${r.value ?? r.id} (${r.label})`), ...(OBSERVED_TRIGGER_FILTERS[triggerType] ?? []).map((r) => `${r.field} (${r.title})`)])].join(', ')}. `
+        + `describe_step_type has the operators.`);
+    else
+      extra?.ctx?.warn?.(`TRIGGER_FILTER_UNCHECKED: filter '${key}' on '${triggerType}' could not be checked — no filter model `
+        + `is recorded for this trigger type. It is sent as authored; read the trigger back before relying on it.`);
+    return f;
   }
   const type = f.type ?? row.type ?? 'select';
   // TAKE THE DEFAULT OR REQUIRE A MENU MEMBER, NEVER INVENT. Where the drawer offers a menu and no

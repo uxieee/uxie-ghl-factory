@@ -158843,6 +158843,349 @@ function gotoLoops(templates) {
   return out;
 }
 
+// ../skills/create-ghl-workflow/catalog/observed-trigger-filters.json
+var observed_trigger_filters_default = {
+  affiliate_new_lead: [
+    {
+      field: "campaign",
+      id: "campaign",
+      title: "Campaign",
+      type: "select",
+      operators: [
+        "=="
+      ]
+    }
+  ],
+  appointment: [
+    {
+      field: "appointment.status",
+      title: "Appointment status is",
+      type: "select",
+      operators: [
+        "=="
+      ]
+    }
+  ],
+  call_status: [
+    {
+      field: "call_status",
+      title: "Call Status",
+      type: "multiselect",
+      operators: [
+        "contains-any"
+      ]
+    }
+  ],
+  category_completed: [
+    {
+      field: "membership.product.id",
+      title: "Product",
+      type: "multiselect",
+      operators: [
+        "is-any-of"
+      ]
+    },
+    {
+      field: "membership.category.id",
+      title: "Category",
+      type: "multiselect",
+      operators: [
+        "is-any-of"
+      ]
+    }
+  ],
+  conv_ai_autonomous_trigger: [
+    {
+      field: "customTriggerType",
+      title: "",
+      type: "input",
+      operators: [
+        "eq"
+      ]
+    },
+    {
+      field: "customTriggerDescription",
+      title: "",
+      type: "input",
+      operators: [
+        "eq"
+      ]
+    },
+    {
+      field: "customTriggerPriority",
+      title: "",
+      type: "input",
+      operators: [
+        "eq"
+      ]
+    },
+    {
+      field: "customTriggerSensitivity",
+      title: "",
+      type: "input",
+      operators: [
+        "eq"
+      ]
+    }
+  ],
+  conv_ai_trigger: [
+    {
+      field: "botId",
+      title: "",
+      type: "input",
+      operators: [
+        "=="
+      ]
+    }
+  ],
+  customer_appointment: [
+    {
+      field: "calendar.id",
+      title: "In calendar",
+      type: "select",
+      operators: [
+        "=="
+      ]
+    }
+  ],
+  form_submission: [
+    {
+      field: "form.id",
+      title: "Form is",
+      type: "string",
+      operators: [
+        "is-any-of"
+      ]
+    }
+  ],
+  lesson_completed: [
+    {
+      field: "membership.product.id",
+      title: "Product",
+      type: "multiselect",
+      operators: [
+        "is-any-of"
+      ]
+    },
+    {
+      field: "membership.category.id",
+      title: "Category",
+      type: "multiselect",
+      operators: [
+        "is-any-of"
+      ]
+    },
+    {
+      field: "membership.lesson.id",
+      title: "Lesson",
+      type: "multiselect",
+      operators: [
+        "is-any-of"
+      ]
+    }
+  ],
+  lesson_started: [
+    {
+      field: "membership.product.id",
+      title: "Product",
+      type: "multiselect",
+      operators: [
+        "is-any-of"
+      ]
+    },
+    {
+      field: "membership.category.id",
+      title: "Category",
+      type: "multiselect",
+      operators: [
+        "is-any-of"
+      ]
+    }
+  ],
+  mailgun_email_event: [
+    {
+      field: "mailgun.event",
+      title: "Event",
+      type: "select",
+      operators: [
+        "=="
+      ]
+    }
+  ],
+  opportunity_changed: [
+    {
+      field: "opportunity.assignedTo",
+      title: "Assigned to",
+      type: "select",
+      operators: [
+        "=="
+      ]
+    }
+  ],
+  opportunity_created: [
+    {
+      field: "opportunity.pipelineId",
+      title: "In pipeline",
+      type: "select",
+      operators: [
+        "=="
+      ]
+    },
+    {
+      field: "opportunity.pipelineStageId",
+      title: "Pipeline stage",
+      type: "select",
+      operators: [
+        "=="
+      ]
+    }
+  ],
+  opportunity_decay: [
+    {
+      field: "opportunity.pipelineId",
+      title: "In pipeline",
+      type: "select",
+      operators: [
+        "=="
+      ]
+    },
+    {
+      field: "opportunity.pipelineStageId",
+      title: "Pipeline stage",
+      type: "select",
+      operators: [
+        "=="
+      ]
+    },
+    {
+      field: "opportunity.lastActionDate",
+      title: "Duration in days",
+      type: "number",
+      operators: [
+        "time-diff-now-gte"
+      ]
+    }
+  ],
+  opportunity_status_changed: [
+    {
+      field: "opportunity.oldStatus",
+      id: "moved-from-status",
+      title: "Moved from status",
+      type: "select",
+      operators: [
+        "=="
+      ]
+    },
+    {
+      field: "opportunity.status",
+      id: "moved-to-status",
+      title: "Moved to status",
+      type: "select",
+      operators: [
+        "=="
+      ]
+    }
+  ],
+  order_submission: [
+    {
+      field: "order.line_item_global_product_ids",
+      title: "Global Product",
+      type: "select",
+      operators: [
+        "is-in-array"
+      ]
+    }
+  ],
+  pipeline_stage_updated: [
+    {
+      field: "opportunity.pipelineId",
+      title: "In pipeline",
+      type: "select",
+      operators: [
+        "=="
+      ]
+    }
+  ],
+  proposal_estimate_update: [
+    {
+      field: "status",
+      id: "status",
+      title: "Status",
+      type: "select",
+      operators: [
+        "=="
+      ]
+    }
+  ],
+  scheduler_trigger: [
+    {
+      field: "scheduler.interval",
+      title: "Interval",
+      type: "select",
+      operators: [
+        "=="
+      ]
+    },
+    {
+      field: "scheduler.weekly.days",
+      title: "On days",
+      type: "multiselect",
+      operators: [
+        "=="
+      ]
+    },
+    {
+      field: "scheduler.weekly.times",
+      title: "At what time",
+      type: "multiselect",
+      operators: [
+        "=="
+      ]
+    }
+  ],
+  survey_submission: [
+    {
+      field: "survey.id",
+      title: "Survey is",
+      type: "string",
+      operators: [
+        "is-any-of"
+      ]
+    }
+  ],
+  task_added: [
+    {
+      field: "task.assignedTo",
+      title: "Assigned User",
+      type: "select",
+      operators: [
+        "=="
+      ]
+    }
+  ],
+  task_due_date_reminder: [
+    {
+      field: "task.dueDate",
+      id: "before-days-in-number",
+      title: "Before no. of days",
+      type: "number",
+      operators: [
+        "time-diff-now-lte"
+      ]
+    }
+  ],
+  trigger_link: [
+    {
+      field: "link.id",
+      title: "Trigger link",
+      type: "select",
+      operators: [
+        "=="
+      ]
+    }
+  ]
+};
+
 // ../skills/create-ghl-workflow/engine/compiler.mjs
 var DEDICATED_ATTRIBUTES = [
   [(n) => n.marketplace === true, (n, ctx) => marketplaceAttributes(n, ctx)],
@@ -160247,6 +160590,19 @@ function expandFilter(f, rows, extra = {}) {
   if (!row) {
     const instantiated = instantiateRowTemplate(f, key, extra);
     if (instantiated) return instantiated;
+    const triggerType = extra?.meta?.type ?? extra?.meta?.id ?? "?";
+    const seen = (observed_trigger_filters_default[triggerType] ?? []).find((r) => r.field === key || r.id === key || norm3(r.title) === norm3(key));
+    if (seen) {
+      const operator2 = f.operator ?? (seen.operators.length === 1 ? seen.operators[0] : void 0);
+      if (!f.operator)
+        extra?.ctx?.warn?.(operator2 ? `TRIGGER_FILTER_OPERATOR_FILLED: filter '${key}' on '${triggerType}' named no operator; '${operator2}' is the only one a UI-built trigger was seen to store, so it is used.` : `\u{1F534} TRIGGER_FILTER_NO_OPERATOR: filter '${key}' on '${triggerType}' names no operator and more than one was observed (${seen.operators.join(", ")}). It is sent without one.`);
+      const { on: _on, ...rest } = f;
+      return { ...rest, field: seen.field, ...operator2 ? { operator: operator2 } : {}, title: f.title ?? seen.title, type: f.type ?? seen.type, ...seen.id ? { id: f.id ?? seen.id } : {} };
+    }
+    if (rows.length > 0 || (observed_trigger_filters_default[triggerType] ?? []).length > 0)
+      extra?.ctx?.warn?.(`\u{1F534} TRIGGER_FILTER_UNKNOWN: filter '${key}' (operator '${f.operator ?? "none"}') is not a row the '${triggerType}' drawer offers \u2014 it is sent AS AUTHORED, with no title/type, and GHL accepts a filter it does not understand without complaint. Rows this trigger offers: ${[.../* @__PURE__ */ new Set([...rows.map((r) => `${r.value ?? r.id} (${r.label})`), ...(observed_trigger_filters_default[triggerType] ?? []).map((r) => `${r.field} (${r.title})`)])].join(", ")}. describe_step_type has the operators.`);
+    else
+      extra?.ctx?.warn?.(`TRIGGER_FILTER_UNCHECKED: filter '${key}' on '${triggerType}' could not be checked \u2014 no filter model is recorded for this trigger type. It is sent as authored; read the trigger back before relying on it.`);
     return f;
   }
   const type = f.type ?? row.type ?? "select";
