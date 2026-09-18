@@ -133,8 +133,14 @@ test('sidecar proof promotes reach exactly as far as it is allowed to', () => {
       : Object.keys(overlay).find((k) => shape(...k.split(/ (.*)/s).slice(0, 2)) === shape(row.method, row.path));
     const curated = overlay[curatedKey]?.reach;
     if (curated) { assert.equal(e.reach, curated, 'the hand-curated overlay must outrank sidecar proof'); continue; }
-    assert.equal(e.reach, row.proof === 'executed' ? 'proven' : 'source-only',
-      `${row.method} ${row.path} carries proof:${row.proof} and reach:${e.reach}`);
+    // The reach LEDGER outranks a sidecar's claim, so a row may also carry a MEASURED verdict:
+    // `reached` / `refused`, or `proven` with the class that measured it named in provenFor. What
+    // this test guards is unchanged — a sidecar that only OBSERVED a call can never, by itself,
+    // promote a row to proven.
+    const fallback = row.proof === 'executed' ? 'proven' : 'source-only';
+    const measured = ['reached', 'refused'].includes(e.reach) || (e.reach === 'proven' && e.provenFor?.length > 0);
+    assert.ok(e.reach === fallback || measured,
+      `${row.method} ${row.path} carries proof:${row.proof} and reach:${e.reach} with no measured class behind it`);
   }
   assert.ok(catalog.endpoints.some((e) => e.proof === 'executed'), 'no executed rows reached the catalogue at all');
 });

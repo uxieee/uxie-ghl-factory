@@ -109,7 +109,8 @@ const shapeOf = (method, path) => `${method} ${path.replace(/\{[^}]*\}/g, '{}')}
 // the probing token's own claims — knowledge/scripts/lib/reach-ledger.mjs) and an overlay row names
 // the class its hand-written verdict came from (`credentialClass`). They are merged into one map,
 // the overlay winning WITHIN a class because a human wrote down what happened, and the row says:
-//   reach       proven if ANY class reached it, else refused if any was refused, else the fallback
+//   reach       proven if ANY class got a 2xx, else refused if any was refused, else reached if
+//               any was answered about its arguments, else the fallback
 //   provenFor   the NAMED classes that reached it
 //   refusedFor  the NAMED classes that were refused
 // An UNRECORDED verdict still decides `reach` — it is a real measurement — but is never listed in
@@ -125,10 +126,13 @@ function resolveReach(extra, probedRow, row) {
   // `proven-live` is the overlay's STRONGER label (executed AND read back on a separate request). It
   // counts as proven for its class and survives as the row's label — a ledger 200 must not demote it.
   const overlayLive = extra.reach === 'proven-live';
-  if (extra.reach === 'proven' || extra.reach === 'refused' || overlayLive) by[extra.credentialClass ?? CREDENTIAL_UNKNOWN] = overlayLive ? 'proven' : extra.reach;
+  if (['proven', 'refused', 'reached'].includes(extra.reach) || overlayLive) by[extra.credentialClass ?? CREDENTIAL_UNKNOWN] = overlayLive ? 'proven' : extra.reach;
   const named = (verdict) => Object.keys(by).filter((c) => by[c] === verdict && c !== CREDENTIAL_UNKNOWN).sort();
   const verdicts = Object.values(by);
-  const reach = overlayLive ? 'proven-live' : verdicts.includes('proven') ? 'proven' : verdicts.includes('refused') ? 'refused' : (extra.reach ?? fallback);
+  // `reached`: the endpoint answered about its ARGUMENTS and never 2xx — explored, not proven. A
+  // REFUSAL OUTRANKS IT: FlowGuard 400s without location_id and 401s with it, so an argument complaint
+  // says the door exists and nothing about what is behind it. Only a 2xx overturns a refusal.
+  const reach = overlayLive ? 'proven-live' : verdicts.includes('proven') ? 'proven' : verdicts.includes('refused') ? 'refused' : verdicts.includes('reached') ? 'reached' : (extra.reach ?? fallback);
   const provenFor = named('proven'); const refusedFor = named('refused');
   return {
     reach,
