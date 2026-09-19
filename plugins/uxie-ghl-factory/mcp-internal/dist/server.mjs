@@ -17079,7 +17079,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          reach: "source-only",
+          note: "ABSENT \u2014 a TRUNCATED transcription, measured 2026-09-19: the real route is PUT /workflow/{locationId}/error-notification/settings/is-active (ErrorNotificationService.ts), which is proven. The missing-prefix gate did not catch this one because the dropped part is three segments, not one service prefix.",
+          reach: "absent",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -17110,7 +17111,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          reach: "source-only",
+          note: "ABSENT \u2014 a TRUNCATED transcription, measured 2026-09-19: the real route is PUT /workflow/{locationId}/error-notification/settings/users (ErrorNotificationService.ts), which is proven. The missing-prefix gate did not catch this one because the dropped part is three segments, not one service prefix.",
+          reach: "absent",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -23947,8 +23949,11 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          note: "Executed on the designated sandbox 2026-09-10 in the workflows write-parity run. Round-tripped on {isActive}; read back changed and restored. Its read is GET /workflow/{locationId}/error-notification/settings.",
+          note: "Proven live 2026-09-19, read back and RESTORED: body {isActive:boolean}; GET \u2026/error-notification/settings showed true -> false -> true. Location-wide: it switches workflow error emails for the whole sub-account.",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -23984,8 +23989,11 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          note: "Executed on the designated sandbox 2026-09-10 in the workflows write-parity run. Round-tripped on {users:[userId]}; read back changed ([] -> [id]) and restored.",
+          note: "Proven live 2026-09-19, read back and RESTORED: body {users:[userId,\u2026]} REPLACES the recipient list; the settings read showed [] -> [one user] -> [].",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -26216,7 +26224,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          note: "Its GET returns an EMPTY OBJECT {} on the sandbox, so there is no baseline to diff a write against and no field whose type is known. Not probed: writing here would be inventing a schema and could not be verified either way.",
+          note: "DELIBERATELY NOT WRITTEN 2026-09-19: on the test sub-account the GET answers {} \u2014 no settings document exists \u2014 so a PUT would CREATE one that cannot be restored to 'absent'. body {modifyWorkflows:boolean} per the bundle. Prove it only on an account where the document already exists, with read -> change -> read -> restore.",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -26330,6 +26338,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
+          note: "DELIBERATELY NOT WRITTEN 2026-09-19: on the test sub-account the GET answers {} \u2014 no settings document exists \u2014 so a PUT would CREATE one that cannot be restored to 'absent'. body {feature:{\u2026}} per the bundle. Prove it only on an account where the document already exists, with read -> change -> read -> restore.",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -53843,11 +53852,15 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         },
         "PUT /workflow/{locationId}/error-notification/settings/is-active": {
           reach: "proven",
-          note: "Executed on the designated sandbox 2026-09-10 in the workflows write-parity run. Round-tripped on {isActive}; read back changed and restored. Its read is GET /workflow/{locationId}/error-notification/settings."
+          note: "Proven live 2026-09-19, read back and RESTORED: body {isActive:boolean}; GET \u2026/error-notification/settings showed true -> false -> true. Location-wide: it switches workflow error emails for the whole sub-account.",
+          credentialClass: "agency-admin-bearer",
+          kind: "write"
         },
         "PUT /workflow/{locationId}/error-notification/settings/users": {
           reach: "proven",
-          note: "Executed on the designated sandbox 2026-09-10 in the workflows write-parity run. Round-tripped on {users:[userId]}; read back changed ([] -> [id]) and restored."
+          note: "Proven live 2026-09-19, read back and RESTORED: body {users:[userId,\u2026]} REPLACES the recipient list; the settings read showed [] -> [one user] -> [].",
+          credentialClass: "agency-admin-bearer",
+          kind: "write"
         },
         "PUT /workflow/{locationId}/move": {
           kind: "destructive",
@@ -53886,7 +53899,10 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           reach: "proven"
         },
         "PUT /workflow/{locationId}/workflow-ai/settings": {
-          note: "Its GET returns an EMPTY OBJECT {} on the sandbox, so there is no baseline to diff a write against and no field whose type is known. Not probed: writing here would be inventing a schema and could not be verified either way."
+          note: "DELIBERATELY NOT WRITTEN 2026-09-19: on the test sub-account the GET answers {} \u2014 no settings document exists \u2014 so a PUT would CREATE one that cannot be restored to 'absent'. body {modifyWorkflows:boolean} per the bundle. Prove it only on an account where the document already exists, with read -> change -> read -> restore.",
+          reach: "source-only",
+          credentialClass: "agency-admin-bearer",
+          kind: "write"
         },
         "PUT /workflow/{locationId}/{workflowId}": {
           note: "The full-document commit re-runs the step validator over EVERY stored step, so it can be refused by a published, running workflow's own saved graph (INVALID_FIELD_VALUE, 'Action validation failed: <type> (...): Next is invalid'). The workflow keeps running and cannot be saved by anyone, API or builder. Never use this path for a rename -- rename-workflow skips the validator. Re-read before every write: a successful PUT bumps version and a later PUT built from a stale read 422s."
@@ -54154,6 +54170,24 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           credentialClass: "agency-admin-bearer",
           kind: "write",
           note: "Proven live 2026-09-19 with a control. body {actionFrom:{userId, channel:'web_app', source:'workflow_status_page'}} -> 200 'Successfully queued contact to resume workflow execution'. A probe contact parked at a 7-DAY wait was tagged by the next step within 20s (log: wait_finished, add_contact_tag success) while an untouched contact at the same wait stayed parked. The id is the EXECUTION's workflowStatusId, read off any of its log rows \u2014 not a workflow or contact id. \u{1F534} It fires whatever steps come next, for real."
+        },
+        "PUT /settings/is-active": {
+          reach: "absent",
+          credentialClass: "agency-admin-bearer",
+          kind: "write",
+          note: "ABSENT \u2014 a TRUNCATED transcription, measured 2026-09-19: the real route is PUT /workflow/{locationId}/error-notification/settings/is-active (ErrorNotificationService.ts), which is proven. The missing-prefix gate did not catch this one because the dropped part is three segments, not one service prefix."
+        },
+        "PUT /settings/users": {
+          reach: "absent",
+          credentialClass: "agency-admin-bearer",
+          kind: "write",
+          note: "ABSENT \u2014 a TRUNCATED transcription, measured 2026-09-19: the real route is PUT /workflow/{locationId}/error-notification/settings/users (ErrorNotificationService.ts), which is proven. The missing-prefix gate did not catch this one because the dropped part is three segments, not one service prefix."
+        },
+        "PUT /workflow/{locationId}/workflow-location-setting/settings": {
+          reach: "source-only",
+          credentialClass: "agency-admin-bearer",
+          kind: "write",
+          note: "DELIBERATELY NOT WRITTEN 2026-09-19: on the test sub-account the GET answers {} \u2014 no settings document exists \u2014 so a PUT would CREATE one that cannot be restored to 'absent'. body {feature:{\u2026}} per the bundle. Prove it only on an account where the document already exists, with read -> change -> read -> restore."
         }
       }
     };
