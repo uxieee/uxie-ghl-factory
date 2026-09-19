@@ -1179,7 +1179,10 @@
       "note": "Executed on the designated sandbox 2026-09-10, workflows write-parity sweep. 🔴 workflowId and sessionId go in the QUERY STRING, not the body — sent in the body they are not seen and the endpoint answers 422 \"Workflow ID is required\" / \"Session ID is required\", one field per round. `messages` is a chat array [{role,content}] in the body; `prompt` is refused with \"Messages are required\". Proven: returned the generated snippet \"{{input}}\"."
     },
     "POST /workflow/{locationId}/ai/email-ai": {
-      "note": "Executed on the designated sandbox 2026-09-10, workflows write-parity sweep. 🔴 workflowId and sessionId go in the QUERY STRING, not the body — sent in the body they are not seen and the endpoint answers 422 \"Workflow ID is required\" / \"Session ID is required\", one field per round. `messages` is a chat array [{role,content}] in the body; `prompt` is refused with \"Messages are required\". With the same complete arguments it answers 500 \"Something went wrong. Please try again later.\" — a server fault, not a caller defect. Left unproven deliberately."
+      "note": "Proven live 2026-09-19 (billed): body {sessionId, messages, tone} -> 200 {subject, body} — a drafted email with merge tags ({{contact.fullName}}). Query locationId + workflowId. 🔴 It writes NOTHING to the workflow — the probe's version was identical before and after; the draft comes back for the builder to apply client-side. EXCLUDED — no task needs it: GHL's own model drafting for a builder UI; this plugin's caller is itself a model, and routing through GHL's adds a bill (workflow_ai) and removes control.",
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "write"
     },
     "POST /workflow/{locationId}/ai/sms-ai": {
       "reach": "proven",
@@ -1722,6 +1725,60 @@
       "credentialClass": "agency-admin-bearer",
       "kind": "write",
       "note": "Reached 2026-09-19: a JSON body answers 400 naming userId and workflowId. The real call is MULTIPART (file, locationId, userId, workflowId), which raw_request cannot send. It validates an audio file for a voicemail-drop step and places no call."
+    },
+    "POST /workflow/{locationId}/ai/assistant": {
+      "reach": "absent",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "write",
+      "note": "ABSENT, measured 2026-09-19: the v1 assistant answers {msg:'Not found'} with the body the bundle still sends (sessionId, messages, options). Superseded by POST …/v2/ai/assistant, which answers. EXCLUDED — no task needs it: GHL's own model drafting for a builder UI; this plugin's caller is itself a model, and routing through GHL's adds a bill (workflow_ai) and removes control."
+    },
+    "POST /workflow/{locationId}/v2/ai/assistant": {
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "write",
+      "note": "Proven live 2026-09-19 (billed): chat-only call answered 200 {messages:[…, assistant reply], suggestions, traceId}. Query locationId + workflowId. Body per assistant-v2.ts: messages, workflow{actions,triggers}, customValues, actionConfigs, sessionId, chatOnly, workflowName, and more. 🔴 It writes NOTHING to the workflow — the probe's version was identical before and after; the draft comes back for the builder to apply client-side. EXCLUDED — no task needs it: GHL's own model drafting for a builder UI; this plugin's caller is itself a model, and routing through GHL's adds a bill (workflow_ai) and removes control."
+    },
+    "POST /workflow/{locationId}/v2/ai/learn-ai": {
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "write",
+      "note": "Proven live 2026-09-19 (billed): body {messages, node_name, type:'actions'|'triggers'} -> 200 {messages} explaining a step type in prose. Query locationId + workflowId. + companyId. EXCLUDED — no task needs it: GHL's own model drafting for a builder UI; this plugin's caller is itself a model, and routing through GHL's adds a bill (workflow_ai) and removes control."
+    },
+    "POST /workflow/{locationId}/v2/ai/build-workflow": {
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "write",
+      "note": "Proven live 2026-09-19 (billed): body {prompt, customValues, actionConfigs, sessionId} -> 200 {intent:'build', status:'awaiting_clarification', clarification:{…}} — it ASKS before it builds. 🔴 It writes NOTHING to the workflow — the probe's version was identical before and after; the draft comes back for the builder to apply client-side. EXCLUDED — no task needs it: GHL's own model drafting for a builder UI; this plugin's caller is itself a model, and routing through GHL's adds a bill (workflow_ai) and removes control."
+    },
+    "POST /workflow/{locationId}/v2/ai/build-sub-tree": {
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "write",
+      "note": "Proven live 2026-09-19 (billed, ~10s): body {prompt, parentKey, nextStep, state:{workflow:{actions,triggers}, customValues, availableActions, availableTriggers, actionConfigs}} -> 200 {workflow:{message, …}} with a plain-English summary of the steps it would add. 🔴 It writes NOTHING to the workflow — the probe's version was identical before and after; the draft comes back for the builder to apply client-side. EXCLUDED — no task needs it: GHL's own model drafting for a builder UI; this plugin's caller is itself a model, and routing through GHL's adds a bill (workflow_ai) and removes control."
+    },
+    "POST /workflow/{locationId}/ai/feedback": {
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "write",
+      "note": "Reachable 2026-09-19: body {feedback, reaction, traceId, userMessage, aiResponse} -> 200 {success:true}. 🔴 A GHOST traceId gets the identical 200 — the response proves nothing about the rating being stored, and there is no read to check it. EXCLUDED — no task needs it: GHL's own model drafting for a builder UI; this plugin's caller is itself a model, and routing through GHL's adds a bill (workflow_ai) and removes control."
+    },
+    "POST /workflow/{locationId}/v2/ai/transcribe": {
+      "reach": "reached",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "write",
+      "note": "Reached 2026-09-19: a JSON body answers 400 'No file uploaded' — it wants a MULTIPART audio upload (the builder's voice input), which raw_request cannot send. EXCLUDED — no task needs it: GHL's own model drafting for a builder UI; this plugin's caller is itself a model, and routing through GHL's adds a bill (workflow_ai) and removes control."
+    },
+    "POST /workflow/generate-image-ai/{locationId}/prompt/enhance": {
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "write",
+      "note": "Proven live 2026-09-19 (billed): body {prompt} -> 200 {success, data:{enhancedPrompt}} — expands an image-generation prompt. EXCLUDED — no task needs it: GHL's own model drafting for a builder UI; this plugin's caller is itself a model, and routing through GHL's adds a bill (workflow_ai) and removes control."
+    },
+    "POST /agent/{locationId}/prompt/enhance": {
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "write",
+      "note": "🔴 THIS ROW'S PATH IS MIS-BASED: the builder calls `${config.baseURL}/agent/{loc}/prompt/enhance` and baseURL is backend…/workflow, so the WIRE PATH is POST /workflow/agent/{locationId}/prompt/enhance — which is where it was proven. This is a MINED row, so the harvester's missing-prefix gate cannot see it; the miner dropped the prefix on an explicit `config.baseURL` template. Proven live 2026-09-19 (billed): body {prompt, …context?} -> 200 {success, data:{enhancedPrompt}} — rewrites a short agent prompt into a structured one. EXCLUDED — no task needs it: GHL's own model drafting for a builder UI; this plugin's caller is itself a model, and routing through GHL's adds a bill (workflow_ai) and removes control."
     }
   }
 }

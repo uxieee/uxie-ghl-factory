@@ -654,7 +654,11 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          reach: "source-only",
+          note: "\u{1F534} THIS ROW'S PATH IS MIS-BASED: the builder calls `${config.baseURL}/agent/{loc}/prompt/enhance` and baseURL is backend\u2026/workflow, so the WIRE PATH is POST /workflow/agent/{locationId}/prompt/enhance \u2014 which is where it was proven. This is a MINED row, so the harvester's missing-prefix gate cannot see it; the miner dropped the prefix on an explicit `config.baseURL` template. Proven live 2026-09-19 (billed): body {prompt, \u2026context?} -> 200 {success, data:{enhancedPrompt}} \u2014 rewrites a short agent prompt into a structured one. EXCLUDED \u2014 no task needs it: GHL's own model drafting for a builder UI; this plugin's caller is itself a model, and routing through GHL's adds a bill (workflow_ai) and removes control.",
+          reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -22343,7 +22347,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          reach: "source-only",
+          note: "ABSENT, measured 2026-09-19: the v1 assistant answers {msg:'Not found'} with the body the bundle still sends (sessionId, messages, options). Superseded by POST \u2026/v2/ai/assistant, which answers. EXCLUDED \u2014 no task needs it: GHL's own model drafting for a builder UI; this plugin's caller is itself a model, and routing through GHL's adds a bill (workflow_ai) and removes control.",
+          reach: "absent",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -22470,8 +22475,11 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          note: 'Executed on the designated sandbox 2026-09-10, workflows write-parity sweep. \u{1F534} workflowId and sessionId go in the QUERY STRING, not the body \u2014 sent in the body they are not seen and the endpoint answers 422 "Workflow ID is required" / "Session ID is required", one field per round. `messages` is a chat array [{role,content}] in the body; `prompt` is refused with "Messages are required". With the same complete arguments it answers 500 "Something went wrong. Please try again later." \u2014 a server fault, not a caller defect. Left unproven deliberately.',
-          reach: "source-only",
+          note: "Proven live 2026-09-19 (billed): body {sessionId, messages, tone} -> 200 {subject, body} \u2014 a drafted email with merge tags ({{contact.fullName}}). Query locationId + workflowId. \u{1F534} It writes NOTHING to the workflow \u2014 the probe's version was identical before and after; the draft comes back for the builder to apply client-side. EXCLUDED \u2014 no task needs it: GHL's own model drafting for a builder UI; this plugin's caller is itself a model, and routing through GHL's adds a bill (workflow_ai) and removes control.",
+          reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -22539,7 +22547,11 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          reach: "source-only",
+          note: "Reachable 2026-09-19: body {feedback, reaction, traceId, userMessage, aiResponse} -> 200 {success:true}. \u{1F534} A GHOST traceId gets the identical 200 \u2014 the response proves nothing about the rating being stored, and there is no read to check it. EXCLUDED \u2014 no task needs it: GHL's own model drafting for a builder UI; this plugin's caller is itself a model, and routing through GHL's adds a bill (workflow_ai) and removes control.",
+          reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -25733,7 +25745,11 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          reach: "source-only",
+          note: "Proven live 2026-09-19 (billed): chat-only call answered 200 {messages:[\u2026, assistant reply], suggestions, traceId}. Query locationId + workflowId. Body per assistant-v2.ts: messages, workflow{actions,triggers}, customValues, actionConfigs, sessionId, chatOnly, workflowName, and more. \u{1F534} It writes NOTHING to the workflow \u2014 the probe's version was identical before and after; the draft comes back for the builder to apply client-side. EXCLUDED \u2014 no task needs it: GHL's own model drafting for a builder UI; this plugin's caller is itself a model, and routing through GHL's adds a bill (workflow_ai) and removes control.",
+          reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -25781,7 +25797,11 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          reach: "source-only",
+          note: "Proven live 2026-09-19 (billed, ~10s): body {prompt, parentKey, nextStep, state:{workflow:{actions,triggers}, customValues, availableActions, availableTriggers, actionConfigs}} -> 200 {workflow:{message, \u2026}} with a plain-English summary of the steps it would add. \u{1F534} It writes NOTHING to the workflow \u2014 the probe's version was identical before and after; the draft comes back for the builder to apply client-side. EXCLUDED \u2014 no task needs it: GHL's own model drafting for a builder UI; this plugin's caller is itself a model, and routing through GHL's adds a bill (workflow_ai) and removes control.",
+          reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -25829,7 +25849,11 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          reach: "source-only",
+          note: "Proven live 2026-09-19 (billed): body {prompt, customValues, actionConfigs, sessionId} -> 200 {intent:'build', status:'awaiting_clarification', clarification:{\u2026}} \u2014 it ASKS before it builds. \u{1F534} It writes NOTHING to the workflow \u2014 the probe's version was identical before and after; the draft comes back for the builder to apply client-side. EXCLUDED \u2014 no task needs it: GHL's own model drafting for a builder UI; this plugin's caller is itself a model, and routing through GHL's adds a bill (workflow_ai) and removes control.",
+          reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -25881,7 +25905,11 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          reach: "source-only",
+          note: "Proven live 2026-09-19 (billed): body {messages, node_name, type:'actions'|'triggers'} -> 200 {messages} explaining a step type in prose. Query locationId + workflowId. + companyId. EXCLUDED \u2014 no task needs it: GHL's own model drafting for a builder UI; this plugin's caller is itself a model, and routing through GHL's adds a bill (workflow_ai) and removes control.",
+          reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -25916,7 +25944,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          reach: "source-only",
+          note: "Reached 2026-09-19: a JSON body answers 400 'No file uploaded' \u2014 it wants a MULTIPART audio upload (the builder's voice input), which raw_request cannot send. EXCLUDED \u2014 no task needs it: GHL's own model drafting for a builder UI; this plugin's caller is itself a model, and routing through GHL's adds a bill (workflow_ai) and removes control.",
+          reach: "reached",
           coveredBy: [],
           rawCallable: false,
           transport: "multipart",
@@ -28453,8 +28482,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
+          note: "Proven live 2026-09-19 (billed): body {prompt} -> 200 {success, data:{enhancedPrompt}} \u2014 expands an image-generation prompt. EXCLUDED \u2014 no task needs it: GHL's own model drafting for a builder UI; this plugin's caller is itself a model, and routing through GHL's adds a bill (workflow_ai) and removes control.",
           proof: "executed",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -53679,7 +53712,10 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           note: 'Executed on the designated sandbox 2026-09-10, workflows write-parity sweep. \u{1F534} workflowId and sessionId go in the QUERY STRING, not the body \u2014 sent in the body they are not seen and the endpoint answers 422 "Workflow ID is required" / "Session ID is required", one field per round. `messages` is a chat array [{role,content}] in the body; `prompt` is refused with "Messages are required". Proven: returned the generated snippet "{{input}}".'
         },
         "POST /workflow/{locationId}/ai/email-ai": {
-          note: 'Executed on the designated sandbox 2026-09-10, workflows write-parity sweep. \u{1F534} workflowId and sessionId go in the QUERY STRING, not the body \u2014 sent in the body they are not seen and the endpoint answers 422 "Workflow ID is required" / "Session ID is required", one field per round. `messages` is a chat array [{role,content}] in the body; `prompt` is refused with "Messages are required". With the same complete arguments it answers 500 "Something went wrong. Please try again later." \u2014 a server fault, not a caller defect. Left unproven deliberately.'
+          note: "Proven live 2026-09-19 (billed): body {sessionId, messages, tone} -> 200 {subject, body} \u2014 a drafted email with merge tags ({{contact.fullName}}). Query locationId + workflowId. \u{1F534} It writes NOTHING to the workflow \u2014 the probe's version was identical before and after; the draft comes back for the builder to apply client-side. EXCLUDED \u2014 no task needs it: GHL's own model drafting for a builder UI; this plugin's caller is itself a model, and routing through GHL's adds a bill (workflow_ai) and removes control.",
+          reach: "proven",
+          credentialClass: "agency-admin-bearer",
+          kind: "write"
         },
         "POST /workflow/{locationId}/ai/sms-ai": {
           reach: "proven",
@@ -54222,6 +54258,60 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           credentialClass: "agency-admin-bearer",
           kind: "write",
           note: "Reached 2026-09-19: a JSON body answers 400 naming userId and workflowId. The real call is MULTIPART (file, locationId, userId, workflowId), which raw_request cannot send. It validates an audio file for a voicemail-drop step and places no call."
+        },
+        "POST /workflow/{locationId}/ai/assistant": {
+          reach: "absent",
+          credentialClass: "agency-admin-bearer",
+          kind: "write",
+          note: "ABSENT, measured 2026-09-19: the v1 assistant answers {msg:'Not found'} with the body the bundle still sends (sessionId, messages, options). Superseded by POST \u2026/v2/ai/assistant, which answers. EXCLUDED \u2014 no task needs it: GHL's own model drafting for a builder UI; this plugin's caller is itself a model, and routing through GHL's adds a bill (workflow_ai) and removes control."
+        },
+        "POST /workflow/{locationId}/v2/ai/assistant": {
+          reach: "proven",
+          credentialClass: "agency-admin-bearer",
+          kind: "write",
+          note: "Proven live 2026-09-19 (billed): chat-only call answered 200 {messages:[\u2026, assistant reply], suggestions, traceId}. Query locationId + workflowId. Body per assistant-v2.ts: messages, workflow{actions,triggers}, customValues, actionConfigs, sessionId, chatOnly, workflowName, and more. \u{1F534} It writes NOTHING to the workflow \u2014 the probe's version was identical before and after; the draft comes back for the builder to apply client-side. EXCLUDED \u2014 no task needs it: GHL's own model drafting for a builder UI; this plugin's caller is itself a model, and routing through GHL's adds a bill (workflow_ai) and removes control."
+        },
+        "POST /workflow/{locationId}/v2/ai/learn-ai": {
+          reach: "proven",
+          credentialClass: "agency-admin-bearer",
+          kind: "write",
+          note: "Proven live 2026-09-19 (billed): body {messages, node_name, type:'actions'|'triggers'} -> 200 {messages} explaining a step type in prose. Query locationId + workflowId. + companyId. EXCLUDED \u2014 no task needs it: GHL's own model drafting for a builder UI; this plugin's caller is itself a model, and routing through GHL's adds a bill (workflow_ai) and removes control."
+        },
+        "POST /workflow/{locationId}/v2/ai/build-workflow": {
+          reach: "proven",
+          credentialClass: "agency-admin-bearer",
+          kind: "write",
+          note: "Proven live 2026-09-19 (billed): body {prompt, customValues, actionConfigs, sessionId} -> 200 {intent:'build', status:'awaiting_clarification', clarification:{\u2026}} \u2014 it ASKS before it builds. \u{1F534} It writes NOTHING to the workflow \u2014 the probe's version was identical before and after; the draft comes back for the builder to apply client-side. EXCLUDED \u2014 no task needs it: GHL's own model drafting for a builder UI; this plugin's caller is itself a model, and routing through GHL's adds a bill (workflow_ai) and removes control."
+        },
+        "POST /workflow/{locationId}/v2/ai/build-sub-tree": {
+          reach: "proven",
+          credentialClass: "agency-admin-bearer",
+          kind: "write",
+          note: "Proven live 2026-09-19 (billed, ~10s): body {prompt, parentKey, nextStep, state:{workflow:{actions,triggers}, customValues, availableActions, availableTriggers, actionConfigs}} -> 200 {workflow:{message, \u2026}} with a plain-English summary of the steps it would add. \u{1F534} It writes NOTHING to the workflow \u2014 the probe's version was identical before and after; the draft comes back for the builder to apply client-side. EXCLUDED \u2014 no task needs it: GHL's own model drafting for a builder UI; this plugin's caller is itself a model, and routing through GHL's adds a bill (workflow_ai) and removes control."
+        },
+        "POST /workflow/{locationId}/ai/feedback": {
+          reach: "proven",
+          credentialClass: "agency-admin-bearer",
+          kind: "write",
+          note: "Reachable 2026-09-19: body {feedback, reaction, traceId, userMessage, aiResponse} -> 200 {success:true}. \u{1F534} A GHOST traceId gets the identical 200 \u2014 the response proves nothing about the rating being stored, and there is no read to check it. EXCLUDED \u2014 no task needs it: GHL's own model drafting for a builder UI; this plugin's caller is itself a model, and routing through GHL's adds a bill (workflow_ai) and removes control."
+        },
+        "POST /workflow/{locationId}/v2/ai/transcribe": {
+          reach: "reached",
+          credentialClass: "agency-admin-bearer",
+          kind: "write",
+          note: "Reached 2026-09-19: a JSON body answers 400 'No file uploaded' \u2014 it wants a MULTIPART audio upload (the builder's voice input), which raw_request cannot send. EXCLUDED \u2014 no task needs it: GHL's own model drafting for a builder UI; this plugin's caller is itself a model, and routing through GHL's adds a bill (workflow_ai) and removes control."
+        },
+        "POST /workflow/generate-image-ai/{locationId}/prompt/enhance": {
+          reach: "proven",
+          credentialClass: "agency-admin-bearer",
+          kind: "write",
+          note: "Proven live 2026-09-19 (billed): body {prompt} -> 200 {success, data:{enhancedPrompt}} \u2014 expands an image-generation prompt. EXCLUDED \u2014 no task needs it: GHL's own model drafting for a builder UI; this plugin's caller is itself a model, and routing through GHL's adds a bill (workflow_ai) and removes control."
+        },
+        "POST /agent/{locationId}/prompt/enhance": {
+          reach: "proven",
+          credentialClass: "agency-admin-bearer",
+          kind: "write",
+          note: "\u{1F534} THIS ROW'S PATH IS MIS-BASED: the builder calls `${config.baseURL}/agent/{loc}/prompt/enhance` and baseURL is backend\u2026/workflow, so the WIRE PATH is POST /workflow/agent/{locationId}/prompt/enhance \u2014 which is where it was proven. This is a MINED row, so the harvester's missing-prefix gate cannot see it; the miner dropped the prefix on an explicit `config.baseURL` template. Proven live 2026-09-19 (billed): body {prompt, \u2026context?} -> 200 {success, data:{enhancedPrompt}} \u2014 rewrites a short agent prompt into a structured one. EXCLUDED \u2014 no task needs it: GHL's own model drafting for a builder UI; this plugin's caller is itself a model, and routing through GHL's adds a bill (workflow_ai) and removes control."
         }
       }
     };
