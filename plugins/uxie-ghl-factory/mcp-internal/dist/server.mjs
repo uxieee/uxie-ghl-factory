@@ -21848,8 +21848,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
           path: "/workflow/{locationId}/{workflowId}/remove-stuck-statuses/{stepId}",
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
-          kind: "destructive",
-          reach: "source-only",
+          kind: "write",
+          note: "Proven live 2026-09-19. \u{1F534} WITHOUT `statusIds` IT EVICTS EVERYONE AT THE STEP, STUCK OR NOT: called with only actionFrom (+ ?userId=) on a wait step, it answered 200 'Queued to remove from workflow' and a contact that was merely WAITING \u2014 healthy, day one of seven \u2014 was removed. The builder passes statusIds when specific rows are selected; never call this without them unless emptying the step is the intent.",
+          reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -21961,8 +21965,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
           path: "/workflow/{locationId}/{workflowId}/start-workflow",
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
-          kind: "destructive",
-          reach: "source-only",
+          kind: "write",
+          note: "Proven live 2026-09-19, by accident and then measured. \u{1F534} AN EMPTY BODY IS ACCEPTED AND CREATES A PHANTOM ENROLMENT: {} -> 200 'ADD To WF:<id> recordId: undefined', and the execution log then holds added_to_workflow + the first step for an execution with NO contactId. It was stopped with stop-execution on its workflowStatusId. The real body (testWorkflowForObjectRecords) is the builder's Test Workflow payload plus actionFrom{userId, channel:'web_app', source:'workflow_test_page'}. Never probe this route with an empty body.",
+          reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -22193,7 +22201,11 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          reach: "source-only",
+          note: "Proven live 2026-09-19 with a control. body {actionFrom:{userId, channel:'web_app', source:'workflow_status_page'}} -> 200 'Successfully queued contact to resume workflow execution'. A probe contact parked at a 7-DAY wait was tagged by the next step within 20s (log: wait_finished, add_contact_tag success) while an untouched contact at the same wait stayed parked. The id is the EXECUTION's workflowStatusId, read off any of its log rows \u2014 not a workflow or contact id. \u{1F534} It fires whatever steps come next, for real.",
+          reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -22240,8 +22252,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
           path: "/workflow/{locationId}/{workflowStatusId}/stop-execution",
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
-          kind: "destructive",
-          reach: "source-only",
+          kind: "write",
+          note: "Proven live 2026-09-19 with a control. body {actionFrom:{userId, channel:'web_app', source:'workflow_status_page'}} -> 200 'Successfully removed contact from workflow'. The stopped probe contact logged remove_from_workflow and never received the next step's tag; an untouched contact at the same wait stayed parked. Also stops an execution that has NO contact (the phantom start-workflow creates).",
+          reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -24647,9 +24663,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           path: "/workflow/{locationId}/run-single-action",
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
-          kind: "destructive",
-          note: "Despite the name, run-single-action EXECUTES the action to produce its sample. For a send step that means a real message.",
-          reach: "source-only",
+          kind: "write",
+          note: `Reached 2026-09-19: {} -> 500 'Value for argument "documentPath" is not a valid resource path' \u2014 a Firestore path built from a missing field, i.e. the handler ran without validating its body. It is the premium-action sample runner (getSampleResponse): it EXECUTES one action for real, e.g. fires a custom webhook. Not taken further: a correct body makes an outbound call.`,
+          reach: "reached",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -53657,8 +53673,10 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           note: '\u{1F534} WRONG PATH IN THIS ROW: /workflow/{locationId}/folder answers 404 {"msg":"Not found"}. The real path is **/workflow/{locationId}/directory**, proven on the sandbox 2026-09-10 \u2014 body {name, locationId}, answers 200 {id}, and the folder count in /workflow/{locationId}/list went 6 -> 7 with the new folder found by name. Folders appear in that list as rows with type "directory".'
         },
         "POST /workflow/{locationId}/run-single-action": {
-          kind: "destructive",
-          note: "Despite the name, run-single-action EXECUTES the action to produce its sample. For a send step that means a real message."
+          kind: "write",
+          note: `Reached 2026-09-19: {} -> 500 'Value for argument "documentPath" is not a valid resource path' \u2014 a Firestore path built from a missing field, i.e. the handler ran without validating its body. It is the premium-action sample runner (getSampleResponse): it EXECUTES one action for real, e.g. fires a custom webhook. Not taken further: a correct body makes an outbound call.`,
+          reach: "reached",
+          credentialClass: "agency-admin-bearer"
         },
         "POST /workflow/{locationId}/scheduler-trigger/preview": {
           reach: "proven",
@@ -53682,16 +53700,25 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           note: 'Executed on the designated sandbox 2026-09-10, workflows write-parity sweep. \u{1F534} Takes `prompt` (a string), NOT `messages` \u2014 the sibling v3/ai/message takes messages, so the two disagree. Body {sessionId, prompt, mode:"create"}, workflowId in the query. Returns {status:"proceed", mode, waitAttributes:{...}} \u2014 a ready-made wait step.'
         },
         "POST /workflow/{locationId}/{workflowId}/remove-stuck-statuses/{stepId}": {
-          kind: "destructive"
+          kind: "write",
+          reach: "proven",
+          credentialClass: "agency-admin-bearer",
+          note: "Proven live 2026-09-19. \u{1F534} WITHOUT `statusIds` IT EVICTS EVERYONE AT THE STEP, STUCK OR NOT: called with only actionFrom (+ ?userId=) on a wait step, it answered 200 'Queued to remove from workflow' and a contact that was merely WAITING \u2014 healthy, day one of seven \u2014 was removed. The builder passes statusIds when specific rows are selected; never call this without them unless emptying the step is the intent."
         },
         "POST /workflow/{locationId}/{workflowId}/requeue-stuck-statuses/{stepId}": {
           kind: "destructive"
         },
         "POST /workflow/{locationId}/{workflowId}/start-workflow": {
-          kind: "destructive"
+          kind: "write",
+          reach: "proven",
+          credentialClass: "agency-admin-bearer",
+          note: "Proven live 2026-09-19, by accident and then measured. \u{1F534} AN EMPTY BODY IS ACCEPTED AND CREATES A PHANTOM ENROLMENT: {} -> 200 'ADD To WF:<id> recordId: undefined', and the execution log then holds added_to_workflow + the first step for an execution with NO contactId. It was stopped with stop-execution on its workflowStatusId. The real body (testWorkflowForObjectRecords) is the builder's Test Workflow payload plus actionFrom{userId, channel:'web_app', source:'workflow_test_page'}. Never probe this route with an empty body."
         },
         "POST /workflow/{locationId}/{workflowStatusId}/stop-execution": {
-          kind: "destructive"
+          kind: "write",
+          reach: "proven",
+          credentialClass: "agency-admin-bearer",
+          note: "Proven live 2026-09-19 with a control. body {actionFrom:{userId, channel:'web_app', source:'workflow_status_page'}} -> 200 'Successfully removed contact from workflow'. The stopped probe contact logged remove_from_workflow and never received the next step's tag; an untouched contact at the same wait stayed parked. Also stops an execution that has NO contact (the phantom start-workflow creates)."
         },
         "POST /workflows-marketplace/actions/dynamic-source-details/{key}": {
           note: `\u{1F534} THE BASE IS /workflows-marketplace, NOT the service root. At the root this path answers 404 with an EMPTY body (or Express's "Cannot POST ..."), which reads like a dead endpoint; under /workflows-marketplace the same path answers from a real service \u2014 400 "Action does not exists for this key" / "Trigger does not exists for this key", or 403 "locationId is required". Route existence is proven; a 200 additionally needs a marketplace app installed on the account, which the sandbox has none of.`
@@ -54121,6 +54148,12 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           credentialClass: "agency-admin-bearer",
           kind: "write",
           note: "Reached 2026-09-19, deliberately not completed: the body REQUIRES recipients[] and format:'csv' beside locationId, workflowId and filters \u2014 it EMAILS a CSV of execution logs to up to 10 addresses. That makes it a SEND. Use the preview (GET \u2026/logs/export/preview) to size an export without sending anything."
+        },
+        "POST /workflow/{locationId}/{workflowStatusId}/force-resume": {
+          reach: "proven",
+          credentialClass: "agency-admin-bearer",
+          kind: "write",
+          note: "Proven live 2026-09-19 with a control. body {actionFrom:{userId, channel:'web_app', source:'workflow_status_page'}} -> 200 'Successfully queued contact to resume workflow execution'. A probe contact parked at a 7-DAY wait was tagged by the next step within 20s (log: wait_finished, add_contact_tag success) while an untouched contact at the same wait stayed parked. The id is the EXECUTION's workflowStatusId, read off any of its log rows \u2014 not a workflow or contact id. \u{1F534} It fires whatever steps come next, for real."
         }
       }
     };
