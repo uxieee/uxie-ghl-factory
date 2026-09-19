@@ -1641,7 +1641,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "destructive",
-          reach: "source-only",
+          note: "\u{1F534} THIS ROW IS MIS-BASED: the call is FlowGuardService `${baseURL}/flowguard/blacklist/{kind}/{id}`, i.e. DELETE /workflow/flowguard/blacklist/{kind}/{id}. Measured 2026-09-19 there: without location_id -> 400 naming it; with it -> 401 'Unauthorized'. FlowGuard is refused to this credential, like the rest of its family.",
+          reach: "refused",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -1679,7 +1680,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          reach: "source-only",
+          note: "\u{1F534} MIS-BASED like its DELETE twin: the real path is under /workflow/flowguard. FlowGuard answers 401 to this credential (2026-09-19), so the add was not attempted.",
+          reach: "refused",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -5359,6 +5361,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "destructive",
+          note: "NOT PROVEN, deliberately 2026-09-19: a ghost id answers a generic 404 'Not Found' (with the internal-channel and location-id headers EmailService pins), which cannot tell a missing route from a missing row. Making a real row needs POST /emails/trigger/campaign/\u2026, a live email-campaign trigger the plan fences.",
           reach: "source-only",
           coveredBy: [],
           rawCallable: false,
@@ -21126,7 +21129,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          reach: "source-only",
+          note: "ABSENT, measured 2026-09-19: BaseService.restore() defines this route, but NOTHING in the builder calls it \u2014 it is inherited dead code. The server answers {msg:'Not found'} for a REAL deleted item. To undo a workflow delete use PUT \u2026/restore.",
+          reach: "absent",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -21226,7 +21230,11 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "destructive",
-          reach: "source-only",
+          note: "Proven live 2026-09-19. Each proven on a throwaway the probe created in the same run, with an untouched sibling as the control. ?userId=<uid> -> 200 {success:true}; the workflow then 404s on GET and leaves the list while the sibling stays. \u{1F534} It is a SOFT delete: the workflow moves to GET \u2026/list?status=deleted and PUT \u2026/restore brings it back.",
+          reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -22835,7 +22843,11 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "destructive",
-          reach: "source-only",
+          note: "Proven live 2026-09-19. Each proven on a throwaway the probe created in the same run, with an untouched sibling as the control. Body {type:'workflow'|'directory', workflowIds:[\u2026], updatedBy:<uid>} -> 200 {success, message:'1 workflows deleted successfully', processedCount, failedCount, processingType:'synchronous', deletedIds}. Soft, like the single delete.",
+          reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -23744,7 +23756,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "destructive",
-          reach: "source-only",
+          note: "Reached 2026-09-19, NOT proven: it answers 200 {deleted:true} for a workflow WITH NO error doc AND for a GHOST workflowId \u2014 the response is identical whether anything was deleted or not. The only docs on the test account belong to a real workflow, so they were not touched. Prove it only on a probe workflow that has errored.",
+          reach: "reached",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -24531,7 +24544,11 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "destructive",
-          reach: "source-only",
+          note: "Proven live 2026-09-19. Each proven on a throwaway the probe created in the same run, with an untouched sibling as the control. -> 200 {msg:'deleted successfully', error:false}; the folder left GET \u2026/list?type=directory while the sibling folder stayed.",
+          reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -24651,7 +24668,11 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          reach: "source-only",
+          note: "Proven live 2026-09-19: ?userId=<uid>, body {workflowIds:[\u2026]} -> 200 {success:true}; a soft-deleted probe workflow answered GET again and left the deleted list. THE way to undo a workflow delete.",
+          reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -24885,7 +24906,11 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "destructive",
-          reach: "source-only",
+          note: "Proven live 2026-09-19 on the probe's own pause window: -> 200 {success:true}; the config list went from 1 record to 0.",
+          reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -25177,7 +25202,11 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "destructive",
-          reach: "source-only",
+          note: "Proven live 2026-09-19. \u{1F534} It WIPES A SPLIT STEP'S EXECUTION HISTORY, not the step: ?workflowId=&stepId= -> 200 {success:true}; GET \u2026/split/stats went {totalContactsEntered:2, pathB:2} -> all zeros on a probe split two probe contacts had run through. Irreversible as far as any route shows.",
+          reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -25661,7 +25690,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          reach: "source-only",
+          note: "ABSENT, measured 2026-09-19: BaseService.restore() defines this route, but NOTHING in the builder calls it \u2014 it is inherited dead code. The server answers {msg:'Not found'} for a REAL deleted item. To undo a workflow delete use PUT \u2026/restore. A deleted trigger could not be recovered by any route found.",
+          reach: "absent",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -26834,7 +26864,11 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "destructive",
-          reach: "source-only",
+          note: "Proven live 2026-09-19 on the probe's own connection: -> 200 {success:true, message:'MCP connection deleted'}; the list went 1 -> 0. CONTROL: a ghost id -> 404 'MCP connection not found'.",
+          reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -27378,7 +27412,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "destructive",
-          reach: "source-only",
+          note: "ABSENT, measured 2026-09-19: the skills router answers {success:false,message:'Not found'} to delete exactly as to its reads and writes.",
+          reach: "absent",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -32659,7 +32694,11 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "destructive",
-          reach: "source-only",
+          note: "Proven live 2026-09-19: ?_id=<noteId>&locationId=, with the pinned API_BASE_HEADERS -> 200 with the note carrying isDeleted:true; sticky-notes-all then returns 0. CONTROL: a ghost _id -> 404 'Sticky note not found to delete'.",
+          reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -54356,6 +54395,96 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           credentialClass: "agency-admin-bearer",
           kind: "write",
           note: "ABSENT, measured 2026-09-19: with the bundle's own body ({name, description, instructions}) and pinned headers, the skills router answers {success:false,message:'Not found'} to writes exactly as it does to its reads. Not mounted for this account (INFERRED: a labs flag)."
+        },
+        "DELETE /workflow/{locationId}/{workflowId}": {
+          reach: "proven",
+          credentialClass: "agency-admin-bearer",
+          kind: "destructive",
+          note: "Proven live 2026-09-19. Each proven on a throwaway the probe created in the same run, with an untouched sibling as the control. ?userId=<uid> -> 200 {success:true}; the workflow then 404s on GET and leaves the list while the sibling stays. \u{1F534} It is a SOFT delete: the workflow moves to GET \u2026/list?status=deleted and PUT \u2026/restore brings it back."
+        },
+        "DELETE /workflow/{locationId}/delete": {
+          reach: "proven",
+          credentialClass: "agency-admin-bearer",
+          kind: "destructive",
+          note: "Proven live 2026-09-19. Each proven on a throwaway the probe created in the same run, with an untouched sibling as the control. Body {type:'workflow'|'directory', workflowIds:[\u2026], updatedBy:<uid>} -> 200 {success, message:'1 workflows deleted successfully', processedCount, failedCount, processingType:'synchronous', deletedIds}. Soft, like the single delete."
+        },
+        "PUT /workflow/{locationId}/restore": {
+          reach: "proven",
+          credentialClass: "agency-admin-bearer",
+          kind: "write",
+          note: "Proven live 2026-09-19: ?userId=<uid>, body {workflowIds:[\u2026]} -> 200 {success:true}; a soft-deleted probe workflow answered GET again and left the deleted list. THE way to undo a workflow delete."
+        },
+        "PUT /workflow/{locationId}/{id}/recover": {
+          reach: "absent",
+          credentialClass: "agency-admin-bearer",
+          kind: "write",
+          note: "ABSENT, measured 2026-09-19: BaseService.restore() defines this route, but NOTHING in the builder calls it \u2014 it is inherited dead code. The server answers {msg:'Not found'} for a REAL deleted item. To undo a workflow delete use PUT \u2026/restore."
+        },
+        "PUT /workflow/{locationId}/trigger/{id}/recover": {
+          reach: "absent",
+          credentialClass: "agency-admin-bearer",
+          kind: "write",
+          note: "ABSENT, measured 2026-09-19: BaseService.restore() defines this route, but NOTHING in the builder calls it \u2014 it is inherited dead code. The server answers {msg:'Not found'} for a REAL deleted item. To undo a workflow delete use PUT \u2026/restore. A deleted trigger could not be recovered by any route found."
+        },
+        "DELETE /workflow/{locationId}/remove-directory/{folderId}": {
+          reach: "proven",
+          credentialClass: "agency-admin-bearer",
+          kind: "destructive",
+          note: "Proven live 2026-09-19. Each proven on a throwaway the probe created in the same run, with an untouched sibling as the control. -> 200 {msg:'deleted successfully', error:false}; the folder left GET \u2026/list?type=directory while the sibling folder stayed."
+        },
+        "DELETE /workflows/sticky-note": {
+          reach: "proven",
+          credentialClass: "agency-admin-bearer",
+          kind: "destructive",
+          note: "Proven live 2026-09-19: ?_id=<noteId>&locationId=, with the pinned API_BASE_HEADERS -> 200 with the note carrying isDeleted:true; sticky-notes-all then returns 0. CONTROL: a ghost _id -> 404 'Sticky note not found to delete'."
+        },
+        "DELETE /workflow/{locationId}/scheduled-pause/config/{recordId}": {
+          reach: "proven",
+          credentialClass: "agency-admin-bearer",
+          kind: "destructive",
+          note: "Proven live 2026-09-19 on the probe's own pause window: -> 200 {success:true}; the config list went from 1 record to 0."
+        },
+        "DELETE /workflow/{locationId}/split": {
+          reach: "proven",
+          credentialClass: "agency-admin-bearer",
+          kind: "destructive",
+          note: "Proven live 2026-09-19. \u{1F534} It WIPES A SPLIT STEP'S EXECUTION HISTORY, not the step: ?workflowId=&stepId= -> 200 {success:true}; GET \u2026/split/stats went {totalContactsEntered:2, pathB:2} -> all zeros on a probe split two probe contacts had run through. Irreversible as far as any route shows."
+        },
+        "DELETE /workflow/agent/{locationId}/mcp-connections/{id}": {
+          reach: "proven",
+          credentialClass: "agency-admin-bearer",
+          kind: "destructive",
+          note: "Proven live 2026-09-19 on the probe's own connection: -> 200 {success:true, message:'MCP connection deleted'}; the list went 1 -> 0. CONTROL: a ghost id -> 404 'MCP connection not found'."
+        },
+        "DELETE /workflow/{locationId}/error-notification/{workflowId}": {
+          reach: "reached",
+          credentialClass: "agency-admin-bearer",
+          kind: "destructive",
+          note: "Reached 2026-09-19, NOT proven: it answers 200 {deleted:true} for a workflow WITH NO error doc AND for a GHOST workflowId \u2014 the response is identical whether anything was deleted or not. The only docs on the test account belong to a real workflow, so they were not touched. Prove it only on a probe workflow that has errored."
+        },
+        "DELETE /emails/trigger/{locationId}/{triggerId}": {
+          reach: "source-only",
+          credentialClass: "agency-admin-bearer",
+          kind: "destructive",
+          note: "NOT PROVEN, deliberately 2026-09-19: a ghost id answers a generic 404 'Not Found' (with the internal-channel and location-id headers EmailService pins), which cannot tell a missing route from a missing row. Making a real row needs POST /emails/trigger/campaign/\u2026, a live email-campaign trigger the plan fences."
+        },
+        "DELETE /workflow/agent/{locationId}/skills/{id}": {
+          reach: "absent",
+          credentialClass: "agency-admin-bearer",
+          kind: "destructive",
+          note: "ABSENT, measured 2026-09-19: the skills router answers {success:false,message:'Not found'} to delete exactly as to its reads and writes."
+        },
+        "DELETE /blacklist/{kind}/{id}": {
+          reach: "refused",
+          credentialClass: "agency-admin-bearer",
+          kind: "destructive",
+          note: "\u{1F534} THIS ROW IS MIS-BASED: the call is FlowGuardService `${baseURL}/flowguard/blacklist/{kind}/{id}`, i.e. DELETE /workflow/flowguard/blacklist/{kind}/{id}. Measured 2026-09-19 there: without location_id -> 400 naming it; with it -> 401 'Unauthorized'. FlowGuard is refused to this credential, like the rest of its family."
+        },
+        "POST /blacklist/{kind}/{id}": {
+          reach: "refused",
+          credentialClass: "agency-admin-bearer",
+          kind: "write",
+          note: "\u{1F534} MIS-BASED like its DELETE twin: the real path is under /workflow/flowguard. FlowGuard answers 401 to this credential (2026-09-19), so the add was not attempted."
         }
       }
     };
