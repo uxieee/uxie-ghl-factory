@@ -23381,8 +23381,11 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "write",
-      "note": "Proven live 2026-09-19 as far as GHL can show: ONE email to the operator's own tagged address. Body {location_id, user_id, email:{subject, html, testEmails:[…]}, senderAddress:{from_name, from_email}, workflowId?, workflowName?, actionId?, actionName?} -> 200 {msg:'Test emails sent successfully', skippedEmails:[]}. A test email creates NO conversation, so the only full read-back is the recipient's inbox. 2026-09-19: ACCEPTED by GHL, arrival NOT YET CONFIRMED — the operator has been asked to check. Until then this row is 'reached', not proven. 🔴 It SENDS A REAL EMAIL.",
-      "reach": "reached",
+      "note": "Proven live 2026-09-19 as far as GHL can show: ONE email to the operator's own tagged address. Body {location_id, user_id, email:{subject, html, testEmails:[…]}, senderAddress:{from_name, from_email}, workflowId?, workflowName?, actionId?, actionName?} -> 200 {msg:'Test emails sent successfully', skippedEmails:[]}. A test email creates NO conversation, so the only full read-back is the recipient's inbox. 2026-09-19: ARRIVED — the operator confirmed it in the inbox. 🔴 It SENDS A REAL EMAIL.",
+      "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -31239,7 +31242,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "write",
-      "note": "Proven live 2026-09-19: EMAILS a CSV of execution logs. Body {locationId, workflowId, format:'csv', recipients:[{email, userId?}] (max 10, OBJECTS not strings), filters:{dateType:'custom', fromDate, toDate}} with the dates as INTEGER epoch-ms -> 201 {exportId, status:'queued'}. READ BACK on the preview: cooldownUntil went null -> a timestamp 15 minutes out, so GHL registered the export. The CSV's ARRIVAL is unconfirmed — the operator has been asked to check. 🔴 One export per workflow per ~15 minutes. Use GET …/logs/export/preview (exactCount, isOverCap, maxRows 100000) to size it without sending anything.",
+      "note": "Proven live 2026-09-19: EMAILS a CSV of execution logs. Body {locationId, workflowId, format:'csv', recipients:[{email, userId?}] (max 10, OBJECTS not strings), filters:{dateType:'custom', fromDate, toDate}} with the dates as INTEGER epoch-ms -> 201 {exportId, status:'queued'}. READ BACK on the preview: cooldownUntil went null -> a timestamp 15 minutes out, so GHL registered the export. The CSV ARRIVED — the operator confirmed it in the inbox. 🔴 One export per workflow per ~15 minutes. Use GET …/logs/export/preview (exactCount, isOverCap, maxRows 100000) to size it without sending anything.",
       "reach": "proven",
       "provenFor": [
         "agency-admin-bearer"
