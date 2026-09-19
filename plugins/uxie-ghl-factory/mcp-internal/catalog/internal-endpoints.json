@@ -2766,7 +2766,11 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "write",
-      "reach": "source-only",
+      "note": "Proven live 2026-09-19, many times, each READ BACK: body {eventStartTime:''} -> 201 {succeded:true} (GHL's spelling), and the enrolled contact then carries the tags the workflow's steps add. The workflows live suite enrols probe-created contacts with it on every run. 🔴 It ENROLS A REAL CONTACT INTO A LIVE WORKFLOW — every following step fires. Fence: a contact the probe created, no email, no phone, a trigger-less workflow.",
+      "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -15836,7 +15840,11 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "write",
-      "reach": "source-only",
+      "note": "Proven live 2026-09-19 with a read-back: {name,type,currency,amount,locationId,trackInventory:true,availableQuantity:10} -> 200, the price read then showed trackInventory:true and the quantity, and the Update Inventory workflow step began listing it. 🔴 locationId is REQUIRED IN THE BODY — without it: 422 'locationId/altId must be a string and it should exists'.",
+      "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -21215,7 +21223,8 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "write",
-      "reach": "source-only",
+      "note": "Reached 2026-09-19: with no pending autosave session it answers 200 {msg:'Already committed auto saved workflow with session id: undefined'} and the version does not move. Its real effect needs a builder autosave session, which no tool here opens. Body per states/workflow.ts: {userId, workflowId, locationId, version, autoSaveSessionId}.",
+      "reach": "reached",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -22574,9 +22583,12 @@
       "path": "/workflow/{locationId}/change-status/{workflowId}",
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
-      "kind": "destructive",
-      "note": "Publishes or unpublishes a workflow. A live automation stops or starts.",
-      "reach": "source-only",
+      "kind": "write",
+      "note": "Proven live 2026-09-19 on a probe draft, read back each way: body {status:'published'|'draft', updatedBy:<uid>} -> 200 with the full workflow row; get_workflow then showed published, then draft again. Each call bumps the version. CONTROL: a ghost workflowId -> 404 'Not Found'. 🔴 This is a SECOND publish door beside the bulk PUT …/change-status the publish tool uses — it runs NONE of the validation layers publish_workflow runs.",
+      "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -22824,7 +22836,11 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "note": "Proven live 2026-09-19; read-shaped, writes nothing. Body needs stepId, batchSize and interval (400 names all three); returns batches[] with batchNumber, scheduledAt, contactsInBatch, constraints.",
+      "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -24131,9 +24147,12 @@
       "path": "/workflow/{locationId}/permission/{workflowId}",
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
-      "kind": "destructive",
-      "note": "Changes who can see or edit a workflow.",
-      "reach": "source-only",
+      "kind": "write",
+      "note": "Proven live 2026-09-19 by differential and restored: body {permission:<number>} -> 200 with an EMPTY body; the workflow row's `permission` went 380 -> 280 -> 380 while an untouched sibling stayed 380. 🔴 An EMPTY body also answers 200 and changes nothing — the 200 carries no information. Vocabulary (utils/permission.ts): 50 agency admin, 180 agency user, 280 account admin, 380 all, 404 none.",
+      "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -24170,8 +24189,12 @@
       "path": "/workflow/{locationId}/permissions",
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
-      "kind": "destructive",
-      "reach": "source-only",
+      "kind": "write",
+      "note": "Proven live 2026-09-19 on a probe FOLDER and restored: body {directoryIds:[…], permission:<number>} -> 200 {directoriesUpdated, totalTasksCreated}. It is for DIRECTORIES and applies through a background task; the folder's `permission` on GET …/list?type=directory read 380 -> 280 -> 380. 🔴 list_workflow_folders does not surface `permission`, so that tool cannot verify this write.",
+      "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -24566,7 +24589,11 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "write",
-      "reach": "source-only",
+      "note": "Proven live 2026-09-19 on a probe DRAFT: body {pauseStartTime:<epoch-ms>, pauseEndTime:<epoch-ms>, isAnnual:false, workflowIds:[…]} -> 201 {success:true}, and GET on the same path then lists the record with isActive:true. RULES the server states: 'Workflow IDs are required'; the window must be AT LEAST 24 HOURS ('Difference between pause start and end times should be at least 24 hours'). 🔴 It PAUSES the named workflows for the window — aim it only at a workflow you mean to stop.",
+      "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -25083,8 +25110,11 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "write",
-      "note": "Executed on the designated sandbox 2026-09-10, workflows write-parity sweep. Refused four body shapes ({name}, {tags:[]}, +locationId, +workflowId) with a bare-string 400 \"Bad Request\" — no validation detail, so the shape is still unknown. Not a reach failure; a shape we have not found.",
-      "reach": "source-only",
+      "note": "Proven live 2026-09-19: body {tag:'<name>'} -> 200 'OK'; the tag then appears in GET /locations/{loc}/tags while a control name does not. {name:…} -> a bare 400 'Bad Request' naming nothing.",
+      "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -31174,7 +31204,8 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "write",
-      "reach": "source-only",
+      "note": "Reached 2026-09-19, deliberately not completed: the body REQUIRES recipients[] and format:'csv' beside locationId, workflowId and filters — it EMAILS a CSV of execution logs to up to 10 addresses. That makes it a SEND. Use the preview (GET …/logs/export/preview) to size an export without sending anything.",
+      "reach": "reached",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",

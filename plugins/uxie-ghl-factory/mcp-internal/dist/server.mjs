@@ -2943,7 +2943,11 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          reach: "source-only",
+          note: "Proven live 2026-09-19, many times, each READ BACK: body {eventStartTime:''} -> 201 {succeded:true} (GHL's spelling), and the enrolled contact then carries the tags the workflow's steps add. The workflows live suite enrols probe-created contacts with it on every run. \u{1F534} It ENROLS A REAL CONTACT INTO A LIVE WORKFLOW \u2014 every following step fires. Fence: a contact the probe created, no email, no phone, a trigger-less workflow.",
+          reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -16013,7 +16017,11 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          reach: "source-only",
+          note: "Proven live 2026-09-19 with a read-back: {name,type,currency,amount,locationId,trackInventory:true,availableQuantity:10} -> 200, the price read then showed trackInventory:true and the quantity, and the Update Inventory workflow step began listing it. \u{1F534} locationId is REQUIRED IN THE BODY \u2014 without it: 422 'locationId/altId must be a string and it should exists'.",
+          reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -21392,7 +21400,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          reach: "source-only",
+          note: "Reached 2026-09-19: with no pending autosave session it answers 200 {msg:'Already committed auto saved workflow with session id: undefined'} and the version does not move. Its real effect needs a builder autosave session, which no tool here opens. Body per states/workflow.ts: {userId, workflowId, locationId, version, autoSaveSessionId}.",
+          reach: "reached",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -22751,9 +22760,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
           path: "/workflow/{locationId}/change-status/{workflowId}",
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
-          kind: "destructive",
-          note: "Publishes or unpublishes a workflow. A live automation stops or starts.",
-          reach: "source-only",
+          kind: "write",
+          note: "Proven live 2026-09-19 on a probe draft, read back each way: body {status:'published'|'draft', updatedBy:<uid>} -> 200 with the full workflow row; get_workflow then showed published, then draft again. Each call bumps the version. CONTROL: a ghost workflowId -> 404 'Not Found'. \u{1F534} This is a SECOND publish door beside the bulk PUT \u2026/change-status the publish tool uses \u2014 it runs NONE of the validation layers publish_workflow runs.",
+          reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -23001,7 +23013,11 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          note: "Proven live 2026-09-19; read-shaped, writes nothing. Body needs stepId, batchSize and interval (400 names all three); returns batches[] with batchNumber, scheduledAt, contactsInBatch, constraints.",
+          reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -24308,9 +24324,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
           path: "/workflow/{locationId}/permission/{workflowId}",
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
-          kind: "destructive",
-          note: "Changes who can see or edit a workflow.",
-          reach: "source-only",
+          kind: "write",
+          note: "Proven live 2026-09-19 by differential and restored: body {permission:<number>} -> 200 with an EMPTY body; the workflow row's `permission` went 380 -> 280 -> 380 while an untouched sibling stayed 380. \u{1F534} An EMPTY body also answers 200 and changes nothing \u2014 the 200 carries no information. Vocabulary (utils/permission.ts): 50 agency admin, 180 agency user, 280 account admin, 380 all, 404 none.",
+          reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -24347,8 +24366,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
           path: "/workflow/{locationId}/permissions",
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
-          kind: "destructive",
-          reach: "source-only",
+          kind: "write",
+          note: "Proven live 2026-09-19 on a probe FOLDER and restored: body {directoryIds:[\u2026], permission:<number>} -> 200 {directoriesUpdated, totalTasksCreated}. It is for DIRECTORIES and applies through a background task; the folder's `permission` on GET \u2026/list?type=directory read 380 -> 280 -> 380. \u{1F534} list_workflow_folders does not surface `permission`, so that tool cannot verify this write.",
+          reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -24743,7 +24766,11 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          reach: "source-only",
+          note: "Proven live 2026-09-19 on a probe DRAFT: body {pauseStartTime:<epoch-ms>, pauseEndTime:<epoch-ms>, isAnnual:false, workflowIds:[\u2026]} -> 201 {success:true}, and GET on the same path then lists the record with isActive:true. RULES the server states: 'Workflow IDs are required'; the window must be AT LEAST 24 HOURS ('Difference between pause start and end times should be at least 24 hours'). \u{1F534} It PAUSES the named workflows for the window \u2014 aim it only at a workflow you mean to stop.",
+          reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -25260,8 +25287,11 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          note: 'Executed on the designated sandbox 2026-09-10, workflows write-parity sweep. Refused four body shapes ({name}, {tags:[]}, +locationId, +workflowId) with a bare-string 400 "Bad Request" \u2014 no validation detail, so the shape is still unknown. Not a reach failure; a shape we have not found.',
-          reach: "source-only",
+          note: "Proven live 2026-09-19: body {tag:'<name>'} -> 200 'OK'; the tag then appears in GET /locations/{loc}/tags while a control name does not. {name:\u2026} -> a bare 400 'Bad Request' naming nothing.",
+          reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -31351,7 +31381,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          reach: "source-only",
+          note: "Reached 2026-09-19, deliberately not completed: the body REQUIRES recipients[] and format:'csv' beside locationId, workflowId and filters \u2014 it EMAILS a CSV of execution logs to up to 10 addresses. That makes it a SEND. Use the preview (GET \u2026/logs/export/preview) to size an export without sending anything.",
+          reach: "reached",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -53614,7 +53645,10 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           note: 'Executed on the designated sandbox 2026-09-10, workflows write-parity sweep. \u{1F534} workflowId and sessionId go in the QUERY STRING, not the body \u2014 sent in the body they are not seen and the endpoint answers 422 "Workflow ID is required" / "Session ID is required", one field per round. `messages` is a chat array [{role,content}] in the body; `prompt` is refused with "Messages are required". Proven 200.'
         },
         "POST /workflow/{locationId}/drip-schedule/preview": {
-          kind: "read"
+          kind: "read",
+          reach: "proven",
+          credentialClass: "agency-admin-bearer",
+          note: "Proven live 2026-09-19; read-shaped, writes nothing. Body needs stepId, batchSize and interval (400 names all three); returns batches[] with batchNumber, scheduledAt, contactsInBatch, constraints."
         },
         "POST /workflow/{locationId}/email/send-test-email": {
           kind: "destructive"
@@ -53634,7 +53668,10 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           kind: "destructive"
         },
         "POST /workflow/{locationId}/tags/create": {
-          note: 'Executed on the designated sandbox 2026-09-10, workflows write-parity sweep. Refused four body shapes ({name}, {tags:[]}, +locationId, +workflowId) with a bare-string 400 "Bad Request" \u2014 no validation detail, so the shape is still unknown. Not a reach failure; a shape we have not found.'
+          note: "Proven live 2026-09-19: body {tag:'<name>'} -> 200 'OK'; the tag then appears in GET /locations/{loc}/tags while a control name does not. {name:\u2026} -> a bare 400 'Bad Request' naming nothing.",
+          reach: "proven",
+          credentialClass: "agency-admin-bearer",
+          kind: "write"
         },
         "POST /workflow/{locationId}/v3/ai/message": {
           reach: "proven",
@@ -53772,8 +53809,10 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           note: "Live-proven 2026-09-08 on the designated sandbox. Body {workflowIds:[...], status:'draft'|'published', updatedBy}. PRECISE: naming one id out of three published workflows moved exactly that one, confirmed by a separate list read. REVERSIBLE: status:'published' put all three back, so this is a status setter, not an unpublish-only route. `updatedBy` is required \u2014 omitting it is a 400 \"updatedBy is required and must be a non-empty string\". THE TRAP: that 400 still carries a full results envelope (totalProcessed 1, successfulUpdates 0, failedUpdates 1, details naming the workflow), so a caller keying on the presence of `results` rather than on the status code reads a refusal as a result. The 200 body counts the service's own work, not the stored status \u2014 read back. backgroundTasksCreated was 0 on every call. UNPROVEN: what unpublishing does to enrollments already in flight; the probe workflows carried none."
         },
         "PUT /workflow/{locationId}/change-status/{workflowId}": {
-          kind: "destructive",
-          note: "Publishes or unpublishes a workflow. A live automation stops or starts."
+          kind: "write",
+          note: "Proven live 2026-09-19 on a probe draft, read back each way: body {status:'published'|'draft', updatedBy:<uid>} -> 200 with the full workflow row; get_workflow then showed published, then draft again. Each call bumps the version. CONTROL: a ghost workflowId -> 404 'Not Found'. \u{1F534} This is a SECOND publish door beside the bulk PUT \u2026/change-status the publish tool uses \u2014 it runs NONE of the validation layers publish_workflow runs.",
+          reach: "proven",
+          credentialClass: "agency-admin-bearer"
         },
         "PUT /workflow/{locationId}/error-notification/settings/is-active": {
           reach: "proven",
@@ -53798,11 +53837,16 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           note: "\u{1F534} Live-proven INERT for trigger content, both {oldTriggers,newTriggers} and {version,triggers} body shapes: 200, version bumped, stored trigger conditions/active/name unchanged on read-back \u2014 do not use this to save a trigger edit. The rail this project uses instead is a per-trigger PUT /workflow/{locationId}/trigger/{triggerId} carrying the WHOLE trigger record (see edit_workflow's modifyTrigger op / mcp-internal/core/tools.mjs publish_workflow); it IS live-proven for trigger CONTENT (conditions/name/targetActionId). `active` is a read-only projection of the trigger's own `status` field (`active === (status !== \"draft\")`) \u2014 no PUT body's `active` field controls it directly: a publish with zero trigger writes still activates every trigger sub-second after the publish PUT returns, and a per-trigger PUT with active:false against a published workflow returns 200 with the trigger staying active:true. Sending `status:\"published\"` on that same per-trigger PUT DOES activate a trigger on an already-published workflow, verified by read-back at +0.5s/+2s/+5s; `status:\"draft\"` deactivates it. A bogus `status` string is silently accepted and ignored (200, unchanged) \u2014 never trust the 200, always read back. publish_workflow (mcp-internal/core/tools.mjs), orchestrate.mjs's --publish step, and skills/create-ghl-workflow/scripts/edit.mjs's post-add check send exactly this PUT as a REPAIR \u2014 one per trigger still inactive after the publish PUT's own draft\u2192published cascade \u2014 before ever reporting failure. Separately, the full workflow PUT still 400s with INVALID_TRIGGER_CONDITION on conv_ai_autonomous_trigger \u2014 this endpoint is not a fix for that either."
         },
         "PUT /workflow/{locationId}/permission/{workflowId}": {
-          kind: "destructive",
-          note: "Changes who can see or edit a workflow."
+          kind: "write",
+          note: "Proven live 2026-09-19 by differential and restored: body {permission:<number>} -> 200 with an EMPTY body; the workflow row's `permission` went 380 -> 280 -> 380 while an untouched sibling stayed 380. \u{1F534} An EMPTY body also answers 200 and changes nothing \u2014 the 200 carries no information. Vocabulary (utils/permission.ts): 50 agency admin, 180 agency user, 280 account admin, 380 all, 404 none.",
+          reach: "proven",
+          credentialClass: "agency-admin-bearer"
         },
         "PUT /workflow/{locationId}/permissions": {
-          kind: "destructive"
+          kind: "write",
+          reach: "proven",
+          credentialClass: "agency-admin-bearer",
+          note: "Proven live 2026-09-19 on a probe FOLDER and restored: body {directoryIds:[\u2026], permission:<number>} -> 200 {directoriesUpdated, totalTasksCreated}. It is for DIRECTORIES and applies through a background task; the folder's `permission` on GET \u2026/list?type=directory read 380 -> 280 -> 380. \u{1F534} list_workflow_folders does not surface `permission`, so that tool cannot verify this write."
         },
         "PUT /workflow/{locationId}/rename-directory/{folderId}": {
           reach: "proven",
@@ -54047,6 +54091,36 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           reach: "absent",
           credentialClass: "agency-admin-bearer",
           note: "ABSENT, measured 2026-09-19: Express's own HTML 'Cannot GET' on the email_reporting base that config/index.ts names, for a real workflow. The service answers; this path is not mounted on it."
+        },
+        "POST /contacts/{contactId}/workflow/{workflowId}": {
+          reach: "proven",
+          credentialClass: "agency-admin-bearer",
+          kind: "write",
+          note: "Proven live 2026-09-19, many times, each READ BACK: body {eventStartTime:''} -> 201 {succeded:true} (GHL's spelling), and the enrolled contact then carries the tags the workflow's steps add. The workflows live suite enrols probe-created contacts with it on every run. \u{1F534} It ENROLS A REAL CONTACT INTO A LIVE WORKFLOW \u2014 every following step fires. Fence: a contact the probe created, no email, no phone, a trigger-less workflow."
+        },
+        "PUT /products/{productId}/price/{priceId}": {
+          reach: "proven",
+          credentialClass: "agency-admin-bearer",
+          kind: "write",
+          note: "Proven live 2026-09-19 with a read-back: {name,type,currency,amount,locationId,trackInventory:true,availableQuantity:10} -> 200, the price read then showed trackInventory:true and the quantity, and the Update Inventory workflow step began listing it. \u{1F534} locationId is REQUIRED IN THE BODY \u2014 without it: 422 'locationId/altId must be a string and it should exists'."
+        },
+        "POST /workflow/{locationId}/scheduled-pause/config": {
+          reach: "proven",
+          credentialClass: "agency-admin-bearer",
+          kind: "write",
+          note: "Proven live 2026-09-19 on a probe DRAFT: body {pauseStartTime:<epoch-ms>, pauseEndTime:<epoch-ms>, isAnnual:false, workflowIds:[\u2026]} -> 201 {success:true}, and GET on the same path then lists the record with isActive:true. RULES the server states: 'Workflow IDs are required'; the window must be AT LEAST 24 HOURS ('Difference between pause start and end times should be at least 24 hours'). \u{1F534} It PAUSES the named workflows for the window \u2014 aim it only at a workflow you mean to stop."
+        },
+        "POST /workflow/{locationId}/{workflowId}/commit-auto-save": {
+          reach: "reached",
+          credentialClass: "agency-admin-bearer",
+          kind: "write",
+          note: "Reached 2026-09-19: with no pending autosave session it answers 200 {msg:'Already committed auto saved workflow with session id: undefined'} and the version does not move. Its real effect needs a builder autosave session, which no tool here opens. Body per states/workflow.ts: {userId, workflowId, locationId, version, autoSaveSessionId}."
+        },
+        "POST /workflows/logs/export": {
+          reach: "reached",
+          credentialClass: "agency-admin-bearer",
+          kind: "write",
+          note: "Reached 2026-09-19, deliberately not completed: the body REQUIRES recipients[] and format:'csv' beside locationId, workflowId and filters \u2014 it EMAILS a CSV of execution logs to up to 10 addresses. That makes it a SEND. Use the preview (GET \u2026/logs/export/preview) to size an export without sending anything."
         }
       }
     };
