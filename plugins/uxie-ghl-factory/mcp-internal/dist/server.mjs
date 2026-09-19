@@ -5361,7 +5361,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "destructive",
-          note: "NOT PROVEN, deliberately 2026-09-19: a ghost id answers a generic 404 'Not Found' (with the internal-channel and location-id headers EmailService pins), which cannot tell a missing route from a missing row. Making a real row needs POST /emails/trigger/campaign/\u2026, a live email-campaign trigger the plan fences.",
+          note: "FENCED by the operator-approved plan of 2026-09-19, not probed: a real row can only be made through the fenced campaign-trigger POST; a ghost id answers a generic 404 that cannot tell a missing route from a missing row. NOT PROVEN, deliberately 2026-09-19: a ghost id answers a generic 404 'Not Found' (with the internal-channel and location-id headers EmailService pins), which cannot tell a missing route from a missing row. Making a real row needs POST /emails/trigger/campaign/\u2026, a live email-campaign trigger the plan fences.",
           reach: "source-only",
           coveredBy: [],
           rawCallable: false,
@@ -5470,6 +5470,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
+          note: "FENCED by the operator-approved plan of 2026-09-19, not probed: it creates a LIVE email-campaign trigger.",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -8942,7 +8943,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          reach: "source-only",
+          note: "ABSENT at this path 2026-09-19 (empty 404): a MIS-BASED spelling. The live route is POST /workflow/generate-image-ai/{locationId}/prompt/enhance, proven the same day.",
+          reach: "absent",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -9022,6 +9024,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
+          note: "FENCED by the operator-approved plan of 2026-09-19, not probed: a proxy to arbitrary marketplace resources.",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -10042,6 +10045,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
+          note: "FENCED by the operator-approved plan of 2026-09-19, not probed: smart lists belong to another surface's tool.",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -10200,6 +10204,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
+          note: "FENCED by the operator-approved plan of 2026-09-19, not probed: smart lists belong to another surface's tool (check_smart_lists / create_smart_list).",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -14224,7 +14229,11 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           summary: "Search records of a custom object by filter.",
-          reach: "source-only",
+          note: "Proven live 2026-09-19; read-shaped, writes nothing. Body {page, pageLimit, query, locationId, sort:[{field,direction}]} -> 201 {customObjectRecords, total} for a real object key. CONTROL: a ghost key -> 404 'Custom Object (\u2026) not found'. On the services host.",
+          reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -16604,6 +16613,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
+          note: "FENCED by the operator-approved plan of 2026-09-19, not probed: billing.",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -16702,7 +16712,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "destructive",
-          note: "Changes the sub-account BILLING PLAN. Money.",
+          note: "FENCED by the operator-approved plan of 2026-09-19, not probed: billing. Changes the sub-account BILLING PLAN. Money.",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -18453,8 +18463,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          note: `\u{1F534} THE BASE IS /workflows-marketplace, NOT the service root. At the root this path answers 404 with an EMPTY body (or Express's "Cannot POST ..."), which reads like a dead endpoint; under /workflows-marketplace the same path answers from a real service \u2014 400 "Action does not exists for this key" / "Trigger does not exists for this key", or 403 "locationId is required". Route existence is proven; a 200 additionally needs a marketplace app installed on the account, which the sandbox has none of.`,
-          reach: "source-only",
+          note: "ABSENT at this path 2026-09-19: the framework's 'Cannot POST'. A MIS-BASED spelling of POST /workflows-marketplace/triggers/dynamic-source/{key}.",
+          reach: "absent",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -20777,7 +20787,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "destructive",
-          note: "COMPANY-scope bulk write across sub-accounts, not one location.",
+          note: "FENCED by the operator-approved plan of 2026-09-19, not probed: ONE call changes many sub-accounts at once. COMPANY-scope bulk write across sub-accounts, not one location.",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -20969,6 +20979,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
+          note: "FENCED by the operator-approved plan of 2026-09-19, not probed: ONE call changes every sub-account in the agency.",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -21484,7 +21495,11 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          reach: "source-only",
+          note: "Proven live 2026-09-19 with the test sub-account as its OWN target: body {userId, subLocationId, subLocationName} -> 200 {error:false, msg:'Queued to copy Workflow'}; a second workflow of the same name then appeared in the list. \u{1F534} Built to copy INTO ANOTHER sub-account (the builder's Copy to Sub-Account) \u2014 it writes into whichever location subLocationId names. Not exercised cross-account.",
+          reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -22027,7 +22042,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          reach: "source-only",
+          note: "Reached 2026-09-19: the builder sends MULTIPART form data (states/app.ts uploadFile), which raw_request cannot send; a JSON body does not exercise it.",
+          reach: "reached",
           coveredBy: [],
           rawCallable: false,
           transport: "multipart",
@@ -22320,6 +22336,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
+          note: "FENCED by the operator-approved plan of 2026-09-19, not probed: ad spend.",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -23445,6 +23462,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
+          note: "FENCED by the operator-approved plan of 2026-09-19, not probed: it changes the location's sending-domain routing.",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -24063,8 +24081,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          note: '\u{1F534} WRONG PATH IN THIS ROW: /workflow/{locationId}/folder answers 404 {"msg":"Not found"}. The real path is **/workflow/{locationId}/directory**, proven on the sandbox 2026-09-10 \u2014 body {name, locationId}, answers 200 {id}, and the folder count in /workflow/{locationId}/list went 6 -> 7 with the new folder found by name. Folders appear in that list as rows with type "directory".',
-          reach: "source-only",
+          note: "ABSENT, measured 2026-09-19: no call site in the current builder bundle, and a real-shaped body {name, parentId} answers {msg:'Not found'}. Folders are created through the route create_workflow_folder uses.",
+          reach: "absent",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -25647,7 +25665,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          reach: "source-only",
+          note: "ABSENT, measured 2026-09-19: the full trigger document with a new name, sent to a REAL inactive trigger, answered {msg:'Not found'} exactly as a ghost id did, and the name did not change. Triggers are edited through the paths edit_workflow uses.",
+          reach: "absent",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -25733,7 +25752,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          reach: "source-only",
+          note: "ABSENT at THIS path, measured 2026-09-19: {msg:'Not found'}. The live route is PUT /workflow/{locationId}/only-triggers/{workflowId} (BaseService on the workflow endpoint): without `version` -> 422 'Version is required'; with it -> 200 and the version bumps while steps and triggers are UNCHANGED \u2014 an inert write, as recorded before.",
+          reach: "absent",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -39497,7 +39517,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "write",
-          reach: "source-only",
+          note: "ABSENT at this path 2026-09-19 (empty 404): a MIS-BASED spelling. The live route is POST /workflow/generate-image-ai/{locationId}/prompt/enhance, proven the same day.",
+          reach: "absent",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -53671,7 +53692,10 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         },
         "POST /objects/{objectKey}/records/search": {
           kind: "read",
-          summary: "Search records of a custom object by filter."
+          summary: "Search records of a custom object by filter.",
+          reach: "proven",
+          credentialClass: "agency-admin-bearer",
+          note: "Proven live 2026-09-19; read-shaped, writes nothing. Body {page, pageLimit, query, locationId, sort:[{field,direction}]} -> 201 {customObjectRecords, total} for a real object key. CONTROL: a ghost key -> 404 'Custom Object (\u2026) not found'. On the services host."
         },
         "POST /opportunities/lost-reason": {
           reach: "proven",
@@ -53719,7 +53743,10 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           kind: "read"
         },
         "POST /triggers/dynamic-source/{key}": {
-          note: `\u{1F534} THE BASE IS /workflows-marketplace, NOT the service root. At the root this path answers 404 with an EMPTY body (or Express's "Cannot POST ..."), which reads like a dead endpoint; under /workflows-marketplace the same path answers from a real service \u2014 400 "Action does not exists for this key" / "Trigger does not exists for this key", or 403 "locationId is required". Route existence is proven; a 200 additionally needs a marketplace app installed on the account, which the sandbox has none of.`
+          note: "ABSENT at this path 2026-09-19: the framework's 'Cannot POST'. A MIS-BASED spelling of POST /workflows-marketplace/triggers/dynamic-source/{key}.",
+          reach: "absent",
+          credentialClass: "agency-admin-bearer",
+          kind: "write"
         },
         "POST /workflow/flowguard/blacklist/contact/{contactId}": {
           kind: "destructive",
@@ -53758,7 +53785,8 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           note: "Writes to the OAuth credential rail."
         },
         "POST /workflow/{locationId}/adwords": {
-          kind: "read"
+          kind: "read",
+          note: "FENCED by the operator-approved plan of 2026-09-19, not probed: ad spend."
         },
         "POST /workflow/{locationId}/ai/custom-code-ai": {
           reach: "proven",
@@ -53787,7 +53815,10 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           note: "Proven live 2026-09-19 as far as GHL can show: ONE email to the operator's own tagged address. Body {location_id, user_id, email:{subject, html, testEmails:[\u2026]}, senderAddress:{from_name, from_email}, workflowId?, workflowName?, actionId?, actionName?} -> 200 {msg:'Test emails sent successfully', skippedEmails:[]}. A test email creates NO conversation, so the only full read-back is the recipient's inbox. 2026-09-19: ARRIVED \u2014 the operator confirmed it in the inbox. \u{1F534} It SENDS A REAL EMAIL."
         },
         "POST /workflow/{locationId}/folder": {
-          note: '\u{1F534} WRONG PATH IN THIS ROW: /workflow/{locationId}/folder answers 404 {"msg":"Not found"}. The real path is **/workflow/{locationId}/directory**, proven on the sandbox 2026-09-10 \u2014 body {name, locationId}, answers 200 {id}, and the folder count in /workflow/{locationId}/list went 6 -> 7 with the new folder found by name. Folders appear in that list as rows with type "directory".'
+          note: "ABSENT, measured 2026-09-19: no call site in the current builder bundle, and a real-shaped body {name, parentId} answers {msg:'Not found'}. Folders are created through the route create_workflow_folder uses.",
+          reach: "absent",
+          credentialClass: "agency-admin-bearer",
+          kind: "write"
         },
         "POST /workflow/{locationId}/run-single-action": {
           kind: "write",
@@ -53935,7 +53966,7 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         },
         "PUT /saas-billing-v2/billing-config/{locationId}": {
           kind: "destructive",
-          note: "Changes the sub-account BILLING PLAN. Money."
+          note: "FENCED by the operator-approved plan of 2026-09-19, not probed: billing. Changes the sub-account BILLING PLAN. Money."
         },
         "PUT /workflow/oauth2/update-token": {
           kind: "destructive",
@@ -53943,7 +53974,7 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         },
         "PUT /workflow/{companyId}/workflow-company-setting/bulk-location-settings": {
           kind: "destructive",
-          note: "COMPANY-scope bulk write across sub-accounts, not one location."
+          note: "FENCED by the operator-approved plan of 2026-09-19, not probed: ONE call changes many sub-accounts at once. COMPANY-scope bulk write across sub-accounts, not one location."
         },
         "PUT /workflow/{locationId}/auto-save/settings": {
           reach: "proven",
@@ -54466,7 +54497,7 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           reach: "source-only",
           credentialClass: "agency-admin-bearer",
           kind: "destructive",
-          note: "NOT PROVEN, deliberately 2026-09-19: a ghost id answers a generic 404 'Not Found' (with the internal-channel and location-id headers EmailService pins), which cannot tell a missing route from a missing row. Making a real row needs POST /emails/trigger/campaign/\u2026, a live email-campaign trigger the plan fences."
+          note: "FENCED by the operator-approved plan of 2026-09-19, not probed: a real row can only be made through the fenced campaign-trigger POST; a ghost id answers a generic 404 that cannot tell a missing route from a missing row. NOT PROVEN, deliberately 2026-09-19: a ghost id answers a generic 404 'Not Found' (with the internal-channel and location-id headers EmailService pins), which cannot tell a missing route from a missing row. Making a real row needs POST /emails/trigger/campaign/\u2026, a live email-campaign trigger the plan fences."
         },
         "DELETE /workflow/agent/{locationId}/skills/{id}": {
           reach: "absent",
@@ -54485,6 +54516,57 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           credentialClass: "agency-admin-bearer",
           kind: "write",
           note: "\u{1F534} MIS-BASED like its DELETE twin: the real path is under /workflow/flowguard. FlowGuard answers 401 to this credential (2026-09-19), so the add was not attempted."
+        },
+        "POST /workflow/{locationId}/{workflowId}/copy-workflow": {
+          reach: "proven",
+          credentialClass: "agency-admin-bearer",
+          kind: "write",
+          note: "Proven live 2026-09-19 with the test sub-account as its OWN target: body {userId, subLocationId, subLocationName} -> 200 {error:false, msg:'Queued to copy Workflow'}; a second workflow of the same name then appeared in the list. \u{1F534} Built to copy INTO ANOTHER sub-account (the builder's Copy to Sub-Account) \u2014 it writes into whichever location subLocationId names. Not exercised cross-account."
+        },
+        "PUT /workflow/{locationId}/trigger/only-triggers/{id}": {
+          reach: "absent",
+          credentialClass: "agency-admin-bearer",
+          kind: "write",
+          note: "ABSENT at THIS path, measured 2026-09-19: {msg:'Not found'}. The live route is PUT /workflow/{locationId}/only-triggers/{workflowId} (BaseService on the workflow endpoint): without `version` -> 422 'Version is required'; with it -> 200 and the version bumps while steps and triggers are UNCHANGED \u2014 an inert write, as recorded before."
+        },
+        "PUT /workflow/{locationId}/trigger/{id}/auto-save": {
+          reach: "absent",
+          credentialClass: "agency-admin-bearer",
+          kind: "write",
+          note: "ABSENT, measured 2026-09-19: the full trigger document with a new name, sent to a REAL inactive trigger, answered {msg:'Not found'} exactly as a ghost id did, and the name did not change. Triggers are edited through the paths edit_workflow uses."
+        },
+        "POST /generate-image-ai/{locationId}/prompt/enhance": {
+          reach: "absent",
+          credentialClass: "agency-admin-bearer",
+          kind: "write",
+          note: "ABSENT at this path 2026-09-19 (empty 404): a MIS-BASED spelling. The live route is POST /workflow/generate-image-ai/{locationId}/prompt/enhance, proven the same day."
+        },
+        "POST /workflow/{locationId}/{workflowId}/upload": {
+          reach: "reached",
+          credentialClass: "agency-admin-bearer",
+          kind: "write",
+          note: "Reached 2026-09-19: the builder sends MULTIPART form data (states/app.ts uploadFile), which raw_request cannot send; a JSON body does not exercise it."
+        },
+        "POST /emails/trigger/campaign/{locationId}/{sourceId}": {
+          note: "FENCED by the operator-approved plan of 2026-09-19, not probed: it creates a LIVE email-campaign trigger."
+        },
+        "POST /workflow/{locationId}/email/domain-selection/manage": {
+          note: "FENCED by the operator-approved plan of 2026-09-19, not probed: it changes the location's sending-domain routing."
+        },
+        "POST /lists/dynamic/{smartListId}": {
+          note: "FENCED by the operator-approved plan of 2026-09-19, not probed: smart lists belong to another surface's tool (check_smart_lists / create_smart_list)."
+        },
+        "PUT /lists/dynamic/{locationId}/{smartListId}": {
+          note: "FENCED by the operator-approved plan of 2026-09-19, not probed: smart lists belong to another surface's tool."
+        },
+        "POST /iatf-preview/proxy/{resource}": {
+          note: "FENCED by the operator-approved plan of 2026-09-19, not probed: a proxy to arbitrary marketplace resources."
+        },
+        "PUT /saas-billing-v2/billing-config/..": {
+          note: "FENCED by the operator-approved plan of 2026-09-19, not probed: billing."
+        },
+        "PUT /workflow/{companyId}/workflow-company-setting/settings": {
+          note: "FENCED by the operator-approved plan of 2026-09-19, not probed: ONE call changes every sub-account in the agency."
         }
       }
     };
