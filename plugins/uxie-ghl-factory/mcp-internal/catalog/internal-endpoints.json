@@ -15491,7 +15491,8 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "write",
-      "reach": "source-only",
+      "note": "Reached 2026-09-19: a JSON body answers 400 naming userId and workflowId. The real call is MULTIPART (file, locationId, userId, workflowId), which raw_request cannot send. It validates an audio file for a voicemail-drop step and places no call.",
+      "reach": "reached",
       "coveredBy": [],
       "rawCallable": false,
       "transport": "multipart",
@@ -23379,8 +23380,12 @@
       "path": "/workflow/{locationId}/email/send-test-email",
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
-      "kind": "destructive",
-      "reach": "source-only",
+      "kind": "write",
+      "note": "Proven live 2026-09-19 as far as GHL can show: ONE email to the operator's own tagged address. Body {location_id, user_id, email:{subject, html, testEmails:[…]}, senderAddress:{from_name, from_email}, workflowId?, workflowName?, actionId?, actionName?} -> 200 {msg:'Test emails sent successfully', skippedEmails:[]}. A test email creates NO conversation, so the only full read-back is the recipient's inbox — confirmed by the operator. 🔴 It SENDS A REAL EMAIL.",
+      "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -23464,8 +23469,12 @@
       "path": "/workflow/{locationId}/email/validate-from-email",
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
-      "kind": "write",
-      "reach": "source-only",
+      "kind": "read",
+      "note": "Proven live 2026-09-19 by a three-way differential; sends nothing: body {fromEmail, domain}. A free-webmail sender -> {isFromEmailAllowed:false, code:'free_webmail_blocked'}; a real company domain -> {isFromEmailAllowed:true, code:'success'}; a domain with no DNS -> {false, code:'dmarc_record_not_found'}. Codes per the bundle also include dmarc_issue_possible, from_email_domain_and_dedicated_domain_mismatch, invalid_dmarc_format. Worth running before a workflow's From address is set.",
+      "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -24939,8 +24948,12 @@
       "path": "/workflow/{locationId}/sms/send-test-sms",
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
-      "kind": "destructive",
-      "reach": "source-only",
+      "kind": "write",
+      "note": "Proven live 2026-09-19, ONE message, operator-directed, from the agency's own AU sub-account's default number. Body {location_id, user_id, sms:{body, testPhones:[E.164]}, senderAddress:{from_number}} -> 200 {msg:'Test sms sent successfully', skippedPhoneNumbers:[]}. READ BACK in that sub-account's conversations: the message sits in the recipient's phone conversation, direction outbound, status DELIVERED. 🔴 It SENDS A REAL SMS and files it in the recipient's conversation history; no workflow is needed, only a location with an SMS-capable number. skippedPhoneNumbers is where a refused number would be named.",
+      "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -31229,8 +31242,11 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "write",
-      "note": "Reached 2026-09-19, deliberately not completed: the body REQUIRES recipients[] and format:'csv' beside locationId, workflowId and filters — it EMAILS a CSV of execution logs to up to 10 addresses. That makes it a SEND. Use the preview (GET …/logs/export/preview) to size an export without sending anything.",
-      "reach": "reached",
+      "note": "Proven live 2026-09-19: EMAILS a CSV of execution logs. Body {locationId, workflowId, format:'csv', recipients:[{email, userId?}] (max 10, OBJECTS not strings), filters:{dateType:'custom', fromDate, toDate}} with the dates as INTEGER epoch-ms -> 201 {exportId, status:'queued'}. READ BACK on the preview: cooldownUntil went null -> a timestamp 15 minutes out. 🔴 One export per workflow per ~15 minutes. Use GET …/logs/export/preview (exactCount, isOverCap, maxRows 100000) to size it without sending anything.",
+      "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",

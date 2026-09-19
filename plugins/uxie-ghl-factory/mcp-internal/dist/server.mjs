@@ -15668,7 +15668,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          reach: "source-only",
+          note: "Reached 2026-09-19: a JSON body answers 400 naming userId and workflowId. The real call is MULTIPART (file, locationId, userId, workflowId), which raw_request cannot send. It validates an audio file for a voicemail-drop step and places no call.",
+          reach: "reached",
           coveredBy: [],
           rawCallable: false,
           transport: "multipart",
@@ -23556,8 +23557,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
           path: "/workflow/{locationId}/email/send-test-email",
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
-          kind: "destructive",
-          reach: "source-only",
+          kind: "write",
+          note: "Proven live 2026-09-19 as far as GHL can show: ONE email to the operator's own tagged address. Body {location_id, user_id, email:{subject, html, testEmails:[\u2026]}, senderAddress:{from_name, from_email}, workflowId?, workflowName?, actionId?, actionName?} -> 200 {msg:'Test emails sent successfully', skippedEmails:[]}. A test email creates NO conversation, so the only full read-back is the recipient's inbox \u2014 confirmed by the operator. \u{1F534} It SENDS A REAL EMAIL.",
+          reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -23641,8 +23646,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
           path: "/workflow/{locationId}/email/validate-from-email",
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
-          kind: "write",
-          reach: "source-only",
+          kind: "read",
+          note: "Proven live 2026-09-19 by a three-way differential; sends nothing: body {fromEmail, domain}. A free-webmail sender -> {isFromEmailAllowed:false, code:'free_webmail_blocked'}; a real company domain -> {isFromEmailAllowed:true, code:'success'}; a domain with no DNS -> {false, code:'dmarc_record_not_found'}. Codes per the bundle also include dmarc_issue_possible, from_email_domain_and_dedicated_domain_mismatch, invalid_dmarc_format. Worth running before a workflow's From address is set.",
+          reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -25116,8 +25125,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
           path: "/workflow/{locationId}/sms/send-test-sms",
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
-          kind: "destructive",
-          reach: "source-only",
+          kind: "write",
+          note: "Proven live 2026-09-19, ONE message, operator-directed, from the agency's own AU sub-account's default number. Body {location_id, user_id, sms:{body, testPhones:[E.164]}, senderAddress:{from_number}} -> 200 {msg:'Test sms sent successfully', skippedPhoneNumbers:[]}. READ BACK in that sub-account's conversations: the message sits in the recipient's phone conversation, direction outbound, status DELIVERED. \u{1F534} It SENDS A REAL SMS and files it in the recipient's conversation history; no workflow is needed, only a location with an SMS-capable number. skippedPhoneNumbers is where a refused number would be named.",
+          reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -31406,8 +31419,11 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          note: "Reached 2026-09-19, deliberately not completed: the body REQUIRES recipients[] and format:'csv' beside locationId, workflowId and filters \u2014 it EMAILS a CSV of execution logs to up to 10 addresses. That makes it a SEND. Use the preview (GET \u2026/logs/export/preview) to size an export without sending anything.",
-          reach: "reached",
+          note: "Proven live 2026-09-19: EMAILS a CSV of execution logs. Body {locationId, workflowId, format:'csv', recipients:[{email, userId?}] (max 10, OBJECTS not strings), filters:{dateType:'custom', fromDate, toDate}} with the dates as INTEGER epoch-ms -> 201 {exportId, status:'queued'}. READ BACK on the preview: cooldownUntil went null -> a timestamp 15 minutes out. \u{1F534} One export per workflow per ~15 minutes. Use GET \u2026/logs/export/preview (exactCount, isOverCap, maxRows 100000) to size it without sending anything.",
+          reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -53676,7 +53692,10 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           note: "Proven live 2026-09-19; read-shaped, writes nothing. Body needs stepId, batchSize and interval (400 names all three); returns batches[] with batchNumber, scheduledAt, contactsInBatch, constraints."
         },
         "POST /workflow/{locationId}/email/send-test-email": {
-          kind: "destructive"
+          kind: "write",
+          reach: "proven",
+          credentialClass: "agency-admin-bearer",
+          note: "Proven live 2026-09-19 as far as GHL can show: ONE email to the operator's own tagged address. Body {location_id, user_id, email:{subject, html, testEmails:[\u2026]}, senderAddress:{from_name, from_email}, workflowId?, workflowName?, actionId?, actionName?} -> 200 {msg:'Test emails sent successfully', skippedEmails:[]}. A test email creates NO conversation, so the only full read-back is the recipient's inbox \u2014 confirmed by the operator. \u{1F534} It SENDS A REAL EMAIL."
         },
         "POST /workflow/{locationId}/folder": {
           note: '\u{1F534} WRONG PATH IN THIS ROW: /workflow/{locationId}/folder answers 404 {"msg":"Not found"}. The real path is **/workflow/{locationId}/directory**, proven on the sandbox 2026-09-10 \u2014 body {name, locationId}, answers 200 {id}, and the folder count in /workflow/{locationId}/list went 6 -> 7 with the new folder found by name. Folders appear in that list as rows with type "directory".'
@@ -53692,7 +53711,10 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           note: 'Executed on the designated sandbox 2026-09-10 in the workflows write-parity run. \u{1F534} `conditions` must be a NON-EMPTY array or it answers 400 "conditions array is required and cannot be empty" \u2014 an empty array is refused, not treated as "no filter". \u{1F534} BUT THE RESPONSE DOES NOT DISCRIMINATE ON `conditions`: measured 2026-09-16 with a control, an invented field name (`utter_nonsense_field`/`banana`) and a full monthly schedule both return the SAME {success:true, executions:[]} as the example this row used to cite as its proof. `executions` has never been observed non-empty. The endpoint DOES parse the body \u2014 an invalid `timezone` answers 400 \u2014 so this is reachability plus a timezone rule, NOT proof that the preview previews anything. See _shared/conformance/a-success-that-equals-the-null-result.md.'
         },
         "POST /workflow/{locationId}/sms/send-test-sms": {
-          kind: "destructive"
+          kind: "write",
+          reach: "proven",
+          credentialClass: "agency-admin-bearer",
+          note: "Proven live 2026-09-19, ONE message, operator-directed, from the agency's own AU sub-account's default number. Body {location_id, user_id, sms:{body, testPhones:[E.164]}, senderAddress:{from_number}} -> 200 {msg:'Test sms sent successfully', skippedPhoneNumbers:[]}. READ BACK in that sub-account's conversations: the message sits in the recipient's phone conversation, direction outbound, status DELIVERED. \u{1F534} It SENDS A REAL SMS and files it in the recipient's conversation history; no workflow is needed, only a location with an SMS-capable number. skippedPhoneNumbers is where a refused number would be named."
         },
         "POST /workflow/{locationId}/tags/create": {
           note: "Proven live 2026-09-19: body {tag:'<name>'} -> 200 'OK'; the tag then appears in GET /locations/{loc}/tags while a control name does not. {name:\u2026} -> a bare 400 'Bad Request' naming nothing.",
@@ -54160,10 +54182,10 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           note: "Reached 2026-09-19: with no pending autosave session it answers 200 {msg:'Already committed auto saved workflow with session id: undefined'} and the version does not move. Its real effect needs a builder autosave session, which no tool here opens. Body per states/workflow.ts: {userId, workflowId, locationId, version, autoSaveSessionId}."
         },
         "POST /workflows/logs/export": {
-          reach: "reached",
+          reach: "proven",
           credentialClass: "agency-admin-bearer",
           kind: "write",
-          note: "Reached 2026-09-19, deliberately not completed: the body REQUIRES recipients[] and format:'csv' beside locationId, workflowId and filters \u2014 it EMAILS a CSV of execution logs to up to 10 addresses. That makes it a SEND. Use the preview (GET \u2026/logs/export/preview) to size an export without sending anything."
+          note: "Proven live 2026-09-19: EMAILS a CSV of execution logs. Body {locationId, workflowId, format:'csv', recipients:[{email, userId?}] (max 10, OBJECTS not strings), filters:{dateType:'custom', fromDate, toDate}} with the dates as INTEGER epoch-ms -> 201 {exportId, status:'queued'}. READ BACK on the preview: cooldownUntil went null -> a timestamp 15 minutes out. \u{1F534} One export per workflow per ~15 minutes. Use GET \u2026/logs/export/preview (exactCount, isOverCap, maxRows 100000) to size it without sending anything."
         },
         "POST /workflow/{locationId}/{workflowStatusId}/force-resume": {
           reach: "proven",
@@ -54188,6 +54210,18 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           credentialClass: "agency-admin-bearer",
           kind: "write",
           note: "DELIBERATELY NOT WRITTEN 2026-09-19: on the test sub-account the GET answers {} \u2014 no settings document exists \u2014 so a PUT would CREATE one that cannot be restored to 'absent'. body {feature:{\u2026}} per the bundle. Prove it only on an account where the document already exists, with read -> change -> read -> restore."
+        },
+        "POST /workflow/{locationId}/email/validate-from-email": {
+          reach: "proven",
+          credentialClass: "agency-admin-bearer",
+          kind: "read",
+          note: "Proven live 2026-09-19 by a three-way differential; sends nothing: body {fromEmail, domain}. A free-webmail sender -> {isFromEmailAllowed:false, code:'free_webmail_blocked'}; a real company domain -> {isFromEmailAllowed:true, code:'success'}; a domain with no DNS -> {false, code:'dmarc_record_not_found'}. Codes per the bundle also include dmarc_issue_possible, from_email_domain_and_dedicated_domain_mismatch, invalid_dmarc_format. Worth running before a workflow's From address is set."
+        },
+        "POST /phone-system/voice-call/voicemail-drop/file-validation": {
+          reach: "reached",
+          credentialClass: "agency-admin-bearer",
+          kind: "write",
+          note: "Reached 2026-09-19: a JSON body answers 400 naming userId and workflowId. The real call is MULTIPART (file, locationId, userId, workflowId), which raw_request cannot send. It validates an audio file for a voicemail-drop step and places no call."
         }
       }
     };
