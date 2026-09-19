@@ -26715,7 +26715,11 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          reach: "source-only",
+          note: "Proven live 2026-09-19, read back on the list: body {name, serverUrl, transportType:'streamable-http'|'sse', authType:'none'|'bearer_token'|'oauth2'|'api_key'|'custom_header', \u2026} -> 201 {success, data:{_id, \u2026}}, and GET on the same path then lists it. \u{1F534} CREATE RUNS A LIVE CONNECTION TEST FIRST: a URL that is not an MCP server is refused 422 'Connection test failed: \u2026' and NOTHING is stored. Proven with a public read-only docs server, never attached to an agent. Pins API_BASE_HEADERS (version 2021-04-15, source WEB_USER, channel APP).",
+          reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -26868,7 +26872,11 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          reach: "source-only",
+          note: "Proven live 2026-09-19: a PARTIAL body {name} -> 200 with the full record; the list read showed the new name and the other fields unchanged. CONTROL: a ghost id -> 404 'MCP connection not found'. (An undefined id answers 500 'Failed to update MCP connection'.) Pins API_BASE_HEADERS (version 2021-04-15, source WEB_USER, channel APP).",
+          reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -27041,7 +27049,11 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          reach: "source-only",
+          note: "Proven live 2026-09-19 by differential; stores nothing. Body {serverUrl, transportType, authType, \u2026}: a non-MCP URL -> 422 {success:false, error:'Failed to connect to streamable HTTP server \u2026'} carrying the remote's own response; two public read-only MCP servers -> 200 {success:true, data:{tools:[{name, description}], toolCount}}. \u{1F534} GHL's server fetches whatever URL you give it. Pins API_BASE_HEADERS (version 2021-04-15, source WEB_USER, channel APP).",
+          reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -27302,7 +27314,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          reach: "source-only",
+          note: "ABSENT, measured 2026-09-19: with the bundle's own body ({name, description, instructions}) and pinned headers, the skills router answers {success:false,message:'Not found'} to writes exactly as it does to its reads. Not mounted for this account (INFERRED: a labs flag).",
+          reach: "absent",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -27482,7 +27495,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          reach: "source-only",
+          note: "ABSENT, measured 2026-09-19: with the bundle's own body ({name, description, instructions}) and pinned headers, the skills router answers {success:false,message:'Not found'} to writes exactly as it does to its reads. Not mounted for this account (INFERRED: a labs flag).",
+          reach: "absent",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -54312,6 +54326,36 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           credentialClass: "agency-admin-bearer",
           kind: "write",
           note: "\u{1F534} THIS ROW'S PATH IS MIS-BASED: the builder calls `${config.baseURL}/agent/{loc}/prompt/enhance` and baseURL is backend\u2026/workflow, so the WIRE PATH is POST /workflow/agent/{locationId}/prompt/enhance \u2014 which is where it was proven. This is a MINED row, so the harvester's missing-prefix gate cannot see it; the miner dropped the prefix on an explicit `config.baseURL` template. Proven live 2026-09-19 (billed): body {prompt, \u2026context?} -> 200 {success, data:{enhancedPrompt}} \u2014 rewrites a short agent prompt into a structured one. EXCLUDED \u2014 no task needs it: GHL's own model drafting for a builder UI; this plugin's caller is itself a model, and routing through GHL's adds a bill (workflow_ai) and removes control."
+        },
+        "POST /workflow/agent/{locationId}/mcp-connections": {
+          reach: "proven",
+          credentialClass: "agency-admin-bearer",
+          kind: "write",
+          note: "Proven live 2026-09-19, read back on the list: body {name, serverUrl, transportType:'streamable-http'|'sse', authType:'none'|'bearer_token'|'oauth2'|'api_key'|'custom_header', \u2026} -> 201 {success, data:{_id, \u2026}}, and GET on the same path then lists it. \u{1F534} CREATE RUNS A LIVE CONNECTION TEST FIRST: a URL that is not an MCP server is refused 422 'Connection test failed: \u2026' and NOTHING is stored. Proven with a public read-only docs server, never attached to an agent. Pins API_BASE_HEADERS (version 2021-04-15, source WEB_USER, channel APP)."
+        },
+        "PUT /workflow/agent/{locationId}/mcp-connections/{id}": {
+          reach: "proven",
+          credentialClass: "agency-admin-bearer",
+          kind: "write",
+          note: "Proven live 2026-09-19: a PARTIAL body {name} -> 200 with the full record; the list read showed the new name and the other fields unchanged. CONTROL: a ghost id -> 404 'MCP connection not found'. (An undefined id answers 500 'Failed to update MCP connection'.) Pins API_BASE_HEADERS (version 2021-04-15, source WEB_USER, channel APP)."
+        },
+        "POST /workflow/agent/{locationId}/mcp-connections/test": {
+          reach: "proven",
+          credentialClass: "agency-admin-bearer",
+          kind: "write",
+          note: "Proven live 2026-09-19 by differential; stores nothing. Body {serverUrl, transportType, authType, \u2026}: a non-MCP URL -> 422 {success:false, error:'Failed to connect to streamable HTTP server \u2026'} carrying the remote's own response; two public read-only MCP servers -> 200 {success:true, data:{tools:[{name, description}], toolCount}}. \u{1F534} GHL's server fetches whatever URL you give it. Pins API_BASE_HEADERS (version 2021-04-15, source WEB_USER, channel APP)."
+        },
+        "POST /workflow/agent/{locationId}/skills": {
+          reach: "absent",
+          credentialClass: "agency-admin-bearer",
+          kind: "write",
+          note: "ABSENT, measured 2026-09-19: with the bundle's own body ({name, description, instructions}) and pinned headers, the skills router answers {success:false,message:'Not found'} to writes exactly as it does to its reads. Not mounted for this account (INFERRED: a labs flag)."
+        },
+        "PUT /workflow/agent/{locationId}/skills/{id}": {
+          reach: "absent",
+          credentialClass: "agency-admin-bearer",
+          kind: "write",
+          note: "ABSENT, measured 2026-09-19: with the bundle's own body ({name, description, instructions}) and pinned headers, the skills router answers {success:false,message:'Not found'} to writes exactly as it does to its reads. Not mounted for this account (INFERRED: a labs flag)."
         }
       }
     };

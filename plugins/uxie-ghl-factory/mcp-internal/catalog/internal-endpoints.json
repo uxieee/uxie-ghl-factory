@@ -26538,7 +26538,11 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "write",
-      "reach": "source-only",
+      "note": "Proven live 2026-09-19, read back on the list: body {name, serverUrl, transportType:'streamable-http'|'sse', authType:'none'|'bearer_token'|'oauth2'|'api_key'|'custom_header', …} -> 201 {success, data:{_id, …}}, and GET on the same path then lists it. 🔴 CREATE RUNS A LIVE CONNECTION TEST FIRST: a URL that is not an MCP server is refused 422 'Connection test failed: …' and NOTHING is stored. Proven with a public read-only docs server, never attached to an agent. Pins API_BASE_HEADERS (version 2021-04-15, source WEB_USER, channel APP).",
+      "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -26691,7 +26695,11 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "write",
-      "reach": "source-only",
+      "note": "Proven live 2026-09-19: a PARTIAL body {name} -> 200 with the full record; the list read showed the new name and the other fields unchanged. CONTROL: a ghost id -> 404 'MCP connection not found'. (An undefined id answers 500 'Failed to update MCP connection'.) Pins API_BASE_HEADERS (version 2021-04-15, source WEB_USER, channel APP).",
+      "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -26864,7 +26872,11 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "write",
-      "reach": "source-only",
+      "note": "Proven live 2026-09-19 by differential; stores nothing. Body {serverUrl, transportType, authType, …}: a non-MCP URL -> 422 {success:false, error:'Failed to connect to streamable HTTP server …'} carrying the remote's own response; two public read-only MCP servers -> 200 {success:true, data:{tools:[{name, description}], toolCount}}. 🔴 GHL's server fetches whatever URL you give it. Pins API_BASE_HEADERS (version 2021-04-15, source WEB_USER, channel APP).",
+      "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -27125,7 +27137,8 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "write",
-      "reach": "source-only",
+      "note": "ABSENT, measured 2026-09-19: with the bundle's own body ({name, description, instructions}) and pinned headers, the skills router answers {success:false,message:'Not found'} to writes exactly as it does to its reads. Not mounted for this account (INFERRED: a labs flag).",
+      "reach": "absent",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -27305,7 +27318,8 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "write",
-      "reach": "source-only",
+      "note": "ABSENT, measured 2026-09-19: with the bundle's own body ({name, description, instructions}) and pinned headers, the skills router answers {success:false,message:'Not found'} to writes exactly as it does to its reads. Not mounted for this account (INFERRED: a labs flag).",
+      "reach": "absent",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
