@@ -23558,11 +23558,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          note: "Proven live 2026-09-19 as far as GHL can show: ONE email to the operator's own tagged address. Body {location_id, user_id, email:{subject, html, testEmails:[\u2026]}, senderAddress:{from_name, from_email}, workflowId?, workflowName?, actionId?, actionName?} -> 200 {msg:'Test emails sent successfully', skippedEmails:[]}. A test email creates NO conversation, so the only full read-back is the recipient's inbox \u2014 confirmed by the operator. \u{1F534} It SENDS A REAL EMAIL.",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
+          note: "Proven live 2026-09-19 as far as GHL can show: ONE email to the operator's own tagged address. Body {location_id, user_id, email:{subject, html, testEmails:[\u2026]}, senderAddress:{from_name, from_email}, workflowId?, workflowName?, actionId?, actionName?} -> 200 {msg:'Test emails sent successfully', skippedEmails:[]}. A test email creates NO conversation, so the only full read-back is the recipient's inbox. 2026-09-19: ACCEPTED by GHL, arrival NOT YET CONFIRMED \u2014 the operator has been asked to check. Until then this row is 'reached', not proven. \u{1F534} It SENDS A REAL EMAIL.",
+          reach: "reached",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -31419,7 +31416,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          note: "Proven live 2026-09-19: EMAILS a CSV of execution logs. Body {locationId, workflowId, format:'csv', recipients:[{email, userId?}] (max 10, OBJECTS not strings), filters:{dateType:'custom', fromDate, toDate}} with the dates as INTEGER epoch-ms -> 201 {exportId, status:'queued'}. READ BACK on the preview: cooldownUntil went null -> a timestamp 15 minutes out. \u{1F534} One export per workflow per ~15 minutes. Use GET \u2026/logs/export/preview (exactCount, isOverCap, maxRows 100000) to size it without sending anything.",
+          note: "Proven live 2026-09-19: EMAILS a CSV of execution logs. Body {locationId, workflowId, format:'csv', recipients:[{email, userId?}] (max 10, OBJECTS not strings), filters:{dateType:'custom', fromDate, toDate}} with the dates as INTEGER epoch-ms -> 201 {exportId, status:'queued'}. READ BACK on the preview: cooldownUntil went null -> a timestamp 15 minutes out, so GHL registered the export. The CSV's ARRIVAL is unconfirmed \u2014 the operator has been asked to check. \u{1F534} One export per workflow per ~15 minutes. Use GET \u2026/logs/export/preview (exactCount, isOverCap, maxRows 100000) to size it without sending anything.",
           reach: "proven",
           provenFor: [
             "agency-admin-bearer"
@@ -53693,9 +53690,9 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         },
         "POST /workflow/{locationId}/email/send-test-email": {
           kind: "write",
-          reach: "proven",
+          reach: "reached",
           credentialClass: "agency-admin-bearer",
-          note: "Proven live 2026-09-19 as far as GHL can show: ONE email to the operator's own tagged address. Body {location_id, user_id, email:{subject, html, testEmails:[\u2026]}, senderAddress:{from_name, from_email}, workflowId?, workflowName?, actionId?, actionName?} -> 200 {msg:'Test emails sent successfully', skippedEmails:[]}. A test email creates NO conversation, so the only full read-back is the recipient's inbox \u2014 confirmed by the operator. \u{1F534} It SENDS A REAL EMAIL."
+          note: "Proven live 2026-09-19 as far as GHL can show: ONE email to the operator's own tagged address. Body {location_id, user_id, email:{subject, html, testEmails:[\u2026]}, senderAddress:{from_name, from_email}, workflowId?, workflowName?, actionId?, actionName?} -> 200 {msg:'Test emails sent successfully', skippedEmails:[]}. A test email creates NO conversation, so the only full read-back is the recipient's inbox. 2026-09-19: ACCEPTED by GHL, arrival NOT YET CONFIRMED \u2014 the operator has been asked to check. Until then this row is 'reached', not proven. \u{1F534} It SENDS A REAL EMAIL."
         },
         "POST /workflow/{locationId}/folder": {
           note: '\u{1F534} WRONG PATH IN THIS ROW: /workflow/{locationId}/folder answers 404 {"msg":"Not found"}. The real path is **/workflow/{locationId}/directory**, proven on the sandbox 2026-09-10 \u2014 body {name, locationId}, answers 200 {id}, and the folder count in /workflow/{locationId}/list went 6 -> 7 with the new folder found by name. Folders appear in that list as rows with type "directory".'
@@ -54185,7 +54182,7 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           reach: "proven",
           credentialClass: "agency-admin-bearer",
           kind: "write",
-          note: "Proven live 2026-09-19: EMAILS a CSV of execution logs. Body {locationId, workflowId, format:'csv', recipients:[{email, userId?}] (max 10, OBJECTS not strings), filters:{dateType:'custom', fromDate, toDate}} with the dates as INTEGER epoch-ms -> 201 {exportId, status:'queued'}. READ BACK on the preview: cooldownUntil went null -> a timestamp 15 minutes out. \u{1F534} One export per workflow per ~15 minutes. Use GET \u2026/logs/export/preview (exactCount, isOverCap, maxRows 100000) to size it without sending anything."
+          note: "Proven live 2026-09-19: EMAILS a CSV of execution logs. Body {locationId, workflowId, format:'csv', recipients:[{email, userId?}] (max 10, OBJECTS not strings), filters:{dateType:'custom', fromDate, toDate}} with the dates as INTEGER epoch-ms -> 201 {exportId, status:'queued'}. READ BACK on the preview: cooldownUntil went null -> a timestamp 15 minutes out, so GHL registered the export. The CSV's ARRIVAL is unconfirmed \u2014 the operator has been asked to check. \u{1F534} One export per workflow per ~15 minutes. Use GET \u2026/logs/export/preview (exactCount, isOverCap, maxRows 100000) to size it without sending anything."
         },
         "POST /workflow/{locationId}/{workflowStatusId}/force-resume": {
           reach: "proven",
