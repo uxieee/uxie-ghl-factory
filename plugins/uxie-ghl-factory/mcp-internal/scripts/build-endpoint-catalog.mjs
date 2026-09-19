@@ -132,6 +132,11 @@ function resolveReach(extra, probedRow, row) {
   // `reached`: the endpoint answered about its ARGUMENTS and never 2xx — explored, not proven. A
   // REFUSAL OUTRANKS IT: FlowGuard 400s without location_id and 401s with it, so an argument complaint
   // says the door exists and nothing about what is behind it. Only a 2xx overturns a refusal.
+  // `absent` (overlay only): probed with the CALL SITE'S OWN arguments and headers, on the host its
+  // config names, and it answered IDENTICALLY for a real id and a ghost id — or with the framework's
+  // own route-not-found. The route is not served for this account. It is NOT evidence the route
+  // never existed (a labs flag, a retired read cluster), so it ranks BELOW every measured verdict:
+  // the first 2xx, refusal or argument complaint from any probe overturns it without a human.
   const reach = overlayLive ? 'proven-live' : verdicts.includes('proven') ? 'proven' : verdicts.includes('refused') ? 'refused' : verdicts.includes('reached') ? 'reached' : (extra.reach ?? fallback);
   const provenFor = named('proven'); const refusedFor = named('refused');
   return {

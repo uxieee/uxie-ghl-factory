@@ -176,7 +176,7 @@ var define_ENDPOINT_CATALOG_default;
 var init_define_ENDPOINT_CATALOG = __esm({
   "<define:__ENDPOINT_CATALOG__>"() {
     define_ENDPOINT_CATALOG_default = {
-      generated: "2026-09-18",
+      generated: "2026-09-19",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
       count: 1144,
       endpoints: [
@@ -2830,7 +2830,11 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          note: "Proven live 2026-09-19: every runtime proof in the workflows suite reads a probe contact's tags back through it, and the tags a step adds appear on it \u2014 a discriminating read, not a bare 200.",
+          reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -4625,7 +4629,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          note: "ABSENT, measured 2026-09-19: Express's own HTML 'Cannot GET' on the email_reporting base that config/index.ts names, for a real workflow. The service answers; this path is not mounted on it.",
+          reach: "absent",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -5387,7 +5392,11 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          note: "Proven live 2026-09-19 that the credential reaches it \u2014 and nothing more. \u{1F534} TRAP: {triggers:[], total:0} came back for a real workflow AND for a ghost, so an empty answer discriminates nothing. sourceId is `{workflowId}:{actionId}` for a step (EmailService.ts:141).",
+          reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: false,
           transport: "json",
@@ -5513,7 +5522,11 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          note: "Same route as /emails/trigger/campaign/{locationId}/{sourceId} with the sourceId spelled out. Proven live 2026-09-19 with the same trap: identical empty answer for a real step and a ghost.",
+          reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -13244,7 +13257,11 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          note: "Proven live 2026-09-19 by differential: {userCount} went 0 -> 1 -> 0 as the workflow steps Grant and Revoke course access ran. The live suite reads it for both.",
+          reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -14240,8 +14257,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          note: 'DEAD IN SOURCE: the only call site (WorkflowTypeService.fetchWorkflowTypeEnabled) is commented out and returns {enabled:false} locally. The live host answers 404 "Cannot GET" -- no route handler. Nothing to use.',
-          reach: "source-only",
+          note: "ABSENT, measured 2026-09-19: the framework's own 'Cannot GET' on both hosts, for a real type and a nonsense one. Source is a corpus inventory page, not a bundle call site.",
+          reach: "absent",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -15421,7 +15438,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          note: "Reached 2026-09-19: a ghost recording sid answers 400 'Request failed with status code 404' \u2014 the route exists and relayed the telephony provider's 404 for that sid. Not provable here: the test sub-account has no call recordings. Returns a blob (IVRService.getRecording).",
+          reach: "reached",
           coveredBy: [],
           rawCallable: false,
           transport: "json",
@@ -16801,7 +16819,11 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          note: "Proven live 2026-09-18; the premium preflight calls it. CONTROL: a nonsense product answers 404 'Product not found'. \u{1F534} The gate is config.optIn, not config.enabled, and the optIn query param changes the answer by its PRESENCE (see agency-premium-features in the corpus).",
+          reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -21480,8 +21502,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          note: 'Answers 400 {"msg":"URL is required"} -- it downloads something BY URL, it is not a workflow export. Use export_workflow for the document.',
-          reach: "source-only",
+          summary: "Fetch a file by URL through GHL, scoped to a workflow the caller owns: returns the file's bytes. Query: url (required).",
+          note: "Proven live 2026-09-19. \u{1F534} It is a SERVER-SIDE FETCHER, not an exporter: query `url` is REQUIRED (none -> 400 'URL is required'), GHL fetches that URL and returns the BYTES (a public JPEG came back as image data). CONTROL: a ghost workflowId answers 404 'Workflow not found for given workflowId'. The builder uses it to download step attachments (states/app.ts downloadFile, responseType blob). It fetches arbitrary external URLs \u2014 only ever point it at a URL you already trust.",
+          reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: false,
           transport: "json",
@@ -21714,7 +21740,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          note: "ABSENT, measured 2026-09-19: called exactly as WorkflowService.ts:232 does (readClusterURL + page, limit, action=first), it answers {msg:'Not found'} for a REAL workflow and a ghost alike. The read cluster no longer serves it. Execution logs are served by the route get_workflow_logs uses, which works.",
+          reach: "absent",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -24356,7 +24383,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          note: "ABSENT, measured 2026-09-19: called exactly as FilterService.ts:179 does (axios default base + /{locationId}/phone-numbers), it answers a plain 'Not Found'. The builder swallows the error and shows an empty list, so the UI would not reveal this either.",
+          reach: "absent",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -25424,7 +25452,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          note: "ABSENT, measured 2026-09-19: a REAL trigger id and a ghost both answer {msg:'Not found'}. A trigger is readable only through the list: GET /workflow/{locationId}/trigger?workflowId=.",
+          reach: "absent",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -27097,7 +27126,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          note: "ABSENT, measured 2026-09-19: the skills list answers the workflow service's own {success:false,message:'Not found'} \u2014 as do list, resolve and get alike, WITH the API_BASE_HEADERS agent-skill-service.ts pins. The sibling ai_agent routes on the same service (trace, feedback, models) answer, so the service is up and this sub-router is not mounted for this account. INFERRED, not proven: a labs flag.",
+          reach: "absent",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -27292,7 +27322,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          note: "ABSENT, measured 2026-09-19: the skills get (builtin:<key> or a document id) answers the workflow service's own {success:false,message:'Not found'} \u2014 as do list, resolve and get alike, WITH the API_BASE_HEADERS agent-skill-service.ts pins. The sibling ai_agent routes on the same service (trace, feedback, models) answer, so the service is up and this sub-router is not mounted for this account. INFERRED, not proven: a labs flag.",
+          reach: "absent",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -27420,7 +27451,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          note: "ABSENT, measured 2026-09-19: the skills resolve (ids=) answers the workflow service's own {success:false,message:'Not found'} \u2014 as do list, resolve and get alike, WITH the API_BASE_HEADERS agent-skill-service.ts pins. The sibling ai_agent routes on the same service (trace, feedback, models) answer, so the service is up and this sub-router is not mounted for this account. INFERRED, not proven: a labs flag.",
+          reach: "absent",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -31072,7 +31104,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          note: "ABSENT, measured 2026-09-19: the framework's own 'Cannot GET' on both hosts. Its only source is a corpus STEP page (add_to_workflow.md), not a bundle call site \u2014 likely a transcription of a different route.",
+          reach: "absent",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -36728,7 +36761,11 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
+          note: "Proven live 2026-09-19: every runtime proof in the workflows suite reads a probe contact's tags back through it, and the tags a step adds appear on it \u2014 a discriminating read, not a bare 200.",
           reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -46865,7 +46902,11 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "source-only",
+          note: "Proven live 2026-09-19 by differential: {userCount} went 0 -> 1 -> 0 as the workflow steps Grant and Revoke course access ran. The live suite reads it for both.",
+          reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -53852,10 +53893,15 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           ]
         },
         "GET /workflow/{locationId}/{workflowId}/download": {
-          note: 'Answers 400 {"msg":"URL is required"} -- it downloads something BY URL, it is not a workflow export. Use export_workflow for the document.'
+          note: "Proven live 2026-09-19. \u{1F534} It is a SERVER-SIDE FETCHER, not an exporter: query `url` is REQUIRED (none -> 400 'URL is required'), GHL fetches that URL and returns the BYTES (a public JPEG came back as image data). CONTROL: a ghost workflowId answers 404 'Workflow not found for given workflowId'. The builder uses it to download step attachments (states/app.ts downloadFile, responseType blob). It fetches arbitrary external URLs \u2014 only ever point it at a URL you already trust.",
+          reach: "proven",
+          credentialClass: "agency-admin-bearer",
+          summary: "Fetch a file by URL through GHL, scoped to a workflow the caller owns: returns the file's bytes. Query: url (required)."
         },
         "GET /objects/{workflowType}/enabled": {
-          note: 'DEAD IN SOURCE: the only call site (WorkflowTypeService.fetchWorkflowTypeEnabled) is commented out and returns {enabled:false} locally. The live host answers 404 "Cannot GET" -- no route handler. Nothing to use.'
+          note: "ABSENT, measured 2026-09-19: the framework's own 'Cannot GET' on both hosts, for a real type and a nonsense one. Source is a corpus inventory page, not a bundle call site.",
+          reach: "absent",
+          credentialClass: "agency-admin-bearer"
         },
         "GET /workflow/{locationId}/drip-schedule/{workflowId}/step/{stepId}/stats": {
           summary: "Drip queue status for one step: {hasQueuedContacts, contactsInDrip, nextBatch, completionETA, configVersions}.",
@@ -53931,6 +53977,76 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           reach: "proven",
           credentialClass: "agency-admin-bearer",
           kind: "write"
+        },
+        "GET /contacts/{contactId}": {
+          reach: "proven",
+          credentialClass: "agency-admin-bearer",
+          note: "Proven live 2026-09-19: every runtime proof in the workflows suite reads a probe contact's tags back through it, and the tags a step adds appear on it \u2014 a discriminating read, not a bare 200."
+        },
+        "GET /saas-billing-v2/billing-config/LOCATION/{locationId}/{product}": {
+          reach: "proven",
+          credentialClass: "agency-admin-bearer",
+          note: "Proven live 2026-09-18; the premium preflight calls it. CONTROL: a nonsense product answers 404 'Product not found'. \u{1F534} The gate is config.optIn, not config.enabled, and the optIn query param changes the answer by its PRESENCE (see agency-premium-features in the corpus)."
+        },
+        "GET /membership/locations/{locationId}/user-purchase/no-of-users-purchasedOffer/{offerId}": {
+          reach: "proven",
+          credentialClass: "agency-admin-bearer",
+          note: "Proven live 2026-09-19 by differential: {userCount} went 0 -> 1 -> 0 as the workflow steps Grant and Revoke course access ran. The live suite reads it for both."
+        },
+        "GET /emails/trigger/campaign/{locationId}/{sourceId}": {
+          reach: "proven",
+          credentialClass: "agency-admin-bearer",
+          note: "Proven live 2026-09-19 that the credential reaches it \u2014 and nothing more. \u{1F534} TRAP: {triggers:[], total:0} came back for a real workflow AND for a ghost, so an empty answer discriminates nothing. sourceId is `{workflowId}:{actionId}` for a step (EmailService.ts:141)."
+        },
+        "GET /emails/trigger/campaign/{locationId}/{workflowId}:{actionId}": {
+          reach: "proven",
+          credentialClass: "agency-admin-bearer",
+          note: "Same route as /emails/trigger/campaign/{locationId}/{sourceId} with the sourceId spelled out. Proven live 2026-09-19 with the same trap: identical empty answer for a real step and a ghost."
+        },
+        "GET /phone-system/location/{locationId}/recordings/{recordingSid}": {
+          reach: "reached",
+          credentialClass: "agency-admin-bearer",
+          note: "Reached 2026-09-19: a ghost recording sid answers 400 'Request failed with status code 404' \u2014 the route exists and relayed the telephony provider's 404 for that sid. Not provable here: the test sub-account has no call recordings. Returns a blob (IVRService.getRecording)."
+        },
+        "GET /workflow/{locationId}/{workflowId}/logs": {
+          reach: "absent",
+          credentialClass: "agency-admin-bearer",
+          note: "ABSENT, measured 2026-09-19: called exactly as WorkflowService.ts:232 does (readClusterURL + page, limit, action=first), it answers {msg:'Not found'} for a REAL workflow and a ghost alike. The read cluster no longer serves it. Execution logs are served by the route get_workflow_logs uses, which works."
+        },
+        "GET /workflow/agent/{locationId}/skills": {
+          reach: "absent",
+          credentialClass: "agency-admin-bearer",
+          note: "ABSENT, measured 2026-09-19: the skills list answers the workflow service's own {success:false,message:'Not found'} \u2014 as do list, resolve and get alike, WITH the API_BASE_HEADERS agent-skill-service.ts pins. The sibling ai_agent routes on the same service (trace, feedback, models) answer, so the service is up and this sub-router is not mounted for this account. INFERRED, not proven: a labs flag."
+        },
+        "GET /workflow/agent/{locationId}/skills/resolve": {
+          reach: "absent",
+          credentialClass: "agency-admin-bearer",
+          note: "ABSENT, measured 2026-09-19: the skills resolve (ids=) answers the workflow service's own {success:false,message:'Not found'} \u2014 as do list, resolve and get alike, WITH the API_BASE_HEADERS agent-skill-service.ts pins. The sibling ai_agent routes on the same service (trace, feedback, models) answer, so the service is up and this sub-router is not mounted for this account. INFERRED, not proven: a labs flag."
+        },
+        "GET /workflow/agent/{locationId}/skills/{id}": {
+          reach: "absent",
+          credentialClass: "agency-admin-bearer",
+          note: "ABSENT, measured 2026-09-19: the skills get (builtin:<key> or a document id) answers the workflow service's own {success:false,message:'Not found'} \u2014 as do list, resolve and get alike, WITH the API_BASE_HEADERS agent-skill-service.ts pins. The sibling ai_agent routes on the same service (trace, feedback, models) answer, so the service is up and this sub-router is not mounted for this account. INFERRED, not proven: a labs flag."
+        },
+        "GET /workflow/{locationId}/phone-numbers": {
+          reach: "absent",
+          credentialClass: "agency-admin-bearer",
+          note: "ABSENT, measured 2026-09-19: called exactly as FilterService.ts:179 does (axios default base + /{locationId}/phone-numbers), it answers a plain 'Not Found'. The builder swallows the error and shows an empty list, so the UI would not reveal this either."
+        },
+        "GET /workflow/{locationId}/trigger/{id}": {
+          reach: "absent",
+          credentialClass: "agency-admin-bearer",
+          note: "ABSENT, measured 2026-09-19: a REAL trigger id and a ghost both answer {msg:'Not found'}. A trigger is readable only through the list: GET /workflow/{locationId}/trigger?workflowId=."
+        },
+        "GET /workflows/{locationId}": {
+          reach: "absent",
+          credentialClass: "agency-admin-bearer",
+          note: "ABSENT, measured 2026-09-19: the framework's own 'Cannot GET' on both hosts. Its only source is a corpus STEP page (add_to_workflow.md), not a bundle call site \u2014 likely a transcription of a different route."
+        },
+        "GET /email_reporting/stats_by_campaign_step_id/{locationId}/workflow_{workflowId}": {
+          reach: "absent",
+          credentialClass: "agency-admin-bearer",
+          note: "ABSENT, measured 2026-09-19: Express's own HTML 'Cannot GET' on the email_reporting base that config/index.ts names, for a real workflow. The service answers; this path is not mounted on it."
         }
       }
     };
