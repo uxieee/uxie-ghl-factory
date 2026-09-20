@@ -83,3 +83,36 @@ test('only the routes that changed are written: isActive alone never touches the
   await tool().handler({ locationId: 'LOC', isActive: false, confirm: true }, f.deps);
   assert.deepEqual(puts(f).map((c) => [c.path.split('/').pop(), c.body]), [['is-active', { isActive: false }]]);
 });
+
+test('the same id in both addUsers and removeUsers is REFUSED before any read or write', async () => {
+  const f = fake();
+  const r = await tool().handler({ locationId: 'LOC', addUsers: ['u2'], removeUsers: ['u2'], confirm: true }, f.deps);
+  assert.equal(r.code, 'VALIDATION_FAILED');
+  assert.match(r.detail ?? r.message ?? '', /u2/);
+  assert.equal(f.calls.length, 0, 'no GET or PUT was sent — the conflict is caught before the read');
+});
+
+test('removing a user who is not present is a no-op: changed:false and nothing written', async () => {
+  const f = fake(); // settings.users = ['u1']
+  const r = await tool().handler({ locationId: 'LOC', removeUsers: ['u9'], confirm: true }, f.deps);
+  assert.equal(r.ok, true, JSON.stringify(r));
+  assert.equal(r.data.changed, false);
+  assert.deepEqual(r.data.after.users, ['u1']);
+  assert.equal(puts(f).length, 0);
+});
+
+test('a non-string entry in GHL\'s users array is REFUSED before any write — a silent drop is the one thing this tool must never do', async () => {
+  const f = fake({ settings: { isActive: true, users: ['u1', { id: 'u2' }] } });
+  const r = await tool().handler({ locationId: 'LOC', addUsers: ['u3'], confirm: true }, f.deps);
+  assert.equal(r.code, 'VALIDATION_FAILED');
+  assert.match(r.detail ?? r.message ?? '', /cannot safely merge/);
+  assert.equal(puts(f).length, 0);
+});
+
+test('CONTROL: an all-strings users array still reads and writes normally', async () => {
+  const f = fake({ settings: { isActive: true, users: ['u1', 'u2'] } });
+  const r = await tool().handler({ locationId: 'LOC', addUsers: ['u3'], confirm: true }, f.deps);
+  assert.equal(r.ok, true, JSON.stringify(r));
+  assert.deepEqual(r.data.after.users, ['u1', 'u2', 'u3']);
+  assert.equal(puts(f).length, 1);
+});

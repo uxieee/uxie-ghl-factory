@@ -6349,7 +6349,20 @@ export const TOOLS = [
       const read = async () => {
         const r = await gw.call('GET', `/workflow/${loc}/error-notification/settings`);
         if (!r.ok) return { failure: fromHttp(r.status, r.json) };
-        return { isActive: r.json?.isActive === true, users: Array.isArray(r.json?.users) ? r.json.users.filter((u) => typeof u === 'string') : [] };
+        const raw = Array.isArray(r.json?.users) ? r.json.users : [];
+        const strings = raw.filter((u) => typeof u === 'string');
+        // A non-string entry (measured 2026-09-20: never observed live, but not ruled out) must never
+        // be silently filtered out of `before.users` — that would drop a real recipient from the merge
+        // and, because GHL's PUT replaces the whole list, delete them from who gets told when a workflow
+        // breaks. Refuse before any write instead; the caller can recover from a refusal.
+        if (strings.length !== raw.length) {
+          return {
+            failure: fail(CODES.VALIDATION_FAILED,
+              'GHL returned a recipient entry this tool cannot safely merge (a non-string user id). Nothing was written.',
+              'Inspect the list with get_account_workflow_overview (needsReview.errorEmailSettings), or repair it through the builder, before retrying.'),
+          };
+        }
+        return { isActive: r.json?.isActive === true, users: strings };
       };
       const before = await read();
       if (before.failure) return before.failure;

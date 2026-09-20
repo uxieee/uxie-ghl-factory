@@ -881,6 +881,18 @@ log.subject('set_workflow_error_alerts');
     const end = await readSettings();
     check(restored.ok === true && JSON.stringify([...end.users].sort()) === JSON.stringify([...original.users].sort()) && end.isActive === original.isActive,
       'RESTORED: the settings are what this section found', JSON.stringify({ original, end }).slice(0, 240));
+    // isActive is the tool's OTHER write route, and until now nothing here ever took it — the users
+    // PUT was proven live above, but the is-active PUT was green on unit tests only, never once run
+    // against GHL. Flip it, read back from GHL (not the tool's own response), and prove both halves:
+    // the flip really landed, AND the recipient list this section just restored was not disturbed —
+    // that second half is the real prize, since it is the one thing an is-active write must not do.
+    const beforeFlip = await readSettings();
+    const flipped = await call('set_workflow_error_alerts', { isActive: !original.isActive, confirm: true });
+    const flippedNow = await readSettings();
+    check(flipped.ok === true && flippedNow.isActive === !original.isActive,
+      'isActive really flipped — read from GHL, not from the tool', JSON.stringify({ wanted: !original.isActive, got: flippedNow.isActive }));
+    check(JSON.stringify([...flippedNow.users].sort()) === JSON.stringify([...beforeFlip.users].sort()),
+      'and the is-active write did NOT touch the recipient list', JSON.stringify({ before: beforeFlip.users, after: flippedNow.users }));
     // ABSOLUTE repair, not delegated to the tool under test. The restore above is RELATIVE —
     // "remove the one id we added" — computed from whatever GHL holds right now. If this section's
     // own tool had WIPED the recipient list (GHL's PUT replaces the whole array; that wipe is the
