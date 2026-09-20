@@ -23690,7 +23690,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          note: "Proven live 2026-09-19 by a three-way differential; sends nothing: body {fromEmail, domain}. A free-webmail sender -> {isFromEmailAllowed:false, code:'free_webmail_blocked'}; a real company domain -> {isFromEmailAllowed:true, code:'success'}; a domain with no DNS -> {false, code:'dmarc_record_not_found'}. Codes per the bundle also include dmarc_issue_possible, from_email_domain_and_dedicated_domain_mismatch, invalid_dmarc_format. Worth running before a workflow's From address is set.",
+          note: `Proven live 2026-09-19 by a two-leg differential over RETURN CODES: body {fromEmail, domain}. A free-webmail sender -> {isFromEmailAllowed:false, code:'free_webmail_blocked'}; a domain with no DNS -> {false, code:'dmarc_record_not_found'} \u2014 a DIFFERENT reason, so the route discriminates by DOMAIN. A real company domain answering success is the design's third leg but is NOT exercised here (kept out to keep a real domain out of a public repo). \u{1F534} NO SEND OBSERVED 2026-09-19 \u2014 that is the weak claim it is: a differential over return codes cannot see whether mail left the building, so this is not evidence the route "sends nothing". No inbox or conversation read-back has been done against this route; establishing send-nothing by read-back is OWED. Codes per the bundle also include dmarc_issue_possible, from_email_domain_and_dedicated_domain_mismatch, invalid_dmarc_format. Worth running before a workflow's From address is set.`,
           reach: "proven",
           provenFor: [
             "agency-admin-bearer"
@@ -32981,9 +32981,11 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "write",
           summary: "Trigger effectiveness across the account: attempted, matched and unmatched enrollments.",
-          note: "A POST that RETURNS 201 for what is plainly a read. Its window is the last 30 days, unlike the 7-week enrollment chart beside it on the same screen. Executed on the designated sandbox 2026-09-10 in the workflows write-parity run. Answers 201 with [{total,matched}] as counted strings. Body {locationId, workflowId[]} \u2014 locationId is REQUIRED in the body, not the query.",
+          note: 'A POST that RETURNS 201 for what is plainly a read. Its window is the last 30 days, unlike the 7-week enrollment chart beside it on the same screen. Executed on the designated sandbox 2026-09-10 in the workflows write-parity run. Answers 201 with [{total,matched}] as counted strings. Body {locationId, workflowId[]} \u2014 locationId is REQUIRED in the body, not the query. \u{1F534} Measured 2026-09-20: it answers ONE SUMMED ROW for the whole workflowId[] list, not a row per workflow (237 + 38 -> 275; a ghost id adds 0; a ghost alone -> "0"/"0", never an error). Per-workflow numbers cost one call each \u2014 get_account_workflow_overview includeTriggerCounts does that.',
           reach: "proven",
-          coveredBy: [],
+          coveredBy: [
+            "get_account_workflow_overview"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -53919,7 +53921,7 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         },
         "POST /workflows/trigger/logs/count": {
           summary: "Trigger effectiveness across the account: attempted, matched and unmatched enrollments.",
-          note: "A POST that RETURNS 201 for what is plainly a read. Its window is the last 30 days, unlike the 7-week enrollment chart beside it on the same screen. Executed on the designated sandbox 2026-09-10 in the workflows write-parity run. Answers 201 with [{total,matched}] as counted strings. Body {locationId, workflowId[]} \u2014 locationId is REQUIRED in the body, not the query.",
+          note: 'A POST that RETURNS 201 for what is plainly a read. Its window is the last 30 days, unlike the 7-week enrollment chart beside it on the same screen. Executed on the designated sandbox 2026-09-10 in the workflows write-parity run. Answers 201 with [{total,matched}] as counted strings. Body {locationId, workflowId[]} \u2014 locationId is REQUIRED in the body, not the query. \u{1F534} Measured 2026-09-20: it answers ONE SUMMED ROW for the whole workflowId[] list, not a row per workflow (237 + 38 -> 275; a ghost id adds 0; a ghost alone -> "0"/"0", never an error). Per-workflow numbers cost one call each \u2014 get_account_workflow_overview includeTriggerCounts does that.',
           reach: "proven"
         },
         "PUT /agent-logs/metrics-layouts/{layoutId}": {
@@ -54346,7 +54348,7 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           reach: "proven",
           credentialClass: "agency-admin-bearer",
           kind: "read",
-          note: "Proven live 2026-09-19 by a three-way differential; sends nothing: body {fromEmail, domain}. A free-webmail sender -> {isFromEmailAllowed:false, code:'free_webmail_blocked'}; a real company domain -> {isFromEmailAllowed:true, code:'success'}; a domain with no DNS -> {false, code:'dmarc_record_not_found'}. Codes per the bundle also include dmarc_issue_possible, from_email_domain_and_dedicated_domain_mismatch, invalid_dmarc_format. Worth running before a workflow's From address is set."
+          note: `Proven live 2026-09-19 by a two-leg differential over RETURN CODES: body {fromEmail, domain}. A free-webmail sender -> {isFromEmailAllowed:false, code:'free_webmail_blocked'}; a domain with no DNS -> {false, code:'dmarc_record_not_found'} \u2014 a DIFFERENT reason, so the route discriminates by DOMAIN. A real company domain answering success is the design's third leg but is NOT exercised here (kept out to keep a real domain out of a public repo). \u{1F534} NO SEND OBSERVED 2026-09-19 \u2014 that is the weak claim it is: a differential over return codes cannot see whether mail left the building, so this is not evidence the route "sends nothing". No inbox or conversation read-back has been done against this route; establishing send-nothing by read-back is OWED. Codes per the bundle also include dmarc_issue_possible, from_email_domain_and_dedicated_domain_mismatch, invalid_dmarc_format. Worth running before a workflow's From address is set.`
         },
         "POST /phone-system/voice-call/voicemail-drop/file-validation": {
           reach: "reached",
@@ -174661,13 +174663,17 @@ var TOOLS2 = [
     name: "get_account_workflow_overview",
     description: describe3(
       "get_account_workflow_overview",
-      "The Workflow Overview page as data: location-wide counts, weekly enrollment series, the Needs-Review list (workflows with failing steps) + error-email settings, and batched enrolled/finished totals for given workflowIds."
+      "The Workflow Overview page as data: location-wide counts, weekly enrollment series, the Needs-Review list (workflows with failing steps) + error-email settings, and batched enrolled/finished totals for given workflowIds. Opt-in includeTriggerCounts adds per-workflow trigger attempted/matched (last 30 days) and flags workflows whose triggers fire and NEVER match."
     ),
     inputSchema: schema({
       locationId: external_exports.string(),
       // Batched { total, finished } per workflow — from the list-page endpoints.
       workflowIds: external_exports.array(external_exports.string()).default([]),
-      needsReviewLimit: external_exports.number().int().positive().max(100).default(25)
+      needsReviewLimit: external_exports.number().int().positive().max(100).default(25),
+      // Per-workflow trigger attempted/matched for `workflowIds`, last 30 days. Opt-in because it is
+      // ONE CALL PER WORKFLOW: the route sums whatever id list it is given (measured 2026-09-20:
+      // 237 + 38 -> 275, a ghost id adds 0), so batching would return one number for the account.
+      includeTriggerCounts: external_exports.boolean().default(false)
     }),
     capabilities: [
       { method: "GET", path: "/workflows/statistics" },
@@ -174676,7 +174682,8 @@ var TOOLS2 = [
       { method: "GET", path: "/workflow/{loc}/error-notification/list" },
       { method: "GET", path: "/workflow/{loc}/error-notification/settings" },
       { method: "GET", path: "/workflows/status/search/enroll-stats" },
-      { method: "GET", path: "/workflows/status/search/enroll-stats-cache" }
+      { method: "GET", path: "/workflows/status/search/enroll-stats-cache" },
+      { method: "POST", path: "/workflows/trigger/logs/count" }
     ],
     handler: async (args, deps) => guard(async () => {
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
@@ -174706,6 +174713,20 @@ var TOOLS2 = [
         for (const r of live.ok && Array.isArray(live.json) ? live.json : []) byId.set(r.workflowId, { workflowId: r.workflowId, total: Number(r.total ?? 0), finished: Number(r.finished ?? 0), source: "live" });
         for (const id of chunk) enrollment.push(byId.get(id) ?? { workflowId: id, total: null, finished: null, source: null });
       }
+      let triggerCounts = null;
+      if (args.includeTriggerCounts === true) {
+        triggerCounts = [];
+        for (const id of ids) {
+          const r = await gw.call("POST", "/workflows/trigger/logs/count", { locationId: args.locationId, workflowId: [id] });
+          const row = Array.isArray(r.json) ? r.json[0] : null;
+          if (!r.ok || !row) {
+            triggerCounts.push({ workflowId: id, attempted: null, matched: null, unmatched: null, neverMatches: false, error: { status: r.status } });
+            continue;
+          }
+          const attempted = Number(row.total ?? 0), matched = Number(row.matched ?? 0);
+          triggerCounts.push({ workflowId: id, attempted, matched, unmatched: Math.max(0, attempted - matched), neverMatches: attempted > 0 && matched === 0 });
+        }
+      }
       return ok({
         statistics,
         weeklyEnrollment: weekly.ok ? Array.isArray(weekly.json) ? weekly.json : recordsFrom2(weekly.json, "data") : null,
@@ -174716,7 +174737,8 @@ var TOOLS2 = [
           errorEmailSettings: settings.ok ? settings.json ?? null : null
         },
         enrollment,
-        note: "Needs Review = workflows with a recent failing step (the list page's tab badge). errorEmailSettings.users are who GHL emails on failures; null = never configured. Clearing a flag is a DELETE on error-notification/{workflowId} \u2014 deliberately not exposed here."
+        triggerCounts,
+        note: "Needs Review = workflows with a recent failing step (the list page's tab badge). errorEmailSettings.users are who GHL emails on failures; null = never configured. Clearing a flag is a DELETE on error-notification/{workflowId} \u2014 deliberately not exposed here. triggerCounts (opt-in) is the last 30 days; neverMatches = the triggers fired and not once matched their filters \u2014 a ghost workflowId reads 0/0, never an error, so it cannot be told from a quiet workflow here."
       });
     }, args)
   },

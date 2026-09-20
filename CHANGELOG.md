@@ -19,6 +19,7 @@ commit bodies carry the detail.
 - `build_workflow` and `edit_workflow` run GHL's own From-address check when a spec sets, or an edit patches, a full literal `settings.senderAddress.from_email` (free webmail, missing/invalid DMARC, dedicated-domain mismatch). Advisory — it never blocks a build — and the route validates rather than sends. Per-step From overrides are not covered.
 - New tool `set_workflow_error_alerts`: who GHL emails when a workflow step fails, and the on/off switch — location-wide. GHL's route REPLACES the recipient list, so the tool reads, merges, previews, writes and reads back; an add never drops an existing recipient, and an id that is not a user of the location is refused before any write. (`get_account_workflow_overview` already shows which accounts have nobody.)
 - `set_workflow_error_alerts` now REFUSES (`VALIDATION_FAILED`, no write) instead of silently filtering when GHL's own `users` list contains a non-string entry it cannot safely merge — a previously-silent read no longer drops a recipient it cannot understand.
+- `get_account_workflow_overview` takes `includeTriggerCounts:true`: per-workflow trigger attempted/matched for the last 30 days, with `neverMatches` on workflows whose triggers fire and not once match their filters. One call per workflow — GHL's count route sums whatever id list it is given, measured.
 
 ## [0.93.0] — 2026-09-19
 

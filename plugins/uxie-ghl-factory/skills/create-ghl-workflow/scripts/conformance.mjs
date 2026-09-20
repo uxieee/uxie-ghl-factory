@@ -749,6 +749,25 @@ if (ovTotal !== total) {
   console.log(`  NOTE  the overview total (${ovTotal}) disagrees with the listing rails (${total}) — bl-132, undiagnosed`);
 }
 
+// includeTriggerCounts, by DIFFERENTIAL against the route itself. The claim under test is "one call
+// per workflow, because the route sums" — so the section re-measures the sum, and would go red on the
+// day GHL starts answering per-workflow rows (which would make the N calls unnecessary).
+{
+  const gwo = deps.makeGw({ loc: LOCATION, state });
+  const sample = (await call('list_workflows', { pageSize: 50, maxPages: 1 })).data?.workflows?.map((w) => w.id ?? w._id).filter(Boolean).slice(0, 20) ?? [];
+  const off = await call('get_account_workflow_overview', { workflowIds: sample, needsReviewLimit: 1 });
+  check(off.data?.triggerCounts === null, 'CONTROL: triggerCounts is OFF unless asked for');
+  const on = await call('get_account_workflow_overview', { workflowIds: sample, needsReviewLimit: 1, includeTriggerCounts: true });
+  const rows = on.data?.triggerCounts ?? [];
+  check(rows.length === sample.length && rows.every((r) => Number.isFinite(r.attempted) && Number.isFinite(r.matched)), 'one numeric row per workflow asked for', JSON.stringify(rows).slice(0, 240));
+  const summed = (await gwo.call('POST', '/workflows/trigger/logs/count', { locationId: LOCATION, workflowId: sample })).json;
+  const total = rows.reduce((n, r) => n + r.attempted, 0);
+  check(total > 0, 'the sample has non-zero attempts, so the differential below is not comparing 0 to 0', `total=${total} over ${sample.length} workflows`);
+  check(Array.isArray(summed) && summed.length === 1 && Number(summed[0].total) === total,
+    'DIFFERENTIAL: GHL answers the whole id list with ONE row whose total equals the sum of the per-workflow rows — which is why the tool calls once per workflow',
+    `${JSON.stringify(summed)} vs sum ${total}`);
+}
+
 // ── raw_request: four shapes it refuses, and the trap note in the preview ─────────────────────
 // Every refusal is for a call that answers 200 and does silent damage (or nothing). The proof that
 // matters is that NOTHING IS SENT — so each case is given confirm:true.

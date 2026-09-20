@@ -78,7 +78,9 @@ test('get_account_workflow_overview: statistics + weekly + needs-review + merged
     { workflowId: 'w2', total: 3, finished: 1, source: 'cache' },
     { workflowId: 'w3', total: null, finished: null, source: null },
   ]);
-  assert.ok(tool('get_account_workflow_overview').capabilities.every((c) => c.method === 'GET'));
+  // Every capability is a GET except the opt-in trigger-counts route, which is a POST that reads
+  // (GHL answers 201 for what is plainly a read — see catalog/endpoint-overlay.json).
+  assert.ok(tool('get_account_workflow_overview').capabilities.every((c) => c.method === 'GET' || (c.method === 'POST' && c.path === '/workflows/trigger/logs/count')));
 });
 
 test('test_custom_code: posts the builder\'s run-test payload; a primitive output is reported invalid, an object passes with its keys', async () => {

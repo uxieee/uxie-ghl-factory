@@ -450,6 +450,11 @@
     "path": "/workflows/status/search/enroll-stats-cache"
   },
   {
+    "tool": "get_account_workflow_overview",
+    "method": "POST",
+    "path": "/workflows/trigger/logs/count"
+  },
+  {
     "tool": "test_custom_code",
     "method": "POST",
     "path": "/workflow/custom-code/run-test"

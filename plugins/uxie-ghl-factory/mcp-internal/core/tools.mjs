@@ -3866,13 +3866,17 @@ export const TOOLS = [
     name: 'get_account_workflow_overview',
     description: describe(
       'get_account_workflow_overview',
-      'The Workflow Overview page as data: location-wide counts, weekly enrollment series, the Needs-Review list (workflows with failing steps) + error-email settings, and batched enrolled/finished totals for given workflowIds.',
+      'The Workflow Overview page as data: location-wide counts, weekly enrollment series, the Needs-Review list (workflows with failing steps) + error-email settings, and batched enrolled/finished totals for given workflowIds. Opt-in includeTriggerCounts adds per-workflow trigger attempted/matched (last 30 days) and flags workflows whose triggers fire and NEVER match.',
     ),
     inputSchema: schema({
       locationId: z.string(),
       // Batched { total, finished } per workflow — from the list-page endpoints.
       workflowIds: z.array(z.string()).default([]),
       needsReviewLimit: z.number().int().positive().max(100).default(25),
+      // Per-workflow trigger attempted/matched for `workflowIds`, last 30 days. Opt-in because it is
+      // ONE CALL PER WORKFLOW: the route sums whatever id list it is given (measured 2026-09-20:
+      // 237 + 38 -> 275, a ghost id adds 0), so batching would return one number for the account.
+      includeTriggerCounts: z.boolean().default(false),
     }),
     capabilities: [
       { method: 'GET', path: '/workflows/statistics' },
@@ -3882,6 +3886,7 @@ export const TOOLS = [
       { method: 'GET', path: '/workflow/{loc}/error-notification/settings' },
       { method: 'GET', path: '/workflows/status/search/enroll-stats' },
       { method: 'GET', path: '/workflows/status/search/enroll-stats-cache' },
+      { method: 'POST', path: '/workflows/trigger/logs/count' },
     ],
     handler: async (args, deps) => guard(async () => {
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
@@ -3911,6 +3916,18 @@ export const TOOLS = [
         for (const r of (live.ok && Array.isArray(live.json) ? live.json : [])) byId.set(r.workflowId, { workflowId: r.workflowId, total: Number(r.total ?? 0), finished: Number(r.finished ?? 0), source: 'live' });
         for (const id of chunk) enrollment.push(byId.get(id) ?? { workflowId: id, total: null, finished: null, source: null });
       }
+      // A POST that reads: 201 with [{total, matched}] as counted STRINGS; locationId goes in the BODY.
+      let triggerCounts = null;
+      if (args.includeTriggerCounts === true) {
+        triggerCounts = [];
+        for (const id of ids) {
+          const r = await gw.call('POST', '/workflows/trigger/logs/count', { locationId: args.locationId, workflowId: [id] });
+          const row = Array.isArray(r.json) ? r.json[0] : null;
+          if (!r.ok || !row) { triggerCounts.push({ workflowId: id, attempted: null, matched: null, unmatched: null, neverMatches: false, error: { status: r.status } }); continue; }
+          const attempted = Number(row.total ?? 0), matched = Number(row.matched ?? 0);
+          triggerCounts.push({ workflowId: id, attempted, matched, unmatched: Math.max(0, attempted - matched), neverMatches: attempted > 0 && matched === 0 });
+        }
+      }
       return ok({
         statistics,
         weeklyEnrollment: weekly.ok ? (Array.isArray(weekly.json) ? weekly.json : recordsFrom(weekly.json, 'data')) : null,
@@ -3921,7 +3938,8 @@ export const TOOLS = [
           errorEmailSettings: settings.ok ? (settings.json ?? null) : null,
         },
         enrollment,
-        note: 'Needs Review = workflows with a recent failing step (the list page\'s tab badge). errorEmailSettings.users are who GHL emails on failures; null = never configured. Clearing a flag is a DELETE on error-notification/{workflowId} — deliberately not exposed here.',
+        triggerCounts,
+        note: 'Needs Review = workflows with a recent failing step (the list page\'s tab badge). errorEmailSettings.users are who GHL emails on failures; null = never configured. Clearing a flag is a DELETE on error-notification/{workflowId} — deliberately not exposed here. triggerCounts (opt-in) is the last 30 days; neverMatches = the triggers fired and not once matched their filters — a ghost workflowId reads 0/0, never an error, so it cannot be told from a quiet workflow here.',
       });
     }, args),
   },
