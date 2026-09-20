@@ -881,6 +881,26 @@ log.subject('set_workflow_error_alerts');
     const end = await readSettings();
     check(restored.ok === true && JSON.stringify([...end.users].sort()) === JSON.stringify([...original.users].sort()) && end.isActive === original.isActive,
       'RESTORED: the settings are what this section found', JSON.stringify({ original, end }).slice(0, 240));
+    // ABSOLUTE repair, not delegated to the tool under test. The restore above is RELATIVE —
+    // "remove the one id we added" — computed from whatever GHL holds right now. If this section's
+    // own tool had WIPED the recipient list (GHL's PUT replaces the whole array; that wipe is the
+    // exact defect this section exists to catch), the restore would read the wiped state, subtract
+    // one id from it, and leave []: it would report the wipe correctly but could never undo it,
+    // because the safety net would depend on the correctness of the thing it is testing. So compare
+    // the settings actually on GHL against the `original` snapshot and, if they differ in EITHER
+    // field, write the snapshot back directly through the gateway — no tool, no merge, no reliance
+    // on set_workflow_error_alerts being right.
+    const after = await readSettings();
+    const usersDiffer = JSON.stringify([...after.users].sort()) !== JSON.stringify([...original.users].sort());
+    const activeDiffers = after.isActive !== original.isActive;
+    if (usersDiffer || activeDiffers) {
+      if (usersDiffer) await gwe.call('PUT', `/workflow/${LOCATION}/error-notification/settings/users`, { users: original.users });
+      if (activeDiffers) await gwe.call('PUT', `/workflow/${LOCATION}/error-notification/settings/is-active`, { isActive: original.isActive });
+    }
+    const final = await readSettings();
+    check(JSON.stringify([...final.users].sort()) === JSON.stringify([...original.users].sort()) && final.isActive === original.isActive,
+      'the sandbox is left exactly as found — a direct write, independent of the tool under test',
+      JSON.stringify({ original, final }).slice(0, 240));
   }
 }
 
