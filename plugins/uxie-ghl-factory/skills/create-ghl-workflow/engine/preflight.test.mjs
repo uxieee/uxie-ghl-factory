@@ -82,3 +82,38 @@ test('sms_readiness: the two booleans GHL names itself ARE judged', async () => 
   const c = await runReadinessChecks(smsPlan, { loc: 'L', call: async () => twilio({ isvConfiguration: { isLocationInCoolOffPeriod: true, smsLimitSuspensionTill: '' } }) });
   assert.equal(c[0].ok, false); assert.match(c[0].detail, /COOL-OFF/);
 });
+
+test('from_email is planned for a full literal address — and NOT for a merge field or a bare local part (controls)', () => {
+  const keys = (from_email) => planReadinessChecks({ settings: { senderAddress: { from_email } } }).map((p) => p.key);
+  assert.ok(keys('hello@acme.example').includes('from_email'));
+  assert.equal(planReadinessChecks({ settings: { senderAddress: { from_email: 'hello@acme.example' } } }).find((p) => p.key === 'from_email').fromEmail, 'hello@acme.example');
+  assert.equal(keys('{{user.email}}').includes('from_email'), false);
+  assert.equal(keys('hello').includes('from_email'), false);
+  assert.equal(keys(undefined).includes('from_email'), false);
+});
+
+test('from_email POSTs {fromEmail, domain-from-the-address} and reports GHL\'s verdict as an advisory row', async () => {
+  const sent = [];
+  const call = async (method, path, body) => {
+    sent.push({ method, path, body });
+    return { ok: true, status: 200, json: { isFromEmailAllowed: false, code: 'free_webmail_blocked', message: 'Free webmail is blocked', fromEmailSuggestions: ['hello@mail.acme.example'] } };
+  };
+  const [row] = await runReadinessChecks([{ key: 'from_email', why: ['settings.senderAddress.from_email'], fromEmail: 'Someone@Gmail.com' }], { call, loc: 'LOC' });
+  assert.deepEqual(sent, [{ method: 'POST', path: '/workflow/LOC/email/validate-from-email', body: { fromEmail: 'Someone@Gmail.com', domain: 'gmail.com' } }]);
+  assert.equal(row.checked, true);
+  assert.equal(row.ok, false);
+  assert.equal(row.code, 'free_webmail_blocked');
+  assert.deepEqual(row.suggestions, ['hello@mail.acme.example']);
+  assert.match(row.detail, /free_webmail_blocked/);
+  assert.match(row.detail, /per-step From/i);
+});
+
+test('CONTROL: an allowed address is ok:true; an unreadable answer is checked:false with ok:null — never a guess', async () => {
+  const allowed = await runReadinessChecks([{ key: 'from_email', why: ['x'], fromEmail: 'a@acme.example' }],
+    { call: async () => ({ ok: true, status: 200, json: { isFromEmailAllowed: true, code: 'success' } }), loc: 'LOC' });
+  assert.equal(allowed[0].ok, true);
+  const dead = await runReadinessChecks([{ key: 'from_email', why: ['x'], fromEmail: 'a@acme.example' }],
+    { call: async () => ({ ok: false, status: 500, json: {} }), loc: 'LOC' });
+  assert.equal(dead[0].checked, false);
+  assert.equal(dead[0].ok, null);
+});

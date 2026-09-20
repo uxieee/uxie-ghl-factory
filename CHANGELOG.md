@@ -16,6 +16,7 @@ commit bodies carry the detail.
 - `raw_request` refuses four call shapes that answer 200 and do silent damage: `remove-stuck-statuses` without `statusIds` (evicts everyone at the step), `start-workflow` with an empty body (phantom enrolment), the per-workflow `change-status` door with `published` (skips every validation layer — use `publish_workflow`), and `permission/{workflowId}` with no `permission` key (a 200 that changes nothing).
 - `raw_request`'s confirm preview now carries `trap` — the catalogue's measured note for the route — so a caller sees "this REPLACES the list" or "this wipes history" before confirming.
 - `get_workflow_stats` reports `splits[]`: per-path ENTERED counts for every A/B split step, paths named from the workflow. One extra read per split step, none when there is no split; `includeSplits:false` turns it off. Proven live by differential (0 → 1 on the path the contact's own tag names).
+- Build preflight runs GHL's own From-address check when a spec sets a full literal `settings.senderAddress.from_email` (free webmail, missing/invalid DMARC, dedicated-domain mismatch). Advisory — it never blocks a build — and it sends nothing. Per-step From overrides are not covered.
 
 ## [0.93.0] — 2026-09-19
 

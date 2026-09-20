@@ -162261,7 +162261,14 @@ function planReadinessChecks({ templates = [], triggerTypes = [], settings = {},
     if (FB_TRIGGERS.has(ty)) need("facebook", `trigger ${ty}`);
   }
   if (settings?.senderAddress?.from_number) need("sms_number", "settings.senderAddress.from_number");
-  if (settings?.senderAddress?.from_email) need("email_provider", "settings.senderAddress.from_email");
+  if (settings?.senderAddress?.from_email) {
+    need("email_provider", "settings.senderAddress.from_email");
+    const from = String(settings.senderAddress.from_email).trim();
+    if (!from.includes("{{") && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(from)) {
+      need("from_email", "settings.senderAddress.from_email");
+      plan.get("from_email").fromEmail = from;
+    }
+  }
   return [...plan.values()];
 }
 async function runReadinessChecks(plan, { call, loc }) {
@@ -162273,10 +162280,19 @@ async function runReadinessChecks(plan, { call, loc }) {
       return null;
     }
   };
+  const post = async (p2, body) => {
+    try {
+      const r = await call("POST", p2, body);
+      return r?.ok ? r.json : null;
+    } catch {
+      return null;
+    }
+  };
   const lq = new URLSearchParams({ locationId: String(loc) });
   const lp = encodeURIComponent(String(loc));
   const out = [];
-  for (const { key, why } of plan) {
+  for (const entry of plan) {
+    const { key, why } = entry;
     if (key === "sms_number") {
       const j = await g(`/phone-system/numbers?${lq}`);
       const nums = Array.isArray(j?.phoneNumbers) ? j.phoneNumbers : [];
@@ -162331,6 +162347,19 @@ async function runReadinessChecks(plan, { call, loc }) {
       });
     } else if (key === "facebook") {
       out.push({ key, why, checked: false, ok: null, detail: "Facebook page linkage has no discovery route on this rail \u2014 verify the page connection in Integrations before relying on FB steps/triggers" });
+    } else if (key === "from_email") {
+      const fromEmail = String(entry.fromEmail ?? "");
+      const j = await post(`/workflow/${lp}/email/validate-from-email`, { fromEmail, domain: fromEmail.slice(fromEmail.lastIndexOf("@") + 1).toLowerCase() });
+      const readable = j != null && typeof j.isFromEmailAllowed === "boolean";
+      const suggestions = Array.isArray(j?.fromEmailSuggestions) ? j.fromEmailSuggestions : [];
+      out.push({
+        key,
+        why,
+        checked: readable,
+        ok: readable ? j.isFromEmailAllowed : null,
+        ...readable ? { code: j.code ?? null, suggestions } : {},
+        detail: !readable ? "From-address verdict not readable" : `GHL's own From-address check: ${j.isFromEmailAllowed ? "allowed" : "\u{1F534} NOT allowed"} (code ${j.code ?? "\u2205"})${j.message ? ` \u2014 ${j.message}` : ""}${suggestions.length ? `; GHL suggests: ${suggestions.join(", ")}` : ""}. Advisory: the build is not blocked. Covers the workflow-level From only \u2014 a per-step From override on an email step is not checked.`
+      });
     } else {
       out.push({ key, why, checked: false, ok: null, detail: "no signal known for this check" });
     }

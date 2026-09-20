@@ -35,6 +35,7 @@ import { createExerciseLog } from '../../../mcp-internal/core/exercise-log.mjs';
 import { DEFAULT_TOKEN_FILE } from '../../../mcp-internal/core/auth.mjs';
 import { makeRenewer, autoRenewEnabled } from '../../../mcp-internal/core/token-renewal.mjs';
 import { liveValidate } from '../engine/live-validate.mjs';
+import { planReadinessChecks, runReadinessChecks } from '../engine/preflight.mjs';
 
 const LOCATION = process.env.GHL_LOCATION || process.env.GHL_LOC;
 if (!LOCATION) {
@@ -777,6 +778,24 @@ log.subject('raw_request');
   check(control.code === 'CONFIRM_REQUIRED', 'CONTROL: a well-formed body on the same route reaches the confirm gate instead', control.code);
   const trap = await call('raw_request', { method: 'DELETE', path: `/workflow/${LOCATION}/split?workflowId=${GHOST}&stepId=${GHOST}` });
   check(trap.code === 'CONFIRM_REQUIRED' && /WIPES/.test(trap.data?.preview?.trap?.note ?? ''), 'the confirm preview carries the route\'s measured trap note', JSON.stringify(trap.data?.preview?.trap ?? null).slice(0, 200));
+}
+
+// ── preflight: GHL's own From-address verdict, by three-way DIFFERENTIAL ──────────────────────
+// validate-from-email sends nothing. Three addresses, three different codes: if the route ever
+// starts answering one code for everything, this goes red instead of quietly reporting "allowed".
+console.log('\npreflight: From-address check');
+log.subject(false);
+{
+  const gwp = deps.makeGw({ loc: LOCATION, state });
+  const verdict = async (from_email) => {
+    const plan = planReadinessChecks({ settings: { senderAddress: { from_email } } }).filter((p) => p.key === 'from_email');
+    return (await runReadinessChecks(plan, { call: (m, p, b) => gwp.call(m, p, b), loc: LOCATION }))[0] ?? null;
+  };
+  const webmail = await verdict('test-conf@gmail.com');
+  const nodns = await verdict(`test-conf@no-such-domain-${STAMP}.example`);
+  check(webmail?.checked === true && webmail.ok === false && webmail.code === 'free_webmail_blocked', 'a free-webmail From is reported NOT allowed, code free_webmail_blocked', JSON.stringify(webmail).slice(0, 220));
+  check(nodns?.checked === true && nodns.ok === false && nodns.code !== 'free_webmail_blocked', 'DIFFERENTIAL: a domain with no DNS is refused for a DIFFERENT reason', JSON.stringify(nodns).slice(0, 220));
+  check((await verdict('{{user.email}}')) === null, 'CONTROL: a merge-field From is not planned and nothing is sent');
 }
 
 // ── 6b. the account-level settings rail, and the three routes that answer 200 with nothing ──

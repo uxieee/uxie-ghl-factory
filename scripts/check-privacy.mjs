@@ -51,6 +51,12 @@ const ALLOW = [
   '541-313-4664', '541 313-4664', '5413134664', '541 313 4664',
   // GHL's own placeholder addresses inside recovered-source / UI metadata.
   'john@acme.com', 'fromemailtest@test.com', 'bcctest@bcctest.com', 'cctest@cctest.com',
+  // Fixtures for the From-address preflight (engine/preflight.test.mjs, conformance.mjs).
+  // `.example` is RFC 2606 reserved exactly like the three domains above, so no such address
+  // can exist. The two gmail literals are the free-webmail probe itself: GHL answers
+  // `free_webmail_blocked` only for a REAL free-webmail domain, so the differential cannot be
+  // written with a placeholder. Neither addresses a person — nothing is ever sent to them.
+  'acme.example', 'Someone@Gmail.com', 'test-conf@gmail.com',
   // Synthetic ids substituted during the 2026-07-19 scrub. Kept digit-shaped so the
   // surrounding examples still parse and read realistically.
   '100000000000000000001', '100000000000000000002',  // were third-party Google account ids

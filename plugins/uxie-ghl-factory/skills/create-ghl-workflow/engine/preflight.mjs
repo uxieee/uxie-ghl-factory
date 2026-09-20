@@ -6,13 +6,18 @@
 // This module plans and runs ONLY the checks the compiled workflow actually needs, and reports
 // advisorily — it never blocks a build (the account can be fixed after the draft exists).
 //
-// Signals (all live-proven GROM AU 2026-08-22, all read-only, all on the engine's Bearer rail):
+// Signals (all live-proven, none of them writes or sends, all on the engine's Bearer rail):
 //   SMS        GET /phone-system/numbers?locationId=            {phoneNumbers:[{value,title}]}
 //   WhatsApp   GET /phone-system/whatsapp/location/{loc}/phone-numbers   [{displayPhoneNumber,
 //              codeVerificationStatus, accountMode, …}]
 //   Instagram  GET /workflow/{loc}/instagram/connected-accounts?unique=true   {pages:[…]}
 //   Email      GET /workflow/{loc}/email/location-email-provider   {provider:{domain,…},
 //              warmupInfo:{warmupStage,warmupStatus,warmupMode}, type}
+//   From addr  POST /workflow/{loc}/email/validate-from-email  {fromEmail, domain} -> {isFromEmailAllowed,
+//              code, message, fromEmailSuggestions}. The builder's own check; SENDS NOTHING (proven by a
+//              three-way differential 2026-09-19: free webmail -> free_webmail_blocked, a real company
+//              domain -> success, a domain with no DNS -> dmarc_record_not_found). The only non-GET here.
+//              Covers the workflow-level From only — a per-step From override is not read.
 //   Premium    GET /saas-billing-v2/billing-config/LOCATION/{loc}/{product}?optIn=true
 //              product = workflow_premium_actions | workflow_ai   {data:[{config:{optIn,enabled,
 //              basePrice,markup}, productAvailability}]}   (live-proven test sub-account 2026-09-18)
@@ -58,21 +63,32 @@ export function planReadinessChecks({ templates = [], triggerTypes = [], setting
     if (FB_TRIGGERS.has(ty)) need('facebook', `trigger ${ty}`);
   }
   if (settings?.senderAddress?.from_number) need('sms_number', 'settings.senderAddress.from_number');
-  if (settings?.senderAddress?.from_email) need('email_provider', 'settings.senderAddress.from_email');
+  if (settings?.senderAddress?.from_email) {
+    need('email_provider', 'settings.senderAddress.from_email');
+    // Only a full LITERAL address can be judged: a merge field resolves at send time, and a bare
+    // local part is legal under "All Domains" (GHL appends the sending domain itself).
+    const from = String(settings.senderAddress.from_email).trim();
+    if (!from.includes('{{') && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(from)) {
+      need('from_email', 'settings.senderAddress.from_email');
+      plan.get('from_email').fromEmail = from;
+    }
+  }
   return [...plan.values()];
 }
 
 /**
- * Run the planned checks (read-only GETs; every failure degrades to checked:false, never throws).
+ * Run the planned checks (reads, plus one POST that validates and sends nothing; every failure
+ * degrades to checked:false, never throws).
  * Returns [{key, why, checked, ok, detail}] — `ok` is null when the signal cannot be verified
  * from this rail (premium/facebook), so the caller can say "unverified", not "fine".
  */
 export async function runReadinessChecks(plan, { call, loc }) {
   const g = async (p) => { try { const r = await call('GET', p); return r?.ok ? r.json : null; } catch { return null; } };
+  const post = async (p, body) => { try { const r = await call('POST', p, body); return r?.ok ? r.json : null; } catch { return null; } };
   const lq = new URLSearchParams({ locationId: String(loc) });
   const lp = encodeURIComponent(String(loc));
   const out = [];
-  for (const { key, why } of plan) {
+  for (const entry of plan) { const { key, why } = entry;
     if (key === 'sms_number') {
       const j = await g(`/phone-system/numbers?${lq}`);
       const nums = Array.isArray(j?.phoneNumbers) ? j.phoneNumbers : [];
@@ -134,6 +150,19 @@ export async function runReadinessChecks(plan, { call, loc }) {
       });
     } else if (key === 'facebook') {
       out.push({ key, why, checked: false, ok: null, detail: 'Facebook page linkage has no discovery route on this rail — verify the page connection in Integrations before relying on FB steps/triggers' });
+    } else if (key === 'from_email') {
+      const fromEmail = String(entry.fromEmail ?? '');
+      const j = await post(`/workflow/${lp}/email/validate-from-email`, { fromEmail, domain: fromEmail.slice(fromEmail.lastIndexOf('@') + 1).toLowerCase() });
+      const readable = j != null && typeof j.isFromEmailAllowed === 'boolean';
+      const suggestions = Array.isArray(j?.fromEmailSuggestions) ? j.fromEmailSuggestions : [];
+      out.push({
+        key, why, checked: readable, ok: readable ? j.isFromEmailAllowed : null,
+        ...(readable ? { code: j.code ?? null, suggestions } : {}),
+        detail: !readable ? 'From-address verdict not readable'
+          : `GHL's own From-address check: ${j.isFromEmailAllowed ? 'allowed' : '🔴 NOT allowed'} (code ${j.code ?? '∅'})${j.message ? ` — ${j.message}` : ''}`
+            + `${suggestions.length ? `; GHL suggests: ${suggestions.join(', ')}` : ''}. Advisory: the build is not blocked. `
+            + 'Covers the workflow-level From only — a per-step From override on an email step is not checked.',
+      });
     } else {
       out.push({ key, why, checked: false, ok: null, detail: 'no signal known for this check' });
     }
