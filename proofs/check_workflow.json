@@ -182,6 +182,19 @@
       "failures": [
         "control-a-trigger-naming-a-calendar-that-exists-reports-nothing"
       ]
+    },
+    {
+      "at": "2026-09-20",
+      "result": "fail",
+      "how": "suite",
+      "suite": "workflows",
+      "evidence": [
+        "receipt:2026-09-20-1029"
+      ],
+      "location": "…zn6B",
+      "failures": [
+        "control-a-trigger-naming-a-calendar-that-exists-reports-nothing"
+      ]
     }
   ],
   "depends": {
