@@ -27701,7 +27701,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           provenFor: [
             "agency-admin-bearer"
           ],
-          coveredBy: [],
+          coveredBy: [
+            "get_workflow_logs"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -173508,7 +173510,7 @@ var TOOLS2 = [
     name: "get_workflow_logs",
     description: describe3(
       "get_workflow_logs",
-      `Read executions, enrollment and per-step contact counts; executionId returns one run's full step trace. \u{1F534} AN EMPTY LOG IS AMBIGUOUS: [] means the same thing for "the trigger never matched" and for "enrolled, not yet fired". Confirm from an independent source (the contact's own tags or fields) before concluding a workflow is broken \u2014 or that it is fine.`
+      `Read executions, enrollment and per-step contact counts; executionId returns one run's full step trace. \u{1F534} AN EMPTY LOG IS AMBIGUOUS: [] means the same thing for "the trigger never matched" and for "enrolled, not yet fired". Confirm from an independent source (the contact's own tags or fields) before concluding a workflow is broken \u2014 or that it is fine. An ai_agent step's rows are listed in agentThreads with their threadId; includeAgentTrace:true (only with executionId) also fetches each thread's full agent trace \u2014 model input and output, WHICH INCLUDES CONTACT DATA \u2014 so it is never fetched by default.`
     ),
     inputSchema: schema({
       locationId: external_exports.string(),
@@ -173524,6 +173526,9 @@ var TOOLS2 = [
       // enrollment `id`). logs/v2 only — the roster rejects unknown params. Live-proven GROM AU
       // 2026-08-22 (6 rows for one run incl. the remove_from_workflow exit row).
       executionId: external_exports.string().optional(),
+      // The ai_agent step's full trace (model input/output, tool calls). OPT-IN and single-execution
+      // only: it is one extra call per agent row and it carries contact data, so it never rides along.
+      includeAgentTrace: external_exports.boolean().default(false),
       // Walk the enrollment roster to completion via the action=next cursor
       // instead of returning only page one. Bounded by maxEnrollmentPages.
       allEnrollments: external_exports.boolean().default(false),
@@ -173539,9 +173544,17 @@ var TOOLS2 = [
       { method: "GET", path: "/workflows/status/search/count-per-step" },
       { method: "GET", path: "/workflows/status/search/workflow-with-filter" },
       { method: "GET", path: "/workflows/status/search/enroll-stats-cache" },
-      { method: "GET", path: "/workflows/status/enroll-stats" }
+      { method: "GET", path: "/workflows/status/enroll-stats" },
+      { method: "GET", path: "/workflow/agent/{loc}/trace/{threadId}" }
     ],
     handler: async (args, deps) => guard(async () => {
+      if (args.includeAgentTrace === true && !(typeof args.executionId === "string" && args.executionId.length)) {
+        return fail(
+          CODES.VALIDATION_FAILED,
+          "includeAgentTrace needs executionId \u2014 a trace is fetched for ONE run, never for a page of logs",
+          "Read the logs first, take the run's workflowStatusId from a row, and repeat with executionId + includeAgentTrace:true. agentThreads already lists each thread id without it."
+        );
+      }
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
       const limit = args.limit ?? 20;
       const base = { workflowId: args.workflowId, locationId: args.locationId };
@@ -173676,12 +173689,29 @@ var TOOLS2 = [
       }) : rawLogs;
       const externalRemovals = Array.isArray(labelledLogs) ? labelledLogs.filter((r) => r?.removalOrigin === "external-api").length : 0;
       const objectiveWriteFailures = Array.isArray(labelledLogs) ? labelledLogs.filter((r) => r?.objectiveWriteFailed).length : 0;
+      const agentThreads = [];
+      for (const r of Array.isArray(labelledLogs) ? labelledLogs : []) {
+        if (r?.type !== "ai_agent") continue;
+        const threadId = r?.meta?.actionFrom?.response?.threadId ?? r?.meta?.data?.meta?.threadId ?? null;
+        if (typeof threadId !== "string" || !threadId) continue;
+        if (agentThreads.some((t) => t.threadId === threadId)) continue;
+        agentThreads.push({ logId: r._id ?? r.id ?? null, stepId: r.stepId ?? null, stepName: r.stepName ?? null, status: r.status ?? null, threadId });
+      }
+      if (args.includeAgentTrace === true) {
+        const lp = encodeURIComponent(args.locationId);
+        for (const t of agentThreads) {
+          const tr = await gw.call("GET", `/workflow/agent/${lp}/trace/${encodeURIComponent(t.threadId)}`);
+          if (tr.ok) t.trace = tr.json ?? null;
+          else t.traceError = { status: tr.status, message: tr.json?.message ?? null };
+        }
+      }
       const result = {
         logs: labelledLogs,
         // Counted separately because the roster cannot tell them apart: it says `finished` for a
         // completed run AND for one an outside call ended.
         ...externalRemovals ? { externalRemovals } : {},
         ...objectiveWriteFailures ? { objectiveWriteFailures } : {},
+        ...agentThreads.length ? { agentThreads } : {},
         perStepCounts: counts.json?.counts ?? counts.json ?? [],
         enrollments,
         // Only meaningful when the caller asked for the full walk; undefined keeps
@@ -173700,6 +173730,7 @@ var TOOLS2 = [
           enrollmentCount: enrollments.length,
           ...objectiveWriteFailures ? { objectiveWriteFailures } : {},
           ...externalRemovals ? { externalRemovals } : {},
+          ...agentThreads.length ? { agentThreadCount: agentThreads.length } : {},
           ...args.allEnrollments ? { enrollmentsComplete, enrollmentPages: pages } : {},
           note: "Full result written to writeTo (scrubbed). Re-read the file for the rows; this summary carries the counts only."
         });

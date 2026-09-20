@@ -562,6 +562,9 @@ if (wid) {
   const lg = await call('get_workflow_logs', { workflowId: wid, limit: 10, allEnrollments: false, maxEnrollmentPages: 1, enrollmentTotals: false });
   check(Array.isArray(lg.data?.logs) && lg.data.logs.length === 0, 'get_workflow_logs finds no executions', `got ${lg.data?.logs?.length}`);
   check(Array.isArray(lg.data?.enrollments) && lg.data.enrollments.length === 0, 'and no enrolments — nothing can have entered a trigger-less draft');
+  const noExec = await call('get_workflow_logs', { workflowId: wid, includeAgentTrace: true });
+  check(noExec.ok === false && noExec.code === 'VALIDATION_FAILED', 'get_workflow_logs REFUSES includeAgentTrace without executionId — a trace is never fetched for a page of logs', noExec.code);
+  check(!('agentThreads' in (lg.data ?? {})), 'CONTROL: a workflow with no ai_agent rows has no agentThreads key');
 
   log.subject('get_workflow_runtime_window');
   // Epoch MILLISECONDS, not an ISO date. The tool rejects a 'YYYY-MM-DD' string outright with

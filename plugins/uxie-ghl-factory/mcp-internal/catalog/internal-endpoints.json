@@ -27524,7 +27524,9 @@
       "provenFor": [
         "agency-admin-bearer"
       ],
-      "coveredBy": [],
+      "coveredBy": [
+        "get_workflow_logs"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
