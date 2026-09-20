@@ -414,3 +414,37 @@ test('the scan-cap refusal names WHICH limit tripped, and the way through', asyn
   assert.equal(call({ locationId: 'LOC' }), null);
   assert.match(call({ locationId: 'FOREIGN' }).detail, /FOREIGN/);
 });
+
+// Task 5 (41a3d91) declared get_account_workflow_overview's opt-in POST capability correctly, but
+// classifyCall's static rule then read that ONE capability as reclassifying the WHOLE tool as a
+// write — including its default call, where includeTriggerCounts is false and no POST is ever
+// made. Classified per call, in the style of raw_request, so the default read path never inherits
+// the opt-in write's restrictions.
+test('get_account_workflow_overview: classified per call, not by its opt-in POST capability', () => {
+  const t = tool('get_account_workflow_overview');
+  assert.equal(classifyCall(t, {}), 'read');
+  assert.equal(classifyCall(t, { includeTriggerCounts: false }), 'read');
+  assert.equal(classifyCall(t, { includeTriggerCounts: true }), 'write');
+});
+
+test('REGRESSION: an unbound registration must not refuse a default overview read', () => {
+  const t = tool('get_account_workflow_overview');
+  // Reverting the classifyCall fix makes this fail: the static rule sees the declared POST
+  // capability and files every call as a write, so LOCATION_UNBOUND fires even here.
+  assert.equal(checkLocationBinding({ tool: t, args: { locationId: PERMITTED }, allowed: null }), null);
+
+  // includeTriggerCounts:true genuinely POSTs, so on an unbound registration it must still refuse.
+  const r = checkLocationBinding({ tool: t, args: { locationId: PERMITTED, includeTriggerCounts: true }, allowed: null });
+  assert.equal(r.code, CODES.LOCATION_UNBOUND);
+});
+
+// CONTROL: set_workflow_error_alerts declares only unconditional PUTs (no opt-in argument gates
+// them), so it must still classify as a write from its static capability list and still be
+// refused on an unbound registration — proving the fix narrows the rule to the opt-in shape
+// rather than widening the guard generally.
+test('CONTROL: set_workflow_error_alerts (a genuine, unconditional write) is unaffected', () => {
+  const t = tool('set_workflow_error_alerts');
+  assert.equal(classifyCall(t, { locationId: PERMITTED, addUsers: ['u1'] }), 'write');
+  const r = checkLocationBinding({ tool: t, args: { locationId: PERMITTED, addUsers: ['u1'] }, allowed: null });
+  assert.equal(r.code, CODES.LOCATION_UNBOUND);
+});

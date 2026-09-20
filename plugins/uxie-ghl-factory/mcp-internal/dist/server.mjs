@@ -90533,6 +90533,7 @@ var declaresLocation = (tool) => Object.keys(tool?.inputSchema?.shape ?? {}).inc
 function classifyCall(tool, args) {
   if (!declaresLocation(tool)) return "unguarded";
   if (tool.name === "raw_request") return (args?.method ?? "GET") === "GET" ? "read" : "write";
+  if (tool.name === "get_account_workflow_overview") return args?.includeTriggerCounts === true ? "write" : "read";
   return tool.capabilities?.some((c) => c.method !== "GET") ? "write" : "read";
 }
 var bindCommand = (locationId) => `Bind this registration to the accounts it may touch (this call targeted ${locationId}), then retry:

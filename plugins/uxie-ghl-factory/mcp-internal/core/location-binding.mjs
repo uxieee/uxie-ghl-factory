@@ -23,12 +23,20 @@ const declaresLocation = (tool) => Object.keys(tool?.inputSchema?.shape ?? {}).i
 // registration -- the two tools you need when a credential is broken. `audit-profile.mjs:26`
 // exempts `auth_status` for the same reason.
 //
-// Within the guarded 39, `raw_request` is classified PER CALL. Its `capabilities` array is empty,
-// so any rule of the form `capabilities.some(c => c.method !== 'GET')` reads false and would file
-// the escape hatch -- any method, any path -- under reads.
+// A tool's `capabilities` list is a STATIC declaration of every route it can EVER call, which is
+// exactly right for the catalogue's `coveredBy` and for proof fingerprints — an undeclared route
+// must not exist. But `some(c => c.method !== 'GET')` reads that static list as if it were the
+// route taken on THIS call. Two tools break that assumption, each by making a non-GET capability
+// reachable only through an argument rather than through every call: `raw_request`'s method IS the
+// argument, and `get_account_workflow_overview`'s POST (`/workflows/trigger/logs/count`) fires
+// only when `includeTriggerCounts: true` — its default call never reaches it. Both are classified
+// PER CALL so their default, always-GET path stays a `read`; a tool whose whole capability list is
+// unconditional (e.g. `set_workflow_error_alerts`, which always PUTs on a real write) is still
+// classified from the static list, because for it the list and the call always agree.
 export function classifyCall(tool, args) {
   if (!declaresLocation(tool)) return 'unguarded';
   if (tool.name === 'raw_request') return (args?.method ?? 'GET') === 'GET' ? 'read' : 'write';
+  if (tool.name === 'get_account_workflow_overview') return args?.includeTriggerCounts === true ? 'write' : 'read';
   return tool.capabilities?.some((c) => c.method !== 'GET') ? 'write' : 'read';
 }
 
