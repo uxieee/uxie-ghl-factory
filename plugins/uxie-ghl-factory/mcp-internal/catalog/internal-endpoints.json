@@ -26031,6 +26031,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "write",
+      "note": "An INACTIVE calendar (`isActive:false`) is reported as ASSET_CALENDAR_NOT_FOUND with the message \"does not exist or does not belong to this location\" — the calendar exists and a direct GET returns 200. Measured 2026-09-20.",
       "reach": "source-only",
       "coveredBy": [
         "edit_workflow",

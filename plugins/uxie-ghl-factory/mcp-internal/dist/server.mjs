@@ -26208,6 +26208,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
+          note: 'An INACTIVE calendar (`isActive:false`) is reported as ASSET_CALENDAR_NOT_FOUND with the message "does not exist or does not belong to this location" \u2014 the calendar exists and a direct GET returns 200. Measured 2026-09-20.',
           reach: "source-only",
           coveredBy: [
             "edit_workflow",
@@ -54345,6 +54346,9 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           credentialClass: "agency-admin-bearer",
           kind: "write",
           note: "DELIBERATELY NOT WRITTEN 2026-09-19: on the test sub-account the GET answers {} \u2014 no settings document exists \u2014 so a PUT would CREATE one that cannot be restored to 'absent'. body {feature:{\u2026}} per the bundle. Prove it only on an account where the document already exists, with read -> change -> read -> restore."
+        },
+        "POST /workflow/{locationId}/validate-assets": {
+          note: 'An INACTIVE calendar (`isActive:false`) is reported as ASSET_CALENDAR_NOT_FOUND with the message "does not exist or does not belong to this location" \u2014 the calendar exists and a direct GET returns 200. Measured 2026-09-20.'
         },
         "POST /workflow/{locationId}/email/validate-from-email": {
           reach: "proven",

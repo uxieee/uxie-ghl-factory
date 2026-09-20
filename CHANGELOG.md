@@ -22,6 +22,7 @@ commit bodies carry the detail.
 - `set_workflow_error_alerts` now REFUSES (`VALIDATION_FAILED`, no write) instead of silently filtering when GHL's own `users` list contains a non-string entry it cannot safely merge — a previously-silent read no longer drops a recipient it cannot understand.
 - `get_account_workflow_overview` takes `includeTriggerCounts:true`: per-workflow trigger attempted/matched for the last 30 days, with `neverMatches` on workflows whose triggers fire and not once match their filters. One call per workflow — GHL's count route sums whatever id list it is given, measured.
 - `get_workflow_logs` lists every `ai_agent` row's thread in `agentThreads` (thread id only, no extra call). `includeAgentTrace:true` — honoured only together with `executionId` — also fetches each thread's full agent trace. It is opt-in and single-run because a trace is one call per agent row and carries model input/output including contact data.
+- Fixed: conformance.mjs's trigger-calendar positive control was picking `list_account_entities`'s first calendar with no regard for state, and had been landing on the one INACTIVE calendar on the sandbox, which `validate-assets` correctly refuses (reported as `ASSET_CALENDAR_NOT_FOUND`) — the control now selects an `isActive:true` calendar read directly off `/calendars/`, and a new pinned-bug check asserts the inactive-calendar rejection itself so it can never regress silently.
 
 ## [0.93.0] — 2026-09-19
 

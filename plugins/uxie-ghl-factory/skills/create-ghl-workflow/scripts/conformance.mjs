@@ -654,16 +654,28 @@ if (wid) {
       { field: 'contactMode', operator: 'is-any-of', value: ['contact'] },
     ],
   }]);
-  const realCal = (await call('list_account_entities', { kinds: ['calendars'] })).data?.calendars?.[0]?.id;
+  // 🔴 `validate-assets` rejects a calendar with `isActive:false` and reports it as
+  // ASSET_CALENDAR_NOT_FOUND ("does not exist or does not belong to this location") even though a
+  // direct GET on that calendar's id returns 200 with a full record — the message is about
+  // EXISTENCE, the verdict is actually about USABILITY. So the positive control below must name an
+  // ACTIVE calendar, or it is testing GHL's deactivation behaviour rather than its asset-reference
+  // check. Measured 2026-09-20 on the sandbox: `6k4xQyHTrSlTCfyNmqAi` was the only inactive
+  // calendar of 12 and is the one a blind `[0]` pick was landing on. `list_account_entities`
+  // projects calendars down to {id, name} only (engine/entities.mjs) — it does not carry
+  // `isActive` — so the selection below reads `/calendars/?locationId=` directly instead.
+  const rawCals = await gwDirect.call('GET', `/calendars/?${new URLSearchParams({ locationId: LOCATION })}`);
+  const activeCal = (rawCals.json?.calendars ?? []).find((c) => c?.isActive === true);
+  const inactiveCal = (rawCals.json?.calendars ?? []).find((c) => c?.isActive === false);
+  const realCal = activeCal?.id;
   check(typeof realCal === 'string' && realCal.length > 0,
-    'the account has a calendar to use as the POSITIVE CONTROL for the trigger check', String(realCal));
+    'the account has an ACTIVE calendar to use as the POSITIVE CONTROL for the trigger check', String(realCal));
   if (typeof realCal === 'string' && realCal) {
     const trigControl = await validateAssets((m, p, b) => gwDirect.call(m, p, b), LOCATION,
       { templates: [], triggers: apptTrigger(realCal) });
     const trigGhost = await validateAssets((m, p, b) => gwDirect.call(m, p, b), LOCATION,
       { templates: [], triggers: apptTrigger('00000000-0000-4000-8000-000000000009') });
     check(trigControl.checked === true && (trigControl.errors ?? []).length === 0,
-      'CONTROL: a trigger naming a calendar that EXISTS reports nothing',
+      'CONTROL: a trigger naming a calendar that EXISTS and is ACTIVE reports nothing',
       trigControl.skipped ?? JSON.stringify(trigControl.errors));
     const borne = (trigGhost.errors ?? []).find((e) => e.assetType === 'calendar');
     check(trigGhost.checked === true && !!borne,
@@ -685,6 +697,25 @@ if (wid) {
       'ASYMMETRY: the same ghost calendar on a STEP is NOT caught — coverage is per reference site, '
         + 'not per asset type. A day GHL closes this gap fails here, which is the point',
       stepCal.skipped ?? JSON.stringify(stepCal.errors));
+  }
+
+  // This is the bug that broke the control, turned into an asserted fact rather than a comment: a
+  // trigger naming a calendar that EXISTS but is DEACTIVATED must be reported exactly like the
+  // ghost-id case, not treated as clean. Guarded on an inactive calendar actually being present —
+  // this sandbox has one today (see the note above), but if it is ever reactivated the check says
+  // so instead of silently passing on an empty set.
+  if (typeof inactiveCal?.id === 'string' && inactiveCal.id) {
+    const trigInactive = await validateAssets((m, p, b) => gwDirect.call(m, p, b), LOCATION,
+      { templates: [], triggers: apptTrigger(inactiveCal.id) });
+    const inactiveBorne = (trigInactive.errors ?? []).find((e) => e.assetType === 'calendar');
+    check(trigInactive.checked === true && !!inactiveBorne
+        && inactiveBorne.ruleId === 'ASSET_CALENDAR_NOT_FOUND',
+      'PINNED BUG: a trigger naming an INACTIVE calendar is reported as ASSET_CALENDAR_NOT_FOUND, '
+        + 'same as a ghost id — if GHL ever starts accepting inactive calendars this fails instead '
+        + 'of drifting silently',
+      trigInactive.skipped ?? JSON.stringify(inactiveBorne ?? trigInactive.errors));
+  } else {
+    console.log('  SKIP  no inactive calendar present on this account right now — the pinned-bug check has nothing to assert against');
   }
 }
 

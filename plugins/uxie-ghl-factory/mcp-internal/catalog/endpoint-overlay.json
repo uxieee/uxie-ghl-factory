@@ -1724,6 +1724,9 @@
       "kind": "write",
       "note": "DELIBERATELY NOT WRITTEN 2026-09-19: on the test sub-account the GET answers {} — no settings document exists — so a PUT would CREATE one that cannot be restored to 'absent'. body {feature:{…}} per the bundle. Prove it only on an account where the document already exists, with read -> change -> read -> restore."
     },
+    "POST /workflow/{locationId}/validate-assets": {
+      "note": "An INACTIVE calendar (`isActive:false`) is reported as ASSET_CALENDAR_NOT_FOUND with the message \"does not exist or does not belong to this location\" — the calendar exists and a direct GET returns 200. Measured 2026-09-20."
+    },
     "POST /workflow/{locationId}/email/validate-from-email": {
       "reach": "proven",
       "credentialClass": "agency-admin-bearer",
