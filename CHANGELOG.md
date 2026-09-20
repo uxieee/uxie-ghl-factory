@@ -11,7 +11,12 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
-## Unreleased
+## [0.94.0] — 2026-09-21
+
+Six already-proven GoHighLevel workflow routes folded into the tools an operator already uses, five
+call shapes `raw_request` now refuses outright, and one new write tool. Every item was executed live
+on the designated sandbox and proof-recorded before it was called done; the workflows conformance
+suite went 201 → 234 checks and `npm test` 2640 → 2688.
 
 - `raw_request` refuses five call shapes that answer 200 and do silent damage: `remove-stuck-statuses` without `statusIds` (evicts everyone at the step), `start-workflow` with an empty body (phantom enrolment), the per-workflow `change-status` door with `published` (skips every validation layer — use `publish_workflow`), the BULK `change-status` door with `published` (same bypass, every id in the body at once — also `publish_workflow`), and `permission/{workflowId}` with no `permission` key (a 200 that changes nothing).
 - `raw_request`'s confirm preview now carries `trap` — the catalogue's measured note for the route — so a caller sees "this REPLACES the list" or "this wipes history" before confirming.
