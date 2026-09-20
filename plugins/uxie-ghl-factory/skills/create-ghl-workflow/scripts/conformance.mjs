@@ -754,7 +754,18 @@ if (ovTotal !== total) {
 // day GHL starts answering per-workflow rows (which would make the N calls unnecessary).
 {
   const gwo = deps.makeGw({ loc: LOCATION, state });
-  const sample = (await call('list_workflows', { pageSize: 50, maxPages: 1 })).data?.workflows?.map((w) => w.id ?? w._id).filter(Boolean).slice(0, 20) ?? [];
+  // 🔴 MEASURED 2026-09-20: `maxPages: 1` on the sandbox (~388 workflows) exhausts the budget
+  // before the walk completes. A budget-exhausted walk answers `complete:false` and
+  // `workflows: null` — never a partial list — so `?.map` short-circuited, `?? []` produced an
+  // EMPTY sample, and every check below it passed vacuously (a differential of 0 against 0).
+  // pageSize:100 x maxPages:5 covers the sandbox with headroom; the walk is asserted complete
+  // before the sample is trusted, so a future account too big for this budget fails loudly here
+  // instead of silently emptying the sample again.
+  const sampleWalk = await call('list_workflows', { pageSize: 100, maxPages: 5 });
+  check(sampleWalk.data?.complete === true && (sampleWalk.data?.workflows ?? []).length > 0,
+    'the sample walk completed and yielded workflows to sample',
+    `complete=${sampleWalk.data?.complete} rows=${(sampleWalk.data?.workflows ?? []).length} terminalReason=${sampleWalk.data?.terminalReason ?? ''}`);
+  const sample = (sampleWalk.data?.workflows ?? []).map((w) => w.id ?? w._id).filter(Boolean).slice(0, 20);
   const off = await call('get_account_workflow_overview', { workflowIds: sample, needsReviewLimit: 1 });
   check(off.data?.triggerCounts === null, 'CONTROL: triggerCounts is OFF unless asked for');
   const on = await call('get_account_workflow_overview', { workflowIds: sample, needsReviewLimit: 1, includeTriggerCounts: true });
