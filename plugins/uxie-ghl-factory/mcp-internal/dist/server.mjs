@@ -57597,9 +57597,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       set_workflow_error_alerts: {
-        description: "Set who GHL emails when a workflow step fails \u2014 proof: external-receipt-required; risk: write",
+        description: "Set who GHL emails when a workflow step fails \u2014 proof: live-runtime (2026-09-20); risk: write",
         risk: "write",
-        proof: "external-receipt-required",
+        proof: "live-runtime (2026-09-20)",
         proofFloor: "external-receipt-required",
         proofRows: [
           "workflow-error-notification-settings-read",
