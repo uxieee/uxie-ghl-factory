@@ -758,10 +758,15 @@ if (ovTotal !== total) {
   // before the walk completes. A budget-exhausted walk answers `complete:false` and
   // `workflows: null` — never a partial list — so `?.map` short-circuited, `?? []` produced an
   // EMPTY sample, and every check below it passed vacuously (a differential of 0 against 0).
-  // pageSize:100 x maxPages:5 covers the sandbox with headroom; the walk is asserted complete
-  // before the sample is trusted, so a future account too big for this budget fails loudly here
-  // instead of silently emptying the sample again.
-  const sampleWalk = await call('list_workflows', { pageSize: 100, maxPages: 5 });
+  // MEASURED 2026-09-20: the sandbox reports 547 workflows (the plan's "~388" was stale), so
+  // pageSize:100 x maxPages:5 = 500 still exhausted the budget and answered
+  // ROSTER_PAGE_BUDGET_EXHAUSTED. 10 pages covers 1000 with headroom. The walk is asserted
+  // complete before the sample is trusted, so an account too big for this budget fails loudly
+  // here instead of silently emptying the sample again.
+  // There is no list_workflows_complete in this plugin's TOOLS; a budget-exhausted walk does
+  // expose `partialWorkflows`, deliberately under a different key so a partial list can never be
+  // mistaken for a whole one.
+  const sampleWalk = await call('list_workflows', { pageSize: 100, maxPages: 10 });
   check(sampleWalk.data?.complete === true && (sampleWalk.data?.workflows ?? []).length > 0,
     'the sample walk completed and yielded workflows to sample',
     `complete=${sampleWalk.data?.complete} rows=${(sampleWalk.data?.workflows ?? []).length} terminalReason=${sampleWalk.data?.terminalReason ?? ''}`);
