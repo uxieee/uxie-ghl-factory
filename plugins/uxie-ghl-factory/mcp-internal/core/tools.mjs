@@ -8,6 +8,7 @@ import { z } from 'zod';
 import { ok, fail, fromHttp, CODES, REDACTED, containsSecrets, scrubSecrets } from './errors.mjs';
 import { authStatus, DEFAULT_TOKEN_FILE, readCredentials } from './auth.mjs';
 import { checkLocationBinding } from './location-binding.mjs';
+import { refuseRawRequest, matchCatalogRow } from './raw-request-guards.mjs';
 import { scanPage, judge, judgeVersions, judgeRouting, judgePathCollisions, judgePageRecord, judgeRendered, judgeStyles, normaliseTag } from './site-audit.mjs';
 import { makeAuditCircuit, makeAuditGateway, makeAuditLimiter } from './audit-gateway.mjs';
 import { makeGateway } from './gateway.mjs';
@@ -7102,14 +7103,28 @@ export const TOOLS = [
         );
       }
 
+      // Four more shapes with no legitimate version, each measured doing silent damage or nothing
+      // at all (core/raw-request-guards.mjs). Refused before the confirm gate, like R-95: confirm
+      // is consent to a write, not to a malformed one.
+      const refusal = refuseRawRequest({ method, path: args.path, body });
+      if (refusal) return fail(CODES.VALIDATION_FAILED, refusal.message, refusal.hint);
+
       if (method !== 'GET' && args.confirm !== true) {
+        // The route's measured trap, at the one moment it matters. The catalogue already knows that
+        // DELETE …/split wipes history and that …/settings/users REPLACES the list; a preview of
+        // method + path + body showed none of it.
+        const row = matchCatalogRow(endpoints(), method, args.path);
+        const words = row ? endpointWords(row) : null;
+        const trap = words?.note ? { endpointId: row.id, kind: endpointKind(row), note: words.note } : null;
         return withFailureData(
           fail(
             CODES.CONFIRM_REQUIRED,
             'Raw write preview is ready; no gateway call was sent.',
-            'Review data.preview, then repeat the same request with confirm:true to send it.',
+            trap
+              ? 'READ data.preview.trap FIRST — it is what was measured about this route. Then repeat the same request with confirm:true to send it.'
+              : 'Review data.preview, then repeat the same request with confirm:true to send it.',
           ),
-          { preview: { method, path: args.path, ...(body === undefined ? {} : { body }) } },
+          { preview: { method, path: args.path, ...(body === undefined ? {} : { body }), ...(trap ? { trap } : {}) } },
         );
       }
 

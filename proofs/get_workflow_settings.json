@@ -133,10 +133,20 @@
         "receipt:2026-09-18-2214"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-20",
+      "result": "pass",
+      "how": "suite",
+      "suite": "workflows",
+      "evidence": [
+        "receipt:2026-09-20-0038"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
-    "hashedAt": "2026-09-18",
+    "hashedAt": "2026-09-20",
     "endpoints": {
       "GET https://backend.leadconnectorhq.com /workflow/{}/auto-save/settings": "2a2115f980d56e564a36ef8a9820659eb11a4650f8ad06fd3a93516a2844ab34",
       "GET https://backend.leadconnectorhq.com /workflow/{}/eliza-users": "4de96ee6b2e2d8196114259b90ee81a390731760a46d366497ca5ab423e1935b",

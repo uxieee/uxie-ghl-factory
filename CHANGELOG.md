@@ -11,6 +11,11 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## Unreleased
+
+- `raw_request` refuses four call shapes that answer 200 and do silent damage: `remove-stuck-statuses` without `statusIds` (evicts everyone at the step), `start-workflow` with an empty body (phantom enrolment), the per-workflow `change-status` door with `published` (skips every validation layer — use `publish_workflow`), and `permission/{workflowId}` with no `permission` key (a 200 that changes nothing).
+- `raw_request`'s confirm preview now carries `trap` — the catalogue's measured note for the route — so a caller sees "this REPLACES the list" or "this wipes history" before confirming.
+
 ## [0.93.0] — 2026-09-19
 
 GHL shipped twenty new first-party steps and triggers through the Add-step panel, not the builder

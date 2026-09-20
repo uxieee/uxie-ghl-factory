@@ -748,6 +748,31 @@ if (ovTotal !== total) {
   console.log(`  NOTE  the overview total (${ovTotal}) disagrees with the listing rails (${total}) — bl-132, undiagnosed`);
 }
 
+// ── raw_request: four shapes it refuses, and the trap note in the preview ─────────────────────
+// Every refusal is for a call that answers 200 and does silent damage (or nothing). The proof that
+// matters is that NOTHING IS SENT — so each case is given confirm:true, and the ghost ids mean a
+// regression would surface as a GHL 404 instead of a VALIDATION_FAILED.
+console.log('\nraw_request: refused shapes');
+log.subject('raw_request');
+{
+  const GHOST = '00000000-0000-4000-8000-000000000000';
+  const refused = [
+    ['POST', `/workflow/${LOCATION}/${GHOST}/remove-stuck-statuses/${GHOST}`, { actionFrom: {} }, 'remove-stuck-statuses without statusIds'],
+    ['POST', `/workflow/${LOCATION}/${GHOST}/start-workflow`, {}, 'start-workflow with an empty body'],
+    ['PUT', `/workflow/${LOCATION}/change-status/${GHOST}`, { status: 'published', updatedBy: 'x' }, 'the per-workflow publish door'],
+    ['PUT', `/workflow/${LOCATION}/permission/${GHOST}`, {}, 'permission with no `permission` key'],
+  ];
+  for (const [method, path, body, label] of refused) {
+    const r = await call('raw_request', { method, path, body, confirm: true });
+    check(r.ok === false && r.code === 'VALIDATION_FAILED', `raw_request REFUSES ${label}, even with confirm:true`, `${r.code} ${String(r.detail ?? '').slice(0, 160)}`);
+  }
+  // CONTROL: the same route with a well-formed body is NOT refused — it reaches the confirm gate.
+  const control = await call('raw_request', { method: 'PUT', path: `/workflow/${LOCATION}/permission/${GHOST}`, body: { permission: 380 } });
+  check(control.code === 'CONFIRM_REQUIRED', 'CONTROL: a well-formed body on the same route reaches the confirm gate instead', control.code);
+  const trap = await call('raw_request', { method: 'DELETE', path: `/workflow/${LOCATION}/split?workflowId=${GHOST}&stepId=${GHOST}` });
+  check(trap.code === 'CONFIRM_REQUIRED' && /WIPES/.test(trap.data?.preview?.trap?.note ?? ''), 'the confirm preview carries the route\'s measured trap note', JSON.stringify(trap.data?.preview?.trap ?? null).slice(0, 200));
+}
+
 // ── 6b. the account-level settings rail, and the three routes that answer 200 with nothing ──
 // 🔴 WHY THIS SECTION EXISTS. Every route behind get_workflow_settings answers 200 whether or not
 // the account holds a record, and three answer 200 with an EMPTY body (workflow-ai and

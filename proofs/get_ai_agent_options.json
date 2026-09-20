@@ -113,10 +113,20 @@
         "receipt:2026-09-18-2214"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-20",
+      "result": "pass",
+      "how": "suite",
+      "suite": "workflows",
+      "evidence": [
+        "receipt:2026-09-20-0038"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
-    "hashedAt": "2026-09-18",
+    "hashedAt": "2026-09-20",
     "endpoints": {
       "GET https://backend.leadconnectorhq.com /workflow/agent/{}/mcp-connections": "0d11b74643e951dfa31ca5a79552498c89eff4e281ee9d31b934aebc35aca8a8",
       "GET https://backend.leadconnectorhq.com /workflow/agent/{}/mcp-connections/oauth2-tokens": "b705e38c47959f0dd491c2b778c5a144174566f12c1d3009622201b0a661db5c",

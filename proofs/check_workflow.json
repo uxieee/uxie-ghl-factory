@@ -143,10 +143,23 @@
         "receipt:2026-09-18-2214"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-20",
+      "result": "fail",
+      "how": "suite",
+      "suite": "workflows",
+      "evidence": [
+        "receipt:2026-09-20-0038"
+      ],
+      "location": "…zn6B",
+      "failures": [
+        "control-a-trigger-naming-a-calendar-that-exists-reports-nothing"
+      ]
     }
   ],
   "depends": {
-    "hashedAt": "2026-09-18",
+    "hashedAt": "2026-09-20",
     "endpoints": {
       "GET https://backend.leadconnectorhq.com /locations/{}/customFields/search": "243cf31ac9bf9947d7ecc4a4a0f6c8f758286fe2701bc88e201f2e12ff03759f",
       "GET https://backend.leadconnectorhq.com /locations/{}/customValues": "7528d8d44a9a81689c4ff5dc3875cd96f40b6c37d613bd11156e149b728ac054",
