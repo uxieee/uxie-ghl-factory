@@ -149,7 +149,7 @@ commit `dist/` — a test rebuilds-and-diffs so a stale bundle can't ship.
 | `get_workflow_digest` | a compact read of one workflow: identity, version, a structural fingerprint, the trigger set, ONE line per step (wiring, refs, merge tags, text preview, owning branch) and the linear chains — roughly a tenth of `export_workflow` |
 | `search_merge_tags` | the builder picker's 442 static merge tags ranked against a phrase, plus this account's own custom fields and values when a `locationId` is given (no network without one) |
 | `export_workflow` | workflow body + triggers + sticky notes |
-| `get_workflow_logs` | executions, per-step counts, enrollment roster; `executionId` = one run's full step trace |
+| `get_workflow_logs` | executions, per-step counts, enrollment roster; `executionId` = one run's full step trace; every `ai_agent` step's row lists its `threadId` in `agentThreads[]`; `includeAgentTrace: true` (needs `executionId`, refused without it) additionally fetches each thread's full agent trace — opt-in, one run at a time, the trace carries the model's input/output INCLUDING CONTACT DATA |
 | `get_workflow_runtime_window` | one workflow's complete, evidence-qualified runtime window (see **Audit profile**) |
 | `list_workflows` | the whole roster walked to a reconciled terminal proof; optional `status`/`search` filter the walk (see **The receipt-gated composites**) |
 | `get_ai_configuration_bundle` | Conversation AI + Voice AI + Agent Studio discovery and detail (see **Audit profile**) |
@@ -158,7 +158,7 @@ commit `dist/` — a test rebuilds-and-diffs so a stale bundle can't ship.
 | `list_workflow_versions` | version history (saved/published snapshots, newest first; 30 days or last 10) |
 | `get_workflow_version` | one version snapshot with its full step graph, by number or id |
 | `get_trigger_logs` | why a trigger did/didn't fire: per-contact attempts with qualified, failedReason, actual vs expected value, plus ranked top-failed-reasons |
-| `get_account_workflow_overview` | the Workflow Overview page as data: location counts, weekly enrollment, Needs-Review list + error-email settings, batched enrolled/finished totals |
+| `get_account_workflow_overview` | the Workflow Overview page as data: location counts, weekly enrollment, Needs-Review list + error-email settings, batched enrolled/finished totals; `includeTriggerCounts: true` (default false) adds per-workflow trigger attempted/matched for the last 30 days and flags `neverMatches` — one call per workflow, since GHL's count route sums whatever id list it's given |
 | `test_custom_code` | run Custom Code in GHL's sandbox with sample inputData (the builder's Test button) — output validity + console, nothing touched |
 | `validate_workflow` | GHL's own server validator (the builder's live check) over the stored document or an edited `templates` array, with the stored triggers — `valid`, the failing `layer`, rule/step/message; writes nothing |
 | `pin_webhook_sample` | POST a sample to an inbound_webhook trigger's receiving URL, pin it as the trigger's reference, return its `{{inboundWebhookRequest.*}}` tags — preview + `confirm` (it REPLACES the active reference) |
@@ -178,7 +178,7 @@ commit `dist/` — a test rebuilds-and-diffs so a stale bundle can't ship.
 | `create_custom_field_folder` | read-only preview listing existing folders; creation requires `confirm: true`; duplicate names are caught before the write and report the existing id |
 | `set_workflow_error_alerts` | who GHL emails when a workflow step fails, and the on/off switch — LOCATION-WIDE. GHL's route REPLACES the recipient list, so this reads the current list, merges `addUsers`/`removeUsers` into it, previews by default, writes on `confirm: true` and reports `verified` from a read-back; an id that is not a user of the location is refused before any write |
 | `fast_forward_contacts` | read-only parked-enrollment preview; selective requeue only with `confirm: true` |
-| `raw_request` | GET escape hatch; non-GET methods require `confirm: true` and return partial-progress evidence |
+| `raw_request` | GET escape hatch; refuses four call shapes with no legitimate version (measured to do silent damage or nothing); other non-GET methods require `confirm: true`, whose preview carries the route's measured `trap` note when one is known, and return partial-progress evidence |
 
 ### Workflow folders: two upstream quirks the tools hide
 
