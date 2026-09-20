@@ -21,14 +21,31 @@ test('start-workflow is refused with an empty body — and allowed with a real o
   assert.equal(refuseRawRequest({ method: 'POST', path, body: { contactId: 'c1', actionFrom: { userId: 'u' } } }), null);
 });
 
-test('the per-workflow change-status door refuses published — draft, and the BULK route, pass (controls)', () => {
+test('the per-workflow change-status door refuses published — draft passes (control), and the BULK route now refuses published under its OWN rule', () => {
   const one = `/workflow/${L}/change-status/${W}`;
   const hit = refuseRawRequest({ method: 'PUT', path: one, body: { status: 'published', updatedBy: 'u' } });
   assert.equal(hit?.rule, 'change-status-publish-door');
   assert.match(hit.hint, /publish_workflow/);
   assert.equal(refuseRawRequest({ method: 'PUT', path: one, body: { status: 'draft', updatedBy: 'u' } }), null);
-  // The bulk route has no trailing workflow id; it is what publish_workflow itself calls. Out of this guard's scope.
-  assert.equal(refuseRawRequest({ method: 'PUT', path: `/workflow/${L}/change-status`, body: { workflowIds: [W], status: 'published', updatedBy: 'u' } }), null);
+  // The bulk route has no trailing workflow id. It is what publish_workflow and unpublish_workflows
+  // call — but they call it through the gateway, never through raw_request, so this guard cannot
+  // touch them; it only closes the same bypass for a caller reaching the bulk route directly.
+  const bulkHit = refuseRawRequest({ method: 'PUT', path: `/workflow/${L}/change-status`, body: { workflowIds: [W], status: 'published', updatedBy: 'u' } });
+  assert.equal(bulkHit?.rule, 'bulk-change-status-publish-door');
+  assert.match(bulkHit.hint, /publish_workflow/);
+});
+
+test('the BULK publish door is refused for published, whatever case or padding — draft still passes (control), and a GET on the same path is never refused', () => {
+  const bulk = `/workflow/${L}/change-status`;
+  for (const status of ['PUBLISHED', 'published ', ' Published']) {
+    const hit = refuseRawRequest({ method: 'PUT', path: bulk, body: { workflowIds: [W], status, updatedBy: 'u' } });
+    assert.equal(hit?.rule, 'bulk-change-status-publish-door', JSON.stringify(status));
+  }
+  // CONTROL: bulk unpublish must stay reachable — unpublish_workflows relies on exactly this shape.
+  assert.equal(refuseRawRequest({ method: 'PUT', path: bulk, body: { workflowIds: [W], status: 'draft', updatedBy: 'u' } }), null);
+  assert.equal(refuseRawRequest({ method: 'PUT', path: bulk, body: { workflowIds: [W], status: 'DRAFT', updatedBy: 'u' } }), null);
+  // Method scoping: a GET on the bulk path is never refused.
+  assert.equal(refuseRawRequest({ method: 'GET', path: bulk, body: undefined }), null);
 });
 
 test('permission/{workflowId} is refused with no `permission` key — a 0 is a key (control), and /permissions is another route', () => {

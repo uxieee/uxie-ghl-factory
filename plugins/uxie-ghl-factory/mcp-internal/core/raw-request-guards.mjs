@@ -3,8 +3,9 @@
 // A refusal here is for a shape with NO legitimate version: each one below answers 200 and does
 // silent damage, or answers 200 and does nothing. Anything merely dangerous stays behind the
 // confirm gate instead — a guard that second-guesses a deliberate call would just teach callers
-// to route around this tool. Every rule was measured live on the designated sandbox 2026-09-19;
-// the measurements are on the catalogue rows (describe_endpoint prints them).
+// to route around this tool. Every rule was measured live on the designated sandbox (bulk
+// change-status 2026-09-08, the rest 2026-09-19); the measurements are on the catalogue rows
+// (describe_endpoint prints them).
 //
 // Pure on purpose: no gateway, no catalogue read. tools.mjs passes what it already holds.
 
@@ -48,6 +49,14 @@ const RULES = [
     refuses: (wire) => isPlainObject(wire) && String(wire.status ?? '').trim().toLowerCase() === 'published',
     message: 'PUT …/change-status/{workflowId} with status:"published" is a second publish door that runs NONE of the four validation layers publish_workflow runs.',
     hint: 'Use publish_workflow. Setting status:"draft" through this route is not refused.',
+  },
+  {
+    rule: 'bulk-change-status-publish-door',
+    method: 'PUT',
+    path: /^\/workflow\/[^/]+\/change-status$/,
+    refuses: (wire) => isPlainObject(wire) && String(wire.status ?? '').trim().toLowerCase() === 'published',
+    message: 'PUT …/change-status (no trailing workflowId) with status:"published" is the BULK publish door — it runs NONE of the validation layers publish_workflow runs, and it does so for every id in body.workflowIds at once.',
+    hint: 'Use publish_workflow. Setting status:"draft" through this route is not refused — bulk stand-down is legitimate; unpublish_workflows is the tool for it.',
   },
   {
     rule: 'permission-needs-key',

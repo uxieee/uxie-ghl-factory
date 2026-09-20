@@ -90787,6 +90787,14 @@ var RULES = [
     hint: 'Use publish_workflow. Setting status:"draft" through this route is not refused.'
   },
   {
+    rule: "bulk-change-status-publish-door",
+    method: "PUT",
+    path: /^\/workflow\/[^/]+\/change-status$/,
+    refuses: (wire) => isPlainObject3(wire) && String(wire.status ?? "").trim().toLowerCase() === "published",
+    message: 'PUT \u2026/change-status (no trailing workflowId) with status:"published" is the BULK publish door \u2014 it runs NONE of the validation layers publish_workflow runs, and it does so for every id in body.workflowIds at once.',
+    hint: 'Use publish_workflow. Setting status:"draft" through this route is not refused \u2014 bulk stand-down is legitimate; unpublish_workflows is the tool for it.'
+  },
+  {
     rule: "permission-needs-key",
     method: "PUT",
     path: /^\/workflow\/[^/]+\/permission\/[^/]+$/,

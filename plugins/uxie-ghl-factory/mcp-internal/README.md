@@ -178,7 +178,7 @@ commit `dist/` — a test rebuilds-and-diffs so a stale bundle can't ship.
 | `create_custom_field_folder` | read-only preview listing existing folders; creation requires `confirm: true`; duplicate names are caught before the write and report the existing id |
 | `set_workflow_error_alerts` | who GHL emails when a workflow step fails, and the on/off switch — LOCATION-WIDE. GHL's route REPLACES the recipient list, so this reads the current list, merges `addUsers`/`removeUsers` into it, previews by default, writes on `confirm: true` and reports `verified` from a read-back; an id that is not a user of the location is refused before any write |
 | `fast_forward_contacts` | read-only parked-enrollment preview; selective requeue only with `confirm: true` |
-| `raw_request` | GET escape hatch; refuses four call shapes with no legitimate version (measured to do silent damage or nothing); other non-GET methods require `confirm: true`, whose preview carries the route's measured `trap` note when one is known, and return partial-progress evidence |
+| `raw_request` | GET escape hatch; refuses five call shapes with no legitimate version (measured to do silent damage or nothing); other non-GET methods require `confirm: true`, whose preview carries the route's measured `trap` note when one is known, and return partial-progress evidence |
 
 ### Workflow folders: two upstream quirks the tools hide
 

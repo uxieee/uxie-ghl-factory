@@ -787,7 +787,7 @@ if (ovTotal !== total) {
     `${JSON.stringify(summed)} vs sum ${total}`);
 }
 
-// ── raw_request: four shapes it refuses, and the trap note in the preview ─────────────────────
+// ── raw_request: five shapes it refuses, and the trap note in the preview ─────────────────────
 // Every refusal is for a call that answers 200 and does silent damage (or nothing). The proof that
 // matters is that NOTHING IS SENT — so each case is given confirm:true.
 // 🔴 THE CODE ALONE IS A ONE-WAY ERROR. fromHttp maps an upstream 422 (and a 401 naming a missing
@@ -803,6 +803,7 @@ log.subject('raw_request');
     ['POST', `/workflow/${LOCATION}/${GHOST}/remove-stuck-statuses/${GHOST}`, { actionFrom: {} }, 'remove-stuck-statuses without statusIds', /evicts EVERYONE at the step/],
     ['POST', `/workflow/${LOCATION}/${GHOST}/start-workflow`, {}, 'start-workflow with an empty body', /creates a PHANTOM enrolment/],
     ['PUT', `/workflow/${LOCATION}/change-status/${GHOST}`, { status: 'published', updatedBy: 'x' }, 'the per-workflow publish door', /second publish door/],
+    ['PUT', `/workflow/${LOCATION}/change-status`, { workflowIds: [GHOST], status: 'published', updatedBy: 'x' }, 'the BULK publish door', /BULK publish door/],
     ['PUT', `/workflow/${LOCATION}/permission/${GHOST}`, {}, 'permission with no `permission` key', /the 200 carries no information/],
   ];
   for (const [method, path, body, label, mine] of refused) {
