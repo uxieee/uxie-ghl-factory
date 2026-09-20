@@ -245,6 +245,16 @@
         "receipt:2026-09-20-1207"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-20",
+      "result": "pass",
+      "how": "suite",
+      "suite": "workflows",
+      "evidence": [
+        "receipt:2026-09-20-1250"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
@@ -256,14 +266,15 @@
       "GET https://backend.leadconnectorhq.com /workflows/logs/weekly-enrollment-data": "05c82faec5ce931cb4a415a44843c6bc470a9744c3e003a899bf1c4466729100",
       "GET https://backend.leadconnectorhq.com /workflows/statistics": "3e994c5c8f87008430c3a507c728300cba9a27ebad59637b435086c76b150aa6",
       "GET https://backend.leadconnectorhq.com /workflows/status/search/enroll-stats": "f33759a3aecfcd381e95366cb4f2410a9a72ecd7d5c96424322614fd34f765b6",
-      "GET https://backend.leadconnectorhq.com /workflows/status/search/enroll-stats-cache": "f661748195c2b184db7c0dbeef56964065f3ba7d1c4d8e8b27f044dccc0cfd86"
+      "GET https://backend.leadconnectorhq.com /workflows/status/search/enroll-stats-cache": "f661748195c2b184db7c0dbeef56964065f3ba7d1c4d8e8b27f044dccc0cfd86",
+      "POST https://backend.leadconnectorhq.com /workflows/trigger/logs/count": "d0acee94332460cd3da258c0c967643c3dcb4723d24844891182b01b30baad7a"
     },
     "builds": {
       "builder-chunks": "assets/index-BZBeFyAW.js",
       "reportingApp": 272
     },
     "code": {
-      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#get_account_workflow_overview": "8072e8a91fbc8ce931966e4d666c995bae768294e90c70142ac321bbbcc2aa83",
+      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#get_account_workflow_overview": "61a101a7597d3bc264558ac5b616bdb764245543647e710ccf7654302a69e1a7",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "e65c2384aefb498ce49453dd2d6d8d1a1d8351fd6d337aef5256eb982e1db02f",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
       "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "2d59b12818ffe76fb105e5284c3d186aea8d07f6a457b7c6344ea2258ba6a1d6"
