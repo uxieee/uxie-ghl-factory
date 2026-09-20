@@ -31,6 +31,7 @@ test('get_workflow_stats exists, is read-only, and declares exactly the Stats-vi
     'GET /workflow/{loc}/{wid}', 'GET /workflow/{loc}/trigger',
     'GET /conversations-reporting/messages/aggregate', 'GET /conversations-reporting/emails/aggregate',
     'GET /workflows/trigger/logs/count-by-triggerId', 'GET /workflows/status/search/count-per-step',
+    'GET /workflow/{loc}/split/stats',
   ]);
   assert.ok(t.capabilities.every((c) => c.method === 'GET'));
 });
@@ -83,4 +84,45 @@ test('a missing workflow maps to the HTTP error contract', async () => {
   const gw = gwStub({ '/workflow/L/nope?': { status: 404, ok: false, json: { message: 'not found' } } });
   const result = await tool('get_workflow_stats').handler({ locationId: 'L', workflowId: 'nope' }, deps(gw));
   assert.equal(result.ok, false);
+});
+
+test('a workflow_split step gets per-path entered counts, named from the path templates', async () => {
+  const gw = gwStub({
+    '/workflow/L/w1?': { _id: 'w1', status: 'published', workflowData: { templates: [
+      { id: 'sp', type: 'workflow_split', name: 'A/B', next: ['pA', 'pB'] },
+      { id: 'pA', type: 'transition', name: 'Path A' }, { id: 'pB', type: 'transition', name: 'Path B' },
+    ] } },
+    '/split/stats': { totalContactsEntered: 5, pA: 3, pB: 2, traceId: 't' },
+    '/workflows/status/search/count-per-step': [],
+  });
+  const r = await tool('get_workflow_stats').handler({ locationId: 'L', workflowId: 'w1', includeTriggers: false }, deps(gw));
+  assert.equal(r.ok, true, JSON.stringify(r));
+  assert.deepEqual(r.data.splits, [{ stepId: 'sp', name: 'A/B', totalContactsEntered: 5, paths: [{ pathId: 'pA', name: 'Path A', entered: 3 }, { pathId: 'pB', name: 'Path B', entered: 2 }] }]);
+  // All three arguments, with literal pathIds[] keys — workflowId alone answers 500.
+  const sent = gw.calls.find((c) => c.path.includes('/split/stats')).path;
+  assert.match(sent, /^\/workflow\/L\/split\/stats\?workflowId=w1&stepId=sp&pathIds\[\]=pA&pathIds\[\]=pB$/);
+});
+
+test('CONTROL: no split step → splits is [] and the route is never called; includeSplits:false skips it even when one exists', async () => {
+  const none = gwStub({ '/workflow/L/w1?': { workflowData: { templates: [{ id: 's1', type: 'sms' }] } }, '/conversations-reporting': { results: {} }, '/workflows/status/search/count-per-step': [] });
+  const a = await tool('get_workflow_stats').handler({ locationId: 'L', workflowId: 'w1', includeTriggers: false }, deps(none));
+  assert.deepEqual(a.data.splits, []);
+  assert.equal(none.calls.some((c) => c.path.includes('/split/stats')), false);
+  const off = gwStub({ '/workflow/L/w1?': { workflowData: { templates: [{ id: 'sp', type: 'workflow_split', next: ['pA'] }] } }, '/workflows/status/search/count-per-step': [] });
+  const b = await tool('get_workflow_stats').handler({ locationId: 'L', workflowId: 'w1', includeTriggers: false, includeSplits: false }, deps(off));
+  assert.equal(b.data.splits, null);
+  assert.equal(off.calls.some((c) => c.path.includes('/split/stats')), false);
+});
+
+test('a failed split read is recorded on that split, not fatal; a split with no paths is reported without a call', async () => {
+  const gw = gwStub({
+    '/workflow/L/w1?': { workflowData: { templates: [{ id: 'sp', type: 'workflow_split', name: 'S', next: ['pA'] }, { id: 'sp2', type: 'workflow_split', name: 'Empty', next: [] }] } },
+    '/split/stats': { status: 500, ok: false, json: { message: 'boom' } },
+    '/workflows/status/search/count-per-step': [],
+  });
+  const r = await tool('get_workflow_stats').handler({ locationId: 'L', workflowId: 'w1', includeTriggers: false }, deps(gw));
+  assert.equal(r.ok, true);
+  assert.deepEqual(r.data.splits[0], { stepId: 'sp', name: 'S', totalContactsEntered: null, paths: [], error: { status: 500 } });
+  assert.deepEqual(r.data.splits[1], { stepId: 'sp2', name: 'Empty', totalContactsEntered: null, paths: [], error: { status: null, reason: 'the split step has no paths (next[] is empty)' } });
+  assert.equal(gw.calls.filter((c) => c.path.includes('/split/stats')).length, 1);
 });

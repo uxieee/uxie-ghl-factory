@@ -3191,7 +3191,7 @@ export const TOOLS = [
     name: 'get_workflow_stats',
     description: describe(
       'get_workflow_stats',
-      'The builder\'s Stats view as data: per-step SMS/email delivery aggregates, per-trigger attempted/matched counts, contacts per step (last 30 days max).',
+      'The builder\'s Stats view as data: per-step SMS/email delivery aggregates, per-trigger attempted/matched counts, contacts per step, and per-path entered counts for every A/B split (last 30 days max).',
     ),
     inputSchema: schema({
       locationId: z.string(),
@@ -3202,6 +3202,9 @@ export const TOOLS = [
       stepTypes: z.array(z.string()).default(['sms', 'email']),
       includeTriggers: z.boolean().default(true),
       includeContactsPerStep: z.boolean().default(true),
+      // Per-path entered counts for each workflow_split step. One extra call per split step, none
+      // when the workflow has no split.
+      includeSplits: z.boolean().default(true),
     }),
     capabilities: [
       { method: 'GET', path: '/workflow/{loc}/{wid}' },
@@ -3210,6 +3213,7 @@ export const TOOLS = [
       { method: 'GET', path: '/conversations-reporting/emails/aggregate' },
       { method: 'GET', path: '/workflows/trigger/logs/count-by-triggerId' },
       { method: 'GET', path: '/workflows/status/search/count-per-step' },
+      { method: 'GET', path: '/workflow/{loc}/split/stats' },
     ],
     handler: async (args, deps) => guard(async () => {
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
@@ -3255,11 +3259,33 @@ export const TOOLS = [
         const r = await gw.call('GET', `/workflows/status/search/count-per-step?${new URLSearchParams({ workflowId: args.workflowId, locationId: args.locationId })}`);
         if (r.ok) contactsPerStep = recordsFrom(r.json, 'data', 'rows').map((x) => ({ stepId: x.currentStepId ?? x.stepId ?? null, total: x.total ?? null }));
       }
+      // A/B split results. The route needs ALL THREE arguments (workflowId alone answers 500, none
+      // answers 404 — measured 2026-09-19) and answers {totalContactsEntered, <pathId>: n}. The path
+      // ids are the split template's own next[]. Brackets are written literally: URLSearchParams
+      // would percent-encode them.
+      let splits = null;
+      if (args.includeSplits !== false) {
+        splits = [];
+        const nameOf = new Map(templates.filter(Boolean).map((t) => [t.id, t.name ?? null]));
+        for (const t of templates) {
+          if (t?.type !== 'workflow_split') continue;
+          const pathIds = Array.isArray(t.next) ? t.next.filter((id) => typeof id === 'string' && id) : [];
+          if (!pathIds.length) { splits.push({ stepId: t.id, name: t.name ?? null, totalContactsEntered: null, paths: [], error: { status: null, reason: 'the split step has no paths (next[] is empty)' } }); continue; }
+          const q = `workflowId=${wid}&stepId=${encodeURIComponent(t.id)}${pathIds.map((id) => `&pathIds[]=${encodeURIComponent(id)}`).join('')}`;
+          const r = await gw.call('GET', `/workflow/${loc}/split/stats?${q}`);
+          if (!r.ok) { splits.push({ stepId: t.id, name: t.name ?? null, totalContactsEntered: null, paths: [], error: { status: r.status } }); continue; }
+          splits.push({
+            stepId: t.id, name: t.name ?? null,
+            totalContactsEntered: Number(r.json?.totalContactsEntered ?? 0),
+            paths: pathIds.map((id) => ({ pathId: id, name: nameOf.get(id) ?? null, entered: Number(r.json?.[id] ?? 0) })),
+          });
+        }
+      }
       return ok({
         workflowId: args.workflowId, status: wf.json?.status ?? null, window,
         steps, stepsWithoutStats: templates.filter((t) => t && !stepTypes.has(t.type)).map((t) => ({ id: t.id, type: t.type })).length,
-        triggers, contactsPerStep,
-        note: 'Same endpoints as the builder\'s Stats view (rail toggle, pie icon); GHL keeps these for the last 30 days only. SMS "failed" = metrics.unfulfilled; email "bounced" = metrics.permanentFail.',
+        triggers, contactsPerStep, splits,
+        note: 'Same endpoints as the builder\'s Stats view (rail toggle, pie icon); GHL keeps these for the last 30 days only. SMS "failed" = metrics.unfulfilled; email "bounced" = metrics.permanentFail. splits[] is per-path ENTERED counts since the split was created or last reset (DELETE …/split wipes it) — it is not windowed by `days`.',
       });
     }, args),
   },

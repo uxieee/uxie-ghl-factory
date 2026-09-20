@@ -320,6 +320,11 @@
     "path": "/workflows/status/search/count-per-step"
   },
   {
+    "tool": "get_workflow_stats",
+    "method": "GET",
+    "path": "/workflow/{loc}/split/stats"
+  },
+  {
     "tool": "list_workflow_versions",
     "method": "GET",
     "path": "/workflow/{loc}/{wid}/history"

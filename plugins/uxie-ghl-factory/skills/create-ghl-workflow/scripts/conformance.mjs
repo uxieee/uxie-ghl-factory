@@ -1437,6 +1437,58 @@ console.log('\nruntime: enrolment, drip queue, fast-forward');
   }
 }
 
+// ── get_workflow_stats: A/B split results, proven by DIFFERENTIAL ─────────────────────────────
+// Same fence as the runtime block above: trigger-less workflow, a contact this run creates with no
+// email and no phone, steps that only tag. The proof is the count MOVING: 0 before, 1 after, on
+// exactly one path, and that path's tag is the one on the contact's own record.
+// A path's child steps key is `then` (compiler.mjs reads `flattenGraph(p.then ?? [], …)`); with
+// `graph` both paths compile EMPTY and the differential would prove nothing while printing PASS.
+// `mode: 'weighted'` is what makes `weight` mean anything — without it every path gets an even share.
+console.log('\nget_workflow_stats: split results');
+{
+  const gws = deps.makeGw({ loc: LOCATION, state });
+  const TAG_A = `test-conf-${STAMP}-split-a`, TAG_B = `test-conf-${STAMP}-split-b`;
+  log.subject('build_workflow');
+  const sp = await call('build_workflow', { spec: { name: NAME('split'), triggers: [], graph: [
+    { ref: 's', kind: 'split', name: 'A/B', mode: 'weighted', paths: [
+      { ref: 'pa', name: 'Path A', weight: 50, then: [{ ref: 'ta', kind: 'action', type: 'add_contact_tag', name: 'Tag A', attributes: { tags: [TAG_A] } }] },
+      { ref: 'pb', name: 'Path B', weight: 50, then: [{ ref: 'tb', kind: 'action', type: 'add_contact_tag', name: 'Tag B', attributes: { tags: [TAG_B] } }] },
+    ] }] } });
+  const swid = sp.data?.wid;
+  check(sp.ok === true && typeof swid === 'string', 'build_workflow creates the trigger-less split probe', `${sp.code ?? ''} ${String(sp.detail ?? '').slice(0, 200)}`);
+  if (swid) {
+    left.push(`workflow ${swid} (${NAME('split')}, was PUBLISHED for the run and unpublished after)`);
+    log.subject('get_workflow_stats');
+    const before = await call('get_workflow_stats', { workflowId: swid, stepTypes: [], includeTriggers: false, includeContactsPerStep: false });
+    const b0 = before.data?.splits?.[0];
+    check(before.ok && b0?.paths?.length === 2 && b0.totalContactsEntered === 0, 'BEFORE: one split, two NAMED paths, zero entered', JSON.stringify(before.data?.splits ?? null).slice(0, 240));
+    log.subject('publish_workflow');
+    const pub = await call('publish_workflow', { workflowId: swid, confirm: true });
+    check(pub.ok === true && pub.data?.verify?.totalTriggers === 0, 'published with ZERO triggers', `${pub.code ?? ''}`);
+    log.subject(false);
+    const made = (await gws.call('POST', '/contacts/', { locationId: LOCATION, firstName: 'TEST-CONF', lastName: `${STAMP}-split (no email, no phone)`, tags: ['test-conf'] })).json;
+    const cid = (made?.contact ?? made)?.id;
+    check(Boolean(cid), 'FENCE: one contact created by this run, no email, no phone');
+    if (pub.ok && cid) {
+      left.push(`contact ${cid} (TEST-CONF ${STAMP} split, no email, no phone)`);
+      await gws.call('POST', `/contacts/${cid}/workflow/${swid}`, { eventStartTime: '' });
+      const tagsOf = async () => ((await gws.call('GET', `/contacts/${cid}`)).json?.contact ?? {}).tags ?? [];
+      let tags = [];
+      for (let i = 0; i < 12 && !tags.some((t) => t === TAG_A || t === TAG_B); i++) { await new Promise((r) => setTimeout(r, 5000)); tags = await tagsOf(); }
+      const took = tags.includes(TAG_A) ? 'Path A' : tags.includes(TAG_B) ? 'Path B' : null;
+      check(took !== null, 'EFFECT: the contact\'s OWN RECORD carries exactly one path\'s tag — which is also the proof the paths compiled NON-EMPTY', JSON.stringify(tags));
+      log.subject('get_workflow_stats');
+      const after = await call('get_workflow_stats', { workflowId: swid, stepTypes: [], includeTriggers: false, includeContactsPerStep: false });
+      const a0 = after.data?.splits?.[0];
+      const entered = Object.fromEntries((a0?.paths ?? []).map((p) => [p.name, p.entered]));
+      check(a0?.totalContactsEntered === 1 && entered[took] === 1 && Object.values(entered).reduce((x, y) => x + y, 0) === 1,
+        'DIFFERENTIAL: split stats moved 0 → 1 on the SAME path the contact\'s tag names, and on no other', JSON.stringify(a0 ?? null).slice(0, 240));
+    }
+    log.subject('unpublish_workflows');
+    await call('unpublish_workflows', { workflowIds: [swid], confirm: true });
+  }
+}
+
 // ── coverage honesty ────────────────────────────────────────────────────────────────────────
 console.log('\nNOT COVERED by this suite, and not counted as passing:');
 console.log('  trigger activation    — a trigger is the ONLY enrolment path, so activating one is the');
