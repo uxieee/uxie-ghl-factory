@@ -117,3 +117,15 @@ test('CONTROL: an allowed address is ok:true; an unreadable answer is checked:fa
   assert.equal(dead[0].checked, false);
   assert.equal(dead[0].ok, null);
 });
+
+test('CONTROL: a hand-built plan entry with no literal From address sends NOTHING — never a guessed body', async () => {
+  const sent = [];
+  const call = async (method, path, body) => { sent.push({ method, path, body }); return { ok: true, status: 200, json: { isFromEmailAllowed: true, code: 'success' } }; };
+  for (const entry of [{ key: 'from_email', why: ['hand-built'] }, { key: 'from_email', why: ['bare local part'], fromEmail: 'hello' }]) {
+    const [row] = await runReadinessChecks([entry], { call, loc: 'LOC' });
+    assert.deepEqual(sent, [], 'a write-method route is never reached without a literal address');
+    assert.equal(row.checked, false);
+    assert.equal(row.ok, null);
+    assert.match(row.detail, /nothing sent/);
+  }
+});

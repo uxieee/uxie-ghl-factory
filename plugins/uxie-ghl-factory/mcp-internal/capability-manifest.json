@@ -790,6 +790,11 @@
     "path": "/saas-billing-v2/billing-config/{entityType}/{entityId}/{product}"
   },
   {
+    "tool": "build_workflow",
+    "method": "POST",
+    "path": "/workflow/{loc}/email/validate-from-email"
+  },
+  {
     "tool": "edit_workflow",
     "method": "GET",
     "path": "/locations/{loc}/customFields/search"
@@ -938,6 +943,11 @@
     "tool": "edit_workflow",
     "method": "GET",
     "path": "/workflow/{loc}/email/location-email-provider"
+  },
+  {
+    "tool": "edit_workflow",
+    "method": "POST",
+    "path": "/workflow/{loc}/email/validate-from-email"
   },
   {
     "tool": "edit_workflow",

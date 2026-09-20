@@ -4270,6 +4270,9 @@ export const TOOLS = [
       { method: 'GET', path: '/workflow/{loc}/instagram/connected-accounts' },
       { method: 'GET', path: '/workflow/{loc}/email/location-email-provider' },
       { method: 'GET', path: '/saas-billing-v2/billing-config/{entityType}/{entityId}/{product}' },
+      // The preflight's only non-GET, reached when the spec sets a full literal
+      // settings.senderAddress.from_email. It VALIDATES the address and sends nothing.
+      { method: 'POST', path: '/workflow/{loc}/email/validate-from-email' },
     ],
     handler: async (args, deps) => guard(async () => {
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
@@ -4422,6 +4425,9 @@ export const TOOLS = [
       { method: 'GET', path: '/phone-system/whatsapp/location/{loc}/phone-numbers' },
       { method: 'GET', path: '/workflow/{loc}/instagram/connected-accounts' },
       { method: 'GET', path: '/workflow/{loc}/email/location-email-provider' },
+      // Reached when an edit patches settings.senderAddress.from_email to a full literal
+      // address. It VALIDATES the address and sends nothing — the preflight's only non-GET.
+      { method: 'POST', path: '/workflow/{loc}/email/validate-from-email' },
       { method: 'POST', path: '/workflow/{loc}/{wid}/validate-workflows' },
     ],
     handler: async (args, deps) => guard(async () => {

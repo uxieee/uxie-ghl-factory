@@ -23694,7 +23694,10 @@ var init_define_ENDPOINT_CATALOG = __esm({
           provenFor: [
             "agency-admin-bearer"
           ],
-          coveredBy: [],
+          coveredBy: [
+            "build_workflow",
+            "edit_workflow"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -162349,6 +162352,10 @@ async function runReadinessChecks(plan, { call, loc }) {
       out.push({ key, why, checked: false, ok: null, detail: "Facebook page linkage has no discovery route on this rail \u2014 verify the page connection in Integrations before relying on FB steps/triggers" });
     } else if (key === "from_email") {
       const fromEmail = String(entry.fromEmail ?? "");
+      if (!fromEmail.includes("@")) {
+        out.push({ key, why, checked: false, ok: null, detail: "no literal From address on this plan entry \u2014 nothing sent" });
+        continue;
+      }
       const j = await post(`/workflow/${lp}/email/validate-from-email`, { fromEmail, domain: fromEmail.slice(fromEmail.lastIndexOf("@") + 1).toLowerCase() });
       const readable = j != null && typeof j.isFromEmailAllowed === "boolean";
       const suggestions = Array.isArray(j?.fromEmailSuggestions) ? j.fromEmailSuggestions : [];
@@ -174993,7 +175000,10 @@ var TOOLS2 = [
       { method: "GET", path: "/phone-system/whatsapp/location/{loc}/phone-numbers" },
       { method: "GET", path: "/workflow/{loc}/instagram/connected-accounts" },
       { method: "GET", path: "/workflow/{loc}/email/location-email-provider" },
-      { method: "GET", path: "/saas-billing-v2/billing-config/{entityType}/{entityId}/{product}" }
+      { method: "GET", path: "/saas-billing-v2/billing-config/{entityType}/{entityId}/{product}" },
+      // The preflight's only non-GET, reached when the spec sets a full literal
+      // settings.senderAddress.from_email. It VALIDATES the address and sends nothing.
+      { method: "POST", path: "/workflow/{loc}/email/validate-from-email" }
     ],
     handler: async (args, deps) => guard(async () => {
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
@@ -175121,6 +175131,9 @@ var TOOLS2 = [
       { method: "GET", path: "/phone-system/whatsapp/location/{loc}/phone-numbers" },
       { method: "GET", path: "/workflow/{loc}/instagram/connected-accounts" },
       { method: "GET", path: "/workflow/{loc}/email/location-email-provider" },
+      // Reached when an edit patches settings.senderAddress.from_email to a full literal
+      // address. It VALIDATES the address and sends nothing — the preflight's only non-GET.
+      { method: "POST", path: "/workflow/{loc}/email/validate-from-email" },
       { method: "POST", path: "/workflow/{loc}/{wid}/validate-workflows" }
     ],
     handler: async (args, deps) => guard(async () => {

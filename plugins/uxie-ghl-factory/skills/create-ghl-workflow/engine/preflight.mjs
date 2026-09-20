@@ -6,7 +6,8 @@
 // This module plans and runs ONLY the checks the compiled workflow actually needs, and reports
 // advisorily — it never blocks a build (the account can be fixed after the draft exists).
 //
-// Signals (all live-proven, none of them writes or sends, all on the engine's Bearer rail):
+// Signals (none of them writes or sends, all on the engine's Bearer rail; SMS/WhatsApp/IG/Email
+// live-proven GROM AU 2026-08-22):
 //   SMS        GET /phone-system/numbers?locationId=            {phoneNumbers:[{value,title}]}
 //   WhatsApp   GET /phone-system/whatsapp/location/{loc}/phone-numbers   [{displayPhoneNumber,
 //              codeVerificationStatus, accountMode, …}]
@@ -14,9 +15,15 @@
 //   Email      GET /workflow/{loc}/email/location-email-provider   {provider:{domain,…},
 //              warmupInfo:{warmupStage,warmupStatus,warmupMode}, type}
 //   From addr  POST /workflow/{loc}/email/validate-from-email  {fromEmail, domain} -> {isFromEmailAllowed,
-//              code, message, fromEmailSuggestions}. The builder's own check; SENDS NOTHING (proven by a
-//              three-way differential 2026-09-19: free webmail -> free_webmail_blocked, a real company
-//              domain -> success, a domain with no DNS -> dmarc_record_not_found). The only non-GET here.
+//              code, message, fromEmailSuggestions}. The builder's own check, and the ONLY non-GET here.
+//              🔴 NO SEND OBSERVED 2026-09-19 — read that as the weak claim it is. No inbox or
+//              conversation read-back has been done against this route, so "it sends nothing" rests on
+//              the route's purpose and on no delivery having been noticed, NOT on a measurement. The
+//              2026-09-19 differential (free webmail -> free_webmail_blocked, a real company domain ->
+//              success, a domain with no DNS -> dmarc_record_not_found) proves only that the route
+//              discriminates by DOMAIN; a differential over return codes cannot see whether mail left
+//              the building. Establishing send-nothing by read-back is OWED, and until it is done this
+//              is the one signal here whose safety is asserted rather than proven.
 //              Covers the workflow-level From only — a per-step From override is not read.
 //   Premium    GET /saas-billing-v2/billing-config/LOCATION/{loc}/{product}?optIn=true
 //              product = workflow_premium_actions | workflow_ai   {data:[{config:{optIn,enabled,
@@ -152,6 +159,13 @@ export async function runReadinessChecks(plan, { call, loc }) {
       out.push({ key, why, checked: false, ok: null, detail: 'Facebook page linkage has no discovery route on this rail — verify the page connection in Integrations before relying on FB steps/triggers' });
     } else if (key === 'from_email') {
       const fromEmail = String(entry.fromEmail ?? '');
+      // Never send a guessed body to a write-method route. planReadinessChecks only ever sets a
+      // full literal address, but this module is shared and a hand-built entry could arrive
+      // without one — that would POST {fromEmail:'', domain:''} rather than report nothing known.
+      if (!fromEmail.includes('@')) {
+        out.push({ key, why, checked: false, ok: null, detail: 'no literal From address on this plan entry — nothing sent' });
+        continue;
+      }
       const j = await post(`/workflow/${lp}/email/validate-from-email`, { fromEmail, domain: fromEmail.slice(fromEmail.lastIndexOf('@') + 1).toLowerCase() });
       const readable = j != null && typeof j.isFromEmailAllowed === 'boolean';
       const suggestions = Array.isArray(j?.fromEmailSuggestions) ? j.fromEmailSuggestions : [];

@@ -51,12 +51,17 @@ const ALLOW = [
   '541-313-4664', '541 313-4664', '5413134664', '541 313 4664',
   // GHL's own placeholder addresses inside recovered-source / UI metadata.
   'john@acme.com', 'fromemailtest@test.com', 'bcctest@bcctest.com', 'cctest@cctest.com',
-  // Fixtures for the From-address preflight (engine/preflight.test.mjs, conformance.mjs).
-  // `.example` is RFC 2606 reserved exactly like the three domains above, so no such address
-  // can exist. The two gmail literals are the free-webmail probe itself: GHL answers
-  // `free_webmail_blocked` only for a REAL free-webmail domain, so the differential cannot be
-  // written with a placeholder. Neither addresses a person — nothing is ever sent to them.
-  'acme.example', 'Someone@Gmail.com', 'test-conf@gmail.com',
+  // Fixtures for the From-address preflight (engine/preflight.test.mjs). `.example` is RFC 2606
+  // reserved exactly like the three domains above, so none of these can exist; the gmail literal
+  // is the free-webmail probe itself, since GHL answers `free_webmail_blocked` only for a REAL
+  // free-webmail domain and the differential cannot be written with a placeholder.
+  // 🔴 FULL ADDRESSES, never the bare domain, and never the `acme.example` fragment an earlier
+  // version of this list carried: `allowed()` below is a SUBSTRING test, so that fragment also
+  // waved through any address at a REAL domain merely starting the same way (acme.examplecorp.com,
+  // sub.acme.example.io, acme.example.com), and a bare `gmail.com` would blind this gate to every
+  // real personal gmail address a future harvest drags in. The narrowness IS the safety property
+  // — do not "simplify" these back into domains.
+  'hello@acme.example', 'hello@mail.acme.example', 'a@acme.example', 'Someone@Gmail.com',
   // Synthetic ids substituted during the 2026-07-19 scrub. Kept digit-shaped so the
   // surrounding examples still parse and read realistically.
   '100000000000000000001', '100000000000000000002',  // were third-party Google account ids

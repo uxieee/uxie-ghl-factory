@@ -780,9 +780,18 @@ log.subject('raw_request');
   check(trap.code === 'CONFIRM_REQUIRED' && /WIPES/.test(trap.data?.preview?.trap?.note ?? ''), 'the confirm preview carries the route\'s measured trap note', JSON.stringify(trap.data?.preview?.trap ?? null).slice(0, 200));
 }
 
-// ── preflight: GHL's own From-address verdict, by three-way DIFFERENTIAL ──────────────────────
-// validate-from-email sends nothing. Three addresses, three different codes: if the route ever
-// starts answering one code for everything, this goes red instead of quietly reporting "allowed".
+// ── preflight: GHL's own From-address verdict, by DIFFERENTIAL ────────────────────────────────
+// TWO addresses, which must come back refused for two DIFFERENT codes: if the route ever starts
+// answering one code for everything, this goes red instead of quietly reporting "allowed".
+// The third leg measured 2026-09-19 — a real company domain answering `success` — is deliberately
+// OMITTED: it would commit a real domain name to a public repo. engine/preflight.test.mjs covers
+// that success path offline instead.
+// The merge-field check below is a CONTROL: it asserts an ABSENCE (nothing planned, nothing sent),
+// so it stays green even if the from_email branch is deleted and cannot detect that. The two
+// differential checks carry the whole deletion-detection load.
+// 🔴 The address below reaches a DELIVERABLE domain. validate-from-email is believed to send
+// nothing, but see engine/preflight.mjs — that is asserted, not measured — so the local part is
+// written so it cannot plausibly be a person's mailbox.
 console.log('\npreflight: From-address check');
 log.subject(false);
 {
@@ -791,7 +800,7 @@ log.subject(false);
     const plan = planReadinessChecks({ settings: { senderAddress: { from_email } } }).filter((p) => p.key === 'from_email');
     return (await runReadinessChecks(plan, { call: (m, p, b) => gwp.call(m, p, b), loc: LOCATION }))[0] ?? null;
   };
-  const webmail = await verdict('test-conf@gmail.com');
+  const webmail = await verdict(`test-conf-no-such-mailbox-${STAMP}@gmail.com`);
   const nodns = await verdict(`test-conf@no-such-domain-${STAMP}.example`);
   check(webmail?.checked === true && webmail.ok === false && webmail.code === 'free_webmail_blocked', 'a free-webmail From is reported NOT allowed, code free_webmail_blocked', JSON.stringify(webmail).slice(0, 220));
   check(nodns?.checked === true && nodns.ok === false && nodns.code !== 'free_webmail_blocked', 'DIFFERENTIAL: a domain with no DNS is refused for a DIFFERENT reason', JSON.stringify(nodns).slice(0, 220));

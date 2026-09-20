@@ -23517,7 +23517,10 @@
       "provenFor": [
         "agency-admin-bearer"
       ],
-      "coveredBy": [],
+      "coveredBy": [
+        "build_workflow",
+        "edit_workflow"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
