@@ -299,6 +299,16 @@
       "failures": [
         "control-a-trigger-naming-a-calendar-that-exists-reports-nothing"
       ]
+    },
+    {
+      "at": "2026-09-20",
+      "result": "pass",
+      "how": "suite",
+      "suite": "workflows",
+      "evidence": [
+        "receipt:2026-09-20-1725"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {

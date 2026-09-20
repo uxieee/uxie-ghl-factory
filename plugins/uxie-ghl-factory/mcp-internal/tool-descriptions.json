@@ -275,9 +275,9 @@
     ]
   },
   "check_workflow": {
-    "description": "Read-only conformance check: replays GHL's own validators against a workflow — proof: failing (2026-09-20); risk: read",
+    "description": "Read-only conformance check: replays GHL's own validators against a workflow — proof: live-runtime (2026-09-20); risk: read",
     "risk": "read",
-    "proof": "failing (2026-09-20)",
+    "proof": "live-runtime (2026-09-20)",
     "proofFloor": "unrecorded",
     "proofRows": [
       "workflow-service--find-by-id",
