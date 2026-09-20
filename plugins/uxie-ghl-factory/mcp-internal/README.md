@@ -154,7 +154,7 @@ commit `dist/` — a test rebuilds-and-diffs so a stale bundle can't ship.
 | `list_workflows` | the whole roster walked to a reconciled terminal proof; optional `status`/`search` filter the walk (see **The receipt-gated composites**) |
 | `get_ai_configuration_bundle` | Conversation AI + Voice AI + Agent Studio discovery and detail (see **Audit profile**) |
 | `get_contacts_at_step` | contacts parked at or processed by one step, paginated to the reported total |
-| `get_workflow_stats` | the builder's Stats view as data: per-step SMS/email aggregates, per-trigger attempted/matched, contacts per step (last 30 days) |
+| `get_workflow_stats` | the builder's Stats view as data: per-step SMS/email aggregates, per-trigger attempted/matched, contacts per step (last 30 days), and `splits[]` — per-path entered counts for every A/B split, not windowed by `days` (`includeSplits:false` skips them) |
 | `list_workflow_versions` | version history (saved/published snapshots, newest first; 30 days or last 10) |
 | `get_workflow_version` | one version snapshot with its full step graph, by number or id |
 | `get_trigger_logs` | why a trigger did/didn't fire: per-contact attempts with qualified, failedReason, actual vs expected value, plus ranked top-failed-reasons |

@@ -173887,7 +173887,8 @@ var TOOLS2 = [
       includeTriggers: external_exports.boolean().default(true),
       includeContactsPerStep: external_exports.boolean().default(true),
       // Per-path entered counts for each workflow_split step. One extra call per split step, none
-      // when the workflow has no split.
+      // when the workflow has no split. These counts are NOT windowed by `days` — unlike every
+      // other number this tool returns, they run from the split's creation or last reset.
       includeSplits: external_exports.boolean().default(true)
     }),
     capabilities: [
@@ -173978,7 +173979,7 @@ var TOOLS2 = [
         triggers,
         contactsPerStep,
         splits,
-        note: 'Same endpoints as the builder\'s Stats view (rail toggle, pie icon); GHL keeps these for the last 30 days only. SMS "failed" = metrics.unfulfilled; email "bounced" = metrics.permanentFail. splits[] is per-path ENTERED counts since the split was created or last reset (DELETE \u2026/split wipes it) \u2014 it is not windowed by `days`.'
+        note: 'Same endpoints as the builder\'s Stats view (rail toggle, pie icon); GHL keeps these for the last 30 days only. SMS "failed" = metrics.unfulfilled; email "bounced" = metrics.permanentFail. splits[] is per-path ENTERED counts since the split was created or last reset (DELETE \u2026/split wipes it) \u2014 it is not windowed by `days`. splits is null when includeSplits:false, [] when the workflow has no split step.'
       });
     }, args)
   },

@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { TOOLS } from '../core/tools.mjs';
+import { TOOLS, registerTools } from '../core/tools.mjs';
 
 const tool = (name) => TOOLS.find((candidate) => candidate.name === name);
 
@@ -112,6 +112,8 @@ test('CONTROL: no split step → splits is [] and the route is never called; inc
   const b = await tool('get_workflow_stats').handler({ locationId: 'L', workflowId: 'w1', includeTriggers: false, includeSplits: false }, deps(off));
   assert.equal(b.data.splits, null);
   assert.equal(off.calls.some((c) => c.path.includes('/split/stats')), false);
+  // The two empties mean different things, so the tool has to SAY which is which.
+  assert.match(a.data.note, /splits is null when includeSplits:false, \[\] when the workflow has no split step\./);
 });
 
 test('a failed split read is recorded on that split, not fatal; a split with no paths is reported without a call', async () => {
@@ -125,4 +127,28 @@ test('a failed split read is recorded on that split, not fatal; a split with no 
   assert.deepEqual(r.data.splits[0], { stepId: 'sp', name: 'S', totalContactsEntered: null, paths: [], error: { status: 500 } });
   assert.deepEqual(r.data.splits[1], { stepId: 'sp2', name: 'Empty', totalContactsEntered: null, paths: [], error: { status: null, reason: 'the split step has no paths (next[] is empty)' } });
   assert.equal(gw.calls.filter((c) => c.path.includes('/split/stats')).length, 1);
+});
+
+// The guard that makes `includeSplits` REACHABLE. Every other test in this file calls
+// tool.handler() directly, which bypasses validateRegisteredArgs — so deleting the zod line
+// would leave them all green while a real MCP caller got VALIDATION_FAILED. This is the only
+// test that goes through registerTools, which is the path the server actually uses.
+const viaRegistration = (name, gw) => {
+  let wrapped;
+  registerTools({ registerTool: (_n, _meta, fn) => { wrapped = fn; } }, deps(gw), [tool(name)]);
+  return async (args) => JSON.parse((await wrapped(args)).content[0].text);
+};
+
+test('includeSplits is a DECLARED argument — a real MCP caller can switch splits off', async () => {
+  const gw = gwStub({ '/workflow/L/w1?': { workflowData: { templates: [{ id: 'sp', type: 'workflow_split', next: ['pA'] }] } }, '/workflows/status/search/count-per-step': [] });
+  const call = viaRegistration('get_workflow_stats', gw);
+  const r = await call({ locationId: 'L', workflowId: 'w1', includeTriggers: false, includeSplits: false });
+  assert.equal(r.ok, true, JSON.stringify(r));
+  assert.equal(r.data.splits, null);
+  assert.equal(gw.calls.some((c) => c.path.includes('/split/stats')), false);
+  // CONTROL: the unknown-key guard really is running on this path, so the pass above is the
+  // schema declaring the key — not the guard being absent.
+  const bad = await call({ locationId: 'L', workflowId: 'w1', includeSplitz: false });
+  assert.equal(bad.ok, false);
+  assert.equal(bad.code, 'VALIDATION_FAILED');
 });

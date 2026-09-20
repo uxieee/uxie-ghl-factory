@@ -3203,7 +3203,8 @@ export const TOOLS = [
       includeTriggers: z.boolean().default(true),
       includeContactsPerStep: z.boolean().default(true),
       // Per-path entered counts for each workflow_split step. One extra call per split step, none
-      // when the workflow has no split.
+      // when the workflow has no split. These counts are NOT windowed by `days` — unlike every
+      // other number this tool returns, they run from the split's creation or last reset.
       includeSplits: z.boolean().default(true),
     }),
     capabilities: [
@@ -3285,7 +3286,7 @@ export const TOOLS = [
         workflowId: args.workflowId, status: wf.json?.status ?? null, window,
         steps, stepsWithoutStats: templates.filter((t) => t && !stepTypes.has(t.type)).map((t) => ({ id: t.id, type: t.type })).length,
         triggers, contactsPerStep, splits,
-        note: 'Same endpoints as the builder\'s Stats view (rail toggle, pie icon); GHL keeps these for the last 30 days only. SMS "failed" = metrics.unfulfilled; email "bounced" = metrics.permanentFail. splits[] is per-path ENTERED counts since the split was created or last reset (DELETE …/split wipes it) — it is not windowed by `days`.',
+        note: 'Same endpoints as the builder\'s Stats view (rail toggle, pie icon); GHL keeps these for the last 30 days only. SMS "failed" = metrics.unfulfilled; email "bounced" = metrics.permanentFail. splits[] is per-path ENTERED counts since the split was created or last reset (DELETE …/split wipes it) — it is not windowed by `days`. splits is null when includeSplits:false, [] when the workflow has no split step.',
       });
     }, args),
   },

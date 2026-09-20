@@ -1461,14 +1461,20 @@ console.log('\nget_workflow_stats: split results');
     log.subject('get_workflow_stats');
     const before = await call('get_workflow_stats', { workflowId: swid, stepTypes: [], includeTriggers: false, includeContactsPerStep: false });
     const b0 = before.data?.splits?.[0];
-    check(before.ok && b0?.paths?.length === 2 && b0.totalContactsEntered === 0, 'BEFORE: one split, two NAMED paths, zero entered', JSON.stringify(before.data?.splits ?? null).slice(0, 240));
+    // The message claims the paths are NAMED, so the check tests the names, not just the count —
+    // they come from the transition templates, which is the thing that could silently go null.
+    const b0names = (b0?.paths ?? []).map((p) => p.name).join('|');
+    check(before.ok && b0names === 'Path A|Path B' && b0.totalContactsEntered === 0, 'BEFORE: one split, two NAMED paths, zero entered', JSON.stringify(before.data?.splits ?? null).slice(0, 240));
     log.subject('publish_workflow');
     const pub = await call('publish_workflow', { workflowId: swid, confirm: true });
     check(pub.ok === true && pub.data?.verify?.totalTriggers === 0, 'published with ZERO triggers', `${pub.code ?? ''}`);
     log.subject(false);
     const made = (await gws.call('POST', '/contacts/', { locationId: LOCATION, firstName: 'TEST-CONF', lastName: `${STAMP}-split (no email, no phone)`, tags: ['test-conf'] })).json;
-    const cid = (made?.contact ?? made)?.id;
-    check(Boolean(cid), 'FENCE: one contact created by this run, no email, no phone');
+    const person = made?.contact ?? made;
+    const cid = person?.id;
+    // The no-email/no-phone property is what stands between this suite and messaging a real
+    // person, so it is READ BACK off the created record rather than inherited from the POST body.
+    check(Boolean(cid) && !person?.email && !person?.phone, 'FENCE: one contact created by this run, no email, no phone', JSON.stringify([Boolean(cid), person?.email ?? null, person?.phone ?? null]));
     if (pub.ok && cid) {
       left.push(`contact ${cid} (TEST-CONF ${STAMP} split, no email, no phone)`);
       await gws.call('POST', `/contacts/${cid}/workflow/${swid}`, { eventStartTime: '' });
@@ -1485,7 +1491,9 @@ console.log('\nget_workflow_stats: split results');
         'DIFFERENTIAL: split stats moved 0 → 1 on the SAME path the contact\'s tag names, and on no other', JSON.stringify(a0 ?? null).slice(0, 240));
     }
     log.subject('unpublish_workflows');
-    await call('unpublish_workflows', { workflowIds: [swid], confirm: true });
+    const sun = await call('unpublish_workflows', { workflowIds: [swid], confirm: true });
+    const sst = (await call('get_workflow', { workflowId: swid })).data?.status;
+    check(sun.ok === true && sst === 'draft', 'FENCE: the split probe is a DRAFT again when the section ends — which is what its LEFT IN PLACE line claims', `${sun.code ?? ''} status=${sst}`);
   }
 }
 
