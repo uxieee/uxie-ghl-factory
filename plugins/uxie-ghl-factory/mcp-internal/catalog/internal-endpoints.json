@@ -18326,7 +18326,8 @@
       "coveredBy": [
         "build_workflow",
         "edit_workflow",
-        "list_account_entities"
+        "list_account_entities",
+        "set_workflow_error_alerts"
       ],
       "rawCallable": true,
       "transport": "json",
@@ -18346,7 +18347,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "capability-manifest.json (list_account_entities, build_workflow, edit_workflow)"
+        "capability-manifest.json (list_account_entities, build_workflow, edit_workflow, set_workflow_error_alerts)"
       ]
     },
     {
@@ -23789,7 +23790,8 @@
         "agency-admin-bearer"
       ],
       "coveredBy": [
-        "get_account_workflow_overview"
+        "get_account_workflow_overview",
+        "set_workflow_error_alerts"
       ],
       "rawCallable": true,
       "transport": "json",
@@ -23832,7 +23834,9 @@
       "provenFor": [
         "agency-admin-bearer"
       ],
-      "coveredBy": [],
+      "coveredBy": [
+        "set_workflow_error_alerts"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -23872,7 +23876,9 @@
       "provenFor": [
         "agency-admin-bearer"
       ],
-      "coveredBy": [],
+      "coveredBy": [
+        "set_workflow_error_alerts"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",

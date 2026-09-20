@@ -1155,6 +1155,26 @@
     "path": "/workflow/{loc}/error-notification/{workflowId}"
   },
   {
+    "tool": "set_workflow_error_alerts",
+    "method": "GET",
+    "path": "/workflow/{loc}/error-notification/settings"
+  },
+  {
+    "tool": "set_workflow_error_alerts",
+    "method": "GET",
+    "path": "/users/"
+  },
+  {
+    "tool": "set_workflow_error_alerts",
+    "method": "PUT",
+    "path": "/workflow/{loc}/error-notification/settings/users"
+  },
+  {
+    "tool": "set_workflow_error_alerts",
+    "method": "PUT",
+    "path": "/workflow/{loc}/error-notification/settings/is-active"
+  },
+  {
     "tool": "list_workflow_templates",
     "method": "GET",
     "path": "/workflow/{loc}/workflow-templates"

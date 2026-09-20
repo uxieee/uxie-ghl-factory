@@ -17,6 +17,7 @@ commit bodies carry the detail.
 - `raw_request`'s confirm preview now carries `trap` — the catalogue's measured note for the route — so a caller sees "this REPLACES the list" or "this wipes history" before confirming.
 - `get_workflow_stats` reports `splits[]`: per-path ENTERED counts for every A/B split step, paths named from the workflow. One extra read per split step, none when there is no split; `includeSplits:false` turns it off. Proven live by differential (0 → 1 on the path the contact's own tag names).
 - `build_workflow` and `edit_workflow` run GHL's own From-address check when a spec sets, or an edit patches, a full literal `settings.senderAddress.from_email` (free webmail, missing/invalid DMARC, dedicated-domain mismatch). Advisory — it never blocks a build — and the route validates rather than sends. Per-step From overrides are not covered.
+- New tool `set_workflow_error_alerts`: who GHL emails when a workflow step fails, and the on/off switch — location-wide. GHL's route REPLACES the recipient list, so the tool reads, merges, previews, writes and reads back; an add never drops an existing recipient, and an id that is not a user of the location is refused before any write. (`get_account_workflow_overview` already shows which accounts have nobody.)
 
 ## [0.93.0] — 2026-09-19
 

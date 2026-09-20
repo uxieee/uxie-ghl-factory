@@ -1810,6 +1810,34 @@
       "ai-studio--get-projects-secrets"
     ]
   },
+  "set_workflow_error_alerts": {
+    "description": "Set who GHL emails when a workflow step fails — proof: external-receipt-required; risk: write",
+    "risk": "write",
+    "proof": "external-receipt-required",
+    "proofFloor": "external-receipt-required",
+    "proofRows": [
+      "workflow-error-notification-settings-read",
+      "entities-users-list",
+      "workflow-error-notification-users-write",
+      "workflow-error-notification-is-active-write"
+    ],
+    "proofFloorRows": [
+      "workflow-error-notification-settings-read",
+      "entities-users-list",
+      "workflow-error-notification-users-write",
+      "workflow-error-notification-is-active-write"
+    ],
+    "riskRows": [
+      "workflow-error-notification-users-write",
+      "workflow-error-notification-is-active-write"
+    ],
+    "rows": [
+      "workflow-error-notification-settings-read",
+      "entities-users-list",
+      "workflow-error-notification-users-write",
+      "workflow-error-notification-is-active-write"
+    ]
+  },
   "test_custom_code": {
     "description": "Custom Code sandbox test-run (no account mutation) — proof: live-runtime (2026-09-20); risk: sandbox-exec",
     "risk": "sandbox-exec",

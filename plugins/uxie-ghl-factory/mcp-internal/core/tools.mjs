@@ -6311,6 +6311,84 @@ export const TOOLS = [
       });
     }, args),
   },
+  {
+    name: 'set_workflow_error_alerts',
+    description: `${describe('set_workflow_error_alerts', 'Set who GHL emails when a workflow step fails — risk: write')}. `
+      + 'Location-wide: the recipients (user ids) and the on/off switch behind the Workflows list\'s error-notification '
+      + 'settings. get_account_workflow_overview reports the current state as needsReview.errorEmailSettings — '
+      + '`null` or an empty `users` means NOBODY is told when a workflow breaks. '
+      + '🔴 GHL\'s own route REPLACES the recipient list, so this tool READS the current list, MERGES addUsers / '
+      + 'removeUsers into it, and writes the result — an existing recipient is never dropped by an add. Every id in '
+      + 'addUsers must be a user of this location (checked before any write). Preview by default; confirm:true writes, '
+      + 'then reads the settings back and reports `verified`.',
+    inputSchema: schema({
+      locationId: z.string(),
+      addUsers: z.array(z.string()).default([]),
+      removeUsers: z.array(z.string()).default([]),
+      isActive: z.boolean().optional(),
+      confirm: z.boolean().default(false),
+    }),
+    capabilities: [
+      { method: 'GET', path: '/workflow/{loc}/error-notification/settings' },
+      { method: 'GET', path: '/users/' },
+      { method: 'PUT', path: '/workflow/{loc}/error-notification/settings/users' },
+      { method: 'PUT', path: '/workflow/{loc}/error-notification/settings/is-active' },
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const add = [...new Set((args.addUsers ?? []).filter(Boolean))];
+      const remove = new Set((args.removeUsers ?? []).filter(Boolean));
+      if (!add.length && !remove.size && typeof args.isActive !== 'boolean') {
+        return fail(CODES.VALIDATION_FAILED, 'nothing to change: pass addUsers, removeUsers and/or isActive', 'Read the current state with get_account_workflow_overview (needsReview.errorEmailSettings).');
+      }
+      const both = add.filter((id) => remove.has(id));
+      if (both.length) return fail(CODES.VALIDATION_FAILED, `the same user id is in addUsers AND removeUsers: ${both.join(', ')}`, 'Pass each id in one list only.');
+      const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+      const loc = encodeURIComponent(args.locationId);
+      // A never-configured location answers 200 with a bare null. That is "inactive, nobody", and it
+      // is a state this tool can write from.
+      const read = async () => {
+        const r = await gw.call('GET', `/workflow/${loc}/error-notification/settings`);
+        if (!r.ok) return { failure: fromHttp(r.status, r.json) };
+        return { isActive: r.json?.isActive === true, users: Array.isArray(r.json?.users) ? r.json.users.filter((u) => typeof u === 'string') : [] };
+      };
+      const before = await read();
+      if (before.failure) return before.failure;
+      if (add.length) {
+        // The route stores whatever ids it is handed. An id from another location, or a typo, would
+        // sit in the list and email nobody — so it is refused here, against the location's own users.
+        const ur = await gw.call('GET', `/users/?${new URLSearchParams({ locationId: args.locationId })}`);
+        if (!ur.ok) return fromHttp(ur.status, ur.json);
+        // recordsFrom's rest args are KEY NAMES, not fallback payloads (see its definition above):
+        // a bare array comes back as itself, otherwise the first array-valued key wins.
+        const known = new Set(recordsFrom(ur.json, 'users').map((u) => u.id ?? u._id));
+        const unknown = add.filter((id) => !known.has(id));
+        if (unknown.length) return fail(CODES.VALIDATION_FAILED, `not user(s) of this location: ${unknown.join(', ')}. Nothing was written.`, 'list_account_entities (users) returns the valid user ids.');
+      }
+      const users = [...before.users.filter((id) => !remove.has(id)), ...add.filter((id) => !before.users.includes(id))];
+      const after = { isActive: typeof args.isActive === 'boolean' ? args.isActive : before.isActive, users };
+      const usersChanged = JSON.stringify(users) !== JSON.stringify(before.users);
+      const activeChanged = after.isActive !== before.isActive;
+      if (!usersChanged && !activeChanged) return ok({ changed: false, before, after: before, verified: true, note: 'The settings already say this. Nothing was written.' });
+      if (args.confirm !== true) {
+        return withFailureData(
+          fail(CODES.CONFIRM_REQUIRED, 'Error-alert settings preview is ready; no write was sent.', 'Repeat the request with confirm:true to write it. This is LOCATION-WIDE.'),
+          { preview: { before, after } });
+      }
+      if (usersChanged) {
+        const w = await gw.call('PUT', `/workflow/${loc}/error-notification/settings/users`, { users });
+        if (!w.ok) return fromHttp(w.status, w.json);
+      }
+      if (activeChanged) {
+        const w = await gw.call('PUT', `/workflow/${loc}/error-notification/settings/is-active`, { isActive: after.isActive });
+        if (!w.ok) return withFailureData(fromHttp(w.status, w.json), { partialProgress: { usersWritten: usersChanged, isActiveWritten: false } });
+      }
+      const stored = await read();
+      if (stored.failure) return ok({ changed: true, before, after: null, verified: false, note: 'The write was acknowledged but the read-back failed — read get_account_workflow_overview before trusting it.' });
+      const verified = stored.isActive === after.isActive && JSON.stringify([...stored.users].sort()) === JSON.stringify([...users].sort());
+      return ok({ changed: true, before, after: { isActive: stored.isActive, users: stored.users }, verified,
+        ...(verified ? {} : { note: 'GHL acknowledged the write but the settings read back DIFFERENT from what was sent. `after` is what is stored.' }) });
+    }, args),
+  },
   // Templates are the one route on this rail that carries real content on a fresh account — 28 rows
   // on the sandbox — so it is its own tool rather than a section above: a caller listing templates
   // wants a list, not a settings bundle with a list inside it.

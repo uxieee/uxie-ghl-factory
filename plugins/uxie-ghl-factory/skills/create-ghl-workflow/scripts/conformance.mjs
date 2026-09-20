@@ -855,6 +855,35 @@ log.subject('get_workflow_settings');
     'and the tool says why it was not read', noWf.data?.readNote);
 }
 
+// ── set_workflow_error_alerts: read → merge → write → read back, then RESTORED ────────────────
+// Location-wide state on the sandbox, so the section puts back exactly what it found and proves it.
+// The write that matters is the MERGE: GHL's route replaces the list, the tool must not.
+console.log('\nset_workflow_error_alerts');
+log.subject('set_workflow_error_alerts');
+{
+  const gwe = deps.makeGw({ loc: LOCATION, state });
+  const readSettings = async () => { const j = (await gwe.call('GET', `/workflow/${LOCATION}/error-notification/settings`)).json; return { isActive: j?.isActive === true, users: Array.isArray(j?.users) ? j.users : [] }; };
+  const original = await readSettings();
+  const usersJson = (await gwe.call('GET', `/users/?${new URLSearchParams({ locationId: LOCATION })}`)).json;
+  const candidates = (usersJson?.users ?? []).map((u) => u.id ?? u._id).filter((id) => id && !original.users.includes(id));
+  const ghost = await call('set_workflow_error_alerts', { addUsers: ['zzNotAUserId'], confirm: true });
+  check(ghost.code === 'VALIDATION_FAILED', 'an id that is not a user of this location is REFUSED before any write', ghost.code);
+  check(JSON.stringify(await readSettings()) === JSON.stringify(original), 'CONTROL: the refusal left the settings byte-identical');
+  if (!candidates.length) check(false, 'the sandbox has a user who is not already a recipient — needed to prove the merge', `${original.users.length} recipient(s), no spare user`);
+  else {
+    const preview = await call('set_workflow_error_alerts', { addUsers: [candidates[0]] });
+    check(preview.code === 'CONFIRM_REQUIRED' && JSON.stringify(await readSettings()) === JSON.stringify(original), 'without confirm it previews and writes nothing', preview.code);
+    const added = await call('set_workflow_error_alerts', { addUsers: [candidates[0]], confirm: true });
+    const now = await readSettings();
+    check(added.ok === true && added.data?.verified === true && now.users.includes(candidates[0]) && original.users.every((u) => now.users.includes(u)),
+      'MERGE: the new recipient is stored AND every original recipient survived — read from GHL, not from the tool', JSON.stringify({ before: original.users.length, after: now.users.length }));
+    const restored = await call('set_workflow_error_alerts', { removeUsers: [candidates[0]], confirm: true });
+    const end = await readSettings();
+    check(restored.ok === true && JSON.stringify([...end.users].sort()) === JSON.stringify([...original.users].sort()) && end.isActive === original.isActive,
+      'RESTORED: the settings are what this section found', JSON.stringify({ original, end }).slice(0, 240));
+  }
+}
+
 log.subject('list_workflow_templates');
 {
   const t = await call('list_workflow_templates', {});

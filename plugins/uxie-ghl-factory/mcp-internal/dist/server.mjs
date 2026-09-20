@@ -18503,7 +18503,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           coveredBy: [
             "build_workflow",
             "edit_workflow",
-            "list_account_entities"
+            "list_account_entities",
+            "set_workflow_error_alerts"
           ],
           rawCallable: true,
           transport: "json",
@@ -18523,7 +18524,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "capability-manifest.json (list_account_entities, build_workflow, edit_workflow)"
+            "capability-manifest.json (list_account_entities, build_workflow, edit_workflow, set_workflow_error_alerts)"
           ]
         },
         {
@@ -23966,7 +23967,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "agency-admin-bearer"
           ],
           coveredBy: [
-            "get_account_workflow_overview"
+            "get_account_workflow_overview",
+            "set_workflow_error_alerts"
           ],
           rawCallable: true,
           transport: "json",
@@ -24009,7 +24011,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           provenFor: [
             "agency-admin-bearer"
           ],
-          coveredBy: [],
+          coveredBy: [
+            "set_workflow_error_alerts"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -24049,7 +24053,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           provenFor: [
             "agency-admin-bearer"
           ],
-          coveredBy: [],
+          coveredBy: [
+            "set_workflow_error_alerts"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -57588,6 +57594,34 @@ var init_define_TOOL_CATALOG = __esm({
         rows: [
           "ai-studio--put-projects-secrets",
           "ai-studio--get-projects-secrets"
+        ]
+      },
+      set_workflow_error_alerts: {
+        description: "Set who GHL emails when a workflow step fails \u2014 proof: external-receipt-required; risk: write",
+        risk: "write",
+        proof: "external-receipt-required",
+        proofFloor: "external-receipt-required",
+        proofRows: [
+          "workflow-error-notification-settings-read",
+          "entities-users-list",
+          "workflow-error-notification-users-write",
+          "workflow-error-notification-is-active-write"
+        ],
+        proofFloorRows: [
+          "workflow-error-notification-settings-read",
+          "entities-users-list",
+          "workflow-error-notification-users-write",
+          "workflow-error-notification-is-active-write"
+        ],
+        riskRows: [
+          "workflow-error-notification-users-write",
+          "workflow-error-notification-is-active-write"
+        ],
+        rows: [
+          "workflow-error-notification-settings-read",
+          "entities-users-list",
+          "workflow-error-notification-users-write",
+          "workflow-error-notification-is-active-write"
         ]
       },
       test_custom_code: {
@@ -176728,6 +176762,77 @@ var TOOLS2 = [
         // must not be able to mistake "five empty, one failed" for "clean".
         headline: `${sections.length} section(s) read \u2014 ${sections.length - failed.length - empty2.length} with a record, ${empty2.length} with NO record (${empty2.join(", ") || "none"}), ${failed.length} FAILED (${failed.join(", ") || "none"})`,
         readNote: args.workflowId === void 0 ? "error-notification was not read: it is per-workflow and needs workflowId." : void 0
+      });
+    }, args)
+  },
+  {
+    name: "set_workflow_error_alerts",
+    description: `${describe3("set_workflow_error_alerts", "Set who GHL emails when a workflow step fails \u2014 risk: write")}. Location-wide: the recipients (user ids) and the on/off switch behind the Workflows list's error-notification settings. get_account_workflow_overview reports the current state as needsReview.errorEmailSettings \u2014 \`null\` or an empty \`users\` means NOBODY is told when a workflow breaks. \u{1F534} GHL's own route REPLACES the recipient list, so this tool READS the current list, MERGES addUsers / removeUsers into it, and writes the result \u2014 an existing recipient is never dropped by an add. Every id in addUsers must be a user of this location (checked before any write). Preview by default; confirm:true writes, then reads the settings back and reports \`verified\`.`,
+    inputSchema: schema({
+      locationId: external_exports.string(),
+      addUsers: external_exports.array(external_exports.string()).default([]),
+      removeUsers: external_exports.array(external_exports.string()).default([]),
+      isActive: external_exports.boolean().optional(),
+      confirm: external_exports.boolean().default(false)
+    }),
+    capabilities: [
+      { method: "GET", path: "/workflow/{loc}/error-notification/settings" },
+      { method: "GET", path: "/users/" },
+      { method: "PUT", path: "/workflow/{loc}/error-notification/settings/users" },
+      { method: "PUT", path: "/workflow/{loc}/error-notification/settings/is-active" }
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const add = [...new Set((args.addUsers ?? []).filter(Boolean))];
+      const remove = new Set((args.removeUsers ?? []).filter(Boolean));
+      if (!add.length && !remove.size && typeof args.isActive !== "boolean") {
+        return fail(CODES.VALIDATION_FAILED, "nothing to change: pass addUsers, removeUsers and/or isActive", "Read the current state with get_account_workflow_overview (needsReview.errorEmailSettings).");
+      }
+      const both = add.filter((id) => remove.has(id));
+      if (both.length) return fail(CODES.VALIDATION_FAILED, `the same user id is in addUsers AND removeUsers: ${both.join(", ")}`, "Pass each id in one list only.");
+      const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+      const loc = encodeURIComponent(args.locationId);
+      const read = async () => {
+        const r = await gw.call("GET", `/workflow/${loc}/error-notification/settings`);
+        if (!r.ok) return { failure: fromHttp(r.status, r.json) };
+        return { isActive: r.json?.isActive === true, users: Array.isArray(r.json?.users) ? r.json.users.filter((u) => typeof u === "string") : [] };
+      };
+      const before = await read();
+      if (before.failure) return before.failure;
+      if (add.length) {
+        const ur = await gw.call("GET", `/users/?${new URLSearchParams({ locationId: args.locationId })}`);
+        if (!ur.ok) return fromHttp(ur.status, ur.json);
+        const known = new Set(recordsFrom2(ur.json, "users").map((u) => u.id ?? u._id));
+        const unknown2 = add.filter((id) => !known.has(id));
+        if (unknown2.length) return fail(CODES.VALIDATION_FAILED, `not user(s) of this location: ${unknown2.join(", ")}. Nothing was written.`, "list_account_entities (users) returns the valid user ids.");
+      }
+      const users = [...before.users.filter((id) => !remove.has(id)), ...add.filter((id) => !before.users.includes(id))];
+      const after = { isActive: typeof args.isActive === "boolean" ? args.isActive : before.isActive, users };
+      const usersChanged = JSON.stringify(users) !== JSON.stringify(before.users);
+      const activeChanged = after.isActive !== before.isActive;
+      if (!usersChanged && !activeChanged) return ok({ changed: false, before, after: before, verified: true, note: "The settings already say this. Nothing was written." });
+      if (args.confirm !== true) {
+        return withFailureData(
+          fail(CODES.CONFIRM_REQUIRED, "Error-alert settings preview is ready; no write was sent.", "Repeat the request with confirm:true to write it. This is LOCATION-WIDE."),
+          { preview: { before, after } }
+        );
+      }
+      if (usersChanged) {
+        const w = await gw.call("PUT", `/workflow/${loc}/error-notification/settings/users`, { users });
+        if (!w.ok) return fromHttp(w.status, w.json);
+      }
+      if (activeChanged) {
+        const w = await gw.call("PUT", `/workflow/${loc}/error-notification/settings/is-active`, { isActive: after.isActive });
+        if (!w.ok) return withFailureData(fromHttp(w.status, w.json), { partialProgress: { usersWritten: usersChanged, isActiveWritten: false } });
+      }
+      const stored = await read();
+      if (stored.failure) return ok({ changed: true, before, after: null, verified: false, note: "The write was acknowledged but the read-back failed \u2014 read get_account_workflow_overview before trusting it." });
+      const verified = stored.isActive === after.isActive && JSON.stringify([...stored.users].sort()) === JSON.stringify([...users].sort());
+      return ok({
+        changed: true,
+        before,
+        after: { isActive: stored.isActive, users: stored.users },
+        verified,
+        ...verified ? {} : { note: "GHL acknowledged the write but the settings read back DIFFERENT from what was sent. `after` is what is stored." }
       });
     }, args)
   },
