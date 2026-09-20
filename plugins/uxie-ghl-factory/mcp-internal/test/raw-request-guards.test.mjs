@@ -45,6 +45,38 @@ test('guards are method-scoped: a GET on the same path is never refused', () => 
   assert.equal(refuseRawRequest({ method: 'GET', path: `/workflow/${L}/${W}/start-workflow` }), null);
 });
 
+// ---- the WIRE shape, not the JS value ---------------------------------------------------------
+// Every predicate has to ask what the GATEWAY will send. JSON.stringify drops a key whose value is
+// undefined, and an array is not a plain object — so the body a caller holds and the body GHL
+// receives are not the same value, and it is the second one that does the damage.
+
+test('start-workflow: an ARRAY body is refused — it serialises to the same nothing; a non-empty one is not (control)', () => {
+  const path = `/workflow/${L}/${W}/start-workflow`;
+  assert.equal(refuseRawRequest({ method: 'POST', path, body: [] })?.rule, 'start-workflow-empty-body');
+  assert.equal(refuseRawRequest({ method: 'POST', path, body: [{ contactId: 'c1' }] }), null);
+});
+
+test('a key whose value is undefined is NOT a key on the wire — both emptiness rules see through it', () => {
+  const sw = `/workflow/${L}/${W}/start-workflow`;
+  assert.equal(refuseRawRequest({ method: 'POST', path: sw, body: { contactId: undefined } })?.rule, 'start-workflow-empty-body');
+  assert.equal(refuseRawRequest({ method: 'POST', path: sw, body: { contactId: 'c1' } }), null);
+  const perm = `/workflow/${L}/permission/${W}`;
+  assert.equal(refuseRawRequest({ method: 'PUT', path: perm, body: { permission: undefined } })?.rule, 'permission-needs-key');
+  assert.equal(refuseRawRequest({ method: 'PUT', path: perm, body: { permission: 0 } }), null);
+  const rss = `/workflow/${L}/${W}/remove-stuck-statuses/${S}`;
+  assert.equal(refuseRawRequest({ method: 'POST', path: rss, body: { statusIds: undefined } })?.rule, 'remove-stuck-statuses-needs-statusIds');
+  assert.equal(refuseRawRequest({ method: 'POST', path: rss, body: { statusIds: ['s1'] } }), null);
+});
+
+test('the publish door is closed whatever case or padding the status arrives in — draft still passes (control)', () => {
+  const one = `/workflow/${L}/change-status/${W}`;
+  for (const status of ['PUBLISHED', 'published ', ' Published']) {
+    assert.equal(refuseRawRequest({ method: 'PUT', path: one, body: { status, updatedBy: 'u' } })?.rule, 'change-status-publish-door', JSON.stringify(status));
+  }
+  assert.equal(refuseRawRequest({ method: 'PUT', path: one, body: { status: 'draft', updatedBy: 'u' } }), null);
+  assert.equal(refuseRawRequest({ method: 'PUT', path: one, body: { status: 'DRAFT', updatedBy: 'u' } }), null);
+});
+
 test('matchCatalogRow maps a wire path to its templated row, ignores the query, and prefers the most literal row', () => {
   const pool = [
     { id: 'a', method: 'PUT', path: '/workflow/{locationId}/{workflowId}' },

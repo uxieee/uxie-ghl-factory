@@ -750,21 +750,27 @@ if (ovTotal !== total) {
 
 // ── raw_request: four shapes it refuses, and the trap note in the preview ─────────────────────
 // Every refusal is for a call that answers 200 and does silent damage (or nothing). The proof that
-// matters is that NOTHING IS SENT — so each case is given confirm:true, and the ghost ids mean a
-// regression would surface as a GHL 404 instead of a VALIDATION_FAILED.
+// matters is that NOTHING IS SENT — so each case is given confirm:true.
+// 🔴 THE CODE ALONE IS A ONE-WAY ERROR. fromHttp maps an upstream 422 (and a 401 naming a missing
+// field) to VALIDATION_FAILED too, so if the guard were deleted and the call really went to GHL, a
+// rejection would come back wearing the SAME code and this section would still print PASS. So each
+// case also asserts a phrase out of the GUARD'S OWN message — `detail` is refusal.message here and
+// GHL's own body there, which is what makes them separable. Delete the guard and these go red.
 console.log('\nraw_request: refused shapes');
 log.subject('raw_request');
 {
   const GHOST = '00000000-0000-4000-8000-000000000000';
   const refused = [
-    ['POST', `/workflow/${LOCATION}/${GHOST}/remove-stuck-statuses/${GHOST}`, { actionFrom: {} }, 'remove-stuck-statuses without statusIds'],
-    ['POST', `/workflow/${LOCATION}/${GHOST}/start-workflow`, {}, 'start-workflow with an empty body'],
-    ['PUT', `/workflow/${LOCATION}/change-status/${GHOST}`, { status: 'published', updatedBy: 'x' }, 'the per-workflow publish door'],
-    ['PUT', `/workflow/${LOCATION}/permission/${GHOST}`, {}, 'permission with no `permission` key'],
+    ['POST', `/workflow/${LOCATION}/${GHOST}/remove-stuck-statuses/${GHOST}`, { actionFrom: {} }, 'remove-stuck-statuses without statusIds', /evicts EVERYONE at the step/],
+    ['POST', `/workflow/${LOCATION}/${GHOST}/start-workflow`, {}, 'start-workflow with an empty body', /creates a PHANTOM enrolment/],
+    ['PUT', `/workflow/${LOCATION}/change-status/${GHOST}`, { status: 'published', updatedBy: 'x' }, 'the per-workflow publish door', /second publish door/],
+    ['PUT', `/workflow/${LOCATION}/permission/${GHOST}`, {}, 'permission with no `permission` key', /the 200 carries no information/],
   ];
-  for (const [method, path, body, label] of refused) {
+  for (const [method, path, body, label, mine] of refused) {
     const r = await call('raw_request', { method, path, body, confirm: true });
-    check(r.ok === false && r.code === 'VALIDATION_FAILED', `raw_request REFUSES ${label}, even with confirm:true`, `${r.code} ${String(r.detail ?? '').slice(0, 160)}`);
+    check(r.ok === false && r.code === 'VALIDATION_FAILED' && mine.test(r.detail ?? ''),
+      `raw_request REFUSES ${label} in its OWN words, even with confirm:true — so a sent-and-rejected call could not fake this`,
+      `${r.code} ${String(r.detail ?? '').slice(0, 160)}`);
   }
   // CONTROL: the same route with a well-formed body is NOT refused — it reaches the confirm gate.
   const control = await call('raw_request', { method: 'PUT', path: `/workflow/${LOCATION}/permission/${GHOST}`, body: { permission: 380 } });

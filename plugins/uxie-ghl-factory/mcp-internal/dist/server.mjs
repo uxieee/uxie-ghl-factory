@@ -90708,12 +90708,21 @@ init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var isPlainObject3 = (v) => v !== null && typeof v === "object" && !Array.isArray(v);
 var pathOnly = (path) => String(path).split("?")[0].replace(/\/+$/, "");
+var onWire = (body) => {
+  if (body === void 0) return void 0;
+  try {
+    return JSON.parse(JSON.stringify(body));
+  } catch {
+    return body;
+  }
+};
+var isEmptyOnWire = (wire) => wire !== null && typeof wire === "object" && Object.keys(wire).length === 0;
 var RULES = [
   {
     rule: "remove-stuck-statuses-needs-statusIds",
     method: "POST",
     path: /^\/workflow\/[^/]+\/[^/]+\/remove-stuck-statuses\/[^/]+$/,
-    refuses: (body) => !(isPlainObject3(body) && Array.isArray(body.statusIds) && body.statusIds.length > 0),
+    refuses: (wire) => !(isPlainObject3(wire) && Array.isArray(wire.statusIds) && wire.statusIds.length > 0),
     message: "remove-stuck-statuses WITHOUT a non-empty `statusIds` array evicts EVERYONE at the step, stuck or not \u2014 a contact on day one of a seven-day wait was removed this way.",
     hint: "Pass body.statusIds:[\u2026] naming the executions to remove (the `id` of each enrolment row from get_contacts_at_step / get_workflow_logs). To take one contact out of a workflow, the public API removes by contactId + workflowId."
   },
@@ -90721,7 +90730,7 @@ var RULES = [
     rule: "start-workflow-empty-body",
     method: "POST",
     path: /^\/workflow\/[^/]+\/[^/]+\/start-workflow$/,
-    refuses: (body) => body === void 0 || body === null || isPlainObject3(body) && Object.keys(body).length === 0,
+    refuses: (wire) => wire === void 0 || wire === null || isEmptyOnWire(wire),
     message: "start-workflow with an EMPTY body is accepted (200) and creates a PHANTOM enrolment: an execution with no contact that runs the first step.",
     hint: `This route takes the builder's Test Workflow payload plus actionFrom{userId, channel:"web_app", source:"workflow_test_page"}. Never probe a write route with an empty body \u2014 describe_endpoint carries the measured shape.`
   },
@@ -90729,7 +90738,7 @@ var RULES = [
     rule: "change-status-publish-door",
     method: "PUT",
     path: /^\/workflow\/[^/]+\/change-status\/[^/]+$/,
-    refuses: (body) => isPlainObject3(body) && body.status === "published",
+    refuses: (wire) => isPlainObject3(wire) && String(wire.status ?? "").trim().toLowerCase() === "published",
     message: 'PUT \u2026/change-status/{workflowId} with status:"published" is a second publish door that runs NONE of the four validation layers publish_workflow runs.',
     hint: 'Use publish_workflow. Setting status:"draft" through this route is not refused.'
   },
@@ -90737,15 +90746,16 @@ var RULES = [
     rule: "permission-needs-key",
     method: "PUT",
     path: /^\/workflow\/[^/]+\/permission\/[^/]+$/,
-    refuses: (body) => !(isPlainObject3(body) && Object.hasOwn(body, "permission")),
+    refuses: (wire) => !(isPlainObject3(wire) && Object.hasOwn(wire, "permission")),
     message: "PUT \u2026/permission/{workflowId} with no `permission` key answers 200 with an empty body and changes NOTHING \u2014 the 200 carries no information.",
     hint: "Pass body {permission:<number>}: 50 agency admin, 180 agency user, 280 account admin, 380 all, 404 none. Read the workflow row back to verify."
   }
 ];
 function refuseRawRequest({ method, path, body }) {
   const p2 = pathOnly(path);
+  const wire = onWire(body);
   for (const r of RULES) {
-    if (r.method === method && r.path.test(p2) && r.refuses(body)) return { rule: r.rule, message: r.message, hint: r.hint };
+    if (r.method === method && r.path.test(p2) && r.refuses(wire)) return { rule: r.rule, message: r.message, hint: r.hint };
   }
   return null;
 }
