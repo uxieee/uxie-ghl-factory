@@ -9,6 +9,8 @@
 //
 // Pure on purpose: no gateway, no catalogue read. tools.mjs passes what it already holds.
 
+import { REDACTED } from './errors.mjs';
+
 const isPlainObject = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 const pathOnly = (path) => String(path).split('?')[0].replace(/\/+$/, '');
 
@@ -100,4 +102,84 @@ export function matchCatalogRow(pool, method, path) {
     if (ok && literal > bestLiteral) { best = row; bestLiteral = literal; }
   }
   return best;
+}
+
+// The redacted-payload guard (measured 2026-09-21, proposal at console/PROPOSAL-redacted-payload-
+// guard.md). `scrubSecrets` (errors.mjs) redacts a secret-named field to the literal string REDACTED
+// on the way OUT, by KEY NAME, without reading the value — so a healthy secret and one already
+// overwritten with the placeholder come back byte-identical. Nothing stops that placeholder being
+// written back IN on top of a real credential, and the write reports success: repair_workflow's own
+// round-trip verify is true, because the document really did store what was sent. This is the ONLY
+// point that can catch it, because the damage is invisible afterwards through every read rail.
+//
+// Judges the PAYLOAD, not the workflow — a pure function of the bytes about to be sent, like the
+// five rules above. Unlike those five, this one has no confirm hatch: there is no legitimate reason
+// to write the literal placeholder into a workflow, so it refuses, full stop.
+//
+// Finds every STRING value in `payload` that CARRIES the placeholder (a substring match on the
+// exact marker text, e.g. `<redacted>` — a step NAME that merely contains the word "redacted" in
+// prose, with no angle brackets, does not match). Substring, not exact-equality, because the
+// scrubber's own text scrub (errors.mjs `scrub()`) does not always replace a whole field: a
+// credential embedded inside a longer code string (the custom_code `'Bearer ' + inputData.pit`
+// case the proposal names) comes back with the placeholder rewritten INLINE inside that string —
+// `attributes.code` stays a long string, now containing `Bearer <redacted>` as a substring, not
+// equal to the placeholder on its own. Exact-equality alone would miss exactly this case, which is
+// also the one case scrubbing left an accidental, unreliable signature on. Each hit is attributed to
+// the nearest ancestor object carrying a string `id`, which is a workflow step wherever this
+// payload nests its templates: repair_workflow's top-level `templates` array, edit_workflow's
+// `commitBody.workflowData.templates`, or a raw_request body shaped either way. A hit with no such
+// ancestor (an arbitrary raw_request body) is reported by its field path alone.
+function findRedactedValues(payload) {
+  const hits = [];
+  const walk = (node, path, step) => {
+    if (typeof node === 'string' && node.includes(REDACTED)) {
+      hits.push({ id: step?.id, name: step?.name, type: step?.type, path });
+      return;
+    }
+    if (Array.isArray(node)) { node.forEach((item, i) => walk(item, `${path}[${i}]`, step)); return; }
+    if (node && typeof node === 'object') {
+      const nextStep = typeof node.id === 'string' && node.id ? node : step;
+      for (const [k, v] of Object.entries(node)) walk(v, path ? `${path}.${k}` : k, nextStep);
+    }
+  };
+  walk(payload, '', null);
+  return hits;
+}
+
+// Groups per-value hits by step, so a step with two redacted fields is named once, not twice.
+function groupByStep(hits) {
+  const groups = new Map();
+  for (const h of hits) {
+    const key = h.id ?? `path:${h.path}`;
+    if (!groups.has(key)) groups.set(key, { id: h.id, name: h.name, type: h.type, paths: [] });
+    groups.get(key).paths.push(h.path);
+  }
+  return [...groups.values()];
+}
+
+const REDACTED_STEP_CAP = 6;
+
+/**
+ * The refusal for a write whose payload still carries the scrubber's placeholder, or null.
+ * `payload` is whatever the caller is about to send: a templates array, a whole commit body, or a
+ * raw_request body. Returns `{message, hint}` for `fail(CODES.VALIDATION_FAILED, …)`.
+ */
+export function refuseRedactedWrite(payload) {
+  const hits = findRedactedValues(payload);
+  if (!hits.length) return null;
+  const steps = groupByStep(hits);
+  const label = (s) => (s.id ? `${s.id} "${s.name ?? s.id}"` : `field ${s.paths[0]}`);
+  const shown = steps.slice(0, REDACTED_STEP_CAP)
+    .map((s) => `${label(s)}${s.type ? ` (${s.type})` : ''} at ${s.paths.join(', ')}`)
+    .join('; ');
+  const more = steps.length > REDACTED_STEP_CAP ? `, and ${steps.length - REDACTED_STEP_CAP} more` : '';
+  return {
+    message: `${hits.length} value(s) in this write are the redaction placeholder "${REDACTED}", not real `
+      + `values: ${shown}${more}. Writing them back would REPLACE the stored value with the literal `
+      + 'placeholder string.',
+    hint: 'These steps must be re-entered by hand in the builder — the real values cannot be read back '
+      + 'through this rail. scrubSecrets redacts by KEY NAME without reading the value, so the original is '
+      + "not recoverable from any export or GET. There is no confirm hatch for this: there is no legitimate "
+      + 'reason to write the literal placeholder into a workflow.',
+  };
 }

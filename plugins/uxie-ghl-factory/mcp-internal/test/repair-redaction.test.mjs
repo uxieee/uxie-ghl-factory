@@ -4,8 +4,13 @@
 // accepts that file as templatesPath. But the scrub fires on the KEY NAME without reading the
 // value: GHL stores a custom_webhook's attributes.authorization as {type:"NONE", data:null} — no
 // credential in it at all — and the export hands back the string "<redacted>". PUT that back on a
-// step whose authorization IS configured and the real value is replaced by a seven-character
-// placeholder, through a full-document PUT with no validator on the far side.
+// step whose authorization IS configured and the real value is replaced by the placeholder, through
+// a full-document PUT with no validator on the far side.
+//
+// repair_workflow's refusal is now the SHARED redacted-write guard (core/raw-request-guards.mjs
+// refuseRedactedWrite) — edit_workflow and raw_request carry the same check; see
+// test/redacted-write-guard.test.mjs for the cross-tool suite. This file keeps the
+// repair_workflow-specific regression coverage.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { TOOLS } from '../core/tools.mjs';
@@ -21,14 +26,14 @@ test('repair_workflow REFUSES a document still carrying redaction placeholders',
   const r = await repair.handler(
     { locationId: 'LOC', workflowId: 'W', templates: [hook(REDACTED), tag], confirm: true }, deps);
   assert.equal(r.ok, false);
-  assert.equal(r.code, 'ENGINE_ABORT');
+  assert.equal(r.code, 'VALIDATION_FAILED');
   // it has to name the STEP and the PATH — "something is redacted" is not actionable on a 40-step doc
-  assert.match(r.detail, /Hook 1/);
+  assert.match(r.detail, /s1 "Hook 1"/);
   assert.match(r.detail, /custom_webhook/);
   assert.match(r.detail, /attributes\.authorization/);
   // and say what writing it would actually do
   assert.match(r.detail, /REPLACE the stored value/);
-  assert.match(r.remediation, /edit_workflow/, 'name the tool that does not have this problem');
+  assert.match(r.remediation, /re-entered by hand/, 'the usability point: name the STEPS to redo, not just that a secret exists');
 });
 
 test('a redaction placeholder nested deeper is still found', async () => {
@@ -45,8 +50,10 @@ test('a document with REAL values is not blocked by this check', async () => {
   // state it was already in for a different reason
   const r = await repair.handler(
     { locationId: 'LOC', workflowId: 'W', templates: [hook({ type: 'NONE', data: null }), tag], confirm: true }, deps);
-  assert.notEqual(r.code, 'ENGINE_ABORT',
-    `a real authorization object must pass this check, got ${r.code}: ${r.detail}`);
+  // A separate, pre-existing tool-argument credential scanner can ALSO answer VALIDATION_FAILED on
+  // an unrelated shape, so the assertion specific to THIS guard is that its message never appears.
+  assert.doesNotMatch(r.detail ?? '', /redaction placeholder/,
+    `a real authorization object must pass this guard, got ${r.code}: ${r.detail}`);
 });
 
 // The other half: our own scrubbed output has to survive being read back as input.

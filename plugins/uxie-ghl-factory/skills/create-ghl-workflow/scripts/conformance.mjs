@@ -850,6 +850,29 @@ log.subject('raw_request');
   check(trap.code === 'CONFIRM_REQUIRED' && /WIPES/.test(trap.data?.preview?.trap?.note ?? ''), 'the confirm preview carries the route\'s measured trap note', JSON.stringify(trap.data?.preview?.trap ?? null).slice(0, 200));
 }
 
+// ── raw_request: the redacted-payload guard (PROPOSAL-redacted-payload-guard.md, 2026-09-21) ──
+// Separate mechanism from the five shapes above — payload-scoped, not path-scoped, and it also
+// covers repair_workflow/edit_workflow (unit-tested there; this is the one live check, on the
+// route the damage was actually measured on). Same idiom as the block above: assert a phrase out
+// of the GUARD'S OWN message, not just the code, because an upstream 422 also maps to
+// VALIDATION_FAILED. confirm:true proves nothing is sent — the guard runs before the gateway call,
+// so this never reaches the sandbox (no workflow id is even required to be real).
+console.log('\nraw_request: the redacted-payload guard');
+log.subject('raw_request');
+{
+  const GHOST = '00000000-0000-4000-8000-000000000000';
+  const body = { workflowData: { templates: [
+    { id: 'ghost-step', name: 'Conformance probe step', type: 'facebook_conversion_api',
+      attributes: { access_token: '<redacted>' } },
+  ] } };
+  const r = await call('raw_request', { method: 'PUT', path: `/workflow/${LOCATION}/${GHOST}`, body, confirm: true });
+  check(r.ok === false && r.code === 'VALIDATION_FAILED'
+      && /redaction placeholder/.test(r.detail ?? '')
+      && /ghost-step "Conformance probe step"/.test(r.detail ?? ''),
+    'raw_request REFUSES a payload carrying the scrubber\'s placeholder, in the guard\'s OWN words, naming the step — even with confirm:true',
+    `${r.code} ${String(r.detail ?? '').slice(0, 200)}`);
+}
+
 // ── preflight: GHL's own From-address verdict, by DIFFERENTIAL ────────────────────────────────
 // TWO addresses, which must come back refused for two DIFFERENT codes: if the route ever starts
 // answering one code for everything, this goes red instead of quietly reporting "allowed".

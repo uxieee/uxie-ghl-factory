@@ -176,7 +176,7 @@ var define_ENDPOINT_CATALOG_default;
 var init_define_ENDPOINT_CATALOG = __esm({
   "<define:__ENDPOINT_CATALOG__>"() {
     define_ENDPOINT_CATALOG_default = {
-      generated: "2026-09-20",
+      generated: "2026-09-21",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
       count: 1144,
       endpoints: [
@@ -90839,6 +90839,47 @@ function matchCatalogRow(pool, method, path) {
   }
   return best;
 }
+function findRedactedValues(payload) {
+  const hits = [];
+  const walk3 = (node, path, step) => {
+    if (typeof node === "string" && node.includes(REDACTED)) {
+      hits.push({ id: step?.id, name: step?.name, type: step?.type, path });
+      return;
+    }
+    if (Array.isArray(node)) {
+      node.forEach((item, i) => walk3(item, `${path}[${i}]`, step));
+      return;
+    }
+    if (node && typeof node === "object") {
+      const nextStep = typeof node.id === "string" && node.id ? node : step;
+      for (const [k, v] of Object.entries(node)) walk3(v, path ? `${path}.${k}` : k, nextStep);
+    }
+  };
+  walk3(payload, "", null);
+  return hits;
+}
+function groupByStep(hits) {
+  const groups = /* @__PURE__ */ new Map();
+  for (const h of hits) {
+    const key = h.id ?? `path:${h.path}`;
+    if (!groups.has(key)) groups.set(key, { id: h.id, name: h.name, type: h.type, paths: [] });
+    groups.get(key).paths.push(h.path);
+  }
+  return [...groups.values()];
+}
+var REDACTED_STEP_CAP = 6;
+function refuseRedactedWrite(payload) {
+  const hits = findRedactedValues(payload);
+  if (!hits.length) return null;
+  const steps = groupByStep(hits);
+  const label2 = (s) => s.id ? `${s.id} "${s.name ?? s.id}"` : `field ${s.paths[0]}`;
+  const shown = steps.slice(0, REDACTED_STEP_CAP).map((s) => `${label2(s)}${s.type ? ` (${s.type})` : ""} at ${s.paths.join(", ")}`).join("; ");
+  const more = steps.length > REDACTED_STEP_CAP ? `, and ${steps.length - REDACTED_STEP_CAP} more` : "";
+  return {
+    message: `${hits.length} value(s) in this write are the redaction placeholder "${REDACTED}", not real values: ${shown}${more}. Writing them back would REPLACE the stored value with the literal placeholder string.`,
+    hint: "These steps must be re-entered by hand in the builder \u2014 the real values cannot be read back through this rail. scrubSecrets redacts by KEY NAME without reading the value, so the original is not recoverable from any export or GET. There is no confirm hatch for this: there is no legitimate reason to write the literal placeholder into a workflow."
+  };
+}
 
 // core/site-audit.mjs
 init_define_BUILDER_VALIDATORS();
@@ -175422,6 +175463,8 @@ var TOOLS2 = [
         allowDanglingParentKeys: args.allowDanglingParentKeys === true,
         allowDanglingStepRefs: args.allowDanglingStepRefs === true
       });
+      const redactedRefusal = refuseRedactedWrite(commitBody?.workflowData?.templates ?? templates);
+      if (redactedRefusal) return fail(CODES.VALIDATION_FAILED, redactedRefusal.message, redactedRefusal.hint);
       checkGraphContextRules(templates, { warn: ctx.warn });
       const schemaViolations = await editSchemaViolations(gw, locationPath, templates, existingTriggers, args.ops, marketplaceRaw.assets);
       for (const v of schemaViolations) warnings.push(`SCHEMA: '${v.step ?? v.stepId}' (${v.type}): ${(v.messages ?? []).join("; ")}`);
@@ -175871,23 +175914,8 @@ var TOOLS2 = [
           "Pass the full workflowData.templates you want stored (inline, or via templatesPath). To empty a workflow, delete its steps with edit_workflow."
         );
       }
-      const redacted = [];
-      const findRedacted = (v, t, path) => {
-        if (v === REDACTED) {
-          redacted.push({ step: t.name ?? t.id, type: t.type, at: path });
-          return;
-        }
-        if (Array.isArray(v)) return v.forEach((x, i) => findRedacted(x, t, `${path}[${i}]`));
-        if (v && typeof v === "object") for (const [k, x] of Object.entries(v)) findRedacted(x, t, `${path}.${k}`);
-      };
-      for (const t of args.templates) findRedacted(t.attributes, t, "attributes");
-      if (redacted.length) {
-        return fail(
-          CODES.ENGINE_ABORT,
-          `${redacted.length} value(s) in this document are the redaction placeholder, not real values: ${redacted.slice(0, 4).map((r) => `'${r.step}' (${r.type}) ${r.at}`).join("; ")}${redacted.length > 4 ? `, and ${redacted.length - 4} more` : ""}. Writing them back would REPLACE the stored value with the literal string "<redacted>".`,
-          `export_workflow scrubs on the KEY NAME without reading the value, so a webhook's authorization comes back redacted even when it holds {type:"NONE"} and no credential at all. Restore the real values on those paths before repairing \u2014 read the untouched document from the workflow's own fileUrl \u2014 or use edit_workflow, whose ops only touch the fields you name and leave the rest of the document alone.`
-        );
-      }
+      const redactedRefusal = refuseRedactedWrite(args.templates);
+      if (redactedRefusal) return fail(CODES.VALIDATION_FAILED, redactedRefusal.message, redactedRefusal.hint);
       const badIds = args.templates.filter((t) => !t || typeof t !== "object" || typeof t.id !== "string" || !t.id);
       if (badIds.length) {
         return fail(
@@ -177728,6 +177756,10 @@ var TOOLS2 = [
       }
       const refusal = refuseRawRequest({ method, path: args.path, body });
       if (refusal) return fail(CODES.VALIDATION_FAILED, refusal.message, refusal.hint);
+      if (method !== "GET") {
+        const redactedRefusal = refuseRedactedWrite(body);
+        if (redactedRefusal) return fail(CODES.VALIDATION_FAILED, redactedRefusal.message, redactedRefusal.hint);
+      }
       if (method !== "GET" && args.confirm !== true) {
         const row = matchCatalogRow(endpoints(), method, args.path);
         const words = row ? endpointWords(row) : null;

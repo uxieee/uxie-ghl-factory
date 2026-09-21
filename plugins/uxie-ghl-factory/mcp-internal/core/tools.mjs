@@ -5,10 +5,10 @@ import { fileURLToPath } from 'node:url';
 import { dirname, resolve, join, isAbsolute } from 'node:path';
 import { createHash } from 'node:crypto';
 import { z } from 'zod';
-import { ok, fail, fromHttp, CODES, REDACTED, containsSecrets, scrubSecrets } from './errors.mjs';
+import { ok, fail, fromHttp, CODES, containsSecrets, scrubSecrets } from './errors.mjs';
 import { authStatus, DEFAULT_TOKEN_FILE, readCredentials } from './auth.mjs';
 import { checkLocationBinding } from './location-binding.mjs';
-import { refuseRawRequest, matchCatalogRow } from './raw-request-guards.mjs';
+import { refuseRawRequest, matchCatalogRow, refuseRedactedWrite } from './raw-request-guards.mjs';
 import { scanPage, judge, judgeVersions, judgeRouting, judgePathCollisions, judgePageRecord, judgeRendered, judgeStyles, normaliseTag } from './site-audit.mjs';
 import { makeAuditCircuit, makeAuditGateway, makeAuditLimiter } from './audit-gateway.mjs';
 import { makeGateway } from './gateway.mjs';
@@ -4738,6 +4738,12 @@ export const TOOLS = [
         allowDanglingParentKeys: args.allowDanglingParentKeys === true,
         allowDanglingStepRefs: args.allowDanglingStepRefs === true,
       });
+      // A modifyStep attrPatch is pasted straight onto the stored step (see the enforcement-bypass
+      // comment above) and never passes through the compiler, so an attrPatch copied from a scrubbed
+      // export can carry the placeholder straight into commitBody the same way templatesPath does
+      // for repair_workflow. Same guard, same shared function — see raw-request-guards.mjs.
+      const redactedRefusal = refuseRedactedWrite(commitBody?.workflowData?.templates ?? templates);
+      if (redactedRefusal) return fail(CODES.VALIDATION_FAILED, redactedRefusal.message, redactedRefusal.hint);
       // WORKFLOW-level rules (GHL's WorkflowValidator) now run INSIDE the validation gate below,
       // with every other layer — see write-validation.mjs. They used to be invoked here, and
       // publish_workflow never invoked them at all, which is exactly the asymmetry the single
@@ -5251,37 +5257,18 @@ export const TOOLS = [
         return fail(CODES.ENGINE_ABORT, 'templates must be a non-empty array of step objects.',
           'Pass the full workflowData.templates you want stored (inline, or via templatesPath). To empty a workflow, delete its steps with edit_workflow.');
       }
-      // 🔴 A SCRUBBED EXPORT IS NOT A REPAIRABLE DOCUMENT, and the tool used to recommend exactly
+      // A SCRUBBED EXPORT IS NOT A REPAIRABLE DOCUMENT, and the tool used to recommend exactly
       // that round trip: export_workflow --writeTo writes a SCRUBBED file, and this tool's own note
-      // said "repair_workflow accepts this file as templatesPath".
-      //
-      // Measured 2026-09-10: GHL stores a custom_webhook's attributes.authorization as
-      // {type:"NONE", data:null} — a structured object with no credential in it. The scrub replaces
-      // it with the string "<redacted>" on the KEY NAME alone, without looking at the value. PUT
-      // that back and a step whose authorization is genuinely configured has its auth replaced by a
-      // seven-character placeholder. Full-document PUT, no validator on the far side, silent.
-      //
-      // So this refuses, and names the steps. A repair is for changing what you meant to change;
-      // writing a redaction placeholder is never that.
-      const redacted = [];
-      const findRedacted = (v, t, path) => {
-        if (v === REDACTED) { redacted.push({ step: t.name ?? t.id, type: t.type, at: path }); return; }
-        if (Array.isArray(v)) return v.forEach((x, i) => findRedacted(x, t, `${path}[${i}]`));
-        if (v && typeof v === 'object') for (const [k, x] of Object.entries(v)) findRedacted(x, t, `${path}.${k}`);
-      };
-      for (const t of args.templates) findRedacted(t.attributes, t, 'attributes');
-      if (redacted.length) {
-        return fail(CODES.ENGINE_ABORT,
-          `${redacted.length} value(s) in this document are the redaction placeholder, not real values: `
-          + `${redacted.slice(0, 4).map((r) => `'${r.step}' (${r.type}) ${r.at}`).join('; ')}`
-          + `${redacted.length > 4 ? `, and ${redacted.length - 4} more` : ''}. Writing them back would `
-          + 'REPLACE the stored value with the literal string "<redacted>".',
-          'export_workflow scrubs on the KEY NAME without reading the value, so a webhook\'s '
-          + 'authorization comes back redacted even when it holds {type:"NONE"} and no credential at '
-          + 'all. Restore the real values on those paths before repairing — read the untouched '
-          + 'document from the workflow\'s own fileUrl — or use edit_workflow, whose ops only touch '
-          + 'the fields you name and leave the rest of the document alone.');
-      }
+      // said "repair_workflow accepts this file as templatesPath". Measured 2026-09-10: GHL stores
+      // a custom_webhook's attributes.authorization as {type:"NONE", data:null} — a structured
+      // object with no credential in it — and the scrub still replaces it with the placeholder on
+      // the KEY NAME alone, without looking at the value. PUT that back and a step whose
+      // authorization is genuinely configured has its auth replaced by the placeholder string,
+      // full-document PUT, no validator on the far side, silent. Shared guard — see
+      // core/raw-request-guards.mjs — because templatesPath was the measured route but not the
+      // only whole-document write; edit_workflow and raw_request carry the same call.
+      const redactedRefusal = refuseRedactedWrite(args.templates);
+      if (redactedRefusal) return fail(CODES.VALIDATION_FAILED, redactedRefusal.message, redactedRefusal.hint);
       const badIds = args.templates.filter((t) => !t || typeof t !== 'object' || typeof t.id !== 'string' || !t.id);
       if (badIds.length) {
         return fail(CODES.ENGINE_ABORT, `${badIds.length} template(s) have no string 'id'.`,
@@ -7283,6 +7270,16 @@ export const TOOLS = [
       // is consent to a write, not to a malformed one.
       const refusal = refuseRawRequest({ method, path: args.path, body });
       if (refusal) return fail(CODES.VALIDATION_FAILED, refusal.message, refusal.hint);
+
+      // Not path-scoped like the five above — this fires on ANY write (not a GET) whose payload
+      // carries the scrubber's own placeholder, wherever it nests. The measured route was PUT
+      // /workflow/{loc}/{wid} via repair_workflow --templatesPath, but the guard judges the bytes
+      // about to be sent, not the endpoint, so a raw_request PUT/POST to that same route — or any
+      // other — carrying the placeholder is refused the same way. See raw-request-guards.mjs.
+      if (method !== 'GET') {
+        const redactedRefusal = refuseRedactedWrite(body);
+        if (redactedRefusal) return fail(CODES.VALIDATION_FAILED, redactedRefusal.message, redactedRefusal.hint);
+      }
 
       if (method !== 'GET' && args.confirm !== true) {
         // The route's measured trap, at the one moment it matters. The catalogue already knows that

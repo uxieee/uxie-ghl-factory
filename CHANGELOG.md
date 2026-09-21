@@ -11,6 +11,16 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## Unreleased
+
+Redacted-payload write guard: `repair_workflow`, `edit_workflow`, and `raw_request` now refuse any
+write whose payload still carries the scrubber's `<redacted>` placeholder — the placeholder is
+written by key name on the way out (`scrubSecrets`), and nothing previously stopped it being written
+back in over a real credential, with the write reporting success (`roundTrip: true`) because the
+document really did store what was sent. No confirm hatch: there is no legitimate reason to write the
+placeholder into a workflow. The refusal names the offending step(s) — id beside name — and a
+conformance check proves it live in the guard's own words.
+
 ## [0.94.0] — 2026-09-21
 
 Six already-proven GoHighLevel workflow routes folded into the tools an operator already uses, five
