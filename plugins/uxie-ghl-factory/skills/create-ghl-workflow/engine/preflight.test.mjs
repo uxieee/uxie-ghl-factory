@@ -129,3 +129,61 @@ test('CONTROL: a hand-built plan entry with no literal From address sends NOTHIN
     assert.match(row.detail, /nothing sent/);
   }
 });
+
+// ── ai_agent model ids are per-account and GHL retires them IN PLACE ─────────────────────────
+// Measured on the designated sandbox 2026-09-21: 32 models, defaultModelId gpt-5.6-luna, and
+// gpt-5 / gpt-5.1 / gpt-5.2 / gpt-5-mini / gpt-4.1 all `deprecated: true`. Our catalogue freezes
+// a model literal into ai_agent's uiDefaults, so a step that omits one is written with whatever
+// was current the day the catalogue was captured. Before this check nothing in the engine read
+// the account's roster at all.
+const MODELS = {
+  defaultModelId: 'gpt-5.6-luna',
+  models: [
+    { id: 'gpt-5.6-luna', deprecated: false, recommended: true },
+    { id: 'gpt-5-nano', deprecated: false, recommended: false },
+    { id: 'gpt-5.2', deprecated: true, recommended: false },
+  ],
+};
+const agentStep = (model) => ({ id: 'z', type: 'ai_agent', name: 'A', attributes: { model } });
+const runOne = (templates, json) => runReadinessChecks(
+  planReadinessChecks({ templates, catalog: { steps: { ai_agent: {} } } }),
+  { loc: 'L', call: async () => ({ ok: true, status: 200, json }) },
+);
+
+test('a model the account does not offer is reported ok:false, naming it', async () => {
+  const [r] = await runOne([agentStep('gpt-4o-imaginary')], MODELS);
+  assert.equal(r.key, 'ai_model');
+  assert.equal(r.checked, true);
+  assert.equal(r.ok, false);
+  assert.match(r.detail, /NOT offered on this location: gpt-4o-imaginary/);
+});
+
+test('a DEPRECATED model still runs, so it warns rather than failing', async () => {
+  const [r] = await runOne([agentStep('gpt-5.2')], MODELS);
+  assert.equal(r.ok, true, 'deprecated is served — failing the check would block a working build');
+  assert.match(r.detail, /DEPRECATED.*gpt-5\.2/);
+});
+
+test('a model that is offered and current passes, and reports the account default', async () => {
+  const [r] = await runOne([agentStep('gpt-5.6-luna')], MODELS);
+  assert.equal(r.ok, true);
+  assert.doesNotMatch(r.detail, /NOT offered|DEPRECATED/);
+  assert.match(r.detail, /its default is gpt-5\.6-luna/);
+});
+
+test('an unreadable model list is UNVERIFIED, never "fine"', async () => {
+  // The distinction this whole module exists for: ok:null means we could not look, and the detail
+  // must not let that be read as a pass.
+  const [r] = await runOne([agentStep('anything')], null);
+  assert.equal(r.checked, false);
+  assert.equal(r.ok, null);
+  assert.match(r.detail, /NOT thereby known to be good/);
+});
+
+test('a merge-field model is not judged, and a workflow with no ai_agent plans no check', async () => {
+  // {{...}} resolves at run time; asserting on the literal would be a false alarm.
+  assert.equal(planReadinessChecks({ templates: [agentStep('{{contact.model}}')], catalog: { steps: { ai_agent: {} } } })
+    .some((e) => e.key === 'ai_model'), false);
+  assert.equal(planReadinessChecks({ templates: [{ id: 'q', type: 'sms', name: 'S' }], catalog: { steps: { sms: {} } } })
+    .some((e) => e.key === 'ai_model'), false);
+});

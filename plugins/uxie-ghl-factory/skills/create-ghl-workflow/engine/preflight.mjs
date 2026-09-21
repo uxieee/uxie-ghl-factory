@@ -64,6 +64,24 @@ export function planReadinessChecks({ templates = [], triggerTypes = [], setting
     const entry = catalog?.steps?.[ty] ?? (typeof catalog?.step === 'function' ? catalog.step(ty) : null);
     if (entry?.gate) need('gated_type', `step '${t.name ?? t.id}' (${ty} is availability-gated: ${entry.gate.kind ?? 'allowlist'})`);
     if (entry?.premium) need('premium', `${ty}`);
+    // 🔴 THE MODEL ID IS A PER-ACCOUNT, MOVING FACT — never a constant. GHL rotates its roster and
+    // retires ids in place: measured on the designated sandbox 2026-09-21, gpt-5, gpt-5.1, gpt-5.2,
+    // gpt-5-mini and gpt-4.1 all carry `deprecated: true` while `defaultModelId` is gpt-5.6-luna.
+    // Our catalogue's uiDefaults carries a model literal, so a step that omits one is written with
+    // whatever was current the day the catalogue was captured — correct today, silently deprecated
+    // the day GHL rotates again. Nothing else in the engine reads the account's list, so a model
+    // this location is not offered compiles and writes without a word.
+    // Advisory only, like every other check here: the model list read can fail, and a build must
+    // never be blocked on a signal that degrades to null.
+    if (ty === 'ai_agent') {
+      const m = t?.attributes?.model;
+      if (typeof m === 'string' && m.trim() && !m.includes('{{')) {
+        need('ai_model', `step '${t.name ?? t.id}' (ai_agent model '${m}')`);
+        const e = plan.get('ai_model');
+        e.models = e.models ?? [];
+        if (!e.models.includes(m)) e.models.push(m);
+      }
+    }
   }
   for (const ty of triggerTypes) {
     if (IG_TRIGGERS.has(ty)) need('instagram', `trigger ${ty}`);
@@ -91,6 +109,14 @@ export function planReadinessChecks({ templates = [], triggerTypes = [], setting
  */
 export async function runReadinessChecks(plan, { call, loc }) {
   const g = async (p) => { try { const r = await call('GET', p); return r?.ok ? r.json : null; } catch { return null; } };
+  // Same as `g`, but keeps the STATUS. `g` collapses every failure to null, which is right for a
+  // check that only wants the body — but it makes "we are not allowed to look" indistinguishable
+  // from "the read broke", and those two deserve different words in front of a reader deciding
+  // whether to go re-capture a token.
+  const gWithStatus = async (p) => {
+    try { const r = await call('GET', p); return { json: r?.ok ? r.json : null, status: r?.status ?? null }; }
+    catch { return { json: null, status: null }; }
+  };
   const post = async (p, body) => { try { const r = await call('POST', p, body); return r?.ok ? r.json : null; } catch { return null; } };
   const lq = new URLSearchParams({ locationId: String(loc) });
   const lp = encodeURIComponent(String(loc));
@@ -104,14 +130,23 @@ export async function runReadinessChecks(plan, { call, loc }) {
       // A location with a good number can still be unable to send. RAW FIELDS ONLY: the two
       // booleans GHL names itself (suspended, cool-off) are the only things judged; every STATUS
       // STRING is printed as-is, because what each value means for delivery is not established.
-      const j = await g(`/phone-system/twilio-accounts?${new URLSearchParams({ entityId: String(loc), entityType: 'LOCATION' })}`);
+      const { json: j, status: smsStatus } = await gWithStatus(`/phone-system/twilio-accounts?${new URLSearchParams({ entityId: String(loc), entityType: 'LOCATION' })}`);
       const c = j?.compliance ?? {};
       const reg = (r) => `brand=${r?.brandData?.status || '∅'}, campaign=${r?.campaignStatus || '∅'}`;
       const suspended = j?.blacklistConfig?.isLocationSuspended === true;
       const coolOff = j?.isvConfiguration?.isLocationInCoolOffPeriod === true;
       out.push({
         key, why, checked: j != null, ok: j == null ? null : (suspended || coolOff ? false : null),
-        detail: j == null ? 'SMS account state not readable'
+        // 🔴 A 401 HERE IS NOT AN EXPIRED TOKEN. Live-probed 2026-08-25: /phone-system/twilio-accounts
+        // answers 401 to a location-user Bearer even WITH the marketplace headers. The path is real;
+        // this credential class does not reach it. Saying only "not readable" invited exactly the
+        // wrong next move — re-capturing a perfectly healthy token. The date is in the text on
+        // purpose: GHL's auth facts expire (the funnels rail gained a second rail between two
+        // measurements), so this is reported as what was measured and when, not as a permanent law.
+        detail: j == null
+          ? (smsStatus === 401 || smsStatus === 403
+            ? `SMS account state not readable: /phone-system/twilio-accounts answered ${smsStatus}. Measured 2026-08-25, this route refuses a location-user Bearer even with the marketplace headers — a permission CLASS, not an expired token, so re-capturing credentials will not change it. Read SMS sending state in the GHL UI instead.`
+            : `SMS account state not readable${smsStatus ? ` (HTTP ${smsStatus})` : ''}`)
           : `${suspended ? '🔴 LOCATION SUSPENDED for SMS. ' : ''}${coolOff ? '🔴 location is in an SMS COOL-OFF period. ' : ''}`
             + `subaccount=${j.twilioSubaccount?.status ?? '∅'}; suspended=${j.blacklistConfig?.isLocationSuspended ?? '∅'} (till ${j.blacklistConfig?.smsSuspensionTill ?? '∅'}); `
             + `coolOff=${j.isvConfiguration?.isLocationInCoolOffPeriod ?? '∅'} (limit suspension till ${j.isvConfiguration?.smsLimitSuspensionTill || '∅'}); `
@@ -176,6 +211,34 @@ export async function runReadinessChecks(plan, { call, loc }) {
           : `GHL's own From-address check: ${j.isFromEmailAllowed ? 'allowed' : '🔴 NOT allowed'} (code ${j.code ?? '∅'})${j.message ? ` — ${j.message}` : ''}`
             + `${suggestions.length ? `; GHL suggests: ${suggestions.join(', ')}` : ''}. Advisory: the build is not blocked. `
             + 'Covers the workflow-level From only — a per-step From override on an email step is not checked.',
+      });
+    } else if (key === 'ai_model') {
+      // GET /workflow/agent/{loc}/models — the builder's own model picker source. Each row carries
+      // id, displayName, provider, contextWindow, supportsTools, deprecated, recommended, and the
+      // payload carries defaultModelId.
+      const j = await g(`/workflow/agent/${lp}/models`);
+      const rows = Array.isArray(j?.models) ? j.models : (Array.isArray(j) ? j : []);
+      const wanted = Array.isArray(entry.models) ? entry.models : [];
+      if (!rows.length) {
+        out.push({ key, why, checked: false, ok: null, detail: 'the account\'s AI model list is not readable, so the model ids on these steps are unverified — they are NOT thereby known to be good' });
+        continue;
+      }
+      const byId = new Map(rows.map((r) => [r.id, r]));
+      const missing = wanted.filter((m) => !byId.has(m));
+      const deprecated = wanted.filter((m) => byId.get(m)?.deprecated === true);
+      const defaultId = j?.defaultModelId ?? null;
+      const parts = [];
+      if (missing.length) parts.push(`🔴 NOT offered on this location: ${missing.join(', ')} — the step will carry a model id GHL does not serve here`);
+      if (deprecated.length) parts.push(`⚠️ DEPRECATED (still served, but GHL has retired it): ${deprecated.join(', ')}`);
+      out.push({
+        key, why,
+        checked: true,
+        // false only for a model the account does not have; a deprecated one still runs, so it
+        // warns rather than failing. null is not used here — the list WAS read.
+        ok: missing.length ? false : true,
+        detail: `${parts.length ? `${parts.join('. ')}. ` : `every model id on these steps is offered here: ${wanted.join(', ')}. `}`
+          + `This location offers ${rows.length} model(s); its default is ${defaultId ?? '∅'}. `
+          + 'Advisory: the build is not blocked. Model ids are per-account and GHL retires them in place — read get_ai_agent_options rather than reusing an id from an older workflow.',
       });
     } else {
       out.push({ key, why, checked: false, ok: null, detail: 'no signal known for this check' });

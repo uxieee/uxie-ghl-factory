@@ -27069,7 +27069,10 @@
         "agency-admin-bearer"
       ],
       "coveredBy": [
-        "get_ai_agent_options"
+        "build_workflow",
+        "edit_workflow",
+        "get_ai_agent_options",
+        "repair_workflow"
       ],
       "rawCallable": true,
       "transport": "json",

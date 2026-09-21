@@ -27246,7 +27246,10 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "agency-admin-bearer"
           ],
           coveredBy: [
-            "get_ai_agent_options"
+            "build_workflow",
+            "edit_workflow",
+            "get_ai_agent_options",
+            "repair_workflow"
           ],
           rawCallable: true,
           transport: "json",
@@ -162360,6 +162363,15 @@ function planReadinessChecks({ templates = [], triggerTypes = [], settings = {},
     const entry = catalog?.steps?.[ty] ?? (typeof catalog?.step === "function" ? catalog.step(ty) : null);
     if (entry?.gate) need("gated_type", `step '${t.name ?? t.id}' (${ty} is availability-gated: ${entry.gate.kind ?? "allowlist"})`);
     if (entry?.premium) need("premium", `${ty}`);
+    if (ty === "ai_agent") {
+      const m = t?.attributes?.model;
+      if (typeof m === "string" && m.trim() && !m.includes("{{")) {
+        need("ai_model", `step '${t.name ?? t.id}' (ai_agent model '${m}')`);
+        const e = plan.get("ai_model");
+        e.models = e.models ?? [];
+        if (!e.models.includes(m)) e.models.push(m);
+      }
+    }
   }
   for (const ty of triggerTypes) {
     if (IG_TRIGGERS.has(ty)) need("instagram", `trigger ${ty}`);
@@ -162385,6 +162397,14 @@ async function runReadinessChecks(plan, { call, loc }) {
       return null;
     }
   };
+  const gWithStatus = async (p2) => {
+    try {
+      const r = await call("GET", p2);
+      return { json: r?.ok ? r.json : null, status: r?.status ?? null };
+    } catch {
+      return { json: null, status: null };
+    }
+  };
   const post = async (p2, body) => {
     try {
       const r = await call("POST", p2, body);
@@ -162403,7 +162423,7 @@ async function runReadinessChecks(plan, { call, loc }) {
       const nums = Array.isArray(j?.phoneNumbers) ? j.phoneNumbers : [];
       out.push({ key, why, checked: j != null, ok: nums.length > 0, detail: nums.length ? `${nums.length} number(s): ${nums.map((n) => n.title ?? n.value).join(", ")}` : "NO SMS number provisioned on this location \u2014 SMS steps will not send" });
     } else if (key === "sms_readiness") {
-      const j = await g(`/phone-system/twilio-accounts?${new URLSearchParams({ entityId: String(loc), entityType: "LOCATION" })}`);
+      const { json: j, status: smsStatus } = await gWithStatus(`/phone-system/twilio-accounts?${new URLSearchParams({ entityId: String(loc), entityType: "LOCATION" })}`);
       const c = j?.compliance ?? {};
       const reg = (r) => `brand=${r?.brandData?.status || "\u2205"}, campaign=${r?.campaignStatus || "\u2205"}`;
       const suspended = j?.blacklistConfig?.isLocationSuspended === true;
@@ -162413,7 +162433,13 @@ async function runReadinessChecks(plan, { call, loc }) {
         why,
         checked: j != null,
         ok: j == null ? null : suspended || coolOff ? false : null,
-        detail: j == null ? "SMS account state not readable" : `${suspended ? "\u{1F534} LOCATION SUSPENDED for SMS. " : ""}${coolOff ? "\u{1F534} location is in an SMS COOL-OFF period. " : ""}subaccount=${j.twilioSubaccount?.status ?? "\u2205"}; suspended=${j.blacklistConfig?.isLocationSuspended ?? "\u2205"} (till ${j.blacklistConfig?.smsSuspensionTill ?? "\u2205"}); coolOff=${j.isvConfiguration?.isLocationInCoolOffPeriod ?? "\u2205"} (limit suspension till ${j.isvConfiguration?.smsLimitSuspensionTill || "\u2205"}); A2P customerProfile=${c.customerProfileStatus || "\u2205"}; starter[${reg(c.starterRegistration)}]; standard[${reg(c.standardRegistration)}]; brands=${Array.isArray(c.brands) ? c.brands.length : "\u2205"}, campaigns=${Array.isArray(c.campaigns) ? c.campaigns.length : "\u2205"}; tollFree=${j.tollFreeData && Object.keys(j.tollFreeData).length ? "present" : "\u2205"}. Status strings are reported, not judged: an empty A2P registration matters for US/CA long-code traffic and may be irrelevant elsewhere.`
+        // 🔴 A 401 HERE IS NOT AN EXPIRED TOKEN. Live-probed 2026-08-25: /phone-system/twilio-accounts
+        // answers 401 to a location-user Bearer even WITH the marketplace headers. The path is real;
+        // this credential class does not reach it. Saying only "not readable" invited exactly the
+        // wrong next move — re-capturing a perfectly healthy token. The date is in the text on
+        // purpose: GHL's auth facts expire (the funnels rail gained a second rail between two
+        // measurements), so this is reported as what was measured and when, not as a permanent law.
+        detail: j == null ? smsStatus === 401 || smsStatus === 403 ? `SMS account state not readable: /phone-system/twilio-accounts answered ${smsStatus}. Measured 2026-08-25, this route refuses a location-user Bearer even with the marketplace headers \u2014 a permission CLASS, not an expired token, so re-capturing credentials will not change it. Read SMS sending state in the GHL UI instead.` : `SMS account state not readable${smsStatus ? ` (HTTP ${smsStatus})` : ""}` : `${suspended ? "\u{1F534} LOCATION SUSPENDED for SMS. " : ""}${coolOff ? "\u{1F534} location is in an SMS COOL-OFF period. " : ""}subaccount=${j.twilioSubaccount?.status ?? "\u2205"}; suspended=${j.blacklistConfig?.isLocationSuspended ?? "\u2205"} (till ${j.blacklistConfig?.smsSuspensionTill ?? "\u2205"}); coolOff=${j.isvConfiguration?.isLocationInCoolOffPeriod ?? "\u2205"} (limit suspension till ${j.isvConfiguration?.smsLimitSuspensionTill || "\u2205"}); A2P customerProfile=${c.customerProfileStatus || "\u2205"}; starter[${reg(c.starterRegistration)}]; standard[${reg(c.standardRegistration)}]; brands=${Array.isArray(c.brands) ? c.brands.length : "\u2205"}, campaigns=${Array.isArray(c.campaigns) ? c.campaigns.length : "\u2205"}; tollFree=${j.tollFreeData && Object.keys(j.tollFreeData).length ? "present" : "\u2205"}. Status strings are reported, not judged: an empty A2P registration matters for US/CA long-code traffic and may be irrelevant elsewhere.`
       });
     } else if (key === "whatsapp") {
       const j = await g(`/phone-system/whatsapp/location/${lp}/phone-numbers`);
@@ -162468,6 +162494,30 @@ async function runReadinessChecks(plan, { call, loc }) {
         ok: readable ? j.isFromEmailAllowed : null,
         ...readable ? { code: j.code ?? null, suggestions } : {},
         detail: !readable ? "From-address verdict not readable" : `GHL's own From-address check: ${j.isFromEmailAllowed ? "allowed" : "\u{1F534} NOT allowed"} (code ${j.code ?? "\u2205"})${j.message ? ` \u2014 ${j.message}` : ""}${suggestions.length ? `; GHL suggests: ${suggestions.join(", ")}` : ""}. Advisory: the build is not blocked. Covers the workflow-level From only \u2014 a per-step From override on an email step is not checked.`
+      });
+    } else if (key === "ai_model") {
+      const j = await g(`/workflow/agent/${lp}/models`);
+      const rows = Array.isArray(j?.models) ? j.models : Array.isArray(j) ? j : [];
+      const wanted = Array.isArray(entry.models) ? entry.models : [];
+      if (!rows.length) {
+        out.push({ key, why, checked: false, ok: null, detail: "the account's AI model list is not readable, so the model ids on these steps are unverified \u2014 they are NOT thereby known to be good" });
+        continue;
+      }
+      const byId = new Map(rows.map((r) => [r.id, r]));
+      const missing = wanted.filter((m) => !byId.has(m));
+      const deprecated = wanted.filter((m) => byId.get(m)?.deprecated === true);
+      const defaultId = j?.defaultModelId ?? null;
+      const parts = [];
+      if (missing.length) parts.push(`\u{1F534} NOT offered on this location: ${missing.join(", ")} \u2014 the step will carry a model id GHL does not serve here`);
+      if (deprecated.length) parts.push(`\u26A0\uFE0F DEPRECATED (still served, but GHL has retired it): ${deprecated.join(", ")}`);
+      out.push({
+        key,
+        why,
+        checked: true,
+        // false only for a model the account does not have; a deprecated one still runs, so it
+        // warns rather than failing. null is not used here — the list WAS read.
+        ok: missing.length ? false : true,
+        detail: `${parts.length ? `${parts.join(". ")}. ` : `every model id on these steps is offered here: ${wanted.join(", ")}. `}This location offers ${rows.length} model(s); its default is ${defaultId ?? "\u2205"}. Advisory: the build is not blocked. Model ids are per-account and GHL retires them in place \u2014 read get_ai_agent_options rather than reusing an id from an older workflow.`
       });
     } else {
       out.push({ key, why, checked: false, ok: null, detail: "no signal known for this check" });
@@ -164447,7 +164497,13 @@ function describeFinding(f) {
   const where = f.stepName || f.stepType || f.stepId || "unattributed (trigger-borne or document-level)";
   const what = f.message || f.ruleId || "asset problem";
   const id = f.assetId ? ` (${f.assetType ?? "asset"} ${f.assetId})` : "";
-  return `${where}: ${what}${id}`;
+  return `${where}: ${what}${id}${remediationFor(f)}`;
+}
+var REMEDIATION = /* @__PURE__ */ new Map([
+  ["ASSET_CALENDAR_NOT_FOUND", " \u2014 NOTE: GHL returns this same not-found text for a calendar that merely has isActive:false as for one that is gone. Read the calendar directly before assuming it was deleted; if it answers 200, re-activate it rather than re-pointing the step."]
+]);
+function remediationFor(f) {
+  return REMEDIATION.get(f?.ruleId) ?? "";
 }
 async function validateAssets(call, loc, { templates, triggers, companyId } = {}) {
   if (!Array.isArray(templates)) return { checked: false, skipped: "no templates to validate", errors: EMPTY, warnings: EMPTY };
@@ -174250,7 +174306,7 @@ var TOOLS2 = [
     name: "get_trigger_logs",
     description: describe3(
       "get_trigger_logs",
-      "Why a trigger did or did not fire: per-contact attempt rows with qualified / failedReason / actualValue vs expectedValue, plus the ranked top-failed-reasons \u2014 for every trigger of a workflow or one trigger."
+      "Why a trigger did or did not fire: per-contact attempt rows with qualified / failedReason / actualValue vs expectedValue, plus the ranked top-failed-reasons \u2014 for every trigger of a workflow or one trigger. Pass workflowId to have each trigger's type resolved for you; with an explicit triggerId you must also pass triggerType, because the attempt-row and failed-reason endpoints scope BY TYPE and do not validate it \u2014 a missing or wrong type returns another scope's numbers under your trigger's id rather than an error. A trigger GHL returns without a type is reported with typeMissing and its attempt COUNT only; its rows and reasons are omitted rather than guessed."
     ),
     inputSchema: schema({
       locationId: external_exports.string(),
@@ -174313,6 +174369,12 @@ var TOOLS2 = [
         item.matched = Number(row?.matched ?? 0);
         item.unmatched = Math.max(0, item.attempted - item.matched);
         if (!c.ok) item.countError = { status: c.status };
+        if (typeof trig.type !== "string" || trig.type.trim() === "") {
+          item.typeMissing = true;
+          item.note = "GHL returned this trigger without a `type`, and the log list/reasons endpoints scope by type without validating it \u2014 a call made anyway would return numbers for the wrong scope, not an error. Attempt counts above are still exact (count-by-triggerId does not take a type); the per-attempt rows and failure reasons are omitted rather than guessed.";
+          out.push(item);
+          continue;
+        }
         const lq = new URLSearchParams({ ...base, triggerId: trig.id, triggerType: trig.type, limit: String(args.limit ?? 25), action: "first" });
         if (typeof args.qualified === "boolean") lq.set("qualified", String(args.qualified));
         const l = await gw.call("GET", `/workflows/trigger/logs/triggerId?${lq}`);
@@ -175175,6 +175237,10 @@ var TOOLS2 = [
       { method: "GET", path: "/phone-system/whatsapp/location/{loc}/phone-numbers" },
       { method: "GET", path: "/workflow/{loc}/instagram/connected-accounts" },
       { method: "GET", path: "/workflow/{loc}/email/location-email-provider" },
+      // Reached when the compiled workflow carries an ai_agent step with a literal model id.
+      // Model ids are per-account and GHL retires them IN PLACE, so a frozen id is checked
+      // against the account's live roster rather than trusted.
+      { method: "GET", path: "/workflow/agent/{loc}/models" },
       { method: "GET", path: "/saas-billing-v2/billing-config/{entityType}/{entityId}/{product}" },
       // The preflight's only non-GET, reached when the spec sets a full literal
       // settings.senderAddress.from_email. It VALIDATES the address and sends nothing.
@@ -175306,6 +175372,10 @@ var TOOLS2 = [
       { method: "GET", path: "/phone-system/whatsapp/location/{loc}/phone-numbers" },
       { method: "GET", path: "/workflow/{loc}/instagram/connected-accounts" },
       { method: "GET", path: "/workflow/{loc}/email/location-email-provider" },
+      // Reached when the compiled workflow carries an ai_agent step with a literal model id.
+      // Model ids are per-account and GHL retires them IN PLACE, so a frozen id is checked
+      // against the account's live roster rather than trusted.
+      { method: "GET", path: "/workflow/agent/{loc}/models" },
       // Reached when an edit patches settings.senderAddress.from_email to a full literal
       // address. It VALIDATES the address and sends nothing — the preflight's only non-GET.
       { method: "POST", path: "/workflow/{loc}/email/validate-from-email" },
@@ -175926,6 +175996,10 @@ var TOOLS2 = [
       { method: "GET", path: "/phone-system/whatsapp/location/{loc}/phone-numbers" },
       { method: "GET", path: "/workflow/{loc}/instagram/connected-accounts" },
       { method: "GET", path: "/workflow/{loc}/email/location-email-provider" },
+      // Reached when the compiled workflow carries an ai_agent step with a literal model id.
+      // Model ids are per-account and GHL retires them IN PLACE, so a frozen id is checked
+      // against the account's live roster rather than trusted.
+      { method: "GET", path: "/workflow/agent/{loc}/models" },
       { method: "POST", path: "/workflow/{loc}/{wid}/validate-workflows" }
     ],
     handler: async (args, deps) => guard(async () => {

@@ -797,6 +797,11 @@
   {
     "tool": "build_workflow",
     "method": "GET",
+    "path": "/workflow/agent/{loc}/models"
+  },
+  {
+    "tool": "build_workflow",
+    "method": "GET",
     "path": "/saas-billing-v2/billing-config/{entityType}/{entityId}/{product}"
   },
   {
@@ -956,6 +961,11 @@
   },
   {
     "tool": "edit_workflow",
+    "method": "GET",
+    "path": "/workflow/agent/{loc}/models"
+  },
+  {
+    "tool": "edit_workflow",
     "method": "POST",
     "path": "/workflow/{loc}/email/validate-from-email"
   },
@@ -1043,6 +1053,11 @@
     "tool": "repair_workflow",
     "method": "GET",
     "path": "/workflow/{loc}/email/location-email-provider"
+  },
+  {
+    "tool": "repair_workflow",
+    "method": "GET",
+    "path": "/workflow/agent/{loc}/models"
   },
   {
     "tool": "repair_workflow",

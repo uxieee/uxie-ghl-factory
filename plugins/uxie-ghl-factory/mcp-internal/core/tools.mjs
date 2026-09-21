@@ -3411,7 +3411,9 @@ export const TOOLS = [
     name: 'get_trigger_logs',
     description: describe(
       'get_trigger_logs',
-      'Why a trigger did or did not fire: per-contact attempt rows with qualified / failedReason / actualValue vs expectedValue, plus the ranked top-failed-reasons — for every trigger of a workflow or one trigger.',
+      'Why a trigger did or did not fire: per-contact attempt rows with qualified / failedReason / actualValue vs expectedValue, plus the ranked top-failed-reasons — for every trigger of a workflow or one trigger. '
+      + 'Pass workflowId to have each trigger\'s type resolved for you; with an explicit triggerId you must also pass triggerType, because the attempt-row and failed-reason endpoints scope BY TYPE and do not validate it — a missing or wrong type returns another scope\'s numbers under your trigger\'s id rather than an error. '
+      + 'A trigger GHL returns without a type is reported with typeMissing and its attempt COUNT only; its rows and reasons are omitted rather than guessed.',
     ),
     inputSchema: schema({
       locationId: z.string(),
@@ -3469,6 +3471,20 @@ export const TOOLS = [
         const row = Array.isArray(c.json) ? (c.json[0] ?? null) : null;
         item.attempted = Number(row?.total ?? 0); item.matched = Number(row?.matched ?? 0); item.unmatched = Math.max(0, item.attempted - item.matched);
         if (!c.ok) item.countError = { status: c.status };
+        // 🔴 triggerType must be a REAL string before it goes on the wire. `count-by-triggerId`
+        // above does not need it, but the list and reasons endpoints do — and they do not fail
+        // without it, they ANSWER FOR THE WRONG SCOPE. `new URLSearchParams({ triggerType:
+        // undefined })` serialises to the literal `triggerType=undefined`, which is a non-empty
+        // string GHL will happily scope by, so a trigger row that came back from
+        // /workflow/{loc}/trigger without a `type` would silently produce someone else's numbers
+        // wearing this trigger's id. The caller-supplied path is guarded at the top; this is the
+        // same guard for the path where GHL, not the caller, supplies the type.
+        if (typeof trig.type !== 'string' || trig.type.trim() === '') {
+          item.typeMissing = true;
+          item.note = 'GHL returned this trigger without a `type`, and the log list/reasons endpoints scope by type without validating it — a call made anyway would return numbers for the wrong scope, not an error. Attempt counts above are still exact (count-by-triggerId does not take a type); the per-attempt rows and failure reasons are omitted rather than guessed.';
+          out.push(item);
+          continue;
+        }
         const lq = new URLSearchParams({ ...base, triggerId: trig.id, triggerType: trig.type, limit: String(args.limit ?? 25), action: 'first' });
         if (typeof args.qualified === 'boolean') lq.set('qualified', String(args.qualified));
         const l = await gw.call('GET', `/workflows/trigger/logs/triggerId?${lq}`);
@@ -4344,6 +4360,10 @@ export const TOOLS = [
       { method: 'GET', path: '/phone-system/whatsapp/location/{loc}/phone-numbers' },
       { method: 'GET', path: '/workflow/{loc}/instagram/connected-accounts' },
       { method: 'GET', path: '/workflow/{loc}/email/location-email-provider' },
+      // Reached when the compiled workflow carries an ai_agent step with a literal model id.
+      // Model ids are per-account and GHL retires them IN PLACE, so a frozen id is checked
+      // against the account's live roster rather than trusted.
+      { method: 'GET', path: '/workflow/agent/{loc}/models' },
       { method: 'GET', path: '/saas-billing-v2/billing-config/{entityType}/{entityId}/{product}' },
       // The preflight's only non-GET, reached when the spec sets a full literal
       // settings.senderAddress.from_email. It VALIDATES the address and sends nothing.
@@ -4500,6 +4520,10 @@ export const TOOLS = [
       { method: 'GET', path: '/phone-system/whatsapp/location/{loc}/phone-numbers' },
       { method: 'GET', path: '/workflow/{loc}/instagram/connected-accounts' },
       { method: 'GET', path: '/workflow/{loc}/email/location-email-provider' },
+      // Reached when the compiled workflow carries an ai_agent step with a literal model id.
+      // Model ids are per-account and GHL retires them IN PLACE, so a frozen id is checked
+      // against the account's live roster rather than trusted.
+      { method: 'GET', path: '/workflow/agent/{loc}/models' },
       // Reached when an edit patches settings.senderAddress.from_email to a full literal
       // address. It VALIDATES the address and sends nothing — the preflight's only non-GET.
       { method: 'POST', path: '/workflow/{loc}/email/validate-from-email' },
@@ -5261,6 +5285,10 @@ export const TOOLS = [
       { method: 'GET', path: '/phone-system/whatsapp/location/{loc}/phone-numbers' },
       { method: 'GET', path: '/workflow/{loc}/instagram/connected-accounts' },
       { method: 'GET', path: '/workflow/{loc}/email/location-email-provider' },
+      // Reached when the compiled workflow carries an ai_agent step with a literal model id.
+      // Model ids are per-account and GHL retires them IN PLACE, so a frozen id is checked
+      // against the account's live roster rather than trusted.
+      { method: 'GET', path: '/workflow/agent/{loc}/models' },
       { method: 'POST', path: '/workflow/{loc}/{wid}/validate-workflows' },
     ],
     handler: async (args, deps) => guard(async () => {

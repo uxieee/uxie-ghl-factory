@@ -73,7 +73,26 @@ export function describeFinding(f) {
   const where = f.stepName || f.stepType || f.stepId || 'unattributed (trigger-borne or document-level)';
   const what = f.message || f.ruleId || 'asset problem';
   const id = f.assetId ? ` (${f.assetType ?? 'asset'} ${f.assetId})` : '';
-  return `${where}: ${what}${id}`;
+  return `${where}: ${what}${id}${remediationFor(f)}`;
+}
+
+// 🔴 GHL'S OWN MESSAGE SENDS YOU TO THE WRONG PLACE for a deactivated calendar. Measured live
+// 2026-09-20 with a positive control (an `isActive:true` calendar validates clean): a calendar
+// with `isActive:false` is reported as ASSET_CALENDAR_NOT_FOUND carrying the text "does not
+// exist or does not belong to this location" — WORD FOR WORD the answer a ghost id gets. The
+// calendar is there and a direct GET of it returns 200; the repair is to re-activate it, not to
+// hunt for something deleted. Passing that sentence through verbatim costs the reader the one
+// fact the payload does not contain, so the two cases are named here rather than merged.
+// Pinned as a live regression in the conformance suite (scripts/conformance.mjs, the
+// validate-assets section) — if GHL ever starts accepting inactive calendars, that fails loudly
+// instead of this hint quietly going stale.
+const REMEDIATION = new Map([
+  ['ASSET_CALENDAR_NOT_FOUND', ' — NOTE: GHL returns this same not-found text for a calendar that merely has isActive:false as for one that is gone. Read the calendar directly before assuming it was deleted; if it answers 200, re-activate it rather than re-pointing the step.'],
+]);
+
+/** The hint that turns a misleading GHL message into an actionable one, or '' when there is none. */
+export function remediationFor(f) {
+  return REMEDIATION.get(f?.ruleId) ?? '';
 }
 
 /**

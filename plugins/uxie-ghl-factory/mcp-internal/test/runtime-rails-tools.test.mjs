@@ -57,6 +57,43 @@ test('get_trigger_logs: triggerId without triggerType refuses loudly (the endpoi
   assert.equal(gw.calls.length, 0, 'no network call before the argument check');
 });
 
+// The caller-supplied path is guarded above. This is the OTHER path: the type comes from GHL's
+// own trigger list, and when GHL omits it the naive call serialises `triggerType=undefined` —
+// a non-empty string the log endpoints scope by WITHOUT validating, so the answer is another
+// scope's numbers wearing this trigger's id rather than an error. Nothing upstream fails.
+test('get_trigger_logs: a trigger GHL returns with no type never reaches the type-scoped endpoints', async () => {
+  const gw = gwStub({
+    '/workflow/L/trigger?': [
+      { id: 'trg1', name: 'Typed', type: 'pipeline_stage_updated', active: true },
+      { id: 'trg2', name: 'Untyped', active: true },
+    ],
+    '/workflows/trigger/logs/count-by-triggerId': (path) => ([{ triggerId: path.includes('trg2') ? 'trg2' : 'trg1', total: '7', matched: '2' }]),
+    '/workflows/trigger/logs/triggerId': [],
+    '/workflows/trigger/logs/top-failed-reasons': [],
+  });
+  const r = await tool('get_trigger_logs').handler({ locationId: 'L', workflowId: 'w1' }, deps(gw));
+  assert.equal(r.ok, true, JSON.stringify(r));
+
+  const untyped = r.data.triggers.find((t) => t.id === 'trg2');
+  assert.equal(untyped.typeMissing, true, 'the untyped trigger is flagged, not silently dropped');
+  assert.match(untyped.note, /wrong scope/i);
+
+  // The literal string `undefined` must never appear as a triggerType on the wire.
+  const wire = gw.calls.map((c) => c.path);
+  assert.equal(wire.some((p) => /triggerType=undefined/.test(p)), false,
+    `triggerType=undefined reached the wire: ${JSON.stringify(wire)}`);
+  // …and no type-scoped endpoint was called for trg2 at all.
+  assert.equal(wire.some((p) => /logs\/(triggerId|top-failed-reasons)/.test(p) && p.includes('trg2')), false,
+    'a type-scoped log endpoint was called for the untyped trigger');
+
+  // The count IS still reported for it: count-by-triggerId takes no type, so it is exact.
+  assert.equal(untyped.attempted, 7);
+  // The typed sibling is unaffected — one bad row does not suppress the rest.
+  const typed = r.data.triggers.find((t) => t.id === 'trg1');
+  assert.equal(typed.typeMissing, undefined);
+  assert.equal(wire.some((p) => p.includes('logs/triggerId') && p.includes('trg1')), true);
+});
+
 test('get_account_workflow_overview: statistics + weekly + needs-review + merged enrollment totals (live beats cache)', async () => {
   const gw = gwStub({
     '/workflows/statistics': { totalWorkflows: 40, publishedWorkflows: 12, totalEnrollments: 900, traceId: 'x' },

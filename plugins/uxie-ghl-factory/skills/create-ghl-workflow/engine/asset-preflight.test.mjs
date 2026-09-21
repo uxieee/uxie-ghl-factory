@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { validateAssets, describeFinding } from './asset-preflight.mjs';
+import { validateAssets, describeFinding, remediationFor } from './asset-preflight.mjs';
 
 const OK = (json) => async () => ({ ok: true, status: 200, json });
 const payload = { templates: [{ id: 'a', type: 'wait' }], triggers: [], companyId: 'C1' };
@@ -130,4 +130,30 @@ test('describeFinding names an unattributed finding instead of calling it "workf
   assert.match(describeFinding(triggerBorne), /unattributed \(trigger-borne or document-level\)/,
     'and one with no step attribution says that, rather than reading as a document-level problem');
   assert.doesNotMatch(describeFinding(triggerBorne), /^workflow:/);
+});
+
+// ── a deactivated calendar must not read as a deleted one ────────────────────────────────────
+// Live-measured 2026-09-20 with a positive control (an isActive:true calendar validates clean):
+// GHL answers ASSET_CALENDAR_NOT_FOUND with the IDENTICAL "does not exist or does not belong to
+// this location" text for a calendar that is merely deactivated and for a ghost id. The repair is
+// opposite in the two cases — re-activate, or re-point the step — and the payload carries nothing
+// that tells them apart, so the message alone sends half the readers to the wrong place.
+test('describeFinding tells a DEACTIVATED calendar apart from a deleted one, which GHL does not', () => {
+  const inactive = { stepId: null, stepName: null, stepType: null, ruleId: 'ASSET_CALENDAR_NOT_FOUND',
+    assetType: 'calendar', assetId: 'cal-1', message: 'Referenced Calendar does not exist or does not belong to this location.' };
+  const line = describeFinding(inactive);
+  assert.match(line, /isActive:false/, 'the reader is told deactivation produces this same message');
+  assert.match(line, /re-activate/i, 'and what to do about it');
+  assert.match(line, /^unattributed \(trigger-borne or document-level\): Referenced Calendar does not exist/,
+    'GHL\'s own text is still shown first and unaltered — the hint is added, never substituted');
+});
+
+test('the remediation hint is keyed on ruleId, so other findings are untouched', () => {
+  // Same message, different ruleId: no hint. Guards against matching on the message text, which
+  // GHL reuses across asset types and could change without notice.
+  const otherRule = { ruleId: 'ASSET_WORKFLOW_NOT_FOUND', assetType: 'workflow', assetId: 'w1',
+    message: 'Referenced Workflow does not exist or does not belong to this location.' };
+  assert.doesNotMatch(describeFinding(otherRule), /isActive/);
+  assert.equal(remediationFor({ ruleId: null }), '');
+  assert.equal(remediationFor(undefined), '');
 });
