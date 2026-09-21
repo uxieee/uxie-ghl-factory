@@ -56762,8 +56762,8 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       get_studio_preview: {
-        description: "Get studio preview \u2014 proof: live-runtime (2026-09-04); risk: read",
-        risk: "read",
+        description: "Get studio preview \u2014 proof: live-runtime (2026-09-04); risk: write",
+        risk: "write",
         proof: "live-runtime (2026-09-04)",
         proofFloor: "live-runtime (2026-09-04)",
         proofRows: [
