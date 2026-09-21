@@ -72,7 +72,7 @@
       "reach": "proven",
       "credentialClass": "agency-admin-bearer",
       "kind": "destructive",
-      "note": "Proven live 2026-09-19 on the probe's own pause window: -> 200 {success:true}; the config list went from 1 record to 0."
+      "note": "PROVEN LIVE 2026-09-21. DELETE /workflow/{loc}/scheduled-pause/config/{recordId} -> 200 {success:true}, and a read-back showed the config GONE (pauseConfigs back to []). Part of the clean CRUD cycle for this rail; recordId comes from the GET (the POST does not return it). This is the ONLY destructive scheduled-pause route and it removes a config object, not a workflow — lower blast radius than the workflow deletes, which stay fenced.\n— PRIOR NOTE: Proven live 2026-09-19 on the probe's own pause window: -> 200 {success:true}; the config list went from 1 record to 0."
     },
     "DELETE /workflow/{locationId}/split": {
       "reach": "proven",
@@ -1615,7 +1615,7 @@
       "reach": "proven",
       "credentialClass": "agency-admin-bearer",
       "kind": "write",
-      "note": "Proven live 2026-09-19 on a probe DRAFT: body {pauseStartTime:<epoch-ms>, pauseEndTime:<epoch-ms>, isAnnual:false, workflowIds:[…]} -> 201 {success:true}, and GET on the same path then lists the record with isActive:true. RULES the server states: 'Workflow IDs are required'; the window must be AT LEAST 24 HOURS ('Difference between pause start and end times should be at least 24 hours'). 🔴 It PAUSES the named workflows for the window — aim it only at a workflow you mean to stop."
+      "note": "PROVEN LIVE 2026-09-21 (full CRUD cycle, cleaned up). POST /workflow/{loc}/scheduled-pause/config, body {pauseStartTime, pauseEndTime, isAnnual, workflowIds:[...]} (times epoch ms). 201 {success:true} — NOTE NO _id IS RETURNED; you must GET the config list to recover the recordId. 🔴 IT IS WORKFLOW-SCOPED, NOT LOCATION-WIDE: the config names workflowIds and only those are affected — read back with exactly the one id I sent, no expansion. This CORRECTS bl-165's premise ('a pause is location-wide') and removes the safety blocker: a pause can be probed against a single throwaway workflow. VALIDATION: the window must be at least 24 HOURS (a 1-hour window answers 400 'Difference between pause start and end times should be at least 24 hours'). MECHANISM: driven by SCHEDULED CLOUD TASKS at the boundaries — a PAST window ran both instantly (startRanAt and endRanAt stamped ~now, pauseStart/EndCloudTaskName null). So pause/resume is a job that FIRES at each boundary, not a continuous state check. OWED: what the pause-start task DOES to a contact parked at a wait (freeze / drop / expire-and-fire-on-resume) — now SAFE to measure, needs one enrolled probe across a live boundary.\n— PRIOR NOTE: Proven live 2026-09-19 on a probe DRAFT: body {pauseStartTime:<epoch-ms>, pauseEndTime:<epoch-ms>, isAnnual:false, workflowIds:[…]} -> 201 {success:true}, and GET on the same path then lists the record with isActive:true. RULES the server states: 'Workflow IDs are required'; the window must be AT LEAST 24 HOURS ('Difference between pause start and end times should be at least 24 hours'). 🔴 It PAUSES the named workflows for the window — aim it only at a workflow you mean to stop."
     },
     "POST /workflow/{locationId}/scheduler-trigger/preview": {
       "reach": "proven",
