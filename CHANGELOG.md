@@ -11,7 +11,7 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
-## Unreleased
+## [0.96.0] — 2026-09-21
 
 Twelve internal-MCP tools that read over POST — searches, validators (`check_workflow`,
 `validate_workflow`, `search_merge_tags`), Firestore's `:runQuery` (the AI Studio history reads),
@@ -21,6 +21,12 @@ the agent-log dashboards, and `check_snapshot_conflicts` — were refused on an 
 POSTs. Eleven were verified non-mutating and now carry an explicit `readOnly: true` marker that
 `classifyCall` honours; `get_studio_preview` was investigated and left refused because its POST
 `/sandbox` route provisions infrastructure.
+
+`get_studio_preview` is now labelled **`risk: write`**. It provisions: `ensureSandbox` is
+`POST /projects/{id}/sandbox`, beside `createProject` and `putSecrets` in the mutating block. Its
+own description already said "provisioning it if needed" and its entry already listed the POST row
+in `riskRows`, while the label said `read` — an agent trusting that label would have called it
+freely.
 
 ## [0.95.0] — 2026-09-21
 
