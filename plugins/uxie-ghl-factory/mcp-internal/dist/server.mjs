@@ -90461,7 +90461,16 @@ function fromHttp(status, body) {
     );
   }
   if (status === 409) return fail(CODES.VERSION_CONFLICT, detail, "Re-read the workflow to get the current version, then retry.");
-  if (status === 422) return fail(CODES.VALIDATION_FAILED, detail, "Server rejected the payload \u2014 check required fields per docs/08-validators.md.");
+  if (status === 422) {
+    if (/Action validation failed/i.test(detail)) {
+      return fail(
+        CODES.VALIDATION_FAILED,
+        detail,
+        "GHL re-validated EVERY step in the stored document, not just the ones this write changed, so the step named above may be one you never touched \u2014 a pre-existing step that has been live for months can refuse a new edit. Before changing what you just wrote: read the workflow and check whether that step is yours. If it is not, the document must be repaired (repair_workflow) or the step corrected in the builder before ANY write to this workflow can land. Passing allowValidationFailure does NOT help \u2014 this refusal is GHL's, not the local gate's."
+      );
+    }
+    return fail(CODES.VALIDATION_FAILED, detail, "Server rejected the payload \u2014 check required fields per docs/08-validators.md.");
+  }
   if (status === 429) return fail(CODES.RATE_LIMITED, detail, "Slow down and retry after a pause.");
   return fail(`HTTP_${status}`, detail, "Unexpected upstream status \u2014 inspect detail.");
 }

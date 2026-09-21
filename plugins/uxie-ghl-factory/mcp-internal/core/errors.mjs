@@ -366,7 +366,27 @@ export function fromHttp(status, body) {
       + 'NOT an expired token. Re-capturing the JWT will not help; read `detail` for the reason.');
   }
   if (status === 409) return fail(CODES.VERSION_CONFLICT, detail, 'Re-read the workflow to get the current version, then retry.');
-  if (status === 422) return fail(CODES.VALIDATION_FAILED, detail, 'Server rejected the payload — check required fields per docs/08-validators.md.');
+  if (status === 422) {
+    // 🔴 "CHECK REQUIRED FIELDS" IS THE WRONG ADVICE FOR ONE COMMON 422, and it sends the reader
+    // to look at the part of the document they just wrote. The full-document commit
+    // (PUT /workflow/{loc}/{wid}) re-runs GHL's step validator over EVERY STORED STEP, not only
+    // the ones this write changed — so a published, running workflow can refuse its OWN saved
+    // graph, and the step named in the message may be one the caller has never touched and which
+    // has been live for months. Nothing in the payload they sent is wrong.
+    // Keyed on the body text rather than on the route, because the same commit is reached from
+    // edit_workflow, repair_workflow and publish_workflow.
+    if (/Action validation failed/i.test(detail)) {
+      return fail(CODES.VALIDATION_FAILED, detail,
+        'GHL re-validated EVERY step in the stored document, not just the ones this write changed, '
+        + 'so the step named above may be one you never touched — a pre-existing step that has been '
+        + 'live for months can refuse a new edit. Before changing what you just wrote: read the '
+        + 'workflow and check whether that step is yours. If it is not, the document must be '
+        + 'repaired (repair_workflow) or the step corrected in the builder before ANY write to this '
+        + 'workflow can land. Passing allowValidationFailure does NOT help — this refusal is GHL\'s, '
+        + 'not the local gate\'s.');
+    }
+    return fail(CODES.VALIDATION_FAILED, detail, 'Server rejected the payload — check required fields per docs/08-validators.md.');
+  }
   if (status === 429) return fail(CODES.RATE_LIMITED, detail, 'Slow down and retry after a pause.');
   return fail(`HTTP_${status}`, detail, 'Unexpected upstream status — inspect detail.');
 }

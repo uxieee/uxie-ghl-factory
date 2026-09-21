@@ -204,3 +204,27 @@ test('422 remains VALIDATION_FAILED whatever its body says', () => {
   assert.equal(fromHttp(422, { message: ['name should not be empty'] }).code, CODES.VALIDATION_FAILED);
   assert.equal(fromHttp(422, { code: 'COMMON_LOCATION_ID_UNDEFINED' }).code, CODES.VALIDATION_FAILED);
 });
+
+// ── a 422 that is NOT about the payload you sent ─────────────────────────────────────────────
+// The full-document commit re-runs GHL's step validator over EVERY STORED step, so a published,
+// running workflow can refuse its own saved graph. The generic 422 advice — "check required
+// fields" — points the reader at the edit they just made, which is the one place the problem is
+// not. The step named may have been live for months.
+test('a 422 naming a step-validation failure says the step may not be yours', () => {
+  const r = fromHttp(422, { message: 'Action validation failed: send_email', code: 'INVALID_FIELD_VALUE' });
+  assert.equal(r.ok, false);
+  assert.equal(r.code, CODES.VALIDATION_FAILED);
+  assert.match(r.remediation, /never touched|may be one you/i);
+  assert.match(r.remediation, /allowValidationFailure does NOT help/i,
+    'the local bypass must not be offered for a refusal that is GHL\'s');
+  assert.match(r.detail, /Action validation failed/, 'GHL\'s own text is still carried');
+});
+
+test('CONTROL: an ordinary 422 keeps the ordinary advice', () => {
+  // Narrow match on purpose — a payload error really is a payload error, and broadening this
+  // would tell every caller their document might be at fault when it is not.
+  const r = fromHttp(422, { message: 'workflowId must be a string' });
+  assert.equal(r.code, CODES.VALIDATION_FAILED);
+  assert.match(r.remediation, /check required fields/i);
+  assert.doesNotMatch(r.remediation, /never touched/i);
+});
