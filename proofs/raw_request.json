@@ -233,6 +233,16 @@
         "receipt:2026-09-21-0536"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-21",
+      "result": "pass",
+      "how": "suite",
+      "suite": "workflows",
+      "evidence": [
+        "receipt:2026-09-21-0549"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
@@ -246,7 +256,7 @@
       "plugins/uxie-ghl-factory/mcp-internal/core/auth.mjs": "467b14cd1ab05c33a228d0f51ecfc9483950c4b77aaf5d8c91acdb1effc0723a",
       "plugins/uxie-ghl-factory/mcp-internal/core/build-provenance.mjs": "6cabad4e34366c6ff6ab1886b20c3ad24f924b477d9145f0b2969a5ec62ed997",
       "plugins/uxie-ghl-factory/mcp-internal/core/credential-class.mjs": "40578038582ebf0323dd11dd8b2d4b481543bfa527d0b4e7593b38cd43f78516",
-      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "c4f988901ff38b66be9e087b7bdf7fa909bac4fd94e04dd02c4f6997839dd8f9",
+      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "eae90b83c726d6cdfde0a0acc1144ceb5be228e4bc045d9d6c3a5e8415b29cc0",
       "plugins/uxie-ghl-factory/mcp-internal/core/raw-request-guards.mjs": "9788952bd03c608cbc3fd03b48e3ccd377b98da339ca56ee9f0b586fc26931a8"
     }
   }
