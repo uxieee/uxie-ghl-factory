@@ -374,6 +374,16 @@
         "receipt:2026-09-21-0314"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-21",
+      "result": "pass",
+      "how": "suite",
+      "suite": "workflows",
+      "evidence": [
+        "receipt:2026-09-21-0335"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
@@ -388,6 +398,7 @@
       "GET https://backend.leadconnectorhq.com /phone-system/twilio-accounts": "19f97435f3882384d299566819369328fe1792814ee4958c8c2a8b523350a550",
       "GET https://backend.leadconnectorhq.com /phone-system/whatsapp/location/{}/phone-numbers": "aa7c91867db680ce4afead4b08eccb9ff1e890551a9412c6d52ab2a61986307f",
       "GET https://backend.leadconnectorhq.com /saas-billing-v2/billing-config/{}/{}/{}": "2678370a1f703e2cb4e86b62cbc70b041c8e64ec9cbe07dd8af30967ca48af0b",
+      "GET https://backend.leadconnectorhq.com /workflow/agent/{}/models": "3699834fbe2262f00fc27f8729ce6f3708032e9ffb96616e13e8bd49ca9227ae",
       "GET https://backend.leadconnectorhq.com /workflow/{}/email/location-email-provider": "b9921a84e1aff346d3e82c77de21dd84fedd37054dcf370e3639c2f1ef93d825",
       "GET https://backend.leadconnectorhq.com /workflow/{}/instagram/connected-accounts": "119c992be928f989dfc091ad4ce65113e87f214b61f32d798d8801d9f8a6d19f",
       "GET https://backend.leadconnectorhq.com /workflow/{}/{}": "d75bf4cca526ca32f133f5f381cb7a68530031528b4caa2d713addcae0c55ffc",
@@ -414,7 +425,7 @@
       "reportingApp": 272
     },
     "code": {
-      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#build_workflow": "02b98ae10260338da0f274dad8f0aaa35db006fa986a7f8d28b770976121600f",
+      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#build_workflow": "3c72494eb43859e45a5d305aae13ad6130400c6a2191f58e016f1275eff344e9",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "e65c2384aefb498ce49453dd2d6d8d1a1d8351fd6d337aef5256eb982e1db02f",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
       "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "c4f988901ff38b66be9e087b7bdf7fa909bac4fd94e04dd02c4f6997839dd8f9",
@@ -422,7 +433,7 @@
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/catalog/opp-field-rulebook.json": "d7855e46a3feca71bc9dbfbeb7da9d264cab11f2ce6e2a3be7ea285a617cfdc4",
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/catalog/opp-field-shapes.json": "7df4c26cdf87854721b9950046b7cf619e9e4b751124fbdfe5f801ec40ae6358",
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/action-schema.mjs": "3f2375148566c72c236b8872d35b8719356c5f662f94e8a83a4c08fa0c7d18f6",
-      "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/asset-preflight.mjs": "e1d054c59d9db37d192a8ec91beafe19b36199be395aff815df4f0c6cb29928b",
+      "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/asset-preflight.mjs": "4cde0b0df7ca1c1f2b5e4c23e3ca8bc54bd6fec99f0d9eda36afc8944563b8a1",
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/catalog.data.json": "739408295c55f40fe20f2323c02904838d994f7e026f47abde7d0f987c72fb04",
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/catalog.mjs": "3f916a17f8a3614927e2cb573e0191c90dc381872f08b6025ce3bc992756dad4",
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/compiler.mjs": "5bf91c8bc1932f80ab571487e517e3d4c8d7860de360ebd3bac6ca607881a9f4",
@@ -449,7 +460,7 @@
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/observed-step-keys.mjs": "707f42844bc05bb8405535726f61d08bc9c5bb6243d6fda6455ae2d0d93bdf77",
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/opp-shapes.mjs": "5484d3b6ab152fc69450b666af4e792b7b5a5d30e7a0d287456c661e9ade68e9",
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/orchestrate.mjs": "22a40bad3c62a96a9af8596b08a0fb39d5fbd78223c5ff1507685ad13659d61a",
-      "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/preflight.mjs": "b7791f29614b2c2f0481fd3046716ba57989557c7b60f04bb4204ad5fe655939",
+      "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/preflight.mjs": "60624cd4ce3d127edf0115ecd1e7ce8fd3bf0556902d2ecb28b38f884ac27120",
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/required-fields.mjs": "6c0e1af01f7936d1cb376c63fc65130553fbe33b332fa8d6b0409a8b567129b1",
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/resolve.mjs": "b1a1bc1cd47129d54c46005af9be9c32c8a5289d7a41dafa4c91c14e03887b0f",
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/router-branches.mjs": "29555ae63ff44865d2b82eaeabc1280c416aa77732cc401e9f23f74c30d179ce",

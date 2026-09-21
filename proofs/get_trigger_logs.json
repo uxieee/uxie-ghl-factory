@@ -324,6 +324,16 @@
         "receipt:2026-09-21-0314"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-21",
+      "result": "pass",
+      "how": "suite",
+      "suite": "workflows",
+      "evidence": [
+        "receipt:2026-09-21-0335"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
@@ -339,7 +349,7 @@
       "reportingApp": 272
     },
     "code": {
-      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#get_trigger_logs": "761aaa6b2e1aaa90388159ff67def10c72c4e86df0d543ec682bfb04a8446ddd",
+      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#get_trigger_logs": "66d838784da60d592d53392a86201b3b47746fcca7c3dba3d3fefb3e5bedff12",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "e65c2384aefb498ce49453dd2d6d8d1a1d8351fd6d337aef5256eb982e1db02f",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
       "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "c4f988901ff38b66be9e087b7bdf7fa909bac4fd94e04dd02c4f6997839dd8f9"
