@@ -1588,7 +1588,14 @@ console.log('\nruntime: enrolment, drip queue, fast-forward');
           const p = id ? await call('publish_workflow', { workflowId: id, confirm: true }) : { ok: false };
           log.subject(false);
           if (p.ok && mid) await gwr.call('POST', `/contacts/${mid}/workflow/${id}`, { eventStartTime: '' });
-          return { id, ok: b.ok === true && p.ok === true, code: `${b.code ?? ''} ${p.code ?? ''}` };
+          // Carry the DETAIL, not just the code. This returned `code` alone until 2026-09-21, so the
+          // one intermittent failure this section has produced printed `ENGINE_ABORT` and nothing
+          // else — the engine's reason existed on `detail` and was thrown away, leaving the abort
+          // undiagnosable after the fact. Whichever call failed names itself now.
+          const why = [b.ok === true ? null : `build ${b.code ?? '?'}: ${String(b.detail ?? '').slice(0, 300)}`,
+            p.ok === true ? null : `publish ${p.code ?? '?'}: ${String(p.detail ?? '').slice(0, 300)}`]
+            .filter(Boolean).join(' | ');
+          return { id, ok: b.ok === true && p.ok === true, code: why || `${b.code ?? ''} ${p.code ?? ''}`.trim() };
         };
         const g = await runOne('firstparty-badge-grant', [
           { ref: 'b', kind: 'action', type: 'issue_badge_workflow', marketplace: true, name: 'Issue test badge', attributes: { templateId: badge.value } },
