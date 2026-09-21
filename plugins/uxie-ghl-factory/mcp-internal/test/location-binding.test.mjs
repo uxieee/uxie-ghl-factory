@@ -40,6 +40,61 @@ test('typed tools are classified by declared capability', () => {
   assert.equal(classifyCall(tool('build_workflow'), {}), 'write');
 });
 
+// 2026-09-21: twelve tools do their READING over POST (search, validators, Firestore's
+// :runQuery, agent-log dashboards, a conflict check) and were misclassified `write` by the
+// static method rule, so they were refused on an unbound registration although
+// checkLocationBinding already permits reads unbound. Reverting the `tool.readOnly === true`
+// branch in classifyCall makes every one of these FAIL back to 'write'.
+test('readOnly-marked tools classify read and are PERMITTED unbound', () => {
+  for (const name of ['find_workflows_using', 'check_workflow', 'list_agent_sessions']) {
+    assert.equal(classifyCall(tool(name), {}), 'read', `${name} must classify read`);
+    assert.equal(
+      checkLocationBinding({ tool: tool(name), args: { locationId: PERMITTED }, allowed: null }),
+      null,
+      `${name} must be permitted on an unbound registration`,
+    );
+  }
+});
+
+// CONTROL. set_workflow_error_alerts always PUTs on a real write and carries no readOnly marker.
+// The guard must not have been widened generally — only the twelve individually-cleared tools
+// may pass unbound.
+test('CONTROL: set_workflow_error_alerts still classifies write and is still refused unbound', () => {
+  assert.equal(classifyCall(tool('set_workflow_error_alerts'), {}), 'write');
+  const r = checkLocationBinding({
+    tool: tool('set_workflow_error_alerts'),
+    args: { locationId: PERMITTED, confirm: true },
+    allowed: null,
+  });
+  assert.equal(r.code, CODES.LOCATION_UNBOUND);
+});
+
+// CONTROL. Proves the DEFAULT is unchanged: a tool with a non-GET capability and no readOnly
+// marker is still classified from the static method rule.
+test('CONTROL: a non-GET tool with no readOnly marker still classifies write', () => {
+  assert.equal(tool('build_workflow').readOnly, undefined);
+  assert.equal(classifyCall(tool('build_workflow'), {}), 'write');
+});
+
+test('the raw_request and get_account_workflow_overview per-call paths are unaffected by readOnly', () => {
+  assert.equal(classifyCall(tool('raw_request'), { method: 'GET' }), 'read');
+  assert.equal(classifyCall(tool('raw_request'), { method: 'DELETE' }), 'write');
+  assert.equal(classifyCall(tool('get_account_workflow_overview'), {}), 'read');
+  assert.equal(classifyCall(tool('get_account_workflow_overview'), { includeTriggerCounts: true }), 'write');
+});
+
+// GUARD: a tool marked readOnly but not ALSO advertised `risk: read` in its description would
+// let the marker and the advertised risk contradict each other. (One-directional: a tool can
+// say `risk: read` — e.g. get_studio_preview, which provisions a sandbox and was deliberately
+// left OUT — without carrying the marker.)
+test('GUARD: every readOnly-marked tool is also labelled risk: read in its description', () => {
+  const offenders = TOOLS
+    .filter((t) => t.readOnly === true)
+    .filter((t) => !/risk:\s*read/i.test(t.description ?? ''))
+    .map((t) => t.name);
+  assert.deepEqual(offenders, [], 'a readOnly-marked tool must advertise risk: read');
+});
+
 test('unbound: reads pass, writes refuse with the binding command', () => {
   assert.equal(checkLocationBinding({ tool: tool('get_workflow'), args: { locationId: PERMITTED }, allowed: null }), null);
   const r = checkLocationBinding({ tool: tool('build_workflow'), args: { locationId: PERMITTED }, allowed: null });

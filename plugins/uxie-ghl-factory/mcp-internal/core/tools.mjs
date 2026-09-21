@@ -2159,6 +2159,10 @@ export const TOOLS = [
       // calendar in a DIFFERENT sub-account — see console bl-136.
       { method: 'POST', path: '/workflow/{loc}/validate-assets' },
     ],
+    // Verified 2026-09-21: validate-assets is a stateless reference validator (asset-preflight.mjs
+    // — "takes a payload, not a workflow id... without creating a thing"). classifyCall would
+    // otherwise read this POST as a write and refuse it on an unbound registration.
+    readOnly: true,
     handler: async (args, deps) => guard(async () => {
       const catalog = loadCatalog();
       const extra = [];
@@ -2244,6 +2248,10 @@ export const TOOLS = [
       { method: 'GET', path: '/locations/{loc}/customFields/search' },
       { method: 'GET', path: '/locations/{loc}/customValues' },
     ],
+    // Verified 2026-09-21: scheduler-trigger/preview only computes next-run times from a payload
+    // (see the capability comment above); validate-assets is the same stateless validator cleared
+    // on search_merge_tags. classifyCall would otherwise refuse this on an unbound registration.
+    readOnly: true,
     handler: async (args, deps) => guard(async () => {
       const loc = encodeURIComponent(args.locationId);
       const wid = encodeURIComponent(args.workflowId);
@@ -2534,6 +2542,10 @@ export const TOOLS = [
       { method: 'GET', path: '/workflow/{loc}/trigger' },
       { method: 'POST', path: '/workflow/{loc}/{wid}/validate-workflows' },
     ],
+    // Verified 2026-09-21: this tool's own description documents the live proof — the stored
+    // document read back byte-identical after five calls. classifyCall would otherwise refuse
+    // this POST on an unbound registration despite it writing nothing.
+    readOnly: true,
     handler: async (args, deps) => guard(async () => {
       const loc = encodeURIComponent(args.locationId);
       const wid = encodeURIComponent(args.workflowId);
@@ -3525,6 +3537,10 @@ export const TOOLS = [
       maxRows: z.number().int().positive().max(5000).default(1000),
     }),
     capabilities: [{ method: 'POST', path: '/agent-logs/logs' }],
+    // Verified 2026-09-21: the handler issues one POST and returns the rows it gets back — the
+    // Agent Logs Sessions table, GHL's own dashboard read over POST. classifyCall would otherwise
+    // refuse this on an unbound registration.
+    readOnly: true,
     handler: async (args, deps) => guard(async () => {
       const gw = deps.makeGw({ loc: args.locationId, rail: 'ai', state: deps.state });
       const sortBy = args.sortBy ?? 'timestamp';
@@ -3820,6 +3836,10 @@ export const TOOLS = [
       limit: z.number().int().positive().max(1000).default(50),
     }),
     capabilities: [{ method: 'POST', path: '/agent-logs/contacts' }],
+    // Verified 2026-09-21: the handler issues one POST and returns the rows it gets back — the
+    // Agent Logs Contacts tab, GHL's own dashboard read over POST. classifyCall would otherwise
+    // refuse this on an unbound registration.
+    readOnly: true,
     handler: async (args, deps) => guard(async () => {
       const gw = deps.makeGw({ loc: args.locationId, rail: 'ai', state: deps.state });
       const limit = args.limit ?? 50;
@@ -3867,6 +3887,10 @@ export const TOOLS = [
       sections: z.array(z.string()).optional(),
     }),
     capabilities: [{ method: 'POST', path: '/agent-logs/metrics' }],
+    // Verified 2026-09-21: the handler issues one POST and returns the aggregates it gets back —
+    // the Agent Logs Metrics dashboard, GHL's own dashboard read over POST. classifyCall would
+    // otherwise refuse this on an unbound registration.
+    readOnly: true,
     handler: async (args, deps) => guard(async () => {
       const gw = deps.makeGw({ loc: args.locationId, rail: 'ai', state: deps.state });
       const body = { locationId: args.locationId, widgetIds: [] };
@@ -6203,6 +6227,10 @@ export const TOOLS = [
       offset: z.number().default(0),
     }),
     capabilities: [{ method: 'POST', path: '/workflows/es/search' }],
+    // Verified 2026-09-21: this is an Elasticsearch query — a search, over POST because that is
+    // how GHL's own es/search endpoint takes a query body. classifyCall would otherwise refuse
+    // this on an unbound registration.
+    readOnly: true,
     handler: async (args, deps) => guard(async () => {
       const types = (args.types ?? []).filter((t) => typeof t === 'string' && t.trim());
       if (!types.length) {
@@ -7645,6 +7673,11 @@ export const TOOLS = [
       { method: 'GET', path: '/vibe-ai/projects/{projectId}' },
       { method: 'POST', path: '/v1/projects/highlevel-backend/databases/vibe-platform/documents:runQuery' },
     ],
+    // Verified 2026-09-21: `:runQuery` is Firestore's own structured-query endpoint (core/ai-
+    // studio.mjs runQuery) — POST because that is the only shape GCP gives a query body, not
+    // because it writes; it sends `structuredQuery` and nothing else. classifyCall would
+    // otherwise refuse this on an unbound registration.
+    readOnly: true,
     handler: async (args, deps) => guard(async () => {
       const { api, history } = studioDeps(args, deps);
       const { error } = await assertProjectLocation(api, args.projectId, args.locationId);
@@ -7674,6 +7707,11 @@ export const TOOLS = [
       { method: 'GET', path: '/vibe-ai/projects/{projectId}' },
       { method: 'POST', path: '/v1/projects/highlevel-backend/databases/vibe-platform/documents:runQuery' },
     ],
+    // Verified 2026-09-21: `:runQuery` is Firestore's own structured-query endpoint (core/ai-
+    // studio.mjs runQuery) — POST because that is the only shape GCP gives a query body, not
+    // because it writes; it sends `structuredQuery` and nothing else. classifyCall would
+    // otherwise refuse this on an unbound registration.
+    readOnly: true,
     handler: async (args, deps) => guard(async () => {
       const { api, history } = studioDeps(args, deps);
       const { error } = await assertProjectLocation(api, args.projectId, args.locationId);
@@ -7823,6 +7861,11 @@ export const TOOLS = [
       { method: 'GET', path: '/vibe-ai/projects/{projectId}' },
       { method: 'POST', path: '/v1/projects/highlevel-backend/databases/vibe-platform/documents:runQuery' },
     ],
+    // Verified 2026-09-21: this handler only reads the project and polls Firestore (`:runQuery`,
+    // the same stateless structured-query call used by get_studio_site_history) — it never calls
+    // chat, chat/cancel or the sandbox route. classifyCall would otherwise refuse this on an
+    // unbound registration.
+    readOnly: true,
     handler: async (args, deps) => guard(async () => {
       const { api, history } = studioDeps(args, deps);
       const { error } = await assertProjectLocation(api, args.projectId, args.locationId);
@@ -8456,6 +8499,10 @@ export const TOOLS = [
       { method: 'GET', path: '/locations/{locationId}' },
       { method: 'POST', path: '/snapshots/{snapshotId}/conflicts' },
     ],
+    // Verified 2026-09-21: settled by a four-cell differential (2026-09-09, see the description
+    // above) and the handler's own note ("This call changes nothing"). classifyCall would
+    // otherwise refuse this POST on an unbound registration.
+    readOnly: true,
     handler: async (args, deps) => guard(async () => {
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
       const companyId = await resolveCompanyId(gw, args.locationId);

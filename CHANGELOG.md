@@ -11,6 +11,17 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## Unreleased
+
+Twelve internal-MCP tools that read over POST — searches, validators (`check_workflow`,
+`validate_workflow`, `search_merge_tags`), Firestore's `:runQuery` (the AI Studio history reads),
+the agent-log dashboards, and `check_snapshot_conflicts` — were refused on an unbound registration
+(`LOCATION_UNBOUND`) even though reads are meant to pass unbound; the location-binding guard's
+`classifyCall` used HTTP method as a proxy for mutation, and these tools' reads happen to be
+POSTs. Eleven were verified non-mutating and now carry an explicit `readOnly: true` marker that
+`classifyCall` honours; `get_studio_preview` was investigated and left refused because its POST
+`/sandbox` route provisions infrastructure.
+
 ## [0.95.0] — 2026-09-21
 
 Redacted-payload write guard: `repair_workflow`, `edit_workflow`, and `raw_request` now refuse any

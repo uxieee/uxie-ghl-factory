@@ -33,10 +33,29 @@ const declaresLocation = (tool) => Object.keys(tool?.inputSchema?.shape ?? {}).i
 // PER CALL so their default, always-GET path stays a `read`; a tool whose whole capability list is
 // unconditional (e.g. `set_workflow_error_alerts`, which always PUTs on a real write) is still
 // classified from the static list, because for it the list and the call always agree.
+//
+// METHOD IS NOT A RELIABLE PROXY FOR MUTATION. Measured 2026-09-21: twelve tools do their READING
+// over POST — search (`find_workflows_using`, `/workflows/es/search`), validators
+// (`check_workflow`'s scheduler preview, `validate_workflow`, `search_merge_tags`'s asset
+// preflight), Firestore's `:runQuery` (the three AI Studio history reads), aggregate dashboards
+// (`list_agent_sessions`, `list_agent_contacts`, `get_agent_metrics`) and a conflict check
+// (`check_snapshot_conflicts`) — because GHL's own builder issues those as POST bodies, not
+// because any of them write. `some(c => c.method !== 'GET')` classified all twelve `write` and
+// they were refused on an unbound registration even though `checkLocationBinding` already permits
+// reads unbound — the POLICY was right, the METHOD-AS-PROXY IMPLEMENTATION was wrong for them.
+//
+// The fix is an explicit declaration, not a widened method rule: a tool whose non-GET routes are
+// verified reads sets `readOnly: true` on the tool definition, cleared ONE AT A TIME by reading
+// its handler and every route it calls (see readonly-post-report.md, 2026-09-21). The static
+// method rule stays the DEFAULT for every tool that has not been individually cleared this way —
+// widening it generally would have re-opened the exact class LOCATION_UNBOUND exists to catch.
+// `get_studio_preview` was investigated and EXCLUDED: its POST `/sandbox` route provisions
+// (creates) a sandbox when one isn't ready, so it is a write despite reading like a preview.
 export function classifyCall(tool, args) {
   if (!declaresLocation(tool)) return 'unguarded';
   if (tool.name === 'raw_request') return (args?.method ?? 'GET') === 'GET' ? 'read' : 'write';
   if (tool.name === 'get_account_workflow_overview') return args?.includeTriggerCounts === true ? 'write' : 'read';
+  if (tool.readOnly === true) return 'read';
   return tool.capabilities?.some((c) => c.method !== 'GET') ? 'write' : 'read';
 }
 
