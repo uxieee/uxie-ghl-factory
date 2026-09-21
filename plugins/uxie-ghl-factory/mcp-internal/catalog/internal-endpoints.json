@@ -20675,7 +20675,7 @@
       "rail": "workflow",
       "kind": "read",
       "summary": "AGENCY view of per-sub-account workflow settings: {locations, pagination}.",
-      "note": "The first path segment is the COMPANY id, not a location id. Answers 200 with or without ?locationId. Executed on the designated sandbox 2026-09-19.",
+      "note": "FENCED — COMPANY-WIDE SETTINGS, named explicitly in the standing fence (\"sends, billing, company-wide settings, ad spend, smart lists, the iatf proxy\"). It is scoped by companyId, not locationId, so a write here reaches every sub-account of the agency at once; that blast radius is the operator's to accept, not a tool's. Reachable, never called. — PRIOR NOTE: The first path segment is the COMPANY id, not a location id. Answers 200 with or without ?locationId. Executed on the designated sandbox 2026-09-19.",
       "reach": "proven",
       "provenFor": [
         "agency-admin-bearer"
@@ -20729,6 +20729,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
+      "note": "FENCED — COMPANY-WIDE SETTINGS, named explicitly in the standing fence (\"sends, billing, company-wide settings, ad spend, smart lists, the iatf proxy\"). It is scoped by companyId, not locationId, so a write here reaches every sub-account of the agency at once; that blast radius is the operator's to accept, not a tool's. Reachable, never called.",
       "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
@@ -22566,7 +22567,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "write",
-      "note": "Executed on the designated sandbox 2026-09-10 in the workflows write-parity run. Round-tripped: isActive flipped, read back changed on a separate request, and restored. Send the whole settings document back, not a patch.",
+      "note": "NO TASK NEEDS THIS — and the read half of this pair has already been judged. console/PLAN-workflows-parity.md applies the purpose test to this project's OWN output and records that `get_workflow_settings` FAILED it: \"nobody needs to read the auto-save flag\". Writing the flag is weaker still — autosave governs the BUILDER's behaviour, and we do not go through the builder. No one authoring a workflow through this plugin is ever blocked by it. — PRIOR NOTE: Executed on the designated sandbox 2026-09-10 in the workflows write-parity run. Round-tripped: isActive flipped, read back changed on a separate request, and restored. Send the whole settings document back, not a patch.",
       "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
@@ -24880,7 +24881,7 @@
       "rail": "workflow",
       "kind": "read",
       "summary": "The workflow secret store for a location, by type.",
-      "note": "Requires ?type= (400 \"Missing required fields: type\" without it). A NONSENSE type still answers 200 {success,message,data}, so a 200 here proves reach and nothing about the type vocabulary. This route returns SECRETS: it was probed with a nonsense type only and no value was read. Executed 2026-09-19.",
+      "note": "FENCED — SECRETS-BEARING, and the gating decision on this family already exists. `secret-manager` is one of the four families listed as GATED in console/lib/surface-state.mjs (flowguard, workflows-marketplace, oauth2, secret-manager), each needing an escalation decision before it is used. This row only escaped that bucket because the counter tests `isProven` before it tests the family, so PROVING it moved it out of the gate. Proving a route does not un-gate it. A tool that hands back a location's stored credentials is a liability with no authoring task behind it — the compiler references a secret by NAME, it never needs the value. — PRIOR NOTE: Requires ?type= (400 \"Missing required fields: type\" without it). A NONSENSE type still answers 200 {success,message,data}, so a 200 here proves reach and nothing about the type vocabulary. This route returns SECRETS: it was probed with a nonsense type only and no value was read. Executed 2026-09-19.",
       "reach": "proven",
       "provenFor": [
         "agency-admin-bearer"
@@ -25106,6 +25107,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
+      "note": "NO TASK NEEDS THIS — it answers \"has this split ever run\", which `get_workflow_stats` already answers better. That tool returns `splits[]` with the per-path statistics, so a caller who wants the boolean reads it off numbers they need anyway, in a call they were already making. A dedicated round trip for one flag is a second read that can only disagree with the first.",
       "reach": "proven",
       "provenFor": [
         "agency-admin-bearer"
@@ -26380,7 +26382,7 @@
       "rail": "workflow",
       "kind": "write",
       "summary": "Rate an ai_agent run. Body {locationId, threadId, workflowId, workflowLogId, workflowLogCreatedAt, rating:'positive'|'negative', whatWentWrong?, whatShouldHaveDone?, contactId?, workflowStepId?} -> 200 {success:true}.",
-      "note": "Proven live 2026-09-19 on a probe thread, READ BACK on the GET: {submitted:false} -> {submitted:true, rating:'positive'}. The 200 body is only {success:true}, so the read-back is the proof. Writes a human judgement against an agent run — harmless, but it is a WRITE and there is no proven way to withdraw one.",
+      "note": "NO TASK NEEDS THIS — it is the thumbs-up/down on GHL's own AI output, the same family as the AI-generation routes excluded by the 2026-09-15 direction, and there is no authoring task behind grading GHL's drafts when we do not use them. 🔴 The READ half additionally cannot be trusted: measured on this surface, the feedback read CANNOT TELL A REAL THREAD FROM A GHOST — it answers the same way for a threadId that never existed — so even if a task wanted it, the answer would carry no information. A route with a one-way error is worse than no route. — PRIOR NOTE: Proven live 2026-09-19 on a probe thread, READ BACK on the GET: {submitted:false} -> {submitted:true, rating:'positive'}. The 200 body is only {success:true}, so the read-back is the proof. Writes a human judgement against an agent run — harmless, but it is a WRITE and there is no proven way to withdraw one.",
       "reach": "proven",
       "provenFor": [
         "agency-admin-bearer"
@@ -26485,7 +26487,7 @@
       "rail": "workflow",
       "kind": "read",
       "summary": "Whether a human rated that agent run: {success, data:{submitted, rating?, hasDetails?}}.",
-      "note": "🔴 TRAP: a 200 {submitted:false} is ALSO what a NONEXISTENT thread returns — real and ghost were byte-identical before any feedback existed, so this route discriminates NOTHING on its own. Proven 2026-09-19 only by forcing a differential: POST the feedback, after which the real thread answers {submitted:true, rating:'positive', hasDetails:false} while the ghost still answers {submitted:false}.",
+      "note": "NO TASK NEEDS THIS — it is the thumbs-up/down on GHL's own AI output, the same family as the AI-generation routes excluded by the 2026-09-15 direction, and there is no authoring task behind grading GHL's drafts when we do not use them. 🔴 The READ half additionally cannot be trusted: measured on this surface, the feedback read CANNOT TELL A REAL THREAD FROM A GHOST — it answers the same way for a threadId that never existed — so even if a task wanted it, the answer would carry no information. A route with a one-way error is worse than no route. — PRIOR NOTE: 🔴 TRAP: a 200 {submitted:false} is ALSO what a NONEXISTENT thread returns — real and ghost were byte-identical before any feedback existed, so this route discriminates NOTHING on its own. Proven 2026-09-19 only by forcing a differential: POST the feedback, after which the real thread answers {submitted:true, rating:'positive', hasDetails:false} while the ghost still answers {submitted:false}.",
       "reach": "proven",
       "provenFor": [
         "agency-admin-bearer"
@@ -31215,7 +31217,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "note": "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
+      "note": "NO TASK NEEDS THIS — it backs the builder's copy-progress panel, which is a UI affordance for a job the UI started. `duplicate_workflow` does not need it: it verifies the copy by READING THE RESULT BACK, which is a stronger answer than a job-status row and does not depend on catching the job while it still exists. Nobody asks \"show me the copy job log\"; they ask \"is the copy there\", and that is already answered. — PRIOR NOTE: Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.",
       "reach": "proven",
       "provenFor": [
         "agency-admin-bearer"
@@ -31273,7 +31275,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "note": "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
+      "note": "NO TASK NEEDS THIS — it backs the builder's copy-progress panel, which is a UI affordance for a job the UI started. `duplicate_workflow` does not need it: it verifies the copy by READING THE RESULT BACK, which is a stronger answer than a job-status row and does not depend on catching the job while it still exists. Nobody asks \"show me the copy job log\"; they ask \"is the copy there\", and that is already answered. — PRIOR NOTE: Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
       "reach": "proven",
       "provenFor": [
         "agency-admin-bearer"
