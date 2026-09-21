@@ -11,7 +11,7 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
-## Unreleased
+## [0.95.0] — 2026-09-21
 
 Redacted-payload write guard: `repair_workflow`, `edit_workflow`, and `raw_request` now refuse any
 write whose payload still carries the scrubber's `<redacted>` placeholder — the placeholder is
@@ -20,6 +20,12 @@ back in over a real credential, with the write reporting success (`roundTrip: tr
 document really did store what was sent. No confirm hatch: there is no legitimate reason to write the
 placeholder into a workflow. The refusal names the offending step(s) — id beside name — and a
 conformance check proves it live in the guard's own words.
+
+`repair_workflow` already carried a narrower version of this check, but it tested the value for
+EXACT equality with the placeholder and scanned `attributes` only — so a marker embedded inside a
+longer string (`Authorization: '<redacted> ' + inputData.pit`) walked through it. The replacement
+matches as a substring and walks the whole payload: it catches everything the old check caught,
+plus the embedded class, and still does not refuse a step merely named "redacted".
 
 ## [0.94.0] — 2026-09-21
 
