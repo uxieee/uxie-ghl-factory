@@ -13,18 +13,84 @@
       "summary": "Delete a Metrics dashboard layout.",
       "note": "Never called during mapping; read-only sweep. 🔴 CATALOGUE MISLABEL: DELETE row whose `kind` says \"write\". Filter on METHOD as well as kind. Not probed."
     },
+    "DELETE /blacklist/{kind}/{id}": {
+      "reach": "refused",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "destructive",
+      "note": "🔴 THIS ROW IS MIS-BASED: the call is FlowGuardService `${baseURL}/flowguard/blacklist/{kind}/{id}`, i.e. DELETE /workflow/flowguard/blacklist/{kind}/{id}. Measured 2026-09-19 there: without location_id -> 400 naming it; with it -> 401 'Unauthorized'. FlowGuard is refused to this credential, like the rest of its family."
+    },
+    "DELETE /emails/trigger/{locationId}/{triggerId}": {
+      "reach": "source-only",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "destructive",
+      "note": "FENCED by the operator-approved plan of 2026-09-19, not probed: a real row can only be made through the fenced campaign-trigger POST; a ghost id answers a generic 404 that cannot tell a missing route from a missing row. NOT PROVEN, deliberately 2026-09-19: a ghost id answers a generic 404 'Not Found' (with the internal-channel and location-id headers EmailService pins), which cannot tell a missing route from a missing row. Making a real row needs POST /emails/trigger/campaign/…, a live email-campaign trigger the plan fences."
+    },
     "DELETE /membership/.../products/{id}": {
       "note": "🔴 THIS ROW IS UNCALLABLE: its path contains a literal \"...\" left by the source miner, so every request 404s. 15 rows are in this state, all on this service. 11 of them — including this one — duplicate a full-path row already in the catalogue; use that one instead. Measured 2026-09-10."
     },
+    "DELETE /workflow/agent/{locationId}/mcp-connections/{id}": {
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "destructive",
+      "note": "Proven live 2026-09-19 on the probe's own connection: -> 200 {success:true, message:'MCP connection deleted'}; the list went 1 -> 0. CONTROL: a ghost id -> 404 'MCP connection not found'."
+    },
+    "DELETE /workflow/agent/{locationId}/skills/{id}": {
+      "reach": "absent",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "destructive",
+      "note": "ABSENT, measured 2026-09-19: the skills router answers {success:false,message:'Not found'} to delete exactly as to its reads and writes."
+    },
     "DELETE /workflow/flowguard/blacklist/{type}/{id}": {
       "reach": "refused",
-      "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class. TRAP: WITHOUT location_id every flowguard route answers 400, which reads as an argument problem and invites another probing session; WITH it, 401 -- the 401 is the real answer. RE-VERIFIED 2026-09-15 (auth facts on GHL expire, so this was re-measured, not assumed). \u1f534 DO NOT PROBE THIS CLUSTER AGAIN and do not seek the credential \u2014 it is MINED instead, and the knowledge is landed in corpus workflows/50-runtime/flowguard-platform-guardrails.md: the guardrail vocabulary (loop locks with reason 'infinite_loop_detected' / lockedBy 'system', the execution status 'stuck' as a first-class state distinct from failed, blacklists scoped by workflow AND step AND contact, rate-limit rules dimensioned global|workflow|contact, and bypasses carrying an expiresAt). That vocabulary is a specification of what goes wrong with workflows in production, which is why it is worth having without the endpoint. \u26a0\ufe0f The NUMBERS in flowGuardMockData.ts are a developer's placeholders, never GHL's thresholds. TRAP for anyone who ever does reach it: every getter in FlowGuardService.ts falls back to its mock data on error, so the panel renders a convincing fake list on a 401 \u2014 read the network, not the screen.",
+      "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class. TRAP: WITHOUT location_id every flowguard route answers 400, which reads as an argument problem and invites another probing session; WITH it, 401 -- the 401 is the real answer. RE-VERIFIED 2026-09-15 (auth facts on GHL expire, so this was re-measured, not assumed). ὓ4 DO NOT PROBE THIS CLUSTER AGAIN and do not seek the credential — it is MINED instead, and the knowledge is landed in corpus workflows/50-runtime/flowguard-platform-guardrails.md: the guardrail vocabulary (loop locks with reason 'infinite_loop_detected' / lockedBy 'system', the execution status 'stuck' as a first-class state distinct from failed, blacklists scoped by workflow AND step AND contact, rate-limit rules dimensioned global|workflow|contact, and bypasses carrying an expiresAt). That vocabulary is a specification of what goes wrong with workflows in production, which is why it is worth having without the endpoint. ⚠️ The NUMBERS in flowGuardMockData.ts are a developer's placeholders, never GHL's thresholds. TRAP for anyone who ever does reach it: every getter in FlowGuardService.ts falls back to its mock data on error, so the panel renders a convincing fake list on a 401 — read the network, not the screen.",
       "credentialClass": "location-user-bearer"
     },
     "DELETE /workflow/flowguard/rate-limiting/bypass/{id}": {
       "reach": "refused",
-      "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class. TRAP: WITHOUT location_id every flowguard route answers 400, which reads as an argument problem and invites another probing session; WITH it, 401 -- the 401 is the real answer. RE-VERIFIED 2026-09-15 (auth facts on GHL expire, so this was re-measured, not assumed). \u1f534 DO NOT PROBE THIS CLUSTER AGAIN and do not seek the credential \u2014 it is MINED instead, and the knowledge is landed in corpus workflows/50-runtime/flowguard-platform-guardrails.md: the guardrail vocabulary (loop locks with reason 'infinite_loop_detected' / lockedBy 'system', the execution status 'stuck' as a first-class state distinct from failed, blacklists scoped by workflow AND step AND contact, rate-limit rules dimensioned global|workflow|contact, and bypasses carrying an expiresAt). That vocabulary is a specification of what goes wrong with workflows in production, which is why it is worth having without the endpoint. \u26a0\ufe0f The NUMBERS in flowGuardMockData.ts are a developer's placeholders, never GHL's thresholds. TRAP for anyone who ever does reach it: every getter in FlowGuardService.ts falls back to its mock data on error, so the panel renders a convincing fake list on a 401 \u2014 read the network, not the screen.",
+      "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class. TRAP: WITHOUT location_id every flowguard route answers 400, which reads as an argument problem and invites another probing session; WITH it, 401 -- the 401 is the real answer. RE-VERIFIED 2026-09-15 (auth facts on GHL expire, so this was re-measured, not assumed). ὓ4 DO NOT PROBE THIS CLUSTER AGAIN and do not seek the credential — it is MINED instead, and the knowledge is landed in corpus workflows/50-runtime/flowguard-platform-guardrails.md: the guardrail vocabulary (loop locks with reason 'infinite_loop_detected' / lockedBy 'system', the execution status 'stuck' as a first-class state distinct from failed, blacklists scoped by workflow AND step AND contact, rate-limit rules dimensioned global|workflow|contact, and bypasses carrying an expiresAt). That vocabulary is a specification of what goes wrong with workflows in production, which is why it is worth having without the endpoint. ⚠️ The NUMBERS in flowGuardMockData.ts are a developer's placeholders, never GHL's thresholds. TRAP for anyone who ever does reach it: every getter in FlowGuardService.ts falls back to its mock data on error, so the panel renders a convincing fake list on a 401 — read the network, not the screen.",
       "credentialClass": "location-user-bearer"
+    },
+    "DELETE /workflow/{locationId}/delete": {
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "destructive",
+      "note": "Proven live 2026-09-19. Each proven on a throwaway the probe created in the same run, with an untouched sibling as the control. Body {type:'workflow'|'directory', workflowIds:[…], updatedBy:<uid>} -> 200 {success, message:'1 workflows deleted successfully', processedCount, failedCount, processingType:'synchronous', deletedIds}. Soft, like the single delete."
+    },
+    "DELETE /workflow/{locationId}/error-notification/{workflowId}": {
+      "reach": "reached",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "destructive",
+      "note": "Reached 2026-09-19, NOT proven: it answers 200 {deleted:true} for a workflow WITH NO error doc AND for a GHOST workflowId — the response is identical whether anything was deleted or not. The only docs on the test account belong to a real workflow, so they were not touched. Prove it only on a probe workflow that has errored."
+    },
+    "DELETE /workflow/{locationId}/remove-directory/{folderId}": {
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "destructive",
+      "note": "Proven live 2026-09-19. Each proven on a throwaway the probe created in the same run, with an untouched sibling as the control. -> 200 {msg:'deleted successfully', error:false}; the folder left GET …/list?type=directory while the sibling folder stayed."
+    },
+    "DELETE /workflow/{locationId}/scheduled-pause/config/{recordId}": {
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "destructive",
+      "note": "Proven live 2026-09-19 on the probe's own pause window: -> 200 {success:true}; the config list went from 1 record to 0."
+    },
+    "DELETE /workflow/{locationId}/split": {
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "destructive",
+      "note": "Proven live 2026-09-19. 🔴 It WIPES A SPLIT STEP'S EXECUTION HISTORY, not the step: ?workflowId=&stepId= -> 200 {success:true}; GET …/split/stats went {totalContactsEntered:2, pathB:2} -> all zeros on a probe split two probe contacts had run through. Irreversible as far as any route shows."
+    },
+    "DELETE /workflow/{locationId}/{workflowId}": {
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "destructive",
+      "note": "Proven live 2026-09-19. Each proven on a throwaway the probe created in the same run, with an untouched sibling as the control. ?userId=<uid> -> 200 {success:true}; the workflow then 404s on GET and leaves the list while the sibling stays. 🔴 It is a SOFT delete: the workflow moves to GET …/list?status=deleted and PUT …/restore brings it back."
+    },
+    "DELETE /workflows/sticky-note": {
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "destructive",
+      "note": "Proven live 2026-09-19: ?_id=<noteId>&locationId=, with the pinned API_BASE_HEADERS -> 200 with the note carrying isDeleted:true; sticky-notes-all then returns 0. CONTROL: a ghost _id -> 404 'Sticky note not found to delete'."
     },
     "GET /ad-publishing/facebook/custom-audience": {
       "reach": "refused",
@@ -109,6 +175,13 @@
         "locationId"
       ]
     },
+    "GET /agent-studio/workflows/dropdown": {
+      "summary": "The agents a workflow step may invoke: {options:[{value: agentId, label, versionId, agentType}]}. Query: agentType=managed|flow, locationId.",
+      "note": "Any other agentType answers 400 'agentType must be one of: flow, managed', so an empty list is about the account. Lists only PUBLISHED agents carrying a `workflows` trigger. Managed-agent trigger vocabulary (from GHL's own 400): chat ALONE, or any mix of form, tag, schedule, appointment_booked, appointment_status, contact_created, opportunity_created, opportunity_status_changed, facebook_lead_gen, survey_submission; `workflows` combines with either. Measured 2026-09-19.",
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "read"
+    },
     "GET /ai-employees/actions/search": {
       "reach": "proven",
       "requiredQuery": [
@@ -170,10 +243,25 @@
       "summary": "Every appointment on one calendar in a time window.",
       "note": "startTime/endTime must be EPOCH MILLISECONDS. An ISO-8601 timestamp returns a clean 200 with {\"events\":[]} -- no error, no warning. Live differential 2026-09-02, same calendar and same window: epoch ms -> 40 events, ISO -> 0. Most dangerous exactly where it is used, checking whether a slot is free before writing to a diary. Rows carry BOTH appointmentStatus and the misspelled appoinmentStatus."
     },
+    "GET /calendars/schedules": {
+      "summary": "🔴 NOT the list route — 400s. Use GET /calendars/schedules/search?locationId= instead.",
+      "note": "This path collides with /calendars/{calendarId} and answers 400 \"Calendar not found for id: schedules\". GET by a real schedule id works (/calendars/schedules/{scheduleId}); only the bare collection path is broken."
+    },
+    "GET /calendars/schedules/search": {
+      "summary": "LIST availability schedules for a location — this is the real list route for calendar opening hours.",
+      "note": "🔴 NOTE THE `/search`. A bare GET /calendars/schedules routes to /calendars/{calendarId} and answers 400 \"Calendar not found for id: schedules\" — two sessions have lost time to that collision. Takes ?locationId=. A schedule governs a calendar only while that calendar's id is in its `calendarIds`; editing an UNBOUND schedule is accepted, stored and inert."
+    },
     "GET /calendars/{calendarId}": {
       "reach": "proven",
       "summary": "One calendar's full configuration. 🔴 Its `openHours` does NOT control availability — see the note.",
       "note": "🔴 `openHours` ON THIS RECORD IS ACCEPTED, STORED, READ BACK AND IGNORED by the free-slots engine. Availability lives in the SCHEDULES store, not here: a location's default schedule auto-binds to every new calendar and overrides the openHours you sent. Proven twice, independently — 2026-09-03 and 2026-09-17 on two different accounts, and reproduced on a third, so it is platform-wide. A calendar set to Saturday-only served Mon–Fri; set to 11:00–15:00 Mon–Sat it served 08:00–16:15, which is the DEFAULT schedule. To change availability use PUT /calendars/schedules/{id} with the calendar id in `calendarIds`. —— Read `autoConfirm` before building an appointment rail. autoConfirm:true means an appointment is BORN `confirmed`, so a workflow trigger filtered status==new never fires for anything an agent books. An API-created appointment can force the status, which is how a test rig hides this from itself."
+    },
+    "GET /certificates/locations/{locationId}/registry": {
+      "summary": "Issued certificates and badges: {issuedCertificates:[{template, contactId, altId, downloadUrl}], totalCount}. Query skip, limit, search.",
+      "note": "The read that proves the Issue Badge workflow step RAN: altId is `issue_badge_workflow_{loc}_{templateId}_{contactId}_{ts}`. Proven live 2026-09-19.",
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "read"
     },
     "GET /chat-widget/list": {
       "requiredQuery": [
@@ -197,6 +285,11 @@
       "reach": "proven",
       "summary": "One smart list: listName, columns, filterSpecs, sortSpecs, sharedWith.",
       "note": "Send NO locationId. The route works (live 2026-09-02) but 422s 'property locationId should not exist' the moment you add the usual location query param -- the same shape as /ai-employees/actions/search. `sharedWith` reads back as [] when unset and as a bare STRING when set."
+    },
+    "GET /contacts/{contactId}": {
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer",
+      "note": "Proven live 2026-09-19: every runtime proof in the workflows suite reads a probe contact's tags back through it, and the tags a step adds appear on it — a discriminating read, not a bare 200."
     },
     "GET /contacts/{contactId}/appointments": {
       "reach": "proven",
@@ -259,6 +352,11 @@
       "kind": "read",
       "note": "Executed on GROM Sandbox 2026-09-11 — 200 on a location with no domains."
     },
+    "GET /email_reporting/stats_by_campaign_step_id/{locationId}/workflow_{workflowId}": {
+      "reach": "absent",
+      "credentialClass": "agency-admin-bearer",
+      "note": "ABSENT, measured 2026-09-19: Express's own HTML 'Cannot GET' on the email_reporting base that config/index.ts names, for a real workflow. The service answers; this path is not mounted on it."
+    },
     "GET /emails/builder": {
       "reach": "proven"
     },
@@ -271,6 +369,16 @@
     },
     "GET /emails/builder/settings/{locationId}": {
       "reach": "proven"
+    },
+    "GET /emails/trigger/campaign/{locationId}/{sourceId}": {
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer",
+      "note": "Proven live 2026-09-19 that the credential reaches it — and nothing more. 🔴 TRAP: {triggers:[], total:0} came back for a real workflow AND for a ghost, so an empty answer discriminates nothing. sourceId is `{workflowId}:{actionId}` for a step (EmailService.ts:141)."
+    },
+    "GET /emails/trigger/campaign/{locationId}/{workflowId}:{actionId}": {
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer",
+      "note": "Same route as /emails/trigger/campaign/{locationId}/{sourceId} with the sourceId spelled out. Proven live 2026-09-19 with the same trap: identical empty answer for a real step and a ghost."
     },
     "GET /events-management/tickets": {
       "reach": "proven",
@@ -435,6 +543,11 @@
     "GET /membership/.../categories": {
       "note": "🔴 THIS ROW IS UNCALLABLE: its path contains a literal \"...\" left by the source miner, so every request 404s. 15 rows are in this state, all on this service. 11 of them — including this one — duplicate a full-path row already in the catalogue; use that one instead. Measured 2026-09-10."
     },
+    "GET /membership/locations/{locationId}/user-purchase/no-of-users-purchasedOffer/{offerId}": {
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer",
+      "note": "Proven live 2026-09-19 by differential: {userCount} went 0 -> 1 -> 0 as the workflow steps Grant and Revoke course access ran. The live suite reads it for both."
+    },
     "GET /membership/smart-list/categories": {
       "reach": "refused",
       "note": "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
@@ -450,6 +563,17 @@
       "reach": "refused",
       "note": "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
       "credentialClass": "location-user-bearer"
+    },
+    "GET /objects/{objectKey}": {
+      "note": "MINED + PROVEN LIVE — see corpus workflows/20-api/refused-but-mined.md. The custom-object FIELD SCHEMA. Executed on a test sub-account 2026-09-21 as ?locationId=&fetchProperties=true → 200 {object:{id, key, type, labels{singular,plural}, icon, description, primaryDisplayProperty, requiredProperties[], searchableProperties[], uniqueProperties[], addRecordConfiguration[]}, fields:[{id, fieldKey, name, standard, dataType, position, parentId, objectKey, options[], …}], cache:true}. 🔴 objectKey is a SLUG, NEVER the id: bare for standard objects (contact, business), namespaced custom_objects.<slug> for user-defined ones — passing the id is a well-formed call that asks for the wrong thing. 🔴 REAL, LOAD-BEARING LIMIT (not a mock value): for objectKey=contact this endpoint CAPS custom fields at 250 and GHL's own client patches around it by re-fetching from CustomFieldService and merging — the raw response is known-incomplete by the vendor above 250 fields. 🔴 THIS BARE SPELLING IS THE ONE WE REACH AND THE ONE THE CLIENT NEVER SENDS; its trailing-slash twin is what the UI issues and it REFUSES us. Do not 'correct' either row into the other. `cache:true` means a read here may be served from a cache rather than the store."
+    },
+    "GET /objects/{objectKey}/": {
+      "note": "MINED, refused to us — see corpus workflows/20-api/refused-but-mined.md. This is the spelling GHL's own client issues (CustomObjectsService pins its base URL to '…/objects/', so every real call carries the trailing slash) and it is the one our credential class does NOT reach. Its BARE twin, GET /objects/{objectKey}, is proven live from here and carries the same custom-object field schema — use that. Neither row is a phantom: this is a gateway/routing distinction between two real spellings, not one route recorded twice."
+    },
+    "GET /objects/{workflowType}/enabled": {
+      "note": "ABSENT, measured 2026-09-19: the framework's own 'Cannot GET' on both hosts, for a real type and a nonsense one. Source is a corpus inventory page, not a bundle call site.",
+      "reach": "absent",
+      "credentialClass": "agency-admin-bearer"
     },
     "GET /opportunities/lost-reason": {
       "requiredQuery": [
@@ -522,6 +646,11 @@
       "summary": "The account's call dispositions {dispositions:[{id, name, isDefault, orderingKey, meta.createdBy, isDeleted}], totalRecords, isCreateButtonVisible}; call_status triggers match these BY NAME.",
       "note": "?includeDeleted=true returns ONLY the soft-deleted rows, not the union -- the name reads like 'include', the behaviour is 'only'. Every account ships the SAME SIX system defaults (proven 2026-09-02: a sandbox listing four returned exactly the two missing ones, Follow Up and Requested Appointment, under includeDeleted=true, both isDefault:true with a deletedAt). A short list means somebody soft-deleted defaults, not that defaults vary by account. call_status triggers match BY NAME."
     },
+    "GET /phone-system/location/{locationId}/recordings/{recordingSid}": {
+      "reach": "reached",
+      "credentialClass": "agency-admin-bearer",
+      "note": "Reached 2026-09-19: a ghost recording sid answers 400 'Request failed with status code 404' — the route exists and relayed the telephony provider's 404 for that sid. Not provable here: the test sub-account has no call recordings. Returns a blob (IVRService.getRecording)."
+    },
     "GET /phone-system/numbers/location/{locationId}": {
       "reach": "proven"
     },
@@ -541,6 +670,13 @@
       ],
       "note": "requiredQuery proven live 2026-09-10: altId, locationId. 🔴 This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND — the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder."
     },
+    "GET /reporting/notification/automation/workflows/unpublished": {
+      "note": "Required: companyId (400 \"Company ID missing\") and then userId (422). Reached, not yet answered 200.",
+      "requiredQuery": [
+        "companyId",
+        "userId"
+      ]
+    },
     "GET /reputation/integrations/review-link-list": {
       "reach": "refused",
       "note": "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
@@ -557,6 +693,20 @@
     },
     "GET /reselling/subscription/location/{locationId}": {
       "reach": "proven"
+    },
+    "GET /saas-billing-v2/billing-config/COMPANY/{companyId}/{product}": {
+      "summary": "The AGENCY-level billing config for one product (workflow_premium_actions | workflow_ai).",
+      "note": "Agency scope. For whether ONE sub-account may run premium steps use the LOCATION route and read config.optIn -- config.enabled is not the gate. Executed 2026-09-19.",
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer"
+    },
+    "GET /saas-billing-v2/billing-config/LOCATION/{locationId}/conversation_AI": {
+      "reach": "proven"
+    },
+    "GET /saas-billing-v2/billing-config/LOCATION/{locationId}/{product}": {
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer",
+      "note": "Proven live 2026-09-18; the premium preflight calls it. CONTROL: a nonsense product answers 404 'Product not found'. 🔴 The gate is config.optIn, not config.enabled, and the optIn query param changes the answer by its PRESENCE (see agency-premium-features in the corpus)."
     },
     "GET /saas-billing-v2/billing-config/locations/workflow_ai": {
       "summary": "AGENCY roster: every sub-account's billing config for external AI model steps (optIn, enabled, markup, basePrice). For ONE sub-account use the per-location route instead.",
@@ -581,9 +731,6 @@
       "note": "entityType=LOCATION, product = workflow_premium_actions | workflow_ai; a location Bearer reaches it and companyId is NOT needed. TRAP: the optIn query param changes the ANSWER by its PRESENCE, not its value -- ?optIn=true and ?optIn=false both return config.optIn:true, omitting it returns false, same account same minute. Send ?optIn=true as the builder does. TRAP: config.enabled is NOT the gate -- it was false on all 18 sub-accounts of an agency whose premium steps run daily (it tracks rebilling); the builder gates on config.optIn and, when false, falls back to a reselling subscription. A nonsense product answers 404 Product not found. Executed on the designated sandbox 2026-09-18.",
       "reach": "proven",
       "credentialClass": "location-user-bearer"
-    },
-    "GET /saas-billing-v2/billing-config/LOCATION/{locationId}/conversation_AI": {
-      "reach": "proven"
     },
     "GET /saas_service/isv-mode/status/{locationId}": {
       "reach": "proven"
@@ -702,6 +849,13 @@
       ],
       "note": "requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them. requiredQuery proven live 2026-09-10: alt_id."
     },
+    "GET /workflow/agent/{locationId}/feedback/{threadId}": {
+      "summary": "Whether a human rated that agent run: {success, data:{submitted, rating?, hasDetails?}}.",
+      "note": "🔴 TRAP: a 200 {submitted:false} is ALSO what a NONEXISTENT thread returns — real and ghost were byte-identical before any feedback existed, so this route discriminates NOTHING on its own. Proven 2026-09-19 only by forcing a differential: POST the feedback, after which the real thread answers {submitted:true, rating:'positive', hasDetails:false} while the ghost still answers {submitted:false}.",
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "read"
+    },
     "GET /workflow/agent/{locationId}/mcp-connections": {
       "reach": "proven"
     },
@@ -715,6 +869,28 @@
       "credentialClass": "agency-admin-bearer",
       "kind": "read"
     },
+    "GET /workflow/agent/{locationId}/skills": {
+      "reach": "absent",
+      "credentialClass": "agency-admin-bearer",
+      "note": "ABSENT, measured 2026-09-19: the skills list answers the workflow service's own {success:false,message:'Not found'} — as do list, resolve and get alike, WITH the API_BASE_HEADERS agent-skill-service.ts pins. The sibling ai_agent routes on the same service (trace, feedback, models) answer, so the service is up and this sub-router is not mounted for this account. INFERRED, not proven: a labs flag."
+    },
+    "GET /workflow/agent/{locationId}/skills/resolve": {
+      "reach": "absent",
+      "credentialClass": "agency-admin-bearer",
+      "note": "ABSENT, measured 2026-09-19: the skills resolve (ids=) answers the workflow service's own {success:false,message:'Not found'} — as do list, resolve and get alike, WITH the API_BASE_HEADERS agent-skill-service.ts pins. The sibling ai_agent routes on the same service (trace, feedback, models) answer, so the service is up and this sub-router is not mounted for this account. INFERRED, not proven: a labs flag."
+    },
+    "GET /workflow/agent/{locationId}/skills/{id}": {
+      "reach": "absent",
+      "credentialClass": "agency-admin-bearer",
+      "note": "ABSENT, measured 2026-09-19: the skills get (builtin:<key> or a document id) answers the workflow service's own {success:false,message:'Not found'} — as do list, resolve and get alike, WITH the API_BASE_HEADERS agent-skill-service.ts pins. The sibling ai_agent routes on the same service (trace, feedback, models) answer, so the service is up and this sub-router is not mounted for this account. INFERRED, not proven: a labs flag."
+    },
+    "GET /workflow/agent/{locationId}/trace/{threadId}": {
+      "summary": "The ai_agent step's reasoning trace for one run: {success, data:{trace:[{node:'llm'|'tool', input, output, summary}]}}. Optional query workflowId, workflowLogId, workflowLogCreatedAt (a legacy-checkpoint fallback).",
+      "note": "Proven live 2026-09-19 with a control. 🔴 The threadId is NOT a workflow or contact id: it is on the ai_agent step's own EXECUTION LOG at meta.actionFrom.response.threadId (completed) or meta.data.meta.threadId (waiting), shaped '<ULID>:<uuid>:<epoch-ms>'. Only step type `ai_agent` produces one — invoke_managed_agents logs an executionId instead and has no trace. CONTROL: a ghost threadId answers 404 'Trace not found for the given thread ID', so a 200 is about the thread. The three query params are OPTIONAL: the same trace came back without them. The log row also carries a langfuseTraceUrl and tokenUsage.",
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "read"
+    },
     "GET /workflow/campaign": {
       "reach": "refused",
       "note": "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
@@ -722,39 +898,63 @@
     },
     "GET /workflow/flowguard/auth": {
       "reach": "refused",
-      "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class. TRAP: WITHOUT location_id every flowguard route answers 400, which reads as an argument problem and invites another probing session; WITH it, 401 -- the 401 is the real answer. RE-VERIFIED 2026-09-15 (auth facts on GHL expire, so this was re-measured, not assumed). \u1f534 DO NOT PROBE THIS CLUSTER AGAIN and do not seek the credential \u2014 it is MINED instead, and the knowledge is landed in corpus workflows/50-runtime/flowguard-platform-guardrails.md: the guardrail vocabulary (loop locks with reason 'infinite_loop_detected' / lockedBy 'system', the execution status 'stuck' as a first-class state distinct from failed, blacklists scoped by workflow AND step AND contact, rate-limit rules dimensioned global|workflow|contact, and bypasses carrying an expiresAt). That vocabulary is a specification of what goes wrong with workflows in production, which is why it is worth having without the endpoint. \u26a0\ufe0f The NUMBERS in flowGuardMockData.ts are a developer's placeholders, never GHL's thresholds. TRAP for anyone who ever does reach it: every getter in FlowGuardService.ts falls back to its mock data on error, so the panel renders a convincing fake list on a 401 \u2014 read the network, not the screen.",
+      "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class. TRAP: WITHOUT location_id every flowguard route answers 400, which reads as an argument problem and invites another probing session; WITH it, 401 -- the 401 is the real answer. RE-VERIFIED 2026-09-15 (auth facts on GHL expire, so this was re-measured, not assumed). ὓ4 DO NOT PROBE THIS CLUSTER AGAIN and do not seek the credential — it is MINED instead, and the knowledge is landed in corpus workflows/50-runtime/flowguard-platform-guardrails.md: the guardrail vocabulary (loop locks with reason 'infinite_loop_detected' / lockedBy 'system', the execution status 'stuck' as a first-class state distinct from failed, blacklists scoped by workflow AND step AND contact, rate-limit rules dimensioned global|workflow|contact, and bypasses carrying an expiresAt). That vocabulary is a specification of what goes wrong with workflows in production, which is why it is worth having without the endpoint. ⚠️ The NUMBERS in flowGuardMockData.ts are a developer's placeholders, never GHL's thresholds. TRAP for anyone who ever does reach it: every getter in FlowGuardService.ts falls back to its mock data on error, so the panel renders a convincing fake list on a 401 — read the network, not the screen.",
       "credentialClass": "location-user-bearer"
     },
     "GET /workflow/flowguard/blacklist/contact": {
       "reach": "refused",
-      "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class. TRAP: WITHOUT location_id every flowguard route answers 400, which reads as an argument problem and invites another probing session; WITH it, 401 -- the 401 is the real answer. RE-VERIFIED 2026-09-15 (auth facts on GHL expire, so this was re-measured, not assumed). \u1f534 DO NOT PROBE THIS CLUSTER AGAIN and do not seek the credential \u2014 it is MINED instead, and the knowledge is landed in corpus workflows/50-runtime/flowguard-platform-guardrails.md: the guardrail vocabulary (loop locks with reason 'infinite_loop_detected' / lockedBy 'system', the execution status 'stuck' as a first-class state distinct from failed, blacklists scoped by workflow AND step AND contact, rate-limit rules dimensioned global|workflow|contact, and bypasses carrying an expiresAt). That vocabulary is a specification of what goes wrong with workflows in production, which is why it is worth having without the endpoint. \u26a0\ufe0f The NUMBERS in flowGuardMockData.ts are a developer's placeholders, never GHL's thresholds. TRAP for anyone who ever does reach it: every getter in FlowGuardService.ts falls back to its mock data on error, so the panel renders a convincing fake list on a 401 \u2014 read the network, not the screen.",
+      "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class. TRAP: WITHOUT location_id every flowguard route answers 400, which reads as an argument problem and invites another probing session; WITH it, 401 -- the 401 is the real answer. RE-VERIFIED 2026-09-15 (auth facts on GHL expire, so this was re-measured, not assumed). ὓ4 DO NOT PROBE THIS CLUSTER AGAIN and do not seek the credential — it is MINED instead, and the knowledge is landed in corpus workflows/50-runtime/flowguard-platform-guardrails.md: the guardrail vocabulary (loop locks with reason 'infinite_loop_detected' / lockedBy 'system', the execution status 'stuck' as a first-class state distinct from failed, blacklists scoped by workflow AND step AND contact, rate-limit rules dimensioned global|workflow|contact, and bypasses carrying an expiresAt). That vocabulary is a specification of what goes wrong with workflows in production, which is why it is worth having without the endpoint. ⚠️ The NUMBERS in flowGuardMockData.ts are a developer's placeholders, never GHL's thresholds. TRAP for anyone who ever does reach it: every getter in FlowGuardService.ts falls back to its mock data on error, so the panel renders a convincing fake list on a 401 — read the network, not the screen.",
       "credentialClass": "location-user-bearer"
     },
     "GET /workflow/flowguard/blacklist/step": {
       "reach": "refused",
-      "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class. TRAP: WITHOUT location_id every flowguard route answers 400, which reads as an argument problem and invites another probing session; WITH it, 401 -- the 401 is the real answer. RE-VERIFIED 2026-09-15 (auth facts on GHL expire, so this was re-measured, not assumed). \u1f534 DO NOT PROBE THIS CLUSTER AGAIN and do not seek the credential \u2014 it is MINED instead, and the knowledge is landed in corpus workflows/50-runtime/flowguard-platform-guardrails.md: the guardrail vocabulary (loop locks with reason 'infinite_loop_detected' / lockedBy 'system', the execution status 'stuck' as a first-class state distinct from failed, blacklists scoped by workflow AND step AND contact, rate-limit rules dimensioned global|workflow|contact, and bypasses carrying an expiresAt). That vocabulary is a specification of what goes wrong with workflows in production, which is why it is worth having without the endpoint. \u26a0\ufe0f The NUMBERS in flowGuardMockData.ts are a developer's placeholders, never GHL's thresholds. TRAP for anyone who ever does reach it: every getter in FlowGuardService.ts falls back to its mock data on error, so the panel renders a convincing fake list on a 401 \u2014 read the network, not the screen.",
+      "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class. TRAP: WITHOUT location_id every flowguard route answers 400, which reads as an argument problem and invites another probing session; WITH it, 401 -- the 401 is the real answer. RE-VERIFIED 2026-09-15 (auth facts on GHL expire, so this was re-measured, not assumed). ὓ4 DO NOT PROBE THIS CLUSTER AGAIN and do not seek the credential — it is MINED instead, and the knowledge is landed in corpus workflows/50-runtime/flowguard-platform-guardrails.md: the guardrail vocabulary (loop locks with reason 'infinite_loop_detected' / lockedBy 'system', the execution status 'stuck' as a first-class state distinct from failed, blacklists scoped by workflow AND step AND contact, rate-limit rules dimensioned global|workflow|contact, and bypasses carrying an expiresAt). That vocabulary is a specification of what goes wrong with workflows in production, which is why it is worth having without the endpoint. ⚠️ The NUMBERS in flowGuardMockData.ts are a developer's placeholders, never GHL's thresholds. TRAP for anyone who ever does reach it: every getter in FlowGuardService.ts falls back to its mock data on error, so the panel renders a convincing fake list on a 401 — read the network, not the screen.",
       "credentialClass": "location-user-bearer"
     },
     "GET /workflow/flowguard/blacklist/workflow": {
       "reach": "refused",
-      "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class. TRAP: WITHOUT location_id every flowguard route answers 400, which reads as an argument problem and invites another probing session; WITH it, 401 -- the 401 is the real answer. RE-VERIFIED 2026-09-15 (auth facts on GHL expire, so this was re-measured, not assumed). \u1f534 DO NOT PROBE THIS CLUSTER AGAIN and do not seek the credential \u2014 it is MINED instead, and the knowledge is landed in corpus workflows/50-runtime/flowguard-platform-guardrails.md: the guardrail vocabulary (loop locks with reason 'infinite_loop_detected' / lockedBy 'system', the execution status 'stuck' as a first-class state distinct from failed, blacklists scoped by workflow AND step AND contact, rate-limit rules dimensioned global|workflow|contact, and bypasses carrying an expiresAt). That vocabulary is a specification of what goes wrong with workflows in production, which is why it is worth having without the endpoint. \u26a0\ufe0f The NUMBERS in flowGuardMockData.ts are a developer's placeholders, never GHL's thresholds. TRAP for anyone who ever does reach it: every getter in FlowGuardService.ts falls back to its mock data on error, so the panel renders a convincing fake list on a 401 \u2014 read the network, not the screen.",
+      "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class. TRAP: WITHOUT location_id every flowguard route answers 400, which reads as an argument problem and invites another probing session; WITH it, 401 -- the 401 is the real answer. RE-VERIFIED 2026-09-15 (auth facts on GHL expire, so this was re-measured, not assumed). ὓ4 DO NOT PROBE THIS CLUSTER AGAIN and do not seek the credential — it is MINED instead, and the knowledge is landed in corpus workflows/50-runtime/flowguard-platform-guardrails.md: the guardrail vocabulary (loop locks with reason 'infinite_loop_detected' / lockedBy 'system', the execution status 'stuck' as a first-class state distinct from failed, blacklists scoped by workflow AND step AND contact, rate-limit rules dimensioned global|workflow|contact, and bypasses carrying an expiresAt). That vocabulary is a specification of what goes wrong with workflows in production, which is why it is worth having without the endpoint. ⚠️ The NUMBERS in flowGuardMockData.ts are a developer's placeholders, never GHL's thresholds. TRAP for anyone who ever does reach it: every getter in FlowGuardService.ts falls back to its mock data on error, so the panel renders a convincing fake list on a 401 — read the network, not the screen.",
       "credentialClass": "location-user-bearer"
     },
     "GET /workflow/flowguard/rate-limiting/bypass": {
       "reach": "refused",
-      "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class. TRAP: WITHOUT location_id every flowguard route answers 400, which reads as an argument problem and invites another probing session; WITH it, 401 -- the 401 is the real answer. RE-VERIFIED 2026-09-15 (auth facts on GHL expire, so this was re-measured, not assumed). \u1f534 DO NOT PROBE THIS CLUSTER AGAIN and do not seek the credential \u2014 it is MINED instead, and the knowledge is landed in corpus workflows/50-runtime/flowguard-platform-guardrails.md: the guardrail vocabulary (loop locks with reason 'infinite_loop_detected' / lockedBy 'system', the execution status 'stuck' as a first-class state distinct from failed, blacklists scoped by workflow AND step AND contact, rate-limit rules dimensioned global|workflow|contact, and bypasses carrying an expiresAt). That vocabulary is a specification of what goes wrong with workflows in production, which is why it is worth having without the endpoint. \u26a0\ufe0f The NUMBERS in flowGuardMockData.ts are a developer's placeholders, never GHL's thresholds. TRAP for anyone who ever does reach it: every getter in FlowGuardService.ts falls back to its mock data on error, so the panel renders a convincing fake list on a 401 \u2014 read the network, not the screen.",
+      "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class. TRAP: WITHOUT location_id every flowguard route answers 400, which reads as an argument problem and invites another probing session; WITH it, 401 -- the 401 is the real answer. RE-VERIFIED 2026-09-15 (auth facts on GHL expire, so this was re-measured, not assumed). ὓ4 DO NOT PROBE THIS CLUSTER AGAIN and do not seek the credential — it is MINED instead, and the knowledge is landed in corpus workflows/50-runtime/flowguard-platform-guardrails.md: the guardrail vocabulary (loop locks with reason 'infinite_loop_detected' / lockedBy 'system', the execution status 'stuck' as a first-class state distinct from failed, blacklists scoped by workflow AND step AND contact, rate-limit rules dimensioned global|workflow|contact, and bypasses carrying an expiresAt). That vocabulary is a specification of what goes wrong with workflows in production, which is why it is worth having without the endpoint. ⚠️ The NUMBERS in flowGuardMockData.ts are a developer's placeholders, never GHL's thresholds. TRAP for anyone who ever does reach it: every getter in FlowGuardService.ts falls back to its mock data on error, so the panel renders a convincing fake list on a 401 — read the network, not the screen.",
       "credentialClass": "location-user-bearer"
     },
     "GET /workflow/flowguard/workflow-rendering/{workflowId}": {
       "reach": "refused",
-      "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class. TRAP: WITHOUT location_id every flowguard route answers 400, which reads as an argument problem and invites another probing session; WITH it, 401 -- the 401 is the real answer. RE-VERIFIED 2026-09-15 (auth facts on GHL expire, so this was re-measured, not assumed). \u1f534 DO NOT PROBE THIS CLUSTER AGAIN and do not seek the credential \u2014 it is MINED instead, and the knowledge is landed in corpus workflows/50-runtime/flowguard-platform-guardrails.md: the guardrail vocabulary (loop locks with reason 'infinite_loop_detected' / lockedBy 'system', the execution status 'stuck' as a first-class state distinct from failed, blacklists scoped by workflow AND step AND contact, rate-limit rules dimensioned global|workflow|contact, and bypasses carrying an expiresAt). That vocabulary is a specification of what goes wrong with workflows in production, which is why it is worth having without the endpoint. \u26a0\ufe0f The NUMBERS in flowGuardMockData.ts are a developer's placeholders, never GHL's thresholds. TRAP for anyone who ever does reach it: every getter in FlowGuardService.ts falls back to its mock data on error, so the panel renders a convincing fake list on a 401 \u2014 read the network, not the screen.",
+      "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class. TRAP: WITHOUT location_id every flowguard route answers 400, which reads as an argument problem and invites another probing session; WITH it, 401 -- the 401 is the real answer. RE-VERIFIED 2026-09-15 (auth facts on GHL expire, so this was re-measured, not assumed). ὓ4 DO NOT PROBE THIS CLUSTER AGAIN and do not seek the credential — it is MINED instead, and the knowledge is landed in corpus workflows/50-runtime/flowguard-platform-guardrails.md: the guardrail vocabulary (loop locks with reason 'infinite_loop_detected' / lockedBy 'system', the execution status 'stuck' as a first-class state distinct from failed, blacklists scoped by workflow AND step AND contact, rate-limit rules dimensioned global|workflow|contact, and bypasses carrying an expiresAt). That vocabulary is a specification of what goes wrong with workflows in production, which is why it is worth having without the endpoint. ⚠️ The NUMBERS in flowGuardMockData.ts are a developer's placeholders, never GHL's thresholds. TRAP for anyone who ever does reach it: every getter in FlowGuardService.ts falls back to its mock data on error, so the panel renders a convincing fake list on a 401 — read the network, not the screen.",
       "credentialClass": "location-user-bearer"
+    },
+    "GET /workflow/{base}/events-management/events/options": {
+      "summary": "Event + ticket options for the Events trigger filters: {events, eventTickets}.",
+      "note": "TRAP: this row's path is MIS-MINED. {base} is the services HOST the builder computes (config.servicesURL with .backend. swapped for .services.), not a path segment. The real call is GET https://services.leadconnectorhq.com/events-management/events/options?locationId= -- executed 200 on the sandbox 2026-09-19; the Bearer alone is enough.",
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer"
+    },
+    "GET /workflow/{companyId}/workflow-company-setting/location-settings": {
+      "summary": "AGENCY view of per-sub-account workflow settings: {locations, pagination}.",
+      "note": "The first path segment is the COMPANY id, not a location id. Answers 200 with or without ?locationId. Executed on the designated sandbox 2026-09-19.",
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer"
     },
     "GET /workflow/{locationId}": {
       "reach": "proven"
     },
     "GET /workflow/{locationId}/auto-save/settings": {
       "reach": "proven"
+    },
+    "GET /workflow/{locationId}/drip-schedule/{workflowId}/step/{stepId}/contacts": {
+      "summary": "Contacts queued in one drip step, paged: {schedules, page, limit, total, totalPages}.",
+      "note": "TRAP: an EMPTY answer proves nothing about the step -- a real drip step, a WAIT step and a nonexistent step id answer the IDENTICAL empty body. It lists `schedules` ONLY while contacts are queued: proven live 2026-09-19 with three probe-created contacts in a batch-of-one drip. get_contacts_at_step reads it for the `drip.queued` rows.",
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer"
+    },
+    "GET /workflow/{locationId}/drip-schedule/{workflowId}/step/{stepId}/stats": {
+      "summary": "Drip queue status for one step: {hasQueuedContacts, contactsInDrip, nextBatch, completionETA, configVersions}.",
+      "note": "TRAP: an EMPTY answer proves nothing about the step. A real drip step, a WAIT step and a step id that does not exist all answer the IDENTICAL empty body; the route never 404s and never says \"not a drip\". It DISCRIMINATES ONLY WHILE CONTACTS ARE QUEUED: proven live 2026-09-19 by enrolling three probe-created contacts into a batch-of-one drip -- contactsInDrip, nextBatch.scheduledAt and completionETA then populate. get_contacts_at_step reads it and reports a `drip` block only when the queue is non-empty.",
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer"
     },
     "GET /workflow/{locationId}/eliza-users": {
       "reach": "proven"
@@ -784,6 +984,11 @@
       "note": "Folders list under type=directory. type=folder returns count 0 rather than an error, which reads as \"this account has no folders\". TRAP: without &includeObjectiveBuilder=true every workflowType:'agent' workflow (a Conversation AI flow bot) is SILENTLY omitted -- 200, no error, count simply excludes it; proven on four accounts. A roster showing no flow bot is not evidence the account has none. The typed list_workflows sends the flag.",
       "reach": "proven"
     },
+    "GET /workflow/{locationId}/phone-numbers": {
+      "reach": "absent",
+      "credentialClass": "agency-admin-bearer",
+      "note": "ABSENT, measured 2026-09-19: called exactly as FilterService.ts:179 does (axios default base + /{locationId}/phone-numbers), it answers a plain 'Not Found'. The builder swallows the error and shows an empty list, so the UI would not reveal this either."
+    },
     "GET /workflow/{locationId}/premium-tier-usage/{tier}": {
       "summary": "Premium-action CONSUMPTION for one tier on this sub-account.",
       "note": "Consumption only. Whether the product is opted in for this sub-account is a separate read: GET /saas-billing-v2/billing-config/LOCATION/{locationId}/workflow_premium_actions?optIn=true, reachable with a location Bearer."
@@ -791,6 +996,15 @@
     "GET /workflow/{locationId}/scheduled-pause/config": {
       "summary": "Whether this workflow is paused on a schedule, and the window if so.",
       "reach": "proven"
+    },
+    "GET /workflow/{locationId}/secret-manager": {
+      "summary": "The workflow secret store for a location, by type.",
+      "note": "Requires ?type= (400 \"Missing required fields: type\" without it). A NONSENSE type still answers 200 {success,message,data}, so a 200 here proves reach and nothing about the type vocabulary. This route returns SECRETS: it was probed with a nonsense type only and no value was read. Executed 2026-09-19.",
+      "requiredQuery": [
+        "type"
+      ],
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer"
     },
     "GET /workflow/{locationId}/split/isExecuted": {
       "reach": "proven"
@@ -801,6 +1015,11 @@
       "reach": "proven",
       "credentialClass": "agency-admin-bearer",
       "kind": "read"
+    },
+    "GET /workflow/{locationId}/trigger/{id}": {
+      "reach": "absent",
+      "credentialClass": "agency-admin-bearer",
+      "note": "ABSENT, measured 2026-09-19: a REAL trigger id and a ghost both answer {msg:'Not found'}. A trigger is readable only through the list: GET /workflow/{locationId}/trigger?workflowId=."
     },
     "GET /workflow/{locationId}/workflow-ai/settings": {
       "reach": "proven"
@@ -814,11 +1033,47 @@
     "GET /workflow/{locationId}/{workflowId}": {
       "note": "?version=N is ACCEPTED, silently IGNORED, and the CURRENT document is returned wearing its real version number (live 2026-09-02: ?version=1 -> \"version\": 3). Nothing errors, so a 'recovery' read can restore the corruption over itself and look successful. Use the version-history rail instead -- history / history-by-number -- which the typed get_workflow_version already does."
     },
+    "GET /workflow/{locationId}/{workflowId}/download": {
+      "note": "Proven live 2026-09-19. 🔴 It is a SERVER-SIDE FETCHER, not an exporter: query `url` is REQUIRED (none -> 400 'URL is required'), GHL fetches that URL and returns the BYTES (a public JPEG came back as image data). CONTROL: a ghost workflowId answers 404 'Workflow not found for given workflowId'. The builder uses it to download step attachments (states/app.ts downloadFile, responseType blob). It fetches arbitrary external URLs — only ever point it at a URL you already trust.",
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer",
+      "summary": "Fetch a file by URL through GHL, scoped to a workflow the caller owns: returns the file's bytes. Query: url (required)."
+    },
     "GET /workflow/{locationId}/{workflowId}/history": {
       "reach": "proven"
     },
     "GET /workflow/{locationId}/{workflowId}/history/v2": {
       "reach": "proven"
+    },
+    "GET /workflow/{locationId}/{workflowId}/logs": {
+      "reach": "absent",
+      "credentialClass": "agency-admin-bearer",
+      "note": "ABSENT, measured 2026-09-19: called exactly as WorkflowService.ts:232 does (readClusterURL + page, limit, action=first), it answers {msg:'Not found'} for a REAL workflow and a ghost alike. The read cluster no longer serves it. Execution logs are served by the route get_workflow_logs uses, which works."
+    },
+    "GET /workflows-marketplace/actions/options/{key}": {
+      "summary": "Every dropdown of one Add-step panel action in one call: {<fieldName>: [{label, value, description}]}. Query: locationId, optionType=default (workflowId optional).",
+      "note": "This is the form to use. Unknown action key -> 400 'Action is not present', so an answer IS about the key. Serves fields declared with `fetchOptions {serviceName, route}`; the underlying service routes (e.g. products inventory/workflow-select-options) refuse a location Bearer ('not yet supported by the IAM Service') -- this proxy is the only door. Fields declared with `dynamicSource` are NOT here: POST .../actions/dynamic-source/{key}. Proven live 2026-09-19: update_inventory.product lists ONLY prices with inventory tracking ON, and the value is the PRICE id, not the product id (turning tracking on for one test price moved it from absent to listed).",
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "read"
+    },
+    "GET /workflows-marketplace/actions/options/{key}/{fieldName}": {
+      "summary": "One field's dropdown options for an Add-step panel action: {options: [...]}.",
+      "note": "TRAP: answered {options: []} for update_inventory/product while the ALL-fields form (same minute, same account) listed the option -- and answered the identical empty body for a field name that does not exist. An empty answer from this form discriminates nothing; use GET .../actions/options/{key}. Measured 2026-09-19.",
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "read"
+    },
+    "GET /workflows-marketplace/actions/stats/{actionKey}": {
+      "summary": "Execution stats for one marketplace/premium action step over a window.",
+      "note": "Bare 403 \"locationId is required\" without it, then 422 naming the rest: workflowStepId, workflowId, startAt, endAt are ALL required. A nonsense actionKey gets the same 422, so the key is validated after the query. Reached, not yet answered 200.",
+      "requiredQuery": [
+        "locationId",
+        "workflowId",
+        "workflowStepId",
+        "startAt",
+        "endAt"
+      ]
     },
     "GET /workflows-marketplace/integration-apps": {
       "reach": "refused",
@@ -852,6 +1107,15 @@
         "locationId"
       ],
       "note": "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source."
+    },
+    "GET /workflows/logs/export/preview": {
+      "note": "Required: locationId, workflowId, fromDate, toDate (422 names the dates, then 400 \"workflowId is required\"). Reached, not yet answered 200.",
+      "requiredQuery": [
+        "locationId",
+        "workflowId",
+        "fromDate",
+        "toDate"
+      ]
     },
     "GET /workflows/logs/v2": {
       "note": "dateType=custom is REQUIRED whenever fromDate/toDate are sent, or the window is IGNORED and you get a day-snapped ~30-day default behind a 200. action=first/next drives the cursor. fromDate=0 for true full history. Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
@@ -890,13 +1154,19 @@
       "requiredQuery": [
         "locationId"
       ],
-      "note": "Re-measured 2026-09-21 on the designated sandbox with controls, correcting the 2026-08-25 reading. The 400 is \"workflowId or workflowIds needs to be present\" — an EITHER/OR, not a singular requirement; the 08-25 note recorded only the first name in that sentence. The two forms return DIFFERENT SHAPES: ?workflowId={id} answers a bare OBJECT {total, finished, workflowId, traceId}; ?workflowIds[]={id}&... answers an ARRAY of {total, finished, workflowId}. \u1f534 TRAP: a workflow with no enrolments is not reported as zero \u2014 the array form OMITS its row entirely (8 ids asked, 3 rows returned) and the singular form answers 200 with an EMPTY STRING body. CONTROL: a ghost workflowId answers the IDENTICAL 200 \"\", so an empty answer says nothing about whether the workflow exists. Absence is GHL declining to state a number, never a measured zero \u2014 get_account_workflow_overview therefore reports an omitted id as total:null, not 0."
+      "note": "Re-measured 2026-09-21 on the designated sandbox with controls, correcting the 2026-08-25 reading. The 400 is \"workflowId or workflowIds needs to be present\" — an EITHER/OR, not a singular requirement; the 08-25 note recorded only the first name in that sentence. The two forms return DIFFERENT SHAPES: ?workflowId={id} answers a bare OBJECT {total, finished, workflowId, traceId}; ?workflowIds[]={id}&... answers an ARRAY of {total, finished, workflowId}. ὓ4 TRAP: a workflow with no enrolments is not reported as zero — the array form OMITS its row entirely (8 ids asked, 3 rows returned) and the singular form answers 200 with an EMPTY STRING body. CONTROL: a ghost workflowId answers the IDENTICAL 200 \"\", so an empty answer says nothing about whether the workflow exists. Absence is GHL declining to state a number, never a measured zero — get_account_workflow_overview therefore reports an omitted id as total:null, not 0."
     },
     "GET /workflows/status/search/workflow-with-filter": {
       "requiredQuery": [
         "locationId"
       ],
       "note": "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source."
+    },
+    "GET /workflows/sticky-note": {
+      "note": "?_id= is the STICKY NOTE's Mongo ObjectId, not a workflow id: a workflow uuid answers 500 \"Cast to ObjectId failed ... model stickynotes\". Read note ids off export_workflow first.",
+      "requiredQuery": [
+        "_id"
+      ]
     },
     "GET /workflows/sticky-notes-all": {
       "reach": "proven"
@@ -918,6 +1188,11 @@
         "locationId"
       ],
       "note": "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source."
+    },
+    "GET /workflows/{locationId}": {
+      "reach": "absent",
+      "credentialClass": "agency-admin-bearer",
+      "note": "ABSENT, measured 2026-09-19: the framework's own 'Cannot GET' on both hosts. Its only source is a corpus STEP page (add_to_workflow.md), not a bundle call site — likely a transcription of a different route."
     },
     "PATCH /agent-deployment/routing-config/configs/{rowId}": {
       "reach": "proven",
@@ -967,13 +1242,39 @@
       "summary": "Create a Metrics dashboard layout.",
       "note": "The UI calls this automatically when metrics-layouts is empty, seeding {name:\"Default\", isDefault:true, version:2}. Never called during mapping. Executed on the sandbox 2026-09-10, read back on a separate request (0 -> 1 layout, found by name). Body is exactly {locationId, name, widgets} with `widgets` at the TOP LEVEL — nesting it under a `layout` key answers 422 [\"widgets must be an array\"]. host:\"ai\" (services.leadconnectorhq.com); the read returns {status, layouts[], traceId} so a caller reading `.data` gets nothing."
     },
+    "POST /agent-studio/super-agent/agents/{agentId}/publish": {
+      "summary": "Publish a Managed (super) agent's draft: returns the agent with status 'published', a new versionId and a triggerId on every trigger. Body {locationId}.",
+      "note": "Proven live 2026-09-19 on a test agent. A Managed Agent appears in the workflow step 'Invoke Managed Agents' ONLY once it (a) carries a trigger of type `workflows` and (b) is PUBLISHED -- with the trigger saved but the agent still a draft, the dropdown stayed empty. An unknown sub-route 404s, so the 201 is about this route.",
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "write"
+    },
+    "POST /agent/{locationId}/prompt/enhance": {
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "write",
+      "note": "🔴 THIS ROW'S PATH IS MIS-BASED: the builder calls `${config.baseURL}/agent/{loc}/prompt/enhance` and baseURL is backend…/workflow, so the WIRE PATH is POST /workflow/agent/{locationId}/prompt/enhance — which is where it was proven. This is a MINED row, so the harvester's missing-prefix gate cannot see it; the miner dropped the prefix on an explicit `config.baseURL` template. Proven live 2026-09-19 (billed): body {prompt, …context?} -> 200 {success, data:{enhancedPrompt}} — rewrites a short agent prompt into a structured one. EXCLUDED — no task needs it: GHL's own model drafting for a builder UI; this plugin's caller is itself a model, and routing through GHL's adds a bill (workflow_ai) and removes control."
+    },
     "POST /appengine/workflow/sendElizaMailToAgencyAdmin": {
       "kind": "destructive",
       "note": "Sends a real email to the agency admin."
     },
+    "POST /blacklist/{kind}/{id}": {
+      "reach": "refused",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "write",
+      "note": "🔴 MIS-BASED like its DELETE twin: the real path is under /workflow/flowguard. FlowGuard answers 401 to this credential (2026-09-19), so the add was not attempted."
+    },
     "POST /brand-boards/voices/{locationId}/default": {
       "reach": "proven",
       "note": "Executed on the sandbox 2026-09-10 against this project's own TEST-CAP brand voice: body {brandVoiceId, locationId}, answers 200 {success, message, brandVoiceId, locationId}, and the voice's isDefault read back false -> true on a separate request. NOTE the probe artifact is LEFT as the default — there is no obvious unset call on this rail, and the account has exactly one (test) voice, so nothing real was displaced."
+    },
+    "POST /certificates/locations/{locationId}/templates": {
+      "summary": "Create a certificate or badge template. Minimal body {title, type:'badge'|'certificate'}; empty body -> 400 'title should not be empty'.",
+      "note": "Proven live 2026-09-19: {title, type:'badge'} -> 201, listed by GET .../templates with type 'badge', and offered by the workflow step Issue Badge (the sibling Issue Certificate dropdown stayed empty -- the type is honoured). The CREATE response carries type 'TEMPLATE_CREATED' (an event name); the stored type is on the list read.",
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "write"
     },
     "POST /communities/{locationId}/groups": {
       "reach": "proven",
@@ -991,6 +1292,12 @@
       "kind": "write",
       "note": "Effectively PERMANENT: there is no delete on this rail (DELETE 404s, and PUT with deleted:true is refused 'property deleted should not exist'), so removal is UI-only. The validator is the documentation -- it rejects userId and name, and demands listName, a non-empty columns array of exactly {key,value,order}, and an object filterSpecs. filterSpecs:{} is ACCEPTED and creates a list that filters NOTHING."
     },
+    "POST /contacts/{contactId}/workflow/{workflowId}": {
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "write",
+      "note": "Proven live 2026-09-19, many times, each READ BACK: body {eventStartTime:''} -> 201 {succeded:true} (GHL's spelling), and the enrolled contact then carries the tags the workflow's steps add. The workflows live suite enrols probe-created contacts with it on every run. 🔴 It ENROLS A REAL CONTACT INTO A LIVE WORKFLOW — every following step fires. Fence: a contact the probe created, no email, no phone, a trigger-less workflow."
+    },
     "POST /conversations/providers/tiktok/posts": {
       "kind": "read"
     },
@@ -1005,6 +1312,9 @@
     },
     "POST /emails/tracking/links": {
       "kind": "read"
+    },
+    "POST /emails/trigger/campaign/{locationId}/{sourceId}": {
+      "note": "FENCED by the operator-approved plan of 2026-09-19, not probed: it creates a LIVE email-campaign trigger."
     },
     "POST /events-management/event": {
       "note": "Refuses with 422 [\"type must be a valid enum value\"] — the field is named but its MEMBERS are not, unlike sibling errors on this API which spell the vocabulary out (\"product must be one of the following values: ask-ai, ...\"). Supplying a value here would test the guess rather than the row, so it was left. This is what blocks the five read rows keyed on {eventId}: the sandbox holds zero events and one cannot be minted without the enum."
@@ -1027,9 +1337,21 @@
     "POST /funnels/page/create-page": {
       "note": "🔴 Body needs `step` as an OBJECT, not a name — 422 [\"step should not be empty\",\"step must be an object\"] otherwise. Supply the full create-step shape INCLUDING a client-minted step.id (rule 24: a server-minted step is unrepairable). With that body the call answered **524, a Cloudflare edge TIMEOUT**, on 2026-09-10. A 524 is an UNKNOWN, not a failure — the origin may still have committed. Checked afterwards and it wrote NOTHING: steps, pages and routing rows were all unchanged. Always read back after a 524 here rather than retrying blind, or a retry can double-create."
     },
+    "POST /generate-image-ai/{locationId}/prompt/enhance": {
+      "reach": "absent",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "write",
+      "note": "ABSENT at this path 2026-09-19 (empty 404): a MIS-BASED spelling. The live route is POST /workflow/generate-image-ai/{locationId}/prompt/enhance, proven the same day."
+    },
+    "POST /iatf-preview/proxy/{resource}": {
+      "note": "FENCED by the operator-approved plan of 2026-09-19, not probed: a proxy to arbitrary marketplace resources."
+    },
     "POST /knowledge-base/": {
       "reach": "proven",
       "note": "Executed on the sandbox 2026-09-11 — body {name, locationId} answers 201 and the base is readable immediately. Minted to unblock the three read rows keyed on {knowledgeBaseId}, which had no verdict purely because the account held no knowledge base."
+    },
+    "POST /lists/dynamic/{smartListId}": {
+      "note": "FENCED by the operator-approved plan of 2026-09-19, not probed: smart lists belong to another surface's tool (check_smart_lists / create_smart_list)."
     },
     "POST /locations/{locationId}/customValues": {
       "reach": "proven",
@@ -1106,6 +1428,12 @@
       "summary": "Creates a call disposition. Body is {\"name\": \"...\"}.",
       "note": "locationId must be in the QUERY. With it in the BODY only, the POST returns 403 {\"message\":\"Forbidden resource\",\"message_code\":\"FORBIDDEN\"} -- which reads as a credential problem and is actually 'this request names no location'. Not referer-gated. The server assigns isDefault, orderingKey and meta.createdBy; sending them is accepted and ignored. call_status triggers match a disposition BY NAME (array value, contains-any), so the name must match exactly, case included."
     },
+    "POST /phone-system/voice-call/voicemail-drop/file-validation": {
+      "reach": "reached",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "write",
+      "note": "Reached 2026-09-19: a JSON body answers 400 naming userId and workflowId. The real call is MULTIPART (file, locationId, userId, workflowId), which raw_request cannot send. It validates an audio file for a voicemail-drop step and places no call."
+    },
     "POST /snapshots-appengine/v2/snapshots": {
       "reach": "proven",
       "note": "Executed through the plugin credential on the designated sandbox, 2026-09-10, as part of the snapshot parity run: list -> manifest -> conflicts -> create -> refresh, with the create read back on a separate request (snapshot count 8 -> 9 and the new snapshot found by name and id)."
@@ -1141,37 +1469,69 @@
       "credentialClass": "agency-admin-bearer",
       "kind": "write"
     },
+    "POST /workflow/agent/{locationId}/feedback": {
+      "summary": "Rate an ai_agent run. Body {locationId, threadId, workflowId, workflowLogId, workflowLogCreatedAt, rating:'positive'|'negative', whatWentWrong?, whatShouldHaveDone?, contactId?, workflowStepId?} -> 200 {success:true}.",
+      "note": "Proven live 2026-09-19 on a probe thread, READ BACK on the GET: {submitted:false} -> {submitted:true, rating:'positive'}. The 200 body is only {success:true}, so the read-back is the proof. Writes a human judgement against an agent run — harmless, but it is a WRITE and there is no proven way to withdraw one.",
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "write"
+    },
+    "POST /workflow/agent/{locationId}/mcp-connections": {
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "write",
+      "note": "Proven live 2026-09-19, read back on the list: body {name, serverUrl, transportType:'streamable-http'|'sse', authType:'none'|'bearer_token'|'oauth2'|'api_key'|'custom_header', …} -> 201 {success, data:{_id, …}}, and GET on the same path then lists it. 🔴 CREATE RUNS A LIVE CONNECTION TEST FIRST: a URL that is not an MCP server is refused 422 'Connection test failed: …' and NOTHING is stored. Proven with a public read-only docs server, never attached to an agent. Pins API_BASE_HEADERS (version 2021-04-15, source WEB_USER, channel APP)."
+    },
+    "POST /workflow/agent/{locationId}/mcp-connections/test": {
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "write",
+      "note": "Proven live 2026-09-19 by differential; stores nothing. Body {serverUrl, transportType, authType, …}: a non-MCP URL -> 422 {success:false, error:'Failed to connect to streamable HTTP server …'} carrying the remote's own response; two public read-only MCP servers -> 200 {success:true, data:{tools:[{name, description}], toolCount}}. 🔴 GHL's server fetches whatever URL you give it. Pins API_BASE_HEADERS (version 2021-04-15, source WEB_USER, channel APP)."
+    },
+    "POST /workflow/agent/{locationId}/skills": {
+      "reach": "absent",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "write",
+      "note": "ABSENT, measured 2026-09-19: with the bundle's own body ({name, description, instructions}) and pinned headers, the skills router answers {success:false,message:'Not found'} to writes exactly as it does to its reads. Not mounted for this account (INFERRED: a labs flag)."
+    },
     "POST /workflow/flowguard/blacklist/contact/{contactId}": {
       "kind": "destructive",
       "reach": "refused",
-      "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class. TRAP: WITHOUT location_id every flowguard route answers 400, which reads as an argument problem and invites another probing session; WITH it, 401 -- the 401 is the real answer. RE-VERIFIED 2026-09-15 (auth facts on GHL expire, so this was re-measured, not assumed). \u1f534 DO NOT PROBE THIS CLUSTER AGAIN and do not seek the credential \u2014 it is MINED instead, and the knowledge is landed in corpus workflows/50-runtime/flowguard-platform-guardrails.md: the guardrail vocabulary (loop locks with reason 'infinite_loop_detected' / lockedBy 'system', the execution status 'stuck' as a first-class state distinct from failed, blacklists scoped by workflow AND step AND contact, rate-limit rules dimensioned global|workflow|contact, and bypasses carrying an expiresAt). That vocabulary is a specification of what goes wrong with workflows in production, which is why it is worth having without the endpoint. \u26a0\ufe0f The NUMBERS in flowGuardMockData.ts are a developer's placeholders, never GHL's thresholds. TRAP for anyone who ever does reach it: every getter in FlowGuardService.ts falls back to its mock data on error, so the panel renders a convincing fake list on a 401 \u2014 read the network, not the screen.",
+      "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class. TRAP: WITHOUT location_id every flowguard route answers 400, which reads as an argument problem and invites another probing session; WITH it, 401 -- the 401 is the real answer. RE-VERIFIED 2026-09-15 (auth facts on GHL expire, so this was re-measured, not assumed). ὓ4 DO NOT PROBE THIS CLUSTER AGAIN and do not seek the credential — it is MINED instead, and the knowledge is landed in corpus workflows/50-runtime/flowguard-platform-guardrails.md: the guardrail vocabulary (loop locks with reason 'infinite_loop_detected' / lockedBy 'system', the execution status 'stuck' as a first-class state distinct from failed, blacklists scoped by workflow AND step AND contact, rate-limit rules dimensioned global|workflow|contact, and bypasses carrying an expiresAt). That vocabulary is a specification of what goes wrong with workflows in production, which is why it is worth having without the endpoint. ⚠️ The NUMBERS in flowGuardMockData.ts are a developer's placeholders, never GHL's thresholds. TRAP for anyone who ever does reach it: every getter in FlowGuardService.ts falls back to its mock data on error, so the panel renders a convincing fake list on a 401 — read the network, not the screen.",
       "credentialClass": "location-user-bearer"
     },
     "POST /workflow/flowguard/blacklist/step/{stepId}": {
       "kind": "destructive",
       "reach": "refused",
-      "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class. TRAP: WITHOUT location_id every flowguard route answers 400, which reads as an argument problem and invites another probing session; WITH it, 401 -- the 401 is the real answer. RE-VERIFIED 2026-09-15 (auth facts on GHL expire, so this was re-measured, not assumed). \u1f534 DO NOT PROBE THIS CLUSTER AGAIN and do not seek the credential \u2014 it is MINED instead, and the knowledge is landed in corpus workflows/50-runtime/flowguard-platform-guardrails.md: the guardrail vocabulary (loop locks with reason 'infinite_loop_detected' / lockedBy 'system', the execution status 'stuck' as a first-class state distinct from failed, blacklists scoped by workflow AND step AND contact, rate-limit rules dimensioned global|workflow|contact, and bypasses carrying an expiresAt). That vocabulary is a specification of what goes wrong with workflows in production, which is why it is worth having without the endpoint. \u26a0\ufe0f The NUMBERS in flowGuardMockData.ts are a developer's placeholders, never GHL's thresholds. TRAP for anyone who ever does reach it: every getter in FlowGuardService.ts falls back to its mock data on error, so the panel renders a convincing fake list on a 401 \u2014 read the network, not the screen.",
+      "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class. TRAP: WITHOUT location_id every flowguard route answers 400, which reads as an argument problem and invites another probing session; WITH it, 401 -- the 401 is the real answer. RE-VERIFIED 2026-09-15 (auth facts on GHL expire, so this was re-measured, not assumed). ὓ4 DO NOT PROBE THIS CLUSTER AGAIN and do not seek the credential — it is MINED instead, and the knowledge is landed in corpus workflows/50-runtime/flowguard-platform-guardrails.md: the guardrail vocabulary (loop locks with reason 'infinite_loop_detected' / lockedBy 'system', the execution status 'stuck' as a first-class state distinct from failed, blacklists scoped by workflow AND step AND contact, rate-limit rules dimensioned global|workflow|contact, and bypasses carrying an expiresAt). That vocabulary is a specification of what goes wrong with workflows in production, which is why it is worth having without the endpoint. ⚠️ The NUMBERS in flowGuardMockData.ts are a developer's placeholders, never GHL's thresholds. TRAP for anyone who ever does reach it: every getter in FlowGuardService.ts falls back to its mock data on error, so the panel renders a convincing fake list on a 401 — read the network, not the screen.",
       "credentialClass": "location-user-bearer"
     },
     "POST /workflow/flowguard/blacklist/workflow/{workflowId}": {
       "kind": "destructive",
       "reach": "refused",
-      "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class. TRAP: WITHOUT location_id every flowguard route answers 400, which reads as an argument problem and invites another probing session; WITH it, 401 -- the 401 is the real answer. RE-VERIFIED 2026-09-15 (auth facts on GHL expire, so this was re-measured, not assumed). \u1f534 DO NOT PROBE THIS CLUSTER AGAIN and do not seek the credential \u2014 it is MINED instead, and the knowledge is landed in corpus workflows/50-runtime/flowguard-platform-guardrails.md: the guardrail vocabulary (loop locks with reason 'infinite_loop_detected' / lockedBy 'system', the execution status 'stuck' as a first-class state distinct from failed, blacklists scoped by workflow AND step AND contact, rate-limit rules dimensioned global|workflow|contact, and bypasses carrying an expiresAt). That vocabulary is a specification of what goes wrong with workflows in production, which is why it is worth having without the endpoint. \u26a0\ufe0f The NUMBERS in flowGuardMockData.ts are a developer's placeholders, never GHL's thresholds. TRAP for anyone who ever does reach it: every getter in FlowGuardService.ts falls back to its mock data on error, so the panel renders a convincing fake list on a 401 \u2014 read the network, not the screen.",
+      "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class. TRAP: WITHOUT location_id every flowguard route answers 400, which reads as an argument problem and invites another probing session; WITH it, 401 -- the 401 is the real answer. RE-VERIFIED 2026-09-15 (auth facts on GHL expire, so this was re-measured, not assumed). ὓ4 DO NOT PROBE THIS CLUSTER AGAIN and do not seek the credential — it is MINED instead, and the knowledge is landed in corpus workflows/50-runtime/flowguard-platform-guardrails.md: the guardrail vocabulary (loop locks with reason 'infinite_loop_detected' / lockedBy 'system', the execution status 'stuck' as a first-class state distinct from failed, blacklists scoped by workflow AND step AND contact, rate-limit rules dimensioned global|workflow|contact, and bypasses carrying an expiresAt). That vocabulary is a specification of what goes wrong with workflows in production, which is why it is worth having without the endpoint. ⚠️ The NUMBERS in flowGuardMockData.ts are a developer's placeholders, never GHL's thresholds. TRAP for anyone who ever does reach it: every getter in FlowGuardService.ts falls back to its mock data on error, so the panel renders a convincing fake list on a 401 — read the network, not the screen.",
       "credentialClass": "location-user-bearer"
     },
     "POST /workflow/flowguard/loop-lock/{workflowId}": {
       "reach": "refused",
-      "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class. TRAP: WITHOUT location_id every flowguard route answers 400, which reads as an argument problem and invites another probing session; WITH it, 401 -- the 401 is the real answer. RE-VERIFIED 2026-09-15 (auth facts on GHL expire, so this was re-measured, not assumed). \u1f534 DO NOT PROBE THIS CLUSTER AGAIN and do not seek the credential \u2014 it is MINED instead, and the knowledge is landed in corpus workflows/50-runtime/flowguard-platform-guardrails.md: the guardrail vocabulary (loop locks with reason 'infinite_loop_detected' / lockedBy 'system', the execution status 'stuck' as a first-class state distinct from failed, blacklists scoped by workflow AND step AND contact, rate-limit rules dimensioned global|workflow|contact, and bypasses carrying an expiresAt). That vocabulary is a specification of what goes wrong with workflows in production, which is why it is worth having without the endpoint. \u26a0\ufe0f The NUMBERS in flowGuardMockData.ts are a developer's placeholders, never GHL's thresholds. TRAP for anyone who ever does reach it: every getter in FlowGuardService.ts falls back to its mock data on error, so the panel renders a convincing fake list on a 401 \u2014 read the network, not the screen.",
+      "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class. TRAP: WITHOUT location_id every flowguard route answers 400, which reads as an argument problem and invites another probing session; WITH it, 401 -- the 401 is the real answer. RE-VERIFIED 2026-09-15 (auth facts on GHL expire, so this was re-measured, not assumed). ὓ4 DO NOT PROBE THIS CLUSTER AGAIN and do not seek the credential — it is MINED instead, and the knowledge is landed in corpus workflows/50-runtime/flowguard-platform-guardrails.md: the guardrail vocabulary (loop locks with reason 'infinite_loop_detected' / lockedBy 'system', the execution status 'stuck' as a first-class state distinct from failed, blacklists scoped by workflow AND step AND contact, rate-limit rules dimensioned global|workflow|contact, and bypasses carrying an expiresAt). That vocabulary is a specification of what goes wrong with workflows in production, which is why it is worth having without the endpoint. ⚠️ The NUMBERS in flowGuardMockData.ts are a developer's placeholders, never GHL's thresholds. TRAP for anyone who ever does reach it: every getter in FlowGuardService.ts falls back to its mock data on error, so the panel renders a convincing fake list on a 401 — read the network, not the screen.",
       "credentialClass": "location-user-bearer"
     },
     "POST /workflow/flowguard/rate-limiting/bypass": {
       "kind": "destructive",
       "reach": "refused",
-      "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class. TRAP: WITHOUT location_id every flowguard route answers 400, which reads as an argument problem and invites another probing session; WITH it, 401 -- the 401 is the real answer. RE-VERIFIED 2026-09-15 (auth facts on GHL expire, so this was re-measured, not assumed). \u1f534 DO NOT PROBE THIS CLUSTER AGAIN and do not seek the credential \u2014 it is MINED instead, and the knowledge is landed in corpus workflows/50-runtime/flowguard-platform-guardrails.md: the guardrail vocabulary (loop locks with reason 'infinite_loop_detected' / lockedBy 'system', the execution status 'stuck' as a first-class state distinct from failed, blacklists scoped by workflow AND step AND contact, rate-limit rules dimensioned global|workflow|contact, and bypasses carrying an expiresAt). That vocabulary is a specification of what goes wrong with workflows in production, which is why it is worth having without the endpoint. \u26a0\ufe0f The NUMBERS in flowGuardMockData.ts are a developer's placeholders, never GHL's thresholds. TRAP for anyone who ever does reach it: every getter in FlowGuardService.ts falls back to its mock data on error, so the panel renders a convincing fake list on a 401 \u2014 read the network, not the screen.",
+      "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class. TRAP: WITHOUT location_id every flowguard route answers 400, which reads as an argument problem and invites another probing session; WITH it, 401 -- the 401 is the real answer. RE-VERIFIED 2026-09-15 (auth facts on GHL expire, so this was re-measured, not assumed). ὓ4 DO NOT PROBE THIS CLUSTER AGAIN and do not seek the credential — it is MINED instead, and the knowledge is landed in corpus workflows/50-runtime/flowguard-platform-guardrails.md: the guardrail vocabulary (loop locks with reason 'infinite_loop_detected' / lockedBy 'system', the execution status 'stuck' as a first-class state distinct from failed, blacklists scoped by workflow AND step AND contact, rate-limit rules dimensioned global|workflow|contact, and bypasses carrying an expiresAt). That vocabulary is a specification of what goes wrong with workflows in production, which is why it is worth having without the endpoint. ⚠️ The NUMBERS in flowGuardMockData.ts are a developer's placeholders, never GHL's thresholds. TRAP for anyone who ever does reach it: every getter in FlowGuardService.ts falls back to its mock data on error, so the panel renders a convincing fake list on a 401 — read the network, not the screen.",
       "credentialClass": "location-user-bearer"
     },
+    "POST /workflow/generate-image-ai/{locationId}/prompt/enhance": {
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "write",
+      "note": "Proven live 2026-09-19 (billed): body {prompt} -> 200 {success, data:{enhancedPrompt}} — expands an image-generation prompt. EXCLUDED — no task needs it: GHL's own model drafting for a builder UI; this plugin's caller is itself a model, and routing through GHL's adds a bill (workflow_ai) and removes control."
+    },
     "POST /workflow/ivr/get-mappings-by-phones": {
-      "kind": "read"
+      "kind": "read",
+      "note": "MINED, not callable — see corpus workflows/20-api/refused-but-mined.md. Read out of IVRService.ts:23-34: body is exactly {phones: string[], locationId}; the response is an array of {phones, workflowId, workflowName} (names recovered from DESTRUCTURING, not a captured type — IIVRPhoneMapping is a type-only import and was erased from the bundle). Purpose: an IVR trigger number is EXCLUSIVE ACROSS WORKFLOWS, and the builder calls this to strip already-claimed numbers out of its picker and to deep-link the author to the owning workflow. 🔴 That exclusivity is enforced in the UI, not at write time — a workflow we author through the API with an IVR trigger on a taken number is not something this route would stop. TRAP: FilterState.fetchPhoneMappings catches everything and returns [], so an empty mapping list is equally consistent with 'nothing is mapped' and 'the call failed'."
     },
     "POST /workflow/oauth2/save-token": {
       "kind": "destructive",
@@ -1180,6 +1540,12 @@
     "POST /workflow/{locationId}/adwords": {
       "kind": "read",
       "note": "FENCED by the operator-approved plan of 2026-09-19, not probed: ad spend."
+    },
+    "POST /workflow/{locationId}/ai/assistant": {
+      "reach": "absent",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "write",
+      "note": "ABSENT, measured 2026-09-19: the v1 assistant answers {msg:'Not found'} with the body the bundle still sends (sessionId, messages, options). Superseded by POST …/v2/ai/assistant, which answers. EXCLUDED — no task needs it: GHL's own model drafting for a builder UI; this plugin's caller is itself a model, and routing through GHL's adds a bill (workflow_ai) and removes control."
     },
     "POST /workflow/{locationId}/ai/custom-code-ai": {
       "reach": "proven",
@@ -1191,6 +1557,12 @@
       "credentialClass": "agency-admin-bearer",
       "kind": "write"
     },
+    "POST /workflow/{locationId}/ai/feedback": {
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "write",
+      "note": "Reachable 2026-09-19: body {feedback, reaction, traceId, userMessage, aiResponse} -> 200 {success:true}. 🔴 A GHOST traceId gets the identical 200 — the response proves nothing about the rating being stored, and there is no read to check it. EXCLUDED — no task needs it: GHL's own model drafting for a builder UI; this plugin's caller is itself a model, and routing through GHL's adds a bill (workflow_ai) and removes control."
+    },
     "POST /workflow/{locationId}/ai/sms-ai": {
       "reach": "proven",
       "note": "Executed on the designated sandbox 2026-09-10, workflows write-parity sweep. 🔴 workflowId and sessionId go in the QUERY STRING, not the body — sent in the body they are not seen and the endpoint answers 422 \"Workflow ID is required\" / \"Session ID is required\", one field per round. `messages` is a chat array [{role,content}] in the body; `prompt` is refused with \"Messages are required\". Proven 200."
@@ -1201,11 +1573,20 @@
       "credentialClass": "agency-admin-bearer",
       "note": "Proven live 2026-09-19; read-shaped, writes nothing. Body needs stepId, batchSize and interval (400 names all three); returns batches[] with batchNumber, scheduledAt, contactsInBatch, constraints."
     },
+    "POST /workflow/{locationId}/email/domain-selection/manage": {
+      "note": "FENCED by the operator-approved plan of 2026-09-19, not probed: it changes the location's sending-domain routing."
+    },
     "POST /workflow/{locationId}/email/send-test-email": {
       "kind": "write",
       "reach": "proven",
       "credentialClass": "agency-admin-bearer",
       "note": "Proven live 2026-09-19 as far as GHL can show: ONE email to the operator's own tagged address. Body {location_id, user_id, email:{subject, html, testEmails:[…]}, senderAddress:{from_name, from_email}, workflowId?, workflowName?, actionId?, actionName?} -> 200 {msg:'Test emails sent successfully', skippedEmails:[]}. A test email creates NO conversation, so the only full read-back is the recipient's inbox. 2026-09-19: ARRIVED — the operator confirmed it in the inbox. 🔴 It SENDS A REAL EMAIL."
+    },
+    "POST /workflow/{locationId}/email/validate-from-email": {
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "read",
+      "note": "Proven live 2026-09-19 by a two-leg differential over RETURN CODES: body {fromEmail, domain}. A free-webmail sender -> {isFromEmailAllowed:false, code:'free_webmail_blocked'}; a domain with no DNS -> {false, code:'dmarc_record_not_found'} — a DIFFERENT reason, so the route discriminates by DOMAIN. A real company domain answering success is the design's third leg but is NOT exercised here (kept out to keep a real domain out of a public repo). 🔴 NO SEND OBSERVED 2026-09-19 — that is the weak claim it is: a differential over return codes cannot see whether mail left the building, so this is not evidence the route \"sends nothing\". No inbox or conversation read-back has been done against this route; establishing send-nothing by read-back is OWED. Codes per the bundle also include dmarc_issue_possible, from_email_domain_and_dedicated_domain_mismatch, invalid_dmarc_format. Worth running before a workflow's From address is set."
     },
     "POST /workflow/{locationId}/folder": {
       "note": "ABSENT, measured 2026-09-19: no call site in the current builder bundle, and a real-shaped body {name, parentId} answers {msg:'Not found'}. Folders are created through the route create_workflow_folder uses.",
@@ -1218,6 +1599,12 @@
       "note": "Reached 2026-09-19: {} -> 500 'Value for argument \"documentPath\" is not a valid resource path' — a Firestore path built from a missing field, i.e. the handler ran without validating its body. It is the premium-action sample runner (getSampleResponse): it EXECUTES one action for real, e.g. fires a custom webhook. Not taken further: a correct body makes an outbound call.",
       "reach": "reached",
       "credentialClass": "agency-admin-bearer"
+    },
+    "POST /workflow/{locationId}/scheduled-pause/config": {
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "write",
+      "note": "Proven live 2026-09-19 on a probe DRAFT: body {pauseStartTime:<epoch-ms>, pauseEndTime:<epoch-ms>, isAnnual:false, workflowIds:[…]} -> 201 {success:true}, and GET on the same path then lists the record with isActive:true. RULES the server states: 'Workflow IDs are required'; the window must be AT LEAST 24 HOURS ('Difference between pause start and end times should be at least 24 hours'). 🔴 It PAUSES the named workflows for the window — aim it only at a workflow you mean to stop."
     },
     "POST /workflow/{locationId}/scheduler-trigger/preview": {
       "reach": "proven",
@@ -1235,6 +1622,36 @@
       "credentialClass": "agency-admin-bearer",
       "kind": "write"
     },
+    "POST /workflow/{locationId}/v2/ai/assistant": {
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "write",
+      "note": "Proven live 2026-09-19 (billed): chat-only call answered 200 {messages:[…, assistant reply], suggestions, traceId}. Query locationId + workflowId. Body per assistant-v2.ts: messages, workflow{actions,triggers}, customValues, actionConfigs, sessionId, chatOnly, workflowName, and more. 🔴 It writes NOTHING to the workflow — the probe's version was identical before and after; the draft comes back for the builder to apply client-side. EXCLUDED — no task needs it: GHL's own model drafting for a builder UI; this plugin's caller is itself a model, and routing through GHL's adds a bill (workflow_ai) and removes control."
+    },
+    "POST /workflow/{locationId}/v2/ai/build-sub-tree": {
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "write",
+      "note": "Proven live 2026-09-19 (billed, ~10s): body {prompt, parentKey, nextStep, state:{workflow:{actions,triggers}, customValues, availableActions, availableTriggers, actionConfigs}} -> 200 {workflow:{message, …}} with a plain-English summary of the steps it would add. 🔴 It writes NOTHING to the workflow — the probe's version was identical before and after; the draft comes back for the builder to apply client-side. EXCLUDED — no task needs it: GHL's own model drafting for a builder UI; this plugin's caller is itself a model, and routing through GHL's adds a bill (workflow_ai) and removes control."
+    },
+    "POST /workflow/{locationId}/v2/ai/build-workflow": {
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "write",
+      "note": "Proven live 2026-09-19 (billed): body {prompt, customValues, actionConfigs, sessionId} -> 200 {intent:'build', status:'awaiting_clarification', clarification:{…}} — it ASKS before it builds. 🔴 It writes NOTHING to the workflow — the probe's version was identical before and after; the draft comes back for the builder to apply client-side. EXCLUDED — no task needs it: GHL's own model drafting for a builder UI; this plugin's caller is itself a model, and routing through GHL's adds a bill (workflow_ai) and removes control."
+    },
+    "POST /workflow/{locationId}/v2/ai/learn-ai": {
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "write",
+      "note": "Proven live 2026-09-19 (billed): body {messages, node_name, type:'actions'|'triggers'} -> 200 {messages} explaining a step type in prose. Query locationId + workflowId. + companyId. EXCLUDED — no task needs it: GHL's own model drafting for a builder UI; this plugin's caller is itself a model, and routing through GHL's adds a bill (workflow_ai) and removes control."
+    },
+    "POST /workflow/{locationId}/v2/ai/transcribe": {
+      "reach": "reached",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "write",
+      "note": "Reached 2026-09-19: a JSON body answers 400 'No file uploaded' — it wants a MULTIPART audio upload (the builder's voice input), which raw_request cannot send. EXCLUDED — no task needs it: GHL's own model drafting for a builder UI; this plugin's caller is itself a model, and routing through GHL's adds a bill (workflow_ai) and removes control."
+    },
     "POST /workflow/{locationId}/v3/ai/message": {
       "reach": "proven",
       "note": "Executed on the designated sandbox 2026-09-10, workflows write-parity sweep. Body {sessionId, messages}; workflowId in the QUERY. Responds as an SSE STREAM (data: {\"type\":\"data-workflow-event\"...}) carrying a langfuse traceId, not a JSON object."
@@ -1242,6 +1659,21 @@
     "POST /workflow/{locationId}/v3/ai/wait": {
       "reach": "proven",
       "note": "Executed on the designated sandbox 2026-09-10, workflows write-parity sweep. 🔴 Takes `prompt` (a string), NOT `messages` — the sibling v3/ai/message takes messages, so the two disagree. Body {sessionId, prompt, mode:\"create\"}, workflowId in the query. Returns {status:\"proceed\", mode, waitAttributes:{...}} — a ready-made wait step."
+    },
+    "POST /workflow/{locationId}/validate-assets": {
+      "note": "An INACTIVE calendar (`isActive:false`) is reported as ASSET_CALENDAR_NOT_FOUND with the message \"does not exist or does not belong to this location\" — the calendar exists and a direct GET returns 200. Measured 2026-09-20."
+    },
+    "POST /workflow/{locationId}/{workflowId}/commit-auto-save": {
+      "reach": "reached",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "write",
+      "note": "Reached 2026-09-19: with no pending autosave session it answers 200 {msg:'Already committed auto saved workflow with session id: undefined'} and the version does not move. Its real effect needs a builder autosave session, which no tool here opens. Body per states/workflow.ts: {userId, workflowId, locationId, version, autoSaveSessionId}."
+    },
+    "POST /workflow/{locationId}/{workflowId}/copy-workflow": {
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "write",
+      "note": "Proven live 2026-09-19 with the test sub-account as its OWN target: body {userId, subLocationId, subLocationName} -> 200 {error:false, msg:'Queued to copy Workflow'}; a second workflow of the same name then appeared in the list. 🔴 Built to copy INTO ANOTHER sub-account (the builder's Copy to Sub-Account) — it writes into whichever location subLocationId names. Not exercised cross-account."
     },
     "POST /workflow/{locationId}/{workflowId}/remove-stuck-statuses/{stepId}": {
       "kind": "write",
@@ -1257,6 +1689,18 @@
       "reach": "proven",
       "credentialClass": "agency-admin-bearer",
       "note": "Proven live 2026-09-19, by accident and then measured. 🔴 AN EMPTY BODY IS ACCEPTED AND CREATES A PHANTOM ENROLMENT: {} -> 200 'ADD To WF:<id> recordId: undefined', and the execution log then holds added_to_workflow + the first step for an execution with NO contactId. It was stopped with stop-execution on its workflowStatusId. The real body (testWorkflowForObjectRecords) is the builder's Test Workflow payload plus actionFrom{userId, channel:'web_app', source:'workflow_test_page'}. Never probe this route with an empty body."
+    },
+    "POST /workflow/{locationId}/{workflowId}/upload": {
+      "reach": "reached",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "write",
+      "note": "Reached 2026-09-19: the builder sends MULTIPART form data (states/app.ts uploadFile), which raw_request cannot send; a JSON body does not exercise it."
+    },
+    "POST /workflow/{locationId}/{workflowStatusId}/force-resume": {
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "write",
+      "note": "Proven live 2026-09-19 with a control. body {actionFrom:{userId, channel:'web_app', source:'workflow_status_page'}} -> 200 'Successfully queued contact to resume workflow execution'. A probe contact parked at a 7-DAY wait was tagged by the next step within 20s (log: wait_finished, add_contact_tag success) while an untouched contact at the same wait stayed parked. The id is the EXECUTION's workflowStatusId, read off any of its log rows — not a workflow or contact id. 🔴 It fires whatever steps come next, for real."
     },
     "POST /workflow/{locationId}/{workflowStatusId}/stop-execution": {
       "kind": "write",
@@ -1299,6 +1743,12 @@
       "note": "Answers \"which workflows contain step type X\" in ONE request. The alternative is exporting every workflow and searching templates, which is hundreds of requests on a real account. Live-proven 2026-08-26: the body is JUST {locationId} — it 422s on triggerTypes/limit/skip (\"property X should not exist\"), so do not send the obvious paging keys, and it returns 201 for what is a read. The action docs it returns carry the STORED attributes, which is how a marketplace step's real key spelling is discovered.",
       "reach": "proven"
     },
+    "POST /workflows/logs/export": {
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "write",
+      "note": "Proven live 2026-09-19: EMAILS a CSV of execution logs. Body {locationId, workflowId, format:'csv', recipients:[{email, userId?}] (max 10, OBJECTS not strings), filters:{dateType:'custom', fromDate, toDate}} with the dates as INTEGER epoch-ms -> 201 {exportId, status:'queued'}. READ BACK on the preview: cooldownUntil went null -> a timestamp 15 minutes out, so GHL registered the export. The CSV ARRIVED — the operator confirmed it in the inbox. 🔴 One export per workflow per ~15 minutes. Use GET …/logs/export/preview (exactCount, isOverCap, maxRows 100000) to size it without sending anything."
+    },
     "POST /workflows/trigger/logs/count": {
       "summary": "Trigger effectiveness across the account: attempted, matched and unmatched enrollments.",
       "note": "A POST that RETURNS 201 for what is plainly a read. Its window is the last 30 days, unlike the 7-week enrollment chart beside it on the same screen. Executed on the designated sandbox 2026-09-10 in the workflows write-parity run. Answers 201 with [{total,matched}] as counted strings. Body {locationId, workflowId[]} — locationId is REQUIRED in the body, not the query. 🔴 Measured 2026-09-20: it answers ONE SUMMED ROW for the whole workflowId[] list, not a row per workflow (237 + 38 -> 275; a ghost id adds 0; a ghost alone -> \"0\"/\"0\", never an error). Per-workflow numbers cost one call each — get_account_workflow_overview includeTriggerCounts does that. 🔴 Measured 2026-09-20 on the sandbox: an EMPTY workflowId[] answers ACCOUNT-WIDE totals, not zero ([] -> [{\"total\":\"8398\",\"matched\":\"1938\"}]) — a caller who sends an empty list gets the whole account's numbers and would naturally attribute them to the workflows they thought they asked about. Never send one.",
@@ -1310,6 +1760,10 @@
       "summary": "Update a Metrics dashboard layout.",
       "note": "Never called during mapping; read-only sweep."
     },
+    "PUT /calendars/schedules/{id}": {
+      "summary": "THE way to set a calendar's days and hours. Availability lives here, not in the calendar's openHours.",
+      "note": "Body: {rules:[{day:\"monday\",type:\"wday\",intervals:[{from:\"09:00\",to:\"18:00\"}]}, …], name, timezone, isDefault, calendarIds:[…]}. 🔴 `calendarIds` IS THE BINDING — a PUT that rewrites `rules` on a schedule whose calendarIds does not contain the target calendar is accepted, stored, and changes no slots. Adding the calendar id makes the same PUT take effect immediately. No userId/locationId in the body. Proven live 2026-09-03 and again 2026-09-17."
+    },
     "PUT /calendars/{calendarId}": {
       "reach": "proven",
       "note": "Executed on the sandbox 2026-09-10 by round trip — description changed, read back on a separate request, restored. 🔴 THE READ SHAPE IS NOT THE WRITE SHAPE. Sending back what GET returns answers 422 twice over. First it names ten server-added properties that \"should not exist\" and must be stripped: id, deleted, dateAdded, dateUpdated, isSystemGenerated, locationId, createdBy, lastUpdatedBy, version, notificationStatus. Then it rejects `openHours` — the sub-object the GET itself returned — with \"openHours.must be a valid day of week / daysOfTheWeek must be an array / hours must be an array\". Dropping openHours entirely lands a 200 and leaves the stored hours alone. So a naive read-modify-write is refused, and the refusal arrives one layer at a time."
@@ -1317,6 +1771,9 @@
     "PUT /email-isv/feature/domain/set-default-headers/{domain}": {
       "kind": "write",
       "note": "🔴 THE EMAIL SENDER DISPLAY NAME, and it is WRITABLE — it had been reported to a client as UI-only. Body {fromEmail, fromName}; send BOTH, the handler takes them together so omitting fromEmail may clear it. Scope key is companyId for entityType COMPANY, else locationId. ⚠️ NOT PROVEN HERE — no reach. The only execution is a PEER SESSION's, on a CLIENT account this project may never write to, verified there by re-reading two independent services — fromEmail, warmup, defaultDomain and all eight types[] percentages survived untouched. 🔴 HIGH BLAST RADIUS, NEEDS EXPLICIT HUMAN APPROVAL: types[] read all eight rails at 100% (calendar, invoices, oneToOne, bulk-request, campaign, workflow, client-portal, client-portal-otp), so this one field is the sender identity on INVOICES and on replies staff type by hand in Conversations. It cannot be scoped to one rail. It could not be reproduced on GROM Sandbox: that account has zero sending domains, so there is nothing to address. Proving it needs a domain on a test sub-account AND the user's explicit word, because of the blast radius below. ⚠️ SCOPE OF THE EVIDENCE: the one account behind this row read domainOwnershipType 'location_owned', type 'leadconnector'. The agency-owned and shared-domain shapes have never been seen, and a shared domain's headers are plausibly not a single location's to set — do not generalise this row to them. SCOPE: this addresses a domain from /email-isv/feature/domain/list, which carries only LOCATION-OWNED domains. On an account whose sending domain is agency-owned the list is empty and there is no reachable target at all — check list is non-empty before offering this as the way to change a sender name."
+    },
+    "PUT /lists/dynamic/{locationId}/{smartListId}": {
+      "note": "FENCED by the operator-approved plan of 2026-09-19, not probed: smart lists belong to another surface's tool."
     },
     "PUT /membership/.../categories": {
       "note": "🔴 THIS ROW IS UNCALLABLE: its path contains a literal \"...\" left by the source miner, and unlike the other truncated rows it has NO full-path twin in the catalogue — the real path was lost in mining and needs re-capture before this endpoint can be reached at all. Measured 2026-09-10."
@@ -1357,9 +1814,42 @@
       "kind": "write",
       "note": "Whole-document write (a partial PUT was never tried -- treat it as full until proven). This is also the only way to REACTIVATE a link (active:true); the PATCH cannot. A custom CTA is sent as customPaymentButtonText BESIDE the preset in paymentButtonText and the server folds it into paymentButtonText, so reads carry only the latter -- to restore a preset label send customPaymentButtonText:\"\". Branding off is branding:\"\" (empty string, not null, not omitted)."
     },
+    "PUT /products/{productId}/price/{priceId}": {
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "write",
+      "note": "Proven live 2026-09-19 with a read-back: {name,type,currency,amount,locationId,trackInventory:true,availableQuantity:10} -> 200, the price read then showed trackInventory:true and the quantity, and the Update Inventory workflow step began listing it. 🔴 locationId is REQUIRED IN THE BODY — without it: 422 'locationId/altId must be a string and it should exists'."
+    },
+    "PUT /saas-billing-v2/billing-config/..": {
+      "note": "FENCED by the operator-approved plan of 2026-09-19, not probed: billing."
+    },
     "PUT /saas-billing-v2/billing-config/{locationId}": {
       "kind": "destructive",
       "note": "FENCED by the operator-approved plan of 2026-09-19, not probed: billing. Changes the sub-account BILLING PLAN. Money."
+    },
+    "PUT /settings/is-active": {
+      "reach": "absent",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "write",
+      "note": "ABSENT — a TRUNCATED transcription, measured 2026-09-19: the real route is PUT /workflow/{locationId}/error-notification/settings/is-active (ErrorNotificationService.ts), which is proven. The missing-prefix gate did not catch this one because the dropped part is three segments, not one service prefix."
+    },
+    "PUT /settings/users": {
+      "reach": "absent",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "write",
+      "note": "ABSENT — a TRUNCATED transcription, measured 2026-09-19: the real route is PUT /workflow/{locationId}/error-notification/settings/users (ErrorNotificationService.ts), which is proven. The missing-prefix gate did not catch this one because the dropped part is three segments, not one service prefix."
+    },
+    "PUT /workflow/agent/{locationId}/mcp-connections/{id}": {
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "write",
+      "note": "Proven live 2026-09-19: a PARTIAL body {name} -> 200 with the full record; the list read showed the new name and the other fields unchanged. CONTROL: a ghost id -> 404 'MCP connection not found'. (An undefined id answers 500 'Failed to update MCP connection'.) Pins API_BASE_HEADERS (version 2021-04-15, source WEB_USER, channel APP)."
+    },
+    "PUT /workflow/agent/{locationId}/skills/{id}": {
+      "reach": "absent",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "write",
+      "note": "ABSENT, measured 2026-09-19: with the bundle's own body ({name, description, instructions}) and pinned headers, the skills router answers {success:false,message:'Not found'} to writes exactly as it does to its reads. Not mounted for this account (INFERRED: a labs flag)."
     },
     "PUT /workflow/oauth2/update-token": {
       "kind": "destructive",
@@ -1368,6 +1858,9 @@
     "PUT /workflow/{companyId}/workflow-company-setting/bulk-location-settings": {
       "kind": "destructive",
       "note": "FENCED by the operator-approved plan of 2026-09-19, not probed: ONE call changes many sub-accounts at once. COMPANY-scope bulk write across sub-accounts, not one location."
+    },
+    "PUT /workflow/{companyId}/workflow-company-setting/settings": {
+      "note": "FENCED by the operator-approved plan of 2026-09-19, not probed: ONE call changes every sub-account in the agency."
     },
     "PUT /workflow/{locationId}/auto-save/settings": {
       "reach": "proven",
@@ -1433,491 +1926,11 @@
       "note": "The only rename path that does NOT re-run the step validator. Use it instead of the full-document PUT, which re-validates every stored step and on a workflow whose own saved graph the validator now rejects fails outright with INVALID_FIELD_VALUE -- so a rename by full PUT can be refused on a workflow that is running perfectly well. ⚠️ Do NOT rely on it leaving `version` alone: one account observed 4 -> 4 (2026-08-31) and another observed 1 -> 2 on a flow workflow (2026-09-02). The two disagree and the cause is not established, so re-read the digest before any expectedVersion write that follows a rename. Executed on the designated sandbox 2026-09-10 in the workflows write-parity run. 🔴 404s on a FOLDER id, and the body is the bare string \"Not Found\" — which reads like a wrong route rather than a wrong object. GET /workflow/{locationId}/list returns BOTH (type \"directory\" x5 and \"workflow\" x95 on the sandbox); filter on type before renaming. Proven on a real workflow: {name} written, read back changed, restored.",
       "reach": "proven"
     },
-    "PUT /workflow/{locationId}/workflow-ai/settings": {
-      "note": "DELIBERATELY NOT WRITTEN 2026-09-19: on the test sub-account the GET answers {} — no settings document exists — so a PUT would CREATE one that cannot be restored to 'absent'. body {modifyWorkflows:boolean} per the bundle. Prove it only on an account where the document already exists, with read -> change -> read -> restore.",
-      "reach": "source-only",
-      "credentialClass": "agency-admin-bearer",
-      "kind": "write"
-    },
-    "PUT /workflow/{locationId}/{workflowId}": {
-      "note": "The full-document commit re-runs the step validator over EVERY stored step, so it can be refused by a published, running workflow's own saved graph (INVALID_FIELD_VALUE, 'Action validation failed: <type> (...): Next is invalid'). The workflow keeps running and cannot be saved by anyone, API or builder. Never use this path for a rename -- rename-workflow skips the validator. Re-read before every write: a successful PUT bumps version and a later PUT built from a stale read 422s."
-    },
-    "GET /calendars/schedules/search": {
-      "summary": "LIST availability schedules for a location — this is the real list route for calendar opening hours.",
-      "note": "🔴 NOTE THE `/search`. A bare GET /calendars/schedules routes to /calendars/{calendarId} and answers 400 \"Calendar not found for id: schedules\" — two sessions have lost time to that collision. Takes ?locationId=. A schedule governs a calendar only while that calendar's id is in its `calendarIds`; editing an UNBOUND schedule is accepted, stored and inert."
-    },
-    "PUT /calendars/schedules/{id}": {
-      "summary": "THE way to set a calendar's days and hours. Availability lives here, not in the calendar's openHours.",
-      "note": "Body: {rules:[{day:\"monday\",type:\"wday\",intervals:[{from:\"09:00\",to:\"18:00\"}]}, …], name, timezone, isDefault, calendarIds:[…]}. 🔴 `calendarIds` IS THE BINDING — a PUT that rewrites `rules` on a schedule whose calendarIds does not contain the target calendar is accepted, stored, and changes no slots. Adding the calendar id makes the same PUT take effect immediately. No userId/locationId in the body. Proven live 2026-09-03 and again 2026-09-17."
-    },
-    "GET /calendars/schedules": {
-      "summary": "🔴 NOT the list route — 400s. Use GET /calendars/schedules/search?locationId= instead.",
-      "note": "This path collides with /calendars/{calendarId} and answers 400 \"Calendar not found for id: schedules\". GET by a real schedule id works (/calendars/schedules/{scheduleId}); only the bare collection path is broken."
-    },
-    "GET /workflow/{companyId}/workflow-company-setting/location-settings": {
-      "summary": "AGENCY view of per-sub-account workflow settings: {locations, pagination}.",
-      "note": "The first path segment is the COMPANY id, not a location id. Answers 200 with or without ?locationId. Executed on the designated sandbox 2026-09-19.",
-      "reach": "proven",
-      "credentialClass": "agency-admin-bearer"
-    },
-    "GET /saas-billing-v2/billing-config/COMPANY/{companyId}/{product}": {
-      "summary": "The AGENCY-level billing config for one product (workflow_premium_actions | workflow_ai).",
-      "note": "Agency scope. For whether ONE sub-account may run premium steps use the LOCATION route and read config.optIn -- config.enabled is not the gate. Executed 2026-09-19.",
-      "reach": "proven",
-      "credentialClass": "agency-admin-bearer"
-    },
-    "GET /workflow/{base}/events-management/events/options": {
-      "summary": "Event + ticket options for the Events trigger filters: {events, eventTickets}.",
-      "note": "TRAP: this row's path is MIS-MINED. {base} is the services HOST the builder computes (config.servicesURL with .backend. swapped for .services.), not a path segment. The real call is GET https://services.leadconnectorhq.com/events-management/events/options?locationId= -- executed 200 on the sandbox 2026-09-19; the Bearer alone is enough.",
-      "reach": "proven",
-      "credentialClass": "agency-admin-bearer"
-    },
-    "GET /workflow/{locationId}/secret-manager": {
-      "summary": "The workflow secret store for a location, by type.",
-      "note": "Requires ?type= (400 \"Missing required fields: type\" without it). A NONSENSE type still answers 200 {success,message,data}, so a 200 here proves reach and nothing about the type vocabulary. This route returns SECRETS: it was probed with a nonsense type only and no value was read. Executed 2026-09-19.",
-      "requiredQuery": [
-        "type"
-      ],
-      "reach": "proven",
-      "credentialClass": "agency-admin-bearer"
-    },
-    "GET /workflows-marketplace/actions/stats/{actionKey}": {
-      "summary": "Execution stats for one marketplace/premium action step over a window.",
-      "note": "Bare 403 \"locationId is required\" without it, then 422 naming the rest: workflowStepId, workflowId, startAt, endAt are ALL required. A nonsense actionKey gets the same 422, so the key is validated after the query. Reached, not yet answered 200.",
-      "requiredQuery": [
-        "locationId",
-        "workflowId",
-        "workflowStepId",
-        "startAt",
-        "endAt"
-      ]
-    },
-    "GET /workflows/logs/export/preview": {
-      "note": "Required: locationId, workflowId, fromDate, toDate (422 names the dates, then 400 \"workflowId is required\"). Reached, not yet answered 200.",
-      "requiredQuery": [
-        "locationId",
-        "workflowId",
-        "fromDate",
-        "toDate"
-      ]
-    },
-    "GET /workflows/sticky-note": {
-      "note": "?_id= is the STICKY NOTE's Mongo ObjectId, not a workflow id: a workflow uuid answers 500 \"Cast to ObjectId failed ... model stickynotes\". Read note ids off export_workflow first.",
-      "requiredQuery": [
-        "_id"
-      ]
-    },
-    "GET /reporting/notification/automation/workflows/unpublished": {
-      "note": "Required: companyId (400 \"Company ID missing\") and then userId (422). Reached, not yet answered 200.",
-      "requiredQuery": [
-        "companyId",
-        "userId"
-      ]
-    },
-    "GET /workflow/{locationId}/{workflowId}/download": {
-      "note": "Proven live 2026-09-19. 🔴 It is a SERVER-SIDE FETCHER, not an exporter: query `url` is REQUIRED (none -> 400 'URL is required'), GHL fetches that URL and returns the BYTES (a public JPEG came back as image data). CONTROL: a ghost workflowId answers 404 'Workflow not found for given workflowId'. The builder uses it to download step attachments (states/app.ts downloadFile, responseType blob). It fetches arbitrary external URLs — only ever point it at a URL you already trust.",
-      "reach": "proven",
-      "credentialClass": "agency-admin-bearer",
-      "summary": "Fetch a file by URL through GHL, scoped to a workflow the caller owns: returns the file's bytes. Query: url (required)."
-    },
-    "GET /objects/{workflowType}/enabled": {
-      "note": "ABSENT, measured 2026-09-19: the framework's own 'Cannot GET' on both hosts, for a real type and a nonsense one. Source is a corpus inventory page, not a bundle call site.",
-      "reach": "absent",
-      "credentialClass": "agency-admin-bearer"
-    },
-    "GET /workflow/{locationId}/drip-schedule/{workflowId}/step/{stepId}/stats": {
-      "summary": "Drip queue status for one step: {hasQueuedContacts, contactsInDrip, nextBatch, completionETA, configVersions}.",
-      "note": "TRAP: an EMPTY answer proves nothing about the step. A real drip step, a WAIT step and a step id that does not exist all answer the IDENTICAL empty body; the route never 404s and never says \"not a drip\". It DISCRIMINATES ONLY WHILE CONTACTS ARE QUEUED: proven live 2026-09-19 by enrolling three probe-created contacts into a batch-of-one drip -- contactsInDrip, nextBatch.scheduledAt and completionETA then populate. get_contacts_at_step reads it and reports a `drip` block only when the queue is non-empty.",
-      "reach": "proven",
-      "credentialClass": "agency-admin-bearer"
-    },
-    "GET /workflow/{locationId}/drip-schedule/{workflowId}/step/{stepId}/contacts": {
-      "summary": "Contacts queued in one drip step, paged: {schedules, page, limit, total, totalPages}.",
-      "note": "TRAP: an EMPTY answer proves nothing about the step -- a real drip step, a WAIT step and a nonexistent step id answer the IDENTICAL empty body. It lists `schedules` ONLY while contacts are queued: proven live 2026-09-19 with three probe-created contacts in a batch-of-one drip. get_contacts_at_step reads it for the `drip.queued` rows.",
-      "reach": "proven",
-      "credentialClass": "agency-admin-bearer"
-    },
-    "GET /workflows-marketplace/actions/options/{key}": {
-      "summary": "Every dropdown of one Add-step panel action in one call: {<fieldName>: [{label, value, description}]}. Query: locationId, optionType=default (workflowId optional).",
-      "note": "This is the form to use. Unknown action key -> 400 'Action is not present', so an answer IS about the key. Serves fields declared with `fetchOptions {serviceName, route}`; the underlying service routes (e.g. products inventory/workflow-select-options) refuse a location Bearer ('not yet supported by the IAM Service') -- this proxy is the only door. Fields declared with `dynamicSource` are NOT here: POST .../actions/dynamic-source/{key}. Proven live 2026-09-19: update_inventory.product lists ONLY prices with inventory tracking ON, and the value is the PRICE id, not the product id (turning tracking on for one test price moved it from absent to listed).",
-      "reach": "proven",
-      "credentialClass": "agency-admin-bearer",
-      "kind": "read"
-    },
-    "GET /workflows-marketplace/actions/options/{key}/{fieldName}": {
-      "summary": "One field's dropdown options for an Add-step panel action: {options: [...]}.",
-      "note": "TRAP: answered {options: []} for update_inventory/product while the ALL-fields form (same minute, same account) listed the option -- and answered the identical empty body for a field name that does not exist. An empty answer from this form discriminates nothing; use GET .../actions/options/{key}. Measured 2026-09-19.",
-      "reach": "proven",
-      "credentialClass": "agency-admin-bearer",
-      "kind": "read"
-    },
-    "POST /agent-studio/super-agent/agents/{agentId}/publish": {
-      "summary": "Publish a Managed (super) agent's draft: returns the agent with status 'published', a new versionId and a triggerId on every trigger. Body {locationId}.",
-      "note": "Proven live 2026-09-19 on a test agent. A Managed Agent appears in the workflow step 'Invoke Managed Agents' ONLY once it (a) carries a trigger of type `workflows` and (b) is PUBLISHED -- with the trigger saved but the agent still a draft, the dropdown stayed empty. An unknown sub-route 404s, so the 201 is about this route.",
-      "reach": "proven",
-      "credentialClass": "agency-admin-bearer",
-      "kind": "write"
-    },
-    "GET /agent-studio/workflows/dropdown": {
-      "summary": "The agents a workflow step may invoke: {options:[{value: agentId, label, versionId, agentType}]}. Query: agentType=managed|flow, locationId.",
-      "note": "Any other agentType answers 400 'agentType must be one of: flow, managed', so an empty list is about the account. Lists only PUBLISHED agents carrying a `workflows` trigger. Managed-agent trigger vocabulary (from GHL's own 400): chat ALONE, or any mix of form, tag, schedule, appointment_booked, appointment_status, contact_created, opportunity_created, opportunity_status_changed, facebook_lead_gen, survey_submission; `workflows` combines with either. Measured 2026-09-19.",
-      "reach": "proven",
-      "credentialClass": "agency-admin-bearer",
-      "kind": "read"
-    },
-    "POST /certificates/locations/{locationId}/templates": {
-      "summary": "Create a certificate or badge template. Minimal body {title, type:'badge'|'certificate'}; empty body -> 400 'title should not be empty'.",
-      "note": "Proven live 2026-09-19: {title, type:'badge'} -> 201, listed by GET .../templates with type 'badge', and offered by the workflow step Issue Badge (the sibling Issue Certificate dropdown stayed empty -- the type is honoured). The CREATE response carries type 'TEMPLATE_CREATED' (an event name); the stored type is on the list read.",
-      "reach": "proven",
-      "credentialClass": "agency-admin-bearer",
-      "kind": "write"
-    },
-    "GET /certificates/locations/{locationId}/registry": {
-      "summary": "Issued certificates and badges: {issuedCertificates:[{template, contactId, altId, downloadUrl}], totalCount}. Query skip, limit, search.",
-      "note": "The read that proves the Issue Badge workflow step RAN: altId is `issue_badge_workflow_{loc}_{templateId}_{contactId}_{ts}`. Proven live 2026-09-19.",
-      "reach": "proven",
-      "credentialClass": "agency-admin-bearer",
-      "kind": "read"
-    },
-    "GET /workflow/agent/{locationId}/trace/{threadId}": {
-      "summary": "The ai_agent step's reasoning trace for one run: {success, data:{trace:[{node:'llm'|'tool', input, output, summary}]}}. Optional query workflowId, workflowLogId, workflowLogCreatedAt (a legacy-checkpoint fallback).",
-      "note": "Proven live 2026-09-19 with a control. 🔴 The threadId is NOT a workflow or contact id: it is on the ai_agent step's own EXECUTION LOG at meta.actionFrom.response.threadId (completed) or meta.data.meta.threadId (waiting), shaped '<ULID>:<uuid>:<epoch-ms>'. Only step type `ai_agent` produces one — invoke_managed_agents logs an executionId instead and has no trace. CONTROL: a ghost threadId answers 404 'Trace not found for the given thread ID', so a 200 is about the thread. The three query params are OPTIONAL: the same trace came back without them. The log row also carries a langfuseTraceUrl and tokenUsage.",
-      "reach": "proven",
-      "credentialClass": "agency-admin-bearer",
-      "kind": "read"
-    },
-    "GET /workflow/agent/{locationId}/feedback/{threadId}": {
-      "summary": "Whether a human rated that agent run: {success, data:{submitted, rating?, hasDetails?}}.",
-      "note": "🔴 TRAP: a 200 {submitted:false} is ALSO what a NONEXISTENT thread returns — real and ghost were byte-identical before any feedback existed, so this route discriminates NOTHING on its own. Proven 2026-09-19 only by forcing a differential: POST the feedback, after which the real thread answers {submitted:true, rating:'positive', hasDetails:false} while the ghost still answers {submitted:false}.",
-      "reach": "proven",
-      "credentialClass": "agency-admin-bearer",
-      "kind": "read"
-    },
-    "POST /workflow/agent/{locationId}/feedback": {
-      "summary": "Rate an ai_agent run. Body {locationId, threadId, workflowId, workflowLogId, workflowLogCreatedAt, rating:'positive'|'negative', whatWentWrong?, whatShouldHaveDone?, contactId?, workflowStepId?} -> 200 {success:true}.",
-      "note": "Proven live 2026-09-19 on a probe thread, READ BACK on the GET: {submitted:false} -> {submitted:true, rating:'positive'}. The 200 body is only {success:true}, so the read-back is the proof. Writes a human judgement against an agent run — harmless, but it is a WRITE and there is no proven way to withdraw one.",
-      "reach": "proven",
-      "credentialClass": "agency-admin-bearer",
-      "kind": "write"
-    },
-    "GET /contacts/{contactId}": {
-      "reach": "proven",
-      "credentialClass": "agency-admin-bearer",
-      "note": "Proven live 2026-09-19: every runtime proof in the workflows suite reads a probe contact's tags back through it, and the tags a step adds appear on it — a discriminating read, not a bare 200."
-    },
-    "GET /saas-billing-v2/billing-config/LOCATION/{locationId}/{product}": {
-      "reach": "proven",
-      "credentialClass": "agency-admin-bearer",
-      "note": "Proven live 2026-09-18; the premium preflight calls it. CONTROL: a nonsense product answers 404 'Product not found'. 🔴 The gate is config.optIn, not config.enabled, and the optIn query param changes the answer by its PRESENCE (see agency-premium-features in the corpus)."
-    },
-    "GET /membership/locations/{locationId}/user-purchase/no-of-users-purchasedOffer/{offerId}": {
-      "reach": "proven",
-      "credentialClass": "agency-admin-bearer",
-      "note": "Proven live 2026-09-19 by differential: {userCount} went 0 -> 1 -> 0 as the workflow steps Grant and Revoke course access ran. The live suite reads it for both."
-    },
-    "GET /emails/trigger/campaign/{locationId}/{sourceId}": {
-      "reach": "proven",
-      "credentialClass": "agency-admin-bearer",
-      "note": "Proven live 2026-09-19 that the credential reaches it — and nothing more. 🔴 TRAP: {triggers:[], total:0} came back for a real workflow AND for a ghost, so an empty answer discriminates nothing. sourceId is `{workflowId}:{actionId}` for a step (EmailService.ts:141)."
-    },
-    "GET /emails/trigger/campaign/{locationId}/{workflowId}:{actionId}": {
-      "reach": "proven",
-      "credentialClass": "agency-admin-bearer",
-      "note": "Same route as /emails/trigger/campaign/{locationId}/{sourceId} with the sourceId spelled out. Proven live 2026-09-19 with the same trap: identical empty answer for a real step and a ghost."
-    },
-    "GET /phone-system/location/{locationId}/recordings/{recordingSid}": {
-      "reach": "reached",
-      "credentialClass": "agency-admin-bearer",
-      "note": "Reached 2026-09-19: a ghost recording sid answers 400 'Request failed with status code 404' — the route exists and relayed the telephony provider's 404 for that sid. Not provable here: the test sub-account has no call recordings. Returns a blob (IVRService.getRecording)."
-    },
-    "GET /workflow/{locationId}/{workflowId}/logs": {
-      "reach": "absent",
-      "credentialClass": "agency-admin-bearer",
-      "note": "ABSENT, measured 2026-09-19: called exactly as WorkflowService.ts:232 does (readClusterURL + page, limit, action=first), it answers {msg:'Not found'} for a REAL workflow and a ghost alike. The read cluster no longer serves it. Execution logs are served by the route get_workflow_logs uses, which works."
-    },
-    "GET /workflow/agent/{locationId}/skills": {
-      "reach": "absent",
-      "credentialClass": "agency-admin-bearer",
-      "note": "ABSENT, measured 2026-09-19: the skills list answers the workflow service's own {success:false,message:'Not found'} — as do list, resolve and get alike, WITH the API_BASE_HEADERS agent-skill-service.ts pins. The sibling ai_agent routes on the same service (trace, feedback, models) answer, so the service is up and this sub-router is not mounted for this account. INFERRED, not proven: a labs flag."
-    },
-    "GET /workflow/agent/{locationId}/skills/resolve": {
-      "reach": "absent",
-      "credentialClass": "agency-admin-bearer",
-      "note": "ABSENT, measured 2026-09-19: the skills resolve (ids=) answers the workflow service's own {success:false,message:'Not found'} — as do list, resolve and get alike, WITH the API_BASE_HEADERS agent-skill-service.ts pins. The sibling ai_agent routes on the same service (trace, feedback, models) answer, so the service is up and this sub-router is not mounted for this account. INFERRED, not proven: a labs flag."
-    },
-    "GET /workflow/agent/{locationId}/skills/{id}": {
-      "reach": "absent",
-      "credentialClass": "agency-admin-bearer",
-      "note": "ABSENT, measured 2026-09-19: the skills get (builtin:<key> or a document id) answers the workflow service's own {success:false,message:'Not found'} — as do list, resolve and get alike, WITH the API_BASE_HEADERS agent-skill-service.ts pins. The sibling ai_agent routes on the same service (trace, feedback, models) answer, so the service is up and this sub-router is not mounted for this account. INFERRED, not proven: a labs flag."
-    },
-    "GET /workflow/{locationId}/phone-numbers": {
-      "reach": "absent",
-      "credentialClass": "agency-admin-bearer",
-      "note": "ABSENT, measured 2026-09-19: called exactly as FilterService.ts:179 does (axios default base + /{locationId}/phone-numbers), it answers a plain 'Not Found'. The builder swallows the error and shows an empty list, so the UI would not reveal this either."
-    },
-    "GET /workflow/{locationId}/trigger/{id}": {
-      "reach": "absent",
-      "credentialClass": "agency-admin-bearer",
-      "note": "ABSENT, measured 2026-09-19: a REAL trigger id and a ghost both answer {msg:'Not found'}. A trigger is readable only through the list: GET /workflow/{locationId}/trigger?workflowId=."
-    },
-    "GET /workflows/{locationId}": {
-      "reach": "absent",
-      "credentialClass": "agency-admin-bearer",
-      "note": "ABSENT, measured 2026-09-19: the framework's own 'Cannot GET' on both hosts. Its only source is a corpus STEP page (add_to_workflow.md), not a bundle call site — likely a transcription of a different route."
-    },
-    "GET /email_reporting/stats_by_campaign_step_id/{locationId}/workflow_{workflowId}": {
-      "reach": "absent",
-      "credentialClass": "agency-admin-bearer",
-      "note": "ABSENT, measured 2026-09-19: Express's own HTML 'Cannot GET' on the email_reporting base that config/index.ts names, for a real workflow. The service answers; this path is not mounted on it."
-    },
-    "POST /contacts/{contactId}/workflow/{workflowId}": {
-      "reach": "proven",
-      "credentialClass": "agency-admin-bearer",
-      "kind": "write",
-      "note": "Proven live 2026-09-19, many times, each READ BACK: body {eventStartTime:''} -> 201 {succeded:true} (GHL's spelling), and the enrolled contact then carries the tags the workflow's steps add. The workflows live suite enrols probe-created contacts with it on every run. 🔴 It ENROLS A REAL CONTACT INTO A LIVE WORKFLOW — every following step fires. Fence: a contact the probe created, no email, no phone, a trigger-less workflow."
-    },
-    "PUT /products/{productId}/price/{priceId}": {
-      "reach": "proven",
-      "credentialClass": "agency-admin-bearer",
-      "kind": "write",
-      "note": "Proven live 2026-09-19 with a read-back: {name,type,currency,amount,locationId,trackInventory:true,availableQuantity:10} -> 200, the price read then showed trackInventory:true and the quantity, and the Update Inventory workflow step began listing it. 🔴 locationId is REQUIRED IN THE BODY — without it: 422 'locationId/altId must be a string and it should exists'."
-    },
-    "POST /workflow/{locationId}/scheduled-pause/config": {
-      "reach": "proven",
-      "credentialClass": "agency-admin-bearer",
-      "kind": "write",
-      "note": "Proven live 2026-09-19 on a probe DRAFT: body {pauseStartTime:<epoch-ms>, pauseEndTime:<epoch-ms>, isAnnual:false, workflowIds:[…]} -> 201 {success:true}, and GET on the same path then lists the record with isActive:true. RULES the server states: 'Workflow IDs are required'; the window must be AT LEAST 24 HOURS ('Difference between pause start and end times should be at least 24 hours'). 🔴 It PAUSES the named workflows for the window — aim it only at a workflow you mean to stop."
-    },
-    "POST /workflow/{locationId}/{workflowId}/commit-auto-save": {
-      "reach": "reached",
-      "credentialClass": "agency-admin-bearer",
-      "kind": "write",
-      "note": "Reached 2026-09-19: with no pending autosave session it answers 200 {msg:'Already committed auto saved workflow with session id: undefined'} and the version does not move. Its real effect needs a builder autosave session, which no tool here opens. Body per states/workflow.ts: {userId, workflowId, locationId, version, autoSaveSessionId}."
-    },
-    "POST /workflows/logs/export": {
-      "reach": "proven",
-      "credentialClass": "agency-admin-bearer",
-      "kind": "write",
-      "note": "Proven live 2026-09-19: EMAILS a CSV of execution logs. Body {locationId, workflowId, format:'csv', recipients:[{email, userId?}] (max 10, OBJECTS not strings), filters:{dateType:'custom', fromDate, toDate}} with the dates as INTEGER epoch-ms -> 201 {exportId, status:'queued'}. READ BACK on the preview: cooldownUntil went null -> a timestamp 15 minutes out, so GHL registered the export. The CSV ARRIVED — the operator confirmed it in the inbox. 🔴 One export per workflow per ~15 minutes. Use GET …/logs/export/preview (exactCount, isOverCap, maxRows 100000) to size it without sending anything."
-    },
-    "POST /workflow/{locationId}/{workflowStatusId}/force-resume": {
-      "reach": "proven",
-      "credentialClass": "agency-admin-bearer",
-      "kind": "write",
-      "note": "Proven live 2026-09-19 with a control. body {actionFrom:{userId, channel:'web_app', source:'workflow_status_page'}} -> 200 'Successfully queued contact to resume workflow execution'. A probe contact parked at a 7-DAY wait was tagged by the next step within 20s (log: wait_finished, add_contact_tag success) while an untouched contact at the same wait stayed parked. The id is the EXECUTION's workflowStatusId, read off any of its log rows — not a workflow or contact id. 🔴 It fires whatever steps come next, for real."
-    },
-    "PUT /settings/is-active": {
-      "reach": "absent",
-      "credentialClass": "agency-admin-bearer",
-      "kind": "write",
-      "note": "ABSENT — a TRUNCATED transcription, measured 2026-09-19: the real route is PUT /workflow/{locationId}/error-notification/settings/is-active (ErrorNotificationService.ts), which is proven. The missing-prefix gate did not catch this one because the dropped part is three segments, not one service prefix."
-    },
-    "PUT /settings/users": {
-      "reach": "absent",
-      "credentialClass": "agency-admin-bearer",
-      "kind": "write",
-      "note": "ABSENT — a TRUNCATED transcription, measured 2026-09-19: the real route is PUT /workflow/{locationId}/error-notification/settings/users (ErrorNotificationService.ts), which is proven. The missing-prefix gate did not catch this one because the dropped part is three segments, not one service prefix."
-    },
-    "PUT /workflow/{locationId}/workflow-location-setting/settings": {
-      "reach": "source-only",
-      "credentialClass": "agency-admin-bearer",
-      "kind": "write",
-      "note": "DELIBERATELY NOT WRITTEN 2026-09-19: on the test sub-account the GET answers {} — no settings document exists — so a PUT would CREATE one that cannot be restored to 'absent'. body {feature:{…}} per the bundle. Prove it only on an account where the document already exists, with read -> change -> read -> restore."
-    },
-    "POST /workflow/{locationId}/validate-assets": {
-      "note": "An INACTIVE calendar (`isActive:false`) is reported as ASSET_CALENDAR_NOT_FOUND with the message \"does not exist or does not belong to this location\" — the calendar exists and a direct GET returns 200. Measured 2026-09-20."
-    },
-    "POST /workflow/{locationId}/email/validate-from-email": {
-      "reach": "proven",
-      "credentialClass": "agency-admin-bearer",
-      "kind": "read",
-      "note": "Proven live 2026-09-19 by a two-leg differential over RETURN CODES: body {fromEmail, domain}. A free-webmail sender -> {isFromEmailAllowed:false, code:'free_webmail_blocked'}; a domain with no DNS -> {false, code:'dmarc_record_not_found'} — a DIFFERENT reason, so the route discriminates by DOMAIN. A real company domain answering success is the design's third leg but is NOT exercised here (kept out to keep a real domain out of a public repo). 🔴 NO SEND OBSERVED 2026-09-19 — that is the weak claim it is: a differential over return codes cannot see whether mail left the building, so this is not evidence the route \"sends nothing\". No inbox or conversation read-back has been done against this route; establishing send-nothing by read-back is OWED. Codes per the bundle also include dmarc_issue_possible, from_email_domain_and_dedicated_domain_mismatch, invalid_dmarc_format. Worth running before a workflow's From address is set."
-    },
-    "POST /phone-system/voice-call/voicemail-drop/file-validation": {
-      "reach": "reached",
-      "credentialClass": "agency-admin-bearer",
-      "kind": "write",
-      "note": "Reached 2026-09-19: a JSON body answers 400 naming userId and workflowId. The real call is MULTIPART (file, locationId, userId, workflowId), which raw_request cannot send. It validates an audio file for a voicemail-drop step and places no call."
-    },
-    "POST /workflow/{locationId}/ai/assistant": {
-      "reach": "absent",
-      "credentialClass": "agency-admin-bearer",
-      "kind": "write",
-      "note": "ABSENT, measured 2026-09-19: the v1 assistant answers {msg:'Not found'} with the body the bundle still sends (sessionId, messages, options). Superseded by POST …/v2/ai/assistant, which answers. EXCLUDED — no task needs it: GHL's own model drafting for a builder UI; this plugin's caller is itself a model, and routing through GHL's adds a bill (workflow_ai) and removes control."
-    },
-    "POST /workflow/{locationId}/v2/ai/assistant": {
-      "reach": "proven",
-      "credentialClass": "agency-admin-bearer",
-      "kind": "write",
-      "note": "Proven live 2026-09-19 (billed): chat-only call answered 200 {messages:[…, assistant reply], suggestions, traceId}. Query locationId + workflowId. Body per assistant-v2.ts: messages, workflow{actions,triggers}, customValues, actionConfigs, sessionId, chatOnly, workflowName, and more. 🔴 It writes NOTHING to the workflow — the probe's version was identical before and after; the draft comes back for the builder to apply client-side. EXCLUDED — no task needs it: GHL's own model drafting for a builder UI; this plugin's caller is itself a model, and routing through GHL's adds a bill (workflow_ai) and removes control."
-    },
-    "POST /workflow/{locationId}/v2/ai/learn-ai": {
-      "reach": "proven",
-      "credentialClass": "agency-admin-bearer",
-      "kind": "write",
-      "note": "Proven live 2026-09-19 (billed): body {messages, node_name, type:'actions'|'triggers'} -> 200 {messages} explaining a step type in prose. Query locationId + workflowId. + companyId. EXCLUDED — no task needs it: GHL's own model drafting for a builder UI; this plugin's caller is itself a model, and routing through GHL's adds a bill (workflow_ai) and removes control."
-    },
-    "POST /workflow/{locationId}/v2/ai/build-workflow": {
-      "reach": "proven",
-      "credentialClass": "agency-admin-bearer",
-      "kind": "write",
-      "note": "Proven live 2026-09-19 (billed): body {prompt, customValues, actionConfigs, sessionId} -> 200 {intent:'build', status:'awaiting_clarification', clarification:{…}} — it ASKS before it builds. 🔴 It writes NOTHING to the workflow — the probe's version was identical before and after; the draft comes back for the builder to apply client-side. EXCLUDED — no task needs it: GHL's own model drafting for a builder UI; this plugin's caller is itself a model, and routing through GHL's adds a bill (workflow_ai) and removes control."
-    },
-    "POST /workflow/{locationId}/v2/ai/build-sub-tree": {
-      "reach": "proven",
-      "credentialClass": "agency-admin-bearer",
-      "kind": "write",
-      "note": "Proven live 2026-09-19 (billed, ~10s): body {prompt, parentKey, nextStep, state:{workflow:{actions,triggers}, customValues, availableActions, availableTriggers, actionConfigs}} -> 200 {workflow:{message, …}} with a plain-English summary of the steps it would add. 🔴 It writes NOTHING to the workflow — the probe's version was identical before and after; the draft comes back for the builder to apply client-side. EXCLUDED — no task needs it: GHL's own model drafting for a builder UI; this plugin's caller is itself a model, and routing through GHL's adds a bill (workflow_ai) and removes control."
-    },
-    "POST /workflow/{locationId}/ai/feedback": {
-      "reach": "proven",
-      "credentialClass": "agency-admin-bearer",
-      "kind": "write",
-      "note": "Reachable 2026-09-19: body {feedback, reaction, traceId, userMessage, aiResponse} -> 200 {success:true}. 🔴 A GHOST traceId gets the identical 200 — the response proves nothing about the rating being stored, and there is no read to check it. EXCLUDED — no task needs it: GHL's own model drafting for a builder UI; this plugin's caller is itself a model, and routing through GHL's adds a bill (workflow_ai) and removes control."
-    },
-    "POST /workflow/{locationId}/v2/ai/transcribe": {
-      "reach": "reached",
-      "credentialClass": "agency-admin-bearer",
-      "kind": "write",
-      "note": "Reached 2026-09-19: a JSON body answers 400 'No file uploaded' — it wants a MULTIPART audio upload (the builder's voice input), which raw_request cannot send. EXCLUDED — no task needs it: GHL's own model drafting for a builder UI; this plugin's caller is itself a model, and routing through GHL's adds a bill (workflow_ai) and removes control."
-    },
-    "POST /workflow/generate-image-ai/{locationId}/prompt/enhance": {
-      "reach": "proven",
-      "credentialClass": "agency-admin-bearer",
-      "kind": "write",
-      "note": "Proven live 2026-09-19 (billed): body {prompt} -> 200 {success, data:{enhancedPrompt}} — expands an image-generation prompt. EXCLUDED — no task needs it: GHL's own model drafting for a builder UI; this plugin's caller is itself a model, and routing through GHL's adds a bill (workflow_ai) and removes control."
-    },
-    "POST /agent/{locationId}/prompt/enhance": {
-      "reach": "proven",
-      "credentialClass": "agency-admin-bearer",
-      "kind": "write",
-      "note": "🔴 THIS ROW'S PATH IS MIS-BASED: the builder calls `${config.baseURL}/agent/{loc}/prompt/enhance` and baseURL is backend…/workflow, so the WIRE PATH is POST /workflow/agent/{locationId}/prompt/enhance — which is where it was proven. This is a MINED row, so the harvester's missing-prefix gate cannot see it; the miner dropped the prefix on an explicit `config.baseURL` template. Proven live 2026-09-19 (billed): body {prompt, …context?} -> 200 {success, data:{enhancedPrompt}} — rewrites a short agent prompt into a structured one. EXCLUDED — no task needs it: GHL's own model drafting for a builder UI; this plugin's caller is itself a model, and routing through GHL's adds a bill (workflow_ai) and removes control."
-    },
-    "POST /workflow/agent/{locationId}/mcp-connections": {
-      "reach": "proven",
-      "credentialClass": "agency-admin-bearer",
-      "kind": "write",
-      "note": "Proven live 2026-09-19, read back on the list: body {name, serverUrl, transportType:'streamable-http'|'sse', authType:'none'|'bearer_token'|'oauth2'|'api_key'|'custom_header', …} -> 201 {success, data:{_id, …}}, and GET on the same path then lists it. 🔴 CREATE RUNS A LIVE CONNECTION TEST FIRST: a URL that is not an MCP server is refused 422 'Connection test failed: …' and NOTHING is stored. Proven with a public read-only docs server, never attached to an agent. Pins API_BASE_HEADERS (version 2021-04-15, source WEB_USER, channel APP)."
-    },
-    "PUT /workflow/agent/{locationId}/mcp-connections/{id}": {
-      "reach": "proven",
-      "credentialClass": "agency-admin-bearer",
-      "kind": "write",
-      "note": "Proven live 2026-09-19: a PARTIAL body {name} -> 200 with the full record; the list read showed the new name and the other fields unchanged. CONTROL: a ghost id -> 404 'MCP connection not found'. (An undefined id answers 500 'Failed to update MCP connection'.) Pins API_BASE_HEADERS (version 2021-04-15, source WEB_USER, channel APP)."
-    },
-    "POST /workflow/agent/{locationId}/mcp-connections/test": {
-      "reach": "proven",
-      "credentialClass": "agency-admin-bearer",
-      "kind": "write",
-      "note": "Proven live 2026-09-19 by differential; stores nothing. Body {serverUrl, transportType, authType, …}: a non-MCP URL -> 422 {success:false, error:'Failed to connect to streamable HTTP server …'} carrying the remote's own response; two public read-only MCP servers -> 200 {success:true, data:{tools:[{name, description}], toolCount}}. 🔴 GHL's server fetches whatever URL you give it. Pins API_BASE_HEADERS (version 2021-04-15, source WEB_USER, channel APP)."
-    },
-    "POST /workflow/agent/{locationId}/skills": {
-      "reach": "absent",
-      "credentialClass": "agency-admin-bearer",
-      "kind": "write",
-      "note": "ABSENT, measured 2026-09-19: with the bundle's own body ({name, description, instructions}) and pinned headers, the skills router answers {success:false,message:'Not found'} to writes exactly as it does to its reads. Not mounted for this account (INFERRED: a labs flag)."
-    },
-    "PUT /workflow/agent/{locationId}/skills/{id}": {
-      "reach": "absent",
-      "credentialClass": "agency-admin-bearer",
-      "kind": "write",
-      "note": "ABSENT, measured 2026-09-19: with the bundle's own body ({name, description, instructions}) and pinned headers, the skills router answers {success:false,message:'Not found'} to writes exactly as it does to its reads. Not mounted for this account (INFERRED: a labs flag)."
-    },
-    "DELETE /workflow/{locationId}/{workflowId}": {
-      "reach": "proven",
-      "credentialClass": "agency-admin-bearer",
-      "kind": "destructive",
-      "note": "Proven live 2026-09-19. Each proven on a throwaway the probe created in the same run, with an untouched sibling as the control. ?userId=<uid> -> 200 {success:true}; the workflow then 404s on GET and leaves the list while the sibling stays. 🔴 It is a SOFT delete: the workflow moves to GET …/list?status=deleted and PUT …/restore brings it back."
-    },
-    "DELETE /workflow/{locationId}/delete": {
-      "reach": "proven",
-      "credentialClass": "agency-admin-bearer",
-      "kind": "destructive",
-      "note": "Proven live 2026-09-19. Each proven on a throwaway the probe created in the same run, with an untouched sibling as the control. Body {type:'workflow'|'directory', workflowIds:[…], updatedBy:<uid>} -> 200 {success, message:'1 workflows deleted successfully', processedCount, failedCount, processingType:'synchronous', deletedIds}. Soft, like the single delete."
-    },
     "PUT /workflow/{locationId}/restore": {
       "reach": "proven",
       "credentialClass": "agency-admin-bearer",
       "kind": "write",
       "note": "Proven live 2026-09-19: ?userId=<uid>, body {workflowIds:[…]} -> 200 {success:true}; a soft-deleted probe workflow answered GET again and left the deleted list. THE way to undo a workflow delete."
-    },
-    "PUT /workflow/{locationId}/{id}/recover": {
-      "reach": "absent",
-      "credentialClass": "agency-admin-bearer",
-      "kind": "write",
-      "note": "ABSENT, measured 2026-09-19: BaseService.restore() defines this route, but NOTHING in the builder calls it — it is inherited dead code. The server answers {msg:'Not found'} for a REAL deleted item. To undo a workflow delete use PUT …/restore."
-    },
-    "PUT /workflow/{locationId}/trigger/{id}/recover": {
-      "reach": "absent",
-      "credentialClass": "agency-admin-bearer",
-      "kind": "write",
-      "note": "ABSENT, measured 2026-09-19: BaseService.restore() defines this route, but NOTHING in the builder calls it — it is inherited dead code. The server answers {msg:'Not found'} for a REAL deleted item. To undo a workflow delete use PUT …/restore. A deleted trigger could not be recovered by any route found."
-    },
-    "DELETE /workflow/{locationId}/remove-directory/{folderId}": {
-      "reach": "proven",
-      "credentialClass": "agency-admin-bearer",
-      "kind": "destructive",
-      "note": "Proven live 2026-09-19. Each proven on a throwaway the probe created in the same run, with an untouched sibling as the control. -> 200 {msg:'deleted successfully', error:false}; the folder left GET …/list?type=directory while the sibling folder stayed."
-    },
-    "DELETE /workflows/sticky-note": {
-      "reach": "proven",
-      "credentialClass": "agency-admin-bearer",
-      "kind": "destructive",
-      "note": "Proven live 2026-09-19: ?_id=<noteId>&locationId=, with the pinned API_BASE_HEADERS -> 200 with the note carrying isDeleted:true; sticky-notes-all then returns 0. CONTROL: a ghost _id -> 404 'Sticky note not found to delete'."
-    },
-    "DELETE /workflow/{locationId}/scheduled-pause/config/{recordId}": {
-      "reach": "proven",
-      "credentialClass": "agency-admin-bearer",
-      "kind": "destructive",
-      "note": "Proven live 2026-09-19 on the probe's own pause window: -> 200 {success:true}; the config list went from 1 record to 0."
-    },
-    "DELETE /workflow/{locationId}/split": {
-      "reach": "proven",
-      "credentialClass": "agency-admin-bearer",
-      "kind": "destructive",
-      "note": "Proven live 2026-09-19. 🔴 It WIPES A SPLIT STEP'S EXECUTION HISTORY, not the step: ?workflowId=&stepId= -> 200 {success:true}; GET …/split/stats went {totalContactsEntered:2, pathB:2} -> all zeros on a probe split two probe contacts had run through. Irreversible as far as any route shows."
-    },
-    "DELETE /workflow/agent/{locationId}/mcp-connections/{id}": {
-      "reach": "proven",
-      "credentialClass": "agency-admin-bearer",
-      "kind": "destructive",
-      "note": "Proven live 2026-09-19 on the probe's own connection: -> 200 {success:true, message:'MCP connection deleted'}; the list went 1 -> 0. CONTROL: a ghost id -> 404 'MCP connection not found'."
-    },
-    "DELETE /workflow/{locationId}/error-notification/{workflowId}": {
-      "reach": "reached",
-      "credentialClass": "agency-admin-bearer",
-      "kind": "destructive",
-      "note": "Reached 2026-09-19, NOT proven: it answers 200 {deleted:true} for a workflow WITH NO error doc AND for a GHOST workflowId — the response is identical whether anything was deleted or not. The only docs on the test account belong to a real workflow, so they were not touched. Prove it only on a probe workflow that has errored."
-    },
-    "DELETE /emails/trigger/{locationId}/{triggerId}": {
-      "reach": "source-only",
-      "credentialClass": "agency-admin-bearer",
-      "kind": "destructive",
-      "note": "FENCED by the operator-approved plan of 2026-09-19, not probed: a real row can only be made through the fenced campaign-trigger POST; a ghost id answers a generic 404 that cannot tell a missing route from a missing row. NOT PROVEN, deliberately 2026-09-19: a ghost id answers a generic 404 'Not Found' (with the internal-channel and location-id headers EmailService pins), which cannot tell a missing route from a missing row. Making a real row needs POST /emails/trigger/campaign/…, a live email-campaign trigger the plan fences."
-    },
-    "DELETE /workflow/agent/{locationId}/skills/{id}": {
-      "reach": "absent",
-      "credentialClass": "agency-admin-bearer",
-      "kind": "destructive",
-      "note": "ABSENT, measured 2026-09-19: the skills router answers {success:false,message:'Not found'} to delete exactly as to its reads and writes."
-    },
-    "DELETE /blacklist/{kind}/{id}": {
-      "reach": "refused",
-      "credentialClass": "agency-admin-bearer",
-      "kind": "destructive",
-      "note": "🔴 THIS ROW IS MIS-BASED: the call is FlowGuardService `${baseURL}/flowguard/blacklist/{kind}/{id}`, i.e. DELETE /workflow/flowguard/blacklist/{kind}/{id}. Measured 2026-09-19 there: without location_id -> 400 naming it; with it -> 401 'Unauthorized'. FlowGuard is refused to this credential, like the rest of its family."
-    },
-    "POST /blacklist/{kind}/{id}": {
-      "reach": "refused",
-      "credentialClass": "agency-admin-bearer",
-      "kind": "write",
-      "note": "🔴 MIS-BASED like its DELETE twin: the real path is under /workflow/flowguard. FlowGuard answers 401 to this credential (2026-09-19), so the add was not attempted."
-    },
-    "POST /workflow/{locationId}/{workflowId}/copy-workflow": {
-      "reach": "proven",
-      "credentialClass": "agency-admin-bearer",
-      "kind": "write",
-      "note": "Proven live 2026-09-19 with the test sub-account as its OWN target: body {userId, subLocationId, subLocationName} -> 200 {error:false, msg:'Queued to copy Workflow'}; a second workflow of the same name then appeared in the list. 🔴 Built to copy INTO ANOTHER sub-account (the builder's Copy to Sub-Account) — it writes into whichever location subLocationId names. Not exercised cross-account."
     },
     "PUT /workflow/{locationId}/trigger/only-triggers/{id}": {
       "reach": "absent",
@@ -1931,38 +1944,32 @@
       "kind": "write",
       "note": "ABSENT, measured 2026-09-19: the full trigger document with a new name, sent to a REAL inactive trigger, answered {msg:'Not found'} exactly as a ghost id did, and the name did not change. Triggers are edited through the paths edit_workflow uses."
     },
-    "POST /generate-image-ai/{locationId}/prompt/enhance": {
+    "PUT /workflow/{locationId}/trigger/{id}/recover": {
       "reach": "absent",
       "credentialClass": "agency-admin-bearer",
       "kind": "write",
-      "note": "ABSENT at this path 2026-09-19 (empty 404): a MIS-BASED spelling. The live route is POST /workflow/generate-image-ai/{locationId}/prompt/enhance, proven the same day."
+      "note": "ABSENT, measured 2026-09-19: BaseService.restore() defines this route, but NOTHING in the builder calls it — it is inherited dead code. The server answers {msg:'Not found'} for a REAL deleted item. To undo a workflow delete use PUT …/restore. A deleted trigger could not be recovered by any route found."
     },
-    "POST /workflow/{locationId}/{workflowId}/upload": {
-      "reach": "reached",
+    "PUT /workflow/{locationId}/workflow-ai/settings": {
+      "note": "DELIBERATELY NOT WRITTEN 2026-09-19: on the test sub-account the GET answers {} — no settings document exists — so a PUT would CREATE one that cannot be restored to 'absent'. body {modifyWorkflows:boolean} per the bundle. Prove it only on an account where the document already exists, with read -> change -> read -> restore.",
+      "reach": "source-only",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "write"
+    },
+    "PUT /workflow/{locationId}/workflow-location-setting/settings": {
+      "reach": "source-only",
       "credentialClass": "agency-admin-bearer",
       "kind": "write",
-      "note": "Reached 2026-09-19: the builder sends MULTIPART form data (states/app.ts uploadFile), which raw_request cannot send; a JSON body does not exercise it."
+      "note": "DELIBERATELY NOT WRITTEN 2026-09-19: on the test sub-account the GET answers {} — no settings document exists — so a PUT would CREATE one that cannot be restored to 'absent'. body {feature:{…}} per the bundle. Prove it only on an account where the document already exists, with read -> change -> read -> restore."
     },
-    "POST /emails/trigger/campaign/{locationId}/{sourceId}": {
-      "note": "FENCED by the operator-approved plan of 2026-09-19, not probed: it creates a LIVE email-campaign trigger."
+    "PUT /workflow/{locationId}/{id}/recover": {
+      "reach": "absent",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "write",
+      "note": "ABSENT, measured 2026-09-19: BaseService.restore() defines this route, but NOTHING in the builder calls it — it is inherited dead code. The server answers {msg:'Not found'} for a REAL deleted item. To undo a workflow delete use PUT …/restore."
     },
-    "POST /workflow/{locationId}/email/domain-selection/manage": {
-      "note": "FENCED by the operator-approved plan of 2026-09-19, not probed: it changes the location's sending-domain routing."
-    },
-    "POST /lists/dynamic/{smartListId}": {
-      "note": "FENCED by the operator-approved plan of 2026-09-19, not probed: smart lists belong to another surface's tool (check_smart_lists / create_smart_list)."
-    },
-    "PUT /lists/dynamic/{locationId}/{smartListId}": {
-      "note": "FENCED by the operator-approved plan of 2026-09-19, not probed: smart lists belong to another surface's tool."
-    },
-    "POST /iatf-preview/proxy/{resource}": {
-      "note": "FENCED by the operator-approved plan of 2026-09-19, not probed: a proxy to arbitrary marketplace resources."
-    },
-    "PUT /saas-billing-v2/billing-config/..": {
-      "note": "FENCED by the operator-approved plan of 2026-09-19, not probed: billing."
-    },
-    "PUT /workflow/{companyId}/workflow-company-setting/settings": {
-      "note": "FENCED by the operator-approved plan of 2026-09-19, not probed: ONE call changes every sub-account in the agency."
+    "PUT /workflow/{locationId}/{workflowId}": {
+      "note": "The full-document commit re-runs the step validator over EVERY stored step, so it can be refused by a published, running workflow's own saved graph (INVALID_FIELD_VALUE, 'Action validation failed: <type> (...): Next is invalid'). The workflow keeps running and cannot be saved by anyone, API or builder. Never use this path for a rename -- rename-workflow skips the validator. Re-read before every write: a successful PUT bumps version and a later PUT built from a stale read 422s."
     }
   }
 }

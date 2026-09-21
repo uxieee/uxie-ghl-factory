@@ -13950,6 +13950,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
+      "note": "MINED + PROVEN LIVE — see corpus workflows/20-api/refused-but-mined.md. The custom-object FIELD SCHEMA. Executed on a test sub-account 2026-09-21 as ?locationId=&fetchProperties=true → 200 {object:{id, key, type, labels{singular,plural}, icon, description, primaryDisplayProperty, requiredProperties[], searchableProperties[], uniqueProperties[], addRecordConfiguration[]}, fields:[{id, fieldKey, name, standard, dataType, position, parentId, objectKey, options[], …}], cache:true}. 🔴 objectKey is a SLUG, NEVER the id: bare for standard objects (contact, business), namespaced custom_objects.<slug> for user-defined ones — passing the id is a well-formed call that asks for the wrong thing. 🔴 REAL, LOAD-BEARING LIMIT (not a mock value): for objectKey=contact this endpoint CAPS custom fields at 250 and GHL's own client patches around it by re-fetching from CustomFieldService and merging — the raw response is known-incomplete by the vendor above 250 fields. 🔴 THIS BARE SPELLING IS THE ONE WE REACH AND THE ONE THE CLIENT NEVER SENDS; its trailing-slash twin is what the UI issues and it REFUSES us. Do not 'correct' either row into the other. `cache:true` means a read here may be served from a cache rather than the store.",
       "reach": "proven",
       "provenFor": [
         "agency-admin-bearer"
@@ -14008,6 +14009,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
+      "note": "MINED, refused to us — see corpus workflows/20-api/refused-but-mined.md. This is the spelling GHL's own client issues (CustomObjectsService pins its base URL to '…/objects/', so every real call carries the trailing slash) and it is the one our credential class does NOT reach. Its BARE twin, GET /objects/{objectKey}, is proven live from here and carries the same custom-object field schema — use that. Neither row is a phantom: this is a gateway/routing distinction between two real spellings, not one route recorded twice.",
       "reach": "refused",
       "coveredBy": [],
       "rawCallable": true,
@@ -28434,6 +28436,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
+      "note": "MINED, not callable — see corpus workflows/20-api/refused-but-mined.md. Read out of IVRService.ts:23-34: body is exactly {phones: string[], locationId}; the response is an array of {phones, workflowId, workflowName} (names recovered from DESTRUCTURING, not a captured type — IIVRPhoneMapping is a type-only import and was erased from the bundle). Purpose: an IVR trigger number is EXCLUSIVE ACROSS WORKFLOWS, and the builder calls this to strip already-claimed numbers out of its picker and to deep-link the author to the owning workflow. 🔴 That exclusivity is enforced in the UI, not at write time — a workflow we author through the API with an IVR trigger on a taken number is not something this route would stop. TRAP: FilterState.fetchPhoneMappings catches everything and returns [], so an empty mapping list is equally consistent with 'nothing is mapped' and 'the call failed'.",
       "reach": "refused",
       "coveredBy": [],
       "rawCallable": true,
