@@ -292,10 +292,20 @@
         "receipt:2026-09-20-1725"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-21",
+      "result": "pass",
+      "how": "suite",
+      "suite": "workflows",
+      "evidence": [
+        "receipt:2026-09-21-0200"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
-    "hashedAt": "2026-09-20",
+    "hashedAt": "2026-09-21",
     "endpoints": {
       "GET https://backend.leadconnectorhq.com /workflow/{}/drip-schedule/{}/step/{}/contacts": "49397599973a7bcf4c36c24d583abbef45a8a007587d66247b962d3c7237f2af",
       "GET https://backend.leadconnectorhq.com /workflow/{}/drip-schedule/{}/step/{}/stats": "fe8b1a10d9b304f07577c47f1fe75f4e7cdd2876dd11045165bfdd8259da9e72",

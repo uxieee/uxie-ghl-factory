@@ -295,10 +295,20 @@
         "receipt:2026-09-20-1725"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-21",
+      "result": "pass",
+      "how": "suite",
+      "suite": "workflows",
+      "evidence": [
+        "receipt:2026-09-21-0200"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
-    "hashedAt": "2026-09-20",
+    "hashedAt": "2026-09-21",
     "endpoints": {
       "GET https://backend.leadconnectorhq.com /workflow/{}/error-notification/count": "88889c2715f3c946b8bbd72166801157373b16ae28b642eaf14919f8abba12aa",
       "GET https://backend.leadconnectorhq.com /workflow/{}/error-notification/list": "3e32fb241e8468e64121e2dc9f70458085de9c6d04461f335f3b5108ebe44fcc",

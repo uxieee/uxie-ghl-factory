@@ -345,10 +345,20 @@
         "receipt:2026-09-20-1725"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-21",
+      "result": "pass",
+      "how": "suite",
+      "suite": "workflows",
+      "evidence": [
+        "receipt:2026-09-21-0200"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
-    "hashedAt": "2026-09-20",
+    "hashedAt": "2026-09-21",
     "endpoints": {
       "DELETE https://backend.leadconnectorhq.com /workflow/{}/trigger/{}": "e1a6f1ba728d208ef3d5efc7d48a88a3798725a5e5d4fffcd2a77febe9e2cfdd",
       "GET https://backend.leadconnectorhq.com /forms": "bdf9d72ff243a60858f56bbd82c63574d253c7db6f12df844d8b0b26014a0d4d",
@@ -389,10 +399,11 @@
       "reportingApp": 272
     },
     "code": {
-      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#edit_workflow": "e06b74691b74ac81d877416fa3eee87e9bfcb8af4e28cebb53af1f6aec4b7186",
+      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#edit_workflow": "0ecdcd9df4d12bfce1d0392ef6c6331a1aaa6c5b9e76d24cb6d511e9ceda9ac1",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "e65c2384aefb498ce49453dd2d6d8d1a1d8351fd6d337aef5256eb982e1db02f",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
       "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "2d59b12818ffe76fb105e5284c3d186aea8d07f6a457b7c6344ea2258ba6a1d6",
+      "plugins/uxie-ghl-factory/mcp-internal/core/raw-request-guards.mjs": "9788952bd03c608cbc3fd03b48e3ccd377b98da339ca56ee9f0b586fc26931a8",
       "plugins/uxie-ghl-factory/mcp-internal/core/read-cache.mjs": "6208feb3a050fa3aa35cce7755cf405a9047c7beebe67b1b69177d88fd4faed3",
       "plugins/uxie-ghl-factory/mcp-internal/core/site-audit.mjs": "8985e6793428a18bc2ee4696c73ef7724bcbec4681d3c8c702507536da0e18cc",
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/catalog/observed-trigger-filters.json": "550c5a7b8e91f1e625a8b7ab98f65ceddd069bb094ee08c4bdf0ae7fbe86759d",
