@@ -128,6 +128,16 @@ export const CODES = Object.freeze({
   // Without this the throw escaped callCapability uncoded, so a caller branching on
   // `.code` saw a generic Error and could not tell it apart from a bug in its own handler.
   IDENTITY_INSPECTION_FAILED: 'IDENTITY_INSPECTION_FAILED',
+
+  // `POST /workflows/es/search` has NO STABLE ORDERING under `offset` (measured 2026-09-21,
+  // live account): walking a 326-row `wait` search at limit:100 across offset 0/100/200/300
+  // returned 326 rows but only 300 UNIQUE by (workflowId, stepId) — pages reshuffled under
+  // paging and 26 real documents were never returned at all. The SAME query in one call
+  // (limit:400, offset:0) returned 326/326 unique — complete. find_workflows_using dedupes
+  // its rows and reconciles the unique count against GHL's own `count`; this code marks an
+  // ok:true result whose unique count came up short (or whose `count` could not be read),
+  // so a short answer can never be mistaken for a complete one.
+  ES_SEARCH_RECONCILIATION_SHORT: 'ES_SEARCH_RECONCILIATION_SHORT',
 });
 
 const TOKENISH = /\bey[A-Za-z0-9._-]{20,}/g;

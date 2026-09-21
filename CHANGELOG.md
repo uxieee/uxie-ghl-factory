@@ -11,6 +11,18 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## Unreleased
+
+`find_workflows_using` reconciles instead of trusting `offset`: `POST /workflows/es/search` has no
+stable ordering under paging (measured live 2026-09-21 — a 326-row `wait` sweep walked at
+offset 0/100/200/300 returned 326 rows but only 300 unique, silently dropping 26 real documents,
+while the same query in one call at limit:400 returned 326/326). The tool now dedupes rows by
+identity ((workflowId, stepId) in `returns:"steps"`, workflow id in `returns:"workflows"`),
+reports `duplicatesDropped`, and reconciles the unique count against GHL's own `count`: a short
+result is `complete:false` with a coded `ES_SEARCH_RECONCILIATION_SHORT` warning and the rows move
+to `partialWorkflows`/`partialSteps` — `workflows`/`steps` stays `null` rather than shipping a
+partial list dressed as a whole one, mirroring `list_workflows`'s existing discipline.
+
 ## [0.96.0] — 2026-09-21
 
 Twelve internal-MCP tools that read over POST — searches, validators (`check_workflow`,

@@ -90174,7 +90174,16 @@ var CODES = Object.freeze({
   // A response object that THROWS while being inspected (a getter, a hostile proxy).
   // Without this the throw escaped callCapability uncoded, so a caller branching on
   // `.code` saw a generic Error and could not tell it apart from a bug in its own handler.
-  IDENTITY_INSPECTION_FAILED: "IDENTITY_INSPECTION_FAILED"
+  IDENTITY_INSPECTION_FAILED: "IDENTITY_INSPECTION_FAILED",
+  // `POST /workflows/es/search` has NO STABLE ORDERING under `offset` (measured 2026-09-21,
+  // live account): walking a 326-row `wait` search at limit:100 across offset 0/100/200/300
+  // returned 326 rows but only 300 UNIQUE by (workflowId, stepId) — pages reshuffled under
+  // paging and 26 real documents were never returned at all. The SAME query in one call
+  // (limit:400, offset:0) returned 326/326 unique — complete. find_workflows_using dedupes
+  // its rows and reconciles the unique count against GHL's own `count`; this code marks an
+  // ok:true result whose unique count came up short (or whose `count` could not be read),
+  // so a short answer can never be mistaken for a complete one.
+  ES_SEARCH_RECONCILIATION_SHORT: "ES_SEARCH_RECONCILIATION_SHORT"
 });
 var TOKENISH = /\bey[A-Za-z0-9._-]{20,}/g;
 var TOKENISH_SCAN = /\bey[A-Za-z0-9._-]{20,}/;
@@ -176748,7 +176757,7 @@ var TOOLS2 = [
   // silently return nothing. Attribute questions still need an export. See console bl-148.
   {
     name: "find_workflows_using",
-    description: `${describe3("find_workflows_using", "Find which workflows contain a step or trigger type \u2014 risk: read")}. Answer "which workflows use X" for a whole sub-account in ONE request, instead of exporting every workflow and searching. Pass one or more step/trigger TYPE names (as \`describe_step_type\` spells them, e.g. \`wait\`, \`internal_create_opportunity\`, \`appointment\`). returns:"workflows" (default) lists the workflows containing any of them; returns:"steps" lists the matching step documents themselves, each with its workflowId and its stored attributes. \u{1F534} The two modes count DIFFERENT THINGS and the response says which: \`wait\` matches 438 step documents across 61 workflows. Never report one as the other. \u{1F534} It CANNOT filter on attribute VALUES \u2014 "which workflows reference pipeline X" is not answerable here (GHL exposes no working operator for the attributes sub-document); that still needs an export.`,
+    description: `${describe3("find_workflows_using", "Find which workflows contain a step or trigger type \u2014 risk: read")}. Pass one or more step/trigger TYPE names (as \`describe_step_type\` spells them, e.g. \`wait\`, \`internal_create_opportunity\`, \`appointment\`). returns:"workflows" (default) lists the workflows containing any of them; returns:"steps" lists the matching step documents themselves, each with its workflowId and its stored attributes. \u{1F534} The two modes count DIFFERENT THINGS and the response says which: \`wait\` matches 438 step documents across 61 workflows. Never report one as the other. \u{1F534} OFFSET PAGING IS UNSTABLE (measured live 2026-09-21): \`POST /workflows/es/search\` has no stable ordering under \`offset\`, so a paged walk reshuffles and drops rows \u2014 one account's 326-row \`wait\` search, walked at limit:100 across offset 0/100/200/300, returned 326 rows but only 300 UNIQUE, silently losing 26 real documents. The SAME query in ONE call at limit:400 offset:0 returned 326/326 unique \u2014 complete. The complete read is one call with \`limit\` set above the expected \`count\`, not a paged walk. This tool dedupes its rows and reconciles the unique count against GHL's own \`count\`; a short result comes back \`complete:false\` with a coded warning naming this same remedy, never as a partial list dressed as a whole one. \u{1F534} It CANNOT filter on attribute VALUES \u2014 "which workflows reference pipeline X" is not answerable here (GHL exposes no working operator for the attributes sub-document); that still needs an export.`,
     inputSchema: schema({
       locationId: external_exports.string(),
       types: external_exports.array(external_exports.string()).min(1),
@@ -176793,33 +176802,89 @@ var TOOLS2 = [
         );
       }
       const total = r.json?.count ?? null;
+      const dedupe = (mappedRows, identity) => {
+        const seen = /* @__PURE__ */ new Set();
+        const unique2 = [];
+        let duplicatesDropped2 = 0;
+        for (const row of mappedRows) {
+          const key = identity(row);
+          if (key === null) {
+            unique2.push(row);
+            continue;
+          }
+          if (seen.has(key)) {
+            duplicatesDropped2 += 1;
+            continue;
+          }
+          seen.add(key);
+          unique2.push(row);
+        }
+        return { unique: unique2, duplicatesDropped: duplicatesDropped2 };
+      };
+      const reconcile = (uniqueCount, reportedTotal) => {
+        if (typeof reportedTotal !== "number") {
+          return {
+            complete: false,
+            detail: `es/search did not report a numeric count (got ${JSON.stringify(reportedTotal)}) \u2014 the ${uniqueCount} unique row(s) here cannot be confirmed complete. A single call with \`limit\` set above the expected total is the complete read; offset paging is unstable and this response gives no total to page against.`
+          };
+        }
+        if (uniqueCount < reportedTotal) {
+          return {
+            complete: false,
+            detail: `${uniqueCount} unique row(s) but GHL reported count:${reportedTotal} \u2014 ${reportedTotal - uniqueCount} document(s) were never returned. Retry as ONE call with \`limit\` set above \`count\` (offset:0) \u2014 a single call above the total returned a complete, duplicate-free set in measurement; walking \`offset\` did not.`
+          };
+        }
+        return { complete: true };
+      };
       if (returns === "workflows") {
+        const mapped2 = rows.map((w) => ({
+          id: w.id ?? w.workflowId ?? null,
+          name: w.name ?? null,
+          status: w.status ?? null,
+          paused: w.paused ?? null,
+          folderId: w.parentId ?? null
+        }));
+        const { unique: unique2, duplicatesDropped: duplicatesDropped2 } = dedupe(mapped2, (w) => w.id == null ? null : String(w.id));
+        const recon2 = reconcile(unique2.length, total);
         return ok({
           countIs: "workflows containing at least one of these types",
           count: total,
           searched: types,
-          workflows: rows.map((w) => ({
-            id: w.id ?? w.workflowId ?? null,
-            name: w.name ?? null,
-            status: w.status ?? null,
-            paused: w.paused ?? null,
-            folderId: w.parentId ?? null
-          })),
+          duplicatesDropped: duplicatesDropped2,
+          complete: recon2.complete,
+          // An INCOMPLETE result publishes no workflow list. `workflows` is the key every caller
+          // reads, and a short array under it is a partial answer that reads as a whole one to
+          // anyone who does not also check `complete` — the defect this fix exists for. The rows
+          // read are still real evidence, kept under a name nobody mistakes for the whole set.
+          workflows: recon2.complete ? unique2 : null,
+          partialWorkflows: recon2.complete ? null : unique2,
+          warnings: recon2.complete ? [] : [{ code: CODES.ES_SEARCH_RECONCILIATION_SHORT, detail: recon2.detail }],
           note: 'count is WORKFLOWS here. returns:"steps" counts step DOCUMENTS instead, and the two differ \u2014 one workflow can hold several matching steps.'
         });
       }
+      const mapped = rows.map((w) => ({
+        workflowId: w.workflowJoinField?.parent ?? null,
+        stepId: w.meta?.id ?? null,
+        type: w.meta?.type ?? w.docKey ?? null,
+        docType: w.docType ?? null,
+        name: w.meta?.name ?? null,
+        attributes: w.meta?.attributes ?? null
+      }));
+      const { unique, duplicatesDropped } = dedupe(
+        mapped,
+        (s) => s.workflowId == null || s.stepId == null ? null : `${s.workflowId}::${s.stepId}`
+      );
+      const recon = reconcile(unique.length, total);
       return ok({
         countIs: "step/trigger documents matching these types",
         count: total,
         searched: types,
-        steps: rows.map((w) => ({
-          workflowId: w.workflowJoinField?.parent ?? null,
-          stepId: w.meta?.id ?? null,
-          type: w.meta?.type ?? w.docKey ?? null,
-          docType: w.docType ?? null,
-          name: w.meta?.name ?? null,
-          attributes: w.meta?.attributes ?? null
-        })),
+        duplicatesDropped,
+        complete: recon.complete,
+        // Same discipline as `workflows` above, keyed on (workflowId, stepId) identity instead.
+        steps: recon.complete ? unique : null,
+        partialSteps: recon.complete ? null : unique,
+        warnings: recon.complete ? [] : [{ code: CODES.ES_SEARCH_RECONCILIATION_SHORT, detail: recon.detail }],
         note: "count is step DOCUMENTS, not workflows \u2014 several may live in one workflow. Attributes are returned as stored, but CANNOT be filtered on server-side (see the tool description)."
       });
     }, args)
