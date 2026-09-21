@@ -118,6 +118,30 @@ test('CONTROL: returns:"workflows" dedupes on the workflow id, not a step id', a
   const r = await tool().handler({ locationId: 'LOC', types: ['wait'] }, gw(calls, json));
   assert.equal(r.ok, true);
   assert.equal(r.data.duplicatesDropped, 1, 'the repeated WF1 row is a duplicate by workflow id');
-  assert.equal(r.data.complete, true, '2 unique workflows reconciles with count:2');
+  // Reconciliation is ROWS vs count (3 >= 2), not unique vs count — see the measured note on
+  // `reconcile` in tools.mjs: GHL's index can hold several documents for one step, so `count`
+  // counts DOCUMENTS and a unique-vs-count test would call every real steps search incomplete.
+  assert.equal(r.data.complete, true, '3 rows against count:2 reconciles');
   assert.deepEqual(r.data.workflows.map((w) => w.id), ['WF1', 'WF2']);
+});
+
+// 🔴 THE CASE THE FIRST CUT OF THIS FIX GOT WRONG. Measured on the sandbox 2026-09-21: a `wait`
+// steps search reports count:545 and one call at pageLimit 600 returns 545 rows of which 542 are
+// unique — the three collisions are DISTINCT DOCUMENTS for the same step. Reconciling the DEDUPED
+// count against `count` marked that complete read incomplete, forever, for every steps search on a
+// real account. Rows-vs-count is the like-for-like comparison; duplicates are reported separately.
+test('a full page WITH duplicate index documents still reconciles — count is DOCUMENTS, not distinct steps', async () => {
+  const calls = [];
+  const json = { count: 3, workflows: [
+    { workflowJoinField: { parent: 'WF1' }, meta: { id: 'S1' }, docKey: 'wait' },
+    { workflowJoinField: { parent: 'WF1' }, meta: { id: 'S1' }, docKey: 'wait' },
+    { workflowJoinField: { parent: 'WF2' }, meta: { id: 'S2' }, docKey: 'wait' },
+  ] };
+  const r = await tool().handler({ locationId: 'LOC', types: ['wait'], returns: 'steps' }, gw(calls, json));
+  assert.equal(r.ok, true);
+  assert.equal(r.data.complete, true, '3 rows against count:3 reconciles even though only 2 steps are distinct');
+  assert.equal(r.data.duplicatesDropped, 1, 'the extra index document for S1 is reported, not hidden');
+  assert.equal(r.data.steps.length, 2, 'the caller gets distinct steps');
+  assert.equal(r.data.partialSteps, null);
+  assert.deepEqual(r.data.warnings, []);
 });

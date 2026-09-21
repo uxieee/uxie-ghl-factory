@@ -6220,8 +6220,10 @@ export const TOOLS = [
       + 'search, walked at limit:100 across offset 0/100/200/300, returned 326 rows but only 300 UNIQUE, '
       + 'silently losing 26 real documents. The SAME query in ONE call at limit:400 offset:0 returned '
       + '326/326 unique — complete. The complete read is one call with `limit` set above the expected '
-      + '`count`, not a paged walk. This tool dedupes its rows and reconciles the unique count against '
-      + 'GHL\'s own `count`; a short result comes back `complete:false` with a coded warning naming this '
+      + '`count`, not a paged walk. This tool reconciles the ROWS RETURNED against GHL\'s own `count` '
+      + '(measured 2026-09-21: `count` counts INDEX DOCUMENTS, and the index can hold more than one '
+      + 'document for the same step — 545 rows, 542 distinct steps — so the rows are also deduped and '
+      + '`duplicatesDropped` reports it); a short result comes back `complete:false` with a coded warning naming this '
       + 'same remedy, never as a partial list dressed as a whole one. '
       + '🔴 It CANNOT filter on attribute VALUES — "which workflows reference pipeline X" is not answerable '
       + 'here (GHL exposes no working operator for the attributes sub-document); that still needs an export.',
@@ -6292,23 +6294,30 @@ export const TOOLS = [
       // Reconciles the deduped count against GHL's reported `count`. A missing or non-numeric
       // `count` cannot be reconciled at all, so it is treated the same as a short reconciliation
       // — never as an unearned pass.
-      const reconcile = (uniqueCount, reportedTotal) => {
+      // 🔴 Reconcile RAW ROWS against `count`, never the DEDUPED count. Measured on the designated
+      // sandbox 2026-09-21: a `wait` steps search reports count:545 and, in one call at pageLimit 600,
+      // returns 545 rows of which only 542 are unique by (workflowId, stepId) — and the three
+      // collisions are DISTINCT DOCUMENTS (different JSON, same step), so GHL's index legitimately
+      // holds more than one entry for a step. `count` therefore counts INDEX DOCUMENTS, not distinct
+      // steps. Reconciling unique-vs-count would report every steps search incomplete forever, which
+      // is the failure this guard exists to prevent, inverted. Rows-vs-count is the like-for-like
+      // comparison and it is what catches the real defect: a short page.
+      const reconcile = (rowCount, reportedTotal) => {
         if (typeof reportedTotal !== 'number') {
           return {
             complete: false,
             detail: `es/search did not report a numeric count (got ${JSON.stringify(reportedTotal)}) — `
-              + `the ${uniqueCount} unique row(s) here cannot be confirmed complete. A single call with `
+              + `the ${rowCount} row(s) here cannot be confirmed complete. A single call with `
               + '`limit` set above the expected total is the complete read; offset paging is unstable and '
               + 'this response gives no total to page against.',
           };
         }
-        if (uniqueCount < reportedTotal) {
+        if (rowCount < reportedTotal) {
           return {
             complete: false,
-            detail: `${uniqueCount} unique row(s) but GHL reported count:${reportedTotal} — `
-              + `${reportedTotal - uniqueCount} document(s) were never returned. Retry as ONE call with `
-              + '`limit` set above `count` (offset:0) — a single call above the total returned a complete, '
-              + 'duplicate-free set in measurement; walking `offset` did not.',
+            detail: `es/search returned ${rowCount} row(s) against its own count:${reportedTotal} — `
+              + `${reportedTotal - rowCount} document(s) were never returned. Retry as ONE call with `
+              + '`limit` set above `count` (offset:0); walking `offset` reshuffles and loses rows.',
           };
         }
         return { complete: true };
@@ -6319,7 +6328,7 @@ export const TOOLS = [
           status: w.status ?? null, paused: w.paused ?? null, folderId: w.parentId ?? null,
         }));
         const { unique, duplicatesDropped } = dedupe(mapped, (w) => (w.id == null ? null : String(w.id)));
-        const recon = reconcile(unique.length, total);
+        const recon = reconcile(rows.length, total);
         return ok({
           countIs: 'workflows containing at least one of these types',
           count: total,
@@ -6349,7 +6358,7 @@ export const TOOLS = [
         mapped,
         (s) => (s.workflowId == null || s.stepId == null ? null : `${s.workflowId}::${s.stepId}`),
       );
-      const recon = reconcile(unique.length, total);
+      const recon = reconcile(rows.length, total);
       return ok({
         countIs: 'step/trigger documents matching these types',
         count: total,

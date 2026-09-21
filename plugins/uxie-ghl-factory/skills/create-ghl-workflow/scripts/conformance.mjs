@@ -1227,12 +1227,35 @@ log.subject('find_workflows_using');
     'step documents are never FEWER than the workflows holding them — the invariant that makes the '
       + 'two counts distinguishable at a glance',
     `${steps.data?.count} steps vs ${wfs.data?.count} workflows`);
-  check((wfs.data?.workflows ?? []).every((w) => w.id && w.name),
+  // 🔴 These two assert on a NON-EMPTY set on purpose. `.every()` is true of [], so reading the rows
+  // with `?? []` would pass vacuously the moment the trusted key is nulled — which is exactly what a
+  // short es/search read now does. Measured 2026-09-21: `wait` matches far more step DOCUMENTS than
+  // one default page, so the steps mode is short on this account every run.
+  // Read the rows from a COMPLETE call. `wait` lives in more workflows than one default page holds
+  // on this account (count 165 vs limit 100), so the default read is legitimately short and its
+  // trusted key is nulled — asserting row shape off it would test [] and pass vacuously.
+  const wfsWhole = await call('find_workflows_using', { types: [TYPE], limit: (wfs.data?.count ?? 100) + 50 });
+  const wfRows = wfsWhole.data?.workflows ?? [];
+  check(wfsWhole.data?.complete === true && wfRows.length > 0 && wfRows.every((w) => w.id && w.name),
     'every workflow row carries an id and a name, so the answer is actionable without a second read',
-    JSON.stringify((wfs.data?.workflows ?? []).filter((w) => !w.id || !w.name).slice(0, 3)));
-  check((steps.data?.steps ?? []).every((x) => x.workflowId && x.stepId),
-    'and every step row says WHICH workflow it lives in — otherwise the match is unactionable',
-    JSON.stringify((steps.data?.steps ?? []).filter((x) => !x.workflowId || !x.stepId).slice(0, 3)));
+    JSON.stringify({ complete: wfsWhole.data?.complete, rows: wfRows.length, bad: wfRows.filter((w) => !w.id || !w.name).slice(0, 3) }));
+
+  // The reconciliation contract, proven live rather than only unit-tested: GHL's es/search has no
+  // stable ordering under `offset` (326 rows at limit:100 across four offsets returned only 300
+  // unique; the same query in one call returned 326/326). So a short read marks itself, nulls the
+  // trusted key and moves its rows to partialSteps — and asking for enough returns a whole one.
+  const stepsCount = steps.data?.count ?? 0;
+  check(Number.isInteger(stepsCount) && stepsCount > 100,
+    'the account holds more step documents than one default page — without that this contract is untestable here',
+    `count=${stepsCount}`);
+  check(steps.data?.complete === false && steps.data?.steps === null && (steps.data?.partialSteps ?? []).length > 0,
+    'SHORT READ: it says complete:false, NULLS the trusted key, and moves the rows to partialSteps — a caller who ignores `complete` gets null, never a silently short list',
+    JSON.stringify({ complete: steps.data?.complete, steps: steps.data?.steps === null ? 'null' : typeof steps.data?.steps, partial: (steps.data?.partialSteps ?? []).length }));
+  const whole = await call('find_workflows_using', { types: [TYPE], returns: 'steps', limit: stepsCount + 50 });
+  const wholeRows = whole.data?.steps ?? [];
+  check(whole.data?.complete === true && wholeRows.length > 0 && wholeRows.every((x) => x.workflowId && x.stepId),
+    'CONTROL: asking for more than `count` in ONE call reconciles — complete:true, the rows are under the trusted key, and every one says WHICH workflow it lives in',
+    JSON.stringify({ complete: whole.data?.complete, rows: wholeRows.length, count: stepsCount, bad: wholeRows.filter((x) => !x.workflowId || !x.stepId).slice(0, 3) }));
 
   // 🔴 NEGATIVE CONTROL. Without it, an index that silently returned everything, or nothing, would
   // pass every assertion above.

@@ -176757,7 +176757,7 @@ var TOOLS2 = [
   // silently return nothing. Attribute questions still need an export. See console bl-148.
   {
     name: "find_workflows_using",
-    description: `${describe3("find_workflows_using", "Find which workflows contain a step or trigger type \u2014 risk: read")}. Pass one or more step/trigger TYPE names (as \`describe_step_type\` spells them, e.g. \`wait\`, \`internal_create_opportunity\`, \`appointment\`). returns:"workflows" (default) lists the workflows containing any of them; returns:"steps" lists the matching step documents themselves, each with its workflowId and its stored attributes. \u{1F534} The two modes count DIFFERENT THINGS and the response says which: \`wait\` matches 438 step documents across 61 workflows. Never report one as the other. \u{1F534} OFFSET PAGING IS UNSTABLE (measured live 2026-09-21): \`POST /workflows/es/search\` has no stable ordering under \`offset\`, so a paged walk reshuffles and drops rows \u2014 one account's 326-row \`wait\` search, walked at limit:100 across offset 0/100/200/300, returned 326 rows but only 300 UNIQUE, silently losing 26 real documents. The SAME query in ONE call at limit:400 offset:0 returned 326/326 unique \u2014 complete. The complete read is one call with \`limit\` set above the expected \`count\`, not a paged walk. This tool dedupes its rows and reconciles the unique count against GHL's own \`count\`; a short result comes back \`complete:false\` with a coded warning naming this same remedy, never as a partial list dressed as a whole one. \u{1F534} It CANNOT filter on attribute VALUES \u2014 "which workflows reference pipeline X" is not answerable here (GHL exposes no working operator for the attributes sub-document); that still needs an export.`,
+    description: `${describe3("find_workflows_using", "Find which workflows contain a step or trigger type \u2014 risk: read")}. Pass one or more step/trigger TYPE names (as \`describe_step_type\` spells them, e.g. \`wait\`, \`internal_create_opportunity\`, \`appointment\`). returns:"workflows" (default) lists the workflows containing any of them; returns:"steps" lists the matching step documents themselves, each with its workflowId and its stored attributes. \u{1F534} The two modes count DIFFERENT THINGS and the response says which: \`wait\` matches 438 step documents across 61 workflows. Never report one as the other. \u{1F534} OFFSET PAGING IS UNSTABLE (measured live 2026-09-21): \`POST /workflows/es/search\` has no stable ordering under \`offset\`, so a paged walk reshuffles and drops rows \u2014 one account's 326-row \`wait\` search, walked at limit:100 across offset 0/100/200/300, returned 326 rows but only 300 UNIQUE, silently losing 26 real documents. The SAME query in ONE call at limit:400 offset:0 returned 326/326 unique \u2014 complete. The complete read is one call with \`limit\` set above the expected \`count\`, not a paged walk. This tool reconciles the ROWS RETURNED against GHL's own \`count\` (measured 2026-09-21: \`count\` counts INDEX DOCUMENTS, and the index can hold more than one document for the same step \u2014 545 rows, 542 distinct steps \u2014 so the rows are also deduped and \`duplicatesDropped\` reports it); a short result comes back \`complete:false\` with a coded warning naming this same remedy, never as a partial list dressed as a whole one. \u{1F534} It CANNOT filter on attribute VALUES \u2014 "which workflows reference pipeline X" is not answerable here (GHL exposes no working operator for the attributes sub-document); that still needs an export.`,
     inputSchema: schema({
       locationId: external_exports.string(),
       types: external_exports.array(external_exports.string()).min(1),
@@ -176821,17 +176821,17 @@ var TOOLS2 = [
         }
         return { unique: unique2, duplicatesDropped: duplicatesDropped2 };
       };
-      const reconcile = (uniqueCount, reportedTotal) => {
+      const reconcile = (rowCount, reportedTotal) => {
         if (typeof reportedTotal !== "number") {
           return {
             complete: false,
-            detail: `es/search did not report a numeric count (got ${JSON.stringify(reportedTotal)}) \u2014 the ${uniqueCount} unique row(s) here cannot be confirmed complete. A single call with \`limit\` set above the expected total is the complete read; offset paging is unstable and this response gives no total to page against.`
+            detail: `es/search did not report a numeric count (got ${JSON.stringify(reportedTotal)}) \u2014 the ${rowCount} row(s) here cannot be confirmed complete. A single call with \`limit\` set above the expected total is the complete read; offset paging is unstable and this response gives no total to page against.`
           };
         }
-        if (uniqueCount < reportedTotal) {
+        if (rowCount < reportedTotal) {
           return {
             complete: false,
-            detail: `${uniqueCount} unique row(s) but GHL reported count:${reportedTotal} \u2014 ${reportedTotal - uniqueCount} document(s) were never returned. Retry as ONE call with \`limit\` set above \`count\` (offset:0) \u2014 a single call above the total returned a complete, duplicate-free set in measurement; walking \`offset\` did not.`
+            detail: `es/search returned ${rowCount} row(s) against its own count:${reportedTotal} \u2014 ${reportedTotal - rowCount} document(s) were never returned. Retry as ONE call with \`limit\` set above \`count\` (offset:0); walking \`offset\` reshuffles and loses rows.`
           };
         }
         return { complete: true };
@@ -176845,7 +176845,7 @@ var TOOLS2 = [
           folderId: w.parentId ?? null
         }));
         const { unique: unique2, duplicatesDropped: duplicatesDropped2 } = dedupe(mapped2, (w) => w.id == null ? null : String(w.id));
-        const recon2 = reconcile(unique2.length, total);
+        const recon2 = reconcile(rows.length, total);
         return ok({
           countIs: "workflows containing at least one of these types",
           count: total,
@@ -176874,7 +176874,7 @@ var TOOLS2 = [
         mapped,
         (s) => s.workflowId == null || s.stepId == null ? null : `${s.workflowId}::${s.stepId}`
       );
-      const recon = reconcile(unique.length, total);
+      const recon = reconcile(rows.length, total);
       return ok({
         countIs: "step/trigger documents matching these types",
         count: total,
