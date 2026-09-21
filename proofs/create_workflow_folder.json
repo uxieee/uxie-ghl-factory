@@ -463,6 +463,16 @@
         "receipt:2026-09-21-0836"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-21",
+      "result": "pass",
+      "how": "suite",
+      "suite": "workflows",
+      "evidence": [
+        "receipt:2026-09-21-0903"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
