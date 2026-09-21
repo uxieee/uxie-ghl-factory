@@ -283,25 +283,53 @@
         "receipt:2026-09-21-0434"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-21",
+      "result": "pass",
+      "how": "suite",
+      "suite": "workflows",
+      "evidence": [
+        "receipt:2026-09-21-0446"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
     "hashedAt": "2026-09-21",
     "endpoints": {
+      "GET https://backend.leadconnectorhq.com /emails/builder": "d945317777e769527d53040cefeb11fc07d1b48910930e64060d0d3b01b9fd83",
+      "GET https://backend.leadconnectorhq.com /events-management/events/options": "f10a8cfd8d4940227cc516eb7e453d35a60fbfda8f5c2f96639e8d65cb783fdf",
       "GET https://backend.leadconnectorhq.com /forms": "bdf9d72ff243a60858f56bbd82c63574d253c7db6f12df844d8b0b26014a0d4d",
+      "GET https://backend.leadconnectorhq.com /funnels/funnel/list": "a46307268f695398a8ae97eecb8b1e2c3174eef69d6fc11550b0857d5b6de8fb",
+      "GET https://backend.leadconnectorhq.com /integrations/facebook/{}/pages": "ce35229509736c8a7ba0edb73c69a49a46b1078d07dab4a877e632825dc47ad4",
       "GET https://backend.leadconnectorhq.com /locations/{}/customFields/search": "243cf31ac9bf9947d7ecc4a4a0f6c8f758286fe2701bc88e201f2e12ff03759f",
       "GET https://backend.leadconnectorhq.com /locations/{}/customValues": "7528d8d44a9a81689c4ff5dc3875cd96f40b6c37d613bd11156e149b728ac054",
+      "GET https://backend.leadconnectorhq.com /locations/{}/templates": "b7347c2fefe74154f09e7030189600e9a52a82d01dec93be3857ceb7bb666582",
+      "GET https://backend.leadconnectorhq.com /membership/locations/{}/offers": "b4555b374609fe8eae9c62084b6f40f47def567770f5dbb4ef44b9421778d539",
+      "GET https://backend.leadconnectorhq.com /objects": "6a33f5a02aef531d199ca3430b0ee84bbd49d8ecdca14140f8cd8e59a7f93019",
+      "GET https://backend.leadconnectorhq.com /opportunities/lost-reason": "3da9c53cbc7886f798fd315329f14e0d4b47d609d4611e17226e4f39fb871db5",
       "GET https://backend.leadconnectorhq.com /opportunities/pipelines": "698f44e2a959e288cc81fdba3df9a1363a7cba3265be3ea16bc51ff59e9c33dd",
+      "GET https://backend.leadconnectorhq.com /payments/coupon/list": "77ce2dae75f2dc01bf1d0454aa5604c53fc9b42b3ff780e327d7c60fe9357d56",
+      "GET https://backend.leadconnectorhq.com /phone-system/call-dispositions": "97258e5288674c8defe16f74c91abebf2a8100efa24cb0ec45a8581787d9257e",
+      "GET https://backend.leadconnectorhq.com /phone-system/numbers": "db941c57f370f81a272a911ca52244be998d3ae5228fce7d95e70b1919efd7d0",
+      "GET https://backend.leadconnectorhq.com /workflow/{}/list": "c3a30133ae951cb061dce33d9bf73e80273ed161cade4401a663efa490030075",
       "GET https://services.leadconnectorhq.com /ai-employees/employees/search": "c19bbc2816b0051db71ea0078c3225c3b0bbec09a909189229f5b1e42dd78f14",
       "GET https://services.leadconnectorhq.com /forms": "26274ceeb0e0ea438bd972ae437cec72deaa929a2088b4b9cab7b3cdef6e8c02",
+      "GET https://services.leadconnectorhq.com /integrations/facebook/{}/pages": "c739fcab8bdd60810ea2ac4ce2161be25dfa8b89141e64250769f65710c48364",
+      "GET https://services.leadconnectorhq.com /membership/locations/{}/offers": "3ebafb64390260d0ebb4b4adb1d37c0a421afad97ec58f0e4deea54228af134f",
+      "GET https://services.leadconnectorhq.com /membership/locations/{}/products": "d0a6242d8a0b47401b522d807dc3423444407835e817abf56b56530543e0ee9d",
+      "GET https://services.leadconnectorhq.com /objects": "0900a18683276fcf33998cc51c1332fa08263a84c11730bf9c7e8961a331876d",
+      "GET https://services.leadconnectorhq.com /opportunities/lost-reason": "bbed22ac03d1a7cffc006f114bb743edf88810c269531405371965b3881d188b",
       "GET https://services.leadconnectorhq.com /opportunities/pipelines": "b7bfbb9c12e38a2093b5311d1dfb07794ac4018d05e21285bb05ec9359027159",
+      "GET https://services.leadconnectorhq.com /products": "4be715fd904a4da683bea23beac5a398d32a9c87cab21fdec88cf45d7512b6e1",
       "GET https://services.leadconnectorhq.com /voice-ai/agents": "7b92576964a7b1a7ba6f13827d8189029af64fb7bbf89b013d32aaf437da2b65"
     },
     "builds": {
       "formSurveyApp": 320
     },
     "code": {
-      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#list_account_entities": "79757f2232ffaea09f0909a0dd7ea3716b6a05359fa0289566d8deb0a4681682",
+      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#list_account_entities": "fdbbaf9da0b2cc3fda2af9d69c849c02ade0a3098d24696eabf0b92b452de62a",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "e65c2384aefb498ce49453dd2d6d8d1a1d8351fd6d337aef5256eb982e1db02f",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
       "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "c4f988901ff38b66be9e087b7bdf7fa909bac4fd94e04dd02c4f6997839dd8f9",
