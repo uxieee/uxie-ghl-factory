@@ -4080,6 +4080,31 @@ export const TOOLS = [
       { method: 'GET', path: '/locations/{loc}/customValues' },
       { method: 'GET', path: '/voice-ai/agents' },
       { method: 'GET', path: '/ai-employees/employees/search' },
+      // 🔴 THE SWEEP FETCHES 22 PATHS AND THIS LIST DECLARED 8. The other 14 were read on every
+      // single entity sweep — every build and every edit that resolves a name — while the catalogue
+      // counted them as proven-but-UNUSED, because coverage is computed from what a tool DECLARES,
+      // not from what it calls. This is the same defect that hid the two 0.92.0 preflight reads.
+      // The declaration is now derived from engine/entities.mjs's own row table, which is the one
+      // place the sweep is defined, so the two cannot drift apart silently again.
+      // All GET: `list_account_entities` stays classified read. Declaring a non-GET here would
+      // reclassify the WHOLE tool as a write in core/location-binding.mjs and break its reads on an
+      // unbound registration.
+      { method: 'GET', path: '/emails/builder' },
+      { method: 'GET', path: '/events-management/events/options' },
+      { method: 'GET', path: '/funnels/funnel/list' },
+      { method: 'GET', path: '/integrations/facebook/{loc}/pages' },
+      { method: 'GET', path: '/links/' },
+      { method: 'GET', path: '/locations/{loc}/templates' },
+      { method: 'GET', path: '/membership/locations/{loc}/offers' },
+      { method: 'GET', path: '/membership/locations/{loc}/products' },
+      { method: 'GET', path: '/objects/' },
+      { method: 'GET', path: '/opportunities/lost-reason' },
+      { method: 'GET', path: '/payments/coupon/list' },
+      { method: 'GET', path: '/phone-system/call-dispositions' },
+      { method: 'GET', path: '/phone-system/numbers' },
+      { method: 'GET', path: '/products/' },
+      { method: 'GET', path: '/proposals/templates' },
+      { method: 'GET', path: '/workflow/{loc}/list' },
     ],
     handler: async (args, deps) => guard(async () => {
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });

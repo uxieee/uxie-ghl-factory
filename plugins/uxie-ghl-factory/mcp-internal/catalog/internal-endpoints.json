@@ -1,7 +1,7 @@
 {
   "generated": "2026-09-21",
   "note": "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path — not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-  "count": 1144,
+  "count": 1146,
   "endpoints": [
     {
       "id": "facebook-service--get-ad-account-by-id",
@@ -4505,7 +4505,9 @@
       "provenFor": [
         "agency-admin-bearer"
       ],
-      "coveredBy": [],
+      "coveredBy": [
+        "list_account_entities"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -5933,7 +5935,9 @@
       "provenFor": [
         "agency-admin-bearer"
       ],
-      "coveredBy": [],
+      "coveredBy": [
+        "list_account_entities"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -7921,7 +7925,8 @@
       ],
       "coveredBy": [
         "audit_site",
-        "find_ghl_site"
+        "find_ghl_site",
+        "list_account_entities"
       ],
       "rawCallable": true,
       "transport": "json",
@@ -8989,7 +8994,9 @@
       "provenFor": [
         "agency-admin-bearer"
       ],
-      "coveredBy": [],
+      "coveredBy": [
+        "list_account_entities"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -9560,6 +9567,39 @@
       },
       "sources": [
         "platform/20-api/payment-links.md:111"
+      ]
+    },
+    {
+      "id": "typed--list_account_entities--links",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/links/",
+      "path": "/links/",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "proven",
+      "coveredBy": [
+        "list_account_entities"
+      ],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "list_account_entities",
+      "tree": "typed-tool",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "proven",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "capability-manifest.json (list_account_entities)"
       ]
     },
     {
@@ -10952,7 +10992,9 @@
       "provenFor": [
         "agency-admin-bearer"
       ],
-      "coveredBy": [],
+      "coveredBy": [
+        "list_account_entities"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -12680,7 +12722,9 @@
       "provenFor": [
         "agency-admin-bearer"
       ],
-      "coveredBy": [],
+      "coveredBy": [
+        "list_account_entities"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -13902,7 +13946,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "list_account_entities"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -14143,7 +14189,9 @@
       "provenFor": [
         "agency-admin-bearer"
       ],
-      "coveredBy": [],
+      "coveredBy": [
+        "list_account_entities"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -14745,7 +14793,9 @@
       "provenFor": [
         "agency-admin-bearer"
       ],
-      "coveredBy": [],
+      "coveredBy": [
+        "list_account_entities"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -15145,7 +15195,9 @@
       "provenFor": [
         "agency-admin-bearer"
       ],
-      "coveredBy": [],
+      "coveredBy": [
+        "list_account_entities"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -15370,6 +15422,7 @@
       "coveredBy": [
         "build_workflow",
         "edit_workflow",
+        "list_account_entities",
         "repair_workflow"
       ],
       "rawCallable": true,
@@ -15988,6 +16041,39 @@
       },
       "sources": [
         "memberships-courses/20-api/endpoints.md:114"
+      ]
+    },
+    {
+      "id": "typed--list_account_entities--proposals-templates",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/proposals/templates",
+      "path": "/proposals/templates",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "proven",
+      "coveredBy": [
+        "list_account_entities"
+      ],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "list_account_entities",
+      "tree": "typed-tool",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "proven",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "capability-manifest.json (list_account_entities)"
       ]
     },
     {
@@ -24002,6 +24088,7 @@
       ],
       "coveredBy": [
         "create_workflow_folder",
+        "list_account_entities",
         "list_workflow_folders",
         "list_workflows",
         "move_workflows"
@@ -39629,7 +39716,9 @@
       "provenFor": [
         "agency-admin-bearer"
       ],
-      "coveredBy": [],
+      "coveredBy": [
+        "list_account_entities"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -43473,7 +43562,9 @@
       "provenFor": [
         "agency-admin-bearer"
       ],
-      "coveredBy": [],
+      "coveredBy": [
+        "list_account_entities"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -44515,6 +44606,7 @@
         "agency-admin-bearer"
       ],
       "coveredBy": [
+        "list_account_entities",
         "list_courses"
       ],
       "rawCallable": true,
@@ -47360,7 +47452,9 @@
       "rail": "ai",
       "kind": "read",
       "reach": "refused",
-      "coveredBy": [],
+      "coveredBy": [
+        "list_account_entities"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -47519,7 +47613,9 @@
       "provenFor": [
         "agency-admin-bearer"
       ],
-      "coveredBy": [],
+      "coveredBy": [
+        "list_account_entities"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -48525,7 +48621,9 @@
       "provenFor": [
         "agency-admin-bearer"
       ],
-      "coveredBy": [],
+      "coveredBy": [
+        "list_account_entities"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",

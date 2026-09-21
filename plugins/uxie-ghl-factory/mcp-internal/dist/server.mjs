@@ -178,7 +178,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
     define_ENDPOINT_CATALOG_default = {
       generated: "2026-09-21",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 1144,
+      count: 1146,
       endpoints: [
         {
           id: "facebook-service--get-ad-account-by-id",
@@ -4682,7 +4682,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           provenFor: [
             "agency-admin-bearer"
           ],
-          coveredBy: [],
+          coveredBy: [
+            "list_account_entities"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -6110,7 +6112,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           provenFor: [
             "agency-admin-bearer"
           ],
-          coveredBy: [],
+          coveredBy: [
+            "list_account_entities"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -8098,7 +8102,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           coveredBy: [
             "audit_site",
-            "find_ghl_site"
+            "find_ghl_site",
+            "list_account_entities"
           ],
           rawCallable: true,
           transport: "json",
@@ -9166,7 +9171,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           provenFor: [
             "agency-admin-bearer"
           ],
-          coveredBy: [],
+          coveredBy: [
+            "list_account_entities"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -9737,6 +9744,39 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "platform/20-api/payment-links.md:111"
+          ]
+        },
+        {
+          id: "typed--list_account_entities--links",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/links/",
+          path: "/links/",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "proven",
+          coveredBy: [
+            "list_account_entities"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "list_account_entities",
+          tree: "typed-tool",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "proven",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "capability-manifest.json (list_account_entities)"
           ]
         },
         {
@@ -11129,7 +11169,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           provenFor: [
             "agency-admin-bearer"
           ],
-          coveredBy: [],
+          coveredBy: [
+            "list_account_entities"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -12857,7 +12899,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           provenFor: [
             "agency-admin-bearer"
           ],
-          coveredBy: [],
+          coveredBy: [
+            "list_account_entities"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -14079,7 +14123,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "list_account_entities"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -14320,7 +14366,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           provenFor: [
             "agency-admin-bearer"
           ],
-          coveredBy: [],
+          coveredBy: [
+            "list_account_entities"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -14922,7 +14970,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           provenFor: [
             "agency-admin-bearer"
           ],
-          coveredBy: [],
+          coveredBy: [
+            "list_account_entities"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -15322,7 +15372,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           provenFor: [
             "agency-admin-bearer"
           ],
-          coveredBy: [],
+          coveredBy: [
+            "list_account_entities"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -15547,6 +15599,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           coveredBy: [
             "build_workflow",
             "edit_workflow",
+            "list_account_entities",
             "repair_workflow"
           ],
           rawCallable: true,
@@ -16165,6 +16218,39 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "memberships-courses/20-api/endpoints.md:114"
+          ]
+        },
+        {
+          id: "typed--list_account_entities--proposals-templates",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/proposals/templates",
+          path: "/proposals/templates",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "proven",
+          coveredBy: [
+            "list_account_entities"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "list_account_entities",
+          tree: "typed-tool",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "proven",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "capability-manifest.json (list_account_entities)"
           ]
         },
         {
@@ -24179,6 +24265,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           coveredBy: [
             "create_workflow_folder",
+            "list_account_entities",
             "list_workflow_folders",
             "list_workflows",
             "move_workflows"
@@ -39806,7 +39893,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           provenFor: [
             "agency-admin-bearer"
           ],
-          coveredBy: [],
+          coveredBy: [
+            "list_account_entities"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -43650,7 +43739,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           provenFor: [
             "agency-admin-bearer"
           ],
-          coveredBy: [],
+          coveredBy: [
+            "list_account_entities"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -44692,6 +44783,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "agency-admin-bearer"
           ],
           coveredBy: [
+            "list_account_entities",
             "list_courses"
           ],
           rawCallable: true,
@@ -47537,7 +47629,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "ai",
           kind: "read",
           reach: "refused",
-          coveredBy: [],
+          coveredBy: [
+            "list_account_entities"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -47696,7 +47790,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           provenFor: [
             "agency-admin-bearer"
           ],
-          coveredBy: [],
+          coveredBy: [
+            "list_account_entities"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -48702,7 +48798,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           provenFor: [
             "agency-admin-bearer"
           ],
-          coveredBy: [],
+          coveredBy: [
+            "list_account_entities"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -174990,7 +175088,32 @@ var TOOLS2 = [
       { method: "GET", path: "/locations/{loc}/customFields/search" },
       { method: "GET", path: "/locations/{loc}/customValues" },
       { method: "GET", path: "/voice-ai/agents" },
-      { method: "GET", path: "/ai-employees/employees/search" }
+      { method: "GET", path: "/ai-employees/employees/search" },
+      // 🔴 THE SWEEP FETCHES 22 PATHS AND THIS LIST DECLARED 8. The other 14 were read on every
+      // single entity sweep — every build and every edit that resolves a name — while the catalogue
+      // counted them as proven-but-UNUSED, because coverage is computed from what a tool DECLARES,
+      // not from what it calls. This is the same defect that hid the two 0.92.0 preflight reads.
+      // The declaration is now derived from engine/entities.mjs's own row table, which is the one
+      // place the sweep is defined, so the two cannot drift apart silently again.
+      // All GET: `list_account_entities` stays classified read. Declaring a non-GET here would
+      // reclassify the WHOLE tool as a write in core/location-binding.mjs and break its reads on an
+      // unbound registration.
+      { method: "GET", path: "/emails/builder" },
+      { method: "GET", path: "/events-management/events/options" },
+      { method: "GET", path: "/funnels/funnel/list" },
+      { method: "GET", path: "/integrations/facebook/{loc}/pages" },
+      { method: "GET", path: "/links/" },
+      { method: "GET", path: "/locations/{loc}/templates" },
+      { method: "GET", path: "/membership/locations/{loc}/offers" },
+      { method: "GET", path: "/membership/locations/{loc}/products" },
+      { method: "GET", path: "/objects/" },
+      { method: "GET", path: "/opportunities/lost-reason" },
+      { method: "GET", path: "/payments/coupon/list" },
+      { method: "GET", path: "/phone-system/call-dispositions" },
+      { method: "GET", path: "/phone-system/numbers" },
+      { method: "GET", path: "/products/" },
+      { method: "GET", path: "/proposals/templates" },
+      { method: "GET", path: "/workflow/{loc}/list" }
     ],
     handler: async (args, deps) => guard(async () => {
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });

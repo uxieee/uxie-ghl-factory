@@ -505,6 +505,86 @@
     "path": "/ai-employees/employees/search"
   },
   {
+    "tool": "list_account_entities",
+    "method": "GET",
+    "path": "/emails/builder"
+  },
+  {
+    "tool": "list_account_entities",
+    "method": "GET",
+    "path": "/events-management/events/options"
+  },
+  {
+    "tool": "list_account_entities",
+    "method": "GET",
+    "path": "/funnels/funnel/list"
+  },
+  {
+    "tool": "list_account_entities",
+    "method": "GET",
+    "path": "/integrations/facebook/{loc}/pages"
+  },
+  {
+    "tool": "list_account_entities",
+    "method": "GET",
+    "path": "/links/"
+  },
+  {
+    "tool": "list_account_entities",
+    "method": "GET",
+    "path": "/locations/{loc}/templates"
+  },
+  {
+    "tool": "list_account_entities",
+    "method": "GET",
+    "path": "/membership/locations/{loc}/offers"
+  },
+  {
+    "tool": "list_account_entities",
+    "method": "GET",
+    "path": "/membership/locations/{loc}/products"
+  },
+  {
+    "tool": "list_account_entities",
+    "method": "GET",
+    "path": "/objects/"
+  },
+  {
+    "tool": "list_account_entities",
+    "method": "GET",
+    "path": "/opportunities/lost-reason"
+  },
+  {
+    "tool": "list_account_entities",
+    "method": "GET",
+    "path": "/payments/coupon/list"
+  },
+  {
+    "tool": "list_account_entities",
+    "method": "GET",
+    "path": "/phone-system/call-dispositions"
+  },
+  {
+    "tool": "list_account_entities",
+    "method": "GET",
+    "path": "/phone-system/numbers"
+  },
+  {
+    "tool": "list_account_entities",
+    "method": "GET",
+    "path": "/products/"
+  },
+  {
+    "tool": "list_account_entities",
+    "method": "GET",
+    "path": "/proposals/templates"
+  },
+  {
+    "tool": "list_account_entities",
+    "method": "GET",
+    "path": "/workflow/{loc}/list"
+  },
+  {
     "tool": "list_marketplace_apps",
     "method": "GET",
     "path": "/marketplace/core/search/module"
