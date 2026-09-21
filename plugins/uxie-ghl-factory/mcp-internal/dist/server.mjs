@@ -21145,6 +21145,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
+          note: "IDENTIFIED 2026-09-21 (it had NO note at all): a SECOND, UNPAGINATED CENSUS RAIL. Returns a bare ARRAY of workflow METADATA \u2014 not a graph dump: 0 of 726 entries carried workflowData.templates. `limit` is IGNORED (limit=2 returned all 726, ~1.2 MB). Every entry is type:'workflow', none deleted.\n\u{1F534} IT DISAGREES WITH THE LIST RAIL ABOUT WHAT EXISTS, and neither is a superset. Measured the same hour on the designated sandbox:\n    this route                726 workflows, of which workflowType:'agent' = 0\n    list_workflows            700 workflows, of which workflowType:'agent' = 90\n    in this route only        116 (all draft, mostly parentId:null)\n    in list_workflows only     90 (ALL of them workflowType:'agent')\n    union                     816\n\u{1F534} THIS IS NOT A BUG IN list_workflows, and do not 'fix' it as one. That tool asks /workflow/{loc}/list?type=workflow WITH includeObjectiveBuilder and includeCustomObjects, GHL answers reportedTotal:700, and the walk returns exactly 700 unique over 7 pages with terminalReason 'unique_count_equals_reported_total'. Its complete:true is a TRUE statement about that rail: it saw everything the rail said existed. The rail's own total simply does not account for the 116 this route returns.\nCONSEQUENCE for census work: no single route we have returns every workflow on an account. This route is blind to agent workflows; the list rail under-reports by 116 here. A census that must not miss anything has to read BOTH and union them \u2014 and should say which rail each row came from.",
           reach: "proven",
           provenFor: [
             "agency-admin-bearer"
@@ -27867,7 +27868,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          note: "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
+          note: "IDENTIFIED 2026-09-21 (it had NO note at all): the LEGACY CAMPAIGNS list, GHL's pre-workflow automation product \u2014 not a workflows capability. Answers 200 {campaigns: []} on the designated sandbox, which holds no campaigns, so the row SHAPE is unmeasured and only the envelope key is known. Left as a candidate rather than excluded: a campaigns-to-workflows migration is a plausible task, but nothing can be said about the payload from an empty answer, and this account cannot discriminate.\n\u2014 PRIOR NOTE: Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
           reach: "proven",
           provenFor: [
             "agency-admin-bearer"
@@ -53625,7 +53626,7 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         },
         "GET /workflow/campaign": {
           reach: "refused",
-          note: "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
+          note: "IDENTIFIED 2026-09-21 (it had NO note at all): the LEGACY CAMPAIGNS list, GHL's pre-workflow automation product \u2014 not a workflows capability. Answers 200 {campaigns: []} on the designated sandbox, which holds no campaigns, so the row SHAPE is unmeasured and only the envelope key is known. Left as a candidate rather than excluded: a campaigns-to-workflows migration is a plausible task, but nothing can be said about the payload from an empty answer, and this account cannot discriminate.\n\u2014 PRIOR NOTE: Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
           credentialClass: "location-user-bearer"
         },
         "GET /workflow/flowguard/auth": {
@@ -53674,7 +53675,8 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           note: `FENCED \u2014 COMPANY-WIDE SETTINGS, named explicitly in the standing fence ("sends, billing, company-wide settings, ad spend, smart lists, the iatf proxy"). It is scoped by companyId, not locationId, so a write here reaches every sub-account of the agency at once; that blast radius is the operator's to accept, not a tool's. Reachable, never called.`
         },
         "GET /workflow/{locationId}": {
-          reach: "proven"
+          reach: "proven",
+          note: "IDENTIFIED 2026-09-21 (it had NO note at all): a SECOND, UNPAGINATED CENSUS RAIL. Returns a bare ARRAY of workflow METADATA \u2014 not a graph dump: 0 of 726 entries carried workflowData.templates. `limit` is IGNORED (limit=2 returned all 726, ~1.2 MB). Every entry is type:'workflow', none deleted.\n\u{1F534} IT DISAGREES WITH THE LIST RAIL ABOUT WHAT EXISTS, and neither is a superset. Measured the same hour on the designated sandbox:\n    this route                726 workflows, of which workflowType:'agent' = 0\n    list_workflows            700 workflows, of which workflowType:'agent' = 90\n    in this route only        116 (all draft, mostly parentId:null)\n    in list_workflows only     90 (ALL of them workflowType:'agent')\n    union                     816\n\u{1F534} THIS IS NOT A BUG IN list_workflows, and do not 'fix' it as one. That tool asks /workflow/{loc}/list?type=workflow WITH includeObjectiveBuilder and includeCustomObjects, GHL answers reportedTotal:700, and the walk returns exactly 700 unique over 7 pages with terminalReason 'unique_count_equals_reported_total'. Its complete:true is a TRUE statement about that rail: it saw everything the rail said existed. The rail's own total simply does not account for the 116 this route returns.\nCONSEQUENCE for census work: no single route we have returns every workflow on an account. This route is blind to agent workflows; the list rail under-reports by 116 here. A census that must not miss anything has to read BOTH and union them \u2014 and should say which rail each row came from."
         },
         "GET /workflow/{locationId}/auto-save/settings": {
           reach: "proven"
