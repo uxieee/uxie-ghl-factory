@@ -21331,7 +21331,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "destructive",
-          note: "Proven live 2026-09-19. Each proven on a throwaway the probe created in the same run, with an untouched sibling as the control. ?userId=<uid> -> 200 {success:true}; the workflow then 404s on GET and leaves the list while the sibling stays. \u{1F534} It is a SOFT delete: the workflow moves to GET \u2026/list?status=deleted and PUT \u2026/restore brings it back.",
+          note: 'FENCED \u2014 DELETION IS RESERVED FOR A HUMAN by a written standing rule, and a tool would hand that act to an agent. gohighlevel/CLAUDE.md: "Nothing is deleted. Superseded material moves to archive/ with a note saying what replaced it. Probe artifacts created on a test account are left in place, clearly named, FOR A HUMAN TO REMOVE." The P5 policy separately allows a destructive to be PROBED against an object the probe itself just created \u2014 that permission is about learning what the route does, and it is not a licence to ship a tool that deletes on request. \u26A0\uFE0F This is a FENCE, not a verdict that the route is useless: if the operator wants agent-driven cleanup of TEST-CONF/TEST-CAP artifacts, this is the row to lift the fence on, and the blast radius should be named before it is.\n\u2014 PRIOR NOTE: Proven live 2026-09-19. Each proven on a throwaway the probe created in the same run, with an untouched sibling as the control. ?userId=<uid> -> 200 {success:true}; the workflow then 404s on GET and leaves the list while the sibling stays. \u{1F534} It is a SOFT delete: the workflow moves to GET \u2026/list?status=deleted and PUT \u2026/restore brings it back.',
           reach: "proven",
           provenFor: [
             "agency-admin-bearer"
@@ -22950,7 +22950,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "destructive",
-          note: "Proven live 2026-09-19. Each proven on a throwaway the probe created in the same run, with an untouched sibling as the control. Body {type:'workflow'|'directory', workflowIds:[\u2026], updatedBy:<uid>} -> 200 {success, message:'1 workflows deleted successfully', processedCount, failedCount, processingType:'synchronous', deletedIds}. Soft, like the single delete.",
+          note: `FENCED \u2014 DELETION IS RESERVED FOR A HUMAN by a written standing rule, and a tool would hand that act to an agent. gohighlevel/CLAUDE.md: "Nothing is deleted. Superseded material moves to archive/ with a note saying what replaced it. Probe artifacts created on a test account are left in place, clearly named, FOR A HUMAN TO REMOVE." The P5 policy separately allows a destructive to be PROBED against an object the probe itself just created \u2014 that permission is about learning what the route does, and it is not a licence to ship a tool that deletes on request. \u26A0\uFE0F This is a FENCE, not a verdict that the route is useless: if the operator wants agent-driven cleanup of TEST-CONF/TEST-CAP artifacts, this is the row to lift the fence on, and the blast radius should be named before it is.
+\u2014 PRIOR NOTE: Proven live 2026-09-19. Each proven on a throwaway the probe created in the same run, with an untouched sibling as the control. Body {type:'workflow'|'directory', workflowIds:[\u2026], updatedBy:<uid>} -> 200 {success, message:'1 workflows deleted successfully', processedCount, failedCount, processingType:'synchronous', deletedIds}. Soft, like the single delete.`,
           reach: "proven",
           provenFor: [
             "agency-admin-bearer"
@@ -24661,7 +24662,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "destructive",
-          note: "Proven live 2026-09-19. Each proven on a throwaway the probe created in the same run, with an untouched sibling as the control. -> 200 {msg:'deleted successfully', error:false}; the folder left GET \u2026/list?type=directory while the sibling folder stayed.",
+          note: `FENCED \u2014 DELETION IS RESERVED FOR A HUMAN by a written standing rule, and a tool would hand that act to an agent. gohighlevel/CLAUDE.md: "Nothing is deleted. Superseded material moves to archive/ with a note saying what replaced it. Probe artifacts created on a test account are left in place, clearly named, FOR A HUMAN TO REMOVE." The P5 policy separately allows a destructive to be PROBED against an object the probe itself just created \u2014 that permission is about learning what the route does, and it is not a licence to ship a tool that deletes on request. \u26A0\uFE0F This is a FENCE, not a verdict that the route is useless: if the operator wants agent-driven cleanup of TEST-CONF/TEST-CAP artifacts, this is the row to lift the fence on, and the blast radius should be named before it is.
+\u2014 PRIOR NOTE: Proven live 2026-09-19. Each proven on a throwaway the probe created in the same run, with an untouched sibling as the control. -> 200 {msg:'deleted successfully', error:false}; the folder left GET \u2026/list?type=directory while the sibling folder stayed.`,
           reach: "proven",
           provenFor: [
             "agency-admin-bearer"
@@ -25319,7 +25321,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "destructive",
-          note: "Proven live 2026-09-19. \u{1F534} It WIPES A SPLIT STEP'S EXECUTION HISTORY, not the step: ?workflowId=&stepId= -> 200 {success:true}; GET \u2026/split/stats went {totalContactsEntered:2, pathB:2} -> all zeros on a probe split two probe contacts had run through. Irreversible as far as any route shows.",
+          note: `FENCED \u2014 DELETION IS RESERVED FOR A HUMAN by a written standing rule, and a tool would hand that act to an agent. gohighlevel/CLAUDE.md: "Nothing is deleted. Superseded material moves to archive/ with a note saying what replaced it. Probe artifacts created on a test account are left in place, clearly named, FOR A HUMAN TO REMOVE." The P5 policy separately allows a destructive to be PROBED against an object the probe itself just created \u2014 that permission is about learning what the route does, and it is not a licence to ship a tool that deletes on request. \u26A0\uFE0F This is a FENCE, not a verdict that the route is useless: if the operator wants agent-driven cleanup of TEST-CONF/TEST-CAP artifacts, this is the row to lift the fence on, and the blast radius should be named before it is.
+\u2014 PRIOR NOTE: Proven live 2026-09-19. \u{1F534} It WIPES A SPLIT STEP'S EXECUTION HISTORY, not the step: ?workflowId=&stepId= -> 200 {success:true}; GET \u2026/split/stats went {totalContactsEntered:2, pathB:2} -> all zeros on a probe split two probe contacts had run through. Irreversible as far as any route shows.`,
           reach: "proven",
           provenFor: [
             "agency-admin-bearer"
@@ -29573,7 +29576,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           summary: "One field's dropdown options for an Add-step panel action: {options: [...]}.",
-          note: "TRAP: answered {options: []} for update_inventory/product while the ALL-fields form (same minute, same account) listed the option -- and answered the identical empty body for a field name that does not exist. An empty answer from this form discriminates nothing; use GET .../actions/options/{key}. Measured 2026-09-19.",
+          note: "FENCED \u2014 the workflows-marketplace family needs an ESCALATION DECISION before it is used, and proving a route does not un-gate it. `workflows-marketplace` is one of the four gated families named in console/lib/surface-state.mjs (flowguard, workflows-marketplace, oauth2, secret-manager); this row reads USABLE-UNUSED only because the counter tests isProven BEFORE it tests the family. The one marketplace capability that HAS been taken through the purpose test is already built \u2014 describe_marketplace_action, which covers GET /workflows-marketplace/actions/options/{key} and exists because the compiler is otherwise blind to what a marketplace action requires. Widening past that needs a decision about the family, not another row.\n\u2014 PRIOR NOTE: TRAP: answered {options: []} for update_inventory/product while the ALL-fields form (same minute, same account) listed the option -- and answered the identical empty body for a field name that does not exist. An empty answer from this form discriminates nothing; use GET .../actions/options/{key}. Measured 2026-09-19.",
           reach: "proven",
           provenFor: [
             "agency-admin-bearer"
@@ -29875,7 +29878,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          note: "Live-probed 2026-08-25: 403 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
+          note: "FENCED \u2014 the workflows-marketplace family needs an ESCALATION DECISION before it is used, and proving a route does not un-gate it. `workflows-marketplace` is one of the four gated families named in console/lib/surface-state.mjs (flowguard, workflows-marketplace, oauth2, secret-manager); this row reads USABLE-UNUSED only because the counter tests isProven BEFORE it tests the family. The one marketplace capability that HAS been taken through the purpose test is already built \u2014 describe_marketplace_action, which covers GET /workflows-marketplace/actions/options/{key} and exists because the compiler is otherwise blind to what a marketplace action requires. Widening past that needs a decision about the family, not another row.\n\u2014 PRIOR NOTE: Live-probed 2026-08-25: 403 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
           reach: "proven",
           provenFor: [
             "agency-admin-bearer"
@@ -30368,6 +30371,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
+          note: "FENCED \u2014 the workflows-marketplace family needs an ESCALATION DECISION before it is used, and proving a route does not un-gate it. `workflows-marketplace` is one of the four gated families named in console/lib/surface-state.mjs (flowguard, workflows-marketplace, oauth2, secret-manager); this row reads USABLE-UNUSED only because the counter tests isProven BEFORE it tests the family. The one marketplace capability that HAS been taken through the purpose test is already built \u2014 describe_marketplace_action, which covers GET /workflows-marketplace/actions/options/{key} and exists because the compiler is otherwise blind to what a marketplace action requires. Widening past that needs a decision about the family, not another row.",
           reach: "proven",
           provenFor: [
             "agency-admin-bearer"
@@ -32817,7 +32821,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "destructive",
-          note: "Proven live 2026-09-19: ?_id=<noteId>&locationId=, with the pinned API_BASE_HEADERS -> 200 with the note carrying isDeleted:true; sticky-notes-all then returns 0. CONTROL: a ghost _id -> 404 'Sticky note not found to delete'.",
+          note: `FENCED \u2014 DELETION IS RESERVED FOR A HUMAN by a written standing rule, and a tool would hand that act to an agent. gohighlevel/CLAUDE.md: "Nothing is deleted. Superseded material moves to archive/ with a note saying what replaced it. Probe artifacts created on a test account are left in place, clearly named, FOR A HUMAN TO REMOVE." The P5 policy separately allows a destructive to be PROBED against an object the probe itself just created \u2014 that permission is about learning what the route does, and it is not a licence to ship a tool that deletes on request. \u26A0\uFE0F This is a FENCE, not a verdict that the route is useless: if the operator wants agent-driven cleanup of TEST-CONF/TEST-CAP artifacts, this is the row to lift the fence on, and the blast radius should be named before it is.
+\u2014 PRIOR NOTE: Proven live 2026-09-19: ?_id=<noteId>&locationId=, with the pinned API_BASE_HEADERS -> 200 with the note carrying isDeleted:true; sticky-notes-all then returns 0. CONTROL: a ghost _id -> 404 'Sticky note not found to delete'.`,
           reach: "proven",
           provenFor: [
             "agency-admin-bearer"
@@ -52777,7 +52782,8 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           reach: "proven",
           credentialClass: "agency-admin-bearer",
           kind: "destructive",
-          note: "Proven live 2026-09-19. Each proven on a throwaway the probe created in the same run, with an untouched sibling as the control. Body {type:'workflow'|'directory', workflowIds:[\u2026], updatedBy:<uid>} -> 200 {success, message:'1 workflows deleted successfully', processedCount, failedCount, processingType:'synchronous', deletedIds}. Soft, like the single delete."
+          note: `FENCED \u2014 DELETION IS RESERVED FOR A HUMAN by a written standing rule, and a tool would hand that act to an agent. gohighlevel/CLAUDE.md: "Nothing is deleted. Superseded material moves to archive/ with a note saying what replaced it. Probe artifacts created on a test account are left in place, clearly named, FOR A HUMAN TO REMOVE." The P5 policy separately allows a destructive to be PROBED against an object the probe itself just created \u2014 that permission is about learning what the route does, and it is not a licence to ship a tool that deletes on request. \u26A0\uFE0F This is a FENCE, not a verdict that the route is useless: if the operator wants agent-driven cleanup of TEST-CONF/TEST-CAP artifacts, this is the row to lift the fence on, and the blast radius should be named before it is.
+\u2014 PRIOR NOTE: Proven live 2026-09-19. Each proven on a throwaway the probe created in the same run, with an untouched sibling as the control. Body {type:'workflow'|'directory', workflowIds:[\u2026], updatedBy:<uid>} -> 200 {success, message:'1 workflows deleted successfully', processedCount, failedCount, processingType:'synchronous', deletedIds}. Soft, like the single delete.`
         },
         "DELETE /workflow/{locationId}/error-notification/{workflowId}": {
           reach: "reached",
@@ -52789,7 +52795,8 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           reach: "proven",
           credentialClass: "agency-admin-bearer",
           kind: "destructive",
-          note: "Proven live 2026-09-19. Each proven on a throwaway the probe created in the same run, with an untouched sibling as the control. -> 200 {msg:'deleted successfully', error:false}; the folder left GET \u2026/list?type=directory while the sibling folder stayed."
+          note: `FENCED \u2014 DELETION IS RESERVED FOR A HUMAN by a written standing rule, and a tool would hand that act to an agent. gohighlevel/CLAUDE.md: "Nothing is deleted. Superseded material moves to archive/ with a note saying what replaced it. Probe artifacts created on a test account are left in place, clearly named, FOR A HUMAN TO REMOVE." The P5 policy separately allows a destructive to be PROBED against an object the probe itself just created \u2014 that permission is about learning what the route does, and it is not a licence to ship a tool that deletes on request. \u26A0\uFE0F This is a FENCE, not a verdict that the route is useless: if the operator wants agent-driven cleanup of TEST-CONF/TEST-CAP artifacts, this is the row to lift the fence on, and the blast radius should be named before it is.
+\u2014 PRIOR NOTE: Proven live 2026-09-19. Each proven on a throwaway the probe created in the same run, with an untouched sibling as the control. -> 200 {msg:'deleted successfully', error:false}; the folder left GET \u2026/list?type=directory while the sibling folder stayed.`
         },
         "DELETE /workflow/{locationId}/scheduled-pause/config/{recordId}": {
           reach: "proven",
@@ -52801,19 +52808,21 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           reach: "proven",
           credentialClass: "agency-admin-bearer",
           kind: "destructive",
-          note: "Proven live 2026-09-19. \u{1F534} It WIPES A SPLIT STEP'S EXECUTION HISTORY, not the step: ?workflowId=&stepId= -> 200 {success:true}; GET \u2026/split/stats went {totalContactsEntered:2, pathB:2} -> all zeros on a probe split two probe contacts had run through. Irreversible as far as any route shows."
+          note: `FENCED \u2014 DELETION IS RESERVED FOR A HUMAN by a written standing rule, and a tool would hand that act to an agent. gohighlevel/CLAUDE.md: "Nothing is deleted. Superseded material moves to archive/ with a note saying what replaced it. Probe artifacts created on a test account are left in place, clearly named, FOR A HUMAN TO REMOVE." The P5 policy separately allows a destructive to be PROBED against an object the probe itself just created \u2014 that permission is about learning what the route does, and it is not a licence to ship a tool that deletes on request. \u26A0\uFE0F This is a FENCE, not a verdict that the route is useless: if the operator wants agent-driven cleanup of TEST-CONF/TEST-CAP artifacts, this is the row to lift the fence on, and the blast radius should be named before it is.
+\u2014 PRIOR NOTE: Proven live 2026-09-19. \u{1F534} It WIPES A SPLIT STEP'S EXECUTION HISTORY, not the step: ?workflowId=&stepId= -> 200 {success:true}; GET \u2026/split/stats went {totalContactsEntered:2, pathB:2} -> all zeros on a probe split two probe contacts had run through. Irreversible as far as any route shows.`
         },
         "DELETE /workflow/{locationId}/{workflowId}": {
           reach: "proven",
           credentialClass: "agency-admin-bearer",
           kind: "destructive",
-          note: "Proven live 2026-09-19. Each proven on a throwaway the probe created in the same run, with an untouched sibling as the control. ?userId=<uid> -> 200 {success:true}; the workflow then 404s on GET and leaves the list while the sibling stays. \u{1F534} It is a SOFT delete: the workflow moves to GET \u2026/list?status=deleted and PUT \u2026/restore brings it back."
+          note: 'FENCED \u2014 DELETION IS RESERVED FOR A HUMAN by a written standing rule, and a tool would hand that act to an agent. gohighlevel/CLAUDE.md: "Nothing is deleted. Superseded material moves to archive/ with a note saying what replaced it. Probe artifacts created on a test account are left in place, clearly named, FOR A HUMAN TO REMOVE." The P5 policy separately allows a destructive to be PROBED against an object the probe itself just created \u2014 that permission is about learning what the route does, and it is not a licence to ship a tool that deletes on request. \u26A0\uFE0F This is a FENCE, not a verdict that the route is useless: if the operator wants agent-driven cleanup of TEST-CONF/TEST-CAP artifacts, this is the row to lift the fence on, and the blast radius should be named before it is.\n\u2014 PRIOR NOTE: Proven live 2026-09-19. Each proven on a throwaway the probe created in the same run, with an untouched sibling as the control. ?userId=<uid> -> 200 {success:true}; the workflow then 404s on GET and leaves the list while the sibling stays. \u{1F534} It is a SOFT delete: the workflow moves to GET \u2026/list?status=deleted and PUT \u2026/restore brings it back.'
         },
         "DELETE /workflows/sticky-note": {
           reach: "proven",
           credentialClass: "agency-admin-bearer",
           kind: "destructive",
-          note: "Proven live 2026-09-19: ?_id=<noteId>&locationId=, with the pinned API_BASE_HEADERS -> 200 with the note carrying isDeleted:true; sticky-notes-all then returns 0. CONTROL: a ghost _id -> 404 'Sticky note not found to delete'."
+          note: `FENCED \u2014 DELETION IS RESERVED FOR A HUMAN by a written standing rule, and a tool would hand that act to an agent. gohighlevel/CLAUDE.md: "Nothing is deleted. Superseded material moves to archive/ with a note saying what replaced it. Probe artifacts created on a test account are left in place, clearly named, FOR A HUMAN TO REMOVE." The P5 policy separately allows a destructive to be PROBED against an object the probe itself just created \u2014 that permission is about learning what the route does, and it is not a licence to ship a tool that deletes on request. \u26A0\uFE0F This is a FENCE, not a verdict that the route is useless: if the operator wants agent-driven cleanup of TEST-CONF/TEST-CAP artifacts, this is the row to lift the fence on, and the blast radius should be named before it is.
+\u2014 PRIOR NOTE: Proven live 2026-09-19: ?_id=<noteId>&locationId=, with the pinned API_BASE_HEADERS -> 200 with the note carrying isDeleted:true; sticky-notes-all then returns 0. CONTROL: a ghost _id -> 404 'Sticky note not found to delete'.`
         },
         "GET /ad-publishing/facebook/custom-audience": {
           reach: "refused",
@@ -53786,7 +53795,7 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         },
         "GET /workflows-marketplace/actions/options/{key}/{fieldName}": {
           summary: "One field's dropdown options for an Add-step panel action: {options: [...]}.",
-          note: "TRAP: answered {options: []} for update_inventory/product while the ALL-fields form (same minute, same account) listed the option -- and answered the identical empty body for a field name that does not exist. An empty answer from this form discriminates nothing; use GET .../actions/options/{key}. Measured 2026-09-19.",
+          note: "FENCED \u2014 the workflows-marketplace family needs an ESCALATION DECISION before it is used, and proving a route does not un-gate it. `workflows-marketplace` is one of the four gated families named in console/lib/surface-state.mjs (flowguard, workflows-marketplace, oauth2, secret-manager); this row reads USABLE-UNUSED only because the counter tests isProven BEFORE it tests the family. The one marketplace capability that HAS been taken through the purpose test is already built \u2014 describe_marketplace_action, which covers GET /workflows-marketplace/actions/options/{key} and exists because the compiler is otherwise blind to what a marketplace action requires. Widening past that needs a decision about the family, not another row.\n\u2014 PRIOR NOTE: TRAP: answered {options: []} for update_inventory/product while the ALL-fields form (same minute, same account) listed the option -- and answered the identical empty body for a field name that does not exist. An empty answer from this form discriminates nothing; use GET .../actions/options/{key}. Measured 2026-09-19.",
           reach: "proven",
           credentialClass: "agency-admin-bearer",
           kind: "read"
@@ -53804,8 +53813,11 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         },
         "GET /workflows-marketplace/integration-apps": {
           reach: "refused",
-          note: "Live-probed 2026-08-25: 403 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
+          note: "FENCED \u2014 the workflows-marketplace family needs an ESCALATION DECISION before it is used, and proving a route does not un-gate it. `workflows-marketplace` is one of the four gated families named in console/lib/surface-state.mjs (flowguard, workflows-marketplace, oauth2, secret-manager); this row reads USABLE-UNUSED only because the counter tests isProven BEFORE it tests the family. The one marketplace capability that HAS been taken through the purpose test is already built \u2014 describe_marketplace_action, which covers GET /workflows-marketplace/actions/options/{key} and exists because the compiler is otherwise blind to what a marketplace action requires. Widening past that needs a decision about the family, not another row.\n\u2014 PRIOR NOTE: Live-probed 2026-08-25: 403 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
           credentialClass: "location-user-bearer"
+        },
+        "GET /workflows-marketplace/integration/slack/integrations": {
+          note: "FENCED \u2014 the workflows-marketplace family needs an ESCALATION DECISION before it is used, and proving a route does not un-gate it. `workflows-marketplace` is one of the four gated families named in console/lib/surface-state.mjs (flowguard, workflows-marketplace, oauth2, secret-manager); this row reads USABLE-UNUSED only because the counter tests isProven BEFORE it tests the family. The one marketplace capability that HAS been taken through the purpose test is already built \u2014 describe_marketplace_action, which covers GET /workflows-marketplace/actions/options/{key} and exists because the compiler is otherwise blind to what a marketplace action requires. Widening past that needs a decision about the family, not another row."
         },
         "GET /workflows-marketplace/location/{locationId}/assets": {
           reach: "proven"
