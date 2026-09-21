@@ -2719,6 +2719,17 @@ export const TOOLS = [
 
       const logsQuery = withFilters(base);
       logsQuery.set('limit', String(limit));
+      // 🔴 WITHOUT dateType=custom, logs/v2 IGNORES fromDate/toDate AND STILL ANSWERS 200 with a
+      // day-snapped ~30-day default. Measured on the designated sandbox 2026-09-21 by differential:
+      // a one-hour window around 2026-09-08 returned three rows all stamped 2026-09-01 — outside
+      // the window that was asked for — while the SAME call plus dateType=custom returned [], which
+      // is the true answer for that hour. So a caller asking "what happened between X and Y" was
+      // silently handed a month. The same defect was found and fixed in
+      // core/workflow-runtime-window.mjs (see the note at its cursor walk); it was never carried
+      // across to this tool.
+      // 🔴 It goes HERE and not inside withFilters(): that helper also builds the
+      // workflow-with-filter roster query, and that endpoint REJECTS dateType outright.
+      if (filters.fromDate !== undefined || filters.toDate !== undefined) logsQuery.set('dateType', 'custom');
       if (typeof args.executionId === 'string' && args.executionId.length) logsQuery.set('executionId', args.executionId);
 
       const [logs, counts] = await Promise.all([

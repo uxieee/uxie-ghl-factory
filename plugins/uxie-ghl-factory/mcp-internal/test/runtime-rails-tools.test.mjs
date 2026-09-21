@@ -216,3 +216,43 @@ test('get_workflow_logs labels a removal by ORIGIN and counts the external ones'
   assert.equal(rows[3].removalOrigin, undefined, 'a step row is not a removal');
   assert.equal(res.data.externalRemovals, 1);
 });
+
+// ── a window nobody applied is worse than no window ──────────────────────────────────────────
+// Measured on the designated sandbox 2026-09-21 by differential: /workflows/logs/v2 given a
+// one-hour window around 2026-09-08 returned three rows ALL stamped 2026-09-01 — outside the range
+// asked for — and answered 200 doing it. The same call plus dateType=custom returned [], the true
+// answer for that hour. So the dates were accepted, ignored, and replaced with a day-snapped
+// ~30-day default. workflow-with-filter is the opposite: it REJECTS dateType, which is why the
+// flag cannot live in the shared filter builder.
+test('get_workflow_logs: a date window reaches logs/v2 as dateType=custom, and NEVER reaches the roster', async () => {
+  const gw = gwStub({
+    '/workflows/logs/v2': [],
+    '/workflows/status/search/count-per-step': [],
+    '/workflows/status/search/workflow-with-filter': { rows: [] },
+  });
+  await tool('get_workflow_logs').handler(
+    { locationId: 'L', workflowId: 'w1', fromDate: 1789000000000, toDate: 1789003600000 }, deps(gw));
+
+  const logs = gw.calls.map((c) => c.path).filter((p) => p.includes('/workflows/logs/v2'));
+  assert.equal(logs.length, 1, 'logs/v2 was called once');
+  assert.match(logs[0], /dateType=custom/, `the window was sent without dateType: ${logs[0]}`);
+  assert.match(logs[0], /fromDate=1789000000000/);
+
+  const roster = gw.calls.map((c) => c.path).filter((p) => p.includes('workflow-with-filter'));
+  for (const p of roster) {
+    assert.doesNotMatch(p, /dateType/, `the roster endpoint REJECTS dateType, and got one: ${p}`);
+  }
+});
+
+test('get_workflow_logs: no date window means no dateType — the flag is not sent unconditionally', async () => {
+  // A bare read must keep GHL's own default behaviour rather than pinning a window nobody asked
+  // for. dateType only makes sense alongside fromDate/toDate.
+  const gw = gwStub({
+    '/workflows/logs/v2': [],
+    '/workflows/status/search/count-per-step': [],
+    '/workflows/status/search/workflow-with-filter': { rows: [] },
+  });
+  await tool('get_workflow_logs').handler({ locationId: 'L', workflowId: 'w1' }, deps(gw));
+  const logs = gw.calls.map((c) => c.path).find((p) => p.includes('/workflows/logs/v2'));
+  assert.doesNotMatch(logs, /dateType/);
+});

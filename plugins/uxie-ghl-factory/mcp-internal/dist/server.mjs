@@ -173809,6 +173809,7 @@ var TOOLS2 = [
       };
       const logsQuery = withFilters(base);
       logsQuery.set("limit", String(limit));
+      if (filters.fromDate !== void 0 || filters.toDate !== void 0) logsQuery.set("dateType", "custom");
       if (typeof args.executionId === "string" && args.executionId.length) logsQuery.set("executionId", args.executionId);
       const [logs, counts] = await Promise.all([
         gw.call("GET", `/workflows/logs/v2?${logsQuery}`),
