@@ -177291,7 +177291,19 @@ var TOOLS2 = [
         limit: String(args.limit ?? 100),
         offset: String(args.offset ?? 0),
         sortBy: "name",
-        sortOrder: "asc"
+        sortOrder: "asc",
+        // 🔴 WITHOUT THESE THE LISTING SILENTLY OMITS WHOLE WORKFLOWS. Measured on the designated
+        // sandbox 2026-09-21 by a differential on one folder, same query otherwise: 22 rows
+        // without `includeObjectiveBuilder`, 23 with it. The extra row is a PUBLISHED workflow
+        // carrying workflowType:'agent' — not an edge case, and nothing in the response hints that
+        // anything was left out. Same family as the known agent-omission on list_workflows.
+        // `includeCustomObjects` is sent for the same reason but is NOT differentially proven
+        // here: this account has no user-defined custom objects, so the control cannot exist on
+        // it. It is not a guess — the builder declares both as required query keys, and they are
+        // recorded as such in core/audit-capabilities.mjs — but say so rather than implying both
+        // were measured.
+        includeObjectiveBuilder: "true",
+        includeCustomObjects: "true"
       });
       if (args.parentId === void 0) q3.set("type", "directory");
       else q3.set("parentId", args.parentId);

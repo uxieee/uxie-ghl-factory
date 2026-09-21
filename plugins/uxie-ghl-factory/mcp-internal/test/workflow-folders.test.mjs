@@ -382,3 +382,33 @@ test('no tool on this rail issues a DELETE', () => {
     assert.equal(methods.includes('DELETE'), false, `${name} must not declare a DELETE capability`);
   }
 });
+
+// ── agent workflows must not vanish out of a folder's contents ───────────────────────────────
+// Measured on the designated sandbox 2026-09-21 with a differential on one real folder, the query
+// identical apart from the flag: 22 rows without `includeObjectiveBuilder`, 23 with it. The row
+// that appears is a PUBLISHED workflow carrying workflowType:'agent', and nothing in the response
+// hints that anything was omitted — the count simply comes back smaller. This is the same silent
+// agent-omission already known on list_workflows, and it reached folder CONTENTS too.
+test('list_workflow_folders asks for agent workflows, or a folder quietly under-reports', async () => {
+  const seen = [];
+  const gw = {
+    call: async (method, path) => {
+      seen.push(path);
+      return { ok: true, status: 200, json: { rows: [], count: 0, folderName: 'WA staging' } };
+    },
+  };
+  const deps = { state: { tokenFile: '/x' }, makeGw: () => gw };
+
+  await tool('list_workflow_folders').handler({ locationId: 'L', parentId: 'fold-1' }, deps);
+  const contents = seen.at(-1);
+  assert.match(contents, /includeObjectiveBuilder=true/,
+    `a folder's contents were requested without the agent flag: ${contents}`);
+  assert.match(contents, /parentId=fold-1/);
+
+  // The folder listing itself takes the same query builder, so the flag rides along there too.
+  // Harmless (a directory row is not a workflow) and asserted so the two cannot drift apart.
+  seen.length = 0;
+  await tool('list_workflow_folders').handler({ locationId: 'L' }, deps);
+  assert.match(seen.at(-1), /type=directory/);
+  assert.match(seen.at(-1), /includeObjectiveBuilder=true/);
+});

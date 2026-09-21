@@ -1351,6 +1351,41 @@ console.log('\nfolders');
 log.subject('list_workflow_folders');
 const beforeFolders = await call('list_workflow_folders', { limit: 100, offset: 0 });
 check(Array.isArray(beforeFolders.data?.folders), 'list_workflow_folders returns folders', beforeFolders.detail);
+
+// ── a folder's contents must not silently drop agent workflows ───────────────────────────────
+// Measured 2026-09-21 by differential on one real folder: 22 rows without `includeObjectiveBuilder`,
+// 23 with it, and the extra row is a PUBLISHED workflow carrying workflowType:'agent'. The count
+// simply comes back smaller — nothing in the response says anything was withheld. This asserts the
+// tool's answer against the UNFLAGGED raw call, so deleting the flag turns the section red instead
+// of quietly shrinking every folder.
+{
+  const fols = beforeFolders.data?.folders ?? [];
+  // Pick the folder with the most contents, so the comparison has something to discriminate.
+  let best = null;
+  for (const f of fols.slice(0, 12)) {
+    const c = await call('list_workflow_folders', { parentId: f.id });
+    const n = (c.data?.contents ?? []).length;
+    if (!best || n > best.n) best = { id: f.id, name: f.name, n, contents: c.data?.contents ?? [] };
+  }
+  if (!best || best.n === 0) {
+    check(true, 'SKIPPED: no folder on this account holds any workflow, so the agent-omission differential has nothing to measure', 'not a pass — nothing was tested');
+  } else {
+    const bare = new URLSearchParams({ limit: '100', offset: '0', sortBy: 'name', sortOrder: 'asc', parentId: best.id });
+    const raw = await deps.makeGw({ loc: LOCATION, state }).call('GET', `/workflow/${LOCATION}/list?${bare}`);
+    const bareRows = Array.isArray(raw.json?.rows) ? raw.json.rows : [];
+    check(best.n >= bareRows.length,
+      'the tool never returns FEWER rows than the unflagged call — the flag can only add',
+      `tool=${best.n} unflagged=${bareRows.length} folder=${best.name}`);
+    const bareIds = new Set(bareRows.map((r) => r.id ?? r._id));
+    const extra = best.contents.filter((r) => !bareIds.has(r.id));
+    check(extra.every((r) => r.type === 'workflow'),
+      'anything the flag adds is a workflow, not some other row kind',
+      JSON.stringify(extra.slice(0, 3)));
+    // The finding itself, stated as what it is: on THIS account the flag is load-bearing.
+    check(true, `MEASURED: folder "${best.name}" holds ${best.n} rows with the flag and ${bareRows.length} without`,
+      extra.length ? `the flag adds: ${extra.map((r) => r.name).join(', ')}` : 'no difference on this folder today');
+  }
+}
 check((beforeFolders.data?.folders ?? []).every((f) => f.type === 'directory'),
   "every row is type 'directory' — the listing is filtered, not a mixed bag of workflows and folders");
 
