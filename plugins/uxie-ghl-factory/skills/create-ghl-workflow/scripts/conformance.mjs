@@ -816,6 +816,27 @@ if (ovTotal !== total) {
   check(Array.isArray(summed) && summed.length === 1 && Number(summed[0].total) === total,
     'DIFFERENTIAL: GHL answers the whole id list with ONE row whose total equals the sum of the per-workflow rows — which is why the tool calls once per workflow',
     `${JSON.stringify(summed)} vs sum ${total}`);
+
+  // ── enrolment absence is NOT a measured zero ────────────────────────────────────────────────
+  // Measured 2026-09-21 with a ghost control: /workflows/status/search/enroll-stats OMITS a
+  // workflow that has no enrolments rather than reporting 0 (20 ids asked, only the enrolled ones
+  // come back), and the singular ?workflowId= form answers 200 with an EMPTY STRING body — the
+  // IDENTICAL answer a ghost id gets. So an absent row cannot tell "no enrolments" from "no such
+  // workflow", and reporting it as 0 would assert a number GHL never stated. The tool fills the
+  // gap with total:null, and this pins that: if a future edit ever coerces the miss to 0, the
+  // caller silently gains a fact nobody measured.
+  const enr = off.data?.enrollment ?? [];
+  check(enr.length === sample.length, 'every workflow asked about gets an enrollment row back, answered or not',
+    `rows=${enr.length} asked=${sample.length}`);
+  const unanswered = enr.filter((r) => r.total === null);
+  const answered = enr.filter((r) => Number.isFinite(r.total));
+  check(answered.length > 0, 'POSITIVE CONTROL: at least one workflow DID come back with numbers, so a clean run here is not vacuous',
+    `answered=${answered.length} unanswered=${unanswered.length}`);
+  check(unanswered.every((r) => r.total === null && r.finished === null && r.source === null),
+    'an omitted workflow reads null/null/null — never 0, which GHL did not say',
+    JSON.stringify(unanswered.slice(0, 3)));
+  check(answered.every((r) => r.source === 'live' || r.source === 'cache'),
+    'and an answered row names which rail answered it', JSON.stringify(answered.slice(0, 3)));
 }
 
 // ── raw_request: five shapes it refuses, and the trap note in the preview ─────────────────────

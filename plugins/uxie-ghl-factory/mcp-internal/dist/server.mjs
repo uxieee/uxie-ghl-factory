@@ -32049,7 +32049,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          note: "Live-probed 2026-08-25: the endpoint returned 400 naming workflowId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
+          note: 'Re-measured 2026-09-21 on the designated sandbox with controls, correcting the 2026-08-25 reading. The 400 is "workflowId or workflowIds needs to be present" \u2014 an EITHER/OR, not a singular requirement; the 08-25 note recorded only the first name in that sentence. The two forms return DIFFERENT SHAPES: ?workflowId={id} answers a bare OBJECT {total, finished, workflowId, traceId}; ?workflowIds[]={id}&... answers an ARRAY of {total, finished, workflowId}. \u1F534 TRAP: a workflow with no enrolments is not reported as zero \u2014 the array form OMITS its row entirely (8 ids asked, 3 rows returned) and the singular form answers 200 with an EMPTY STRING body. CONTROL: a ghost workflowId answers the IDENTICAL 200 "", so an empty answer says nothing about whether the workflow exists. Absence is GHL declining to state a number, never a measured zero \u2014 get_account_workflow_overview therefore reports an omitted id as total:null, not 0.',
           reach: "proven",
           provenFor: [
             "agency-admin-bearer"
@@ -32066,12 +32066,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           tree: "workflow-builder",
           pathParams: [],
           query: [
-            {
-              name: "workflowId",
-              type: "string",
-              required: true,
-              source: "live-probe"
-            },
             {
               name: "workflowIds",
               type: "any",
@@ -53514,9 +53508,9 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         },
         "GET /workflows/status/search/enroll-stats": {
           requiredQuery: [
-            "workflowId"
+            "locationId"
           ],
-          note: "Live-probed 2026-08-25: the endpoint returned 400 naming workflowId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source."
+          note: 'Re-measured 2026-09-21 on the designated sandbox with controls, correcting the 2026-08-25 reading. The 400 is "workflowId or workflowIds needs to be present" \u2014 an EITHER/OR, not a singular requirement; the 08-25 note recorded only the first name in that sentence. The two forms return DIFFERENT SHAPES: ?workflowId={id} answers a bare OBJECT {total, finished, workflowId, traceId}; ?workflowIds[]={id}&... answers an ARRAY of {total, finished, workflowId}. \u1F534 TRAP: a workflow with no enrolments is not reported as zero \u2014 the array form OMITS its row entirely (8 ids asked, 3 rows returned) and the singular form answers 200 with an EMPTY STRING body. CONTROL: a ghost workflowId answers the IDENTICAL 200 "", so an empty answer says nothing about whether the workflow exists. Absence is GHL declining to state a number, never a measured zero \u2014 get_account_workflow_overview therefore reports an omitted id as total:null, not 0.'
         },
         "GET /workflows/status/search/workflow-with-filter": {
           requiredQuery: [
@@ -174844,7 +174838,7 @@ var TOOLS2 = [
     name: "get_account_workflow_overview",
     description: describe3(
       "get_account_workflow_overview",
-      "The Workflow Overview page as data: location-wide counts, weekly enrollment series, the Needs-Review list (workflows with failing steps) + error-email settings, and batched enrolled/finished totals for given workflowIds. Opt-in includeTriggerCounts adds per-workflow trigger attempted/matched (last 30 days) and flags workflows whose triggers fire and NEVER match."
+      'The Workflow Overview page as data: location-wide counts, weekly enrollment series, the Needs-Review list (workflows with failing steps) + error-email settings, and batched enrolled/finished totals for given workflowIds. Opt-in includeTriggerCounts adds per-workflow trigger attempted/matched (last 30 days) and flags workflows whose triggers fire and NEVER match. In the enrollment rows, total:null means GHL RETURNED NO ROW for that workflow, which is not the same as zero: the enroll-stats route omits a workflow rather than reporting 0, and a ghost id gets the identical empty answer (measured with a control 2026-09-21), so absence cannot distinguish "no enrolments" from "no such workflow". Read null as unknown and never as 0 \u2014 this tool reports what GHL stated, and states nothing where GHL did not.'
     ),
     inputSchema: schema({
       locationId: external_exports.string(),

@@ -31872,7 +31872,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "note": "Live-probed 2026-08-25: the endpoint returned 400 naming workflowId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
+      "note": "Re-measured 2026-09-21 on the designated sandbox with controls, correcting the 2026-08-25 reading. The 400 is \"workflowId or workflowIds needs to be present\" — an EITHER/OR, not a singular requirement; the 08-25 note recorded only the first name in that sentence. The two forms return DIFFERENT SHAPES: ?workflowId={id} answers a bare OBJECT {total, finished, workflowId, traceId}; ?workflowIds[]={id}&... answers an ARRAY of {total, finished, workflowId}. ὓ4 TRAP: a workflow with no enrolments is not reported as zero — the array form OMITS its row entirely (8 ids asked, 3 rows returned) and the singular form answers 200 with an EMPTY STRING body. CONTROL: a ghost workflowId answers the IDENTICAL 200 \"\", so an empty answer says nothing about whether the workflow exists. Absence is GHL declining to state a number, never a measured zero — get_account_workflow_overview therefore reports an omitted id as total:null, not 0.",
       "reach": "proven",
       "provenFor": [
         "agency-admin-bearer"
@@ -31889,12 +31889,6 @@
       "tree": "workflow-builder",
       "pathParams": [],
       "query": [
-        {
-          "name": "workflowId",
-          "type": "string",
-          "required": true,
-          "source": "live-probe"
-        },
         {
           "name": "workflowIds",
           "type": "any",
