@@ -1812,9 +1812,6 @@
       "kind": "write",
       "note": "Proven live 2026-09-19 with a read-back: {name,type,currency,amount,locationId,trackInventory:true,availableQuantity:10} -> 200, the price read then showed trackInventory:true and the quantity, and the Update Inventory workflow step began listing it. 🔴 locationId is REQUIRED IN THE BODY — without it: 422 'locationId/altId must be a string and it should exists'."
     },
-    "PUT /saas-billing-v2/billing-config/..": {
-      "note": "FENCED by the operator-approved plan of 2026-09-19, not probed: billing."
-    },
     "PUT /saas-billing-v2/billing-config/{locationId}": {
       "kind": "destructive",
       "note": "FENCED by the operator-approved plan of 2026-09-19, not probed: billing. Changes the sub-account BILLING PLAN. Money."

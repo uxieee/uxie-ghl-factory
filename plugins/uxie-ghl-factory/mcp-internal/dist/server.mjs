@@ -178,7 +178,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
     define_ENDPOINT_CATALOG_default = {
       generated: "2026-09-23",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 1146,
+      count: 1145,
       endpoints: [
         {
           id: "facebook-service--get-ad-account-by-id",
@@ -2019,7 +2019,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: "workflows",
+          service: "calendars",
           tree: "documented",
           pathParams: [],
           query: [
@@ -2805,7 +2805,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: "workflows",
+          service: "platform",
           tree: "documented",
           pathParams: [
             {
@@ -10051,7 +10051,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: "workflows",
+          service: "platform",
           tree: "documented",
           pathParams: [
             {
@@ -10210,7 +10210,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: "workflows",
+          service: "platform",
           tree: "documented",
           pathParams: [
             {
@@ -13287,7 +13287,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: "workflows",
+          service: "memberships-courses",
           tree: "documented",
           pathParams: [
             {
@@ -13397,7 +13397,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: "workflows",
+          service: "memberships-courses",
           tree: "documented",
           pathParams: [],
           query: [],
@@ -14148,7 +14148,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "fetchCustomObjectFields",
-          service: "workflows",
+          service: "platform",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -14200,7 +14200,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: "workflows",
+          service: "platform",
           tree: "documented",
           pathParams: [
             {
@@ -14252,7 +14252,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "fetchRecordsByFilter",
-          service: "workflows",
+          service: "platform",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -15522,7 +15522,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: "workflows",
+          service: "platform",
           tree: "documented",
           pathParams: [],
           query: [
@@ -15613,7 +15613,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "getPhoneNumbersWithoutNumberPool",
-          service: "workflows",
+          service: "platform",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -15872,7 +15872,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "getAllWhatsAppTemplates",
-          service: "workflows",
+          service: "conversations",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -16061,7 +16061,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: "workflows",
+          service: "platform",
           tree: "documented",
           pathParams: [
             {
@@ -16652,38 +16652,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "services/SaasTwilioService.ts:7",
             "workflows/70-research/ENDPOINTS.md:180"
-          ]
-        },
-        {
-          id: "workflows--billing-config",
-          method: "PUT",
-          url: "https://backend.leadconnectorhq.com/saas-billing-v2/billing-config/..",
-          path: "/saas-billing-v2/billing-config/..",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "write",
-          note: "FENCED by the operator-approved plan of 2026-09-19, not probed: billing.",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "workflows",
-          tree: "documented",
-          pathParams: [],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "workflows/70-research/ENDPOINTS.md:181"
           ]
         },
         {
@@ -37612,7 +37580,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: "workflows",
+          service: "ai-agents",
           tree: "documented",
           pathParams: [
             {
@@ -40019,7 +39987,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: "brand-kit",
+          service: "workflows",
           tree: "documented",
           pathParams: [
             {
@@ -54938,9 +54906,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           credentialClass: "agency-admin-bearer",
           kind: "write",
           note: "Proven live 2026-09-19 with a read-back: {name,type,currency,amount,locationId,trackInventory:true,availableQuantity:10} -> 200, the price read then showed trackInventory:true and the quantity, and the Update Inventory workflow step began listing it. \u{1F534} locationId is REQUIRED IN THE BODY \u2014 without it: 422 'locationId/altId must be a string and it should exists'."
-        },
-        "PUT /saas-billing-v2/billing-config/..": {
-          note: "FENCED by the operator-approved plan of 2026-09-19, not probed: billing."
         },
         "PUT /saas-billing-v2/billing-config/{locationId}": {
           kind: "destructive",

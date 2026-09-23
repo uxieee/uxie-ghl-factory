@@ -29,7 +29,7 @@
   "note": "SOURCE-DERIVED ONLY, merged from every mined front-end. `tree` on each row says which app calls it. The plugin owns kind/note/summary/reach/coveredBy and merges them at read time. A row proves a GHL front-end calls that path — not that your token reaches it, and not that calling it is safe.",
   "discoveredCallSites": 1295,
   "skippedCallSites": 684,
-  "count": 1138,
+  "count": 1137,
   "endpoints": [
     {
       "id": "facebook-service--get-ad-account-by-id",
@@ -426,7 +426,8 @@
       "sources": [
         "workflows/70-research/WORKFLOW-AI.md:39"
       ],
-      "serviceBasis": "declared"
+      "serviceBasis": "reviewed",
+      "serviceReason": "OWNED: the workflow builder AI prompt enhancer (WORKFLOW-AI.md), a relative spelling off the workflow mount"
     },
     {
       "id": "aiemployee-service--is-beta-enabled",
@@ -1221,7 +1222,8 @@
       "sources": [
         "workflows/70-research/ENDPOINTS.md:211"
       ],
-      "serviceBasis": "declared"
+      "serviceBasis": "reviewed",
+      "serviceReason": "OWNED: relative spelling of the workflow blacklist routes (kind = contact | step | workflow)"
     },
     {
       "id": "shared--calendars",
@@ -1470,7 +1472,7 @@
       "extraHeaders": [],
       "tree": "documented",
       "operation": null,
-      "service": "workflows",
+      "service": "calendars",
       "query": [
         {
           "name": "locationId",
@@ -1490,7 +1492,9 @@
       "sources": [
         "workflows/70-research/ENDPOINTS.md:132"
       ],
-      "serviceBasis": "declared"
+      "serviceBasis": "reviewed",
+      "serviceClass": "workflows",
+      "serviceReason": "MOVED to its owning surface: calendar groups picker; calendars owns it"
     },
     {
       "id": "funnels--schedules-event-calendar",
@@ -2111,7 +2115,8 @@
       "sources": [
         "workflows/50-runtime/forcing-and-removing-contacts.md:30"
       ],
-      "serviceBasis": "declared"
+      "serviceBasis": "reviewed",
+      "serviceReason": "OWNED: enrols a contact into a workflow"
     },
     {
       "id": "workflows--contacts",
@@ -2124,7 +2129,7 @@
       "extraHeaders": [],
       "tree": "documented",
       "operation": null,
-      "service": "workflows",
+      "service": "platform",
       "query": [],
       "body": null,
       "returns": null,
@@ -2137,10 +2142,12 @@
       "sources": [
         "workflows/50-runtime/forcing-and-removing-contacts.md:149"
       ],
-      "serviceBasis": "declared",
+      "serviceBasis": "reviewed",
       "aka": [
         "/contacts/{id}"
-      ]
+      ],
+      "serviceClass": "workflows",
+      "serviceReason": "MOVED to its owning surface: a plain contact read"
     },
     {
       "id": "ask-ai--contacts-search",
@@ -2491,7 +2498,8 @@
         "services/marketplaceServices/ConversationAIService.ts:18"
       ],
       "serviceClass": "ConversationAIService",
-      "serviceBasis": "inferred-from-path"
+      "serviceBasis": "reviewed",
+      "serviceReason": "MOVED to its owning surface: Conversation AI intents"
     },
     {
       "id": "email-stats-report-service--get-new-email-stats",
@@ -3442,7 +3450,8 @@
       "sources": [
         "workflows/70-research/STATS-RAILS.md:53"
       ],
-      "serviceBasis": "declared"
+      "serviceBasis": "reviewed",
+      "serviceReason": "OWNED: email stats per WORKFLOW STEP"
     },
     {
       "id": "template-service--get-email-builder-templates-paginated",
@@ -4051,7 +4060,8 @@
         "services/EmailService.ts:183"
       ],
       "serviceClass": "EmailService",
-      "serviceBasis": "inferred-from-path"
+      "serviceBasis": "reviewed",
+      "serviceReason": "OWNED: the campaign-step email rail behind a workflow Email step"
     },
     {
       "id": "email-service--get-triggers",
@@ -4103,7 +4113,8 @@
         "services/EmailService.ts:141"
       ],
       "serviceClass": "EmailService",
-      "serviceBasis": "inferred-from-path"
+      "serviceBasis": "reviewed",
+      "serviceReason": "OWNED: the campaign-step email rail behind a workflow Email step"
     },
     {
       "id": "email-service--update-triggers",
@@ -4155,7 +4166,8 @@
         "services/EmailService.ts:163"
       ],
       "serviceClass": "EmailService",
-      "serviceBasis": "inferred-from-path"
+      "serviceBasis": "reviewed",
+      "serviceReason": "OWNED: the campaign-step email rail behind a workflow Email step"
     },
     {
       "id": "workflows--trigger-campaign",
@@ -4182,7 +4194,8 @@
         "workflows/70-research/ACTION-DRAWERS-2.md:5645",
         "workflows/70-research/ACTION-DRAWERS-2.md:6814"
       ],
-      "serviceBasis": "declared"
+      "serviceBasis": "reviewed",
+      "serviceReason": "OWNED: the campaign-step email rail, keyed by workflow and action"
     },
     {
       "id": "events--events-management-add-ons",
@@ -6911,7 +6924,8 @@
       "sources": [
         "workflows/70-research/WORKFLOW-AI.md:39"
       ],
-      "serviceBasis": "declared"
+      "serviceBasis": "reviewed",
+      "serviceReason": "OWNED: the workflow builder AI image prompt (relative spelling off the workflow mount)"
     },
     {
       "id": "memberships-courses--listings-builder",
@@ -6971,7 +6985,8 @@
         "workflows/70-research/ENDPOINTS.md:241",
         "workflows/70-research/INVENTORY.md:192"
       ],
-      "serviceBasis": "declared"
+      "serviceBasis": "reviewed",
+      "serviceReason": "OWNED: builder preview-mode proxy, documented as {wfm}/iatf-preview (workflows-marketplace mount)"
     },
     {
       "id": "facebook-service--get-account-ids",
@@ -7817,7 +7832,7 @@
       "extraHeaders": [],
       "tree": "documented",
       "operation": null,
-      "service": "workflows",
+      "service": "platform",
       "query": [],
       "body": null,
       "returns": null,
@@ -7831,10 +7846,12 @@
         "workflows/20-api/smart-lists.md:71",
         "workflows/70-research/ENDPOINTS.md:79"
       ],
-      "serviceBasis": "declared",
+      "serviceBasis": "reviewed",
       "aka": [
         "/lists/dynamic/{locationId}"
-      ]
+      ],
+      "serviceClass": "workflows",
+      "serviceReason": "MOVED to its owning surface: smart lists; every sibling /lists/dynamic row is platform"
     },
     {
       "id": "platform--lists-dynamic-get",
@@ -7908,7 +7925,7 @@
       "extraHeaders": [],
       "tree": "documented",
       "operation": null,
-      "service": "workflows",
+      "service": "platform",
       "query": [],
       "body": null,
       "returns": null,
@@ -7922,7 +7939,9 @@
         "workflows/20-api/smart-lists.md:72",
         "workflows/70-research/ENDPOINTS.md:80"
       ],
-      "serviceBasis": "declared"
+      "serviceBasis": "reviewed",
+      "serviceClass": "workflows",
+      "serviceReason": "MOVED to its owning surface: smart lists; every sibling /lists/dynamic row is platform"
     },
     {
       "id": "smart-list-service--delete-smart-list",
@@ -8499,7 +8518,8 @@
         "workflows/10-anatomy/07-id-resolution.md:192",
         "workflows/70-research/ENDPOINTS.md:126"
       ],
-      "serviceBasis": "declared"
+      "serviceBasis": "reviewed",
+      "serviceReason": "USES, covered by a workflows tool: build_workflow, edit_workflow (tag resolution)"
     },
     {
       "id": "email-service--create-tag-marketplace",
@@ -10290,7 +10310,7 @@
       "extraHeaders": [],
       "tree": "documented",
       "operation": null,
-      "service": "workflows",
+      "service": "memberships-courses",
       "query": [],
       "body": null,
       "returns": null,
@@ -10303,7 +10323,9 @@
       "sources": [
         "workflows/40-rules/marketplace-asset-publisher-classes.md:104"
       ],
-      "serviceBasis": "declared"
+      "serviceBasis": "reviewed",
+      "serviceClass": "workflows",
+      "serviceReason": "MOVED to its owning surface: memberships offer purchase count"
     },
     {
       "id": "memberships-courses--locations-videos",
@@ -10368,7 +10390,7 @@
       "extraHeaders": [],
       "tree": "documented",
       "operation": null,
-      "service": "workflows",
+      "service": "memberships-courses",
       "query": [],
       "body": null,
       "returns": null,
@@ -10381,7 +10403,9 @@
       "sources": [
         "workflows/40-rules/marketplace-asset-publisher-classes.md:108"
       ],
-      "serviceBasis": "declared"
+      "serviceBasis": "reviewed",
+      "serviceClass": "workflows",
+      "serviceReason": "MOVED to its owning surface: a memberships grant; its covering tool is build_course"
     },
     {
       "id": "location-membership--fetch-categories",
@@ -10968,7 +10992,7 @@
         "Version"
       ],
       "operation": "fetchCustomObjectFields",
-      "service": "workflows",
+      "service": "platform",
       "query": [
         {
           "name": "locationId",
@@ -10995,7 +11019,8 @@
         "services/marketplaceServices/CustomObjectsService.ts:29"
       ],
       "serviceClass": "CustomObjectsService",
-      "serviceBasis": "inferred-from-path"
+      "serviceBasis": "reviewed",
+      "serviceReason": "MOVED to its owning surface: custom objects"
     },
     {
       "id": "workflows--objects",
@@ -11008,7 +11033,7 @@
       "extraHeaders": [],
       "tree": "documented",
       "operation": null,
-      "service": "workflows",
+      "service": "platform",
       "query": [
         {
           "name": "fetchProperties",
@@ -11029,10 +11054,12 @@
         "workflows/70-research/ENDPOINTS.md:143",
         "workflows/70-research/ENDPOINTS.md:144"
       ],
-      "serviceBasis": "declared",
+      "serviceBasis": "reviewed",
       "aka": [
         "/objects/{workflowType}/"
-      ]
+      ],
+      "serviceClass": "workflows",
+      "serviceReason": "MOVED to its owning surface: custom objects"
     },
     {
       "id": "custom-objects-service--fetch-records-by-filter",
@@ -11049,7 +11076,7 @@
         "Version"
       ],
       "operation": "fetchRecordsByFilter",
-      "service": "workflows",
+      "service": "platform",
       "query": [],
       "body": {
         "typeName": "any",
@@ -11068,7 +11095,8 @@
         "workflows/70-research/ENDPOINTS.md:145"
       ],
       "serviceClass": "CustomObjectsService",
-      "serviceBasis": "inferred-from-path"
+      "serviceBasis": "reviewed",
+      "serviceReason": "MOVED to its owning surface: custom objects"
     },
     {
       "id": "workflows--objects-enabled",
@@ -11094,7 +11122,8 @@
       "sources": [
         "workflows/70-research/INVENTORY.md:213"
       ],
-      "serviceBasis": "declared"
+      "serviceBasis": "reviewed",
+      "serviceReason": "OWNED: whether a WORKFLOW TYPE is enabled"
     },
     {
       "id": "opportunity-custom-field-service--get-lost-reason-custom-field-options",
@@ -11245,7 +11274,8 @@
       "sources": [
         "workflows/10-anatomy/07-id-resolution.md:183"
       ],
-      "serviceBasis": "declared"
+      "serviceBasis": "reviewed",
+      "serviceReason": "USES, covered by a workflows tool: build_workflow, edit_workflow, list_account_entities"
     },
     {
       "id": "pipelines-opportunities--opportunities-pipelines-put",
@@ -12057,7 +12087,8 @@
         "services/IVRService.ts:38"
       ],
       "serviceClass": "IVRService",
-      "serviceBasis": "inferred-from-path"
+      "serviceBasis": "reviewed",
+      "serviceReason": "OWNED: IVR step recordings (IVRService in the builder); IVR is a workflow feature"
     },
     {
       "id": "workflows--phone-system-number-pools",
@@ -12070,7 +12101,7 @@
       "extraHeaders": [],
       "tree": "documented",
       "operation": null,
-      "service": "workflows",
+      "service": "platform",
       "query": [
         {
           "name": "locationId",
@@ -12090,7 +12121,9 @@
       "sources": [
         "workflows/70-research/ENDPOINTS.md:134"
       ],
-      "serviceBasis": "declared"
+      "serviceBasis": "reviewed",
+      "serviceClass": "workflows",
+      "serviceReason": "MOVED to its owning surface: phone number pools; generic telephony"
     },
     {
       "id": "workflows--phone-system-numbers",
@@ -12123,7 +12156,8 @@
       "sources": [
         "workflows/70-research/ENDPOINTS.md:133"
       ],
-      "serviceBasis": "declared"
+      "serviceBasis": "reviewed",
+      "serviceReason": "USES, covered by a workflows tool: the build/edit SMS readiness preflight"
     },
     {
       "id": "saas-twilio-service--get-phone-numbers-without-number-pool",
@@ -12140,7 +12174,7 @@
         "Version"
       ],
       "operation": "getPhoneNumbersWithoutNumberPool",
-      "service": "workflows",
+      "service": "platform",
       "query": [],
       "body": null,
       "returns": null,
@@ -12156,7 +12190,8 @@
         "workflows/70-research/SURFACE-GAP-ANALYSIS.md:134"
       ],
       "serviceClass": "SaasTwilioService",
-      "serviceBasis": "inferred-from-path"
+      "serviceBasis": "reviewed",
+      "serviceReason": "MOVED to its owning surface: phone numbers per location; generic telephony"
     },
     {
       "id": "phone-system-service--get-location-transcription-status",
@@ -12201,7 +12236,8 @@
         "workflows/50-runtime/sms-readiness-gates-a-workflow.md:16"
       ],
       "serviceClass": "PhoneSystemService",
-      "serviceBasis": "inferred-from-path"
+      "serviceBasis": "reviewed",
+      "serviceReason": "USES, covered by a workflows tool: the build/edit SMS readiness preflight"
     },
     {
       "id": "phone-system-service--validate-transcription",
@@ -12315,7 +12351,8 @@
         "workflows/70-research/ACTION-DRAWERS-2.md:4269"
       ],
       "serviceClass": "PhoneSystemService",
-      "serviceBasis": "inferred-from-path"
+      "serviceBasis": "reviewed",
+      "serviceReason": "OWNED: validates the audio for a workflow Voicemail Drop step"
     },
     {
       "id": "workflows--location-phone-numbers",
@@ -12341,7 +12378,8 @@
       "sources": [
         "workflows/70-research/ENDPOINTS.md:136"
       ],
-      "serviceBasis": "declared"
+      "serviceBasis": "reviewed",
+      "serviceReason": "USES, covered by a workflows tool: the build/edit WhatsApp readiness preflight"
     },
     {
       "id": "template-service--get-all-whats-app-templates",
@@ -12358,7 +12396,7 @@
         "Version"
       ],
       "operation": "getAllWhatsAppTemplates",
-      "service": "workflows",
+      "service": "conversations",
       "query": [
         {
           "name": "skip",
@@ -12386,10 +12424,11 @@
         "workflows/70-research/ENDPOINTS.md:159"
       ],
       "serviceClass": "TemplateService",
-      "serviceBasis": "inferred-from-path",
+      "serviceBasis": "reviewed",
       "aka": [
         "/phone-system/whatsapp/location/{id}/template"
-      ]
+      ],
+      "serviceReason": "MOVED to its owning surface: WhatsApp message templates"
     },
     {
       "id": "memberships-courses--posts-get",
@@ -12506,7 +12545,7 @@
       "extraHeaders": [],
       "tree": "documented",
       "operation": null,
-      "service": "workflows",
+      "service": "platform",
       "query": [],
       "body": null,
       "returns": null,
@@ -12519,7 +12558,9 @@
       "sources": [
         "workflows/40-rules/marketplace-asset-publisher-classes.md:102"
       ],
-      "serviceBasis": "declared"
+      "serviceBasis": "reviewed",
+      "serviceClass": "workflows",
+      "serviceReason": "MOVED to its owning surface: product pricing"
     },
     {
       "id": "platform--products-amount-summary",
@@ -12642,7 +12683,8 @@
       "sources": [
         "workflows/20-api/03-endpoints.md:356"
       ],
-      "serviceBasis": "declared"
+      "serviceBasis": "reviewed",
+      "serviceReason": "OWNED: unpublished-workflow notifications"
     },
     {
       "id": "reputation-service--get-review-link-list",
@@ -12945,32 +12987,6 @@
       "serviceBasis": "unattributed"
     },
     {
-      "id": "workflows--billing-config",
-      "method": "PUT",
-      "origin": "https://backend.leadconnectorhq.com",
-      "path": "/saas-billing-v2/billing-config/..",
-      "authRail": "bearer",
-      "transport": "json",
-      "responseMode": "json",
-      "extraHeaders": [],
-      "tree": "documented",
-      "operation": null,
-      "service": "workflows",
-      "query": [],
-      "body": null,
-      "returns": null,
-      "confidence": {
-        "path": "documented",
-        "query": "none-observed",
-        "body": "unresolved",
-        "returns": "unresolved"
-      },
-      "sources": [
-        "workflows/70-research/ENDPOINTS.md:181"
-      ],
-      "serviceBasis": "declared"
-    },
-    {
       "id": "saas-service--check-for-workflow-billing-plan",
       "method": "GET",
       "origin": "https://backend.leadconnectorhq.com",
@@ -13016,13 +13032,14 @@
         "services/marketplaceServices/SaasService.ts:29"
       ],
       "serviceClass": "SaasService",
-      "serviceBasis": "inferred-from-path",
+      "serviceBasis": "reviewed",
       "aka": [
         "/saas-billing-v2/billing-config/COMPANY/{companyId}/workflow_premium_actions",
         "/saas-billing-v2/billing-config/COMPANY/{companyId}/{product}",
         "/saas-billing-v2/billing-config/LOCATION/{locationId}/conversation_AI",
         "/saas-billing-v2/billing-config/LOCATION/{locationId}/{product}"
-      ]
+      ],
+      "serviceReason": "OWNED: the premium WORKFLOW-product gate the build preflight reads"
     },
     {
       "id": "saas-service--upgrade-plan",
@@ -13064,7 +13081,8 @@
         "services/marketplaceServices/SaasService.ts:20"
       ],
       "serviceClass": "SaasService",
-      "serviceBasis": "inferred-from-path"
+      "serviceBasis": "reviewed",
+      "serviceReason": "OWNED: premium workflow-product billing config write (SaasService in the builder)"
     },
     {
       "id": "workflows--locations-workflow-ai",
@@ -13091,7 +13109,8 @@
         "workflows/20-api/agency-premium-features.md:82",
         "workflows/20-api/agency-premium-features.md:126"
       ],
-      "serviceBasis": "declared"
+      "serviceBasis": "reviewed",
+      "serviceReason": "OWNED: agency roster of the workflow_ai product"
     },
     {
       "id": "workflows--locations-workflow-premium-actions",
@@ -13118,7 +13137,8 @@
         "workflows/20-api/agency-premium-features.md:51",
         "workflows/20-api/agency-premium-features.md:124"
       ],
-      "serviceBasis": "declared"
+      "serviceBasis": "reviewed",
+      "serviceReason": "OWNED: agency roster of the workflow_premium_actions product"
     },
     {
       "id": "funnels--schema-markup-schemas",
@@ -14215,7 +14235,8 @@
       "sources": [
         "workflows/70-research/ENDPOINTS.md:94"
       ],
-      "serviceBasis": "declared"
+      "serviceBasis": "reviewed",
+      "serviceReason": "OWNED: workflow trigger dynamic-source options (relative spelling off the workflows-marketplace mount)"
     },
     {
       "id": "backend--fetch-users-page",
@@ -29632,7 +29653,7 @@
       "extraHeaders": [],
       "tree": "documented",
       "operation": null,
-      "service": "workflows",
+      "service": "ai-agents",
       "query": [],
       "body": null,
       "returns": null,
@@ -29645,7 +29666,9 @@
       "sources": [
         "workflows/70-research/ENDPOINTS.md:177"
       ],
-      "serviceBasis": "declared"
+      "serviceBasis": "reviewed",
+      "serviceClass": "workflows",
+      "serviceReason": "MOVED to its owning surface: Conversation AI intents"
     },
     {
       "id": "ai-agents--conversations-ai-prompt",
@@ -31579,7 +31602,7 @@
       "extraHeaders": [],
       "tree": "documented",
       "operation": null,
-      "service": "brand-kit",
+      "service": "workflows",
       "query": [],
       "body": null,
       "returns": null,
@@ -31592,7 +31615,9 @@
       "sources": [
         "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:32"
       ],
-      "serviceBasis": "declared"
+      "serviceBasis": "reviewed",
+      "serviceClass": "brand-kit",
+      "serviceReason": "OWNED: the workflow builder AI image prompt (relative spelling off the workflow mount)"
     },
     {
       "id": "workflows--hooks-webhook-trigger",
@@ -31621,10 +31646,11 @@
         "workflows/70-research/INBOUND-WEBHOOK.md:20",
         "workflows/70-research/INBOUND-WEBHOOK.md:86"
       ],
-      "serviceBasis": "declared",
+      "serviceBasis": "reviewed",
       "aka": [
         "/hooks/{locationId}/webhook-trigger/{ghostId}"
-      ]
+      ],
+      "serviceReason": "OWNED: the inbound-webhook TRIGGER rail"
     },
     {
       "id": "inbound-webhook-request-service--get-reference-by-id",
@@ -31666,10 +31692,11 @@
         "workflows/40-rules/inbound-webhook-accepts-any-trigger-id.md:18"
       ],
       "serviceClass": "InboundWebhookRequestService",
-      "serviceBasis": "inferred-from-path",
+      "serviceBasis": "reviewed",
       "aka": [
         "/hooks/inbound-webhook-request/reference/{ghostId}"
-      ]
+      ],
+      "serviceReason": "OWNED: the inbound-webhook TRIGGER rail (mapped sample)"
     },
     {
       "id": "inbound-webhook-request-service--save-reference",
@@ -31719,7 +31746,8 @@
         "workflows/70-research/INBOUND-WEBHOOK.md:35"
       ],
       "serviceClass": "InboundWebhookRequestService",
-      "serviceBasis": "inferred-from-path"
+      "serviceBasis": "reviewed",
+      "serviceReason": "OWNED: the inbound-webhook TRIGGER rail (pin a sample)"
     },
     {
       "id": "inbound-webhook-request-service--get-requests-by-trigger-id",
@@ -31765,10 +31793,11 @@
         "workflows/40-rules/inbound-webhook-accepts-any-trigger-id.md:16"
       ],
       "serviceClass": "InboundWebhookRequestService",
-      "serviceBasis": "inferred-from-path",
+      "serviceBasis": "reviewed",
       "aka": [
         "/hooks/inbound-webhook-request/trigger/{ghostId}"
-      ]
+      ],
+      "serviceReason": "OWNED: the inbound-webhook TRIGGER rail (received requests)"
     },
     {
       "id": "ai-agents--facebook-pages",
@@ -37483,7 +37512,8 @@
         "services/UserPurchaseService.ts:35"
       ],
       "serviceClass": "UserPurchaseService",
-      "serviceBasis": "inferred-from-path"
+      "serviceBasis": "reviewed",
+      "serviceReason": "MOVED to its owning surface: memberships offer purchase count"
     },
     {
       "id": "user-purchase-service--get-no-of-users-for-product",
