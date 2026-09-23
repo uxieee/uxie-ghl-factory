@@ -790,6 +790,20 @@ const fullRows = full.data?.workflows ?? [];
 check(fullRows.length === full.data?.reportedTotal,
   'it returns EVERY row it reported, which is the whole reason it exists', `${fullRows.length} of ${full.data?.reportedTotal}`);
 
+// AGENT WORKFLOWS ARE IN THE ROSTER (bl-151). Both GHL list routes that LOOK like a census — the
+// bare GET /workflow/{loc} and the public API — silently omit every workflowType:'agent' row. The
+// tool must not. DIFFERENTIAL against that bare route, which this suite reads but never trusts.
+{
+  const agentRows = fullRows.filter((w) => w.workflowType === 'agent');
+  log.subject(false);
+  const bare = await deps.makeGw({ loc: LOCATION, state }).call('GET', `/workflow/${LOCATION}`);
+  const bareRows = Array.isArray(bare.json) ? bare.json : [];
+  check(agentRows.length > 0, 'the roster carries AGENT workflows (this suite builds some, so zero would be the bug)', `${agentRows.length} of ${fullRows.length}`);
+  check(bare.ok && bareRows.length > 0 && bareRows.filter((w) => w.workflowType === 'agent').length === 0 && bareRows.length < fullRows.length,
+    'CONTROL: the bare GET /workflow/{loc} omits every one of them — the trap the tool avoids is still there', `bare ${bareRows.length} rows vs ${fullRows.length}`);
+  log.subject('list_workflows');
+}
+
 // The filters moved onto the walk in the merge, so the reconciled total must be the total FOR
 // THE FILTER — not the account total. A filter that was accepted and ignored would show up
 // here as a published count equal to the unfiltered one.
