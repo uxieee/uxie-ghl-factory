@@ -11631,7 +11631,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          note: "Live-probed 2026-08-25: the endpoint returned 422 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
+          note: "Answers on BOTH hosts (settled 2026-09-23, one live GET each: backend with the location JWT and services with the dual-credential AI rail both return 200 and the same array). list_marketplace_apps uses services. Live-probed 2026-08-25: the endpoint returned 422 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
           reach: "reached",
           coveredBy: [
             "edit_workflow",
@@ -53653,7 +53653,7 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           requiredQuery: [
             "locationId"
           ],
-          note: "Live-probed 2026-08-25: the endpoint returned 422 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source."
+          note: "Answers on BOTH hosts (settled 2026-09-23, one live GET each: backend with the location JWT and services with the dual-credential AI rail both return 200 and the same array). list_marketplace_apps uses services. Live-probed 2026-08-25: the endpoint returned 422 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source."
         },
         "GET /medias/files": {
           requiredQuery: [

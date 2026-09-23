@@ -112,8 +112,9 @@ test('every known host disagreement still carries a reason (the ledger cannot ro
 // KNOWN_HOST_DISAGREEMENTS above) that answer identically on both hosts. Recorded as backlog row
 // bl-122-list-marketplace-apps-and-the-catalogue-disagree, which also records that this test was
 // only passing before because its per-tool source scan capped each block at 6000 characters and
-// this one sat just over the cap. Remove this exception once a single live GET per host settles
-// which host (or both) actually serves it.
+// this one sat just over the cap. SETTLED 2026-09-23 by one live GET per host: BOTH answer 200 with
+// the same array (knowledge sniffs/reads-2026-09-23/), so the tool (services, AI rail) and the
+// catalogue (backend) are both right, and this exception is permanent, not pending.
 const NAMED_TOOL_PATH_EXCEPTIONS = new Set([
   'list_marketplace_apps GET /marketplace/core/search/module',
 ]);
