@@ -13,6 +13,23 @@ commit bodies carry the detail.
 
 ## Unreleased
 
+**`edit_workflow` previews the documents you most need to inspect, and a trigger repair is no longer refused
+by the reference it repairs** (console bl-137).
+
+An UNCONFIRMED edit writes nothing, so the field-cap, asset-preflight and validation gates no longer refuse
+the preview. Each refusal the edit WOULD meet is named in `data.preview.wouldRefuse` (gate, detail,
+remediation), and the message says so. A confirmed edit is refused exactly as before.
+
+The asset preflight and the validation gate now judge the trigger set AFTER the edit's trigger ops. Stored
+triggers a `modifyTrigger` replaces or a `deleteTrigger` removes are taken out, planned bodies go in. Before,
+a `modifyTrigger` pointing a trigger at a real calendar was refused for the ghost calendar it was replacing,
+and the only way through was both hatches, which our own remediation told callers not to use.
+
+Live-proven on a draft with an inactive trigger (`trigger-repair-proof.mjs`, in the suite):
+- the preview names the ghost-calendar refusal;
+- the same edit confirmed is still refused;
+- the repair passes with no hatches, and the stored trigger reads back with the real calendar.
+
 **Custom-object record steps are checked against the object's real schema before any write** (console
 bl-167; the operator confirmed clients use custom objects). This covers `create_custom_object`,
 `update_custom_object` and `clear_custom_object_fields`. Each referenced object's schema is read (the

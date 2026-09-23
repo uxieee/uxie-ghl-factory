@@ -83,8 +83,18 @@ const modify = { op: 'modifyStep', stepId: 's1', attrPatch: { message: overCap }
 // "it commits, read schemaViolations" doctrine — nobody read the block.
 test('an over-cap prompt is REFUSED before anything is written, and named in the PREVIEW when hatched', async () => {
   const { gw, calls } = gateway();
-  const refused = await editTool().handler(
+  // bl-137: the UNCONFIRMED call returns the preview, with the refusal it WOULD meet named in it.
+  const previewed = await editTool().handler(
     { locationId: 'LOC', workflowId: 'WID', acknowledgeDrift: true, ops: [modify] }, deps(gw));
+  assert.equal(previewed.code, 'CONFIRM_REQUIRED');
+  assert.match(previewed.detail, /WOULD BE REFUSED by: field_caps/);
+  const wr = previewed.data?.preview?.wouldRefuse?.[0];
+  assert.equal(wr?.gate, 'field_caps');
+  assert.match(wr.detail, /614 characters; the builder's cap is 600/);
+  assert.match(wr.remediation, /allowOverCap/);
+  // …and the CONFIRMED call is refused before anything is written.
+  const refused = await editTool().handler(
+    { locationId: 'LOC', workflowId: 'WID', acknowledgeDrift: true, confirm: true, ops: [modify] }, deps(gw));
   assert.equal(refused.ok, false);
   assert.equal(refused.code, 'VALIDATION_FAILED');
   assert.match(refused.detail, /614 characters; the builder's cap is 600/);

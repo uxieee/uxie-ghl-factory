@@ -1345,3 +1345,18 @@ test('an edit op refused before anything is sent says nothing was written, not "
     assert.equal(calls.some(({ method }) => method !== 'GET'), false, 'and indeed nothing but reads was sent');
   }
 });
+
+// bl-137: the gates judge the trigger set AFTER the edit, not the stored one.
+test('postOpTriggers: a PUT replaces its stored trigger, a DELETE removes it, a POST adds, a noop changes nothing', async () => {
+  const { postOpTriggers } = await import('../core/tools.mjs');
+  const stored = [{ id: 'T1', conditions: ['ghost'] }, { id: 'T2' }, { id: 'T3' }];
+  const plan = [
+    { method: 'PUT', triggerId: 'T1', body: { id: 'T1', conditions: ['real'] } },
+    { method: 'DELETE', triggerId: 'T2' },
+    { method: 'POST', body: { id: 'NEW' } },
+    { noop: true, triggerId: 'T3' },
+  ];
+  const out = postOpTriggers(stored, plan);
+  assert.deepEqual(out.map((t) => t.id).sort(), ['NEW', 'T1', 'T3']);
+  assert.deepEqual(out.find((t) => t.id === 'T1').conditions, ['real'], 'the stored ghost reference is no longer judged');
+});

@@ -173052,6 +173052,10 @@ async function customCodePreflight({ gw, loc, templates, touchedIds, strict, ski
   return { tests, refusal: null };
 }
 var idsBeingReplaced = (ops = []) => new Set(ops.flatMap((o) => [o?.oldId, o?.oldTag, o?.find]).filter((v) => typeof v === "string" && v));
+function postOpTriggers(existing = [], plan = []) {
+  const replaced = new Set(plan.filter((r) => !r.noop && (r.method === "PUT" || r.method === "DELETE") && r.triggerId).map((r) => r.triggerId));
+  return [...existing.filter((t) => !replaced.has(t.id ?? t._id)), ...plan.filter((r) => !r.noop && r.method !== "DELETE" && r.body).map((r) => r.body)];
+}
 async function addCustomObjectFindings(gw, loc, templates, verdict) {
   const keys = referencedObjectKeys(templates);
   if (!keys.length) return;
@@ -176603,8 +176607,17 @@ var TOOLS2 = [
         checkGraphContextRules(templates, { warn: ctx.warn });
         const schemaViolations = await editSchemaViolations(gw, locationPath, templates, existingTriggers, args.ops, marketplaceRaw.assets);
         for (const v of schemaViolations) warnings.push(`SCHEMA: '${v.step ?? v.stepId}' (${v.type}): ${(v.messages ?? []).join("; ")}`);
+        const wouldRefuse = [];
+        const refuseOrRecord = (refusal, gate) => {
+          if (args.confirm === true) return refusal;
+          wouldRefuse.push({ gate, code: refusal.code, detail: refusal.detail, remediation: refusal.remediation });
+          return null;
+        };
         const caps = fieldCapGate({ templates, scope: editTouchedIds, allowOverCap: args.allowOverCap, warnings });
-        if (caps.refusal) return caps.refusal;
+        if (caps.refusal) {
+          const r = refuseOrRecord(caps.refusal, "field_caps");
+          if (r) return r;
+        }
         const triggerPlan = planTriggerOps(triggerOps, {
           ctx: { ...ctx, allowFlowTriggerEdit: args.allowFlowTriggerEdit === true },
           wid: args.workflowId,
@@ -176625,14 +176638,19 @@ var TOOLS2 = [
             gw,
             loc: args.locationId,
             templates,
-            triggers: [...existingTriggers, ...triggerPlan.map((request) => request.body).filter(Boolean)],
+            // The trigger set AFTER this edit (bl-137): a modifyTrigger that repairs a bad reference used
+            // to be refused for the very reference it removes, because the STORED trigger was judged too.
+            triggers: postOpTriggers(existingTriggers, triggerPlan),
             companyId: fresh.companyId,
             touchedIds: editTouchedIds,
             ignoreAssetErrors: args.ignoreAssetErrors,
             warnings,
             ops: editOps
           });
-          if (assets.refusal) return assets.refusal;
+          if (assets.refusal) {
+            const r = refuseOrRecord(assets.refusal, "asset_preflight");
+            if (r) return r;
+          }
           assetPreflight = assets.assetPreflight;
           readiness = await readinessFor({
             gw,
@@ -176645,7 +176663,7 @@ var TOOLS2 = [
             warnings
           });
         }
-        let gateTriggers = existingTriggers;
+        let gateTriggers = triggerOps.length ? postOpTriggers(existingTriggers, triggerPlan) : existingTriggers;
         if (!(triggerOps.length || rulesNeedTriggers(templates, ctx.catalog?.workflowRules))) {
           const listed = await listWorkflowTriggers(gw, args.locationId, args.workflowId);
           if (listed.response.ok) gateTriggers = listed.triggers;
@@ -176678,7 +176696,10 @@ var TOOLS2 = [
           // The path's own guards own these checks and their hatches; the gate must not overrule them.
           waive: /* @__PURE__ */ new Set([...args.allowOverCap === true ? ["FIELD_CAP"] : [], ...args.allowDanglingStepRefs === true ? ["STEP_REF"] : [], ...args.allowDanglingParentKeys === true ? ["PARENT_KEY"] : []])
         });
-        if (validation.refusal) return validation.refusal;
+        if (validation.refusal) {
+          const r = refuseOrRecord(validation.refusal, "validation_gate");
+          if (r) return r;
+        }
         const neededTags = collectOpTags(args.ops);
         let tagsToCreate = [];
         if (neededTags.length) {
@@ -176711,12 +176732,13 @@ var TOOLS2 = [
           preview.schemaViolations = schemaViolations;
           preview.schemaViolationsNote = `GHL's own action schema would show "Resolve ${schemaViolations.length} Errors" on this document. These are not refused by the server \u2014 it stores an over-cap or malformed value verbatim \u2014 so they will not stop the write; the builder will show them to whoever opens the workflow.`;
         }
+        if (wouldRefuse.length) preview.wouldRefuse = wouldRefuse;
         if (args.confirm !== true) {
           return withFailureData(
             fail(
               CODES.CONFIRM_REQUIRED,
-              "Edit preview is ready; no writes were sent.",
-              "Review data.preview, then repeat the same request with confirm:true to commit."
+              wouldRefuse.length ? `Edit preview is ready; no writes were sent. On confirm this edit WOULD BE REFUSED by: ${wouldRefuse.map((w) => w.gate).join(", ")} (see data.preview.wouldRefuse).` : "Edit preview is ready; no writes were sent.",
+              wouldRefuse.length ? "Fix what data.preview.wouldRefuse names (or use the hatch it names, if the finding is one you intend), then preview again." : "Review data.preview, then repeat the same request with confirm:true to commit."
             ),
             { preview, warnings }
           );
