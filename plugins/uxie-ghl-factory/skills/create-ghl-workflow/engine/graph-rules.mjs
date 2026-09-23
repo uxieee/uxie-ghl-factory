@@ -82,8 +82,10 @@ export const fromEmailNeedsDomain = (fromEmail) => Boolean(fromEmail) && !CV_REG
 // crash at runtime, which is the two-oracle rule failing in the direction it exists to catch.
 //
 // So the hatch is recorded as GHL BEHAVIOUR (why broken published workflows exist), never as a rule
-// we mirror. If the refusal needs softening for repair flows, that is a decision about the EDIT
-// path's hatches, not about deleting a rule. See bl-137 and bl-146.
+// we mirror. The softening lives in the EDIT path instead (write-validation.mjs, bl-146): an edit or
+// repair of a PUBLISHED workflow is judged against the stored document for exactly these three
+// rules, so a violation it already carries warns and one the write introduces refuses. Every rule
+// still runs, every other rule blocks as before, and a publish still counts every finding.
 export function evaluateWorkflowRules(doc, rules) {
   const V = rules?.vocab ?? {};
   const T = doc.templates ?? [];

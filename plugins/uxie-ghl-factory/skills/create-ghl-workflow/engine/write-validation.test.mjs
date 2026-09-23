@@ -104,3 +104,36 @@ test('a build asks the offline layers before anything exists, and the server lay
   assert.match(r.server.why, /workflow id/i);
   assert.equal(r.blocked, false, 'no verdict from GHL is not a refusal');
 });
+
+// bl-146: GHL stops checking if_else / router / wait once a workflow is published (its skipHatch), so
+// published documents that violate them exist, and saving one is judged as a publish. Such a violation
+// the STORED document already had must not freeze an edit that does not introduce it. A rule GHL checks
+// on every save still blocks when pre-existing, an introduced violation still blocks, and a publish
+// counts everything.
+const stringWait = { id: 'w1', name: 'Hold', type: 'wait', order: 1, next: null,
+  attributes: { type: 'time', startAfter: { type: 'minutes', value: 5, when: 'after' }, window: '{"start":"09:00"}' } };
+test('a skipHatch rule finding the published document already had warns on an edit; introduced blocks; publish counts all', () => {
+  const stored = { templates: [sms(), stringWait], triggers: [], status: 'published' };
+  const kept = validateDocument({ ...base, templates: [sms(), stringWait], intent: 'edit', status: 'published', baselineDocument: stored });
+  assert.deepEqual(kept.blockedLayers.filter((l) => l === 'workflow_rules'), [], kept.summary);
+  assert.equal(kept.rules.preExisting.length, 1);
+  assert.equal(kept.rules.preExisting[0].rule, 'validateWaitStep');
+
+  const introduced = validateDocument({ ...base, templates: [sms(), stringWait], intent: 'edit', status: 'published',
+    baselineDocument: { ...stored, templates: [sms()] } });
+  assert.ok(introduced.blockedLayers.includes('workflow_rules'), 'the edit brought the violation in');
+
+  const draft = validateDocument({ ...base, templates: [sms(), stringWait], intent: 'edit', status: 'draft',
+    baselineDocument: { ...stored, status: 'draft' } });
+  assert.ok(draft.blockedLayers.includes('workflow_rules'), 'GHL skips these rules only on a PUBLISHED stored state');
+
+  const pub = validateDocument({ ...base, templates: [sms(), stringWait], intent: 'publish', status: 'published', baselineDocument: stored });
+  assert.ok(pub.blockedLayers.includes('workflow_rules'), 'publish ignores the baseline');
+});
+
+test('a rule GHL checks on EVERY save still blocks when the published document already had it', () => {
+  const stored = { templates: [], triggers: [], status: 'published' };
+  const r = validateDocument({ ...base, templates: [], intent: 'edit', status: 'published', baselineDocument: stored });
+  assert.equal(r.blocked, true, 'checkEmptyPublish is not in GHL\'s skipHatch');
+  assert.equal(r.rules.preExisting.length, 0);
+});

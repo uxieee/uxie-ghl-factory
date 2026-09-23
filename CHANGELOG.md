@@ -13,6 +13,22 @@ commit bodies carry the detail.
 
 ## Unreleased
 
+**An edit of a published workflow no longer inherits the rule violations GHL stopped checking**
+(console bl-146). GHL stops checking `validateIfElseCondition`, `validateRouterConditions` and
+`validateWaitStep` once a workflow is published (its skipHatch), so published documents carrying those
+violations exist. Saving one is judged as a publish, and the `workflow_rules` layer blocked on every
+finding. A stringified wait window in one untouched step therefore refused every later edit of the
+workflow, unless the caller skipped the rule wholesale.
+
+For exactly those three rules on a stored-published workflow, an edit or repair is now judged against
+the stored document with the same inputs. A violation the document already carries comes back as a
+`WORKFLOW_RULE (pre-existing…)` warning and in `validation.rules.preExisting`. The same violation
+introduced by the write still refuses, which is stricter than GHL, which skips the rule entirely.
+
+Every other rule still refuses when pre-existing, as the builder does on every save. So does a draft,
+and so does `publish_workflow`. Proven by differential unit tests: with the baseline switched off, the
+same edit is refused with `validateWaitStep`. A pre-existing `checkFromEmailFormat` still refuses.
+
 **SMS spam words now warn instead of refusing, as GHL does** (console bl-143). The engine refused
 an `sms` body containing a word on GHL's blocked list, and its note said GHL "aborts the save". GHL's
 own source says otherwise, in every bundle recovered from 2026-08-21 to 09-18:

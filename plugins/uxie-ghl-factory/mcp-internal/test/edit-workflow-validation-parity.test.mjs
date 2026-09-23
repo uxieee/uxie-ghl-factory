@@ -312,3 +312,33 @@ test('describe_step_type carries the measured caps for the four flow-bot types',
   assert.equal(sms.ok, true);
   assert.equal(sms.data.caps, undefined, 'no measured cap → no caps key');
 });
+
+// ── The rules layer's baseline (console bl-146) ─────────────────────────────────────────────
+// GHL stops checking wait/if_else/router once a workflow is published, so published documents that
+// violate them exist, and an edit of one is judged as a publish. A violation the STORED document
+// already had must not refuse an edit that never touched it; the same violation introduced by the
+// edit still refuses.
+const STRINGIFIED_WAIT = (over = {}) => ({
+  id: 'w1', type: 'wait', name: 'Hold', next: null, parent: null, parentKey: null, order: 1,
+  attributes: { type: 'time', startAfter: { type: 'minutes', value: 5, when: 'after' }, window: '{"start":"09:00"}' }, ...over,
+});
+
+test('a rule violation the published document already had warns; the edit proceeds', async () => {
+  const { gw } = gateway([{ ...SMS_STEP, order: 0 }, STRINGIFIED_WAIT()]);
+  const stored = gw.stored(); stored.status = 'published';
+  const result = await run(gw, { confirm: true, ops: [{ op: 'modifyStep', stepId: 'sms1', attrPatch: { body: 'changed' } }] });
+  assert.equal(result.ok, true, `${result.code} ${String(result.detail).slice(0, 300)}`);
+  assert.ok(result.data.warnings.some((w) => /pre-existing: the stored document already fails it/.test(w) && /validateWaitStep/.test(w)),
+    JSON.stringify(result.data.warnings));
+});
+
+test('the same violation INTRODUCED by the edit still refuses', async () => {
+  const { gw, calls } = gateway([{ ...SMS_STEP, order: 0 }, STRINGIFIED_WAIT({ attributes: { type: 'time', startAfter: { type: 'minutes', value: 5, when: 'after' } } })]);
+  const stored = gw.stored(); stored.status = 'published';
+  const result = await run(gw, { confirm: true, ops: [{ op: 'modifyStep', stepId: 'w1', attrPatch: { window: '{"start":"09:00"}' } }] });
+  assert.equal(result.ok, false);
+  // Refused by whichever layer meets it first (field enforcement reads the same window); the point is
+  // that the baseline never excuses a violation this write brings in.
+  assert.match(result.detail, /window/);
+  assert.deepEqual(calls.filter((c) => c.method === 'PUT'), [], 'refused before any write');
+});

@@ -176,9 +176,14 @@ gate: the rules layer runs its publish-only rules and the canvas layer turns on.
 
 - **Build:** the offline layers run before anything is created; GHL's validator runs against the
   empty draft before a single step is written. A refused build leaves only the empty draft.
-- **Edit and repair:** findings on steps you did not touch are warnings; a GHL finding blocks only if
-  **your write introduces it** — the stored document's own verdict is the baseline. So a pre-existing
+- **Edit and repair:** findings on steps you did not touch are warnings. A GHL finding blocks only if
+  **your write introduces it**: the stored document's own verdict is the baseline. So a pre-existing
   problem, or a flow bot waiting for its agent, does not freeze every later edit.
+  The same applies to the three WorkflowValidator rules GHL stops checking once a workflow is
+  published: `validateIfElseCondition`, `validateRouterConditions` and `validateWaitStep`. On a
+  published workflow, a violation the stored document already carries comes back as a `WORKFLOW_RULE
+  (pre-existing…)` warning, and the same violation brought in by your edit still refuses. Every other
+  rule refuses even when pre-existing, as the builder does on every save.
 - **Publish:** the whole state, no baseline, every layer. It also reads the workflow's sending domain
   first, so `checkFromEmailFormat` can be judged rather than skipped.
 - **Hatches:** your specific hatch still wins for the check it owns (`allowOverCap`,

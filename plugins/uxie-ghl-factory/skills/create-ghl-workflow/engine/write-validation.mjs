@@ -60,10 +60,16 @@ const findingKey = (f) => `${f.ruleId ?? ''}|${f.where ?? ''}|${f.message ?? ''}
  * @param opts.webhookReference the first inbound_webhook trigger's mapped sample ({ triggerId, payload },
  *   or null when GHL has none); without it inboundWebhookTriggerValidator reports itself unjudged
  * @param opts.creationSource the stored document's creationSource; validateIfElseCondition keys on it
+ * @param opts.baselineDocument the document AS STORED ({ templates, triggers, settings, status,
+ *   creationSource }), for an edit or repair. When it is PUBLISHED, a finding of one of the rules GHL
+ *   stops checking there (workflowRules.skipHatch.appliesTo) that the stored document already carries
+ *   is reported in rules.preExisting and does not block; the same finding introduced by this write
+ *   does. Every other rule blocks as before: GHL checks it on every save. Ignored on a publish
+ *   (console bl-146).
  */
 export function validateDocument({
   intent = 'edit', templates = [], triggers = [], settings = null, status = null, senderDomain,
-  webhookReference, creationSource,
+  webhookReference, creationSource, baselineDocument = null,
   catalog = loadCatalog(), marketplaceTypes = null, scope = null, waive = null,
   skipWorkflowRules = false, allow = false,
 } = {}) {
@@ -76,7 +82,23 @@ export function validateDocument({
   const skipSet = new Set(Array.isArray(skipWorkflowRules) ? skipWorkflowRules : []);
   const isSkipped = (f) => skipAll || skipSet.has(f.rule);
   const skipped = evaluated.findings.filter(isSkipped);
-  const ruleFindings = evaluated.findings.filter((f) => !isSkipped(f));
+  // WHY A BASELINE, AND WHY ONLY THESE RULES. GHL stops checking if_else / router / wait once a
+  // workflow is published (its skipHatch, deliberately not mirrored: graph-rules.mjs), so published
+  // documents carrying those violations exist, and saving one is judged as a publish. Without a
+  // baseline, one such step froze every later edit of the workflow, including edits that never
+  // touched it, unless the caller skipped the rule wholesale. GHL itself saves that edit (it skips the
+  // rule); we still refuse the violation when THIS write introduces it, which is stricter than GHL
+  // and never looser. Any other rule GHL checks on every save, so a pre-existing violation of it is
+  // refused here exactly as the builder refuses it. The stored document is judged with the SAME
+  // publishing flag and inputs, so a finding matches only when the rule and its message are identical.
+  const hatched = new Set(rulebook?.skipHatch?.appliesTo ?? []);
+  const baselineKeys = baselineDocument?.status === 'published' && rulebook && intent !== 'publish' && hatched.size
+    ? new Set(evaluateWorkflowRules({ ...baselineDocument, publishing, senderDomain, webhookReference }, rulebook)
+      .findings.filter((f) => hatched.has(f.rule)).map((f) => `${f.rule}|${f.message}`))
+    : null;
+  const isPreExisting = (f) => hatched.has(f.rule) && Boolean(baselineKeys?.has(`${f.rule}|${f.message}`));
+  const preExistingRules = evaluated.findings.filter((f) => !isSkipped(f) && isPreExisting(f));
+  const ruleFindings = evaluated.findings.filter((f) => !isSkipped(f) && !isPreExisting(f));
 
   const canvasAll = publishing ? canvasFindings(templates, triggers) : [];
   const outOfScope = (f) => Boolean(scope && f.stepId && !scope.has(f.stepId));
@@ -99,7 +121,7 @@ export function validateDocument({
     blocked: !allow && blockedLayers.length > 0,
     blockingLayer: blockedLayers[0] ?? null,
     blockedLayers,
-    rules: { findings: ruleFindings, skipped, advisories: evaluated.advisories ?? [], notEvaluable: evaluated.notEvaluable ?? [] },
+    rules: { findings: ruleFindings, preExisting: preExistingRules, skipped, advisories: evaluated.advisories ?? [], notEvaluable: evaluated.notEvaluable ?? [] },
     canvas: { errors: canvasErrors, warnings: canvasWarnings },
     engine,
     summary,

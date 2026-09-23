@@ -166765,6 +166765,7 @@ function validateDocument({
   senderDomain,
   webhookReference,
   creationSource,
+  baselineDocument = null,
   catalog = loadCatalog(),
   marketplaceTypes = null,
   scope = null,
@@ -166779,7 +166780,11 @@ function validateDocument({
   const skipSet = new Set(Array.isArray(skipWorkflowRules) ? skipWorkflowRules : []);
   const isSkipped = (f) => skipAll || skipSet.has(f.rule);
   const skipped2 = evaluated.findings.filter(isSkipped);
-  const ruleFindings = evaluated.findings.filter((f) => !isSkipped(f));
+  const hatched = new Set(rulebook?.skipHatch?.appliesTo ?? []);
+  const baselineKeys = baselineDocument?.status === "published" && rulebook && intent !== "publish" && hatched.size ? new Set(evaluateWorkflowRules({ ...baselineDocument, publishing, senderDomain, webhookReference }, rulebook).findings.filter((f) => hatched.has(f.rule)).map((f) => `${f.rule}|${f.message}`)) : null;
+  const isPreExisting = (f) => hatched.has(f.rule) && Boolean(baselineKeys?.has(`${f.rule}|${f.message}`));
+  const preExistingRules = evaluated.findings.filter((f) => !isSkipped(f) && isPreExisting(f));
+  const ruleFindings = evaluated.findings.filter((f) => !isSkipped(f) && !isPreExisting(f));
   const canvasAll = publishing ? canvasFindings(templates, triggers) : [];
   const outOfScope = (f) => Boolean(scope && f.stepId && !scope.has(f.stepId));
   const canvasErrors = canvasAll.filter((f) => !outOfScope(f));
@@ -166800,7 +166805,7 @@ function validateDocument({
     blocked: !allow && blockedLayers.length > 0,
     blockingLayer: blockedLayers[0] ?? null,
     blockedLayers,
-    rules: { findings: ruleFindings, skipped: skipped2, advisories: evaluated.advisories ?? [], notEvaluable: evaluated.notEvaluable ?? [] },
+    rules: { findings: ruleFindings, preExisting: preExistingRules, skipped: skipped2, advisories: evaluated.advisories ?? [], notEvaluable: evaluated.notEvaluable ?? [] },
     canvas: { errors: canvasErrors, warnings: canvasWarnings },
     engine,
     summary
@@ -173267,7 +173272,8 @@ async function workflowValidationGate({
   settings = null,
   senderDomain,
   webhookReference,
-  skipWorkflowRules = false
+  skipWorkflowRules = false,
+  baselineTriggers
 }) {
   let marketplaceTypes = null;
   try {
@@ -173277,6 +173283,13 @@ async function workflowValidationGate({
   }
   const call = (method, path, body) => gw.call(method, path, body);
   const baseline = fresh ? await liveValidate(call, loc, wid, { document: fresh, triggers }) : null;
+  const baselineDocument = fresh ? {
+    templates: fresh.workflowData?.templates ?? [],
+    triggers: baselineTriggers ?? triggers,
+    settings: { senderAddress: fresh.senderAddress },
+    status: fresh.status ?? null,
+    creationSource: fresh.creationSource
+  } : null;
   const v = await validateForWrite({
     call,
     loc,
@@ -173295,19 +173308,21 @@ async function workflowValidationGate({
     settings,
     senderDomain,
     webhookReference,
-    skipWorkflowRules
+    skipWorkflowRules,
+    baselineDocument
   });
   for (const f of v.engine.warnings) warnings.push(`VALIDATION ${f.check}: '${f.stepName ?? f.stepId}' (${f.type}): ${f.message}`);
   for (const f of v.canvas.warnings) warnings.push(`VALIDATION CANVAS: '${f.stepName ?? f.stepId}': ${f.message} (outside this write's scope)`);
   for (const a of v.rules.advisories ?? []) warnings.push(`WORKFLOW_RULE_SOFT: [${a.rule}] ${a.message}`);
   for (const r of v.rules.skipped) warnings.push(`WORKFLOW_RULE SKIPPED (skipWorkflowRules): [${r.rule}] ${r.message}`);
+  for (const r of v.rules.preExisting ?? []) warnings.push(`WORKFLOW_RULE (pre-existing: the stored document already fails it; this write does not block on it): [${r.rule}] ${r.message}`);
   if (!v.server.ran) warnings.push(`VALIDATION: GHL's validator gave no verdict (${v.server.why}); the offline layers still ran`);
   if (v.preExisting > 0) warnings.push(`VALIDATION: GHL reports ${v.preExisting} finding(s) the stored document already had; they do not block this write`);
   const report = {
     intent: v.intent,
     publishing: v.publishing,
     layers: v.blockedLayers,
-    rules: { findings: v.rules.findings, skipped: v.rules.skipped.map((r) => r.rule), notEvaluable: v.rules.notEvaluable },
+    rules: { findings: v.rules.findings, preExisting: (v.rules.preExisting ?? []).map((r) => r.rule), skipped: v.rules.skipped.map((r) => r.rule), notEvaluable: v.rules.notEvaluable },
     canvas: { errors: v.canvas.errors, warnings: v.canvas.warnings.length },
     engine: { errors: v.engine.errors, warnings: v.engine.warnings.length },
     server: { ran: v.server.ran, valid: v.server.valid ?? null, layer: v.server.layer ?? null, introduced: v.serverBlocking, ...v.server.ran ? {} : { why: v.server.why } }
@@ -176783,6 +176798,7 @@ var TOOLS2 = [
           status: fresh.status,
           skipWorkflowRules: args.skipWorkflowRules,
           settings: { senderAddress: commitBody.senderAddress ?? fresh.senderAddress },
+          baselineTriggers: triggerOps.length ? existingTriggers : gateTriggers,
           senderDomain: editSenderDomain,
           webhookReference: editWebhookReference,
           // The path's own guards own these checks and their hatches; the gate must not overrule them.
