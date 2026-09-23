@@ -31,6 +31,7 @@ import { stripNullNext, fillInputTriggerParams } from '../../skills/create-ghl-w
 import { checkWorkflowRules, rulesNeedTriggers, fromEmailNeedsDomain } from '../../skills/create-ghl-workflow/engine/graph-rules.mjs';
 import { checkGraphContextRules } from '../../skills/create-ghl-workflow/engine/graph-context-rules.mjs';
 import { validateAssets, describeFinding } from '../../skills/create-ghl-workflow/engine/asset-preflight.mjs';
+import { needsVocabularies, checkVocabularyRefs, fetchDispositionNames } from '../../skills/create-ghl-workflow/engine/vocabulary-refs.mjs';
 import { callerCredentialClass, reachForCaller } from './credential-class.mjs';
 import { SCHEDULER_TRIGGER_TYPE, schedulerPreviewBody, interpretSchedulerPreview } from '../../skills/create-ghl-workflow/engine/scheduler-preview.mjs';
 import { planReadinessChecks, runReadinessChecks } from '../../skills/create-ghl-workflow/engine/preflight.mjs';
@@ -2283,6 +2284,8 @@ export const TOOLS = [
       // demotes that one check to "unverifiable"; it never blocks the read.
       { method: 'GET', path: '/locations/{loc}/customFields/search' },
       { method: 'GET', path: '/locations/{loc}/customValues' },
+      // Only when a trigger matches call dispositions by NAME (vocabulary-refs.mjs, bl-139).
+      { method: 'GET', path: '/phone-system/call-dispositions' },
     ],
     // Verified 2026-09-21: scheduler-trigger/preview only computes next-run times from a payload
     // (see the capability comment above); validate-assets is the same stateless validator cleared
@@ -2465,10 +2468,32 @@ export const TOOLS = [
         }
       })();
 
+      // ── do the NAMES a trigger matches on exist? ────────────────────────────────────────
+      // The asset check cannot see these: a condition that stores a disposition LABEL has no id to
+      // resolve, so a name the account lacks is a trigger that never fires behind two clean checks
+      // (bl-139). Own key, never in errorCount; read only when a trigger carries such a condition.
+      const vocabRefs = await (async () => {
+        if (!needsVocabularies(triggerList)) return null;
+        let callDispositions = null;
+        try { callDispositions = await fetchDispositionNames((m, p) => gw.call(m, p), args.locationId); } catch { /* not checked */ }
+        const r = checkVocabularyRefs(triggerList, { callDispositions });
+        return {
+          ran: r.notChecked.length === 0,
+          valuesChecked: r.checked,
+          errors: r.findings,
+          notChecked: r.notChecked,
+          note: 'Trigger conditions GHL matches by NAME (call_status custom_disposition stores the disposition LABEL). '
+            + 'A name the account does not have never fires, and neither GHL\'s validators nor the asset check can see it. '
+            + 'Only the call-disposition vocabulary is known to be name-matched; other kinds are not enumerated. '
+            + 'notChecked lists what could not be judged, which is not the same as clean.',
+        };
+      })();
+
       return ok({
         schemaChecked: true,
         ...lintKeys,
         assetReferences: assetRefs,
+        ...(vocabRefs ? { vocabularyReferences: vocabRefs } : {}),
         workflowId: args.workflowId,
         name: body.json?.name,
         status: body.json?.status,
@@ -2491,6 +2516,9 @@ export const TOOLS = [
           assetRefs.ran
             ? `asset references: ${assetRefs.errors.length} broken, ${assetRefs.warnings.length} warning(s)`
             : 'asset references: NOT CHECKED',
+          ...(vocabRefs ? [vocabRefs.ran
+            ? `trigger names: ${vocabRefs.errors.length} unmatched of ${vocabRefs.valuesChecked}`
+            : 'trigger names: NOT CHECKED'] : []),
         ].join(' · '),
         // Native steps the marketplace catalog does not describe, checked against the ONE thing
         // the type cards state exactly: their inner attributes.type. This is what a card-driven

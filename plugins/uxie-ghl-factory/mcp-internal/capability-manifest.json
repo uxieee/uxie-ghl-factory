@@ -135,6 +135,11 @@
     "path": "/locations/{loc}/customValues"
   },
   {
+    "tool": "check_workflow",
+    "method": "GET",
+    "path": "/phone-system/call-dispositions"
+  },
+  {
     "tool": "validate_workflow",
     "method": "GET",
     "path": "/workflow/{loc}/{wid}"

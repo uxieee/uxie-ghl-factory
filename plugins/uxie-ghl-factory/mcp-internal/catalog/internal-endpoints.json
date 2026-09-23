@@ -1,7 +1,7 @@
 {
   "generated": "2026-09-23",
   "note": "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path — not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-  "count": 1151,
+  "count": 1146,
   "endpoints": [
     {
       "id": "facebook-service--get-ad-account-by-id",
@@ -15156,6 +15156,7 @@
         "agency-admin-bearer"
       ],
       "coveredBy": [
+        "check_workflow",
         "list_account_entities"
       ],
       "rawCallable": true,
@@ -16510,6 +16511,12 @@
     },
     {
       "id": "saas-service--check-for-workflow-billing-plan",
+      "aka": [
+        "/saas-billing-v2/billing-config/COMPANY/{companyId}/workflow_premium_actions",
+        "/saas-billing-v2/billing-config/COMPANY/{companyId}/{product}",
+        "/saas-billing-v2/billing-config/LOCATION/{locationId}/conversation_AI",
+        "/saas-billing-v2/billing-config/LOCATION/{locationId}/{product}"
+      ],
       "method": "GET",
       "url": "https://backend.leadconnectorhq.com/saas-billing-v2/billing-config/{entityType}/{entityId}/{product}",
       "path": "/saas-billing-v2/billing-config/{entityType}/{entityId}/{product}",
@@ -16517,7 +16524,7 @@
       "rail": "workflow",
       "kind": "read",
       "summary": "Is a billed product (premium workflow actions, external AI models) opted in for ONE sub-account. The builder's own check; the build preflight reads it.",
-      "note": "entityType=LOCATION, product = workflow_premium_actions | workflow_ai; a location Bearer reaches it and companyId is NOT needed. TRAP: the optIn query param changes the ANSWER by its PRESENCE, not its value -- ?optIn=true and ?optIn=false both return config.optIn:true, omitting it returns false, same account same minute. Send ?optIn=true as the builder does. TRAP: config.enabled is NOT the gate -- it was false on all 18 sub-accounts of an agency whose premium steps run daily (it tracks rebilling); the builder gates on config.optIn and, when false, falls back to a reselling subscription. A nonsense product answers 404 Product not found. Executed on the designated sandbox 2026-09-18.",
+      "note": "entityType=LOCATION, product = workflow_premium_actions | workflow_ai; a location Bearer reaches it and companyId is NOT needed. TRAP: the optIn query param changes the ANSWER by its PRESENCE, not its value -- ?optIn=true and ?optIn=false both return config.optIn:true, omitting it returns false, same account same minute. Send ?optIn=true as the builder does. TRAP: config.enabled is NOT the gate -- it was false on all 18 sub-accounts of an agency whose premium steps run daily (it tracks rebilling); the builder gates on config.optIn and, when false, falls back to a reselling subscription. A nonsense product answers 404 Product not found. Executed on the designated sandbox 2026-09-18. SCOPE BY VALUE (folded 2026-09-23 from the literal spellings COMPANY/{companyId}/…, LOCATION/{locationId}/…, …/conversation_AI — one route, byte-identical once substituted, bl-166): entityType=COMPANY with a companyId is the AGENCY-level config and needs an agency-admin credential (executed 2026-09-19); entityType=LOCATION is the per-sub-account gate. product also takes conversation_AI.",
       "reach": "proven",
       "provenFor": [
         "location-user-bearer"
@@ -16572,7 +16579,11 @@
         "returns": "none-observed"
       },
       "sources": [
-        "services/marketplaceServices/SaasService.ts:12"
+        "services/marketplaceServices/SaasService.ts:12",
+        "services/marketplaceServices/SaasService.ts:16",
+        "workflows/20-api/agency-premium-features.md:48",
+        "workflows/20-api/agency-premium-features.md:170",
+        "services/marketplaceServices/SaasService.ts:29"
       ]
     },
     {
@@ -16624,186 +16635,6 @@
       },
       "sources": [
         "services/marketplaceServices/SaasService.ts:20"
-      ]
-    },
-    {
-      "id": "saas-service--fetch-agency-billing-config",
-      "method": "GET",
-      "url": "https://backend.leadconnectorhq.com/saas-billing-v2/billing-config/COMPANY/{companyId}/{product}",
-      "path": "/saas-billing-v2/billing-config/COMPANY/{companyId}/{product}",
-      "origin": "https://backend.leadconnectorhq.com",
-      "rail": "workflow",
-      "kind": "read",
-      "summary": "The AGENCY-level billing config for one product (workflow_premium_actions | workflow_ai).",
-      "note": "Agency scope. For whether ONE sub-account may run premium steps use the LOCATION route and read config.optIn -- config.enabled is not the gate. Executed 2026-09-19.",
-      "reach": "proven",
-      "provenFor": [
-        "agency-admin-bearer"
-      ],
-      "coveredBy": [],
-      "rawCallable": true,
-      "transport": "json",
-      "responseMode": "json",
-      "extraHeaders": [
-        "Channel",
-        "Source",
-        "Version"
-      ],
-      "operation": "fetchAgencyBillingConfig",
-      "service": "workflows",
-      "tree": "workflow-builder",
-      "pathParams": [
-        {
-          "name": "companyId"
-        },
-        {
-          "name": "product"
-        }
-      ],
-      "query": [],
-      "body": null,
-      "returns": null,
-      "confidence": {
-        "path": "resolved",
-        "query": "none-observed",
-        "body": "none-observed",
-        "returns": "none-observed"
-      },
-      "sources": [
-        "services/marketplaceServices/SaasService.ts:16"
-      ]
-    },
-    {
-      "id": "workflows--company-workflow-premium-actions",
-      "method": "GET",
-      "url": "https://backend.leadconnectorhq.com/saas-billing-v2/billing-config/COMPANY/{companyId}/workflow_premium_actions",
-      "path": "/saas-billing-v2/billing-config/COMPANY/{companyId}/workflow_premium_actions",
-      "origin": "https://backend.leadconnectorhq.com",
-      "rail": "workflow",
-      "kind": "read",
-      "reach": "proven",
-      "coveredBy": [],
-      "rawCallable": true,
-      "transport": "json",
-      "responseMode": "json",
-      "extraHeaders": [],
-      "operation": null,
-      "service": "workflows",
-      "tree": "documented",
-      "pathParams": [
-        {
-          "name": "companyId"
-        }
-      ],
-      "query": [],
-      "body": null,
-      "returns": null,
-      "confidence": {
-        "path": "documented",
-        "query": "none-observed",
-        "body": "unresolved",
-        "returns": "unresolved"
-      },
-      "sources": [
-        "workflows/20-api/agency-premium-features.md:48"
-      ]
-    },
-    {
-      "id": "workflows--billing-config-location",
-      "method": "GET",
-      "url": "https://backend.leadconnectorhq.com/saas-billing-v2/billing-config/LOCATION/{locationId}/{product}",
-      "path": "/saas-billing-v2/billing-config/LOCATION/{locationId}/{product}",
-      "origin": "https://backend.leadconnectorhq.com",
-      "rail": "workflow",
-      "kind": "read",
-      "note": "Proven live 2026-09-18; the premium preflight calls it. CONTROL: a nonsense product answers 404 'Product not found'. 🔴 The gate is config.optIn, not config.enabled, and the optIn query param changes the answer by its PRESENCE (see agency-premium-features in the corpus).",
-      "reach": "proven",
-      "provenFor": [
-        "agency-admin-bearer"
-      ],
-      "coveredBy": [],
-      "rawCallable": true,
-      "transport": "json",
-      "responseMode": "json",
-      "extraHeaders": [],
-      "operation": null,
-      "service": "workflows",
-      "tree": "documented",
-      "pathParams": [
-        {
-          "name": "locationId"
-        },
-        {
-          "name": "product"
-        }
-      ],
-      "query": [
-        {
-          "name": "optIn",
-          "type": "string",
-          "required": false,
-          "source": "documented"
-        }
-      ],
-      "body": null,
-      "returns": null,
-      "confidence": {
-        "path": "documented",
-        "query": "documented",
-        "body": "unresolved",
-        "returns": "unresolved"
-      },
-      "sources": [
-        "workflows/20-api/agency-premium-features.md:170"
-      ]
-    },
-    {
-      "id": "saas-service--check-conversation-aieligibility",
-      "method": "GET",
-      "url": "https://backend.leadconnectorhq.com/saas-billing-v2/billing-config/LOCATION/{locationId}/conversation_AI",
-      "path": "/saas-billing-v2/billing-config/LOCATION/{locationId}/conversation_AI",
-      "origin": "https://backend.leadconnectorhq.com",
-      "rail": "workflow",
-      "kind": "read",
-      "reach": "proven",
-      "provenFor": [
-        "agency-admin-bearer"
-      ],
-      "coveredBy": [],
-      "rawCallable": true,
-      "transport": "json",
-      "responseMode": "json",
-      "extraHeaders": [
-        "Channel",
-        "Source",
-        "Version"
-      ],
-      "operation": "checkConversationAIEligibility",
-      "service": "workflows",
-      "tree": "workflow-builder",
-      "pathParams": [
-        {
-          "name": "locationId"
-        }
-      ],
-      "query": [
-        {
-          "name": "optIn",
-          "type": "true",
-          "required": true,
-          "source": "params"
-        }
-      ],
-      "body": null,
-      "returns": null,
-      "confidence": {
-        "path": "resolved",
-        "query": "resolved",
-        "body": "none-observed",
-        "returns": "none-observed"
-      },
-      "sources": [
-        "services/marketplaceServices/SaasService.ts:29"
       ]
     },
     {
@@ -29918,6 +29749,9 @@
     },
     {
       "id": "workflows-marketplace-platform-service--fetch-action-input-all-options",
+      "aka": [
+        "/workflows-marketplace/actions/options/conversationai_services_booking"
+      ],
       "method": "GET",
       "url": "https://backend.leadconnectorhq.com/workflows-marketplace/actions/options/{key}",
       "path": "/workflows-marketplace/actions/options/{key}",
@@ -29979,7 +29813,9 @@
       },
       "sources": [
         "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:216",
-        "workflows/40-rules/marketplace-asset-publisher-classes.md:78"
+        "workflows/40-rules/marketplace-asset-publisher-classes.md:78",
+        "workflows/30-types/steps/conversationai_services_booking.md:61",
+        "workflows/50-runtime/flow-bot-four-node-certification.md:27"
       ]
     },
     {
@@ -30046,60 +29882,6 @@
       },
       "sources": [
         "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:200"
-      ]
-    },
-    {
-      "id": "workflows--options-conversationai-services-booking",
-      "method": "GET",
-      "url": "https://backend.leadconnectorhq.com/workflows-marketplace/actions/options/conversationai_services_booking",
-      "path": "/workflows-marketplace/actions/options/conversationai_services_booking",
-      "origin": "https://backend.leadconnectorhq.com",
-      "rail": "workflow",
-      "kind": "read",
-      "reach": "proven",
-      "provenFor": [
-        "agency-admin-bearer"
-      ],
-      "coveredBy": [],
-      "rawCallable": true,
-      "transport": "json",
-      "responseMode": "json",
-      "extraHeaders": [],
-      "operation": null,
-      "service": "workflows",
-      "tree": "documented",
-      "pathParams": [],
-      "query": [
-        {
-          "name": "locationId",
-          "type": "string",
-          "required": false,
-          "source": "documented"
-        },
-        {
-          "name": "optionType",
-          "type": "string",
-          "required": false,
-          "source": "documented"
-        },
-        {
-          "name": "workflowId",
-          "type": "string",
-          "required": false,
-          "source": "documented"
-        }
-      ],
-      "body": null,
-      "returns": null,
-      "confidence": {
-        "path": "documented",
-        "query": "documented",
-        "body": "unresolved",
-        "returns": "unresolved"
-      },
-      "sources": [
-        "workflows/30-types/steps/conversationai_services_booking.md:61",
-        "workflows/50-runtime/flow-bot-four-node-certification.md:27"
       ]
     },
     {

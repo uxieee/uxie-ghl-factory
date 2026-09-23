@@ -29,7 +29,7 @@
   "note": "SOURCE-DERIVED ONLY, merged from every mined front-end. `tree` on each row says which app calls it. The plugin owns kind/note/summary/reach/coveredBy and merges them at read time. A row proves a GHL front-end calls that path — not that your token reaches it, and not that calling it is safe.",
   "discoveredCallSites": 1295,
   "skippedCallSites": 684,
-  "count": 1143,
+  "count": 1138,
   "endpoints": [
     {
       "id": "facebook-service--get-ad-account-by-id",
@@ -13009,10 +13009,20 @@
         "returns": "none-observed"
       },
       "sources": [
-        "services/marketplaceServices/SaasService.ts:12"
+        "services/marketplaceServices/SaasService.ts:12",
+        "services/marketplaceServices/SaasService.ts:16",
+        "workflows/20-api/agency-premium-features.md:48",
+        "workflows/20-api/agency-premium-features.md:170",
+        "services/marketplaceServices/SaasService.ts:29"
       ],
       "serviceClass": "SaasService",
-      "serviceBasis": "inferred-from-path"
+      "serviceBasis": "inferred-from-path",
+      "aka": [
+        "/saas-billing-v2/billing-config/COMPANY/{companyId}/workflow_premium_actions",
+        "/saas-billing-v2/billing-config/COMPANY/{companyId}/{product}",
+        "/saas-billing-v2/billing-config/LOCATION/{locationId}/conversation_AI",
+        "/saas-billing-v2/billing-config/LOCATION/{locationId}/{product}"
+      ]
     },
     {
       "id": "saas-service--upgrade-plan",
@@ -13052,134 +13062,6 @@
       },
       "sources": [
         "services/marketplaceServices/SaasService.ts:20"
-      ],
-      "serviceClass": "SaasService",
-      "serviceBasis": "inferred-from-path"
-    },
-    {
-      "id": "saas-service--fetch-agency-billing-config",
-      "method": "GET",
-      "origin": "https://backend.leadconnectorhq.com",
-      "path": "/saas-billing-v2/billing-config/COMPANY/{companyId}/{product}",
-      "authRail": "bearer",
-      "transport": "json",
-      "responseMode": "json",
-      "tree": "workflow-builder",
-      "extraHeaders": [
-        "Channel",
-        "Source",
-        "Version"
-      ],
-      "operation": "fetchAgencyBillingConfig",
-      "service": "workflows",
-      "query": [],
-      "body": null,
-      "returns": null,
-      "confidence": {
-        "path": "resolved",
-        "query": "none-observed",
-        "body": "none-observed",
-        "returns": "none-observed"
-      },
-      "sources": [
-        "services/marketplaceServices/SaasService.ts:16"
-      ],
-      "serviceClass": "SaasService",
-      "serviceBasis": "inferred-from-path"
-    },
-    {
-      "id": "workflows--company-workflow-premium-actions",
-      "method": "GET",
-      "origin": "https://backend.leadconnectorhq.com",
-      "path": "/saas-billing-v2/billing-config/COMPANY/{companyId}/workflow_premium_actions",
-      "authRail": "bearer",
-      "transport": "json",
-      "responseMode": "json",
-      "extraHeaders": [],
-      "tree": "documented",
-      "operation": null,
-      "service": "workflows",
-      "query": [],
-      "body": null,
-      "returns": null,
-      "confidence": {
-        "path": "documented",
-        "query": "none-observed",
-        "body": "unresolved",
-        "returns": "unresolved"
-      },
-      "sources": [
-        "workflows/20-api/agency-premium-features.md:48"
-      ],
-      "serviceBasis": "declared"
-    },
-    {
-      "id": "workflows--billing-config-location",
-      "method": "GET",
-      "origin": "https://backend.leadconnectorhq.com",
-      "path": "/saas-billing-v2/billing-config/LOCATION/{locationId}/{product}",
-      "authRail": "bearer",
-      "transport": "json",
-      "responseMode": "json",
-      "extraHeaders": [],
-      "tree": "documented",
-      "operation": null,
-      "service": "workflows",
-      "query": [
-        {
-          "name": "optIn",
-          "type": "string",
-          "required": false,
-          "source": "documented"
-        }
-      ],
-      "body": null,
-      "returns": null,
-      "confidence": {
-        "path": "documented",
-        "query": "documented",
-        "body": "unresolved",
-        "returns": "unresolved"
-      },
-      "sources": [
-        "workflows/20-api/agency-premium-features.md:170"
-      ],
-      "serviceBasis": "declared"
-    },
-    {
-      "id": "saas-service--check-conversation-aieligibility",
-      "method": "GET",
-      "origin": "https://backend.leadconnectorhq.com",
-      "path": "/saas-billing-v2/billing-config/LOCATION/{locationId}/conversation_AI",
-      "authRail": "bearer",
-      "transport": "json",
-      "responseMode": "json",
-      "tree": "workflow-builder",
-      "extraHeaders": [
-        "Channel",
-        "Source",
-        "Version"
-      ],
-      "operation": "checkConversationAIEligibility",
-      "service": "workflows",
-      "query": [
-        {
-          "name": "optIn",
-          "type": "true",
-          "required": true,
-          "source": "params"
-        }
-      ],
-      "body": null,
-      "returns": null,
-      "confidence": {
-        "path": "resolved",
-        "query": "resolved",
-        "body": "none-observed",
-        "returns": "none-observed"
-      },
-      "sources": [
-        "services/marketplaceServices/SaasService.ts:29"
       ],
       "serviceClass": "SaasService",
       "serviceBasis": "inferred-from-path"
@@ -23595,10 +23477,15 @@
       },
       "sources": [
         "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:216",
-        "workflows/40-rules/marketplace-asset-publisher-classes.md:78"
+        "workflows/40-rules/marketplace-asset-publisher-classes.md:78",
+        "workflows/30-types/steps/conversationai_services_booking.md:61",
+        "workflows/50-runtime/flow-bot-four-node-certification.md:27"
       ],
       "serviceClass": "WorkflowsMarketplacePlatformService",
-      "serviceBasis": "inferred-from-path"
+      "serviceBasis": "inferred-from-path",
+      "aka": [
+        "/workflows-marketplace/actions/options/conversationai_services_booking"
+      ]
     },
     {
       "id": "workflows-marketplace-platform-service--fetch-action-input-list-options",
@@ -23649,52 +23536,6 @@
       ],
       "serviceClass": "WorkflowsMarketplacePlatformService",
       "serviceBasis": "inferred-from-path"
-    },
-    {
-      "id": "workflows--options-conversationai-services-booking",
-      "method": "GET",
-      "origin": "https://backend.leadconnectorhq.com",
-      "path": "/workflows-marketplace/actions/options/conversationai_services_booking",
-      "authRail": "bearer",
-      "transport": "json",
-      "responseMode": "json",
-      "extraHeaders": [],
-      "tree": "documented",
-      "operation": null,
-      "service": "workflows",
-      "query": [
-        {
-          "name": "locationId",
-          "type": "string",
-          "required": false,
-          "source": "documented"
-        },
-        {
-          "name": "optionType",
-          "type": "string",
-          "required": false,
-          "source": "documented"
-        },
-        {
-          "name": "workflowId",
-          "type": "string",
-          "required": false,
-          "source": "documented"
-        }
-      ],
-      "body": null,
-      "returns": null,
-      "confidence": {
-        "path": "documented",
-        "query": "documented",
-        "body": "unresolved",
-        "returns": "unresolved"
-      },
-      "sources": [
-        "workflows/30-types/steps/conversationai_services_booking.md:61",
-        "workflows/50-runtime/flow-bot-four-node-certification.md:27"
-      ],
-      "serviceBasis": "declared"
     },
     {
       "id": "workflows-marketplace-platform-service--get-action-dynamic-fields",

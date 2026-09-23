@@ -178,7 +178,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
     define_ENDPOINT_CATALOG_default = {
       generated: "2026-09-23",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 1151,
+      count: 1146,
       endpoints: [
         {
           id: "facebook-service--get-ad-account-by-id",
@@ -15333,6 +15333,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "agency-admin-bearer"
           ],
           coveredBy: [
+            "check_workflow",
             "list_account_entities"
           ],
           rawCallable: true,
@@ -16687,6 +16688,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
         },
         {
           id: "saas-service--check-for-workflow-billing-plan",
+          aka: [
+            "/saas-billing-v2/billing-config/COMPANY/{companyId}/workflow_premium_actions",
+            "/saas-billing-v2/billing-config/COMPANY/{companyId}/{product}",
+            "/saas-billing-v2/billing-config/LOCATION/{locationId}/conversation_AI",
+            "/saas-billing-v2/billing-config/LOCATION/{locationId}/{product}"
+          ],
           method: "GET",
           url: "https://backend.leadconnectorhq.com/saas-billing-v2/billing-config/{entityType}/{entityId}/{product}",
           path: "/saas-billing-v2/billing-config/{entityType}/{entityId}/{product}",
@@ -16694,7 +16701,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           summary: "Is a billed product (premium workflow actions, external AI models) opted in for ONE sub-account. The builder's own check; the build preflight reads it.",
-          note: "entityType=LOCATION, product = workflow_premium_actions | workflow_ai; a location Bearer reaches it and companyId is NOT needed. TRAP: the optIn query param changes the ANSWER by its PRESENCE, not its value -- ?optIn=true and ?optIn=false both return config.optIn:true, omitting it returns false, same account same minute. Send ?optIn=true as the builder does. TRAP: config.enabled is NOT the gate -- it was false on all 18 sub-accounts of an agency whose premium steps run daily (it tracks rebilling); the builder gates on config.optIn and, when false, falls back to a reselling subscription. A nonsense product answers 404 Product not found. Executed on the designated sandbox 2026-09-18.",
+          note: "entityType=LOCATION, product = workflow_premium_actions | workflow_ai; a location Bearer reaches it and companyId is NOT needed. TRAP: the optIn query param changes the ANSWER by its PRESENCE, not its value -- ?optIn=true and ?optIn=false both return config.optIn:true, omitting it returns false, same account same minute. Send ?optIn=true as the builder does. TRAP: config.enabled is NOT the gate -- it was false on all 18 sub-accounts of an agency whose premium steps run daily (it tracks rebilling); the builder gates on config.optIn and, when false, falls back to a reselling subscription. A nonsense product answers 404 Product not found. Executed on the designated sandbox 2026-09-18. SCOPE BY VALUE (folded 2026-09-23 from the literal spellings COMPANY/{companyId}/\u2026, LOCATION/{locationId}/\u2026, \u2026/conversation_AI \u2014 one route, byte-identical once substituted, bl-166): entityType=COMPANY with a companyId is the AGENCY-level config and needs an agency-admin credential (executed 2026-09-19); entityType=LOCATION is the per-sub-account gate. product also takes conversation_AI.",
           reach: "proven",
           provenFor: [
             "location-user-bearer"
@@ -16749,7 +16756,11 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/SaasService.ts:12"
+            "services/marketplaceServices/SaasService.ts:12",
+            "services/marketplaceServices/SaasService.ts:16",
+            "workflows/20-api/agency-premium-features.md:48",
+            "workflows/20-api/agency-premium-features.md:170",
+            "services/marketplaceServices/SaasService.ts:29"
           ]
         },
         {
@@ -16801,186 +16812,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/marketplaceServices/SaasService.ts:20"
-          ]
-        },
-        {
-          id: "saas-service--fetch-agency-billing-config",
-          method: "GET",
-          url: "https://backend.leadconnectorhq.com/saas-billing-v2/billing-config/COMPANY/{companyId}/{product}",
-          path: "/saas-billing-v2/billing-config/COMPANY/{companyId}/{product}",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "read",
-          summary: "The AGENCY-level billing config for one product (workflow_premium_actions | workflow_ai).",
-          note: "Agency scope. For whether ONE sub-account may run premium steps use the LOCATION route and read config.optIn -- config.enabled is not the gate. Executed 2026-09-19.",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [
-            "Channel",
-            "Source",
-            "Version"
-          ],
-          operation: "fetchAgencyBillingConfig",
-          service: "workflows",
-          tree: "workflow-builder",
-          pathParams: [
-            {
-              name: "companyId"
-            },
-            {
-              name: "product"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "resolved",
-            query: "none-observed",
-            body: "none-observed",
-            returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/SaasService.ts:16"
-          ]
-        },
-        {
-          id: "workflows--company-workflow-premium-actions",
-          method: "GET",
-          url: "https://backend.leadconnectorhq.com/saas-billing-v2/billing-config/COMPANY/{companyId}/workflow_premium_actions",
-          path: "/saas-billing-v2/billing-config/COMPANY/{companyId}/workflow_premium_actions",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "read",
-          reach: "proven",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "workflows",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "companyId"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "workflows/20-api/agency-premium-features.md:48"
-          ]
-        },
-        {
-          id: "workflows--billing-config-location",
-          method: "GET",
-          url: "https://backend.leadconnectorhq.com/saas-billing-v2/billing-config/LOCATION/{locationId}/{product}",
-          path: "/saas-billing-v2/billing-config/LOCATION/{locationId}/{product}",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "read",
-          note: "Proven live 2026-09-18; the premium preflight calls it. CONTROL: a nonsense product answers 404 'Product not found'. \u{1F534} The gate is config.optIn, not config.enabled, and the optIn query param changes the answer by its PRESENCE (see agency-premium-features in the corpus).",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "workflows",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "locationId"
-            },
-            {
-              name: "product"
-            }
-          ],
-          query: [
-            {
-              name: "optIn",
-              type: "string",
-              required: false,
-              source: "documented"
-            }
-          ],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "documented",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "workflows/20-api/agency-premium-features.md:170"
-          ]
-        },
-        {
-          id: "saas-service--check-conversation-aieligibility",
-          method: "GET",
-          url: "https://backend.leadconnectorhq.com/saas-billing-v2/billing-config/LOCATION/{locationId}/conversation_AI",
-          path: "/saas-billing-v2/billing-config/LOCATION/{locationId}/conversation_AI",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "read",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [
-            "Channel",
-            "Source",
-            "Version"
-          ],
-          operation: "checkConversationAIEligibility",
-          service: "workflows",
-          tree: "workflow-builder",
-          pathParams: [
-            {
-              name: "locationId"
-            }
-          ],
-          query: [
-            {
-              name: "optIn",
-              type: "true",
-              required: true,
-              source: "params"
-            }
-          ],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "resolved",
-            query: "resolved",
-            body: "none-observed",
-            returns: "none-observed"
-          },
-          sources: [
-            "services/marketplaceServices/SaasService.ts:29"
           ]
         },
         {
@@ -30104,6 +29935,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
         },
         {
           id: "workflows-marketplace-platform-service--fetch-action-input-all-options",
+          aka: [
+            "/workflows-marketplace/actions/options/conversationai_services_booking"
+          ],
           method: "GET",
           url: "https://backend.leadconnectorhq.com/workflows-marketplace/actions/options/{key}",
           path: "/workflows-marketplace/actions/options/{key}",
@@ -30165,7 +29999,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:216",
-            "workflows/40-rules/marketplace-asset-publisher-classes.md:78"
+            "workflows/40-rules/marketplace-asset-publisher-classes.md:78",
+            "workflows/30-types/steps/conversationai_services_booking.md:61",
+            "workflows/50-runtime/flow-bot-four-node-certification.md:27"
           ]
         },
         {
@@ -30232,60 +30068,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:200"
-          ]
-        },
-        {
-          id: "workflows--options-conversationai-services-booking",
-          method: "GET",
-          url: "https://backend.leadconnectorhq.com/workflows-marketplace/actions/options/conversationai_services_booking",
-          path: "/workflows-marketplace/actions/options/conversationai_services_booking",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "read",
-          reach: "proven",
-          provenFor: [
-            "agency-admin-bearer"
-          ],
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "workflows",
-          tree: "documented",
-          pathParams: [],
-          query: [
-            {
-              name: "locationId",
-              type: "string",
-              required: false,
-              source: "documented"
-            },
-            {
-              name: "optionType",
-              type: "string",
-              required: false,
-              source: "documented"
-            },
-            {
-              name: "workflowId",
-              type: "string",
-              required: false,
-              source: "documented"
-            }
-          ],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "documented",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "workflows/30-types/steps/conversationai_services_booking.md:61",
-            "workflows/50-runtime/flow-bot-four-node-certification.md:27"
           ]
         },
         {
@@ -54027,20 +53809,6 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         "GET /reselling/subscription/location/{locationId}": {
           reach: "proven"
         },
-        "GET /saas-billing-v2/billing-config/COMPANY/{companyId}/{product}": {
-          summary: "The AGENCY-level billing config for one product (workflow_premium_actions | workflow_ai).",
-          note: "Agency scope. For whether ONE sub-account may run premium steps use the LOCATION route and read config.optIn -- config.enabled is not the gate. Executed 2026-09-19.",
-          reach: "proven",
-          credentialClass: "agency-admin-bearer"
-        },
-        "GET /saas-billing-v2/billing-config/LOCATION/{locationId}/conversation_AI": {
-          reach: "proven"
-        },
-        "GET /saas-billing-v2/billing-config/LOCATION/{locationId}/{product}": {
-          reach: "proven",
-          credentialClass: "agency-admin-bearer",
-          note: "Proven live 2026-09-18; the premium preflight calls it. CONTROL: a nonsense product answers 404 'Product not found'. \u{1F534} The gate is config.optIn, not config.enabled, and the optIn query param changes the answer by its PRESENCE (see agency-premium-features in the corpus)."
-        },
         "GET /saas-billing-v2/billing-config/locations/workflow_ai": {
           summary: "AGENCY roster: every sub-account's billing config for external AI model steps (optIn, enabled, markup, basePrice). For ONE sub-account use the per-location route instead.",
           note: "TRAP: companyId is REQUIRED as a QUERY param (?companyId=&skip=0&limit=15&query=). Omit it and the route answers a BARE 403 'Forbidden resource' that names no argument and reads exactly like a permission refusal -- this row was recorded 'refused' twice on that. TRAP: config.enabled is NOT 'can run premium steps' (false on every sub-account of a working agency; it tracks rebilling) -- read config.optIn. hit[0].count is the agency total and ignores limit; locations.length is one page.",
@@ -54061,7 +53829,7 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         },
         "GET /saas-billing-v2/billing-config/{entityType}/{entityId}/{product}": {
           summary: "Is a billed product (premium workflow actions, external AI models) opted in for ONE sub-account. The builder's own check; the build preflight reads it.",
-          note: "entityType=LOCATION, product = workflow_premium_actions | workflow_ai; a location Bearer reaches it and companyId is NOT needed. TRAP: the optIn query param changes the ANSWER by its PRESENCE, not its value -- ?optIn=true and ?optIn=false both return config.optIn:true, omitting it returns false, same account same minute. Send ?optIn=true as the builder does. TRAP: config.enabled is NOT the gate -- it was false on all 18 sub-accounts of an agency whose premium steps run daily (it tracks rebilling); the builder gates on config.optIn and, when false, falls back to a reselling subscription. A nonsense product answers 404 Product not found. Executed on the designated sandbox 2026-09-18.",
+          note: "entityType=LOCATION, product = workflow_premium_actions | workflow_ai; a location Bearer reaches it and companyId is NOT needed. TRAP: the optIn query param changes the ANSWER by its PRESENCE, not its value -- ?optIn=true and ?optIn=false both return config.optIn:true, omitting it returns false, same account same minute. Send ?optIn=true as the builder does. TRAP: config.enabled is NOT the gate -- it was false on all 18 sub-accounts of an agency whose premium steps run daily (it tracks rebilling); the builder gates on config.optIn and, when false, falls back to a reselling subscription. A nonsense product answers 404 Product not found. Executed on the designated sandbox 2026-09-18. SCOPE BY VALUE (folded 2026-09-23 from the literal spellings COMPANY/{companyId}/\u2026, LOCATION/{locationId}/\u2026, \u2026/conversation_AI \u2014 one route, byte-identical once substituted, bl-166): entityType=COMPANY with a companyId is the AGENCY-level config and needs an agency-admin credential (executed 2026-09-19); entityType=LOCATION is the per-sub-account gate. product also takes conversation_AI.",
           reach: "proven",
           credentialClass: "location-user-bearer"
         },
@@ -167559,6 +167327,76 @@ function sortKeysDeep(o) {
   return o;
 }
 
+// ../skills/create-ghl-workflow/engine/vocabulary-refs.mjs
+init_define_BUILDER_VALIDATORS();
+init_define_CONTACT_FILTER_FIELDS();
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
+init_define_TOOL_CATALOG();
+var NAME_MATCHED_CONDITIONS = [
+  { triggerType: "call_status", field: "custom_disposition", vocabulary: "callDispositions" }
+];
+var conditionsOf = (t) => [
+  ...Array.isArray(t?.conditions) ? t.conditions : [],
+  ...Array.isArray(t?.filters) ? t.filters : []
+];
+var valuesOf = (c) => (Array.isArray(c?.value) ? c.value : c?.value == null || c.value === "" ? [] : [c.value]).filter((v) => typeof v === "string");
+function needsVocabularies(triggers = []) {
+  return triggers.some((t) => NAME_MATCHED_CONDITIONS.some((k) => (t?.type === k.triggerType || !t?.type) && conditionsOf(t).some((c) => c?.field === k.field)));
+}
+function checkVocabularyRefs(triggers = [], vocabularies = {}) {
+  const findings = [];
+  const notChecked = [];
+  let checked = 0;
+  for (const t of triggers) {
+    for (const k of NAME_MATCHED_CONDITIONS) {
+      if (t?.type && t.type !== k.triggerType) continue;
+      for (const c of conditionsOf(t)) {
+        if (c?.field !== k.field) continue;
+        const names = vocabularies[k.vocabulary];
+        if (!Array.isArray(names)) {
+          notChecked.push({
+            triggerId: t.id ?? null,
+            triggerName: t.name ?? null,
+            field: k.field,
+            why: `the account's ${k.vocabulary} could not be read`
+          });
+          continue;
+        }
+        const exact = new Set(names);
+        const folded = new Map(names.map((n) => [n.trim().toLowerCase(), n]));
+        for (const v of valuesOf(c)) {
+          checked++;
+          if (exact.has(v)) continue;
+          const near = folded.get(v.trim().toLowerCase());
+          findings.push({
+            triggerId: t.id ?? null,
+            triggerName: t.name ?? null,
+            field: k.field,
+            value: v,
+            ...near ? { suggestion: near } : {},
+            message: `trigger '${t.name ?? t.id ?? "?"}' matches ${k.field} '${v}', which is not an active call disposition on this account` + (near ? ` \u2014 the account has '${near}'; the stored LABEL must match exactly` : "") + ". GHL matches this condition by NAME, so it can never fire for that value, and nothing else reports it."
+          });
+        }
+      }
+    }
+  }
+  return { checked, findings, notChecked };
+}
+async function fetchDispositionNames(call, loc) {
+  const names = [];
+  for (let page = 1; page <= 20; page++) {
+    const r = await call("GET", `/phone-system/call-dispositions?locationId=${encodeURIComponent(loc)}&page=${page}&limit=50&includeDeleted=false`);
+    const rows = r?.json?.dispositions;
+    if (!r?.ok || !Array.isArray(rows)) return null;
+    for (const d of rows) if (d && d.isDeleted !== true && typeof d.name === "string") names.push(d.name);
+    const totalPages = Number(r.json.totalPages ?? 1);
+    if (!(page < totalPages)) return names;
+  }
+  return null;
+}
+
 // core/credential-class.mjs
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
@@ -174300,7 +174138,9 @@ var TOOLS2 = [
       // Best-effort, for the merge-tag lint's per-location vocabulary. Their absence only
       // demotes that one check to "unverifiable"; it never blocks the read.
       { method: "GET", path: "/locations/{loc}/customFields/search" },
-      { method: "GET", path: "/locations/{loc}/customValues" }
+      { method: "GET", path: "/locations/{loc}/customValues" },
+      // Only when a trigger matches call dispositions by NAME (vocabulary-refs.mjs, bl-139).
+      { method: "GET", path: "/phone-system/call-dispositions" }
     ],
     // Verified 2026-09-21: scheduler-trigger/preview only computes next-run times from a payload
     // (see the capability comment above); validate-assets is the same stateless validator cleared
@@ -174450,10 +174290,27 @@ var TOOLS2 = [
           };
         }
       })();
+      const vocabRefs = await (async () => {
+        if (!needsVocabularies(triggerList)) return null;
+        let callDispositions = null;
+        try {
+          callDispositions = await fetchDispositionNames((m, p2) => gw.call(m, p2), args.locationId);
+        } catch {
+        }
+        const r = checkVocabularyRefs(triggerList, { callDispositions });
+        return {
+          ran: r.notChecked.length === 0,
+          valuesChecked: r.checked,
+          errors: r.findings,
+          notChecked: r.notChecked,
+          note: "Trigger conditions GHL matches by NAME (call_status custom_disposition stores the disposition LABEL). A name the account does not have never fires, and neither GHL's validators nor the asset check can see it. Only the call-disposition vocabulary is known to be name-matched; other kinds are not enumerated. notChecked lists what could not be judged, which is not the same as clean."
+        };
+      })();
       return ok({
         schemaChecked: true,
         ...lintKeys,
         assetReferences: assetRefs,
+        ...vocabRefs ? { vocabularyReferences: vocabRefs } : {},
         workflowId: args.workflowId,
         name: body.json?.name,
         status: body.json?.status,
@@ -174471,7 +174328,8 @@ var TOOLS2 = [
         // workflow with six broken references.
         headline: [
           bv.ran ? `Resolve ${errors.length} Errors (marketplace schema: ${templates.filter((t) => actionSchema.has(t.type)).length} of ${templates.length} steps) \xB7 GHL validators: ${bv.findings.length} finding(s) over ${bv.validated} of ${templates.length}` : `Resolve ${errors.length} Errors (${templates.filter((t) => actionSchema.has(t.type)).length} of ${templates.length} steps checked)`,
-          assetRefs.ran ? `asset references: ${assetRefs.errors.length} broken, ${assetRefs.warnings.length} warning(s)` : "asset references: NOT CHECKED"
+          assetRefs.ran ? `asset references: ${assetRefs.errors.length} broken, ${assetRefs.warnings.length} warning(s)` : "asset references: NOT CHECKED",
+          ...vocabRefs ? [vocabRefs.ran ? `trigger names: ${vocabRefs.errors.length} unmatched of ${vocabRefs.valuesChecked}` : "trigger names: NOT CHECKED"] : []
         ].join(" \xB7 "),
         // Native steps the marketplace catalog does not describe, checked against the ONE thing
         // the type cards state exactly: their inner attributes.type. This is what a card-driven

@@ -688,20 +688,6 @@
     "GET /reselling/subscription/location/{locationId}": {
       "reach": "proven"
     },
-    "GET /saas-billing-v2/billing-config/COMPANY/{companyId}/{product}": {
-      "summary": "The AGENCY-level billing config for one product (workflow_premium_actions | workflow_ai).",
-      "note": "Agency scope. For whether ONE sub-account may run premium steps use the LOCATION route and read config.optIn -- config.enabled is not the gate. Executed 2026-09-19.",
-      "reach": "proven",
-      "credentialClass": "agency-admin-bearer"
-    },
-    "GET /saas-billing-v2/billing-config/LOCATION/{locationId}/conversation_AI": {
-      "reach": "proven"
-    },
-    "GET /saas-billing-v2/billing-config/LOCATION/{locationId}/{product}": {
-      "reach": "proven",
-      "credentialClass": "agency-admin-bearer",
-      "note": "Proven live 2026-09-18; the premium preflight calls it. CONTROL: a nonsense product answers 404 'Product not found'. 🔴 The gate is config.optIn, not config.enabled, and the optIn query param changes the answer by its PRESENCE (see agency-premium-features in the corpus)."
-    },
     "GET /saas-billing-v2/billing-config/locations/workflow_ai": {
       "summary": "AGENCY roster: every sub-account's billing config for external AI model steps (optIn, enabled, markup, basePrice). For ONE sub-account use the per-location route instead.",
       "note": "TRAP: companyId is REQUIRED as a QUERY param (?companyId=&skip=0&limit=15&query=). Omit it and the route answers a BARE 403 'Forbidden resource' that names no argument and reads exactly like a permission refusal -- this row was recorded 'refused' twice on that. TRAP: config.enabled is NOT 'can run premium steps' (false on every sub-account of a working agency; it tracks rebilling) -- read config.optIn. hit[0].count is the agency total and ignores limit; locations.length is one page.",
@@ -722,7 +708,7 @@
     },
     "GET /saas-billing-v2/billing-config/{entityType}/{entityId}/{product}": {
       "summary": "Is a billed product (premium workflow actions, external AI models) opted in for ONE sub-account. The builder's own check; the build preflight reads it.",
-      "note": "entityType=LOCATION, product = workflow_premium_actions | workflow_ai; a location Bearer reaches it and companyId is NOT needed. TRAP: the optIn query param changes the ANSWER by its PRESENCE, not its value -- ?optIn=true and ?optIn=false both return config.optIn:true, omitting it returns false, same account same minute. Send ?optIn=true as the builder does. TRAP: config.enabled is NOT the gate -- it was false on all 18 sub-accounts of an agency whose premium steps run daily (it tracks rebilling); the builder gates on config.optIn and, when false, falls back to a reselling subscription. A nonsense product answers 404 Product not found. Executed on the designated sandbox 2026-09-18.",
+      "note": "entityType=LOCATION, product = workflow_premium_actions | workflow_ai; a location Bearer reaches it and companyId is NOT needed. TRAP: the optIn query param changes the ANSWER by its PRESENCE, not its value -- ?optIn=true and ?optIn=false both return config.optIn:true, omitting it returns false, same account same minute. Send ?optIn=true as the builder does. TRAP: config.enabled is NOT the gate -- it was false on all 18 sub-accounts of an agency whose premium steps run daily (it tracks rebilling); the builder gates on config.optIn and, when false, falls back to a reselling subscription. A nonsense product answers 404 Product not found. Executed on the designated sandbox 2026-09-18. SCOPE BY VALUE (folded 2026-09-23 from the literal spellings COMPANY/{companyId}/…, LOCATION/{locationId}/…, …/conversation_AI — one route, byte-identical once substituted, bl-166): entityType=COMPANY with a companyId is the AGENCY-level config and needs an agency-admin credential (executed 2026-09-19); entityType=LOCATION is the per-sub-account gate. product also takes conversation_AI.",
       "reach": "proven",
       "credentialClass": "location-user-bearer"
     },

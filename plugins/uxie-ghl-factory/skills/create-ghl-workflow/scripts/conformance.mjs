@@ -38,6 +38,7 @@ import { liveValidate } from '../engine/live-validate.mjs';
 import { planReadinessChecks, runReadinessChecks } from '../engine/preflight.mjs';
 import { runMultipathInsertProof } from './multipath-insert-proof.mjs';
 import { runDeleteBranchProof } from './delete-branch-proof.mjs';
+import { runVocabularyRefsProof } from './vocabulary-refs-proof.mjs';
 
 const LOCATION = process.env.GHL_LOCATION || process.env.GHL_LOC;
 if (!LOCATION) {
@@ -1741,6 +1742,8 @@ console.log('\nedit_workflow: multipath insert, runtime');
 await runMultipathInsertProof({ call, gw: deps.makeGw({ loc: LOCATION, state }), LOCATION, NAME, STAMP, check, left, log });
 console.log('\nedit_workflow: deleteBranch, runtime');
 await runDeleteBranchProof({ call, gw: deps.makeGw({ loc: LOCATION, state }), LOCATION, NAME, STAMP, check, left, log });
+console.log('\ncheck_workflow: trigger names matched against the account vocabulary');
+await runVocabularyRefsProof({ call, gw: deps.makeGw({ loc: LOCATION, state }), LOCATION, NAME, STAMP, check, left, log });
 
 // ── get_workflow_stats: A/B split results, proven by DIFFERENTIAL ─────────────────────────────
 // Same fence as the runtime block above: trigger-less workflow, a contact this run creates with no

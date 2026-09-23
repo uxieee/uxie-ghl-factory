@@ -13,6 +13,27 @@ commit bodies carry the detail.
 
 ## Unreleased
 
+**`check_workflow` now checks the trigger conditions GHL matches BY NAME** (`vocabularyReferences`,
+its own key, never in `errorCount`). A `call_status` trigger's `custom_disposition` filter stores the
+disposition LABEL; GHL's own source does this deliberately. So a name the account lacks is a trigger
+that never fires. Nothing reported it: not GHL's validators, not the asset-reference check, since
+there is no id to resolve. A live Call Outcome Router carried two such dead branches, one a
+multi-day recovery ladder (console bl-139). The check reads the account's active dispositions only
+when a trigger needs them. It reports an exact miss, suggests the account's spelling on a case or
+space variant, and reads NOT CHECKED rather than clean when the list cannot be read. The headline
+gains a `trigger names:` scope. Live-proven by differential on the sandbox: one real and one ghost
+name on the same stored trigger; only the ghost is reported (`vocabulary-refs-proof.mjs`, in the
+workflows live suite).
+
+The endpoint catalogue folds five rows that spell a parameter as a known literal value into their
+generic route. Four were `billing-config` rows (COMPANY/LOCATION × `{product}`,
+`workflow_premium_actions`, `conversation_AI`), and one was `actions/options/conversationai_services_booking`.
+Once substituted they are byte-identical wire paths, so they sat uncovered in every denominator
+(console bl-166). The fold is VALUE-aware, not shape-aware: a literal only folds when it is a known
+value of the parameter it replaces. The shape-only rule claimed 21 false pairs on workflows alone,
+including `/workflow/{loc}/trigger` as a copy of `/workflow/{loc}/{workflowId}`. The agency-scope fact
+(COMPANY needs an agency credential) moved onto the generic row's note.
+
 An `edit_workflow` refusal made BEFORE anything was sent no longer reads like a transport failure.
 Almost every local refusal came back ENGINE_ABORT with "Gateway transport failed before an HTTP
 result was available; inspect account state before retrying". That covered missing op arguments,
