@@ -1326,3 +1326,22 @@ test('the SAME error attributed to an UNTOUCHED step only warns, and the edit pr
     `the debt is still SURFACED, never swallowed — got ${JSON.stringify(result.data.warnings)}`,
   );
 });
+
+// A local argument refusal must not read like a transport failure (peer report 2026-09-23:
+// replaceInAttributes without `path` came back "Gateway transport failed … inspect account state",
+// which makes a caller hunt the account for a half-landed write that never happened).
+test('an edit op refused before anything is sent says nothing was written, not "inspect account state"', async () => {
+  for (const ops of [
+    [{ op: 'replaceInAttributes', find: 'a', replace: 'b', type: 'email' }],
+    [{ op: 'deleteStep', stepId: 'no-such-step' }],
+    [{ op: 'noSuchOp' }],
+  ]) {
+    const { gw, calls } = editGateway();
+    const result = await editTool().handler({ locationId: 'LOC', workflowId: 'WID', ops, confirm: true }, deps(gw));
+    assert.equal(result.ok, false, JSON.stringify(ops));
+    assert.equal(result.code, 'ENGINE_ABORT');
+    assert.doesNotMatch(result.remediation, /transport|inspect account state/i, JSON.stringify(ops));
+    assert.match(result.remediation, /nothing was written/);
+    assert.equal(calls.some(({ method }) => method !== 'GET'), false, 'and indeed nothing but reads was sent');
+  }
+});

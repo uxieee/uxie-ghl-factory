@@ -1357,12 +1357,25 @@ function verifyEditRoundTrip(expectedTemplates, beforeTemplates, gotTemplates) {
 
 const withFailureData = (failure, data) => ({ ...failure, data: ok(data).data });
 
-function fromThrown(error) {
+function fromThrown(error, { beforeWrite = false } = {}) {
   if (error?.gatewayResponse) {
     return fromHttp(error.gatewayResponse.status, error.gatewayResponse.json);
   }
   if (error?.code && error?.remediation) {
     return fail(error.code, error.detail ?? error.message, error.remediation);
+  }
+  // The caller KNOWS nothing non-GET had been sent when this was thrown (edit_workflow tracks it).
+  // That is a local refusal of the arguments, not a transport failure: the message regex below
+  // missed most of the edit engine's refusals ("is missing required argument(s)", "no step with
+  // id", "unknown edit op"…), and told the caller to "inspect account state" as if a write might
+  // have half-landed (reported by a peer session 2026-09-23, replaceInAttributes without `path`).
+  // The code stays ENGINE_ABORT (callers key on it); only the remediation stops implying a write.
+  if (beforeWrite) {
+    return fail(
+      CODES.ENGINE_ABORT,
+      error?.message ?? String(error),
+      'Refused before anything was sent — nothing was written. Fix the op and retry.',
+    );
   }
   // Not every throw is a transport failure. A compiler/validator rejecting a spec throws
   // BEFORE anything is sent — telling that caller to "inspect account state" sends them
@@ -1641,7 +1654,9 @@ function normalizeHttpMethod(method) {
 }
 
 // Run a handler body, mapping AuthError/engine throws onto the error contract.
-export async function guard(fn, args, { credentialCode = CODES.VALIDATION_FAILED } = {}) {
+// `sentWrite`, when given, reports whether the handler had sent any non-GET request before the
+// throw; a throw with nothing sent is mapped as a local refusal, never as a transport failure.
+export async function guard(fn, args, { credentialCode = CODES.VALIDATION_FAILED, sentWrite = null } = {}) {
   try {
     if (containsSecrets(args)) {
       return credentialFailure(credentialCode);
@@ -1649,8 +1664,29 @@ export async function guard(fn, args, { credentialCode = CODES.VALIDATION_FAILED
     return await fn();
   }
   catch (e) {
-    return fromThrown(e);
+    return fromThrown(e, { beforeWrite: typeof sentWrite === 'function' && !sentWrite() });
   }
+}
+
+// Wrap a gateway so a handler can tell, after a throw, whether anything but a GET left the process.
+// Conservative by design: a read-only POST (a validator) counts as sent, which only ever falls back
+// to the old, cautious wording.
+export function trackWrites(gw) {
+  const state = { sent: false };
+  const wrapped = new Proxy(gw, {
+    get(target, prop) {
+      const v = target[prop];
+      if (typeof v !== 'function') return v;
+      if (prop === 'call' || prop === 'callWithMeta') {
+        return (method, ...rest) => {
+          if (String(method).toUpperCase() !== 'GET') state.sent = true;
+          return v.call(target, method, ...rest);
+        };
+      }
+      return v.bind(target);
+    },
+  });
+  return { gw: wrapped, sent: () => state.sent };
 }
 
 const STUDIO_IDTOKENS = new Map();   // locationId -> { idToken, expiresAt }
@@ -4585,7 +4621,7 @@ export const TOOLS = [
       { method: 'POST', path: '/workflow/{loc}/email/validate-from-email' },
       { method: 'POST', path: '/workflow/{loc}/{wid}/validate-workflows' },
     ],
-    handler: async (args, deps) => guard(async () => {
+    handler: async (args, deps) => { const tracked = { sent: () => false }; return guard(async () => {
       if (!Array.isArray(args.ops) || args.ops.length === 0) {
         return fail(
           CODES.VALIDATION_FAILED,
@@ -4594,7 +4630,9 @@ export const TOOLS = [
         );
       }
 
-      const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+      const writeTracker = trackWrites(deps.makeGw({ loc: args.locationId, state: deps.state }));
+      tracked.sent = writeTracker.sent;
+      const gw = writeTracker.gw;
       const locationPath = encodeURIComponent(args.locationId);
       const warnings = [];
 
@@ -5265,7 +5303,7 @@ export const TOOLS = [
         );
       }
       return ok(data);
-    }, args),
+    }, args, { sentWrite: () => tracked.sent() }); },
   },
   {
     // THE SANCTIONED REPLACEMENT FOR A HAND-ROLLED PUT (RC-A). When the ops cannot express a

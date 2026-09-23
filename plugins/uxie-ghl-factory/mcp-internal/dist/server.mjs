@@ -173497,12 +173497,19 @@ function verifyEditRoundTrip(expectedTemplates, beforeTemplates, gotTemplates) {
   };
 }
 var withFailureData = (failure2, data2) => ({ ...failure2, data: ok(data2).data });
-function fromThrown(error51) {
+function fromThrown(error51, { beforeWrite = false } = {}) {
   if (error51?.gatewayResponse) {
     return fromHttp(error51.gatewayResponse.status, error51.gatewayResponse.json);
   }
   if (error51?.code && error51?.remediation) {
     return fail(error51.code, error51.detail ?? error51.message, error51.remediation);
+  }
+  if (beforeWrite) {
+    return fail(
+      CODES.ENGINE_ABORT,
+      error51?.message ?? String(error51),
+      "Refused before anything was sent \u2014 nothing was written. Fix the op and retry."
+    );
   }
   const message = error51?.message ?? String(error51);
   const isSpecRejection = error51?.name === "IRError" || /^[A-Z_]+:/.test(message) || /\bmust be one of\b|\bis required\b|\bunknown key\b|\binvalid\b/i.test(message);
@@ -173723,15 +173730,32 @@ function normalizeHttpMethod(method) {
   const normalized = method.trim();
   return normalized && HTTP_METHOD_TOKEN.test(normalized) ? normalized.toUpperCase() : null;
 }
-async function guard(fn, args, { credentialCode = CODES.VALIDATION_FAILED } = {}) {
+async function guard(fn, args, { credentialCode = CODES.VALIDATION_FAILED, sentWrite = null } = {}) {
   try {
     if (containsSecrets(args)) {
       return credentialFailure(credentialCode);
     }
     return await fn();
   } catch (e) {
-    return fromThrown(e);
+    return fromThrown(e, { beforeWrite: typeof sentWrite === "function" && !sentWrite() });
   }
+}
+function trackWrites(gw) {
+  const state2 = { sent: false };
+  const wrapped = new Proxy(gw, {
+    get(target, prop) {
+      const v = target[prop];
+      if (typeof v !== "function") return v;
+      if (prop === "call" || prop === "callWithMeta") {
+        return (method, ...rest) => {
+          if (String(method).toUpperCase() !== "GET") state2.sent = true;
+          return v.call(target, method, ...rest);
+        };
+      }
+      return v.bind(target);
+    }
+  });
+  return { gw: wrapped, sent: () => state2.sent };
 }
 var STUDIO_IDTOKENS = /* @__PURE__ */ new Map();
 var studioDeps = (args, deps) => {
@@ -176389,553 +176413,558 @@ var TOOLS2 = [
       { method: "POST", path: "/workflow/{loc}/email/validate-from-email" },
       { method: "POST", path: "/workflow/{loc}/{wid}/validate-workflows" }
     ],
-    handler: async (args, deps) => guard(async () => {
-      if (!Array.isArray(args.ops) || args.ops.length === 0) {
-        return fail(
-          CODES.VALIDATION_FAILED,
-          "edit_workflow requires at least one operation in ops",
-          "Pass the ordered edit operations to preview, then repeat with confirm:true to write them."
-        );
-      }
-      const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
-      const locationPath = encodeURIComponent(args.locationId);
-      const warnings = [];
-      const customFieldQuery = new URLSearchParams({
-        parentId: "",
-        skip: "0",
-        limit: "10000",
-        documentType: "field",
-        model: "all",
-        query: "",
-        includeStandards: "false"
-      });
-      let customFields;
-      const customFieldResponse = await gw.call(
-        "GET",
-        `/locations/${locationPath}/customFields/search?${customFieldQuery}`
-      );
-      const customFieldRecords = Array.isArray(customFieldResponse.json) ? customFieldResponse.json : customFieldResponse.json?.customFields;
-      const hasValidCustomFieldList = customFieldResponse.ok && Array.isArray(customFieldRecords) && customFieldRecords.every((field) => field !== null && typeof field === "object" && !Array.isArray(field) && typeof (field.id ?? field._id) === "string" && (field.id ?? field._id).trim().length > 0);
-      if (hasValidCustomFieldList) {
-        customFields = customFieldRecords.map((field) => ({
-          id: field.id ?? field._id,
-          name: field.name,
-          fieldKey: field.fieldKey,
-          dataType: field.dataType,
-          model: field.model
-        }));
-      }
-      let customValues;
-      const customValueResponse = await gw.call("GET", `/locations/${locationPath}/customValues`);
-      const customValueRecords = Array.isArray(customValueResponse.json) ? customValueResponse.json : customValueResponse.json?.customValues;
-      if (customValueResponse.ok && Array.isArray(customValueRecords)) {
-        customValues = customValueRecords.filter((value) => value !== null && typeof value === "object" && !Array.isArray(value)).map((value) => ({ id: value.id ?? value._id, name: value.name, fieldKey: value.fieldKey }));
-      }
-      const initialResponse = await getWorkflow(gw, args.locationId, args.workflowId);
-      if (!initialResponse.ok) return fromHttp(initialResponse.status, initialResponse.json);
-      const fresh = initialResponse.json;
-      const beforeTemplates = fresh?.workflowData?.templates;
-      if (!Array.isArray(beforeTemplates)) {
-        return fail(
-          CODES.ENGINE_ABORT,
-          "workflow GET did not return workflowData.templates",
-          "Confirm the workflow id and retry; no edit was written."
-        );
-      }
-      const cache = readCache(deps.state);
-      const lastRead = cache.read(args.locationId, args.workflowId);
-      const driftOf = () => {
-        if (!lastRead?.templates) return null;
-        const d = diffTemplates(lastRead.templates, beforeTemplates);
-        return {
-          versions: [lastRead.version ?? null, fresh.version ?? null],
-          readAt: lastRead.readAt ?? null,
-          added: d.createdSteps,
-          removed: d.deletedSteps,
-          modified: d.modifiedSteps
-        };
-      };
-      if (args.expectedVersion !== void 0 && fresh.version !== args.expectedVersion) {
-        return withFailureData(fail(
-          CODES.VERSION_CONFLICT,
-          `workflow version is ${fresh.version}, not the expected ${args.expectedVersion} \u2014 it changed after you read it.`,
-          "Re-read the workflow (get_workflow_digest / export_workflow), rebase your ops on the current version, then retry with the new expectedVersion."
-        ), { driftSinceLastRead: driftOf() });
-      }
-      if (args.expectedVersion === void 0 && lastRead?.version != null && fresh.version != null && lastRead.version < fresh.version && args.acknowledgeDrift !== true) {
-        return withFailureData(fail(
-          CODES.PREVIEW_STALE,
-          `this project last read version ${lastRead.version}; the workflow is now at ${fresh.version}, so it changed after you looked.`,
-          "Re-read it, or pass acknowledgeDrift:true to edit the CURRENT graph anyway. data.driftSinceLastRead lists what moved."
-        ), { driftSinceLastRead: driftOf() });
-      }
-      const idGen = boundEditIdGen(
-        args.locationId,
-        args.workflowId,
-        fresh.version,
-        args.ops,
-        beforeTemplates.map((step) => step.id)
-      );
-      const marketplaceRaw = opsUseMarketplace(args.ops) ? await fetchMarketplace((m, path, body) => gw.call(m, path, body), args.locationId) : { assets: null, modules: { actions: [], triggers: [] } };
-      const marketplace = buildMarketplaceIndex(marketplaceRaw);
-      const ctx = {
-        loc: args.locationId,
-        cid: void 0,
-        uid: gw.uid,
-        companyAge: 0,
-        idGen,
-        catalog: loadCatalog(),
-        marketplace,
-        ...customFields !== void 0 ? { customFields } : {},
-        ...customValues !== void 0 ? { customValues } : {},
-        warn: (message) => warnings.push(message)
-      };
-      let editOps = args.ops;
-      if (opsNeedResolution(editOps)) {
-        const entities = await fetchEntities({ call: (m, path, body) => gw.call(m, path, body), loc: args.locationId });
-        const resolved = resolveOps(editOps, buildResolvers(entities), beforeTemplates);
-        editOps = resolved.ops;
-        if (resolved.unresolved.length && args.ignoreUnresolved !== true) {
+    handler: async (args, deps) => {
+      const tracked = { sent: () => false };
+      return guard(async () => {
+        if (!Array.isArray(args.ops) || args.ops.length === 0) {
           return fail(
-            CODES.UNRESOLVED_DEPS,
-            `${resolved.unresolved.length} name(s) in these ops matched nothing on this account: ` + resolved.unresolved.map((u) => `${u.where} '${u.name}'`).join(", "),
-            "Check the spelling against list_account_entities, or pass ignoreUnresolved:true to write the op anyway (a name on the wire moves nothing)."
+            CODES.VALIDATION_FAILED,
+            "edit_workflow requires at least one operation in ops",
+            "Pass the ordered edit operations to preview, then repeat with confirm:true to write them."
           );
         }
-        for (const u of resolved.unresolved) warnings.push(`UNRESOLVED (ignored): ${u.where} '${u.name}'`);
-      }
-      const { stepOps, triggerOps, settingsOps, stickyOps } = partitionOps(editOps);
-      for (const op of stepOps.filter((o) => o.op === "replaceFieldId")) {
-        const lookups = await Promise.all([op.newId, op.oldId].map(async (id) => {
-          const r = await gw.call("GET", `/locations/${locationPath}/customFields/${encodeURIComponent(id)}`);
-          const f = r?.json?.customField ?? r?.json;
-          return { id, ok: r?.ok === true && f && typeof f === "object", fieldKey: f?.fieldKey ?? null, dataType: f?.dataType ?? null };
-        }));
-        const [next, prev] = lookups;
-        if (!next.ok && args.ignoreUnresolved !== true) {
-          return fail(
-            CODES.UNRESOLVED_DEPS,
-            `replaceFieldId: the NEW id '${op.newId}' does not resolve on this account (GET /locations/{loc}/customFields/{id}). ` + (prev.ok ? `The old id resolves to ${prev.fieldKey ?? prev.id} (${prev.dataType ?? "?"}). ` : "") + "Field ids differ per account even for standard fields, so a cloned reference can look right and write nothing.",
-            "Look the field up with list_account_entities or GET /locations/{loc}/customFields/search?model=all on THIS account and use its id, or pass ignoreUnresolved:true to write the foreign id anyway."
-          );
-        }
-        if (!next.ok) warnings.push(`UNRESOLVED (ignored): replaceFieldId newId '${op.newId}' does not resolve on this account`);
-        else warnings.push(`replaceFieldId: '${op.oldId}'${prev.ok ? ` (${prev.fieldKey ?? "?"})` : " (does not resolve here)"} \u2192 '${op.newId}' (${next.fieldKey ?? "?"}, ${next.dataType ?? "?"})`);
-      }
-      const settingsPatch = mergeSettingsOps(settingsOps);
-      const stickyPlan = stickyOps.map((op) => planStickyNoteOp(op, { loc: args.locationId, wid: args.workflowId }));
-      const { templates, diff, opResults } = applyOps(beforeTemplates, stepOps, { ctx, idGen });
-      let parkedOnDeletedSteps = [];
-      if (fresh.status === "published" && diff.deletedSteps?.length) {
-        const counts = await safeGatewayCall(() => gw.call(
+        const writeTracker = trackWrites(deps.makeGw({ loc: args.locationId, state: deps.state }));
+        tracked.sent = writeTracker.sent;
+        const gw = writeTracker.gw;
+        const locationPath = encodeURIComponent(args.locationId);
+        const warnings = [];
+        const customFieldQuery = new URLSearchParams({
+          parentId: "",
+          skip: "0",
+          limit: "10000",
+          documentType: "field",
+          model: "all",
+          query: "",
+          includeStandards: "false"
+        });
+        let customFields;
+        const customFieldResponse = await gw.call(
           "GET",
-          `/workflows/status/search/count-per-step?${new URLSearchParams({ workflowId: args.workflowId, locationId: args.locationId })}`
-        ));
-        const rows = !counts.threw && counts.value?.ok ? counts.value.json?.counts ?? counts.value.json ?? [] : null;
-        if (!Array.isArray(rows)) {
-          warnings.push("DELETE_PARKED_UNKNOWN: could not read contacts-per-step, so the number of contacts parked on the deleted step(s) is unknown; read get_contacts_at_step before confirming.");
-        } else {
-          const byStep = new Map(rows.map((r) => [r?.currentStepId ?? r?.stepId, Number(r?.total ?? r?.count ?? 0)]));
-          parkedOnDeletedSteps = diff.deletedSteps.map((id) => ({ stepId: id, name: beforeTemplates.find((t) => t.id === id)?.name ?? id, parked: byStep.get(id) ?? 0 })).filter((r) => r.parked > 0);
-          for (const r of parkedOnDeletedSteps) {
-            warnings.push(`DELETE_EJECTS_PARKED_CONTACTS: ${r.parked} contact(s) are parked on '${r.name}' (${r.stepId}); deleting it ends their run (step_was_deleted_by_user) and an autonomous trigger will not re-fire for them in that session. Move them first (fast_forward_contacts / get_contacts_at_step), or accept the ejection.`);
+          `/locations/${locationPath}/customFields/search?${customFieldQuery}`
+        );
+        const customFieldRecords = Array.isArray(customFieldResponse.json) ? customFieldResponse.json : customFieldResponse.json?.customFields;
+        const hasValidCustomFieldList = customFieldResponse.ok && Array.isArray(customFieldRecords) && customFieldRecords.every((field) => field !== null && typeof field === "object" && !Array.isArray(field) && typeof (field.id ?? field._id) === "string" && (field.id ?? field._id).trim().length > 0);
+        if (hasValidCustomFieldList) {
+          customFields = customFieldRecords.map((field) => ({
+            id: field.id ?? field._id,
+            name: field.name,
+            fieldKey: field.fieldKey,
+            dataType: field.dataType,
+            model: field.model
+          }));
+        }
+        let customValues;
+        const customValueResponse = await gw.call("GET", `/locations/${locationPath}/customValues`);
+        const customValueRecords = Array.isArray(customValueResponse.json) ? customValueResponse.json : customValueResponse.json?.customValues;
+        if (customValueResponse.ok && Array.isArray(customValueRecords)) {
+          customValues = customValueRecords.filter((value) => value !== null && typeof value === "object" && !Array.isArray(value)).map((value) => ({ id: value.id ?? value._id, name: value.name, fieldKey: value.fieldKey }));
+        }
+        const initialResponse = await getWorkflow(gw, args.locationId, args.workflowId);
+        if (!initialResponse.ok) return fromHttp(initialResponse.status, initialResponse.json);
+        const fresh = initialResponse.json;
+        const beforeTemplates = fresh?.workflowData?.templates;
+        if (!Array.isArray(beforeTemplates)) {
+          return fail(
+            CODES.ENGINE_ABORT,
+            "workflow GET did not return workflowData.templates",
+            "Confirm the workflow id and retry; no edit was written."
+          );
+        }
+        const cache = readCache(deps.state);
+        const lastRead = cache.read(args.locationId, args.workflowId);
+        const driftOf = () => {
+          if (!lastRead?.templates) return null;
+          const d = diffTemplates(lastRead.templates, beforeTemplates);
+          return {
+            versions: [lastRead.version ?? null, fresh.version ?? null],
+            readAt: lastRead.readAt ?? null,
+            added: d.createdSteps,
+            removed: d.deletedSteps,
+            modified: d.modifiedSteps
+          };
+        };
+        if (args.expectedVersion !== void 0 && fresh.version !== args.expectedVersion) {
+          return withFailureData(fail(
+            CODES.VERSION_CONFLICT,
+            `workflow version is ${fresh.version}, not the expected ${args.expectedVersion} \u2014 it changed after you read it.`,
+            "Re-read the workflow (get_workflow_digest / export_workflow), rebase your ops on the current version, then retry with the new expectedVersion."
+          ), { driftSinceLastRead: driftOf() });
+        }
+        if (args.expectedVersion === void 0 && lastRead?.version != null && fresh.version != null && lastRead.version < fresh.version && args.acknowledgeDrift !== true) {
+          return withFailureData(fail(
+            CODES.PREVIEW_STALE,
+            `this project last read version ${lastRead.version}; the workflow is now at ${fresh.version}, so it changed after you looked.`,
+            "Re-read it, or pass acknowledgeDrift:true to edit the CURRENT graph anyway. data.driftSinceLastRead lists what moved."
+          ), { driftSinceLastRead: driftOf() });
+        }
+        const idGen = boundEditIdGen(
+          args.locationId,
+          args.workflowId,
+          fresh.version,
+          args.ops,
+          beforeTemplates.map((step) => step.id)
+        );
+        const marketplaceRaw = opsUseMarketplace(args.ops) ? await fetchMarketplace((m, path, body) => gw.call(m, path, body), args.locationId) : { assets: null, modules: { actions: [], triggers: [] } };
+        const marketplace = buildMarketplaceIndex(marketplaceRaw);
+        const ctx = {
+          loc: args.locationId,
+          cid: void 0,
+          uid: gw.uid,
+          companyAge: 0,
+          idGen,
+          catalog: loadCatalog(),
+          marketplace,
+          ...customFields !== void 0 ? { customFields } : {},
+          ...customValues !== void 0 ? { customValues } : {},
+          warn: (message) => warnings.push(message)
+        };
+        let editOps = args.ops;
+        if (opsNeedResolution(editOps)) {
+          const entities = await fetchEntities({ call: (m, path, body) => gw.call(m, path, body), loc: args.locationId });
+          const resolved = resolveOps(editOps, buildResolvers(entities), beforeTemplates);
+          editOps = resolved.ops;
+          if (resolved.unresolved.length && args.ignoreUnresolved !== true) {
+            return fail(
+              CODES.UNRESOLVED_DEPS,
+              `${resolved.unresolved.length} name(s) in these ops matched nothing on this account: ` + resolved.unresolved.map((u) => `${u.where} '${u.name}'`).join(", "),
+              "Check the spelling against list_account_entities, or pass ignoreUnresolved:true to write the op anyway (a name on the wire moves nothing)."
+            );
+          }
+          for (const u of resolved.unresolved) warnings.push(`UNRESOLVED (ignored): ${u.where} '${u.name}'`);
+        }
+        const { stepOps, triggerOps, settingsOps, stickyOps } = partitionOps(editOps);
+        for (const op of stepOps.filter((o) => o.op === "replaceFieldId")) {
+          const lookups = await Promise.all([op.newId, op.oldId].map(async (id) => {
+            const r = await gw.call("GET", `/locations/${locationPath}/customFields/${encodeURIComponent(id)}`);
+            const f = r?.json?.customField ?? r?.json;
+            return { id, ok: r?.ok === true && f && typeof f === "object", fieldKey: f?.fieldKey ?? null, dataType: f?.dataType ?? null };
+          }));
+          const [next, prev] = lookups;
+          if (!next.ok && args.ignoreUnresolved !== true) {
+            return fail(
+              CODES.UNRESOLVED_DEPS,
+              `replaceFieldId: the NEW id '${op.newId}' does not resolve on this account (GET /locations/{loc}/customFields/{id}). ` + (prev.ok ? `The old id resolves to ${prev.fieldKey ?? prev.id} (${prev.dataType ?? "?"}). ` : "") + "Field ids differ per account even for standard fields, so a cloned reference can look right and write nothing.",
+              "Look the field up with list_account_entities or GET /locations/{loc}/customFields/search?model=all on THIS account and use its id, or pass ignoreUnresolved:true to write the foreign id anyway."
+            );
+          }
+          if (!next.ok) warnings.push(`UNRESOLVED (ignored): replaceFieldId newId '${op.newId}' does not resolve on this account`);
+          else warnings.push(`replaceFieldId: '${op.oldId}'${prev.ok ? ` (${prev.fieldKey ?? "?"})` : " (does not resolve here)"} \u2192 '${op.newId}' (${next.fieldKey ?? "?"}, ${next.dataType ?? "?"})`);
+        }
+        const settingsPatch = mergeSettingsOps(settingsOps);
+        const stickyPlan = stickyOps.map((op) => planStickyNoteOp(op, { loc: args.locationId, wid: args.workflowId }));
+        const { templates, diff, opResults } = applyOps(beforeTemplates, stepOps, { ctx, idGen });
+        let parkedOnDeletedSteps = [];
+        if (fresh.status === "published" && diff.deletedSteps?.length) {
+          const counts = await safeGatewayCall(() => gw.call(
+            "GET",
+            `/workflows/status/search/count-per-step?${new URLSearchParams({ workflowId: args.workflowId, locationId: args.locationId })}`
+          ));
+          const rows = !counts.threw && counts.value?.ok ? counts.value.json?.counts ?? counts.value.json ?? [] : null;
+          if (!Array.isArray(rows)) {
+            warnings.push("DELETE_PARKED_UNKNOWN: could not read contacts-per-step, so the number of contacts parked on the deleted step(s) is unknown; read get_contacts_at_step before confirming.");
+          } else {
+            const byStep = new Map(rows.map((r) => [r?.currentStepId ?? r?.stepId, Number(r?.total ?? r?.count ?? 0)]));
+            parkedOnDeletedSteps = diff.deletedSteps.map((id) => ({ stepId: id, name: beforeTemplates.find((t) => t.id === id)?.name ?? id, parked: byStep.get(id) ?? 0 })).filter((r) => r.parked > 0);
+            for (const r of parkedOnDeletedSteps) {
+              warnings.push(`DELETE_EJECTS_PARKED_CONTACTS: ${r.parked} contact(s) are parked on '${r.name}' (${r.stepId}); deleting it ends their run (step_was_deleted_by_user) and an autonomous trigger will not re-fire for them in that session. Move them first (fast_forward_contacts / get_contacts_at_step), or accept the ejection.`);
+            }
           }
         }
-      }
-      ctx.externalRefs = externalRefsOf(templates);
-      let existingTriggers = [];
-      if (triggerOps.length || rulesNeedTriggers(templates, ctx.catalog?.workflowRules)) {
-        const listed = await listWorkflowTriggers(gw, args.locationId, args.workflowId);
-        if (!listed.response.ok) return fromHttp(listed.response.status, listed.response.json);
-        existingTriggers = listed.triggers;
-      }
-      const editTouchedIds = /* @__PURE__ */ new Set([...diff.createdSteps ?? [], ...diff.modifiedSteps ?? []]);
-      const opsWriteAttributes = (args.ops ?? []).some((o) => ATTR_WRITING_OPS.has(o?.op));
-      const customCode = await customCodePreflight({
-        gw,
-        loc: args.locationId,
-        templates,
-        touchedIds: editTouchedIds,
-        strict: args.strictCustomCode,
-        skip: !opsWriteAttributes || args.skipCustomCodeTest === true,
-        warnings
-      });
-      if (customCode.refusal) return customCode.refusal;
-      const customCodeTests = customCode.tests;
-      lintContactFieldTemplates(templates, diff.modifiedSteps, ctx.warn);
-      const commitBody = editCommitBody(fresh, templates, diff, gw.uid, {
-        assumeAssociated: args.assumeAssociated === true,
-        // Closes the modifyStep enforcement bypass: field rules run over the steps THIS edit
-        // touched, at the same commit point as the parentKey and step-reference checks.
-        catalog: ctx.catalog,
-        warn: ctx.warn,
-        settingsPatch,
-        allowGotoLoops: args.allowGotoLoops === true,
-        deadBranchAcknowledged: args.deadBranchAcknowledged === true,
-        allowDanglingParentKeys: args.allowDanglingParentKeys === true,
-        allowDanglingStepRefs: args.allowDanglingStepRefs === true
-      });
-      const redactedRefusal = refuseRedactedWrite(commitBody?.workflowData?.templates ?? templates);
-      if (redactedRefusal) return fail(CODES.VALIDATION_FAILED, redactedRefusal.message, redactedRefusal.hint);
-      checkGraphContextRules(templates, { warn: ctx.warn });
-      const schemaViolations = await editSchemaViolations(gw, locationPath, templates, existingTriggers, args.ops, marketplaceRaw.assets);
-      for (const v of schemaViolations) warnings.push(`SCHEMA: '${v.step ?? v.stepId}' (${v.type}): ${(v.messages ?? []).join("; ")}`);
-      const caps = fieldCapGate({ templates, scope: editTouchedIds, allowOverCap: args.allowOverCap, warnings });
-      if (caps.refusal) return caps.refusal;
-      const triggerPlan = planTriggerOps(triggerOps, {
-        ctx: { ...ctx, allowFlowTriggerEdit: args.allowFlowTriggerEdit === true },
-        wid: args.workflowId,
-        uid: gw.uid,
-        existing: existingTriggers,
-        // The target workflow's OWN status — addTrigger/duplicateTrigger need it to decide
-        // what `status` a freshly-created trigger carries (measured 2026-08-28: `status`
-        // follows the target workflow, not a hardcoded default — see edit-driver.mjs).
-        workflowStatus: fresh.status
-      });
-      for (const r of triggerPlan) {
-        if (r.noop) warnings.push(`TRIGGER_NOOP: ${r.op} on ${r.triggerId} \u2014 ${r.reason}. If you expected a change, the value you sent equals what is stored; nothing will be written for this op.`);
-      }
-      let assetPreflight = null;
-      let readiness = [];
-      if (opsWriteAttributes || triggerOps.length) {
-        const assets = await assetPreflightFor({
-          gw,
-          loc: args.locationId,
-          templates,
-          triggers: [...existingTriggers, ...triggerPlan.map((request) => request.body).filter(Boolean)],
-          companyId: fresh.companyId,
-          touchedIds: editTouchedIds,
-          ignoreAssetErrors: args.ignoreAssetErrors,
-          warnings,
-          ops: editOps
-        });
-        if (assets.refusal) return assets.refusal;
-        assetPreflight = assets.assetPreflight;
-        readiness = await readinessFor({
+        ctx.externalRefs = externalRefsOf(templates);
+        let existingTriggers = [];
+        if (triggerOps.length || rulesNeedTriggers(templates, ctx.catalog?.workflowRules)) {
+          const listed = await listWorkflowTriggers(gw, args.locationId, args.workflowId);
+          if (!listed.response.ok) return fromHttp(listed.response.status, listed.response.json);
+          existingTriggers = listed.triggers;
+        }
+        const editTouchedIds = /* @__PURE__ */ new Set([...diff.createdSteps ?? [], ...diff.modifiedSteps ?? []]);
+        const opsWriteAttributes = (args.ops ?? []).some((o) => ATTR_WRITING_OPS.has(o?.op));
+        const customCode = await customCodePreflight({
           gw,
           loc: args.locationId,
           templates,
           touchedIds: editTouchedIds,
-          triggerTypes: triggerPlan.map((request) => request.body?.type).filter(Boolean),
-          settings: settingsPatch ?? {},
-          catalog: ctx.catalog,
+          strict: args.strictCustomCode,
+          skip: !opsWriteAttributes || args.skipCustomCodeTest === true,
           warnings
         });
-      }
-      let gateTriggers = existingTriggers;
-      if (!(triggerOps.length || rulesNeedTriggers(templates, ctx.catalog?.workflowRules))) {
-        const listed = await listWorkflowTriggers(gw, args.locationId, args.workflowId);
-        if (listed.response.ok) gateTriggers = listed.triggers;
-        else warnings.push(`VALIDATION: the trigger list could not be read (${listed.response.status}); GHL's trigger layer was not judged`);
-      }
-      const editFromEmail = (commitBody.senderAddress ?? fresh.senderAddress)?.from_email;
-      const editSenderDomain = fromEmailNeedsDomain(editFromEmail) ? await senderDomainFor(gw, args.locationId, args.workflowId, editFromEmail, ctx.catalog) : void 0;
-      const editWebhookReference = fresh.status === "published" ? await webhookReferenceFor(gw, args.locationId, gateTriggers) : void 0;
-      const validation = await workflowValidationGate({
-        // No `templates` here on purpose: the gate must judge the DOCUMENT, whose templates the commit
-        // body has already transformed (fillInputTriggerParams(stripNullNext(...))). Passing the raw
-        // array made GHL judge bytes we never send, and refused a correctly authored if_else.
-        gw,
-        loc: args.locationId,
-        wid: args.workflowId,
-        fresh,
-        document: commitBody,
-        triggers: gateTriggers,
-        scope: editTouchedIds,
-        catalog: ctx.catalog,
-        assets: marketplaceRaw?.assets,
-        allow: args.allowValidationFailure === true,
-        warnings,
-        intent: "edit",
-        status: fresh.status,
-        skipWorkflowRules: args.skipWorkflowRules,
-        settings: { senderAddress: commitBody.senderAddress ?? fresh.senderAddress },
-        senderDomain: editSenderDomain,
-        webhookReference: editWebhookReference,
-        // The path's own guards own these checks and their hatches; the gate must not overrule them.
-        waive: /* @__PURE__ */ new Set([...args.allowOverCap === true ? ["FIELD_CAP"] : [], ...args.allowDanglingStepRefs === true ? ["STEP_REF"] : [], ...args.allowDanglingParentKeys === true ? ["PARENT_KEY"] : []])
-      });
-      if (validation.refusal) return validation.refusal;
-      const neededTags = collectOpTags(args.ops);
-      let tagsToCreate = [];
-      if (neededTags.length) {
-        const tagResponse = await gw.call("GET", `/locations/${locationPath}/tags`);
-        if (!tagResponse.ok) return fromHttp(tagResponse.status, tagResponse.json);
-        const existingNames = recordsFrom2(tagResponse.json, "tags").map((tag) => tag.name);
-        tagsToCreate = missingTags(neededTags, existingNames);
-      }
-      const preview = editPreview(
-        args.ops,
-        beforeTemplates,
-        templates,
-        diff,
-        triggerPlan,
-        neededTags,
-        tagsToCreate,
-        fresh.status,
-        opResults
-      );
-      if (settingsPatch) {
-        preview.settings = Object.fromEntries(Object.keys(settingsPatch).map((k) => [k, k === "statsView" ? commitBody.meta?.statsView ?? false : commitBody[k]]));
-      }
-      if (stickyPlan.length) preview.stickyNotes = stickyPlan.map(({ op, method, path, body }) => ({ op, method, path, color: body.color, chars: body.content?.length }));
-      if (parkedOnDeletedSteps.length) preview.parkedOnDeletedSteps = parkedOnDeletedSteps;
-      if (assetPreflight) preview.assetPreflight = assetPreflight;
-      preview.validation = validation.report;
-      if (customCodeTests.length) preview.customCodeTests = customCodeTests;
-      if (readiness.length) preview.readiness = readiness;
-      if (schemaViolations.length) {
-        preview.schemaViolations = schemaViolations;
-        preview.schemaViolationsNote = `GHL's own action schema would show "Resolve ${schemaViolations.length} Errors" on this document. These are not refused by the server \u2014 it stores an over-cap or malformed value verbatim \u2014 so they will not stop the write; the builder will show them to whoever opens the workflow.`;
-      }
-      if (args.confirm !== true) {
-        return withFailureData(
-          fail(
-            CODES.CONFIRM_REQUIRED,
-            "Edit preview is ready; no writes were sent.",
-            "Review data.preview, then repeat the same request with confirm:true to commit."
-          ),
-          { preview, warnings }
+        if (customCode.refusal) return customCode.refusal;
+        const customCodeTests = customCode.tests;
+        lintContactFieldTemplates(templates, diff.modifiedSteps, ctx.warn);
+        const commitBody = editCommitBody(fresh, templates, diff, gw.uid, {
+          assumeAssociated: args.assumeAssociated === true,
+          // Closes the modifyStep enforcement bypass: field rules run over the steps THIS edit
+          // touched, at the same commit point as the parentKey and step-reference checks.
+          catalog: ctx.catalog,
+          warn: ctx.warn,
+          settingsPatch,
+          allowGotoLoops: args.allowGotoLoops === true,
+          deadBranchAcknowledged: args.deadBranchAcknowledged === true,
+          allowDanglingParentKeys: args.allowDanglingParentKeys === true,
+          allowDanglingStepRefs: args.allowDanglingStepRefs === true
+        });
+        const redactedRefusal = refuseRedactedWrite(commitBody?.workflowData?.templates ?? templates);
+        if (redactedRefusal) return fail(CODES.VALIDATION_FAILED, redactedRefusal.message, redactedRefusal.hint);
+        checkGraphContextRules(templates, { warn: ctx.warn });
+        const schemaViolations = await editSchemaViolations(gw, locationPath, templates, existingTriggers, args.ops, marketplaceRaw.assets);
+        for (const v of schemaViolations) warnings.push(`SCHEMA: '${v.step ?? v.stepId}' (${v.type}): ${(v.messages ?? []).join("; ")}`);
+        const caps = fieldCapGate({ templates, scope: editTouchedIds, allowOverCap: args.allowOverCap, warnings });
+        if (caps.refusal) return caps.refusal;
+        const triggerPlan = planTriggerOps(triggerOps, {
+          ctx: { ...ctx, allowFlowTriggerEdit: args.allowFlowTriggerEdit === true },
+          wid: args.workflowId,
+          uid: gw.uid,
+          existing: existingTriggers,
+          // The target workflow's OWN status — addTrigger/duplicateTrigger need it to decide
+          // what `status` a freshly-created trigger carries (measured 2026-08-28: `status`
+          // follows the target workflow, not a hardcoded default — see edit-driver.mjs).
+          workflowStatus: fresh.status
+        });
+        for (const r of triggerPlan) {
+          if (r.noop) warnings.push(`TRIGGER_NOOP: ${r.op} on ${r.triggerId} \u2014 ${r.reason}. If you expected a change, the value you sent equals what is stored; nothing will be written for this op.`);
+        }
+        let assetPreflight = null;
+        let readiness = [];
+        if (opsWriteAttributes || triggerOps.length) {
+          const assets = await assetPreflightFor({
+            gw,
+            loc: args.locationId,
+            templates,
+            triggers: [...existingTriggers, ...triggerPlan.map((request) => request.body).filter(Boolean)],
+            companyId: fresh.companyId,
+            touchedIds: editTouchedIds,
+            ignoreAssetErrors: args.ignoreAssetErrors,
+            warnings,
+            ops: editOps
+          });
+          if (assets.refusal) return assets.refusal;
+          assetPreflight = assets.assetPreflight;
+          readiness = await readinessFor({
+            gw,
+            loc: args.locationId,
+            templates,
+            touchedIds: editTouchedIds,
+            triggerTypes: triggerPlan.map((request) => request.body?.type).filter(Boolean),
+            settings: settingsPatch ?? {},
+            catalog: ctx.catalog,
+            warnings
+          });
+        }
+        let gateTriggers = existingTriggers;
+        if (!(triggerOps.length || rulesNeedTriggers(templates, ctx.catalog?.workflowRules))) {
+          const listed = await listWorkflowTriggers(gw, args.locationId, args.workflowId);
+          if (listed.response.ok) gateTriggers = listed.triggers;
+          else warnings.push(`VALIDATION: the trigger list could not be read (${listed.response.status}); GHL's trigger layer was not judged`);
+        }
+        const editFromEmail = (commitBody.senderAddress ?? fresh.senderAddress)?.from_email;
+        const editSenderDomain = fromEmailNeedsDomain(editFromEmail) ? await senderDomainFor(gw, args.locationId, args.workflowId, editFromEmail, ctx.catalog) : void 0;
+        const editWebhookReference = fresh.status === "published" ? await webhookReferenceFor(gw, args.locationId, gateTriggers) : void 0;
+        const validation = await workflowValidationGate({
+          // No `templates` here on purpose: the gate must judge the DOCUMENT, whose templates the commit
+          // body has already transformed (fillInputTriggerParams(stripNullNext(...))). Passing the raw
+          // array made GHL judge bytes we never send, and refused a correctly authored if_else.
+          gw,
+          loc: args.locationId,
+          wid: args.workflowId,
+          fresh,
+          document: commitBody,
+          triggers: gateTriggers,
+          scope: editTouchedIds,
+          catalog: ctx.catalog,
+          assets: marketplaceRaw?.assets,
+          allow: args.allowValidationFailure === true,
+          warnings,
+          intent: "edit",
+          status: fresh.status,
+          skipWorkflowRules: args.skipWorkflowRules,
+          settings: { senderAddress: commitBody.senderAddress ?? fresh.senderAddress },
+          senderDomain: editSenderDomain,
+          webhookReference: editWebhookReference,
+          // The path's own guards own these checks and their hatches; the gate must not overrule them.
+          waive: /* @__PURE__ */ new Set([...args.allowOverCap === true ? ["FIELD_CAP"] : [], ...args.allowDanglingStepRefs === true ? ["STEP_REF"] : [], ...args.allowDanglingParentKeys === true ? ["PARENT_KEY"] : []])
+        });
+        if (validation.refusal) return validation.refusal;
+        const neededTags = collectOpTags(args.ops);
+        let tagsToCreate = [];
+        if (neededTags.length) {
+          const tagResponse = await gw.call("GET", `/locations/${locationPath}/tags`);
+          if (!tagResponse.ok) return fromHttp(tagResponse.status, tagResponse.json);
+          const existingNames = recordsFrom2(tagResponse.json, "tags").map((tag) => tag.name);
+          tagsToCreate = missingTags(neededTags, existingNames);
+        }
+        const preview = editPreview(
+          args.ops,
+          beforeTemplates,
+          templates,
+          diff,
+          triggerPlan,
+          neededTags,
+          tagsToCreate,
+          fresh.status,
+          opResults
         );
-      }
-      const partialProgress = {
-        writes: [],
-        tags: { planned: tagsToCreate.length, created: [] },
-        stepCommitted: false,
-        triggerWrites: {
-          planned: triggerPlan.filter((r) => !r.noop).length,
-          applied: 0,
-          noops: triggerPlan.filter((r) => r.noop).map(({ op, triggerId, reason }) => ({ op, triggerId, reason }))
-        },
-        stickyNotes: { planned: stickyPlan.length, applied: 0, ids: [] },
-        verification: {
-          attempted: false,
-          completed: false,
-          roundTrip: null,
-          workflowStatus: null,
-          triggers: {
+        if (settingsPatch) {
+          preview.settings = Object.fromEntries(Object.keys(settingsPatch).map((k) => [k, k === "statsView" ? commitBody.meta?.statsView ?? false : commitBody[k]]));
+        }
+        if (stickyPlan.length) preview.stickyNotes = stickyPlan.map(({ op, method, path, body }) => ({ op, method, path, color: body.color, chars: body.content?.length }));
+        if (parkedOnDeletedSteps.length) preview.parkedOnDeletedSteps = parkedOnDeletedSteps;
+        if (assetPreflight) preview.assetPreflight = assetPreflight;
+        preview.validation = validation.report;
+        if (customCodeTests.length) preview.customCodeTests = customCodeTests;
+        if (readiness.length) preview.readiness = readiness;
+        if (schemaViolations.length) {
+          preview.schemaViolations = schemaViolations;
+          preview.schemaViolationsNote = `GHL's own action schema would show "Resolve ${schemaViolations.length} Errors" on this document. These are not refused by the server \u2014 it stores an over-cap or malformed value verbatim \u2014 so they will not stop the write; the builder will show them to whoever opens the workflow.`;
+        }
+        if (args.confirm !== true) {
+          return withFailureData(
+            fail(
+              CODES.CONFIRM_REQUIRED,
+              "Edit preview is ready; no writes were sent.",
+              "Review data.preview, then repeat the same request with confirm:true to commit."
+            ),
+            { preview, warnings }
+          );
+        }
+        const partialProgress = {
+          writes: [],
+          tags: { planned: tagsToCreate.length, created: [] },
+          stepCommitted: false,
+          triggerWrites: {
+            planned: triggerPlan.filter((r) => !r.noop).length,
+            applied: 0,
+            noops: triggerPlan.filter((r) => r.noop).map(({ op, triggerId, reason }) => ({ op, triggerId, reason }))
+          },
+          stickyNotes: { planned: stickyPlan.length, applied: 0, ids: [] },
+          verification: {
             attempted: false,
             completed: false,
             roundTrip: null,
-            checks: []
+            workflowStatus: null,
+            triggers: {
+              attempted: false,
+              completed: false,
+              roundTrip: null,
+              checks: []
+            }
+          }
+        };
+        const attemptWrite = async (phase, invoke) => {
+          const outcome = {
+            phase,
+            attempted: true,
+            acknowledged: false,
+            ambiguous: false
+          };
+          partialProgress.writes.push(outcome);
+          const result = await safeGatewayCall(invoke);
+          if (result.threw) outcome.ambiguous = true;
+          else if (result.value?.ok) outcome.acknowledged = true;
+          return { ...result, outcome };
+        };
+        const partialFailure = (failure2, failurePhase, note, extraData = {}) => {
+          partialProgress.failurePhase = failurePhase;
+          return editWriteFailure(failure2, {
+            preview,
+            createdTags: partialProgress.tags.created,
+            triggerChangesApplied: partialProgress.triggerWrites.applied,
+            warnings,
+            partialProgress,
+            note,
+            ...extraData
+          });
+        };
+        for (const name of tagsToCreate) {
+          const createdCall = await attemptWrite(
+            "tag_create",
+            () => gw.call("POST", `/locations/${locationPath}/tags`, { name })
+          );
+          if (createdCall.threw || !createdCall.value.ok) {
+            return partialFailure(
+              createdCall.threw ? createdCall.failure : fromHttp(createdCall.value.status, createdCall.value.json),
+              "tag_create",
+              "Tag pre-creation was attempted; earlier tags in this request may already exist."
+            );
+          }
+          partialProgress.tags.created.push(name);
+        }
+        if (stepOps.length || settingsPatch) {
+          const committedCall = await attemptWrite(
+            "step_commit",
+            () => gw.call(
+              "PUT",
+              workflowPath(args.locationId, args.workflowId),
+              commitBody
+            )
+          );
+          if (committedCall.threw || !committedCall.value.ok) {
+            return partialFailure(
+              committedCall.threw ? committedCall.failure : fromHttp(committedCall.value.status, committedCall.value.json),
+              "step_commit",
+              "The workflow PUT was attempted but not acknowledged; tag dependencies may already have been created."
+            );
+          }
+          partialProgress.stepCommitted = true;
+        }
+        const triggerExpectations = [];
+        for (const request of triggerPlan) {
+          if (request.noop) continue;
+          const responseCall = await attemptWrite(
+            "trigger_write",
+            () => gw.call(request.method, request.path, request.body)
+          );
+          if (responseCall.threw || !responseCall.value.ok) {
+            return partialFailure(
+              responseCall.threw ? responseCall.failure : fromHttp(responseCall.value.status, responseCall.value.json),
+              "trigger_write",
+              "Earlier tag, step, or trigger writes may already be committed; inspect before retrying."
+            );
+          }
+          partialProgress.triggerWrites.applied++;
+          triggerExpectations.push({ request, returnedId: returnedResourceId(responseCall.value) });
+        }
+        let roundTripTriggers = [];
+        if (triggerExpectations.length) {
+          partialProgress.verification.triggers.attempted = true;
+          const triggerRoundTripCall = await safeGatewayCall(
+            () => listWorkflowTriggers(gw, args.locationId, args.workflowId)
+          );
+          if (triggerRoundTripCall.threw || !triggerRoundTripCall.value.response.ok) {
+            return partialFailure(
+              triggerRoundTripCall.threw ? triggerRoundTripCall.failure : fromHttp(
+                triggerRoundTripCall.value.response.status,
+                triggerRoundTripCall.value.response.json
+              ),
+              "trigger_round_trip_get",
+              "Trigger writes were acknowledged, but their persisted state could not be re-read.",
+              { requiresPublish: false, publishInstruction: null }
+            );
+          }
+          roundTripTriggers = triggerRoundTripCall.value.triggers ?? [];
+          const triggerVerify = verifyTriggerRoundTrip(
+            triggerExpectations,
+            triggerRoundTripCall.value.triggers,
+            existingTriggers
+          );
+          partialProgress.verification.triggers.completed = true;
+          partialProgress.verification.triggers.roundTrip = triggerVerify.roundTrip;
+          partialProgress.verification.triggers.checks = triggerVerify.checks;
+          if (!triggerVerify.roundTrip) {
+            return partialFailure(
+              fail(
+                CODES.ENGINE_ABORT,
+                "One or more acknowledged trigger writes did not persist on round-trip verification: the store disagrees with what the CALLER asked for, or the server's own date_updated stamp did not move after the 200.",
+                "Read data.partialProgress.verification.triggers.checks[].mismatches (path, expected, actual; `requestedByCaller` marks a field you named; `date_updated` means the PUT changed nothing). Re-read the trigger with export_workflow before retrying \u2014 a retry of a PUT is safe, a retry of an add duplicates the trigger."
+              ),
+              "trigger_round_trip_verify",
+              "Trigger configuration is unverified, so this edit must not be published.",
+              { requiresPublish: false, publishInstruction: null }
+            );
           }
         }
-      };
-      const attemptWrite = async (phase, invoke) => {
-        const outcome = {
-          phase,
-          attempted: true,
-          acknowledged: false,
-          ambiguous: false
-        };
-        partialProgress.writes.push(outcome);
-        const result = await safeGatewayCall(invoke);
-        if (result.threw) outcome.ambiguous = true;
-        else if (result.value?.ok) outcome.acknowledged = true;
-        return { ...result, outcome };
-      };
-      const partialFailure = (failure2, failurePhase, note, extraData = {}) => {
-        partialProgress.failurePhase = failurePhase;
-        return editWriteFailure(failure2, {
-          preview,
+        for (const request of stickyPlan) {
+          const noteCall = await attemptWrite(
+            "sticky_note_write",
+            () => gw.call(request.method, request.path, request.body)
+          );
+          if (noteCall.threw || !noteCall.value.ok) {
+            return partialFailure(
+              noteCall.threw ? noteCall.failure : fromHttp(noteCall.value.status, noteCall.value.json),
+              "sticky_note_write",
+              "Step/trigger writes are already committed; only the sticky-note write failed. Re-run the remaining sticky-note ops alone."
+            );
+          }
+          partialProgress.stickyNotes.applied++;
+          const id = noteCall.value.json?._id ?? noteCall.value.json?.id ?? null;
+          if (id) partialProgress.stickyNotes.ids.push(id);
+        }
+        partialProgress.verification.attempted = true;
+        const roundTripCall = await safeGatewayCall(
+          () => getWorkflow(gw, args.locationId, args.workflowId)
+        );
+        if (roundTripCall.threw || !roundTripCall.value.ok) {
+          return partialFailure(
+            roundTripCall.threw ? roundTripCall.failure : fromHttp(roundTripCall.value.status, roundTripCall.value.json),
+            "edit_round_trip_get",
+            "One or more writes succeeded, but final graph verification could not be completed."
+          );
+        }
+        const roundTripResponse = roundTripCall.value;
+        const gotTemplates = recordsFrom2(roundTripResponse.json?.workflowData?.templates);
+        readCache(deps.state).write(args.locationId, args.workflowId, {
+          readAt: (/* @__PURE__ */ new Date()).toISOString(),
+          version: roundTripResponse.json?.version ?? null,
+          updatedAt: roundTripResponse.json?.dateUpdated ?? null,
+          fingerprint: fingerprintWorkflow(gotTemplates, roundTripTriggers),
+          templates: gotTemplates,
+          triggers: roundTripTriggers
+        });
+        const verify = verifyEditRoundTrip(stripNullNext(templates), beforeTemplates, stripNullNext(gotTemplates));
+        const touchedIds = editTouchedIds;
+        const intentFindings = [
+          ...lintOpportunityWrites(gotTemplates, { scope: touchedIds }),
+          ...lintTriggerRows(roundTripTriggers, ctx.catalog)
+        ];
+        verify.intent = intentFindings;
+        verify.missingRequired = persistedMissingRequired(gotTemplates, touchedIds, warnings);
+        if (assetPreflight) {
+          verify.assetPreflightAfter = await assetPostcheck({
+            gw,
+            loc: args.locationId,
+            templates: gotTemplates,
+            triggers: roundTripTriggers,
+            companyId: fresh.companyId,
+            touchedIds,
+            warnings
+          });
+        }
+        const intentErrors = intentFindings.filter((f) => f.severity === "error");
+        partialProgress.verification.completed = true;
+        partialProgress.verification.roundTrip = verify.roundTrip;
+        partialProgress.verification.workflowStatus = roundTripResponse.json?.status ?? null;
+        const requiresPublish = triggerPlan.some((request) => triggerRequiresPublish(request, fresh.status));
+        const data2 = {
+          workflowId: args.workflowId,
+          status: roundTripResponse.json?.status,
+          stepCount: { before: beforeTemplates.length, after: gotTemplates.length },
+          idsAdded: preview.idsAdded,
+          idsRemoved: preview.idsRemoved,
+          diff,
           createdTags: partialProgress.tags.created,
           triggerChangesApplied: partialProgress.triggerWrites.applied,
+          stickyNotesApplied: partialProgress.stickyNotes.applied,
+          stickyNoteIds: partialProgress.stickyNotes.ids,
+          requiresPublish,
+          publishInstruction: triggerPublishInstruction(triggerPlan, fresh.status, { committed: true }),
+          verify,
+          // What the builder's own panel will say about the document this edit just wrote. Advisory
+          // by construction: the server accepted every one of these, so they are the class a
+          // round-trip can never see.
+          schemaViolations,
+          schemaHeadline: `Resolve ${schemaViolations.length} Errors`,
+          // The other ported build-path pre-flight verdicts, carried on the committed result the
+          // same way the build report carries them.
+          assetPreflight,
+          customCodeTests,
+          readiness,
           warnings,
           partialProgress,
-          note,
-          ...extraData
-        });
-      };
-      for (const name of tagsToCreate) {
-        const createdCall = await attemptWrite(
-          "tag_create",
-          () => gw.call("POST", `/locations/${locationPath}/tags`, { name })
-        );
-        if (createdCall.threw || !createdCall.value.ok) {
-          return partialFailure(
-            createdCall.threw ? createdCall.failure : fromHttp(createdCall.value.status, createdCall.value.json),
-            "tag_create",
-            "Tag pre-creation was attempted; earlier tags in this request may already exist."
-          );
-        }
-        partialProgress.tags.created.push(name);
-      }
-      if (stepOps.length || settingsPatch) {
-        const committedCall = await attemptWrite(
-          "step_commit",
-          () => gw.call(
-            "PUT",
-            workflowPath(args.locationId, args.workflowId),
-            commitBody
-          )
-        );
-        if (committedCall.threw || !committedCall.value.ok) {
-          return partialFailure(
-            committedCall.threw ? committedCall.failure : fromHttp(committedCall.value.status, committedCall.value.json),
-            "step_commit",
-            "The workflow PUT was attempted but not acknowledged; tag dependencies may already have been created."
-          );
-        }
-        partialProgress.stepCommitted = true;
-      }
-      const triggerExpectations = [];
-      for (const request of triggerPlan) {
-        if (request.noop) continue;
-        const responseCall = await attemptWrite(
-          "trigger_write",
-          () => gw.call(request.method, request.path, request.body)
-        );
-        if (responseCall.threw || !responseCall.value.ok) {
-          return partialFailure(
-            responseCall.threw ? responseCall.failure : fromHttp(responseCall.value.status, responseCall.value.json),
-            "trigger_write",
-            "Earlier tag, step, or trigger writes may already be committed; inspect before retrying."
-          );
-        }
-        partialProgress.triggerWrites.applied++;
-        triggerExpectations.push({ request, returnedId: returnedResourceId(responseCall.value) });
-      }
-      let roundTripTriggers = [];
-      if (triggerExpectations.length) {
-        partialProgress.verification.triggers.attempted = true;
-        const triggerRoundTripCall = await safeGatewayCall(
-          () => listWorkflowTriggers(gw, args.locationId, args.workflowId)
-        );
-        if (triggerRoundTripCall.threw || !triggerRoundTripCall.value.response.ok) {
-          return partialFailure(
-            triggerRoundTripCall.threw ? triggerRoundTripCall.failure : fromHttp(
-              triggerRoundTripCall.value.response.status,
-              triggerRoundTripCall.value.response.json
-            ),
-            "trigger_round_trip_get",
-            "Trigger writes were acknowledged, but their persisted state could not be re-read.",
-            { requiresPublish: false, publishInstruction: null }
-          );
-        }
-        roundTripTriggers = triggerRoundTripCall.value.triggers ?? [];
-        const triggerVerify = verifyTriggerRoundTrip(
-          triggerExpectations,
-          triggerRoundTripCall.value.triggers,
-          existingTriggers
-        );
-        partialProgress.verification.triggers.completed = true;
-        partialProgress.verification.triggers.roundTrip = triggerVerify.roundTrip;
-        partialProgress.verification.triggers.checks = triggerVerify.checks;
-        if (!triggerVerify.roundTrip) {
-          return partialFailure(
+          builderUrl: `https://app.gohighlevel.com/v2/location/${encodeURIComponent(args.locationId)}/automation/workflow/${encodeURIComponent(args.workflowId)}`,
+          runtimeProofNote: "edit_workflow never publishes. After confirmed publish_workflow, only added_to_workflow in runtime logs proves that a trigger fired."
+        };
+        if (!verify.roundTrip || intentErrors.length) {
+          return editWriteFailure(
             fail(
               CODES.ENGINE_ABORT,
-              "One or more acknowledged trigger writes did not persist on round-trip verification: the store disagrees with what the CALLER asked for, or the server's own date_updated stamp did not move after the 200.",
-              "Read data.partialProgress.verification.triggers.checks[].mismatches (path, expected, actual; `requestedByCaller` marks a field you named; `date_updated` means the PUT changed nothing). Re-read the trigger with export_workflow before retrying \u2014 a retry of a PUT is safe, a retry of an add duplicates the trigger."
+              intentErrors.length ? `The write persisted, but the stored document does not express the intent: ` + intentErrors.map((f) => `${f.code} on '${f.name}' \u2014 ${f.msg}`).join("; ") : "Workflow PUT returned but the edited graph did not round-trip cleanly.",
+              "Inspect data.verify (including verify.intent) and the workflow canvas before making further edits."
             ),
-            "trigger_round_trip_verify",
-            "Trigger configuration is unverified, so this edit must not be published.",
-            { requiresPublish: false, publishInstruction: null }
+            data2
           );
         }
-      }
-      for (const request of stickyPlan) {
-        const noteCall = await attemptWrite(
-          "sticky_note_write",
-          () => gw.call(request.method, request.path, request.body)
-        );
-        if (noteCall.threw || !noteCall.value.ok) {
-          return partialFailure(
-            noteCall.threw ? noteCall.failure : fromHttp(noteCall.value.status, noteCall.value.json),
-            "sticky_note_write",
-            "Step/trigger writes are already committed; only the sticky-note write failed. Re-run the remaining sticky-note ops alone."
-          );
-        }
-        partialProgress.stickyNotes.applied++;
-        const id = noteCall.value.json?._id ?? noteCall.value.json?.id ?? null;
-        if (id) partialProgress.stickyNotes.ids.push(id);
-      }
-      partialProgress.verification.attempted = true;
-      const roundTripCall = await safeGatewayCall(
-        () => getWorkflow(gw, args.locationId, args.workflowId)
-      );
-      if (roundTripCall.threw || !roundTripCall.value.ok) {
-        return partialFailure(
-          roundTripCall.threw ? roundTripCall.failure : fromHttp(roundTripCall.value.status, roundTripCall.value.json),
-          "edit_round_trip_get",
-          "One or more writes succeeded, but final graph verification could not be completed."
-        );
-      }
-      const roundTripResponse = roundTripCall.value;
-      const gotTemplates = recordsFrom2(roundTripResponse.json?.workflowData?.templates);
-      readCache(deps.state).write(args.locationId, args.workflowId, {
-        readAt: (/* @__PURE__ */ new Date()).toISOString(),
-        version: roundTripResponse.json?.version ?? null,
-        updatedAt: roundTripResponse.json?.dateUpdated ?? null,
-        fingerprint: fingerprintWorkflow(gotTemplates, roundTripTriggers),
-        templates: gotTemplates,
-        triggers: roundTripTriggers
-      });
-      const verify = verifyEditRoundTrip(stripNullNext(templates), beforeTemplates, stripNullNext(gotTemplates));
-      const touchedIds = editTouchedIds;
-      const intentFindings = [
-        ...lintOpportunityWrites(gotTemplates, { scope: touchedIds }),
-        ...lintTriggerRows(roundTripTriggers, ctx.catalog)
-      ];
-      verify.intent = intentFindings;
-      verify.missingRequired = persistedMissingRequired(gotTemplates, touchedIds, warnings);
-      if (assetPreflight) {
-        verify.assetPreflightAfter = await assetPostcheck({
-          gw,
-          loc: args.locationId,
-          templates: gotTemplates,
-          triggers: roundTripTriggers,
-          companyId: fresh.companyId,
-          touchedIds,
-          warnings
-        });
-      }
-      const intentErrors = intentFindings.filter((f) => f.severity === "error");
-      partialProgress.verification.completed = true;
-      partialProgress.verification.roundTrip = verify.roundTrip;
-      partialProgress.verification.workflowStatus = roundTripResponse.json?.status ?? null;
-      const requiresPublish = triggerPlan.some((request) => triggerRequiresPublish(request, fresh.status));
-      const data2 = {
-        workflowId: args.workflowId,
-        status: roundTripResponse.json?.status,
-        stepCount: { before: beforeTemplates.length, after: gotTemplates.length },
-        idsAdded: preview.idsAdded,
-        idsRemoved: preview.idsRemoved,
-        diff,
-        createdTags: partialProgress.tags.created,
-        triggerChangesApplied: partialProgress.triggerWrites.applied,
-        stickyNotesApplied: partialProgress.stickyNotes.applied,
-        stickyNoteIds: partialProgress.stickyNotes.ids,
-        requiresPublish,
-        publishInstruction: triggerPublishInstruction(triggerPlan, fresh.status, { committed: true }),
-        verify,
-        // What the builder's own panel will say about the document this edit just wrote. Advisory
-        // by construction: the server accepted every one of these, so they are the class a
-        // round-trip can never see.
-        schemaViolations,
-        schemaHeadline: `Resolve ${schemaViolations.length} Errors`,
-        // The other ported build-path pre-flight verdicts, carried on the committed result the
-        // same way the build report carries them.
-        assetPreflight,
-        customCodeTests,
-        readiness,
-        warnings,
-        partialProgress,
-        builderUrl: `https://app.gohighlevel.com/v2/location/${encodeURIComponent(args.locationId)}/automation/workflow/${encodeURIComponent(args.workflowId)}`,
-        runtimeProofNote: "edit_workflow never publishes. After confirmed publish_workflow, only added_to_workflow in runtime logs proves that a trigger fired."
-      };
-      if (!verify.roundTrip || intentErrors.length) {
-        return editWriteFailure(
-          fail(
-            CODES.ENGINE_ABORT,
-            intentErrors.length ? `The write persisted, but the stored document does not express the intent: ` + intentErrors.map((f) => `${f.code} on '${f.name}' \u2014 ${f.msg}`).join("; ") : "Workflow PUT returned but the edited graph did not round-trip cleanly.",
-            "Inspect data.verify (including verify.intent) and the workflow canvas before making further edits."
-          ),
-          data2
-        );
-      }
-      return ok(data2);
-    }, args)
+        return ok(data2);
+      }, args, { sentWrite: () => tracked.sent() });
+    }
   },
   {
     // THE SANCTIONED REPLACEMENT FOR A HAND-ROLLED PUT (RC-A). When the ops cannot express a

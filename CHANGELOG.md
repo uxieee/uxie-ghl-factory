@@ -11,6 +11,17 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## Unreleased
+
+An `edit_workflow` refusal made BEFORE anything was sent no longer reads like a transport failure.
+Almost every local refusal came back ENGINE_ABORT with "Gateway transport failed before an HTTP
+result was available; inspect account state before retrying". That covered missing op arguments,
+an unknown step id, an unknown op, a container without `attachTailTo`, and the new `deleteBranch`
+refusals. It told the caller a write might have half-landed. The tool now tracks whether any
+non-GET request left the process. A throw with nothing sent keeps the ENGINE_ABORT code, and its
+remediation says it was refused before anything was sent and nothing was written. Reported by a
+peer session (a `replaceInAttributes` without `path`).
+
 ## [0.97.0] — 2026-09-23
 
 **`edit_workflow` inserts branching steps as real branching steps.** An insert op carrying a
