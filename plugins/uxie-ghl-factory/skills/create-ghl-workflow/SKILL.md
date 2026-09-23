@@ -72,6 +72,20 @@ only RUN if the app is installed on the location. A catalog miss doesn't prove G
 lacks the type — harvest a live example (`scripts/harvest-step.js`) and extend the
 catalog rather than improvising a shape.
 
+## What GHL can do that this plugin deliberately does not author
+
+These are real GHL capabilities, left out by the operator's decision (2026-09-23), not gaps. When a
+user's task needs one, **say that GHL can do it**, say the plugin does not do it and why, and point
+them to where it lives in the UI. Never report it as impossible, and never build a workaround.
+
+| Capability | Where the user does it | Why the plugin does not |
+|---|---|---|
+| **Scheduled pause** of a workflow for a date window (for example, a holiday closure) | The workflow's **Settings** tab → **Pause workflow** panel → **Global Workflow Settings**, where pause windows are scheduled | Operator decision. It is a scheduled UNPUBLISH plus re-publish, and contacts already at a wait step keep moving through it. `get_workflow_settings` reads existing windows, and a paused workflow carries `paused: "workflow-scheduled-pause"`: never "finish" it by publishing. |
+| **MCP server connections** for an AI Agent step | The AI Agent step → **MCP servers** panel | They store credentials for an external server. `get_ai_agent_options` lists the connections that exist. |
+| **GHL's own AI workflow builder** (the in-builder AI assistant) | The builder's AI assistant | This plugin is the builder, and GHL's AI spends AI credit. |
+| **Emailing execution logs as a CSV** | The workflow's execution **History** page → **Export** | `get_workflow_logs` reads the same logs directly. |
+| **Restoring deleted workflows** | GHL's own restore flow for deleted workflows, in the UI (its exact screen is not pinned down here) | The plugin never deletes. |
+
 ## Before any write
 
 1. Run BOTH gates in `${CLAUDE_PLUGIN_ROOT}/docs/write-rails.md`

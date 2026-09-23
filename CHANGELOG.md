@@ -13,6 +13,23 @@ commit bodies carry the detail.
 
 ## Unreleased
 
+**Excluded is not unknown: the agent is told what GHL can do even where the plugin does not** (operator
+direction 2026-09-23). The operator excluded five capabilities from authoring:
+- scheduled pause (3 routes);
+- GHL's own in-builder AI (8 routes);
+- emailing a log export (3 routes);
+- bulk undelete;
+- pre-creating tags.
+
+Each now carries that decision on its catalogue row, with an explicit pointer: "IF THE USER WANTS IT: GHL can do it", and where in the UI. The agent learns it in three places:
+- **`search_endpoints`:** finds every excluded row. Its description now says a NO TASK NEEDS THIS or
+  FENCED hit is a real GHL capability: tell the user it exists and where, never that GHL cannot, and
+  never work around it with `raw_request`.
+- **The create-ghl-workflow skill:** a new section, "What GHL can do that this plugin deliberately does
+  not author", with the UI location for each, alongside the earlier MCP-connections decision.
+- **The scheduled-pause tools:** `unpublish_workflows`' description, and `get_workflow_settings`'
+  `scheduledPauseNote`. `get_workflow_settings` still READS existing pause windows.
+
 **A step can name any workflow in the account, and a list the engine could not read is no longer
 "missing"** (found 2026-09-23 by sweeping every account-list read live). A build or edit resolves names
 through about two dozen account lists. The sweep found two that had been silently wrong:

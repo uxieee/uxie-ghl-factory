@@ -5721,7 +5721,10 @@ export const TOOLS = [
       + 'version (6 -> 7 observed), which cannot be put back. '
       + 'Every id is read back individually afterwards, because the bulk response reports its own success '
       + 'count and that is not the same as the status having changed — and because a REFUSAL here still '
-      + 'carries a full results envelope, so the shape of the body cannot tell you it worked.',
+      + 'carries a full results envelope, so the shape of the body cannot tell you it worked. '
+      + 'Taking a workflow down for a DATE WINDOW (a holiday closure) is GHL\'s scheduled pause, which this plugin '
+      + 'deliberately does not author (operator decision): tell the user it exists and where it is set (the workflow\'s '
+      + 'Settings tab, Pause workflow, Global Workflow Settings). get_workflow_settings reads existing windows.',
     inputSchema: schema({
       locationId: z.string(),
       workflowIds: z.array(z.string()).min(1).max(200),
@@ -6696,6 +6699,9 @@ export const TOOLS = [
         readNote: args.workflowId === undefined
           ? 'error-notification was not read: it is per-workflow and needs workflowId.'
           : undefined,
+        scheduledPauseNote: 'This plugin reads pause windows but does not create, change or cancel them (operator decision). '
+          + 'If the user wants one, it is set in GHL: the workflow\'s Settings tab, Pause workflow panel, Global Workflow Settings. '
+          + 'A pause un-publishes at its start and re-publishes at its end; contacts already at a wait keep moving.',
       });
     }, args),
   },
@@ -7838,7 +7844,10 @@ export const TOOLS = [
       + 'Use this whenever no typed tool obviously covers what you need, BEFORE reaching for '
       + 'raw_request. Reads no account data. '
       + 'A hit proves a GHL front-end calls that path — NOT that your token reaches it, and not '
-      + 'that calling it is safe.',
+      + 'that calling it is safe. '
+      + 'A hit whose note starts NO TASK NEEDS THIS or FENCED is a REAL GHL CAPABILITY this plugin deliberately '
+      + 'does not call. When the user wants it, tell them GHL can do it and, where the note says, where in the UI; '
+      + 'never tell them GHL cannot, and never work around the decision with raw_request.',
     inputSchema: schema({
       intent: z.string().describe('what you want to do, in plain words — e.g. "list workflow folders", "erroring workflows", "scheduled pause"'),
       method: z.string().trim().optional().describe('filter to one HTTP method, e.g. GET'),
