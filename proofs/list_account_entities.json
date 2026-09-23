@@ -423,6 +423,16 @@
         "receipt:2026-09-23-0845"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-23",
+      "result": "pass",
+      "how": "suite",
+      "suite": "workflows",
+      "evidence": [
+        "receipt:2026-09-23-0900"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
@@ -498,8 +508,8 @@
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/orchestrate.mjs": "638b7746b0877f5df87dda60e2cc6cd2cce66079102f6f0fcf4d824b40d1ece3",
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/preflight.mjs": "60624cd4ce3d127edf0115ecd1e7ce8fd3bf0556902d2ecb28b38f884ac27120",
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/reference-sites.mjs": "2ddb5cf50a4486eebd74b00cd8025124b48557464aced82b0707071acf9557e0",
-      "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/required-fields.mjs": "dbf7525ccd3b49b007c0aefdb2b1aedefe207fb3d56feb78fa7d1713ae5b40e8",
-      "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/resolve.mjs": "b1a1bc1cd47129d54c46005af9be9c32c8a5289d7a41dafa4c91c14e03887b0f",
+      "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/required-fields.mjs": "a46a06f6c2b15e98f2fc64ca92ff9784fcf8d5064051d68009c985d4bd93a91a",
+      "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/resolve.mjs": "c8c47fbd1fec61eee181aa98da89c20aedf3f7426f37a49fadab08f95b10a174",
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/router-branches.mjs": "29555ae63ff44865d2b82eaeabc1280c416aa77732cc401e9f23f74c30d179ce",
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/router-graph.mjs": "a919a41108ba6a78373911e49d9676f3e1178ffab7f4b9e9d1ca99a89bc365d4",
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/server-validation.mjs": "bd535fc5ab53e7da958a6086d468fedb17cf2476cf483ea6cc6c0cefa9797d50",
