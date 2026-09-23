@@ -177006,7 +177006,8 @@ var TOOLS2 = [
         const editFromEmail = (commitBody.senderAddress ?? fresh.senderAddress)?.from_email;
         const editSenderDomain = fromEmailNeedsDomain(editFromEmail) ? await senderDomainFor(gw, args.locationId, args.workflowId, editFromEmail, ctx.catalog) : void 0;
         const editWebhookReference = fresh.status === "published" ? await webhookReferenceFor(gw, args.locationId, gateTriggers) : void 0;
-        const validation = await workflowValidationGate({
+        const writesDocument = stepOps.length > 0 || Boolean(settingsPatch) || triggerOps.length > 0;
+        const validation = !writesDocument ? { refusal: null, report: { skipped: "sticky-note-only edit: nothing in the workflow document or its triggers is written" } } : await workflowValidationGate({
           // No `templates` here on purpose: the gate must judge the DOCUMENT, whose templates the commit
           // body has already transformed (fillInputTriggerParams(stripNullNext(...))). Passing the raw
           // array made GHL judge bytes we never send, and refused a correctly authored if_else.

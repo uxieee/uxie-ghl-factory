@@ -342,3 +342,23 @@ test('the same violation INTRODUCED by the edit still refuses', async () => {
   assert.match(result.detail, /window/);
   assert.deepEqual(calls.filter((c) => c.method === 'PUT'), [], 'refused before any write');
 });
+
+// A sticky-note-only edit writes nothing the validation gate judges (notes are their own resource;
+// the step PUT is sent only for step or settings ops), so a pre-existing rule violation on the DRAFT
+// must not refuse it. The control: a step edit on the same document is still refused on that rule.
+test('adding a sticky note to a draft that already breaks a rule is not refused; a step edit still is', async () => {
+  const BROKEN_WAIT = { id: 'w1', type: 'wait', name: 'Hold', next: null, parent: null, parentKey: null, order: 2,
+    attributes: { type: 'time', startAfter: { type: 'minutes', value: 5, when: 'after' }, convertToMultipath: true,
+      transitions: [{ id: 'ghost', name: 'ghost', condition: 'timeout', attributes: { type: 'wait_timeout' } }] } };
+  const { gw, calls } = gateway([{ ...SMS_STEP, order: 0 }, BROKEN_WAIT]);
+  const note = await run(gw, { confirm: true, ops: [{ op: 'addStickyNote', note: { content: 'context for the next editor' } }] });
+  assert.notEqual(note.code, 'ENGINE_ABORT', `${note.code} ${String(note.detail).slice(0, 300)}`);
+  assert.ok(calls.some((c) => c.method === 'POST' && c.path.startsWith('/workflows/sticky-note')), 'the note was sent');
+  assert.equal(calls.filter((c) => c.method === 'PUT').length, 0, 'no workflow document write');
+
+  const { gw: gw2, calls: calls2 } = gateway([{ ...SMS_STEP, order: 0 }, BROKEN_WAIT]);
+  const step = await run(gw2, { confirm: true, ops: [{ op: 'modifyStep', stepId: 'sms1', attrPatch: { body: 'changed' } }] });
+  assert.equal(step.ok, false);
+  assert.match(String(step.detail), /validateWaitStep/);
+  assert.equal(calls2.filter((c) => c.method === 'PUT').length, 0);
+});

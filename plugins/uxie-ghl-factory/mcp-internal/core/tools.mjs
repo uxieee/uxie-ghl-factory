@@ -5081,7 +5081,14 @@ export const TOOLS = [
       // a draft edit skips the read and the rule reports itself unjudged.
       const editWebhookReference = fresh.status === 'published'
         ? await webhookReferenceFor(gw, args.locationId, gateTriggers) : undefined;
-      const validation = await workflowValidationGate({
+      // A sticky-note-only edit writes NOTHING the gate judges: notes are their own resource
+      // (/workflows/sticky-note), the step PUT below is sent only for step or settings ops, and triggers
+      // are written by their own ops. Judging the untouched document there refused adding a note to any
+      // draft that carried an unrelated rule violation, which the builder never does (2026-09-23).
+      const writesDocument = stepOps.length > 0 || Boolean(settingsPatch) || triggerOps.length > 0;
+      const validation = !writesDocument
+        ? { refusal: null, report: { skipped: 'sticky-note-only edit: nothing in the workflow document or its triggers is written' } }
+        : await workflowValidationGate({
         // No `templates` here on purpose: the gate must judge the DOCUMENT, whose templates the commit
         // body has already transformed (fillInputTriggerParams(stripNullNext(...))). Passing the raw
         // array made GHL judge bytes we never send, and refused a correctly authored if_else.

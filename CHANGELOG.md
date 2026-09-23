@@ -147,6 +147,14 @@ Provenance notes keep the account's label. The pre-commit hook now also runs the
 account data. It runs only where the knowledge repo sits beside this one; anywhere else it prints
 that it was SKIPPED, and does not block.
 
+**Adding a sticky note is no longer refused over an unrelated broken step.** An `edit_workflow` call
+whose only ops are sticky-note ops writes nothing the validation gate judges: notes are their own
+resource, and the workflow save is sent only for step or settings ops. The gate still judged the whole
+stored document, so a draft that already broke a rule could not take a note, which the builder allows.
+Measured on the sandbox 2026-09-23. A note-only edit now skips the gate and reports why in
+`preview.validation`; any step, settings or trigger op still runs it. One unit test, which fails on the
+previous code; its control shows a step edit of the same draft is still refused.
+
 **Your own publish no longer makes your next edit "stale", and re-reading clears a stale edit.** The
 stale-read gate refused an edit whenever the workflow's `version` was newer than the one this project
 last read. Publish, unpublish and a settings save all bump `version` without touching a step, so an
