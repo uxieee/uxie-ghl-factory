@@ -151,8 +151,8 @@ that it was SKIPPED, and does not block.
 (console bl-146). GHL stops checking `validateIfElseCondition`, `validateRouterConditions` and
 `validateWaitStep` once a workflow is published (its skipHatch), so published documents carrying those
 violations exist. Saving one is judged as a publish, and the `workflow_rules` layer blocked on every
-finding. A stringified wait window in one untouched step therefore refused every later edit of the
-workflow, unless the caller skipped the rule wholesale.
+finding. One broken wait in an untouched step therefore refused every later edit of the workflow,
+unless the caller skipped the rule wholesale.
 
 For exactly those three rules on a stored-published workflow, an edit or repair is now judged against
 the stored document with the same inputs. A violation the document already carries comes back as a
@@ -160,8 +160,17 @@ the stored document with the same inputs. A violation the document already carri
 introduced by the write still refuses, which is stricter than GHL, which skips the rule entirely.
 
 Every other rule still refuses when pre-existing, as the builder does on every save. So does a draft,
-and so does `publish_workflow`. Proven by differential unit tests: with the baseline switched off, the
-same edit is refused with `validateWaitStep`. A pre-existing `checkFromEmailFormat` still refuses.
+and so does `publish_workflow`. A pre-existing `checkFromEmailFormat` still refuses.
+
+Proven live on the sandbox (`published-baseline-proof.mjs`, in the workflows suite). A published,
+trigger-less workflow has two identical waits, and only wait A is broken. An edit that leaves wait A
+alone goes through with the warning; judged without the baseline, the same edit is refused. A repair
+that breaks wait B the same way is refused on `validateWaitStep`, naming B and not A.
+
+The run also measured what GHL's server now refuses on any save, published or not: a stringified wait
+window (400 `INVALID_FIELD_VALUE`) and an array `next` on a non-branching step (400
+`INVALID_STRUCTURE`). Those two cannot reach a stored workflow any more. The server still accepts a
+branching wait whose transition names a missing step, so that is the case the proof stages.
 
 **SMS spam words now warn instead of refusing, as GHL does** (console bl-143). The engine refused
 an `sms` body containing a word on GHL's blocked list, and its note said GHL "aborts the save". GHL's

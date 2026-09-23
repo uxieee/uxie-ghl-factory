@@ -86,6 +86,13 @@ export const fromEmailNeedsDomain = (fromEmail) => Boolean(fromEmail) && !CV_REG
 // repair of a PUBLISHED workflow is judged against the stored document for exactly these three
 // rules, so a violation it already carries warns and one the write introduces refuses. Every rule
 // still runs, every other rule blocks as before, and a publish still counts every finding.
+//
+// GHL'S SERVER NOW BACKSTOPS PART OF THIS (measured on the sandbox 2026-09-23, any status): a save
+// carrying a stringified window is refused 400 INVALID_FIELD_VALUE ("Window: Expected object, received
+// string"), and a non-branching node with an array `next` 400 INVALID_STRUCTURE. So those two wait
+// cases can no longer reach a stored document; they are legacy residue at most. The server ACCEPTS a
+// wait marked convertToMultipath whose transitions name no step in the workflow (200, stored, stays
+// published) — that one is live, and it is what the bl-146 proof stages (published-baseline-proof.mjs).
 export function evaluateWorkflowRules(doc, rules) {
   const V = rules?.vocab ?? {};
   const T = doc.templates ?? [];

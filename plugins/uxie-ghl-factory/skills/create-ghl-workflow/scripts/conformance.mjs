@@ -47,6 +47,7 @@ import { runCopyWorkflowProof } from './copy-workflow-proof.mjs';
 import { runAuthClassificationProof } from './auth-classification-proof.mjs';
 import { runSnapshotContentsProof } from './snapshot-contents-proof.mjs';
 import { runTriggerRepairProof } from './trigger-repair-proof.mjs';
+import { runPublishedBaselineProof } from './published-baseline-proof.mjs';
 
 const LOCATION = process.env.GHL_LOCATION || process.env.GHL_LOC;
 if (!LOCATION) {
@@ -1791,6 +1792,8 @@ console.log('\nget_snapshot_contents: what a snapshot carries, not what its sour
 await runSnapshotContentsProof({ call, check, log });
 console.log('\nedit_workflow: a broken document is previewable, and a trigger repair is judged on what it writes');
 await runTriggerRepairProof({ call, gw: deps.makeGw({ loc: LOCATION, state }), LOCATION, NAME, check, left, log });
+console.log('\nedit/repair of a PUBLISHED workflow that already breaks a rule GHL stops checking there (bl-146)');
+await runPublishedBaselineProof({ call, gw: deps.makeGw({ loc: LOCATION, state }), LOCATION, NAME, check, left, log });
 
 // ── get_workflow_stats: A/B split results, proven by DIFFERENTIAL ─────────────────────────────
 // Same fence as the runtime block above: trigger-less workflow, a contact this run creates with no
