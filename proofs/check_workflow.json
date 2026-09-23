@@ -499,6 +499,16 @@
         "receipt:2026-09-23-0638"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-23",
+      "result": "pass",
+      "how": "suite",
+      "suite": "workflows",
+      "evidence": [
+        "receipt:2026-09-23-0716"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
@@ -506,6 +516,7 @@
     "endpoints": {
       "GET https://backend.leadconnectorhq.com /locations/{}/customFields/search": "243cf31ac9bf9947d7ecc4a4a0f6c8f758286fe2701bc88e201f2e12ff03759f",
       "GET https://backend.leadconnectorhq.com /locations/{}/customValues": "7528d8d44a9a81689c4ff5dc3875cd96f40b6c37d613bd11156e149b728ac054",
+      "GET https://backend.leadconnectorhq.com /phone-system/call-dispositions": "97258e5288674c8defe16f74c91abebf2a8100efa24cb0ec45a8581787d9257e",
       "GET https://backend.leadconnectorhq.com /workflow/{}/trigger": "08350cea684b7ac76430d36af66e093c3753ee489a66e250efef0ba978eeb148",
       "GET https://backend.leadconnectorhq.com /workflow/{}/{}": "d75bf4cca526ca32f133f5f381cb7a68530031528b4caa2d713addcae0c55ffc",
       "GET https://backend.leadconnectorhq.com /workflows-marketplace/location/{}/assets": "75227c99a31e68a0cb165fcd0df8a205a7cef4d8140377a64bed664f5ba3880f",
@@ -516,7 +527,7 @@
       "reportingApp": 275
     },
     "code": {
-      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#check_workflow": "1b3a9839b811017affa78cd1ae035e1fa88d12fa8d04b2f2d1e0c1c1cfe5d406",
+      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#check_workflow": "39f7f1d8833f15b7d5372f13276b68b1cf2cf4420f3f872a856f72186c988142",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "e65c2384aefb498ce49453dd2d6d8d1a1d8351fd6d337aef5256eb982e1db02f",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
       "plugins/uxie-ghl-factory/mcp-internal/core/builder-validators.mjs": "c819a5c11247c72ff7072318507a384cf605dd32b32267d0b4f7d118438eb490",
@@ -560,6 +571,7 @@
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/terminals.mjs": "e5721dde31a0b335f98e900a06245afeec4501fd5f322d192dfea123354f6a4b",
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/text-rules.mjs": "bd4fd0a206cac9f5d37ac9a6b9f2a7932b7542dc58e1344aedb5887de174713e",
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/ui-defaults.mjs": "f13290b893acade7a143072fc508099ef44d61d9df76412b6d15c79951b067b5",
+      "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/vocabulary-refs.mjs": "38bcc7094c2acc18b928d6f905ac4c2e654ddcb0b0608e4c674bbda4a3ffce88",
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/webhook-mergetags.mjs": "e384ea0429de2d58bd51ae7164638dbd3cd24eeb79a23e8875a2ca32bdfad796",
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/webhook-rail.mjs": "b6e8f83e4842b0db64dceb3c9140e955780fc3b14ecf4dc162c69a4fbb402606"
     }
