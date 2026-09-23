@@ -342,6 +342,16 @@ export function fromHttp(status, body) {
       + 'and retry. (GHL returns 401 for some missing-field cases and 422 for others; read the '
       + 'body, not the status.)');
   }
+  // The gateway ran a control read on the same credential and it SUCCEEDED (bl-059): the token is
+  // alive, and this endpoint refuses it. Measured 2026-09-08: one endpoint 401'd three times while
+  // list_workflows succeeded on either side of it.
+  if (status === 401 && body && typeof body === 'object' && body._credentialAlive === true) {
+    return fail(CODES.ACCESS_DENIED, detail,
+      'Upstream answered 401, but a control read on the SAME credential succeeded a moment later, so the '
+      + 'credential is alive and this endpoint refuses it (a different credential class, a permission, or a '
+      + 'transient on this route). Do NOT re-capture. Check search_endpoints / describe_endpoint for the '
+      + 'route\'s refusedFor classes, retry once later, and report what differed.');
+  }
   if (status === 401) {
     return fail(CODES.TOKEN_EXPIRED, detail,
       // Same phrasing discipline as core/auth.mjs: aimed at the agent, and bounded to one attempt.

@@ -31653,6 +31653,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
+          note: "CANDIDATE, BLOCKED ON A FIXTURE (2026-09-23). The 'Template' dropdown of the Documents & Contracts triggers (proposal_estimate_update, and the estimate trigger's same field). Stored triggers carry an opaque id in conditions[].value (seen in harvested client documents). The engine could resolve a template NAME to that id through the documentTemplates list (GET /proposals/templates, fixed 2026-09-23 to page at limit 21), but only once it is PROVEN that this dropdown's option values are those template ids. The sandbox holds no document template (the options route answers {options:[]}), and creating one through the API would be an unmeasured write. Needs: one document template created in the sandbox UI, then a differential read of this route against /proposals/templates.",
           reach: "proven",
           provenFor: [
             "agency-admin-bearer"
@@ -54202,7 +54203,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           reach: "proven"
         },
         "GET /workflows-marketplace/triggers/options/proposal_estimate_update/documentCreatedByTemplateId": {
-          reach: "proven"
+          reach: "proven",
+          note: "CANDIDATE, BLOCKED ON A FIXTURE (2026-09-23). The 'Template' dropdown of the Documents & Contracts triggers (proposal_estimate_update, and the estimate trigger's same field). Stored triggers carry an opaque id in conditions[].value (seen in harvested client documents). The engine could resolve a template NAME to that id through the documentTemplates list (GET /proposals/templates, fixed 2026-09-23 to page at limit 21), but only once it is PROVEN that this dropdown's option values are those template ids. The sandbox holds no document template (the options route answers {options:[]}), and creating one through the API would be an unmeasured write. Needs: one document template created in the sandbox UI, then a differential read of this route against /proposals/templates."
         },
         "GET /workflows/copyWorkflow/internalLogList": {
           requiredQuery: [
@@ -90946,6 +90948,13 @@ function fromHttp(status, body) {
       "Upstream answered 401, but its body is a validation error naming a missing request field, not an auth failure. The credential is fine \u2014 do NOT re-capture. Fix the request body and retry. (GHL returns 401 for some missing-field cases and 422 for others; read the body, not the status.)"
     );
   }
+  if (status === 401 && body && typeof body === "object" && body._credentialAlive === true) {
+    return fail(
+      CODES.ACCESS_DENIED,
+      detail,
+      "Upstream answered 401, but a control read on the SAME credential succeeded a moment later, so the credential is alive and this endpoint refuses it (a different credential class, a permission, or a transient on this route). Do NOT re-capture. Check search_endpoints / describe_endpoint for the route's refusedFor classes, retry once later, and report what differed."
+    );
+  }
   if (status === 401) {
     return fail(
       CODES.TOKEN_EXPIRED,
@@ -93291,6 +93300,13 @@ function makeGateway({ tokenFile, loc, rail = "jwt", fetchImpl = fetch, sleepImp
       json2 = JSON.parse(text);
     } catch {
       json2 = text;
+    }
+    if (res.status === 401 && rail === "jwt" && loc && json2 && typeof json2 === "object") {
+      try {
+        const control = await request("GET", `/users/?${new URLSearchParams({ locationId: String(loc) })}`);
+        if (control.ok) json2 = { ...json2, _credentialAlive: true };
+      } catch {
+      }
     }
     return { status: res.status, ok: res.ok, json: json2 };
   };

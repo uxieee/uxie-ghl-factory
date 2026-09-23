@@ -31466,6 +31466,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
+      "note": "CANDIDATE, BLOCKED ON A FIXTURE (2026-09-23). The 'Template' dropdown of the Documents & Contracts triggers (proposal_estimate_update, and the estimate trigger's same field). Stored triggers carry an opaque id in conditions[].value (seen in harvested client documents). The engine could resolve a template NAME to that id through the documentTemplates list (GET /proposals/templates, fixed 2026-09-23 to page at limit 21), but only once it is PROVEN that this dropdown's option values are those template ids. The sandbox holds no document template (the options route answers {options:[]}), and creating one through the API would be an unmeasured write. Needs: one document template created in the sandbox UI, then a differential read of this route against /proposals/templates.",
       "reach": "proven",
       "provenFor": [
         "agency-admin-bearer"

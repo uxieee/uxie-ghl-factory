@@ -173,6 +173,25 @@ const NAME_HASHES = new Set([
   'a3fbdc684d6b27536d700a4bd5172ece1e1f971a029ebd18e175a6c712e6bdd3',
   'bd174fffc69b6e10ab1b8116372e08c9440ef3e003ed43f8aa58ebb50ca2da2b',
   'fe7d1bf25d986599d5f1c3145935792b6d8a724110f958f9075e02bc93a62a74',
+  '10fc7f70b0898c80c6165da25b54019641755c61a069f8be1d5b3f7c75e53d97',  // synced from knowledge's list 2026-09-23 (console bl-107: the two lists had drifted)
+  '3eb493400f074af07730cc657ba3daa825f9bca8cc6438c53db6881ae787474a',  // synced from knowledge's list 2026-09-23 (console bl-107: the two lists had drifted)
+  '4f3411d07b0ac622d7865a9f09476085dc10c98f07b0ee9e886625d1443f3a15',  // synced from knowledge's list 2026-09-23 (console bl-107: the two lists had drifted)
+  '69e60ee97a1509920dbacc29cf848990ea2d3569726b1d9313aa99f0eaeff04f',  // synced from knowledge's list 2026-09-23 (console bl-107: the two lists had drifted)
+  '7aa6b6043298d094bc4dec1659c37190ec3cbcb5083e48fe2deb877b4c2a263b',  // synced from knowledge's list 2026-09-23 (console bl-107: the two lists had drifted)
+  '8193af59573adc133252553e216fdf45b7345263dc7ee2cfd384f60aa9d2b3b8',  // synced from knowledge's list 2026-09-23 (console bl-107: the two lists had drifted)
+  'abf4d9a69545993a88103697f450705bb32522d4092c3ffac31a69d5138ba86a',  // synced from knowledge's list 2026-09-23 (console bl-107: the two lists had drifted)
+  'acf0097e4ed663ef190e5ab8e89a0d9077df4b77f55b81c7e2b6458cc51ef426',  // synced from knowledge's list 2026-09-23 (console bl-107: the two lists had drifted)
+  'ad6bb7afa95860ec2749ffeabd25d2f8ac0489779a1eecf0c3dc6d2fc24ccea0',  // synced from knowledge's list 2026-09-23 (console bl-107: the two lists had drifted)
+  'b9127ca4467637c8a6136db04e712aebd023865685b084eb94c9e46d9757989e',  // synced from knowledge's list 2026-09-23 (console bl-107: the two lists had drifted)
+  'bf4379ae940e929abad8b86e640655585251e6b5dd0aa2d0dceb9d981bd77a6a',  // synced from knowledge's list 2026-09-23 (console bl-107: the two lists had drifted)
+  'c3bfb1e3f000df690266b8e911a34bddfcfe7382622f31effd42b14bf3d42d58',  // synced from knowledge's list 2026-09-23 (console bl-107: the two lists had drifted)
+  'cf29afbec64670893bd7e20486307758991b3e3508f945a1fd30b38a3cca640c',  // synced from knowledge's list 2026-09-23 (console bl-107: the two lists had drifted)
+  'fd818535497745f4d00a06fb8cc5fd06f7461bed80bef12ceee1af3a1811ba1b',  // synced from knowledge's list 2026-09-23 (console bl-107: the two lists had drifted)
+  'a3c003efb343054a3fcb7d59e9e853536fd72839942dad8a8918dfedd709c136',  // harvested-account spelling variant (2026-09-23, bl-107 sweep)
+  '776b485b912a57aa8aea1d9e749f1c377a1c5bd81eebf5581a6c67a20f24938c',  // harvested-account spelling variant (2026-09-23, bl-107 sweep)
+  'e9db02674de84594e916dc84eac9dcf6d99f0ed3589770de82452d25339dfdf9',  // harvested-account spelling variant (2026-09-23, bl-107 sweep)
+  // bl-107 (2026-09-23): synced with knowledge's list EXCEPT the GROM family (grom, grom au, grom uk,
+  // grom digital, gromdigital): this repo names the agency's own accounts in provenance on purpose.
 ]);
 
 // Normalize a candidate the way the hashes were generated: lowercase, collapse any

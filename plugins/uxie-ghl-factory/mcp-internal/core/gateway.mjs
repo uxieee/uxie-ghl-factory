@@ -256,6 +256,17 @@ export function makeGateway({ tokenFile, loc, rail = 'jwt', fetchImpl = fetch, s
     }
     const text = await res.text();
     let json; try { json = JSON.parse(text); } catch { json = text; }
+    // A 401 that survives the retry is checked against a CONTROL read on the same credential
+    // (console bl-059). If the control answers 2xx, the credential is alive and THIS endpoint
+    // refuses it, so the answer is marked, and fromHttp reports ACCESS_DENIED instead of
+    // TOKEN_EXPIRED, whose remediation sends a human to a browser login for nothing. Backend
+    // JWT rail with a known location only: that is where a cheap read is known to be reachable.
+    if (res.status === 401 && rail === 'jwt' && loc && json && typeof json === 'object') {
+      try {
+        const control = await request('GET', `/users/?${new URLSearchParams({ locationId: String(loc) })}`);
+        if (control.ok) json = { ...json, _credentialAlive: true };
+      } catch { /* no verdict: fall through to the plain 401 */ }
+    }
     return { status: res.status, ok: res.ok, json };
   };
 

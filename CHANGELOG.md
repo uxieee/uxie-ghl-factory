@@ -13,6 +13,22 @@ commit bodies carry the detail.
 
 ## Unreleased
 
+**A 401 from one endpoint no longer sends you to re-login when the credential is fine** (console
+bl-059). A bare 401 used to become `TOKEN_EXPIRED`, whose remediation sends a human to a browser login.
+Yet one endpoint could 401 while calls on either side succeeded. Now a 401 that survives the gateway's
+retry is checked against a control read on the same credential (`GET /users/?locationId=`, backend JWT
+rail). If the control read succeeds, the error is `ACCESS_DENIED`: "the credential is alive and this
+endpoint refuses it; do NOT re-capture". `TOKEN_EXPIRED` is kept for a 401 whose control read fails
+too.
+
+Live-proven in the suite (`auth-classification-proof.mjs`). `GET /locations/search` answers a bare
+401 to a location credential; the tool reports `ACCESS_DENIED`, and a known-good read succeeds before
+and after it.
+
+**The privacy gate's name list is synced with the knowledge repo's** (console bl-107). It gains 17 names it
+lacked: 14 from the knowledge list, plus 3 spelling variants of harvested accounts. The agency's own account names (the GROM family) stay out on purpose, because this repo
+names them in provenance. The gate is clean across 733 files.
+
 **Two new tools** (operator-approved 2026-09-23).
 
 **`copy_workflow_to_location`** is GHL's native Copy to Sub-Account. It copies one workflow into

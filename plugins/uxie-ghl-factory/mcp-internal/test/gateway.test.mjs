@@ -374,3 +374,36 @@ test('readBackUntil: sleeps only between attempts, returns the first hit, and ne
   assert.equal(threw.hit, null, 'a thrown predicate is a miss, not an escape');
   assert.match(threw.last.error, /index still cold/);
 });
+
+// bl-059: a 401 that survives the retry is checked against a CONTROL read on the same credential.
+// Measured 2026-09-08: one endpoint 401'd three times while list_workflows succeeded on either side.
+import { fromHttp } from '../core/errors.mjs';
+const routed = (calls, byPath) => async (url, init) => {
+  calls.push({ url, init });
+  const hit = Object.entries(byPath).find(([frag]) => url.includes(frag));
+  const r = hit ? hit[1] : { status: 200, ok: true, body: '{}' };
+  return { status: r.status, ok: r.ok, text: async () => r.body };
+};
+const unauthorized = { status: 401, ok: false, body: '{"statusCode":401,"message":"Unauthorized"}' };
+
+test('a 401 on one endpoint while the control read succeeds is ACCESS_DENIED, not TOKEN_EXPIRED', async () => {
+  const calls = [];
+  const gw = makeGateway({ tokenFile: fixture(), loc: 'L1', sleepImpl: async () => {},
+    fetchImpl: routed(calls, { '/phone-system/': unauthorized, '/users/': { status: 200, ok: true, body: '{"users":[]}' } }) });
+  const r = await gw.call('GET', '/phone-system/call-dispositions?locationId=L1');
+  assert.equal(r.status, 401);
+  assert.equal(r.json._credentialAlive, true);
+  assert.ok(calls.some((c) => c.url.includes('/users/?locationId=L1')), 'the control read ran on the same location');
+  const f = fromHttp(r.status, r.json);
+  assert.equal(f.code, 'ACCESS_DENIED');
+  assert.match(f.remediation, /Do NOT re-capture/);
+});
+
+test('a 401 whose control read ALSO fails stays TOKEN_EXPIRED', async () => {
+  const calls = [];
+  const gw = makeGateway({ tokenFile: fixture(), loc: 'L1', sleepImpl: async () => {},
+    fetchImpl: routed(calls, { '/phone-system/': unauthorized, '/users/': unauthorized }) });
+  const r = await gw.call('GET', '/phone-system/call-dispositions?locationId=L1');
+  assert.equal(r.json._credentialAlive, undefined);
+  assert.equal(fromHttp(r.status, r.json).code, 'TOKEN_EXPIRED');
+});
