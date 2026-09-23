@@ -1445,6 +1445,16 @@
     "path": "/workflow/{loc}/{wid}/copy-workflow"
   },
   {
+    "tool": "copy_workflow_to_location",
+    "method": "GET",
+    "path": "/workflows/copyWorkflow/statusList"
+  },
+  {
+    "tool": "copy_workflow_to_location",
+    "method": "GET",
+    "path": "/workflows/copyWorkflow/internalLogList"
+  },
+  {
     "tool": "create_custom_field_folder",
     "method": "GET",
     "path": "/locations/{loc}/customFields/search"
