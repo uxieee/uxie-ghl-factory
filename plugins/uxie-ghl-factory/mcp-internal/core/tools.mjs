@@ -14,7 +14,7 @@ import { makeAuditCircuit, makeAuditGateway, makeAuditLimiter } from './audit-ga
 import { makeGateway } from './gateway.mjs';
 import {
   ELEMENT_KINDS, buildPageData, autosaveEnvelope, auditPageData, makeLeaf, makeColumn,
-  makeSection, textCss, buttonCss, leafStyleCss, resetIds, val,
+  makeSection, textCss, buttonCss, leafStyleCss, nodeStylesFromCss, resetIds, val,
 } from './funnel-pages.mjs';
 import { collectWorkflowRuntimeWindow, validateRuntimeWindowInput } from './workflow-runtime-window.mjs';
 import {
@@ -9924,7 +9924,9 @@ export const TOOLS = [
               const leaf = makeLeaf({
                 meta: e.meta,
                 extra: { ...(e.html !== undefined ? { text: val(e.html) } : {}), ...(e.extra ?? {}) },
-                styles: e.styles ?? {},
+                // A `css` block also yields the node styles it implies, so the builder canvas and the
+                // public render agree (bl-120); an authored `styles` key always wins.
+                styles: { ...(e.css ? nodeStylesFromCss(e.meta, e.css) : {}), ...(e.styles ?? {}) },
                 tag: e.tag ?? '',
                 salt: `S${si}C${ci}`,
               });

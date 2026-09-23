@@ -154,10 +154,22 @@ export const completeExtra = (meta, given = {}) => {
   return { ...out, ...given };
 };
 
+// 🔴 A BUTTON WITH NO COLOUR KILLS THE PAGE BUILDER (console bl-119). Its styleStr reads
+// `styles.secondaryColor ? styles.secondaryColor.value : styles.color.value` UNGUARDED, so a button
+// saved with styles:{} throws on every render pass and the builder can no longer save (422 "pageData
+// should not be empty"), while the public page renders. GHL's own buttons always carry color,
+// secondaryColor and backgroundColor (knowledge sniffs/funnel-native-elements-2026-09-09); an absent
+// one is filled here, an authored one is never overwritten.
+const BUTTON_STYLE_DEFAULTS = {
+  color: { value: 'var(--white)' },
+  secondaryColor: { value: 'var(--white)' },
+  backgroundColor: { value: 'var(--blue)' },
+};
 export const makeLeaf = ({ meta, extra = {}, styles = {}, cls = {}, tag = '', salt }) => {
   if (!ELEMENTS[meta]) throw new Error(`unknown element meta '${meta}' — the vocabulary is a closed set of ${ELEMENT_KINDS.length}`);
   const id = mkId(meta, salt);
-  const node = envelope(id, 'element', meta, ELEMENTS[meta].tagName, completeExtra(meta, extra), styles, cls);
+  const withDefaults = meta === 'button' ? { ...BUTTON_STYLE_DEFAULTS, ...styles } : styles;
+  const node = envelope(id, 'element', meta, ELEMENTS[meta].tagName, completeExtra(meta, extra), withDefaults, cls);
   // Most leaves carry tag:''. The store and blog kinds carry their tagName, and do not render without it.
   node.tag = tag || (TAG_IS_TAGNAME.has(meta) ? ELEMENTS[meta].tagName : '');
   return node;
@@ -232,6 +244,22 @@ export const makeSection = ({ columns, background = 'transparent', padY = 60, ma
 };
 
 /** CSS for a text-ish leaf. Font sizes live only inside breakpoint media queries in GHL's output. */
+// The NODE styles a `css` block implies (console bl-120). A caller who styles a leaf through `css` got
+// the public stylesheet and NO node styles, so the builder canvas showed default type while the public
+// page was right. These are the keys GHL's own text and button leaves carry, in its {value} shape; an
+// authored `styles` key always wins.
+export const nodeStylesFromCss = (meta, o = {}) => {
+  const out = {};
+  const put = (k, v) => { if (v !== undefined && v !== null && v !== '') out[k] = { value: v }; };
+  if (meta === 'button') {
+    put('backgroundColor', o.background); put('color', o.color); put('secondaryColor', o.color);
+  } else {
+    put('color', o.color); put('fontFamily', o.font); put('fontWeight', o.weight); put('textAlign', o.align);
+    put('lineHeight', o.lineHeight);
+  }
+  return out;
+};
+
 export const textCss = (id, o) => {
   const sel = `.${id} h1,.${id} h2,.${id} h3,.${id} h4,.${id} h5,.${id} h6,.${id} ul li,.${id}.text-output`;
   const weight = o.weight ?? 400;
@@ -327,7 +355,16 @@ export const buildPageData = ({ pageId, stepId, funnelId, locationId, sections, 
   })),
   settings: { settings: { ...builderSettings(pageBackground), typography: { fonts: {
     headlineFont: { id: 'headlinefont', text: 'Headline Font', value: { text: 'Default', value: 'inherit' }, isCustom: false },
-    contentFont: { id: 'contentfont', text: 'Content Font', value: { text: 'Default', value: 'inherit' }, isCustom: false } } } } },
+    contentFont: { id: 'contentfont', text: 'Content Font', value: { text: 'Default', value: 'inherit' }, isCustom: false } },
+    // 🔴 `colors` is MANDATORY beside `fonts`. GHL's saveSettings replaces defaultSettings wholesale and
+    // addSettingsProperties then runs Object.keys(colors) UNGUARDED, so a page saved without it hangs the
+    // builder on LOADING while the public page renders (console bl-121, reported by a peer on a live page
+    // and fixed there by a local patch). The values are GHL's own, from GHL-authored pages
+    // (knowledge sniffs/forms-2026-09-06: textColor var(--black) #000000, linkColor var(--blue) #188bf6).
+    colors: {
+      textColor: { value: { label: 'var(--black)', value: '#000000' } },
+      linkColor: { value: { label: 'var(--blue)', value: '#188bf6' } },
+    } } } },
   // fontsToLoad and colors are MANDATORY — absent, the public render 500s.
   general: { general: { colors, fontsToLoad: fonts, fontsToLoadForPreview: fonts, pageStyles: '', customFonts: [] } },
   pageStyles, popups: [], popupsList: [], fontsForPreview: [], trackingCode: { headerCode: '', footerCode: '' },
@@ -346,6 +383,11 @@ export const auditPageData = (pageData) => {
   // A page missing this renders in public and hangs the BUILDER — the failure mode with no error.
   if (!pageData.settings?.settings?.background) {
     problems.push("settings.settings.background is missing: the public page will render but the BUILDER will hang forever (bgStyle() destructures bgImage from it unguarded). Use buildPageData(), or add builderSettings().");
+  }
+  // Same failure, second key (bl-121): addSettingsProperties runs Object.keys(colors) unguarded.
+  const typo = pageData.settings?.settings?.typography;
+  if (typo && (!typo.colors || typeof typo.colors !== 'object')) {
+    problems.push('settings.settings.typography has no colors: the public page will render but the BUILDER will hang on LOADING (addSettingsProperties runs Object.keys(colors) unguarded). Use buildPageData().');
   }
   for (const s of pageData.sections ?? []) {
     // 🔴 A global section resolves PER SECTION ID: the funnel-level file at `globalSectionsUrl` wins
@@ -369,6 +411,10 @@ export const auditPageData = (pageData) => {
       if (n.type === 'col' && !n.extra?.bgImage) problems.push(`column ${n.id}: extra.bgImage is required — the public render 500s without it`);
       if (n.type === 'element') {
         if (!ELEMENTS[n.meta]) { problems.push(`node ${n.id}: meta '${n.meta}' is not one of the ${ELEMENT_KINDS.length} known kinds — autosave accepts it anyway`); continue; }
+        // bl-119: a button with neither colour key throws in the builder's styleStr on every render.
+        if (n.meta === 'button' && !n.styles?.secondaryColor?.value && !n.styles?.color?.value) {
+          problems.push(`node ${n.id} (button): styles has neither color nor secondaryColor — the BUILDER throws on every render and can no longer save (a 422), while the public page renders. Set styles.color.`);
+        }
         const missing = (ELEMENTS[n.meta].extraProps ?? []).filter((p) => !(p in (n.extra ?? {})));
         if (missing.length) problems.push(`node ${n.id} (${n.meta}): missing declared extra props ${missing.join(', ')} — the renderer reads extra.<prop>.value unguarded`);
       }

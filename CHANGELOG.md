@@ -13,6 +13,24 @@ commit bodies carry the detail.
 
 ## Unreleased
 
+**Three funnel pages that rendered in public but broke the page BUILDER** (console bl-119, bl-120, bl-121;
+reported by a peer from live pages). Each case saved with a 201, read back correctly and rendered publicly,
+so nothing the plugin checked caught it:
+- **`settings.settings.typography` had `fonts` but no `colors`.** GHL runs `Object.keys(colors)`
+  unguarded, so the builder hung on LOADING. `buildPageData` now writes the colours GHL-authored pages carry.
+  The peer had patched only their installed copy.
+- **A button built with no styles saved as `styles:{}`.** The builder's `styleStr` reads `color.value`
+  unguarded, so it threw on every render and the page could no longer be saved (422). Button leaves now get
+  the `color`, `secondaryColor` and `backgroundColor` keys GHL's own buttons carry, and an authored value
+  always wins.
+- **Styling a leaf through `css` gave it NO node styles.** The builder canvas showed default type while the
+  public page was right. A `css` block now also yields the node styles it implies (colour, font, weight,
+  alignment; a button's colours), and an authored `styles` key wins.
+
+`auditPageData` now fails a page missing `typography.colors` and a button with neither colour key.
+Unit-tested against GHL-authored page data. The builder-opens check is a browser check and is not part
+of this change.
+
 **New read tool `get_snapshot_contents`, and `push_snapshot` stops pointing at the wrong list** (console
 bl-133). `push_snapshot` and `check_snapshot_conflicts` told callers to pick asset ids from
 `get_snapshot_manifest`. That tool lists what the SOURCE ACCOUNT could put in a snapshot: a superset of
