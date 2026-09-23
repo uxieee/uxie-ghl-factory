@@ -488,7 +488,7 @@ imply live correct:
   row's. If that is wrong for a product, every agent falsely mismatches and that component's
   configuration is dropped.
 
-## Live envelope recon — 2026-07-27, GROM AU (`wdzEoUZnXO9tB3PPzcot`)
+## Live envelope recon — 2026-07-27, GROM AU
 
 Read-only GETs, driven through the internal MCP against a real account, to settle the envelope
 shapes this rail had only ever guessed at. Nothing mutated. The point was not to capture shapes
@@ -561,7 +561,7 @@ record `"internal"` as the settled value for both flavours. Worth reconciling th
 
 ## Historical live proof ledger — EXECUTED vs OBSERVED
 
-Account: **GROM AU** (`wdzEoUZnXO9tB3PPzcot`). Workflow: *AU Magic Link Provisioner*
+Account: **GROM AU**. Workflow: *AU Magic Link Provisioner*
 (`6efef18a…`), published, 116 total enrolled. Date: **2026-07-20**. Driven through a real
 MCP stdio session (`initialize` → `tools/call`), not unit tests. Read-only; nothing mutated.
 This ledger predates the confirmation-gated Task 4 write additions; those additions were
@@ -592,7 +592,7 @@ Everything above was read off actual tool output. Nothing in this ledger is expe
 
 ## Live proof ledger — write tools (Task 5)
 
-Account: **GROM AU** (`wdzEoUZnXO9tB3PPzcot`). Date: **2026-07-21**. Driven through a real
+Account: **GROM AU**. Date: **2026-07-21**. Driven through a real
 MCP stdio session. All writes on throwaway canaries, **all deleted afterwards** (verified
 by re-read → 404, plus a tag sweep → none remaining).
 
@@ -654,7 +654,7 @@ Everything above was read off actual tool output and real screenshots. Nothing i
 
 ## Live proof ledger — memberships tools (Plan 4, Task 4)
 
-Account: **GROM AU** (`wdzEoUZnXO9tB3PPzcot`). Date: **2026-07-21**. Real MCP stdio session.
+Account: **GROM AU**. Date: **2026-07-21**. Real MCP stdio session.
 Canary courses created and **deleted afterwards** — final `list_courses` returns 0.
 
 | # | Executed | Observed |
@@ -694,7 +694,7 @@ Everything above was read off actual tool output and real screenshots. Nothing i
 
 ## Live proof ledger — AI agent tools (Plan 5, Task 6)
 
-Account: **GROM AU** (`wdzEoUZnXO9tB3PPzcot`). Date: **2026-07-21**. Real MCP stdio session
+Account: **GROM AU**. Date: **2026-07-21**. Real MCP stdio session
 using the dual-credential AI rail. All canaries **deleted afterwards**, verified against raw
 response bodies.
 
@@ -848,7 +848,7 @@ reaches the AI host via `host:"ai"` — live-proven 2026-07-21.)
 
 ## Live proof ledger — 0.8.0 code-review re-proof (2026-07-21)
 
-Account: **GROM AU** (`wdzEoUZnXO9tB3PPzcot`). Driven through a real MCP stdio session on a
+Account: **GROM AU**. Driven through a real MCP stdio session on a
 freshly captured credential pair. The review fix set changed the AI-agent verification logic
 (D1 nested-key classification, D2 SSE-id recovery, D3 confirmed-key requirement), so per this
 project's "green tests ≠ live" rule those two write paths were re-driven end-to-end, not just

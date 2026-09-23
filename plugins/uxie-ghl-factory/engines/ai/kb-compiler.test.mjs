@@ -11,11 +11,11 @@ const doc = {
 };
 
 test('compileRichTextDoc: create body matches knowledge-base-richtext.json shape', () => {
-  const { create, statusPoll, authHeader } = compileRichTextDoc(doc, { locationId: 'wdzEoUZnXO9tB3PPzcot' });
+  const { create, statusPoll, authHeader } = compileRichTextDoc(doc, { locationId: 'Lq7TestLoc0000000001' });
   assert.equal(create.method, 'POST');
   assert.equal(create.path, '/knowledge-base/rich-text/');
   assert.deepEqual(create.body, {
-    locationId: 'wdzEoUZnXO9tB3PPzcot',
+    locationId: 'Lq7TestLoc0000000001',
     knowledgeBaseId: 'tJdoJJkFGwqhsWKmHLEd',
     title: 'TEST-CAP-KB',
     content: doc.contentHtml,
@@ -88,18 +88,18 @@ test('compileRichTextDoc: contentMarkdown refusal wins over a missing-field sche
 // 200-and-changed-nothing. Ported from contributor zedricedwardc's PR #3, corroborated
 // independently before landing.
 test('compileRichTextUpdate: builds a full-replace PUT with the create body shape', () => {
-  const { update, statusPoll, authHeader } = compileRichTextUpdate('HAphQ9LdSsQLLIsEElaj', doc, { locationId: 'wdzEoUZnXO9tB3PPzcot' });
+  const { update, statusPoll, authHeader } = compileRichTextUpdate('Dq7TestDoc0000000001', doc, { locationId: 'Lq7TestLoc0000000001' });
   assert.equal(update.method, 'PUT');
-  assert.equal(update.path, '/knowledge-base/rich-text/HAphQ9LdSsQLLIsEElaj');
+  assert.equal(update.path, '/knowledge-base/rich-text/Dq7TestDoc0000000001');
   assert.deepEqual(update.body, {
-    locationId: 'wdzEoUZnXO9tB3PPzcot',
+    locationId: 'Lq7TestLoc0000000001',
     knowledgeBaseId: 'tJdoJJkFGwqhsWKmHLEd',
     title: 'TEST-CAP-KB',
     content: doc.contentHtml,
   });
   // update re-embeds asynchronously exactly like create, so the caller still polls
   assert.equal(statusPoll.method, 'GET');
-  assert.equal(statusPoll.path, '/knowledge-base/rich-text/HAphQ9LdSsQLLIsEElaj/status');
+  assert.equal(statusPoll.path, '/knowledge-base/rich-text/Dq7TestDoc0000000001/status');
   assert.equal(authHeader, 'ai');
 });
 
@@ -148,7 +148,7 @@ test('compileRichTextDelete: requires a non-empty id', () => {
 // --- compileKbTableUpload (captures/knowledge-base-tables-files.json's `tables` section) --
 
 const KB_ID = 'tJdoJJkFGwqhsWKmHLEd';
-const LOCATION_ID = 'wdzEoUZnXO9tB3PPzcot';
+const LOCATION_ID = 'Lq7TestLoc0000000001';
 
 test('compileKbTableUpload: upload descriptor matches knowledge-base-tables-files.json shape', () => {
   const { upload, authHeader } = compileKbTableUpload({ knowledgeBaseId: KB_ID, csvFilename: 'TEST-CAP-TABLE.csv' }, { locationId: LOCATION_ID });

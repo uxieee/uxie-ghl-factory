@@ -4,7 +4,7 @@
 //   authored: 9, compiled: 14, steps: 14, verify: { pass: 14, issues: [] }, warnings: []
 // while the builder showed "Resolve 7 Errors" and refused to publish it. Seven of the
 // nine node types carry fields the builder treats as required and the engine neither
-// defaulted nor demanded. Live-mapped on AU wdzEoUZnXO9tB3PPzcot 2026-07-25.
+// defaulted nor demanded. Live-mapped on GROM AU 2026-07-25.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { compile } from './compiler.mjs';

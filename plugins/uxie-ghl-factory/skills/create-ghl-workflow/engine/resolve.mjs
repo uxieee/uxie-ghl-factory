@@ -125,7 +125,7 @@ export function resolveIR(ir, r) {
     if (key) { ir.customObjectType = key; delete ir.object; }
     else unresolved.push({ where: 'workflow.object', name: ir.object });
   }
-  // settings.senderAddress.from_number may name a number by its TITLE ("GROM Digital AU") —
+  // settings.senderAddress.from_number may name a number by its TITLE ("Main Line") —
   // resolve to the E.164 value the doc stores (G9). A merge tag or +digits passes through.
   const fn = ir.settings?.senderAddress?.from_number;
   if (typeof fn === 'string' && fn && !/^\+?[0-9 ()-]{6,}$/.test(fn) && !fn.includes('{{')) {

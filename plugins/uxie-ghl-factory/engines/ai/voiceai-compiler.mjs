@@ -95,7 +95,10 @@ const DEFAULTS = {
     disclaimerEnabled: true,
     outboundIntentMessage: '',
     outboundDisclaimerType: 'concise',
-    outboundDisclaimerMessage: "Hi {{contact.first_name}}, this is GROM Digital AU's AI assistant. You can say, 'Don't call me again,' to opt out.",
+    // Filled per agent by disclaimerFor(): the capture's text named the capturing account's business,
+    // and shipping that literal made EVERY agent built without its own disclaimer introduce itself
+    // to callers as that business (fixed 2026-09-23).
+    outboundDisclaimerMessage: null,
     playDisclaimerOnEveryCall: true,
   },
   prompts: {},
@@ -104,6 +107,12 @@ const DEFAULTS = {
   businessName: '',
   timezone: '',
 };
+
+/** The default outbound disclaimer, in the capture's wording, naming THIS agent's business. */
+export function disclaimerFor(businessName) {
+  const who = typeof businessName === 'string' && businessName.trim() ? `${businessName.trim()}'s AI assistant` : 'an AI assistant';
+  return `Hi {{contact.first_name}}, this is ${who}. You can say, 'Don't call me again,' to opt out.`;
+}
 
 // NOTE on `contactFieldActions`: voiceai-update-identity.json's requestBody includes
 // a top-level `contactFieldActions: []` key that voiceai-update-behavior-
@@ -193,7 +202,10 @@ function buildUpdateBody(ir, { locationId } = {}) {
     denoisingMode: voice.denoisingMode ?? DEFAULTS.denoisingMode,
     voicemailOption: outbound.voicemailOption ?? DEFAULTS.voicemailOption,
     ivrOption: outbound.ivrOption ?? DEFAULTS.ivrOption,
-    aiDisclaimerConfiguration: outbound.aiDisclaimerConfiguration ?? DEFAULTS.aiDisclaimerConfiguration,
+    aiDisclaimerConfiguration: outbound.aiDisclaimerConfiguration ?? {
+      ...DEFAULTS.aiDisclaimerConfiguration,
+      outboundDisclaimerMessage: disclaimerFor(ir.businessName ?? DEFAULTS.businessName),
+    },
     prompts: ir.prompts ?? DEFAULTS.prompts,
     noResponseConfig: {
       enabled: noResponseConfig.enabled ?? DEFAULTS.noResponseConfig.enabled,

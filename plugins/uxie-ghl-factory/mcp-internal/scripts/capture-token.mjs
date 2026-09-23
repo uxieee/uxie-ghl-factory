@@ -20,7 +20,7 @@
 //
 // WHICH REFERER MAY A BEARER COME FROM? Both — see acceptsBearerFrom below.
 //
-//   node scripts/capture-token.mjs --account "GROM Digital AU"
+//   node scripts/capture-token.mjs --account "My Agency"
 //   node scripts/capture-token.mjs                 # no auto-drive; you navigate, it watches
 //   node scripts/capture-token.mjs --timeout 300   # seconds to wait (default 240)
 import { writeFileSync, chmodSync, existsSync, readdirSync, realpathSync } from 'node:fs';

@@ -76,11 +76,11 @@ test('G4/G6/G9/G5: templates, products, phone titles, funnels, workflow.id filte
     smsTemplates: [{ id: 'st-aaaaaaaaaaaaaaaaaa', name: 'Promo reply', type: 'sms' }],
     products: [{ id: 'pr-aaaaaaaaaaaaaaaaaa', name: 'Patient Growth System' }],
     coupons: [{ id: 'cp-aaaaaaaaaaaaaaaaaa', name: 'Launch', code: 'LAUNCH10' }],
-    phoneNumbers: [{ number: '+61400000000', title: 'GROM Digital AU' }],
+    phoneNumbers: [{ number: '+61400000000', title: 'Main Line' }],
     funnels: [{ id: 'fn-aaaaaaaaaaaaaaaaaa', name: 'Main Funnel' }],
   });
   const ir = {
-    settings: { senderAddress: { from_name: 'C', from_email: 'x@y.z', from_number: 'GROM Digital AU' } },
+    settings: { senderAddress: { from_name: 'C', from_email: 'x@y.z', from_number: 'Main Line' } },
     triggers: [
       { ref: 't1', type: 'payment_received', name: 'T1', filters: [{ field: 'payment.global_product_ids', value: ['Patient Growth System'] }] },
       { ref: 't2', type: 'customer_reply', name: 'T2', filters: [{ field: 'workflow.id', value: 'Nurture 2026' }] },
@@ -110,18 +110,18 @@ test('G4/G6/G9/G5: templates, products, phone titles, funnels, workflow.id filte
 test('G7/G18/G13: facebook pages, document templates, video.funnelId resolve by name', () => {
   const r3 = buildResolvers({
     funnels: [{ id: 'fn-aaaaaaaaaaaaaaaaaa', name: 'Main Funnel' }],
-    fbPages: [{ id: '1025448410649753', name: 'GROM Digital' }],
+    fbPages: [{ id: '1000000000000001', name: 'Acme Page' }],
     documentTemplates: [{ id: 'dt-aaaaaaaaaaaaaaaaaa', name: 'Growth Proposal' }],
   });
   const ir = { triggers: [
-    { ref: 't1', type: 'facebook_lead_gen', name: 'T1', filters: [{ field: 'facebook.pageId', value: 'GROM Digital' }] },
+    { ref: 't1', type: 'facebook_lead_gen', name: 'T1', filters: [{ field: 'facebook.pageId', value: 'Acme Page' }] },
     { ref: 't2', type: 'video_event', name: 'T2', filters: [{ field: 'video.funnelId', value: 'Main Funnel' }] },
   ], graph: [
     { ref: 'a', kind: 'action', type: 'proposals_estimates_send_document', name: 'A', attributes: { template: 'growth proposal', sendDocument: true } },
   ] };
   const { unresolved } = resolveIR(ir, r3);
   assert.deepEqual(unresolved, []);
-  assert.equal(ir.triggers[0].filters[0].value, '1025448410649753');
+  assert.equal(ir.triggers[0].filters[0].value, '1000000000000001');
   assert.equal(ir.triggers[1].filters[0].value, 'fn-aaaaaaaaaaaaaaaaaa');
   assert.equal(ir.graph[0].attributes.templateId, 'dt-aaaaaaaaaaaaaaaaaa');
   assert.equal(ir.graph[0].attributes.template, undefined);
