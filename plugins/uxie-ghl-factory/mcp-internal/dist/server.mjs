@@ -13660,7 +13660,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "states/app.ts:877",
+            "states/app.ts:881",
             "ai-studio/_data/endpoints.json",
             "ai-studio/10-anatomy/embedding-and-credentials.md:51",
             "ai-studio/10-anatomy/the-chat-and-version-model.md:25",
@@ -13755,7 +13755,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:542"
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:546"
           ]
         },
         {
@@ -13807,8 +13807,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/api/slack-marketplace-install-service.ts:237",
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:449",
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:707"
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:453",
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:711"
           ]
         },
         {
@@ -13872,7 +13872,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/api/slack-marketplace-install-service.ts:220",
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:773"
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:777"
           ]
         },
         {
@@ -13913,8 +13913,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:456",
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:727"
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:460",
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:731"
           ]
         },
         {
@@ -13952,7 +13952,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:524"
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:528"
           ]
         },
         {
@@ -15792,7 +15792,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
                 doc: "Returns a list of values in the list."
               },
               {
-                name: "__@iterator@696",
+                name: "__@iterator@694",
                 type: "() => FormDataIterator<[string, FormDataEntryValue]>",
                 optional: false
               }
@@ -21371,7 +21371,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "none-observed"
           },
           sources: [
-            "states/app.ts:596"
+            "states/app.ts:597"
           ]
         },
         {
@@ -21915,7 +21915,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
                 doc: "Returns a list of values in the list."
               },
               {
-                name: "__@iterator@696",
+                name: "__@iterator@694",
                 type: "() => FormDataIterator<[string, FormDataEntryValue]>",
                 optional: false
               }
@@ -21930,7 +21930,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "none-observed"
           },
           sources: [
-            "states/app.ts:585",
+            "states/app.ts:586",
             "components/advanced-workflow-canvas/components/canvas/components/sticky-note/StickyNoteImageUpload.vue:38",
             "components/sticky-notes/v2/StickyNoteImageUpload.vue:45"
           ]
@@ -23220,13 +23220,13 @@ Flagged to the operator as a security observation about the vendor, not a capabi
                 doc: "Copies an array, then overwrites the value at the provided index with the\ngiven value. If the index is negative, then it replaces from the end\nof the array."
               },
               {
-                name: "__@iterator@696",
+                name: "__@iterator@694",
                 type: "() => ArrayIterator<WorkflowDomainEntry>",
                 optional: false,
                 doc: "Iterator"
               },
               {
-                name: "__@unscopables@698",
+                name: "__@unscopables@696",
                 type: "{ [x: number]: boolean; length?: boolean; toString?: boolean; toLocaleString?...",
                 optional: false,
                 doc: "Is an object whose properties have the value 'true'\nwhen they will be absent when used in a 'with' statement."
@@ -26588,7 +26588,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
                 doc: "Returns a list of values in the list."
               },
               {
-                name: "__@iterator@696",
+                name: "__@iterator@694",
                 type: "() => FormDataIterator<[string, FormDataEntryValue]>",
                 optional: false
               }
@@ -29685,7 +29685,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:285"
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:289"
           ]
         },
         {
@@ -29742,7 +29742,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:177",
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:181",
             "workflows/70-research/ENDPOINTS.md:235"
           ]
         },
@@ -29791,7 +29791,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:654",
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:658",
             "workflows/70-research/ENDPOINTS.md:238"
           ]
         },
@@ -29849,7 +29849,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:599"
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:603"
           ]
         },
         {
@@ -29966,7 +29966,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:216",
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:220",
             "workflows/40-rules/marketplace-asset-publisher-classes.md:78",
             "workflows/30-types/steps/conversationai_services_booking.md:61",
             "workflows/50-runtime/flow-bot-four-node-certification.md:27"
@@ -30035,7 +30035,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:200"
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:204"
           ]
         },
         {
@@ -30092,7 +30092,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:161",
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:165",
             "workflows/70-research/ENDPOINTS.md:234"
           ]
         },
@@ -30141,7 +30141,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:144"
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:148"
           ]
         },
         {
@@ -30216,7 +30216,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:327",
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:331",
             "workflows/70-research/VERSIONS-STATS-LOGS.md:305",
             "services/api/marketplace-stats-service.ts:7"
           ]
@@ -30267,7 +30267,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:682",
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:686",
             "services/McpConnectionService.ts:154",
             "services/marketplaceServices/WorkflowMarketplaceService.ts:392",
             "workflows/20-api/03-endpoints.md:344",
@@ -30322,7 +30322,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:670"
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:674"
           ]
         },
         {
@@ -30384,7 +30384,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:502"
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:506"
           ]
         },
         {
@@ -30450,7 +30450,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:436"
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:440"
           ]
         },
         {
@@ -31080,7 +31080,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:411"
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:415"
           ]
         },
         {
@@ -31152,7 +31152,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:366"
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:370"
           ]
         },
         {
@@ -31219,7 +31219,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:637"
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:641"
           ]
         },
         {
@@ -31293,7 +31293,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:356"
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:360"
           ]
         },
         {
@@ -31367,7 +31367,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:341"
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:345"
           ]
         },
         {
@@ -31441,7 +31441,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:383"
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:387"
           ]
         },
         {
@@ -31494,7 +31494,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:130",
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:134",
             "_shared/bundle-locations.md:195",
             "marketplace-apps/10-anatomy/marketplace-rail.md:45",
             "marketplace-apps/10-anatomy/marketplace-rail.md:236",
@@ -31556,7 +31556,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:627"
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:631"
           ]
         },
         {
@@ -31611,7 +31611,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:300",
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:304",
             "workflows/70-research/ENDPOINTS.md:92"
           ]
         },
@@ -31726,7 +31726,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:318",
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:322",
             "workflows/70-research/ENDPOINTS.md:91"
           ]
         },
@@ -32766,13 +32766,13 @@ Flagged to the operator as a security observation about the vendor, not a capabi
                 doc: "Copies an array, then overwrites the value at the provided index with the\ngiven value. If the index is negative, then it replaces from the end\nof the array."
               },
               {
-                name: "__@iterator@696",
+                name: "__@iterator@694",
                 type: "() => ArrayIterator<EnrollStat>",
                 optional: false,
                 doc: "Iterator"
               },
               {
-                name: "__@unscopables@698",
+                name: "__@unscopables@696",
                 type: "{ [x: number]: boolean; length?: boolean; toString?: boolean; toLocaleString?...",
                 optional: false,
                 doc: "Is an object whose properties have the value 'true'\nwhen they will be absent when used in a 'with' statement."
@@ -33069,13 +33069,13 @@ Flagged to the operator as a security observation about the vendor, not a capabi
                 doc: "Copies an array, then overwrites the value at the provided index with the\ngiven value. If the index is negative, then it replaces from the end\nof the array."
               },
               {
-                name: "__@iterator@696",
+                name: "__@iterator@694",
                 type: "() => ArrayIterator<EnrollStat>",
                 optional: false,
                 doc: "Iterator"
               },
               {
-                name: "__@unscopables@698",
+                name: "__@unscopables@696",
                 type: "{ [x: number]: boolean; length?: boolean; toString?: boolean; toLocaleString?...",
                 optional: false,
                 doc: "Is an object whose properties have the value 'true'\nwhen they will be absent when used in a 'with' statement."
