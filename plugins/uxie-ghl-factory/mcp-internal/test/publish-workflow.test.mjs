@@ -447,3 +447,26 @@ test("publish reads the workflow's sending domain, so checkFromEmailFormat can b
   assert.match(result.detail ?? '', /From Email|checkFromEmailFormat/i);
   assert.equal(calls.some(({ method }) => method === 'PUT'), false);
 });
+
+// A scheduled pause un-publishes a workflow and marks the document with `paused` and the config id
+// (live 2026-09-23). It then reads as a plain draft, so publishing it looks like finishing it and
+// silently ends the maintenance window early. Warned in the preview, not refused.
+test('publishing a workflow a scheduled pause is holding warns SCHEDULED_PAUSE_ACTIVE, naming the pause config', async () => {
+  const { gw, calls } = publishGateway({
+    initial: { ...workflow(), paused: 'workflow-scheduled-pause', pauseUpdatedById: 'CFG1' },
+  });
+  const result = await publishTool().handler({ locationId: 'LOC', workflowId: 'WID' }, deps(gw));
+  assert.equal(result.code, 'CONFIRM_REQUIRED');
+  const warning = (result.data.preview.warnings ?? []).find((w) => w.startsWith('SCHEDULED_PAUSE_ACTIVE'));
+  assert.ok(warning, 'the preview must name the running pause');
+  assert.match(warning, /CFG1/);
+  assert.equal(calls.some(({ method, path }) => ['POST', 'PUT', 'DELETE'].includes(method) && !path.endsWith('/validate-workflows')), false);
+});
+
+test('CONTROL: an ordinary draft, and one whose pause has ended (fields null), get no pause warning', async () => {
+  for (const initial of [workflow(), { ...workflow(), paused: null, pauseUpdatedById: null }]) {
+    const { gw } = publishGateway({ initial });
+    const result = await publishTool().handler({ locationId: 'LOC', workflowId: 'WID' }, deps(gw));
+    assert.equal((result.data.preview.warnings ?? []).some((w) => w.startsWith('SCHEDULED_PAUSE_ACTIVE')), false);
+  }
+});

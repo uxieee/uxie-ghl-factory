@@ -771,6 +771,87 @@ export function deleteContainer(templates, containerId) {
   return { templates: out, diff: { createdSteps: [], modifiedSteps: pred ? [pred.id] : [], deletedSteps: [...remove] } };
 }
 
+// Every step under `rootId` (its `next` chain, nested containers, their branches), rootId included.
+function subtreeIds(templates, rootId) {
+  const byId = new Map(templates.map((t) => [t.id, t]));
+  const out = new Set([rootId]);
+  const queue = [rootId];
+  while (queue.length) {
+    const cur = byId.get(queue.shift());
+    if (!cur) continue;
+    const nexts = Array.isArray(cur.next) ? cur.next : (typeof cur.next === 'string' ? [cur.next] : []);
+    for (const n of nexts) if (byId.has(n) && !out.has(n)) { out.add(n); queue.push(n); }
+    for (const t of templates) if (t.parent === cur.id && !out.has(t.id)) { out.add(t.id); queue.push(t.id); }
+  }
+  return out;
+}
+
+// Delete ONE branch of a container, and everything under it. The builder's own "delete branch"
+// does the same (EDIT-OPS §4: a deleted branch's subtree vanishes, it is not re-parented). Only
+// AUTHOR-DEFINED branches can go: an if/else CONDITIONED branch, or a user-defined branch of an AI
+// splitter / AI decision maker. Refused, each by name:
+//   • the if/else None (else) branch — the builder always renders it; there is no condition-node
+//     without one;
+//   • the LAST conditioned branch of an if/else — the container then routes nothing; use
+//     deleteContainer;
+//   • a PRE-DEFINED branch (a finder's Found/Not Found, a booking node's two, a splitter's
+//     "No condition met", the decision maker's Default Branch) — GHL generates those, the step
+//     does not work without them;
+//   • a workflow_split path — its weights must be re-balanced to 100 in the same write, which is a
+//     decision this op will not make for you.
+// `branch` is the display name, the stable __branchKey__, or the branch-entry id — never guessed:
+// a name two branches share is refused.
+export function deleteBranch(templates, containerId, branch) {
+  const container = requireStep(templates, containerId, 'deleteBranch');
+  if (!Array.isArray(container.next))
+    throw new Error(`deleteBranch: '${container.name ?? containerId}' is not a container — deleteBranch takes the CONTAINER's id (the if/else condition node, AI splitter or AI decision maker).`);
+  if (branch == null || branch === '')
+    throw new Error(`deleteBranch: name the branch to delete — its display name, __branchKey__, or branch-entry id.`);
+  const targets = branchTargets(container, templates);
+  const list = () => targets.map((t) => `'${t.name}'`).join(', ');
+  const hits = targets.filter((t) => t.id === branch || t.key === branch || t.name === branch);
+  if (!hits.length) throw new Error(`deleteBranch: no branch '${branch}' on '${container.name ?? containerId}' (branches: ${list()})`);
+  if (hits.length > 1) throw new Error(`deleteBranch: '${branch}' matches ${hits.length} branches on '${container.name ?? containerId}' — pass the branch id (${hits.map((h) => h.id).join(', ')})`);
+  const hit = hits[0];
+  const byId = new Map(templates.map((t) => [t.id, t]));
+  const entry = byId.get(hit.id);
+
+  let containerPatch;
+  if (container.nodeType === 'condition-node') {
+    if (entry?.nodeType === 'branch-no' || entry?.attributes?.else === true)
+      throw new Error(`deleteBranch: '${hit.name}' is the None (else) branch of '${container.name ?? containerId}' — every if/else keeps one. Delete its STEPS instead (deleteStep), or the whole container (deleteContainer).`);
+    const conditioned = (container.attributes?.branches ?? []);
+    if (conditioned.length <= 1)
+      throw new Error(`deleteBranch: '${hit.name}' is the LAST conditioned branch of '${container.name ?? containerId}' — without it the if/else routes nothing. Use deleteContainer to remove the whole if/else.`);
+    containerPatch = { next: container.next.filter((id) => id !== hit.id),
+      attributes: { ...container.attributes, branches: conditioned.filter((b) => b.id !== hit.id) } };
+  } else if (container.type === 'workflow_split') {
+    throw new Error(`deleteBranch: '${container.name ?? containerId}' is a split — removing a path means re-balancing the remaining weights to 100 in the same write, which this op does not decide for you. Rebuild the split, or delete the container.`);
+  } else {
+    const row = (container.attributes?.transitions ?? []).find((x) => x.id === hit.id);
+    if (!row || row.conditionType !== 'user-defined')
+      throw new Error(`deleteBranch: '${hit.name}' on '${container.type}' is a PRE-DEFINED branch — GHL generates it and the step does not work without it. Only author-defined branches can be deleted (branches: ${list()}).`);
+    containerPatch = { next: container.next.filter((id) => id !== hit.id),
+      attributes: { ...container.attributes, transitions: container.attributes.transitions.filter((x) => x.id !== hit.id) } };
+  }
+
+  const remove = subtreeIds(templates, hit.id);
+  const remaining = containerPatch.next;
+  const modified = [containerId];
+  const out = templates.filter((t) => !remove.has(t.id)).map((t) => {
+    if (t.id === containerId) return { ...t, ...containerPatch };
+    // the surviving branch entries: order follows next[], and an if/else entry's sibling[] lists the others
+    if (remaining.includes(t.id) && (t.parent === containerId || t.parentKey === containerId)) {
+      modified.push(t.id);
+      const u = { ...t, order: remaining.indexOf(t.id) };
+      if (Array.isArray(t.sibling)) u.sibling = remaining.filter((x) => x !== t.id);
+      return u;
+    }
+    return t;
+  });
+  return { templates: out, diff: { createdSteps: [], modifiedSteps: modified, deletedSteps: [...remove] } };
+}
+
 // The opportunity-association invariant on the EDIT path (compile()'s
 // checkOpportunityAssociation never sees edits — edit-mode mutates compiled
 // templates directly). Same rule, template-graph flavor: an opportunity-requiring

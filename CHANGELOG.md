@@ -11,7 +11,47 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
-## Unreleased
+## [0.97.0] — 2026-09-23
+
+**`edit_workflow` inserts branching steps as real branching steps.** An insert op carrying a
+bare `find_opportunity` (no `onFound`/`onNotFound`) compiled LINEAR: no `cat`, no transitions, a
+scalar `next`. It saved, validated and published clean, and at runtime the contact walked
+straight through it. The same gate hit `find_contact` and `lc_merge_contact`. Separately,
+`workflow_ai_decision_maker` written by its GHL type was never routed to its handler: with
+branches it was refused, without them it was linear. All of them now always compile as containers,
+through the same `compile()` build_workflow runs. Branch contents can ride in the insert op
+itself (`onNotFound: [ … ]`), and `attachTailTo` places the existing chain, as before. Live-proven
+on the sandbox: a bare finder inserted before the head of a PUBLISHED workflow read back as a
+container, and a run-created contact with no opportunity took the Not-Found branch and not the
+Found chain. The proof (`multipath-insert-proof.mjs`) is now part of the workflows live suite.
+
+New engine-gate check **`MULTIPATH_SHAPE`**: a finder, AI decision maker, Conversation-AI
+splitter/booking node or split that is not wired as a container is refused on every write:
+- `next` is not an array of `transition` children whose `parentKey` is the step;
+- or `cat` is not `multi-path`;
+- or `convertToMultipath` is missing;
+- or `attributes.transitions` disagree with `next[]`.
+
+It was calibrated on 55 stored containers, all of which pass. On a step the write did not touch it
+is a warning. The repair for an old linear finder is `deleteStep` + `insertBefore` in one call.
+
+New compile error **`CONTAINER_NOT_LAST`**: a step authored after a container in the same list
+used to compile with no inbound edge. It was unreachable, and every layer passed it. A step a
+`goto` lands on is exempt.
+
+New `edit_workflow` op **`deleteBranch`** (`{containerId, branch}`): it removes ONE author-defined
+branch and every step under it, as the builder's own delete does. That means an if/else conditioned
+branch, or a user-defined branch of an AI splitter / AI decision maker. `branch` is the display
+name, `__branchKey__` or id. It refuses, by name:
+- the if/else None branch;
+- the last conditioned branch (use `deleteContainer`);
+- any pre-defined branch (a finder's Found/Not Found, a Default Branch);
+- a split path, whose weights would need re-balancing.
+
+On a published workflow, contacts parked in the deleted branch are counted in the preview, as with
+`deleteStep`. Live-proven on the sandbox by differential (`delete-branch-proof.mjs`, part of the
+workflows live suite): a hot-tagged contact took Hot before the delete, and an identical one fell to
+None after it.
 
 `find_workflows_using` reconciles instead of trusting `offset`: `POST /workflows/es/search` has no
 stable ordering under paging (measured live 2026-09-21 — a 326-row `wait` sweep walked at
@@ -22,6 +62,43 @@ reports `duplicatesDropped`, and reconciles the unique count against GHL's own `
 result is `complete:false` with a coded `ES_SEARCH_RECONCILIATION_SHORT` warning and the rows move
 to `partialWorkflows`/`partialSteps` — `workflows`/`steps` stays `null` rather than shipping a
 partial list dressed as a whole one, mirroring `list_workflows`'s existing discipline.
+
+A scheduled pause is a scheduled UN-PUBLISH (measured live 2026-09-23: the start boundary sets a
+published workflow to `draft`, the end boundary re-publishes only what the start un-published), and
+while it runs the workflow document carries `paused: "workflow-scheduled-pause"` and the pause
+config's id in `pauseUpdatedById`. A paused workflow therefore read as a plain `draft`, so an agent
+could take it for unfinished work and publish it — silently ending the maintenance window early.
+`get_workflow_digest` now shows `pausedBy` (who, and which pause config) while a pause holds the
+workflow, and `scheduledPauses` for every window that has not yet ended (from the builder's own
+`includeScheduledPauseInfo` switch, which the plugin already sent and then discarded). Neither key
+appears otherwise. `publish_workflow`'s preview warns `SCHEDULED_PAUSE_ACTIVE`, naming the pause
+config — warned, not refused, since ending a pause early can be the intent.
+
+The endpoint catalogue grew by eight routes that were always in the builder's shipped source, and
+lost three that were never real. The miner resolved a URL-template identifier only when it was a
+function parameter: `const recordId = config._id` — where `config` also collided with the
+app-config base lookup — discarded the whole endpoint, hiding `PUT …/scheduled-pause/config/{id}`.
+And a service that builds its base in its constructor (`this.baseUrl = …`) resolved nothing, hiding
+a seven-route `hotlinks-template-groups` CRUD surface — GHL's own quick-start template catalogue,
+platform-wide and owned by a GHL-internal account, so its six writes are FENCED and its read carries
+a purpose-test decision. Documented rows whose absolute spelling INSERTS segments
+(`/settings/users` → `/workflow/{loc}/error-notification/settings/users`) now fold into their mined
+twin, guarded against ambiguity and against folding into an unresolved `{base}` mount. Nine more
+catalogue rows carry the corpus's red-flag traps, including the inbound-webhook receiving URL
+accepting and pinning against a trigger id that does not exist.
+
+`validate_workflow` judged the export's redaction placeholder instead of the edit. The ordinary loop
+— `export_workflow`, change something, `validate_workflow({templates})` — handed GHL
+`authorization: "<redacted>"` on any step with a secret-named field, and GHL answered "expected
+object, received string" identically for every edit (measured live 2026-09-23 with three different
+webhook bodies): a correct change read `valid: false`. Callers could not work around it, because the
+tool-argument credential guard rightly refuses real credentials passed in. Exact placeholders are now
+restored from the stored step for that validation only — nothing is written, and only step ids and
+paths come back, under `redactedPlaceholders`. A placeholder embedded in a longer string is not
+restored (the rest of the string may be the edit) and is reported as `unresolved`. With the verdict
+unblocked, the live suite now proves GHL has no JSON rule on a `custom_webhook` body any more — a
+merge-field body and a malformed one both validate — so the engine's own narrowed JSON warning is the
+only one left.
 
 ## [0.96.0] — 2026-09-21
 

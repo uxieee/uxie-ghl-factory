@@ -755,6 +755,12 @@ export async function orchestrate(ir, gw, opts = {}) {
   const actionSchema = await fetchActionSchema(call, loc);
   if (actionSchema) {
     const triggerTypes = (ir.triggers ?? []).map((t) => t.type).filter(Boolean);
+    // An empty trigger list SKIPS this layer's requiredTriggers half ({} rather than {triggerTypes:[]}).
+    // That hides nothing: GHL's builder runs validateRequiredTriggersForActions with no trigger-less
+    // exemption, and graph-rules.mjs replays it faithfully on every write — a trigger-less workflow
+    // holding one of those actions is WARNED on a draft and REFUSED at publish (graph-rules.test.mjs,
+    // "publishing an AI step with no trigger is refused"). Running it here too would only report the
+    // same finding twice. With triggers present both layers run, and the duplicate is harmless.
     const schemaErrors = checkWorkflow(got, actionSchema, triggerTypes.length ? { triggerTypes } : {});
     report.schemaChecked = { source: 'live', types: actionSchema.size, steps: got.length };
     for (const e of schemaErrors) {

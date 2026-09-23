@@ -13,12 +13,6 @@
       "summary": "Delete a Metrics dashboard layout.",
       "note": "Never called during mapping; read-only sweep. 🔴 CATALOGUE MISLABEL: DELETE row whose `kind` says \"write\". Filter on METHOD as well as kind. Not probed."
     },
-    "DELETE /blacklist/{kind}/{id}": {
-      "reach": "refused",
-      "credentialClass": "agency-admin-bearer",
-      "kind": "destructive",
-      "note": "🔴 THIS ROW IS MIS-BASED: the call is FlowGuardService `${baseURL}/flowguard/blacklist/{kind}/{id}`, i.e. DELETE /workflow/flowguard/blacklist/{kind}/{id}. Measured 2026-09-19 there: without location_id -> 400 naming it; with it -> 401 'Unauthorized'. FlowGuard is refused to this credential, like the rest of its family."
-    },
     "DELETE /emails/trigger/{locationId}/{triggerId}": {
       "reach": "source-only",
       "credentialClass": "agency-admin-bearer",
@@ -42,7 +36,7 @@
     },
     "DELETE /workflow/flowguard/blacklist/{type}/{id}": {
       "reach": "refused",
-      "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class. TRAP: WITHOUT location_id every flowguard route answers 400, which reads as an argument problem and invites another probing session; WITH it, 401 -- the 401 is the real answer. RE-VERIFIED 2026-09-15 (auth facts on GHL expire, so this was re-measured, not assumed). ὓ4 DO NOT PROBE THIS CLUSTER AGAIN and do not seek the credential — it is MINED instead, and the knowledge is landed in corpus workflows/50-runtime/flowguard-platform-guardrails.md: the guardrail vocabulary (loop locks with reason 'infinite_loop_detected' / lockedBy 'system', the execution status 'stuck' as a first-class state distinct from failed, blacklists scoped by workflow AND step AND contact, rate-limit rules dimensioned global|workflow|contact, and bypasses carrying an expiresAt). That vocabulary is a specification of what goes wrong with workflows in production, which is why it is worth having without the endpoint. ⚠️ The NUMBERS in flowGuardMockData.ts are a developer's placeholders, never GHL's thresholds. TRAP for anyone who ever does reach it: every getter in FlowGuardService.ts falls back to its mock data on error, so the panel renders a convincing fake list on a 401 — read the network, not the screen.",
+      "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class. TRAP: WITHOUT location_id every flowguard route answers 400, which reads as an argument problem and invites another probing session; WITH it, 401 -- the 401 is the real answer. RE-VERIFIED 2026-09-15 (auth facts on GHL expire, so this was re-measured, not assumed). ὓ4 DO NOT PROBE THIS CLUSTER AGAIN and do not seek the credential — it is MINED instead, and the knowledge is landed in corpus workflows/50-runtime/flowguard-platform-guardrails.md: the guardrail vocabulary (loop locks with reason 'infinite_loop_detected' / lockedBy 'system', the execution status 'stuck' as a first-class state distinct from failed, blacklists scoped by workflow AND step AND contact, rate-limit rules dimensioned global|workflow|contact, and bypasses carrying an expiresAt). That vocabulary is a specification of what goes wrong with workflows in production, which is why it is worth having without the endpoint. ⚠️ The NUMBERS in flowGuardMockData.ts are a developer's placeholders, never GHL's thresholds. TRAP for anyone who ever does reach it: every getter in FlowGuardService.ts falls back to its mock data on error, so the panel renders a convincing fake list on a 401 — read the network, not the screen. Reached via FlowGuardService `${baseURL}/flowguard/blacklist/{kind}/{id}`. Measured 2026-09-19: without location_id -> 400 naming it; with it -> 401 'Unauthorized'. FlowGuard is refused to this credential, like the rest of its family. The truncated spelling `DELETE /blacklist/{kind}/{id}` used to stand as its own catalogue row carrying this verdict; merge-endpoint-catalogs.mjs now folds it into this row (console bl-128, 2026-09-21).",
       "credentialClass": "location-user-bearer"
     },
     "DELETE /workflow/flowguard/rate-limiting/bypass/{id}": {
@@ -999,7 +993,8 @@
     },
     "GET /workflow/{locationId}/scheduled-pause/config": {
       "summary": "Whether this workflow is paused on a schedule, and the window if so.",
-      "reach": "proven"
+      "reach": "proven",
+      "note": "The read side of the scheduled-pause rail, and the ONLY way to obtain a config's `_id`: the POST that creates one answers 201 {success:true} and does NOT return the id, so an update or delete must GET this list and read `_id` off the matching entry. [proven-live] 2026-09-21, full create → read → delete, cleaned up. A pause is WORKFLOW-SCOPED (it carries `workflowIds`), the window must be at least 24 hours, and `isActive` is the config's enabled flag, not \"currently pausing\". 🔴 An active pause does NOT hold a contact already parked at a wait — the wait fired on schedule and the contact completed the workflow with the pause active. See workflows/50-runtime/scheduled-pause.md."
     },
     "GET /workflow/{locationId}/secret-manager": {
       "summary": "The workflow secret store for a location, by type.",
@@ -1838,18 +1833,6 @@
       "kind": "destructive",
       "note": "FENCED by the operator-approved plan of 2026-09-19, not probed: billing. Changes the sub-account BILLING PLAN. Money."
     },
-    "PUT /settings/is-active": {
-      "reach": "absent",
-      "credentialClass": "agency-admin-bearer",
-      "kind": "write",
-      "note": "ABSENT — a TRUNCATED transcription, measured 2026-09-19: the real route is PUT /workflow/{locationId}/error-notification/settings/is-active (ErrorNotificationService.ts), which is proven. The missing-prefix gate did not catch this one because the dropped part is three segments, not one service prefix."
-    },
-    "PUT /settings/users": {
-      "reach": "absent",
-      "credentialClass": "agency-admin-bearer",
-      "kind": "write",
-      "note": "ABSENT — a TRUNCATED transcription, measured 2026-09-19: the real route is PUT /workflow/{locationId}/error-notification/settings/users (ErrorNotificationService.ts), which is proven. The missing-prefix gate did not catch this one because the dropped part is three segments, not one service prefix."
-    },
     "PUT /workflow/agent/{locationId}/mcp-connections/{id}": {
       "reach": "proven",
       "credentialClass": "agency-admin-bearer",
@@ -1891,13 +1874,13 @@
     },
     "PUT /workflow/{locationId}/error-notification/settings/is-active": {
       "reach": "proven",
-      "note": "Proven live 2026-09-19, read back and RESTORED: body {isActive:boolean}; GET …/error-notification/settings showed true -> false -> true. Location-wide: it switches workflow error emails for the whole sub-account.",
+      "note": "Proven live 2026-09-19, read back and RESTORED: body {isActive:boolean}; GET …/error-notification/settings showed true -> false -> true. Location-wide: it switches workflow error emails for the whole sub-account. The truncated spelling `PUT /settings/is-active` used to stand as its own catalogue row carrying an ABSENT verdict; merge-endpoint-catalogs.mjs now folds it into this row (console bl-128, 2026-09-21), so the warning has no row left to sit on and is recorded here instead.",
       "credentialClass": "agency-admin-bearer",
       "kind": "write"
     },
     "PUT /workflow/{locationId}/error-notification/settings/users": {
       "reach": "proven",
-      "note": "Proven live 2026-09-19, read back and RESTORED: body {users:[userId,…]} REPLACES the recipient list; the settings read showed [] -> [one user] -> [].",
+      "note": "Proven live 2026-09-19, read back and RESTORED: body {users:[userId,…]} REPLACES the recipient list; the settings read showed [] -> [one user] -> []. The truncated spelling `PUT /settings/users` used to stand as its own catalogue row carrying an ABSENT verdict; merge-endpoint-catalogs.mjs now folds it into this row (console bl-128, 2026-09-21), so the warning has no row left to sit on and is recorded here instead.",
       "credentialClass": "agency-admin-bearer",
       "kind": "write"
     },
@@ -1981,6 +1964,63 @@
     },
     "PUT /workflow/{locationId}/{workflowId}": {
       "note": "The full-document commit re-runs the step validator over EVERY stored step, so it can be refused by a published, running workflow's own saved graph (INVALID_FIELD_VALUE, 'Action validation failed: <type> (...): Next is invalid'). The workflow keeps running and cannot be saved by anyone, API or builder. Never use this path for a rename -- rename-workflow skips the validator. Re-read before every write: a successful PUT bumps version and a later PUT built from a stale read 422s."
+    },
+    "POST /workflows-marketplace/actions/dynamic-source/{key}": {
+      "note": "🔴 One of the TWO sources an asset's dropdown can declare. An input carries either `fetchOptions` (read with GET /workflows-marketplace/actions/options/{key}) or `dynamicSource` (this route, with `filterField=<field>`). [proven-live] 2026-09-19: the underlying service routes refuse a location credential (\"not yet supported by the IAM Service\"), so these two proxies are the only door. An unknown action key answers 400 \"Action is not present\" on BOTH, so an EMPTY LIST IS ABOUT THE ACCOUNT, not a bad key. Do not fall back to the per-field form GET …/actions/options/{key}/{fieldName}: it returned {options: []} for a field the all-fields form listed in the same minute. See workflows/40-rules/marketplace-asset-publisher-classes.md."
+    },
+    "GET /objects": {
+      "note": "⚠️ Four spellings exist in this custom-objects family and they do NOT agree. [proven-live] 2026-09-21: `/objects/` (trailing slash) answers 200 and this plugin has always called it — engine/entities.mjs resolves an object by key or label through it. `/objects/{objectKey}` answers 200 under the BARE spelling, which GHL's own front end never sends; the client only issues `/objects/{objectKey}/`, and THAT is the one that refuses us. A `refused` verdict recorded against a URL nobody sends is not evidence about the capability. See workflows/20-api/refused-but-mined.md."
+    },
+    "GET /objects/": {
+      "note": "⚠️ The spelling that WORKS: [proven-live] 2026-09-21 this answers 200 and engine/entities.mjs calls `/objects/?locationId=` on every build to resolve a custom object by key or label. An earlier `refused` verdict on this row was simply wrong. Its sibling `/objects/{objectKey}/` (trailing slash, the client's own spelling) is the one that refuses us, while the bare `/objects/{objectKey}` answers. See workflows/20-api/refused-but-mined.md."
+    },
+    "POST /hooks/{locationId}/webhook-trigger/{triggerId}": {
+      "note": "🔴 UNAUTHENTICATED BY DESIGN, and it does NOT check that `{triggerId}` exists. [proven-live] 2026-09-19 with an id that was never a trigger: this POST answered 200 \"test request received\" and the whole downstream chain then agreed — the request read back against the ghost id and could be pinned as that \"trigger's\" reference. Nothing anywhere says the trigger is not real. A tier-3 silent write: accepted, stored, reads back correctly, inert — and here even the read-back is on the wrong object, so it agrees. VERIFY THE TRIGGER ID EXISTS FIRST. See workflows/40-rules/inbound-webhook-accepts-any-trigger-id.md."
+    },
+    "GET /hooks/inbound-webhook-request/trigger/{triggerId}": {
+      "note": "🔴 Returns requests recorded against ANY `{triggerId}`, real or not — the receiving URL never checks the trigger exists. [proven-live] 2026-09-19: a ghost id returned its request exactly as a real trigger would. A non-empty answer here is therefore NOT evidence that the trigger id is valid. See workflows/40-rules/inbound-webhook-accepts-any-trigger-id.md."
+    },
+    "PUT /hooks/inbound-webhook-request/set-as-reference/{requestId}": {
+      "note": "🔴 The pinned reference DECIDES WHICH `{{inboundWebhookRequest.*}}` MERGE TAGS EXIST for a trigger, and this route will pin against a trigger id that does not exist. [proven-live] 2026-09-19: pinning under a ghost id answered 200 and the reference read back in full. Pin against a mistyped id and the whole chain reports success and returns a complete set of merge tags — while the REAL trigger still has no reference, so those tags RENDER EMPTY AT RUNTIME. See workflows/40-rules/inbound-webhook-accepts-any-trigger-id.md."
+    },
+    "POST /membership/locations/{locationId}/offers": {
+      "note": "🔴 An offer only reaches the `membership_course_grant_access` dropdown if it is created with `source:\"course_default_offer\"` AND then PUBLISHED (`PUT …/offers/{id} {visibility:\"published\"}`). An ordinary offer (`source:\"membership\"`) is NEVER listed. [proven-live] 2026-09-19 as a differential (absent → prerequisite created → listed). 🔴 Related trap: a course grant to a contact with NO EMAIL is a SILENT NO-OP — the step logs success, the admin route answers 200 \"successfully queued\", and the offer's member count and the course's progress list both stay empty. A portal member is keyed by EMAIL and nothing on either path says so. See workflows/40-rules/marketplace-asset-publisher-classes.md."
+    },
+    "PUT /workflow/{locationId}/scheduled-pause/config/{recordId}": {
+      "note": "The UPDATE side of the scheduled-pause rail. 🔴 You cannot call it from the create alone: the POST that makes a config answers 201 {success:true} and does NOT return the record's `_id`, so you must GET …/scheduled-pause/config and read `_id` off the matching entry first. Body is the same shape as the create — {pauseStartTime, pauseEndTime, isAnnual, workflowIds} — with the times as EPOCH MILLISECONDS in the request, though the read-back returns them as ISO strings. The window must be at least 24 hours (a one-hour window is refused 400 'Difference between pause start and end times should be at least 24 hours'). [proven-live] 2026-09-21 as part of a full create → read → update → delete cycle on the designated sandbox, cleaned up. 🔴 And know what a pause does NOT do before reaching for this: an active pause does not hold a contact already parked at a wait — the wait fired at its original executeOn and the contact completed the workflow with the pause active. See workflows/50-runtime/scheduled-pause.md. RE-EXECUTED 2026-09-23 with a separate read-back: the window moved, `updatedAt` moved, and BOTH scheduled cloud tasks were re-minted. 🔴 An update that moves a window into the PAST fires the pending end boundary immediately. And what a boundary does is change PUBLISH STATUS: start = un-publish (published -> draft), end = re-publish only what the start un-published; each mints a new version.",
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "write"
+    },
+    "GET /workflow/{locationId}/hotlinks-template-groups": {
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "read",
+      "note": "NO TASK NEEDS THIS — this is GHL's OWN quick-start template catalogue (the modals offered inside forms, funnels, courses and eleven other products), authored from a UI shown only to three hardcoded GHL-internal locations. Nothing this plugin builds reads or depends on it. 🔴 [proven-live] 2026-09-23: it answered 200 to the sandbox's location Bearer and returned a group OWNED BY A GHL-INTERNAL LOCATION, not the one in the path — so the list is platform-wide and `{locationId}` is not a filter, and the allowlist is enforced in the UI only. Dates are Firestore timestamps {_seconds,_nanoseconds}, not ISO. See workflows/20-api/hotlink-template-groups.md."
+    },
+    "POST /workflow/{locationId}/hotlinks-template-groups": {
+      "kind": "write",
+      "note": "FENCED — writes to GHL's OWN platform-wide quick-start catalogue. The read proves these records belong to a GHL-internal account and are served to every account, so a write the server accepted would change content shown across GHL, and a DELETE would destroy GHL's data. Whether the server enforces the three-location allowlist on writes is unknown and deliberately untested: the only test is the harm. No task needs it. Never sent. See workflows/20-api/hotlink-template-groups.md."
+    },
+    "PUT /workflow/{locationId}/hotlinks-template-groups/{templateGroupId}": {
+      "kind": "write",
+      "note": "FENCED — writes to GHL's OWN platform-wide quick-start catalogue. The read proves these records belong to a GHL-internal account and are served to every account, so a write the server accepted would change content shown across GHL, and a DELETE would destroy GHL's data. Whether the server enforces the three-location allowlist on writes is unknown and deliberately untested: the only test is the harm. No task needs it. Never sent. See workflows/20-api/hotlink-template-groups.md."
+    },
+    "DELETE /workflow/{locationId}/hotlinks-template-groups/{templateGroupId}": {
+      "kind": "destructive",
+      "note": "FENCED — writes to GHL's OWN platform-wide quick-start catalogue. The read proves these records belong to a GHL-internal account and are served to every account, so a write the server accepted would change content shown across GHL, and a DELETE would destroy GHL's data. Whether the server enforces the three-location allowlist on writes is unknown and deliberately untested: the only test is the harm. No task needs it. Never sent. See workflows/20-api/hotlink-template-groups.md."
+    },
+    "POST /workflow/{locationId}/hotlinks-template-groups/{templateGroupId}/templates": {
+      "kind": "write",
+      "note": "FENCED — writes to GHL's OWN platform-wide quick-start catalogue. The read proves these records belong to a GHL-internal account and are served to every account, so a write the server accepted would change content shown across GHL, and a DELETE would destroy GHL's data. Whether the server enforces the three-location allowlist on writes is unknown and deliberately untested: the only test is the harm. No task needs it. Never sent. See workflows/20-api/hotlink-template-groups.md."
+    },
+    "PUT /workflow/{locationId}/hotlinks-template-groups/{templateGroupId}/templates/{templateId}": {
+      "kind": "write",
+      "note": "FENCED — writes to GHL's OWN platform-wide quick-start catalogue. The read proves these records belong to a GHL-internal account and are served to every account, so a write the server accepted would change content shown across GHL, and a DELETE would destroy GHL's data. Whether the server enforces the three-location allowlist on writes is unknown and deliberately untested: the only test is the harm. No task needs it. Never sent. See workflows/20-api/hotlink-template-groups.md."
+    },
+    "DELETE /workflow/{locationId}/hotlinks-template-groups/{templateGroupId}/templates/{templateId}": {
+      "kind": "destructive",
+      "note": "FENCED — writes to GHL's OWN platform-wide quick-start catalogue. The read proves these records belong to a GHL-internal account and are served to every account, so a write the server accepted would change content shown across GHL, and a DELETE would destroy GHL's data. Whether the server enforces the three-location allowlist on writes is unknown and deliberately untested: the only test is the harm. No task needs it. Never sent. See workflows/20-api/hotlink-template-groups.md."
     }
   }
 }

@@ -45,6 +45,47 @@ const CONDITIONAL_ATTR_KEYS = { conversationai_objective: ['closingMessage', 'ta
 // absent from all 3,803 steps of the 2026-09-12 census, so GHL began writing it after that).
 const SERVER_WRITTEN_ATTR_KEYS = { drip: ['configuredAt'] };
 
+// Step types that only exist as a branching CONTAINER. A linear one (scalar `next`, no transitions)
+// saves, validates clean on GHL's server, publishes — and cannot branch at runtime. Calibrated on the
+// harvest (2026-09-23): 55 of 55 stored steps of these types carry an array `next` of transition
+// children and `cat:'multi-path'`; not one is linear. `convertToMultipath:true` is on every one
+// except workflow_split, which never carries it. The multipath WAIT is deliberately absent: it is
+// a hybrid that is legitimately linear when its timeout is off.
+export const MULTIPATH_TYPES = new Map([
+  ['find_opportunity', { convertFlag: true }], ['find_contact', { convertFlag: true }],
+  ['lc_merge_contact', { convertFlag: true }], ['workflow_ai_decision_maker', { convertFlag: true }],
+  ['conversationai_ai_splitter', { convertFlag: true }], ['conversationai_book_appointment', { convertFlag: true }],
+  ['conversationai_services_booking', { convertFlag: true }], ['workflow_split', { convertFlag: false }],
+]);
+
+/** What is wrong with a multipath container's wiring, or [] when nothing is. */
+export function multipathDefects(t, byId) {
+  const spec = MULTIPATH_TYPES.get(t?.type);
+  if (!spec) return [];
+  const bad = [];
+  const attrs = t.attributes ?? {};
+  if (t.cat !== 'multi-path') bad.push(`cat is ${JSON.stringify(t.cat ?? null)}, not 'multi-path'`);
+  if (spec.convertFlag && attrs.convertToMultipath !== true) bad.push('attributes.convertToMultipath is not true');
+  const trs = Array.isArray(attrs.transitions) ? attrs.transitions : [];
+  if (!trs.length) bad.push('attributes.transitions is empty');
+  if (!Array.isArray(t.next) || !t.next.length) {
+    bad.push(`next is ${JSON.stringify(t.next ?? null)}, not an array of branch ids`);
+    return bad;
+  }
+  for (const id of t.next) {
+    const child = byId.get(id);
+    if (!child) bad.push(`branch '${id}' in next[] is not a step in this workflow`);
+    else if (child.type !== 'transition') bad.push(`branch '${id}' is a '${child.type}', not a transition`);
+    else if (child.parentKey !== t.id) bad.push(`transition '${child.name ?? id}' has parentKey '${child.parentKey}', not this step`);
+  }
+  const trIds = new Set(trs.map((x) => x?.id));
+  const missing = t.next.filter((id) => !trIds.has(id));
+  if (trs.length && missing.length) bad.push(`next[] names ${missing.length} branch(es) that attributes.transitions does not`);
+  const unwired = trs.filter((x) => !t.next.includes(x?.id));
+  if (unwired.length) bad.push(`attributes.transitions has ${unwired.length} branch(es) next[] does not wire (${unwired.map((x) => `'${x?.name}'`).join(', ')})`);
+  return bad;
+}
+
 /** Every attribute key this type is known to carry, from every evidence source there is. */
 export function knownAttributeKeys(type, card) {
   const model = (card?.modelFields?.fields ?? []).map((f) => f?.name).filter(Boolean);
@@ -121,6 +162,13 @@ export function gateDocument(templates = [], { catalog = loadCatalog(), marketpl
     for (const r of card.enforcement?.throw ?? []) {
       if (fires(r, attrs)) out.push(finding('ENFORCEMENT', 'error', t, `GHL's own guard fires: ${r.field ?? ''} ${r.guard ?? ''}`.trim()));
     }
+  }
+  const byId = new Map(templates.filter((t) => t && typeof t === 'object').map((t) => [t.id, t]));
+  for (const t of templates) {
+    const bad = multipathDefects(t, byId);
+    if (bad.length) out.push(finding('MULTIPATH_SHAPE', 'error', t,
+      `'${t.type}' only works as a branching container, and this one is not wired as one: ${bad.join('; ')}. `
+      + 'It saves, validates and publishes clean, and then cannot branch. GHL does not catch this.'));
   }
   for (const f of checkFieldCaps(templates)) {
     out.push({ check: 'FIELD_CAP', severity: 'error', stepId: f.stepId ?? null, stepName: f.step ?? f.stepName ?? null, type: f.type ?? null, message: describeCap(f) });

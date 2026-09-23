@@ -43,6 +43,13 @@ moved, use `insertBefore`), `addBranch`
 user-defined transition row plus its `transition` node, LAST, with no conditions — the LLM routes
 on the branch name against the splitter's description; `addSplitterBranch` is an accepted spelling;
 the new branch is then an `appendToBranch` target by `containerId` + `branch` name),
+`deleteBranch` (`{containerId,branch}` — `branch` is the display name, `__branchKey__` or id; removes
+ONE author-defined branch and every step under it, as the builder's own delete does: an if/else
+conditioned branch, or a user-defined branch of an AI splitter / AI decision maker. Refused by name:
+the if/else None branch, the last conditioned branch (use `deleteContainer`), any PRE-DEFINED branch
+such as a finder's Found/Not Found, and a split path, whose weights would need re-balancing. On a
+published workflow, contacts parked in the deleted branch are counted in the preview and ejected on
+commit, like `deleteStep`),
 `deleteContainer`, `setStepDisabled` (`{stepId,disabled}`), and `disableStepsByType`
 (`{type,disabled}`) — plus the trigger ops `addTrigger` / `modifyTrigger` / `deleteTrigger`
 (see "Editing TRIGGERS" below), and **`updateSettings`** (`{settings:{…}}` — the Settings tab's
@@ -293,9 +300,14 @@ not a near-miss, and firing there would train you to pass the override reflexive
 
 ### Adding containers (multipath) to an existing workflow
 
-`appendStep` / `insertAfter` / `appendToBranch` / `insertBefore` each accept a **container** — a
-`find_opportunity` with `onFound`/`onNotFound`, an `if_else`, a `workflow_split`, a
-multipath wait. The step compiles to a whole subgraph (entry + branch entries + their
+`appendStep` / `insertAfter` / `appendToBranch` / `insertBefore` each accept a **container** —
+`find_opportunity`, `find_contact`, `lc_merge_contact`, `workflow_ai_decision_maker`, the
+Conversation-AI splitter and booking nodes, an `if_else`, a `workflow_split`, a multipath wait.
+The branch keys (`onFound`/`onNotFound`, `branches[].then`, `default`…) are **optional**: a finder
+with none of them still lands as a container with empty branches. Until 2026-09-23 it did not — a
+bare finder compiled LINEAR and saved, validated and published clean while unable to branch.
+**Branch contents ride in the same op**: put `onNotFound: [ … ]` (or any branch key) on the
+inserted step; `attachTailTo` decides only where the EXISTING tail goes. The step compiles to a whole subgraph (entry + branch entries + their
 children) via the same `compile()` that `build.mjs` runs, so an edit-inserted container is
 structurally identical to a freshly built one (`engine/edit-multipath.test.mjs` asserts
 that round-trip).
@@ -326,7 +338,21 @@ default that silently reroutes live contacts in the exception case. It's unneces
 nothing follows the anchor, or when the container has a single branch.
 
 A container is terminal in its scope, so `insertAfter <containerId>` and `appendStep` onto
-a container tail are both refused — append to one of its **branches** instead.
+a container tail are both refused — append to one of its **branches** instead. The same applies
+to `insertBefore` the head: the whole workflow becomes the tail, so `attachTailTo` is required.
+
+**The engine gate refuses a container that is not wired as one** (`MULTIPATH_SHAPE`): a finder,
+AI decision maker, Conversation-AI splitter/booking node or split whose `next` is not an array
+of `transition` children, whose `cat` is not `multi-path`, or whose `attributes.transitions`
+disagree with `next[]`. On a step this edit did not touch it is a warning, so an old broken step
+never blocks an unrelated edit. **To repair one** (e.g. a linear finder left by an older engine),
+delete it and insert it again in ONE call:
+`[{ "op": "deleteStep", "stepId": "<finder>" }, { "op": "insertBefore", "beforeId": "<the step after it>", "step": { … }, "attachTailTo": "Opportunity Found" }]`.
+
+**Live-proven 2026-09-23** on the sandbox (`multipath-insert-proof.mjs`, part of the workflows live
+suite): a bare `find_opportunity` inserted BEFORE THE HEAD of a PUBLISHED workflow, with the old
+chain on Found and a tag on Not Found authored in the same op, read back as a container; a
+run-created contact with no opportunity then gained the Not-Found tag and NOT the Found chain's.
 
 **Live-proven 2026-07-17** on GROM AU (throwaway canaries, since deleted, account verified
 clean). A linear `Head → Tail` workflow, then one `insertAfter` op splicing in a

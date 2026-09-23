@@ -53,6 +53,7 @@
 //   { "op":"moveStep",        "stepId":"<id>", "afterId":"<id>" }
 //   { "op":"addBranch",       "containerId":"<id>", "name":"...", "conditions":[...] }
 //   { "op":"deleteContainer", "containerId":"<id>" }
+//   { "op":"deleteBranch",    "containerId":"<id>", "branch":"<name | __branchKey__ | id>" }
 //   { "op":"repairParentKeys" }   # re-point every DANGLING parentKey (one that references a
 //     deleted step) at its true inbound `next` source — the graph-truth repair for the
 //     "residue" dangling parentKeys legacy edits left behind. Runtime walks `next` so this

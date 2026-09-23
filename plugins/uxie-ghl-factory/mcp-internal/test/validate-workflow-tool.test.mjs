@@ -80,3 +80,31 @@ test('it POSTs, so it declares the POST and stays out of the GET-only audit prof
   assert.deepEqual(tool.capabilities.map((c) => c.method), ['GET', 'GET', 'POST']);
   assert.ok(tool.capabilities.some((c) => c.path === '/workflow/{loc}/{wid}/validate-workflows'));
 });
+
+// The export → edit → validate loop: export_workflow scrubs `authorization` to the placeholder, and
+// GHL judged the placeholder ("expected object, received string"), never the edit. Live 2026-09-23.
+test('an exported placeholder is restored from the stored step before GHL sees it, and the verdict says so', async () => {
+  const HOOK_DOC = { _id: 'W', workflowData: { templates: [{ id: 'h1', name: 'Hook', type: 'custom_webhook',
+    attributes: { authorization: { type: 'bearer', token: 'REAL-SECRET' }, body: { rawData: '{}' } } }] } };
+  const calls = [];
+  const gw = { call: async (method, path, body) => {
+    calls.push({ method, path, body });
+    if (method === 'GET' && path.includes('/trigger?')) return { ok: true, status: 200, json: [] };
+    if (method === 'GET') return { ok: true, status: 200, json: HOOK_DOC };
+    return { ok: true, status: 200, json: { valid: true, assetWarnings: [] } };
+  } };
+  const edited = [{ id: 'h1', name: 'Hook', type: 'custom_webhook',
+    attributes: { authorization: '<redacted>', body: { rawData: '{"first": "{{contact.first_name}}"}' } } }];
+  const res = await run(gw, { templates: edited });
+  const sent = calls.find((c) => c.method === 'POST').body.workflowData.templates[0].attributes;
+  assert.deepEqual(sent.authorization, { type: 'bearer', token: 'REAL-SECRET' }, 'GHL is shown the stored credential, not the placeholder');
+  assert.equal(sent.body.rawData, '{"first": "{{contact.first_name}}"}', 'and the caller\'s edit, untouched');
+  assert.deepEqual(res.data.redactedPlaceholders.restored, [{ stepId: 'h1', name: 'Hook', path: 'attributes.authorization' }]);
+  assert.equal(JSON.stringify(res).includes('REAL-SECRET'), false, 'the restored secret never comes back out');
+});
+
+test('CONTROL: templates with no placeholder carry no redactedPlaceholders block', async () => {
+  const gw = gwStub({ verdict: { ok: true, status: 200, json: { valid: true, assetWarnings: [] } } });
+  const res = await run(gw, { templates: [{ id: 's1', type: 'sms', attributes: { body: 'edited' } }] });
+  assert.equal('redactedPlaceholders' in res.data, false);
+});

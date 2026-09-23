@@ -361,11 +361,11 @@ test('multipath reply-wait: container + 2 transition steps + both paths', () => 
   assert.equal(t.find((s) => s.name === 'No reply').parent, container.next[1]);
 });
 
-// Target 'end' lives inside an earlier branch's dead end, not on the root chain the goto sits
-// on: a target that CAN reach the goto again closes a cycle and GOTO_LOOP refuses it at compile
-// time (goto-loops.test.mjs owns that case). This fixture is only about the goto's own wire
-// shape (a root-scope goto stays lean), so 'g' stays a plain root-scope step and the target is
-// placed where it cannot loop back to it.
+// Target 'end' lives in the Yes branch; the goto sits at the end of the None branch, so it cannot
+// loop back to itself (a target that CAN reach the goto again closes a cycle and GOTO_LOOP refuses
+// it — goto-loops.test.mjs owns that case). This fixture is only about the goto's own wire shape.
+// It used to put 'Start' and the goto at ROOT, after the if_else — a shape nothing reaches, since a
+// container's `next` is its branch array. CONTAINER_NOT_LAST now refuses that (2026-09-23).
 const gotoIR = {
   name: 'Skip ahead', triggers: [{ ref: 't', type: 'contact_tag', name: 'T', filters: [] }],
   graph: [
@@ -373,10 +373,11 @@ const gotoIR = {
       { ref: 'yes', name: 'Yes', conditions: [{ conditionType: 'contact_detail', tag: 'x' }], then: [
         { ref: 'end', kind: 'action', type: 'add_contact_tag', name: 'End', attributes: { tags: ['e'] } },
       ] },
-      { ref: 'no', name: 'No', else: true, then: [] },
+      { ref: 'no', name: 'No', else: true, then: [
+        { ref: 'a', kind: 'action', type: 'add_contact_tag', name: 'Start', attributes: { tags: ['s'] } },
+        { ref: 'g', kind: 'goto', target: 'end' },
+      ] },
     ] },
-    { ref: 'a', kind: 'action', type: 'add_contact_tag', name: 'Start', attributes: { tags: ['s'] } },
-    { ref: 'g', kind: 'goto', target: 'end' },
   ],
 };
 
@@ -392,8 +393,8 @@ test('goto emits targetNodeId, no next key, lean envelope', () => {
   // validator refuses an explicit null; live A/B 2026-08-27).
   assert.ok(!('next' in g), 'goto is a terminal, so next must be absent, not null');
   assert.equal(g.parentKey, start.id);
-  // lean: no situational keys on a root-scope goto
-  assert.deepEqual(Object.keys(g).sort(), ['attributes', 'id', 'name', 'order', 'parentKey', 'type']);
+  // lean: nothing beyond the in-branch envelope (`parent` is the branch scope, as on any branch step)
+  assert.deepEqual(Object.keys(g).sort(), ['attributes', 'id', 'name', 'order', 'parent', 'parentKey', 'type']);
 });
 
 test('voice_ai_outbound_call: attributes + workflowsActionType INTERNAL (live-verified shape)', () => {

@@ -134,3 +134,51 @@ test('the CONFIRM preview carries the catalogue trap note for a route that has o
   assert.equal(Object.hasOwn(without.data.preview, 'trap'), false);
   assert.equal(f.calls.length, 0);
 });
+
+// ── restoreRedactedForValidation: the export → edit → validate loop judged the placeholder ─────
+// Measured 2026-09-23: a custom_webhook exported by this plugin carries authorization:"<redacted>",
+// and GHL's validator refused it identically for three different bodies — the edit was never looked at.
+import { restoreRedactedForValidation } from '../core/raw-request-guards.mjs';
+
+const storedHook = () => ({ id: 'h1', name: 'Hook', type: 'custom_webhook',
+  attributes: { url: 'https://example.com/a', authorization: { type: 'bearer', token: 'REAL-SECRET' },
+    body: { contentType: 'application/json', rawData: '{}' } } });
+
+test('an EXACT placeholder is restored from the stored step, and the caller\'s real edit is kept', () => {
+  const edited = { ...storedHook(), attributes: { ...storedHook().attributes, authorization: '<redacted>',
+    body: { contentType: 'application/json', rawData: '{"first": "{{contact.first_name}}"}' } } };
+  const r = restoreRedactedForValidation([edited], [storedHook()]);
+  assert.deepEqual(r.templates[0].attributes.authorization, { type: 'bearer', token: 'REAL-SECRET' });
+  assert.equal(r.templates[0].attributes.body.rawData, '{"first": "{{contact.first_name}}"}', 'the edit survives');
+  assert.deepEqual(r.restored, [{ stepId: 'h1', name: 'Hook', path: 'attributes.authorization' }]);
+  assert.deepEqual(r.unresolved, []);
+  assert.equal(edited.attributes.authorization, '<redacted>', 'the caller\'s input is not mutated');
+});
+
+test('nothing it returns about a restore carries the secret itself — only ids and paths', () => {
+  const edited = { ...storedHook(), attributes: { ...storedHook().attributes, authorization: '<redacted>' } };
+  const { restored, unresolved } = restoreRedactedForValidation([edited], [storedHook()]);
+  assert.equal(JSON.stringify({ restored, unresolved }).includes('REAL-SECRET'), false);
+});
+
+test('a placeholder EMBEDDED in a longer string is not restored — the rest of that string may be the edit', () => {
+  const code = { id: 'c1', name: 'Code', type: 'custom_code', attributes: { code: "fetch(u, {headers:{a:'Bearer <redacted>'}}); // edited" } };
+  const stored = { id: 'c1', name: 'Code', type: 'custom_code', attributes: { code: "fetch(u, {headers:{a:'Bearer XYZ'}});" } };
+  const r = restoreRedactedForValidation([code], [stored]);
+  assert.equal(r.templates[0].attributes.code, code.attributes.code, 'left exactly as supplied');
+  assert.equal(r.unresolved.length, 1);
+  assert.match(r.unresolved[0].reason, /embedded inside a longer string/);
+});
+
+test('an exact placeholder on a step with no stored counterpart is reported, not invented', () => {
+  const fresh = { id: 'new1', name: 'New', type: 'custom_webhook', attributes: { authorization: '<redacted>' } };
+  const r = restoreRedactedForValidation([fresh], [storedHook()]);
+  assert.equal(r.templates[0].attributes.authorization, '<redacted>');
+  assert.match(r.unresolved[0].reason, /no stored value/);
+});
+
+test('CONTROL: templates with no placeholder come back equal, with nothing restored or unresolved', () => {
+  const r = restoreRedactedForValidation([storedHook()], [storedHook()]);
+  assert.deepEqual(r.templates, [storedHook()]);
+  assert.deepEqual([r.restored, r.unresolved], [[], []]);
+});

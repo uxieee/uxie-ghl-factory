@@ -95,3 +95,28 @@ test('a key GHL\'s SERVER stamps on save is not an invented key — but an inven
   const bad = keyFindings(drip({ configuredAt: 'x', inventedKey: 1 }));
   assert.equal(bad.length, 1); assert.match(bad[0].message, /inventedKey/); assert.doesNotMatch(bad[0].message, /configuredAt/);
 });
+
+// ── MULTIPATH_SHAPE (2026-09-23): a linear finder saves, validates and publishes clean ──────
+test('MULTIPATH_SHAPE refuses a linear find_opportunity and passes a wired one', () => {
+  const linear = [
+    { id: 'h', type: 'add_contact_tag', name: 'H', next: 'f', order: 0, attributes: { tags: ['a'] } },
+    { id: 'f', type: 'find_opportunity', name: 'F', next: null, parentKey: 'h', order: 1, workflowsActionType: 'INTERNAL',
+      attributes: { type: 'find_opportunity', sorting: 'latest', __customInputFields__: [], __customInputs__: {} } },
+  ];
+  const bad = gateDocument(linear).errors.filter((e) => e.check === 'MULTIPATH_SHAPE');
+  assert.equal(bad.length, 1);
+  assert.match(bad[0].message, /not an array of branch ids/);
+  const tr = (id, name) => ({ id, name, fields: [], meta: { __branchKey__: `predefined_${name}` }, conditionType: 'pre-defined' });
+  const wired = [
+    { id: 'f', type: 'find_opportunity', name: 'F', next: ['t1', 't2'], order: 0, cat: 'multi-path', workflowsActionType: 'INTERNAL',
+      attributes: { type: 'find_opportunity', sorting: 'latest', __customInputFields__: [], __customInputs__: {}, cat: 'multi-path', convertToMultipath: true,
+        transitions: [tr('t1', 'Opportunity Found'), tr('t2', 'Opportunity Not Found')], __name__: 'F' } },
+    { id: 't1', type: 'transition', name: 'Opportunity Found', cat: 'transition', parentKey: 'f', parent: 'f', order: 0, attributes: {}, next: null },
+    { id: 't2', type: 'transition', name: 'Opportunity Not Found', cat: 'transition', parentKey: 'f', parent: 'f', order: 1, attributes: {}, next: null },
+  ];
+  assert.equal(gateDocument(wired).errors.filter((e) => e.check === 'MULTIPATH_SHAPE').length, 0);
+  // a transition that has lost its template is caught too
+  assert.match(gateDocument(wired.slice(0, 2)).errors.find((e) => e.check === 'MULTIPATH_SHAPE').message, /'t2' in next\[\] is not a step/);
+  // outside the write's scope it is reported, not blocking
+  assert.equal(gateDocument(linear, { scope: new Set(['h']) }).errors.filter((e) => e.check === 'MULTIPATH_SHAPE').length, 0);
+});

@@ -178,7 +178,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
     define_ENDPOINT_CATALOG_default = {
       generated: "2026-09-21",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 1146,
+      count: 1151,
       endpoints: [
         {
           id: "facebook-service--get-ad-account-by-id",
@@ -1628,48 +1628,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "services/marketplaceServices/AssociationsService.ts:17",
             "workflows/70-research/ENDPOINTS.md:146"
-          ]
-        },
-        {
-          id: "workflows--blacklist-delete",
-          aka: [
-            "/blacklist/{type}/{id}"
-          ],
-          method: "DELETE",
-          url: "https://backend.leadconnectorhq.com/blacklist/{kind}/{id}",
-          path: "/blacklist/{kind}/{id}",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "destructive",
-          note: "\u{1F534} THIS ROW IS MIS-BASED: the call is FlowGuardService `${baseURL}/flowguard/blacklist/{kind}/{id}`, i.e. DELETE /workflow/flowguard/blacklist/{kind}/{id}. Measured 2026-09-19 there: without location_id -> 400 naming it; with it -> 401 'Unauthorized'. FlowGuard is refused to this credential, like the rest of its family.",
-          reach: "refused",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "workflows",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "kind"
-            },
-            {
-              name: "id"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "workflows/70-research/ENDPOINTS.md:211"
           ]
         },
         {
@@ -12966,6 +12924,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
+          note: '\u{1F534} An offer only reaches the `membership_course_grant_access` dropdown if it is created with `source:"course_default_offer"` AND then PUBLISHED (`PUT \u2026/offers/{id} {visibility:"published"}`). An ordinary offer (`source:"membership"`) is NEVER listed. [proven-live] 2026-09-19 as a differential (absent \u2192 prerequisite created \u2192 listed). \u{1F534} Related trap: a course grant to a contact with NO EMAIL is a SILENT NO-OP \u2014 the step logs success, the admin route answers 200 "successfully queued", and the offer\'s member count and the course\'s progress list both stay empty. A portal member is keyed by EMAIL and nothing on either path says so. See workflows/40-rules/marketplace-asset-publisher-classes.md.',
           reach: "source-only",
           coveredBy: [
             "build_course"
@@ -14122,6 +14081,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
+          note: "\u26A0\uFE0F Four spellings exist in this custom-objects family and they do NOT agree. [proven-live] 2026-09-21: `/objects/` (trailing slash) answers 200 and this plugin has always called it \u2014 engine/entities.mjs resolves an object by key or label through it. `/objects/{objectKey}` answers 200 under the BARE spelling, which GHL's own front end never sends; the client only issues `/objects/{objectKey}/`, and THAT is the one that refuses us. A `refused` verdict recorded against a URL nobody sends is not evidence about the capability. See workflows/20-api/refused-but-mined.md.",
           reach: "source-only",
           coveredBy: [
             "list_account_entities"
@@ -17175,70 +17135,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/20-api/schema-markup.md:17"
-          ]
-        },
-        {
-          id: "workflows--settings-is-active",
-          method: "PUT",
-          url: "https://backend.leadconnectorhq.com/settings/is-active",
-          path: "/settings/is-active",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "write",
-          note: "ABSENT \u2014 a TRUNCATED transcription, measured 2026-09-19: the real route is PUT /workflow/{locationId}/error-notification/settings/is-active (ErrorNotificationService.ts), which is proven. The missing-prefix gate did not catch this one because the dropped part is three segments, not one service prefix.",
-          reach: "absent",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "workflows",
-          tree: "documented",
-          pathParams: [],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "workflows/70-research/RUNTIME-DATA-2.md:91"
-          ]
-        },
-        {
-          id: "workflows--settings-users",
-          method: "PUT",
-          url: "https://backend.leadconnectorhq.com/settings/users",
-          path: "/settings/users",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "write",
-          note: "ABSENT \u2014 a TRUNCATED transcription, measured 2026-09-19: the real route is PUT /workflow/{locationId}/error-notification/settings/users (ErrorNotificationService.ts), which is proven. The missing-prefix gate did not catch this one because the dropped part is three segments, not one service prefix.",
-          reach: "absent",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "workflows",
-          tree: "documented",
-          pathParams: [],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "workflows/70-research/RUNTIME-DATA-2.md:91"
           ]
         },
         {
@@ -24102,7 +23998,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          note: "Proven live 2026-09-19, read back and RESTORED: body {isActive:boolean}; GET \u2026/error-notification/settings showed true -> false -> true. Location-wide: it switches workflow error emails for the whole sub-account.",
+          note: "Proven live 2026-09-19, read back and RESTORED: body {isActive:boolean}; GET \u2026/error-notification/settings showed true -> false -> true. Location-wide: it switches workflow error emails for the whole sub-account. The truncated spelling `PUT /settings/is-active` used to stand as its own catalogue row carrying an ABSENT verdict; merge-endpoint-catalogs.mjs now folds it into this row (console bl-128, 2026-09-21), so the warning has no row left to sit on and is recorded here instead.",
           reach: "proven",
           provenFor: [
             "agency-admin-bearer"
@@ -24133,7 +24029,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "services/ErrorNotificationService.ts:81",
-            "workflows/50-runtime/error-notifications.md:40"
+            "workflows/50-runtime/error-notifications.md:40",
+            "workflows/70-research/RUNTIME-DATA-2.md:91"
           ]
         },
         {
@@ -24144,7 +24041,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          note: "Proven live 2026-09-19, read back and RESTORED: body {users:[userId,\u2026]} REPLACES the recipient list; the settings read showed [] -> [one user] -> [].",
+          note: "Proven live 2026-09-19, read back and RESTORED: body {users:[userId,\u2026]} REPLACES the recipient list; the settings read showed [] -> [one user] -> []. The truncated spelling `PUT /settings/users` used to stand as its own catalogue row carrying an ABSENT verdict; merge-endpoint-catalogs.mjs now folds it into this row (console bl-128, 2026-09-21), so the warning has no row left to sit on and is recorded here instead.",
           reach: "proven",
           provenFor: [
             "agency-admin-bearer"
@@ -24175,7 +24072,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "services/ErrorNotificationService.ts:90",
-            "workflows/50-runtime/error-notifications.md:41"
+            "workflows/50-runtime/error-notifications.md:41",
+            "workflows/70-research/RUNTIME-DATA-2.md:91"
           ]
         },
         {
@@ -24212,6 +24110,622 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "workflows/20-api/03-endpoints.md:371"
+          ]
+        },
+        {
+          id: "template-builder-service--list-template-groups",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/hotlinks-template-groups",
+          path: "/workflow/{locationId}/hotlinks-template-groups",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          note: "NO TASK NEEDS THIS \u2014 this is GHL's OWN quick-start template catalogue (the modals offered inside forms, funnels, courses and eleven other products), authored from a UI shown only to three hardcoded GHL-internal locations. Nothing this plugin builds reads or depends on it. \u{1F534} [proven-live] 2026-09-23: it answered 200 to the sandbox's location Bearer and returned a group OWNED BY A GHL-INTERNAL LOCATION, not the one in the path \u2014 so the list is platform-wide and `{locationId}` is not a filter, and the allowlist is enforced in the UI only. Dates are Firestore timestamps {_seconds,_nanoseconds}, not ISO. See workflows/20-api/hotlink-template-groups.md.",
+          reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "listTemplateGroups",
+          service: "workflows",
+          tree: "workflow-builder",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: {
+            typeName: "TemplateListResponse",
+            properties: [
+              {
+                name: "success",
+                type: "boolean",
+                optional: false
+              },
+              {
+                name: "data",
+                type: "TemplateGroup[]",
+                optional: false
+              },
+              {
+                name: "meta",
+                type: "{ skip: number; limit: number; count: number; productType: string; subType: s...",
+                optional: false
+              }
+            ],
+            confidence: "resolved"
+          },
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "resolved"
+          },
+          sources: [
+            "components/hotlink-template-builder/services/template-builder-service.ts:34"
+          ]
+        },
+        {
+          id: "template-builder-service--create-template-group",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/hotlinks-template-groups",
+          path: "/workflow/{locationId}/hotlinks-template-groups",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          note: "FENCED \u2014 writes to GHL's OWN platform-wide quick-start catalogue. The read proves these records belong to a GHL-internal account and are served to every account, so a write the server accepted would change content shown across GHL, and a DELETE would destroy GHL's data. Whether the server enforces the three-location allowlist on writes is unknown and deliberately untested: the only test is the harm. No task needs it. Never sent. See workflows/20-api/hotlink-template-groups.md.",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "createTemplateGroup",
+          service: "workflows",
+          tree: "workflow-builder",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: {
+            typeName: "TemplateGroupBase",
+            properties: [
+              {
+                name: "modalTitle",
+                type: "string",
+                optional: false
+              },
+              {
+                name: "modalDescription",
+                type: "string",
+                optional: false
+              },
+              {
+                name: "aiTextboxPlaceholder",
+                type: "string",
+                optional: false
+              },
+              {
+                name: "productType",
+                type: "string",
+                optional: false
+              },
+              {
+                name: "subType",
+                type: "string",
+                optional: false
+              }
+            ],
+            confidence: "resolved"
+          },
+          returns: {
+            typeName: "CreateTemplateResponse",
+            properties: [
+              {
+                name: "id",
+                type: "string",
+                optional: false
+              },
+              {
+                name: "success",
+                type: "boolean",
+                optional: false
+              }
+            ],
+            confidence: "resolved"
+          },
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "resolved",
+            returns: "resolved"
+          },
+          sources: [
+            "components/hotlink-template-builder/services/template-builder-service.ts:19"
+          ]
+        },
+        {
+          id: "template-builder-service--delete-template-group",
+          method: "DELETE",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/hotlinks-template-groups/{templateGroupId}",
+          path: "/workflow/{locationId}/hotlinks-template-groups/{templateGroupId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "destructive",
+          note: "FENCED \u2014 writes to GHL's OWN platform-wide quick-start catalogue. The read proves these records belong to a GHL-internal account and are served to every account, so a write the server accepted would change content shown across GHL, and a DELETE would destroy GHL's data. Whether the server enforces the three-location allowlist on writes is unknown and deliberately untested: the only test is the harm. No task needs it. Never sent. See workflows/20-api/hotlink-template-groups.md.",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "deleteTemplateGroup",
+          service: "workflows",
+          tree: "workflow-builder",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "templateGroupId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: {
+            typeName: "{ success: boolean; }",
+            properties: [
+              {
+                name: "success",
+                type: "boolean",
+                optional: false
+              }
+            ],
+            confidence: "resolved"
+          },
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "resolved"
+          },
+          sources: [
+            "components/hotlink-template-builder/services/template-builder-service.ts:24"
+          ]
+        },
+        {
+          id: "template-builder-service--update-template-group",
+          method: "PUT",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/hotlinks-template-groups/{templateGroupId}",
+          path: "/workflow/{locationId}/hotlinks-template-groups/{templateGroupId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          note: "FENCED \u2014 writes to GHL's OWN platform-wide quick-start catalogue. The read proves these records belong to a GHL-internal account and are served to every account, so a write the server accepted would change content shown across GHL, and a DELETE would destroy GHL's data. Whether the server enforces the three-location allowlist on writes is unknown and deliberately untested: the only test is the harm. No task needs it. Never sent. See workflows/20-api/hotlink-template-groups.md.",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "updateTemplateGroup",
+          service: "workflows",
+          tree: "workflow-builder",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "templateGroupId"
+            }
+          ],
+          query: [],
+          body: {
+            typeName: "TemplateGroupBase",
+            properties: [
+              {
+                name: "modalTitle",
+                type: "string",
+                optional: false
+              },
+              {
+                name: "modalDescription",
+                type: "string",
+                optional: false
+              },
+              {
+                name: "aiTextboxPlaceholder",
+                type: "string",
+                optional: false
+              },
+              {
+                name: "productType",
+                type: "string",
+                optional: false
+              },
+              {
+                name: "subType",
+                type: "string",
+                optional: false
+              }
+            ],
+            confidence: "resolved"
+          },
+          returns: {
+            typeName: "CreateTemplateResponse",
+            properties: [
+              {
+                name: "id",
+                type: "string",
+                optional: false
+              },
+              {
+                name: "success",
+                type: "boolean",
+                optional: false
+              }
+            ],
+            confidence: "resolved"
+          },
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "resolved",
+            returns: "resolved"
+          },
+          sources: [
+            "components/hotlink-template-builder/services/template-builder-service.ts:29"
+          ]
+        },
+        {
+          id: "template-builder-service--create-template",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/hotlinks-template-groups/{templateGroupId}/templates",
+          path: "/workflow/{locationId}/hotlinks-template-groups/{templateGroupId}/templates",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          note: "FENCED \u2014 writes to GHL's OWN platform-wide quick-start catalogue. The read proves these records belong to a GHL-internal account and are served to every account, so a write the server accepted would change content shown across GHL, and a DELETE would destroy GHL's data. Whether the server enforces the three-location allowlist on writes is unknown and deliberately untested: the only test is the harm. No task needs it. Never sent. See workflows/20-api/hotlink-template-groups.md.",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "createTemplate",
+          service: "workflows",
+          tree: "workflow-builder",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "templateGroupId"
+            }
+          ],
+          query: [],
+          body: {
+            typeName: "TemplatePayload",
+            properties: [
+              {
+                name: "templateType",
+                type: "TemplateType",
+                optional: false
+              },
+              {
+                name: "id",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "title",
+                type: "string",
+                optional: false
+              },
+              {
+                name: "description",
+                type: "string",
+                optional: false
+              },
+              {
+                name: "icon",
+                type: "string",
+                optional: false
+              },
+              {
+                name: "color",
+                type: "string",
+                optional: false
+              },
+              {
+                name: "status",
+                type: "TemplateStatus",
+                optional: false
+              },
+              {
+                name: "extras",
+                type: "Record<string, unknown>",
+                optional: false
+              },
+              {
+                name: "deleted",
+                type: "boolean",
+                optional: true
+              },
+              {
+                name: "createdAt",
+                type: "FirestoreTimestamp",
+                optional: true
+              },
+              {
+                name: "updatedAt",
+                type: "FirestoreTimestamp",
+                optional: true
+              },
+              {
+                name: "createdBy",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "updatedBy",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "version",
+                type: "number",
+                optional: true
+              },
+              {
+                name: "locationId",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "productType",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "subType",
+                type: "string",
+                optional: true
+              }
+            ],
+            confidence: "resolved"
+          },
+          returns: {
+            typeName: "CreateTemplateResponse",
+            properties: [
+              {
+                name: "id",
+                type: "string",
+                optional: false
+              },
+              {
+                name: "success",
+                type: "boolean",
+                optional: false
+              }
+            ],
+            confidence: "resolved"
+          },
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "resolved",
+            returns: "resolved"
+          },
+          sources: [
+            "components/hotlink-template-builder/services/template-builder-service.ts:41"
+          ]
+        },
+        {
+          id: "template-builder-service--delete-template",
+          method: "DELETE",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/hotlinks-template-groups/{templateGroupId}/templates/{templateId}",
+          path: "/workflow/{locationId}/hotlinks-template-groups/{templateGroupId}/templates/{templateId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "destructive",
+          note: "FENCED \u2014 writes to GHL's OWN platform-wide quick-start catalogue. The read proves these records belong to a GHL-internal account and are served to every account, so a write the server accepted would change content shown across GHL, and a DELETE would destroy GHL's data. Whether the server enforces the three-location allowlist on writes is unknown and deliberately untested: the only test is the harm. No task needs it. Never sent. See workflows/20-api/hotlink-template-groups.md.",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "deleteTemplate",
+          service: "workflows",
+          tree: "workflow-builder",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "templateGroupId"
+            },
+            {
+              name: "templateId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: {
+            typeName: "{ success: boolean; }",
+            properties: [
+              {
+                name: "success",
+                type: "boolean",
+                optional: false
+              }
+            ],
+            confidence: "resolved"
+          },
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "resolved"
+          },
+          sources: [
+            "components/hotlink-template-builder/services/template-builder-service.ts:46"
+          ]
+        },
+        {
+          id: "template-builder-service--update-template",
+          method: "PUT",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/hotlinks-template-groups/{templateGroupId}/templates/{templateId}",
+          path: "/workflow/{locationId}/hotlinks-template-groups/{templateGroupId}/templates/{templateId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          note: "FENCED \u2014 writes to GHL's OWN platform-wide quick-start catalogue. The read proves these records belong to a GHL-internal account and are served to every account, so a write the server accepted would change content shown across GHL, and a DELETE would destroy GHL's data. Whether the server enforces the three-location allowlist on writes is unknown and deliberately untested: the only test is the harm. No task needs it. Never sent. See workflows/20-api/hotlink-template-groups.md.",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "updateTemplate",
+          service: "workflows",
+          tree: "workflow-builder",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "templateGroupId"
+            },
+            {
+              name: "templateId"
+            }
+          ],
+          query: [],
+          body: {
+            typeName: "TemplatePayload",
+            properties: [
+              {
+                name: "templateType",
+                type: "TemplateType",
+                optional: false
+              },
+              {
+                name: "id",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "title",
+                type: "string",
+                optional: false
+              },
+              {
+                name: "description",
+                type: "string",
+                optional: false
+              },
+              {
+                name: "icon",
+                type: "string",
+                optional: false
+              },
+              {
+                name: "color",
+                type: "string",
+                optional: false
+              },
+              {
+                name: "status",
+                type: "TemplateStatus",
+                optional: false
+              },
+              {
+                name: "extras",
+                type: "Record<string, unknown>",
+                optional: false
+              },
+              {
+                name: "deleted",
+                type: "boolean",
+                optional: true
+              },
+              {
+                name: "createdAt",
+                type: "FirestoreTimestamp",
+                optional: true
+              },
+              {
+                name: "updatedAt",
+                type: "FirestoreTimestamp",
+                optional: true
+              },
+              {
+                name: "createdBy",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "updatedBy",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "version",
+                type: "number",
+                optional: true
+              },
+              {
+                name: "locationId",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "productType",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "subType",
+                type: "string",
+                optional: true
+              }
+            ],
+            confidence: "resolved"
+          },
+          returns: {
+            typeName: "CreateTemplateResponse",
+            properties: [
+              {
+                name: "id",
+                type: "string",
+                optional: false
+              },
+              {
+                name: "success",
+                type: "boolean",
+                optional: false
+              }
+            ],
+            confidence: "resolved"
+          },
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "resolved",
+            returns: "resolved"
+          },
+          sources: [
+            "components/hotlink-template-builder/services/template-builder-service.ts:51"
           ]
         },
         {
@@ -24916,6 +25430,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           rail: "workflow",
           kind: "read",
           summary: "Whether this workflow is paused on a schedule, and the window if so.",
+          note: "The read side of the scheduled-pause rail, and the ONLY way to obtain a config's `_id`: the POST that creates one answers 201 {success:true} and does NOT return the id, so an update or delete must GET this list and read `_id` off the matching entry. [proven-live] 2026-09-21, full create \u2192 read \u2192 delete, cleaned up. A pause is WORKFLOW-SCOPED (it carries `workflowIds`), the window must be at least 24 hours, and `isActive` is the config's enabled flag, not \"currently pausing\". \u{1F534} An active pause does NOT hold a contact already parked at a wait \u2014 the wait fired on schedule and the contact completed the workflow with the pause active. See workflows/50-runtime/scheduled-pause.md.",
           reach: "proven",
           provenFor: [
             "agency-admin-bearer"
@@ -25063,6 +25578,83 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "services/ScheduledPauseService.ts:102"
+          ]
+        },
+        {
+          id: "scheduled-pause-service--update-scheduled-pause-settings",
+          method: "PUT",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/scheduled-pause/config/{recordId}",
+          path: "/workflow/{locationId}/scheduled-pause/config/{recordId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          note: "The UPDATE side of the scheduled-pause rail. \u{1F534} You cannot call it from the create alone: the POST that makes a config answers 201 {success:true} and does NOT return the record's `_id`, so you must GET \u2026/scheduled-pause/config and read `_id` off the matching entry first. Body is the same shape as the create \u2014 {pauseStartTime, pauseEndTime, isAnnual, workflowIds} \u2014 with the times as EPOCH MILLISECONDS in the request, though the read-back returns them as ISO strings. The window must be at least 24 hours (a one-hour window is refused 400 'Difference between pause start and end times should be at least 24 hours'). [proven-live] 2026-09-21 as part of a full create \u2192 read \u2192 update \u2192 delete cycle on the designated sandbox, cleaned up. \u{1F534} And know what a pause does NOT do before reaching for this: an active pause does not hold a contact already parked at a wait \u2014 the wait fired at its original executeOn and the contact completed the workflow with the pause active. See workflows/50-runtime/scheduled-pause.md. RE-EXECUTED 2026-09-23 with a separate read-back: the window moved, `updatedAt` moved, and BOTH scheduled cloud tasks were re-minted. \u{1F534} An update that moves a window into the PAST fires the pending end boundary immediately. And what a boundary does is change PUBLISH STATUS: start = un-publish (published -> draft), end = re-publish only what the start un-published; each mints a new version.",
+          reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "updateScheduledPauseSettings",
+          service: "workflows",
+          tree: "workflow-builder",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "recordId"
+            }
+          ],
+          query: [],
+          body: {
+            typeName: "IWorkflowPauseConfig",
+            properties: [
+              {
+                name: "pauseStartTime",
+                type: "number",
+                optional: false
+              },
+              {
+                name: "pauseEndTime",
+                type: "number",
+                optional: false
+              },
+              {
+                name: "isAnnual",
+                type: "boolean",
+                optional: false
+              },
+              {
+                name: "workflowIds",
+                type: "string[]",
+                optional: false
+              },
+              {
+                name: "_id",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "isUpdated",
+                type: "boolean",
+                optional: true
+              }
+            ],
+            confidence: "resolved"
+          },
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "resolved",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/ScheduledPauseService.ts:92"
           ]
         },
         {
@@ -28018,7 +28610,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "destructive",
-          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class. TRAP: WITHOUT location_id every flowguard route answers 400, which reads as an argument problem and invites another probing session; WITH it, 401 -- the 401 is the real answer. RE-VERIFIED 2026-09-15 (auth facts on GHL expire, so this was re-measured, not assumed). \u1F534 DO NOT PROBE THIS CLUSTER AGAIN and do not seek the credential \u2014 it is MINED instead, and the knowledge is landed in corpus workflows/50-runtime/flowguard-platform-guardrails.md: the guardrail vocabulary (loop locks with reason 'infinite_loop_detected' / lockedBy 'system', the execution status 'stuck' as a first-class state distinct from failed, blacklists scoped by workflow AND step AND contact, rate-limit rules dimensioned global|workflow|contact, and bypasses carrying an expiresAt). That vocabulary is a specification of what goes wrong with workflows in production, which is why it is worth having without the endpoint. \u26A0\uFE0F The NUMBERS in flowGuardMockData.ts are a developer's placeholders, never GHL's thresholds. TRAP for anyone who ever does reach it: every getter in FlowGuardService.ts falls back to its mock data on error, so the panel renders a convincing fake list on a 401 \u2014 read the network, not the screen.",
+          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class. TRAP: WITHOUT location_id every flowguard route answers 400, which reads as an argument problem and invites another probing session; WITH it, 401 -- the 401 is the real answer. RE-VERIFIED 2026-09-15 (auth facts on GHL expire, so this was re-measured, not assumed). \u1F534 DO NOT PROBE THIS CLUSTER AGAIN and do not seek the credential \u2014 it is MINED instead, and the knowledge is landed in corpus workflows/50-runtime/flowguard-platform-guardrails.md: the guardrail vocabulary (loop locks with reason 'infinite_loop_detected' / lockedBy 'system', the execution status 'stuck' as a first-class state distinct from failed, blacklists scoped by workflow AND step AND contact, rate-limit rules dimensioned global|workflow|contact, and bypasses carrying an expiresAt). That vocabulary is a specification of what goes wrong with workflows in production, which is why it is worth having without the endpoint. \u26A0\uFE0F The NUMBERS in flowGuardMockData.ts are a developer's placeholders, never GHL's thresholds. TRAP for anyone who ever does reach it: every getter in FlowGuardService.ts falls back to its mock data on error, so the panel renders a convincing fake list on a 401 \u2014 read the network, not the screen. Reached via FlowGuardService `${baseURL}/flowguard/blacklist/{kind}/{id}`. Measured 2026-09-19: without location_id -> 400 naming it; with it -> 401 'Unauthorized'. FlowGuard is refused to this credential, like the rest of its family. The truncated spelling `DELETE /blacklist/{kind}/{id}` used to stand as its own catalogue row carrying this verdict; merge-endpoint-catalogs.mjs now folds it into this row (console bl-128, 2026-09-21).",
           reach: "refused",
           coveredBy: [],
           rawCallable: true,
@@ -28056,7 +28648,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "none-observed"
           },
           sources: [
-            "services/FlowGuardService.ts:197"
+            "services/FlowGuardService.ts:197",
+            "workflows/70-research/ENDPOINTS.md:211"
           ]
         },
         {
@@ -29468,6 +30061,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
+          note: '\u{1F534} One of the TWO sources an asset\'s dropdown can declare. An input carries either `fetchOptions` (read with GET /workflows-marketplace/actions/options/{key}) or `dynamicSource` (this route, with `filterField=<field>`). [proven-live] 2026-09-19: the underlying service routes refuse a location credential ("not yet supported by the IAM Service"), so these two proxies are the only door. An unknown action key answers 400 "Action is not present" on BOTH, so an EMPTY LIST IS ABOUT THE ACCOUNT, not a bad key. Do not fall back to the per-field form GET \u2026/actions/options/{key}/{fieldName}: it returned {options: []} for a field the all-fields form listed in the same minute. See workflows/40-rules/marketplace-asset-publisher-classes.md.',
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -39674,6 +40268,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "write",
+          note: '\u{1F534} UNAUTHENTICATED BY DESIGN, and it does NOT check that `{triggerId}` exists. [proven-live] 2026-09-19 with an id that was never a trigger: this POST answered 200 "test request received" and the whole downstream chain then agreed \u2014 the request read back against the ghost id and could be pinned as that "trigger\'s" reference. Nothing anywhere says the trigger is not real. A tier-3 silent write: accepted, stored, reads back correctly, inert \u2014 and here even the read-back is on the wrong object, so it agrees. VERIFY THE TRIGGER ID EXISTS FIRST. See workflows/40-rules/inbound-webhook-accepts-any-trigger-id.md.',
           reach: "source-only",
           coveredBy: [
             "build_workflow",
@@ -39778,6 +40373,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "write",
+          note: "\u{1F534} The pinned reference DECIDES WHICH `{{inboundWebhookRequest.*}}` MERGE TAGS EXIST for a trigger, and this route will pin against a trigger id that does not exist. [proven-live] 2026-09-19: pinning under a ghost id answered 200 and the reference read back in full. Pin against a mistyped id and the whole chain reports success and returns a complete set of merge tags \u2014 while the REAL trigger still has no reference, so those tags RENDER EMPTY AT RUNTIME. See workflows/40-rules/inbound-webhook-accepts-any-trigger-id.md.",
           reach: "source-only",
           coveredBy: [
             "build_workflow",
@@ -39842,6 +40438,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
+          note: "\u{1F534} Returns requests recorded against ANY `{triggerId}`, real or not \u2014 the receiving URL never checks the trigger exists. [proven-live] 2026-09-19: a ghost id returned its request exactly as a real trigger would. A non-empty answer here is therefore NOT evidence that the trigger id is valid. See workflows/40-rules/inbound-webhook-accepts-any-trigger-id.md.",
           reach: "proven",
           provenFor: [
             "agency-admin-bearer"
@@ -43793,6 +44390,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "write",
+          note: '\u{1F534} An offer only reaches the `membership_course_grant_access` dropdown if it is created with `source:"course_default_offer"` AND then PUBLISHED (`PUT \u2026/offers/{id} {visibility:"published"}`). An ordinary offer (`source:"membership"`) is NEVER listed. [proven-live] 2026-09-19 as a differential (absent \u2192 prerequisite created \u2192 listed). \u{1F534} Related trap: a course grant to a contact with NO EMAIL is a SILENT NO-OP \u2014 the step logs success, the admin route answers 200 "successfully queued", and the offer\'s member count and the course\'s progress list both stay empty. A portal member is keyed by EMAIL and nothing on either path says so. See workflows/40-rules/marketplace-asset-publisher-classes.md.',
           reach: "source-only",
           coveredBy: [
             "build_course"
@@ -47641,6 +48239,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
+          note: "\u26A0\uFE0F The spelling that WORKS: [proven-live] 2026-09-21 this answers 200 and engine/entities.mjs calls `/objects/?locationId=` on every build to resolve a custom object by key or label. An earlier `refused` verdict on this row was simply wrong. Its sibling `/objects/{objectKey}/` (trailing slash, the client's own spelling) is the one that refuses us, while the bare `/objects/{objectKey}` answers. See workflows/20-api/refused-but-mined.md.",
           reach: "refused",
           coveredBy: [
             "list_account_entities"
@@ -52749,12 +53348,6 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           summary: "Delete a Metrics dashboard layout.",
           note: 'Never called during mapping; read-only sweep. \u{1F534} CATALOGUE MISLABEL: DELETE row whose `kind` says "write". Filter on METHOD as well as kind. Not probed.'
         },
-        "DELETE /blacklist/{kind}/{id}": {
-          reach: "refused",
-          credentialClass: "agency-admin-bearer",
-          kind: "destructive",
-          note: "\u{1F534} THIS ROW IS MIS-BASED: the call is FlowGuardService `${baseURL}/flowguard/blacklist/{kind}/{id}`, i.e. DELETE /workflow/flowguard/blacklist/{kind}/{id}. Measured 2026-09-19 there: without location_id -> 400 naming it; with it -> 401 'Unauthorized'. FlowGuard is refused to this credential, like the rest of its family."
-        },
         "DELETE /emails/trigger/{locationId}/{triggerId}": {
           reach: "source-only",
           credentialClass: "agency-admin-bearer",
@@ -52778,7 +53371,7 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         },
         "DELETE /workflow/flowguard/blacklist/{type}/{id}": {
           reach: "refused",
-          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class. TRAP: WITHOUT location_id every flowguard route answers 400, which reads as an argument problem and invites another probing session; WITH it, 401 -- the 401 is the real answer. RE-VERIFIED 2026-09-15 (auth facts on GHL expire, so this was re-measured, not assumed). \u1F534 DO NOT PROBE THIS CLUSTER AGAIN and do not seek the credential \u2014 it is MINED instead, and the knowledge is landed in corpus workflows/50-runtime/flowguard-platform-guardrails.md: the guardrail vocabulary (loop locks with reason 'infinite_loop_detected' / lockedBy 'system', the execution status 'stuck' as a first-class state distinct from failed, blacklists scoped by workflow AND step AND contact, rate-limit rules dimensioned global|workflow|contact, and bypasses carrying an expiresAt). That vocabulary is a specification of what goes wrong with workflows in production, which is why it is worth having without the endpoint. \u26A0\uFE0F The NUMBERS in flowGuardMockData.ts are a developer's placeholders, never GHL's thresholds. TRAP for anyone who ever does reach it: every getter in FlowGuardService.ts falls back to its mock data on error, so the panel renders a convincing fake list on a 401 \u2014 read the network, not the screen.",
+          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class. TRAP: WITHOUT location_id every flowguard route answers 400, which reads as an argument problem and invites another probing session; WITH it, 401 -- the 401 is the real answer. RE-VERIFIED 2026-09-15 (auth facts on GHL expire, so this was re-measured, not assumed). \u1F534 DO NOT PROBE THIS CLUSTER AGAIN and do not seek the credential \u2014 it is MINED instead, and the knowledge is landed in corpus workflows/50-runtime/flowguard-platform-guardrails.md: the guardrail vocabulary (loop locks with reason 'infinite_loop_detected' / lockedBy 'system', the execution status 'stuck' as a first-class state distinct from failed, blacklists scoped by workflow AND step AND contact, rate-limit rules dimensioned global|workflow|contact, and bypasses carrying an expiresAt). That vocabulary is a specification of what goes wrong with workflows in production, which is why it is worth having without the endpoint. \u26A0\uFE0F The NUMBERS in flowGuardMockData.ts are a developer's placeholders, never GHL's thresholds. TRAP for anyone who ever does reach it: every getter in FlowGuardService.ts falls back to its mock data on error, so the panel renders a convincing fake list on a 401 \u2014 read the network, not the screen. Reached via FlowGuardService `${baseURL}/flowguard/blacklist/{kind}/{id}`. Measured 2026-09-19: without location_id -> 400 naming it; with it -> 401 'Unauthorized'. FlowGuard is refused to this credential, like the rest of its family. The truncated spelling `DELETE /blacklist/{kind}/{id}` used to stand as its own catalogue row carrying this verdict; merge-endpoint-catalogs.mjs now folds it into this row (console bl-128, 2026-09-21).",
           credentialClass: "location-user-bearer"
         },
         "DELETE /workflow/flowguard/rate-limiting/bypass/{id}": {
@@ -53739,7 +54332,8 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         },
         "GET /workflow/{locationId}/scheduled-pause/config": {
           summary: "Whether this workflow is paused on a schedule, and the window if so.",
-          reach: "proven"
+          reach: "proven",
+          note: "The read side of the scheduled-pause rail, and the ONLY way to obtain a config's `_id`: the POST that creates one answers 201 {success:true} and does NOT return the id, so an update or delete must GET this list and read `_id` off the matching entry. [proven-live] 2026-09-21, full create \u2192 read \u2192 delete, cleaned up. A pause is WORKFLOW-SCOPED (it carries `workflowIds`), the window must be at least 24 hours, and `isActive` is the config's enabled flag, not \"currently pausing\". \u{1F534} An active pause does NOT hold a contact already parked at a wait \u2014 the wait fired on schedule and the contact completed the workflow with the pause active. See workflows/50-runtime/scheduled-pause.md."
         },
         "GET /workflow/{locationId}/secret-manager": {
           summary: "The workflow secret store for a location, by type.",
@@ -54584,18 +55178,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           kind: "destructive",
           note: "FENCED by the operator-approved plan of 2026-09-19, not probed: billing. Changes the sub-account BILLING PLAN. Money."
         },
-        "PUT /settings/is-active": {
-          reach: "absent",
-          credentialClass: "agency-admin-bearer",
-          kind: "write",
-          note: "ABSENT \u2014 a TRUNCATED transcription, measured 2026-09-19: the real route is PUT /workflow/{locationId}/error-notification/settings/is-active (ErrorNotificationService.ts), which is proven. The missing-prefix gate did not catch this one because the dropped part is three segments, not one service prefix."
-        },
-        "PUT /settings/users": {
-          reach: "absent",
-          credentialClass: "agency-admin-bearer",
-          kind: "write",
-          note: "ABSENT \u2014 a TRUNCATED transcription, measured 2026-09-19: the real route is PUT /workflow/{locationId}/error-notification/settings/users (ErrorNotificationService.ts), which is proven. The missing-prefix gate did not catch this one because the dropped part is three segments, not one service prefix."
-        },
         "PUT /workflow/agent/{locationId}/mcp-connections/{id}": {
           reach: "proven",
           credentialClass: "agency-admin-bearer",
@@ -54637,13 +55219,13 @@ Flagged to the operator as a security observation about the vendor, not a capabi
         },
         "PUT /workflow/{locationId}/error-notification/settings/is-active": {
           reach: "proven",
-          note: "Proven live 2026-09-19, read back and RESTORED: body {isActive:boolean}; GET \u2026/error-notification/settings showed true -> false -> true. Location-wide: it switches workflow error emails for the whole sub-account.",
+          note: "Proven live 2026-09-19, read back and RESTORED: body {isActive:boolean}; GET \u2026/error-notification/settings showed true -> false -> true. Location-wide: it switches workflow error emails for the whole sub-account. The truncated spelling `PUT /settings/is-active` used to stand as its own catalogue row carrying an ABSENT verdict; merge-endpoint-catalogs.mjs now folds it into this row (console bl-128, 2026-09-21), so the warning has no row left to sit on and is recorded here instead.",
           credentialClass: "agency-admin-bearer",
           kind: "write"
         },
         "PUT /workflow/{locationId}/error-notification/settings/users": {
           reach: "proven",
-          note: "Proven live 2026-09-19, read back and RESTORED: body {users:[userId,\u2026]} REPLACES the recipient list; the settings read showed [] -> [one user] -> [].",
+          note: "Proven live 2026-09-19, read back and RESTORED: body {users:[userId,\u2026]} REPLACES the recipient list; the settings read showed [] -> [one user] -> []. The truncated spelling `PUT /settings/users` used to stand as its own catalogue row carrying an ABSENT verdict; merge-endpoint-catalogs.mjs now folds it into this row (console bl-128, 2026-09-21), so the warning has no row left to sit on and is recorded here instead.",
           credentialClass: "agency-admin-bearer",
           kind: "write"
         },
@@ -54727,6 +55309,63 @@ Flagged to the operator as a security observation about the vendor, not a capabi
         },
         "PUT /workflow/{locationId}/{workflowId}": {
           note: "The full-document commit re-runs the step validator over EVERY stored step, so it can be refused by a published, running workflow's own saved graph (INVALID_FIELD_VALUE, 'Action validation failed: <type> (...): Next is invalid'). The workflow keeps running and cannot be saved by anyone, API or builder. Never use this path for a rename -- rename-workflow skips the validator. Re-read before every write: a successful PUT bumps version and a later PUT built from a stale read 422s."
+        },
+        "POST /workflows-marketplace/actions/dynamic-source/{key}": {
+          note: '\u{1F534} One of the TWO sources an asset\'s dropdown can declare. An input carries either `fetchOptions` (read with GET /workflows-marketplace/actions/options/{key}) or `dynamicSource` (this route, with `filterField=<field>`). [proven-live] 2026-09-19: the underlying service routes refuse a location credential ("not yet supported by the IAM Service"), so these two proxies are the only door. An unknown action key answers 400 "Action is not present" on BOTH, so an EMPTY LIST IS ABOUT THE ACCOUNT, not a bad key. Do not fall back to the per-field form GET \u2026/actions/options/{key}/{fieldName}: it returned {options: []} for a field the all-fields form listed in the same minute. See workflows/40-rules/marketplace-asset-publisher-classes.md.'
+        },
+        "GET /objects": {
+          note: "\u26A0\uFE0F Four spellings exist in this custom-objects family and they do NOT agree. [proven-live] 2026-09-21: `/objects/` (trailing slash) answers 200 and this plugin has always called it \u2014 engine/entities.mjs resolves an object by key or label through it. `/objects/{objectKey}` answers 200 under the BARE spelling, which GHL's own front end never sends; the client only issues `/objects/{objectKey}/`, and THAT is the one that refuses us. A `refused` verdict recorded against a URL nobody sends is not evidence about the capability. See workflows/20-api/refused-but-mined.md."
+        },
+        "GET /objects/": {
+          note: "\u26A0\uFE0F The spelling that WORKS: [proven-live] 2026-09-21 this answers 200 and engine/entities.mjs calls `/objects/?locationId=` on every build to resolve a custom object by key or label. An earlier `refused` verdict on this row was simply wrong. Its sibling `/objects/{objectKey}/` (trailing slash, the client's own spelling) is the one that refuses us, while the bare `/objects/{objectKey}` answers. See workflows/20-api/refused-but-mined.md."
+        },
+        "POST /hooks/{locationId}/webhook-trigger/{triggerId}": {
+          note: '\u{1F534} UNAUTHENTICATED BY DESIGN, and it does NOT check that `{triggerId}` exists. [proven-live] 2026-09-19 with an id that was never a trigger: this POST answered 200 "test request received" and the whole downstream chain then agreed \u2014 the request read back against the ghost id and could be pinned as that "trigger\'s" reference. Nothing anywhere says the trigger is not real. A tier-3 silent write: accepted, stored, reads back correctly, inert \u2014 and here even the read-back is on the wrong object, so it agrees. VERIFY THE TRIGGER ID EXISTS FIRST. See workflows/40-rules/inbound-webhook-accepts-any-trigger-id.md.'
+        },
+        "GET /hooks/inbound-webhook-request/trigger/{triggerId}": {
+          note: "\u{1F534} Returns requests recorded against ANY `{triggerId}`, real or not \u2014 the receiving URL never checks the trigger exists. [proven-live] 2026-09-19: a ghost id returned its request exactly as a real trigger would. A non-empty answer here is therefore NOT evidence that the trigger id is valid. See workflows/40-rules/inbound-webhook-accepts-any-trigger-id.md."
+        },
+        "PUT /hooks/inbound-webhook-request/set-as-reference/{requestId}": {
+          note: "\u{1F534} The pinned reference DECIDES WHICH `{{inboundWebhookRequest.*}}` MERGE TAGS EXIST for a trigger, and this route will pin against a trigger id that does not exist. [proven-live] 2026-09-19: pinning under a ghost id answered 200 and the reference read back in full. Pin against a mistyped id and the whole chain reports success and returns a complete set of merge tags \u2014 while the REAL trigger still has no reference, so those tags RENDER EMPTY AT RUNTIME. See workflows/40-rules/inbound-webhook-accepts-any-trigger-id.md."
+        },
+        "POST /membership/locations/{locationId}/offers": {
+          note: '\u{1F534} An offer only reaches the `membership_course_grant_access` dropdown if it is created with `source:"course_default_offer"` AND then PUBLISHED (`PUT \u2026/offers/{id} {visibility:"published"}`). An ordinary offer (`source:"membership"`) is NEVER listed. [proven-live] 2026-09-19 as a differential (absent \u2192 prerequisite created \u2192 listed). \u{1F534} Related trap: a course grant to a contact with NO EMAIL is a SILENT NO-OP \u2014 the step logs success, the admin route answers 200 "successfully queued", and the offer\'s member count and the course\'s progress list both stay empty. A portal member is keyed by EMAIL and nothing on either path says so. See workflows/40-rules/marketplace-asset-publisher-classes.md.'
+        },
+        "PUT /workflow/{locationId}/scheduled-pause/config/{recordId}": {
+          note: "The UPDATE side of the scheduled-pause rail. \u{1F534} You cannot call it from the create alone: the POST that makes a config answers 201 {success:true} and does NOT return the record's `_id`, so you must GET \u2026/scheduled-pause/config and read `_id` off the matching entry first. Body is the same shape as the create \u2014 {pauseStartTime, pauseEndTime, isAnnual, workflowIds} \u2014 with the times as EPOCH MILLISECONDS in the request, though the read-back returns them as ISO strings. The window must be at least 24 hours (a one-hour window is refused 400 'Difference between pause start and end times should be at least 24 hours'). [proven-live] 2026-09-21 as part of a full create \u2192 read \u2192 update \u2192 delete cycle on the designated sandbox, cleaned up. \u{1F534} And know what a pause does NOT do before reaching for this: an active pause does not hold a contact already parked at a wait \u2014 the wait fired at its original executeOn and the contact completed the workflow with the pause active. See workflows/50-runtime/scheduled-pause.md. RE-EXECUTED 2026-09-23 with a separate read-back: the window moved, `updatedAt` moved, and BOTH scheduled cloud tasks were re-minted. \u{1F534} An update that moves a window into the PAST fires the pending end boundary immediately. And what a boundary does is change PUBLISH STATUS: start = un-publish (published -> draft), end = re-publish only what the start un-published; each mints a new version.",
+          reach: "proven",
+          credentialClass: "agency-admin-bearer",
+          kind: "write"
+        },
+        "GET /workflow/{locationId}/hotlinks-template-groups": {
+          reach: "proven",
+          credentialClass: "agency-admin-bearer",
+          kind: "read",
+          note: "NO TASK NEEDS THIS \u2014 this is GHL's OWN quick-start template catalogue (the modals offered inside forms, funnels, courses and eleven other products), authored from a UI shown only to three hardcoded GHL-internal locations. Nothing this plugin builds reads or depends on it. \u{1F534} [proven-live] 2026-09-23: it answered 200 to the sandbox's location Bearer and returned a group OWNED BY A GHL-INTERNAL LOCATION, not the one in the path \u2014 so the list is platform-wide and `{locationId}` is not a filter, and the allowlist is enforced in the UI only. Dates are Firestore timestamps {_seconds,_nanoseconds}, not ISO. See workflows/20-api/hotlink-template-groups.md."
+        },
+        "POST /workflow/{locationId}/hotlinks-template-groups": {
+          kind: "write",
+          note: "FENCED \u2014 writes to GHL's OWN platform-wide quick-start catalogue. The read proves these records belong to a GHL-internal account and are served to every account, so a write the server accepted would change content shown across GHL, and a DELETE would destroy GHL's data. Whether the server enforces the three-location allowlist on writes is unknown and deliberately untested: the only test is the harm. No task needs it. Never sent. See workflows/20-api/hotlink-template-groups.md."
+        },
+        "PUT /workflow/{locationId}/hotlinks-template-groups/{templateGroupId}": {
+          kind: "write",
+          note: "FENCED \u2014 writes to GHL's OWN platform-wide quick-start catalogue. The read proves these records belong to a GHL-internal account and are served to every account, so a write the server accepted would change content shown across GHL, and a DELETE would destroy GHL's data. Whether the server enforces the three-location allowlist on writes is unknown and deliberately untested: the only test is the harm. No task needs it. Never sent. See workflows/20-api/hotlink-template-groups.md."
+        },
+        "DELETE /workflow/{locationId}/hotlinks-template-groups/{templateGroupId}": {
+          kind: "destructive",
+          note: "FENCED \u2014 writes to GHL's OWN platform-wide quick-start catalogue. The read proves these records belong to a GHL-internal account and are served to every account, so a write the server accepted would change content shown across GHL, and a DELETE would destroy GHL's data. Whether the server enforces the three-location allowlist on writes is unknown and deliberately untested: the only test is the harm. No task needs it. Never sent. See workflows/20-api/hotlink-template-groups.md."
+        },
+        "POST /workflow/{locationId}/hotlinks-template-groups/{templateGroupId}/templates": {
+          kind: "write",
+          note: "FENCED \u2014 writes to GHL's OWN platform-wide quick-start catalogue. The read proves these records belong to a GHL-internal account and are served to every account, so a write the server accepted would change content shown across GHL, and a DELETE would destroy GHL's data. Whether the server enforces the three-location allowlist on writes is unknown and deliberately untested: the only test is the harm. No task needs it. Never sent. See workflows/20-api/hotlink-template-groups.md."
+        },
+        "PUT /workflow/{locationId}/hotlinks-template-groups/{templateGroupId}/templates/{templateId}": {
+          kind: "write",
+          note: "FENCED \u2014 writes to GHL's OWN platform-wide quick-start catalogue. The read proves these records belong to a GHL-internal account and are served to every account, so a write the server accepted would change content shown across GHL, and a DELETE would destroy GHL's data. Whether the server enforces the three-location allowlist on writes is unknown and deliberately untested: the only test is the harm. No task needs it. Never sent. See workflows/20-api/hotlink-template-groups.md."
+        },
+        "DELETE /workflow/{locationId}/hotlinks-template-groups/{templateGroupId}/templates/{templateId}": {
+          kind: "destructive",
+          note: "FENCED \u2014 writes to GHL's OWN platform-wide quick-start catalogue. The read proves these records belong to a GHL-internal account and are served to every account, so a write the server accepted would change content shown across GHL, and a DELETE would destroy GHL's data. Whether the server enforces the three-location allowlist on writes is unknown and deliberately untested: the only test is the harm. No task needs it. Never sent. See workflows/20-api/hotlink-template-groups.md."
         }
       }
     };
@@ -91027,6 +91666,42 @@ function groupByStep(hits) {
   }
   return [...groups.values()];
 }
+function restoreRedactedForValidation(templates, storedTemplates) {
+  const storedById = new Map((storedTemplates ?? []).filter((t) => t && typeof t.id === "string" && t.id).map((t) => [t.id, t]));
+  const restored = [];
+  const unresolved = [];
+  const at = (obj, keys) => keys.reduce((o, k) => o == null ? void 0 : o[k], obj);
+  const out = (templates ?? []).map((step) => {
+    if (!step || typeof step !== "object") return step;
+    const copy = structuredClone(step);
+    const stored = typeof step.id === "string" ? storedById.get(step.id) : void 0;
+    const walk3 = (node, keys) => {
+      if (typeof node === "string") {
+        if (!node.includes(REDACTED)) return;
+        const path = keys.join(".");
+        const original = stored ? at(stored, keys) : void 0;
+        const restorable = node === REDACTED && original !== void 0 && !(typeof original === "string" && original.includes(REDACTED));
+        if (restorable) {
+          at(copy, keys.slice(0, -1))[keys[keys.length - 1]] = structuredClone(original);
+          restored.push({ stepId: step.id, name: step.name ?? null, path });
+        } else {
+          unresolved.push({
+            stepId: step.id ?? null,
+            name: step.name ?? null,
+            path,
+            reason: node === REDACTED ? "no stored value at this path to restore from" : "the placeholder is embedded inside a longer string, which may carry your edit"
+          });
+        }
+        return;
+      }
+      if (Array.isArray(node)) node.forEach((v, i) => walk3(v, [...keys, i]));
+      else if (node && typeof node === "object") for (const [k, v] of Object.entries(node)) walk3(v, [...keys, k]);
+    };
+    walk3(step, []);
+    return copy;
+  });
+  return { templates: out, restored, unresolved };
+}
 var REDACTED_STEP_CAP = 6;
 function refuseRedactedWrite(payload) {
   const hits = findRedactedValues(payload);
@@ -95934,7 +96609,7 @@ var SCOPE_OWNERS = {
   paths: ["split", "workflow_split"],
   target: ["goto"]
 };
-var KIND_BY_TYPE = { if_else: "if_else", workflow_split: "split", ai_decision: "ai_decision", goto: "goto" };
+var KIND_BY_TYPE = { if_else: "if_else", workflow_split: "split", ai_decision: "ai_decision", workflow_ai_decision_maker: "ai_decision", goto: "goto" };
 var NODE_KINDS = /* @__PURE__ */ new Set(["action", "wait", "if_else", "split", "ai_decision", "goto", "raw"]);
 var REQUIRES_STEP_INDEX = /* @__PURE__ */ new Set([
   "google_sheets",
@@ -161610,7 +162285,7 @@ function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
       templates.push(...tout.templates);
       return;
     }
-    if (n.type === "find_opportunity" && (n.onFound || n.onNotFound)) {
+    if (n.type === "find_opportunity") {
       if (n.attributes?.__customInputFields__ !== void 0)
         throw new IRError(
           "FIND_FILTERS_MISPLACED",
@@ -161725,7 +162400,7 @@ function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
       });
       return;
     }
-    if ((n.type === "find_contact" || n.type === "lc_merge_contact") && (n.onFound || n.onNotFound)) {
+    if (n.type === "find_contact" || n.type === "lc_merge_contact") {
       const t1 = ctx.idGen(), t2 = ctx.idGen();
       const isFC = n.type === "find_contact";
       const container = {
@@ -161773,7 +162448,7 @@ function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
       return;
     }
     if (n.kind === "ai_decision") {
-      const type = n.type ?? "workflow_ai_decision_maker";
+      const type = n.type === void 0 || n.type === "ai_decision" ? "workflow_ai_decision_maker" : n.type;
       const defId = ctx.idGen();
       const branchIds = n.branches.map((b) => idForRef(refMap, ctx, b.ref));
       const transitions = [
@@ -161828,6 +162503,17 @@ function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
     }
     if (parentScopeId !== null) tmpl.parent = parentScopeId;
     templates.push(withStepDisabled(n, tmpl, ctx));
+  });
+  nodes.forEach((n, i) => {
+    if (i === nodes.length - 1) return;
+    const own = templates.find((t) => t.id === ids[i]);
+    if (!Array.isArray(own?.next)) return;
+    if (nodes[i + 1].ref !== void 0 && ctx.__gotoTargets?.has(nodes[i + 1].ref)) return;
+    const tail = nodes.slice(i + 1).map((x) => `'${x.ref ?? x.name ?? x.type}'`).join(", ");
+    throw new IRError(
+      "CONTAINER_NOT_LAST",
+      `'${n.ref ?? n.name ?? n.type}' (${own.type}) is a branching step, so it must be the LAST step in its list \u2014 ${tail} after it would be unreachable. Move ${nodes.length - i > 2 ? "them" : "it"} into one of its branches (onFound/onNotFound, branches[].then, paths[].then, default, onEvent/onTimeout, onBooked/onNotBooked).`
+    );
   });
   for (const t of templates) if (t.parentKey === null) delete t.parentKey;
   return { templates, entryId: ids[0] ?? null };
@@ -162284,7 +162970,11 @@ function compile(ir, ctx) {
   const visited = /* @__PURE__ */ new Set();
   const triggerRefs = /* @__PURE__ */ new Map();
   norm3.triggers.forEach((t, i) => triggerRefs.set(t.ref ?? `__trigger_${i}`, ctx.idGen()));
-  const { templates } = flattenGraph(norm3.graph, { ...ctx, __visited: visited, __triggerRefs: triggerRefs }, refMap, null);
+  const gotoTargets = /* @__PURE__ */ new Set();
+  walkNodes(norm3.graph, (n) => {
+    if (n.kind === "goto" && n.target) gotoTargets.add(n.target);
+  });
+  const { templates } = flattenGraph(norm3.graph, { ...ctx, __visited: visited, __triggerRefs: triggerRefs, __gotoTargets: gotoTargets }, refMap, null);
   const missing = [];
   let authored = 0;
   walkNodes(norm3.graph, (n) => {
@@ -164084,6 +164774,76 @@ function deleteContainer(templates, containerId) {
   const out = templates.filter((t) => !remove.has(t.id)).map((t) => pred && t.id === pred.id ? { ...t, next: null } : t);
   return { templates: out, diff: { createdSteps: [], modifiedSteps: pred ? [pred.id] : [], deletedSteps: [...remove] } };
 }
+function subtreeIds(templates, rootId) {
+  const byId = new Map(templates.map((t) => [t.id, t]));
+  const out = /* @__PURE__ */ new Set([rootId]);
+  const queue = [rootId];
+  while (queue.length) {
+    const cur = byId.get(queue.shift());
+    if (!cur) continue;
+    const nexts = Array.isArray(cur.next) ? cur.next : typeof cur.next === "string" ? [cur.next] : [];
+    for (const n of nexts) if (byId.has(n) && !out.has(n)) {
+      out.add(n);
+      queue.push(n);
+    }
+    for (const t of templates) if (t.parent === cur.id && !out.has(t.id)) {
+      out.add(t.id);
+      queue.push(t.id);
+    }
+  }
+  return out;
+}
+function deleteBranch(templates, containerId, branch) {
+  const container = requireStep(templates, containerId, "deleteBranch");
+  if (!Array.isArray(container.next))
+    throw new Error(`deleteBranch: '${container.name ?? containerId}' is not a container \u2014 deleteBranch takes the CONTAINER's id (the if/else condition node, AI splitter or AI decision maker).`);
+  if (branch == null || branch === "")
+    throw new Error(`deleteBranch: name the branch to delete \u2014 its display name, __branchKey__, or branch-entry id.`);
+  const targets = branchTargets(container, templates);
+  const list = () => targets.map((t) => `'${t.name}'`).join(", ");
+  const hits = targets.filter((t) => t.id === branch || t.key === branch || t.name === branch);
+  if (!hits.length) throw new Error(`deleteBranch: no branch '${branch}' on '${container.name ?? containerId}' (branches: ${list()})`);
+  if (hits.length > 1) throw new Error(`deleteBranch: '${branch}' matches ${hits.length} branches on '${container.name ?? containerId}' \u2014 pass the branch id (${hits.map((h) => h.id).join(", ")})`);
+  const hit = hits[0];
+  const byId = new Map(templates.map((t) => [t.id, t]));
+  const entry = byId.get(hit.id);
+  let containerPatch;
+  if (container.nodeType === "condition-node") {
+    if (entry?.nodeType === "branch-no" || entry?.attributes?.else === true)
+      throw new Error(`deleteBranch: '${hit.name}' is the None (else) branch of '${container.name ?? containerId}' \u2014 every if/else keeps one. Delete its STEPS instead (deleteStep), or the whole container (deleteContainer).`);
+    const conditioned = container.attributes?.branches ?? [];
+    if (conditioned.length <= 1)
+      throw new Error(`deleteBranch: '${hit.name}' is the LAST conditioned branch of '${container.name ?? containerId}' \u2014 without it the if/else routes nothing. Use deleteContainer to remove the whole if/else.`);
+    containerPatch = {
+      next: container.next.filter((id) => id !== hit.id),
+      attributes: { ...container.attributes, branches: conditioned.filter((b) => b.id !== hit.id) }
+    };
+  } else if (container.type === "workflow_split") {
+    throw new Error(`deleteBranch: '${container.name ?? containerId}' is a split \u2014 removing a path means re-balancing the remaining weights to 100 in the same write, which this op does not decide for you. Rebuild the split, or delete the container.`);
+  } else {
+    const row = (container.attributes?.transitions ?? []).find((x) => x.id === hit.id);
+    if (!row || row.conditionType !== "user-defined")
+      throw new Error(`deleteBranch: '${hit.name}' on '${container.type}' is a PRE-DEFINED branch \u2014 GHL generates it and the step does not work without it. Only author-defined branches can be deleted (branches: ${list()}).`);
+    containerPatch = {
+      next: container.next.filter((id) => id !== hit.id),
+      attributes: { ...container.attributes, transitions: container.attributes.transitions.filter((x) => x.id !== hit.id) }
+    };
+  }
+  const remove = subtreeIds(templates, hit.id);
+  const remaining = containerPatch.next;
+  const modified = [containerId];
+  const out = templates.filter((t) => !remove.has(t.id)).map((t) => {
+    if (t.id === containerId) return { ...t, ...containerPatch };
+    if (remaining.includes(t.id) && (t.parent === containerId || t.parentKey === containerId)) {
+      modified.push(t.id);
+      const u = { ...t, order: remaining.indexOf(t.id) };
+      if (Array.isArray(t.sibling)) u.sibling = remaining.filter((x) => x !== t.id);
+      return u;
+    }
+    return t;
+  });
+  return { templates: out, diff: { createdSteps: [], modifiedSteps: modified, deletedSteps: [...remove] } };
+}
 function checkOpportunityAssociationTemplates(templates, rootAssoc = false) {
   const byId = new Map(templates.map((t) => [t.id, t]));
   const walkChain = (startId, assoc) => {
@@ -165814,6 +166574,42 @@ var OBSERVED_INNER_TYPES = Object.freeze({
 var STEP_TOP_LEVEL_KEYS = new Set(OBSERVED_TOP_LEVEL_KEYS);
 var CONDITIONAL_ATTR_KEYS = { conversationai_objective: ["closingMessage", "tags"] };
 var SERVER_WRITTEN_ATTR_KEYS = { drip: ["configuredAt"] };
+var MULTIPATH_TYPES = /* @__PURE__ */ new Map([
+  ["find_opportunity", { convertFlag: true }],
+  ["find_contact", { convertFlag: true }],
+  ["lc_merge_contact", { convertFlag: true }],
+  ["workflow_ai_decision_maker", { convertFlag: true }],
+  ["conversationai_ai_splitter", { convertFlag: true }],
+  ["conversationai_book_appointment", { convertFlag: true }],
+  ["conversationai_services_booking", { convertFlag: true }],
+  ["workflow_split", { convertFlag: false }]
+]);
+function multipathDefects(t, byId) {
+  const spec = MULTIPATH_TYPES.get(t?.type);
+  if (!spec) return [];
+  const bad = [];
+  const attrs = t.attributes ?? {};
+  if (t.cat !== "multi-path") bad.push(`cat is ${JSON.stringify(t.cat ?? null)}, not 'multi-path'`);
+  if (spec.convertFlag && attrs.convertToMultipath !== true) bad.push("attributes.convertToMultipath is not true");
+  const trs = Array.isArray(attrs.transitions) ? attrs.transitions : [];
+  if (!trs.length) bad.push("attributes.transitions is empty");
+  if (!Array.isArray(t.next) || !t.next.length) {
+    bad.push(`next is ${JSON.stringify(t.next ?? null)}, not an array of branch ids`);
+    return bad;
+  }
+  for (const id of t.next) {
+    const child = byId.get(id);
+    if (!child) bad.push(`branch '${id}' in next[] is not a step in this workflow`);
+    else if (child.type !== "transition") bad.push(`branch '${id}' is a '${child.type}', not a transition`);
+    else if (child.parentKey !== t.id) bad.push(`transition '${child.name ?? id}' has parentKey '${child.parentKey}', not this step`);
+  }
+  const trIds = new Set(trs.map((x) => x?.id));
+  const missing = t.next.filter((id) => !trIds.has(id));
+  if (trs.length && missing.length) bad.push(`next[] names ${missing.length} branch(es) that attributes.transitions does not`);
+  const unwired = trs.filter((x) => !t.next.includes(x?.id));
+  if (unwired.length) bad.push(`attributes.transitions has ${unwired.length} branch(es) next[] does not wire (${unwired.map((x) => `'${x?.name}'`).join(", ")})`);
+  return bad;
+}
 function knownAttributeKeys(type, card) {
   const model = (card?.modelFields?.fields ?? []).map((f) => f?.name).filter(Boolean);
   return /* @__PURE__ */ new Set([
@@ -165888,6 +166684,16 @@ function gateDocument(templates = [], { catalog = loadCatalog(), marketplaceType
     for (const r of card.enforcement?.throw ?? []) {
       if (fires(r, attrs)) out.push(finding("ENFORCEMENT", "error", t, `GHL's own guard fires: ${r.field ?? ""} ${r.guard ?? ""}`.trim()));
     }
+  }
+  const byId = new Map(templates.filter((t) => t && typeof t === "object").map((t) => [t.id, t]));
+  for (const t of templates) {
+    const bad = multipathDefects(t, byId);
+    if (bad.length) out.push(finding(
+      "MULTIPATH_SHAPE",
+      "error",
+      t,
+      `'${t.type}' only works as a branching container, and this one is not wired as one: ${bad.join("; ")}. It saves, validates and publishes clean, and then cannot branch. GHL does not catch this.`
+    ));
   }
   for (const f of checkFieldCaps(templates)) {
     out.push({ check: "FIELD_CAP", severity: "error", stepId: f.stepId ?? null, stepName: f.step ?? f.stepName ?? null, type: f.type ?? null, message: describeCap(f) });
@@ -167332,6 +168138,7 @@ var OP_REQUIRED_ARGS = {
   moveStep: ["stepId", "afterId"],
   addBranch: ["containerId"],
   deleteContainer: ["containerId"],
+  deleteBranch: ["containerId", "branch"],
   replaceFieldId: ["oldId", "newId"],
   replaceInAttributes: ["path", "find", "replace"],
   repairParentKeys: []
@@ -167350,6 +168157,7 @@ var OP_ACCEPTED_ARGS = {
   moveStep: ["stepId", "afterId"],
   addBranch: ["containerId", "name", "conditions"],
   deleteContainer: ["containerId"],
+  deleteBranch: ["containerId", "branch"],
   replaceTag: ["oldTag", "newTag", "triggers", "allowNoop"],
   replaceFieldId: ["oldId", "newId", "triggers", "allowNoop"],
   replaceInAttributes: ["type", "path", "find", "replace", "allowNoop"],
@@ -167600,6 +168408,8 @@ function applyOp(templates, op, { ctx, idGen }) {
       return addBranch(templates, op.containerId, { name: op.name, conditions: op.conditions ?? [] }, idGen);
     case "deleteContainer":
       return deleteContainer(templates, op.containerId);
+    case "deleteBranch":
+      return deleteBranch(templates, op.containerId, op.branch);
     default:
       if (TRIGGER_OPS.has(op.op))
         throw new Error(`'${op.op}' is a TRIGGER op \u2014 it edits a separate document, not workflowData.templates. Route it through partitionOps()/planTriggerOps().`);
@@ -167701,7 +168511,7 @@ function fingerprintWorkflow(templates, triggers) {
   })).sort((a, b) => String(a.id).localeCompare(String(b.id)));
   return createHash4("sha256").update(JSON.stringify({ steps, trg })).digest("hex").slice(0, 16);
 }
-function digestWorkflow({ doc, triggers = [], stickyNotes = [], include = [] } = {}) {
+function digestWorkflow({ doc, triggers = [], stickyNotes = [], include = [], now = Date.now() } = {}) {
   const templates = (doc?.workflowData?.templates ?? doc?.templates ?? []).filter(Boolean);
   const byId = new Map(templates.map((t) => [t.id, t]));
   const branchNameById = /* @__PURE__ */ new Map();
@@ -167757,6 +168567,24 @@ function digestWorkflow({ doc, triggers = [], stickyNotes = [], include = [] } =
     workflowId: doc?.id ?? doc?._id ?? null,
     name: doc?.name ?? null,
     status: doc?.status ?? null,
+    // A scheduled pause un-publishes a workflow at its start and re-publishes it at its end, and
+    // while it runs the document carries `paused: "workflow-scheduled-pause"` and the pause config's
+    // _id in `pauseUpdatedById` (live 2026-09-23). Without this, a digest shows a bare `draft` —
+    // indistinguishable from an unfinished workflow — and an agent that "finishes" it by publishing
+    // ends somebody's maintenance window early. Only present while a pause holds the workflow.
+    ...doc?.paused ? { pausedBy: {
+      by: doc.paused,
+      pauseConfigId: doc.pauseUpdatedById ?? null,
+      note: "DRAFT BECAUSE A SCHEDULED PAUSE IS RUNNING, not because it is unfinished. The pause re-publishes it when its window ends; publishing it now ends the pause early."
+    } } : {},
+    // `getWorkflow` asks for includeScheduledPauseInfo, which adds `scheduledPauseDates` — EVERY pause
+    // window naming this workflow, past ones included, with no ids and no ran-state. Only windows that
+    // have not ended bear on an edit or a publish, so only those are shown: each one is a span during
+    // which this workflow will be un-published and take no new contacts.
+    ...(() => {
+      const ahead = (doc?.scheduledPauseDates ?? []).filter((w) => Number.isFinite(Date.parse(w?.pauseEndTime)) && Date.parse(w.pauseEndTime) > now).map((w) => ({ start: w.pauseStartTime ?? null, end: w.pauseEndTime }));
+      return ahead.length ? { scheduledPauses: ahead } : {};
+    })(),
     version: doc?.version ?? null,
     updatedAt: doc?.dateUpdated ?? doc?.updatedAt ?? null,
     fingerprint: fingerprintWorkflow(templates, triggers),
@@ -173698,14 +174526,21 @@ var TOOLS2 = [
       if (!trg.ok) return fromHttp(trg.status, trg.json);
       const triggers = Array.isArray(trg.json) ? trg.json : trg.json?.triggers ?? trg.json?.data ?? [];
       const body = { ...doc.json, newTriggers: triggers };
-      if (args.templates) body.workflowData = { ...doc.json?.workflowData ?? {}, templates: args.templates };
+      const restoredInputs = args.templates ? restoreRedactedForValidation(args.templates, doc.json?.workflowData?.templates) : null;
+      if (args.templates) body.workflowData = { ...doc.json?.workflowData ?? {}, templates: restoredInputs.templates };
       const r = await gw.call("POST", `/workflow/${loc}/${wid}/validate-workflows`, body);
       const verdict = readServerValidation(r.json);
       if (!verdict) return fromHttp(r.status, r.json);
+      const placeholders = restoredInputs && (restoredInputs.restored.length || restoredInputs.unresolved.length) ? { redactedPlaceholders: {
+        restored: restoredInputs.restored,
+        unresolved: restoredInputs.unresolved,
+        note: `${restoredInputs.restored.length} field(s) in the supplied templates were the export's redaction placeholder and were restored from the STORED step for this validation only (nothing is written), so the verdict judges your edit rather than the placeholder.` + (restoredInputs.unresolved.length ? ` ${restoredInputs.unresolved.length} could not be restored and were sent as-is: any error GHL reports on those fields is about the placeholder, not your change.` : "")
+      } } : {};
       return ok({
         workflowId: args.workflowId,
         validated: args.templates ? "the stored document with the supplied templates" : "the stored document",
         triggersSent: triggers.length,
+        ...placeholders,
         ...verdict
       });
     }, args)
@@ -175453,7 +176288,7 @@ var TOOLS2 = [
   },
   {
     name: "edit_workflow",
-    description: describe3("edit_workflow", "Preview or confirmation-gate edits to an existing workflow through the canonical edit engine. Confirmed step edits use only the plain workflow PUT and are round-trip verified. Guard hatches, each named by the guard that refuses: allowGotoLoops, deadBranchAcknowledged, allowFlowTriggerEdit, allowDanglingParentKeys, allowDanglingStepRefs, allowOverCap. OP KEYS ARE STRICT: an unknown key on any op refuses the whole call by name (a dropped key once re-sent the stored record and verified clean \u2014 R-96). Ops \u2014 steps: appendStep, insertAfter, insertBefore, appendToBranch (anchor: branchEntryId | containerId+branch | branchRef), deleteStep, modifyStep (attrPatch/stepPatch \u2014 never `attributes`, never `name`; re-normalised through the compiler), retypeStep (full attributes), renameStep, setStepDisabled, disableStepsByType, moveStep, addBranch (if/else, or an AI splitter: alias addSplitterBranch), deleteContainer, repairParentKeys, addStepNote, duplicateStep, replaceTag, replaceFieldId, replaceInAttributes; triggers: addTrigger, modifyTrigger {triggerId|name, trigger:{name?, filters? (author rows) | conditions? (stored rows, sent verbatim), active?, target?|targetActionId?}} \u2014 a top-level conditions/name/status is refused, not ignored; a patch that changes nothing is a NOOP, not a write; the verifier holds the store to what YOU asked for and to the server's own date_updated stamp; deleteTrigger, duplicateTrigger; settings: updateSettings (Settings-tab keys plus `name`); notes: addStickyNote, updateStickyNote. Names in steps and triggers resolve to ids against the account (ignoreUnresolved to bypass). Runs the same pre-write validation ladder as build_workflow: workflow + graph-context rules, GHL's asset-reference validator (hatch: ignoreAssetErrors), the custom-code sandbox test on custom_code steps this edit touches (skipCustomCodeTest / strictCustomCode), account-readiness signals, and a builder-required-field check on the persisted document."),
+    description: describe3("edit_workflow", "Preview or confirmation-gate edits to an existing workflow through the canonical edit engine. Confirmed step edits use only the plain workflow PUT and are round-trip verified. Guard hatches, each named by the guard that refuses: allowGotoLoops, deadBranchAcknowledged, allowFlowTriggerEdit, allowDanglingParentKeys, allowDanglingStepRefs, allowOverCap. OP KEYS ARE STRICT: an unknown key on any op refuses the whole call by name (a dropped key once re-sent the stored record and verified clean \u2014 R-96). Ops \u2014 steps: appendStep, insertAfter, insertBefore, appendToBranch (anchor: branchEntryId | containerId+branch | branchRef), deleteStep, modifyStep (attrPatch/stepPatch \u2014 never `attributes`, never `name`; re-normalised through the compiler), retypeStep (full attributes), renameStep, setStepDisabled, disableStepsByType, moveStep, addBranch (if/else, or an AI splitter: alias addSplitterBranch), deleteBranch {containerId, branch} (an author-defined branch and everything under it), deleteContainer, repairParentKeys, addStepNote, duplicateStep, replaceTag, replaceFieldId, replaceInAttributes; triggers: addTrigger, modifyTrigger {triggerId|name, trigger:{name?, filters? (author rows) | conditions? (stored rows, sent verbatim), active?, target?|targetActionId?}} \u2014 a top-level conditions/name/status is refused, not ignored; a patch that changes nothing is a NOOP, not a write; the verifier holds the store to what YOU asked for and to the server's own date_updated stamp; deleteTrigger, duplicateTrigger; settings: updateSettings (Settings-tab keys plus `name`); notes: addStickyNote, updateStickyNote. Names in steps and triggers resolve to ids against the account (ignoreUnresolved to bypass). Runs the same pre-write validation ladder as build_workflow: workflow + graph-context rules, GHL's asset-reference validator (hatch: ignoreAssetErrors), the custom-code sandbox test on custom_code steps this edit touches (skipCustomCodeTest / strictCustomCode), account-readiness signals, and a builder-required-field check on the persisted document."),
     inputSchema: schema({
       locationId: external_exports.string(),
       workflowId: external_exports.string(),
@@ -176508,6 +177343,9 @@ var TOOLS2 = [
       const listed = await listWorkflowTriggers(gw, args.locationId, args.workflowId);
       if (!listed.response.ok) return fromHttp(listed.response.status, listed.response.json);
       const publishWarnings = [];
+      if (current?.paused) {
+        publishWarnings.push(`SCHEDULED_PAUSE_ACTIVE: this workflow is draft because a scheduled pause is running (paused by '${current.paused}', pause config ${current.pauseUpdatedById ?? "unknown"}). Publishing it now ends that pause early; the pause would re-publish it on its own when its window closes. Read GET /workflow/{loc}/scheduled-pause/config for the window.`);
+      }
       const publishCatalog = loadCatalog();
       const senderDomain = await senderDomainFor(
         gw,

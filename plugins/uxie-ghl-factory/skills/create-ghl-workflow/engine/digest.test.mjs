@@ -63,3 +63,38 @@ test('nothing throws on an empty or hostile document', () => {
     assert.ok(Array.isArray(d.steps));
   }
 });
+
+// A scheduled pause un-publishes a workflow and marks the document (live 2026-09-23). Without the
+// marker in the digest, a paused workflow is a bare `draft` and reads as unfinished.
+test('a workflow held by a scheduled pause says so, with the config that holds it', () => {
+  const d = digestWorkflow({ doc: { ...doc(), paused: 'workflow-scheduled-pause', pauseUpdatedById: 'CFG1' }, triggers: triggers() });
+  assert.equal(d.status, 'draft');
+  assert.equal(d.pausedBy.by, 'workflow-scheduled-pause');
+  assert.equal(d.pausedBy.pauseConfigId, 'CFG1');
+  assert.match(d.pausedBy.note, /SCHEDULED PAUSE/);
+});
+
+test('CONTROL: an ordinary draft, and one whose pause has ended (fields reset to null), carry no pause marker', () => {
+  assert.equal('pausedBy' in digestWorkflow({ doc: doc(), triggers: triggers() }), false);
+  assert.equal('pausedBy' in digestWorkflow({ doc: { ...doc(), paused: null, pauseUpdatedById: null }, triggers: triggers() }), false);
+});
+
+test('pause windows that have not ended are shown; past ones are dropped', () => {
+  const now = Date.parse('2026-09-23T06:00:00Z');
+  const d = digestWorkflow({ now, triggers: triggers(), doc: { ...doc(), scheduledPauseDates: [
+    { pauseStartTime: '2026-10-25T00:00:00.000Z', pauseEndTime: '2026-10-26T02:00:00.000Z' },   // ahead
+    { pauseStartTime: '2026-09-23T05:00:00.000Z', pauseEndTime: '2026-09-24T06:00:00.000Z' },   // running now
+    { pauseStartTime: '2026-09-02T00:00:00.000Z', pauseEndTime: '2026-09-03T01:00:00.000Z' },   // over
+  ] } });
+  assert.deepEqual(d.scheduledPauses, [
+    { start: '2026-10-25T00:00:00.000Z', end: '2026-10-26T02:00:00.000Z' },
+    { start: '2026-09-23T05:00:00.000Z', end: '2026-09-24T06:00:00.000Z' },
+  ]);
+});
+
+test('CONTROL: only past windows, or none at all, adds no key', () => {
+  const now = Date.parse('2026-09-23T06:00:00Z');
+  const past = [{ pauseStartTime: '2026-09-02T00:00:00.000Z', pauseEndTime: '2026-09-03T01:00:00.000Z' }];
+  assert.equal('scheduledPauses' in digestWorkflow({ now, triggers: triggers(), doc: { ...doc(), scheduledPauseDates: past } }), false);
+  assert.equal('scheduledPauses' in digestWorkflow({ now, triggers: triggers(), doc: doc() }), false);
+});

@@ -1,7 +1,7 @@
 {
   "generated": "2026-09-21",
   "note": "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path — not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-  "count": 1146,
+  "count": 1151,
   "endpoints": [
     {
       "id": "facebook-service--get-ad-account-by-id",
@@ -1451,48 +1451,6 @@
       "sources": [
         "services/marketplaceServices/AssociationsService.ts:17",
         "workflows/70-research/ENDPOINTS.md:146"
-      ]
-    },
-    {
-      "id": "workflows--blacklist-delete",
-      "aka": [
-        "/blacklist/{type}/{id}"
-      ],
-      "method": "DELETE",
-      "url": "https://backend.leadconnectorhq.com/blacklist/{kind}/{id}",
-      "path": "/blacklist/{kind}/{id}",
-      "origin": "https://backend.leadconnectorhq.com",
-      "rail": "workflow",
-      "kind": "destructive",
-      "note": "🔴 THIS ROW IS MIS-BASED: the call is FlowGuardService `${baseURL}/flowguard/blacklist/{kind}/{id}`, i.e. DELETE /workflow/flowguard/blacklist/{kind}/{id}. Measured 2026-09-19 there: without location_id -> 400 naming it; with it -> 401 'Unauthorized'. FlowGuard is refused to this credential, like the rest of its family.",
-      "reach": "refused",
-      "coveredBy": [],
-      "rawCallable": true,
-      "transport": "json",
-      "responseMode": "json",
-      "extraHeaders": [],
-      "operation": null,
-      "service": "workflows",
-      "tree": "documented",
-      "pathParams": [
-        {
-          "name": "kind"
-        },
-        {
-          "name": "id"
-        }
-      ],
-      "query": [],
-      "body": null,
-      "returns": null,
-      "confidence": {
-        "path": "documented",
-        "query": "none-observed",
-        "body": "unresolved",
-        "returns": "unresolved"
-      },
-      "sources": [
-        "workflows/70-research/ENDPOINTS.md:211"
       ]
     },
     {
@@ -12789,6 +12747,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "write",
+      "note": "🔴 An offer only reaches the `membership_course_grant_access` dropdown if it is created with `source:\"course_default_offer\"` AND then PUBLISHED (`PUT …/offers/{id} {visibility:\"published\"}`). An ordinary offer (`source:\"membership\"`) is NEVER listed. [proven-live] 2026-09-19 as a differential (absent → prerequisite created → listed). 🔴 Related trap: a course grant to a contact with NO EMAIL is a SILENT NO-OP — the step logs success, the admin route answers 200 \"successfully queued\", and the offer's member count and the course's progress list both stay empty. A portal member is keyed by EMAIL and nothing on either path says so. See workflows/40-rules/marketplace-asset-publisher-classes.md.",
       "reach": "source-only",
       "coveredBy": [
         "build_course"
@@ -13945,6 +13904,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
+      "note": "⚠️ Four spellings exist in this custom-objects family and they do NOT agree. [proven-live] 2026-09-21: `/objects/` (trailing slash) answers 200 and this plugin has always called it — engine/entities.mjs resolves an object by key or label through it. `/objects/{objectKey}` answers 200 under the BARE spelling, which GHL's own front end never sends; the client only issues `/objects/{objectKey}/`, and THAT is the one that refuses us. A `refused` verdict recorded against a URL nobody sends is not evidence about the capability. See workflows/20-api/refused-but-mined.md.",
       "reach": "source-only",
       "coveredBy": [
         "list_account_entities"
@@ -16998,70 +16958,6 @@
       },
       "sources": [
         "funnels/20-api/schema-markup.md:17"
-      ]
-    },
-    {
-      "id": "workflows--settings-is-active",
-      "method": "PUT",
-      "url": "https://backend.leadconnectorhq.com/settings/is-active",
-      "path": "/settings/is-active",
-      "origin": "https://backend.leadconnectorhq.com",
-      "rail": "workflow",
-      "kind": "write",
-      "note": "ABSENT — a TRUNCATED transcription, measured 2026-09-19: the real route is PUT /workflow/{locationId}/error-notification/settings/is-active (ErrorNotificationService.ts), which is proven. The missing-prefix gate did not catch this one because the dropped part is three segments, not one service prefix.",
-      "reach": "absent",
-      "coveredBy": [],
-      "rawCallable": true,
-      "transport": "json",
-      "responseMode": "json",
-      "extraHeaders": [],
-      "operation": null,
-      "service": "workflows",
-      "tree": "documented",
-      "pathParams": [],
-      "query": [],
-      "body": null,
-      "returns": null,
-      "confidence": {
-        "path": "documented",
-        "query": "none-observed",
-        "body": "unresolved",
-        "returns": "unresolved"
-      },
-      "sources": [
-        "workflows/70-research/RUNTIME-DATA-2.md:91"
-      ]
-    },
-    {
-      "id": "workflows--settings-users",
-      "method": "PUT",
-      "url": "https://backend.leadconnectorhq.com/settings/users",
-      "path": "/settings/users",
-      "origin": "https://backend.leadconnectorhq.com",
-      "rail": "workflow",
-      "kind": "write",
-      "note": "ABSENT — a TRUNCATED transcription, measured 2026-09-19: the real route is PUT /workflow/{locationId}/error-notification/settings/users (ErrorNotificationService.ts), which is proven. The missing-prefix gate did not catch this one because the dropped part is three segments, not one service prefix.",
-      "reach": "absent",
-      "coveredBy": [],
-      "rawCallable": true,
-      "transport": "json",
-      "responseMode": "json",
-      "extraHeaders": [],
-      "operation": null,
-      "service": "workflows",
-      "tree": "documented",
-      "pathParams": [],
-      "query": [],
-      "body": null,
-      "returns": null,
-      "confidence": {
-        "path": "documented",
-        "query": "none-observed",
-        "body": "unresolved",
-        "returns": "unresolved"
-      },
-      "sources": [
-        "workflows/70-research/RUNTIME-DATA-2.md:91"
       ]
     },
     {
@@ -23919,7 +23815,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "write",
-      "note": "Proven live 2026-09-19, read back and RESTORED: body {isActive:boolean}; GET …/error-notification/settings showed true -> false -> true. Location-wide: it switches workflow error emails for the whole sub-account.",
+      "note": "Proven live 2026-09-19, read back and RESTORED: body {isActive:boolean}; GET …/error-notification/settings showed true -> false -> true. Location-wide: it switches workflow error emails for the whole sub-account. The truncated spelling `PUT /settings/is-active` used to stand as its own catalogue row carrying an ABSENT verdict; merge-endpoint-catalogs.mjs now folds it into this row (console bl-128, 2026-09-21), so the warning has no row left to sit on and is recorded here instead.",
       "reach": "proven",
       "provenFor": [
         "agency-admin-bearer"
@@ -23950,7 +23846,8 @@
       },
       "sources": [
         "services/ErrorNotificationService.ts:81",
-        "workflows/50-runtime/error-notifications.md:40"
+        "workflows/50-runtime/error-notifications.md:40",
+        "workflows/70-research/RUNTIME-DATA-2.md:91"
       ]
     },
     {
@@ -23961,7 +23858,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "write",
-      "note": "Proven live 2026-09-19, read back and RESTORED: body {users:[userId,…]} REPLACES the recipient list; the settings read showed [] -> [one user] -> [].",
+      "note": "Proven live 2026-09-19, read back and RESTORED: body {users:[userId,…]} REPLACES the recipient list; the settings read showed [] -> [one user] -> []. The truncated spelling `PUT /settings/users` used to stand as its own catalogue row carrying an ABSENT verdict; merge-endpoint-catalogs.mjs now folds it into this row (console bl-128, 2026-09-21), so the warning has no row left to sit on and is recorded here instead.",
       "reach": "proven",
       "provenFor": [
         "agency-admin-bearer"
@@ -23992,7 +23889,8 @@
       },
       "sources": [
         "services/ErrorNotificationService.ts:90",
-        "workflows/50-runtime/error-notifications.md:41"
+        "workflows/50-runtime/error-notifications.md:41",
+        "workflows/70-research/RUNTIME-DATA-2.md:91"
       ]
     },
     {
@@ -24029,6 +23927,622 @@
       },
       "sources": [
         "workflows/20-api/03-endpoints.md:371"
+      ]
+    },
+    {
+      "id": "template-builder-service--list-template-groups",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/workflow/{locationId}/hotlinks-template-groups",
+      "path": "/workflow/{locationId}/hotlinks-template-groups",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "note": "NO TASK NEEDS THIS — this is GHL's OWN quick-start template catalogue (the modals offered inside forms, funnels, courses and eleven other products), authored from a UI shown only to three hardcoded GHL-internal locations. Nothing this plugin builds reads or depends on it. 🔴 [proven-live] 2026-09-23: it answered 200 to the sandbox's location Bearer and returned a group OWNED BY A GHL-INTERNAL LOCATION, not the one in the path — so the list is platform-wide and `{locationId}` is not a filter, and the allowlist is enforced in the UI only. Dates are Firestore timestamps {_seconds,_nanoseconds}, not ISO. See workflows/20-api/hotlink-template-groups.md.",
+      "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": "listTemplateGroups",
+      "service": "workflows",
+      "tree": "workflow-builder",
+      "pathParams": [
+        {
+          "name": "locationId"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": {
+        "typeName": "TemplateListResponse",
+        "properties": [
+          {
+            "name": "success",
+            "type": "boolean",
+            "optional": false
+          },
+          {
+            "name": "data",
+            "type": "TemplateGroup[]",
+            "optional": false
+          },
+          {
+            "name": "meta",
+            "type": "{ skip: number; limit: number; count: number; productType: string; subType: s...",
+            "optional": false
+          }
+        ],
+        "confidence": "resolved"
+      },
+      "confidence": {
+        "path": "resolved",
+        "query": "none-observed",
+        "body": "none-observed",
+        "returns": "resolved"
+      },
+      "sources": [
+        "components/hotlink-template-builder/services/template-builder-service.ts:34"
+      ]
+    },
+    {
+      "id": "template-builder-service--create-template-group",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/workflow/{locationId}/hotlinks-template-groups",
+      "path": "/workflow/{locationId}/hotlinks-template-groups",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "note": "FENCED — writes to GHL's OWN platform-wide quick-start catalogue. The read proves these records belong to a GHL-internal account and are served to every account, so a write the server accepted would change content shown across GHL, and a DELETE would destroy GHL's data. Whether the server enforces the three-location allowlist on writes is unknown and deliberately untested: the only test is the harm. No task needs it. Never sent. See workflows/20-api/hotlink-template-groups.md.",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": "createTemplateGroup",
+      "service": "workflows",
+      "tree": "workflow-builder",
+      "pathParams": [
+        {
+          "name": "locationId"
+        }
+      ],
+      "query": [],
+      "body": {
+        "typeName": "TemplateGroupBase",
+        "properties": [
+          {
+            "name": "modalTitle",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "name": "modalDescription",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "name": "aiTextboxPlaceholder",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "name": "productType",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "name": "subType",
+            "type": "string",
+            "optional": false
+          }
+        ],
+        "confidence": "resolved"
+      },
+      "returns": {
+        "typeName": "CreateTemplateResponse",
+        "properties": [
+          {
+            "name": "id",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "name": "success",
+            "type": "boolean",
+            "optional": false
+          }
+        ],
+        "confidence": "resolved"
+      },
+      "confidence": {
+        "path": "resolved",
+        "query": "none-observed",
+        "body": "resolved",
+        "returns": "resolved"
+      },
+      "sources": [
+        "components/hotlink-template-builder/services/template-builder-service.ts:19"
+      ]
+    },
+    {
+      "id": "template-builder-service--delete-template-group",
+      "method": "DELETE",
+      "url": "https://backend.leadconnectorhq.com/workflow/{locationId}/hotlinks-template-groups/{templateGroupId}",
+      "path": "/workflow/{locationId}/hotlinks-template-groups/{templateGroupId}",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "destructive",
+      "note": "FENCED — writes to GHL's OWN platform-wide quick-start catalogue. The read proves these records belong to a GHL-internal account and are served to every account, so a write the server accepted would change content shown across GHL, and a DELETE would destroy GHL's data. Whether the server enforces the three-location allowlist on writes is unknown and deliberately untested: the only test is the harm. No task needs it. Never sent. See workflows/20-api/hotlink-template-groups.md.",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": "deleteTemplateGroup",
+      "service": "workflows",
+      "tree": "workflow-builder",
+      "pathParams": [
+        {
+          "name": "locationId"
+        },
+        {
+          "name": "templateGroupId"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": {
+        "typeName": "{ success: boolean; }",
+        "properties": [
+          {
+            "name": "success",
+            "type": "boolean",
+            "optional": false
+          }
+        ],
+        "confidence": "resolved"
+      },
+      "confidence": {
+        "path": "resolved",
+        "query": "none-observed",
+        "body": "none-observed",
+        "returns": "resolved"
+      },
+      "sources": [
+        "components/hotlink-template-builder/services/template-builder-service.ts:24"
+      ]
+    },
+    {
+      "id": "template-builder-service--update-template-group",
+      "method": "PUT",
+      "url": "https://backend.leadconnectorhq.com/workflow/{locationId}/hotlinks-template-groups/{templateGroupId}",
+      "path": "/workflow/{locationId}/hotlinks-template-groups/{templateGroupId}",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "note": "FENCED — writes to GHL's OWN platform-wide quick-start catalogue. The read proves these records belong to a GHL-internal account and are served to every account, so a write the server accepted would change content shown across GHL, and a DELETE would destroy GHL's data. Whether the server enforces the three-location allowlist on writes is unknown and deliberately untested: the only test is the harm. No task needs it. Never sent. See workflows/20-api/hotlink-template-groups.md.",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": "updateTemplateGroup",
+      "service": "workflows",
+      "tree": "workflow-builder",
+      "pathParams": [
+        {
+          "name": "locationId"
+        },
+        {
+          "name": "templateGroupId"
+        }
+      ],
+      "query": [],
+      "body": {
+        "typeName": "TemplateGroupBase",
+        "properties": [
+          {
+            "name": "modalTitle",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "name": "modalDescription",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "name": "aiTextboxPlaceholder",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "name": "productType",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "name": "subType",
+            "type": "string",
+            "optional": false
+          }
+        ],
+        "confidence": "resolved"
+      },
+      "returns": {
+        "typeName": "CreateTemplateResponse",
+        "properties": [
+          {
+            "name": "id",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "name": "success",
+            "type": "boolean",
+            "optional": false
+          }
+        ],
+        "confidence": "resolved"
+      },
+      "confidence": {
+        "path": "resolved",
+        "query": "none-observed",
+        "body": "resolved",
+        "returns": "resolved"
+      },
+      "sources": [
+        "components/hotlink-template-builder/services/template-builder-service.ts:29"
+      ]
+    },
+    {
+      "id": "template-builder-service--create-template",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/workflow/{locationId}/hotlinks-template-groups/{templateGroupId}/templates",
+      "path": "/workflow/{locationId}/hotlinks-template-groups/{templateGroupId}/templates",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "note": "FENCED — writes to GHL's OWN platform-wide quick-start catalogue. The read proves these records belong to a GHL-internal account and are served to every account, so a write the server accepted would change content shown across GHL, and a DELETE would destroy GHL's data. Whether the server enforces the three-location allowlist on writes is unknown and deliberately untested: the only test is the harm. No task needs it. Never sent. See workflows/20-api/hotlink-template-groups.md.",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": "createTemplate",
+      "service": "workflows",
+      "tree": "workflow-builder",
+      "pathParams": [
+        {
+          "name": "locationId"
+        },
+        {
+          "name": "templateGroupId"
+        }
+      ],
+      "query": [],
+      "body": {
+        "typeName": "TemplatePayload",
+        "properties": [
+          {
+            "name": "templateType",
+            "type": "TemplateType",
+            "optional": false
+          },
+          {
+            "name": "id",
+            "type": "string",
+            "optional": true
+          },
+          {
+            "name": "title",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "name": "description",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "name": "icon",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "name": "color",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "name": "status",
+            "type": "TemplateStatus",
+            "optional": false
+          },
+          {
+            "name": "extras",
+            "type": "Record<string, unknown>",
+            "optional": false
+          },
+          {
+            "name": "deleted",
+            "type": "boolean",
+            "optional": true
+          },
+          {
+            "name": "createdAt",
+            "type": "FirestoreTimestamp",
+            "optional": true
+          },
+          {
+            "name": "updatedAt",
+            "type": "FirestoreTimestamp",
+            "optional": true
+          },
+          {
+            "name": "createdBy",
+            "type": "string",
+            "optional": true
+          },
+          {
+            "name": "updatedBy",
+            "type": "string",
+            "optional": true
+          },
+          {
+            "name": "version",
+            "type": "number",
+            "optional": true
+          },
+          {
+            "name": "locationId",
+            "type": "string",
+            "optional": true
+          },
+          {
+            "name": "productType",
+            "type": "string",
+            "optional": true
+          },
+          {
+            "name": "subType",
+            "type": "string",
+            "optional": true
+          }
+        ],
+        "confidence": "resolved"
+      },
+      "returns": {
+        "typeName": "CreateTemplateResponse",
+        "properties": [
+          {
+            "name": "id",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "name": "success",
+            "type": "boolean",
+            "optional": false
+          }
+        ],
+        "confidence": "resolved"
+      },
+      "confidence": {
+        "path": "resolved",
+        "query": "none-observed",
+        "body": "resolved",
+        "returns": "resolved"
+      },
+      "sources": [
+        "components/hotlink-template-builder/services/template-builder-service.ts:41"
+      ]
+    },
+    {
+      "id": "template-builder-service--delete-template",
+      "method": "DELETE",
+      "url": "https://backend.leadconnectorhq.com/workflow/{locationId}/hotlinks-template-groups/{templateGroupId}/templates/{templateId}",
+      "path": "/workflow/{locationId}/hotlinks-template-groups/{templateGroupId}/templates/{templateId}",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "destructive",
+      "note": "FENCED — writes to GHL's OWN platform-wide quick-start catalogue. The read proves these records belong to a GHL-internal account and are served to every account, so a write the server accepted would change content shown across GHL, and a DELETE would destroy GHL's data. Whether the server enforces the three-location allowlist on writes is unknown and deliberately untested: the only test is the harm. No task needs it. Never sent. See workflows/20-api/hotlink-template-groups.md.",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": "deleteTemplate",
+      "service": "workflows",
+      "tree": "workflow-builder",
+      "pathParams": [
+        {
+          "name": "locationId"
+        },
+        {
+          "name": "templateGroupId"
+        },
+        {
+          "name": "templateId"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": {
+        "typeName": "{ success: boolean; }",
+        "properties": [
+          {
+            "name": "success",
+            "type": "boolean",
+            "optional": false
+          }
+        ],
+        "confidence": "resolved"
+      },
+      "confidence": {
+        "path": "resolved",
+        "query": "none-observed",
+        "body": "none-observed",
+        "returns": "resolved"
+      },
+      "sources": [
+        "components/hotlink-template-builder/services/template-builder-service.ts:46"
+      ]
+    },
+    {
+      "id": "template-builder-service--update-template",
+      "method": "PUT",
+      "url": "https://backend.leadconnectorhq.com/workflow/{locationId}/hotlinks-template-groups/{templateGroupId}/templates/{templateId}",
+      "path": "/workflow/{locationId}/hotlinks-template-groups/{templateGroupId}/templates/{templateId}",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "note": "FENCED — writes to GHL's OWN platform-wide quick-start catalogue. The read proves these records belong to a GHL-internal account and are served to every account, so a write the server accepted would change content shown across GHL, and a DELETE would destroy GHL's data. Whether the server enforces the three-location allowlist on writes is unknown and deliberately untested: the only test is the harm. No task needs it. Never sent. See workflows/20-api/hotlink-template-groups.md.",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": "updateTemplate",
+      "service": "workflows",
+      "tree": "workflow-builder",
+      "pathParams": [
+        {
+          "name": "locationId"
+        },
+        {
+          "name": "templateGroupId"
+        },
+        {
+          "name": "templateId"
+        }
+      ],
+      "query": [],
+      "body": {
+        "typeName": "TemplatePayload",
+        "properties": [
+          {
+            "name": "templateType",
+            "type": "TemplateType",
+            "optional": false
+          },
+          {
+            "name": "id",
+            "type": "string",
+            "optional": true
+          },
+          {
+            "name": "title",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "name": "description",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "name": "icon",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "name": "color",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "name": "status",
+            "type": "TemplateStatus",
+            "optional": false
+          },
+          {
+            "name": "extras",
+            "type": "Record<string, unknown>",
+            "optional": false
+          },
+          {
+            "name": "deleted",
+            "type": "boolean",
+            "optional": true
+          },
+          {
+            "name": "createdAt",
+            "type": "FirestoreTimestamp",
+            "optional": true
+          },
+          {
+            "name": "updatedAt",
+            "type": "FirestoreTimestamp",
+            "optional": true
+          },
+          {
+            "name": "createdBy",
+            "type": "string",
+            "optional": true
+          },
+          {
+            "name": "updatedBy",
+            "type": "string",
+            "optional": true
+          },
+          {
+            "name": "version",
+            "type": "number",
+            "optional": true
+          },
+          {
+            "name": "locationId",
+            "type": "string",
+            "optional": true
+          },
+          {
+            "name": "productType",
+            "type": "string",
+            "optional": true
+          },
+          {
+            "name": "subType",
+            "type": "string",
+            "optional": true
+          }
+        ],
+        "confidence": "resolved"
+      },
+      "returns": {
+        "typeName": "CreateTemplateResponse",
+        "properties": [
+          {
+            "name": "id",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "name": "success",
+            "type": "boolean",
+            "optional": false
+          }
+        ],
+        "confidence": "resolved"
+      },
+      "confidence": {
+        "path": "resolved",
+        "query": "none-observed",
+        "body": "resolved",
+        "returns": "resolved"
+      },
+      "sources": [
+        "components/hotlink-template-builder/services/template-builder-service.ts:51"
       ]
     },
     {
@@ -24732,6 +25246,7 @@
       "rail": "workflow",
       "kind": "read",
       "summary": "Whether this workflow is paused on a schedule, and the window if so.",
+      "note": "The read side of the scheduled-pause rail, and the ONLY way to obtain a config's `_id`: the POST that creates one answers 201 {success:true} and does NOT return the id, so an update or delete must GET this list and read `_id` off the matching entry. [proven-live] 2026-09-21, full create → read → delete, cleaned up. A pause is WORKFLOW-SCOPED (it carries `workflowIds`), the window must be at least 24 hours, and `isActive` is the config's enabled flag, not \"currently pausing\". 🔴 An active pause does NOT hold a contact already parked at a wait — the wait fired on schedule and the contact completed the workflow with the pause active. See workflows/50-runtime/scheduled-pause.md.",
       "reach": "proven",
       "provenFor": [
         "agency-admin-bearer"
@@ -24879,6 +25394,83 @@
       },
       "sources": [
         "services/ScheduledPauseService.ts:102"
+      ]
+    },
+    {
+      "id": "scheduled-pause-service--update-scheduled-pause-settings",
+      "method": "PUT",
+      "url": "https://backend.leadconnectorhq.com/workflow/{locationId}/scheduled-pause/config/{recordId}",
+      "path": "/workflow/{locationId}/scheduled-pause/config/{recordId}",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "note": "The UPDATE side of the scheduled-pause rail. 🔴 You cannot call it from the create alone: the POST that makes a config answers 201 {success:true} and does NOT return the record's `_id`, so you must GET …/scheduled-pause/config and read `_id` off the matching entry first. Body is the same shape as the create — {pauseStartTime, pauseEndTime, isAnnual, workflowIds} — with the times as EPOCH MILLISECONDS in the request, though the read-back returns them as ISO strings. The window must be at least 24 hours (a one-hour window is refused 400 'Difference between pause start and end times should be at least 24 hours'). [proven-live] 2026-09-21 as part of a full create → read → update → delete cycle on the designated sandbox, cleaned up. 🔴 And know what a pause does NOT do before reaching for this: an active pause does not hold a contact already parked at a wait — the wait fired at its original executeOn and the contact completed the workflow with the pause active. See workflows/50-runtime/scheduled-pause.md. RE-EXECUTED 2026-09-23 with a separate read-back: the window moved, `updatedAt` moved, and BOTH scheduled cloud tasks were re-minted. 🔴 An update that moves a window into the PAST fires the pending end boundary immediately. And what a boundary does is change PUBLISH STATUS: start = un-publish (published -> draft), end = re-publish only what the start un-published; each mints a new version.",
+      "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": "updateScheduledPauseSettings",
+      "service": "workflows",
+      "tree": "workflow-builder",
+      "pathParams": [
+        {
+          "name": "locationId"
+        },
+        {
+          "name": "recordId"
+        }
+      ],
+      "query": [],
+      "body": {
+        "typeName": "IWorkflowPauseConfig",
+        "properties": [
+          {
+            "name": "pauseStartTime",
+            "type": "number",
+            "optional": false
+          },
+          {
+            "name": "pauseEndTime",
+            "type": "number",
+            "optional": false
+          },
+          {
+            "name": "isAnnual",
+            "type": "boolean",
+            "optional": false
+          },
+          {
+            "name": "workflowIds",
+            "type": "string[]",
+            "optional": false
+          },
+          {
+            "name": "_id",
+            "type": "string",
+            "optional": true
+          },
+          {
+            "name": "isUpdated",
+            "type": "boolean",
+            "optional": true
+          }
+        ],
+        "confidence": "resolved"
+      },
+      "returns": null,
+      "confidence": {
+        "path": "resolved",
+        "query": "none-observed",
+        "body": "resolved",
+        "returns": "none-observed"
+      },
+      "sources": [
+        "services/ScheduledPauseService.ts:92"
       ]
     },
     {
@@ -27832,7 +28424,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "destructive",
-      "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class. TRAP: WITHOUT location_id every flowguard route answers 400, which reads as an argument problem and invites another probing session; WITH it, 401 -- the 401 is the real answer. RE-VERIFIED 2026-09-15 (auth facts on GHL expire, so this was re-measured, not assumed). ὓ4 DO NOT PROBE THIS CLUSTER AGAIN and do not seek the credential — it is MINED instead, and the knowledge is landed in corpus workflows/50-runtime/flowguard-platform-guardrails.md: the guardrail vocabulary (loop locks with reason 'infinite_loop_detected' / lockedBy 'system', the execution status 'stuck' as a first-class state distinct from failed, blacklists scoped by workflow AND step AND contact, rate-limit rules dimensioned global|workflow|contact, and bypasses carrying an expiresAt). That vocabulary is a specification of what goes wrong with workflows in production, which is why it is worth having without the endpoint. ⚠️ The NUMBERS in flowGuardMockData.ts are a developer's placeholders, never GHL's thresholds. TRAP for anyone who ever does reach it: every getter in FlowGuardService.ts falls back to its mock data on error, so the panel renders a convincing fake list on a 401 — read the network, not the screen.",
+      "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class. TRAP: WITHOUT location_id every flowguard route answers 400, which reads as an argument problem and invites another probing session; WITH it, 401 -- the 401 is the real answer. RE-VERIFIED 2026-09-15 (auth facts on GHL expire, so this was re-measured, not assumed). ὓ4 DO NOT PROBE THIS CLUSTER AGAIN and do not seek the credential — it is MINED instead, and the knowledge is landed in corpus workflows/50-runtime/flowguard-platform-guardrails.md: the guardrail vocabulary (loop locks with reason 'infinite_loop_detected' / lockedBy 'system', the execution status 'stuck' as a first-class state distinct from failed, blacklists scoped by workflow AND step AND contact, rate-limit rules dimensioned global|workflow|contact, and bypasses carrying an expiresAt). That vocabulary is a specification of what goes wrong with workflows in production, which is why it is worth having without the endpoint. ⚠️ The NUMBERS in flowGuardMockData.ts are a developer's placeholders, never GHL's thresholds. TRAP for anyone who ever does reach it: every getter in FlowGuardService.ts falls back to its mock data on error, so the panel renders a convincing fake list on a 401 — read the network, not the screen. Reached via FlowGuardService `${baseURL}/flowguard/blacklist/{kind}/{id}`. Measured 2026-09-19: without location_id -> 400 naming it; with it -> 401 'Unauthorized'. FlowGuard is refused to this credential, like the rest of its family. The truncated spelling `DELETE /blacklist/{kind}/{id}` used to stand as its own catalogue row carrying this verdict; merge-endpoint-catalogs.mjs now folds it into this row (console bl-128, 2026-09-21).",
       "reach": "refused",
       "coveredBy": [],
       "rawCallable": true,
@@ -27870,7 +28462,8 @@
         "returns": "none-observed"
       },
       "sources": [
-        "services/FlowGuardService.ts:197"
+        "services/FlowGuardService.ts:197",
+        "workflows/70-research/ENDPOINTS.md:211"
       ]
     },
     {
@@ -29282,6 +29875,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "write",
+      "note": "🔴 One of the TWO sources an asset's dropdown can declare. An input carries either `fetchOptions` (read with GET /workflows-marketplace/actions/options/{key}) or `dynamicSource` (this route, with `filterField=<field>`). [proven-live] 2026-09-19: the underlying service routes refuse a location credential (\"not yet supported by the IAM Service\"), so these two proxies are the only door. An unknown action key answers 400 \"Action is not present\" on BOTH, so an EMPTY LIST IS ABOUT THE ACCOUNT, not a bad key. Do not fall back to the per-field form GET …/actions/options/{key}/{fieldName}: it returned {options: []} for a field the all-fields form listed in the same minute. See workflows/40-rules/marketplace-asset-publisher-classes.md.",
       "reach": "source-only",
       "coveredBy": [],
       "rawCallable": true,
@@ -39487,6 +40081,7 @@
       "origin": "https://services.leadconnectorhq.com",
       "rail": "ai",
       "kind": "write",
+      "note": "🔴 UNAUTHENTICATED BY DESIGN, and it does NOT check that `{triggerId}` exists. [proven-live] 2026-09-19 with an id that was never a trigger: this POST answered 200 \"test request received\" and the whole downstream chain then agreed — the request read back against the ghost id and could be pinned as that \"trigger's\" reference. Nothing anywhere says the trigger is not real. A tier-3 silent write: accepted, stored, reads back correctly, inert — and here even the read-back is on the wrong object, so it agrees. VERIFY THE TRIGGER ID EXISTS FIRST. See workflows/40-rules/inbound-webhook-accepts-any-trigger-id.md.",
       "reach": "source-only",
       "coveredBy": [
         "build_workflow",
@@ -39591,6 +40186,7 @@
       "origin": "https://services.leadconnectorhq.com",
       "rail": "ai",
       "kind": "write",
+      "note": "🔴 The pinned reference DECIDES WHICH `{{inboundWebhookRequest.*}}` MERGE TAGS EXIST for a trigger, and this route will pin against a trigger id that does not exist. [proven-live] 2026-09-19: pinning under a ghost id answered 200 and the reference read back in full. Pin against a mistyped id and the whole chain reports success and returns a complete set of merge tags — while the REAL trigger still has no reference, so those tags RENDER EMPTY AT RUNTIME. See workflows/40-rules/inbound-webhook-accepts-any-trigger-id.md.",
       "reach": "source-only",
       "coveredBy": [
         "build_workflow",
@@ -39655,6 +40251,7 @@
       "origin": "https://services.leadconnectorhq.com",
       "rail": "ai",
       "kind": "read",
+      "note": "🔴 Returns requests recorded against ANY `{triggerId}`, real or not — the receiving URL never checks the trigger exists. [proven-live] 2026-09-19: a ghost id returned its request exactly as a real trigger would. A non-empty answer here is therefore NOT evidence that the trigger id is valid. See workflows/40-rules/inbound-webhook-accepts-any-trigger-id.md.",
       "reach": "proven",
       "provenFor": [
         "agency-admin-bearer"
@@ -43606,6 +44203,7 @@
       "origin": "https://services.leadconnectorhq.com",
       "rail": "ai",
       "kind": "write",
+      "note": "🔴 An offer only reaches the `membership_course_grant_access` dropdown if it is created with `source:\"course_default_offer\"` AND then PUBLISHED (`PUT …/offers/{id} {visibility:\"published\"}`). An ordinary offer (`source:\"membership\"`) is NEVER listed. [proven-live] 2026-09-19 as a differential (absent → prerequisite created → listed). 🔴 Related trap: a course grant to a contact with NO EMAIL is a SILENT NO-OP — the step logs success, the admin route answers 200 \"successfully queued\", and the offer's member count and the course's progress list both stay empty. A portal member is keyed by EMAIL and nothing on either path says so. See workflows/40-rules/marketplace-asset-publisher-classes.md.",
       "reach": "source-only",
       "coveredBy": [
         "build_course"
@@ -47454,6 +48052,7 @@
       "origin": "https://services.leadconnectorhq.com",
       "rail": "ai",
       "kind": "read",
+      "note": "⚠️ The spelling that WORKS: [proven-live] 2026-09-21 this answers 200 and engine/entities.mjs calls `/objects/?locationId=` on every build to resolve a custom object by key or label. An earlier `refused` verdict on this row was simply wrong. Its sibling `/objects/{objectKey}/` (trailing slash, the client's own spelling) is the one that refuses us, while the bare `/objects/{objectKey}` answers. See workflows/20-api/refused-but-mined.md.",
       "reach": "refused",
       "coveredBy": [
         "list_account_entities"

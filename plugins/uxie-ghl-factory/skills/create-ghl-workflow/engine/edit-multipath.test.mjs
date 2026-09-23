@@ -492,3 +492,71 @@ test('modifyStep cannot smuggle a trigger-filter condition past the compiler ont
     { ctx: ctx('c'), idGen: makeSeededIdGen('w') });
   assert.doesNotThrow(() => commit(elsewhere));
 });
+
+// ── Branchless finders are STILL containers (2026-09-23) ────────────────────────────────────
+// An insert op carries the bare step. The compiler used to build find_opportunity / find_contact /
+// lc_merge_contact as a container only when onFound/onNotFound was authored, so every inserted
+// finder came out LINEAR: no cat, no transitions, scalar next — saved, validated and published
+// clean, and could not branch. attachTailTo had nothing to attach to.
+const bareFinder = () => ({ type: 'find_opportunity', name: 'Find Opportunity', find: { filters: [{ field: 'pipeline_id', value: PIPE }] } });
+
+test('insertBefore the HEAD with a branchless find_opportunity lands a container and moves the chain onto the named branch', () => {
+  const { templates } = applyOps(linearWf(), [
+    { op: 'insertBefore', beforeId: 's1', step: bareFinder(), attachTailTo: 'Opportunity Found' },
+  ], { ctx: ctx(), idGen: makeSeededIdGen('z') });
+  const c = templates.find((t) => t.type === 'find_opportunity');
+  assert.equal(c.cat, 'multi-path');
+  assert.equal(c.attributes.convertToMultipath, true);
+  assert.equal(c.next.length, 2);
+  assert.ok(c.parentKey == null && c.parent == null, 'the container is the new head');
+  const [found, notFound] = c.next.map((id) => templates.find((t) => t.id === id));
+  assert.equal(found.type, 'transition');
+  assert.equal(found.next, 's1', 'the old head now opens the Found branch');
+  assert.equal(templates.find((t) => t.id === 's1').parent, found.id);
+  assert.equal(notFound.next, null);
+});
+
+test('insertBefore with a branchless finder and a tail still refuses without attachTailTo', () => {
+  assert.throws(() => applyOps(linearWf(), [{ op: 'insertBefore', beforeId: 's1', step: bareFinder() }],
+    { ctx: ctx(), idGen: makeSeededIdGen('z') }), /pass attachTailTo/);
+});
+
+test('branch contents ride in the SAME insert op', () => {
+  const { templates } = applyOps(linearWf(), [
+    { op: 'insertBefore', beforeId: 's1', step: { ...bareFinder(), onNotFound: [tag('No card', 'nc')] }, attachTailTo: 'Opportunity Found' },
+  ], { ctx: ctx(), idGen: makeSeededIdGen('z') });
+  const c = templates.find((t) => t.type === 'find_opportunity');
+  const notFound = templates.find((t) => t.id === c.next[1]);
+  assert.equal(templates.find((t) => t.id === notFound.next).name, 'No card');
+});
+
+test('find_contact and lc_merge_contact compile as containers with no branch keys', () => {
+  for (const step of [
+    { type: 'lc_merge_contact', name: 'Merge' },
+    { type: 'find_contact', name: 'Find', find: { fields: [{ field: 'email', value: '{{contact.email}}', title: 'Email', type: 'string', date: '' }] } },
+  ]) {
+    const sub = compileSubgraph(step, ctx());
+    assert.equal(sub.isContainer, true, step.type);
+    assert.equal(sub.templates.filter((t) => t.type === 'transition').length, 2, step.type);
+  }
+});
+
+test('workflow_ai_decision_maker is reachable by its WIRE type, in an insert', () => {
+  const { templates } = applyOps(linearWf(), [
+    { op: 'insertAfter', afterId: 's1', step: { type: 'workflow_ai_decision_maker', name: 'Route', instructions: 'x', branches: [{ name: 'Hot', description: 'hot', then: [tag('Hot', 'h')] }] }, attachTailTo: 'Default Branch' },
+  ], { ctx: ctx(), idGen: makeSeededIdGen('z') });
+  const c = templates.find((t) => t.type === 'workflow_ai_decision_maker');
+  assert.equal(c.cat, 'multi-path');
+  assert.deepEqual(c.next.map((id) => templates.find((t) => t.id === id).name), ['Default Branch', 'Hot']);
+  assert.equal(templates.find((t) => t.id === c.next[0]).next, 's2');
+});
+
+test('a kind-spelled ai_decision still emits the GHL wire type', () => {
+  const t = compile({ name: 'x', triggers: [], graph: [{ ref: 'a', type: 'ai_decision', name: 'R', instructions: 'x', branches: [{ name: 'B', description: 'b' }] }] }, ctx())._templates;
+  assert.equal(t[0].type, 'workflow_ai_decision_maker');
+});
+
+test('CONTAINER_NOT_LAST: a step authored after a container in the same list is refused, not orphaned', () => {
+  assert.throws(() => compile({ name: 'x', triggers: [], graph: [tag('A', 'a'), { ref: 'fo', ...bareFinder() }, { ref: 'after', ...tag('After', 'z') }] }, ctx()),
+    (e) => e.code === 'CONTAINER_NOT_LAST' && /'after'/.test(e.message));
+});

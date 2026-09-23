@@ -1478,7 +1478,15 @@ export function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
 
     // find_opportunity — multipath container with PRE-DEFINED Found/Not-Found branches
     // (live-verified). Same transition-step mechanics as the multipath wait.
-    if (n.type === 'find_opportunity' && (n.onFound || n.onNotFound)) {
+    //
+    // ALWAYS a container, whether or not the author hung steps under a branch. This used to be
+    // gated on `n.onFound || n.onNotFound`, so a finder authored with no branch keys fell through
+    // to the linear emit: no cat, no transitions, a scalar `next` — a step that saves and
+    // validates clean and cannot branch at runtime. Every live instance is a container (31/31 in
+    // the harvest, convertToMultipath:true on all of them); the builder has no single-path form.
+    // It bit edit_workflow hardest: an insert op carries the bare step, so every inserted
+    // finder came out linear and attachTailTo had no branch to attach to (2026-09-23).
+    if (n.type === 'find_opportunity') {
       // Filters are authored at NODE level as find.filters — NOT as
       // attributes.__customInputFields__ (the EMITTED shape). That key is on the engine's
       // accepted list, so the generic ATTR_KEY guard stays silent, and this handler never
@@ -1582,7 +1590,8 @@ export function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
     // Pre-set 2-branch finder containers: find_contact (user-defined Found/Not-Found),
     // lc_merge_contact (pre-defined Duplicate Found/Not-Found). Same transition-step
     // mechanics as find_opportunity; shapes mirror the verified-live corpus examples.
-    if ((n.type === 'find_contact' || n.type === 'lc_merge_contact') && (n.onFound || n.onNotFound)) {
+    // Always a container, for the reason given at find_opportunity (harvest: 7/7 and 3/3).
+    if (n.type === 'find_contact' || n.type === 'lc_merge_contact') {
       const t1 = ctx.idGen(), t2 = ctx.idGen();
       const isFC = n.type === 'find_contact';
       const container = {
@@ -1619,7 +1628,9 @@ export function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
     // plus an always-present pre-defined Default Branch (first). Mirrors the verified-live
     // workflow_ai_decision_maker corpus shape. Author supplies branches[{name,description,then}].
     if (n.kind === 'ai_decision') {
-      const type = n.type ?? 'workflow_ai_decision_maker';
+      // `ai_decision` is the IR kind, not a GHL step type — an author who spelled the type that
+      // way (KIND_BY_TYPE accepts it) must still get the wire type on the step.
+      const type = (n.type === undefined || n.type === 'ai_decision') ? 'workflow_ai_decision_maker' : n.type;
       const defId = ctx.idGen();
       const branchIds = n.branches.map((b) => idForRef(refMap, ctx, b.ref));   // see the split note above
       const transitions = [
@@ -1671,6 +1682,24 @@ export function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
     }
     if (parentScopeId !== null) tmpl.parent = parentScopeId;
     templates.push(withStepDisabled(n, tmpl, ctx));
+  });
+  // A container is TERMINAL in its scope: its `next` is the branch array, so nothing points at a
+  // step authored after it in the same list. That step compiled with a parentKey naming the
+  // container and no inbound edge — unreachable, and every layer passed it (engine gate clean,
+  // no rule finding). Which branch the tail belongs on is the author's call, exactly as
+  // edit_workflow's attachTailTo makes it, so refuse rather than guess.
+  // A step a goto lands on is reached by that edge, so it is not refused here (the tail after it
+  // rides along on its scalar chain).
+  nodes.forEach((n, i) => {
+    if (i === nodes.length - 1) return;
+    const own = templates.find((t) => t.id === ids[i]);
+    if (!Array.isArray(own?.next)) return;
+    if (nodes[i + 1].ref !== undefined && ctx.__gotoTargets?.has(nodes[i + 1].ref)) return;
+    const tail = nodes.slice(i + 1).map((x) => `'${x.ref ?? x.name ?? x.type}'`).join(', ');
+    throw new IRError('CONTAINER_NOT_LAST',
+      `'${n.ref ?? n.name ?? n.type}' (${own.type}) is a branching step, so it must be the LAST step in its list — `
+      + `${tail} after it would be unreachable. Move ${nodes.length - i > 2 ? 'them' : 'it'} into one of its branches `
+      + `(onFound/onNotFound, branches[].then, paths[].then, default, onEvent/onTimeout, onBooked/onNotBooked).`);
   });
   // GHL OMITS `parentKey` on a root-scope entry node — it never emits null. Proven three ways
   // (2026-08-21): across 310 live workflows / 3,958 nodes `parentKey === null` occurs 0 times;
@@ -2325,7 +2354,9 @@ export function compile(ir, ctx) {
   const triggerRefs = new Map();
   norm.triggers.forEach((t, i) => triggerRefs.set(t.ref ?? `__trigger_${i}`, ctx.idGen()));
 
-  const { templates } = flattenGraph(norm.graph, { ...ctx, __visited: visited, __triggerRefs: triggerRefs }, refMap, null);
+  const gotoTargets = new Set();
+  walkNodes(norm.graph, (n) => { if (n.kind === 'goto' && n.target) gotoTargets.add(n.target); });
+  const { templates } = flattenGraph(norm.graph, { ...ctx, __visited: visited, __triggerRefs: triggerRefs, __gotoTargets: gotoTargets }, refMap, null);
 
   const missing = [];
   let authored = 0;

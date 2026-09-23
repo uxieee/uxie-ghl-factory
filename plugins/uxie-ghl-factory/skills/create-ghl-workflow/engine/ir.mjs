@@ -58,7 +58,10 @@ const SCOPE_OWNERS = {
 // because the server echoed exactly what was sent (F5-14). Infer the kind where the type is
 // unambiguous; `goto` only when a target is authored, so a raw goto template carrying
 // attributes.targetNodeId stays a raw step (REF_DANGLING owns that case).
-const KIND_BY_TYPE = { if_else: 'if_else', workflow_split: 'split', ai_decision: 'ai_decision', goto: 'goto' };
+// workflow_ai_decision_maker is the WIRE type of the ai_decision kind; without it here an author
+// who wrote the type GHL stores (and describe_step_type shows) reached the linear emit: with
+// branches it tripped NODE_KEY, without them it compiled a single step that cannot branch.
+const KIND_BY_TYPE = { if_else: 'if_else', workflow_split: 'split', ai_decision: 'ai_decision', workflow_ai_decision_maker: 'ai_decision', goto: 'goto' };
 
 // The node-kind vocabulary, in full. `kind` selects the HANDLER, so an unrecognised value used to
 // select one by omission: no branch matched, nothing validated, and the compiler emitted a step

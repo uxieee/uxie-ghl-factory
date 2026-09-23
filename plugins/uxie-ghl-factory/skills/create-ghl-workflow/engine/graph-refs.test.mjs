@@ -31,10 +31,10 @@ test('a goto targeting a real ref compiles with its resolved targetNodeId', () =
   const built = compile(wf([
     { ref: 'branch', kind: 'if_else', name: 'Split', branches: [
       { ref: 'yes', name: 'Yes', conditions: [{ conditionType: 'contact_detail', tag: 'x' }], then: [tag('b', 'B')] },
-      { ref: 'no', name: 'No', else: true, then: [] },
+      // 'A' and the goto live in the None branch: at root, after the container, nothing reaches
+      // them (CONTAINER_NOT_LAST refuses that shape).
+      { ref: 'no', name: 'No', else: true, then: [tag('a', 'A'), { ref: 'g', kind: 'goto', name: 'Skip ahead', target: 'b' }] },
     ] },
-    tag('a', 'A'),
-    { ref: 'g', kind: 'goto', name: 'Skip ahead', target: 'b' },
   ]), ctx());
   const tpls = built.autoSaveBody.workflowData.templates;
   const g = tpls.find((t) => t.type === 'goto');

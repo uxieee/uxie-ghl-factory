@@ -3,7 +3,7 @@
 // the fresh templates in. Keeping this pure makes the op sequencing + diff-merge testable.
 import {
   appendStep, deleteStep, insertAfter, modifyStep, renameStep, appendToBranch, moveStep,
-  addBranch, deleteContainer, setStepDisabled, disableStepsByType,
+  addBranch, deleteContainer, deleteBranch, setStepDisabled, disableStepsByType,
   appendSubgraph, insertSubgraphAfter, appendSubgraphToBranch, repairParentKeys,
   insertBefore, insertSubgraphBefore, prependStep,
   retypeStep, assignMarketplaceStepIndexes,
@@ -555,6 +555,7 @@ const OP_REQUIRED_ARGS = {
   moveStep: ['stepId', 'afterId'],
   addBranch: ['containerId'],
   deleteContainer: ['containerId'],
+  deleteBranch: ['containerId', 'branch'],
   replaceFieldId: ['oldId', 'newId'],
   replaceInAttributes: ['path', 'find', 'replace'],
   repairParentKeys: [],
@@ -582,6 +583,7 @@ const OP_ACCEPTED_ARGS = {
   moveStep: ['stepId', 'afterId'],
   addBranch: ['containerId', 'name', 'conditions'],
   deleteContainer: ['containerId'],
+  deleteBranch: ['containerId', 'branch'],
   replaceTag: ['oldTag', 'newTag', 'triggers', 'allowNoop'],
   replaceFieldId: ['oldId', 'newId', 'triggers', 'allowNoop'],
   replaceInAttributes: ['type', 'path', 'find', 'replace', 'allowNoop'],
@@ -870,6 +872,7 @@ export function applyOp(templates, op, { ctx, idGen }) {
     case 'moveStep': return moveStep(templates, op.stepId, op.afterId);
     case 'addBranch': return addBranch(templates, op.containerId, { name: op.name, conditions: op.conditions ?? [] }, idGen);
     case 'deleteContainer': return deleteContainer(templates, op.containerId);
+    case 'deleteBranch': return deleteBranch(templates, op.containerId, op.branch);
     default:
       if (TRIGGER_OPS.has(op.op))
         throw new Error(`'${op.op}' is a TRIGGER op — it edits a separate document, not workflowData.templates. Route it through partitionOps()/planTriggerOps().`);

@@ -57,7 +57,7 @@ export function fingerprintWorkflow(templates, triggers) {
   return createHash('sha256').update(JSON.stringify({ steps, trg })).digest('hex').slice(0, 16);
 }
 
-export function digestWorkflow({ doc, triggers = [], stickyNotes = [], include = [] } = {}) {
+export function digestWorkflow({ doc, triggers = [], stickyNotes = [], include = [], now = Date.now() } = {}) {
   const templates = (doc?.workflowData?.templates ?? doc?.templates ?? []).filter(Boolean);
   const byId = new Map(templates.map((t) => [t.id, t]));
 
@@ -121,6 +121,26 @@ export function digestWorkflow({ doc, triggers = [], stickyNotes = [], include =
     workflowId: doc?.id ?? doc?._id ?? null,
     name: doc?.name ?? null,
     status: doc?.status ?? null,
+    // A scheduled pause un-publishes a workflow at its start and re-publishes it at its end, and
+    // while it runs the document carries `paused: "workflow-scheduled-pause"` and the pause config's
+    // _id in `pauseUpdatedById` (live 2026-09-23). Without this, a digest shows a bare `draft` —
+    // indistinguishable from an unfinished workflow — and an agent that "finishes" it by publishing
+    // ends somebody's maintenance window early. Only present while a pause holds the workflow.
+    ...(doc?.paused ? { pausedBy: {
+      by: doc.paused,
+      pauseConfigId: doc.pauseUpdatedById ?? null,
+      note: 'DRAFT BECAUSE A SCHEDULED PAUSE IS RUNNING, not because it is unfinished. The pause re-publishes it when its window ends; publishing it now ends the pause early.',
+    } } : {}),
+    // `getWorkflow` asks for includeScheduledPauseInfo, which adds `scheduledPauseDates` — EVERY pause
+    // window naming this workflow, past ones included, with no ids and no ran-state. Only windows that
+    // have not ended bear on an edit or a publish, so only those are shown: each one is a span during
+    // which this workflow will be un-published and take no new contacts.
+    ...(() => {
+      const ahead = (doc?.scheduledPauseDates ?? [])
+        .filter((w) => Number.isFinite(Date.parse(w?.pauseEndTime)) && Date.parse(w.pauseEndTime) > now)
+        .map((w) => ({ start: w.pauseStartTime ?? null, end: w.pauseEndTime }));
+      return ahead.length ? { scheduledPauses: ahead } : {};
+    })(),
     version: doc?.version ?? null,
     updatedAt: doc?.dateUpdated ?? doc?.updatedAt ?? null,
     fingerprint: fingerprintWorkflow(templates, triggers),

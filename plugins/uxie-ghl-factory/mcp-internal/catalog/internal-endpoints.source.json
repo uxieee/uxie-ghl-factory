@@ -7,7 +7,7 @@
       "capturedAt": "2026-09-14T17:13:13.915Z",
       "hash": "2f617b0e136a56c9",
       "fileCount": 1962,
-      "endpoints": 334
+      "endpoints": 342
     },
     {
       "tree": "memberships",
@@ -28,8 +28,8 @@
   ],
   "note": "SOURCE-DERIVED ONLY, merged from every mined front-end. `tree` on each row says which app calls it. The plugin owns kind/note/summary/reach/coveredBy and merges them at read time. A row proves a GHL front-end calls that path — not that your token reaches it, and not that calling it is safe.",
   "discoveredCallSites": 1295,
-  "skippedCallSites": 692,
-  "count": 1138,
+  "skippedCallSites": 684,
+  "count": 1143,
   "endpoints": [
     {
       "id": "facebook-service--get-ad-account-by-id",
@@ -1222,35 +1222,6 @@
         "workflows/70-research/ENDPOINTS.md:211"
       ],
       "serviceBasis": "declared"
-    },
-    {
-      "id": "workflows--blacklist-delete",
-      "method": "DELETE",
-      "origin": "https://backend.leadconnectorhq.com",
-      "path": "/blacklist/{kind}/{id}",
-      "authRail": "bearer",
-      "transport": "json",
-      "responseMode": "json",
-      "extraHeaders": [],
-      "tree": "documented",
-      "operation": null,
-      "service": "workflows",
-      "query": [],
-      "body": null,
-      "returns": null,
-      "confidence": {
-        "path": "documented",
-        "query": "none-observed",
-        "body": "unresolved",
-        "returns": "unresolved"
-      },
-      "sources": [
-        "workflows/70-research/ENDPOINTS.md:211"
-      ],
-      "serviceBasis": "declared",
-      "aka": [
-        "/blacklist/{type}/{id}"
-      ]
     },
     {
       "id": "shared--calendars",
@@ -13320,58 +13291,6 @@
       "serviceBasis": "declared"
     },
     {
-      "id": "workflows--settings-is-active",
-      "method": "PUT",
-      "origin": "https://backend.leadconnectorhq.com",
-      "path": "/settings/is-active",
-      "authRail": "bearer",
-      "transport": "json",
-      "responseMode": "json",
-      "extraHeaders": [],
-      "tree": "documented",
-      "operation": null,
-      "service": "workflows",
-      "query": [],
-      "body": null,
-      "returns": null,
-      "confidence": {
-        "path": "documented",
-        "query": "none-observed",
-        "body": "unresolved",
-        "returns": "unresolved"
-      },
-      "sources": [
-        "workflows/70-research/RUNTIME-DATA-2.md:91"
-      ],
-      "serviceBasis": "declared"
-    },
-    {
-      "id": "workflows--settings-users",
-      "method": "PUT",
-      "origin": "https://backend.leadconnectorhq.com",
-      "path": "/settings/users",
-      "authRail": "bearer",
-      "transport": "json",
-      "responseMode": "json",
-      "extraHeaders": [],
-      "tree": "documented",
-      "operation": null,
-      "service": "workflows",
-      "query": [],
-      "body": null,
-      "returns": null,
-      "confidence": {
-        "path": "documented",
-        "query": "none-observed",
-        "body": "unresolved",
-        "returns": "unresolved"
-      },
-      "sources": [
-        "workflows/70-research/RUNTIME-DATA-2.md:91"
-      ],
-      "serviceBasis": "declared"
-    },
-    {
       "id": "platform--snapshot-conflicts",
       "method": "POST",
       "origin": "https://backend.leadconnectorhq.com",
@@ -18746,10 +18665,10 @@
       },
       "sources": [
         "services/ErrorNotificationService.ts:81",
-        "workflows/50-runtime/error-notifications.md:40"
+        "workflows/50-runtime/error-notifications.md:40",
+        "workflows/70-research/RUNTIME-DATA-2.md:91"
       ],
-      "serviceClass": "ErrorNotificationService",
-      "serviceBasis": "inferred-from-path"
+      "serviceBasis": "declared"
     },
     {
       "id": "error-notification-service--update-location-error-notification-setting-users",
@@ -18774,10 +18693,10 @@
       },
       "sources": [
         "services/ErrorNotificationService.ts:90",
-        "workflows/50-runtime/error-notifications.md:41"
+        "workflows/50-runtime/error-notifications.md:41",
+        "workflows/70-research/RUNTIME-DATA-2.md:91"
       ],
-      "serviceClass": "ErrorNotificationService",
-      "serviceBasis": "inferred-from-path"
+      "serviceBasis": "declared"
     },
     {
       "id": "workflows--workflow-folder",
@@ -18804,6 +18723,535 @@
         "workflows/20-api/03-endpoints.md:371"
       ],
       "serviceBasis": "declared"
+    },
+    {
+      "id": "template-builder-service--list-template-groups",
+      "method": "GET",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/workflow/{locationId}/hotlinks-template-groups",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "tree": "workflow-builder",
+      "extraHeaders": [],
+      "operation": "listTemplateGroups",
+      "service": "workflows",
+      "query": [],
+      "body": null,
+      "returns": {
+        "typeName": "TemplateListResponse",
+        "properties": [
+          {
+            "name": "success",
+            "type": "boolean",
+            "optional": false
+          },
+          {
+            "name": "data",
+            "type": "TemplateGroup[]",
+            "optional": false
+          },
+          {
+            "name": "meta",
+            "type": "{ skip: number; limit: number; count: number; productType: string; subType: s...",
+            "optional": false
+          }
+        ],
+        "confidence": "resolved"
+      },
+      "confidence": {
+        "path": "resolved",
+        "query": "none-observed",
+        "body": "none-observed",
+        "returns": "resolved"
+      },
+      "sources": [
+        "components/hotlink-template-builder/services/template-builder-service.ts:34"
+      ],
+      "serviceClass": "TemplateBuilderService",
+      "serviceBasis": "inferred-from-path"
+    },
+    {
+      "id": "template-builder-service--create-template-group",
+      "method": "POST",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/workflow/{locationId}/hotlinks-template-groups",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "tree": "workflow-builder",
+      "extraHeaders": [],
+      "operation": "createTemplateGroup",
+      "service": "workflows",
+      "query": [],
+      "body": {
+        "typeName": "TemplateGroupBase",
+        "properties": [
+          {
+            "name": "modalTitle",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "name": "modalDescription",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "name": "aiTextboxPlaceholder",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "name": "productType",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "name": "subType",
+            "type": "string",
+            "optional": false
+          }
+        ],
+        "confidence": "resolved"
+      },
+      "returns": {
+        "typeName": "CreateTemplateResponse",
+        "properties": [
+          {
+            "name": "id",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "name": "success",
+            "type": "boolean",
+            "optional": false
+          }
+        ],
+        "confidence": "resolved"
+      },
+      "confidence": {
+        "path": "resolved",
+        "query": "none-observed",
+        "body": "resolved",
+        "returns": "resolved"
+      },
+      "sources": [
+        "components/hotlink-template-builder/services/template-builder-service.ts:19"
+      ],
+      "serviceClass": "TemplateBuilderService",
+      "serviceBasis": "inferred-from-path"
+    },
+    {
+      "id": "template-builder-service--delete-template-group",
+      "method": "DELETE",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/workflow/{locationId}/hotlinks-template-groups/{templateGroupId}",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "tree": "workflow-builder",
+      "extraHeaders": [],
+      "operation": "deleteTemplateGroup",
+      "service": "workflows",
+      "query": [],
+      "body": null,
+      "returns": {
+        "typeName": "{ success: boolean; }",
+        "properties": [
+          {
+            "name": "success",
+            "type": "boolean",
+            "optional": false
+          }
+        ],
+        "confidence": "resolved"
+      },
+      "confidence": {
+        "path": "resolved",
+        "query": "none-observed",
+        "body": "none-observed",
+        "returns": "resolved"
+      },
+      "sources": [
+        "components/hotlink-template-builder/services/template-builder-service.ts:24"
+      ],
+      "serviceClass": "TemplateBuilderService",
+      "serviceBasis": "inferred-from-path"
+    },
+    {
+      "id": "template-builder-service--update-template-group",
+      "method": "PUT",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/workflow/{locationId}/hotlinks-template-groups/{templateGroupId}",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "tree": "workflow-builder",
+      "extraHeaders": [],
+      "operation": "updateTemplateGroup",
+      "service": "workflows",
+      "query": [],
+      "body": {
+        "typeName": "TemplateGroupBase",
+        "properties": [
+          {
+            "name": "modalTitle",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "name": "modalDescription",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "name": "aiTextboxPlaceholder",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "name": "productType",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "name": "subType",
+            "type": "string",
+            "optional": false
+          }
+        ],
+        "confidence": "resolved"
+      },
+      "returns": {
+        "typeName": "CreateTemplateResponse",
+        "properties": [
+          {
+            "name": "id",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "name": "success",
+            "type": "boolean",
+            "optional": false
+          }
+        ],
+        "confidence": "resolved"
+      },
+      "confidence": {
+        "path": "resolved",
+        "query": "none-observed",
+        "body": "resolved",
+        "returns": "resolved"
+      },
+      "sources": [
+        "components/hotlink-template-builder/services/template-builder-service.ts:29"
+      ],
+      "serviceClass": "TemplateBuilderService",
+      "serviceBasis": "inferred-from-path"
+    },
+    {
+      "id": "template-builder-service--create-template",
+      "method": "POST",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/workflow/{locationId}/hotlinks-template-groups/{templateGroupId}/templates",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "tree": "workflow-builder",
+      "extraHeaders": [],
+      "operation": "createTemplate",
+      "service": "workflows",
+      "query": [],
+      "body": {
+        "typeName": "TemplatePayload",
+        "properties": [
+          {
+            "name": "templateType",
+            "type": "TemplateType",
+            "optional": false
+          },
+          {
+            "name": "id",
+            "type": "string",
+            "optional": true
+          },
+          {
+            "name": "title",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "name": "description",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "name": "icon",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "name": "color",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "name": "status",
+            "type": "TemplateStatus",
+            "optional": false
+          },
+          {
+            "name": "extras",
+            "type": "Record<string, unknown>",
+            "optional": false
+          },
+          {
+            "name": "deleted",
+            "type": "boolean",
+            "optional": true
+          },
+          {
+            "name": "createdAt",
+            "type": "FirestoreTimestamp",
+            "optional": true
+          },
+          {
+            "name": "updatedAt",
+            "type": "FirestoreTimestamp",
+            "optional": true
+          },
+          {
+            "name": "createdBy",
+            "type": "string",
+            "optional": true
+          },
+          {
+            "name": "updatedBy",
+            "type": "string",
+            "optional": true
+          },
+          {
+            "name": "version",
+            "type": "number",
+            "optional": true
+          },
+          {
+            "name": "locationId",
+            "type": "string",
+            "optional": true
+          },
+          {
+            "name": "productType",
+            "type": "string",
+            "optional": true
+          },
+          {
+            "name": "subType",
+            "type": "string",
+            "optional": true
+          }
+        ],
+        "confidence": "resolved"
+      },
+      "returns": {
+        "typeName": "CreateTemplateResponse",
+        "properties": [
+          {
+            "name": "id",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "name": "success",
+            "type": "boolean",
+            "optional": false
+          }
+        ],
+        "confidence": "resolved"
+      },
+      "confidence": {
+        "path": "resolved",
+        "query": "none-observed",
+        "body": "resolved",
+        "returns": "resolved"
+      },
+      "sources": [
+        "components/hotlink-template-builder/services/template-builder-service.ts:41"
+      ],
+      "serviceClass": "TemplateBuilderService",
+      "serviceBasis": "inferred-from-path"
+    },
+    {
+      "id": "template-builder-service--delete-template",
+      "method": "DELETE",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/workflow/{locationId}/hotlinks-template-groups/{templateGroupId}/templates/{templateId}",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "tree": "workflow-builder",
+      "extraHeaders": [],
+      "operation": "deleteTemplate",
+      "service": "workflows",
+      "query": [],
+      "body": null,
+      "returns": {
+        "typeName": "{ success: boolean; }",
+        "properties": [
+          {
+            "name": "success",
+            "type": "boolean",
+            "optional": false
+          }
+        ],
+        "confidence": "resolved"
+      },
+      "confidence": {
+        "path": "resolved",
+        "query": "none-observed",
+        "body": "none-observed",
+        "returns": "resolved"
+      },
+      "sources": [
+        "components/hotlink-template-builder/services/template-builder-service.ts:46"
+      ],
+      "serviceClass": "TemplateBuilderService",
+      "serviceBasis": "inferred-from-path"
+    },
+    {
+      "id": "template-builder-service--update-template",
+      "method": "PUT",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/workflow/{locationId}/hotlinks-template-groups/{templateGroupId}/templates/{templateId}",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "tree": "workflow-builder",
+      "extraHeaders": [],
+      "operation": "updateTemplate",
+      "service": "workflows",
+      "query": [],
+      "body": {
+        "typeName": "TemplatePayload",
+        "properties": [
+          {
+            "name": "templateType",
+            "type": "TemplateType",
+            "optional": false
+          },
+          {
+            "name": "id",
+            "type": "string",
+            "optional": true
+          },
+          {
+            "name": "title",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "name": "description",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "name": "icon",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "name": "color",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "name": "status",
+            "type": "TemplateStatus",
+            "optional": false
+          },
+          {
+            "name": "extras",
+            "type": "Record<string, unknown>",
+            "optional": false
+          },
+          {
+            "name": "deleted",
+            "type": "boolean",
+            "optional": true
+          },
+          {
+            "name": "createdAt",
+            "type": "FirestoreTimestamp",
+            "optional": true
+          },
+          {
+            "name": "updatedAt",
+            "type": "FirestoreTimestamp",
+            "optional": true
+          },
+          {
+            "name": "createdBy",
+            "type": "string",
+            "optional": true
+          },
+          {
+            "name": "updatedBy",
+            "type": "string",
+            "optional": true
+          },
+          {
+            "name": "version",
+            "type": "number",
+            "optional": true
+          },
+          {
+            "name": "locationId",
+            "type": "string",
+            "optional": true
+          },
+          {
+            "name": "productType",
+            "type": "string",
+            "optional": true
+          },
+          {
+            "name": "subType",
+            "type": "string",
+            "optional": true
+          }
+        ],
+        "confidence": "resolved"
+      },
+      "returns": {
+        "typeName": "CreateTemplateResponse",
+        "properties": [
+          {
+            "name": "id",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "name": "success",
+            "type": "boolean",
+            "optional": false
+          }
+        ],
+        "confidence": "resolved"
+      },
+      "confidence": {
+        "path": "resolved",
+        "query": "none-observed",
+        "body": "resolved",
+        "returns": "resolved"
+      },
+      "sources": [
+        "components/hotlink-template-builder/services/template-builder-service.ts:51"
+      ],
+      "serviceClass": "TemplateBuilderService",
+      "serviceBasis": "inferred-from-path"
     },
     {
       "id": "workflows--instagram-connected-accounts",
@@ -19421,6 +19869,68 @@
       },
       "sources": [
         "services/ScheduledPauseService.ts:102"
+      ],
+      "serviceClass": "ScheduledPauseService",
+      "serviceBasis": "inferred-from-path"
+    },
+    {
+      "id": "scheduled-pause-service--update-scheduled-pause-settings",
+      "method": "PUT",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/workflow/{locationId}/scheduled-pause/config/{recordId}",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "tree": "workflow-builder",
+      "extraHeaders": [],
+      "operation": "updateScheduledPauseSettings",
+      "service": "workflows",
+      "query": [],
+      "body": {
+        "typeName": "IWorkflowPauseConfig",
+        "properties": [
+          {
+            "name": "pauseStartTime",
+            "type": "number",
+            "optional": false
+          },
+          {
+            "name": "pauseEndTime",
+            "type": "number",
+            "optional": false
+          },
+          {
+            "name": "isAnnual",
+            "type": "boolean",
+            "optional": false
+          },
+          {
+            "name": "workflowIds",
+            "type": "string[]",
+            "optional": false
+          },
+          {
+            "name": "_id",
+            "type": "string",
+            "optional": true
+          },
+          {
+            "name": "isUpdated",
+            "type": "boolean",
+            "optional": true
+          }
+        ],
+        "confidence": "resolved"
+      },
+      "returns": null,
+      "confidence": {
+        "path": "resolved",
+        "query": "none-observed",
+        "body": "resolved",
+        "returns": "none-observed"
+      },
+      "sources": [
+        "services/ScheduledPauseService.ts:92"
       ],
       "serviceClass": "ScheduledPauseService",
       "serviceBasis": "inferred-from-path"
@@ -21806,10 +22316,10 @@
         "returns": "none-observed"
       },
       "sources": [
-        "services/FlowGuardService.ts:197"
+        "services/FlowGuardService.ts:197",
+        "workflows/70-research/ENDPOINTS.md:211"
       ],
-      "serviceClass": "FlowGuardService",
-      "serviceBasis": "inferred-from-path"
+      "serviceBasis": "declared"
     },
     {
       "id": "flow-guard-service--get-contact-blacklist",

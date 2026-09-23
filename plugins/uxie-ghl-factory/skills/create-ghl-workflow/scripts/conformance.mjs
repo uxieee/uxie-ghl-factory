@@ -36,6 +36,8 @@ import { DEFAULT_TOKEN_FILE } from '../../../mcp-internal/core/auth.mjs';
 import { makeRenewer, autoRenewEnabled } from '../../../mcp-internal/core/token-renewal.mjs';
 import { liveValidate } from '../engine/live-validate.mjs';
 import { planReadinessChecks, runReadinessChecks } from '../engine/preflight.mjs';
+import { runMultipathInsertProof } from './multipath-insert-proof.mjs';
+import { runDeleteBranchProof } from './delete-branch-proof.mjs';
 
 const LOCATION = process.env.GHL_LOCATION || process.env.GHL_LOC;
 if (!LOCATION) {
@@ -333,6 +335,34 @@ if (wid) {
   check(hatched.code === 'CONFIRM_REQUIRED' && JSON.stringify(hatched.data ?? {}).includes('VALIDATION BYPASSED'),
     'EDIT: allowValidationFailure lets it through to the confirm step, and still reports what it bypassed (preview only — nothing written)',
     `${hatched.code}`);
+}
+
+// ── the export → edit → validate loop, and GHL's JSON rule (bl-124) ──────────────────────────
+// The block above works AROUND the scrub for its own control (it fetches the raw file). A caller
+// cannot: the tool-argument credential guard refuses a real authorization passed in, so the export's
+// placeholder is all they have — and until 2026-09-23 GHL judged THAT ("expected object, received
+// string") and never looked at the edit. validate_workflow now restores exact placeholders from the
+// stored step for the validation alone. That also makes bl-124's question answerable live: GHL deleted
+// its JSON.parse rule on 2026-09-14, so a merge-field body must be VALID, and our replay must not be
+// stricter. The control is what keeps the VALID honest — the same loop must still REFUSE a broken step.
+if (wid) {
+  log.subject('validate_workflow');
+  const loopTpls = (await call('export_workflow', { workflowId: wid })).data?.workflow?.workflowData?.templates ?? [];
+  const loopHook = loopTpls.find((t) => t.type === 'custom_webhook');
+  const withBody = (raw) => loopTpls.map((t) => (t.id === loopHook?.id
+    ? { ...t, attributes: { ...t.attributes, body: { ...t.attributes?.body, contentType: 'application/json', rawData: raw } } } : t));
+  const merged = await call('validate_workflow', { workflowId: wid, templates: withBody('{"first": "{{contact.first_name}}"}') });
+  check((merged.data?.redactedPlaceholders?.restored ?? []).some((r) => r.stepId === loopHook?.id && r.path === 'attributes.authorization'),
+    'VALIDATE: the exported authorization placeholder is restored from the stored step, not judged',
+    JSON.stringify(merged.data?.redactedPlaceholders ?? merged.code ?? null).slice(0, 200));
+  check(merged.data?.valid === true,
+    'VALIDATE: and GHL then judges the EDIT — a merge-field webhook body is VALID (bl-124: no JSON rule since 2026-09-14)',
+    `${merged.data?.layer} ${String(merged.data?.errorMessage ?? '').slice(0, 160)}`);
+  const broken = await call('validate_workflow', { workflowId: wid,
+    templates: loopTpls.map((t) => (t.id === loopHook?.id ? { ...t, attributes: {} } : t)) });
+  check(broken.data?.valid === false && broken.data?.layer === 'action',
+    'CONTROL: the same loop with the webhook\'s attributes stripped is REFUSED at the action layer — the VALID above is a real verdict',
+    `${broken.data?.valid} ${broken.data?.layer}`);
 }
 if (fwid) {
   log.subject('edit_workflow'); // the DIFFERENTIAL block proves edit_workflow's pre-existing-finding behaviour
@@ -1704,6 +1734,13 @@ console.log('\nruntime: enrolment, drip queue, fast-forward');
     check(un.ok === true && st === 'draft', 'FENCE: the runtime probe is a DRAFT again when the section ends', `${un.code ?? ''} status=${st}`);
   }
 }
+
+// ── edit_workflow: a BRANCHING step inserted into a published workflow branches at RUNTIME ──────
+// Same fence as the runtime block above. Lives in its own module so it can be run on its own.
+console.log('\nedit_workflow: multipath insert, runtime');
+await runMultipathInsertProof({ call, gw: deps.makeGw({ loc: LOCATION, state }), LOCATION, NAME, STAMP, check, left, log });
+console.log('\nedit_workflow: deleteBranch, runtime');
+await runDeleteBranchProof({ call, gw: deps.makeGw({ loc: LOCATION, state }), LOCATION, NAME, STAMP, check, left, log });
 
 // ── get_workflow_stats: A/B split results, proven by DIFFERENTIAL ─────────────────────────────
 // Same fence as the runtime block above: trigger-less workflow, a contact this run creates with no

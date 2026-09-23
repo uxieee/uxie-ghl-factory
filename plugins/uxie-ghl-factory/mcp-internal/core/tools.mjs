@@ -8,7 +8,7 @@ import { z } from 'zod';
 import { ok, fail, fromHttp, CODES, containsSecrets, scrubSecrets } from './errors.mjs';
 import { authStatus, DEFAULT_TOKEN_FILE, readCredentials } from './auth.mjs';
 import { checkLocationBinding } from './location-binding.mjs';
-import { refuseRawRequest, matchCatalogRow, refuseRedactedWrite } from './raw-request-guards.mjs';
+import { refuseRawRequest, matchCatalogRow, refuseRedactedWrite, restoreRedactedForValidation } from './raw-request-guards.mjs';
 import { scanPage, judge, judgeVersions, judgeRouting, judgePathCollisions, judgePageRecord, judgeRendered, judgeStyles, normaliseTag } from './site-audit.mjs';
 import { makeAuditCircuit, makeAuditGateway, makeAuditLimiter } from './audit-gateway.mjs';
 import { makeGateway } from './gateway.mjs';
@@ -2559,14 +2559,33 @@ export const TOOLS = [
       if (!trg.ok) return fromHttp(trg.status, trg.json);
       const triggers = Array.isArray(trg.json) ? trg.json : (trg.json?.triggers ?? trg.json?.data ?? []);
       const body = { ...doc.json, newTriggers: triggers };
-      if (args.templates) body.workflowData = { ...(doc.json?.workflowData ?? {}), templates: args.templates };
+      // Templates from export_workflow carry the scrubber's placeholder in every secret-named field,
+      // and GHL judges the placeholder, not the edit (see restoreRedactedForValidation). Exact
+      // placeholders are put back from the stored step for THIS validation only — validate writes
+      // nothing, and without `templates` the stored document is sent as-is anyway.
+      const restoredInputs = args.templates ? restoreRedactedForValidation(args.templates, doc.json?.workflowData?.templates) : null;
+      if (args.templates) body.workflowData = { ...(doc.json?.workflowData ?? {}), templates: restoredInputs.templates };
       const r = await gw.call('POST', `/workflow/${loc}/${wid}/validate-workflows`, body);
       const verdict = readServerValidation(r.json);
       if (!verdict) return fromHttp(r.status, r.json);
+      const placeholders = restoredInputs && (restoredInputs.restored.length || restoredInputs.unresolved.length)
+        ? { redactedPlaceholders: {
+          restored: restoredInputs.restored,
+          unresolved: restoredInputs.unresolved,
+          note: `${restoredInputs.restored.length} field(s) in the supplied templates were the export's redaction `
+            + 'placeholder and were restored from the STORED step for this validation only (nothing is written), '
+            + 'so the verdict judges your edit rather than the placeholder.'
+            + (restoredInputs.unresolved.length
+              ? ` ${restoredInputs.unresolved.length} could not be restored and were sent as-is: any error GHL reports `
+                + 'on those fields is about the placeholder, not your change.'
+              : ''),
+        } }
+        : {};
       return ok({
         workflowId: args.workflowId,
         validated: args.templates ? 'the stored document with the supplied templates' : 'the stored document',
         triggersSent: triggers.length,
+        ...placeholders,
         ...verdict,
       });
     }, args),
@@ -4457,7 +4476,7 @@ export const TOOLS = [
       + 'Ops — steps: appendStep, insertAfter, insertBefore, appendToBranch (anchor: branchEntryId | '
       + 'containerId+branch | branchRef), deleteStep, modifyStep (attrPatch/stepPatch — never `attributes`, never `name`; re-normalised '
       + 'through the compiler), retypeStep (full attributes), renameStep, setStepDisabled, '
-      + 'disableStepsByType, moveStep, addBranch (if/else, or an AI splitter: alias addSplitterBranch), deleteContainer, repairParentKeys, addStepNote, '
+      + 'disableStepsByType, moveStep, addBranch (if/else, or an AI splitter: alias addSplitterBranch), deleteBranch {containerId, branch} (an author-defined branch and everything under it), deleteContainer, repairParentKeys, addStepNote, '
       + 'duplicateStep, replaceTag, replaceFieldId, replaceInAttributes; triggers: addTrigger, '
       + 'modifyTrigger {triggerId|name, trigger:{name?, filters? (author rows) | conditions? (stored rows, sent verbatim), active?, target?|targetActionId?}} — a top-level conditions/name/status is refused, not ignored; a patch that changes nothing is a NOOP, not a write; the verifier holds the store to what YOU asked for and to the server\'s own date_updated stamp; deleteTrigger, duplicateTrigger; '
       + 'settings: updateSettings (Settings-tab keys plus `name`); notes: addStickyNote, updateStickyNote. '
@@ -5679,6 +5698,16 @@ export const TOOLS = [
       if (!listed.response.ok) return fromHttp(listed.response.status, listed.response.json);
 
       const publishWarnings = [];
+      // A scheduled pause un-publishes at its start and re-publishes at its end; while it runs the
+      // document carries `paused` and the config id in `pauseUpdatedById` (live 2026-09-23). The
+      // workflow reads as a plain draft, so publishing it looks like finishing it — and silently ends
+      // the maintenance window early. Warned, not refused: ending a pause early can be the intent.
+      if (current?.paused) {
+        publishWarnings.push(`SCHEDULED_PAUSE_ACTIVE: this workflow is draft because a scheduled pause is running `
+          + `(paused by '${current.paused}', pause config ${current.pauseUpdatedById ?? 'unknown'}). Publishing it now `
+          + 'ends that pause early; the pause would re-publish it on its own when its window closes. '
+          + 'Read GET /workflow/{loc}/scheduled-pause/config for the window.');
+      }
       const publishCatalog = loadCatalog();
       const senderDomain = await senderDomainFor(gw, args.locationId, args.workflowId,
         current?.senderAddress?.from_email, publishCatalog);

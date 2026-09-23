@@ -157,6 +157,60 @@ function groupByStep(hits) {
   return [...groups.values()];
 }
 
+/**
+ * FOR VALIDATION ONLY — never for a write. Returns `templates` with every field that is EXACTLY the
+ * placeholder replaced by the value the STORED step with the same id holds at the same path.
+ *
+ * Why: the ordinary edit loop is export_workflow → change something → validate_workflow({templates}).
+ * The export has already scrubbed every secret-named field to the placeholder, so the validator is
+ * handed `authorization: "<redacted>"` and GHL answers "expected object, received string" — measured
+ * 2026-09-23 on a custom_webhook, identically for three different bodies. The verdict was about our
+ * own export artefact, it stopped the ACTION layer before the edit was even looked at, and it read as
+ * `valid: false` on a correct edit.
+ *
+ * Restoring is safe for an EXACT placeholder: a value that is literally the placeholder cannot be the
+ * caller's edit. A placeholder EMBEDDED in a longer string (a custom_code body with `Bearer <redacted>`
+ * in it) is NOT restored — the caller may have edited the rest of that string, and substituting the
+ * stored string would validate code they did not write. Those, and exact ones with no stored value to
+ * restore from, come back in `unresolved`. Nothing restored is ever returned to the caller: only
+ * step ids and paths.
+ */
+export function restoreRedactedForValidation(templates, storedTemplates) {
+  const storedById = new Map((storedTemplates ?? [])
+    .filter((t) => t && typeof t.id === 'string' && t.id).map((t) => [t.id, t]));
+  const restored = [];
+  const unresolved = [];
+  const at = (obj, keys) => keys.reduce((o, k) => (o == null ? undefined : o[k]), obj);
+  const out = (templates ?? []).map((step) => {
+    if (!step || typeof step !== 'object') return step;
+    const copy = structuredClone(step);
+    const stored = typeof step.id === 'string' ? storedById.get(step.id) : undefined;
+    const walk = (node, keys) => {
+      if (typeof node === 'string') {
+        if (!node.includes(REDACTED)) return;
+        const path = keys.join('.');
+        const original = stored ? at(stored, keys) : undefined;
+        const restorable = node === REDACTED && original !== undefined
+          && !(typeof original === 'string' && original.includes(REDACTED));
+        if (restorable) {
+          at(copy, keys.slice(0, -1))[keys[keys.length - 1]] = structuredClone(original);
+          restored.push({ stepId: step.id, name: step.name ?? null, path });
+        } else {
+          unresolved.push({ stepId: step.id ?? null, name: step.name ?? null, path,
+            reason: node === REDACTED ? 'no stored value at this path to restore from'
+              : 'the placeholder is embedded inside a longer string, which may carry your edit' });
+        }
+        return;
+      }
+      if (Array.isArray(node)) node.forEach((v, i) => walk(v, [...keys, i]));
+      else if (node && typeof node === 'object') for (const [k, v] of Object.entries(node)) walk(v, [...keys, k]);
+    };
+    walk(step, []);
+    return copy;
+  });
+  return { templates: out, restored, unresolved };
+}
+
 const REDACTED_STEP_CAP = 6;
 
 /**
