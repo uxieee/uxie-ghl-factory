@@ -13,7 +13,7 @@ import { loadCatalog } from './catalog.mjs';
 
 const sink = () => { const w = []; const fn = (m) => w.push(m); fn.messages = w; return fn; };
 const codes = (warn) => warn.messages.map((m) => m.split(':')[0]);
-const field = (over = {}) => ({ field: 'em3R3rToFy8N0oYcJDwE', value: '', title: 'HB Timezone', type: 'string', date: '', ...over });
+const field = (over = {}) => ({ field: 'k3Hq9ZtVb7WnP2xLc8Ra', value: '', title: 'Timezone', type: 'string', date: '', ...over });
 
 // ─── the two builder dropdown values ────────────────────────────────────────────────
 test('the closed actionType list is exactly what the builder offers', () => {

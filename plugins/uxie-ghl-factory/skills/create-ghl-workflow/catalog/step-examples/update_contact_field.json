@@ -11,7 +11,7 @@
           "actionType": "clear_field_data",
           "fields": [
             {
-              "field": "em3R3rToFy8N0oYcJDwE",
+              "field": "<field>",
               "value": "",
               "title": "HB Timezone",
               "type": "string",
@@ -34,7 +34,7 @@
           "actionType": "update_field_data",
           "fields": [
             {
-              "field": "em3R3rToFy8N0oYcJDwE",
+              "field": "<field>",
               "value": "{{message.body}}",
               "title": "HB Timezone",
               "type": "string",
@@ -57,7 +57,7 @@
     "actionType": "clear_field_data",
     "fields": [
       {
-        "field": "em3R3rToFy8N0oYcJDwE",
+        "field": "<field>",
         "value": "",
         "title": "HB Timezone",
         "type": "string",

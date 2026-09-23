@@ -3,7 +3,7 @@
   "parent": "<uuid-002>",
   "order": 1,
   "attributes": {
-    "user": "37PdZ4nCLADLuTjNbtd0",
+    "user": "<user>",
     "onlyUnAssigned": false,
     "type": "internal-add-opportunity-owner",
     "__customInputs__": {}

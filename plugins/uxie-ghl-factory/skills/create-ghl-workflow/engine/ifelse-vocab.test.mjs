@@ -30,18 +30,18 @@ test('a picker-legal condition passes; a misspelled subtype and an illegal opera
   // a NON-dynamic group refuses a misspelled subtype outright
   assert.deepEqual(fires([cond({ conditionSubType: 'emial' })]), []);
   assert.match(fires([{ conditionType: 'appointment', conditionSubType: 'appointmentReschedule', conditionOperator: '==', conditionValue: true }])[0], /not a field of 'appointment'/);
-  assert.match(fires([cond({ conditionSubType: 'emial' })], { customFields: [{ id: 'KL8gawfrMk1OafgTo3lF', dataType: 'TEXT' }] })[0], /matches no custom field/);
+  assert.match(fires([cond({ conditionSubType: 'emial' })], { customFields: [{ id: 'Gt5Hy8Ju2Ki4Lo7Pa9Sd', dataType: 'TEXT' }] })[0], /matches no custom field/);
   assert.match(fires([cond({ conditionOperator: 'between' })])[0], /operator 'between' is not legal/);   // string leaf: no between
   assert.match(fires([cond({ conditionType: 'contct_detail' })])[0], /conditionType 'contct_detail'/);
 });
 
 test('corpus-evidenced tolerances: legacy `is` on select leaves; custom-field ids under contact_detail/opportunities', () => {
   assert.deepEqual(fires([{ conditionType: 'appointment', conditionSubType: 'appointmentRescheduled', conditionOperator: 'is', conditionValue: true }]), []);
-  assert.deepEqual(fires([cond({ conditionSubType: 'KL8gawfrMk1OafgTo3lF', conditionOperator: '==' })]), []);        // no field list → unknowable, never wrong
+  assert.deepEqual(fires([cond({ conditionSubType: 'Gt5Hy8Ju2Ki4Lo7Pa9Sd', conditionOperator: '==' })]), []);        // no field list → unknowable, never wrong
   // with the account's custom fields known, the field's dataType decides the operator set
-  const ctx = { customFields: [{ id: 'KL8gawfrMk1OafgTo3lF', dataType: 'NUMERICAL' }] };
-  assert.deepEqual(fires([cond({ conditionSubType: 'KL8gawfrMk1OafgTo3lF', conditionOperator: '>' })], ctx), []);
-  assert.match(fires([cond({ conditionSubType: 'KL8gawfrMk1OafgTo3lF', conditionOperator: 'contain' })], ctx)[0], /operator 'contain' is not legal/);
+  const ctx = { customFields: [{ id: 'Gt5Hy8Ju2Ki4Lo7Pa9Sd', dataType: 'NUMERICAL' }] };
+  assert.deepEqual(fires([cond({ conditionSubType: 'Gt5Hy8Ju2Ki4Lo7Pa9Sd', conditionOperator: '>' })], ctx), []);
+  assert.match(fires([cond({ conditionSubType: 'Gt5Hy8Ju2Ki4Lo7Pa9Sd', conditionOperator: 'contain' })], ctx)[0], /operator 'contain' is not legal/);
   assert.match(fires([cond({ conditionSubType: 'ZZZZZZZZZZZZZZZZZZZZ', conditionOperator: '==' })], ctx)[0], /matches no custom field/);
 });
 

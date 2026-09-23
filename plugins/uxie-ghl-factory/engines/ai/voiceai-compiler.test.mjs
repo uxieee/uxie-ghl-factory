@@ -171,11 +171,11 @@ test('compileVoiceAiAction: APPOINTMENT_BOOKING matches voiceai-actions-all.json
   const action = {
     actionType: 'APPOINTMENT_BOOKING',
     name: 'Appointment Booking Action',
-    actionParameters: { calendarId: '3KIkHmnkrlhfpN9nORu4' },
+    actionParameters: { calendarId: 'Qp4Lr8Tn2Vx6Zb1Kc9Wd' },
   };
   const { body } = compileVoiceAiAction(action, { agentId: AGENT_ID, locationId: LOCATION_ID });
   assert.deepEqual(body.actionParameters, {
-    calendarId: '3KIkHmnkrlhfpN9nORu4',
+    calendarId: 'Qp4Lr8Tn2Vx6Zb1Kc9Wd',
     calendarIds: null,
     aiDescription: null,
     fallbackCalendar: false,

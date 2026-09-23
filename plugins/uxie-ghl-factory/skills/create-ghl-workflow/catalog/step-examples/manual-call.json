@@ -3,8 +3,8 @@
   "parent": "<uuid-002>",
   "order": 5,
   "attributes": {
-    "assignedUser": "E4xqUlZjsMDFO5US1tYz",
-    "standardAssignedUser": "E4xqUlZjsMDFO5US1tYz"
+    "assignedUser": "<assigned-user>",
+    "standardAssignedUser": "<standard-assigned-user>"
   },
   "name": "Manual Call",
   "type": "manual-call",

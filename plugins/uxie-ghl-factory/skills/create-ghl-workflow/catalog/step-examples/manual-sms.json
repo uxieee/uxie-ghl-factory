@@ -4,8 +4,8 @@
   "order": 4,
   "attributes": {
     "body": "test sms",
-    "assignedUser": "E4xqUlZjsMDFO5US1tYz",
-    "standardAssignedUser": "E4xqUlZjsMDFO5US1tYz",
+    "assignedUser": "<assigned-user>",
+    "standardAssignedUser": "<standard-assigned-user>",
     "attachments": []
   },
   "name": "MANUAL-SMS",

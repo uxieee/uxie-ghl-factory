@@ -4,7 +4,7 @@ import { compileSuperAgentUpdate, compileSuperAgentCreate, AUTH_HEADER, BUILD_MO
 import { IRError, DEFAULT_MODEL } from './studio-ir.mjs';
 
 const LOCATION_ID = 'wdzEoUZnXO9tB3PPzcot';
-const COMPANY_ID = 'BCqxfm3jdo0x68BKwafn';
+const COMPANY_ID = 'Hn7Jk2Mq5Rt8Wy3Za6Bc';
 const AGENT_ID = 'd7150b42-6480-47ef-aee7-20b50ee43d3f';
 
 // --- compileSuperAgentUpdate (PUT /agent-studio/super-agent/agents/:id) -----------

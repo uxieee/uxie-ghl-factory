@@ -48,7 +48,7 @@ test('template-mode email notification (template_id, no inline html) is legal', 
   // 3 real published client-account notifications; GHL's own validator misses this exemption and
   // wrongly warns on them — the outer chain (!email.template_id) carries it for us.
   compiles([{ ref: 'n', kind: 'action', type: 'internal_notification', name: 'N',
-    attributes: { type: 'email', email: { subject: 's', template_id: '6a0790804b3943ec5b585679', templatesource: 'email-builder' } } }]);
+    attributes: { type: 'email', email: { subject: 's', template_id: '5f0e1d2c3b4a59687766aa01', templatesource: 'email-builder' } } }]);
 });
 
 test('remove_contact_tag with removeAll and no tags is legal (the early-return exemption)', () => {

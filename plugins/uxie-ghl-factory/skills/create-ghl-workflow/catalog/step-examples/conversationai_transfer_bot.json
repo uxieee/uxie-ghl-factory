@@ -3,7 +3,7 @@
   "parent": "<uuid-002>",
   "order": 1,
   "attributes": {
-    "assignedEmployeeId": "IniTeIlfUvxMQpZiB2ZE",
+    "assignedEmployeeId": "<assigned-employee-id>",
     "type": "conversationai_transfer_bot",
     "__customInputs__": {}
   },

@@ -2,8 +2,8 @@
   "id": "<uuid-001>",
   "order": 1,
   "attributes": {
-    "userId": "Uv3p5wI5XoOZa9kjh3FN",
-    "templateId": "68193cd7153555bdfb6a78e0",
+    "userId": "<user-id>",
+    "templateId": "<template-id>",
     "sendDocument": "false",
     "type": "proposals_estimates_send_document",
     "__customInputs__": {}

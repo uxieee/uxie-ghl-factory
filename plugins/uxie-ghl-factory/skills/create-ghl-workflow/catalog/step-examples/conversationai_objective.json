@@ -5,7 +5,7 @@
   "order": 2,
   "attributes": {
     "objective": "Capture the lead's last name if it is missing. Keep it casual and brief. Don't pair this with another business question.",
-    "contactField": "r5h3MhsHi0PVFNjan9Ja",
+    "contactField": "<contact-field>",
     "instructions": "",
     "responseExample": "Collins",
     "skipIfFilled": true,

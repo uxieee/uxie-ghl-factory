@@ -41,10 +41,10 @@
   "id": "<uuid-001>",
   "order": 0,
   "attributes": {
-    "selectField": "rxFwurOF45kbdVGZBDLE",
+    "selectField": "<select-field>",
     "selectFieldtype": "numerical",
     "sourceCustomValueId": "",
-    "updateField": "rxFwurOF45kbdVGZBDLE",
+    "updateField": "<update-field>",
     "updateFieldType": "numerical",
     "targetCustomValueId": "",
     "operators": [

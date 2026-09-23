@@ -4,9 +4,9 @@
   "order": 23,
   "attributes": {
     "users": [
-      "frf7TGGmvAwCz8T0rdwT",
-      "rMsDQVzxwVmb44rFzcac",
-      "E4xqUlZjsMDFO5US1tYz"
+      "<users>",
+      "<users>",
+      "<users>"
     ],
     "type": "internal-add-contact-followers",
     "__customInputs__": {}

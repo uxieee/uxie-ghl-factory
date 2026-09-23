@@ -200,7 +200,7 @@ test('compileConvaiAction: unverified action types keep pure passthrough (no def
 // appointmentBooking
 test('compileConvaiAction: appointmentBooking matches convai-actions-all.json shape', () => {
   const { body } = compileConvaiAction(
-    { type: 'appointmentBooking', name: 'Book Appointment', details: { calendarId: '3KIkHmnkrlhfpN9nORu4' } },
+    { type: 'appointmentBooking', name: 'Book Appointment', details: { calendarId: 'Qp4Lr8Tn2Vx6Zb1Kc9Wd' } },
     { agentId: 'AGENT1', locationId: 'LOC' },
   );
   assert.deepEqual(body.details, {
@@ -215,7 +215,7 @@ test('compileConvaiAction: appointmentBooking matches convai-actions-all.json sh
     transferEmployee: null,
     cancelEnabled: false,
     rescheduleEnabled: false,
-    calendarId: '3KIkHmnkrlhfpN9nORu4',
+    calendarId: 'Qp4Lr8Tn2Vx6Zb1Kc9Wd',
   });
 });
 

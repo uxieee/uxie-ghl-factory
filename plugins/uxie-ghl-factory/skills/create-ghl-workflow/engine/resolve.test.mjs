@@ -10,7 +10,7 @@ const raw = {
   calendars: [{ id: 'CAL_CONS', name: 'Consultation' }],
   users: [{ id: 'USR_JANE', firstName: 'Jane', lastName: 'Doe', email: 'jane@x.com' }],
   forms: [{ id: 'FORM_CONTACT', name: 'Contact Us' }],
-  customFields: [{ id: 'em3R3rToFy8N0oYcJDwE', name: 'Status', fieldKey: 'contact.status' }],
+  customFields: [{ id: 'k3Hq9ZtVb7WnP2xLc8Ra', name: 'Status', fieldKey: 'contact.status' }],
 };
 const r = buildResolvers(raw);
 
@@ -122,15 +122,15 @@ test('resolveIR: custom-field NAME → id; standard fields + ids left alone', ()
     { ref: 'u', kind: 'action', type: 'update_contact_field', name: 'U', attributes: { fields: [
       { field: 'Status', value: 'active' },                 // custom field by name → id
       { field: 'email', value: '{{x}}' },                   // standard → literal
-      { field: 'em3R3rToFy8N0oYcJDwE', value: 'x' },                   // already an id → untouched
+      { field: 'k3Hq9ZtVb7WnP2xLc8Ra', value: 'x' },                   // already an id → untouched
     ] } },
   ] };
   const { ir: out, unresolved } = resolveIR(ir, r);
   const fields = out.graph[0].attributes.fields;
-  assert.equal(fields[0].field, 'em3R3rToFy8N0oYcJDwE');   // resolved
+  assert.equal(fields[0].field, 'k3Hq9ZtVb7WnP2xLc8Ra');   // resolved
   assert.equal(fields[0].title, 'Status');      // name preserved as title
   assert.equal(fields[1].field, 'email');       // standard, untouched
-  assert.equal(fields[2].field, 'em3R3rToFy8N0oYcJDwE');   // id, untouched
+  assert.equal(fields[2].field, 'k3Hq9ZtVb7WnP2xLc8Ra');   // id, untouched
   assert.deepEqual(unresolved, []);
 });
 

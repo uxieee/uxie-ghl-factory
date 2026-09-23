@@ -4,7 +4,7 @@
   "attributes": {
     "type": "task_notification",
     "title": "Check in with Client",
-    "assignedTo": "ewScqOUGHdRrqzf1VjQv",
+    "assignedTo": "<assigned-to>",
     "dueDate": 1,
     "body": "14 days of disclosure are done and it's time to connect with the client"
   },

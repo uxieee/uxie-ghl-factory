@@ -4,7 +4,7 @@
   "parent": "<uuid-002>",
   "order": 19,
   "attributes": {
-    "calendarId": "jVxc7Frz2CI0FENibTLN",
+    "calendarId": "<calendar-id>",
     "startDateTime": "2026-05-16T16:00:00.000Z",
     "ignoreFreeSlots": false,
     "type": "appointment_booking",

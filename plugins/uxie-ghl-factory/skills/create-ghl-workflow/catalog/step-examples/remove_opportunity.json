@@ -4,7 +4,7 @@
   "attributes": {
     "type": "remove_opportunity",
     "opportunity_to_be_found": "all",
-    "pipeline_id": "roXA27O7DX6mqb6SdSK1"
+    "pipeline_id": "<pipeline-id>"
   },
   "name": "Remove Opportunity",
   "type": "remove_opportunity",

@@ -17,7 +17,7 @@
   "order": 0,
   "attributes": {
     "method": "POST",
-    "url": "https://hydraulic-miss-targeted-compound.trycloudflare.com/webhooks/ghl",
+    "url": "https://example.com/webhook",
     "customData": [],
     "headers": []
   },

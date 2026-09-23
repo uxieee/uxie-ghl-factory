@@ -3,7 +3,7 @@
   "order": 0,
   "attributes": {
     "type": "create_opportunity",
-    "pipeline_id": "SEAZf6sVqvfQdFbdecZO",
+    "pipeline_id": "<pipeline-id>",
     "opportunity_status": "abandoned",
     "opportunity_name": "",
     "opportunity_source": "",
