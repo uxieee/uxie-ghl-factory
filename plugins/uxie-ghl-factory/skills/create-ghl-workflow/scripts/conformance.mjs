@@ -845,7 +845,10 @@ if (ovTotal !== total) {
   // There is no list_workflows_complete in this plugin's TOOLS; a budget-exhausted walk does
   // expose `partialWorkflows`, deliberately under a different key so a partial list can never be
   // mistaken for a whole one.
-  const sampleWalk = await call('list_workflows', { pageSize: 100, maxPages: 10 });
+  // 2026-09-23: the sandbox passed 1,000 workflows (every run leaves its TEST-CONF artefacts, since
+  // nothing is deleted), and the fixed 10-page budget went red exactly as predicted above. The
+  // budget now comes from the account's own reconciled total, as the full walk's does.
+  const sampleWalk = await call('list_workflows', { pageSize: 100, maxPages: Math.ceil((probe.data?.reportedTotal ?? 1000) / 100) + 2 });
   check(sampleWalk.data?.complete === true && (sampleWalk.data?.workflows ?? []).length > 0,
     'the sample walk completed and yielded workflows to sample',
     `complete=${sampleWalk.data?.complete} rows=${(sampleWalk.data?.workflows ?? []).length} terminalReason=${sampleWalk.data?.terminalReason ?? ''}`);
