@@ -1,39 +1,9 @@
 {
-  "tool": "rename_workflow",
+  "tool": "copy_workflow_to_location",
   "surfaces": [
     "workflows"
   ],
   "runs": [
-    {
-      "at": "2026-09-23",
-      "result": "pass",
-      "how": "suite",
-      "suite": "workflows",
-      "evidence": [
-        "receipt:2026-09-23-0845"
-      ],
-      "location": "…zn6B"
-    },
-    {
-      "at": "2026-09-23",
-      "result": "pass",
-      "how": "suite",
-      "suite": "workflows",
-      "evidence": [
-        "receipt:2026-09-23-0900"
-      ],
-      "location": "…zn6B"
-    },
-    {
-      "at": "2026-09-23",
-      "result": "pass",
-      "how": "suite",
-      "suite": "workflows",
-      "evidence": [
-        "receipt:2026-09-23-0921"
-      ],
-      "location": "…zn6B"
-    },
     {
       "at": "2026-09-23",
       "result": "pass",
@@ -48,16 +18,17 @@
   "depends": {
     "hashedAt": "2026-09-23",
     "endpoints": {
+      "GET https://backend.leadconnectorhq.com /locations/{}": "4875e8df14204f712f16f6ad95332c1e2ba7cea66195934526d61ead4a8eac53",
       "GET https://backend.leadconnectorhq.com /workflow/{}/list": "c3a30133ae951cb061dce33d9bf73e80273ed161cade4401a663efa490030075",
       "GET https://backend.leadconnectorhq.com /workflow/{}/{}": "d75bf4cca526ca32f133f5f381cb7a68530031528b4caa2d713addcae0c55ffc",
-      "PUT https://backend.leadconnectorhq.com /workflow/{}/rename-workflow/{}": "c8bdded122e3f50a9139231a2639324c605f64f5214e2214c7d392240721e4fa"
+      "POST https://backend.leadconnectorhq.com /workflow/{}/{}/copy-workflow": "3bd4da96873e6a1578dc655096014174bd0488dfbb660b8d5e4de98583347dde"
     },
     "builds": {
       "builder-chunks": "assets/index-BZBeFyAW.js",
       "reportingApp": 277
     },
     "code": {
-      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#rename_workflow": "c5d29dcb11fb0b139dc28c33fd375b448aa2ce4e85feffa59d0b13e481b13c61",
+      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#copy_workflow_to_location": "27e19d40b809610b80085ebd72c86bf34b70da8d62bfdd4942c7099c29e8f629",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "e65c2384aefb498ce49453dd2d6d8d1a1d8351fd6d337aef5256eb982e1db02f",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
       "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "a223838eb7dbacd4b07e852c05c2728539093efea90eda104565aba5386074e4"

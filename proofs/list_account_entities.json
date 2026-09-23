@@ -443,6 +443,16 @@
         "receipt:2026-09-23-0921"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-23",
+      "result": "pass",
+      "how": "suite",
+      "suite": "workflows",
+      "evidence": [
+        "receipt:2026-09-23-1117"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
@@ -482,7 +492,7 @@
       "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#list_account_entities": "82fc69b9cc225bcbfac5c05e3fc482e65c52da1ba6ae9228503680c3aaf877c4",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "e65c2384aefb498ce49453dd2d6d8d1a1d8351fd6d337aef5256eb982e1db02f",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
-      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "eae90b83c726d6cdfde0a0acc1144ceb5be228e4bc045d9d6c3a5e8415b29cc0",
+      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "a223838eb7dbacd4b07e852c05c2728539093efea90eda104565aba5386074e4",
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/catalog/observed-trigger-filters.json": "550c5a7b8e91f1e625a8b7ab98f65ceddd069bb094ee08c4bdf0ae7fbe86759d",
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/catalog/opp-field-rulebook.json": "d7855e46a3feca71bc9dbfbeb7da9d264cab11f2ce6e2a3be7ea285a617cfdc4",
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/catalog/opp-field-shapes.json": "7df4c26cdf87854721b9950046b7cf619e9e4b751124fbdfe5f801ec40ae6358",

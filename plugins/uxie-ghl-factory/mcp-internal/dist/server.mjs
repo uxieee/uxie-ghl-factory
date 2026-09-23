@@ -57760,9 +57760,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       list_snapshots: {
-        description: "List the agency's snapshots \u2014 proof: live-runtime (2026-09-10); risk: read",
+        description: "List the agency's snapshots \u2014 proof: live-runtime (2026-09-23); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-10)",
+        proof: "live-runtime (2026-09-23)",
         proofFloor: "live-runtime (2026-09-10)",
         proofRows: [
           "platform--snapshots-prefetch",
@@ -58346,9 +58346,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       copy_workflow_to_location: {
-        description: "Copy a workflow into another sub-account \u2014 proof: external-receipt-required; risk: write",
+        description: "Copy a workflow into another sub-account \u2014 proof: live-runtime (2026-09-23); risk: write",
         risk: "write",
-        proof: "external-receipt-required",
+        proof: "live-runtime (2026-09-23)",
         proofFloor: "external-receipt-required",
         proofRows: [
           "workflow-copy-source-read",
@@ -58373,9 +58373,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       get_premium_usage: {
-        description: "Read premium-action and workflow-AI usage \u2014 proof: external-receipt-required; risk: read",
+        description: "Read premium-action and workflow-AI usage \u2014 proof: live-runtime (2026-09-23); risk: read",
         risk: "read",
-        proof: "external-receipt-required",
+        proof: "live-runtime (2026-09-23)",
         proofFloor: "external-receipt-required",
         proofRows: [
           "workflow-premium-usage-read"
@@ -58391,9 +58391,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       get_snapshot_contents: {
-        description: "Read what a snapshot actually contains \u2014 proof: external-receipt-required; risk: read",
+        description: "Read what a snapshot actually contains \u2014 proof: live-runtime (2026-09-23); risk: read",
         risk: "read",
-        proof: "external-receipt-required",
+        proof: "live-runtime (2026-09-23)",
         proofFloor: "external-receipt-required",
         proofRows: [
           "snapshot-contents-read"

@@ -513,6 +513,16 @@
         "receipt:2026-09-23-0921"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-23",
+      "result": "pass",
+      "how": "suite",
+      "suite": "workflows",
+      "evidence": [
+        "receipt:2026-09-23-1117"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
@@ -523,13 +533,13 @@
     },
     "builds": {
       "builder-chunks": "assets/index-BZBeFyAW.js",
-      "reportingApp": 275
+      "reportingApp": 277
     },
     "code": {
       "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#get_workflow_digest": "9051b074752285a4a5f28e9f490f04d7951dec051f0b509b2a7d6f6ee9f3a84e",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "e65c2384aefb498ce49453dd2d6d8d1a1d8351fd6d337aef5256eb982e1db02f",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
-      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "eae90b83c726d6cdfde0a0acc1144ceb5be228e4bc045d9d6c3a5e8415b29cc0",
+      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "a223838eb7dbacd4b07e852c05c2728539093efea90eda104565aba5386074e4",
       "plugins/uxie-ghl-factory/mcp-internal/core/read-cache.mjs": "6208feb3a050fa3aa35cce7755cf405a9047c7beebe67b1b69177d88fd4faed3",
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/catalog/observed-trigger-filters.json": "550c5a7b8e91f1e625a8b7ab98f65ceddd069bb094ee08c4bdf0ae7fbe86759d",
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/catalog/opp-field-rulebook.json": "d7855e46a3feca71bc9dbfbeb7da9d264cab11f2ce6e2a3be7ea285a617cfdc4",
