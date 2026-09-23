@@ -99,6 +99,10 @@ const MARK = `TESTCONF${STAMP}`;
 const sections = [{ background: '#101014', padY: 72, maxWidth: 1080, columns: [{ widthPct: 100, elements: [
   { meta: 'heading', html: MARK, tag: 'h1', styles: { color: '#fff', fontSize: '40px', textAlign: 'center' } },
   { meta: 'paragraph', html: 'Funnels conformance suite.', tag: 'p', styles: { color: '#aaa', textAlign: 'center' } },
+  // bl-119/120: a button with NO styles, and a paragraph styled ONLY through css. Both used to save in a
+  // shape that renders publicly and breaks the builder.
+  { meta: 'button', html: 'TEST-CONF button', tag: '' },
+  { meta: 'paragraph', html: 'Styled through css only.', tag: 'p', css: { font: 'Georgia', color: '#333333', size: 18, weight: 600, align: 'left' } },
 ] }] }];
 const build = (publish) => tool('build_funnel_page').handler(
   { locationId: LOCATION, funnelId, pageId, stepId: STEP_ID, sections, publish, confirm: true }, deps);
@@ -107,6 +111,20 @@ const draft = await build(false);
 check(draft.ok === true, 'build_funnel_page writes a draft', draft.ok ? '' : `${draft.code}: ${draft.detail}`);
 check(draft.data?.stored === true, 'every section sent reads back on a SEPARATE request');
 check(draft.data?.publishState?.pinned === false, 'a never-published page reports the draft-FALLBACK regime (rule 27)');
+// The three builder-only hangs (bl-119/120/121), read back from the STORED page data on a separate request.
+{
+  const stored = await gw.call('GET', `/funnels/builder/page/data?pageId=${encodeURIComponent(pageId)}`);
+  const nodes = (stored.json?.sections ?? []).flatMap((s) => s.elements ?? []);
+  const btn = nodes.find((n) => n.meta === 'button');
+  const cssPara = nodes.find((n) => n.meta === 'paragraph' && n.styles?.fontFamily?.value === 'Georgia');
+  const typo = stored.json?.settings?.settings?.typography;
+  check(typo?.colors?.textColor?.value?.value === '#000000' && typo?.colors?.linkColor?.value?.value === '#188bf6',
+    'READ-BACK (bl-121): the stored page carries typography.colors, which the builder reads unguarded', JSON.stringify(typo?.colors ?? null));
+  check(Boolean(btn?.styles?.color?.value || btn?.styles?.secondaryColor?.value),
+    'READ-BACK (bl-119): a button authored with no styles is stored WITH a colour key', JSON.stringify(btn?.styles ?? null));
+  check(cssPara?.styles?.color?.value === '#333333' && cssPara?.styles?.fontWeight?.value === 600,
+    'READ-BACK (bl-120): a leaf styled only through css also stores the node styles it implies', JSON.stringify(cssPara?.styles ?? null));
+}
 
 // 3. PUBLISH, AND THE FREEZE IT CAUSES ---------------------------------------------------------
 const pub = await build(true);
