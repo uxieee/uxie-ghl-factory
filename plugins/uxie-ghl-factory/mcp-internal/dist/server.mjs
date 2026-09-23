@@ -16209,6 +16209,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
+          note: 'TRAP (proven-live 2026-09-23): a limit above 21 is REFUSED with 422 "limit must not be greater than 21" -- a caller asking for 100 errors on every call and reads it as "no templates". Page with limit<=21 and skip; the envelope is {data, total}. The typed list_account_entities pages it this way.',
           reach: "proven",
           coveredBy: [
             "list_account_entities"
@@ -24604,7 +24605,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           rail: "workflow",
           kind: "read",
           summary: "The workflow roster for a location; also lists FOLDERS when asked for them.",
-          note: `Folders list under type=directory. type=folder returns count 0 rather than an error, which reads as "this account has no folders". TRAP: without &includeObjectiveBuilder=true every workflowType:'agent' workflow (a Conversation AI flow bot) is SILENTLY omitted -- 200, no error, count simply excludes it; proven on four accounts. A roster showing no flow bot is not evidence the account has none. The typed list_workflows sends the flag.`,
+          note: `Folders list under type=directory. type=folder returns count 0 rather than an error, which reads as "this account has no folders". TRAP: without &includeObjectiveBuilder=true every workflowType:'agent' workflow (a Conversation AI flow bot) is SILENTLY omitted -- 200, no error, count simply excludes it; proven on four accounts. A roster showing no flow bot is not evidence the account has none. TRAP 2 (proven-live 2026-09-23): ONE PAGE IS NOT THE LIST -- page by offset to the envelope count (pages of 100); on the sandbox one page of 200 held 200 of 1,125. The typed list_workflows sends the flag and walks every page.`,
           reach: "proven",
           provenFor: [
             "agency-admin-bearer"
@@ -54095,7 +54096,7 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         },
         "GET /workflow/{locationId}/list": {
           summary: "The workflow roster for a location; also lists FOLDERS when asked for them.",
-          note: `Folders list under type=directory. type=folder returns count 0 rather than an error, which reads as "this account has no folders". TRAP: without &includeObjectiveBuilder=true every workflowType:'agent' workflow (a Conversation AI flow bot) is SILENTLY omitted -- 200, no error, count simply excludes it; proven on four accounts. A roster showing no flow bot is not evidence the account has none. The typed list_workflows sends the flag.`,
+          note: `Folders list under type=directory. type=folder returns count 0 rather than an error, which reads as "this account has no folders". TRAP: without &includeObjectiveBuilder=true every workflowType:'agent' workflow (a Conversation AI flow bot) is SILENTLY omitted -- 200, no error, count simply excludes it; proven on four accounts. A roster showing no flow bot is not evidence the account has none. TRAP 2 (proven-live 2026-09-23): ONE PAGE IS NOT THE LIST -- page by offset to the envelope count (pages of 100); on the sandbox one page of 200 held 200 of 1,125. The typed list_workflows sends the flag and walks every page.`,
           reach: "proven"
         },
         "GET /workflow/{locationId}/phone-numbers": {
@@ -55148,6 +55149,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           reach: "proven",
           summary: "Create a tag on the location; returns the minted tag.",
           note: "PROVEN LIVE 2026-09-23 (and seen live by a peer 2026-09-15): body {name} -> 201 {tag:{id, name, locationId, categoryId, description, color}}; reads back on GET /locations/{loc}/tags. The builder's /workflow/{loc}/tags/create does the same with {tag} and answers a bare 'OK'. No tool wraps either: an add-tag step creates a missing tag by itself (operator decision on tags/create, 2026-09-23)."
+        },
+        "GET /proposals/templates": {
+          note: 'TRAP (proven-live 2026-09-23): a limit above 21 is REFUSED with 422 "limit must not be greater than 21" -- a caller asking for 100 errors on every call and reads it as "no templates". Page with limit<=21 and skip; the envelope is {data, total}. The typed list_account_entities pages it this way.'
         }
       }
     };
