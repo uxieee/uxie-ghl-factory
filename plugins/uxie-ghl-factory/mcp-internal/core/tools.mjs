@@ -6299,7 +6299,11 @@ export const TOOLS = [
       + '🔴 An ai_agent step stores only a `connectionId` in `attributes.mcpConnections[]`; the connection '
       + 'itself is a separate location-level document, so a connectionId that is not in this list will not '
       + 'resolve. GHL caps built-in tools + MCP connections at 10 COMBINED. '
-      + 'This tool READS the options; creating an MCP connection is a write and is not covered here.',
+      + 'This tool READS the options. 🔴 CREATING, EDITING, TESTING OR DELETING an MCP connection is deliberately NOT '
+      + 'done by this plugin (operator decision 2026-09-23): a connection stores credentials for an external server. '
+      + 'When a workflow needs an MCP server that is not in mcpConnections, TELL THE USER to add it themselves in the GHL '
+      + 'builder (open the workflow, the AI Agent step, its MCP servers panel, add a connection), then re-run this tool '
+      + 'for the new connectionId. Do not reach for raw_request to create one.',
     inputSchema: schema({ locationId: z.string() }),
     capabilities: [
       { method: 'GET', path: '/workflow/agent/{loc}/models' },
@@ -6336,6 +6340,9 @@ export const TOOLS = [
           ? { count: (tokens.value ?? []).length, tokens: tokens.value ?? [] }
           : tokens,
         toolCapNote: 'GHL caps attributes.tools + attributes.mcpConnections at 10 COMBINED (AIAgent.MAX_TOOLS).',
+        mcpConnectionsNote: 'This plugin does not create, edit, test or delete MCP connections (operator decision: they store '
+          + 'credentials for an external server). If the workflow needs one that is not listed, ask the user to add it in the GHL '
+          + 'builder: the workflow, the AI Agent step, its MCP servers panel. Then read this again for its connectionId.',
       });
     }, args),
   },

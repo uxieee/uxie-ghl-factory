@@ -13,6 +13,13 @@ commit bodies carry the detail.
 
 ## Unreleased
 
+**MCP connections stay a human action, and agents are told so** (operator decision). The plugin does
+not create, edit, test or delete MCP-server connections, because a connection stores credentials for
+an external server. The four write routes are FENCED with that reason. `get_ai_agent_options` states
+it in its description and returns an `mcpConnectionsNote`: when a workflow needs a connection the
+account lacks, the agent asks the user to add it in the builder (the AI Agent step's MCP servers
+panel), then reads the new `connectionId`.
+
 **New tool `rename_workflow`** (operator-approved proposal). It renames one or many workflows through
 GHL's dedicated route, `PUT /workflow/{loc}/rename-workflow/{wid}`. This is the only rename path that
 does not re-run the step validator: through `edit_workflow`, a healthy published workflow can refuse
