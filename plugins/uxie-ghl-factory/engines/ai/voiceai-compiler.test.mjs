@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { compileVoiceAiAgent, compileVoiceAiAction, compileVoiceAiUpdate, AUTH_HEADER } from './voiceai-compiler.mjs';
 import { IRError } from './voiceai-ir.mjs';
 
-const LOCATION_ID = 'wdzEoUZnXO9tB3PPzcot';
+const LOCATION_ID = 'Lq7TestLoc0000000001';
 const AGENT_ID = '6a5222c8dd665059e500fa6c';
 
 // --- compileVoiceAiAgent (POST /voice-ai/agents) ---------------------------------
@@ -433,8 +433,8 @@ test('compileVoiceAiUpdate: full-replace body matches voiceai-update-identity.js
   const ir = {
     agentName: 'TEST-CAP-VOICEAI',
     agentPrompt: '<full system+role prompt text, unchanged from create-time default>',
-    welcomeMessage: 'Hey, you have reached GROM Digital AU. How can I help you today?',
-    businessName: 'GROM Digital AU',
+    welcomeMessage: 'Hey, you have reached Acme Dental. How can I help you today?',
+    businessName: 'Acme Dental',
     timezone: 'Australia/Perth',
   };
   const { method, path, body, authHeader } = compileVoiceAiUpdate(ir, { agentId: AGENT_ID, locationId: LOCATION_ID });
@@ -443,12 +443,12 @@ test('compileVoiceAiUpdate: full-replace body matches voiceai-update-identity.js
   assert.equal(authHeader, 'ai');
   assert.deepEqual(body, {
     agentName: 'TEST-CAP-VOICEAI',
-    welcomeMessage: 'Hey, you have reached GROM Digital AU. How can I help you today?',
+    welcomeMessage: 'Hey, you have reached Acme Dental. How can I help you today?',
     voiceId: 'g6xIsTj2HwM6VR4iXFCw',
     voiceModel: 'auto',
     language: 'en-US',
     locationId: LOCATION_ID,
-    businessName: 'GROM Digital AU',
+    businessName: 'Acme Dental',
     inboundPhoneNumber: null,
     inboundNumbers: [],
     numberPoolId: null,
@@ -498,7 +498,7 @@ test('compileVoiceAiUpdate: full-replace body matches voiceai-update-identity.js
       disclaimerEnabled: true,
       outboundIntentMessage: '',
       outboundDisclaimerType: 'concise',
-      outboundDisclaimerMessage: "Hi {{contact.first_name}}, this is GROM Digital AU's AI assistant. You can say, 'Don't call me again,' to opt out.",
+      outboundDisclaimerMessage: "Hi {{contact.first_name}}, this is Acme Dental's AI assistant. You can say, 'Don't call me again,' to opt out.",
       playDisclaimerOnEveryCall: true,
     },
     prompts: {},
@@ -516,21 +516,21 @@ test('compileVoiceAiUpdate: full-replace body matches voiceai-update-behavior-tr
   const ir = {
     agentName: 'TEST-CAP-VOICEAI',
     agentPrompt: '<unchanged full prompt text>',
-    welcomeMessage: 'Hey, you have reached GROM Digital AU. How can I help you today?',
-    businessName: 'GROM Digital AU',
+    welcomeMessage: 'Hey, you have reached Acme Dental. How can I help you today?',
+    businessName: 'Acme Dental',
     timezone: 'Australia/Perth',
-    transcription: { boostedKeywords: ['GROM Digital'] },
+    transcription: { boostedKeywords: ['Acme Dental'] },
     behavior: { enableBackchannel: true },
   };
   const { body } = compileVoiceAiUpdate(ir, { agentId: AGENT_ID, locationId: LOCATION_ID });
   assert.deepEqual(body, {
     agentName: 'TEST-CAP-VOICEAI',
-    welcomeMessage: 'Hey, you have reached GROM Digital AU. How can I help you today?',
+    welcomeMessage: 'Hey, you have reached Acme Dental. How can I help you today?',
     voiceId: 'g6xIsTj2HwM6VR4iXFCw',
     voiceModel: 'auto',
     language: 'en-US',
     locationId: LOCATION_ID,
-    businessName: 'GROM Digital AU',
+    businessName: 'Acme Dental',
     inboundPhoneNumber: null,
     inboundNumbers: [],
     numberPoolId: null,
@@ -568,7 +568,7 @@ test('compileVoiceAiUpdate: full-replace body matches voiceai-update-behavior-tr
     enableDynamicVoiceSpeed: false,
     enableDynamicResponsiveness: false,
     vocabSpecialization: 'general',
-    boostedKeywords: ['GROM Digital'],
+    boostedKeywords: ['Acme Dental'],
     pronunciationDictionary: [],
     enableBackchannel: true,
     backchannelFrequency: 0.8,
@@ -580,7 +580,7 @@ test('compileVoiceAiUpdate: full-replace body matches voiceai-update-behavior-tr
       disclaimerEnabled: true,
       outboundIntentMessage: '',
       outboundDisclaimerType: 'concise',
-      outboundDisclaimerMessage: "Hi {{contact.first_name}}, this is GROM Digital AU's AI assistant. You can say, 'Don't call me again,' to opt out.",
+      outboundDisclaimerMessage: "Hi {{contact.first_name}}, this is Acme Dental's AI assistant. You can say, 'Don't call me again,' to opt out.",
       playDisclaimerOnEveryCall: true,
     },
     prompts: {},
@@ -617,7 +617,7 @@ test('compileVoiceAiUpdate: rejects invalid IR (bad denoisingMode) even in full-
     (e) => e.code === 'BAD_DENOISING_MODE');
 });
 
-// ─── Empty-string fields the API rejects (live-caught 2026-07-21, GROM AU) ────────────
+// ─── Empty-string fields the API rejects (live-caught 2026-07-21) ────────────
 // The full-replace PUT 422'd on businessName / welcomeMessage / timezone being '' —
 // the single reason Voice AI agent-create appeared broken: create succeeded, this PUT
 // failed, and a real unnamed agent was left on the account. Live-tested: omitting → 200.
@@ -637,4 +637,17 @@ test('compileVoiceAiUpdate keeps those fields when the IR supplies real values',
   assert.equal(body.businessName, 'Canary Co');
   assert.equal(body.welcomeMessage, 'Hi there.');
   assert.equal(body.timezone, 'Australia/Sydney');
+});
+
+// The default disclaimer names the agent's OWN business. It shipped naming the capturing account's
+// business, so an agent built without a disclaimer introduced itself to callers as someone else.
+test('the default outbound disclaimer names this agent\'s business, and never a fixed one', () => {
+  const msg = (businessName) => compileVoiceAiUpdate({ agentName: 'A', agentPrompt: 'p', businessName }, { agentId: AGENT_ID, locationId: LOCATION_ID })
+    .body.aiDisclaimerConfiguration.outboundDisclaimerMessage;
+  assert.equal(msg('Bright Smiles'), "Hi {{contact.first_name}}, this is Bright Smiles's AI assistant. You can say, 'Don't call me again,' to opt out.");
+  assert.equal(msg(''), "Hi {{contact.first_name}}, this is an AI assistant. You can say, 'Don't call me again,' to opt out.");
+  assert.doesNotMatch(msg('Bright Smiles') + msg(''), /GROM/);
+  const own = { disclaimerEnabled: false, outboundIntentMessage: '', outboundDisclaimerType: 'concise', outboundDisclaimerMessage: 'x', playDisclaimerOnEveryCall: false };
+  const body = compileVoiceAiUpdate({ agentName: 'A', agentPrompt: 'p', businessName: 'B', outbound: { aiDisclaimerConfiguration: own } }, { agentId: AGENT_ID, locationId: LOCATION_ID }).body;
+  assert.deepEqual(body.aiDisclaimerConfiguration, own, 'an authored disclaimer is passed through untouched');
 });

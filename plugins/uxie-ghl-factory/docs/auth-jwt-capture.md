@@ -99,8 +99,8 @@ The current JWT payload (decode locally, e.g. via jwt.io — it decodes client-s
 ```json
 {
   "authClass": "User",
-  "authClassId": "CpTT7UCqUcPNfWgg3ArU",
-  "sourceId": "CpTT7UCqUcPNfWgg3ArU",
+  "authClassId": "Uq7TestUser000000001",
+  "sourceId": "Uq7TestUser000000001",
   "channel": "APP",
   "source": "WEB_USER",
   "jti": "...",

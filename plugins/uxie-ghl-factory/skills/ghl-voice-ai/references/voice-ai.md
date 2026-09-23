@@ -29,7 +29,7 @@ emits them correctly end-to-end. Do not cite a client account as evidence the en
 
 ⚠️ **Unreconciled — agent create + full-replace update via the engine.** The project record
 says the engine's Voice AI agent create + full-replace update **was live-create-proven on
-GROM AU (`wdzEoUZnXO9tB3PPzcot`) 2026-07-11** (engine → internal API → real object → verified
+GROM AU 2026-07-11** (engine → internal API → real object → verified
 → **deleted**), alongside the other three compilers. But this doc has always said "NOT yet
 live-proven", and the identical boilerplate still sits in `agent-studio.md` — so the banner is
 *probably* stale, yet nothing survives to confirm it. **Checked and ruled out as evidence:**

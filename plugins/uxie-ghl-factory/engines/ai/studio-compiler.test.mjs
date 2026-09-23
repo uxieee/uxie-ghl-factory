@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { compileSuperAgentUpdate, compileSuperAgentCreate, AUTH_HEADER, BUILD_MODES } from './studio-compiler.mjs';
 import { IRError, DEFAULT_MODEL } from './studio-ir.mjs';
 
-const LOCATION_ID = 'wdzEoUZnXO9tB3PPzcot';
+const LOCATION_ID = 'Lq7TestLoc0000000001';
 const COMPANY_ID = 'Hn7Jk2Mq5Rt8Wy3Za6Bc';
 const AGENT_ID = 'd7150b42-6480-47ef-aee7-20b50ee43d3f';
 

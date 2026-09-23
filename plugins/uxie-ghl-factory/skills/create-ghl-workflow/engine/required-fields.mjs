@@ -44,8 +44,8 @@
 // which is the canary programme described below. `required-fields.test.mjs` pins the
 // measurement above so this cannot be quietly re-litigated.
 //
-// EVIDENCE: research/ai-agents-internal/flow-builder-required-fields.md, live on AU
-// wdzEoUZnXO9tB3PPzcot 2026-07-25/26. Nine conversationai_* node types were built with
+// EVIDENCE: research/ai-agents-internal/flow-builder-required-fields.md, live on GROM AU
+// 2026-07-25/26. Nine conversationai_* node types were built with
 // deliberately minimal attributes; the builder reported "Resolve 7 Errors" while the
 // engine reported `verify: { pass: 14, issues: [] }`. Supplying the fields below took it
 // to "Resolve 1 Errors", and the survivor was conversationai_end — because its DOCUMENTED

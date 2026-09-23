@@ -8,4 +8,15 @@
 set -e
 node scripts/check-privacy.mjs --staged
 node scripts/check-manifest-parity.mjs
+# Ids that exist in HARVESTED ACCOUNT DATA must never enter this public repo (console bl-175: a
+# client's calendar id shipped in a step example for months, and no name sweep could find it). Only
+# the knowledge repo knows which opaque ids are real, so the check lives there and runs only where
+# it sits beside this one. Anywhere else (a contributor's clone) it says so loudly and does not block.
+ROOT=$(git rev-parse --show-toplevel)
+LEAKS="$ROOT/../knowledge/scripts/check-sibling-leaks.mjs"
+if [ -f "$LEAKS" ]; then
+  node "$LEAKS" "$ROOT" --staged
+else
+  echo "sibling-leak check: SKIPPED — no knowledge repo beside this one ($LEAKS). Staged ids were NOT checked against harvested account data."
+fi
 # The MCP contract check runs at pre-push instead — it needs the network.

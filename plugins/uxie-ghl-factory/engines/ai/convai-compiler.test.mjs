@@ -23,11 +23,11 @@ const fullIR = {
 };
 
 test('compileConvaiAgent: create body matches convai-create.json field-for-field', () => {
-  const { create, authHeader } = compileConvaiAgent(fullIR, { locationId: 'wdzEoUZnXO9tB3PPzcot' });
+  const { create, authHeader } = compileConvaiAgent(fullIR, { locationId: 'Lq7TestLoc0000000001' });
   assert.equal(create.method, 'POST');
   assert.equal(create.path, '/ai-employees/employees');
   const b = create.body;
-  assert.equal(b.locationId, 'wdzEoUZnXO9tB3PPzcot');
+  assert.equal(b.locationId, 'Lq7TestLoc0000000001');
   assert.equal(b.employeeName, 'TEST-CAP-CONVAI');
   assert.equal(b.businessName, '');
   assert.equal(b.mode, 'suggestive');
@@ -128,15 +128,15 @@ test('compileConvaiAction: humanHandOver matches convai-action.json shape', () =
       examples: ['I want to talk to the manager', 'I want to talk to a human'],
       skipAssignToUser: true,
       createTask: true,
-      assignToUserId: 'CpTT7UCqUcPNfWgg3ArU',
+      assignToUserId: 'Uq7TestUser000000001',
       handoverType: 'contactRequest',
     },
   };
-  const { method, path, body } = compileConvaiAction(action, { agentId: '69udtYyGwTVOL9doSdfb', locationId: 'wdzEoUZnXO9tB3PPzcot' });
+  const { method, path, body } = compileConvaiAction(action, { agentId: 'Aq7TestAgent00000001', locationId: 'Lq7TestLoc0000000001' });
   assert.equal(method, 'POST');
   assert.equal(path, '/ai-employees/actions');
-  assert.equal(body.employeeId, '69udtYyGwTVOL9doSdfb');
-  assert.equal(body.locationId, 'wdzEoUZnXO9tB3PPzcot');
+  assert.equal(body.employeeId, 'Aq7TestAgent00000001');
+  assert.equal(body.locationId, 'Lq7TestLoc0000000001');
   assert.equal(body.type, 'humanHandOver');
   assert.equal(body.name, 'Human Requested');
   assert.deepEqual(body.details, action.details);
@@ -375,12 +375,12 @@ test('compileConvaiAction: advancedFollowup lets caller override the followup se
 // field(s) are sent — the backend merges rather than replaces.
 test('compileConvaiUpdate: partial merge — only touched fields present in body', () => {
   const { method, path, body, authHeader } = compileConvaiUpdate(
-    { knowledgeBaseIds: ['tJdoJJkFGwqhsWKmHLEd'] },
-    { agentId: '69udtYyGwTVOL9doSdfb', locationId: 'wdzEoUZnXO9tB3PPzcot' },
+    { knowledgeBaseIds: ['Kq7TestKb00000000001'] },
+    { agentId: 'Aq7TestAgent00000001', locationId: 'Lq7TestLoc0000000001' },
   );
   assert.equal(method, 'PUT');
-  assert.equal(path, '/ai-employees/employees/69udtYyGwTVOL9doSdfb');
-  assert.deepEqual(body, { locationId: 'wdzEoUZnXO9tB3PPzcot', knowledgeBaseIds: ['tJdoJJkFGwqhsWKmHLEd'] });
+  assert.equal(path, '/ai-employees/employees/Aq7TestAgent00000001');
+  assert.deepEqual(body, { locationId: 'Lq7TestLoc0000000001', knowledgeBaseIds: ['Kq7TestKb00000000001'] });
   assert.equal(authHeader, 'ai');
 });
 

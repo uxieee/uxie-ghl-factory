@@ -286,7 +286,7 @@ confirm the funnel doc exists with the name you set.
     `ZZ TEST funnel-create probe 2026-08-10 (safe to keep)`.
 - `type` is only proven as `"funnel"` — no other value was tested; don't
   invent alternatives (e.g. a `"website"` type).
-- Proven live on GROM Digital AU (funnel `RipeI1dmKTAtdKQSbBVy`) — "proven" here
+- Proven live on GROM Digital AU — "proven" here
   means the document is created, NOT that the result is usable (see above).
 
 ---

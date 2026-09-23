@@ -13,6 +13,25 @@ commit bodies carry the detail.
 
 ## Unreleased
 
+**Voice AI agents no longer introduce themselves as someone else's business** (fix). The compiler's
+default outbound disclaimer was a literal copied from a capture. It read "this is GROM Digital AU's AI
+assistant", so every agent built without its own disclaimer told callers it was that business. The
+default now names the agent's own `businessName`: "Hi {{contact.first_name}}, this is <business>'s
+AI assistant…". With no business name it says "an AI assistant". An authored
+`outbound.aiDisclaimerConfiguration` is passed through untouched, as before.
+
+**No production-account ids in this repo, and a commit gate that keeps it that way** (console bl-175).
+Where the agency's former test account appeared as data, it is now a placeholder or a fabricated id of
+the same shape. This covers:
+- its location id, a user id, and the ids of objects built on it (agent, knowledge base, document,
+  funnel, workflow, Facebook page);
+- its business name used as test data or as an example value.
+
+Provenance notes keep the account's label. The pre-commit hook now also runs the knowledge repo's
+`check-sibling-leaks.mjs --staged`, which refuses a commit that stages any id found in harvested
+account data. It runs only where the knowledge repo sits beside this one; anywhere else it prints
+that it was SKIPPED, and does not block.
+
 **An edit of a published workflow no longer inherits the rule violations GHL stopped checking**
 (console bl-146). GHL stops checking `validateIfElseCondition`, `validateRouterConditions` and
 `validateWaitStep` once a workflow is published (its skipHatch), so published documents carrying those
@@ -3741,7 +3760,7 @@ builder offers a choice, or had no way to express a shape the drawer writes.
 
 ## [0.39.0] — 2026-08-29
 
-**Live-proven on GROM Digital AUS (`wdzEoUZnXO9tB3PPzcot`), 2026-08-29, against the working tree:**
+**Live-proven on GROM Digital AUS, 2026-08-29, against the working tree:**
 
 | Finding | Receipt |
 |---|---|
@@ -3846,7 +3865,7 @@ a 200, a green round-trip, a "built successfully" report — while the thing the
 did not happen. The theme of the release is closing the gap between "GHL kept my keys" and "the
 stored body expresses my intent".
 
-**Live-proven on the designated test sub-account (GROM Digital AUS `wdzEoUZnXO9tB3PPzcot`),
+**Live-proven on the designated test sub-account (GROM Digital AUS),
 2026-08-29, against the WORKING TREE — the installed 0.37.1 build still carries these bugs:**
 
 | Finding | Before | Receipt |
@@ -3856,7 +3875,7 @@ stored body expresses my intent".
 | F5-11 | `ENGINE_ABORT` "did not persist" on a trigger that DID persist; retrying duplicated it | `addTrigger` → `200`, verified clean, trigger count 7 → 8 with exactly one instance of the added trigger. |
 
 Probe artifact left in place for a human to remove, per the standing rule: workflow
-`6c3140b3-65fc-4223-a47d-ebe72dcc2681` on GROM AU, named
+a workflow on GROM AU, named
 "PROBE 2026-08-29 F5-16 call_status multiselect (safe to delete)", plus the tag `probe-f5-16`.
 
 ### Fixed
