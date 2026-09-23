@@ -56374,9 +56374,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       audit_site: {
-        description: "Read-only audit of a GHL funnel or website \u2014 dangling references, missing merge tags, foreign locationIds, publish drift \u2014 proof: live-runtime (2026-09-14); risk: read",
+        description: "Read-only audit of a GHL funnel or website \u2014 dangling references, missing merge tags, foreign locationIds, publish drift \u2014 proof: live-runtime (2026-09-23); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-14)",
+        proof: "live-runtime (2026-09-23)",
         proofFloor: "live-runtime (2026-09-10)",
         proofRows: [
           "funnels-service--get-funnels",
@@ -56506,9 +56506,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       build_funnel_page: {
-        description: "Compose, validate and write a funnel page from native elements; optionally publish it \u2014 proof: live-runtime (2026-09-14); risk: write",
+        description: "Compose, validate and write a funnel page from native elements; optionally publish it \u2014 proof: live-runtime (2026-09-23); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-14)",
+        proof: "live-runtime (2026-09-23)",
         proofFloor: "live-runtime (2026-09-09)",
         proofRows: [
           "funnels--builder-autosave",
