@@ -13907,7 +13907,11 @@
       "note": "⚠️ Four spellings exist in this custom-objects family and they do NOT agree. [proven-live] 2026-09-21: `/objects/` (trailing slash) answers 200 and this plugin has always called it — engine/entities.mjs resolves an object by key or label through it. `/objects/{objectKey}` answers 200 under the BARE spelling, which GHL's own front end never sends; the client only issues `/objects/{objectKey}/`, and THAT is the one that refuses us. A `refused` verdict recorded against a URL nobody sends is not evidence about the capability. See workflows/20-api/refused-but-mined.md.",
       "reach": "source-only",
       "coveredBy": [
-        "list_account_entities"
+        "build_workflow",
+        "check_workflow",
+        "edit_workflow",
+        "list_account_entities",
+        "repair_workflow"
       ],
       "rawCallable": true,
       "transport": "json",
@@ -13961,7 +13965,12 @@
       "provenFor": [
         "agency-admin-bearer"
       ],
-      "coveredBy": [],
+      "coveredBy": [
+        "build_workflow",
+        "check_workflow",
+        "edit_workflow",
+        "repair_workflow"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -14017,7 +14026,12 @@
       "kind": "read",
       "note": "MINED, refused to us — see corpus workflows/20-api/refused-but-mined.md. This is the spelling GHL's own client issues (CustomObjectsService pins its base URL to '…/objects/', so every real call carries the trailing slash) and it is the one our credential class does NOT reach. Its BARE twin, GET /objects/{objectKey}, is proven live from here and carries the same custom-object field schema — use that. Neither row is a phantom: this is a gateway/routing distinction between two real spellings, not one route recorded twice.",
       "reach": "refused",
-      "coveredBy": [],
+      "coveredBy": [
+        "build_workflow",
+        "check_workflow",
+        "edit_workflow",
+        "repair_workflow"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -47809,7 +47823,11 @@
       "note": "⚠️ The spelling that WORKS: [proven-live] 2026-09-21 this answers 200 and engine/entities.mjs calls `/objects/?locationId=` on every build to resolve a custom object by key or label. An earlier `refused` verdict on this row was simply wrong. Its sibling `/objects/{objectKey}/` (trailing slash, the client's own spelling) is the one that refuses us, while the bare `/objects/{objectKey}` answers. See workflows/20-api/refused-but-mined.md.",
       "reach": "refused",
       "coveredBy": [
-        "list_account_entities"
+        "build_workflow",
+        "check_workflow",
+        "edit_workflow",
+        "list_account_entities",
+        "repair_workflow"
       ],
       "rawCallable": true,
       "transport": "json",

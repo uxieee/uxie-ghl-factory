@@ -31,6 +31,7 @@ import { stripNullNext, fillInputTriggerParams } from '../../skills/create-ghl-w
 import { checkWorkflowRules, rulesNeedTriggers, fromEmailNeedsDomain } from '../../skills/create-ghl-workflow/engine/graph-rules.mjs';
 import { checkGraphContextRules } from '../../skills/create-ghl-workflow/engine/graph-context-rules.mjs';
 import { validateAssets, describeFinding } from '../../skills/create-ghl-workflow/engine/asset-preflight.mjs';
+import { referencedObjectKeys, checkCustomObjectSteps, fetchObjectSchemas } from '../../skills/create-ghl-workflow/engine/custom-object-fields.mjs';
 import { needsVocabularies, checkVocabularyRefs, fetchDispositionNames } from '../../skills/create-ghl-workflow/engine/vocabulary-refs.mjs';
 import { callerCredentialClass, reachForCaller } from './credential-class.mjs';
 import { SCHEDULER_TRIGGER_TYPE, schedulerPreviewBody, interpretSchedulerPreview } from '../../skills/create-ghl-workflow/engine/scheduler-preview.mjs';
@@ -860,9 +861,25 @@ async function customCodePreflight({ gw, loc, templates, touchedIds, strict, ski
 // replaceTag / replaceInAttributes old values) — that is precisely the case where the error is
 // real and the write is the fix, so suppressing it would hide a failed re-point.
 const idsBeingReplaced = (ops = []) => new Set(ops.flatMap((o) => [o?.oldId, o?.oldTag, o?.find]).filter((v) => typeof v === 'string' && v));
+// Custom-object record steps against the object's real schema (engine/custom-object-fields.mjs, bl-167).
+// GHL's validate-assets does not look inside these steps, so its findings are folded in here, into the
+// same errors[] and with the same touched/untouched and ignoreAssetErrors treatment. Read only when a
+// document has such a step; an unreadable schema is reported as not checked, never as clean.
+async function addCustomObjectFindings(gw, loc, templates, verdict) {
+  const keys = referencedObjectKeys(templates);
+  if (!keys.length) return;
+  let schemas = new Map();
+  try { schemas = await fetchObjectSchemas((m, p) => gw.call(m, p), loc, keys); } catch { /* not checked */ }
+  const { errors, notChecked } = checkCustomObjectSteps(templates, schemas);
+  verdict.errors = [...(verdict.errors ?? []), ...errors.map((e) => ({ ...e, source: 'custom-object-schema' }))];
+  if (notChecked.length) verdict.warnings = [...(verdict.warnings ?? []),
+    ...notChecked.map((n) => ({ stepId: n.stepId, code: 'CUSTOM_OBJECT_NOT_CHECKED', message: `custom-object fields NOT CHECKED: ${n.why}` }))];
+}
+
 async function assetPreflightFor({ gw, loc, templates, triggers, companyId, touchedIds, ignoreAssetErrors, warnings, ops = [] }) {
   const verdict = await validateAssets((m, p, b) => gw.call(m, p, b), loc, { templates, triggers, companyId });
   const assetPreflight = { phase: 'pre-write', ...verdict };
+  await addCustomObjectFindings(gw, loc, templates, assetPreflight);
   for (const w of assetPreflight.warnings ?? []) warnings.push(`asset: ${describeFinding(w)}`);
   const blocking = [];
   for (const e of assetPreflight.errors ?? []) {
@@ -2286,6 +2303,9 @@ export const TOOLS = [
       { method: 'GET', path: '/locations/{loc}/customValues' },
       // Only when a trigger matches call dispositions by NAME (vocabulary-refs.mjs, bl-139).
       { method: 'GET', path: '/phone-system/call-dispositions' },
+      // Only when the document has a custom-object record step (custom-object-fields.mjs, bl-167).
+      { method: 'GET', path: '/objects/' },
+      { method: 'GET', path: '/objects/{objectKey}' },
     ],
     // Verified 2026-09-21: scheduler-trigger/preview only computes next-run times from a payload
     // (see the capability comment above); validate-assets is the same stateless validator cleared
@@ -2442,6 +2462,7 @@ export const TOOLS = [
       const assetRefs = await (async () => {
         try {
           const v = await validateAssets((m, p, b) => gw.call(m, p, b), args.locationId, { templates, triggers: triggerList });
+          await addCustomObjectFindings(gw, args.locationId, templates, v);
           // 🔴 READ v.checked, NOT the absence of a throw. validateAssets FAILS OPEN by contract —
           // a transport error, a non-200 or an unrecognised body all return
           // { checked: false, skipped: '<why>' } with EMPTY error arrays, deliberately, so that a
@@ -4484,6 +4505,9 @@ export const TOOLS = [
       // Model ids are per-account and GHL retires them IN PLACE, so a frozen id is checked
       // against the account's live roster rather than trusted.
       { method: 'GET', path: '/workflow/agent/{loc}/models' },
+      // Only when the document has a custom-object record step (custom-object-fields.mjs, bl-167).
+      { method: 'GET', path: '/objects/' },
+      { method: 'GET', path: '/objects/{objectKey}' },
       { method: 'GET', path: '/saas-billing-v2/billing-config/{entityType}/{entityId}/{product}' },
       // The preflight's only non-GET, reached when the spec sets a full literal
       // settings.senderAddress.from_email. It VALIDATES the address and sends nothing.
@@ -4631,6 +4655,9 @@ export const TOOLS = [
       // (payload in, verdict out — nothing written); the sandbox runs code without touching the
       // account; the readiness reads run ONLY when a touched step's channel needs them.
       { method: 'POST', path: '/workflow/{loc}/validate-assets' },
+      // Only when the document has a custom-object record step (custom-object-fields.mjs, bl-167).
+      { method: 'GET', path: '/objects/' },
+      { method: 'GET', path: '/objects/{objectKey}' },
       { method: 'POST', path: '/workflow/custom-code/run-test' },
       { method: 'GET', path: '/phone-system/numbers' },
       // The two preflight reads added in 0.92.0. Undeclared, the catalogue filed both routes as
@@ -5398,6 +5425,9 @@ export const TOOLS = [
       { method: 'GET', path: '/hooks/inbound-webhook-request/reference/{triggerId}' },
       { method: 'GET', path: '/workflows-marketplace/location/{loc}/assets' },
       { method: 'POST', path: '/workflow/{loc}/validate-assets' },
+      // Only when the document has a custom-object record step (custom-object-fields.mjs, bl-167).
+      { method: 'GET', path: '/objects/' },
+      { method: 'GET', path: '/objects/{objectKey}' },
       { method: 'POST', path: '/workflow/custom-code/run-test' },
       { method: 'GET', path: '/phone-system/numbers' },
       // The two preflight reads added in 0.92.0. Undeclared, the catalogue filed both routes as

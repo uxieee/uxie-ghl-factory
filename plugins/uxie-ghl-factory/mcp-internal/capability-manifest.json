@@ -140,6 +140,16 @@
     "path": "/phone-system/call-dispositions"
   },
   {
+    "tool": "check_workflow",
+    "method": "GET",
+    "path": "/objects/"
+  },
+  {
+    "tool": "check_workflow",
+    "method": "GET",
+    "path": "/objects/{objectKey}"
+  },
+  {
     "tool": "validate_workflow",
     "method": "GET",
     "path": "/workflow/{loc}/{wid}"
@@ -887,6 +897,16 @@
   {
     "tool": "build_workflow",
     "method": "GET",
+    "path": "/objects/"
+  },
+  {
+    "tool": "build_workflow",
+    "method": "GET",
+    "path": "/objects/{objectKey}"
+  },
+  {
+    "tool": "build_workflow",
+    "method": "GET",
     "path": "/saas-billing-v2/billing-config/{entityType}/{entityId}/{product}"
   },
   {
@@ -1011,6 +1031,16 @@
   },
   {
     "tool": "edit_workflow",
+    "method": "GET",
+    "path": "/objects/"
+  },
+  {
+    "tool": "edit_workflow",
+    "method": "GET",
+    "path": "/objects/{objectKey}"
+  },
+  {
+    "tool": "edit_workflow",
     "method": "POST",
     "path": "/workflow/custom-code/run-test"
   },
@@ -1103,6 +1133,16 @@
     "tool": "repair_workflow",
     "method": "POST",
     "path": "/workflow/{loc}/validate-assets"
+  },
+  {
+    "tool": "repair_workflow",
+    "method": "GET",
+    "path": "/objects/"
+  },
+  {
+    "tool": "repair_workflow",
+    "method": "GET",
+    "path": "/objects/{objectKey}"
   },
   {
     "tool": "repair_workflow",

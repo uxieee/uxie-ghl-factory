@@ -13,6 +13,25 @@ commit bodies carry the detail.
 
 ## Unreleased
 
+**Custom-object record steps are checked against the object's real schema before any write** (console
+bl-167; the operator confirmed clients use custom objects). This covers `create_custom_object`,
+`update_custom_object` and `clear_custom_object_fields`. Each referenced object's schema is read (the
+object list decides existence, never a 4xx), and the builder's own rules are enforced. Findings join
+the asset preflight in build, edit and repair and in `check_workflow`'s reference scope, with the
+same touched/untouched handling and `ignoreAssetErrors` hatch.
+
+The rules:
+- every field exists on the object;
+- the field is named by its ID, which is what the step stores (a fieldKey saves and cannot bind);
+- on create, the primary display property and required properties are set;
+- a static picklist value is a real option;
+- no TEXTBOX_LIST, SIGNATURE or FILE_UPLOAD field is set;
+- at least one field, owner or follower is set.
+
+The corpus step pages had the attribute shape as speculation; they now carry the source-derived shape.
+Live-proven on the sandbox against a TEST-CONF custom object (`custom-object-proof.mjs`, in the suite):
+the field named by its ID builds; the same field named by its fieldKey is refused, naming the ID.
+
 **MCP connections stay a human action, and agents are told so** (operator decision). The plugin does
 not create, edit, test or delete MCP-server connections, because a connection stores credentials for
 an external server. The four write routes are FENCED with that reason. `get_ai_agent_options` states

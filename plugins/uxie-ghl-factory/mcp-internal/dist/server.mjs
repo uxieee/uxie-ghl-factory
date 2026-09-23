@@ -14084,7 +14084,11 @@ var init_define_ENDPOINT_CATALOG = __esm({
           note: "\u26A0\uFE0F Four spellings exist in this custom-objects family and they do NOT agree. [proven-live] 2026-09-21: `/objects/` (trailing slash) answers 200 and this plugin has always called it \u2014 engine/entities.mjs resolves an object by key or label through it. `/objects/{objectKey}` answers 200 under the BARE spelling, which GHL's own front end never sends; the client only issues `/objects/{objectKey}/`, and THAT is the one that refuses us. A `refused` verdict recorded against a URL nobody sends is not evidence about the capability. See workflows/20-api/refused-but-mined.md.",
           reach: "source-only",
           coveredBy: [
-            "list_account_entities"
+            "build_workflow",
+            "check_workflow",
+            "edit_workflow",
+            "list_account_entities",
+            "repair_workflow"
           ],
           rawCallable: true,
           transport: "json",
@@ -14138,7 +14142,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
           provenFor: [
             "agency-admin-bearer"
           ],
-          coveredBy: [],
+          coveredBy: [
+            "build_workflow",
+            "check_workflow",
+            "edit_workflow",
+            "repair_workflow"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -14194,7 +14203,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           note: "MINED, refused to us \u2014 see corpus workflows/20-api/refused-but-mined.md. This is the spelling GHL's own client issues (CustomObjectsService pins its base URL to '\u2026/objects/', so every real call carries the trailing slash) and it is the one our credential class does NOT reach. Its BARE twin, GET /objects/{objectKey}, is proven live from here and carries the same custom-object field schema \u2014 use that. Neither row is a phantom: this is a gateway/routing distinction between two real spellings, not one route recorded twice.",
           reach: "refused",
-          coveredBy: [],
+          coveredBy: [
+            "build_workflow",
+            "check_workflow",
+            "edit_workflow",
+            "repair_workflow"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -47996,7 +48010,11 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           note: "\u26A0\uFE0F The spelling that WORKS: [proven-live] 2026-09-21 this answers 200 and engine/entities.mjs calls `/objects/?locationId=` on every build to resolve a custom object by key or label. An earlier `refused` verdict on this row was simply wrong. Its sibling `/objects/{objectKey}/` (trailing slash, the client's own spelling) is the one that refuses us, while the bare `/objects/{objectKey}` answers. See workflows/20-api/refused-but-mined.md.",
           reach: "refused",
           coveredBy: [
-            "list_account_entities"
+            "build_workflow",
+            "check_workflow",
+            "edit_workflow",
+            "list_account_entities",
+            "repair_workflow"
           ],
           rawCallable: true,
           transport: "json",
@@ -165197,6 +165215,92 @@ async function validateAssets(call, loc, { templates, triggers, companyId } = {}
   };
 }
 
+// ../skills/create-ghl-workflow/engine/custom-object-fields.mjs
+init_define_BUILDER_VALIDATORS();
+init_define_CONTACT_FILTER_FIELDS();
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
+init_define_TOOL_CATALOG();
+var CUSTOM_OBJECT_STEP_TYPES = /* @__PURE__ */ new Set(["create_custom_object", "update_custom_object", "clear_custom_object_fields"]);
+var CRM_KEYS = /* @__PURE__ */ new Set(["contact", "business", "company", "opportunity"]);
+var NOT_SETTABLE = /* @__PURE__ */ new Set(["TEXTBOX_LIST", "SIGNATURE", "FILE_UPLOAD"]);
+var isMerge = (v) => typeof v === "string" && v.includes("{{");
+var isEmpty = (v) => v == null || typeof v === "string" && !v.trim() || Array.isArray(v) && v.length === 0;
+function referencedObjectKeys(templates = []) {
+  return [...new Set(templates.filter((t) => CUSTOM_OBJECT_STEP_TYPES.has(t?.type)).map((t) => t.attributes?.key).filter((k) => typeof k === "string" && k && !CRM_KEYS.has(k.toLowerCase())))];
+}
+function checkCustomObjectSteps(templates = [], schemas = /* @__PURE__ */ new Map()) {
+  const errors = [], notChecked = [];
+  const err = (t, code, message) => errors.push({ stepId: t.id ?? null, stepName: t.name ?? null, type: t.type, code, message });
+  for (const t of templates) {
+    if (!CUSTOM_OBJECT_STEP_TYPES.has(t?.type)) continue;
+    const a = t.attributes ?? {};
+    const key = a.key;
+    if (typeof key !== "string" || !key) {
+      err(t, "CUSTOM_OBJECT_KEY", `'${t.name ?? t.id}' names no object (attributes.key is empty)`);
+      continue;
+    }
+    if (CRM_KEYS.has(key.toLowerCase())) continue;
+    if (!schemas.has(key)) {
+      notChecked.push({ stepId: t.id ?? null, why: `schema for '${key}' was not read` });
+      continue;
+    }
+    const schema2 = schemas.get(key);
+    if (schema2 === null) {
+      err(t, "CUSTOM_OBJECT_NOT_FOUND", `'${t.name ?? t.id}' writes to object '${key}', which does not exist on this location`);
+      continue;
+    }
+    const byId = new Map((schema2.fields ?? []).map((f) => [f.id, f]));
+    const byKey = new Map((schema2.fields ?? []).map((f) => [f.fieldKey, f]));
+    const fields = Array.isArray(a.fields) ? a.fields : [];
+    for (const f of fields) {
+      const def = byId.get(f?.fieldKey);
+      if (!def) {
+        const asKey = byKey.get(f?.fieldKey);
+        err(t, "CUSTOM_OBJECT_FIELD", asKey ? `'${t.name ?? t.id}' names field '${f?.fieldKey}' by its fieldKey; this step stores the field's ID ('${asKey.id}'), so the builder cannot bind it` : `'${t.name ?? t.id}' names field '${f?.fieldKey}', which is not a field of '${key}'`);
+        continue;
+      }
+      if (NOT_SETTABLE.has(def.dataType)) err(t, "CUSTOM_OBJECT_FIELD_TYPE", `field '${def.name ?? def.fieldKey}' is ${def.dataType}, which this step cannot set (the builder never offers it)`);
+      if (t.type === "clear_custom_object_fields" || isMerge(f.value) || isEmpty(f.value)) continue;
+      const opts = (def.picklistOptions ?? def.options ?? []).map((o) => typeof o === "string" ? o : o?.value ?? o?.label).filter((x) => x != null);
+      if (["SINGLE_OPTIONS", "RADIO"].includes(def.dataType) && opts.length && !opts.includes(f.value))
+        err(t, "CUSTOM_OBJECT_OPTION", `field '${def.name ?? def.fieldKey}' value ${JSON.stringify(f.value)} is not one of its options (${opts.map((o) => JSON.stringify(o)).join(", ")})`);
+      if (["MULTIPLE_OPTIONS", "CHECKBOX"].includes(def.dataType) && opts.length) {
+        const bad = (Array.isArray(f.value) ? f.value : [f.value]).filter((v) => !isMerge(v) && !opts.includes(v));
+        if (bad.length) err(t, "CUSTOM_OBJECT_OPTION", `field '${def.name ?? def.fieldKey}' values ${JSON.stringify(bad)} are not among its options`);
+      }
+    }
+    if (t.type === "create_custom_object") {
+      const mandatory = (schema2.fields ?? []).filter((f) => f.fieldKey === schema2.object?.primaryDisplayProperty || (schema2.object?.requiredProperties ?? []).includes(f.fieldKey));
+      for (const m of mandatory) {
+        const given = fields.find((f) => f?.fieldKey === m.id);
+        if (!given || isEmpty(given.value)) err(t, "CUSTOM_OBJECT_REQUIRED", `creating a '${key}' record needs '${m.name ?? m.fieldKey}' (the object's ${m.fieldKey === schema2.object?.primaryDisplayProperty ? "primary display property" : "required property"}), and the step does not set it`);
+      }
+    }
+    if (!fields.length && !(a.followers ?? []).length && !a.owner && !a.clearOwner && !a.clearFollowers)
+      err(t, "CUSTOM_OBJECT_EMPTY", `'${t.name ?? t.id}' sets no field, owner or follower \u2014 the builder refuses it ("please select at least one field")`);
+  }
+  return { errors, notChecked };
+}
+async function fetchObjectSchemas(call, loc, keys) {
+  const out = /* @__PURE__ */ new Map();
+  if (!keys.length) return out;
+  const list = await call("GET", `/objects/?locationId=${encodeURIComponent(loc)}`);
+  const objects = list?.ok && Array.isArray(list.json?.objects) ? list.json.objects : null;
+  if (!objects) return out;
+  const known = new Set(objects.map((o) => o.key));
+  for (const key of keys) {
+    if (!known.has(key)) {
+      out.set(key, null);
+      continue;
+    }
+    const r = await call("GET", `/objects/${encodeURIComponent(key)}?locationId=${encodeURIComponent(loc)}&fetchProperties=true`);
+    if (r?.ok && r.json?.object) out.set(key, { object: r.json.object, fields: r.json.fields ?? [] });
+  }
+  return out;
+}
+
 // ../skills/create-ghl-workflow/engine/server-validation.mjs
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
@@ -166928,6 +167032,20 @@ ${offline.summary}`;
     triggers: built.triggerBodies,
     companyId: built.autoSaveBody?.companyId
   });
+  {
+    const tpls = built.autoSaveBody?.workflowData?.templates ?? [];
+    const keys = referencedObjectKeys(tpls);
+    if (keys.length) {
+      let schemas = /* @__PURE__ */ new Map();
+      try {
+        schemas = await fetchObjectSchemas(call, loc, keys);
+      } catch {
+      }
+      const co = checkCustomObjectSteps(tpls, schemas);
+      assetCheck.errors = [...assetCheck.errors ?? [], ...co.errors.map((e) => ({ ...e, source: "custom-object-schema" }))];
+      assetCheck.warnings = [...assetCheck.warnings ?? [], ...co.notChecked.map((n) => ({ stepId: n.stepId, code: "CUSTOM_OBJECT_NOT_CHECKED", message: `custom-object fields NOT CHECKED: ${n.why}` }))];
+    }
+  }
   report.assetPreflight = assetCheck;
   try {
     const rPlan = planReadinessChecks({
@@ -172934,9 +173052,25 @@ async function customCodePreflight({ gw, loc, templates, touchedIds, strict, ski
   return { tests, refusal: null };
 }
 var idsBeingReplaced = (ops = []) => new Set(ops.flatMap((o) => [o?.oldId, o?.oldTag, o?.find]).filter((v) => typeof v === "string" && v));
+async function addCustomObjectFindings(gw, loc, templates, verdict) {
+  const keys = referencedObjectKeys(templates);
+  if (!keys.length) return;
+  let schemas = /* @__PURE__ */ new Map();
+  try {
+    schemas = await fetchObjectSchemas((m, p2) => gw.call(m, p2), loc, keys);
+  } catch {
+  }
+  const { errors, notChecked } = checkCustomObjectSteps(templates, schemas);
+  verdict.errors = [...verdict.errors ?? [], ...errors.map((e) => ({ ...e, source: "custom-object-schema" }))];
+  if (notChecked.length) verdict.warnings = [
+    ...verdict.warnings ?? [],
+    ...notChecked.map((n) => ({ stepId: n.stepId, code: "CUSTOM_OBJECT_NOT_CHECKED", message: `custom-object fields NOT CHECKED: ${n.why}` }))
+  ];
+}
 async function assetPreflightFor({ gw, loc, templates, triggers, companyId, touchedIds, ignoreAssetErrors, warnings, ops = [] }) {
   const verdict = await validateAssets((m, p2, b) => gw.call(m, p2, b), loc, { templates, triggers, companyId });
   const assetPreflight = { phase: "pre-write", ...verdict };
+  await addCustomObjectFindings(gw, loc, templates, assetPreflight);
   for (const w of assetPreflight.warnings ?? []) warnings.push(`asset: ${describeFinding(w)}`);
   const blocking2 = [];
   for (const e of assetPreflight.errors ?? []) {
@@ -174133,7 +174267,10 @@ var TOOLS2 = [
       { method: "GET", path: "/locations/{loc}/customFields/search" },
       { method: "GET", path: "/locations/{loc}/customValues" },
       // Only when a trigger matches call dispositions by NAME (vocabulary-refs.mjs, bl-139).
-      { method: "GET", path: "/phone-system/call-dispositions" }
+      { method: "GET", path: "/phone-system/call-dispositions" },
+      // Only when the document has a custom-object record step (custom-object-fields.mjs, bl-167).
+      { method: "GET", path: "/objects/" },
+      { method: "GET", path: "/objects/{objectKey}" }
     ],
     // Verified 2026-09-21: scheduler-trigger/preview only computes next-run times from a payload
     // (see the capability comment above); validate-assets is the same stateless validator cleared
@@ -174260,6 +174397,7 @@ var TOOLS2 = [
       const assetRefs = await (async () => {
         try {
           const v = await validateAssets((m, p2, b) => gw.call(m, p2, b), args.locationId, { templates, triggers: triggerList });
+          await addCustomObjectFindings(gw, args.locationId, templates, v);
           if (v.checked !== true) {
             return {
               ran: false,
@@ -175681,11 +175819,11 @@ var TOOLS2 = [
       const r = await gw.call("POST", "/agent-logs/metrics", body);
       if (!r.ok) return fromHttp(r.status, r.json);
       const { status: _s, traceId: _t, tokenDataVisible, ...rest } = r.json ?? {};
-      const isEmpty = (v) => v == null || Array.isArray(v) && v.length === 0;
+      const isEmpty2 = (v) => v == null || Array.isArray(v) && v.length === 0;
       const data2 = {};
       const empty2 = [];
       for (const [k, v] of Object.entries(rest)) {
-        if (isEmpty(v)) empty2.push(k);
+        if (isEmpty2(v)) empty2.push(k);
         else data2[k] = v;
       }
       const picked = args.sections?.length ? Object.fromEntries(Object.entries(data2).filter(([k]) => args.sections.includes(k))) : data2;
@@ -176124,6 +176262,9 @@ var TOOLS2 = [
       // Model ids are per-account and GHL retires them IN PLACE, so a frozen id is checked
       // against the account's live roster rather than trusted.
       { method: "GET", path: "/workflow/agent/{loc}/models" },
+      // Only when the document has a custom-object record step (custom-object-fields.mjs, bl-167).
+      { method: "GET", path: "/objects/" },
+      { method: "GET", path: "/objects/{objectKey}" },
       { method: "GET", path: "/saas-billing-v2/billing-config/{entityType}/{entityId}/{product}" },
       // The preflight's only non-GET, reached when the spec sets a full literal
       // settings.senderAddress.from_email. It VALIDATES the address and sends nothing.
@@ -176246,6 +176387,9 @@ var TOOLS2 = [
       // (payload in, verdict out — nothing written); the sandbox runs code without touching the
       // account; the readiness reads run ONLY when a touched step's channel needs them.
       { method: "POST", path: "/workflow/{loc}/validate-assets" },
+      // Only when the document has a custom-object record step (custom-object-fields.mjs, bl-167).
+      { method: "GET", path: "/objects/" },
+      { method: "GET", path: "/objects/{objectKey}" },
       { method: "POST", path: "/workflow/custom-code/run-test" },
       { method: "GET", path: "/phone-system/numbers" },
       // The two preflight reads added in 0.92.0. Undeclared, the catalogue filed both routes as
@@ -176875,6 +177019,9 @@ var TOOLS2 = [
       { method: "GET", path: "/hooks/inbound-webhook-request/reference/{triggerId}" },
       { method: "GET", path: "/workflows-marketplace/location/{loc}/assets" },
       { method: "POST", path: "/workflow/{loc}/validate-assets" },
+      // Only when the document has a custom-object record step (custom-object-fields.mjs, bl-167).
+      { method: "GET", path: "/objects/" },
+      { method: "GET", path: "/objects/{objectKey}" },
       { method: "POST", path: "/workflow/custom-code/run-test" },
       { method: "GET", path: "/phone-system/numbers" },
       // The two preflight reads added in 0.92.0. Undeclared, the catalogue filed both routes as
@@ -177887,7 +178034,7 @@ var TOOLS2 = [
     handler: async (args, deps) => guard(async () => {
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
       const loc = encodeURIComponent(args.locationId);
-      const isEmpty = (v) => v === null || v === void 0 || Array.isArray(v) && v.length === 0 || typeof v === "object" && !Array.isArray(v) && Object.keys(v).length === 0;
+      const isEmpty2 = (v) => v === null || v === void 0 || Array.isArray(v) && v.length === 0 || typeof v === "object" && !Array.isArray(v) && Object.keys(v).length === 0;
       const NO_RECORD = "the account has no record on this route (GHL answered 200 with an empty body) \u2014 this is NOT the same as the feature being disabled";
       const section = async (path) => {
         const r = await gw.call("GET", path);
@@ -177895,7 +178042,7 @@ var TOOLS2 = [
           const e = fromHttp(r.status, r.json);
           return { present: null, error: e.detail ?? `GHL answered ${r.status}`, status: r.status };
         }
-        return isEmpty(r.json) ? { present: false, note: NO_RECORD, value: r.json ?? null } : { present: true, value: r.json };
+        return isEmpty2(r.json) ? { present: false, note: NO_RECORD, value: r.json ?? null } : { present: true, value: r.json };
       };
       const out = {
         autoSave: await section(`/workflow/${loc}/auto-save/settings`),

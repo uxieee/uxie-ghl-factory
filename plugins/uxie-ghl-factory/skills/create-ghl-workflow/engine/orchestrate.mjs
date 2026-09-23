@@ -36,6 +36,7 @@ import { fetchActionSchema, checkWorkflow } from './action-schema.mjs';
 import { buildMarketplaceIndex } from './marketplace.mjs';
 import { walkNodes } from './ir.mjs';
 import { validateAssets, describeFinding } from './asset-preflight.mjs';
+import { referencedObjectKeys, checkCustomObjectSteps, fetchObjectSchemas } from './custom-object-fields.mjs';
 import { parseServerValidation, describeServerFindings } from './server-validation.mjs';
 import { checkGraphContextRules } from './graph-context-rules.mjs';
 import { checkFieldCaps, describeCap } from './field-caps.mjs';
@@ -368,6 +369,19 @@ export async function orchestrate(ir, gw, opts = {}) {
     triggers: built.triggerBodies,
     companyId: built.autoSaveBody?.companyId,
   });
+  // Custom-object record steps against the object's real schema (custom-object-fields.mjs, bl-167):
+  // folded into the same errors, so the same ignoreAssetErrors hatch applies.
+  {
+    const tpls = built.autoSaveBody?.workflowData?.templates ?? [];
+    const keys = referencedObjectKeys(tpls);
+    if (keys.length) {
+      let schemas = new Map();
+      try { schemas = await fetchObjectSchemas(call, loc, keys); } catch { /* not checked */ }
+      const co = checkCustomObjectSteps(tpls, schemas);
+      assetCheck.errors = [...(assetCheck.errors ?? []), ...co.errors.map((e) => ({ ...e, source: 'custom-object-schema' }))];
+      assetCheck.warnings = [...(assetCheck.warnings ?? []), ...co.notChecked.map((n) => ({ stepId: n.stepId, code: 'CUSTOM_OBJECT_NOT_CHECKED', message: `custom-object fields NOT CHECKED: ${n.why}` }))];
+    }
+  }
   report.assetPreflight = assetCheck;
   // ACCOUNT-READINESS (G15, advisory): will the channels/types this workflow uses actually
   // FUNCTION on this location? Read-only signals, never blocks; unverifiable planes say so.

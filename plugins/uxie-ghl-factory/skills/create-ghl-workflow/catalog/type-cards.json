@@ -4445,32 +4445,10 @@
     "Premium / beta?": "Not flagged.",
     "UI editor source": "`sniffs/bundle/recovered-source/src/models/actions/custom-objects/clear-custom-object-field-action.ts`"
    },
-   "fields": [
-    {
-     "name": "objectKey",
-     "type": "string",
-     "required": false,
-     "default": "—",
-     "notes": "Custom object schema slug."
-    },
-    {
-     "name": "recordId",
-     "type": "string",
-     "required": false,
-     "default": "—",
-     "notes": "Target record."
-    },
-    {
-     "name": "fields",
-     "type": "array of strings",
-     "required": false,
-     "default": "[]",
-     "notes": "Field keys to clear."
-    }
-   ],
    "validator": "No validator registered. Publish enforcement absent at the bundle level.",
    "notes": "- \"Clear\" semantics (null vs. delete-key vs. empty-string) are not documented in the bundle and have not been server-tested. Likely sets each listed field to null, but verify.",
-   "hasCanonicalExample": true
+   "hasCanonicalExample": true,
+   "configSurface": "none"
   },
   {
    "type": "clickup",
@@ -7329,32 +7307,10 @@
     "UI editor source": "`sniffs/bundle/recovered-source/src/models/actions/custom-objects/base-custom-object-action.ts`",
     "Icon": "`gridicons:create`, color `primary`"
    },
-   "fields": [
-    {
-     "name": "objectKey",
-     "type": "string",
-     "required": false,
-     "default": "—",
-     "notes": "Slug of the custom object schema, e.g. `pets`."
-    },
-    {
-     "name": "fields",
-     "type": "array of `{ key, value }",
-     "required": false,
-     "default": "[]",
-     "notes": "Record values, by field-key on the schema."
-    },
-    {
-     "name": "associations",
-     "type": "array",
-     "required": false,
-     "default": "—",
-     "notes": "Relationship binds, likely contact↔record."
-    }
-   ],
    "validator": "No validator registered. Per `sniffs/bundle/validators.json` and `sniffs/bundle/validators-summary.json`, no `customObjectValidator` (or similar) exists. The publish step likely no-ops for this action; server validates at run time.",
    "notes": "- Custom-object actions are dynamically registered with the picker — the registry entry resolves from `CustomObjectActionTypes.CREATE` enum, not a literal `type` string.",
-   "hasCanonicalExample": true
+   "hasCanonicalExample": true,
+   "configSurface": "none"
   },
   {
    "type": "create_opportunity",
@@ -18327,32 +18283,10 @@
     "UI editor source": "`sniffs/bundle/recovered-source/src/models/actions/custom-objects/update-custom-object-action.ts`",
     "Icon": "`mingcute:edit-line`, color `primary`"
    },
-   "fields": [
-    {
-     "name": "objectKey",
-     "type": "string",
-     "required": false,
-     "default": "—",
-     "notes": "Custom object schema slug."
-    },
-    {
-     "name": "recordId",
-     "type": "string",
-     "required": false,
-     "default": "—",
-     "notes": "Either a static ID or a `{{handlebar}}` resolving to one."
-    },
-    {
-     "name": "fields",
-     "type": "array of `{ key, value }",
-     "required": false,
-     "default": "[]",
-     "notes": "Field-by-field update payload."
-    }
-   ],
    "validator": "No validator registered. Per `sniffs/bundle/validators.json` and `sniffs/bundle/validators-summary.json`. Publish-time enforcement appears absent for this action.",
    "notes": "- Resolves from `CustomObjectActionTypes.UPDATE` enum, not a literal string in the registry source. See `_resolved_from` in the registry entry.",
-   "hasCanonicalExample": true
+   "hasCanonicalExample": true,
+   "configSurface": "none"
   },
   {
    "type": "update_custom_value",
