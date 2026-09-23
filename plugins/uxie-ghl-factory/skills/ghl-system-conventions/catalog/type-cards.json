@@ -4445,10 +4445,70 @@
     "Premium / beta?": "Not flagged.",
     "UI editor source": "`sniffs/bundle/recovered-source/src/models/actions/custom-objects/clear-custom-object-field-action.ts`"
    },
+   "fields": [
+    {
+     "name": "type",
+     "type": "string",
+     "required": true,
+     "default": "clear_custom_object_fields",
+     "notes": "Inner type, equal to the step type."
+    },
+    {
+     "name": "key",
+     "type": "string",
+     "required": true,
+     "default": "—",
+     "notes": "The object's key, `custom_objects.<object>`."
+    },
+    {
+     "name": "fields",
+     "type": "array of `{ fieldKey, value, dataType }",
+     "required": true,
+     "default": "[]",
+     "notes": "fieldKey` is the schema field's ID (not its fieldKey). Values are ignored: these are the fields to clear."
+    },
+    {
+     "name": "makeAssociation",
+     "type": "boolean",
+     "required": false,
+     "default": "true",
+     "notes": "Associate the record with the workflow's object."
+    },
+    {
+     "name": "associations",
+     "type": "array",
+     "required": false,
+     "default": "[]",
+     "notes": "Association labels, when the target is not the workflow's own object."
+    },
+    {
+     "name": "followers",
+     "type": "array of user ids",
+     "required": false,
+     "default": "[]"
+    },
+    {
+     "name": "owner",
+     "type": "user id",
+     "required": false,
+     "default": "—"
+    },
+    {
+     "name": "clearOwner",
+     "type": "boolean",
+     "required": false,
+     "default": "false"
+    },
+    {
+     "name": "clearFollowers",
+     "type": "boolean",
+     "required": false,
+     "default": "false"
+    }
+   ],
    "validator": "No validator registered. Publish enforcement absent at the bundle level.",
    "notes": "- \"Clear\" semantics (null vs. delete-key vs. empty-string) are not documented in the bundle and have not been server-tested. Likely sets each listed field to null, but verify.",
-   "hasCanonicalExample": true,
-   "configSurface": "none"
+   "hasCanonicalExample": true
   },
   {
    "type": "clickup",
@@ -7307,10 +7367,70 @@
     "UI editor source": "`sniffs/bundle/recovered-source/src/models/actions/custom-objects/base-custom-object-action.ts`",
     "Icon": "`gridicons:create`, color `primary`"
    },
+   "fields": [
+    {
+     "name": "type",
+     "type": "string",
+     "required": true,
+     "default": "create_custom_object",
+     "notes": "Inner type, equal to the step type."
+    },
+    {
+     "name": "key",
+     "type": "string",
+     "required": true,
+     "default": "—",
+     "notes": "The object's key, `custom_objects.<object>`."
+    },
+    {
+     "name": "fields",
+     "type": "array of `{ fieldKey, value, dataType }",
+     "required": true,
+     "default": "[]",
+     "notes": "fieldKey` is the schema field's ID (not its fieldKey). Values may be merge tags."
+    },
+    {
+     "name": "makeAssociation",
+     "type": "boolean",
+     "required": false,
+     "default": "true",
+     "notes": "Associate the record with the workflow's object."
+    },
+    {
+     "name": "associations",
+     "type": "array",
+     "required": false,
+     "default": "[]",
+     "notes": "Association labels, when the target is not the workflow's own object."
+    },
+    {
+     "name": "followers",
+     "type": "array of user ids",
+     "required": false,
+     "default": "[]"
+    },
+    {
+     "name": "owner",
+     "type": "user id",
+     "required": false,
+     "default": "—"
+    },
+    {
+     "name": "clearOwner",
+     "type": "boolean",
+     "required": false,
+     "default": "false"
+    },
+    {
+     "name": "clearFollowers",
+     "type": "boolean",
+     "required": false,
+     "default": "false"
+    }
+   ],
    "validator": "No validator registered. Per `sniffs/bundle/validators.json` and `sniffs/bundle/validators-summary.json`, no `customObjectValidator` (or similar) exists. The publish step likely no-ops for this action; server validates at run time.",
    "notes": "- Custom-object actions are dynamically registered with the picker — the registry entry resolves from `CustomObjectActionTypes.CREATE` enum, not a literal `type` string.",
-   "hasCanonicalExample": true,
-   "configSurface": "none"
+   "hasCanonicalExample": true
   },
   {
    "type": "create_opportunity",
@@ -18283,10 +18403,70 @@
     "UI editor source": "`sniffs/bundle/recovered-source/src/models/actions/custom-objects/update-custom-object-action.ts`",
     "Icon": "`mingcute:edit-line`, color `primary`"
    },
+   "fields": [
+    {
+     "name": "type",
+     "type": "string",
+     "required": true,
+     "default": "update_custom_object",
+     "notes": "Inner type, equal to the step type."
+    },
+    {
+     "name": "key",
+     "type": "string",
+     "required": true,
+     "default": "—",
+     "notes": "The object's key, `custom_objects.<object>`."
+    },
+    {
+     "name": "fields",
+     "type": "array of `{ fieldKey, value, dataType }",
+     "required": true,
+     "default": "[]",
+     "notes": "fieldKey` is the schema field's ID (not its fieldKey). Values may be merge tags."
+    },
+    {
+     "name": "makeAssociation",
+     "type": "boolean",
+     "required": false,
+     "default": "true",
+     "notes": "Associate the record with the workflow's object."
+    },
+    {
+     "name": "associations",
+     "type": "array",
+     "required": false,
+     "default": "[]",
+     "notes": "Association labels, when the target is not the workflow's own object."
+    },
+    {
+     "name": "followers",
+     "type": "array of user ids",
+     "required": false,
+     "default": "[]"
+    },
+    {
+     "name": "owner",
+     "type": "user id",
+     "required": false,
+     "default": "—"
+    },
+    {
+     "name": "clearOwner",
+     "type": "boolean",
+     "required": false,
+     "default": "false"
+    },
+    {
+     "name": "clearFollowers",
+     "type": "boolean",
+     "required": false,
+     "default": "false"
+    }
+   ],
    "validator": "No validator registered. Per `sniffs/bundle/validators.json` and `sniffs/bundle/validators-summary.json`. Publish-time enforcement appears absent for this action.",
    "notes": "- Resolves from `CustomObjectActionTypes.UPDATE` enum, not a literal string in the registry source. See `_resolved_from` in the registry entry.",
-   "hasCanonicalExample": true,
-   "configSurface": "none"
+   "hasCanonicalExample": true
   },
   {
    "type": "update_custom_value",
