@@ -147,6 +147,15 @@ Provenance notes keep the account's label. The pre-commit hook now also runs the
 account data. It runs only where the knowledge repo sits beside this one; anywhere else it prints
 that it was SKIPPED, and does not block.
 
+**`copy_workflow_to_location` reads GHL's own copy log, so a failed copy says why.** GHL queues a
+cross-account copy. When the copy never landed, the tool could only say "it did not appear in 30 s, do
+not re-send". It now reads the builder's Copy Logs on the source account before and after the send,
+and picks out this request's row by its new `requestGroupId`. A copy GHL marks `failed` is reported
+at once, with the step it stopped at and GHL's per-step messages in `data.copyLog.steps`. Every copy's
+result and last step come back in `data.copyLog`. The target read-back is still what proves a copy.
+Both routes were proven live on the sandbox 2026-09-23; two unit tests, and the live copy proof asserts
+the log row.
+
 **Adding a sticky note is no longer refused over an unrelated broken step.** An `edit_workflow` call
 whose only ops are sticky-note ops writes nothing the validation gate judges: notes are their own
 resource, and the workflow save is sent only for step or settings ops. The gate still judged the whole

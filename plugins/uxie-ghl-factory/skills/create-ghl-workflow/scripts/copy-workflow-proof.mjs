@@ -37,6 +37,8 @@ export async function runCopyWorkflowProof({ tool, deps, LOCATION, NAME, check, 
   if (copyId) left.push(`workflow ${copyId} (${srcName}, a COPY made by copy_workflow_to_location)`);
   check(cp.data?.stepsMatch === true && cp.data?.copied?.name === srcName, 'READ-BACK: the copy carries the source\'s name and step count',
     JSON.stringify(cp.data?.copied ?? null));
+  check(typeof cp.data?.copyLog?.requestGroupId === 'string' && cp.data?.copyLog?.result === 'success',
+    'GHL\'s own copy log carries THIS request (a new requestGroupId) and reports it a success', JSON.stringify(cp.data?.copyLog ?? null));
 
   subject('get_premium_usage');
   const pu = await run('get_premium_usage', {});

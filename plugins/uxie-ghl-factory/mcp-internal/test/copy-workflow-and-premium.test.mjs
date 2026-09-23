@@ -8,7 +8,7 @@ import { TOOLS } from '../core/tools.mjs';
 const tool = (n) => TOOLS.find((t) => t.name === n);
 const WF = { _id: 'W1', name: 'Lead nurture', status: 'published', workflowData: { templates: [{ id: 's1' }, { id: 's2' }] } };
 
-function copyGateway({ appearAfter = 1, copyAppears = true } = {}) {
+function copyGateway({ appearAfter = 1, copyAppears = true, logResult = null } = {}) {
   const calls = [];
   let listReads = 0, posted = false;
   const call = async (method, path, body) => {
@@ -23,6 +23,15 @@ function copyGateway({ appearAfter = 1, copyAppears = true } = {}) {
     }
     if (method === 'GET' && path.startsWith('/workflow/TGT/NEW')) return { ok: true, status: 200, json: { ...WF, _id: 'NEW', status: 'draft' } };
     if (method === 'POST' && path === '/workflow/SRC/W1/copy-workflow') { posted = true; return { ok: true, status: 200, json: { error: false, msg: 'Queued to copy Workflow' } }; }
+    // GHL's copy log: an older request is always there; this request's row appears once posted.
+    if (method === 'GET' && path.startsWith('/workflows/copyWorkflow/statusList')) {
+      const logs = [{ requestGroupId: 'OLD-G', workflowId: 'W1', subLocationId: 'TGT', result: 'success', currentStep: 'workflow_clean_and_creation' }];
+      if (posted && logResult) logs.unshift({ requestGroupId: 'NEW-G', workflowId: 'W1', subLocationId: 'TGT', result: logResult, currentStep: 'create_assets', updatedAt: 'T' });
+      return { ok: true, status: 200, json: { logs, total: logs.length } };
+    }
+    if (method === 'GET' && path.startsWith('/workflows/copyWorkflow/internalLogList') && path.includes('requestGroupId=NEW-G')) {
+      return { ok: true, status: 200, json: { logs: [{ currentStep: 'create_assets', result: 'failed', message: 'custom field limit reached' }], total: 1 } };
+    }
     return { ok: false, status: 404, json: {} };
   };
   return { calls, gw: { uid: 'U1', loc: 'SRC', call } };
@@ -76,4 +85,23 @@ test('get_premium_usage reads both tiers verbatim, and one failed tier never hid
   assert.deepEqual(r.data.workflow_premium_actions, { read: true, usage });
   assert.equal(r.data.workflow_ai.read, false);
   assert.match(r.data.headline, /1 of 2 tier\(s\) read; FAILED: workflow_ai/);
+});
+
+test('a confirmed copy carries GHL\'s own copy-log row for THIS request, not an older one', async () => {
+  const { gw } = copyGateway({ logResult: 'success' });
+  const r = await tool('copy_workflow_to_location').handler(args({ confirm: true }), deps(gw, new Set(['SRC', 'TGT'])));
+  assert.equal(r.ok, true, JSON.stringify(r).slice(0, 300));
+  assert.equal(r.data.copyLog.requestGroupId, 'NEW-G');
+  assert.equal(r.data.copyLog.result, 'success');
+});
+
+test('a copy GHL\'s log marks FAILED is reported at once, with the step and GHL\'s own message', async () => {
+  const { gw, calls } = copyGateway({ copyAppears: false, logResult: 'failed' });
+  const t0 = Date.now();
+  const r = await tool('copy_workflow_to_location').handler(args({ confirm: true }), deps(gw, new Set(['SRC', 'TGT'])));
+  assert.equal(r.ok, false);
+  assert.match(r.detail, /marks this copy FAILED at step 'create_assets'/);
+  assert.deepEqual(r.data.copyLog.steps, [{ step: 'create_assets', result: 'failed', message: 'custom field limit reached' }]);
+  assert.ok(Date.now() - t0 < 10000, 'it did not wait out the 30 s poll');
+  assert.equal(calls.filter((c) => c.method === 'POST').length, 1);
 });

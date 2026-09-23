@@ -7384,7 +7384,9 @@ export const TOOLS = [
       + 'how many workflows there already carry that name); confirm:true writes. Both accounts must be ones this '
       + 'registration is bound to. GHL QUEUES the copy, so success is the new workflow appearing in the target, read '
       + 'back by id with its status and step count; a copy that has not appeared yet is reported as queued, not '
-      + 'as done. duplicate_workflow is the in-account copy with a new name.',
+      + 'as done. GHL\'s own copy log (the builder\'s Copy Logs) is read too: its result and the step it reached come '
+      + 'back as data.copyLog, and a copy GHL marks failed is reported with the step it failed at instead of waiting. '
+      + 'duplicate_workflow is the in-account copy with a new name.',
     inputSchema: schema({
       locationId: z.string(),
       workflowId: z.string(),
@@ -7396,6 +7398,8 @@ export const TOOLS = [
       { method: 'GET', path: '/workflow/{loc}/list' },
       { method: 'GET', path: '/locations/{id}' },
       { method: 'POST', path: '/workflow/{loc}/{wid}/copy-workflow' },
+      { method: 'GET', path: '/workflows/copyWorkflow/statusList' },
+      { method: 'GET', path: '/workflows/copyWorkflow/internalLogList' },
     ],
     handler: async (args, deps) => guard(async () => {
       const target = String(args.targetLocationId ?? '').trim();
@@ -7459,21 +7463,44 @@ export const TOOLS = [
       if (typeof uid !== 'string' || !uid) {
         return fail(CODES.ENGINE_ABORT, 'the credential carries no user id, which the copy body requires', 'Nothing was sent.');
       }
+      // GHL's copy log (WorkflowCopyLogsService: statusList, then internalLogList by requestGroupId), read
+      // on the SOURCE account: one row per copy request, result 'success' | 'failed' | 'processing' and the
+      // step it reached. This request's row is the requestGroupId that was not there before the send.
+      // Proven live 2026-09-23 (knowledge sniffs/reached-2026-09-23). A log that cannot be read never
+      // decides anything: the target read-back below stays the proof of a copy.
+      const copyLogs = async () => {
+        const r = await gw.call('GET', `/workflows/copyWorkflow/statusList?${new URLSearchParams({ locationId: args.locationId, page: '1' })}`);
+        return r.ok && Array.isArray(r.json?.logs) ? r.json.logs : null;
+      };
+      const logGroupsBefore = new Set((await copyLogs() ?? []).map((l) => l.requestGroupId));
       const write = await gw.call('POST', `/workflow/${encodeURIComponent(args.locationId)}/${encodeURIComponent(args.workflowId)}/copy-workflow`,
         { userId: uid, subLocationId: target, subLocationName: targetName });
       if (!write.ok || write.json?.error === true) return fromHttp(write.ok ? 422 : write.status, write.json);
       const known = new Set(before);
-      let copyId = null;
+      let copyId = null, log = null;
       for (let i = 0; i < 20 && !copyId; i++) {
         await new Promise((resolve) => setTimeout(resolve, 1500));
+        const logs = await copyLogs();
+        log = (logs ?? []).find((l) => !logGroupsBefore.has(l.requestGroupId) && l.workflowId === args.workflowId && l.subLocationId === target) ?? log;
+        if (log?.result === 'failed') break;
         const now = await sameName();
         copyId = (now ?? []).find((id) => !known.has(id)) ?? null;
       }
+      const copyLog = log ? { requestGroupId: log.requestGroupId, result: log.result ?? null, currentStep: log.currentStep ?? null, updatedAt: log.updatedAt ?? null } : null;
+      if (log?.result === 'failed' && !copyId) {
+        const steps = await gw.call('GET', `/workflows/copyWorkflow/internalLogList?${new URLSearchParams({ locationId: args.locationId, workflowId: args.workflowId, requestGroupId: log.requestGroupId, page: '1' })}`);
+        const stepLog = steps.ok ? (steps.json?.logs ?? []).map((l) => ({ step: l.currentStep, result: l.result, message: l.message || null })) : null;
+        return withFailureData(
+          fail(CODES.ENGINE_ABORT, `GHL's copy log marks this copy FAILED at step '${log.currentStep}'`,
+            'Read data.copyLog.steps for GHL\'s own per-step messages. Nothing appeared in the target; fix the cause before sending again.'),
+          { preview, copyLog: { ...copyLog, steps: stepLog }, httpStatus: write.status, response: write.json ?? null },
+        );
+      }
       if (!copyId) {
         return withFailureData(
-          fail(CODES.ENGINE_ABORT, 'GHL queued the copy, but no new workflow of that name appeared in the target within 30 s',
+          fail(CODES.ENGINE_ABORT, `GHL queued the copy, but no new workflow of that name appeared in the target within 30 s${copyLog ? ` (GHL's copy log: ${copyLog.result} at '${copyLog.currentStep}')` : ''}`,
             'It may still land: list the target\'s workflows by this name later. Do not re-send, or you may get two copies.'),
-          { preview, httpStatus: write.status, response: write.json ?? null },
+          { preview, copyLog, httpStatus: write.status, response: write.json ?? null },
         );
       }
       const back = await getWorkflow(tgw, target, copyId);
@@ -7481,7 +7508,7 @@ export const TOOLS = [
         workflowId: copyId, name: back.json?.name ?? null, status: back.json?.status ?? null,
         steps: (back.json?.workflowData?.templates ?? []).length,
       } : { workflowId: copyId, readBack: back.status };
-      return ok({ preview, copied, stepsMatch: copied.steps === preview.source.steps, response: write.json ?? null });
+      return ok({ preview, copied, stepsMatch: copied.steps === preview.source.steps, copyLog, response: write.json ?? null });
     }, args),
   },
   // Custom-field FOLDERS. A different surface from everything above: the write lives on the

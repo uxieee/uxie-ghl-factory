@@ -16243,8 +16243,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          note: 'Required: companyId (400 "Company ID missing") and then userId (422). Reached, not yet answered 200.',
-          reach: "reached",
+          note: 'NO TASK NEEDS THIS \u2014 answers {show:false|true}: whether the app shows its "you have unpublished workflows" banner. It carries no list; list_workflows with status draft answers the real question. locationId, companyId and userId are all required (400 "Company ID missing", then 422). Proven 200 2026-09-23. Evidence: knowledge sniffs/reached-2026-09-23.',
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -30190,7 +30190,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           rail: "workflow",
           kind: "read",
           summary: "Execution stats for one marketplace/premium action step over a window.",
-          note: 'Bare 403 "locationId is required" without it, then 422 naming the rest: workflowStepId, workflowId, startAt, endAt are ALL required. A nonsense actionKey gets the same 422, so the key is validated after the query. Reached, not yet answered 200.',
+          note: 'Arguments now known from source (models/actions/Marketplace.ts getStatistics): actionKey is a MARKETPLACE action\'s type, workflowStepId is `workflow_<stepId>`, startAt/endAt ISO (the builder defaults to the last 30 days). A native type answers 400 "Action add_contact_tag not found". The only marketplace actions on the sandbox (GoGHL WhatsApp: send_outbound_whatsapp_message, wait_step) answer 400 "Cannot convert undefined or null to object" \u2014 the action is found and GHL errors after. NOT PROVEN: needs an installed app whose action publishes stats. Evidence: knowledge sniffs/reached-2026-09-23.',
           reach: "reached",
           coveredBy: [],
           rawCallable: true,
@@ -30495,6 +30495,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
+          note: `Needs oAuthId: the id of a CONNECTED Google account (GoogleSheetsService / SlackService take it from the step's chosen account). The sandbox has none connected (GET /workflow/oauth2/get-all-tokens -> []), so it answers 422 "oAuthId should not be empty". NOT PROVEN: a human must connect a Google account in the sandbox first. Evidence: knowledge sniffs/reached-2026-09-23.`,
           reach: "reached",
           coveredBy: [],
           rawCallable: true,
@@ -30560,6 +30561,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
+          note: `Needs oAuthId: the id of a CONNECTED Google account (GoogleSheetsService / SlackService take it from the step's chosen account). The sandbox has none connected (GET /workflow/oauth2/get-all-tokens -> []), so it answers 422 "oAuthId should not be empty". NOT PROVEN: a human must connect a Google account in the sandbox first. Evidence: knowledge sniffs/reached-2026-09-23.`,
           reach: "reached",
           coveredBy: [],
           rawCallable: true,
@@ -30857,6 +30859,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
+          note: `Needs oAuthId: the id of a CONNECTED Slack account (GoogleSheetsService / SlackService take it from the step's chosen account). The sandbox has none connected (GET /workflow/oauth2/get-all-tokens -> []), so it answers 422 "oAuthId should not be empty". NOT PROVEN: a human must connect a Slack account in the sandbox first. Evidence: knowledge sniffs/reached-2026-09-23.`,
           reach: "reached",
           coveredBy: [],
           rawCallable: true,
@@ -30922,6 +30925,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
+          note: `Needs oAuthId: the id of a CONNECTED Slack account (GoogleSheetsService / SlackService take it from the step's chosen account). The sandbox has none connected (GET /workflow/oauth2/get-all-tokens -> []), so it answers 422 "oAuthId should not be empty". NOT PROVEN: a human must connect a Slack account in the sandbox first. Evidence: knowledge sniffs/reached-2026-09-23.`,
           reach: "reached",
           coveredBy: [],
           rawCallable: true,
@@ -30987,6 +30991,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
+          note: `Needs oAuthId: the id of a CONNECTED Slack account (GoogleSheetsService / SlackService take it from the step's chosen account). The sandbox has none connected (GET /workflow/oauth2/get-all-tokens -> []), so it answers 422 "oAuthId should not be empty". NOT PROVEN: a human must connect a Slack account in the sandbox first. Evidence: knowledge sniffs/reached-2026-09-23.`,
           reach: "reached",
           coveredBy: [],
           rawCallable: true,
@@ -31810,9 +31815,11 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          note: "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source. Re-probed 2026-09-19: requestGroupId AND workflowId are required too, each named by its own 422. Reached, not yet answered 200.",
-          reach: "reached",
-          coveredBy: [],
+          note: "USED by copy_workflow_to_location when GHL's copy log marks a copy failed: the per-step rows for that requestGroupId, each with GHL's own message. Proven 2026-09-23 by DIFFERENTIAL: two requestGroupIds return different rows, a ghost one returns {logs:[],total:0}. All three of locationId, workflowId and requestGroupId are required (each named by its own 422). Evidence: knowledge sniffs/reached-2026-09-23.",
+          reach: "proven",
+          coveredBy: [
+            "copy_workflow_to_location"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -31871,7 +31878,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          note: 'NO TASK NEEDS THIS \u2014 it backs the builder\'s copy-progress panel, which is a UI affordance for a job the UI started. `duplicate_workflow` does not need it: it verifies the copy by READING THE RESULT BACK, which is a stronger answer than a job-status row and does not depend on catching the job while it still exists. Nobody asks "show me the copy job log"; they ask "is the copy there", and that is already answered. \u2014 PRIOR NOTE: Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.',
+          note: "NO TASK NEEDS THIS \u2014 every per-step row of one workflow's copies, across all requests (a bare array). copy_workflow_to_location reads the same rows for ONE request through internalLogList, which is what a failed copy needs. IF THE USER WANTS IT: GHL shows the full history under the workflow list's Copy Logs. Evidence: knowledge sniffs/reached-2026-09-23.",
           reach: "proven",
           provenFor: [
             "agency-admin-bearer"
@@ -31929,12 +31936,14 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          note: 'NO TASK NEEDS THIS \u2014 it backs the builder\'s copy-progress panel, which is a UI affordance for a job the UI started. `duplicate_workflow` does not need it: it verifies the copy by READING THE RESULT BACK, which is a stronger answer than a job-status row and does not depend on catching the job while it still exists. Nobody asks "show me the copy job log"; they ask "is the copy there", and that is already answered. \u2014 PRIOR NOTE: Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.',
+          note: "USED by copy_workflow_to_location (2026-09-23). One row per copy request on the SOURCE account: requestGroupId, workflowId, subLocationId, currentStep (copy_workflow, workflow_assets_population, create_assets, workflow_clean_and_creation, log_copy_workflow) and result 'success' | 'failed' | 'processing'. The tool reads it before and after its send, takes the requestGroupId that is new, and reports a 'failed' copy at once with the step it stopped at. This reverses the earlier NO TASK note, which was written for duplicate_workflow (same account, verified by read-back): a cross-account copy is QUEUED, and when it never lands the log is the only place GHL says why. Evidence: knowledge sniffs/reached-2026-09-23.",
           reach: "proven",
           provenFor: [
             "agency-admin-bearer"
           ],
-          coveredBy: [],
+          coveredBy: [
+            "copy_workflow_to_location"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -33263,8 +33272,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          note: `?_id= is the STICKY NOTE's Mongo ObjectId, not a workflow id: a workflow uuid answers 500 "Cast to ObjectId failed ... model stickynotes". Read note ids off export_workflow first.`,
-          reach: "reached",
+          note: `NO TASK NEEDS THIS \u2014 one note by id. export_workflow already returns every note of a workflow (sticky-notes-all), and edit_workflow's note ops read back through it. ?_id= is the NOTE's Mongo ObjectId, not a workflow id: a workflow uuid answers 500 "Cast to ObjectId failed ... model stickynotes"; a well-formed ghost id answers 404 "Sticky note not found". Proven 200 2026-09-23 on a note made by addStickyNote. Evidence: knowledge sniffs/reached-2026-09-23.`,
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -53796,11 +53805,12 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           note: "requiredQuery proven live 2026-09-10: altId, locationId. \u{1F534} This row needs MORE THAN ONE required query param and the endpoint names them ONE PER ROUND \u2014 the first 4xx asks for one, and only once that is supplied does the next name another. A single retry stops short and reads as unreachable. Discovered by the 2026-09-10 probe ladder."
         },
         "GET /reporting/notification/automation/workflows/unpublished": {
-          note: 'Required: companyId (400 "Company ID missing") and then userId (422). Reached, not yet answered 200.',
+          note: 'NO TASK NEEDS THIS \u2014 answers {show:false|true}: whether the app shows its "you have unpublished workflows" banner. It carries no list; list_workflows with status draft answers the real question. locationId, companyId and userId are all required (400 "Company ID missing", then 422). Proven 200 2026-09-23. Evidence: knowledge sniffs/reached-2026-09-23.',
           requiredQuery: [
             "companyId",
             "userId"
-          ]
+          ],
+          reach: "proven"
         },
         "GET /reputation/integrations/review-link-list": {
           reach: "refused",
@@ -54188,7 +54198,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
         },
         "GET /workflows-marketplace/actions/stats/{actionKey}": {
           summary: "Execution stats for one marketplace/premium action step over a window.",
-          note: 'Bare 403 "locationId is required" without it, then 422 naming the rest: workflowStepId, workflowId, startAt, endAt are ALL required. A nonsense actionKey gets the same 422, so the key is validated after the query. Reached, not yet answered 200.',
+          note: 'Arguments now known from source (models/actions/Marketplace.ts getStatistics): actionKey is a MARKETPLACE action\'s type, workflowStepId is `workflow_<stepId>`, startAt/endAt ISO (the builder defaults to the last 30 days). A native type answers 400 "Action add_contact_tag not found". The only marketplace actions on the sandbox (GoGHL WhatsApp: send_outbound_whatsapp_message, wait_step) answer 400 "Cannot convert undefined or null to object" \u2014 the action is found and GHL errors after. NOT PROVEN: needs an installed app whose action publishes stats. Evidence: knowledge sniffs/reached-2026-09-23.',
           requiredQuery: [
             "locationId",
             "workflowId",
@@ -54218,21 +54228,23 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "requestGroupId",
             "workflowId"
           ],
-          note: "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source. Re-probed 2026-09-19: requestGroupId AND workflowId are required too, each named by its own 422. Reached, not yet answered 200."
+          note: "USED by copy_workflow_to_location when GHL's copy log marks a copy failed: the per-step rows for that requestGroupId, each with GHL's own message. Proven 2026-09-23 by DIFFERENTIAL: two requestGroupIds return different rows, a ghost one returns {logs:[],total:0}. All three of locationId, workflowId and requestGroupId are required (each named by its own 422). Evidence: knowledge sniffs/reached-2026-09-23.",
+          reach: "proven"
         },
         "GET /workflows/copyWorkflow/logList": {
           requiredQuery: [
             "locationId",
             "workflowId"
           ],
-          note: 'NO TASK NEEDS THIS \u2014 it backs the builder\'s copy-progress panel, which is a UI affordance for a job the UI started. `duplicate_workflow` does not need it: it verifies the copy by READING THE RESULT BACK, which is a stronger answer than a job-status row and does not depend on catching the job while it still exists. Nobody asks "show me the copy job log"; they ask "is the copy there", and that is already answered. \u2014 PRIOR NOTE: Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source. requiredQuery discovered by the 2026-09-10 probe retry pass: the endpoint answered 400/422 naming these keys, and the same call succeeded once they were supplied. The row did not declare them.',
+          note: "NO TASK NEEDS THIS \u2014 every per-step row of one workflow's copies, across all requests (a bare array). copy_workflow_to_location reads the same rows for ONE request through internalLogList, which is what a failed copy needs. IF THE USER WANTS IT: GHL shows the full history under the workflow list's Copy Logs. Evidence: knowledge sniffs/reached-2026-09-23.",
           reach: "proven"
         },
         "GET /workflows/copyWorkflow/statusList": {
           requiredQuery: [
             "locationId"
           ],
-          note: 'NO TASK NEEDS THIS \u2014 it backs the builder\'s copy-progress panel, which is a UI affordance for a job the UI started. `duplicate_workflow` does not need it: it verifies the copy by READING THE RESULT BACK, which is a stronger answer than a job-status row and does not depend on catching the job while it still exists. Nobody asks "show me the copy job log"; they ask "is the copy there", and that is already answered. \u2014 PRIOR NOTE: Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.'
+          note: "USED by copy_workflow_to_location (2026-09-23). One row per copy request on the SOURCE account: requestGroupId, workflowId, subLocationId, currentStep (copy_workflow, workflow_assets_population, create_assets, workflow_clean_and_creation, log_copy_workflow) and result 'success' | 'failed' | 'processing'. The tool reads it before and after its send, takes the requestGroupId that is new, and reports a 'failed' copy at once with the step it stopped at. This reverses the earlier NO TASK note, which was written for duplicate_workflow (same account, verified by read-back): a cross-account copy is QUEUED, and when it never lands the log is the only place GHL says why. Evidence: knowledge sniffs/reached-2026-09-23.",
+          reach: "proven"
         },
         "GET /workflows/logs/export/preview": {
           note: `NO TASK NEEDS THIS \u2014 operator decision 2026-09-23: emailing a CSV of execution logs. get_workflow_logs reads the same logs directly, and an export EMAILS people, which is outward-facing. The agent is told where the UI does it (the workflow's execution History page, Export). IF THE USER WANTS IT: GHL can do it. The workflow's execution History page has an Export button that emails the CSV.
@@ -54293,10 +54305,11 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           note: "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source."
         },
         "GET /workflows/sticky-note": {
-          note: `?_id= is the STICKY NOTE's Mongo ObjectId, not a workflow id: a workflow uuid answers 500 "Cast to ObjectId failed ... model stickynotes". Read note ids off export_workflow first.`,
+          note: `NO TASK NEEDS THIS \u2014 one note by id. export_workflow already returns every note of a workflow (sticky-notes-all), and edit_workflow's note ops read back through it. ?_id= is the NOTE's Mongo ObjectId, not a workflow id: a workflow uuid answers 500 "Cast to ObjectId failed ... model stickynotes"; a well-formed ghost id answers 404 "Sticky note not found". Proven 200 2026-09-23 on a note made by addStickyNote. Evidence: knowledge sniffs/reached-2026-09-23.`,
           requiredQuery: [
             "_id"
-          ]
+          ],
+          reach: "proven"
         },
         "GET /workflows/sticky-notes-all": {
           reach: "proven"
@@ -55152,6 +55165,21 @@ Flagged to the operator as a security observation about the vendor, not a capabi
         },
         "GET /proposals/templates": {
           note: 'TRAP (proven-live 2026-09-23): a limit above 21 is REFUSED with 422 "limit must not be greater than 21" -- a caller asking for 100 errors on every call and reads it as "no templates". Page with limit<=21 and skip; the envelope is {data, total}. The typed list_account_entities pages it this way.'
+        },
+        "GET /workflows-marketplace/integration/google-sheets/drives": {
+          note: `Needs oAuthId: the id of a CONNECTED Google account (GoogleSheetsService / SlackService take it from the step's chosen account). The sandbox has none connected (GET /workflow/oauth2/get-all-tokens -> []), so it answers 422 "oAuthId should not be empty". NOT PROVEN: a human must connect a Google account in the sandbox first. Evidence: knowledge sniffs/reached-2026-09-23.`
+        },
+        "GET /workflows-marketplace/integration/google-sheets/spreadsheets": {
+          note: `Needs oAuthId: the id of a CONNECTED Google account (GoogleSheetsService / SlackService take it from the step's chosen account). The sandbox has none connected (GET /workflow/oauth2/get-all-tokens -> []), so it answers 422 "oAuthId should not be empty". NOT PROVEN: a human must connect a Google account in the sandbox first. Evidence: knowledge sniffs/reached-2026-09-23.`
+        },
+        "GET /workflows-marketplace/integration/slack/public-channels": {
+          note: `Needs oAuthId: the id of a CONNECTED Slack account (GoogleSheetsService / SlackService take it from the step's chosen account). The sandbox has none connected (GET /workflow/oauth2/get-all-tokens -> []), so it answers 422 "oAuthId should not be empty". NOT PROVEN: a human must connect a Slack account in the sandbox first. Evidence: knowledge sniffs/reached-2026-09-23.`
+        },
+        "GET /workflows-marketplace/integration/slack/private-channels": {
+          note: `Needs oAuthId: the id of a CONNECTED Slack account (GoogleSheetsService / SlackService take it from the step's chosen account). The sandbox has none connected (GET /workflow/oauth2/get-all-tokens -> []), so it answers 422 "oAuthId should not be empty". NOT PROVEN: a human must connect a Slack account in the sandbox first. Evidence: knowledge sniffs/reached-2026-09-23.`
+        },
+        "GET /workflows-marketplace/integration/slack/users": {
+          note: `Needs oAuthId: the id of a CONNECTED Slack account (GoogleSheetsService / SlackService take it from the step's chosen account). The sandbox has none connected (GET /workflow/oauth2/get-all-tokens -> []), so it answers 422 "oAuthId should not be empty". NOT PROVEN: a human must connect a Slack account in the sandbox first. Evidence: knowledge sniffs/reached-2026-09-23.`
         }
       }
     };
@@ -179060,7 +179088,7 @@ var TOOLS2 = [
   // see, so the target is checked against the registration's permitted set here, for the write.
   {
     name: "copy_workflow_to_location",
-    description: `${describe3("copy_workflow_to_location", "Copy a workflow into another sub-account \u2014 risk: write")}. GHL's native Copy to Sub-Account: copies one workflow from locationId into targetLocationId (which may be the same account). Preview by default (source name, status, step and trigger counts, the target's name, and how many workflows there already carry that name); confirm:true writes. Both accounts must be ones this registration is bound to. GHL QUEUES the copy, so success is the new workflow appearing in the target, read back by id with its status and step count; a copy that has not appeared yet is reported as queued, not as done. duplicate_workflow is the in-account copy with a new name.`,
+    description: `${describe3("copy_workflow_to_location", "Copy a workflow into another sub-account \u2014 risk: write")}. GHL's native Copy to Sub-Account: copies one workflow from locationId into targetLocationId (which may be the same account). Preview by default (source name, status, step and trigger counts, the target's name, and how many workflows there already carry that name); confirm:true writes. Both accounts must be ones this registration is bound to. GHL QUEUES the copy, so success is the new workflow appearing in the target, read back by id with its status and step count; a copy that has not appeared yet is reported as queued, not as done. GHL's own copy log (the builder's Copy Logs) is read too: its result and the step it reached come back as data.copyLog, and a copy GHL marks failed is reported with the step it failed at instead of waiting. duplicate_workflow is the in-account copy with a new name.`,
     inputSchema: schema({
       locationId: external_exports.string(),
       workflowId: external_exports.string(),
@@ -179071,7 +179099,9 @@ var TOOLS2 = [
       { method: "GET", path: "/workflow/{loc}/{wid}" },
       { method: "GET", path: "/workflow/{loc}/list" },
       { method: "GET", path: "/locations/{id}" },
-      { method: "POST", path: "/workflow/{loc}/{wid}/copy-workflow" }
+      { method: "POST", path: "/workflow/{loc}/{wid}/copy-workflow" },
+      { method: "GET", path: "/workflows/copyWorkflow/statusList" },
+      { method: "GET", path: "/workflows/copyWorkflow/internalLogList" }
     ],
     handler: async (args, deps) => guard(async () => {
       const target = String(args.targetLocationId ?? "").trim();
@@ -179156,6 +179186,11 @@ var TOOLS2 = [
       if (typeof uid !== "string" || !uid) {
         return fail(CODES.ENGINE_ABORT, "the credential carries no user id, which the copy body requires", "Nothing was sent.");
       }
+      const copyLogs = async () => {
+        const r = await gw.call("GET", `/workflows/copyWorkflow/statusList?${new URLSearchParams({ locationId: args.locationId, page: "1" })}`);
+        return r.ok && Array.isArray(r.json?.logs) ? r.json.logs : null;
+      };
+      const logGroupsBefore = new Set((await copyLogs() ?? []).map((l) => l.requestGroupId));
       const write = await gw.call(
         "POST",
         `/workflow/${encodeURIComponent(args.locationId)}/${encodeURIComponent(args.workflowId)}/copy-workflow`,
@@ -179163,20 +179198,36 @@ var TOOLS2 = [
       );
       if (!write.ok || write.json?.error === true) return fromHttp(write.ok ? 422 : write.status, write.json);
       const known = new Set(before);
-      let copyId = null;
+      let copyId = null, log = null;
       for (let i = 0; i < 20 && !copyId; i++) {
         await new Promise((resolve5) => setTimeout(resolve5, 1500));
+        const logs = await copyLogs();
+        log = (logs ?? []).find((l) => !logGroupsBefore.has(l.requestGroupId) && l.workflowId === args.workflowId && l.subLocationId === target) ?? log;
+        if (log?.result === "failed") break;
         const now = await sameName();
         copyId = (now ?? []).find((id) => !known.has(id)) ?? null;
+      }
+      const copyLog = log ? { requestGroupId: log.requestGroupId, result: log.result ?? null, currentStep: log.currentStep ?? null, updatedAt: log.updatedAt ?? null } : null;
+      if (log?.result === "failed" && !copyId) {
+        const steps = await gw.call("GET", `/workflows/copyWorkflow/internalLogList?${new URLSearchParams({ locationId: args.locationId, workflowId: args.workflowId, requestGroupId: log.requestGroupId, page: "1" })}`);
+        const stepLog = steps.ok ? (steps.json?.logs ?? []).map((l) => ({ step: l.currentStep, result: l.result, message: l.message || null })) : null;
+        return withFailureData(
+          fail(
+            CODES.ENGINE_ABORT,
+            `GHL's copy log marks this copy FAILED at step '${log.currentStep}'`,
+            "Read data.copyLog.steps for GHL's own per-step messages. Nothing appeared in the target; fix the cause before sending again."
+          ),
+          { preview, copyLog: { ...copyLog, steps: stepLog }, httpStatus: write.status, response: write.json ?? null }
+        );
       }
       if (!copyId) {
         return withFailureData(
           fail(
             CODES.ENGINE_ABORT,
-            "GHL queued the copy, but no new workflow of that name appeared in the target within 30 s",
+            `GHL queued the copy, but no new workflow of that name appeared in the target within 30 s${copyLog ? ` (GHL's copy log: ${copyLog.result} at '${copyLog.currentStep}')` : ""}`,
             "It may still land: list the target's workflows by this name later. Do not re-send, or you may get two copies."
           ),
-          { preview, httpStatus: write.status, response: write.json ?? null }
+          { preview, copyLog, httpStatus: write.status, response: write.json ?? null }
         );
       }
       const back = await getWorkflow(tgw, target, copyId);
@@ -179186,7 +179237,7 @@ var TOOLS2 = [
         status: back.json?.status ?? null,
         steps: (back.json?.workflowData?.templates ?? []).length
       } : { workflowId: copyId, readBack: back.status };
-      return ok({ preview, copied, stepsMatch: copied.steps === preview.source.steps, response: write.json ?? null });
+      return ok({ preview, copied, stepsMatch: copied.steps === preview.source.steps, copyLog, response: write.json ?? null });
     }, args)
   },
   // Custom-field FOLDERS. A different surface from everything above: the write lives on the
