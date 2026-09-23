@@ -99,16 +99,46 @@ function scrubUpstream(value, key = '') {
 export async function fetchEntities(gw) {
   const { call, loc } = gw;
   const g = async (path) => { try { const r = await call('GET', path); return r.ok ? r.json : {}; } catch { return {}; } };
+  // A leg that FAILED is recorded, because it degrades to [] exactly like an account that has none,
+  // and "not found" for a name that exists is the wrong answer to give (documentTemplates 422'd on
+  // every call for months and nothing said so).
+  const unreadable = [];
+  const read = async (key, path) => {
+    try {
+      const r = await call('GET', path);
+      if (r?.ok) return r.json;
+      unreadable.push({ key, status: r?.status ?? null });
+    } catch (e) { unreadable.push({ key, status: null, error: String(e?.message ?? e).slice(0, 120) }); }
+    return null;
+  };
+  // A PAGED row walks to the envelope's total, a short page, or a page that adds nothing new (a
+  // service that ignores the offset key hands back page one again: stop, never loop).
+  const MAX_PAGES = 60;
+  const readRow = async (e) => {
+    if (!e.page) { const json = await read(e.key, e.path(loc)); return json ? e.pick(json).map(e.project) : []; }
+    const rows = [], seen = new Set();
+    for (let i = 0; i < MAX_PAGES; i++) {
+      const json = await read(e.key, e.path(loc, { offset: i * e.page.limit, limit: e.page.limit }));
+      if (!json) break;
+      const got = e.pick(json).map(e.project);
+      const fresh = got.filter((x) => { const k = x.id ?? JSON.stringify(x); if (seen.has(k)) return false; seen.add(k); return true; });
+      rows.push(...fresh);
+      const total = Number(e.page.total(json));
+      if (!fresh.length || got.length < e.page.limit || (Number.isFinite(total) && rows.length >= total)) break;
+    }
+    return rows;
+  };
 
   // ONE ROW PER ACCOUNT OBJECT (entities.mjs). This was 21 hand-written GETs beside 21 hand-written
   // projections, so adding an object meant editing three files and a tool description that had
   // already drifted from both. Every leg stays best-effort and independent: a 404 yields [] for
   // that key and never fails the sweep, which is what lets an account without Voice AI still build.
   const legs = await Promise.all(ENTITY_REGISTRY.map(async (e) => {
-    const json = await g(e.path(loc));
-    try { return [e.key, e.pick(json).map(e.project)]; } catch { return [e.key, []]; }
+    try { return [e.key, await readRow(e)]; } catch { return [e.key, []]; }
   }));
   const out = Object.fromEntries(legs);
+  // Not enumerable, so the key set stays the registry's; read by the dependency abort below.
+  Object.defineProperty(out, 'unreadable', { value: unreadable, enumerable: false });
 
   // `agents` is the one key that is a MERGE of two endpoints (Voice AI and Conversation AI), so it
   // stays hand-written rather than pretending to be a registry row. Both are best-effort: an
@@ -241,8 +271,12 @@ export async function orchestrate(ir, gw, opts = {}) {
   // 2. ABORT on missing account-level deps (don't build something broken)
   if (unresolved.length && !opts.ignoreUnresolved) {
     report.failurePhase = 'dependency_resolution';
+    const blind = entities.unreadable ?? [];
     report.aborted = `Missing account dependencies: ${unresolved.map((u) => `${u.name} (${u.where})`).join('; ')}. `
-      + `Create/rename these in the sub-account first, or pass ignoreUnresolved to build anyway.`;
+      + `Create/rename these in the sub-account first, or pass ignoreUnresolved to build anyway.`
+      + (blind.length ? ` NOTE: these account lists could not be READ, so a name above may exist and simply be unseen: `
+        + `${blind.map((b) => `${b.key} (${b.status ? `HTTP ${b.status}` : 'no response'})`).join(', ')}.` : '');
+    if (blind.length) report.unreadableEntities = blind;
     return report;
   }
 

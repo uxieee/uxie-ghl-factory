@@ -5365,7 +5365,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          note: "Proven live 2026-09-19 that the credential reaches it \u2014 and nothing more. \u{1F534} TRAP: {triggers:[], total:0} came back for a real workflow AND for a ghost, so an empty answer discriminates nothing. sourceId is `{workflowId}:{actionId}` for a step (EmailService.ts:141).",
+          note: "NO TASK NEEDS THIS \u2014 the answer carries no information: it returned {triggers:[], total:0} for a REAL workflow and for a GHOST alike (proven 2026-09-19), so no caller can tell 'none' from 'wrong id'. A route whose empty answer is indistinguishable from an error is worse than no route.\n\u2014 PRIOR NOTE: Proven live 2026-09-19 that the credential reaches it \u2014 and nothing more. \u{1F534} TRAP: {triggers:[], total:0} came back for a real workflow AND for a ghost, so an empty answer discriminates nothing. sourceId is `{workflowId}:{actionId}` for a step (EmailService.ts:141).",
           reach: "proven",
           provenFor: [
             "agency-admin-bearer"
@@ -5496,7 +5496,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          note: "Same route as /emails/trigger/campaign/{locationId}/{sourceId} with the sourceId spelled out. Proven live 2026-09-19 with the same trap: identical empty answer for a real step and a ghost.",
+          note: "NO TASK NEEDS THIS \u2014 the same route as .../{sourceId} with the id spelled out, and the same trap: an identical empty answer for a real and a ghost source (proven 2026-09-19).\n\u2014 PRIOR NOTE: Same route as /emails/trigger/campaign/{locationId}/{sourceId} with the sourceId spelled out. Proven live 2026-09-19 with the same trap: identical empty answer for a real step and a ghost.",
           reach: "proven",
           provenFor: [
             "agency-admin-bearer"
@@ -16807,7 +16807,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           summary: "AGENCY roster: every sub-account's billing config for external AI model steps (optIn, enabled, markup, basePrice). For ONE sub-account use the per-location route instead.",
-          note: "TRAP: companyId is REQUIRED as a QUERY param (?companyId=&skip=0&limit=15&query=). Omit it and the route answers a BARE 403 'Forbidden resource' that names no argument and reads exactly like a permission refusal -- this row was recorded 'refused' twice on that. TRAP: config.enabled is NOT 'can run premium steps' (false on every sub-account of a working agency; it tracks rebilling) -- read config.optIn. hit[0].count is the agency total and ignores limit; locations.length is one page.",
+          note: "NO TASK NEEDS THIS \u2014 an AGENCY-wide listing of which locations have workflow AI billing configured (companyId required). The question a workflow write asks is per location, and build/edit/repair already read it on the used row GET /saas-billing-v2/billing-config/{entityType}/{entityId}/{product}. Agency billing administration is outside what this plugin authors.\n\u2014 PRIOR NOTE: TRAP: companyId is REQUIRED as a QUERY param (?companyId=&skip=0&limit=15&query=). Omit it and the route answers a BARE 403 'Forbidden resource' that names no argument and reads exactly like a permission refusal -- this row was recorded 'refused' twice on that. TRAP: config.enabled is NOT 'can run premium steps' (false on every sub-account of a working agency; it tracks rebilling) -- read config.optIn. hit[0].count is the agency total and ignores limit; locations.length is one page.",
           reach: "proven",
           provenFor: [
             "agency-admin-bearer"
@@ -16851,7 +16851,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           summary: "AGENCY roster: every sub-account's billing config for premium workflow actions (optIn, enabled, markup, basePrice). For ONE sub-account use the per-location route instead.",
-          note: "TRAP: companyId is REQUIRED as a QUERY param (?companyId=&skip=0&limit=15&query=). Omit it and the route answers a BARE 403 'Forbidden resource' that names no argument and reads exactly like a permission refusal -- this row was recorded 'refused' twice on that. TRAP: config.enabled is NOT 'can run premium steps' (false on every sub-account of a working agency; it tracks rebilling) -- read config.optIn. hit[0].count is the agency total and ignores limit; locations.length is one page.",
+          note: "NO TASK NEEDS THIS \u2014 the agency-wide listing for premium actions; same reasoning as .../workflow_ai: the per-location gate a write needs is already read on the used generic row.\n\u2014 PRIOR NOTE: TRAP: companyId is REQUIRED as a QUERY param (?companyId=&skip=0&limit=15&query=). Omit it and the route answers a BARE 403 'Forbidden resource' that names no argument and reads exactly like a permission refusal -- this row was recorded 'refused' twice on that. TRAP: config.enabled is NOT 'can run premium steps' (false on every sub-account of a working agency; it tracks rebilling) -- read config.optIn. hit[0].count is the agency total and ignores limit; locations.length is one page.",
           reach: "proven",
           provenFor: [
             "agency-admin-bearer"
@@ -20858,7 +20858,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          note: "IDENTIFIED 2026-09-21 (it had NO note at all): a SECOND, UNPAGINATED CENSUS RAIL. Returns a bare ARRAY of workflow METADATA \u2014 not a graph dump: 0 of 726 entries carried workflowData.templates. `limit` is IGNORED (limit=2 returned all 726, ~1.2 MB). Every entry is type:'workflow', none deleted.\n\u{1F534} IT DISAGREES WITH THE LIST RAIL ABOUT WHAT EXISTS, and neither is a superset. Measured the same hour on the designated sandbox:\n    this route                726 workflows, of which workflowType:'agent' = 0\n    list_workflows            700 workflows, of which workflowType:'agent' = 90\n    in this route only        116 (all draft, mostly parentId:null)\n    in list_workflows only     90 (ALL of them workflowType:'agent')\n    union                     816\n\u{1F534} THIS IS NOT A BUG IN list_workflows, and do not 'fix' it as one. That tool asks /workflow/{loc}/list?type=workflow WITH includeObjectiveBuilder and includeCustomObjects, GHL answers reportedTotal:700, and the walk returns exactly 700 unique over 7 pages with terminalReason 'unique_count_equals_reported_total'. Its complete:true is a TRUE statement about that rail: it saw everything the rail said existed. The rail's own total simply does not account for the 116 this route returns.\nCONSEQUENCE for census work: no single route we have returns every workflow on an account. This route is blind to agent workflows; the list rail under-reports by 116 here. A census that must not miss anything has to read BOTH and union them \u2014 and should say which rail each row came from.",
+          note: "NO TASK NEEDS THIS \u2014 a second, unpaginated census rail of workflow METADATA. list_workflows is proven a SUPERSET of it on every live run (conformance: 'every workflow the bare route returns IS in the roster'), so a tool on this route could only return a subset of an answer we already give.\n\u2014 PRIOR NOTE: IDENTIFIED 2026-09-21 (it had NO note at all): a SECOND, UNPAGINATED CENSUS RAIL. Returns a bare ARRAY of workflow METADATA \u2014 not a graph dump: 0 of 726 entries carried workflowData.templates. `limit` is IGNORED (limit=2 returned all 726, ~1.2 MB). Every entry is type:'workflow', none deleted.\n\u{1F534} IT DISAGREES WITH THE LIST RAIL ABOUT WHAT EXISTS, and neither is a superset. Measured the same hour on the designated sandbox:\n    this route                726 workflows, of which workflowType:'agent' = 0\n    list_workflows            700 workflows, of which workflowType:'agent' = 90\n    in this route only        116 (all draft, mostly parentId:null)\n    in list_workflows only     90 (ALL of them workflowType:'agent')\n    union                     816\n\u{1F534} THIS IS NOT A BUG IN list_workflows, and do not 'fix' it as one. That tool asks /workflow/{loc}/list?type=workflow WITH includeObjectiveBuilder and includeCustomObjects, GHL answers reportedTotal:700, and the walk returns exactly 700 unique over 7 pages with terminalReason 'unique_count_equals_reported_total'. Its complete:true is a TRUE statement about that rail: it saw everything the rail said existed. The rail's own total simply does not account for the 116 this route returns.\nCONSEQUENCE for census work: no single route we have returns every workflow on an account. This route is blind to agent workflows; the list rail under-reports by 116 here. A census that must not miss anything has to read BOTH and union them \u2014 and should say which rail each row came from.",
           reach: "proven",
           provenFor: [
             "agency-admin-bearer"
@@ -24793,7 +24793,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           rail: "workflow",
           kind: "write",
           summary: "Accepted with 200 and bumps the workflow version \u2014 but does NOT change trigger content. Do not use this to save a trigger edit.",
-          note: "IDENTIFIED 2026-09-21 from source: the LIGHTER save path. Model.save({onlyTriggers:true}) calls updateOnlyTriggers(id, body) -> PUT /workflow/{loc}/only-triggers/{wid} with the full _data clone, used by the builder when ONLY the triggers changed (autosave carries isAutoSave + autoSaveSession). \u{1F534} NOT an uncovered capability: edit_workflow's modifyTrigger already edits triggers, reaching the same effect through the full document PUT with the compiler and read-back the full PUT carries. This route is an EFFICIENCY variant the plugin does not need \u2014 the full PUT is the safe path and the one edit_workflow was built and proven on. No tool, by a reason: the capability is covered, only the lighter wire path is not.\n\u2014 PRIOR NOTE: \u{1F534} Live-proven INERT for trigger content, both {oldTriggers,newTriggers} and {version,triggers} body shapes: 200, version bumped, stored trigger conditions/active/name unchanged on read-back \u2014 do not use this to save a trigger edit. The rail this project uses instead is a per-trigger PUT /workflow/{locationId}/trigger/{triggerId} carrying the WHOLE trigger record (see edit_workflow's modifyTrigger op / mcp-internal/core/tools.mjs publish_workflow); it IS live-proven for trigger CONTENT (conditions/name/targetActionId). `active` is a read-only projection of the trigger's own `status` field (`active === (status !== \"draft\")`) \u2014 no PUT body's `active` field controls it directly: a publish with zero trigger writes still activates every trigger sub-second after the publish PUT returns, and a per-trigger PUT with active:false against a published workflow returns 200 with the trigger staying active:true. Sending `status:\"published\"` on that same per-trigger PUT DOES activate a trigger on an already-published workflow, verified by read-back at +0.5s/+2s/+5s; `status:\"draft\"` deactivates it. A bogus `status` string is silently accepted and ignored (200, unchanged) \u2014 never trust the 200, always read back. publish_workflow (mcp-internal/core/tools.mjs), orchestrate.mjs's --publish step, and skills/create-ghl-workflow/scripts/edit.mjs's post-add check send exactly this PUT as a REPAIR \u2014 one per trigger still inactive after the publish PUT's own draft\u2192published cascade \u2014 before ever reporting failure. Separately, the full workflow PUT still 400s with INVALID_TRIGGER_CONDITION on conv_ai_autonomous_trigger \u2014 this endpoint is not a fix for that either.",
+          note: "NO TASK NEEDS THIS \u2014 the builder's lighter triggers-only save. edit_workflow changes triggers through the full document PUT plus the per-trigger routes, with read-back; a second write path for the same change would be a second thing to keep correct with no capability it adds.\n\u2014 PRIOR NOTE: IDENTIFIED 2026-09-21 from source: the LIGHTER save path. Model.save({onlyTriggers:true}) calls updateOnlyTriggers(id, body) -> PUT /workflow/{loc}/only-triggers/{wid} with the full _data clone, used by the builder when ONLY the triggers changed (autosave carries isAutoSave + autoSaveSession). \u{1F534} NOT an uncovered capability: edit_workflow's modifyTrigger already edits triggers, reaching the same effect through the full document PUT with the compiler and read-back the full PUT carries. This route is an EFFICIENCY variant the plugin does not need \u2014 the full PUT is the safe path and the one edit_workflow was built and proven on. No tool, by a reason: the capability is covered, only the lighter wire path is not.\n\u2014 PRIOR NOTE: \u{1F534} Live-proven INERT for trigger content, both {oldTriggers,newTriggers} and {version,triggers} body shapes: 200, version bumped, stored trigger conditions/active/name unchanged on read-back \u2014 do not use this to save a trigger edit. The rail this project uses instead is a per-trigger PUT /workflow/{locationId}/trigger/{triggerId} carrying the WHOLE trigger record (see edit_workflow's modifyTrigger op / mcp-internal/core/tools.mjs publish_workflow); it IS live-proven for trigger CONTENT (conditions/name/targetActionId). `active` is a read-only projection of the trigger's own `status` field (`active === (status !== \"draft\")`) \u2014 no PUT body's `active` field controls it directly: a publish with zero trigger writes still activates every trigger sub-second after the publish PUT returns, and a per-trigger PUT with active:false against a published workflow returns 200 with the trigger staying active:true. Sending `status:\"published\"` on that same per-trigger PUT DOES activate a trigger on an already-published workflow, verified by read-back at +0.5s/+2s/+5s; `status:\"draft\"` deactivates it. A bogus `status` string is silently accepted and ignored (200, unchanged) \u2014 never trust the 200, always read back. publish_workflow (mcp-internal/core/tools.mjs), orchestrate.mjs's --publish step, and skills/create-ghl-workflow/scripts/edit.mjs's post-add check send exactly this PUT as a REPAIR \u2014 one per trigger still inactive after the publish PUT's own draft\u2192published cascade \u2014 before ever reporting failure. Separately, the full workflow PUT still 400s with INVALID_TRIGGER_CONDITION on conv_ai_autonomous_trigger \u2014 this endpoint is not a fix for that either.",
           reach: "proven",
           coveredBy: [],
           rawCallable: true,
@@ -28287,7 +28287,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          note: "IDENTIFIED 2026-09-21 (it had NO note at all): the LEGACY CAMPAIGNS list, GHL's pre-workflow automation product \u2014 not a workflows capability. Answers 200 {campaigns: []} on the designated sandbox, which holds no campaigns, so the row SHAPE is unmeasured and only the envelope key is known. Left as a candidate rather than excluded: a campaigns-to-workflows migration is a plausible task, but nothing can be said about the payload from an empty answer, and this account cannot discriminate.\n\u2014 PRIOR NOTE: Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
+          note: "NO TASK NEEDS THIS \u2014 the LEGACY Campaigns list, GHL's pre-workflow automation product, not a workflows capability (identified 2026-09-21). Nothing this plugin builds reads or writes campaigns.\n\u2014 PRIOR NOTE: IDENTIFIED 2026-09-21 (it had NO note at all): the LEGACY CAMPAIGNS list, GHL's pre-workflow automation product \u2014 not a workflows capability. Answers 200 {campaigns: []} on the designated sandbox, which holds no campaigns, so the row SHAPE is unmeasured and only the envelope key is known. Left as a candidate rather than excluded: a campaigns-to-workflows migration is a plausible task, but nothing can be said about the payload from an empty answer, and this account cannot discriminate.\n\u2014 PRIOR NOTE: Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
           reach: "proven",
           provenFor: [
             "agency-admin-bearer"
@@ -53482,12 +53482,12 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         "GET /emails/trigger/campaign/{locationId}/{sourceId}": {
           reach: "proven",
           credentialClass: "agency-admin-bearer",
-          note: "Proven live 2026-09-19 that the credential reaches it \u2014 and nothing more. \u{1F534} TRAP: {triggers:[], total:0} came back for a real workflow AND for a ghost, so an empty answer discriminates nothing. sourceId is `{workflowId}:{actionId}` for a step (EmailService.ts:141)."
+          note: "NO TASK NEEDS THIS \u2014 the answer carries no information: it returned {triggers:[], total:0} for a REAL workflow and for a GHOST alike (proven 2026-09-19), so no caller can tell 'none' from 'wrong id'. A route whose empty answer is indistinguishable from an error is worse than no route.\n\u2014 PRIOR NOTE: Proven live 2026-09-19 that the credential reaches it \u2014 and nothing more. \u{1F534} TRAP: {triggers:[], total:0} came back for a real workflow AND for a ghost, so an empty answer discriminates nothing. sourceId is `{workflowId}:{actionId}` for a step (EmailService.ts:141)."
         },
         "GET /emails/trigger/campaign/{locationId}/{workflowId}:{actionId}": {
           reach: "proven",
           credentialClass: "agency-admin-bearer",
-          note: "Same route as /emails/trigger/campaign/{locationId}/{sourceId} with the sourceId spelled out. Proven live 2026-09-19 with the same trap: identical empty answer for a real step and a ghost."
+          note: "NO TASK NEEDS THIS \u2014 the same route as .../{sourceId} with the id spelled out, and the same trap: an identical empty answer for a real and a ghost source (proven 2026-09-19).\n\u2014 PRIOR NOTE: Same route as /emails/trigger/campaign/{locationId}/{sourceId} with the sourceId spelled out. Proven live 2026-09-19 with the same trap: identical empty answer for a real step and a ghost."
         },
         "GET /events-management/tickets": {
           reach: "proven",
@@ -53805,7 +53805,7 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         },
         "GET /saas-billing-v2/billing-config/locations/workflow_ai": {
           summary: "AGENCY roster: every sub-account's billing config for external AI model steps (optIn, enabled, markup, basePrice). For ONE sub-account use the per-location route instead.",
-          note: "TRAP: companyId is REQUIRED as a QUERY param (?companyId=&skip=0&limit=15&query=). Omit it and the route answers a BARE 403 'Forbidden resource' that names no argument and reads exactly like a permission refusal -- this row was recorded 'refused' twice on that. TRAP: config.enabled is NOT 'can run premium steps' (false on every sub-account of a working agency; it tracks rebilling) -- read config.optIn. hit[0].count is the agency total and ignores limit; locations.length is one page.",
+          note: "NO TASK NEEDS THIS \u2014 an AGENCY-wide listing of which locations have workflow AI billing configured (companyId required). The question a workflow write asks is per location, and build/edit/repair already read it on the used row GET /saas-billing-v2/billing-config/{entityType}/{entityId}/{product}. Agency billing administration is outside what this plugin authors.\n\u2014 PRIOR NOTE: TRAP: companyId is REQUIRED as a QUERY param (?companyId=&skip=0&limit=15&query=). Omit it and the route answers a BARE 403 'Forbidden resource' that names no argument and reads exactly like a permission refusal -- this row was recorded 'refused' twice on that. TRAP: config.enabled is NOT 'can run premium steps' (false on every sub-account of a working agency; it tracks rebilling) -- read config.optIn. hit[0].count is the agency total and ignores limit; locations.length is one page.",
           requiredQuery: [
             "companyId"
           ],
@@ -53814,7 +53814,7 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         },
         "GET /saas-billing-v2/billing-config/locations/workflow_premium_actions": {
           summary: "AGENCY roster: every sub-account's billing config for premium workflow actions (optIn, enabled, markup, basePrice). For ONE sub-account use the per-location route instead.",
-          note: "TRAP: companyId is REQUIRED as a QUERY param (?companyId=&skip=0&limit=15&query=). Omit it and the route answers a BARE 403 'Forbidden resource' that names no argument and reads exactly like a permission refusal -- this row was recorded 'refused' twice on that. TRAP: config.enabled is NOT 'can run premium steps' (false on every sub-account of a working agency; it tracks rebilling) -- read config.optIn. hit[0].count is the agency total and ignores limit; locations.length is one page.",
+          note: "NO TASK NEEDS THIS \u2014 the agency-wide listing for premium actions; same reasoning as .../workflow_ai: the per-location gate a write needs is already read on the used generic row.\n\u2014 PRIOR NOTE: TRAP: companyId is REQUIRED as a QUERY param (?companyId=&skip=0&limit=15&query=). Omit it and the route answers a BARE 403 'Forbidden resource' that names no argument and reads exactly like a permission refusal -- this row was recorded 'refused' twice on that. TRAP: config.enabled is NOT 'can run premium steps' (false on every sub-account of a working agency; it tracks rebilling) -- read config.optIn. hit[0].count is the agency total and ignores limit; locations.length is one page.",
           requiredQuery: [
             "companyId"
           ],
@@ -53988,7 +53988,7 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         },
         "GET /workflow/campaign": {
           reach: "refused",
-          note: "IDENTIFIED 2026-09-21 (it had NO note at all): the LEGACY CAMPAIGNS list, GHL's pre-workflow automation product \u2014 not a workflows capability. Answers 200 {campaigns: []} on the designated sandbox, which holds no campaigns, so the row SHAPE is unmeasured and only the envelope key is known. Left as a candidate rather than excluded: a campaigns-to-workflows migration is a plausible task, but nothing can be said about the payload from an empty answer, and this account cannot discriminate.\n\u2014 PRIOR NOTE: Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
+          note: "NO TASK NEEDS THIS \u2014 the LEGACY Campaigns list, GHL's pre-workflow automation product, not a workflows capability (identified 2026-09-21). Nothing this plugin builds reads or writes campaigns.\n\u2014 PRIOR NOTE: IDENTIFIED 2026-09-21 (it had NO note at all): the LEGACY CAMPAIGNS list, GHL's pre-workflow automation product \u2014 not a workflows capability. Answers 200 {campaigns: []} on the designated sandbox, which holds no campaigns, so the row SHAPE is unmeasured and only the envelope key is known. Left as a candidate rather than excluded: a campaigns-to-workflows migration is a plausible task, but nothing can be said about the payload from an empty answer, and this account cannot discriminate.\n\u2014 PRIOR NOTE: Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
           credentialClass: "location-user-bearer"
         },
         "GET /workflow/flowguard/auth": {
@@ -54038,7 +54038,7 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         },
         "GET /workflow/{locationId}": {
           reach: "proven",
-          note: "IDENTIFIED 2026-09-21 (it had NO note at all): a SECOND, UNPAGINATED CENSUS RAIL. Returns a bare ARRAY of workflow METADATA \u2014 not a graph dump: 0 of 726 entries carried workflowData.templates. `limit` is IGNORED (limit=2 returned all 726, ~1.2 MB). Every entry is type:'workflow', none deleted.\n\u{1F534} IT DISAGREES WITH THE LIST RAIL ABOUT WHAT EXISTS, and neither is a superset. Measured the same hour on the designated sandbox:\n    this route                726 workflows, of which workflowType:'agent' = 0\n    list_workflows            700 workflows, of which workflowType:'agent' = 90\n    in this route only        116 (all draft, mostly parentId:null)\n    in list_workflows only     90 (ALL of them workflowType:'agent')\n    union                     816\n\u{1F534} THIS IS NOT A BUG IN list_workflows, and do not 'fix' it as one. That tool asks /workflow/{loc}/list?type=workflow WITH includeObjectiveBuilder and includeCustomObjects, GHL answers reportedTotal:700, and the walk returns exactly 700 unique over 7 pages with terminalReason 'unique_count_equals_reported_total'. Its complete:true is a TRUE statement about that rail: it saw everything the rail said existed. The rail's own total simply does not account for the 116 this route returns.\nCONSEQUENCE for census work: no single route we have returns every workflow on an account. This route is blind to agent workflows; the list rail under-reports by 116 here. A census that must not miss anything has to read BOTH and union them \u2014 and should say which rail each row came from."
+          note: "NO TASK NEEDS THIS \u2014 a second, unpaginated census rail of workflow METADATA. list_workflows is proven a SUPERSET of it on every live run (conformance: 'every workflow the bare route returns IS in the roster'), so a tool on this route could only return a subset of an answer we already give.\n\u2014 PRIOR NOTE: IDENTIFIED 2026-09-21 (it had NO note at all): a SECOND, UNPAGINATED CENSUS RAIL. Returns a bare ARRAY of workflow METADATA \u2014 not a graph dump: 0 of 726 entries carried workflowData.templates. `limit` is IGNORED (limit=2 returned all 726, ~1.2 MB). Every entry is type:'workflow', none deleted.\n\u{1F534} IT DISAGREES WITH THE LIST RAIL ABOUT WHAT EXISTS, and neither is a superset. Measured the same hour on the designated sandbox:\n    this route                726 workflows, of which workflowType:'agent' = 0\n    list_workflows            700 workflows, of which workflowType:'agent' = 90\n    in this route only        116 (all draft, mostly parentId:null)\n    in list_workflows only     90 (ALL of them workflowType:'agent')\n    union                     816\n\u{1F534} THIS IS NOT A BUG IN list_workflows, and do not 'fix' it as one. That tool asks /workflow/{loc}/list?type=workflow WITH includeObjectiveBuilder and includeCustomObjects, GHL answers reportedTotal:700, and the walk returns exactly 700 unique over 7 pages with terminalReason 'unique_count_equals_reported_total'. Its complete:true is a TRUE statement about that rail: it saw everything the rail said existed. The rail's own total simply does not account for the 116 this route returns.\nCONSEQUENCE for census work: no single route we have returns every workflow on an account. This route is blind to agent workflows; the list rail under-reports by 116 here. A census that must not miss anything has to read BOTH and union them \u2014 and should say which rail each row came from."
         },
         "GET /workflow/{locationId}/auto-save/settings": {
           reach: "proven"
@@ -55000,7 +55000,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           kind: "write",
           reach: "proven",
           summary: "Accepted with 200 and bumps the workflow version \u2014 but does NOT change trigger content. Do not use this to save a trigger edit.",
-          note: "IDENTIFIED 2026-09-21 from source: the LIGHTER save path. Model.save({onlyTriggers:true}) calls updateOnlyTriggers(id, body) -> PUT /workflow/{loc}/only-triggers/{wid} with the full _data clone, used by the builder when ONLY the triggers changed (autosave carries isAutoSave + autoSaveSession). \u{1F534} NOT an uncovered capability: edit_workflow's modifyTrigger already edits triggers, reaching the same effect through the full document PUT with the compiler and read-back the full PUT carries. This route is an EFFICIENCY variant the plugin does not need \u2014 the full PUT is the safe path and the one edit_workflow was built and proven on. No tool, by a reason: the capability is covered, only the lighter wire path is not.\n\u2014 PRIOR NOTE: \u{1F534} Live-proven INERT for trigger content, both {oldTriggers,newTriggers} and {version,triggers} body shapes: 200, version bumped, stored trigger conditions/active/name unchanged on read-back \u2014 do not use this to save a trigger edit. The rail this project uses instead is a per-trigger PUT /workflow/{locationId}/trigger/{triggerId} carrying the WHOLE trigger record (see edit_workflow's modifyTrigger op / mcp-internal/core/tools.mjs publish_workflow); it IS live-proven for trigger CONTENT (conditions/name/targetActionId). `active` is a read-only projection of the trigger's own `status` field (`active === (status !== \"draft\")`) \u2014 no PUT body's `active` field controls it directly: a publish with zero trigger writes still activates every trigger sub-second after the publish PUT returns, and a per-trigger PUT with active:false against a published workflow returns 200 with the trigger staying active:true. Sending `status:\"published\"` on that same per-trigger PUT DOES activate a trigger on an already-published workflow, verified by read-back at +0.5s/+2s/+5s; `status:\"draft\"` deactivates it. A bogus `status` string is silently accepted and ignored (200, unchanged) \u2014 never trust the 200, always read back. publish_workflow (mcp-internal/core/tools.mjs), orchestrate.mjs's --publish step, and skills/create-ghl-workflow/scripts/edit.mjs's post-add check send exactly this PUT as a REPAIR \u2014 one per trigger still inactive after the publish PUT's own draft\u2192published cascade \u2014 before ever reporting failure. Separately, the full workflow PUT still 400s with INVALID_TRIGGER_CONDITION on conv_ai_autonomous_trigger \u2014 this endpoint is not a fix for that either."
+          note: "NO TASK NEEDS THIS \u2014 the builder's lighter triggers-only save. edit_workflow changes triggers through the full document PUT plus the per-trigger routes, with read-back; a second write path for the same change would be a second thing to keep correct with no capability it adds.\n\u2014 PRIOR NOTE: IDENTIFIED 2026-09-21 from source: the LIGHTER save path. Model.save({onlyTriggers:true}) calls updateOnlyTriggers(id, body) -> PUT /workflow/{loc}/only-triggers/{wid} with the full _data clone, used by the builder when ONLY the triggers changed (autosave carries isAutoSave + autoSaveSession). \u{1F534} NOT an uncovered capability: edit_workflow's modifyTrigger already edits triggers, reaching the same effect through the full document PUT with the compiler and read-back the full PUT carries. This route is an EFFICIENCY variant the plugin does not need \u2014 the full PUT is the safe path and the one edit_workflow was built and proven on. No tool, by a reason: the capability is covered, only the lighter wire path is not.\n\u2014 PRIOR NOTE: \u{1F534} Live-proven INERT for trigger content, both {oldTriggers,newTriggers} and {version,triggers} body shapes: 200, version bumped, stored trigger conditions/active/name unchanged on read-back \u2014 do not use this to save a trigger edit. The rail this project uses instead is a per-trigger PUT /workflow/{locationId}/trigger/{triggerId} carrying the WHOLE trigger record (see edit_workflow's modifyTrigger op / mcp-internal/core/tools.mjs publish_workflow); it IS live-proven for trigger CONTENT (conditions/name/targetActionId). `active` is a read-only projection of the trigger's own `status` field (`active === (status !== \"draft\")`) \u2014 no PUT body's `active` field controls it directly: a publish with zero trigger writes still activates every trigger sub-second after the publish PUT returns, and a per-trigger PUT with active:false against a published workflow returns 200 with the trigger staying active:true. Sending `status:\"published\"` on that same per-trigger PUT DOES activate a trigger on an already-published workflow, verified by read-back at +0.5s/+2s/+5s; `status:\"draft\"` deactivates it. A bogus `status` string is silently accepted and ignored (200, unchanged) \u2014 never trust the 200, always read back. publish_workflow (mcp-internal/core/tools.mjs), orchestrate.mjs's --publish step, and skills/create-ghl-workflow/scripts/edit.mjs's post-add check send exactly this PUT as a REPAIR \u2014 one per trigger still inactive after the publish PUT's own draft\u2192published cascade \u2014 before ever reporting failure. Separately, the full workflow PUT still 400s with INVALID_TRIGGER_CONDITION on conv_ai_autonomous_trigger \u2014 this endpoint is not a fix for that either."
         },
         "PUT /workflow/{locationId}/permission/{workflowId}": {
           kind: "write",
@@ -163383,9 +163383,22 @@ var ENTITY_REGISTRY = [
     pick: (j) => recordsFrom(j?.customFields, j),
     project: (x) => ({ id: x.id || x._id, name: x.name, fieldKey: x.fieldKey, dataType: x.dataType, model: x.model })
   },
+  // PAGED. One page of 200 was the whole list until 2026-09-23, and the sandbox holds 1,125: an
+  // add_to_workflow / remove_from_workflow naming any workflow past the first 200 by name came back
+  // "missing". Measured: pages of 100 (the roster's own bound) walk to the envelope's `count`, and
+  // includeObjectiveBuilder is what brings the 121 AGENT workflows in (same differential as the roster).
   {
     key: "workflows",
-    path: (loc) => `/workflow/${p(loc)}/list?${new URLSearchParams({ type: "workflow", limit: "200", offset: "0", sortBy: "name", sortOrder: "asc" })}`,
+    path: (loc, { offset = 0, limit = 100 } = {}) => `/workflow/${p(loc)}/list?${new URLSearchParams({
+      type: "workflow",
+      limit: String(limit),
+      offset: String(offset),
+      sortBy: "name",
+      sortOrder: "asc",
+      includeCustomObjects: "true",
+      includeObjectiveBuilder: "true"
+    })}`,
+    page: { limit: 100, total: (j) => j?.count },
     pick: (j) => recordsFrom(j?.rows, j).filter((w) => (w.type ?? "workflow") === "workflow"),
     project: (x) => ({ id: x._id || x.id, name: x.name, status: x.status })
   },
@@ -163455,9 +163468,15 @@ var ENTITY_REGISTRY = [
     pick: (j) => recordsFrom(j?.pages, j),
     project: (x) => ({ id: x.facebookPageId || x.id, name: x.facebookPageName || x.name })
   },
+  // limit=100 was REFUSED on every call ("limit must not be greater than 21", 422, measured
+  // 2026-09-23), and a failed leg reads as an empty list, so a template could never be named. Paged
+  // at the service's own maximum. The envelope is {data, total}. The page key `skip` is NOT proven:
+  // the sandbox holds no template, so a second page has never been seen. The walk stops on a page
+  // that adds no new id, so an ignored `skip` returns the first page once, never a loop.
   {
     key: "documentTemplates",
-    path: (loc) => `/proposals/templates?${q(loc, { limit: "100" })}`,
+    path: (loc, { offset = 0, limit = 21 } = {}) => `/proposals/templates?${q(loc, { limit: String(limit), skip: String(offset) })}`,
+    page: { limit: 21, total: (j) => j?.total },
     pick: (j) => recordsFrom(j?.data, j),
     project: (x) => ({ id: x._id || x.id, name: x.name })
   },
@@ -166892,15 +166911,49 @@ async function fetchEntities(gw) {
       return {};
     }
   };
-  const legs = await Promise.all(ENTITY_REGISTRY.map(async (e) => {
-    const json2 = await g(e.path(loc));
+  const unreadable = [];
+  const read = async (key, path) => {
     try {
-      return [e.key, e.pick(json2).map(e.project)];
+      const r = await call("GET", path);
+      if (r?.ok) return r.json;
+      unreadable.push({ key, status: r?.status ?? null });
+    } catch (e) {
+      unreadable.push({ key, status: null, error: String(e?.message ?? e).slice(0, 120) });
+    }
+    return null;
+  };
+  const MAX_PAGES = 60;
+  const readRow = async (e) => {
+    if (!e.page) {
+      const json2 = await read(e.key, e.path(loc));
+      return json2 ? e.pick(json2).map(e.project) : [];
+    }
+    const rows = [], seen = /* @__PURE__ */ new Set();
+    for (let i = 0; i < MAX_PAGES; i++) {
+      const json2 = await read(e.key, e.path(loc, { offset: i * e.page.limit, limit: e.page.limit }));
+      if (!json2) break;
+      const got = e.pick(json2).map(e.project);
+      const fresh = got.filter((x) => {
+        const k = x.id ?? JSON.stringify(x);
+        if (seen.has(k)) return false;
+        seen.add(k);
+        return true;
+      });
+      rows.push(...fresh);
+      const total = Number(e.page.total(json2));
+      if (!fresh.length || got.length < e.page.limit || Number.isFinite(total) && rows.length >= total) break;
+    }
+    return rows;
+  };
+  const legs = await Promise.all(ENTITY_REGISTRY.map(async (e) => {
+    try {
+      return [e.key, await readRow(e)];
     } catch {
       return [e.key, []];
     }
   }));
   const out = Object.fromEntries(legs);
+  Object.defineProperty(out, "unreadable", { value: unreadable, enumerable: false });
   const [voice, convai] = await Promise.all([
     g(`/voice-ai/agents?${new URLSearchParams({ locationId: String(loc) })}`),
     g(`/ai-employees/employees/search?${new URLSearchParams({ locationId: String(loc) })}`)
@@ -167034,7 +167087,9 @@ async function orchestrate(ir, gw, opts = {}) {
   };
   if (unresolved.length && !opts.ignoreUnresolved) {
     report.failurePhase = "dependency_resolution";
-    report.aborted = `Missing account dependencies: ${unresolved.map((u) => `${u.name} (${u.where})`).join("; ")}. Create/rename these in the sub-account first, or pass ignoreUnresolved to build anyway.`;
+    const blind = entities.unreadable ?? [];
+    report.aborted = `Missing account dependencies: ${unresolved.map((u) => `${u.name} (${u.where})`).join("; ")}. Create/rename these in the sub-account first, or pass ignoreUnresolved to build anyway.` + (blind.length ? ` NOTE: these account lists could not be READ, so a name above may exist and simply be unseen: ${blind.map((b) => `${b.key} (${b.status ? `HTTP ${b.status}` : "no response"})`).join(", ")}.` : "");
+    if (blind.length) report.unreadableEntities = blind;
     return report;
   }
   for (const n of collectEmailTemplates(ir)) {

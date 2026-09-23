@@ -393,3 +393,18 @@ test('build_workflow: a clean trigger build is not partial', async () => {
   assert.equal(result.data.partial, false);
   assert.equal(result.data.triggerIntegrity.mismatch, false);
 });
+
+// A failed account-list read degrades to [] exactly like an account with none, so "missing" for a
+// name that exists was the only answer the abort could give. It now says which lists were UNREAD.
+test('an unresolved-dependency abort names the account lists that could not be read', async () => {
+  const { gw } = buildGateway();
+  const inner = gw.call;
+  gw.call = async (method, path, body) => (path.includes('/opportunities/pipelines')
+    ? { status: 503, ok: false, json: { message: 'upstream reset' } } : inner(method, path, body));
+  const spec = { name: 'Blocked workflow', triggers: [], graph: [{ ref: 'co', kind: 'action', type: 'create_opportunity',
+    name: 'Create opportunity', attributes: { name: 'Deal', pipeline: 'Real pipeline', status: 'open' } }] };
+  const result = await buildTool().handler({ locationId: 'LOC', spec, ignoreUnresolved: false }, deps(gw));
+  assert.equal(result.ok, false);
+  assert.match(result.data.aborted, /could not be READ.*pipelines \(HTTP 503\)/);
+  assert.ok(result.data.unreadableEntities.some((u) => u.key === 'pipelines' && u.status === 503));
+});

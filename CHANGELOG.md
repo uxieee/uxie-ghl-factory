@@ -13,6 +13,32 @@ commit bodies carry the detail.
 
 ## Unreleased
 
+**A step can name any workflow in the account, and a list the engine could not read is no longer
+"missing"** (found 2026-09-23 by sweeping every account-list read live). A build or edit resolves names
+through about two dozen account lists. The sweep found two that had been silently wrong:
+- **Workflows:** one page of 200, while the sandbox holds 1,125. An `add_to_workflow` or
+  `remove_from_workflow` naming anything past the first 200 alphabetically came back as a missing
+  dependency. The list is now walked in pages of 100 to the envelope's `count`, and it includes the
+  121 AGENT workflows it also used to omit (`includeObjectiveBuilder`).
+- **Document templates:** asked for `limit=100` and was REFUSED (422, "limit must not be greater than
+  21") on every call, so `proposals_estimates_send_document` could never name a template. It now pages
+  at 21. The page key `skip` is unproven, because the sandbox has no template. A page that adds no new
+  id stops the walk, so it cannot loop.
+
+A failed list read still degrades to an empty list, so an account without a product still builds.
+It is now RECORDED, though. A missing-dependency abort names the lists that could not be read
+(`unreadableEntities`, "…could not be READ, so a name above may exist and simply be unseen"), instead
+of implying the name does not exist.
+
+Live-proven in the suite (`entity-paging-proof.mjs`). The target workflow sorts PAST position 200,
+which is the precondition that makes the test mean something. The caller names it and builds, and the
+stored step reads back pointing at the target's id.
+
+Seven USABLE-UNUSED workflows routes now carry a written purpose-test decision on their catalogue
+rows: the two campaign-trigger reads (their empty answer cannot tell a real id from a ghost), two
+agency-wide billing listings, the legacy Campaigns list, the bare census rail (list_workflows is its
+proven superset), and the triggers-only save.
+
 **Voice AI agents no longer introduce themselves as someone else's business** (fix). The compiler's
 default outbound disclaimer was a literal copied from a capture. It read "this is GROM Digital AU's AI
 assistant", so every agent built without its own disclaimer told callers it was that business. The

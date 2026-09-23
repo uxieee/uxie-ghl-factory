@@ -38,8 +38,15 @@ export const ENTITY_REGISTRY = [
     pick: (j) => recordsFrom(j?.customFields, j),
     project: (x) => ({ id: x.id || x._id, name: x.name, fieldKey: x.fieldKey, dataType: x.dataType, model: x.model }) },
 
+  // PAGED. One page of 200 was the whole list until 2026-09-23, and the sandbox holds 1,125: an
+  // add_to_workflow / remove_from_workflow naming any workflow past the first 200 by name came back
+  // "missing". Measured: pages of 100 (the roster's own bound) walk to the envelope's `count`, and
+  // includeObjectiveBuilder is what brings the 121 AGENT workflows in (same differential as the roster).
   { key: 'workflows',
-    path: (loc) => `/workflow/${p(loc)}/list?${new URLSearchParams({ type: 'workflow', limit: '200', offset: '0', sortBy: 'name', sortOrder: 'asc' })}`,
+    path: (loc, { offset = 0, limit = 100 } = {}) => `/workflow/${p(loc)}/list?${new URLSearchParams({
+      type: 'workflow', limit: String(limit), offset: String(offset), sortBy: 'name', sortOrder: 'asc',
+      includeCustomObjects: 'true', includeObjectiveBuilder: 'true' })}`,
+    page: { limit: 100, total: (j) => j?.count },
     pick: (j) => recordsFrom(j?.rows, j).filter((w) => (w.type ?? 'workflow') === 'workflow'),
     project: (x) => ({ id: x._id || x.id, name: x.name, status: x.status }) },
 
@@ -83,7 +90,14 @@ export const ENTITY_REGISTRY = [
     pick: (j) => recordsFrom(j?.pages, j),
     project: (x) => ({ id: x.facebookPageId || x.id, name: x.facebookPageName || x.name }) },
 
-  { key: 'documentTemplates', path: (loc) => `/proposals/templates?${q(loc, { limit: '100' })}`,
+  // limit=100 was REFUSED on every call ("limit must not be greater than 21", 422, measured
+  // 2026-09-23), and a failed leg reads as an empty list, so a template could never be named. Paged
+  // at the service's own maximum. The envelope is {data, total}. The page key `skip` is NOT proven:
+  // the sandbox holds no template, so a second page has never been seen. The walk stops on a page
+  // that adds no new id, so an ignored `skip` returns the first page once, never a loop.
+  { key: 'documentTemplates',
+    path: (loc, { offset = 0, limit = 21 } = {}) => `/proposals/templates?${q(loc, { limit: String(limit), skip: String(offset) })}`,
+    page: { limit: 21, total: (j) => j?.total },
     pick: (j) => recordsFrom(j?.data, j), project: (x) => ({ id: x._id || x.id, name: x.name }) },
 
   { key: 'objects', path: (loc) => `/objects/?${q(loc)}`,
