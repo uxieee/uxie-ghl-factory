@@ -308,3 +308,40 @@ test('the width refusal carries its OWN remediation, not the element-kind defaul
     assert.doesNotMatch(e.remediation ?? '', /Element kinds/);
   }
 });
+
+// ── Three builder-only hangs a peer found on live pages (console bl-119/120/121) ─────────────────────
+// Each renders fine in PUBLIC and breaks only the builder, which is why nothing caught them.
+import { nodeStylesFromCss } from '../core/funnel-pages.mjs';
+
+test('bl-121: buildPageData writes typography.colors in GHL\'s own shape, and the audit fails a page without it', () => {
+  const pd = buildPageData({ pageId: 'P', stepId: 'S', funnelId: 'F', locationId: 'L', sections: [] });
+  assert.deepEqual(pd.settings.settings.typography.colors, {
+    textColor: { value: { label: 'var(--black)', value: '#000000' } },
+    linkColor: { value: { label: 'var(--blue)', value: '#188bf6' } },
+  });
+  assert.ok(pd.settings.settings.typography.fonts.headlineFont, 'fonts are kept beside colors');
+  delete pd.settings.settings.typography.colors;
+  assert.ok(auditPageData(pd).some((p) => /typography has no colors/.test(p)));
+});
+
+test('bl-119: a button leaf built with no styles gets GHL\'s colour keys; authored ones win; the audit fails a bare one', () => {
+  const b = makeLeaf({ meta: 'button', salt: 'x' });
+  assert.equal(b.styles.color.value, 'var(--white)');
+  assert.equal(b.styles.secondaryColor.value, 'var(--white)');
+  assert.equal(b.styles.backgroundColor.value, 'var(--blue)');
+  const mine = makeLeaf({ meta: 'button', salt: 'y', styles: { color: { value: '#111' } } });
+  assert.equal(mine.styles.color.value, '#111');
+  const para = makeLeaf({ meta: 'paragraph', salt: 'z' });
+  assert.deepEqual(para.styles, {}, 'only buttons get defaults');
+  const bare = { ...b, styles: {} };
+  const pd = buildPageData({ pageId: 'P', stepId: 'S', funnelId: 'F', locationId: 'L', sections: [] });
+  pd.sections = [{ id: 'sec', elements: [bare], metaData: { child: [] } }];
+  assert.ok(auditPageData(pd).some((p) => /neither color nor secondaryColor/.test(p)));
+});
+
+test('bl-120: a css block also yields the node styles it implies, so the builder canvas matches the public page', () => {
+  assert.deepEqual(nodeStylesFromCss('paragraph', { font: 'Georgia', color: '#222', weight: 600, align: 'left' }),
+    { color: { value: '#222' }, fontFamily: { value: 'Georgia' }, fontWeight: { value: 600 }, textAlign: { value: 'left' } });
+  assert.deepEqual(nodeStylesFromCss('button', { background: '#0a0', color: '#fff' }),
+    { backgroundColor: { value: '#0a0' }, color: { value: '#fff' }, secondaryColor: { value: '#fff' } });
+});
