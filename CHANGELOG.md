@@ -147,6 +147,19 @@ Provenance notes keep the account's label. The pre-commit hook now also runs the
 account data. It runs only where the knowledge repo sits beside this one; anywhere else it prints
 that it was SKIPPED, and does not block.
 
+**Your own publish no longer makes your next edit "stale", and re-reading clears a stale edit.** The
+stale-read gate refused an edit whenever the workflow's `version` was newer than the one this project
+last read. Publish, unpublish and a settings save all bump `version` without touching a step, so an
+agent that published and then edited was refused with `PREVIEW_STALE`. And `export_workflow` did not
+record its read, although `editing.md` names it as one, so following the remediation ("re-read it")
+with an export left the refusal in place. Both measured on the sandbox 2026-09-23.
+
+The gate now refuses only when a step was added, removed or modified since the last read. When only
+the version moved, the edit proceeds with a `VERSION MOVED a -> b` warning; nothing can be lost, because
+the commit carries the current document with only the steps replaced. `export_workflow` records what
+it read. A graph that did move is still refused, and so is a snapshot with no recorded steps. Four unit
+tests; the two new behaviours fail on the previous code.
+
 **An edit of a published workflow no longer inherits the rule violations GHL stopped checking**
 (console bl-146). GHL stops checking `validateIfElseCondition`, `validateRouterConditions` and
 `validateWaitStep` once a workflow is published (its skipHatch), so published documents carrying those

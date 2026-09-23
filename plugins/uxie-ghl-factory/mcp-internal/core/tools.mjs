@@ -2738,6 +2738,22 @@ export const TOOLS = [
       };
       let workflow = body.json;
       const allTemplates = Array.isArray(workflow?.workflowData?.templates) ? workflow.workflowData.templates : null;
+      // An export IS a read (editing.md names it beside get_workflow_digest as where `version` comes
+      // from), so it records what this agent saw. Without this, re-reading with export_workflow after a
+      // PREVIEW_STALE left the old snapshot in place and the next edit was refused again (2026-09-23).
+      // The WHOLE graph is recorded even when stepIds narrows what is returned: the snapshot is compared
+      // against the whole live graph.
+      if (allTemplates) {
+        const readTriggers = asArray(triggers.json, 'triggers', 'data');
+        readCache(deps.state).write(args.locationId, args.workflowId, {
+          readAt: new Date().toISOString(),
+          version: workflow?.version ?? null,
+          updatedAt: workflow?.dateUpdated ?? null,
+          fingerprint: fingerprintWorkflow(allTemplates, readTriggers),
+          templates: allTemplates,
+          triggers: readTriggers,
+        });
+      }
       if (Array.isArray(args.stepIds) && args.stepIds.length && allTemplates) {
         const wanted = new Set(args.stepIds);
         const missing = args.stepIds.filter((id) => !allTemplates.some((t) => t?.id === id));
@@ -4795,7 +4811,17 @@ export const TOOLS = [
           'Re-read the workflow (get_workflow_digest / export_workflow), rebase your ops on the current '
           + 'version, then retry with the new expectedVersion.'), { driftSinceLastRead: driftOf() });
       }
-      if (args.expectedVersion === undefined && lastRead?.version != null
+      // A version that moved while the GRAPH did not is not a stale read: publish, unpublish, a settings
+      // save and this plugin's own writes all bump `version` without touching a step, and the commit
+      // carries the CURRENT document with only the templates replaced, so nothing anyone else wrote
+      // can be lost. Refusing there made an agent's own publish block its next edit (2026-09-23).
+      // Without a recorded graph there is nothing to compare, so that case still refuses.
+      const staleDrift = lastRead?.version != null && fresh.version != null && lastRead.version < fresh.version ? driftOf() : null;
+      const graphUnmoved = Boolean(staleDrift) && !staleDrift.added.length && !staleDrift.removed.length && !staleDrift.modified.length;
+      if (graphUnmoved && args.expectedVersion === undefined && args.acknowledgeDrift !== true) {
+        warnings.push(`VERSION MOVED ${lastRead.version} -> ${fresh.version} since this project last read the workflow, but no step was added, removed or modified (a publish, unpublish or settings save does this); editing the current graph.`);
+      }
+      if (args.expectedVersion === undefined && lastRead?.version != null && !graphUnmoved
           && fresh.version != null && lastRead.version < fresh.version && args.acknowledgeDrift !== true) {
         return withFailureData(fail(CODES.PREVIEW_STALE,
           `this project last read version ${lastRead.version}; the workflow is now at ${fresh.version}, `

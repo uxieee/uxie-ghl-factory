@@ -174919,6 +174919,17 @@ var TOOLS2 = [
       };
       let workflow = body.json;
       const allTemplates = Array.isArray(workflow?.workflowData?.templates) ? workflow.workflowData.templates : null;
+      if (allTemplates) {
+        const readTriggers = asArray(triggers.json, "triggers", "data");
+        readCache(deps.state).write(args.locationId, args.workflowId, {
+          readAt: (/* @__PURE__ */ new Date()).toISOString(),
+          version: workflow?.version ?? null,
+          updatedAt: workflow?.dateUpdated ?? null,
+          fingerprint: fingerprintWorkflow(allTemplates, readTriggers),
+          templates: allTemplates,
+          triggers: readTriggers
+        });
+      }
       if (Array.isArray(args.stepIds) && args.stepIds.length && allTemplates) {
         const wanted = new Set(args.stepIds);
         const missing = args.stepIds.filter((id) => !allTemplates.some((t) => t?.id === id));
@@ -176807,7 +176818,12 @@ var TOOLS2 = [
             "Re-read the workflow (get_workflow_digest / export_workflow), rebase your ops on the current version, then retry with the new expectedVersion."
           ), { driftSinceLastRead: driftOf() });
         }
-        if (args.expectedVersion === void 0 && lastRead?.version != null && fresh.version != null && lastRead.version < fresh.version && args.acknowledgeDrift !== true) {
+        const staleDrift = lastRead?.version != null && fresh.version != null && lastRead.version < fresh.version ? driftOf() : null;
+        const graphUnmoved = Boolean(staleDrift) && !staleDrift.added.length && !staleDrift.removed.length && !staleDrift.modified.length;
+        if (graphUnmoved && args.expectedVersion === void 0 && args.acknowledgeDrift !== true) {
+          warnings.push(`VERSION MOVED ${lastRead.version} -> ${fresh.version} since this project last read the workflow, but no step was added, removed or modified (a publish, unpublish or settings save does this); editing the current graph.`);
+        }
+        if (args.expectedVersion === void 0 && lastRead?.version != null && !graphUnmoved && fresh.version != null && lastRead.version < fresh.version && args.acknowledgeDrift !== true) {
           return withFailureData(fail(
             CODES.PREVIEW_STALE,
             `this project last read version ${lastRead.version}; the workflow is now at ${fresh.version}, so it changed after you looked.`,

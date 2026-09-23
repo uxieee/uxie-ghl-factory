@@ -126,10 +126,14 @@ has since changed does not conflict — it erases the other edit, silently. Two 
 
 - Pass `expectedVersion` (the `version` from `get_workflow_digest` or `export_workflow`) and a
   version that has moved is refused with `VERSION_CONFLICT` before anything is written.
-- Even without it, read tools record what this project last saw under `.ghl/<locationId>/workflows/
-  <workflowId>/last-read.json`. If the live version is newer than that snapshot the edit is refused
-  with `PREVIEW_STALE`, and `data.driftSinceLastRead` lists what was added, removed and modified in
-  between. `acknowledgeDrift: true` proceeds against the current graph.
+- Even without it, `get_workflow_digest`, `export_workflow` and every successful edit record what this
+  project last saw (`last-read.json`, beside the token file). If the live version is newer than that
+  snapshot AND a step was added, removed or modified since, the edit is refused with `PREVIEW_STALE`,
+  and `data.driftSinceLastRead` lists what moved. Re-read with either read tool, or pass
+  `acknowledgeDrift: true` to proceed against the current graph.
+- A version that moved while no step did is not stale: publish, unpublish and a settings save all bump
+  it. The edit proceeds with a `VERSION MOVED a -> b` warning, because the commit carries the current
+  document with only the steps replaced. A snapshot with no recorded steps cannot tell, so it refuses.
 
 The cache is a convenience, never a source of truth: it is scrubbed of anything credential-shaped,
 written 0600, and any failure to read or write it degrades to "no cache" rather than to an error.
