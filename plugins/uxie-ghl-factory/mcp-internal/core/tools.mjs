@@ -3017,13 +3017,21 @@ export const TOOLS = [
             };
           }
           if (!LIFECYCLE_TYPES.has(r?.type)) return r;
-          const channel = r?.removedFrom?.channel ?? null;
+          // The rows carry it at meta.removedFrom (every capture on file: 5 end_of_workflow, 4
+          // CONVERSATIONS_AI); reading the top level alone labelled every one 'unknown' (seen live
+          // 2026-09-23). Two shapes are measured: {type:'end_of_workflow', stepId} when the run ends
+          // itself, and {channel:'CONVERSATIONS_AI', source:<agentId>} when a terminal Conversation-AI
+          // node (end, transfer_bot) ends it.
+          const removedFrom = r?.meta?.removedFrom ?? r?.removedFrom ?? null;
+          const channel = removedFrom?.channel ?? null;
+          const removalOrigin = channel === 'OAUTH' ? 'external-api'
+            : channel === 'CONVERSATIONS_AI' ? 'conversation-ai-terminal'
+              : channel ? 'workflow'
+                : removedFrom?.type === 'end_of_workflow' ? 'end-of-workflow' : 'unknown';
           return {
             ...r,
             isLifecycleRow: true,
-            ...(r.type === 'remove_from_workflow'
-              ? { removalOrigin: channel === 'OAUTH' ? 'external-api' : (channel ? 'workflow' : 'unknown') }
-              : {}),
+            ...(r.type === 'remove_from_workflow' ? { removalOrigin } : {}),
           };
         })
         : rawLogs;

@@ -203,6 +203,10 @@ test('get_workflow_logs labels a removal by ORIGIN and counts the external ones'
     { type: 'remove_from_workflow', stepName: 'Remove', removedFrom: { channel: 'OAUTH', source: 'INTEGRATION' } },
     { type: 'remove_from_workflow', stepName: 'Remove', removedFrom: { channel: 'WORKFLOW' } },
     { type: 'sms', stepName: 'Text' },
+    // The placement and shapes every capture on file carries (meta.removedFrom):
+    { type: 'remove_from_workflow', stepName: 'Remove', meta: { removedFrom: { channel: 'CONVERSATIONS_AI', source: 'AGENT' } } },
+    { type: 'remove_from_workflow', stepName: 'Remove', meta: { removedFrom: { type: 'end_of_workflow', stepId: 'S1' } } },
+    { type: 'remove_from_workflow', stepName: 'Remove', meta: { removedFrom: { channel: 'OAUTH', source: 'INTEGRATION' } } },
   ];
   const gw = { loc: 'LOC', call: async (m, p) => {
     if (p.includes('/logs')) return { ok: true, status: 200, json: { logs } };
@@ -214,7 +218,10 @@ test('get_workflow_logs labels a removal by ORIGIN and counts the external ones'
   assert.equal(rows[1].removalOrigin, 'external-api');
   assert.equal(rows[2].removalOrigin, 'workflow');
   assert.equal(rows[3].removalOrigin, undefined, 'a step row is not a removal');
-  assert.equal(res.data.externalRemovals, 1);
+  assert.equal(rows[4].removalOrigin, 'conversation-ai-terminal');
+  assert.equal(rows[5].removalOrigin, 'end-of-workflow');
+  assert.equal(rows[6].removalOrigin, 'external-api', 'meta.removedFrom is read, not only the top level');
+  assert.equal(res.data.externalRemovals, 2);
 });
 
 // ── a window nobody applied is worse than no window ──────────────────────────────────────────

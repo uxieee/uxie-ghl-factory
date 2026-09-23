@@ -260,6 +260,10 @@ export function evaluateWorkflowRules(doc, rules) {
   // (see corpus workflows/20-api/sender-domain.md). With "All Domains" the From Email is a local
   // part by design, so the check is domain-specific only; a merge field is exempt because it
   // resolves at send time and its literal text cannot be format-checked.
+  // Its mirror, checkSenderDomainLocalPart ("All Domains" + a From Email containing '@'), is NOT
+  // ported on purpose: GHL defines it and never calls it (WorkflowValidator.ts, bundles 2026-09-11
+  // through 09-18: no caller in the whole recovered tree), so GHL saves that document. Refusing it
+  // here would make the engine stricter than the thing it mirrors (console bl-143).
   {
     const SDV = V.senderDomain;
     const fromEmail = doc.settings?.senderAddress?.from_email;

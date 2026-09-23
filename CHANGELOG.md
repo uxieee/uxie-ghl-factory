@@ -13,6 +13,28 @@ commit bodies carry the detail.
 
 ## Unreleased
 
+**SMS spam words now warn instead of refusing, as GHL does** (console bl-143). The engine refused
+an `sms` body containing a word on GHL's blocked list, and its note said GHL "aborts the save". GHL's
+own source says otherwise, in every bundle recovered from 2026-08-21 to 09-18:
+- `checkForValidContent` throws `SpamSmsBodyError`, which extends `SaveWarning`.
+- A draft saves silently.
+- A published workflow shows a warning whose Continue button saves anyway.
+- It runs only on ISV-mode accounts.
+
+The list is blunt ('joint', 'pipe', 'pot'), so the old refusal blocked documents GHL saves. The same
+list now also WARNS on `messenger` and `instagram-dm`, where GHL's step validator flags it as
+`result: 'warning'`. The engine had marked those two types as untouched.
+
+`checkSenderDomainLocalPart` (the other bl-143 rule) is deliberately NOT ported. GHL defines it and
+never calls it, so porting it would refuse documents GHL saves.
+
+**`get_workflow_logs` labels removals again.** It read `removedFrom` at the top level of a log row.
+Every captured row carries it at `meta.removedFrom`, so every removal came back
+`removalOrigin: "unknown"`. The tool now reads both placements. It also names the two measured
+shapes: `end-of-workflow` for a run that ended itself, and `conversation-ai-terminal` for a Conversation-AI
+`end` or `transfer_bot` node that ended it. The fault was found while re-certifying the flow-bot
+nodes live (console bl-041/042).
+
 **Two reference sites GHL's asset check skips are now checked before any write** (console bl-140,
 bl-144). GHL's `validate-assets` covers reference SITES, not asset types. It reports a ghost calendar on
 an appointment trigger but not on a step. It reads `assign_user`'s `user_list` but not the round-robin

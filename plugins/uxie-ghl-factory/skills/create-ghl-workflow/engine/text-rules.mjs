@@ -58,16 +58,15 @@ export function hasNestedBracketsInExpressions(str) {
 /**
  * GHL: WorkflowValidator.ts:226-241 — the SMS spam-word gate.
  *
- * This one is unusual and worth understanding before judging the false positives. It does not
- * live in `validate()`; it is called separately at SAVE time (hooks/use-save-workflow.ts:212)
- * and it THROWS `SpamSmsBodyError`, aborting the save outright. So a body containing one of these
- * words cannot be saved through the UI at all.
+ * It does not live in `validate()`; the builder calls it separately at SAVE time
+ * (hooks/use-save-workflow.ts:258), only on ISV-mode accounts (`AppState.isLCAccount`), and the
+ * error it throws, `SpamSmsBodyError`, extends `SaveWarning`: a DRAFT saves silently, a PUBLISHED
+ * workflow shows a warning modal whose Continue button saves anyway. The same in every bundle
+ * recovered, 2026-08-21 through 09-18. So it is a WARNING, and the engine warns (console bl-143:
+ * it used to refuse, which made it stricter than GHL).
  *
  * The list is GHL's, not ours, and it is blunt: alongside `cannabis` and `thc` it contains `pot`,
- * `joint`, `pipe` and `dab`, so an ordinary sentence like "let's discuss the joint venture" is
- * refused. Mirroring it faithfully is still right — refusing here costs one clear error message,
- * whereas not refusing costs a build that dies at save with GHL's opaque one. The message names
- * the offending word and says whose list it is, so nobody wastes time hunting their own code.
+ * `joint`, `pipe` and `dab`. The warning names the offending word and says whose list it is.
  *
  * Word extraction matches GHL's `words(data, /\b(\w+)\b/g)` over the lowercased body.
  */

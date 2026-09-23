@@ -562,6 +562,14 @@ export const INNER_ATTRIBUTE_TYPE = {
   'task-notification': 'task_notification',
 };
 
+const socialSpamWords = (validator) => ({
+  when: (a) => illegalSmsWords(a.body, ILLEGAL_SMS_WORDS).length > 0,
+  check: (a) => `has body word(s) on GHL's SMS blocked list: ${illegalSmsWords(a.body, ILLEGAL_SMS_WORDS).join(', ')}`,
+  severity: 'warn',
+  why: `GHL's ${validator} (fb-ig-validators.ts socialMessageValidator) flags these as a WARNING `
+     + '(sms_contains_illegal_words); the step saves. The list is the SMS one, and it is blunt.',
+});
+
 export const COUPLED_FIELDS = {
   add_notes: [{
     when: (a) => typeof a.color === 'string' && /^#[0-9a-fA-F]{6}$/.test(a.color)
@@ -617,17 +625,21 @@ export const COUPLED_FIELDS = {
   // the generated catalog carried the sibling `subject` rule across and dropped this one.
   // We test non-empty rather than GHL's cleanHTML(), so markup that renders to nothing
   // (`<p></p>`) still passes here — stricter than nothing, not yet as strict as GHL.
-  // GHL's spam-word gate applies to `type === 'sms'` ONLY (WorkflowValidator.ts:227) — not to
-  // messenger or instagram-dm, despite those sharing the sms body validator. Scoped to match.
+  // GHL checks the same word list in two places, both WARNINGS: the save-time scan over `sms` steps
+  // (WorkflowValidator.checkForValidContent, below) and the messenger / instagram-dm step validator
+  // (socialMessageValidator, fb-ig-validators.ts: result 'warning', 'sms_contains_illegal_words').
   sms: [...handlebarRules(HANDLEBAR_FIELDS.sms), {
     when: (a) => illegalSmsWords(a.body, ILLEGAL_SMS_WORDS).length > 0,
     check: (a) => {
       const hits = illegalSmsWords(a.body, ILLEGAL_SMS_WORDS);
       return `has SMS body word(s) on GHL's blocked list: ${hits.join(', ')}`;
     },
-    why: "GHL throws SpamSmsBodyError and ABORTS THE SAVE on these — it is not advisory. The "
-       + "list is GHL's and it is blunt (it contains 'pot', 'joint', 'pipe', 'dab'), so an "
-       + 'innocent sentence can trip it. Reword the body or the save will fail in GHL anyway.',
+    severity: 'warn',
+    why: "GHL's builder raises SpamSmsBodyError, a SaveWarning, on these: a draft saves silently, a "
+       + "published workflow shows a warning with a Continue button, and only on ISV-mode accounts "
+       + "(use-save-workflow.ts). It flags the SMS forbidden-content categories carriers filter in the "
+       + "US and Canada. The list is blunt ('pot', 'joint', 'pipe', 'dab'), so check whether the "
+       + 'word is really what the message is about before rewording it.',
   }],
 
   // ── numeric guards on values that SPEND MONEY ────────────────────────────────────────
@@ -731,13 +743,13 @@ export const COUPLED_FIELDS = {
     require: ['body'],
     why: 'The body IS the message. With no body and no attachment the step sends nothing. '
        + 'Same rule GHL applies to sms — messengerValidator delegates to baseSmsValidator.',
-  }],
+  }, socialSpamWords('messengerValidator')],
   'instagram-dm': [...handlebarRules(HANDLEBAR_FIELDS['instagram-dm']), {
     when: (a) => !hasAttachments(a),
     require: ['body'],
     why: 'The body IS the message. With no body and no attachment the step sends nothing. '
        + 'Same rule GHL applies to sms — instagramDmValidator delegates to baseSmsValidator.',
-  }],
+  }, socialSpamWords('instagramDmValidator')],
 
   wait: [{
     // GHL's OWN rule, never carried across: validateAppointmentWait requires the jump target

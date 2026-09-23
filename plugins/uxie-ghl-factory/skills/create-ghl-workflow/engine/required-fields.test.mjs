@@ -525,15 +525,17 @@ test('handlebars: the rule reaches every field GHL runs it over', () => {
     (e) => /first_message/.test(e.message));
 });
 
-test('sms spam words: a blocked word is refused and named', () => {
-  assert.throws(() => run('sms', { body: 'try our new CBD range' }),
-    (e) => e.code === 'REQUIRED_FIELD' && /cbd/.test(e.message));
+test('sms spam words: a blocked word WARNS and is named — GHL raises a SaveWarning, not an error', () => {
+  assert.doesNotThrow(() => run('sms', { body: 'try our new CBD range' }));
+  assert.equal(warnings.length, 1);
+  assert.match(warnings[0], /cbd/);
 });
 
 test('sms spam words: GHL\'s list is blunt, and we mirror it rather than soften it', () => {
-  // 'joint' is on GHL's list, so this innocent sentence genuinely cannot be saved in GHL.
-  assert.throws(() => run('sms', { body: "let's discuss the joint venture" }),
-    (e) => /joint/.test(e.message));
+  // 'joint' is on GHL's list, so this innocent sentence draws GHL's own warning too.
+  assert.doesNotThrow(() => run('sms', { body: "let's discuss the joint venture" }));
+  assert.equal(warnings.length, 1);
+  assert.match(warnings[0], /joint/);
 });
 
 test('sms spam words: matching is whole-word, so a substring does not trip it', () => {
@@ -541,12 +543,15 @@ test('sms spam words: matching is whole-word, so a substring does not trip it', 
   assert.doesNotThrow(() => run('sms', { body: 'we will call you shortly' }));
 });
 
-test('sms spam words: the gate is scoped to sms — messenger and instagram-dm are untouched', () => {
-  // WorkflowValidator.ts:227 filters on type === 'sms' only.
-  assert.doesNotThrow(() => run('messenger', { body: 'our CBD range is here' }));
-  assert.doesNotThrow(() => run('instagram-dm', { body: 'our CBD range is here' }));
+test('spam words: messenger and instagram-dm WARN too — GHL\'s socialMessageValidator, result \'warning\'', () => {
+  for (const type of ['messenger', 'instagram-dm']) {
+    assert.doesNotThrow(() => run(type, { body: 'our CBD range is here' }));
+    assert.equal(warnings.length, 1, type);
+    assert.match(warnings[0], /cbd/);
+    run(type, { body: 'we will call you shortly' });
+    assert.equal(warnings.length, 0, type);
+  }
 });
-
 // ── money, bounds and body-shape guards ───────────────────────────────────────────────
 // All of these are result:'warning' in GHL, so all of them warn here. Mirroring the TIER is as
 // much the point as mirroring the rule — promoting one would refuse a document GHL opens.
