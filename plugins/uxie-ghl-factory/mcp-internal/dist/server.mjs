@@ -21100,6 +21100,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "move_workflows",
             "publish_workflow",
             "push_snapshot",
+            "rename_workflow",
             "repair_workflow",
             "unpublish_workflows",
             "validate_workflow"
@@ -24588,7 +24589,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "list_account_entities",
             "list_workflow_folders",
             "list_workflows",
-            "move_workflows"
+            "move_workflows",
+            "rename_workflow"
           ],
           rawCallable: true,
           transport: "json",
@@ -25068,7 +25070,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           summary: 'Renames a workflow. Body is {"name": "..."}.',
           note: 'The only rename path that does NOT re-run the step validator. Use it instead of the full-document PUT, which re-validates every stored step and on a workflow whose own saved graph the validator now rejects fails outright with INVALID_FIELD_VALUE -- so a rename by full PUT can be refused on a workflow that is running perfectly well. \u26A0\uFE0F Do NOT rely on it leaving `version` alone: one account observed 4 -> 4 (2026-08-31) and another observed 1 -> 2 on a flow workflow (2026-09-02). The two disagree and the cause is not established, so re-read the digest before any expectedVersion write that follows a rename. Executed on the designated sandbox 2026-09-10 in the workflows write-parity run. \u{1F534} 404s on a FOLDER id, and the body is the bare string "Not Found" \u2014 which reads like a wrong route rather than a wrong object. GET /workflow/{locationId}/list returns BOTH (type "directory" x5 and "workflow" x95 on the sandbox); filter on type before renaming. Proven on a real workflow: {name} written, read back changed, restored.',
           reach: "proven",
-          coveredBy: [],
+          coveredBy: [
+            "rename_workflow"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -58270,6 +58274,30 @@ var init_define_TOOL_CATALOG = __esm({
           "workflow-read",
           "triggers-list",
           "workflow-validate"
+        ]
+      },
+      rename_workflow: {
+        description: "Rename workflows \u2014 proof: external-receipt-required; risk: write",
+        risk: "write",
+        proof: "external-receipt-required",
+        proofFloor: "external-receipt-required",
+        proofRows: [
+          "workflow-rename-subject-read",
+          "workflow-rename-folder-check",
+          "workflow-rename-write"
+        ],
+        proofFloorRows: [
+          "workflow-rename-subject-read",
+          "workflow-rename-folder-check",
+          "workflow-rename-write"
+        ],
+        riskRows: [
+          "workflow-rename-write"
+        ],
+        rows: [
+          "workflow-rename-subject-read",
+          "workflow-rename-folder-check",
+          "workflow-rename-write"
         ]
       }
     };
@@ -178368,6 +178396,116 @@ var TOOLS2 = [
             CODES.ENGINE_ABORT,
             `${failed.length} of ${verified.length} workflow(s) did not read back in the destination.`,
             "Inspect data.verified. Nothing is deleted or retried for you; re-issue the move for the ids that did not land."
+          ),
+          data2
+        );
+      }
+      return ok(data2);
+    }, args)
+  },
+  // RENAME, through GHL's DEDICATED route (console/PROPOSAL-rename-workflow.md, operator-approved
+  // 2026-09-23). The only rename path that does NOT re-run the step validator: a rename through
+  // edit_workflow's full-document PUT re-validates every stored step, so a healthy published workflow
+  // can refuse to be renamed ("Action validation failed: <type>"). The task is bulk: bringing an
+  // account onto the naming convention ghl-system-conventions defines.
+  {
+    name: "rename_workflow",
+    description: `${describe3("rename_workflow", "Rename workflows \u2014 risk: write")}. Rename one or many workflows through GHL's dedicated rename route, the only rename path that does NOT re-run the step validator (a rename via edit_workflow can be refused by a healthy published workflow's own stored steps). Batch by design: renames[] of {workflowId, name}. Preview by default; pass confirm:true to write. Changes the NAME only: no steps, triggers, enrolments or publish state. Refuses a FOLDER id before sending (the route answers a bare "Not Found" for one, which reads like a wrong route), and refuses an empty or whitespace name locally. Every rename is verified by reading the name back; the version before and after is reported, because whether a rename bumps it is not settled. A batch that lands partly is reported as partial, naming each rename.`,
+    inputSchema: schema({
+      locationId: external_exports.string(),
+      renames: external_exports.array(external_exports.object({ workflowId: external_exports.string(), name: external_exports.string() })),
+      confirm: external_exports.boolean().default(false)
+    }),
+    capabilities: [
+      { method: "GET", path: "/workflow/{loc}/{wid}" },
+      { method: "GET", path: "/workflow/{loc}/list" },
+      { method: "PUT", path: "/workflow/{loc}/rename-workflow/{wid}" }
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const renames = Array.isArray(args.renames) ? args.renames : [];
+      if (!renames.length) {
+        return fail(CODES.VALIDATION_FAILED, "renames must contain at least one {workflowId, name}", "Pass the renames to apply.");
+      }
+      const blank = renames.filter((r) => typeof r?.name !== "string" || !r.name.trim());
+      if (blank.length) {
+        return fail(
+          CODES.VALIDATION_FAILED,
+          `${blank.length} rename(s) carry an empty or whitespace-only name (${blank.map((r) => r?.workflowId).join(", ")})`,
+          "Give every workflow a real name. Nothing was renamed."
+        );
+      }
+      const dupIds = renames.map((r) => r.workflowId).filter((id, i, a) => a.indexOf(id) !== i);
+      if (dupIds.length) {
+        return fail(
+          CODES.VALIDATION_FAILED,
+          `workflowId(s) appear more than once: ${[...new Set(dupIds)].join(", ")}`,
+          "One rename per workflow. Nothing was renamed."
+        );
+      }
+      const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+      const loc = encodeURIComponent(args.locationId);
+      const folders = await gw.call("GET", `/workflow/${loc}/list?type=directory&limit=200&offset=0`);
+      if (!folders.ok) return fromHttp(folders.status, folders.json);
+      const folderIds = new Set((folders.json?.rows ?? []).map((row) => row.id ?? row._id));
+      const folderHits = renames.filter((r) => folderIds.has(r.workflowId));
+      if (folderHits.length) {
+        return fail(
+          CODES.VALIDATION_FAILED,
+          `${folderHits.length} id(s) are FOLDERS, not workflows: ${folderHits.map((r) => r.workflowId).join(", ")}`,
+          "rename_workflow renames workflows only. Nothing was renamed."
+        );
+      }
+      const plan = [];
+      for (const r of renames) {
+        const response = await getWorkflow(gw, args.locationId, r.workflowId);
+        if (!response.ok) return fromHttp(response.status, response.json);
+        const nameBefore = response.json?.name ?? null;
+        plan.push({
+          workflowId: r.workflowId,
+          nameBefore,
+          nameAfter: r.name.trim(),
+          status: response.json?.status ?? null,
+          workflowType: response.json?.workflowType ?? null,
+          versionBefore: response.json?.version ?? null,
+          unchanged: nameBefore === r.name.trim()
+        });
+      }
+      const preview = { renames: plan, toSend: plan.filter((p2) => !p2.unchanged).length };
+      if (args.confirm !== true) {
+        return withFailureData(
+          fail(
+            CODES.CONFIRM_REQUIRED,
+            "Rename preview is ready; no write was sent.",
+            "Review data.preview.renames (old -> new), then repeat the request with confirm:true."
+          ),
+          { preview }
+        );
+      }
+      const results = [];
+      for (const p2 of plan) {
+        if (p2.unchanged) {
+          results.push({ ...p2, renamed: true, skipped: "already named so" });
+          continue;
+        }
+        const write = await gw.call("PUT", `/workflow/${loc}/rename-workflow/${encodeURIComponent(p2.workflowId)}`, { name: p2.nameAfter });
+        let readName = null, versionAfter = null;
+        for (let i = 0; write.ok && i < 5; i++) {
+          const back = await getWorkflow(gw, args.locationId, p2.workflowId);
+          readName = back.ok ? back.json?.name ?? null : null;
+          versionAfter = back.ok ? back.json?.version ?? null : null;
+          if (readName === p2.nameAfter) break;
+          await new Promise((resolve5) => setTimeout(resolve5, 800));
+        }
+        results.push({ ...p2, httpStatus: write.status, nameReadBack: readName, versionAfter, renamed: write.ok && readName === p2.nameAfter });
+      }
+      const failed = results.filter((r) => !r.renamed);
+      const data2 = { results, renamedCount: results.length - failed.length, failed };
+      if (failed.length) {
+        return withFailureData(
+          fail(
+            CODES.ENGINE_ABORT,
+            `${failed.length} of ${results.length} rename(s) did not read back with the new name` + (failed.length < results.length ? " \u2014 the others DID land (partial batch)" : ""),
+            "Inspect data.results: each row names its HTTP status and the name read back. Nothing is retried for you."
           ),
           data2
         );

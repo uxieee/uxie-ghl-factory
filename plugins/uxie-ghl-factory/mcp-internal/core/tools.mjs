@@ -7111,6 +7111,109 @@ export const TOOLS = [
       return ok(data);
     }, args),
   },
+  // RENAME, through GHL's DEDICATED route (console/PROPOSAL-rename-workflow.md, operator-approved
+  // 2026-09-23). The only rename path that does NOT re-run the step validator: a rename through
+  // edit_workflow's full-document PUT re-validates every stored step, so a healthy published workflow
+  // can refuse to be renamed ("Action validation failed: <type>"). The task is bulk: bringing an
+  // account onto the naming convention ghl-system-conventions defines.
+  {
+    name: 'rename_workflow',
+    description: `${describe('rename_workflow', 'Rename workflows — risk: write')}. `
+      + 'Rename one or many workflows through GHL\'s dedicated rename route, the only rename path that does NOT '
+      + 're-run the step validator (a rename via edit_workflow can be refused by a healthy published workflow\'s own '
+      + 'stored steps). Batch by design: renames[] of {workflowId, name}. Preview by default; pass confirm:true to '
+      + 'write. Changes the NAME only: no steps, triggers, enrolments or publish state. Refuses a FOLDER id before '
+      + 'sending (the route answers a bare "Not Found" for one, which reads like a wrong route), and refuses an '
+      + 'empty or whitespace name locally. Every rename is verified by reading the name back; the version before '
+      + 'and after is reported, because whether a rename bumps it is not settled. A batch that lands partly is '
+      + 'reported as partial, naming each rename.',
+    inputSchema: schema({
+      locationId: z.string(),
+      renames: z.array(z.object({ workflowId: z.string(), name: z.string() })),
+      confirm: z.boolean().default(false),
+    }),
+    capabilities: [
+      { method: 'GET', path: '/workflow/{loc}/{wid}' },
+      { method: 'GET', path: '/workflow/{loc}/list' },
+      { method: 'PUT', path: '/workflow/{loc}/rename-workflow/{wid}' },
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const renames = Array.isArray(args.renames) ? args.renames : [];
+      if (!renames.length) {
+        return fail(CODES.VALIDATION_FAILED, 'renames must contain at least one {workflowId, name}', 'Pass the renames to apply.');
+      }
+      const blank = renames.filter((r) => typeof r?.name !== 'string' || !r.name.trim());
+      if (blank.length) {
+        return fail(CODES.VALIDATION_FAILED,
+          `${blank.length} rename(s) carry an empty or whitespace-only name (${blank.map((r) => r?.workflowId).join(', ')})`,
+          'Give every workflow a real name. Nothing was renamed.');
+      }
+      const dupIds = renames.map((r) => r.workflowId).filter((id, i, a) => a.indexOf(id) !== i);
+      if (dupIds.length) {
+        return fail(CODES.VALIDATION_FAILED, `workflowId(s) appear more than once: ${[...new Set(dupIds)].join(', ')}`,
+          'One rename per workflow. Nothing was renamed.');
+      }
+      const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+      const loc = encodeURIComponent(args.locationId);
+
+      // A FOLDER id 404s with the bare string "Not Found". Refuse it by name before anything is sent.
+      const folders = await gw.call('GET', `/workflow/${loc}/list?type=directory&limit=200&offset=0`);
+      if (!folders.ok) return fromHttp(folders.status, folders.json);
+      const folderIds = new Set((folders.json?.rows ?? []).map((row) => row.id ?? row._id));
+      const folderHits = renames.filter((r) => folderIds.has(r.workflowId));
+      if (folderHits.length) {
+        return fail(CODES.VALIDATION_FAILED,
+          `${folderHits.length} id(s) are FOLDERS, not workflows: ${folderHits.map((r) => r.workflowId).join(', ')}`,
+          'rename_workflow renames workflows only. Nothing was renamed.');
+      }
+
+      const plan = [];
+      for (const r of renames) {
+        const response = await getWorkflow(gw, args.locationId, r.workflowId);
+        if (!response.ok) return fromHttp(response.status, response.json);
+        const nameBefore = response.json?.name ?? null;
+        plan.push({ workflowId: r.workflowId, nameBefore, nameAfter: r.name.trim(),
+          status: response.json?.status ?? null, workflowType: response.json?.workflowType ?? null,
+          versionBefore: response.json?.version ?? null, unchanged: nameBefore === r.name.trim() });
+      }
+      const preview = { renames: plan, toSend: plan.filter((p) => !p.unchanged).length };
+      if (args.confirm !== true) {
+        return withFailureData(
+          fail(CODES.CONFIRM_REQUIRED, 'Rename preview is ready; no write was sent.',
+            'Review data.preview.renames (old -> new), then repeat the request with confirm:true.'),
+          { preview },
+        );
+      }
+
+      const results = [];
+      for (const p of plan) {
+        if (p.unchanged) { results.push({ ...p, renamed: true, skipped: 'already named so' }); continue; }
+        const write = await gw.call('PUT', `/workflow/${loc}/rename-workflow/${encodeURIComponent(p.workflowId)}`, { name: p.nameAfter });
+        // A 200 is not evidence the name changed: read it back, polling briefly as the index lags.
+        let readName = null, versionAfter = null;
+        for (let i = 0; write.ok && i < 5; i++) {
+          const back = await getWorkflow(gw, args.locationId, p.workflowId);
+          readName = back.ok ? (back.json?.name ?? null) : null;
+          versionAfter = back.ok ? (back.json?.version ?? null) : null;
+          if (readName === p.nameAfter) break;
+          await new Promise((resolve) => setTimeout(resolve, 800));
+        }
+        results.push({ ...p, httpStatus: write.status, nameReadBack: readName, versionAfter, renamed: write.ok && readName === p.nameAfter });
+      }
+      const failed = results.filter((r) => !r.renamed);
+      const data = { results, renamedCount: results.length - failed.length, failed };
+      if (failed.length) {
+        return withFailureData(
+          fail(CODES.ENGINE_ABORT,
+            `${failed.length} of ${results.length} rename(s) did not read back with the new name`
+            + (failed.length < results.length ? ' — the others DID land (partial batch)' : ''),
+            'Inspect data.results: each row names its HTTP status and the name read back. Nothing is retried for you.'),
+          data,
+        );
+      }
+      return ok(data);
+    }, args),
+  },
   // Custom-field FOLDERS. A different surface from everything above: the write lives on the
   // AI host (services.leadconnectorhq.com), not the workflow backend — but on the plain
   // Bearer rail, NOT the dual-credential `ai` rail. Verified live 2026-08-18 by sending the

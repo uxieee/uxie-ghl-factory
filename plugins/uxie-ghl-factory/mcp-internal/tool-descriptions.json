@@ -1964,5 +1964,29 @@
       "triggers-list",
       "workflow-validate"
     ]
+  },
+  "rename_workflow": {
+    "description": "Rename workflows — proof: external-receipt-required; risk: write",
+    "risk": "write",
+    "proof": "external-receipt-required",
+    "proofFloor": "external-receipt-required",
+    "proofRows": [
+      "workflow-rename-subject-read",
+      "workflow-rename-folder-check",
+      "workflow-rename-write"
+    ],
+    "proofFloorRows": [
+      "workflow-rename-subject-read",
+      "workflow-rename-folder-check",
+      "workflow-rename-write"
+    ],
+    "riskRows": [
+      "workflow-rename-write"
+    ],
+    "rows": [
+      "workflow-rename-subject-read",
+      "workflow-rename-folder-check",
+      "workflow-rename-write"
+    ]
   }
 }

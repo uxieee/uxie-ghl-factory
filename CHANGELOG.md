@@ -13,6 +13,20 @@ commit bodies carry the detail.
 
 ## Unreleased
 
+**New tool `rename_workflow`** (operator-approved proposal). It renames one or many workflows through
+GHL's dedicated route, `PUT /workflow/{loc}/rename-workflow/{wid}`. This is the only rename path that
+does not re-run the step validator: through `edit_workflow`, a healthy published workflow can refuse
+to be renamed by its own stored steps. It is built for bulk-applying a naming convention.
+- **Batch:** preview by default, `confirm:true` to write.
+- **Local refusals:** it refuses a FOLDER id before sending (the route answers a bare "Not Found" for
+  one) and refuses an empty name locally.
+- **Read-back:** every rename is verified by reading the name back. A partial batch is reported as
+  partial.
+
+Live-proven, including two answers the proposal lacked: a rename DOES bump `version` (2 → 3 on the
+sandbox), and it works on AGENT workflows. `proof.mjs` gains `seed`, so a new tool's first
+`tool-descriptions.json` entry is written by the proof script too; the single-writer rule holds.
+
 **`check_workflow` now checks the trigger conditions GHL matches BY NAME** (`vocabularyReferences`,
 its own key, never in `errorCount`). A `call_status` trigger's `custom_disposition` filter stores the
 disposition LABEL; GHL's own source does this deliberately. So a name the account lacks is a trigger

@@ -39,6 +39,7 @@ import { planReadinessChecks, runReadinessChecks } from '../engine/preflight.mjs
 import { runMultipathInsertProof } from './multipath-insert-proof.mjs';
 import { runDeleteBranchProof } from './delete-branch-proof.mjs';
 import { runVocabularyRefsProof } from './vocabulary-refs-proof.mjs';
+import { runRenameWorkflowProof } from './rename-workflow-proof.mjs';
 
 const LOCATION = process.env.GHL_LOCATION || process.env.GHL_LOC;
 if (!LOCATION) {
@@ -801,6 +802,12 @@ check(fullRows.length === full.data?.reportedTotal,
   check(agentRows.length > 0, 'the roster carries AGENT workflows (this suite builds some, so zero would be the bug)', `${agentRows.length} of ${fullRows.length}`);
   check(bare.ok && bareRows.length > 0 && bareRows.filter((w) => w.workflowType === 'agent').length === 0 && bareRows.length < fullRows.length,
     'CONTROL: the bare GET /workflow/{loc} omits every one of them — the trap the tool avoids is still there', `bare ${bareRows.length} rows vs ${fullRows.length}`);
+  // bl-169: no census rail may hold a workflow the tool's roster lacks. Measured 2026-09-23: every
+  // bare-route row is in the roster (916 of 916), and the roster adds exactly the agent workflows.
+  const rosterIds = new Set(fullRows.map((w) => w.id ?? w._id));
+  const bareOnly = bareRows.filter((r) => !rosterIds.has(r._id ?? r.id));
+  check(bareOnly.length === 0, 'and every workflow the bare route returns IS in the roster — list_workflows is the complete census',
+    `${bareOnly.length} bare-only rows (statuses ${JSON.stringify([...new Set(bareOnly.map((r) => r.status))])})`);
   log.subject('list_workflows');
 }
 
@@ -1761,6 +1768,8 @@ console.log('\nedit_workflow: deleteBranch, runtime');
 await runDeleteBranchProof({ call, gw: deps.makeGw({ loc: LOCATION, state }), LOCATION, NAME, STAMP, check, left, log });
 console.log('\ncheck_workflow: trigger names matched against the account vocabulary');
 await runVocabularyRefsProof({ call, gw: deps.makeGw({ loc: LOCATION, state }), LOCATION, NAME, STAMP, check, left, log });
+console.log('\nrename_workflow: the dedicated rename route');
+await runRenameWorkflowProof({ call, NAME, check, left, log });
 
 // ── get_workflow_stats: A/B split results, proven by DIFFERENTIAL ─────────────────────────────
 // Same fence as the runtime block above: trigger-less workflow, a contact this run creates with no

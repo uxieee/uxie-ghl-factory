@@ -9,6 +9,7 @@
 //   node scripts/proof.mjs from-receipt <stamp>   runs for every tool a suite EXERCISED (Part C)
 //   node scripts/proof.mjs validate               schema check, exit 1 on any error
 //   node scripts/proof.mjs sync-labels [--check]  write each record's label into tool-descriptions.json
+//   node scripts/proof.mjs seed <tool> --summary S --risk R --row id…  the first entry for a NEW tool
 //
 // --offline uses knowledge/sniffs/app-build-pins.json for app builds instead of the live manifest.
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
@@ -207,6 +208,24 @@ async function main(argv) {
     }
     console.log(bad ? `${bad} invalid record(s)` : 'proofs: every record valid');
     return bad ? 1 : 0;
+  }
+  // seed: the FIRST entry for a brand-new tool, so the single-writer rule holds — tool-descriptions.json
+  // is written by this script and nothing else, new tools included. The label starts at
+  // external-receipt-required (unproven) and only a recorded live run moves it (record/from-receipt,
+  // then sync-labels). Refuses to overwrite an existing entry.
+  //   node scripts/proof.mjs seed <tool> --summary "Rename workflows" --risk write --row <id>... [--risk-row <id>...]
+  if (cmd === 'seed') {
+    if (!arg) throw new Error('seed needs a tool name');
+    const d = readJSON(DESCRIPTIONS);
+    if (d[arg]) throw new Error(`${arg} already has an entry — seed is for new tools only`);
+    const summary = flag('summary'), risk = flag('risk'), rows = all('row');
+    if (!summary || !risk || !rows.length) throw new Error('seed needs --summary, --risk and at least one --row');
+    const label = 'external-receipt-required';
+    d[arg] = { description: `${summary} — proof: ${label}; risk: ${risk}`, risk, proof: label, proofFloor: label,
+      proofRows: rows, proofFloorRows: rows, riskRows: all('risk-row').length ? all('risk-row') : rows, rows };
+    writeFileSync(DESCRIPTIONS, `${JSON.stringify(d, null, 2)}\n`);
+    console.log(`seeded ${arg}: ${label}`);
+    return 0;
   }
   if (cmd === 'sync-labels') {
     const { next, changed } = syncLabels(readJSON(DESCRIPTIONS), loadRecords(PROOFS));

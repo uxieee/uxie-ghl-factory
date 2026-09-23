@@ -20923,6 +20923,7 @@
         "move_workflows",
         "publish_workflow",
         "push_snapshot",
+        "rename_workflow",
         "repair_workflow",
         "unpublish_workflows",
         "validate_workflow"
@@ -24405,7 +24406,8 @@
         "list_account_entities",
         "list_workflow_folders",
         "list_workflows",
-        "move_workflows"
+        "move_workflows",
+        "rename_workflow"
       ],
       "rawCallable": true,
       "transport": "json",
@@ -24884,7 +24886,9 @@
       "summary": "Renames a workflow. Body is {\"name\": \"...\"}.",
       "note": "The only rename path that does NOT re-run the step validator. Use it instead of the full-document PUT, which re-validates every stored step and on a workflow whose own saved graph the validator now rejects fails outright with INVALID_FIELD_VALUE -- so a rename by full PUT can be refused on a workflow that is running perfectly well. ⚠️ Do NOT rely on it leaving `version` alone: one account observed 4 -> 4 (2026-08-31) and another observed 1 -> 2 on a flow workflow (2026-09-02). The two disagree and the cause is not established, so re-read the digest before any expectedVersion write that follows a rename. Executed on the designated sandbox 2026-09-10 in the workflows write-parity run. 🔴 404s on a FOLDER id, and the body is the bare string \"Not Found\" — which reads like a wrong route rather than a wrong object. GET /workflow/{locationId}/list returns BOTH (type \"directory\" x5 and \"workflow\" x95 on the sandbox); filter on type before renaming. Proven on a real workflow: {name} written, read back changed, restored.",
       "reach": "proven",
-      "coveredBy": [],
+      "coveredBy": [
+        "rename_workflow"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",

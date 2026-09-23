@@ -1345,6 +1345,21 @@
     "path": "/workflow/{loc}/move-directory/{wid}"
   },
   {
+    "tool": "rename_workflow",
+    "method": "GET",
+    "path": "/workflow/{loc}/{wid}"
+  },
+  {
+    "tool": "rename_workflow",
+    "method": "GET",
+    "path": "/workflow/{loc}/list"
+  },
+  {
+    "tool": "rename_workflow",
+    "method": "PUT",
+    "path": "/workflow/{loc}/rename-workflow/{wid}"
+  },
+  {
     "tool": "create_custom_field_folder",
     "method": "GET",
     "path": "/locations/{loc}/customFields/search"
