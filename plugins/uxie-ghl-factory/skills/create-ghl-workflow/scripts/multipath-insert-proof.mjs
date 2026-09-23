@@ -96,9 +96,22 @@ export async function runMultipathInsertProof({ call, gw, LOCATION, NAME, STAMP,
       'DIFFERENTIAL: and NOT the Found chain\'s tags — a linear finder would have walked straight into Head', JSON.stringify(tags));
 
     subject('get_workflow_logs');
-    const lg = await call('get_workflow_logs', { workflowId: wid, limit: 10 });
-    const lgs = JSON.stringify(lg.data ?? {});
-    check(lg.ok === true && /find_opportunity|Find Opportunity/.test(lgs), 'get_workflow_logs traces the enrolment through the finder', lgs.slice(0, 240));
+    // The logs rail is eventually consistent and not written in step order: on 2026-09-23 the run's
+    // removal row was readable while the finder row, logged 1.3 s EARLIER, was not yet. So poll for
+    // the rows this asserts instead of reading once.
+    let lg = null;
+    const rows = await until(async () => {
+      lg = await call('get_workflow_logs', { workflowId: wid, limit: 10 });
+      const got = lg.data?.logs ?? [];
+      return got.some((r) => r?.type === 'find_opportunity') && got.some((r) => r?.type === 'remove_from_workflow') ? got : null;
+    });
+    const lgs = JSON.stringify(lg?.data ?? {});
+    check(lg?.ok === true && Boolean(rows), 'get_workflow_logs traces the enrolment through the finder', lgs.slice(0, 240));
+    // The run ends itself, so its removal row carries meta.removedFrom {type:'end_of_workflow'}. Until
+    // 2026-09-23 the tool read removedFrom at the top level and labelled every removal 'unknown'.
+    const removal = (rows ?? []).find((r) => r?.type === 'remove_from_workflow');
+    check(removal?.removalOrigin === 'end-of-workflow', 'get_workflow_logs labels the run\'s own end as removalOrigin end-of-workflow (read off meta.removedFrom)',
+      JSON.stringify({ removalOrigin: removal?.removalOrigin, removedFrom: removal?.meta?.removedFrom }));
   }
 
   subject('unpublish_workflows');
