@@ -13,6 +13,32 @@ commit bodies carry the detail.
 
 ## Unreleased
 
+**Two reference sites GHL's asset check skips are now checked before any write** (console bl-140,
+bl-144). GHL's `validate-assets` covers reference SITES, not asset types. It reports a ghost calendar on
+an appointment trigger but not on a step. It reads `assign_user`'s `user_list` but not the round-robin
+state beside it, which keeps the SOURCE account's user ids after a snapshot load.
+
+The engine now checks:
+- a step's `calendarId` (`appointment_booking`, `conversationai_book_appointment`) against the
+  location's calendars. The codes are `STEP_CALENDAR_NOT_FOUND`, and `STEP_CALENDAR_INACTIVE` for an
+  inactive calendar, which GHL treats as not found where it does check.
+- `assign_user`'s `traffic_weightage` keys and `traffic_index[].id` against the location's users
+  (`ROUND_ROBIN_USER_NOT_FOUND`).
+
+Findings join the asset preflight in build, edit and repair and in `check_workflow`'s reference scope,
+through one shared function (`engine-references.mjs`). They carry the same touched/untouched handling
+and the same `ignoreAssetErrors` hatch as the custom-object checks. A list that cannot be read is
+reported as NOT CHECKED, never as clean.
+
+Live-proven on the sandbox by differential (`reference-sites-proof.mjs`, in the suite). Each test is the
+same step differing only in the id:
+- the location's own calendar or user builds clean;
+- a ghost id in the same place is refused by code, naming the id.
+
+The catalogue's adopted rows for `/calendars/` and `/users/` keep their ids: a GET row is now owned by a
+`list_`/`get_` tool, so declaring a new checker that reads the path no longer renames the row that
+`describe_endpoint` addresses.
+
 **`edit_workflow` previews the documents you most need to inspect, and a trigger repair is no longer refused
 by the reference it repairs** (console bl-137).
 

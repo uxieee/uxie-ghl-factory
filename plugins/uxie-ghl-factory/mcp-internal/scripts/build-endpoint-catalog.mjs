@@ -251,11 +251,15 @@ for (const [key, tools] of coverage) {
   // they were the only rows that could not carry one. An overlay key aimed at an adopted row
   // orphaned instead, which trains a reader to ignore the orphan warning that is supposed to be
   // the loud one. Same precedence as everywhere else: a human who probed the endpoint wins.
+  // The row's id and service name ONE owning tool, and describe_endpoint addresses by the id, so the
+  // owner must not move when a new tool starts reading the same path: for a read, a list_/get_ tool
+  // (the one whose job IS this call) outranks a checker that reads it on the side; then manifest order.
+  const owner = [...tools].find((t) => method === 'GET' && /^(list|get)_/.test(t)) ?? [...tools][0];
   const adoptedKey = overlayKeyFor(method, wire);
   const extra = overlay[adoptedKey] ?? {};
   seen.delete(adoptedKey);
   adopted.push({
-    id: `typed--${[...tools][0]}--${wire.split('/').filter((x) => x && !x.startsWith('{')).slice(-2).join('-') || 'call'}`,
+    id: `typed--${owner}--${wire.split('/').filter((x) => x && !x.startsWith('{')).slice(-2).join('-') || 'call'}`,
     method,
     url: `https://backend.leadconnectorhq.com${wire}`,
     path: wire,
@@ -271,7 +275,7 @@ for (const [key, tools] of coverage) {
     responseMode: method === 'SSE' ? 'sse' : 'json',
     extraHeaders: [],
     operation: null,
-    service: [...tools][0],
+    service: owner,
     tree: 'typed-tool',
     pathParams: [...wire.matchAll(/\{([A-Za-z0-9_]+)\}/g)].map((m) => ({ name: m[1] })),
     query: [],

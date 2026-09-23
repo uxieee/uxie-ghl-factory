@@ -31,7 +31,7 @@ import { stripNullNext, fillInputTriggerParams } from '../../skills/create-ghl-w
 import { checkWorkflowRules, rulesNeedTriggers, fromEmailNeedsDomain } from '../../skills/create-ghl-workflow/engine/graph-rules.mjs';
 import { checkGraphContextRules } from '../../skills/create-ghl-workflow/engine/graph-context-rules.mjs';
 import { validateAssets, describeFinding } from '../../skills/create-ghl-workflow/engine/asset-preflight.mjs';
-import { referencedObjectKeys, checkCustomObjectSteps, fetchObjectSchemas } from '../../skills/create-ghl-workflow/engine/custom-object-fields.mjs';
+import { engineReferenceFindings } from '../../skills/create-ghl-workflow/engine/engine-references.mjs';
 import { needsVocabularies, checkVocabularyRefs, fetchDispositionNames } from '../../skills/create-ghl-workflow/engine/vocabulary-refs.mjs';
 import { callerCredentialClass, reachForCaller } from './credential-class.mjs';
 import { SCHEDULER_TRIGGER_TYPE, schedulerPreviewBody, interpretSchedulerPreview } from '../../skills/create-ghl-workflow/engine/scheduler-preview.mjs';
@@ -869,25 +869,21 @@ export function postOpTriggers(existing = [], plan = []) {
   return [...existing.filter((t) => !replaced.has(t.id ?? t._id)), ...plan.filter((r) => !r.noop && r.method !== 'DELETE' && r.body).map((r) => r.body)];
 }
 
-// Custom-object record steps against the object's real schema (engine/custom-object-fields.mjs, bl-167).
-// GHL's validate-assets does not look inside these steps, so its findings are folded in here, into the
-// same errors[] and with the same touched/untouched and ignoreAssetErrors treatment. Read only when a
-// document has such a step; an unreadable schema is reported as not checked, never as clean.
-async function addCustomObjectFindings(gw, loc, templates, verdict) {
-  const keys = referencedObjectKeys(templates);
-  if (!keys.length) return;
-  let schemas = new Map();
-  try { schemas = await fetchObjectSchemas((m, p) => gw.call(m, p), loc, keys); } catch { /* not checked */ }
-  const { errors, notChecked } = checkCustomObjectSteps(templates, schemas);
-  verdict.errors = [...(verdict.errors ?? []), ...errors.map((e) => ({ ...e, source: 'custom-object-schema' }))];
-  if (notChecked.length) verdict.warnings = [...(verdict.warnings ?? []),
-    ...notChecked.map((n) => ({ stepId: n.stepId, code: 'CUSTOM_OBJECT_NOT_CHECKED', message: `custom-object fields NOT CHECKED: ${n.why}` }))];
+// The engine's OWN reference checks (engine/engine-references.mjs): custom-object record steps against the
+// object's real schema (bl-167), and the reference sites GHL's validate-assets skips — a step's calendarId
+// (bl-140) and assign_user's round-robin user state (bl-144). Folded into the same errors[], with the same
+// touched/untouched and ignoreAssetErrors treatment. Each list is read only when the document needs it;
+// an unreadable one is reported as not checked, never as clean.
+async function addEngineReferenceFindings(gw, loc, templates, verdict) {
+  const extra = await engineReferenceFindings((m, p) => gw.call(m, p), loc, templates);
+  verdict.errors = [...(verdict.errors ?? []), ...extra.errors];
+  verdict.warnings = [...(verdict.warnings ?? []), ...extra.warnings];
 }
 
 async function assetPreflightFor({ gw, loc, templates, triggers, companyId, touchedIds, ignoreAssetErrors, warnings, ops = [] }) {
   const verdict = await validateAssets((m, p, b) => gw.call(m, p, b), loc, { templates, triggers, companyId });
   const assetPreflight = { phase: 'pre-write', ...verdict };
-  await addCustomObjectFindings(gw, loc, templates, assetPreflight);
+  await addEngineReferenceFindings(gw, loc, templates, assetPreflight);
   for (const w of assetPreflight.warnings ?? []) warnings.push(`asset: ${describeFinding(w)}`);
   const blocking = [];
   for (const e of assetPreflight.errors ?? []) {
@@ -2314,6 +2310,9 @@ export const TOOLS = [
       // Only when the document has a custom-object record step (custom-object-fields.mjs, bl-167).
       { method: 'GET', path: '/objects/' },
       { method: 'GET', path: '/objects/{objectKey}' },
+      // Only when a step books a calendar or keeps round-robin user state (reference-sites.mjs, bl-140/144).
+      { method: 'GET', path: '/calendars/' },
+      { method: 'GET', path: '/users/' },
     ],
     // Verified 2026-09-21: scheduler-trigger/preview only computes next-run times from a payload
     // (see the capability comment above); validate-assets is the same stateless validator cleared
@@ -2470,7 +2469,7 @@ export const TOOLS = [
       const assetRefs = await (async () => {
         try {
           const v = await validateAssets((m, p, b) => gw.call(m, p, b), args.locationId, { templates, triggers: triggerList });
-          await addCustomObjectFindings(gw, args.locationId, templates, v);
+          await addEngineReferenceFindings(gw, args.locationId, templates, v);
           // 🔴 READ v.checked, NOT the absence of a throw. validateAssets FAILS OPEN by contract —
           // a transport error, a non-200 or an unrecognised body all return
           // { checked: false, skipped: '<why>' } with EMPTY error arrays, deliberately, so that a
@@ -5452,6 +5451,9 @@ export const TOOLS = [
       // Only when the document has a custom-object record step (custom-object-fields.mjs, bl-167).
       { method: 'GET', path: '/objects/' },
       { method: 'GET', path: '/objects/{objectKey}' },
+      // Only when a step books a calendar or keeps round-robin user state (reference-sites.mjs, bl-140/144).
+      { method: 'GET', path: '/calendars/' },
+      { method: 'GET', path: '/users/' },
       { method: 'POST', path: '/workflow/custom-code/run-test' },
       { method: 'GET', path: '/phone-system/numbers' },
       // The two preflight reads added in 0.92.0. Undeclared, the catalogue filed both routes as

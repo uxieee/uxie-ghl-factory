@@ -41,6 +41,7 @@ import { runDeleteBranchProof } from './delete-branch-proof.mjs';
 import { runVocabularyRefsProof } from './vocabulary-refs-proof.mjs';
 import { runRenameWorkflowProof } from './rename-workflow-proof.mjs';
 import { runCustomObjectProof } from './custom-object-proof.mjs';
+import { runReferenceSitesProof } from './reference-sites-proof.mjs';
 import { runTriggerRepairProof } from './trigger-repair-proof.mjs';
 
 const LOCATION = process.env.GHL_LOCATION || process.env.GHL_LOC;
@@ -1774,6 +1775,8 @@ console.log('\nrename_workflow: the dedicated rename route');
 await runRenameWorkflowProof({ call, NAME, check, left, log });
 console.log('\ncustom-object record steps against the real schema');
 await runCustomObjectProof({ call, gw: deps.makeGw({ loc: LOCATION, state }), LOCATION, NAME, check, left, log });
+console.log('\nreference sites validate-assets does not read: a step calendar, round-robin user state');
+await runReferenceSitesProof({ call, gw: deps.makeGw({ loc: LOCATION, state }), LOCATION, NAME, check, left, log });
 console.log('\nedit_workflow: a broken document is previewable, and a trigger repair is judged on what it writes');
 await runTriggerRepairProof({ call, gw: deps.makeGw({ loc: LOCATION, state }), LOCATION, NAME, check, left, log });
 

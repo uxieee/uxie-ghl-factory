@@ -150,6 +150,16 @@
     "path": "/objects/{objectKey}"
   },
   {
+    "tool": "check_workflow",
+    "method": "GET",
+    "path": "/calendars/"
+  },
+  {
+    "tool": "check_workflow",
+    "method": "GET",
+    "path": "/users/"
+  },
+  {
     "tool": "validate_workflow",
     "method": "GET",
     "path": "/workflow/{loc}/{wid}"
@@ -1143,6 +1153,16 @@
     "tool": "repair_workflow",
     "method": "GET",
     "path": "/objects/{objectKey}"
+  },
+  {
+    "tool": "repair_workflow",
+    "method": "GET",
+    "path": "/calendars/"
+  },
+  {
+    "tool": "repair_workflow",
+    "method": "GET",
+    "path": "/users/"
   },
   {
     "tool": "repair_workflow",

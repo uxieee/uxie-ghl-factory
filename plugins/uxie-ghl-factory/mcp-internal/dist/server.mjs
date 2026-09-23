@@ -1681,8 +1681,10 @@ var init_define_ENDPOINT_CATALOG = __esm({
           coveredBy: [
             "audit_site",
             "build_workflow",
+            "check_workflow",
             "edit_workflow",
-            "list_account_entities"
+            "list_account_entities",
+            "repair_workflow"
           ],
           rawCallable: true,
           transport: "json",
@@ -1702,7 +1704,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "capability-manifest.json (list_account_entities, build_workflow, edit_workflow, audit_site)"
+            "capability-manifest.json (check_workflow, list_account_entities, build_workflow, edit_workflow, repair_workflow, audit_site)"
           ]
         },
         {
@@ -18299,8 +18301,10 @@ var init_define_ENDPOINT_CATALOG = __esm({
           reach: "proven",
           coveredBy: [
             "build_workflow",
+            "check_workflow",
             "edit_workflow",
             "list_account_entities",
+            "repair_workflow",
             "set_workflow_error_alerts"
           ],
           rawCallable: true,
@@ -18321,7 +18325,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "capability-manifest.json (list_account_entities, build_workflow, edit_workflow, set_workflow_error_alerts)"
+            "capability-manifest.json (check_workflow, list_account_entities, build_workflow, edit_workflow, repair_workflow, set_workflow_error_alerts)"
           ]
         },
         {
@@ -165215,6 +165219,14 @@ async function validateAssets(call, loc, { templates, triggers, companyId } = {}
   };
 }
 
+// ../skills/create-ghl-workflow/engine/engine-references.mjs
+init_define_BUILDER_VALIDATORS();
+init_define_CONTACT_FILTER_FIELDS();
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
+init_define_TOOL_CATALOG();
+
 // ../skills/create-ghl-workflow/engine/custom-object-fields.mjs
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
@@ -165299,6 +165311,92 @@ async function fetchObjectSchemas(call, loc, keys) {
     if (r?.ok && r.json?.object) out.set(key, { object: r.json.object, fields: r.json.fields ?? [] });
   }
   return out;
+}
+
+// ../skills/create-ghl-workflow/engine/reference-sites.mjs
+init_define_BUILDER_VALIDATORS();
+init_define_CONTACT_FILTER_FIELDS();
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
+init_define_TOOL_CATALOG();
+var CALENDAR_STEPS = /* @__PURE__ */ new Map([["appointment_booking", "calendarId"], ["conversationai_book_appointment", "calendarId"]]);
+function needsReferenceSites(templates = []) {
+  return {
+    calendars: templates.some((t) => CALENDAR_STEPS.has(t?.type) && t.attributes?.[CALENDAR_STEPS.get(t.type)]),
+    users: templates.some((t) => t?.type === "assign_user" && (Object.keys(t.attributes?.traffic_weightage ?? {}).length || (t.attributes?.traffic_index ?? []).length))
+  };
+}
+var isMerge2 = (v) => typeof v === "string" && v.includes("{{");
+function checkReferenceSites(templates = [], { calendars = null, users = null } = {}) {
+  const errors = [], notChecked = [];
+  const err = (t, code, message) => errors.push({ stepId: t.id ?? null, stepName: t.name ?? null, type: t.type, code, message });
+  const calById = calendars ? new Map(calendars.map((c) => [c.id, c])) : null;
+  const userIds = users ? new Set(users.map((u) => u.id)) : null;
+  for (const t of templates) {
+    const a = t?.attributes ?? {};
+    if (CALENDAR_STEPS.has(t?.type)) {
+      const id = a[CALENDAR_STEPS.get(t.type)];
+      if (id && !isMerge2(id)) {
+        if (!calById) notChecked.push({ stepId: t.id ?? null, why: "the calendar list could not be read" });
+        else if (!calById.has(id)) err(t, "STEP_CALENDAR_NOT_FOUND", `'${t.name ?? t.id}' books into calendar '${id}', which does not exist on this location. GHL's asset check reads calendars on TRIGGERS, not on this step.`);
+        else if (calById.get(id).isActive === false) err(t, "STEP_CALENDAR_INACTIVE", `'${t.name ?? t.id}' books into calendar '${id}', which is INACTIVE; GHL treats an inactive calendar as not found where it does check.`);
+      }
+    }
+    if (t?.type === "assign_user") {
+      const ids = [...Object.keys(a.traffic_weightage ?? {}), ...(a.traffic_index ?? []).map((x) => x?.id).filter(Boolean)];
+      if (ids.length && !userIds) notChecked.push({ stepId: t.id ?? null, why: "the user list could not be read" });
+      else {
+        const ghosts = [...new Set(ids.filter((id) => !isMerge2(id) && !userIds?.has(id)))];
+        if (ghosts.length) err(t, "ROUND_ROBIN_USER_NOT_FOUND", `'${t.name ?? t.id}' keeps round-robin state for user(s) ${ghosts.join(", ")} that do not exist on this location (traffic_weightage / traffic_index). GHL checks user_list only; after a snapshot load these keep the SOURCE account's ids.`);
+      }
+    }
+  }
+  return { errors, notChecked };
+}
+async function fetchReferenceEntities(call, loc, needs) {
+  const q3 = `locationId=${encodeURIComponent(loc)}`;
+  const out = { calendars: null, users: null };
+  if (needs.calendars) {
+    const r = await call("GET", `/calendars/?${q3}`);
+    if (r?.ok && Array.isArray(r.json?.calendars)) out.calendars = r.json.calendars.map((c) => ({ id: c.id, isActive: c.isActive }));
+  }
+  if (needs.users) {
+    const r = await call("GET", `/users/?${q3}`);
+    if (r?.ok && Array.isArray(r.json?.users)) out.users = r.json.users.map((u) => ({ id: u.id ?? u._id }));
+  }
+  return out;
+}
+
+// ../skills/create-ghl-workflow/engine/engine-references.mjs
+async function engineReferenceFindings(call, loc, templates = []) {
+  const errors = [], warnings = [];
+  const notChecked = (list) => {
+    for (const n of list) warnings.push({ stepId: n.stepId, code: "REFERENCE_NOT_CHECKED", message: `NOT CHECKED: ${n.why}` });
+  };
+  const keys = referencedObjectKeys(templates);
+  if (keys.length) {
+    let schemas = /* @__PURE__ */ new Map();
+    try {
+      schemas = await fetchObjectSchemas(call, loc, keys);
+    } catch {
+    }
+    const r = checkCustomObjectSteps(templates, schemas);
+    errors.push(...r.errors.map((e) => ({ ...e, source: "custom-object-schema" })));
+    notChecked(r.notChecked);
+  }
+  const needs = needsReferenceSites(templates);
+  if (needs.calendars || needs.users) {
+    let ents = { calendars: null, users: null };
+    try {
+      ents = await fetchReferenceEntities(call, loc, needs);
+    } catch {
+    }
+    const r = checkReferenceSites(templates, ents);
+    errors.push(...r.errors.map((e) => ({ ...e, source: "engine-reference-site" })));
+    notChecked(r.notChecked);
+  }
+  return { errors, warnings };
 }
 
 // ../skills/create-ghl-workflow/engine/server-validation.mjs
@@ -167033,18 +167131,9 @@ ${offline.summary}`;
     companyId: built.autoSaveBody?.companyId
   });
   {
-    const tpls = built.autoSaveBody?.workflowData?.templates ?? [];
-    const keys = referencedObjectKeys(tpls);
-    if (keys.length) {
-      let schemas = /* @__PURE__ */ new Map();
-      try {
-        schemas = await fetchObjectSchemas(call, loc, keys);
-      } catch {
-      }
-      const co = checkCustomObjectSteps(tpls, schemas);
-      assetCheck.errors = [...assetCheck.errors ?? [], ...co.errors.map((e) => ({ ...e, source: "custom-object-schema" }))];
-      assetCheck.warnings = [...assetCheck.warnings ?? [], ...co.notChecked.map((n) => ({ stepId: n.stepId, code: "CUSTOM_OBJECT_NOT_CHECKED", message: `custom-object fields NOT CHECKED: ${n.why}` }))];
-    }
+    const extra = await engineReferenceFindings(call, loc, built.autoSaveBody?.workflowData?.templates ?? []);
+    assetCheck.errors = [...assetCheck.errors ?? [], ...extra.errors];
+    assetCheck.warnings = [...assetCheck.warnings ?? [], ...extra.warnings];
   }
   report.assetPreflight = assetCheck;
   try {
@@ -173056,25 +173145,15 @@ function postOpTriggers(existing = [], plan = []) {
   const replaced = new Set(plan.filter((r) => !r.noop && (r.method === "PUT" || r.method === "DELETE") && r.triggerId).map((r) => r.triggerId));
   return [...existing.filter((t) => !replaced.has(t.id ?? t._id)), ...plan.filter((r) => !r.noop && r.method !== "DELETE" && r.body).map((r) => r.body)];
 }
-async function addCustomObjectFindings(gw, loc, templates, verdict) {
-  const keys = referencedObjectKeys(templates);
-  if (!keys.length) return;
-  let schemas = /* @__PURE__ */ new Map();
-  try {
-    schemas = await fetchObjectSchemas((m, p2) => gw.call(m, p2), loc, keys);
-  } catch {
-  }
-  const { errors, notChecked } = checkCustomObjectSteps(templates, schemas);
-  verdict.errors = [...verdict.errors ?? [], ...errors.map((e) => ({ ...e, source: "custom-object-schema" }))];
-  if (notChecked.length) verdict.warnings = [
-    ...verdict.warnings ?? [],
-    ...notChecked.map((n) => ({ stepId: n.stepId, code: "CUSTOM_OBJECT_NOT_CHECKED", message: `custom-object fields NOT CHECKED: ${n.why}` }))
-  ];
+async function addEngineReferenceFindings(gw, loc, templates, verdict) {
+  const extra = await engineReferenceFindings((m, p2) => gw.call(m, p2), loc, templates);
+  verdict.errors = [...verdict.errors ?? [], ...extra.errors];
+  verdict.warnings = [...verdict.warnings ?? [], ...extra.warnings];
 }
 async function assetPreflightFor({ gw, loc, templates, triggers, companyId, touchedIds, ignoreAssetErrors, warnings, ops = [] }) {
   const verdict = await validateAssets((m, p2, b) => gw.call(m, p2, b), loc, { templates, triggers, companyId });
   const assetPreflight = { phase: "pre-write", ...verdict };
-  await addCustomObjectFindings(gw, loc, templates, assetPreflight);
+  await addEngineReferenceFindings(gw, loc, templates, assetPreflight);
   for (const w of assetPreflight.warnings ?? []) warnings.push(`asset: ${describeFinding(w)}`);
   const blocking2 = [];
   for (const e of assetPreflight.errors ?? []) {
@@ -174274,7 +174353,10 @@ var TOOLS2 = [
       { method: "GET", path: "/phone-system/call-dispositions" },
       // Only when the document has a custom-object record step (custom-object-fields.mjs, bl-167).
       { method: "GET", path: "/objects/" },
-      { method: "GET", path: "/objects/{objectKey}" }
+      { method: "GET", path: "/objects/{objectKey}" },
+      // Only when a step books a calendar or keeps round-robin user state (reference-sites.mjs, bl-140/144).
+      { method: "GET", path: "/calendars/" },
+      { method: "GET", path: "/users/" }
     ],
     // Verified 2026-09-21: scheduler-trigger/preview only computes next-run times from a payload
     // (see the capability comment above); validate-assets is the same stateless validator cleared
@@ -174401,7 +174483,7 @@ var TOOLS2 = [
       const assetRefs = await (async () => {
         try {
           const v = await validateAssets((m, p2, b) => gw.call(m, p2, b), args.locationId, { templates, triggers: triggerList });
-          await addCustomObjectFindings(gw, args.locationId, templates, v);
+          await addEngineReferenceFindings(gw, args.locationId, templates, v);
           if (v.checked !== true) {
             return {
               ran: false,
@@ -177044,6 +177126,9 @@ var TOOLS2 = [
       // Only when the document has a custom-object record step (custom-object-fields.mjs, bl-167).
       { method: "GET", path: "/objects/" },
       { method: "GET", path: "/objects/{objectKey}" },
+      // Only when a step books a calendar or keeps round-robin user state (reference-sites.mjs, bl-140/144).
+      { method: "GET", path: "/calendars/" },
+      { method: "GET", path: "/users/" },
       { method: "POST", path: "/workflow/custom-code/run-test" },
       { method: "GET", path: "/phone-system/numbers" },
       // The two preflight reads added in 0.92.0. Undeclared, the catalogue filed both routes as

@@ -1504,8 +1504,10 @@
       "coveredBy": [
         "audit_site",
         "build_workflow",
+        "check_workflow",
         "edit_workflow",
-        "list_account_entities"
+        "list_account_entities",
+        "repair_workflow"
       ],
       "rawCallable": true,
       "transport": "json",
@@ -1525,7 +1527,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "capability-manifest.json (list_account_entities, build_workflow, edit_workflow, audit_site)"
+        "capability-manifest.json (check_workflow, list_account_entities, build_workflow, edit_workflow, repair_workflow, audit_site)"
       ]
     },
     {
@@ -18122,8 +18124,10 @@
       "reach": "proven",
       "coveredBy": [
         "build_workflow",
+        "check_workflow",
         "edit_workflow",
         "list_account_entities",
+        "repair_workflow",
         "set_workflow_error_alerts"
       ],
       "rawCallable": true,
@@ -18144,7 +18148,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "capability-manifest.json (list_account_entities, build_workflow, edit_workflow, set_workflow_error_alerts)"
+        "capability-manifest.json (check_workflow, list_account_entities, build_workflow, edit_workflow, repair_workflow, set_workflow_error_alerts)"
       ]
     },
     {
