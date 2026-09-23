@@ -403,10 +403,20 @@
         "receipt:2026-09-21-0903"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-23",
+      "result": "pass",
+      "how": "suite",
+      "suite": "workflows",
+      "evidence": [
+        "receipt:2026-09-23-0638"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
-    "hashedAt": "2026-09-21",
+    "hashedAt": "2026-09-23",
     "endpoints": {
       "GET https://backend.leadconnectorhq.com /locations/{}/customFields/search": "243cf31ac9bf9947d7ecc4a4a0f6c8f758286fe2701bc88e201f2e12ff03759f",
       "GET https://backend.leadconnectorhq.com /locations/{}/customValues": "7528d8d44a9a81689c4ff5dc3875cd96f40b6c37d613bd11156e149b728ac054",
@@ -414,7 +424,7 @@
     },
     "builds": {
       "builder-chunks": "assets/index-BZBeFyAW.js",
-      "reportingApp": 272
+      "reportingApp": 275
     },
     "code": {
       "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#search_merge_tags": "dfa66f7e3041df7a16a7c065ca70b709ed2038958f23631aad756d0eb1a6899b",
@@ -423,7 +433,7 @@
       "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "eae90b83c726d6cdfde0a0acc1144ceb5be228e4bc045d9d6c3a5e8415b29cc0",
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/catalog.data.json": "739408295c55f40fe20f2323c02904838d994f7e026f47abde7d0f987c72fb04",
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/catalog.mjs": "3f916a17f8a3614927e2cb573e0191c90dc381872f08b6025ce3bc992756dad4",
-      "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/ir.mjs": "fcbf1a3f0c03dc067668addca54ee05ea89445caf946ffb6f0328d99921f145a",
+      "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/ir.mjs": "a9c163970444798ce09278eb623a7d119f5acb151c22484f23f3d146d0f07246",
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/merge-tags.mjs": "d2c89c583d49f65b9a0b4aa1fc6ba9e9d5e7c898a5eb610275c2a12c427d3fdb",
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/required-fields.mjs": "6c0e1af01f7936d1cb376c63fc65130553fbe33b332fa8d6b0409a8b567129b1",
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/text-rules.mjs": "bd4fd0a206cac9f5d37ac9a6b9f2a7932b7542dc58e1344aedb5887de174713e"

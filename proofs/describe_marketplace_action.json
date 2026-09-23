@@ -423,10 +423,20 @@
         "receipt:2026-09-21-0903"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-23",
+      "result": "pass",
+      "how": "suite",
+      "suite": "workflows",
+      "evidence": [
+        "receipt:2026-09-23-0638"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
-    "hashedAt": "2026-09-21",
+    "hashedAt": "2026-09-23",
     "endpoints": {
       "GET https://backend.leadconnectorhq.com /workflows-marketplace/actions/options/{}": "4714a407b6a3e1e6ff7f8474721ec28caba1945fe775daeb8b01a6a7ce1c6c68",
       "GET https://backend.leadconnectorhq.com /workflows-marketplace/actions/published/{}": "0062bcd495ce7bc6ad025830d1b3cfd340c9f3e7e34f76458c32441f334af892",
@@ -435,7 +445,7 @@
     },
     "builds": {
       "builder-chunks": "assets/index-BZBeFyAW.js",
-      "reportingApp": 272
+      "reportingApp": 275
     },
     "code": {
       "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#describe_marketplace_action": "22a14a673cc0db1c61a1dd9fac65936bd16731e3a5d316cb5371dce8c8bf7fba",
