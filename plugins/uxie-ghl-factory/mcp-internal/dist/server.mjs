@@ -58299,9 +58299,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       rename_workflow: {
-        description: "Rename workflows \u2014 proof: external-receipt-required; risk: write",
+        description: "Rename workflows \u2014 proof: live-runtime (2026-09-23); risk: write",
         risk: "write",
-        proof: "external-receipt-required",
+        proof: "live-runtime (2026-09-23)",
         proofFloor: "external-receipt-required",
         proofRows: [
           "workflow-rename-subject-read",
