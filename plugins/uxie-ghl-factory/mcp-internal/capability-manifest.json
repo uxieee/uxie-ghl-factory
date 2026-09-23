@@ -1730,6 +1730,16 @@
     "path": "/snapshots/assets/asset-names"
   },
   {
+    "tool": "get_snapshot_contents",
+    "method": "GET",
+    "path": "/locations/{locationId}"
+  },
+  {
+    "tool": "get_snapshot_contents",
+    "method": "GET",
+    "path": "/snapshots/{snapshotId}/assets"
+  },
+  {
     "tool": "check_snapshot_conflicts",
     "method": "GET",
     "path": "/locations/{locationId}"

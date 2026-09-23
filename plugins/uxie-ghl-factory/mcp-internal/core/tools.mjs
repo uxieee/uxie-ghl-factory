@@ -9068,6 +9068,49 @@ export const TOOLS = [
       });
     }, args),
   },
+  // What a snapshot ACTUALLY CARRIES (console bl-133). get_snapshot_manifest reads what the SOURCE
+  // ACCOUNT could put in one (a superset: 375 assets on the sandbox); push_snapshot and
+  // check_snapshot_conflicts need ids from the snapshot itself. GET /snapshots/{snapshotId}/assets on
+  // the AI host (dual credential), companyId REQUIRED (400 without it). Every category comes back as a
+  // key, empty ones included; rows {id, name}, plus type:'directory' and parentId where foldered.
+  {
+    name: 'get_snapshot_contents',
+    description: `${describe('get_snapshot_contents', 'Read what a snapshot actually contains — risk: read')}. `
+      + 'The snapshot\'s own contents, one list per category (workflow, custom_fields, custom_values, pipelines, '
+      + 'calendars, forms, conversation_ai, knowledge_bases, …), with ids — the ids push_snapshot and '
+      + 'check_snapshot_conflicts take. Not get_snapshot_manifest, which lists what the SOURCE ACCOUNT could put '
+      + 'in a snapshot (a superset). Empty categories are reported as empty, never omitted.',
+    inputSchema: schema({ locationId: z.string(), snapshotId: z.string() }),
+    // Two rails in one tool, so each row names its origin: the location read (for companyId) on the
+    // backend JWT rail, the contents read on the AI host with the dual credential.
+    capabilities: [
+      { method: 'GET', path: '/locations/{locationId}', origin: 'https://backend.leadconnectorhq.com' },
+      { method: 'GET', path: '/snapshots/{snapshotId}/assets', origin: 'https://services.leadconnectorhq.com' },
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+      const companyId = await resolveCompanyId(gw, args.locationId);
+      if (!companyId) return fail(CODES.VALIDATION_FAILED, 'could not resolve the agency id for this sub-account', 'See list_snapshots.');
+      const ai = deps.makeGw({ loc: args.locationId, rail: 'ai', state: deps.state });
+      const r = await ai.call('GET', `/snapshots/${encodeURIComponent(args.snapshotId)}/assets?${new URLSearchParams({ companyId })}`);
+      if (!r.ok) return fromHttp(r.status, r.json);
+      const raw = r.json && typeof r.json === 'object' ? r.json : {};
+      const categories = Object.entries(raw)
+        .filter(([, v]) => Array.isArray(v))
+        .map(([category, rows]) => ({ category, count: rows.length }))
+        .sort((a, b) => b.count - a.count || a.category.localeCompare(b.category));
+      const contents = Object.fromEntries(Object.entries(raw).filter(([, v]) => Array.isArray(v)));
+      return ok({
+        snapshotId: args.snapshotId, companyId,
+        categories: categories.filter((c) => c.count > 0),
+        emptyCategories: categories.filter((c) => c.count === 0).map((c) => c.category),
+        totalAssets: categories.reduce((n, c) => n + c.count, 0),
+        contents,
+        note: 'Pass ids from `contents` to push_snapshot / check_snapshot_conflicts as {category: [ids]}. A folder row '
+          + '(type:"directory") is the folder itself, not its contents.',
+      });
+    }, args),
+  },
   {
     name: 'check_snapshot_conflicts',
     description: `${describe('check_snapshot_conflicts', 'See what loading a snapshot would collide with — risk: read')}. `
@@ -9107,7 +9150,8 @@ export const TOOLS = [
       if (!args.assets || Object.keys(args.assets).length === 0) {
         return fail(CODES.VALIDATION_FAILED,
           'assets must name at least one category — there is no "check everything" call',
-          'Read the snapshot with get_snapshot_manifest and pass e.g. {"workflow": ["<id>"]}.');
+          'Read what the snapshot actually carries with get_snapshot_contents (snapshotId), and pass ids from it, e.g. {"workflow": ["<id>"]}. '
+          + 'Not get_snapshot_manifest: that lists what the source ACCOUNT could snapshot, a superset.');
       }
       const body = {
         [CONFLICT_KEYS.locations]: args.targetLocationIds,
@@ -9137,7 +9181,11 @@ export const TOOLS = [
       + 'workflows unless allowPublishedWorkflows:true, and either way hands back the stand-down plan. '
       + 'Conflicts NEVER cover assets the operator built by hand: a conflict means "this snapshot '
       + 'was pushed here before" (settled 2026-09-09), so an empty result is not clearance. '
-      + 'Duplicate anything customised on the target BEFORE loading — that is the only protection.',
+      + 'Duplicate anything customised on the target BEFORE loading — that is the only protection. '
+      + 'Pick `assets` ids with get_snapshot_contents (what the snapshot carries), not get_snapshot_manifest. '
+      + '🔴 Custom fields and values MERGE BY NAME: a same-named custom field can have its dataType REWRITTEN to the '
+      + 'snapshot\'s (SINGLE_OPTIONS became TEXT on a live load, keeping an orphaned picklistOptions array), which breaks '
+      + 'any workflow branching on its options. Read custom fields before and after a load and diff dataType.',
     inputSchema: schema({
       locationId: z.string(),
       snapshotId: z.string(),
@@ -9163,7 +9211,8 @@ export const TOOLS = [
       if (categories.length === 0) {
         return fail(CODES.VALIDATION_FAILED,
           'assets must name at least one id — a push with nothing selected is never what you meant',
-          'Read the snapshot with get_snapshot_manifest and pass e.g. {"workflow": ["<id>"]}.');
+          'Read what the snapshot actually carries with get_snapshot_contents (snapshotId), and pass ids from it, e.g. {"workflow": ["<id>"]}. '
+          + 'Not get_snapshot_manifest: that lists what the source ACCOUNT could snapshot, a superset.');
       }
 
       // The snapshot's own manifest. An id that is not in it is accepted by the push and silently

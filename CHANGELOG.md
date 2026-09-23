@@ -13,6 +13,20 @@ commit bodies carry the detail.
 
 ## Unreleased
 
+**New read tool `get_snapshot_contents`, and `push_snapshot` stops pointing at the wrong list** (console
+bl-133). `push_snapshot` and `check_snapshot_conflicts` told callers to pick asset ids from
+`get_snapshot_manifest`. That tool lists what the SOURCE ACCOUNT could put in a snapshot: a superset of
+375 assets on the sandbox. `get_snapshot_contents` reads what a snapshot actually carries
+(`GET /snapshots/{snapshotId}/assets`, AI rail, companyId). It returns one list per category, with empty
+categories named, and both remediations now point at it.
+
+`push_snapshot`'s description also warns that custom fields merge BY NAME, and that a load was seen to
+rewrite a same-named field's `dataType` (SINGLE_OPTIONS → TEXT, orphaned options left behind). Diff
+`dataType` before and after a load.
+
+Live-proven in the suite (`snapshot-contents-proof.mjs`). A real snapshot returns its 88 rows across 10
+categories, and a ghost snapshot id is refused rather than returned as empty.
+
 **A 401 from one endpoint no longer sends you to re-login when the credential is fine** (console
 bl-059). A bare 401 used to become `TOKEN_EXPIRED`, whose remediation sends a human to a browser login.
 Yet one endpoint could 401 while calls on either side succeeded. Now a 401 that survives the gateway's

@@ -2033,5 +2033,23 @@
     "rows": [
       "workflow-premium-usage-read"
     ]
+  },
+  "get_snapshot_contents": {
+    "description": "Read what a snapshot actually contains — proof: external-receipt-required; risk: read",
+    "risk": "read",
+    "proof": "external-receipt-required",
+    "proofFloor": "external-receipt-required",
+    "proofRows": [
+      "snapshot-contents-read"
+    ],
+    "proofFloorRows": [
+      "snapshot-contents-read"
+    ],
+    "riskRows": [
+      "snapshot-contents-read"
+    ],
+    "rows": [
+      "snapshot-contents-read"
+    ]
   }
 }

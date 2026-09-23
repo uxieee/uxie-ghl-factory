@@ -10296,6 +10296,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "check_snapshot_conflicts",
             "copy_workflow_to_location",
             "create_snapshot",
+            "get_snapshot_contents",
             "get_snapshot_manifest",
             "list_snapshots",
             "push_snapshot",
@@ -49605,7 +49606,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           summary: "A snapshot's actual CONTENTS, one array per category (folders, custom_values, tags, links, text_templates, surveys, teams, calendars, campaigns, membership_offers, membership_products, triggers, sectionTemplates, workflow, social_planner, custom_fields, pipelines, knowledge_bases, chat_widget).",
           note: "Dual credential (AI rail). Returns EVERY category as a key, empty array included, so never test for a missing key -- test for an empty one. Row shape is uniform: {id, name}, plus type:'directory' and parentId where the category supports folders (custom_fields, custom_values, workflow, email_templates). conversation_ai DOES travel, contrary to an earlier note here: a 2026-09-08 read returned two populated rows whose ids carry an 'ai_employee.' prefix rather than a bare uuid; knowledge_bases travel too. What an EMPTY category means is 'not selected when this snapshot was built', NOT 'cannot travel' -- the same account's manifest listed rows for several categories the snapshot returned empty. Diff against the manifest before pushing. The bare /snapshots/{id} read and every backend-host spelling 403/404.",
           reach: "proven",
-          coveredBy: [],
+          coveredBy: [
+            "get_snapshot_contents"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -53886,7 +53889,7 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           note: "Dual credential (AI rail). Returns EVERY category as a key, empty array included, so never test for a missing key -- test for an empty one. Row shape is uniform: {id, name}, plus type:'directory' and parentId where the category supports folders (custom_fields, custom_values, workflow, email_templates). conversation_ai DOES travel, contrary to an earlier note here: a 2026-09-08 read returned two populated rows whose ids carry an 'ai_employee.' prefix rather than a bare uuid; knowledge_bases travel too. What an EMPTY category means is 'not selected when this snapshot was built', NOT 'cannot travel' -- the same account's manifest listed rows for several categories the snapshot returned empty. Diff against the manifest before pushing. The bare /snapshots/{id} read and every backend-host spelling 403/404.",
           source: {
             page: "platform/20-api/snapshots.md",
-            sha256: "03eca887fd51e36590690074a771938e314c39a6cae769bac5df31f1ade71068"
+            sha256: "186ab9bca2ff6401fa83a19be2156ddb3b9895e2f53bda08ee7622ae5dfc883d"
           }
         },
         "GET /snapshots/{snapshotId}/assets-status": {
@@ -58385,6 +58388,24 @@ var init_define_TOOL_CATALOG = __esm({
         ],
         rows: [
           "workflow-premium-usage-read"
+        ]
+      },
+      get_snapshot_contents: {
+        description: "Read what a snapshot actually contains \u2014 proof: external-receipt-required; risk: read",
+        risk: "read",
+        proof: "external-receipt-required",
+        proofFloor: "external-receipt-required",
+        proofRows: [
+          "snapshot-contents-read"
+        ],
+        proofFloorRows: [
+          "snapshot-contents-read"
+        ],
+        riskRows: [
+          "snapshot-contents-read"
+        ],
+        rows: [
+          "snapshot-contents-read"
         ]
       }
     };
@@ -180702,6 +180723,42 @@ var TOOLS2 = [
       });
     }, args)
   },
+  // What a snapshot ACTUALLY CARRIES (console bl-133). get_snapshot_manifest reads what the SOURCE
+  // ACCOUNT could put in one (a superset: 375 assets on the sandbox); push_snapshot and
+  // check_snapshot_conflicts need ids from the snapshot itself. GET /snapshots/{snapshotId}/assets on
+  // the AI host (dual credential), companyId REQUIRED (400 without it). Every category comes back as a
+  // key, empty ones included; rows {id, name}, plus type:'directory' and parentId where foldered.
+  {
+    name: "get_snapshot_contents",
+    description: `${describe3("get_snapshot_contents", "Read what a snapshot actually contains \u2014 risk: read")}. The snapshot's own contents, one list per category (workflow, custom_fields, custom_values, pipelines, calendars, forms, conversation_ai, knowledge_bases, \u2026), with ids \u2014 the ids push_snapshot and check_snapshot_conflicts take. Not get_snapshot_manifest, which lists what the SOURCE ACCOUNT could put in a snapshot (a superset). Empty categories are reported as empty, never omitted.`,
+    inputSchema: schema({ locationId: external_exports.string(), snapshotId: external_exports.string() }),
+    // Two rails in one tool, so each row names its origin: the location read (for companyId) on the
+    // backend JWT rail, the contents read on the AI host with the dual credential.
+    capabilities: [
+      { method: "GET", path: "/locations/{locationId}", origin: "https://backend.leadconnectorhq.com" },
+      { method: "GET", path: "/snapshots/{snapshotId}/assets", origin: "https://services.leadconnectorhq.com" }
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+      const companyId = await resolveCompanyId(gw, args.locationId);
+      if (!companyId) return fail(CODES.VALIDATION_FAILED, "could not resolve the agency id for this sub-account", "See list_snapshots.");
+      const ai = deps.makeGw({ loc: args.locationId, rail: "ai", state: deps.state });
+      const r = await ai.call("GET", `/snapshots/${encodeURIComponent(args.snapshotId)}/assets?${new URLSearchParams({ companyId })}`);
+      if (!r.ok) return fromHttp(r.status, r.json);
+      const raw = r.json && typeof r.json === "object" ? r.json : {};
+      const categories = Object.entries(raw).filter(([, v]) => Array.isArray(v)).map(([category, rows]) => ({ category, count: rows.length })).sort((a, b) => b.count - a.count || a.category.localeCompare(b.category));
+      const contents = Object.fromEntries(Object.entries(raw).filter(([, v]) => Array.isArray(v)));
+      return ok({
+        snapshotId: args.snapshotId,
+        companyId,
+        categories: categories.filter((c) => c.count > 0),
+        emptyCategories: categories.filter((c) => c.count === 0).map((c) => c.category),
+        totalAssets: categories.reduce((n, c) => n + c.count, 0),
+        contents,
+        note: 'Pass ids from `contents` to push_snapshot / check_snapshot_conflicts as {category: [ids]}. A folder row (type:"directory") is the folder itself, not its contents.'
+      });
+    }, args)
+  },
   {
     name: "check_snapshot_conflicts",
     description: `${describe3("check_snapshot_conflicts", "See what loading a snapshot would collide with \u2014 risk: read")}. Non-destructive, and the safe way to preview a load. It refuses the key names the UI itself shows: \`locationIds\` and \`selectedAssets\` answer 400 ["Required","Required"]. The real names are \`selectedLocationIds\` and \`selectedSnapshotAssets\`, and this tool sends those. \`assets\` is REQUIRED \u2014 there is no "check everything" call; an empty selection answers 400 ["selectedSnapshotAssets must contain at least one asset key"]. Get the ids from get_snapshot_manifest. \u{1F534} A conflict means "this snapshot has been pushed to this account BEFORE" \u2014 NOT "the target already has something like this". Settled 2026-09-09 by a four-cell differential: the snapshot's own source account, which holds every asset by the same id and name, reported ZERO conflicts, while the one account previously loaded from it reported all ten. So this NEVER reports an asset the operator built by hand, and an EMPTY result means only "not loaded here before" \u2014 which is exactly when a first load is most likely to land on top of hand-built work. Treat empty as no information, never as clearance.`,
@@ -180729,7 +180786,7 @@ var TOOLS2 = [
         return fail(
           CODES.VALIDATION_FAILED,
           'assets must name at least one category \u2014 there is no "check everything" call',
-          'Read the snapshot with get_snapshot_manifest and pass e.g. {"workflow": ["<id>"]}.'
+          'Read what the snapshot actually carries with get_snapshot_contents (snapshotId), and pass ids from it, e.g. {"workflow": ["<id>"]}. Not get_snapshot_manifest: that lists what the source ACCOUNT could snapshot, a superset.'
         );
       }
       const body = {
@@ -180749,7 +180806,7 @@ var TOOLS2 = [
   },
   {
     name: "push_snapshot",
-    description: `${describe3("push_snapshot", "Load a snapshot into sub-accounts \u2014 risk: destructive")}. Preview by default; confirm:true writes. THE MOST DANGEROUS CALL HERE \u2014 it writes into OTHER sub-accounts, and the response is only "queued", so nothing can be read back to confirm it. \`assets\` is REQUIRED and explicit: the wizard shows no Workflows row while the body it sends carries every workflow id in the snapshot, so a tool that mirrors the UI ships workflows nobody chose. This one loads exactly what you name. \u{1F534} LOADED WORKFLOWS ARRIVE PUBLISHED when the source workflow is published \u2014 that is how 26 went live on an account taking ~230 enrollments a week. This refuses to load published workflows unless allowPublishedWorkflows:true, and either way hands back the stand-down plan. Conflicts NEVER cover assets the operator built by hand: a conflict means "this snapshot was pushed here before" (settled 2026-09-09), so an empty result is not clearance. Duplicate anything customised on the target BEFORE loading \u2014 that is the only protection.`,
+    description: `${describe3("push_snapshot", "Load a snapshot into sub-accounts \u2014 risk: destructive")}. Preview by default; confirm:true writes. THE MOST DANGEROUS CALL HERE \u2014 it writes into OTHER sub-accounts, and the response is only "queued", so nothing can be read back to confirm it. \`assets\` is REQUIRED and explicit: the wizard shows no Workflows row while the body it sends carries every workflow id in the snapshot, so a tool that mirrors the UI ships workflows nobody chose. This one loads exactly what you name. \u{1F534} LOADED WORKFLOWS ARRIVE PUBLISHED when the source workflow is published \u2014 that is how 26 went live on an account taking ~230 enrollments a week. This refuses to load published workflows unless allowPublishedWorkflows:true, and either way hands back the stand-down plan. Conflicts NEVER cover assets the operator built by hand: a conflict means "this snapshot was pushed here before" (settled 2026-09-09), so an empty result is not clearance. Duplicate anything customised on the target BEFORE loading \u2014 that is the only protection. Pick \`assets\` ids with get_snapshot_contents (what the snapshot carries), not get_snapshot_manifest. \u{1F534} Custom fields and values MERGE BY NAME: a same-named custom field can have its dataType REWRITTEN to the snapshot's (SINGLE_OPTIONS became TEXT on a live load, keeping an orphaned picklistOptions array), which breaks any workflow branching on its options. Read custom fields before and after a load and diff dataType.`,
     inputSchema: schema({
       locationId: external_exports.string(),
       snapshotId: external_exports.string(),
@@ -180775,7 +180832,7 @@ var TOOLS2 = [
         return fail(
           CODES.VALIDATION_FAILED,
           "assets must name at least one id \u2014 a push with nothing selected is never what you meant",
-          'Read the snapshot with get_snapshot_manifest and pass e.g. {"workflow": ["<id>"]}.'
+          'Read what the snapshot actually carries with get_snapshot_contents (snapshotId), and pass ids from it, e.g. {"workflow": ["<id>"]}. Not get_snapshot_manifest: that lists what the source ACCOUNT could snapshot, a superset.'
         );
       }
       const man = await gw.call("GET", `/snapshots-appengine/snapshot/${encodeURIComponent(args.snapshotId)}/get_assets?type=own&companyId=${encodeURIComponent(companyId)}`);

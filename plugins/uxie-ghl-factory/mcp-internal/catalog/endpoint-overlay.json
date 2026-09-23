@@ -759,7 +759,7 @@
       "note": "Dual credential (AI rail). Returns EVERY category as a key, empty array included, so never test for a missing key -- test for an empty one. Row shape is uniform: {id, name}, plus type:'directory' and parentId where the category supports folders (custom_fields, custom_values, workflow, email_templates). conversation_ai DOES travel, contrary to an earlier note here: a 2026-09-08 read returned two populated rows whose ids carry an 'ai_employee.' prefix rather than a bare uuid; knowledge_bases travel too. What an EMPTY category means is 'not selected when this snapshot was built', NOT 'cannot travel' -- the same account's manifest listed rows for several categories the snapshot returned empty. Diff against the manifest before pushing. The bare /snapshots/{id} read and every backend-host spelling 403/404.",
       "source": {
         "page": "platform/20-api/snapshots.md",
-        "sha256": "03eca887fd51e36590690074a771938e314c39a6cae769bac5df31f1ade71068"
+        "sha256": "186ab9bca2ff6401fa83a19be2156ddb3b9895e2f53bda08ee7622ae5dfc883d"
       }
     },
     "GET /snapshots/{snapshotId}/assets-status": {
