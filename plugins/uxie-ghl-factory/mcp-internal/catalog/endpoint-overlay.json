@@ -975,7 +975,7 @@
     },
     "GET /workflow/{locationId}/premium-tier-usage/{tier}": {
       "summary": "Premium-action CONSUMPTION for one tier on this sub-account.",
-      "note": "IDENTIFIED 2026-09-21. Premium CONSUMPTION for one tier, distinct from the premium GATE the build pre-flight reads. GET /workflow/{loc}/premium-tier-usage/{tier}?locationId= -> 200 {usage:{plan, locationId, usage, limit, remaining, resetTime, percentage, credits}}; tier = workflow_ai | workflow_premium_actions. On the sandbox all zero/null (nothing consumed). This is HOW MUCH has been spent; preflight.mjs reads config.optIn, which is WHETHER premium is switched on — the two are different questions. Candidate for a usage read, but the sandbox cannot show a non-zero value, so the shape of an active account is unmeasured.\n— PRIOR NOTE: Consumption only. Whether the product is opted in for this sub-account is a separate read: GET /saas-billing-v2/billing-config/LOCATION/{locationId}/workflow_premium_actions?optIn=true, reachable with a location Bearer."
+      "note": "Covered by get_premium_usage (2026-09-23). Premium CONSUMPTION for one tier: GET /workflow/{loc}/premium-tier-usage/{tier}?locationId= -> 200 {usage:{plan, locationId, usage, limit, remaining, resetTime, percentage, credits}}; tier = workflow_ai | workflow_premium_actions. HOW MUCH has been spent, not WHETHER premium is on (preflight.mjs reads config.optIn for that). Only an idle account is measured (usage 0, limit/remaining/resetTime null), so the tool passes the record through verbatim."
     },
     "GET /workflow/{locationId}/scheduled-pause/config": {
       "summary": "Whether this workflow is paused on a schedule, and the window if so.",
@@ -1665,7 +1665,7 @@
       "reach": "proven",
       "credentialClass": "agency-admin-bearer",
       "kind": "write",
-      "note": "Proven live 2026-09-19 with the test sub-account as its OWN target: body {userId, subLocationId, subLocationName} -> 200 {error:false, msg:'Queued to copy Workflow'}; a second workflow of the same name then appeared in the list. 🔴 Built to copy INTO ANOTHER sub-account (the builder's Copy to Sub-Account) — it writes into whichever location subLocationId names. Not exercised cross-account."
+      "note": "Covered by copy_workflow_to_location (2026-09-23). Body {userId, subLocationId, subLocationName}, from the builder's CopyToSubAccount.vue; answers 200 {error:false, msg:'Queued to copy Workflow'} — ASYNC, so the tool proves success by a NEW same-name id appearing in the target, never by the 200. Measured on the sandbox into itself: the copy lands as a DRAFT at version 1, in the ROOT folder, steps identical. 🔴 It writes into whichever account subLocationId names; the tool refuses any target outside the registration's bound set. Cross-account and a PUBLISHED source are not exercised (live-fire is sandbox only)."
     },
     "POST /workflow/{locationId}/{workflowId}/remove-stuck-statuses/{stepId}": {
       "kind": "write",

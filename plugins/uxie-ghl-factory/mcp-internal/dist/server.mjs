@@ -10294,6 +10294,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           coveredBy: [
             "check_snapshot_conflicts",
+            "copy_workflow_to_location",
             "create_snapshot",
             "get_snapshot_manifest",
             "list_snapshots",
@@ -21107,6 +21108,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           coveredBy: [
             "build_workflow",
             "check_workflow",
+            "copy_workflow_to_location",
             "duplicate_workflow",
             "edit_workflow",
             "export_workflow",
@@ -21300,12 +21302,14 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          note: "Proven live 2026-09-19 with the test sub-account as its OWN target: body {userId, subLocationId, subLocationName} -> 200 {error:false, msg:'Queued to copy Workflow'}; a second workflow of the same name then appeared in the list. \u{1F534} Built to copy INTO ANOTHER sub-account (the builder's Copy to Sub-Account) \u2014 it writes into whichever location subLocationId names. Not exercised cross-account.",
+          note: "Covered by copy_workflow_to_location (2026-09-23). Body {userId, subLocationId, subLocationName}, from the builder's CopyToSubAccount.vue; answers 200 {error:false, msg:'Queued to copy Workflow'} \u2014 ASYNC, so the tool proves success by a NEW same-name id appearing in the target, never by the 200. Measured on the sandbox into itself: the copy lands as a DRAFT at version 1, in the ROOT folder, steps identical. \u{1F534} It writes into whichever account subLocationId names; the tool refuses any target outside the registration's bound set. Cross-account and a PUBLISHED source are not exercised (live-fire is sandbox only).",
           reach: "proven",
           provenFor: [
             "agency-admin-bearer"
           ],
-          coveredBy: [],
+          coveredBy: [
+            "copy_workflow_to_location"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -24603,6 +24607,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "agency-admin-bearer"
           ],
           coveredBy: [
+            "copy_workflow_to_location",
             "create_workflow_folder",
             "list_account_entities",
             "list_workflow_folders",
@@ -24958,12 +24963,14 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           rail: "workflow",
           kind: "read",
           summary: "Premium-action CONSUMPTION for one tier on this sub-account.",
-          note: "IDENTIFIED 2026-09-21. Premium CONSUMPTION for one tier, distinct from the premium GATE the build pre-flight reads. GET /workflow/{loc}/premium-tier-usage/{tier}?locationId= -> 200 {usage:{plan, locationId, usage, limit, remaining, resetTime, percentage, credits}}; tier = workflow_ai | workflow_premium_actions. On the sandbox all zero/null (nothing consumed). This is HOW MUCH has been spent; preflight.mjs reads config.optIn, which is WHETHER premium is switched on \u2014 the two are different questions. Candidate for a usage read, but the sandbox cannot show a non-zero value, so the shape of an active account is unmeasured.\n\u2014 PRIOR NOTE: Consumption only. Whether the product is opted in for this sub-account is a separate read: GET /saas-billing-v2/billing-config/LOCATION/{locationId}/workflow_premium_actions?optIn=true, reachable with a location Bearer.",
+          note: "Covered by get_premium_usage (2026-09-23). Premium CONSUMPTION for one tier: GET /workflow/{loc}/premium-tier-usage/{tier}?locationId= -> 200 {usage:{plan, locationId, usage, limit, remaining, resetTime, percentage, credits}}; tier = workflow_ai | workflow_premium_actions. HOW MUCH has been spent, not WHETHER premium is on (preflight.mjs reads config.optIn for that). Only an idle account is measured (usage 0, limit/remaining/resetTime null), so the tool passes the record through verbatim.",
           reach: "proven",
           provenFor: [
             "agency-admin-bearer"
           ],
-          coveredBy: [],
+          coveredBy: [
+            "get_premium_usage"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -54092,7 +54099,7 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         },
         "GET /workflow/{locationId}/premium-tier-usage/{tier}": {
           summary: "Premium-action CONSUMPTION for one tier on this sub-account.",
-          note: "IDENTIFIED 2026-09-21. Premium CONSUMPTION for one tier, distinct from the premium GATE the build pre-flight reads. GET /workflow/{loc}/premium-tier-usage/{tier}?locationId= -> 200 {usage:{plan, locationId, usage, limit, remaining, resetTime, percentage, credits}}; tier = workflow_ai | workflow_premium_actions. On the sandbox all zero/null (nothing consumed). This is HOW MUCH has been spent; preflight.mjs reads config.optIn, which is WHETHER premium is switched on \u2014 the two are different questions. Candidate for a usage read, but the sandbox cannot show a non-zero value, so the shape of an active account is unmeasured.\n\u2014 PRIOR NOTE: Consumption only. Whether the product is opted in for this sub-account is a separate read: GET /saas-billing-v2/billing-config/LOCATION/{locationId}/workflow_premium_actions?optIn=true, reachable with a location Bearer."
+          note: "Covered by get_premium_usage (2026-09-23). Premium CONSUMPTION for one tier: GET /workflow/{loc}/premium-tier-usage/{tier}?locationId= -> 200 {usage:{plan, locationId, usage, limit, remaining, resetTime, percentage, credits}}; tier = workflow_ai | workflow_premium_actions. HOW MUCH has been spent, not WHETHER premium is on (preflight.mjs reads config.optIn for that). Only an idle account is measured (usage 0, limit/remaining/resetTime null), so the tool passes the record through verbatim."
         },
         "GET /workflow/{locationId}/scheduled-pause/config": {
           summary: "Whether this workflow is paused on a schedule, and the window if so.",
@@ -54790,7 +54797,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           reach: "proven",
           credentialClass: "agency-admin-bearer",
           kind: "write",
-          note: "Proven live 2026-09-19 with the test sub-account as its OWN target: body {userId, subLocationId, subLocationName} -> 200 {error:false, msg:'Queued to copy Workflow'}; a second workflow of the same name then appeared in the list. \u{1F534} Built to copy INTO ANOTHER sub-account (the builder's Copy to Sub-Account) \u2014 it writes into whichever location subLocationId names. Not exercised cross-account."
+          note: "Covered by copy_workflow_to_location (2026-09-23). Body {userId, subLocationId, subLocationName}, from the builder's CopyToSubAccount.vue; answers 200 {error:false, msg:'Queued to copy Workflow'} \u2014 ASYNC, so the tool proves success by a NEW same-name id appearing in the target, never by the 200. Measured on the sandbox into itself: the copy lands as a DRAFT at version 1, in the ROOT folder, steps identical. \u{1F534} It writes into whichever account subLocationId names; the tool refuses any target outside the registration's bound set. Cross-account and a PUBLISHED source are not exercised (live-fire is sandbox only)."
         },
         "POST /workflow/{locationId}/{workflowId}/remove-stuck-statuses/{stepId}": {
           kind: "write",
@@ -58324,6 +58331,51 @@ var init_define_TOOL_CATALOG = __esm({
           "workflow-rename-subject-read",
           "workflow-rename-folder-check",
           "workflow-rename-write"
+        ]
+      },
+      copy_workflow_to_location: {
+        description: "Copy a workflow into another sub-account \u2014 proof: external-receipt-required; risk: write",
+        risk: "write",
+        proof: "external-receipt-required",
+        proofFloor: "external-receipt-required",
+        proofRows: [
+          "workflow-copy-source-read",
+          "workflow-copy-target-read",
+          "workflow-copy-write",
+          "workflow-copy-readback"
+        ],
+        proofFloorRows: [
+          "workflow-copy-source-read",
+          "workflow-copy-target-read",
+          "workflow-copy-write",
+          "workflow-copy-readback"
+        ],
+        riskRows: [
+          "workflow-copy-write"
+        ],
+        rows: [
+          "workflow-copy-source-read",
+          "workflow-copy-target-read",
+          "workflow-copy-write",
+          "workflow-copy-readback"
+        ]
+      },
+      get_premium_usage: {
+        description: "Read premium-action and workflow-AI usage \u2014 proof: external-receipt-required; risk: read",
+        risk: "read",
+        proof: "external-receipt-required",
+        proofFloor: "external-receipt-required",
+        proofRows: [
+          "workflow-premium-usage-read"
+        ],
+        proofFloorRows: [
+          "workflow-premium-usage-read"
+        ],
+        riskRows: [
+          "workflow-premium-usage-read"
+        ],
+        rows: [
+          "workflow-premium-usage-read"
         ]
       }
     };
@@ -178862,6 +178914,172 @@ var TOOLS2 = [
         );
       }
       return ok(data2);
+    }, args)
+  },
+  // PREMIUM CONSUMPTION (operator-approved 2026-09-23). HOW MUCH premium-action / workflow-AI capacity a
+  // location has used, per tier: GET /workflow/{loc}/premium-tier-usage/{tier}?locationId= -> {usage:{plan,
+  // locationId, usage, limit, remaining, resetTime, percentage, credits}} (measured 2026-09-21). Distinct from
+  // the premium GATE (config.optIn), which build/edit read to decide whether premium steps may be written.
+  {
+    name: "get_premium_usage",
+    description: `${describe3("get_premium_usage", "Read premium-action and workflow-AI usage \u2014 risk: read")}. How much of each premium tier this sub-account has consumed: workflow_premium_actions and workflow_ai, each with plan, usage, limit, remaining, percentage, credits and resetTime, verbatim from GHL. This is CONSUMPTION, not whether premium is switched on (build/edit read that gate themselves). Each tier reports its own result, so one failed read never hides the other. Only an idle account has been measured (all zero or null), so the fields are passed through as GHL returns them, not reinterpreted.`,
+    inputSchema: schema({
+      locationId: external_exports.string(),
+      tiers: external_exports.array(external_exports.enum(["workflow_premium_actions", "workflow_ai"])).optional()
+    }),
+    capabilities: [{ method: "GET", path: "/workflow/{loc}/premium-tier-usage/{tier}" }],
+    handler: async (args, deps) => guard(async () => {
+      const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+      const loc = encodeURIComponent(args.locationId);
+      const tiers = args.tiers?.length ? args.tiers : ["workflow_premium_actions", "workflow_ai"];
+      const out = {};
+      for (const tier of tiers) {
+        const r = await gw.call("GET", `/workflow/${loc}/premium-tier-usage/${tier}?${new URLSearchParams({ locationId: args.locationId })}`);
+        out[tier] = r.ok ? { read: true, usage: r.json?.usage ?? null } : { read: false, httpStatus: r.status, error: r.json?.message ?? null };
+      }
+      const failed = tiers.filter((t) => !out[t].read);
+      return ok({
+        ...out,
+        headline: `${tiers.length - failed.length} of ${tiers.length} tier(s) read` + (failed.length ? `; FAILED: ${failed.join(", ")}` : "")
+      });
+    }, args)
+  },
+  // COPY A WORKFLOW INTO ANOTHER SUB-ACCOUNT (operator-approved 2026-09-23). GHL's own "Copy to
+  // Sub-Account": POST /workflow/{loc}/{wid}/copy-workflow {userId, subLocationId, subLocationName},
+  // the body read off the builder's CopyToSubAccount.vue and proven live 2026-09-19 (sandbox into
+  // itself). It answers 200 "Queued to copy Workflow": ASYNC, so success is a new workflow of the same
+  // name APPEARING in the target, found by a before/after diff of the target's list, never the 200.
+  // It writes into a SECOND account, which the location binding (it checks locationId only) cannot
+  // see, so the target is checked against the registration's permitted set here, for the write.
+  {
+    name: "copy_workflow_to_location",
+    description: `${describe3("copy_workflow_to_location", "Copy a workflow into another sub-account \u2014 risk: write")}. GHL's native Copy to Sub-Account: copies one workflow from locationId into targetLocationId (which may be the same account). Preview by default (source name, status, step and trigger counts, the target's name, and how many workflows there already carry that name); confirm:true writes. Both accounts must be ones this registration is bound to. GHL QUEUES the copy, so success is the new workflow appearing in the target, read back by id with its status and step count; a copy that has not appeared yet is reported as queued, not as done. duplicate_workflow is the in-account copy with a new name.`,
+    inputSchema: schema({
+      locationId: external_exports.string(),
+      workflowId: external_exports.string(),
+      targetLocationId: external_exports.string(),
+      confirm: external_exports.boolean().default(false)
+    }),
+    capabilities: [
+      { method: "GET", path: "/workflow/{loc}/{wid}" },
+      { method: "GET", path: "/workflow/{loc}/list" },
+      { method: "GET", path: "/locations/{id}" },
+      { method: "POST", path: "/workflow/{loc}/{wid}/copy-workflow" }
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const target = String(args.targetLocationId ?? "").trim();
+      if (!target) return fail(CODES.VALIDATION_FAILED, "targetLocationId is required", "Name the sub-account to copy into.");
+      const allowed = deps.state?.allowedLocations ?? null;
+      if (args.confirm === true && (!allowed || !allowed.has(target))) {
+        return fail(
+          CODES.LOCATION_FORBIDDEN,
+          `this registration is not permitted to write into ${target}: the copy lands there`,
+          "Copy only into an account this registration is bound to (GHL_INTERNAL_LOCATIONS), or rebind it with /uxie-ghl-factory:internal-connect (bind mode). Nothing was sent."
+        );
+      }
+      const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+      const tgw = target === args.locationId ? gw : deps.makeGw({ loc: target, state: deps.state });
+      const src = await getWorkflow(gw, args.locationId, args.workflowId);
+      if (!src.ok) return fromHttp(src.status, src.json);
+      const name = src.json?.name;
+      if (typeof name !== "string" || !name) {
+        return fail(CODES.VALIDATION_FAILED, `${args.workflowId} has no name \u2014 is it a folder id?`, "Pass a workflow id. Nothing was sent.");
+      }
+      const locRead = await tgw.call("GET", `/locations/${encodeURIComponent(target)}`);
+      if (!locRead.ok) return fromHttp(locRead.status, locRead.json);
+      const targetName = (locRead.json?.location ?? locRead.json ?? {}).name;
+      if (typeof targetName !== "string" || !targetName) {
+        return fail(
+          CODES.VALIDATION_FAILED,
+          `could not read the name of ${target}`,
+          "The copy body carries the target's name, as the builder sends it; it is not guessed. Nothing was sent."
+        );
+      }
+      const sameName = async () => {
+        const ids = [];
+        for (let off = 0; off < 5e3; off += 100) {
+          const q3 = new URLSearchParams({
+            type: "workflow",
+            limit: "100",
+            offset: String(off),
+            sortBy: "name",
+            sortOrder: "asc",
+            includeCustomObjects: "true",
+            includeObjectiveBuilder: "true",
+            search: name
+          });
+          const r = await tgw.call("GET", `/workflow/${encodeURIComponent(target)}/list?${q3}`);
+          if (!r.ok) return null;
+          const rows = r.json?.rows ?? [];
+          for (const row of rows) if (row.name === name) ids.push(row._id ?? row.id);
+          if (rows.length < 100) break;
+        }
+        return ids;
+      };
+      const before = await sameName();
+      if (!before) return fail(CODES.ENGINE_ABORT, `the target's workflow list could not be read`, "Nothing was sent.");
+      const templates = src.json?.workflowData?.templates ?? [];
+      const preview = {
+        source: {
+          locationId: args.locationId,
+          workflowId: args.workflowId,
+          name,
+          status: src.json?.status ?? null,
+          steps: templates.length,
+          triggers: Array.isArray(src.json?.triggers) ? src.json.triggers.length : null
+        },
+        target: {
+          locationId: target,
+          name: targetName,
+          sameAccount: target === args.locationId,
+          existingWithThisName: before.length
+        }
+      };
+      if (args.confirm !== true) {
+        return withFailureData(
+          fail(
+            CODES.CONFIRM_REQUIRED,
+            "Copy preview is ready; no write was sent.",
+            "Review data.preview, then repeat with confirm:true. The copy is QUEUED by GHL and read back from the target."
+          ),
+          { preview }
+        );
+      }
+      const uid = gw.uid;
+      if (typeof uid !== "string" || !uid) {
+        return fail(CODES.ENGINE_ABORT, "the credential carries no user id, which the copy body requires", "Nothing was sent.");
+      }
+      const write = await gw.call(
+        "POST",
+        `/workflow/${encodeURIComponent(args.locationId)}/${encodeURIComponent(args.workflowId)}/copy-workflow`,
+        { userId: uid, subLocationId: target, subLocationName: targetName }
+      );
+      if (!write.ok || write.json?.error === true) return fromHttp(write.ok ? 422 : write.status, write.json);
+      const known = new Set(before);
+      let copyId = null;
+      for (let i = 0; i < 20 && !copyId; i++) {
+        await new Promise((resolve5) => setTimeout(resolve5, 1500));
+        const now = await sameName();
+        copyId = (now ?? []).find((id) => !known.has(id)) ?? null;
+      }
+      if (!copyId) {
+        return withFailureData(
+          fail(
+            CODES.ENGINE_ABORT,
+            "GHL queued the copy, but no new workflow of that name appeared in the target within 30 s",
+            "It may still land: list the target's workflows by this name later. Do not re-send, or you may get two copies."
+          ),
+          { preview, httpStatus: write.status, response: write.json ?? null }
+        );
+      }
+      const back = await getWorkflow(tgw, target, copyId);
+      const copied = back.ok ? {
+        workflowId: copyId,
+        name: back.json?.name ?? null,
+        status: back.json?.status ?? null,
+        steps: (back.json?.workflowData?.templates ?? []).length
+      } : { workflowId: copyId, readBack: back.status };
+      return ok({ preview, copied, stepsMatch: copied.steps === preview.source.steps, response: write.json ?? null });
     }, args)
   },
   // Custom-field FOLDERS. A different surface from everything above: the write lives on the

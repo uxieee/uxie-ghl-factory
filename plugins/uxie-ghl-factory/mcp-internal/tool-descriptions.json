@@ -1988,5 +1988,50 @@
       "workflow-rename-folder-check",
       "workflow-rename-write"
     ]
+  },
+  "copy_workflow_to_location": {
+    "description": "Copy a workflow into another sub-account — proof: external-receipt-required; risk: write",
+    "risk": "write",
+    "proof": "external-receipt-required",
+    "proofFloor": "external-receipt-required",
+    "proofRows": [
+      "workflow-copy-source-read",
+      "workflow-copy-target-read",
+      "workflow-copy-write",
+      "workflow-copy-readback"
+    ],
+    "proofFloorRows": [
+      "workflow-copy-source-read",
+      "workflow-copy-target-read",
+      "workflow-copy-write",
+      "workflow-copy-readback"
+    ],
+    "riskRows": [
+      "workflow-copy-write"
+    ],
+    "rows": [
+      "workflow-copy-source-read",
+      "workflow-copy-target-read",
+      "workflow-copy-write",
+      "workflow-copy-readback"
+    ]
+  },
+  "get_premium_usage": {
+    "description": "Read premium-action and workflow-AI usage — proof: external-receipt-required; risk: read",
+    "risk": "read",
+    "proof": "external-receipt-required",
+    "proofFloor": "external-receipt-required",
+    "proofRows": [
+      "workflow-premium-usage-read"
+    ],
+    "proofFloorRows": [
+      "workflow-premium-usage-read"
+    ],
+    "riskRows": [
+      "workflow-premium-usage-read"
+    ],
+    "rows": [
+      "workflow-premium-usage-read"
+    ]
   }
 }

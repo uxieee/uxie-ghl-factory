@@ -1420,6 +1420,31 @@
     "path": "/workflow/{loc}/rename-workflow/{wid}"
   },
   {
+    "tool": "get_premium_usage",
+    "method": "GET",
+    "path": "/workflow/{loc}/premium-tier-usage/{tier}"
+  },
+  {
+    "tool": "copy_workflow_to_location",
+    "method": "GET",
+    "path": "/workflow/{loc}/{wid}"
+  },
+  {
+    "tool": "copy_workflow_to_location",
+    "method": "GET",
+    "path": "/workflow/{loc}/list"
+  },
+  {
+    "tool": "copy_workflow_to_location",
+    "method": "GET",
+    "path": "/locations/{id}"
+  },
+  {
+    "tool": "copy_workflow_to_location",
+    "method": "POST",
+    "path": "/workflow/{loc}/{wid}/copy-workflow"
+  },
+  {
     "tool": "create_custom_field_folder",
     "method": "GET",
     "path": "/locations/{loc}/customFields/search"

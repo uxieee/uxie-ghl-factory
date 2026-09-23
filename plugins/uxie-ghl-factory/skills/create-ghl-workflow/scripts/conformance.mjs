@@ -43,6 +43,7 @@ import { runRenameWorkflowProof } from './rename-workflow-proof.mjs';
 import { runCustomObjectProof } from './custom-object-proof.mjs';
 import { runReferenceSitesProof } from './reference-sites-proof.mjs';
 import { runEntityPagingProof } from './entity-paging-proof.mjs';
+import { runCopyWorkflowProof } from './copy-workflow-proof.mjs';
 import { runTriggerRepairProof } from './trigger-repair-proof.mjs';
 
 const LOCATION = process.env.GHL_LOCATION || process.env.GHL_LOC;
@@ -1780,6 +1781,8 @@ console.log('\nreference sites validate-assets does not read: a step calendar, r
 await runReferenceSitesProof({ call, gw: deps.makeGw({ loc: LOCATION, state }), LOCATION, NAME, check, left, log });
 console.log('\naccount lists are read to the end: a workflow past the first page resolves by name');
 await runEntityPagingProof({ call, gw: deps.makeGw({ loc: LOCATION, state }), LOCATION, NAME, check, left, log });
+console.log('\ncopy_workflow_to_location (sandbox into itself) and get_premium_usage');
+await runCopyWorkflowProof({ tool, deps, LOCATION, NAME, check, left, log });
 console.log('\nedit_workflow: a broken document is previewable, and a trigger repair is judged on what it writes');
 await runTriggerRepairProof({ call, gw: deps.makeGw({ loc: LOCATION, state }), LOCATION, NAME, check, left, log });
 

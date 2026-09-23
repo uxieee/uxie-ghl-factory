@@ -13,6 +13,30 @@ commit bodies carry the detail.
 
 ## Unreleased
 
+**Two new tools** (operator-approved 2026-09-23).
+
+**`copy_workflow_to_location`** is GHL's native Copy to Sub-Account. It copies one workflow into
+another sub-account, or into the same one.
+- **Preview by default.** It names the source (status, steps), reads the target's real name, and counts
+  the workflows there that already carry the name. `confirm:true` writes.
+- **The target must be bound.** A write lands in the TARGET, which the location binding (it checks
+  `locationId` only) cannot see. So the tool refuses any target outside the registration's bound set,
+  and an unbound registration outright.
+- **Success is read back, not assumed.** GHL only QUEUES the copy. Success is a NEW workflow id of that
+  name appearing in the target, read back with its status and step count. A copy that has not appeared
+  within 30 s is reported as queued and NOT done, with a warning not to re-send.
+
+Live-proven on the sandbox into itself (`copy-workflow-proof.mjs`, in the suite):
+- both refusal controls hold;
+- the preview is exact;
+- the copy appears as a new id, a DRAFT at version 1 in the root folder, with the source's steps.
+
+Cross-account and published-source copies are not exercised: live-fire is sandbox only.
+
+**`get_premium_usage`** reads how much premium-action and workflow-AI capacity a location has consumed,
+per tier, verbatim from GHL. That is consumption, not the on/off gate. One failed tier never hides
+the other. Live-proven on the sandbox (idle account: usage 0).
+
 **Excluded is not unknown: the agent is told what GHL can do even where the plugin does not** (operator
 direction 2026-09-23). The operator excluded five capabilities from authoring:
 - scheduled pause (3 routes);
