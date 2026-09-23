@@ -93895,10 +93895,16 @@ var completeExtra = (meta3, given = {}) => {
   for (const [prop, v] of Object.entries(known)) if (!(prop in out)) out[prop] = v;
   return { ...out, ...given };
 };
+var BUTTON_STYLE_DEFAULTS = {
+  color: { value: "var(--white)" },
+  secondaryColor: { value: "var(--white)" },
+  backgroundColor: { value: "var(--blue)" }
+};
 var makeLeaf = ({ meta: meta3, extra = {}, styles = {}, cls = {}, tag = "", salt }) => {
   if (!ELEMENTS[meta3]) throw new Error(`unknown element meta '${meta3}' \u2014 the vocabulary is a closed set of ${ELEMENT_KINDS.length}`);
   const id = mkId(meta3, salt);
-  const node = envelope(id, "element", meta3, ELEMENTS[meta3].tagName, completeExtra(meta3, extra), styles, cls);
+  const withDefaults = meta3 === "button" ? { ...BUTTON_STYLE_DEFAULTS, ...styles } : styles;
+  const node = envelope(id, "element", meta3, ELEMENTS[meta3].tagName, completeExtra(meta3, extra), withDefaults, cls);
   node.tag = tag || (TAG_IS_TAGNAME.has(meta3) ? ELEMENTS[meta3].tagName : "");
   return node;
 };
@@ -93978,6 +93984,24 @@ var makeSection = ({ columns, background = "transparent", padY = 60, maxWidth = 
     general: { colors: [], fontsForPreview: [], rootVars: {}, sectionStyles: scaffold + elementCss, customFonts: [] }
   };
 };
+var nodeStylesFromCss = (meta3, o = {}) => {
+  const out = {};
+  const put = (k, v) => {
+    if (v !== void 0 && v !== null && v !== "") out[k] = { value: v };
+  };
+  if (meta3 === "button") {
+    put("backgroundColor", o.background);
+    put("color", o.color);
+    put("secondaryColor", o.color);
+  } else {
+    put("color", o.color);
+    put("fontFamily", o.font);
+    put("fontWeight", o.weight);
+    put("textAlign", o.align);
+    put("lineHeight", o.lineHeight);
+  }
+  return out;
+};
 var textCss = (id, o) => {
   const sel = `.${id} h1,.${id} h2,.${id} h3,.${id} h4,.${id} h5,.${id} h6,.${id} ul li,.${id}.text-output`;
   const weight = o.weight ?? 400;
@@ -94044,10 +94068,21 @@ var buildPageData = ({ pageId, stepId, funnelId, locationId, sections, pageStyle
     ...s.metaData ? { metaData: withElement(s.metaData) } : {},
     ...s.elements ? { elements: s.elements.map(withElement) } : {}
   })),
-  settings: { settings: { ...builderSettings(pageBackground), typography: { fonts: {
-    headlineFont: { id: "headlinefont", text: "Headline Font", value: { text: "Default", value: "inherit" }, isCustom: false },
-    contentFont: { id: "contentfont", text: "Content Font", value: { text: "Default", value: "inherit" }, isCustom: false }
-  } } } },
+  settings: { settings: { ...builderSettings(pageBackground), typography: {
+    fonts: {
+      headlineFont: { id: "headlinefont", text: "Headline Font", value: { text: "Default", value: "inherit" }, isCustom: false },
+      contentFont: { id: "contentfont", text: "Content Font", value: { text: "Default", value: "inherit" }, isCustom: false }
+    },
+    // 🔴 `colors` is MANDATORY beside `fonts`. GHL's saveSettings replaces defaultSettings wholesale and
+    // addSettingsProperties then runs Object.keys(colors) UNGUARDED, so a page saved without it hangs the
+    // builder on LOADING while the public page renders (console bl-121, reported by a peer on a live page
+    // and fixed there by a local patch). The values are GHL's own, from GHL-authored pages
+    // (knowledge sniffs/forms-2026-09-06: textColor var(--black) #000000, linkColor var(--blue) #188bf6).
+    colors: {
+      textColor: { value: { label: "var(--black)", value: "#000000" } },
+      linkColor: { value: { label: "var(--blue)", value: "#188bf6" } }
+    }
+  } } },
   // fontsToLoad and colors are MANDATORY — absent, the public render 500s.
   general: { general: { colors, fontsToLoad: fonts, fontsToLoadForPreview: fonts, pageStyles: "", customFonts: [] } },
   pageStyles,
@@ -94074,6 +94109,10 @@ var auditPageData = (pageData) => {
   if (!pageData.settings?.settings?.background) {
     problems.push("settings.settings.background is missing: the public page will render but the BUILDER will hang forever (bgStyle() destructures bgImage from it unguarded). Use buildPageData(), or add builderSettings().");
   }
+  const typo = pageData.settings?.settings?.typography;
+  if (typo && (!typo.colors || typeof typo.colors !== "object")) {
+    problems.push("settings.settings.typography has no colors: the public page will render but the BUILDER will hang on LOADING (addSettingsProperties runs Object.keys(colors) unguarded). Use buildPageData().");
+  }
   for (const s of pageData.sections ?? []) {
     if (s.isGlobal === true) {
       problems.push(`section ${s.id} is isGlobal:true \u2014 editing it in page data is a NO-OP while the funnel-level global-sections file still carries this id (that file wins per section id; the inline copy is only a fallback). Write POST /funnels/builder/global-sections/{funnelId} {sectionData, version: <numeric suffix of globalSectionsPath> + 1}. To DELETE it, do both: drop it from that file AND from every page's sections[].`);
@@ -94094,6 +94133,9 @@ var auditPageData = (pageData) => {
         if (!ELEMENTS[n.meta]) {
           problems.push(`node ${n.id}: meta '${n.meta}' is not one of the ${ELEMENT_KINDS.length} known kinds \u2014 autosave accepts it anyway`);
           continue;
+        }
+        if (n.meta === "button" && !n.styles?.secondaryColor?.value && !n.styles?.color?.value) {
+          problems.push(`node ${n.id} (button): styles has neither color nor secondaryColor \u2014 the BUILDER throws on every render and can no longer save (a 422), while the public page renders. Set styles.color.`);
         }
         const missing = (ELEMENTS[n.meta].extraProps ?? []).filter((p2) => !(p2 in (n.extra ?? {})));
         if (missing.length) problems.push(`node ${n.id} (${n.meta}): missing declared extra props ${missing.join(", ")} \u2014 the renderer reads extra.<prop>.value unguarded`);
@@ -181421,7 +181463,9 @@ var TOOLS2 = [
               const leaf = makeLeaf({
                 meta: e.meta,
                 extra: { ...e.html !== void 0 ? { text: val(e.html) } : {}, ...e.extra ?? {} },
-                styles: e.styles ?? {},
+                // A `css` block also yields the node styles it implies, so the builder canvas and the
+                // public render agree (bl-120); an authored `styles` key always wins.
+                styles: { ...e.css ? nodeStylesFromCss(e.meta, e.css) : {}, ...e.styles ?? {} },
                 tag: e.tag ?? "",
                 salt: `S${si}C${ci}`
               });
