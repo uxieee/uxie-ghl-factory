@@ -10,7 +10,7 @@ const WF = { _id: 'W1', name: 'Lead nurture', status: 'published', workflowData:
 
 function copyGateway({ appearAfter = 1, copyAppears = true, logResult = null } = {}) {
   const calls = [];
-  let listReads = 0, posted = false;
+  let listReads = 0, posted = false, logReads = 0;
   const call = async (method, path, body) => {
     calls.push({ method, path, body });
     if (method === 'GET' && path.startsWith('/workflow/SRC/W1')) return { ok: true, status: 200, json: WF };
@@ -26,7 +26,9 @@ function copyGateway({ appearAfter = 1, copyAppears = true, logResult = null } =
     // GHL's copy log: an older request is always there; this request's row appears once posted.
     if (method === 'GET' && path.startsWith('/workflows/copyWorkflow/statusList')) {
       const logs = [{ requestGroupId: 'OLD-G', workflowId: 'W1', subLocationId: 'TGT', result: 'success', currentStep: 'workflow_clean_and_creation' }];
-      if (posted && logResult) logs.unshift({ requestGroupId: 'NEW-G', workflowId: 'W1', subLocationId: 'TGT', result: logResult, currentStep: 'create_assets', updatedAt: 'T' });
+      // The row trails the copy: 'processing' on its first read after the send, the given result after.
+      if (posted && logResult) { logReads++; logs.unshift({ requestGroupId: 'NEW-G', workflowId: 'W1', subLocationId: 'TGT',
+        result: logResult === 'success' && logReads < 3 ? 'processing' : logResult, currentStep: logResult === 'success' && logReads >= 3 ? 'workflow_clean_and_creation' : 'create_assets', updatedAt: 'T' }); }
       return { ok: true, status: 200, json: { logs, total: logs.length } };
     }
     if (method === 'GET' && path.startsWith('/workflows/copyWorkflow/internalLogList') && path.includes('requestGroupId=NEW-G')) {
@@ -92,7 +94,8 @@ test('a confirmed copy carries GHL\'s own copy-log row for THIS request, not an 
   const r = await tool('copy_workflow_to_location').handler(args({ confirm: true }), deps(gw, new Set(['SRC', 'TGT'])));
   assert.equal(r.ok, true, JSON.stringify(r).slice(0, 300));
   assert.equal(r.data.copyLog.requestGroupId, 'NEW-G');
-  assert.equal(r.data.copyLog.result, 'success');
+  assert.equal(r.data.copyLog.result, 'success', 'the row is re-read until it leaves processing');
+  assert.equal(r.data.copyLog.currentStep, 'workflow_clean_and_creation');
 });
 
 test('a copy GHL\'s log marks FAILED is reported at once, with the step and GHL\'s own message', async () => {

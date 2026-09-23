@@ -152,7 +152,10 @@ cross-account copy. When the copy never landed, the tool could only say "it did 
 not re-send". It now reads the builder's Copy Logs on the source account before and after the send,
 and picks out this request's row by its new `requestGroupId`. A copy GHL marks `failed` is reported
 at once, with the step it stopped at and GHL's per-step messages in `data.copyLog.steps`. Every copy's
-result and last step come back in `data.copyLog`. The target read-back is still what proves a copy.
+result and last step come back in `data.copyLog`. The log trails the copy: in the live run the new
+workflow was readable while its row still said `processing`, settling to `success` about 2 s later.
+So once the copy lands, the row is re-read for up to 6 s until it settles. The target read-back is
+still what proves a copy.
 Both routes were proven live on the sandbox 2026-09-23; two unit tests, and the live copy proof asserts
 the log row.
 

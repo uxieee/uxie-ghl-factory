@@ -7486,6 +7486,14 @@ export const TOOLS = [
         const now = await sameName();
         copyId = (now ?? []).find((id) => !known.has(id)) ?? null;
       }
+      // The log TRAILS the copy: measured 2026-09-23, the new workflow was readable in the target while
+      // its row still said 'processing' at create_assets, and it settled to 'success' about 2 s later.
+      // So once the copy has landed, the row is re-read a few times until it leaves 'processing'.
+      for (let i = 0; i < 4 && copyId && log?.result === 'processing'; i++) {
+        await new Promise((resolve) => setTimeout(resolve, 1500));
+        const logs = await copyLogs();
+        log = (logs ?? []).find((l) => !logGroupsBefore.has(l.requestGroupId) && l.workflowId === args.workflowId && l.subLocationId === target) ?? log;
+      }
       const copyLog = log ? { requestGroupId: log.requestGroupId, result: log.result ?? null, currentStep: log.currentStep ?? null, updatedAt: log.updatedAt ?? null } : null;
       if (log?.result === 'failed' && !copyId) {
         const steps = await gw.call('GET', `/workflows/copyWorkflow/internalLogList?${new URLSearchParams({ locationId: args.locationId, workflowId: args.workflowId, requestGroupId: log.requestGroupId, page: '1' })}`);

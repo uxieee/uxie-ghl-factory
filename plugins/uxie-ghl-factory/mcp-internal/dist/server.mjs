@@ -179207,6 +179207,11 @@ var TOOLS2 = [
         const now = await sameName();
         copyId = (now ?? []).find((id) => !known.has(id)) ?? null;
       }
+      for (let i = 0; i < 4 && copyId && log?.result === "processing"; i++) {
+        await new Promise((resolve5) => setTimeout(resolve5, 1500));
+        const logs = await copyLogs();
+        log = (logs ?? []).find((l) => !logGroupsBefore.has(l.requestGroupId) && l.workflowId === args.workflowId && l.subLocationId === target) ?? log;
+      }
       const copyLog = log ? { requestGroupId: log.requestGroupId, result: log.result ?? null, currentStep: log.currentStep ?? null, updatedAt: log.updatedAt ?? null } : null;
       if (log?.result === "failed" && !copyId) {
         const steps = await gw.call("GET", `/workflows/copyWorkflow/internalLogList?${new URLSearchParams({ locationId: args.locationId, workflowId: args.workflowId, requestGroupId: log.requestGroupId, page: "1" })}`);
