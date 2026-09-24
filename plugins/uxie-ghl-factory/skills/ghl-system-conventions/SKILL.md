@@ -172,15 +172,20 @@ These hold regardless of the build.
 ## Naming
 
 **Workflows** — `NN - Name`. Two-digit zero-padded number, Title Case name.
-- Numbers run in **journey order**, not creation order.
-- Numbering is **contiguous**. If a workflow dies, renumber the ones after it. No gaps.
+- **Numbering resets per GHL folder.** Every folder starts at `01`. Two folders can each have
+  an `01 - …`, and that is correct. A number places a workflow within its own folder; the
+  folder says which system or rail it belongs to.
+- Within a folder, numbers run in **journey order**, not creation order.
+- Numbering is **contiguous within a folder**. If a workflow dies, renumber the ones after it in
+  that folder. No gaps. Never continue one folder's sequence into the next.
+- Moving a workflow to another folder renumbers it there, and closes the gap it left behind.
 - **No sub-numbers.** `07b`, `16.1` — renumber instead.
 - **Refer to workflows by name, not number** when talking to the operator. Numbers move when
   things get renumbered; names don't.
 - Retired workflows get an **`X ` prefix** and are unpublished, so dead things look dead.
 - **Test objects say TEST in the name.** Nobody should have to wonder.
 - **Group workflows into GHL folders by system or rail** (per funnel, per booking rail,
-  per parallel system). Number within the journey.
+  per parallel system). Each folder is its own numbering sequence (see above).
 
 **Tags** — `namespace:value`, lowercase, hyphens inside multi-word values.
 GHL normalises tags to lowercase on write, so casing is not something to police. What it

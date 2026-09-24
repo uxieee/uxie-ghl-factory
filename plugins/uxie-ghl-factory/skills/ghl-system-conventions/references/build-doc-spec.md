@@ -74,7 +74,8 @@ The first screen. Answers two questions: what triggers each workflow, and which 
 are wired to each other.
 
 - Workflow cards in phase columns (capture → engage → … → after), each showing its
-  trigger type, number + name, and what it removes from.
+  trigger type, number + name (and its folder when the system spans more than one), and what
+  it removes from.
 - **Solid arrows = leads to**, labelled with the causing signal, on small background
   plates so lines never run through text. Orthogonal routing; an edge that skips a card
   in its own column detours through a channel beside the column, never through a card.
@@ -89,12 +90,17 @@ are wired to each other.
 
 ## 2. Per-workflow cards — the system book idiom
 
-One `.wf` card per workflow, stacked full-width in numbering order:
+One `.wf` card per workflow, stacked full-width. Numbering resets per GHL folder, so the cards
+are grouped under one heading per folder, each group in its own numbering order. A system that
+fits in one folder has one group.
 
 - **Header**: the workflow number as a small mono chip, name, then the trigger line in mono
   across the full width (`Trigger: Appointment · status = confirmed · calendar = Smile Assessment`).
 - **Settings pills**: stop-on-response with its reason, quiet hours, re-entry, and the
   removal contract both directions (`removes from 01, 03, 06, 09` / `removed by 05, 07, 12`).
+  A bare number means the same folder. A workflow in another folder is written with its folder,
+  `Booking/03`, because every folder has its own `03`. The same applies to the removal-edge
+  labels on the map (`04 ⊣ Booking/03`).
 - **A mermaid `flowchart TD`, centered in the card** on the card's green left edge. The
   shape vocabulary:
   - `([...])` stadium — trigger at top, exits and terminal outcomes
