@@ -269,6 +269,15 @@
       "operators": [
         "=="
       ]
+    },
+    {
+      "field": "documentCreatedByTemplateId",
+      "id": "documentCreatedByTemplateId",
+      "title": "Template",
+      "type": "select",
+      "operators": [
+        "=="
+      ]
     }
   ],
   "scheduler_trigger": [

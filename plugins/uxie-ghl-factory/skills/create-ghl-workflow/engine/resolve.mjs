@@ -78,10 +78,25 @@ export function buildResolvers(raw = {}) {
 // True if the string already looks like a resolved id (leave it alone).
 const looksLikeId = (v) => typeof v === 'string' && /^[A-Za-z0-9_-]{16,}$/.test(v) && !/\s/.test(v);
 
+// Every trigger-filter field resolveFilterValue rewrites. Fields ending .id / .pipelineId /
+// .pipelineStageId / .assignedTo are caught by shape; these are the ones whose NAME does not say
+// "id", so a shape test alone missed them: the build path never reported one that failed to
+// resolve, and the edit path never even ran the resolver for them (2026-09-23).
+const NAMED_ID_FILTER_FIELDS = new Set(['payment.global_product_ids', 'twoStepOrderForm.funnelId', 'video.funnelId',
+  'facebook.pageId', 'documentCreatedByTemplateId']);
+/** A value shaped like a real GHL id: 20-24 letters/digits (location-scoped ids, Mongo ObjectIds) or a UUID. */
+export const plausibleGhlId = (v) => typeof v === 'string' && (/^[A-Za-z0-9]{20,24}$/.test(v) || /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v));
+/** True for a trigger-filter field whose value is an entity id the resolver can fill from a name. */
+export const isIdBearingFilter = (field) => /\.(id|pipelineId|pipelineStageId|assignedTo)$/.test(field ?? '') || NAMED_ID_FILTER_FIELDS.has(field);
+
 // Rewrite a filter value that references an entity by name → its id.
+// The NAME is looked up FIRST, and a value that matches no name passes through unchanged (an id
+// never matches a name). looksLikeId used to short-circuit this, and it accepts any 16+ character
+// run of letters, digits, '-' and '_': a name with no spaces ('TEST-CONF-doc-template', 'Spring_Promo_2026')
+// was taken for an id and stored as the word. Measured live 2026-09-23 on a document template.
 function resolveFilterValue(field, value, r) {
   const one = (v) => {
-    if (looksLikeId(v)) return v;
+    if (typeof v !== 'string' || !v) return v;
     if (field === 'opportunity.pipelineId') return r.pipelineId(v) ?? v;
     if (field === 'opportunity.pipelineStageId') return r.stageId(v) ?? v;
     if (field === 'calendar.id') return r.calendarId(v) ?? v;
@@ -96,6 +111,11 @@ function resolveFilterValue(field, value, r) {
     if (field === 'twoStepOrderForm.funnelId') return r.funnelId(v) ?? v;          // two-step order form
     if (field === 'video.funnelId') return r.funnelId(v) ?? v;                     // video_event
     if (field === 'facebook.pageId') return r.fbPageId(v) ?? v;                    // facebook_lead_gen
+    // Documents & Contracts and the estimate trigger. The builder's Template dropdown
+    // (/workflows-marketplace/triggers/options/proposal_estimate_update/documentCreatedByTemplateId)
+    // offers exactly the /proposals/templates ids, labelled by template name: proven by differential
+    // on the sandbox 2026-09-23 ({options:[]} before a template existed, that template's id after).
+    if (field === 'documentCreatedByTemplateId') return r.documentTemplateId(v) ?? v;
     return v;
   };
   return Array.isArray(value) ? value.map(one) : one(value);
@@ -141,7 +161,7 @@ export function resolveIR(ir, r) {
       const field = f.field ?? f.on;
       const before = JSON.stringify(f.value);
       f.value = resolveFilterValue(field ?? '', f.value, r);
-      if (JSON.stringify(f.value) === before && /\.(id|pipelineId|pipelineStageId|assignedTo)$/.test(field ?? '') && !Array.isArray(f.value) && !looksLikeId(f.value)) {
+      if (JSON.stringify(f.value) === before && isIdBearingFilter(field) && !Array.isArray(f.value) && !looksLikeId(f.value)) {
         // couldn't resolve a name-looking value on an id field
         unresolved.push({ where: `trigger ${t.type} filter ${field}`, name: f.value });
       }

@@ -176,7 +176,7 @@ var define_ENDPOINT_CATALOG_default;
 var init_define_ENDPOINT_CATALOG = __esm({
   "<define:__ENDPOINT_CATALOG__>"() {
     define_ENDPOINT_CATALOG_default = {
-      generated: "2026-09-23",
+      generated: "2026-09-24",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
       count: 1145,
       endpoints: [
@@ -31662,7 +31662,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          note: "CANDIDATE, BLOCKED ON A FIXTURE (2026-09-23). The 'Template' dropdown of the Documents & Contracts triggers (proposal_estimate_update, and the estimate trigger's same field). Stored triggers carry an opaque id in conditions[].value (seen in harvested client documents). The engine could resolve a template NAME to that id through the documentTemplates list (GET /proposals/templates, fixed 2026-09-23 to page at limit 21), but only once it is PROVEN that this dropdown's option values are those template ids. The sandbox holds no document template (the options route answers {options:[]}), and creating one through the API would be an unmeasured write. Needs: one document template created in the sandbox UI, then a differential read of this route against /proposals/templates.",
+          note: "NO TASK NEEDS THIS as a call \u2014 its answer is the resolver's own list. The Documents & Contracts (and estimate) trigger's Template dropdown: {options:[{label, value, assignedRoles}]}, where value IS the /proposals/templates id and label its name. Proven by DIFFERENTIAL on the sandbox 2026-09-23: {options:[]} while the account had no template, exactly that template's id after one was made in the UI. So build_workflow / edit_workflow resolve a template NAME on filter field documentCreatedByTemplateId through GET /proposals/templates (list_account_entities' documentTemplates), and document-template-trigger-proof.mjs reads this route as the oracle. Stored condition: {operator:'==', field:'documentCreatedByTemplateId', value:<24-hex template id>, title:'Template', type:'select', id:'documentCreatedByTemplateId'}.",
           reach: "proven",
           provenFor: [
             "agency-admin-bearer"
@@ -54220,7 +54220,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
         },
         "GET /workflows-marketplace/triggers/options/proposal_estimate_update/documentCreatedByTemplateId": {
           reach: "proven",
-          note: "CANDIDATE, BLOCKED ON A FIXTURE (2026-09-23). The 'Template' dropdown of the Documents & Contracts triggers (proposal_estimate_update, and the estimate trigger's same field). Stored triggers carry an opaque id in conditions[].value (seen in harvested client documents). The engine could resolve a template NAME to that id through the documentTemplates list (GET /proposals/templates, fixed 2026-09-23 to page at limit 21), but only once it is PROVEN that this dropdown's option values are those template ids. The sandbox holds no document template (the options route answers {options:[]}), and creating one through the API would be an unmeasured write. Needs: one document template created in the sandbox UI, then a differential read of this route against /proposals/templates."
+          note: "NO TASK NEEDS THIS as a call \u2014 its answer is the resolver's own list. The Documents & Contracts (and estimate) trigger's Template dropdown: {options:[{label, value, assignedRoles}]}, where value IS the /proposals/templates id and label its name. Proven by DIFFERENTIAL on the sandbox 2026-09-23: {options:[]} while the account had no template, exactly that template's id after one was made in the UI. So build_workflow / edit_workflow resolve a template NAME on filter field documentCreatedByTemplateId through GET /proposals/templates (list_account_entities' documentTemplates), and document-template-trigger-proof.mjs reads this route as the oracle. Stored condition: {operator:'==', field:'documentCreatedByTemplateId', value:<24-hex template id>, title:'Template', type:'select', id:'documentCreatedByTemplateId'}."
         },
         "GET /workflows/copyWorkflow/internalLogList": {
           requiredQuery: [
@@ -161150,6 +161150,15 @@ var observed_trigger_filters_default = {
       operators: [
         "=="
       ]
+    },
+    {
+      field: "documentCreatedByTemplateId",
+      id: "documentCreatedByTemplateId",
+      title: "Template",
+      type: "select",
+      operators: [
+        "=="
+      ]
     }
   ],
   scheduler_trigger: [
@@ -164037,9 +164046,18 @@ function buildResolvers(raw = {}) {
   };
 }
 var looksLikeId2 = (v) => typeof v === "string" && /^[A-Za-z0-9_-]{16,}$/.test(v) && !/\s/.test(v);
+var NAMED_ID_FILTER_FIELDS = /* @__PURE__ */ new Set([
+  "payment.global_product_ids",
+  "twoStepOrderForm.funnelId",
+  "video.funnelId",
+  "facebook.pageId",
+  "documentCreatedByTemplateId"
+]);
+var plausibleGhlId = (v) => typeof v === "string" && (/^[A-Za-z0-9]{20,24}$/.test(v) || /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v));
+var isIdBearingFilter = (field) => /\.(id|pipelineId|pipelineStageId|assignedTo)$/.test(field ?? "") || NAMED_ID_FILTER_FIELDS.has(field);
 function resolveFilterValue(field, value, r) {
   const one = (v) => {
-    if (looksLikeId2(v)) return v;
+    if (typeof v !== "string" || !v) return v;
     if (field === "opportunity.pipelineId") return r.pipelineId(v) ?? v;
     if (field === "opportunity.pipelineStageId") return r.stageId(v) ?? v;
     if (field === "calendar.id") return r.calendarId(v) ?? v;
@@ -164054,6 +164072,7 @@ function resolveFilterValue(field, value, r) {
     if (field === "twoStepOrderForm.funnelId") return r.funnelId(v) ?? v;
     if (field === "video.funnelId") return r.funnelId(v) ?? v;
     if (field === "facebook.pageId") return r.fbPageId(v) ?? v;
+    if (field === "documentCreatedByTemplateId") return r.documentTemplateId(v) ?? v;
     return v;
   };
   return Array.isArray(value) ? value.map(one) : one(value);
@@ -164092,7 +164111,7 @@ function resolveIR(ir, r) {
       const field = f.field ?? f.on;
       const before = JSON.stringify(f.value);
       f.value = resolveFilterValue(field ?? "", f.value, r);
-      if (JSON.stringify(f.value) === before && /\.(id|pipelineId|pipelineStageId|assignedTo)$/.test(field ?? "") && !Array.isArray(f.value) && !looksLikeId2(f.value)) {
+      if (JSON.stringify(f.value) === before && isIdBearingFilter(field) && !Array.isArray(f.value) && !looksLikeId2(f.value)) {
         unresolved.push({ where: `trigger ${t.type} filter ${field}`, name: f.value });
       }
     }
@@ -168069,7 +168088,6 @@ var INTENT_KEYS = [
   "lostReason"
 ];
 var looksLikeId3 = (v) => typeof v === "string" && /^[A-Za-z0-9_-]{16,}$/.test(v) && !/\s/.test(v);
-var ID_BEARING_FILTER = /\.(id|pipelineId|pipelineStageId|assignedTo)$/;
 function opsNeedResolution(ops) {
   let needs = false;
   const check2 = (attrs) => {
@@ -168084,7 +168102,7 @@ function opsNeedResolution(ops) {
     }
     check2(op?.attrPatch);
     for (const f of op?.trigger?.filters ?? []) {
-      if (f?.value !== void 0 && ID_BEARING_FILTER.test(f.field ?? f.on ?? "") && !looksLikeId3(f.value)) needs = true;
+      if (f?.value !== void 0 && isIdBearingFilter(f.field ?? f.on ?? "") && [].concat(f.value).some((v) => !plausibleGhlId(v))) needs = true;
     }
   }
   return needs;

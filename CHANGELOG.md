@@ -147,6 +147,27 @@ Provenance notes keep the account's label. The pre-commit hook now also runs the
 account data. It runs only where the knowledge repo sits beside this one; anywhere else it prints
 that it was SKIPPED, and does not block.
 
+**A Documents & Contracts trigger can name its document template by name.** The trigger's Template
+filter (`documentCreatedByTemplateId`) was unknown to the engine's drawer rows. An authored filter
+went out with no operator, title or type, and GHL's validator refused it. The row now carries its
+measured stored shape (`==`, "Template", select), and `build_workflow` and `edit_workflow` resolve a
+template name to its id through `/proposals/templates`. GHL's own Template dropdown is the oracle for
+that: its option values are those ids, proven by differential on the sandbox. A name that matches no
+template is refused by name. Proven live (`document-template-trigger-proof.mjs`, in the workflows
+suite).
+
+Two resolver bugs surfaced on the way, and both affected every trigger filter:
+- **A name with no spaces was taken for an id.** The "already an id" shortcut accepts any 16+
+  character run of letters, digits, `-` and `_`, so `TEST-CONF-doc-template` or `Spring_Promo_2026` was
+  stored as the word. Names are now looked up first; a value that matches no name passes through as
+  before.
+- **Some id-bearing fields were never recognised.** The check was a `.id`-suffix pattern, which misses
+  `twoStepOrderForm.funnelId`, `video.funnelId`, `facebook.pageId`, `payment.global_product_ids` and
+  `documentCreatedByTemplateId`. So the build path never reported one of those that failed to resolve,
+  and the edit path never resolved them. One shared list now drives both paths.
+
+Five unit tests, each failing on the previous code.
+
 **`copy_workflow_to_location` reads GHL's own copy log, so a failed copy says why.** GHL queues a
 cross-account copy. When the copy never landed, the tool could only say "it did not appear in 30 s, do
 not re-send". It now reads the builder's Copy Logs on the source account before and after the send,

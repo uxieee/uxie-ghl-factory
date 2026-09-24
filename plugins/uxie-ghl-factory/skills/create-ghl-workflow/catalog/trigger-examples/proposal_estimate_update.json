@@ -16,6 +16,14 @@
       "title": "Status",
       "type": "select",
       "id": "status"
+    },
+    {
+      "operator": "==",
+      "field": "documentCreatedByTemplateId",
+      "value": "{documentTemplateId}",
+      "title": "Template",
+      "type": "select",
+      "id": "documentCreatedByTemplateId"
     }
   ],
   "type": "proposal_estimate_update",

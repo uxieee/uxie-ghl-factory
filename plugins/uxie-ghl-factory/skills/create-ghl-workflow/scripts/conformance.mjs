@@ -48,6 +48,7 @@ import { runAuthClassificationProof } from './auth-classification-proof.mjs';
 import { runSnapshotContentsProof } from './snapshot-contents-proof.mjs';
 import { runTriggerRepairProof } from './trigger-repair-proof.mjs';
 import { runPublishedBaselineProof } from './published-baseline-proof.mjs';
+import { runDocumentTemplateTriggerProof } from './document-template-trigger-proof.mjs';
 
 const LOCATION = process.env.GHL_LOCATION || process.env.GHL_LOC;
 if (!LOCATION) {
@@ -1794,6 +1795,8 @@ console.log('\nedit_workflow: a broken document is previewable, and a trigger re
 await runTriggerRepairProof({ call, gw: deps.makeGw({ loc: LOCATION, state }), LOCATION, NAME, check, left, log });
 console.log('\nedit/repair of a PUBLISHED workflow that already breaks a rule GHL stops checking there (bl-146)');
 await runPublishedBaselineProof({ call, gw: deps.makeGw({ loc: LOCATION, state }), LOCATION, NAME, check, left, log });
+console.log('\nthe Documents & Contracts trigger names a document template by name and stores its id');
+await runDocumentTemplateTriggerProof({ call, gw: deps.makeGw({ loc: LOCATION, state }), LOCATION, NAME, check, left, log });
 
 // ── get_workflow_stats: A/B split results, proven by DIFFERENTIAL ─────────────────────────────
 // Same fence as the runtime block above: trigger-less workflow, a contact this run creates with no

@@ -16,7 +16,7 @@ import {
   resolveBranchTarget,
 } from './edit.mjs';
 import { compile, buildTrigger } from './compiler.mjs';
-import { resolveIR } from './resolve.mjs';
+import { resolveIR, isIdBearingFilter, plausibleGhlId } from './resolve.mjs';
 import { walkNodes, IRError } from './ir.mjs';
 import { STICKY_OPS } from './sticky-notes.mjs';
 export { STICKY_OPS };
@@ -64,7 +64,6 @@ const refMapFrom = (externalRefs) => {
 const INTENT_KEYS = ['pipeline', 'stage', 'user', 'calendar', 'agent', 'employee', 'workflow',
   'customValue', 'custom_value', 'offer', 'template', 'lostReason'];
 const looksLikeId = (v) => typeof v === 'string' && /^[A-Za-z0-9_-]{16,}$/.test(v) && !/\s/.test(v);
-const ID_BEARING_FILTER = /\.(id|pipelineId|pipelineStageId|assignedTo)$/;
 
 // Does any op carry a NAME the account resolver must turn into an id? Gated because resolving
 // means fetchEntities, which is 21 GETs — a native edit with no names must stay network-identical.
@@ -80,7 +79,8 @@ export function opsNeedResolution(ops) {
     }
     check(op?.attrPatch);
     for (const f of op?.trigger?.filters ?? []) {
-      if (f?.value !== undefined && ID_BEARING_FILTER.test(f.field ?? f.on ?? '') && !looksLikeId(f.value)) needs = true;
+      // plausibleGhlId, not looksLikeId: a hyphenated NAME passes looksLikeId and was never resolved.
+      if (f?.value !== undefined && isIdBearingFilter(f.field ?? f.on ?? '') && [].concat(f.value).some((v) => !plausibleGhlId(v))) needs = true;
     }
   }
   return needs;
