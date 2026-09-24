@@ -76,10 +76,16 @@ export function primarySurfaces(tool, manifest, index) {
 // Deliberately NOT extended to tiers: tier is about how central an app is, confidence is about
 // whether we KNOW. Only the second belongs in a gate. See console bl-145.
 const GATES = (a) => String(a?.confidence ?? '').toUpperCase() !== 'GUESS';
-export function buildDeps(surfaces, map, { apps, builderEntry = null }) {
+// SCOPED TO THE TOOLS IT BEARS ON. An app entry may name `tools`: then it gates those tools only.
+// reportingApp is on the workflows surface because it hosts the stats screen behind get_workflow_stats,
+// and nothing else — but without a scope it gated all 36 workflows tools, so every reporting-page ship
+// (262 -> 278 in 26 days) demoted build_workflow and edit_workflow to "GHL shipped" and the console's
+// "confirmed" sat at 0 of 83 hours after a full live run (2026-09-24). Same failure as bl-145, one tier up.
+const APPLIES = (a, tool) => !Array.isArray(a?.tools) || tool == null || a.tools.includes(tool);
+export function buildDeps(surfaces, map, { apps, builderEntry = null, tool = null }) {
   const out = {};
   for (const s of surfaces) {
-    const list = (map.surfaces?.[s] ?? []).filter((a) => a?.app).filter(GATES);
+    const list = (map.surfaces?.[s] ?? []).filter((a) => a?.app).filter(GATES).filter((a) => APPLIES(a, tool));
     const tier1 = list.filter((a) => a.tier === 1);
     for (const a of (tier1.length ? tier1 : list)) out[a.app] = apps.get(a.app)?.build ?? null;
     // The workflow builder is its own SPA; the federated manifest cannot see it.

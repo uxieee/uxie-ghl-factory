@@ -37,7 +37,7 @@ export function computeDepends(tool, ctx, hashedAt) {
     depends: {
       hashedAt,
       endpoints: endpointHashes(tool, ctx.manifest, index),
-      builds: buildDeps(surfaces, ctx.map, { apps: ctx.apps, builderEntry: ctx.builderEntry }),
+      builds: buildDeps(surfaces, ctx.map, { apps: ctx.apps, builderEntry: ctx.builderEntry, tool }),
       code: codeDeps({ toolsFile: ctx.toolsFile, tool, root: ctx.root }),
     },
   };

@@ -111,3 +111,17 @@ test('the workflow builder SPA still gates even when every federated app for the
   assert.deepEqual(buildDeps(['workflows'], map, { apps, builderEntry: 'assets/index-Y.js' }),
     { 'builder-chunks': 'assets/index-Y.js' });
 });
+
+test('an app entry that names `tools` gates only those tools (reportingApp is the stats screen, nothing else)', () => {
+  const map = { surfaces: { workflows: [
+    { app: 'reportingApp', confidence: 'LIKELY', tier: 2, tools: ['get_workflow_stats'] },
+    { app: 'otherApp', confidence: 'LIKELY', tier: 2 },
+  ] } };
+  const apps = new Map([['reportingApp', { build: 278 }], ['otherApp', { build: 5 }]]);
+  const stats = buildDeps(['workflows'], map, { apps, builderEntry: 'b', tool: 'get_workflow_stats' });
+  const edit = buildDeps(['workflows'], map, { apps, builderEntry: 'b', tool: 'edit_workflow' });
+  assert.equal(stats.reportingApp, 278);
+  assert.equal('reportingApp' in edit, false, 'a reporting-page ship must not demote edit_workflow');
+  assert.equal(edit.otherApp, 5, 'an entry with no tools list still gates every tool on the surface');
+  assert.equal(buildDeps(['workflows'], map, { apps, builderEntry: 'b' }).reportingApp, 278, 'no tool given keeps the old behaviour');
+});
