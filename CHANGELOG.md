@@ -11,7 +11,17 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
-## Unreleased
+## [1.0.0] — 2026-09-24
+
+**1.0: the tool interface is now stable, and workflows are at full parity.** All 240 known workflow
+routes are explored, and every usable one (83 of 83) is driven by a tool. What is not used carries
+its reason on the catalogue row. The workflows live suite passes 339/0 on this code.
+
+From here the version numbers mean something specific:
+- **MAJOR** (2.0): a tool is renamed or removed, or its parameters or output change in a way that
+  breaks existing callers.
+- **MINOR** (1.1): new capability. A surface reaching parity, or support for a new GHL feature.
+- **PATCH** (1.0.1): fixes and adjustments with no new capability.
 
 **Three funnel pages that rendered in public but broke the page BUILDER** (console bl-119, bl-120, bl-121;
 reported by a peer from live pages). Each case saved with a 201, read back correctly and rendered publicly,
