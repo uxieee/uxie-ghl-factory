@@ -333,6 +333,16 @@
         "receipt:2026-09-24-0448"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-24",
+      "result": "pass",
+      "how": "suite",
+      "suite": "workflows",
+      "evidence": [
+        "receipt:2026-09-24-0825"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
@@ -343,8 +353,7 @@
       "PUT https://backend.leadconnectorhq.com /workflow/{}/error-notification/settings/users": "064c6dfdfbcbadd152db7f1c9a1e65c3ba4420efa234b974e8e29727895cf374"
     },
     "builds": {
-      "builder-chunks": "assets/index-BZBeFyAW.js",
-      "reportingApp": 277
+      "builder-chunks": "assets/index-BZBeFyAW.js"
     },
     "code": {
       "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#set_workflow_error_alerts": "4b2fda006ae5b19395fc07c201ea1db4309dc7c81a8acb16976293f206e78c2c",

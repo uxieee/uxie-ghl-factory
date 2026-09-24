@@ -503,6 +503,16 @@
         "receipt:2026-09-24-0448"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-24",
+      "result": "pass",
+      "how": "suite",
+      "suite": "workflows",
+      "evidence": [
+        "receipt:2026-09-24-0825"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
@@ -514,8 +524,7 @@
       "GET https://backend.leadconnectorhq.com /workflows-marketplace/integration/{}/oauth": "065347133579a2c352759c3413857c4876eca8eae7f656028796bf132636733c"
     },
     "builds": {
-      "builder-chunks": "assets/index-BZBeFyAW.js",
-      "reportingApp": 277
+      "builder-chunks": "assets/index-BZBeFyAW.js"
     },
     "code": {
       "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#describe_marketplace_action": "12cc4a65a83823103cd78d4811a9101e2b2e5cb80456dd8479b4f76989a78b86",

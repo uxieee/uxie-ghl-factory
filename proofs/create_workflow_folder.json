@@ -553,6 +553,16 @@
         "receipt:2026-09-24-0448"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-24",
+      "result": "pass",
+      "how": "suite",
+      "suite": "workflows",
+      "evidence": [
+        "receipt:2026-09-24-0825"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
@@ -563,8 +573,7 @@
       "PUT https://backend.leadconnectorhq.com /workflow/{}/rename-directory/{}": "d9a2e956019b45a4b6991c30260690ccc7d617ab5cd75e7cfeb82a767f7cbf65"
     },
     "builds": {
-      "builder-chunks": "assets/index-BZBeFyAW.js",
-      "reportingApp": 277
+      "builder-chunks": "assets/index-BZBeFyAW.js"
     },
     "code": {
       "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#create_workflow_folder": "354b5d48d06da30fa7e0844ca49b05c3268148c59e4710823e7c1e3e20e883e3",

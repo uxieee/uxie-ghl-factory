@@ -33,6 +33,16 @@
         "receipt:2026-09-24-0448"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-24",
+      "result": "pass",
+      "how": "suite",
+      "suite": "workflows",
+      "evidence": [
+        "receipt:2026-09-24-0825"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
@@ -41,8 +51,7 @@
       "GET https://backend.leadconnectorhq.com /workflow/{}/premium-tier-usage/{}": "d369374d747992a57764853254e535b16abb7ec7f7001f6aa6a50c261bc664ca"
     },
     "builds": {
-      "builder-chunks": "assets/index-BZBeFyAW.js",
-      "reportingApp": 277
+      "builder-chunks": "assets/index-BZBeFyAW.js"
     },
     "code": {
       "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#get_premium_usage": "6b6bbf4e82c22fe98539c3057b9a9fc14c1da8db65a4eca21e33e9e94a7717d8",

@@ -604,6 +604,16 @@
         "receipt:2026-09-24-0448"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-24",
+      "result": "pass",
+      "how": "suite",
+      "suite": "workflows",
+      "evidence": [
+        "receipt:2026-09-24-0825"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
@@ -644,8 +654,7 @@
       "PUT https://services.leadconnectorhq.com /hooks/inbound-webhook-request/set-as-reference/{}": "04e319c7cbc76d23cd3ffa1a50518ac7ac49435ee488ba44ba5a7c1f707b231c"
     },
     "builds": {
-      "builder-chunks": "assets/index-BZBeFyAW.js",
-      "reportingApp": 277
+      "builder-chunks": "assets/index-BZBeFyAW.js"
     },
     "code": {
       "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#build_workflow": "ac060ae2c7758fa0e7efac70a2333a8aa1f8a790379788fd7fd173732a21a827",
