@@ -11,6 +11,19 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.0.1] — 2026-09-25
+
+**Workflow numbering resets per GHL folder** (`ghl-system-conventions`). Each folder starts at `01`,
+runs in journey order and has no gaps; a sequence never continues from one folder into the next.
+Moving a workflow to another folder renumbers it there. The pre-build document follows suit: workflow
+cards are grouped per folder, and a reference to a workflow in another folder carries the folder
+(`Booking/03`), because every folder has its own `03`.
+
+**A reporting-page ship no longer marks every workflow tool unconfirmed.** An app entry in the proof
+dependency map can now name the tools it serves. The reporting app is scoped to `get_workflow_stats`.
+Before, any change to that one GHL page demoted all 36 workflows tools to "unconfirmed" (the console's
+"0 of 83 confirmed"). The workflows proofs were re-recorded on that code (339/0).
+
 ## [1.0.0] — 2026-09-24
 
 **1.0: the tool interface is now stable, and workflows are at full parity.** All 240 known workflow
