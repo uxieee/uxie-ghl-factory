@@ -11,6 +11,28 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.0.6] — 2026-09-25
+
+**The type cards now warn about two silent failures in workflow merge tags.**
+
+- **`custom_webhook`: index a response array with a dot, never brackets.**
+  `{{custom_webhook.1.response.json.numbers.0.phoneNumber}}` renders. `…numbers[0].phoneNumber` fails to
+  compile, and GHL then skips the **whole** field write, including every other tag in the same value.
+  GHL's validator does not catch this at publish. An array tag written into a field renders
+  `[object Object]`.
+- **`custom_code`: outputs are `{{custom_code.N.output.<key>}}`.** The form without `.output.` renders
+  empty and raises no error. Inputs are read as `inputData.<key>`. A bare `<key>` throws
+  `ReferenceError`, and the builder's test fails. At run time an array input arrives as a real array.
+  A numeric-looking string arrives as a number, so a phone number loses its `+`. The step still has
+  no network: `fetch`, `require`, `XMLHttpRequest` and `import` are unavailable, re-checked today.
+
+All proven live on the test sub-account.
+
+**The workflow tools are re-proven after 1.0.5's engine change.** The full workflows live suite passed
+339/339. That brings the eight tools whose proof depended on the compiler back to current:
+`build_workflow`, `check_workflow`, `edit_workflow`, `export_workflow`, `get_workflow_digest`,
+`list_account_entities`, `publish_workflow` and `repair_workflow`.
+
 ## [1.0.5] — 2026-09-25
 
 **An internal SMS notification can go to a Custom Number.** GHL stores that recipient as
