@@ -161650,7 +161650,7 @@ var NOTIFICATION_EMITTED_KEYS = {
   // guards exempt the body on !<channel>.template_id). Dropping them forced every notification
   // into inline mode and made template-mode impossible to author — found by the enforcement tests.
   email: ["from_name", "from_email", "to", "userType", "subject", "html", "attachments", "selectedUser", "cc", "preHeader", "template_id", "templatesource"],
-  sms: ["body", "userType", "attachments", "selectedUser", "template_id"],
+  sms: ["body", "to", "userType", "attachments", "selectedUser", "template_id"],
   // `type` is the DRAWER's own key for the in-app channel (the stored shape reads
   // notification.type); `notificationType` is the authoring alias the builder accepted first.
   // Without `type` here, re-normalising a STORED notification reported its own real key as
@@ -161717,8 +161717,16 @@ function internalNotificationAttributes(a, ctx) {
     } };
   }
   if (channel === "sms") {
+    const wantsTo = userType === "custom_sms" || b.to != null;
+    if (userType === "custom_sms" && (b.to == null || b.to === "")) {
+      throw new IRError(
+        "MISSING_FIELD",
+        `internal_notification with userType 'custom_sms' requires attributes.sms.to \u2014 without it the builder shows an empty "Custom Number" and GHL validates the step anyway.`
+      );
+    }
     return { type: "sms", sms: {
       body: b.body ?? "",
+      ...wantsTo ? { to: b.to } : {},
       ...b.template_id != null && b.template_id !== "" ? { template_id: b.template_id } : {},
       userType,
       attachments: b.attachments ?? [],

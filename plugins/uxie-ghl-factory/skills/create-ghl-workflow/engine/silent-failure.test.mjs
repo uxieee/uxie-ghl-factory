@@ -365,6 +365,29 @@ test('a non-custom_email notification still omits `to`', () => {
   assert.equal('to' in t[0].attributes.email, false);
 });
 
+// bl-186: the SMS channel had the same hole. "Custom Number" is userType 'custom_sms' + sms.to
+// (SMS.ts); 14 stored UI-built steps carry exactly {body, to, userType, attachments}.
+test("internal_notification emits an authored sms.to for userType 'custom_sms'", () => {
+  const warnings = [];
+  const c = { ...ctx(), warn: (m) => warnings.push(m) };
+  const built = compile(wf([{ ref: 'a', kind: 'action', type: 'internal_notification', name: 'N',
+    attributes: { type: 'sms', sms: { userType: 'custom_sms', to: '{{custom_values.owner_phone}}', body: 'b' } } }]), c);
+  const sms = built.autoSaveBody.workflowData.templates[0].attributes.sms;
+  assert.deepEqual(sms, { body: 'b', to: '{{custom_values.owner_phone}}', userType: 'custom_sms', attachments: [] });
+  assert.equal(warnings.some((w) => /NOTIFICATION_KEY_DROPPED/.test(w)), false, JSON.stringify(warnings));
+});
+
+test("userType 'custom_sms' without a `to` fails loudly, never builds a dead notification", () => {
+  throws([{ ref: 'a', kind: 'action', type: 'internal_notification', name: 'N',
+    attributes: { type: 'sms', sms: { userType: 'custom_sms', body: 'b' } } }], 'MISSING_FIELD');
+});
+
+test('a non-custom_sms notification still omits `to`', () => {
+  const t = templatesOf([{ ref: 'a', kind: 'action', type: 'internal_notification', name: 'N',
+    attributes: { type: 'sms', sms: { userType: 'all', body: 'b' } } }]);
+  assert.equal('to' in t[0].attributes.sms, false);
+});
+
 test('an unemitted notification key warns instead of vanishing silently', () => {
   const warnings = [];
   const c = { ...ctx(), warn: (m) => warnings.push(m) };
