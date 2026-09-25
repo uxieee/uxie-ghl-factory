@@ -11,6 +11,21 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.0.2] — 2026-09-25
+
+**Switching off a wait is refused, because GHL ignores it.** A step switched off with the builder's
+⏸ (`advanceCanvasMeta.isDisabled`) is skipped when a run reaches it. It logs `skipped`, "This Action
+is disabled.". This was proven live on an SMS and a tag step, and observed on a GoGHL WhatsApp send in
+real production runs. A **wait** carrying the same flag still holds the contact for its full time.
+GHL stores the flag, validates and publishes clean, then ignores it. The builder never lets you
+switch off a wait, goto, drip, goal or branching container. Our engine let you, through IR
+`disabled: true`, `setStepDisabled` and `disableStepsByType`. All three now refuse those steps with
+`STEP_NOT_DISABLEABLE`, naming the step and what to do instead (delete a wait; switch off the actions
+inside a branch). Switching a step back ON is never refused, so a stray flag can still be cleared.
+
+The capabilities index and the editing guide said a disabled step is skipped "for every step type".
+They now say what was measured.
+
 ## [1.0.1] — 2026-09-25
 
 **Workflow numbering resets per GHL folder** (`ghl-system-conventions`). Each folder starts at `01`,
