@@ -11,6 +11,28 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.0.4] — 2026-09-25
+
+**Two false alarms in the internal MCP are gone.**
+
+**`build_workflow` no longer calls a container build incomplete.** A `find_contact`,
+`find_opportunity` or if/else compiles to more steps than you authored, because the builder adds its
+branch and transition steps. The count check required all three numbers to be equal, so every such
+build read "LOUD STEP-COUNT MISMATCH" and `partial: true`. It now flags only a real loss: GHL storing a
+different number of steps than were sent, or fewer steps compiled than nodes authored. A clean
+container build explains its extra steps instead. Proven live: authored 3, compiled 5, stored 5.
+
+**`create_convai_agent` verifies attached actions by id.** The create body sends `actions: []`,
+because actions are attached afterwards with their own POSTs. The verifier then compared that empty
+list with the re-read, which correctly listed the new action. So every create that had an action
+failed with `AGENT_VERIFICATION_FAILED`, and a create whose action was missing passed. It now confirms
+that each attached action id is on the agent. Proven live: a bot with a booking action created and
+verified clean.
+
+`update_convai_agent` still refuses agent-level `rescheduleEnabled` / `cancelEnabled`, because GHL's own
+UI strips them on prompt-based bots. The refusal now says where the working switch is: the
+appointmentBooking action's `details.rescheduleEnabled` / `details.cancelEnabled`.
+
 ## [1.0.3] — 2026-09-25
 
 **Type cards now carry their whole Notes and Validator sections.** Until now every card shipped only
