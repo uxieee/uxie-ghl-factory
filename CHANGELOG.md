@@ -11,6 +11,17 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.0.7] — 2026-09-25
+
+**The `custom_webhook` and `custom_code` type cards now carry the warnings 1.0.6 announced.** 1.0.6 put
+them on the corpus pages, but in sections the card builder does not read, so neither shipped card had
+them. Both warnings are now in the cards' notes:
+
+- **`custom_webhook`:** index a response array with a dot, never brackets. A bracket index silently
+  skips the whole field write.
+- **`custom_code`:** it has no network access. Inputs are `inputData.<key>`, and outputs are
+  `{{custom_code.N.output.<key>}}`.
+
 ## [1.0.6] — 2026-09-25
 
 **The type cards now warn about two silent failures in workflow merge tags.**
