@@ -66,7 +66,7 @@ test('compileConvaiAgent: create body matches convai-create.json field-for-field
 });
 
 test('compileConvaiAgent: defaults apply when wait/sleep/autoPilotMaxMessages omitted', () => {
-  const minimalIR = { name: 'Minimal', mode: 'off', channels: ['SMS'] };
+  const minimalIR = { name: 'Minimal', mode: 'off', channels: ['SMS'], goal: 'g' };
   const { create } = compileConvaiAgent(minimalIR, { locationId: 'LOC' });
   assert.equal(create.body.waitTime, 2);
   assert.equal(create.body.waitTimeUnit, 'seconds');
@@ -75,7 +75,7 @@ test('compileConvaiAgent: defaults apply when wait/sleep/autoPilotMaxMessages om
   assert.equal(create.body.sleepTimeUnit, 'hours');
   assert.equal(create.body.autoPilotMaxMessages, 75);
   assert.equal(create.body.personality, '');
-  assert.equal(create.body.goal, '');
+  assert.equal(create.body.goal, 'g');
   assert.equal(create.body.instructions, '');
 });
 
@@ -506,10 +506,18 @@ test('tones: emitted on create, validated against the 7-value enum, max 3; empty
   assert.doesNotThrow(() => compileConvaiAgent({ ...base, botType: 'FLOW_BUILDER_BOT', tones: ['friendly'] }, { locationId: 'LOC' }));
 });
 
-test('a PROMPT bot with blank personality/goal/instructions warns; allowUiUnsaveable silences the flow-bot throw', () => {
+// Was a warning until 2026-09-25. Live on the test sub-account: a prompt bot created with none of
+// the three prompt fields answered 500 to every later update (even one adding a goal), and part of
+// each update still landed. A bot with any ONE of them updated clean.
+test('a PROMPT bot with ALL of personality/goal/instructions blank is refused; one of them is enough; allowUiUnsaveable silences the flow-bot throw', () => {
+  assert.throws(() => compileConvaiAgent({ name: 'Bot', mode: 'suggestive', channels: ['SMS'] }, { locationId: 'LOC' }),
+    (e) => e.code === 'MISSING_FIELD' && /goal, personality or instructions/.test(e.message));
+  for (const one of [{ goal: 'g' }, { personality: 'p' }, { instructions: 'i' }]) {
+    assert.doesNotThrow(() => compileConvaiAgent({ name: 'Bot', mode: 'suggestive', channels: ['SMS'], ...one }, { locationId: 'LOC' }));
+  }
   const warns = [];
-  compileConvaiAgent({ name: 'Bot', mode: 'suggestive', channels: ['SMS'] }, { locationId: 'LOC', warn: (m) => warns.push(m) });
-  assert.ok(warns.some((w) => /UI_SAVE/.test(w) && /personality/i.test(w)), JSON.stringify(warns));
+  compileConvaiAgent({ name: 'Bot', mode: 'suggestive', channels: ['SMS'], goal: 'g' }, { locationId: 'LOC', warn: (m) => warns.push(m) });
+  assert.ok(warns.some((w) => /UI_SAVE/.test(w) && /personality/i.test(w)), 'a single prompt field still warns that the UI wants the others');
   assert.doesNotThrow(() => compileConvaiAgent({ name: 'B', mode: 'suggestive', channels: ['SMS'], botType: 'FLOW_BUILDER_BOT' },
     { locationId: 'LOC', allowUiUnsaveable: true }));
 });
@@ -634,7 +642,7 @@ test('compileConvaiUpdateFromRecord strips workingHours and steps (null or not) 
 test('compileConvaiUpdateFromRecord drops an EMPTY summary/emailSettings, keeps a configured one', () => {
   // cancelEnabled/rescheduleEnabled are FLOW-only and are stripped for a prompt bot by
   // applyBotTypeCleanup — assert on a key that survives for this bot type.
-  const base = { id: 'A1', name: 'Zoe', botType: 'PROMPT_BASED_BOT', locationId: 'LOC', autoPilotMaxMessages: 75 };
+  const base = { id: 'A1', name: 'Zoe', botType: 'PROMPT_BASED_BOT', locationId: 'LOC', autoPilotMaxMessages: 75, goal: 'g' };
   const empty = compileConvaiUpdateFromRecord({ ...base, summary: {}, emailSettings: {} }, { personality: 'p' }, { agentId: 'A1', locationId: 'LOC' });
   assert.equal('summary' in empty.body, false);
   assert.equal('emailSettings' in empty.body, false);
@@ -655,7 +663,7 @@ test('compileConvaiUpdateFromRecord drops an EMPTY summary/emailSettings, keeps 
 // AGENT_VERIFY_MISMATCH on an update that had demonstrably written its field.
 test('compileConvaiUpdateFromRecord marks `actions` write-only so the read-back is never held to the null it sends', () => {
   const out = compileConvaiUpdateFromRecord(
-    { id: 'A1', name: 'Zoe', botType: 'PROMPT_BASED_BOT', locationId: 'LOC', actions: [{ id: 'act1' }] },
+    { id: 'A1', name: 'Zoe', botType: 'PROMPT_BASED_BOT', locationId: 'LOC', actions: [{ id: 'act1' }], goal: 'g' },
     { personality: 'p' }, { agentId: 'A1', locationId: 'LOC' },
   );
   assert.equal(out.body.actions, null, 'the UI sends null; that does not change');
@@ -695,7 +703,7 @@ test('update: a spec key the compiler cannot apply is REFUSED, never silently dr
   // Restoring wait/sleep fixes two keys. It does not fix the shape that lost them — a compiler
   // that iterates what it knows and never looks at what it was handed. A misspelled key must not
   // buy a clean success and no change.
-  const record = { _id: 'A1', locationId: 'LOC', employeeName: 'Bot', botType: 'conversation_ai' };
+  const record = { _id: 'A1', locationId: 'LOC', employeeName: 'Bot', botType: 'conversation_ai', goal: 'g' };
   assert.throws(
     () => compileConvaiUpdateFromRecord(record, { thisKeyDoesNotExist: 'x' }, { agentId: 'A1', locationId: 'LOC' }),
     (e) => {
@@ -720,7 +728,7 @@ test('update: a spec key the compiler cannot apply is REFUSED, never silently dr
 // bl-181: reaching for rescheduleEnabled on the agent is a refusal, correctly — but it has to send
 // the caller to the switch that works (the appointmentBooking action), not leave them stuck.
 test('update: a refused rescheduleEnabled/cancelEnabled names the booking action as where the switch lives', () => {
-  const record = { _id: 'A1', locationId: 'LOC', employeeName: 'Bot', botType: 'PROMPT_BASED_BOT' };
+  const record = { _id: 'A1', locationId: 'LOC', employeeName: 'Bot', botType: 'PROMPT_BASED_BOT', goal: 'g' };
   assert.throws(
     () => compileConvaiUpdateFromRecord(record, { rescheduleEnabled: true }, { agentId: 'A1', locationId: 'LOC' }),
     (e) => {
@@ -733,4 +741,13 @@ test('update: a refused rescheduleEnabled/cancelEnabled names the booking action
   assert.throws(
     () => compileConvaiUpdateFromRecord(record, { personalty: 'x' }, { agentId: 'A1', locationId: 'LOC' }),
     (e) => !/appointmentBooking ACTION/.test(e.message));
+});
+
+test('update: an agent stored with NO prompt field is refused before any PUT, even when the spec adds one', () => {
+  const record = { _id: 'A1', locationId: 'LOC', employeeName: 'Bot', botType: 'PROMPT_BASED_BOT', goal: '', personality: '', instructions: '' };
+  for (const spec of [{ name: 'x' }, { goal: 'now one' }]) {
+    assert.throws(() => compileConvaiUpdateFromRecord(record, spec, { agentId: 'A1', locationId: 'LOC' }),
+      (e) => e.code === 'AGENT_UNUPDATABLE' && /Nothing was sent/.test(e.message));
+  }
+  assert.doesNotThrow(() => compileConvaiUpdateFromRecord({ ...record, instructions: 'i' }, { name: 'x' }, { agentId: 'A1', locationId: 'LOC' }));
 });

@@ -276,3 +276,20 @@ test('an attached action MISSING from the re-read is still a mismatch', async ()
   assert.equal(out.code, 'AGENT_VERIFICATION_FAILED');
   assert.ok(out.verification.mismatches.some((m) => m.startsWith('actions (missing act1')));
 });
+
+// The write shape names the agent `employeeName`, the read shape `name`. Held to the raw read, every
+// rename reported unverified: ["employeeName"], including renames that had landed (live 2026-09-25).
+test('executeAgentUpdate verifies a rename against the read shape `name`, and a wrong name is a MISMATCH', async () => {
+  const record = { id: 'A1', name: 'Old', goal: 'g' };
+  const plan = {
+    update: { method: 'PUT', path: '/ai-employees/employees/A1', body: { locationId: 'LOC', employeeName: 'New', goal: 'g', actions: null } },
+    collateralKeys: ['goal'], before: record, expected: { employeeName: 'New' },
+  };
+  const gwWith = (name) => ({ loc: 'LOC', call: async (m) => (m === 'PUT' ? { ok: true, status: 200, json: {} } : { ok: true, status: 200, json: { id: 'A1', name, goal: 'g' } }) });
+  const good = await executeAgentUpdate({ plan, gw: gwWith('New') });
+  assert.equal(good.ok, true, JSON.stringify(good));
+  assert.deepEqual(good.verification.confirmed, ['employeeName']);
+  assert.deepEqual(good.verification.unverified, []);
+  const bad = await executeAgentUpdate({ plan, gw: gwWith('Old') });
+  assert.equal(bad.code, 'AGENT_VERIFY_MISMATCH');
+});

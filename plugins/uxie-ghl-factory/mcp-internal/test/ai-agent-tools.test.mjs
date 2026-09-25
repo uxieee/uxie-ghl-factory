@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { TOOLS } from '../core/tools.mjs';
 
 const tool = (name) => TOOLS.find((candidate) => candidate.name === name);
-const convai = { name: 'Preview ConvAI', mode: 'suggestive', channels: ['SMS'] };
+const convai = { name: 'Preview ConvAI', mode: 'suggestive', channels: ['SMS'], goal: 'Use only test data.' };
 const voiceai = { agentName: 'Preview VoiceAI', agentPrompt: 'Use only test data.' };
 const studio = { name: 'Preview Studio', systemPrompt: 'Use only test data.', buildPrompt: 'Build a test-only agent.' };
 

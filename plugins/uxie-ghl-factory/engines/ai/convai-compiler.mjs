@@ -6,6 +6,9 @@
 // Auth uses the gateway's `ai` rail: Bearer JWT and Firebase token-id together.
 import { parseConvaiIR, parseConvaiPartialIR, IRError } from './convai-ir.mjs';
 
+const PROMPT_KEYS = ['goal', 'personality', 'instructions'];
+const nonEmpty = (v) => typeof v === 'string' && v.trim() !== '';
+
 export const AUTH_HEADER = 'ai';
 
 // Static defaults exactly as captured in convai-create.json's request_body (the "Start
@@ -356,6 +359,16 @@ export function compileConvaiAgent(ir, { locationId, warn, allowUiUnsaveable } =
     warn?.(`BOT_TYPE_KEY: '${k}' is not accepted for botType '${body.botType}' and was dropped — `
       + `the server refuses the whole create otherwise ("${k} is only allowed when bot type is FLOW_BUILDER_BOT").`);
   }
+  // A prompt bot created with NO goal, personality or instructions cannot be updated afterwards:
+  // every PUT answers 500 "Something went wrong", even one that adds a goal, and some of its fields
+  // land anyway (name and channels changed under a 500). Any ONE of the three is enough (live,
+  // designated test sub-account 2026-09-25: goal-only, personality-only and instructions-only
+  // agents all updated clean; the agent with none refused every update).
+  if (body.botType !== 'FLOW_BUILDER_BOT' && !PROMPT_KEYS.some((k) => nonEmpty(body[k]))) {
+    throw new IRError('MISSING_FIELD',
+      'a prompt-based agent needs at least one of goal, personality or instructions. Created without all '
+      + 'three, GHL answers 500 to every later update of the agent, and some of that update still lands.');
+  }
   const violations = uiSaveViolations(body, body.botType);
   const fatal = body.botType === 'FLOW_BUILDER_BOT' ? violations.filter((x) => FATAL_FOR_FLOW_BOT.has(x.rule)) : [];
   if (fatal.length && allowUiUnsaveable !== true) {
@@ -464,6 +477,16 @@ export function compileConvaiUpdateFromRecord(current, partialIr, { agentId, loc
       + 'resets omitted agent-level booleans (measured live 2026-08-28).');
   }
   const norm = parseConvaiPartialIR(partialIr);
+  // See compileConvaiAgent: a prompt bot stored with none of the three prompt fields 500s on every
+  // PUT, including one that supplies them, and the 500 still applies part of the body. Refuse
+  // before sending rather than half-write.
+  if (current.botType !== 'FLOW_BUILDER_BOT' && !PROMPT_KEYS.some((k) => nonEmpty(current[k]))) {
+    throw new IRError('AGENT_UNUPDATABLE',
+      'this agent has no goal, personality or instructions, and GHL answers 500 to every update of such an '
+      + 'agent (live 2026-09-25), even one that adds them, while still applying part of the change. Nothing '
+      + 'was sent. Give it a prompt in the Conversation AI builder, or create a new agent with at least one of '
+      + 'goal, personality or instructions.');
+  }
   const body = {};
   for (const [k, v] of Object.entries(current)) if (!SERVER_KEYS.has(k) && k !== 'name') body[k] = v;
   // AN EMPTY NESTED OBJECT IS THE SERVER'S "UNSET", AND THE PUT REFUSES IT BACK. The GET returns

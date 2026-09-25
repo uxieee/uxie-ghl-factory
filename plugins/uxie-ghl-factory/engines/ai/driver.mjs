@@ -308,12 +308,17 @@ export async function executeAgentUpdate({ plan, gw } = {}) {
     return { ok: false, code: 'AGENT_VERIFY_UNREACHABLE', phase: 'verify',
       detail: 'the PUT succeeded but the record could not be re-read, so nothing is proven' };
   }
-  const after = reread.json ?? {};
+  // The WRITE shape names the agent `employeeName`; the READ shape calls it `name`. Compared raw,
+  // every rename reported `unverified: ["employeeName"]` — including ones that had landed (live
+  // 2026-09-25). Both sides are read through the same alias so the collateral check stays even.
+  const readShape = (o) => (o && typeof o === 'object' && !('employeeName' in o) && 'name' in o ? { ...o, employeeName: o.name } : (o ?? {}));
+  const after = readShape(reread.json?.employee ?? reread.json);
   const { mismatches, unverified, confirmed } = partitionVerification(after, expected);
 
   const changed = [];
+  const beforeRead = readShape(before);
   for (const key of collateralKeys) {
-    const b = before?.[key];
+    const b = beforeRead?.[key];
     const a = after?.[key];
     if (JSON.stringify(b) !== JSON.stringify(a)) changed.push({ key, before: b, after: a });
   }

@@ -171375,6 +171375,8 @@ function parseConvaiPartialIR(ir) {
 }
 
 // ../engines/ai/convai-compiler.mjs
+var PROMPT_KEYS = ["goal", "personality", "instructions"];
+var nonEmpty = (v) => typeof v === "string" && v.trim() !== "";
 var AUTH_HEADER = "ai";
 var DEFAULT_WAIT = { value: 2, unit: "seconds" };
 var DEFAULT_SLEEP = { enabled: false, onManualMessage: false, onWorkflowMessage: false, time: 2, timeUnit: "hours" };
@@ -171621,6 +171623,12 @@ function compileConvaiAgent(ir, { locationId, warn, allowUiUnsaveable } = {}) {
     if (k in body || norm3[k] === void 0) continue;
     warn?.(`BOT_TYPE_KEY: '${k}' is not accepted for botType '${body.botType}' and was dropped \u2014 the server refuses the whole create otherwise ("${k} is only allowed when bot type is FLOW_BUILDER_BOT").`);
   }
+  if (body.botType !== "FLOW_BUILDER_BOT" && !PROMPT_KEYS.some((k) => nonEmpty(body[k]))) {
+    throw new IRError2(
+      "MISSING_FIELD",
+      "a prompt-based agent needs at least one of goal, personality or instructions. Created without all three, GHL answers 500 to every later update of the agent, and some of that update still lands."
+    );
+  }
   const violations = uiSaveViolations(body, body.botType);
   const fatal = body.botType === "FLOW_BUILDER_BOT" ? violations.filter((x) => FATAL_FOR_FLOW_BOT.has(x.rule)) : [];
   if (fatal.length && allowUiUnsaveable !== true) {
@@ -171701,6 +171709,12 @@ function compileConvaiUpdateFromRecord(current, partialIr, { agentId, locationId
     );
   }
   const norm3 = parseConvaiPartialIR(partialIr);
+  if (current.botType !== "FLOW_BUILDER_BOT" && !PROMPT_KEYS.some((k) => nonEmpty(current[k]))) {
+    throw new IRError2(
+      "AGENT_UNUPDATABLE",
+      "this agent has no goal, personality or instructions, and GHL answers 500 to every update of such an agent (live 2026-09-25), even one that adds them, while still applying part of the change. Nothing was sent. Give it a prompt in the Conversation AI builder, or create a new agent with at least one of goal, personality or instructions."
+    );
+  }
   const body = {};
   for (const [k, v] of Object.entries(current)) if (!SERVER_KEYS.has(k) && k !== "name") body[k] = v;
   const isEmptyObject = (v) => v !== null && typeof v === "object" && !Array.isArray(v) && Object.keys(v).length === 0;
@@ -172618,11 +172632,13 @@ async function executeAgentUpdate({ plan, gw } = {}) {
       detail: "the PUT succeeded but the record could not be re-read, so nothing is proven"
     };
   }
-  const after = reread.json ?? {};
+  const readShape = (o) => o && typeof o === "object" && !("employeeName" in o) && "name" in o ? { ...o, employeeName: o.name } : o ?? {};
+  const after = readShape(reread.json?.employee ?? reread.json);
   const { mismatches, unverified, confirmed } = partitionVerification(after, expected);
   const changed = [];
+  const beforeRead = readShape(before);
   for (const key of collateralKeys) {
-    const b = before?.[key];
+    const b = beforeRead?.[key];
     const a = after?.[key];
     if (JSON.stringify(b) !== JSON.stringify(a)) changed.push({ key, before: b, after: a });
   }
