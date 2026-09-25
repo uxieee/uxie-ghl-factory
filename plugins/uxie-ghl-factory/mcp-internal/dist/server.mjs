@@ -172808,6 +172808,7 @@ function sessionFor(state2, projectId) {
 }
 var TERMINAL_BUILD = /* @__PURE__ */ new Set(["ready", "failed"]);
 var isTerminal2 = (row) => Boolean(row && TERMINAL_BUILD.has(String(row.buildStatus)));
+var awaitingAnswer = (row) => Boolean(row?.question) && row.question.status !== "answered" && !TERMINAL_BUILD.has(String(row.buildStatus));
 async function awaitTurn({
   firestore,
   projectId,
@@ -172823,7 +172824,7 @@ async function awaitTurn({
     const rows = await firestore.messages(projectId);
     const row = rows.find((r) => r.role === "assistant" && r.id === messageId) ?? null;
     if (row) lastRow = row;
-    if (isTerminal2(row)) return { pending: false, assistant: row };
+    if (isTerminal2(row) || awaitingAnswer(row)) return { pending: false, assistant: row };
     await sleep(pollMs);
   }
   return {

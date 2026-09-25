@@ -1141,3 +1141,22 @@ test('find_ghl_site reports an unchecked sweep when BOTH rails fail', async () =
   assert.equal(res.data.surface, 'unknown', 'a failed sweep must never read as not-found');
   assert.match(res.data.warning, /BOTH rails/i);
 });
+
+// Live 2026-09-25: a turn that asked a question had no buildStatus, so the wait ran to its ceiling
+// and reported "still running" while history showed hasQuestion. An unanswered question ends the
+// wait. An answered one (status:"answered", same row id, now building) must not.
+test('awaitTurn stops on an UNANSWERED question and returns it; an answered question keeps waiting for the build', async () => {
+  const clock = () => { let t = 0; return () => (t += 10); };
+  const asked = { role: 'assistant', id: 'm1', buildStatus: null, question: { title: 'Colour?', status: 'pending' } };
+  const out = await awaitTurn({ firestore: { messages: async () => [asked] }, projectId: 'P1', messageId: 'm1', waitMs: 100, pollMs: 5, nowMs: clock(), sleep: async () => {} });
+  assert.equal(out.pending, false);
+  assert.equal(out.assistant.question.title, 'Colour?');
+
+  const answered = { ...asked, question: { ...asked.question, status: 'answered' } };
+  const still = await awaitTurn({ firestore: { messages: async () => [answered] }, projectId: 'P1', messageId: 'm1', waitMs: 20, pollMs: 5, nowMs: clock(), sleep: async () => {} });
+  assert.equal(still.pending, true, 'an answered question is not a stopping point: the row goes on to build');
+
+  const built = { ...answered, buildStatus: 'ready' };
+  const done = await awaitTurn({ firestore: { messages: async () => [built] }, projectId: 'P1', messageId: 'm1', waitMs: 20, pollMs: 5, nowMs: clock(), sleep: async () => {} });
+  assert.equal(done.pending, false);
+});

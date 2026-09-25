@@ -201,6 +201,14 @@ const TERMINAL_BUILD = new Set(['ready', 'failed']);
 // buildStatus, NEVER thinkingStatus. See rule 1 in the module header.
 export const isTerminal = (row) => Boolean(row && TERMINAL_BUILD.has(String(row.buildStatus)));
 
+// A turn that PAUSED ON A QUESTION never gets a buildStatus until it is answered, so isTerminal()
+// alone polled it to the ceiling and reported "still running" while the project's history showed
+// hasQuestion (live 2026-09-25). The question object carries status:"answered" once answered, and
+// the SAME row then goes on to build under the same id, so an answered question must not stop the
+// wait a second time.
+export const awaitingAnswer = (row) => Boolean(row?.question) && row.question.status !== 'answered'
+  && !TERMINAL_BUILD.has(String(row.buildStatus));
+
 // `messageId` is REQUIRED and is the chat receipt's `message_id` (live-proven 2026-09-04:
 // live-101-chat-generation-response.json's `message_id` IS live-102's assistant-row `id`). On
 // any project with prior history, `rows.filter(role==='assistant').pop()` used to return the
@@ -217,7 +225,7 @@ export async function awaitTurn({ firestore, projectId, messageId, waitMs = 120_
     const rows = await firestore.messages(projectId);
     const row = rows.find((r) => r.role === 'assistant' && r.id === messageId) ?? null;
     if (row) lastRow = row;
-    if (isTerminal(row)) return { pending: false, assistant: row };
+    if (isTerminal(row) || awaitingAnswer(row)) return { pending: false, assistant: row };
     await sleep(pollMs);
   }
   // The matching row may exist but not yet be terminal (e.g. buildStatus: "validating") — report
