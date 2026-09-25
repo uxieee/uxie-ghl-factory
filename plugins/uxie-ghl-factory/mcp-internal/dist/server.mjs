@@ -161428,9 +161428,17 @@ function checkWorkflow(templates, schema2, { triggerTypes } = {}) {
   }
   return errors;
 }
-async function fetchActionSchema(call, loc) {
+function assetWorkflowTypes(wf = {}) {
+  const cot = wf?.customObjectType;
+  if (typeof cot === "string" && cot.startsWith("custom_objects.") || wf?.object && !cot) return "default,custom_object";
+  const t = wf?.workflowType;
+  if (t && t !== "agent") return t === "business" ? "default,company" : t;
+  return "default,contacts";
+}
+var assetsPath = (loc, wf) => `/workflows-marketplace/location/${loc}/assets?workflowTypes=${assetWorkflowTypes(wf)}`;
+async function fetchActionSchema(call, loc, wf) {
   try {
-    const r = await call("GET", `/workflows-marketplace/location/${loc}/assets?workflowTypes=default,contacts`);
+    const r = await call("GET", assetsPath(loc, wf));
     if (!r?.ok || !r.json) return null;
     const schema2 = parseActionSchema(r.json);
     return schema2.size ? schema2 : null;
@@ -168344,7 +168352,7 @@ async function fetchEntities(gw) {
   out.agents = [...agentRows(voice), ...agentRows(convai)].map((a) => ({ id: a.id || a._id, name: a.name || a.agentName || a.title }));
   return out;
 }
-async function fetchMarketplace(call, loc) {
+async function fetchMarketplace(call, loc, wf) {
   const legs = { assets: "failed", actions: "failed", triggers: "failed" };
   const get3 = async (leg, path) => {
     try {
@@ -168358,7 +168366,7 @@ async function fetchMarketplace(call, loc) {
       return null;
     }
   };
-  const assets = await get3("assets", `/workflows-marketplace/location/${loc}/assets?workflowTypes=default,contacts`);
+  const assets = await get3("assets", assetsPath(loc, wf));
   const page = (type) => `/marketplace/core/search/module?locationId=${encodeURIComponent(loc)}&type=${type}&isInstalled=true&skip=0&limit=200`;
   const actions = await get3("actions", page("actions"));
   const triggers = await get3("triggers", page("triggers"));
@@ -168442,7 +168450,7 @@ async function orchestrate(ir, gw, opts = {}) {
   walkNodes(ir.graph ?? [], (n) => {
     if (n.marketplace === true) usesMarketplace = true;
   });
-  const marketplace = usesMarketplace ? buildMarketplaceIndex(await fetchMarketplace(call, loc)) : buildMarketplaceIndex({ assets: null, modules: { actions: [], triggers: [] } });
+  const marketplace = usesMarketplace ? buildMarketplaceIndex(await fetchMarketplace(call, loc, ir)) : buildMarketplaceIndex({ assets: null, modules: { actions: [], triggers: [] } });
   report.marketplaceRead = usesMarketplace ? marketplace.readFailed : null;
   const resolvers = buildResolvers(entities);
   const { unresolved } = resolveIR(ir, resolvers);
@@ -168906,7 +168914,7 @@ ${offline.summary}`;
   for (const f of intentFindings.filter((x) => x.severity === "warning")) {
     report.warnings.push(`INTENT: ${f.name ?? f.type}: ${f.msg}`);
   }
-  const actionSchema = await fetchActionSchema(call, loc);
+  const actionSchema = await fetchActionSchema(call, loc, ir);
   if (actionSchema) {
     const triggerTypes = (ir.triggers ?? []).map((t) => t.type).filter(Boolean);
     const schemaErrors = checkWorkflow(got, actionSchema, triggerTypes.length ? { triggerTypes } : {});
@@ -174560,18 +174568,15 @@ var ATTR_WRITING_OPS = /* @__PURE__ */ new Set([
   "replaceTag",
   "retypeStep"
 ]);
-async function editSchemaViolations(gw, loc, templates, triggers, ops, prefetchedAssets) {
+async function editSchemaViolations(gw, loc, templates, triggers, ops, prefetchedAssets, wf) {
   if (!(ops ?? []).some((o) => ATTR_WRITING_OPS.has(o?.op))) return [];
-  return schemaViolationsFor(gw, loc, templates, triggers, prefetchedAssets);
+  return schemaViolationsFor(gw, loc, templates, triggers, prefetchedAssets, wf);
 }
-async function schemaViolationsFor(gw, loc, templates, triggers, prefetchedAssets) {
+async function schemaViolationsFor(gw, loc, templates, triggers, prefetchedAssets, wf) {
   try {
     let assets = prefetchedAssets;
     if (!assets) {
-      const resp = await gw.call(
-        "GET",
-        `/workflows-marketplace/location/${loc}/assets?workflowTypes=default,contacts`
-      );
+      const resp = await gw.call("GET", assetsPath(loc, wf));
       if (!resp?.ok || !resp.json) return [];
       assets = resp.json;
     }
@@ -175881,10 +175886,7 @@ var TOOLS2 = [
       let actionSchema = null;
       let triggerSchema = null;
       try {
-        const assetsResp = await gw.call(
-          "GET",
-          `/workflows-marketplace/location/${loc}/assets?workflowTypes=default,contacts`
-        );
+        const assetsResp = await gw.call("GET", assetsPath(loc, body.json));
         if (assetsResp?.ok && assetsResp.json) {
           actionSchema = parseActionSchema(assetsResp.json);
           triggerSchema = parseTriggerSchema(assetsResp.json);
@@ -178109,7 +178111,7 @@ var TOOLS2 = [
           args.ops,
           beforeTemplates.map((step) => step.id)
         );
-        const marketplaceRaw = opsUseMarketplace(args.ops) ? await fetchMarketplace((m, path, body) => gw.call(m, path, body), args.locationId) : { assets: null, modules: { actions: [], triggers: [] } };
+        const marketplaceRaw = opsUseMarketplace(args.ops) ? await fetchMarketplace((m, path, body) => gw.call(m, path, body), args.locationId, fresh) : { assets: null, modules: { actions: [], triggers: [] } };
         const marketplace = buildMarketplaceIndex(marketplaceRaw);
         const ctx = {
           loc: args.locationId,
@@ -178211,7 +178213,7 @@ var TOOLS2 = [
         const redactedRefusal = refuseRedactedWrite(commitBody?.workflowData?.templates ?? templates);
         if (redactedRefusal) return fail(CODES.VALIDATION_FAILED, redactedRefusal.message, redactedRefusal.hint);
         checkGraphContextRules(templates, { warn: ctx.warn });
-        const schemaViolations = await editSchemaViolations(gw, locationPath, templates, existingTriggers, args.ops, marketplaceRaw.assets);
+        const schemaViolations = await editSchemaViolations(gw, locationPath, templates, existingTriggers, args.ops, marketplaceRaw.assets, fresh);
         for (const v of schemaViolations) warnings.push(`SCHEMA: '${v.step ?? v.stepId}' (${v.type}): ${(v.messages ?? []).join("; ")}`);
         const wouldRefuse = [];
         const refuseOrRecord = (refusal, gate) => {
@@ -178763,7 +178765,7 @@ var TOOLS2 = [
       let assetPreflight = null;
       let readiness = [];
       if (touchedIds.size) {
-        schemaViolations = await schemaViolationsFor(gw, locationPath, args.templates, existingTriggers, null);
+        schemaViolations = await schemaViolationsFor(gw, locationPath, args.templates, existingTriggers, null, fresh);
         for (const v of schemaViolations) warnings.push(`SCHEMA: '${v.step ?? v.stepId}' (${v.type}): ${(v.messages ?? []).join("; ")}`);
         const assets = await assetPreflightFor({
           gw,
