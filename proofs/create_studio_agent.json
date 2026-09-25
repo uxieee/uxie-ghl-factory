@@ -12,35 +12,45 @@
         "row:ai-studio-agent-build"
       ],
       "backfilled": true
+    },
+    {
+      "at": "2026-09-25",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:9eb46adb",
+        "row:ai-studio-agent-build"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
-    "hashedAt": "2026-09-14",
+    "hashedAt": "2026-09-25",
     "endpoints": {
       "GET https://services.leadconnectorhq.com /agent-studio/super-agent/agents/{}": "96ba1eec8c2eb7dc51c2a8519862fe16f3a1ff6e9f6878927506d0a3db477703",
       "PUT https://services.leadconnectorhq.com /agent-studio/super-agent/agents/{}": "a415967e56b8dd6aa4baf249bc6bab87f535841b9f7c6b51a213c52a8f8c25ff",
       "SSE https://services.leadconnectorhq.com /agent-studio/super-agents/build": "2d11005ca07d57ec40b2f42cb30a3f157d9a02bb727bc61c4cdb748dfd4b2935"
     },
     "builds": {
-      "agentLogsApp": 635,
-      "agentStudioApp": 653,
-      "aiEmployeesApp": 2527,
-      "aiGrowthApp": 654,
-      "superagentsApp": 649,
-      "voiceAiApp": 656
+      "agentLogsApp": 693,
+      "agentStudioApp": 701,
+      "aiEmployeesApp": 2603,
+      "aiGrowthApp": 697,
+      "superagentsApp": 703,
+      "voiceAiApp": 701
     },
     "code": {
-      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#create_studio_agent": "cdb38b6d17e1709a4e0381dce35520881e902286f393fbcb731ade662e3b24cd",
-      "plugins/uxie-ghl-factory/engines/ai/convai-compiler.mjs": "5c63cc68a566b605c6289da49c87f718150b95eec40521c7788026b3675db792",
+      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#create_studio_agent": "6a460bd5031b70885318f74abb5d53fdde595660774a80daa8cdafc1b55ffa8b",
+      "plugins/uxie-ghl-factory/engines/ai/convai-compiler.mjs": "0f6ef41c6de4be7fd7e2fe4fad1ffb785b3a25aced809472734b4c024bfa2474",
       "plugins/uxie-ghl-factory/engines/ai/convai-ir.mjs": "0af798d45cf3c04893a7f3e356ef927fea66d0b831003be5cda5d97f5b45558b",
-      "plugins/uxie-ghl-factory/engines/ai/driver.mjs": "968e7c08f2e169b396994b7da90924bea26e92faf964517d7757c93a8b5f50aa",
+      "plugins/uxie-ghl-factory/engines/ai/driver.mjs": "1c8ef6f0c1f6d0009a47004b4910afb2fab1350c6ec6468089430fe4c290e73e",
       "plugins/uxie-ghl-factory/engines/ai/studio-compiler.mjs": "1ce1b2cb81fee46b499f0dde802185c51f9bac146aa7d8f7d996d8aa8e1cf15b",
       "plugins/uxie-ghl-factory/engines/ai/studio-ir.mjs": "f08b0c14714cac5780aca51f4db320ede7710631f59efe6487b73cc5c5747216",
-      "plugins/uxie-ghl-factory/engines/ai/voiceai-compiler.mjs": "b6a4fb78f4f010999e0c08d36154023fb5d6216f2a02912ea7c3c45aaa6312c5",
+      "plugins/uxie-ghl-factory/engines/ai/voiceai-compiler.mjs": "ba7037db065288dd546f542bf45e1b300395d005d5ad47d88be1cd4ad6ccba57",
       "plugins/uxie-ghl-factory/engines/ai/voiceai-ir.mjs": "9df33faef8769c7c8fd56fdb62aab8f2e9767d105b655aaf3a726044b8f6d39b",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "e65c2384aefb498ce49453dd2d6d8d1a1d8351fd6d337aef5256eb982e1db02f",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
-      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "2d59b12818ffe76fb105e5284c3d186aea8d07f6a457b7c6344ea2258ba6a1d6"
+      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "a223838eb7dbacd4b07e852c05c2728539093efea90eda104565aba5386074e4"
     }
   }
 }

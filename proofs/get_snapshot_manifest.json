@@ -13,25 +13,36 @@
         "row:platform--snapshots-create-appengine"
       ],
       "backfilled": true
+    },
+    {
+      "at": "2026-09-25",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:9eb46adb",
+        "row:platform--snapshots-prefetch",
+        "row:platform--snapshots-create-appengine"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
-    "hashedAt": "2026-09-14",
+    "hashedAt": "2026-09-25",
     "endpoints": {
       "GET https://backend.leadconnectorhq.com /locations/{}": "4875e8df14204f712f16f6ad95332c1e2ba7cea66195934526d61ead4a8eac53",
       "GET https://backend.leadconnectorhq.com /snapshots/assets/asset-names": "d791f8ad9ef223ccd9c3e49384bd680a7bde3a3c586db5a0653e9e61faac6a8c",
       "GET https://backend.leadconnectorhq.com /snapshots/v2/preFetchAssets/{}": "36ccd519c4f8d6e288be54b1ff353aea3537f746d8b0c9105404c2db4636589a"
     },
     "builds": {
-      "contactsApp": 2531,
+      "contactsApp": 2617,
       "customFieldsApp": 2079,
-      "snapshotsApp": 1969
+      "snapshotsApp": 2003
     },
     "code": {
-      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#get_snapshot_manifest": "54302fa3576b6d01bf55e2bdc072db50b372fc2445f025094232f9e8ffee04ed",
+      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#get_snapshot_manifest": "9445af4a3884dd6165dc3b4502f647e1f33d2cde8c66e1517644296703cce6cc",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "e65c2384aefb498ce49453dd2d6d8d1a1d8351fd6d337aef5256eb982e1db02f",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
-      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "2d59b12818ffe76fb105e5284c3d186aea8d07f6a457b7c6344ea2258ba6a1d6",
+      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "a223838eb7dbacd4b07e852c05c2728539093efea90eda104565aba5386074e4",
       "plugins/uxie-ghl-factory/mcp-internal/core/snapshots.mjs": "43cada8c70987a2c4d8b14a6c5d398565d582933fc5f0ea072c5dc91a6bec84c"
     }
   }

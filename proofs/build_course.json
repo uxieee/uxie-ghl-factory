@@ -26,10 +26,34 @@
         "row:memberships-quiz-read-by-post"
       ],
       "backfilled": true
+    },
+    {
+      "at": "2026-09-25",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:9eb46adb",
+        "row:memberships-assessment-assignment-create",
+        "row:memberships-assessment-quiz-create",
+        "row:memberships-assignment-read-by-post",
+        "row:memberships-category-create",
+        "row:memberships-credential-template-create",
+        "row:memberships-offer-create",
+        "row:memberships-offer-grant",
+        "row:memberships-offer-publish",
+        "row:memberships-offer-read",
+        "row:memberships-post-create",
+        "row:memberships-product-create",
+        "row:memberships-product-progress-read",
+        "row:memberships-quiz-questions-create",
+        "row:memberships-quiz-questions-list",
+        "row:memberships-quiz-read-by-post"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
-    "hashedAt": "2026-09-14",
+    "hashedAt": "2026-09-25",
     "endpoints": {
       "GET https://backend.leadconnectorhq.com /membership/locations/{}/certificate-attachments/products/{}": "af5cec11d38db53cfdebc165812667a61316b863870b85d89c621d01492b3bec",
       "GET https://services.leadconnectorhq.com /membership/locations/{}/assessments/assignment/{}": "746cc836b484b4e6cf6e5c93244151d344f854a702c34934fb59414390a5a21b",
@@ -54,6 +78,7 @@
       "POST https://backend.leadconnectorhq.com /membership/locations/{}/posts/material": "e321e2c81f440f3cefc9be88842f0ebf769d31d5be1fa2e545f8a165d014a733",
       "POST https://backend.leadconnectorhq.com /membership/locations/{}/products": "82b2c00c5842b481cd51bbebd55840e97f1c270485104d58e5e9a612145cffb0",
       "POST https://backend.leadconnectorhq.com /membership/locations/{}/videos": "82714865533016dfd6147df274421a907a3f92e35e00dcdaf022298f88cb8c45",
+      "POST https://backend.leadconnectorhq.com /membership/smart-list/attach-offer-user": "9b3cbe332256f24aa04205f45b4c6b6ee184aed9bddf605b0c251c63b47efc45",
       "POST https://services.leadconnectorhq.com /certificates/locations/{}/templates": "7484bb719efda3e4e51495db5be395b3a13d82c2e5e148c471aacc2a335b6fe3",
       "POST https://services.leadconnectorhq.com /membership/locations/{}/assessments/assignment": "a3b4a803914cb783fc96b029b777d6ca2bdfdaf9fe226fd6ea0a3b4f8afa6518",
       "POST https://services.leadconnectorhq.com /membership/locations/{}/assessments/quiz": "8492a92c525ae8386aec3952505a46ecca69a566361d649d8cdaea7585359f5e",
@@ -73,14 +98,14 @@
       "PUT https://services.leadconnectorhq.com /membership/locations/{}/products/apply-theme/{}": "81f0bdd355c8c94a6f10ebbfb5b59587baa7d667c40f3b686f8b8faa2e537480"
     },
     "builds": {
-      "certificatesApp": 1945,
-      "membershipApp": 1957
+      "certificatesApp": 2011,
+      "membershipApp": 2029
     },
     "code": {
-      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#build_course": "5b9b85da236c81269bdd8048aaed5e5cb713e2c1ff0c406c32195a6ee2546005",
+      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#build_course": "ab1abf925639cf8e7df38e44381e6577779cd5031bbe664a4a9f2ed556ed8a42",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "e65c2384aefb498ce49453dd2d6d8d1a1d8351fd6d337aef5256eb982e1db02f",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
-      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "2d59b12818ffe76fb105e5284c3d186aea8d07f6a457b7c6344ea2258ba6a1d6",
+      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "a223838eb7dbacd4b07e852c05c2728539093efea90eda104565aba5386074e4",
       "plugins/uxie-ghl-factory/skills/ghl-memberships/engine/api.mjs": "b103c2c9ff3ed263775cd2d804034a2aa7b9c7ed4751f2d5e82c56b8ba6ecd51",
       "plugins/uxie-ghl-factory/skills/ghl-memberships/engine/assessments.mjs": "a1f3630ace4cd84fbd2e58b65e4d14c446754219043c744f3199347158d1603a",
       "plugins/uxie-ghl-factory/skills/ghl-memberships/engine/course-builder.mjs": "cc26ab0a3b82785b33298449094922a51f464dfdfad178e95e78c7fb5e96671a",

@@ -12,25 +12,35 @@
         "row:ai-studio--post-projects"
       ],
       "backfilled": true
+    },
+    {
+      "at": "2026-09-25",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:9eb46adb",
+        "row:ai-studio--post-projects"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
-    "hashedAt": "2026-09-14",
+    "hashedAt": "2026-09-25",
     "endpoints": {
       "POST https://backend.leadconnectorhq.com /vibe-ai/projects": "66bab48ba10561daceab5205a61a468c24b61abcaed46e725f9554cc17adf3c1"
     },
     "builds": {
       "brandBoardsApp": 39,
-      "domainResellingApp": 222,
-      "vibeEditorApp": 330
+      "domainResellingApp": 229,
+      "vibeEditorApp": 350
     },
     "code": {
-      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#create_studio_site": "e49a9329ba136069a045c7c0382ea69ad1698259440a2f836e3790b8f1fad368",
-      "plugins/uxie-ghl-factory/mcp-internal/core/ai-studio.mjs": "f9c293b95c24bd20530c4dcaa50b0652b0f859efe46acc45020756a20627e604",
+      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#create_studio_site": "062e8657e62b6dcf8cafac925a015df9412c6a6595d03a06789494415c674643",
+      "plugins/uxie-ghl-factory/mcp-internal/core/ai-studio.mjs": "70fe5c44b7821485a92036b762653ccbc5cbc0a5acbd782b4ed59357c24fec95",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "e65c2384aefb498ce49453dd2d6d8d1a1d8351fd6d337aef5256eb982e1db02f",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
-      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "2d59b12818ffe76fb105e5284c3d186aea8d07f6a457b7c6344ea2258ba6a1d6",
-      "plugins/uxie-ghl-factory/mcp-internal/core/location-binding.mjs": "601f6c7ed73a009666d196f9ea145740991fef8cc4c142baf4947030007f1e87"
+      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "a223838eb7dbacd4b07e852c05c2728539093efea90eda104565aba5386074e4",
+      "plugins/uxie-ghl-factory/mcp-internal/core/location-binding.mjs": "709622e649fdb45c200814cc176db342bb52ee63ac40693b4ac7feda0e79488c"
     }
   }
 }

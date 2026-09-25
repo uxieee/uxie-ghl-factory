@@ -867,7 +867,10 @@ if (ovTotal !== total) {
   const sampleWalk = await call('list_workflows', { pageSize: 100, maxPages: Math.ceil((probe.data?.reportedTotal ?? 1000) / 100) + 2 });
   check(sampleWalk.data?.complete === true && (sampleWalk.data?.workflows ?? []).length > 0,
     'the sample walk completed and yielded workflows to sample',
-    `complete=${sampleWalk.data?.complete} rows=${(sampleWalk.data?.workflows ?? []).length} terminalReason=${sampleWalk.data?.terminalReason ?? ''}`);
+    `complete=${sampleWalk.data?.complete} rows=${(sampleWalk.data?.workflows ?? []).length} terminalReason=${sampleWalk.data?.terminalReason ?? ''}`
+    // An ok:false answer read as an empty walk once (2026-09-25, a transient under concurrent load):
+    // name the tool's own verdict so a refusal is never mistaken for an empty account.
+    + (sampleWalk.ok === false ? ` ok=false code=${sampleWalk.code ?? ''} detail=${String(sampleWalk.detail ?? '').slice(0, 200)}` : ''));
   const sample = (sampleWalk.data?.workflows ?? []).map((w) => w.id ?? w._id).filter(Boolean).slice(0, 20);
   const off = await call('get_account_workflow_overview', { workflowIds: sample, needsReviewLimit: 1 });
   check(off.data?.triggerCounts === null, 'CONTROL: triggerCounts is OFF unless asked for');

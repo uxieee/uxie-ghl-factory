@@ -1,7 +1,8 @@
 {
   "tool": "create_custom_field_folder",
   "surfaces": [
-    "forms"
+    "forms",
+    "platform"
   ],
   "runs": [
     {
@@ -13,22 +14,36 @@
         "row:entities-custom-field-folder-list"
       ],
       "backfilled": true
+    },
+    {
+      "at": "2026-09-25",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:9eb46adb",
+        "row:entities-custom-field-folder-create",
+        "row:entities-custom-field-folder-list"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
-    "hashedAt": "2026-09-14",
+    "hashedAt": "2026-09-25",
     "endpoints": {
       "GET https://backend.leadconnectorhq.com /locations/{}/customFields/search": "243cf31ac9bf9947d7ecc4a4a0f6c8f758286fe2701bc88e201f2e12ff03759f",
-      "POST https://backend.leadconnectorhq.com /locations/{}/customFields": "4085eecc6aa9801716058c6c9977555edd93f4e7a0fb472ee1627ec4174f2915"
+      "POST https://backend.leadconnectorhq.com /locations/{}/customFields": "cc6a7b1416fd42bf3fbba5861226e9f758e8048627ebff75f5a9c7f3e31414c3"
     },
     "builds": {
-      "formSurveyApp": 320
+      "contactsApp": 2617,
+      "customFieldsApp": 2079,
+      "formSurveyApp": 324,
+      "snapshotsApp": 2003
     },
     "code": {
-      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#create_custom_field_folder": "0f0e11f22e1307d915d5be8ec9a609e9540a003bd8e7d3ed1adfd4e47e22c6ff",
+      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#create_custom_field_folder": "a5f579c093e5e14f83e87119a993416d0ba71f44163d07abd14c61207f1f16e2",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "e65c2384aefb498ce49453dd2d6d8d1a1d8351fd6d337aef5256eb982e1db02f",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
-      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "2d59b12818ffe76fb105e5284c3d186aea8d07f6a457b7c6344ea2258ba6a1d6"
+      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "a223838eb7dbacd4b07e852c05c2728539093efea90eda104565aba5386074e4"
     }
   }
 }

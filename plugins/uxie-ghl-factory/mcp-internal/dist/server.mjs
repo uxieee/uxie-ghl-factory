@@ -56388,9 +56388,9 @@ var init_define_TOOL_CATALOG = __esm({
   "<define:__TOOL_CATALOG__>"() {
     define_TOOL_CATALOG_default = {
       answer_studio_question: {
-        description: "Answer studio question \u2014 proof: live-runtime (2026-09-04); risk: write",
+        description: "Answer studio question \u2014 proof: live-runtime (2026-09-25); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-04)",
+        proof: "live-runtime (2026-09-25)",
         proofFloor: "live-runtime (2026-09-04)",
         proofRows: [
           "ai-studio--post-projects-chat"
@@ -56448,9 +56448,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       build_course: {
-        description: "Build course \u2014 proof: live-runtime (2026-09-10), floor: documented; risk: write",
+        description: "Build course \u2014 proof: live-runtime (2026-09-25), floor: documented; risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-10)",
+        proof: "live-runtime (2026-09-25)",
         proofFloor: "documented",
         proofRows: [
           "memberships-assessment-assignment-create",
@@ -56601,9 +56601,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       cancel_studio_generation: {
-        description: "Cancel studio generation \u2014 proof: live-runtime (2026-09-04); risk: write",
+        description: "Cancel studio generation \u2014 proof: live-runtime (2026-09-25); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-04)",
+        proof: "live-runtime (2026-09-25)",
         proofFloor: "live-runtime (2026-09-04)",
         proofRows: [
           "ai-studio--post-projects-chat-cancel"
@@ -56619,9 +56619,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       check_smart_lists: {
-        description: "Audit smart lists for filters the contacts screen will silently discard \u2014 proof: live-runtime (2026-09-07); risk: read",
+        description: "Audit smart lists for filters the contacts screen will silently discard \u2014 proof: live-runtime (2026-09-25); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-07)",
+        proof: "live-runtime (2026-09-25)",
         proofFloor: "live-runtime (2026-09-07)",
         proofRows: [
           "smartlist-search",
@@ -56641,9 +56641,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       check_snapshot_conflicts: {
-        description: "See what loading a snapshot would collide with \u2014 proof: live-runtime (2026-09-10); risk: read",
+        description: "See what loading a snapshot would collide with \u2014 proof: live-runtime (2026-09-25); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-10)",
+        proof: "live-runtime (2026-09-25)",
         proofFloor: "live-runtime (2026-09-10)",
         proofRows: [
           "platform--snapshots-prefetch",
@@ -56697,9 +56697,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       create_convai_agent: {
-        description: "Create Conversation AI agent \u2014 proof: live-runtime (2026-09-10); risk: write",
+        description: "Create Conversation AI agent \u2014 proof: live-runtime (2026-09-25); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-10)",
+        proof: "live-runtime (2026-09-25)",
         proofFloor: "live-runtime (2026-07-21)",
         proofRows: [
           "ai-convai-agent-create"
@@ -56715,9 +56715,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       create_custom_field_folder: {
-        description: "Create custom field folder \u2014 proof: live-runtime (2026-08-18); risk: write",
+        description: "Create custom field folder \u2014 proof: live-runtime (2026-09-25); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-08-18)",
+        proof: "live-runtime (2026-09-25)",
         proofFloor: "live-runtime (2026-08-18)",
         proofRows: [
           "entities-custom-field-folder-create",
@@ -56736,9 +56736,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       create_form: {
-        description: "Create a form and save its document \u2014 proof: live-runtime (2026-09-06); risk: write",
+        description: "Create a form and save its document \u2014 proof: live-runtime (2026-09-25); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-06)",
+        proof: "live-runtime (2026-09-25)",
         proofFloor: "live-runtime (2026-09-06)",
         proofRows: [
           "forms-create",
@@ -56762,9 +56762,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       create_smart_list: {
-        description: "Create a smart list whose filter the contacts screen will actually apply \u2014 proof: live-runtime (2026-09-07); risk: write",
+        description: "Create a smart list whose filter the contacts screen will actually apply \u2014 proof: live-runtime (2026-09-25); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-07)",
+        proof: "live-runtime (2026-09-25)",
         proofFloor: "live-runtime (2026-09-07)",
         proofRows: [
           "platform--contacts-smartlist",
@@ -56792,9 +56792,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       create_snapshot: {
-        description: "Capture a sub-account into an agency snapshot \u2014 proof: live-runtime (2026-09-10); risk: write",
+        description: "Capture a sub-account into an agency snapshot \u2014 proof: live-runtime (2026-09-25); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-10)",
+        proof: "live-runtime (2026-09-25)",
         proofFloor: "live-runtime (2026-09-10)",
         proofRows: [
           "platform--snapshots-prefetch",
@@ -56814,9 +56814,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       create_studio_agent: {
-        description: "Create Agent Studio agent \u2014 proof: live-runtime (2026-09-10); risk: write",
+        description: "Create Agent Studio agent \u2014 proof: live-runtime (2026-09-25); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-10)",
+        proof: "live-runtime (2026-09-25)",
         proofFloor: "live-runtime (2026-07-21)",
         proofRows: [
           "ai-studio-agent-build"
@@ -56832,9 +56832,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       create_studio_site: {
-        description: "Create studio site \u2014 proof: live-runtime (2026-09-04); risk: write",
+        description: "Create studio site \u2014 proof: live-runtime (2026-09-25); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-04)",
+        proof: "live-runtime (2026-09-25)",
         proofFloor: "live-runtime (2026-09-04)",
         proofRows: [
           "ai-studio--post-projects"
@@ -56850,9 +56850,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       create_voiceai_agent: {
-        description: "Create Voice AI agent \u2014 proof: live-runtime (2026-09-10); risk: write",
+        description: "Create Voice AI agent \u2014 proof: live-runtime (2026-09-25); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-10)",
+        proof: "live-runtime (2026-09-25)",
         proofFloor: "live-runtime (2026-07-21)",
         proofRows: [
           "ai-voiceai-agent-create"
@@ -57018,9 +57018,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       find_ghl_site: {
-        description: "Find ghl site \u2014 proof: live-runtime (2026-09-04); risk: read",
+        description: "Find ghl site \u2014 proof: live-runtime (2026-09-25); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-04)",
+        proof: "live-runtime (2026-09-25)",
         proofFloor: "live-runtime (2026-09-04)",
         proofRows: [
           "ai-studio--get-projects",
@@ -57058,9 +57058,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       generate_studio_site: {
-        description: "Generate studio site \u2014 proof: live-runtime (2026-09-04); risk: write",
+        description: "Generate studio site \u2014 proof: live-runtime (2026-09-25); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-04)",
+        proof: "live-runtime (2026-09-25)",
         proofFloor: "live-runtime (2026-09-04)",
         proofRows: [
           "ai-studio--get-projects-usage-policy",
@@ -57114,9 +57114,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       get_agent_message_trace: {
-        description: "Why the AI said it: the node-by-node span trace for one message, digested \u2014 proof: live-runtime (2026-09-03); risk: read",
+        description: "Why the AI said it: the node-by-node span trace for one message, digested \u2014 proof: live-runtime (2026-09-25); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-03)",
+        proof: "live-runtime (2026-09-25)",
         proofFloor: "live-runtime (2026-09-03)",
         proofRows: [
           "ai-agents--logs-spans",
@@ -57135,9 +57135,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       get_agent_metrics: {
-        description: "Agent Logs metrics dashboard \u2014 tokens, latency, success rates, top models/tools/agents, time series \u2014 proof: live-runtime (2026-09-03); risk: read",
+        description: "Agent Logs metrics dashboard \u2014 tokens, latency, success rates, top models/tools/agents, time series \u2014 proof: live-runtime (2026-09-25); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-03)",
+        proof: "live-runtime (2026-09-25)",
         proofFloor: "live-runtime (2026-09-03)",
         proofRows: [
           "ai-agents--agent-logs-metrics"
@@ -57153,9 +57153,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       get_agent_session: {
-        description: "One agent session: summary, customConfigs, every interaction and its metrics \u2014 proof: live-runtime (2026-09-03); risk: read",
+        description: "One agent session: summary, customConfigs, every interaction and its metrics \u2014 proof: live-runtime (2026-09-25); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-03)",
+        proof: "live-runtime (2026-09-25)",
         proofFloor: "live-runtime (2026-09-03)",
         proofRows: [
           "ai-agents--logs-summary",
@@ -57240,9 +57240,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       get_ai_response_details: {
-        description: "The assembled prompt, history and retrieval behind one outbound AI message \u2014 proof: live-runtime (2026-09-03); risk: read",
+        description: "The assembled prompt, history and retrieval behind one outbound AI message \u2014 proof: live-runtime (2026-09-25); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-03)",
+        proof: "live-runtime (2026-09-25)",
         proofFloor: "live-runtime (2026-09-03)",
         proofRows: [
           "ai-agents--interactions-response-details"
@@ -57258,9 +57258,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       get_contact_ai_status: {
-        description: "Read per-contact Conversation AI status \u2014 proof: live-runtime (2026-08-08); risk: read",
+        description: "Read per-contact Conversation AI status \u2014 proof: live-runtime (2026-09-25); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-08-08)",
+        proof: "live-runtime (2026-09-25)",
         proofFloor: "live-runtime (2026-08-08)",
         proofRows: [
           "ai-convai-contact-config-read"
@@ -57294,9 +57294,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       get_form: {
-        description: "Read one form and its stored document \u2014 proof: live-runtime (2026-09-06); risk: read",
+        description: "Read one form and its stored document \u2014 proof: live-runtime (2026-09-25); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-06)",
+        proof: "live-runtime (2026-09-25)",
         proofFloor: "live-runtime (2026-09-06)",
         proofRows: [
           "forms-detail",
@@ -57316,9 +57316,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       get_snapshot_manifest: {
-        description: "Read everything a sub-account could put in a snapshot \u2014 proof: live-runtime (2026-09-10); risk: read",
+        description: "Read everything a sub-account could put in a snapshot \u2014 proof: live-runtime (2026-09-25); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-10)",
+        proof: "live-runtime (2026-09-25)",
         proofFloor: "live-runtime (2026-09-10)",
         proofRows: [
           "platform--snapshots-prefetch",
@@ -57338,9 +57338,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       get_studio_generation_status: {
-        description: "Get studio generation status \u2014 proof: live-runtime (2026-09-04); risk: read",
+        description: "Get studio generation status \u2014 proof: live-runtime (2026-09-25); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-04)",
+        proof: "live-runtime (2026-09-25)",
         proofFloor: "live-runtime (2026-09-04)",
         proofRows: [
           "typed--get_studio_site_history--vibe-platform-documents:runQuery"
@@ -57356,9 +57356,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       get_studio_preview: {
-        description: "Get studio preview \u2014 proof: live-runtime (2026-09-04); risk: write",
+        description: "Get studio preview \u2014 proof: live-runtime (2026-09-25); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-04)",
+        proof: "live-runtime (2026-09-25)",
         proofFloor: "live-runtime (2026-09-04)",
         proofRows: [
           "ai-studio--get-projects-sandbox",
@@ -57378,9 +57378,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       get_studio_site: {
-        description: "Get studio site \u2014 proof: live-runtime (2026-09-04); risk: read",
+        description: "Get studio site \u2014 proof: live-runtime (2026-09-25); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-04)",
+        proof: "live-runtime (2026-09-25)",
         proofFloor: "live-runtime (2026-09-04)",
         proofRows: [
           "ai-studio--get-projects--documented",
@@ -57400,9 +57400,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       get_studio_site_diffs: {
-        description: "Get studio site diffs \u2014 proof: live-runtime (2026-09-04); risk: read",
+        description: "Get studio site diffs \u2014 proof: live-runtime (2026-09-25); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-04)",
+        proof: "live-runtime (2026-09-25)",
         proofFloor: "live-runtime (2026-09-04)",
         proofRows: [
           "typed--get_studio_site_history--vibe-platform-documents:runQuery"
@@ -57418,9 +57418,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       get_studio_site_history: {
-        description: "Get studio site history \u2014 proof: live-runtime (2026-09-04); risk: read",
+        description: "Get studio site history \u2014 proof: live-runtime (2026-09-25); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-04)",
+        proof: "live-runtime (2026-09-25)",
         proofFloor: "live-runtime (2026-09-04)",
         proofRows: [
           "typed--get_studio_site_history--vibe-platform-documents:runQuery"
@@ -57676,9 +57676,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       list_agent_contacts: {
-        description: "Agent Logs contacts \u2014 per-contact AI activity aggregates \u2014 proof: live-runtime (2026-09-03); risk: read",
+        description: "Agent Logs contacts \u2014 per-contact AI activity aggregates \u2014 proof: live-runtime (2026-09-25); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-03)",
+        proof: "live-runtime (2026-09-25)",
         proofFloor: "live-runtime (2026-09-03)",
         proofRows: [
           "ai-agents--agent-logs-contacts"
@@ -57694,9 +57694,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       list_agent_sessions: {
-        description: "Agent Logs sessions \u2014 the AI Agents log table, filterable and cursor-paged \u2014 proof: live-runtime (2026-09-03); risk: read",
+        description: "Agent Logs sessions \u2014 the AI Agents log table, filterable and cursor-paged \u2014 proof: live-runtime (2026-09-25); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-03)",
+        proof: "live-runtime (2026-09-25)",
         proofFloor: "live-runtime (2026-09-03)",
         proofRows: [
           "ai-agents--agent-logs-logs"
@@ -57730,9 +57730,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       list_form_submissions: {
-        description: "List form submissions \u2014 proof: live-runtime (2026-09-06); risk: read",
+        description: "List form submissions \u2014 proof: live-runtime (2026-09-25); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-06)",
+        proof: "live-runtime (2026-09-25)",
         proofFloor: "live-runtime (2026-09-06)",
         proofRows: [
           "forms-submissions"
@@ -57748,9 +57748,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       list_forms: {
-        description: "List forms in a sub-account \u2014 proof: live-runtime (2026-09-06); risk: read",
+        description: "List forms in a sub-account \u2014 proof: live-runtime (2026-09-25); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-06)",
+        proof: "live-runtime (2026-09-25)",
         proofFloor: "live-runtime (2026-09-06)",
         proofRows: [
           "forms-list",
@@ -57814,9 +57814,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       list_studio_sites: {
-        description: "List studio sites \u2014 proof: live-runtime (2026-09-04); risk: read",
+        description: "List studio sites \u2014 proof: live-runtime (2026-09-25); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-04)",
+        proof: "live-runtime (2026-09-25)",
         proofFloor: "live-runtime (2026-09-04)",
         proofRows: [
           "ai-studio--get-projects",
@@ -57961,9 +57961,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       publish_studio_site: {
-        description: "Publish studio site \u2014 proof: live-runtime (2026-09-04); risk: write",
+        description: "Publish studio site \u2014 proof: live-runtime (2026-09-25); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-04)",
+        proof: "live-runtime (2026-09-25)",
         proofFloor: "live-runtime (2026-09-04)",
         proofRows: [
           "ai-studio--post-projects-publish",
@@ -58003,9 +58003,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       push_snapshot: {
-        description: "Load a snapshot into sub-accounts \u2014 proof: live-runtime (2026-09-09); risk: destructive",
+        description: "Load a snapshot into sub-accounts \u2014 proof: live-runtime (2026-09-25); risk: destructive",
         risk: "destructive",
-        proof: "live-runtime (2026-09-09)",
+        proof: "live-runtime (2026-09-25)",
         proofFloor: "live-runtime (2026-09-09)",
         proofRows: [
           "platform--v2-set-assets-to-locations",
@@ -58027,9 +58027,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       read_studio_site_content: {
-        description: "Read studio site content \u2014 proof: live-runtime (2026-09-04); risk: read",
+        description: "Read studio site content \u2014 proof: live-runtime (2026-09-25); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-04)",
+        proof: "live-runtime (2026-09-25)",
         proofFloor: "live-runtime (2026-09-04)",
         proofRows: [
           "ai-studio--get-projects-files"
@@ -58045,9 +58045,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       refresh_snapshot: {
-        description: "Re-capture a snapshot without losing its curation \u2014 proof: live-runtime (2026-09-10); risk: write",
+        description: "Re-capture a snapshot without losing its curation \u2014 proof: live-runtime (2026-09-25); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-10)",
+        proof: "live-runtime (2026-09-25)",
         proofFloor: "live-runtime (2026-09-10)",
         proofRows: [
           "platform--snapshots-prefetch",
@@ -58159,9 +58159,9 @@ var init_define_TOOL_CATALOG = __esm({
         riskRows: []
       },
       set_contact_ai_status: {
-        description: "Set per-contact Conversation AI status \u2014 proof: live-runtime (2026-09-10); risk: write",
+        description: "Set per-contact Conversation AI status \u2014 proof: live-runtime (2026-09-25); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-10)",
+        proof: "live-runtime (2026-09-25)",
         proofFloor: "live-runtime (2026-08-08)",
         proofRows: [
           "ai-convai-contact-config-update"
@@ -58177,9 +58177,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       set_studio_secrets: {
-        description: "Set studio secrets \u2014 proof: live-runtime (2026-09-04); risk: write",
+        description: "Set studio secrets \u2014 proof: live-runtime (2026-09-25); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-04)",
+        proof: "live-runtime (2026-09-25)",
         proofFloor: "live-runtime (2026-09-04)",
         proofRows: [
           "ai-studio--put-projects-secrets",
@@ -58245,9 +58245,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       unpublish_studio_site: {
-        description: "Unpublish studio site \u2014 proof: live-runtime (2026-09-04); risk: write",
+        description: "Unpublish studio site \u2014 proof: live-runtime (2026-09-25); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-04)",
+        proof: "live-runtime (2026-09-25)",
         proofFloor: "live-runtime (2026-09-04)",
         proofRows: [
           "ai-studio--post-projects-unpublish",
@@ -58285,9 +58285,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       update_convai_agent: {
-        description: "Update a Conversation AI agent by read-merge-write \u2014 proof: live-runtime (2026-09-10); risk: write",
+        description: "Update a Conversation AI agent by read-merge-write \u2014 proof: live-runtime (2026-09-25); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-10)",
+        proof: "live-runtime (2026-09-25)",
         proofFloor: "unrecorded",
         proofRows: [
           "aiemployee-service--get-employee-by-id",
@@ -58307,9 +58307,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       update_form_data: {
-        description: "Edit a form's stored document safely \u2014 proof: live-runtime (2026-09-06); risk: write",
+        description: "Edit a form's stored document safely \u2014 proof: live-runtime (2026-09-25); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-06)",
+        proof: "live-runtime (2026-09-25)",
         proofFloor: "live-runtime (2026-09-06)",
         proofRows: [
           "forms-detail",

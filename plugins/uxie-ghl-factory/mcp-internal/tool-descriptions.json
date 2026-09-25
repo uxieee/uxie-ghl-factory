@@ -1,8 +1,8 @@
 {
   "answer_studio_question": {
-    "description": "Answer studio question — proof: live-runtime (2026-09-04); risk: write",
+    "description": "Answer studio question — proof: live-runtime (2026-09-25); risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-09-04)",
+    "proof": "live-runtime (2026-09-25)",
     "proofFloor": "live-runtime (2026-09-04)",
     "proofRows": [
       "ai-studio--post-projects-chat"
@@ -60,9 +60,9 @@
     ]
   },
   "build_course": {
-    "description": "Build course — proof: live-runtime (2026-09-10), floor: documented; risk: write",
+    "description": "Build course — proof: live-runtime (2026-09-25), floor: documented; risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-09-10)",
+    "proof": "live-runtime (2026-09-25)",
     "proofFloor": "documented",
     "proofRows": [
       "memberships-assessment-assignment-create",
@@ -213,9 +213,9 @@
     ]
   },
   "cancel_studio_generation": {
-    "description": "Cancel studio generation — proof: live-runtime (2026-09-04); risk: write",
+    "description": "Cancel studio generation — proof: live-runtime (2026-09-25); risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-09-04)",
+    "proof": "live-runtime (2026-09-25)",
     "proofFloor": "live-runtime (2026-09-04)",
     "proofRows": [
       "ai-studio--post-projects-chat-cancel"
@@ -231,9 +231,9 @@
     ]
   },
   "check_smart_lists": {
-    "description": "Audit smart lists for filters the contacts screen will silently discard — proof: live-runtime (2026-09-07); risk: read",
+    "description": "Audit smart lists for filters the contacts screen will silently discard — proof: live-runtime (2026-09-25); risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-09-07)",
+    "proof": "live-runtime (2026-09-25)",
     "proofFloor": "live-runtime (2026-09-07)",
     "proofRows": [
       "smartlist-search",
@@ -253,9 +253,9 @@
     ]
   },
   "check_snapshot_conflicts": {
-    "description": "See what loading a snapshot would collide with — proof: live-runtime (2026-09-10); risk: read",
+    "description": "See what loading a snapshot would collide with — proof: live-runtime (2026-09-25); risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-09-10)",
+    "proof": "live-runtime (2026-09-25)",
     "proofFloor": "live-runtime (2026-09-10)",
     "proofRows": [
       "platform--snapshots-prefetch",
@@ -309,9 +309,9 @@
     ]
   },
   "create_convai_agent": {
-    "description": "Create Conversation AI agent — proof: live-runtime (2026-09-10); risk: write",
+    "description": "Create Conversation AI agent — proof: live-runtime (2026-09-25); risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-09-10)",
+    "proof": "live-runtime (2026-09-25)",
     "proofFloor": "live-runtime (2026-07-21)",
     "proofRows": [
       "ai-convai-agent-create"
@@ -327,9 +327,9 @@
     ]
   },
   "create_custom_field_folder": {
-    "description": "Create custom field folder — proof: live-runtime (2026-08-18); risk: write",
+    "description": "Create custom field folder — proof: live-runtime (2026-09-25); risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-08-18)",
+    "proof": "live-runtime (2026-09-25)",
     "proofFloor": "live-runtime (2026-08-18)",
     "proofRows": [
       "entities-custom-field-folder-create",
@@ -348,9 +348,9 @@
     ]
   },
   "create_form": {
-    "description": "Create a form and save its document — proof: live-runtime (2026-09-06); risk: write",
+    "description": "Create a form and save its document — proof: live-runtime (2026-09-25); risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-09-06)",
+    "proof": "live-runtime (2026-09-25)",
     "proofFloor": "live-runtime (2026-09-06)",
     "proofRows": [
       "forms-create",
@@ -374,9 +374,9 @@
     ]
   },
   "create_smart_list": {
-    "description": "Create a smart list whose filter the contacts screen will actually apply — proof: live-runtime (2026-09-07); risk: write",
+    "description": "Create a smart list whose filter the contacts screen will actually apply — proof: live-runtime (2026-09-25); risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-09-07)",
+    "proof": "live-runtime (2026-09-25)",
     "proofFloor": "live-runtime (2026-09-07)",
     "proofRows": [
       "platform--contacts-smartlist",
@@ -404,9 +404,9 @@
     ]
   },
   "create_snapshot": {
-    "description": "Capture a sub-account into an agency snapshot — proof: live-runtime (2026-09-10); risk: write",
+    "description": "Capture a sub-account into an agency snapshot — proof: live-runtime (2026-09-25); risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-09-10)",
+    "proof": "live-runtime (2026-09-25)",
     "proofFloor": "live-runtime (2026-09-10)",
     "proofRows": [
       "platform--snapshots-prefetch",
@@ -426,9 +426,9 @@
     ]
   },
   "create_studio_agent": {
-    "description": "Create Agent Studio agent — proof: live-runtime (2026-09-10); risk: write",
+    "description": "Create Agent Studio agent — proof: live-runtime (2026-09-25); risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-09-10)",
+    "proof": "live-runtime (2026-09-25)",
     "proofFloor": "live-runtime (2026-07-21)",
     "proofRows": [
       "ai-studio-agent-build"
@@ -444,9 +444,9 @@
     ]
   },
   "create_studio_site": {
-    "description": "Create studio site — proof: live-runtime (2026-09-04); risk: write",
+    "description": "Create studio site — proof: live-runtime (2026-09-25); risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-09-04)",
+    "proof": "live-runtime (2026-09-25)",
     "proofFloor": "live-runtime (2026-09-04)",
     "proofRows": [
       "ai-studio--post-projects"
@@ -462,9 +462,9 @@
     ]
   },
   "create_voiceai_agent": {
-    "description": "Create Voice AI agent — proof: live-runtime (2026-09-10); risk: write",
+    "description": "Create Voice AI agent — proof: live-runtime (2026-09-25); risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-09-10)",
+    "proof": "live-runtime (2026-09-25)",
     "proofFloor": "live-runtime (2026-07-21)",
     "proofRows": [
       "ai-voiceai-agent-create"
@@ -630,9 +630,9 @@
     ]
   },
   "find_ghl_site": {
-    "description": "Find ghl site — proof: live-runtime (2026-09-04); risk: read",
+    "description": "Find ghl site — proof: live-runtime (2026-09-25); risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-09-04)",
+    "proof": "live-runtime (2026-09-25)",
     "proofFloor": "live-runtime (2026-09-04)",
     "proofRows": [
       "ai-studio--get-projects",
@@ -670,9 +670,9 @@
     ]
   },
   "generate_studio_site": {
-    "description": "Generate studio site — proof: live-runtime (2026-09-04); risk: write",
+    "description": "Generate studio site — proof: live-runtime (2026-09-25); risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-09-04)",
+    "proof": "live-runtime (2026-09-25)",
     "proofFloor": "live-runtime (2026-09-04)",
     "proofRows": [
       "ai-studio--get-projects-usage-policy",
@@ -726,9 +726,9 @@
     ]
   },
   "get_agent_message_trace": {
-    "description": "Why the AI said it: the node-by-node span trace for one message, digested — proof: live-runtime (2026-09-03); risk: read",
+    "description": "Why the AI said it: the node-by-node span trace for one message, digested — proof: live-runtime (2026-09-25); risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-09-03)",
+    "proof": "live-runtime (2026-09-25)",
     "proofFloor": "live-runtime (2026-09-03)",
     "proofRows": [
       "ai-agents--logs-spans",
@@ -747,9 +747,9 @@
     ]
   },
   "get_agent_metrics": {
-    "description": "Agent Logs metrics dashboard — tokens, latency, success rates, top models/tools/agents, time series — proof: live-runtime (2026-09-03); risk: read",
+    "description": "Agent Logs metrics dashboard — tokens, latency, success rates, top models/tools/agents, time series — proof: live-runtime (2026-09-25); risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-09-03)",
+    "proof": "live-runtime (2026-09-25)",
     "proofFloor": "live-runtime (2026-09-03)",
     "proofRows": [
       "ai-agents--agent-logs-metrics"
@@ -765,9 +765,9 @@
     ]
   },
   "get_agent_session": {
-    "description": "One agent session: summary, customConfigs, every interaction and its metrics — proof: live-runtime (2026-09-03); risk: read",
+    "description": "One agent session: summary, customConfigs, every interaction and its metrics — proof: live-runtime (2026-09-25); risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-09-03)",
+    "proof": "live-runtime (2026-09-25)",
     "proofFloor": "live-runtime (2026-09-03)",
     "proofRows": [
       "ai-agents--logs-summary",
@@ -852,9 +852,9 @@
     ]
   },
   "get_ai_response_details": {
-    "description": "The assembled prompt, history and retrieval behind one outbound AI message — proof: live-runtime (2026-09-03); risk: read",
+    "description": "The assembled prompt, history and retrieval behind one outbound AI message — proof: live-runtime (2026-09-25); risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-09-03)",
+    "proof": "live-runtime (2026-09-25)",
     "proofFloor": "live-runtime (2026-09-03)",
     "proofRows": [
       "ai-agents--interactions-response-details"
@@ -870,9 +870,9 @@
     ]
   },
   "get_contact_ai_status": {
-    "description": "Read per-contact Conversation AI status — proof: live-runtime (2026-08-08); risk: read",
+    "description": "Read per-contact Conversation AI status — proof: live-runtime (2026-09-25); risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-08-08)",
+    "proof": "live-runtime (2026-09-25)",
     "proofFloor": "live-runtime (2026-08-08)",
     "proofRows": [
       "ai-convai-contact-config-read"
@@ -906,9 +906,9 @@
     ]
   },
   "get_form": {
-    "description": "Read one form and its stored document — proof: live-runtime (2026-09-06); risk: read",
+    "description": "Read one form and its stored document — proof: live-runtime (2026-09-25); risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-09-06)",
+    "proof": "live-runtime (2026-09-25)",
     "proofFloor": "live-runtime (2026-09-06)",
     "proofRows": [
       "forms-detail",
@@ -928,9 +928,9 @@
     ]
   },
   "get_snapshot_manifest": {
-    "description": "Read everything a sub-account could put in a snapshot — proof: live-runtime (2026-09-10); risk: read",
+    "description": "Read everything a sub-account could put in a snapshot — proof: live-runtime (2026-09-25); risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-09-10)",
+    "proof": "live-runtime (2026-09-25)",
     "proofFloor": "live-runtime (2026-09-10)",
     "proofRows": [
       "platform--snapshots-prefetch",
@@ -950,9 +950,9 @@
     ]
   },
   "get_studio_generation_status": {
-    "description": "Get studio generation status — proof: live-runtime (2026-09-04); risk: read",
+    "description": "Get studio generation status — proof: live-runtime (2026-09-25); risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-09-04)",
+    "proof": "live-runtime (2026-09-25)",
     "proofFloor": "live-runtime (2026-09-04)",
     "proofRows": [
       "typed--get_studio_site_history--vibe-platform-documents:runQuery"
@@ -968,9 +968,9 @@
     ]
   },
   "get_studio_preview": {
-    "description": "Get studio preview — proof: live-runtime (2026-09-04); risk: write",
+    "description": "Get studio preview — proof: live-runtime (2026-09-25); risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-09-04)",
+    "proof": "live-runtime (2026-09-25)",
     "proofFloor": "live-runtime (2026-09-04)",
     "proofRows": [
       "ai-studio--get-projects-sandbox",
@@ -990,9 +990,9 @@
     ]
   },
   "get_studio_site": {
-    "description": "Get studio site — proof: live-runtime (2026-09-04); risk: read",
+    "description": "Get studio site — proof: live-runtime (2026-09-25); risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-09-04)",
+    "proof": "live-runtime (2026-09-25)",
     "proofFloor": "live-runtime (2026-09-04)",
     "proofRows": [
       "ai-studio--get-projects--documented",
@@ -1012,9 +1012,9 @@
     ]
   },
   "get_studio_site_diffs": {
-    "description": "Get studio site diffs — proof: live-runtime (2026-09-04); risk: read",
+    "description": "Get studio site diffs — proof: live-runtime (2026-09-25); risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-09-04)",
+    "proof": "live-runtime (2026-09-25)",
     "proofFloor": "live-runtime (2026-09-04)",
     "proofRows": [
       "typed--get_studio_site_history--vibe-platform-documents:runQuery"
@@ -1030,9 +1030,9 @@
     ]
   },
   "get_studio_site_history": {
-    "description": "Get studio site history — proof: live-runtime (2026-09-04); risk: read",
+    "description": "Get studio site history — proof: live-runtime (2026-09-25); risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-09-04)",
+    "proof": "live-runtime (2026-09-25)",
     "proofFloor": "live-runtime (2026-09-04)",
     "proofRows": [
       "typed--get_studio_site_history--vibe-platform-documents:runQuery"
@@ -1288,9 +1288,9 @@
     ]
   },
   "list_agent_contacts": {
-    "description": "Agent Logs contacts — per-contact AI activity aggregates — proof: live-runtime (2026-09-03); risk: read",
+    "description": "Agent Logs contacts — per-contact AI activity aggregates — proof: live-runtime (2026-09-25); risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-09-03)",
+    "proof": "live-runtime (2026-09-25)",
     "proofFloor": "live-runtime (2026-09-03)",
     "proofRows": [
       "ai-agents--agent-logs-contacts"
@@ -1306,9 +1306,9 @@
     ]
   },
   "list_agent_sessions": {
-    "description": "Agent Logs sessions — the AI Agents log table, filterable and cursor-paged — proof: live-runtime (2026-09-03); risk: read",
+    "description": "Agent Logs sessions — the AI Agents log table, filterable and cursor-paged — proof: live-runtime (2026-09-25); risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-09-03)",
+    "proof": "live-runtime (2026-09-25)",
     "proofFloor": "live-runtime (2026-09-03)",
     "proofRows": [
       "ai-agents--agent-logs-logs"
@@ -1342,9 +1342,9 @@
     ]
   },
   "list_form_submissions": {
-    "description": "List form submissions — proof: live-runtime (2026-09-06); risk: read",
+    "description": "List form submissions — proof: live-runtime (2026-09-25); risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-09-06)",
+    "proof": "live-runtime (2026-09-25)",
     "proofFloor": "live-runtime (2026-09-06)",
     "proofRows": [
       "forms-submissions"
@@ -1360,9 +1360,9 @@
     ]
   },
   "list_forms": {
-    "description": "List forms in a sub-account — proof: live-runtime (2026-09-06); risk: read",
+    "description": "List forms in a sub-account — proof: live-runtime (2026-09-25); risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-09-06)",
+    "proof": "live-runtime (2026-09-25)",
     "proofFloor": "live-runtime (2026-09-06)",
     "proofRows": [
       "forms-list",
@@ -1426,9 +1426,9 @@
     ]
   },
   "list_studio_sites": {
-    "description": "List studio sites — proof: live-runtime (2026-09-04); risk: read",
+    "description": "List studio sites — proof: live-runtime (2026-09-25); risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-09-04)",
+    "proof": "live-runtime (2026-09-25)",
     "proofFloor": "live-runtime (2026-09-04)",
     "proofRows": [
       "ai-studio--get-projects",
@@ -1573,9 +1573,9 @@
     ]
   },
   "publish_studio_site": {
-    "description": "Publish studio site — proof: live-runtime (2026-09-04); risk: write",
+    "description": "Publish studio site — proof: live-runtime (2026-09-25); risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-09-04)",
+    "proof": "live-runtime (2026-09-25)",
     "proofFloor": "live-runtime (2026-09-04)",
     "proofRows": [
       "ai-studio--post-projects-publish",
@@ -1615,9 +1615,9 @@
     ]
   },
   "push_snapshot": {
-    "description": "Load a snapshot into sub-accounts — proof: live-runtime (2026-09-09); risk: destructive",
+    "description": "Load a snapshot into sub-accounts — proof: live-runtime (2026-09-25); risk: destructive",
     "risk": "destructive",
-    "proof": "live-runtime (2026-09-09)",
+    "proof": "live-runtime (2026-09-25)",
     "proofFloor": "live-runtime (2026-09-09)",
     "proofRows": [
       "platform--v2-set-assets-to-locations",
@@ -1639,9 +1639,9 @@
     ]
   },
   "read_studio_site_content": {
-    "description": "Read studio site content — proof: live-runtime (2026-09-04); risk: read",
+    "description": "Read studio site content — proof: live-runtime (2026-09-25); risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-09-04)",
+    "proof": "live-runtime (2026-09-25)",
     "proofFloor": "live-runtime (2026-09-04)",
     "proofRows": [
       "ai-studio--get-projects-files"
@@ -1657,9 +1657,9 @@
     ]
   },
   "refresh_snapshot": {
-    "description": "Re-capture a snapshot without losing its curation — proof: live-runtime (2026-09-10); risk: write",
+    "description": "Re-capture a snapshot without losing its curation — proof: live-runtime (2026-09-25); risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-09-10)",
+    "proof": "live-runtime (2026-09-25)",
     "proofFloor": "live-runtime (2026-09-10)",
     "proofRows": [
       "platform--snapshots-prefetch",
@@ -1771,9 +1771,9 @@
     "riskRows": []
   },
   "set_contact_ai_status": {
-    "description": "Set per-contact Conversation AI status — proof: live-runtime (2026-09-10); risk: write",
+    "description": "Set per-contact Conversation AI status — proof: live-runtime (2026-09-25); risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-09-10)",
+    "proof": "live-runtime (2026-09-25)",
     "proofFloor": "live-runtime (2026-08-08)",
     "proofRows": [
       "ai-convai-contact-config-update"
@@ -1789,9 +1789,9 @@
     ]
   },
   "set_studio_secrets": {
-    "description": "Set studio secrets — proof: live-runtime (2026-09-04); risk: write",
+    "description": "Set studio secrets — proof: live-runtime (2026-09-25); risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-09-04)",
+    "proof": "live-runtime (2026-09-25)",
     "proofFloor": "live-runtime (2026-09-04)",
     "proofRows": [
       "ai-studio--put-projects-secrets",
@@ -1857,9 +1857,9 @@
     ]
   },
   "unpublish_studio_site": {
-    "description": "Unpublish studio site — proof: live-runtime (2026-09-04); risk: write",
+    "description": "Unpublish studio site — proof: live-runtime (2026-09-25); risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-09-04)",
+    "proof": "live-runtime (2026-09-25)",
     "proofFloor": "live-runtime (2026-09-04)",
     "proofRows": [
       "ai-studio--post-projects-unpublish",
@@ -1897,9 +1897,9 @@
     ]
   },
   "update_convai_agent": {
-    "description": "Update a Conversation AI agent by read-merge-write — proof: live-runtime (2026-09-10); risk: write",
+    "description": "Update a Conversation AI agent by read-merge-write — proof: live-runtime (2026-09-25); risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-09-10)",
+    "proof": "live-runtime (2026-09-25)",
     "proofFloor": "unrecorded",
     "proofRows": [
       "aiemployee-service--get-employee-by-id",
@@ -1919,9 +1919,9 @@
     ]
   },
   "update_form_data": {
-    "description": "Edit a form's stored document safely — proof: live-runtime (2026-09-06); risk: write",
+    "description": "Edit a form's stored document safely — proof: live-runtime (2026-09-25); risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-09-06)",
+    "proof": "live-runtime (2026-09-25)",
     "proofFloor": "live-runtime (2026-09-06)",
     "proofRows": [
       "forms-detail",

@@ -12,27 +12,37 @@
         "row:ai-agents--agent-logs-logs"
       ],
       "backfilled": true
+    },
+    {
+      "at": "2026-09-25",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:9eb46adb",
+        "row:ai-agents--agent-logs-logs"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
-    "hashedAt": "2026-09-14",
+    "hashedAt": "2026-09-25",
     "endpoints": {
       "POST https://services.leadconnectorhq.com /agent-logs/logs": "ec4b0123a011bc821c6588e4a89141ef9446762e5b8e6f3a7dca06f69ef0cbc8"
     },
     "builds": {
-      "agentLogsApp": 635,
-      "agentStudioApp": 653,
-      "aiEmployeesApp": 2527,
-      "aiGrowthApp": 654,
-      "superagentsApp": 649,
-      "voiceAiApp": 656
+      "agentLogsApp": 693,
+      "agentStudioApp": 701,
+      "aiEmployeesApp": 2603,
+      "aiGrowthApp": 697,
+      "superagentsApp": 703,
+      "voiceAiApp": 701
     },
     "code": {
-      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#list_agent_sessions": "e6913486011343655a5b22fddbf402969fd08d6ca9a312bf12c6f314a24f5c72",
+      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#list_agent_sessions": "13bf7f5d59c75f0430be39542f20b728bcb25abfe4e1177b3b3e0c4431441fae",
       "plugins/uxie-ghl-factory/mcp-internal/core/agent-logs.mjs": "66be641f68392b70517d7ad6c3065ec3f4907bd66b19633242b3fa1ddb2af606",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "e65c2384aefb498ce49453dd2d6d8d1a1d8351fd6d337aef5256eb982e1db02f",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
-      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "2d59b12818ffe76fb105e5284c3d186aea8d07f6a457b7c6344ea2258ba6a1d6"
+      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "a223838eb7dbacd4b07e852c05c2728539093efea90eda104565aba5386074e4"
     }
   }
 }

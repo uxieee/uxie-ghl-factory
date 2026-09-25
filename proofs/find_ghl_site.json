@@ -14,30 +14,41 @@
         "row:funnels-service--get-funnels"
       ],
       "backfilled": true
+    },
+    {
+      "at": "2026-09-25",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:9eb46adb",
+        "row:ai-studio--get-projects",
+        "row:funnels-service--get-funnels"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
-    "hashedAt": "2026-09-14",
+    "hashedAt": "2026-09-25",
     "endpoints": {
       "GET https://backend.leadconnectorhq.com /funnels/funnel/list": "a46307268f695398a8ae97eecb8b1e2c3174eef69d6fc11550b0857d5b6de8fb",
       "GET https://backend.leadconnectorhq.com /vibe-ai/projects": "64930196efabf3eb74b15a7c1a98d46d808c829bdd4fcc94aaa118471e12e20f"
     },
     "builds": {
       "brandBoardsApp": 39,
-      "domainConnectApp": 222,
-      "domainResellingApp": 222,
-      "funnelWebsiteApp": 221,
+      "domainConnectApp": 228,
+      "domainResellingApp": 229,
+      "funnelWebsiteApp": 230,
       "funnelWebsiteDomainApp": 222,
       "redirectApp": 222,
-      "vibeEditorApp": 330
+      "vibeEditorApp": 350
     },
     "code": {
-      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#find_ghl_site": "e1bc964ab32e1a5ef9c94a140408d1cb4064f546711938babee10d4caa2de9f4",
-      "plugins/uxie-ghl-factory/mcp-internal/core/ai-studio.mjs": "f9c293b95c24bd20530c4dcaa50b0652b0f859efe46acc45020756a20627e604",
+      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#find_ghl_site": "2d7541c1da111456d6985f089d49df1569192d22af6311ac6e40a7a6498654ca",
+      "plugins/uxie-ghl-factory/mcp-internal/core/ai-studio.mjs": "70fe5c44b7821485a92036b762653ccbc5cbc0a5acbd782b4ed59357c24fec95",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "e65c2384aefb498ce49453dd2d6d8d1a1d8351fd6d337aef5256eb982e1db02f",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
-      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "2d59b12818ffe76fb105e5284c3d186aea8d07f6a457b7c6344ea2258ba6a1d6",
-      "plugins/uxie-ghl-factory/mcp-internal/core/location-binding.mjs": "601f6c7ed73a009666d196f9ea145740991fef8cc4c142baf4947030007f1e87"
+      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "a223838eb7dbacd4b07e852c05c2728539093efea90eda104565aba5386074e4",
+      "plugins/uxie-ghl-factory/mcp-internal/core/location-binding.mjs": "709622e649fdb45c200814cc176db342bb52ee63ac40693b4ac7feda0e79488c"
     }
   }
 }
