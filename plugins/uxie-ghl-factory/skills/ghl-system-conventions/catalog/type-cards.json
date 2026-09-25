@@ -6007,7 +6007,7 @@
    "family": "triggers",
    "title": "contact_tag",
    "status": "source-derived",
-   "lastVerified": "2026-08-22",
+   "lastVerified": "2026-09-25",
    "summary": "Fires when a tag is added to a contact (the canonical entry-point trigger).",
    "meta": {
     "Trigger value": "`contact_tag`",
@@ -6035,7 +6035,7 @@
     }
    ],
    "validator": "No-op. `contactTagValidator$1` returns `[]` regardless of input — anything passes structurally. Per `sniffs/bundle/trigger-validators-summary.json::contactTagValidator$1` (`fields_referenced: []`, `result_levels: []`). Filter shape is enforced by the UI, not by the validator.",
-   "notes": "- `conditions[]` is typically empty in the corpus — the `tagsAdded` filter row is set in the `filters[]` array, not in `conditions[]`. Filter class is `TagFilter` (handles both add and remove); for tag-removed the trigger type uses the `tagsRemoved` field-value.",
+   "notes": "- 🔴 **Re-adding a tag the contact already has does nothing.** The add returns `tagsAdded: []` and the trigger is not even evaluated, whether the contact is mid-run or the run has finished. Only a real add (after the tag was removed) fires again `[proven-live 2026-09-25]` `sniffs/afy-onboarding-tests-2026-09-25/live-O-batch.json`.\n- `conditions[]` is typically empty in the corpus — the `tagsAdded` filter row is set in the `filters[]` array, not in `conditions[]`. Filter class is `TagFilter` (handles both add and remove); for tag-removed the trigger type uses the `tagsRemoved` field-value.",
    "hasCanonicalExample": false
   },
   {
@@ -10148,7 +10148,7 @@
    "family": "steps",
    "title": "if_else",
    "status": "proven-live",
-   "lastVerified": "2026-08-25",
+   "lastVerified": "2026-09-25",
    "summary": "Multi-path container that routes execution by evaluating segment-and-condition groups against contact/runtime state.",
    "meta": {
     "Section": "`internal`",
@@ -10224,7 +10224,7 @@
     }
    ],
    "validator": "No publish validator runs against `if_else`. The registry entry has no `validation.code` (per `sniffs/bundle/registry-parsed.json::entries[]::if_else`), and `validators.json` contains no `ifElseValidator`. Empty / malformed branches will not block publish — they just produce a node that never routes anyone.",
-   "notes": "- **Both `parent` and `parentKey` are required** on branch children. Some corpus rows duplicate the parent id in both fields. See [`docs/06-fields-glossary.md §1`](../../10-anatomy/06-fields-glossary.md).\n- **No publish validator** means an `if_else` parent with `branches: []` passes publish but does nothing. Don't rely on publish to catch broken branching.\n- The `if_else` parent node has `nodeType: \"condition-node\"`. Each branch is a separate step (also `type: \"if_else\"`) with `nodeType: \"branch-yes\"` — legacy binary form also uses `branch-no` for the else fallthrough. Branch entries are children of the parent via `parent` / `parentKey`; peer branches reference each other through `sibling[]`. Per [`docs/04-workflow-anatomy.md §4.2`](../../10-anatomy/04-workflow-anatomy.md) and `sniffs/FIELDS_GLOSSARY.json::nodeType` (only three observed values: `condition-node`, `branch-yes`, `branch-no` — `\"branch\"` is not one of them).\n- `currentRecipeType: \"CUSTOM\"` is the catch-all when the UI's recipe picker isn't used; recipe-scaffolded `if_else`s carry a non-CUSTOM value.\n- `segments` (top-level on attributes) is legacy; new bodies use `branches[].segments`.\n- For the cross-cutting multi-path mechanics, see [`docs/04-workflow-anatomy.md §4`](../../10-anatomy/04-workflow-anatomy.md).",
+   "notes": "- **`contact_reply` conditions, measured on live replies** `[proven-live 2026-09-25]`:\n  - `matches_intent == schedule-yes` is an AI classification. The row logs `waiting`, then the result. \"Yes approve it\" gave true, **\"looks good\" gave true**, and \"1\" gave false.\n  - `message.body contain \"yes\"` is **case-insensitive**: it matched \"Yes approve it\".\n  - `message.body == \"1\"` matched only \"1\" `sniffs/afy-onboarding-tests-2026-09-25/live-O-batch.json`.\n- **An `opportunities` condition on a custom field** (`conditionSubType: <fieldId>`) reads the run's ASSOCIATED card. With none, it falls to the else branch even when the contact's card holds the value `[proven-live 2026-09-25]` `sniffs/afy-onboarding-tests-2026-09-25/live-O-batch.json`.\n- **Both `parent` and `parentKey` are required** on branch children. Some corpus rows duplicate the parent id in both fields. See [`docs/06-fields-glossary.md §1`](../../10-anatomy/06-fields-glossary.md).\n- **No publish validator** means an `if_else` parent with `branches: []` passes publish but does nothing. Don't rely on publish to catch broken branching.\n- The `if_else` parent node has `nodeType: \"condition-node\"`. Each branch is a separate step (also `type: \"if_else\"`) with `nodeType: \"branch-yes\"` — legacy binary form also uses `branch-no` for the else fallthrough. Branch entries are children of the parent via `parent` / `parentKey`; peer branches reference each other through `sibling[]`. Per [`docs/04-workflow-anatomy.md §4.2`](../../10-anatomy/04-workflow-anatomy.md) and `sniffs/FIELDS_GLOSSARY.json::nodeType` (only three observed values: `condition-node`, `branch-yes`, `branch-no` — `\"branch\"` is not one of them).\n- `currentRecipeType: \"CUSTOM\"` is the catch-all when the UI's recipe picker isn't used; recipe-scaffolded `if_else`s carry a non-CUSTOM value.\n- `segments` (top-level on attributes) is legacy; new bodies use `branches[].segments`.\n- For the cross-cutting multi-path mechanics, see [`docs/04-workflow-anatomy.md §4`](../../10-anatomy/04-workflow-anatomy.md).",
    "hasCanonicalExample": true
   },
   {
@@ -10673,7 +10673,7 @@
    "family": "steps",
    "title": "internal_update_opportunity",
    "status": "source-derived",
-   "lastVerified": "2026-08-22",
+   "lastVerified": "2026-09-25",
    "summary": "Internal helper that updates an existing opportunity. Used by AI-driven and migration paths — different attribute shape from the user-facing [`create_opportunity`](./create_opportunity.md).",
    "meta": {
     "Section": "Not registered in `registry-parsed.json` (internal helper, not picker-visible)",
@@ -10714,7 +10714,7 @@
     }
    ],
    "validator": "**None.** `validator: null`, `validator_delegation_chain: []`, `required_fields_per_validator: []` per `og-action-ui-metadata.json::internal_update_opportunity`. No `internalUpdateOpportunityValidator` exists in `validators.json`.\n\nA malformed `internal_update_opportunity` row passes publish without inspection. The runtime is presumably stricter; failure surfaces at execution.",
-   "notes": "- **`workflowsActionType: \"INTERNAL\"`** is the top-level marker (sibling of `attributes`) that distinguishes internal-helper rows from user-authored ones. The UI hides these unless an internal path created them.\n- **The `__customInputFields__` shape mirrors a custom-object filter UI** — same `filterField` / `value` / `valueFieldType` keys as filter rows elsewhere. The \"update\" is encoded as a list of field-write directives.\n- **No validator means no publish-time existence check** on pipeline/stage ids. Verify your `value`s out-of-band.\n- **Most corpus rows update `status` or `pipelineStageId`.** Some carry two entries (pipeline + stage) to relocate the opp.\n- **The lack of `opportunityId` field** suggests the runtime targets the contact's \"current\" opportunity (the one matched by an upstream `find_opportunity` step). Not verified — but the pattern is consistent in corpus workflows that pair `find_opportunity` → `internal_update_opportunity`.",
+   "notes": "- 🔴 **With no associated opportunity the step vanishes, and nothing says so** `[proven-live 2026-09-25]`. In a run that entered by contact (a manual or tag enrolment, not an opportunity trigger) with no Find Opportunity before it, the step wrote **no log row at all**. There was no `skipped` and no \"use Opportunity trigger / find opportunity\" message, and the card was untouched. An If/Else on an opportunity field in the same run read no card and fell to the else branch. After a `find_opportunity` (pipeline filter, `latest`), the same step wrote the found card only (a Won card in another pipeline was untouched), and the If/Else read that card `sniffs/afy-onboarding-tests-2026-09-25/live-O-batch.json`.\n- A date custom field accepts `{{right_now.date}}`. It stored `2026-09-25` (YYYY-MM-DD) `[proven-live 2026-09-25]` `sniffs/afy-onboarding-tests-2026-09-25/live-O-batch.json`.\n- **`workflowsActionType: \"INTERNAL\"`** is the top-level marker (sibling of `attributes`) that distinguishes internal-helper rows from user-authored ones. The UI hides these unless an internal path created them.\n- **The `__customInputFields__` shape mirrors a custom-object filter UI** — same `filterField` / `value` / `valueFieldType` keys as filter rows elsewhere. The \"update\" is encoded as a list of field-write directives.\n- **No validator means no publish-time existence check** on pipeline/stage ids. Verify your `value`s out-of-band.\n- **Most corpus rows update `status` or `pipelineStageId`.** Some carry two entries (pipeline + stage) to relocate the opp.\n- **The lack of `opportunityId` field** suggests the runtime targets the contact's \"current\" opportunity (the one matched by an upstream `find_opportunity` step). Not verified — but the pattern is consistent in corpus workflows that pair `find_opportunity` → `internal_update_opportunity`.",
    "hasCanonicalExample": true
   },
   {
@@ -14826,7 +14826,7 @@
    "family": "triggers",
    "title": "opportunity_changed",
    "status": "source-derived",
-   "lastVerified": "2026-08-22",
+   "lastVerified": "2026-09-25",
    "summary": "Fires when an opportunity is updated (any field change).",
    "meta": {
     "Trigger value": "`opportunity_changed`",
@@ -14896,7 +14896,7 @@
     }
    ],
    "validator": "`opportunityValidator` checks the following fields (warning-level results) per `sniffs/bundle/trigger-validators-summary.json::opportunityValidator`:\n\n- `opportunity.assignedTo`\n- `opportunity.pipelineId`\n- `opportunity.pipelineStageId`\n\nAll other fields and the body envelope pass without validator inspection. Empty filters / conditions are permitted at create time — the publish flow uses the same validator chain (`docs/08-validators.md`).",
-   "notes": "- `opportunityValidator` warns when `opportunity.assignedTo`, `opportunity.pipelineId`, or `opportunity.pipelineStageId` reference IDs that don't exist in the target location. Warnings do not block publish. Per `sniffs/bundle/trigger-validators-summary.json::opportunityValidator`.",
+   "notes": "- **Filter on an opportunity CUSTOM field with `field: \"opportunity.<fieldId>\"`** (builder source `TriggerFilter.isOpportunityCustomField`). Editing that field on the card fires the trigger when the new value matches. A non-matching edit logs `Filter not matched - <field name>` with the actual and expected values `[proven-live 2026-09-25]` `sniffs/afy-onboarding-tests-2026-09-25/live-O-batch.json`.\n- `opportunityValidator` warns when `opportunity.assignedTo`, `opportunity.pipelineId`, or `opportunity.pipelineStageId` reference IDs that don't exist in the target location. Warnings do not block publish. Per `sniffs/bundle/trigger-validators-summary.json::opportunityValidator`.",
    "hasCanonicalExample": false
   },
   {
@@ -14904,7 +14904,7 @@
    "family": "triggers",
    "title": "opportunity_created",
    "status": "source-derived",
-   "lastVerified": "2026-08-22",
+   "lastVerified": "2026-09-25",
    "summary": "Fires when an opportunity is created.",
    "meta": {
     "Trigger value": "`opportunity_created`",
@@ -14974,7 +14974,7 @@
     }
    ],
    "validator": "`opportunityValidator` checks the following fields (warning-level results) per `sniffs/bundle/trigger-validators-summary.json::opportunityValidator`:\n\n- `opportunity.assignedTo`\n- `opportunity.pipelineId`\n- `opportunity.pipelineStageId`\n\nAll other fields and the body envelope pass without validator inspection. Empty filters / conditions are permitted at create time — the publish flow uses the same validator chain (`docs/08-validators.md`).",
-   "notes": "- `opportunityValidator` warns when `opportunity.assignedTo`, `opportunity.pipelineId`, or `opportunity.pipelineStageId` reference IDs that don't exist in the target location. Warnings do not block publish. Per `sniffs/bundle/trigger-validators-summary.json::opportunityValidator`.",
+   "notes": "- **A card created by a workflow's `create_opportunity` step fires this trigger**, the same as an API-created card. Both qualified with pipeline and stage filters `[proven-live 2026-09-25]` `sniffs/afy-onboarding-tests-2026-09-25/live-O-batch.json`.\n- `opportunityValidator` warns when `opportunity.assignedTo`, `opportunity.pipelineId`, or `opportunity.pipelineStageId` reference IDs that don't exist in the target location. Warnings do not block publish. Per `sniffs/bundle/trigger-validators-summary.json::opportunityValidator`.",
    "hasCanonicalExample": false
   },
   {
@@ -18799,7 +18799,7 @@
    "family": "steps",
    "title": "wait",
    "status": "source-derived",
-   "lastVerified": "2026-08-22",
+   "lastVerified": "2026-09-25",
    "summary": "Pause execution until a time elapses, a condition becomes true, an event fires, or a reply arrives — discriminated by `attributes.type`.",
    "meta": {
     "Section": "`internal`",
@@ -18959,7 +18959,7 @@
     }
    ],
    "validator": "`waitValidator` runs on publish. Per `sniffs/bundle/validators.json::waitValidator`:\n\n1. Checks `name` against `isWithinLimits` if present (error: `wait_name_too_long`).\n2. Switches on `attributes.type` to delegate.\n3. Also runs `validateTimeout` if `convertToMultipath && startAfter`.\n\nValidator length: 794 chars. Result level: `error` (one of the few validators that emits errors rather than warnings — `wait_type_required`, `wait_window_start_required`, `wait_appointment_when_required`).",
-   "notes": "- **Hybrid actions split**. A `wait` with `convertToMultipath: true` carries both `next: \"<uuid>\"` (the timeout path) AND a `transitions[]` array (the event-fired paths). The runtime takes whichever fires first.\n- **`type` is the discriminator** — change it and the entire required-field set changes. Don't migrate without re-validating.\n- **`window` is timezone-naive**. `start`/`end` are `HH:MM` strings without zone; resolution depends on the location's timezone (`samples` show wait windows like `\"04:00\"`–`\"04:15\"`).\n- **`appointmentStartAfter.distributed: {}`** is corpus-observed but the meaning hasn't been traced — appears to be a stub for an unrolled feature.\n- For appointment subtypes the validator's three triggers (`appointment` / `service_booking` / `overdue`) all share `validateAppointmentWait`. Whether the runtime treats them identically isn't verified — likely they share the wait shape but differ in event source.\n- The validator returns `result: \"error\"` for several missing-field cases (rather than `\"warning\"`). The publish endpoint treats both equivalently (rejects), but the UI distinguishes them.",
+   "notes": "- **A `condition` wait (\"contact field has a value\") releases within seconds of the field being set.** Set at 05:05:48, the run moved at 05:05:51. With no change, it took the timeout branch when the timeout ran out `[proven-live 2026-09-25]` `sniffs/afy-onboarding-tests-2026-09-25/live-O-batch.json`.\n- **Hybrid actions split**. A `wait` with `convertToMultipath: true` carries both `next: \"<uuid>\"` (the timeout path) AND a `transitions[]` array (the event-fired paths). The runtime takes whichever fires first.\n- **`type` is the discriminator** — change it and the entire required-field set changes. Don't migrate without re-validating.\n- **`window` is timezone-naive**. `start`/`end` are `HH:MM` strings without zone; resolution depends on the location's timezone (`samples` show wait windows like `\"04:00\"`–`\"04:15\"`).\n- **`appointmentStartAfter.distributed: {}`** is corpus-observed but the meaning hasn't been traced — appears to be a stub for an unrolled feature.\n- For appointment subtypes the validator's three triggers (`appointment` / `service_booking` / `overdue`) all share `validateAppointmentWait`. Whether the runtime treats them identically isn't verified — likely they share the wait shape but differ in event source.\n- The validator returns `result: \"error\"` for several missing-field cases (rather than `\"warning\"`). The publish endpoint treats both equivalently (rejects), but the UI distinguishes them.",
    "hasCanonicalExample": true
   },
   {
