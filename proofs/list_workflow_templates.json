@@ -533,10 +533,20 @@
         "receipt:2026-09-24-0825"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-25",
+      "result": "pass",
+      "how": "suite",
+      "suite": "workflows",
+      "evidence": [
+        "receipt:2026-09-25-0126"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
-    "hashedAt": "2026-09-24",
+    "hashedAt": "2026-09-25",
     "endpoints": {
       "GET https://backend.leadconnectorhq.com /workflow/{}/workflow-templates": "f5b249f91960ff6f62a757dd718abf6e99f2e2c43fa91f4ab0f30348f3bac902"
     },

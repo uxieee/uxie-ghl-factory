@@ -53,17 +53,27 @@
         "receipt:2026-09-24-0825"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-25",
+      "result": "pass",
+      "how": "suite",
+      "suite": "workflows",
+      "evidence": [
+        "receipt:2026-09-25-0126"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
-    "hashedAt": "2026-09-24",
+    "hashedAt": "2026-09-25",
     "endpoints": {
       "GET https://backend.leadconnectorhq.com /locations/{}": "4875e8df14204f712f16f6ad95332c1e2ba7cea66195934526d61ead4a8eac53",
       "GET https://backend.leadconnectorhq.com /snapshots/v2/{}": "efbd9a2fd7acebdda269bf8b0d1051d6d313e364fc8a870406e29d90a7cfa997",
       "GET https://services.leadconnectorhq.com /snapshots/v2/{}": "a9c3b89e8a162e1bbb9b335097a69e8de12b9ac2d3bfc8fa8e2fa0a25724f859"
     },
     "builds": {
-      "contactsApp": 2602,
+      "contactsApp": 2617,
       "customFieldsApp": 2079,
       "snapshotsApp": 2003
     },

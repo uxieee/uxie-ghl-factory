@@ -483,10 +483,20 @@
         "receipt:2026-09-24-0825"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-25",
+      "result": "pass",
+      "how": "suite",
+      "suite": "workflows",
+      "evidence": [
+        "receipt:2026-09-25-0126"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
-    "hashedAt": "2026-09-24",
+    "hashedAt": "2026-09-25",
     "endpoints": {
       "GET https://backend.leadconnectorhq.com /emails/builder": "d945317777e769527d53040cefeb11fc07d1b48910930e64060d0d3b01b9fd83",
       "GET https://backend.leadconnectorhq.com /events-management/events/options": "f10a8cfd8d4940227cc516eb7e453d35a60fbfda8f5c2f96639e8d65cb783fdf",
@@ -528,13 +538,14 @@
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/catalog/opp-field-shapes.json": "7df4c26cdf87854721b9950046b7cf619e9e4b751124fbdfe5f801ec40ae6358",
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/action-schema.mjs": "3f2375148566c72c236b8872d35b8719356c5f662f94e8a83a4c08fa0c7d18f6",
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/asset-preflight.mjs": "4cde0b0df7ca1c1f2b5e4c23e3ca8bc54bd6fec99f0d9eda36afc8944563b8a1",
-      "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/catalog.data.json": "739408295c55f40fe20f2323c02904838d994f7e026f47abde7d0f987c72fb04",
+      "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/catalog.data.json": "eece97c516adfd9c02d1276a011537b7f899cbd16dae3a0b40ed8676e8a26122",
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/catalog.mjs": "3f916a17f8a3614927e2cb573e0191c90dc381872f08b6025ce3bc992756dad4",
-      "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/compiler.mjs": "d47a9656566a88e63c5e82de0315250e1f3dabe79d58150e462bbf425521987f",
+      "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/compiler.mjs": "d782301509f0c8bd349719ce3a137a0efaf3c1991bd35ac200b7b28d34d0768f",
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/contact-field-shapes.mjs": "748a11eee9bfb5fa4c2cf52c7d7f2040c161d619bfacf4dc0d16db6d0a81e520",
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/custom-object-fields.mjs": "2568966e0ff7ed1f0beba0bcf39c7406b8af385d6efbc1161aa0547f22bf1995",
+      "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/disable-rules.mjs": "f41356d17fbf384ac93c56ecdfe07532b8e99354a7301ed3804a49ad4ae9eeca",
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/document-gate.mjs": "d613305301430e0b1602d8d55a493f880a6ef0703043b06a1611a7b507db4a35",
-      "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/edit.mjs": "4d1737e9e9c3b949a4554b2a2e26e9ecda7340e1997112ae911ea23a1c3f4c1e",
+      "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/edit.mjs": "69a23ac3bcad1f6f33010818c9fad0e9df065b13770f43ac5105965ac089e587",
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/enforce.mjs": "a661a36c2e250cbb195650e05edc5927db420be2a3e0e4f678bd748353082a87",
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/engine-references.mjs": "f389f47769477dfd7045266e46dcd86ca4ee52d3107139e15e388825c7e49e5e",
       "plugins/uxie-ghl-factory/skills/create-ghl-workflow/engine/entities.mjs": "7341f3f1c5cb87c2ed45683467610f1250bc459a7b92a071890e56d9bfb0c3a3",
