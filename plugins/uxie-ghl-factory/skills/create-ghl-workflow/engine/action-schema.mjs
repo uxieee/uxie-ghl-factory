@@ -2,7 +2,7 @@
 //
 // WHAT THIS IS
 // ------------
-// `GET /workflows-marketplace/location/{loc}/assets?workflowTypes=default,contacts`
+// `GET /workflows-marketplace/location/{loc}/assets?workflowTypes=<per workflow type>` (see assetWorkflowTypes)
 // returns ~3 MB describing every action GHL can build: 46 apps -> 307 actions (1,224
 // individual fields) plus 147 triggers. For each field it states the real key, the human
 // LABEL, whether it is REQUIRED, GHL's own DEFAULT, the field type, and its validation
@@ -349,13 +349,33 @@ export function checkWorkflowOffline(templates) {
   return errors;
 }
 
+
+// The asset catalogue is PER WORKFLOW TYPE (live 2026-09-25: no filter = the union 90/55 INTERNAL;
+// default,contacts 85/53; default,company 80/47 incl. the company actions + business_created/changed;
+// default,custom_object 77/45 incl. find_object_record). The builder picks the value per workflow
+// (states/marketplace.ts:43-64, utils/workflows.ts:1569-1594): an object-based workflow
+// (customObjectType `custom_objects.*`) → default,custom_object; a config workflow of type
+// `business` → default,company; any other non-agent config type → that type; otherwise (contact,
+// agent, none) → default,contacts. Reading the contacts list for every workflow validated company and
+// custom-object builds against the wrong catalogue. `object` is the IR's pre-resolution spelling of
+// customObjectType, so a build that names an object is object-based even before it is resolved.
+export function assetWorkflowTypes(wf = {}) {
+  const cot = wf?.customObjectType;
+  if ((typeof cot === 'string' && cot.startsWith('custom_objects.')) || (wf?.object && !cot)) return 'default,custom_object';
+  const t = wf?.workflowType;
+  if (t && t !== 'agent') return t === 'business' ? 'default,company' : t;
+  return 'default,contacts';
+}
+export const assetsPath = (loc, wf) =>
+  `/workflows-marketplace/location/${loc}/assets?workflowTypes=${assetWorkflowTypes(wf)}`;
+
 // Fetch + parse in one step. `call` is the orchestrator's gateway function so throttling,
 // auth and scrubbing are inherited. Returns null (never throws) when the schema cannot be
 // fetched — callers fall back to the offline map, because a build must not fail just
 // because this optional enrichment was unavailable.
-export async function fetchActionSchema(call, loc) {
+export async function fetchActionSchema(call, loc, wf) {
   try {
-    const r = await call('GET', `/workflows-marketplace/location/${loc}/assets?workflowTypes=default,contacts`);
+    const r = await call('GET', assetsPath(loc, wf));
     if (!r?.ok || !r.json) return null;
     const schema = parseActionSchema(r.json);
     return schema.size ? schema : null;

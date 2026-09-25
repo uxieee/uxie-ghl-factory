@@ -32,7 +32,7 @@ import { buildResolvers, resolveIR } from './resolve.mjs';
 import { danglingParentKeys } from './edit.mjs';
 import { requiredKeysFor, isSupplied } from './required-fields.mjs';
 import { fires } from './enforce.mjs';
-import { fetchActionSchema, checkWorkflow } from './action-schema.mjs';
+import { fetchActionSchema, checkWorkflow, assetsPath } from './action-schema.mjs';
 import { buildMarketplaceIndex } from './marketplace.mjs';
 import { walkNodes } from './ir.mjs';
 import { validateAssets, describeFinding } from './asset-preflight.mjs';
@@ -161,7 +161,7 @@ export async function fetchEntities(gw) {
 // Gather both marketplace sources for one location. Never throws — a build must not fail
 // because an optional enrichment was unavailable, matching fetchActionSchema's contract.
 // The two module reads are on the AI host; the caller's gateway routes them.
-export async function fetchMarketplace(call, loc) {
+export async function fetchMarketplace(call, loc, wf) {
   const legs = { assets: 'failed', actions: 'failed', triggers: 'failed' };
   const get = async (leg, path) => {
     try {
@@ -170,7 +170,7 @@ export async function fetchMarketplace(call, loc) {
       return null;
     } catch { return null; }
   };
-  const assets = await get('assets', `/workflows-marketplace/location/${loc}/assets?workflowTypes=default,contacts`);
+  const assets = await get('assets', assetsPath(loc, wf));
   const page = (type) =>
     `/marketplace/core/search/module?locationId=${encodeURIComponent(loc)}&type=${type}&isInstalled=true&skip=0&limit=200`;
   const actions = await get('actions', page('actions'));
@@ -252,7 +252,7 @@ export async function orchestrate(ir, gw, opts = {}) {
   let usesMarketplace = (ir.triggers ?? []).some((t) => t.marketplace === true);
   walkNodes(ir.graph ?? [], (n) => { if (n.marketplace === true) usesMarketplace = true; });
   const marketplace = usesMarketplace
-    ? buildMarketplaceIndex(await fetchMarketplace(call, loc))
+    ? buildMarketplaceIndex(await fetchMarketplace(call, loc, ir))
     : buildMarketplaceIndex({ assets: null, modules: { actions: [], triggers: [] } });
   report.marketplaceRead = usesMarketplace ? marketplace.readFailed : null;
   const resolvers = buildResolvers(entities);
@@ -794,7 +794,7 @@ export async function orchestrate(ir, gw, opts = {}) {
   //     type means "not described here", never "clean". (The catalog now INGESTS this same
   //     rulebook — see gen-catalog.mjs — so the 307 it describes all have entries; the
   //     boundary is unchanged, because ingesting it cannot make it cover what it omits.)
-  const actionSchema = await fetchActionSchema(call, loc);
+  const actionSchema = await fetchActionSchema(call, loc, ir);
   if (actionSchema) {
     const triggerTypes = (ir.triggers ?? []).map((t) => t.type).filter(Boolean);
     // An empty trigger list SKIPS this layer's requiredTriggers half ({} rather than {triggerTypes:[]}).
