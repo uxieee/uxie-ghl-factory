@@ -116,3 +116,20 @@ test('the whole live graph counts as the document on the edit path (ctx.graphTem
   checkMergeTags(editedAlone, catalog, { marketplace, graphTemplates: [], warn: (m) => control.push(m) });
   assert.equal(control.filter((m) => /does not list/.test(m)).length, 1);
 });
+
+// bl-195, proven live 2026-09-25: GHL publishes both of these and then drops them at run time.
+test('a bracket index into a webhook response and a custom_code tag without .output. are ERRORS with the working form named', () => {
+  const f = evaluateMergeTags(tpl('{{custom_webhook.1.response.numbers[0].phoneNumber}} {{custom_code.2.number_1}}'), M);
+  assert.deepEqual(errs(f).sort(), ['{{custom_code.2.number_1}}', '{{custom_webhook.1.response.numbers[0].phoneNumber}}']);
+  assert.match(f.find((x) => x.kind === 'bracket-index').msg, /\{\{custom_webhook\.1\.response\.numbers\.0\.phoneNumber\}\}/);
+  assert.match(f.find((x) => x.kind === 'custom-code-no-output').msg, /\{\{custom_code\.2\.output\.number_1\}\}/);
+  assert.throws(() => checkMergeTags(tpl('{{custom_webhook.1.response.a[0]}}'), catalog, {}), (e) => e.code === 'MERGE_TAG_UNKNOWN');
+  const demoted = [];
+  checkMergeTags(tpl('{{custom_code.1.x}}'), catalog, { warn: (m) => demoted.push(m), strictMergeTags: false });
+  assert.match(demoted[0], /^MERGE_TAG: .*renders EMPTY/);
+});
+
+test('the working forms pass: dot index, .output., whole output object, and array_functions [N]', () => {
+  const f = evaluateMergeTags(tpl('{{custom_webhook.1.response.numbers.0.phoneNumber}} {{custom_code.2.output.number_1}} {{custom_code.2.output}} {{array_functions.1.result[0]}}'), M);
+  assert.deepEqual(errs(f), []);
+});

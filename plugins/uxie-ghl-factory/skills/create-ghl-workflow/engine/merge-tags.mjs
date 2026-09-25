@@ -148,6 +148,21 @@ export function evaluateMergeTags(templates, mergeTags, opts = {}) {
         msg: `unbalanced merge-tag braces (${opens} '{{' vs ${closes} '}}') in "${s.slice(0, 60)}${s.length > 60 ? '…' : ''}"` });
       for (const m of s.matchAll(TOKEN)) {
         const ns = m[1], full = `{{${ns}${compact(m[2])}}}`;
+        // Two step-output shapes GHL accepts at publish and then silently drops (proven live
+        // 2026-09-25, sniffs/afy-number-tests-2026-09-25). A bracket index into a webhook
+        // response fails to compile, and the step skips the WHOLE value it sits in. A custom_code
+        // tag without `.output.` renders empty. Scoped to these two namespaces: array_functions
+        // legitimately indexes primitives as [N].
+        if (ns === 'custom_webhook' && /\[\s*\d+\s*\]/.test(m[2])) {
+          out.push({ where, kind: 'bracket-index', severity: 'error', ns, tag: full, suggestions: [],
+            msg: `${full} indexes an array with brackets. GHL cannot compile it and skips the whole value this tag sits in (a field write logs "can't be compiled"). Use a dot index: ${full.replace(/\[\s*(\d+)\s*\]/g, '.$1')}` });
+          continue;
+        }
+        if (ns === 'custom_code' && /^\.\d+\.(?!output(?:\.|$))/.test(compact(m[2]))) {
+          out.push({ where, kind: 'custom-code-no-output', severity: 'error', ns, tag: full, suggestions: [],
+            msg: `${full} renders EMPTY: custom_code outputs are read through .output. — use ${full.replace(/^\{\{custom_code\.(\d+)\./, '{{custom_code.$1.output.')}` });
+          continue;
+        }
         if (P.ignore.has(ns) || P.ownedElsewhere.has(ns) || opts?.assetOutputs?.has?.(ns) || staticTags.has(full)) continue;
         const candidates = [...staticTags];
         const push = (severity, kind, msg) => out.push({ where, kind, severity, ns, tag: full, suggestions: suggestTags(full, candidates), msg });
@@ -195,7 +210,7 @@ export function checkMergeTags(templates, catalog, ctx) {
   if (errors.length && ctx?.strictMergeTags === false) { for (const f of errors) ctx?.warn?.(`MERGE_TAG: ${f.where}: ${f.msg}`); return F; }
   if (errors.length)
     throw new IRError('MERGE_TAG_UNKNOWN',
-      `MERGE_TAG_UNKNOWN: ${errors.length} merge tag(s) GHL cannot resolve — they would go out as literal text:\n`
+      `MERGE_TAG_UNKNOWN: ${errors.length} merge tag(s) GHL cannot resolve — each would render literally, render empty, or stop its step (the reason is on each line):\n`
       + errors.map((f) => `  ${f.where}: ${f.msg}`).join('\n')
       + `\nAuthor tags from the picker inventory (search_merge_tags / catalog mergeTags), or pass strictMergeTags:false to demote to warnings.`);
   return F;

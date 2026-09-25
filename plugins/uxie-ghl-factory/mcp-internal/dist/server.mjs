@@ -160792,6 +160792,30 @@ function evaluateMergeTags(templates, mergeTags, opts = {}) {
       });
       for (const m of s.matchAll(TOKEN)) {
         const ns = m[1], full = `{{${ns}${compact(m[2])}}}`;
+        if (ns === "custom_webhook" && /\[\s*\d+\s*\]/.test(m[2])) {
+          out.push({
+            where,
+            kind: "bracket-index",
+            severity: "error",
+            ns,
+            tag: full,
+            suggestions: [],
+            msg: `${full} indexes an array with brackets. GHL cannot compile it and skips the whole value this tag sits in (a field write logs "can't be compiled"). Use a dot index: ${full.replace(/\[\s*(\d+)\s*\]/g, ".$1")}`
+          });
+          continue;
+        }
+        if (ns === "custom_code" && /^\.\d+\.(?!output(?:\.|$))/.test(compact(m[2]))) {
+          out.push({
+            where,
+            kind: "custom-code-no-output",
+            severity: "error",
+            ns,
+            tag: full,
+            suggestions: [],
+            msg: `${full} renders EMPTY: custom_code outputs are read through .output. \u2014 use ${full.replace(/^\{\{custom_code\.(\d+)\./, "{{custom_code.$1.output.")}`
+          });
+          continue;
+        }
         if (P.ignore.has(ns) || P.ownedElsewhere.has(ns) || opts?.assetOutputs?.has?.(ns) || staticTags.has(full)) continue;
         const candidates = [...staticTags];
         const push = (severity, kind, msg) => out.push({ where, kind, severity, ns, tag: full, suggestions: suggestTags(full, candidates), msg });
@@ -160843,7 +160867,7 @@ function checkMergeTags(templates, catalog, ctx) {
   if (errors.length)
     throw new IRError(
       "MERGE_TAG_UNKNOWN",
-      `MERGE_TAG_UNKNOWN: ${errors.length} merge tag(s) GHL cannot resolve \u2014 they would go out as literal text:
+      `MERGE_TAG_UNKNOWN: ${errors.length} merge tag(s) GHL cannot resolve \u2014 each would render literally, render empty, or stop its step (the reason is on each line):
 ` + errors.map((f) => `  ${f.where}: ${f.msg}`).join("\n") + `
 Author tags from the picker inventory (search_merge_tags / catalog mergeTags), or pass strictMergeTags:false to demote to warnings.`
     );
