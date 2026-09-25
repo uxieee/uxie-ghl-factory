@@ -18857,7 +18857,7 @@
      "type": "string",
      "required": "conditional",
      "default": "—",
-     "notes": "\"specific-step\"` etc. Required for appointment subtypes. 9.3%."
+     "notes": "skip | next | specific-step | exit`: what to do when the target time has ALREADY PASSED (for example a \"1 day before\" wait on an appointment booked less than 24 h out). `specific-step` jumps straight to `appointmentSpecificStep`, skipping everything between: the log row reads `status: \"wait_finished\"`, `skippedFor: {type: \"appointment-wait\", msg: \"Appointment wait time was in the past (…). Moving to <step> step.\"}` `[proven-live 2026-09-25, sniffs/appointment-moves-2026-09-25]`. Required for appointment subtypes. 9.3%."
     },
     {
      "name": "appointmentSpecificStep",
