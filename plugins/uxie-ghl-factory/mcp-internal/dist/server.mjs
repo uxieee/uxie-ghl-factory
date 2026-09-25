@@ -171723,9 +171723,10 @@ function compileConvaiUpdateFromRecord(current, partialIr, { agentId, locationId
   const unapplied = Object.keys(partialIr ?? {}).filter((k) => !applicable.has(k));
   if (unapplied.length) {
     const actionsAsked = unapplied.includes("actions");
+    const bookingSwitches = unapplied.filter((k) => k === "rescheduleEnabled" || k === "cancelEnabled");
     throw new IRError2(
       "SPEC_KEY_UNAPPLIED",
-      `update_convai_agent cannot apply spec key(s) [${unapplied.join(", ")}], and refuses rather than writing a PUT that silently changes nothing. ` + (actionsAsked ? "Actions are a SEPARATE resource on this rail: the agent PUT always sends actions:null, the way the UI does, so an action list here would never have landed. Use the action endpoints. " : "") + `Applicable keys: ${[...applicable].sort().join(", ")}.`
+      `update_convai_agent cannot apply spec key(s) [${unapplied.join(", ")}], and refuses rather than writing a PUT that silently changes nothing. ` + (actionsAsked ? "Actions are a SEPARATE resource on this rail: the agent PUT always sends actions:null, the way the UI does, so an action list here would never have landed. Use the action endpoints. " : "") + (bookingSwitches.length ? `On a prompt-based bot [${bookingSwitches.join(", ")}] live on the appointmentBooking ACTION, not the agent: set details.rescheduleEnabled / details.cancelEnabled on that action (create_convai_agent actions[], or the action endpoints). A bot with the agent-level flag false and the action flag true reschedules. ` : "") + `Applicable keys: ${[...applicable].sort().join(", ")}.`
     );
   }
   body.actions = null;
@@ -172531,8 +172532,21 @@ async function executeAgentPlan({ plan, gw, verifyExpected } = {}) {
     return failure(error51?.code ?? "AGENT_VERIFY_FAILED", "verify", report);
   }
   if (!reread.ok) return failure(`HTTP_${reread.status}`, "verify", report, { verifyStatus: reread.status });
-  const expected = verifyExpected ?? plan.verifyExpected ?? plan.create.body;
-  const { mismatches, unverified, confirmed } = partitionVerification(normalizeRead(kind, reread.json), expected);
+  const baseExpected = verifyExpected ?? plan.verifyExpected ?? plan.create.body;
+  const actual = normalizeRead(kind, reread.json);
+  const attachedActions = Array.isArray(baseExpected?.actions) && (plan.actions ?? []).length > 0;
+  const expected = attachedActions ? { ...baseExpected } : baseExpected;
+  if (attachedActions) delete expected.actions;
+  const { mismatches, unverified, confirmed } = partitionVerification(actual, expected);
+  if (attachedActions) {
+    const onAgent = Array.isArray(actual?.actions) ? new Set(actual.actions.map((a) => a && typeof a === "object" ? a.id ?? a._id : a)) : null;
+    if (!onAgent) unverified.push("actions");
+    else {
+      const missing = report.actionIds.filter((id) => !onAgent.has(id));
+      if (missing.length || report.actionIds.length === 0) mismatches.push(`actions (missing ${missing.join(", ") || "every attached id"})`);
+      else confirmed.push(...report.actionIds.map((id) => `actions[id=${id}]`));
+    }
+  }
   report.verification = {
     path: readPathFor(kind, report.agentId, gw.loc),
     // D3 (review): "no mismatches" is not proof of success when NOTHING was actually
@@ -173243,19 +173257,25 @@ var aiPlanPreview = (plan) => ({
   actions: (plan.actions ?? []).map(descriptorPreview),
   verification: { method: "GET", path: "provider-specific agent read by created id" }
 });
+function stepCountIntegrity({ authored, compiled, steps }) {
+  const dropped = Number.isInteger(authored) && Number.isInteger(compiled) && compiled < authored;
+  const unpersisted = compiled !== steps;
+  const mismatch = dropped || unpersisted;
+  const counts = `authored=${authored}, compiled=${compiled}, persisted steps=${steps}`;
+  return {
+    mismatch,
+    warning: mismatch ? `LOUD STEP-COUNT MISMATCH: ${counts}. ${unpersisted ? "GHL stored a different number of steps than were sent" : "fewer steps compiled than nodes were authored"} \u2014 the draft may be incomplete.` : compiled > authored ? `compiled and persisted step counts match (${counts}); the extra ${compiled - authored} are container branch/transition steps.` : "authored, compiled, and persisted step counts match."
+  };
+}
 function buildWorkflowData(report, locationId) {
-  const counts = [report.authored, report.compiled, report.steps];
-  const mismatch = new Set(counts).size !== 1;
+  const { mismatch, warning: countWarning } = stepCountIntegrity(report);
   const trg = report.triggers ?? {};
   const failed = trg.failed?.length ?? 0;
   const payloadMismatches = trg.payloadMismatches ?? [];
   const triggerMismatch = failed > 0 || payloadMismatches.length > 0 || Number.isInteger(trg.persisted) && Number.isInteger(trg.authored) && trg.persisted !== trg.authored;
   return ok({
     ...report,
-    countIntegrity: {
-      mismatch,
-      warning: mismatch ? `LOUD STEP-COUNT MISMATCH: authored=${report.authored}, compiled=${report.compiled}, persisted steps=${report.steps}. The draft may be incomplete.` : "authored, compiled, and persisted step counts match."
-    },
+    countIntegrity: { mismatch, warning: countWarning },
     // The same integrity sentence for TRIGGERS. `failed[]` was always recorded; it was never a
     // HEADLINE, so a build whose every trigger POST failed still read as a clean draft with
     // `verify.pass: N, issues: []` (F5-16). A workflow with no working trigger never runs.

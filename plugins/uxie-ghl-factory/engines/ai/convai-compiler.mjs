@@ -514,12 +514,22 @@ export function compileConvaiUpdateFromRecord(current, partialIr, { agentId, loc
   const unapplied = Object.keys(partialIr ?? {}).filter((k) => !applicable.has(k));
   if (unapplied.length) {
     const actionsAsked = unapplied.includes('actions');
+    const bookingSwitches = unapplied.filter((k) => k === 'rescheduleEnabled' || k === 'cancelEnabled');
     throw new IRError('SPEC_KEY_UNAPPLIED',
       `update_convai_agent cannot apply spec key(s) [${unapplied.join(', ')}], and refuses rather than `
       + 'writing a PUT that silently changes nothing. '
       + (actionsAsked
         ? 'Actions are a SEPARATE resource on this rail: the agent PUT always sends actions:null, the way '
           + 'the UI does, so an action list here would never have landed. Use the action endpoints. '
+        : '')
+      // bl-181: the caller who reaches for these wants the bot to reschedule/cancel. On a prompt-based
+      // bot the UI strips them from the agent (FLOW_ONLY_KEYS); the switch that works is on the
+      // appointmentBooking ACTION. Live 2026-09-25: agent-level rescheduleEnabled false + action-level
+      // true, and the bot rescheduled in chat.
+      + (bookingSwitches.length
+        ? `On a prompt-based bot [${bookingSwitches.join(', ')}] live on the appointmentBooking ACTION, not the agent: `
+          + 'set details.rescheduleEnabled / details.cancelEnabled on that action (create_convai_agent actions[], '
+          + 'or the action endpoints). A bot with the agent-level flag false and the action flag true reschedules. '
         : '')
       + `Applicable keys: ${[...applicable].sort().join(', ')}.`);
   }

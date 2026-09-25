@@ -589,9 +589,27 @@ const aiPlanPreview = (plan) => ({
   verification: { method: 'GET', path: 'provider-specific agent read by created id' },
 });
 
+// A container compiles to MORE templates than the nodes authored: find_contact/find_opportunity
+// add their Found/Not-Found transitions, an if/else its branch steps (5 authored -> 7 is normal).
+// Loss shows up as fewer compiled than authored (a node dropped in compile) or a persisted count
+// that differs from what was sent. Requiring all three equal flagged every container build (bl-187).
+export function stepCountIntegrity({ authored, compiled, steps }) {
+  const dropped = Number.isInteger(authored) && Number.isInteger(compiled) && compiled < authored;
+  const unpersisted = compiled !== steps;
+  const mismatch = dropped || unpersisted;
+  const counts = `authored=${authored}, compiled=${compiled}, persisted steps=${steps}`;
+  return {
+    mismatch,
+    warning: mismatch
+      ? `LOUD STEP-COUNT MISMATCH: ${counts}. ${unpersisted ? 'GHL stored a different number of steps than were sent' : 'fewer steps compiled than nodes were authored'} — the draft may be incomplete.`
+      : compiled > authored
+        ? `compiled and persisted step counts match (${counts}); the extra ${compiled - authored} are container branch/transition steps.`
+        : 'authored, compiled, and persisted step counts match.',
+  };
+}
+
 function buildWorkflowData(report, locationId) {
-  const counts = [report.authored, report.compiled, report.steps];
-  const mismatch = new Set(counts).size !== 1;
+  const { mismatch, warning: countWarning } = stepCountIntegrity(report);
   const trg = report.triggers ?? {};
   const failed = trg.failed?.length ?? 0;
   // Payload, not just existence: a trigger can be posted, read back, counted — and stored with none
@@ -601,12 +619,7 @@ function buildWorkflowData(report, locationId) {
     || (Number.isInteger(trg.persisted) && Number.isInteger(trg.authored) && trg.persisted !== trg.authored);
   return ok({
     ...report,
-    countIntegrity: {
-      mismatch,
-      warning: mismatch
-        ? `LOUD STEP-COUNT MISMATCH: authored=${report.authored}, compiled=${report.compiled}, persisted steps=${report.steps}. The draft may be incomplete.`
-        : 'authored, compiled, and persisted step counts match.',
-    },
+    countIntegrity: { mismatch, warning: countWarning },
     // The same integrity sentence for TRIGGERS. `failed[]` was always recorded; it was never a
     // HEADLINE, so a build whose every trigger POST failed still read as a clean draft with
     // `verify.pass: N, issues: []` (F5-16). A workflow with no working trigger never runs.

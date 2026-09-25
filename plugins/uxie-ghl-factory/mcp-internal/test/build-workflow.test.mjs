@@ -408,3 +408,19 @@ test('an unresolved-dependency abort names the account lists that could not be r
   assert.match(result.data.aborted, /could not be READ.*pipelines \(HTTP 503\)/);
   assert.ok(result.data.unreadableEntities.some((u) => u.key === 'pipelines' && u.status === 503));
 });
+
+// bl-187: every find_contact build read "LOUD STEP-COUNT MISMATCH" + partial:true, because a
+// container compiles to more templates than authored nodes. Live case: 5 authored -> 7 persisted.
+test('step-count integrity: container extras are not a mismatch; a drop or a persist gap is', async () => {
+  const { stepCountIntegrity } = await import('../core/tools.mjs');
+  const finder = stepCountIntegrity({ authored: 5, compiled: 7, steps: 7 });
+  assert.equal(finder.mismatch, false);
+  assert.match(finder.warning, /extra 2 are container/);
+  assert.equal(stepCountIntegrity({ authored: 3, compiled: 3, steps: 3 }).mismatch, false);
+  const unpersisted = stepCountIntegrity({ authored: 3, compiled: 3, steps: 0 });
+  assert.equal(unpersisted.mismatch, true);
+  assert.match(unpersisted.warning, /LOUD.*stored a different number/);
+  const dropped = stepCountIntegrity({ authored: 5, compiled: 4, steps: 4 });
+  assert.equal(dropped.mismatch, true);
+  assert.match(dropped.warning, /fewer steps compiled than nodes were authored/);
+});

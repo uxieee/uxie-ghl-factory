@@ -246,3 +246,33 @@ test('executeAgentUpdate reports an unreachable re-read as unproven, never as su
   assert.equal(out.ok, false);
   assert.equal(out.code, 'AGENT_VERIFY_UNREACHABLE');
 });
+
+// bl-181 (live 2026-09-25, twice): the create body carries `actions: []` and the action is
+// attached by its own POST, so the re-read correctly lists it — and the verifier called that a
+// mismatch. Attached actions are verified by id instead.
+const convaiWithAction = (readActions) => {
+  const gw = { call: async (method, path) => {
+    if (path === '/ai-employees/employees') return callResponse({ id: 'emp1' }, 201);
+    if (path === '/ai-employees/actions') return callResponse({ id: 'act1' }, 201);
+    return callResponse({ id: 'emp1', name: 'Bot', actions: readActions });
+  } };
+  const plan = {
+    create: { method: 'POST', path: '/ai-employees/employees', body: { name: 'Bot', actions: [] } },
+    followUps: [],
+    actions: [{ method: 'POST', path: '/ai-employees/actions', body: { type: 'appointmentBooking' } }],
+  };
+  return executeAgentPlan({ plan, gw });
+};
+
+test('an attached action on the re-read is confirmed by id, not flagged against the empty create list', async () => {
+  const out = await convaiWithAction([{ id: 'act1', type: 'appointmentBooking' }]);
+  assert.equal(out.ok, true, JSON.stringify(out.verification));
+  assert.ok(out.verification.confirmed.includes('actions[id=act1]'));
+});
+
+test('an attached action MISSING from the re-read is still a mismatch', async () => {
+  const out = await convaiWithAction([]);
+  assert.equal(out.ok, false);
+  assert.equal(out.code, 'AGENT_VERIFICATION_FAILED');
+  assert.ok(out.verification.mismatches.some((m) => m.startsWith('actions (missing act1')));
+});

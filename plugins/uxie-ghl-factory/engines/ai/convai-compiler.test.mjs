@@ -716,3 +716,21 @@ test('update: a spec key the compiler cannot apply is REFUSED, never silently dr
     { personality: 'p', goal: 'g', wait: { value: 1, unit: 'minutes' }, sleep: { enabled: true } },
     { agentId: 'A1', locationId: 'LOC' }));
 });
+
+// bl-181: reaching for rescheduleEnabled on the agent is a refusal, correctly — but it has to send
+// the caller to the switch that works (the appointmentBooking action), not leave them stuck.
+test('update: a refused rescheduleEnabled/cancelEnabled names the booking action as where the switch lives', () => {
+  const record = { _id: 'A1', locationId: 'LOC', employeeName: 'Bot', botType: 'PROMPT_BASED_BOT' };
+  assert.throws(
+    () => compileConvaiUpdateFromRecord(record, { rescheduleEnabled: true }, { agentId: 'A1', locationId: 'LOC' }),
+    (e) => {
+      assert.equal(e.code, 'SPEC_KEY_UNAPPLIED');
+      assert.match(e.message, /appointmentBooking ACTION/);
+      assert.match(e.message, /details\.rescheduleEnabled/);
+      return true;
+    });
+  // CONTROL: an unrelated bad key does not get the booking hint
+  assert.throws(
+    () => compileConvaiUpdateFromRecord(record, { personalty: 'x' }, { agentId: 'A1', locationId: 'LOC' }),
+    (e) => !/appointmentBooking ACTION/.test(e.message));
+});

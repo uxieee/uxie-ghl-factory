@@ -242,8 +242,27 @@ export async function executeAgentPlan({ plan, gw, verifyExpected } = {}) {
   catch (error) { return failure(error?.code ?? 'AGENT_VERIFY_FAILED', 'verify', report); }
   if (!reread.ok) return failure(`HTTP_${reread.status}`, 'verify', report, { verifyStatus: reread.status });
 
-  const expected = verifyExpected ?? plan.verifyExpected ?? plan.create.body;
-  const { mismatches, unverified, confirmed } = partitionVerification(normalizeRead(kind, reread.json), expected);
+  const baseExpected = verifyExpected ?? plan.verifyExpected ?? plan.create.body;
+  const actual = normalizeRead(kind, reread.json);
+  // The create body carries `actions: []` because actions are attached AFTER create, by their
+  // own POSTs. Comparing that empty list to the re-read — which now correctly lists what we
+  // attached — failed every create that had an action (bl-181). What must hold instead is that
+  // every action id we attached appears on the agent.
+  const attachedActions = Array.isArray(baseExpected?.actions) && (plan.actions ?? []).length > 0;
+  const expected = attachedActions ? { ...baseExpected } : baseExpected;
+  if (attachedActions) delete expected.actions;
+  const { mismatches, unverified, confirmed } = partitionVerification(actual, expected);
+  if (attachedActions) {
+    const onAgent = Array.isArray(actual?.actions)
+      ? new Set(actual.actions.map((a) => (a && typeof a === 'object' ? a.id ?? a._id : a)))
+      : null;
+    if (!onAgent) unverified.push('actions');
+    else {
+      const missing = report.actionIds.filter((id) => !onAgent.has(id));
+      if (missing.length || report.actionIds.length === 0) mismatches.push(`actions (missing ${missing.join(', ') || 'every attached id'})`);
+      else confirmed.push(...report.actionIds.map((id) => `actions[id=${id}]`));
+    }
+  }
   report.verification = {
     path: readPathFor(kind, report.agentId, gw.loc),
     // D3 (review): "no mismatches" is not proof of success when NOTHING was actually
