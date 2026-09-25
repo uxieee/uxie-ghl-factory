@@ -28,7 +28,7 @@ uxie-ghl-factory plugin is installed — same data.
 | `custom_object_changed` | source-derived | Fires when a custom-object record is updated. |
 | `custom_object_created` | source-derived | Fires when a custom-object record is created. |
 | `customer_appointment` | source-derived | Fires on customer-side appointment events (booked by the contact). |
-| `customer_reply` | source-derived | Fires when a contact replies to a workflow message on a chosen channel. |
+| `customer_reply` | source-derived | Fires on an inbound message from the contact, on a chosen channel or any. With no filter it fires on **every** inbound message, not only on replies to a workflow's own message: a first live-chat message from a brand-new contact was evaluated against it `[proven-live 2026-09-25]`. |
 | `dnd_contact` | source-derived | Fires when a contact's DND state changes on a given channel. |
 | `facebook_comment_on_post` | source-derived | Fires when a Facebook page receives a comment on a post. |
 | `facebook_lead_gen` | source-derived | Fires when a Facebook Lead Ads lead is captured on a configured page. |

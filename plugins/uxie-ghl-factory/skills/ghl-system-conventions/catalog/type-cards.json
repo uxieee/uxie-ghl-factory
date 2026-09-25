@@ -7437,7 +7437,7 @@
    "family": "steps",
    "title": "create_opportunity",
    "status": "source-derived",
-   "lastVerified": "2026-09-07",
+   "lastVerified": "2026-09-25",
    "summary": "Create or update an opportunity record on a pipeline+stage for the running contact.",
    "meta": {
     "Section": "`opportunity`",
@@ -7516,7 +7516,7 @@
      "type": "bool",
      "required": false,
      "default": "—",
-     "notes": "Allow multiple open opps per contact."
+     "notes": "Set to `true` to always create a new card, never reuse the contact's existing one in this pipeline `[proven-live 2026-09-25]`. Absent = upsert (below)."
     },
     {
      "name": "fields",
@@ -7527,7 +7527,7 @@
     }
    ],
    "validator": "`createOpportunityActionValidator` (length 642, result level `warning`). Per `sniffs/bundle/validators.json::createOpportunityActionValidator`:",
-   "notes": "- **`pipeline_id` format varies.** Older pipelines use MongoIDs (e.g. `\"PIPELINE_ID\"`), newer use UUIDs. The validator accepts both — the publish endpoint's `resource: \"pipeline\"` lookup resolves either.",
+   "notes": "- **`create_opportunity` actually updates** if the contact already has an opportunity in the same pipeline — an open one, and a **lost** one too: it reopens that card and overwrites its stage, name and value. Only `allow_multiple: true` creates a second card `[proven-live 2026-09-25]`. Proven by runtime differential, not inferred from the registry's display name — see below. The \"create vs update\" decision happens at runtime; this step doesn't expose a discriminator.",
    "hasCanonicalExample": true
   },
   {
@@ -7689,7 +7689,7 @@
    "family": "steps",
    "title": "custom_webhook",
    "status": "source-derived",
-   "lastVerified": "2026-09-23",
+   "lastVerified": "2026-09-25",
    "summary": "Premium HTTP request action — POST/GET/PUT/DELETE to an external URL with JSON or form-encoded body, headers, query parameters, and an event-classification tag. Distinct from the simpler `webhook` action by supporting authorization, parameters, response capture, and event metadata.",
    "meta": {
     "Section": "`send_data`",
@@ -7793,7 +7793,7 @@
     }
    ],
    "validator": "`customWebhookValidator` (length 2518, result level `warning`). Per `sniffs/bundle/validators.json::customWebhookValidator`:",
-   "notes": "- **`body.rawData` is a JSON-encoded string, not an object.** When you build the body programmatically, `JSON.stringify` your payload and assign the result to `rawData`. Embedded Handlebars (`{{contact.first_name}}`) remain literal strings in the JSON until the runtime resolves them at execution.",
+   "notes": "- 🔴 **A 5xx holds the run on this step and retries** (+5, +10, +15 min…). **A 4xx fails, and the run carries on at once.** A 200 with an error in its body is a success. Branch on `{{custom_webhook.N.status}}` or `.response.<path>`. See \"What a failed call does to the run\" `[proven-live 2026-09-25]`.",
    "hasCanonicalExample": true
   },
   {
@@ -7837,8 +7837,8 @@
    "family": "triggers",
    "title": "customer_reply",
    "status": "source-derived",
-   "lastVerified": "2026-08-22",
-   "summary": "Fires when a contact replies to a workflow message on a chosen channel.",
+   "lastVerified": "2026-09-25",
+   "summary": "Fires on an inbound message from the contact, on a chosen channel or any. With no filter it fires on **every** inbound message, not only on replies to a workflow's own message: a first live-chat message from a brand-new contact was evaluated against it `[proven-live 2026-09-25]`.",
    "meta": {
     "Trigger value": "`customer_reply`",
     "Title (i18n key)": "`customer_replied`",
@@ -7900,7 +7900,7 @@
     }
    ],
    "validator": "No-op. `customerReplyValidator` returns `[]` regardless of input — anything passes structurally. Per `sniffs/bundle/trigger-validators-summary.json::customerReplyValidator` (`fields_referenced: []`, `result_levels: []`). Filter shape is enforced by the UI, not by the validator.",
-   "notes": "- Three different filter rows reference the same `message.body` field but with different `id` discriminators (`message-contains-phrase`, `message-exact-phrase`, `message-contains-intent`) — the `id` field is what disambiguates which UI row generated a given filter, not the field value. `OperatorOptions['contact_reply']` (`utils/conditions.ts`) is a FIELD menu, not an operator menu: each of the three entries carries its own `operator` (`contains`, `exact`, `matches_intent`) and `type` (`input`, `input`, `select`).",
+   "notes": "- 🔴 **Two filter rows are ANDed.** Every row must match. For A **or** B, put both values in one row. The trigger log names the first row that failed `[proven-live 2026-09-25]`.",
    "hasCanonicalExample": false
   },
   {
@@ -10474,7 +10474,7 @@
    "family": "triggers",
    "title": "inbound_webhook",
    "status": "source-derived",
-   "lastVerified": "2026-08-22",
+   "lastVerified": "2026-09-25",
    "summary": "Fires when an inbound JSON webhook is POSTed to the workflow's webhook URL.",
    "meta": {
     "Trigger value": "`inbound_webhook`",
@@ -10486,7 +10486,7 @@
     "Corpus frequency": "37 occurrence(s) across 326 corpus workflows"
    },
    "validator": "No-op. `inboundWebhookValidator` returns `[]` regardless of input — anything passes structurally. Per `sniffs/bundle/trigger-validators-summary.json::inboundWebhookValidator` (`fields_referenced: []`, `result_levels: []`). Filter shape is enforced by the UI, not by the validator.",
-   "notes": "- Locked behind premium plan — sub-accounts without premium see this trigger greyed out. Server still accepts a create call; UI gating is client-side. Per `DISCOVERIES.md §15`.",
+   "notes": "- 🔴 **Every POST is its own run, even with re-entry OFF** (the run starts contactless). A double-fire or a retrying sender makes duplicate parallel runs for one contact. See \"Every POST starts its own run\" above `[proven-live 2026-09-25]`.",
    "hasCanonicalExample": false,
    "configSurface": "none"
   },

@@ -115,7 +115,7 @@ instances across the same 326-workflow corpus. One example JSON per type lives a
 ### Integration / dev
 | `type` | What it does | Key attributes | Trap |
 |---|---|---|---|
-| `custom_webhook` | Arbitrary HTTP call, any method/auth | `url`, `method`, `body.rawData` (string template), `authorization` | **No built-in retry on 5xx/timeout.** `isPremiumAction: true` — requires the location's premium gate. Needs `stepIndex` + `advanceCanvasMeta` per `create-ghl-workflow/references/step-shapes.md`. |
+| `custom_webhook` | Arbitrary HTTP call, any method/auth | `url`, `method`, `body.rawData` (string template), `authorization` | **A 5xx is retried and HOLDS the run** (+5, +10, +15 min… — later steps wait); **a 4xx fails and the run carries on at once**; a 200 with an error in its body counts as success — branch on `{{custom_webhook.N.status}}` / `.response.<path>` (live-proven 2026-09-25). `isPremiumAction: true` — requires the location's premium gate. Needs `stepIndex` + `advanceCanvasMeta` per `create-ghl-workflow/references/step-shapes.md`. |
 | `webhook` | Legacy/simple outbound webhook | `url`, `method`, `customData` | |
 | `custom_code` | Sandboxed JS | `code`, `inputData`, `language` | V8 isolate, no `npm`/external `require`, ~30s ceiling (not officially published). No visibility into failures except Execution Logs. |
 | `google_sheets` | Read/write/lookup a sheet | `spreadsheet`, `sheet`, `action` | Sheet ID stored in the action; renaming/moving the sheet breaks it silently. |
