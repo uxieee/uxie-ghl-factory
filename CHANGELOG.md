@@ -11,6 +11,28 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.0.5] — 2026-09-25
+
+**An internal SMS notification can go to a Custom Number.** GHL stores that recipient as
+`userType: "custom_sms"` with the number in `sms.to`. The engine had no `to` for the SMS channel, so
+it dropped an authored number with `NOTIFICATION_KEY_DROPPED`, and the step saved with no recipient.
+GHL's validator still answers `valid` on that step. The engine now keeps `to`, checks the merge tags
+in it, and refuses `custom_sms` without one, as it already did for `custom_email`. Proven live: the
+stored step reads back `{body, to, userType: "custom_sms", attachments}` for both a literal number
+and a `{{custom_values.x}}` tag. That is the same shape as 14 steps built in GHL's own editor.
+
+**More workflow behaviour proven live, now in the type cards:**
+
+- **`update_opportunity`** with no associated card does nothing and writes no log row. This happens
+  on a run that entered by contact with no Find Opportunity before it.
+- **`opportunity_created`** fires for a card made by a workflow's `create_opportunity` step.
+- **`opportunity_changed`** filters on an opportunity custom field as `opportunity.<fieldId>`.
+- **Tag added:** re-adding a tag the contact already has does nothing. The trigger is not evaluated.
+- **A `condition` wait** releases within seconds of the field being set, and takes its timeout
+  branch when the field stays unset.
+- **`contact_reply` conditions:** the intent check is an AI classification ("looks good" counts as
+  schedule-yes), and "contains" ignores case.
+
 ## [1.0.4] — 2026-09-25
 
 **Two false alarms in the internal MCP are gone.**
