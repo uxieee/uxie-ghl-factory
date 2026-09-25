@@ -69,9 +69,10 @@ Recon here = read existing agents before asking anything:
 Never ask the user something recon or the brief already answers.
 
 ## Knowledge (load what the task needs)
-- `references/conversation-ai.md` — agent config, the 7 action types, merge-PUT semantics,
+- `references/conversation-ai.md` — agent config, the 7 action-record types, merge-PUT semantics,
   driving `convai-compiler.mjs`.
-- `references/agent-studio.md` — Agent Studio, kept for reference only; **out of scope**.
+- `references/agent-studio.md` — **Managed Agents** (the UI's "Agent Studio" tab; the internal
+  `/agent-studio/super-agent/*` surface that `create_studio_agent` drives).
 
 Sibling skills: **`ghl-voice-ai`** (phone agents, internal rail) and **`ghl-knowledge-base`**
 (the content both products consume).
@@ -127,7 +128,22 @@ Delegate never-hand-roll: don't call these endpoints ad hoc — drive them throu
 | partial-PUT semantics | **refuted for booleans** — a partial PUT reset cancel/reschedule live (2026-08-28); read-merge-write is the safe shape |
 
 The seven types are `humanHandOver`, `appointmentBooking`, `triggerWorkflow`,
-`updateContactField`, `stopBot`, `transferBot`, `advancedFollowup`.
+`updateContactField`, `stopBot`, `transferBot`, `advancedFollowup`. The editor's menu shows an eighth
+entry, **API Call**, which is an Actions-Platform skill, not an action record. Actions have their own
+`PUT` / `DELETE /ai-employees/actions/{actionId}` (the agent PUT cannot change them).
+
+## What GHL can do that this plugin does not author
+
+If the user wants one of these, **GHL can do it** — say so and point to the UI.
+
+| Capability | Where in GHL | Why not here |
+|---|---|---|
+| API Call action (custom HTTP call during the chat) | Conversation AI agent → Build → Actions → API Call | an Actions-Platform skill with a mandatory test run; not yet engine-authored |
+| Active Hours (per-bot working hours, off-hours reply) | Agent → Deploy → Working Hours (needs Labs "Working Hours for Conversation AI") | Labs-gated per location |
+| Prompt Optimizer (simulated test chats, auto-optimise) | Agent editor → Prompt Optimizer (Labs) | billed per run, Labs-gated |
+| Legacy flow agents (node-graph Agent Studio) | AI Agents → Agent Studio (flow agents) | legacy; creation limited to five agencies |
+| Chat widgets (create / style / install) | Sites → Chat Widget | raw request only, no typed tool |
+| AI Suite billing, usage limits, rebilling | Agency → AI Suite | agency billing, account-wide |
 
 **Treat the first real use of any capture-verified type as a validation run** — small,
 throwaway, verified, cleaned up. A failed configuration step leaves a real, unconfigured agent
@@ -135,7 +151,7 @@ on the account: it does not no-op and it does not roll back.
 
 ## Scope
 **IN:** designing/building/configuring Conversation AI (both `PROMPT_BASED_BOT` and the
-`FLOW_BUILDER_BOT` / Flow-Based Builder), Voice AI, and Agent Studio agents, their actions, and
+`FLOW_BUILDER_BOT` / Flow-Based Builder), Voice AI, and Managed Agents ("Agent Studio" tab), their actions, and
 rich-text Knowledge Base content, via the internal API. A flow bot's logic is a workflow
 (`conv_ai_trigger` + `conversationai_*` nodes) — build it with `compileFlowBuilderBot` (agent)
 + the `create-ghl-workflow` engine (flow), then link via `objectiveBuilderWorkflowId`. See

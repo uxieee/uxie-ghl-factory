@@ -4,7 +4,9 @@
 > (captured live 2026-07-11, GROM Digital AU) + this plugin's `engine/voiceai-ir.mjs` /
 > `engine/voiceai-compiler.mjs`. Internal `services.leadconnectorhq.com/voice-ai/*` surface;
 > the public `voice-ai-v3` API reaches only a fraction of it (basic CRUD + call logs).
-> Underlying voice provider is **Retell** (`provider: "RETELL"`, not IR-settable).
+> `provider` is `RETELL` for text-pipeline agents and `lc` (GHL-native) for speech-to-speech ones — the builder
+> writes it from the chosen `llmModel`; the enum also has `SYNTHFLOW`, `BOLNA`, `VAPI`, and old agents upgrade via
+> `switch-provider` (2026-09-25 bundle, build 701). This engine does not set it.
 
 **Status (updated 2026-07-21): the engine's CREATE is live-proven; its full-replace UPDATE is
 proven BROKEN.** On GROM AU via the `uxie-ghl-internal-mcp` AI rail, `voiceai-compiler.mjs`
@@ -46,7 +48,7 @@ action types (unit-tested against their captures only), and `IN_CALL_DATA_EXTRAC
 
 ## What Voice AI is
 
-The phone agent — inbound/outbound calls via Retell. Distinct from Conversation AI (chat) and
+The phone agent — inbound/outbound calls. Distinct from Conversation AI (chat) and
 Agent Studio (autonomous tool-using agent) — see the parent SKILL.md's three-way distinction.
 Configured as a large, section-based document (voice, behavior, transcription, call settings,
 post-call, outbound/consent), not a short free-text prompt like Conversation AI.
@@ -77,8 +79,10 @@ workflow-builder's `Authorization: Bearer`. See the parent SKILL.md's Execute se
 
 Every save in the Voice AI builder issues the **same PUT**
 `/voice-ai/agents/:id?publishAgent=true&mode=update` with the **complete agent object** —
-untouched fields are re-sent unchanged. There is **no partial-patch path**. This is the
-opposite of Conversation AI's merge-PUT.
+untouched fields are re-sent unchanged. The builder's main save is this full replace. A partial path does exist —
+`PATCH /voice-ai/agents/{agentId}` (the client's `patchAgent`), and flow-builder screens send partial PUTs
+without `mode` — but whether a PUT without `mode` merges is unproven; this engine uses only the full replace.
+This is the opposite of Conversation AI's merge-PUT.
 
 Practical consequence for the engine: `POST /voice-ai/agents` accepts almost nothing — per
 the capture, just `{locationId}` — the backend auto-generates a default agent (name, prompt,
@@ -101,9 +105,9 @@ compiler's.
 ## Config sections
 
 - **Identity:** `agentName`, `businessName`, `locationId`, `timezone`, `agentPrompt`,
-  `llmModel` (default `gpt-4.1`), `provider` (`RETELL`, fixed), `agentStatus`
+  `llmModel` (default `gpt-4.1`), `provider` (`RETELL` or `lc`, set from the model), `agentStatus`
   (`PENDING`→`ACTIVE` after first save), `advancedSettingsEnabled`.
-- **Welcome:** `welcomeMessage`, `welcomeMessageMode` (only observed value: `ai_custom`),
+- **Welcome:** `welcomeMessage`, `welcomeMessageMode` (`ai_custom` | `user_first`),
   `beginMessageDelayMs`, `prompts{}` (System-Prompt section overrides — Personality, Date &
   Time Awareness, Numbers & Symbols Speech Rules, Email Confirmation Process; not fully
   captured, passed through as-is).
@@ -123,8 +127,8 @@ compiler's.
 - **Post-call:** `sendPostCallNotificationTo{admins, allUsers, contactAssignedUser,
   specificUsers[], customEmails[]}`, `callEndWorkflowIds[]`.
 - **Outbound / consent:** `aiDisclaimerConfiguration{disclaimerEnabled, outboundDisclaimerType
-  (concise), outboundDisclaimerMessage, outboundIntentMessage, playDisclaimerOnEveryCall,
-  isGreetingMessageDynamic}`, `voicemailOption`, `ivrOption`, `numberPoolId`,
+  (concise), outboundDisclaimerMessage, outboundIntentMessage, playDisclaimerOnEveryCall}` (the UI writes the last three only
+  when the disclaimer is on; `isGreetingMessageDynamic`, seen in one capture, is in no bundle), `voicemailOption`, `ivrOption`, `numberPoolId`,
   `inboundNumbers[]`, `inboundPhoneNumber`. Number-pool/KYC provisioning itself is OUT of
   scope — see parent SKILL.md.
 - **Knowledge base:** `knowledgeBaseIds`, `knowledgeBasePrompt` (has a sensible default string
@@ -195,7 +199,7 @@ field(s) and merges the caller's `actionParameters` over any capture-grounded de
   flips the action single→multiple and adds a "User Intent Description" wizard step. The write shape:
   - `calendarActionType: "multiple"` and `calendarId: null`.
   - `calendarIds: [{ id, triggerCondition }, ...]` — an **array of objects** (one routing condition
-    per calendar, `triggerCondition` ≤80 chars), **not** Conversation AI's flat id array. `>=2` items.
+    per calendar, `triggerCondition` required, **≤50 characters and unique per calendar** in the editor), **not** Conversation AI's flat id array. `>=2` items.
     The compiler normalizes each item to exactly `{id, triggerCondition}`: the server echoes back a
     per-item `slug`, and the public `voice-ai-v3__update-action` additionally **400s** without a
     `name` per item (`"Calendar name is required for each calendar"`) — the internal PUT wants neither,
@@ -302,7 +306,7 @@ API-built `DATA_EXTRACTION` actions render fine in the builder.
   runtime but the builder will not open their editor. "Trust the API, refresh the tab" applies
   to voice actions; it does not apply there.
 
-`VERIFIED_ACTION_TYPES` in `voiceai-ir.mjs` now lists all 7. Only `MCP` ("Add MCP (Beta)")
+`VERIFIED_ACTION_TYPES` in `voiceai-ir.mjs` now lists all 7. Only `MCP` ("Add MCP" — the Beta label was dropped in 2026-09)
 remains unverified — it needs a third-party OAuth-connect flow, explicitly out of scope per
 the capture's `_skipped` note — and passes through as accepted-but-unverified, same as any
 other unlisted `actionType`.

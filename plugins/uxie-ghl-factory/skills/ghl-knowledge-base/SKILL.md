@@ -1,6 +1,6 @@
 ---
 name: ghl-knowledge-base
-description: "Build and manage GoHighLevel knowledge bases — the content that feeds both Conversation AI and Voice AI. Covers rich-text documents, FAQs, web crawling, web search, files, tables and Google Drive/Sheets sources, plus the trigger conditions that tell an agent WHEN to use each knowledge base. Use when the user says 'add a knowledge base', 'train the bot on this', 'the AI isn't using my KB', 'add FAQs', 'crawl my website', 'upload docs for the agent', or asks why an agent answers from the wrong source. Internal API — five of the nine source types have no public equivalent."
+description: "Build and manage GoHighLevel knowledge bases — the content that feeds both Conversation AI and Voice AI. Covers rich-text documents, FAQs, web crawling, files, tables, Google Drive/Sheets and Internal Data (products) sources, plus the trigger conditions that tell an agent WHEN to use each knowledge base. Use when the user says 'add a knowledge base', 'train the bot on this', 'the AI isn't using my KB', 'add FAQs', 'crawl my website', 'upload docs for the agent', or asks why an agent answers from the wrong source. Internal API — six of the nine source types have no public equivalent."
 ---
 
 # GHL Knowledge Base
@@ -14,8 +14,10 @@ Base: `services.leadconnectorhq.com/knowledge-base`.
 
 ## Why this is an internal-rail skill
 
-Nine source types exist. The public API covers FAQs, the crawler, and the knowledge-base
-record itself — **five have no public equivalent**:
+Nine source types exist in the enum; the UI offers five tabs (Web crawler · FAQ · Tables · Rich text · Files,
+with Google Drive/Sheets and Internal Data behind flags). **Web search has no screen** at build 683 (hard-coded
+off). The public API covers FAQs, the crawler, and the knowledge-base record itself — **six have no public
+equivalent**:
 
 ```
 faq  ·  web_crawler  ·  web_search        ← public reaches these
@@ -33,9 +35,12 @@ page `ai-agents/20-api/knowledge-base.md` carries the source-type enum, the anal
 that reveals the per-plan caps, and the training routes.
 
 The shape worth holding in your head: a knowledge base is a record with **sources attached to it**.
-`POST /knowledge-base/` makes the record; `POST /knowledge-base/{id}` (or `/{id}/bulk`) attaches a
-source to it. `rich_text` is the exception — it has its own sub-resource,
-`POST /knowledge-base/rich-text/`, and creation is **asynchronous**.
+`POST /knowledge-base/` makes the record (body `{locationId, name, description?}`, name ≤ 50). **Every source
+kind has its own sub-resource** — `/faqs`, `/rich-text/`, `/crawler`, `/files`, `/table/…` (a multi-step
+upload → schema → select-columns → status pipeline), `/google-sheets/*`, `/google-drive/*`, `/internal-data/*`.
+There is **no generic "attach a source" call**: the POST to a bare KB id and its `/bulk` variant that older
+notes listed are the translation client's calls, not the KB's. Creation is **asynchronous** — poll each source's
+status. 15 knowledge bases per sub-account.
 
 **KB-create schema** (captured 2026-08-28, the designated test sub-account): `POST
 /knowledge-base/` body `{locationId, name}` → 201 `{success, data: {id, name, nameLowerCase, …}}`.
@@ -75,8 +80,8 @@ read its dates. List: `GET /knowledge-base/gaps?locationId=&knowledgeBaseId=&sta
 2. **Check `lastAskedAt`** against the window you are judging.
 3. **Write the knowledge to match `topQueryTexts`** (the customer's own wording).
 4. **Never filter by `categories`** — a genuine product question was filed under *Noise / Gibberish / Chitchat*.
-The DISMISS write was never captured — clearing a gap is a UI step; do not claim to have automated
-it. Fields and counts endpoint: `knowledge/corpus/ai-agents/20-api/knowledge-base.md` → "Gaps".
+The DISMISS write is **`PATCH /knowledge-base/gaps/{gapId}/state`** `{locationId, state:"archived"}` —
+live-proven 2026-09-08, reversible with `state:"active"`. The write says `active`, the read says `open`. Fields and counts endpoint: `knowledge/corpus/ai-agents/20-api/knowledge-base.md` → "Gaps".
 
 **5. Editing a rich-text doc is a PUT, not delete-and-recreate.** `PUT
 /knowledge-base/rich-text/:id` is a **live-verified full-replace** (2026-08-28, the designated
@@ -100,16 +105,16 @@ false about this API.
 
 ## Limits
 
-Upload ≤10 MB per file · content is capped per document (`characterLimitExceededContent`) ·
-documents are capped per plan (`richTextBlockedByLimit` fires when you hit it) · at least one
-file must be selected to upload · at least one KB must be selected where a bot requires one.
+Files ≤ 10 MB (`.pdf .doc .docx .md`) · table CSV ≤ 50 MB · rich text ≤ 25,000 characters and 512 KiB of HTML
+(`richTextBlockedByLimit` fires on the character cap, not on a document count) · FAQ answer ≤ 1000 · ≤ 7,000
+crawled pages per KB · 15 KBs per sub-account · at least one KB must be selected where a bot requires one.
 
 ## Proof status — read before trusting a write
 
 Per `ai-agents/20-api/12-ai-agents-api.md`: **rich-text create AND update are live-proven**
 (round-tripped, including the status poll, the full-replace PUT, and delete — see Trap 5).
-**Tables and file upload are capture-derived** — best-effort form fields, never live-fired. The
-other source types have no live proof recorded. Treat a first write of an unproven type as a
+**Every other source kind is source-derived only** (2026-09-25 bundle, build 683) — tables are a pipeline, not a
+form, so any "best-effort form fields" descriptor from the 2026-08 capture is the wrong shape. No live proof yet. Treat a first write of an unproven type as a
 throwaway validation run on a test sub-account.
 
 ## Scope

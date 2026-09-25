@@ -54,18 +54,19 @@ clobbers a differing live value. Read the agent first and reconcile; never send 
 `timezone` return **422** when sent as `''`. The compiler omits them instead — do not
 "helpfully" fill them with placeholder text.
 
-**3. Speech-to-speech removes outbound.** Selecting a Realtime model (`GPT Realtime 2.1`,
-`GPT Realtime 2`, `Gemini 3.1 Flash Live Preview` — providers `openai_s2s` / `gemini_s2s`)
-**removes the Inbound/Outbound selector entirely**. Proven by a reversible A/B: switching to a
-Realtime model and back made the section vanish and reappear. If the agent must make outbound
-calls, it cannot be speech-to-speech.
+**3. Speech-to-speech and outbound — re-check before relying on it.** On 2026-08-25 selecting a
+speech-to-speech model **removed the Inbound/Outbound selector** (reversible A/B). Build 701 (2026-09-25)
+has four s2s models (`GPT Realtime 2.1`, `GPT Realtime 2`, `GPT Live 1`, `Gemini 3.1 Flash Live
+Preview`), sets the agent's `provider` to **`lc`** (`openai_s2s` / `gemini_s2s` are only voice-picker
+tags), and its outbound check now treats `lc` agents as outbound-capable. Until that is re-proven, tell
+the user outbound on an s2s agent is uncertain and test it on their account.
 
 **4. Changing the model family invalidates the voice.** Text → s2s auto-changed the voice;
 switching back left it **empty**. Any write that changes `voiceModel` must revisit `voice`.
 
 **5. Multi-calendar booking needs a per-calendar trigger.** `calendarActionType: "multiple"`
 switches the shape: `calendarId: null`, `calendarIds: [{id, triggerCondition}]` — an **array of
-objects**, unlike Conversation AI's flat id array — plus `aiDescription` (≤500 chars) and an
+objects** (Conversation AI's multi-calendar uses the same object shape) — plus `aiDescription` (≤500 chars) and an
 optional `fallbackCalendar` / `fallbackCalendarId`. Omit `triggerCondition` and the agent has
 calendars with no basis for choosing between them. GHL ships
 `POST /voice-ai/actions/generate-with-ai/trigger-prompts` with `generateOnlyEmpty: true` to
@@ -98,8 +99,12 @@ Full set: `ai-agents/40-rules/constraints.md`.
 | the other 5 action types | **capture-verified, not live-fired** — validated against `voiceai-actions-all.json`, never individually round-tripped |
 | `IN_CALL_DATA_EXTRACTION`, `MCP` | **untested.** Do not assume `IN_CALL_DATA_EXTRACTION` mirrors `DATA_EXTRACTION` |
 
-The seven types are `CALL_TRANSFER`, `WORKFLOW_TRIGGER`, `SMS`, `DATA_EXTRACTION`,
-`APPOINTMENT_BOOKING`, `CAP`, `AGENT_TRANSFER_CHILD`.
+The seven types verified live are `CALL_TRANSFER`, `WORKFLOW_TRIGGER`, `SMS`, `DATA_EXTRACTION`,
+`APPOINTMENT_BOOKING`, `CAP`, `AGENT_TRANSFER_CHILD`. The wire enum also has `CUSTOM_ACTION` (legacy
+webhook action), `AGENT_TRANSFER`, `IN_CALL_DATA_EXTRACTION`, `DATA_INJECTION`, `CANCEL_APPOINTMENT`,
+`RESCHEDULE_APPOINTMENT`, `KNOWLEDGE_BASE`; `CAP` carries four variants (`customApi`, `sendEmail`,
+`sendSms`, `sendWhatsAppMessage` — the menu's "Send WhatsApp message" is one); MCP is its own resource,
+not an action type.
 
 **Verification covers 52 of the ~55 fields the update sends.** Four stay unverified because the
 read does not expose them in every state: `backchannelFrequency` (only when backchannel is on),
@@ -107,6 +112,19 @@ read does not expose them in every state: `backchannelFrequency` (only when back
 
 **Treat the first real use of any capture-verified type as a validation run.** A failed
 configuration step leaves a real, unconfigured agent on the account — no rollback.
+
+## What GHL can do that this plugin does not author
+
+If the user wants one of these, **GHL can do it** — say so and point to the UI.
+
+| Capability | Where in GHL | Why not here |
+|---|---|---|
+| Flow-builder voice agents (node graph, `CUSTOM_LLM` over agent-execution) | Voice AI → Create Agent → Flow Builder | legacy flow-builder generation, not engine-authored |
+| Custom Action 2.0 variants beyond the verified CAP (Send Email / SMS / WhatsApp), MCP servers, session variables | Voice agent → Actions → New Action | source-derived only so far |
+| Prompt Optimizer / Prompt Evaluator | Voice agent → Prompt Optimizer (Labs) | billed, Labs-gated |
+| Voice cloning / importing a community voice | Voice picker → My voices | not engine-authored |
+| Buying numbers, number pools, KYC | Voice agent → Deploy → Buy new number | purchases and compliance |
+| Outbound consent tool (apply / audit consent language) | Voice AI → Outbound settings | compliance, account-wide |
 
 ## Scope
 

@@ -2032,6 +2032,12 @@
     },
     "GET /workflows-marketplace/integration/slack/users": {
       "note": "Needs oAuthId: the id of a CONNECTED Slack account (GoogleSheetsService / SlackService take it from the step's chosen account). The sandbox has none connected (GET /workflow/oauth2/get-all-tokens -> []), so it answers 422 \"oAuthId should not be empty\". NOT PROVEN: a human must connect a Slack account in the sandbox first. Evidence: knowledge sniffs/reached-2026-09-23."
+    },
+    "POST /agent-studio/agents/anton/session": {
+      "note": "NO TASK NEEDS THIS — coordinator decision T8 (2026-09-26): legacy flow-agent (node-graph Agent Studio) authoring is excluded; anton is that builder's AI runtime, and the Managed-Agent editor also POSTs it on open (a write-on-open, 2026-09-25 UI walk). IF THE USER WANTS IT: GHL can do it — AI Agents → Agent Studio (flow agents) in the UI, or the flow builder embedded in Voice AI / Conversation AI. Written where agents read it: corpus ai-agents/00-overview \"What GHL can do that this plugin does not author\", and the same table in skills ghl-conversation-ai and ghl-voice-ai."
+    },
+    "GET /agent-studio/agents/agents-with-folders": {
+      "note": "Read by get_ai_configuration_bundle to INVENTORY an account's flow agents (legacy node-graph Agent Studio) — reading them is in scope. AUTHORING flow agents is excluded (coordinator decision T8, 2026-09-26; new ones are creatable only by five hard-coded agencies). IF THE USER WANTS IT: GHL can do it — AI Agents → Agent Studio (flow agents), or the flow builder embedded in Voice AI / Conversation AI; see corpus ai-agents/00-overview."
     }
   }
 }

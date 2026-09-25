@@ -1,31 +1,29 @@
-# Agent Studio "Super Agents"
+# Managed Agents (the internal `/agent-studio/super-agent/*` surface)
 
-> Ground truth: `ghl-workflow-api-docs/research/ai-agents-internal/agent-studio-internal.md`
-> (captured live 2026-07-11, GROM Digital AU) + this plugin's `engine/studio-ir.mjs` /
-> `engine/studio-compiler.mjs`. Internal
-> `services.leadconnectorhq.com/agent-studio/super-agent/*` surface — a GPT-builder-style
-> agent, **NOT** the public 11-action `agent-studio` category. Underlying model:
-> `anthropic/claude-sonnet-4-6`. Builder-chat runtime codename: `anton`.
+> **Naming.** The GHL UI calls these **Managed Agents** — the "Agent Studio" tab's page title. What this plugin's
+> tools and older docs call "Agent Studio / Super Agents" is this product. The UI's other **Agent Studio** is the
+> legacy node-graph **flow builder** (`/agent-studio/agents*`), whose new agents only five hard-coded agencies can
+> create; this plugin does not author it (see the corpus `ai-agents/00-overview`). Ground truth: the corpus pages
+> `ai-agents/20-api/12-ai-agents-api.md` §5 and `ai-agents/20-api/managed-agent-workflow-invocation.md`, and this
+> plugin's `engines/ai/studio-ir.mjs` / `engines/ai/studio-compiler.mjs`. Underlying model:
+> `anthropic/claude-sonnet-4-6`. Not the public `agent-studio` API category (that one is the flow agents).
 
-> ✅ **RECONCILED 2026-07-21.** The engine created a real Super Agent on GROM AU through the
-> `uxie-ghl-internal-mcp` AI rail (agent `7e7751c5…`, created 19:30:20Z, then deleted).
-> Evidence: `mcp-internal/README.md` §"Live proof ledger — AI agent tools".
+**Status.** `create_studio_agent` (NL build → full-config PUT → read-back) was re-proven live on the designated test
+sub-account on 2026-09-25 (proof record `proofs/create_studio_agent.json`). Publishing, the `workflows` trigger and
+workflow invocation were proven on 2026-09-19. Everything this page marks *bundle* is from the 2026-09-25
+`superagentsApp` build 703 and not yet executed.
 
-**Status: CREATE is live-proven; the step after it returns 400, so the agent is created
-UNCONFIGURED. SSE behavior is still unconfirmed** — the run never reached a terminal stream
-event, so whether this endpoint truly streams is not yet established.
+## What Managed Agents are
 
-Practical consequence: a create call leaves a **real, unconfigured Super Agent** on the
-account. It does not no-op and it does not roll back. Treat first real use as a throwaway
-validation run and clean up after failures.
+An autonomous, tool-using agent — closer to a GPT/assistant-builder than a scripted chat bot. Distinct from
+Conversation AI (a channel-bound chat bot with a three-part prompt) and Voice AI (a phone agent). Configured with
+**instructions**, **capabilities**, **apps / skills**, **actions** and **one or more triggers**; run in chat or on
+triggers; billed per run on two meters (`managed-agents` and `managed-agents-test` for test runs).
 
-## What Agent Studio "Super Agents" are
-
-An autonomous, tool-using agent — closer to a GPT/assistant-builder than a scripted chat bot.
-Distinct from Conversation AI (a channel-bound chat bot with a fixed 3-part prompt) and Voice
-AI (a phone agent) — see the parent SKILL.md's three-way distinction. Configured with a
-system prompt, a tool set (`web_search`, `image_generation`, `kb_search`), and exactly one
-trigger, run by Claude Sonnet 4.6.
+The editor (UI walk 2026-09-25): "Edit this agent with chat" (AI builder) · Test Agent · Publish · **Triggers** ·
+**Apps** (Default + marketplace apps) · **Capabilities** — Web search, Image generation, Audio generation (MP3),
+Video generation (8 s, 16:9 or 9:16), Custom API, Knowledge Base · **Custom skills** (Markdown) · Instructions. The
+detail page shows Activity and a **Memory** tab marked "SOON".
 
 ## Endpoint map
 
@@ -35,7 +33,8 @@ trigger, run by Claude Sonnet 4.6.
 | `PUT` | `/agent-studio/super-agent/agents/:id` | Update — **whole-object replace** |
 | `GET` | `/agent-studio/super-agent/agents/:id?locationId=` | Fetch one |
 | `GET` | `/agent-studio/super-agent/agents/:id/activity?locationId=` | Trigger/chat run log |
-| `POST` | `/agent-studio/agents/anton/session` | Resume/init builder-chat runtime (`{sessionId, locationId}`) |
+| `POST` | `/agent-studio/agents/anton/session` | builder-chat session — note `anton` is the **flow** builder's runtime; the Managed-Agent editor fires this on open (a write-on-open) and only reads history from it |
+| `POST` | `/agent-studio/super-agent/agents` | the product's own Save: `{locationId, agencyId, builderSessionId, config, folderId?}` (*bundle*; not yet used by this plugin) |
 | `DELETE` | `/agent-studio/super-agent/agents/:id?locationId=` | Delete → `{success:true}` |
 | `GET` | `/agent-studio/super-agent/agents?locationId=&page=&pageSize=` | List |
 | `GET` | `/agent-studio/plugins/default?locationId=&product=Superagents` | 423-tool catalog for the built-in Default plugin |
@@ -70,18 +69,22 @@ Auth: **`token-id`** header — same as Conversation AI and Voice AI, NOT the wo
 - `model` — fixed to `anthropic/claude-sonnet-4-6` in every capture; not proven to be the only
   accepted value, but the only one this engine vouches for (`DEFAULT_MODEL` in
   `studio-ir.mjs`).
-- `tools[]` maps 1:1 to a UI "Capabilities" toggle: `web_search`, `image_generation`.
+- `tools[]` maps to the UI "Capabilities" toggles. The bundle knows `web_search`, `web_fetch`, `kb_search`,
+  `image_generation`, `tts_generation` (audio), `video_generation` and `mcp`; **this engine only emits** `web_search`,
+  `image_generation`, `kb_search` (`TOOLS` in `studio-ir.mjs`).
   Attaching a knowledge base **auto-adds `kb_search`** — the compiler replicates this (you
   don't need to list `kb_search` explicitly just because you set `knowledgeBaseIds`).
-- `triggers[]` — **only ONE active trigger at a time.** Selecting a new type in the UI
-  REPLACES the array wholesale; it never appends. Observed trigger types: Form submitted,
-  Lead tag, Schedule, Appointment booked, Appointment status, Contact created, Opportunity
-  created, Opportunity status changed — each auto-fills a templated `triggerMessage`. Only
-  `chat` (the default "Chat Started" trigger from NL-build) and `contact_created` have their
-  wire `type` slug actually captured (`VERIFIED_TRIGGER_TYPES` in `studio-ir.mjs`); the other
-  six are UI labels without a confirmed slug — don't guess them.
-- `contextManagement`, `plugins`, `reasoning.effort` — stable literal defaults across every
-  capture, no IR-level knob yet. Per-skill scoping within the Default plugin (unchecking a
+- `triggers[]` — **several triggers can be active.** The bundle registers 13 supported slugs: `chat`, `form`,
+  `tag`, `schedule`, `appointment_booked`, `appointment_status`, `contact_created`, `opportunity_created`,
+  `opportunity_status_changed`, `survey_submission`, `facebook_lead_gen`, `facebook_comment`, `workflows` (+22
+  shown "Coming soon"). The server's own rule: chat alone, OR a combination of non-chat triggers — and `workflows`
+  combines with either. Each auto-fills a templated `triggerMessage`. **This engine only emits** `chat` and
+  `contact_created` (`VERIFIED_TRIGGER_TYPES` in `studio-ir.mjs`); `workflows` was proven live on 2026-09-19.
+- `contextManagement`, `plugins`, `reasoning.effort` — stable literal defaults across the 2026-07 captures, no
+  IR-level knob. The 2026-09-25 UI sends none of `contextManagement` / `starterPrompts` (0 hits in the bundle);
+  whether the server still stores them is unproven. The bundle's config also carries `actions[]` (Actions-Platform
+  instances `{actionName, actionId, triggerCondition, basePrompt}`), `imageGeneration.quality`,
+  `mediaSettings.{tts,video}`, `customApiEnabled`, `customApiCalls`. Per-skill scoping within the Default plugin (unchecking a
   built-in tool category) never persisted a PUT in the captured beta UI session — treat that
   as an unresolved gap, not something this compiler can drive.
 - `knowledgeBaseIds` — capture shows `null` when unset (never an empty array); the compiler
@@ -95,14 +98,14 @@ changed in the UI." There is no partial-update path — `studio-compiler.mjs` ha
 `{locationId, config}` where `config` is the full rebuilt object — note the agent id appears
 **only in the URL path**, never repeated inside the body.
 
-## Create is an NL-build SSE flow — no fully-specified create
+## Create — the NL-build SSE flow this engine uses
 
-`POST /agent-studio/super-agents/build` takes just `{message, locationId, context:
-{companyId}, mode: "fast"}` — a free-text prompt, nothing else. There is **no way to POST a
-fully-specified config at create time.** The server's `anton` runtime streams
-`config_partial`/`config_update` SSE events while generating the config, auto-persists it as
-a draft, then emits `agent_saved`/`done` with the new agent id. The streaming protocol itself
-is undocumented (only the final persisted draft was captured, not the SSE frames).
+`POST /agent-studio/super-agents/build` takes `{message, locationId, context: {companyId}, mode: "fast"}` (the
+bundle also sends optional `existingAgentId`, `sessionId`, `answeredQuestions`, `skippedQuestionIds`, `folderId`).
+The server streams `config_partial`/`config_update` events while generating the config (18 event types in the
+bundle), auto-persists a draft, then emits `agent_saved`/`done` with the new agent id. The product's own Save also
+creates with a full `config` (`POST /agent-studio/super-agent/agents`, table above); this engine does not use that
+path yet, and whether it works without a builder session is unproven.
 
 To land a fully-specified Super Agent, the real flow is:
 
@@ -118,7 +121,7 @@ executor's job, not this compiler's).
 ## Driving `studio-compiler.mjs`
 
 ```js
-import { compileSuperAgentCreate, compileSuperAgentUpdate } from './engine/studio-compiler.mjs';
+import { compileSuperAgentCreate, compileSuperAgentUpdate } from '../../../engines/ai/studio-compiler.mjs';
 
 // Step 1: NL-build create (executor must then parse the SSE 'done' event for the agentId).
 const createReq = compileSuperAgentCreate(

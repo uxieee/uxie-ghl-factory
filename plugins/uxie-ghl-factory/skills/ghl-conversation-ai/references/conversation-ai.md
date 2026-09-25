@@ -21,7 +21,7 @@ skill.
 
 ## What Conversation AI is
 
-The chat bot ("AI Employee") that engages contacts over SMS/IG/FB/WebChat/Live_Chat/WhatsApp.
+The chat bot ("AI Employee") that engages contacts over SMS/IG/FB/WebChat/Live_Chat/WhatsApp/TikTok/Email.
 Distinct from Voice AI (phone calls) and Agent Studio (autonomous tool-using agents) — see
 the parent SKILL.md's three-way distinction. It responds via a single free-text prompt split
 into three parts, not a tool-calling system prompt.
@@ -50,10 +50,14 @@ attaches both). See the parent SKILL.md's Execute section for the capture proced
 ## Agent config
 
 - `employeeName` / `name` — display name.
-- `mode` — enum **`off` | `suggestive` | `autoPilot`** (lowercase strings). `off` disables the
-  bot, `suggestive` drafts replies for a human to approve, `autoPilot` sends unattended (capped
-  by `autoPilotMaxMessages`, default 75).
-- `channels[]` — enum: `SMS`, `IG`, `FB`, `WebChat`, `Live_Chat`, `WhatsApp`. Non-empty required.
+- `mode` — `off` | `suggestive` | `auto-pilot`. The product's own UI writes the hyphenated `auto-pilot`; the write
+  also accepts `autoPilot` and stores `auto-pilot` (measured 2026-09-11). `off` disables the bot, `suggestive` drafts
+  replies for a human to approve (not offered for flow bots), `auto-pilot` sends unattended (capped by
+  `autoPilotMaxMessages`, 1–100, default 75).
+- `channels[]` — enum: `SMS`, `IG`, `FB`, `WebChat`, `Live_Chat`, `WhatsApp`, `TIKTOK`, `Email` (the first six are
+  the create default). Non-empty required unless the location has `conversationsAI.channelManagement` on, in which
+  case where the bot answers is decided by the deployment rows and `channels` is the legacy "Workflow & Transfer
+  bot channels" list.
 - `botType` — enum **`PROMPT_BASED_BOT` | `FLOW_BUILDER_BOT` | `FORM_BASED_BOT`** (three, per the bundle's own enum; `convai-ir.mjs` `BOT_TYPES`). The prompt bot is the
   three-part-prompt agent above; the flow bot's logic is a **workflow** (see "Flow-Based
   Builder" below). Both are buildable via the engine (`convai-ir.mjs` `BOT_TYPES`).
@@ -226,7 +230,8 @@ is known.
 during capture, all baked into `convai-compiler.mjs`'s `HUMAN_HANDOVER_DETAIL_DEFAULTS`:
 - `details.enabled`, `details.triggerCondition`, `details.reactivateEnabled` are all required
   by the API even though they look optional from the UI.
-- `details.sleepTime` / `details.sleepTimeUnit` (number 1-30 / enum `days`|`hours`|`minutes`)
+- `details.sleepTime` / `details.sleepTimeUnit` (number; the editor's max is 43200 minutes / 720 hours / 30 days;
+  enum `days`|`hours`|`minutes`)
   are ALSO required — unrelated to handover semantics on its face, but the API 422s without
   them.
 - **`details.handoverType`** — REQUIRED (found 2026-07-15; first POST 422'd without it). Enum
@@ -278,7 +283,7 @@ Resolve up front: `appointmentBooking.calendarId` + `conversationai_book_appoint
 `knowledgeBaseIds` (KBs). `conversationai_services_booking` additionally needs a pre-configured
 commerce service. A wrong/missing id posts clean and no-ops at runtime.
 
-### Actions are ADD-ONLY, and the record holds only pointers
+### Actions are separate records, and the agent holds only pointers
 
 The agent record's `actions[]` is a list of **`{id, type}` pointers**. The configuration lives in a
 separate registry:
@@ -293,9 +298,14 @@ GET /ai-employees/actions/search?employeeId={agentId}      employeeId ONLY
   `data[].actions[]`. A flat `data.map(a => a.id)` yields `undefined` for every row.
 - An `advancedFollowup` object carries `scenarioId`, `enabled`, a `followupSequence[]` of up to five
   steps, AND `followupSettings` (working hours per day, `dynamicChannelSwitching`, `timezoneToUse`).
-- ⚠️ **There is no update-by-id and no DELETE for an action.** `PUT` on the agent with
-  `actions: []`, `null`, `""` or a full record all return accepted and leave the array untouched.
-  Removing an action requires the UI. Treat writing one as close to irreversible.
+- ⚠️ **The agent PUT cannot change actions.** `PUT` on the agent with `actions: []`, `null`, `""` or a full record
+  all return accepted and leave the array untouched (measured). Actions have their **own** update and delete:
+  the UI's action modals call `PUT /ai-employees/actions/{actionId}` `{employeeId, locationId, type, name, details}`
+  and `DELETE /ai-employees/actions/{actionId}` with body `{employeeId}` (2026-09-25 bundle; not yet executed, and
+  no tool here calls them yet). An earlier version of this note said actions were add-only — that was the agent
+  PUT's behaviour, not the platform's.
+- The editor's **API Call** action is not one of these records: it is an Actions-Platform skill (keyed by
+  `skillId`, must pass a test run before the UI saves it). This engine does not author it.
 - A pointer whose configuration is missing is reported (R-45, live A/B on one account) to stop the
   agent generating anything, silently. The engine never writes a bare pointer — it POSTs the action
   as its own resource and threads the server id back — so if you see one, it was hand-assembled.
