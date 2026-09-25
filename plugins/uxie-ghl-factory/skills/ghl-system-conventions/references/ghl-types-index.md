@@ -5,7 +5,7 @@ One line per step and trigger type. For the full card (fields, allowed values, v
 gotchas) run `node scripts/types.mjs <type-key>`, or `describe_step_type` if the
 uxie-ghl-factory plugin is installed — same data.
 
-293 types: 145 native, 148 marketplace. Status is each card's floor: 
+295 types: 147 native, 148 marketplace. Status is each card's floor: 
 `proven-live` > `source-derived` > `inferred`; `deprecated` means do not build on it.
 
 ## Triggers (native) (59)
@@ -40,7 +40,7 @@ uxie-ghl-factory plugin is installed — same data.
 | `ivr_incoming_call` | source-derived | Fires on an incoming call to a configured IVR-routed number. |
 | `lesson_completed` | source-derived | Fires when a contact completes a course lesson. |
 | `lesson_started` | source-derived | Fires when a contact starts a course lesson. |
-| `mailgun_email_event` | source-derived | Fires on a Mailgun email event (delivered, opened, clicked, etc.) within the workflow's emails. |
+| `mailgun_email_event` | source-derived | Fires on an email event (opened, clicked, unsubscribed, complained, bounced) on emails sent by the chosen workflow. |
 | `membership_contact_created` | source-derived | Fires when a contact registers as a membership user. |
 | `note_add` | source-derived | Fires when a note is added to a contact. |
 | `note_changed` | source-derived | Fires when an existing contact note is modified. |
@@ -68,11 +68,11 @@ uxie-ghl-factory plugin is installed — same data.
 | `tik_tok_form_submitted` | source-derived | Fires when a TikTok lead-form submission is received. |
 | `trigger_link` | source-derived | Fires when a contact clicks a configured trigger link. |
 | `two_step_form_submission` | source-derived | Fires when a contact submits a two-step order form on a funnel page. |
-| `user_log_in` | source-derived | Fires when a membership user logs in. |
+| `user_log_in` | source-derived | Fires on each successful client-portal login. It is now an INTERNAL marketplace trigger (section "Client Portal"), not a native builder trigger. [source-derived 2026-09-26 — sniffs/workflows-domain-recon-2026-09-25/marketplace-assets-2026-09-25.json (`key: user_log_in`)] |
 | `validation_error` | source-derived | Fires when a Twilio validation error is raised (a system / failure trigger). |
 | `video_event` | source-derived | Fires on a video-watch event in a funnel video at a configured percentage watched. |
 
-## Steps (native) (86)
+## Steps (native) (88)
 
 | type | status | summary |
 |---|---|---|
@@ -100,11 +100,11 @@ uxie-ghl-factory plugin is installed — same data.
 | `conversationai_transfer_bot` | proven-live | Hand the conversation to another AI employee. |
 | `copy_contact_to_subaccount` | source-derived | Replicate the current contact (and optionally tags, custom fields) into one or more other sub-account locations. |
 | `create_custom_object` | source-derived | Create a new custom-object record on the contact's location. Resolved from `!ident:CustomObjectActionTypes.CREATE`. |
-| `create_opportunity` | source-derived | Create or update an opportunity record on a pipeline+stage for the running contact. |
+| `create_opportunity` | source-derived | Create or update an opportunity record on a pipeline+stage for the running contact. The builder shows a deprecation banner on this step: "The Create/Update Action will soon be deprecated. Existing Workflows will be unaffected; however, the new Create Opportunity and Update Opportunity actions will b |
 | `create_update_contact` | source-derived | Create a contact (or update if one matches on email/phone) by writing one or more field values. |
 | `custom_code` | source-derived | Execute user-supplied JavaScript and yield an `output` object that downstream steps can reference (e.g. `{{custom_code.<order>.output.<key>}}`). |
 | `custom_webhook` | source-derived | Premium HTTP request action — POST/GET/PUT/DELETE to an external URL with JSON or form-encoded body, headers, query parameters, and an event-classification tag. Distinct from the simpler `webhook` action by supporting authorization, parameters, response capture, and event metadata. |
-| `datetime_formatter` | source-derived | Reformat or operate on a date/datetime value — convert between formats, compare two dates, or extract components. |
+| `datetime_formatter` | source-derived | "Date/Time Formatter": reformat a date, reformat a date-and-time, or count the days between two dates, and hand the result to later steps as a merge tag. |
 | `dnd_contact` | source-derived | Toggle the contact's "Do Not Disturb" flag globally, per-channel, or per-direction. |
 | `drip` | source-derived | Throttle downstream execution into batches with an inter-batch delay. The `drip` step itself is a control wrapper — downstream actions execute under the batch schedule it defines. |
 | `email` | source-derived | Send a transactional/marketing email to the contact, with either an inline HTML body or a referenced template. |
@@ -124,7 +124,7 @@ uxie-ghl-factory plugin is installed — same data.
 | `ig_interactive_messenger` | source-derived | Send an interactive Instagram DM with buttons or quick-replies. Resolved from `!ident:IG_INTERACTIVE_MESSENGER`. |
 | `instagram-dm` | source-derived | Send an Instagram direct message via the connected Instagram-business integration. |
 | `internal_create_opportunity` | source-derived | Internal helper that creates an opportunity. Used by AI-driven and migration paths — different attribute shape from the user-facing [`create_opportunity`](./create_opportunity.md). |
-| `internal_notification` | source-derived | Send an alert to staff (not to the contact) via one of four channels: email, SMS, WhatsApp, or in-app notification. The `type` field discriminates which channel-specific sub-object is required. |
+| `internal_notification` | source-derived | Send an alert to staff (not to the contact) on ONE channel per step — email, SMS, WhatsApp or in-app notification, picked by the single `type` switch. To alert on two channels, use two steps `[source-derived 2026-09-26 — models/actions/InternalNotification.ts:359-362; utils/validators/communication- |
 | `internal_update_opportunity` | source-derived | Internal helper that updates an existing opportunity. Used by AI-driven and migration paths — different attribute shape from the user-facing [`create_opportunity`](./create_opportunity.md). |
 | `ivr_collect_voicemail` | source-derived | IVR widget: record a voicemail from the caller. Validator key is `ivrRecordValidator`. |
 | `ivr_connect_call` | source-derived | IVR widget: bridge the inbound call to one or more users or custom phone numbers. |
@@ -133,11 +133,11 @@ uxie-ghl-factory plugin is installed — same data.
 | `ivr_say` | source-derived | IVR widget: speak a TTS message to the caller, or play a pre-recorded audio file. |
 | `manual-call` | source-derived | Create a queued call task for a user — they manually initiate the call. Differs from `call` (auto-dial). |
 | `manual-sms` | source-derived | Queue an SMS draft for a user to manually review and send. Differs from `sms` (automatic send). |
-| `math_operation` | source-derived | Apply arithmetic to a numeric field and (optionally) write the result to another field. Per registry, the OG name is `math_operation`; the README also references it as `number_formatter`. |
+| `math_operation` | source-derived | Apply arithmetic to a numeric field and (optionally) write the result to another field. This is NOT `number_formatter` — that is a separate current step type (text↔number, phone, currency, random; see [`number_formatter`](./number_formatter.md)) `[source-derived 2026-09-25: both are members of Workf |
 | `membership_grant_offer` | source-derived | Grant the contact a specific membership offer (course access, community membership, etc.). |
 | `membership_revoke_offer` | source-derived | Revoke a membership offer from the contact. |
 | `messenger` | source-derived | Send a Facebook Messenger message via the connected Facebook page integration. |
-| `number_formatter` | source-derived | Numeric operations: string-to-number parsing, currency / phone formatting, random number generation, and arithmetic. The corpus calls this `math_operation` (legacy type slug); the registry's canonical type is `number_formatter`. |
+| `number_formatter` | source-derived | "Number Formatter": turn text into a number, format a number, a phone number or a currency amount, or generate a random number — and hand the result to later steps as `{{number_formatter.N.result}}`. |
 | `remove_assigned_user` | source-derived | Unassign the currently-assigned user from the contact. No configurable attributes. |
 | `remove_contact_tag` | source-derived | Remove one or more tags from the running contact (or all tags via `removeAll`). |
 | `remove_from_affiliate_campaign` | source-derived | Remove the contact from an affiliate campaign. |
@@ -145,22 +145,24 @@ uxie-ghl-factory plugin is installed — same data.
 | `remove_opportunity` | source-derived | Delete opportunities tied to the contact within a specified pipeline (all, or just the previously-referenced one). |
 | `respond_on_comment` | source-derived | Respond to a social-media comment that triggered the workflow (e.g. a comment-trigger flow on Facebook/Instagram). |
 | `review_request` | source-derived | Send a review-request prompt (Google or Facebook) to the contact via SMS or email. |
+| `router` | source-derived | Multi-branch step that sends the contact down **every** branch whose conditions match, one branch after another, left to right. Unlike `if_else` it does not stop at the first match. Beta: hidden from the action picker unless the session is on staging / internal GHL or an allowlisted agency or locati |
 | `send_to_eliza` | source-derived | Send the contact's conversation context to the Eliza service (GHL's conversational AI back-end), optionally targeting a specific user. |
 | `slack_message` | source-derived | Send a message via a connected Slack integration to a public channel, private channel, or as a direct message. |
 | `sms` | source-derived | Send an SMS (or MMS via `attachments` / `urlAttachments`) to the contact. |
 | `stripe_one_time_charge` | source-derived | Charge a Stripe customer a one-time amount in a given currency. |
 | `task-notification` | source-derived | Create a task assigned to a user, due relative to "now" or a fixed time. Note: registry exposes neither `task_notification` nor `task-notification` — the corpus uses both. Step row's `type` value is `task-notification` (with hyphen); inner `attributes.type` is `task_notification` (with underscore). |
-| `text_formatter` | source-derived | Apply a text-manipulation function (length, case, trim, replace, etc.) to an input string. |
+| `text_formatter` | source-derived | "Text Formatter": apply one text operation (case, trim, replace, find, split, extract…) to an input string and hand the result to later steps as `{{text_formatter.N.result}}`. |
 | `transition` | source-derived | Internal bookkeeping row that represents a branch's "outbound edge label" on multi-path parents. Not user-authored — created and maintained by the builder. |
 | `update_affiliate` | source-derived | Update an existing affiliate's state (active/inactive). |
 | `update_appointment_status` | source-derived | Update the status of an appointment, service booking, or rental booking associated with the contact. |
-| `update_contact_field` | source-derived | Write one or more standard or custom contact fields. Supports update or clear actions per the `actionType` discriminator. |
+| `update_contact_field` | source-derived | Write one or more standard or custom contact fields. Three modes per the `actionType` discriminator: update (replace), add (append to a multi-value field) or clear `[source-derived 2026-09-26 — models/actions/ContactField.ts:8]`. |
 | `update_custom_object` | source-derived | Update fields on an existing custom-object record. Resolved from `!ident:CustomObjectActionTypes.UPDATE`. |
 | `update_custom_value` | source-derived | Update a location-scoped custom value (a global string variable) to a new value. |
 | `voicemail` | source-derived | Drop a pre-recorded voicemail to the contact's number. |
 | `wait` | source-derived | Pause execution until a time elapses, a condition becomes true, an event fires, or a reply arrives — discriminated by `attributes.type`. |
 | `webhook` | source-derived | Simple outbound HTTP request — POST or GET — with custom key/value data and headers. Lighter-weight than [`custom_webhook`](./custom_webhook.md) (no auth, no body content-type, no response capture). |
-| `workflow_goal` | source-derived | Define a goal (set of conditions) that, when met, can exit the contact from the workflow or trigger a goal-branch action. |
+| `workflow_ai_generate_image` | source-derived | "AI image generation": generates one image from a text prompt (optionally with reference images) using an OpenAI or Google (Vertex) image model, and exposes the image URL and file to later steps. |
+| `workflow_goal` | source-derived | A goal is a jump target. When a contact anywhere in the workflow meets any of the goal's conditions, they jump straight to the goal step and continue from it. `action` only governs a contact who reaches the goal step by walking the path without having met it. |
 | `workflow_split` | source-derived | Multi-path randomizer / A/B-test splitter. Routes incoming contacts across N paths via weight-distributed random selection. |
 
 ## Triggers (marketplace apps) (102)

@@ -1944,7 +1944,7 @@
       "kind": "write",
       "note": "DELIBERATELY NOT WRITTEN 2026-09-19: on the test sub-account the GET answers {} — no settings document exists — so a PUT would CREATE one that cannot be restored to 'absent'. body {feature:{…}} per the bundle. Prove it only on an account where the document already exists, with read -> change -> read -> restore."
     },
-    "PUT /workflow/{locationId}/{id}/recover": {
+    "PUT /workflow/{locationId}/{wid}/recover": {
       "reach": "absent",
       "credentialClass": "agency-admin-bearer",
       "kind": "write",

@@ -178,7 +178,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
     define_ENDPOINT_CATALOG_default = {
       generated: "2026-09-25",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 1145,
+      count: 1172,
       endpoints: [
         {
           id: "facebook-service--get-ad-account-by-id",
@@ -621,6 +621,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
+          note: "Read by get_ai_configuration_bundle to INVENTORY an account's flow agents (legacy node-graph Agent Studio) \u2014 reading them is in scope. AUTHORING flow agents is excluded (coordinator decision T8, 2026-09-26; new ones are creatable only by five hard-coded agencies). IF THE USER WANTS IT: GHL can do it \u2014 AI Agents \u2192 Agent Studio (flow agents), or the flow builder embedded in Voice AI / Conversation AI; see corpus ai-agents/00-overview.",
           reach: "proven",
           coveredBy: [
             "get_ai_configuration_bundle"
@@ -707,7 +708,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "isBetaEnabled",
-          service: null,
+          service: "ai-agents",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -757,7 +758,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "getEmployeeById",
-          service: null,
+          service: "ai-agents",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -798,7 +799,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "updateEmployee",
-          service: null,
+          service: "ai-agents",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -860,7 +861,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "getEmployeesList",
-          service: null,
+          service: "ai-agents",
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -2000,7 +2001,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "calendars/20-api/events-and-appointments.md:25",
-            "calendars/20-api/events-and-appointments.md:28"
+            "calendars/20-api/events-and-appointments.md:28",
+            "calendars/40-rules/appointment-status-semantics.md:47"
           ]
         },
         {
@@ -3611,7 +3613,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "services/marketplaceServices/SmsStatsReportService.ts:8",
             "services/api/sms-stats-service.ts:8",
             "services/marketplaceServices/WorkflowStatsService.ts:37",
-            "workflows/50-runtime/observed-query-shapes.md:75",
+            "workflows/50-runtime/observed-query-shapes.md:76",
             "workflows/70-research/STATS-RAILS.md:26",
             "workflows/70-research/VERSIONS-STATS-LOGS.md:303"
           ]
@@ -9167,7 +9169,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/FacebookService.ts:39"
+            "services/marketplaceServices/FacebookService.ts:39",
+            "workflows/30-types/triggers/facebook_comment_on_post.md:36"
           ]
         },
         {
@@ -9707,6 +9710,48 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "pipelines-opportunities--feature-flags-location",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/labs/feature-flags/location/{locationId}",
+          path: "/labs/feature-flags/location/{locationId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "pipelines-opportunities",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [
+            {
+              name: "includeExplicitOptIns",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "pipelines-opportunities/00-overview/index.md:48"
+          ]
+        },
+        {
           id: "typed--list_account_entities--links",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/links/",
@@ -9953,6 +9998,78 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "pipelines-opportunities--lists-dynamic",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/lists/dynamic/{locationId}/",
+          path: "/lists/dynamic/{locationId}/",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "pipelines-opportunities",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [
+            {
+              name: "objectKey",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "limit",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "query",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "sharedWith",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "createdBy",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "createdOn",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "pipelines-opportunities/20-api/smart-views.md:23"
+          ]
+        },
+        {
           id: "platform--lists-dynamic-delete",
           method: "DELETE",
           url: "https://backend.leadconnectorhq.com/lists/dynamic/{locationId}/{smartListId}",
@@ -9988,7 +10105,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "platform/20-api/smart-lists.md:292",
-            "workflows/20-api/smart-lists.md:73",
+            "workflows/20-api/smart-lists.md:79",
             "workflows/70-research/ENDPOINTS.md:81"
           ]
         },
@@ -10033,7 +10150,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "platform/20-api/smart-lists.md:26",
             "platform/20-api/smart-lists.md:294",
             "platform/20-api/smart-lists.md:332",
-            "workflows/20-api/smart-lists.md:70",
+            "workflows/20-api/smart-lists.md:76",
             "workflows/70-research/ENDPOINTS.md:78"
           ]
         },
@@ -10073,7 +10190,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "workflows/20-api/smart-lists.md:72",
+            "workflows/20-api/smart-lists.md:78",
             "workflows/70-research/ENDPOINTS.md:80"
           ]
         },
@@ -10188,8 +10305,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "platform/20-api/smart-lists.md:25",
             "platform/20-api/smart-lists.md:278",
             "platform/20-api/smart-lists.md:322",
-            "workflows/20-api/03-endpoints.md:345",
-            "workflows/20-api/smart-lists.md:69",
+            "workflows/20-api/03-endpoints.md:355",
+            "workflows/20-api/smart-lists.md:75",
             "workflows/70-research/ENDPOINTS.md:77"
           ]
         },
@@ -10229,7 +10346,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "workflows/20-api/smart-lists.md:71",
+            "workflows/20-api/smart-lists.md:77",
             "workflows/70-research/ENDPOINTS.md:79"
           ]
         },
@@ -10422,12 +10539,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/marketplaceServices/OpportunityCustomFieldService.ts:9",
-            "platform/20-api/custom-fields-and-values.md:141",
+            "platform/20-api/custom-fields-and-values.md:151",
             "platform/30-types/contact-filter-dsl.md:54",
             "workflows/10-anatomy/07-id-resolution.md:85",
             "workflows/10-anatomy/07-id-resolution.md:185",
             "workflows/70-research/ENDPOINTS.md:124",
-            "platform/20-api/custom-fields-and-values.md:167"
+            "platform/20-api/custom-fields-and-values.md:177"
           ]
         },
         {
@@ -10467,7 +10584,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "platform/20-api/custom-fields-and-values.md:105"
+            "platform/20-api/custom-fields-and-values.md:115"
           ]
         },
         {
@@ -10711,8 +10828,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "services/CustomFieldService.ts:32",
             "forms/20-api/neighbour-services.md:20",
             "platform/20-api/custom-fields-and-values.md:24",
-            "platform/20-api/custom-fields-and-values.md:145",
-            "platform/20-api/custom-fields-and-values.md:161"
+            "platform/20-api/custom-fields-and-values.md:155",
+            "platform/20-api/custom-fields-and-values.md:171"
           ]
         },
         {
@@ -10764,7 +10881,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "services/api/custom-value.ts:21",
             "forms/20-api/neighbour-services.md:19",
-            "workflows/10-anatomy/07-id-resolution.md:186"
+            "workflows/10-anatomy/07-id-resolution.md:186",
+            "workflows/10-anatomy/07-id-resolution.md:213"
           ]
         },
         {
@@ -10802,6 +10920,44 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "platform/20-api/custom-fields-and-values.md:69"
+          ]
+        },
+        {
+          id: "platform--locations-custom-values-put",
+          method: "PUT",
+          url: "https://backend.leadconnectorhq.com/locations/{locationId}/customValues/{valueId}",
+          path: "/locations/{locationId}/customValues/{valueId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "platform",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "valueId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "platform/20-api/custom-fields-and-values.md:101"
           ]
         },
         {
@@ -11004,6 +11160,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "workflows/10-anatomy/07-id-resolution.md:192",
+            "workflows/10-anatomy/07-id-resolution.md:214",
+            "workflows/10-anatomy/07-id-resolution.md:241",
             "workflows/70-research/ENDPOINTS.md:126"
           ]
         },
@@ -11055,6 +11213,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/EmailService.ts:218",
+            "workflows/10-anatomy/07-id-resolution.md:238",
             "workflows/70-research/ACTION-DRAWERS-2.md:5463",
             "workflows/70-research/ENDPOINTS.md:128"
           ]
@@ -14137,6 +14296,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
         },
         {
           id: "custom-objects-service--fetch-custom-object-fields",
+          aka: [
+            "/objects/{key}"
+          ],
           method: "GET",
           url: "https://backend.leadconnectorhq.com/objects/{objectKey}",
           path: "/objects/{objectKey}",
@@ -14193,11 +14355,16 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/CustomObjectsService.ts:29"
+            "services/marketplaceServices/CustomObjectsService.ts:29",
+            "workflows/20-api/refused-but-mined.md:29",
+            "workflows/20-api/refused-but-mined.md:134",
+            "workflows/30-types/steps/clear_custom_object_fields.md:44",
+            "workflows/30-types/steps/create_custom_object.md:45",
+            "workflows/30-types/steps/update_custom_object.md:45"
           ]
         },
         {
-          id: "workflows--objects",
+          id: "workflows--objects-get-get",
           aka: [
             "/objects/{workflowType}/"
           ],
@@ -14244,6 +14411,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
+            "workflows/20-api/refused-but-mined.md:79",
+            "workflows/20-api/refused-but-mined.md:133",
             "workflows/70-research/ENDPOINTS.md:143",
             "workflows/70-research/ENDPOINTS.md:144"
           ]
@@ -14294,6 +14463,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/marketplaceServices/CustomObjectsService.ts:41",
+            "workflows/20-api/refused-but-mined.md:167",
             "workflows/70-research/ENDPOINTS.md:145"
           ]
         },
@@ -14331,6 +14501,50 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "workflows/70-research/INVENTORY.md:213"
+          ]
+        },
+        {
+          id: "workflows--objects-contact",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/objects/contact",
+          path: "/objects/contact",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "fetchProperties",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/20-api/refused-but-mined.md:146"
           ]
         },
         {
@@ -14476,6 +14690,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "pipelines-opportunities/20-api/pipelines.md:26",
+            "workflows/10-anatomy/07-id-resolution.md:208",
             "workflows/70-research/ENDPOINTS.md:130"
           ]
         },
@@ -16202,7 +16417,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
-          id: "typed--list_account_entities--proposals-templates",
+          id: "workflows--proposals-templates",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/proposals/templates",
           path: "/proposals/templates",
@@ -16210,7 +16425,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           note: 'TRAP (proven-live 2026-09-23): a limit above 21 is REFUSED with 422 "limit must not be greater than 21" -- a caller asking for 100 errors on every call and reads it as "no templates". Page with limit<=21 and skip; the envelope is {data, total}. The typed list_account_entities pages it this way.',
-          reach: "proven",
+          reach: "source-only",
           coveredBy: [
             "list_account_entities"
           ],
@@ -16219,20 +16434,65 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: "list_account_entities",
-          tree: "typed-tool",
+          service: "workflows",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "limit",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/10-anatomy/07-id-resolution.md:215",
+            "workflows/10-anatomy/07-id-resolution.md:224"
+          ]
+        },
+        {
+          id: "workflows--internal-ref-tags",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/reporting/dashboards/internal-ref/tags",
+          path: "/reporting/dashboards/internal-ref/tags",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
           pathParams: [],
           query: [],
           body: null,
           returns: null,
           confidence: {
-            path: "proven",
+            path: "documented",
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
           },
           sources: [
-            "capability-manifest.json (list_account_entities)"
+            "workflows/20-api/smart-lists.md:43"
           ]
         },
         {
@@ -16283,7 +16543,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "workflows/20-api/03-endpoints.md:356"
+            "workflows/20-api/03-endpoints.md:366"
           ]
         },
         {
@@ -16747,8 +17007,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "services/marketplaceServices/SaasService.ts:12",
             "services/marketplaceServices/SaasService.ts:16",
-            "workflows/20-api/agency-premium-features.md:48",
-            "workflows/20-api/agency-premium-features.md:170",
+            "workflows/20-api/agency-premium-features.md:51",
+            "workflows/20-api/agency-premium-features.md:173",
             "services/marketplaceServices/SaasService.ts:29"
           ]
         },
@@ -16843,8 +17103,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "workflows/20-api/agency-premium-features.md:82",
-            "workflows/20-api/agency-premium-features.md:126"
+            "workflows/20-api/agency-premium-features.md:85",
+            "workflows/20-api/agency-premium-features.md:129"
           ]
         },
         {
@@ -16887,8 +17147,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "workflows/20-api/agency-premium-features.md:51",
-            "workflows/20-api/agency-premium-features.md:124"
+            "workflows/20-api/agency-premium-features.md:54",
+            "workflows/20-api/agency-premium-features.md:127"
           ]
         },
         {
@@ -20891,7 +21151,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/BaseService.ts:17"
+            "services/BaseService.ts:17",
+            "workflows/50-runtime/overview-and-trigger-analysis.md:43"
           ]
         },
         {
@@ -20937,51 +21198,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "services/WorkflowService.ts:590",
             "workflows/00-overview/10-caveats.md:139",
             "workflows/10-anatomy/04-workflow-anatomy.md:25",
-            "workflows/10-anatomy/04-workflow-anatomy.md:427",
+            "workflows/10-anatomy/04-workflow-anatomy.md:432",
             "workflows/10-anatomy/05-build-flow.md:22"
-          ]
-        },
-        {
-          id: "workflow-service--restore",
-          method: "PUT",
-          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/{id}/recover",
-          path: "/workflow/{locationId}/{id}/recover",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "write",
-          note: "ABSENT, measured 2026-09-19: BaseService.restore() defines this route, but NOTHING in the builder calls it \u2014 it is inherited dead code. The server answers {msg:'Not found'} for a REAL deleted item. To undo a workflow delete use PUT \u2026/restore.",
-          reach: "absent",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: "restore",
-          service: "workflows",
-          tree: "workflow-builder",
-          pathParams: [
-            {
-              name: "locationId"
-            },
-            {
-              name: "id"
-            }
-          ],
-          query: [],
-          body: {
-            typeName: "{ [key: string]: any; }",
-            properties: null,
-            confidence: "open-map"
-          },
-          returns: null,
-          confidence: {
-            path: "resolved",
-            query: "none-observed",
-            body: "open-map",
-            returns: "none-observed"
-          },
-          sources: [
-            "services/BaseService.ts:58"
           ]
         },
         {
@@ -21029,13 +21247,60 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/BaseService.ts:42",
-            "workflows/10-anatomy/04-workflow-anatomy.md:428",
+            "workflows/10-anatomy/04-workflow-anatomy.md:433",
             "workflows/10-anatomy/05-build-flow.md:23",
             "workflows/00-overview/10-caveats.md:140",
             "workflows/10-anatomy/04-workflow-anatomy.md:25",
-            "workflows/10-anatomy/04-workflow-anatomy.md:415",
-            "workflows/10-anatomy/04-workflow-anatomy.md:484",
+            "workflows/10-anatomy/04-workflow-anatomy.md:420",
+            "workflows/10-anatomy/04-workflow-anatomy.md:489",
             "workflows/30-types/steps/if_else.md:33"
+          ]
+        },
+        {
+          id: "workflow-service--restore",
+          aka: [
+            "/workflow/{locationId}/{id}/recover"
+          ],
+          method: "PUT",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/{wid}/recover",
+          path: "/workflow/{locationId}/{wid}/recover",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          note: "ABSENT, measured 2026-09-19: BaseService.restore() defines this route, but NOTHING in the builder calls it \u2014 it is inherited dead code. The server answers {msg:'Not found'} for a REAL deleted item. To undo a workflow delete use PUT \u2026/restore.",
+          reach: "absent",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "restore",
+          service: "workflows",
+          tree: "workflow-builder",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "wid"
+            }
+          ],
+          query: [],
+          body: {
+            typeName: "{ [key: string]: any; }",
+            properties: null,
+            confidence: "open-map"
+          },
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "open-map",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/BaseService.ts:58",
+            "workflows/20-api/03-endpoints.md:175"
           ]
         },
         {
@@ -21089,7 +21354,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/BaseService.ts:54",
-            "workflows/20-api/03-endpoints.md:370"
+            "workflows/20-api/03-endpoints.md:169",
+            "workflows/20-api/03-endpoints.md:387"
           ]
         },
         {
@@ -21162,7 +21428,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/BaseService.ts:30",
-            "workflows/20-api/03-endpoints.md:181",
+            "workflows/20-api/03-endpoints.md:191",
             "workflows/00-overview/10-caveats.md:138",
             "workflows/10-anatomy/04-workflow-anatomy.md:40",
             "workflows/10-anatomy/07-id-resolution.md:204",
@@ -21220,12 +21486,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/BaseService.ts:46",
-            "workflows/10-anatomy/04-workflow-anatomy.md:430",
+            "workflows/10-anatomy/04-workflow-anatomy.md:435",
             "workflows/10-anatomy/05-build-flow.md:25",
             "workflows/00-overview/10-caveats.md:141",
             "workflows/10-anatomy/04-workflow-anatomy.md:25",
-            "workflows/10-anatomy/04-workflow-anatomy.md:416",
-            "workflows/10-anatomy/04-workflow-anatomy.md:566",
+            "workflows/10-anatomy/04-workflow-anatomy.md:421",
+            "workflows/10-anatomy/04-workflow-anatomy.md:571",
             "workflows/10-anatomy/06-fields-glossary.md:133"
           ]
         },
@@ -21300,6 +21566,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
         },
         {
           id: "workflow-service--copy-to-sub-account",
+          aka: [
+            "/workflow/{locationId}/{wid}/copy-workflow"
+          ],
           method: "POST",
           url: "https://backend.leadconnectorhq.com/workflow/{locationId}/{workflowId}/copy-workflow",
           path: "/workflow/{locationId}/{workflowId}/copy-workflow",
@@ -21343,7 +21612,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/WorkflowService.ts:570"
+            "services/WorkflowService.ts:570",
+            "workflows/20-api/copy-to-sub-account.md:17"
           ]
         },
         {
@@ -21808,6 +22078,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
         },
         {
           id: "workflow-service--test-workflow-for-object-records",
+          aka: [
+            "/workflow/{locationId}/{wid}/start-workflow"
+          ],
           method: "POST",
           url: "https://backend.leadconnectorhq.com/workflow/{locationId}/{workflowId}/start-workflow",
           path: "/workflow/{locationId}/{workflowId}/start-workflow",
@@ -21849,7 +22122,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "none-observed"
           },
           sources: [
-            "services/WorkflowService.ts:464"
+            "services/WorkflowService.ts:464",
+            "workflows/50-runtime/scheduled-pause.md:124"
           ]
         },
         {
@@ -22545,7 +22819,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "services/AutoSaveSettingsService.ts:27",
-            "workflows/20-api/03-endpoints.md:296",
+            "workflows/20-api/03-endpoints.md:306",
             "workflows/20-api/version-history.md:75",
             "workflows/70-research/ENDPOINT-SWEEP-2026-08-25.md:68"
           ]
@@ -22624,11 +22898,15 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           sources: [
             "services/WorkflowService.ts:623",
             "platform/20-api/snapshots-authoring.md:278",
-            "platform/40-rules/snapshot-carry-matrix.md:108"
+            "platform/40-rules/snapshot-carry-matrix.md:108",
+            "workflows/40-rules/publish-gate.md:39"
           ]
         },
         {
           id: "workflow-service--update-status",
+          aka: [
+            "/workflow/{locationId}/change-status/{id}"
+          ],
           method: "PUT",
           url: "https://backend.leadconnectorhq.com/workflow/{locationId}/change-status/{workflowId}",
           path: "/workflow/{locationId}/change-status/{workflowId}",
@@ -22667,7 +22945,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "services/WorkflowService.ts:616",
-            "platform/20-api/snapshots-authoring.md:277"
+            "platform/20-api/snapshots-authoring.md:277",
+            "workflows/40-rules/publish-gate.md:38"
           ]
         },
         {
@@ -22727,7 +23006,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "none-observed"
           },
           sources: [
-            "services/WorkflowService.ts:673"
+            "services/WorkflowService.ts:673",
+            "workflows/20-api/03-endpoints.md:171",
+            "workflows/20-api/03-endpoints.md:387"
           ]
         },
         {
@@ -22764,7 +23045,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "none-observed"
           },
           sources: [
-            "services/WorkflowService.ts:151"
+            "services/WorkflowService.ts:151",
+            "workflows/20-api/03-endpoints.md:388",
+            "workflows/20-api/03-endpoints.md:389"
           ]
         },
         {
@@ -23407,7 +23690,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "services/api/workflow-overview.service.ts:260",
             "conversations/20-api/email-sending-domains.md:44",
             "conversations/20-api/email-sending-domains.md:190",
-            "workflows/20-api/03-endpoints.md:297",
+            "workflows/20-api/03-endpoints.md:307",
             "workflows/70-research/ENDPOINT-SWEEP-2026-08-25.md:71"
           ]
         },
@@ -23711,7 +23994,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           sources: [
             "services/ErrorNotificationService.ts:33",
             "_shared/unexplored-surfaces.md:96",
-            "workflows/20-api/03-endpoints.md:298",
+            "workflows/20-api/03-endpoints.md:308",
             "workflows/50-runtime/error-notifications.md:34",
             "workflows/50-runtime/error-notifications.md:47",
             "workflows/50-runtime/error-notifications.md:49"
@@ -23811,7 +24094,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "services/ErrorNotificationService.ts:72",
-            "workflows/40-rules/settings-semantics.md:80",
+            "workflows/40-rules/settings-semantics.md:91",
             "workflows/50-runtime/error-notifications.md:39",
             "workflows/70-research/ENDPOINT-SWEEP-2026-08-25.md:65"
           ]
@@ -23935,7 +24218,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "workflows/20-api/03-endpoints.md:371"
+            "workflows/20-api/03-endpoints.md:389"
           ]
         },
         {
@@ -23994,7 +24277,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "resolved"
           },
           sources: [
-            "components/hotlink-template-builder/services/template-builder-service.ts:34"
+            "components/hotlink-template-builder/services/template-builder-service.ts:34",
+            "workflows/20-api/hotlink-template-groups.md:28"
           ]
         },
         {
@@ -24745,11 +25029,15 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "none-observed"
           },
           sources: [
-            "services/WorkflowService.ts:659"
+            "services/WorkflowService.ts:659",
+            "workflows/20-api/03-endpoints.md:388"
           ]
         },
         {
           id: "workflow-service--move-to-folder",
+          aka: [
+            "/workflow/{locationId}/move-directory/{id}"
+          ],
           method: "PUT",
           url: "https://backend.leadconnectorhq.com/workflow/{locationId}/move-directory/{workflowId}",
           path: "/workflow/{locationId}/move-directory/{workflowId}",
@@ -24787,7 +25075,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "none-observed"
           },
           sources: [
-            "services/WorkflowService.ts:203"
+            "services/WorkflowService.ts:203",
+            "workflows/20-api/03-endpoints.md:388"
           ]
         },
         {
@@ -25006,6 +25295,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
         },
         {
           id: "workflow-service--delete-folder",
+          aka: [
+            "/workflow/{locationId}/remove-directory/{id}"
+          ],
           method: "DELETE",
           url: "https://backend.leadconnectorhq.com/workflow/{locationId}/remove-directory/{folderId}",
           path: "/workflow/{locationId}/remove-directory/{folderId}",
@@ -25044,11 +25336,15 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "none-observed"
           },
           sources: [
-            "services/WorkflowService.ts:194"
+            "services/WorkflowService.ts:194",
+            "workflows/20-api/03-endpoints.md:388"
           ]
         },
         {
           id: "workflow-service--rename-folder",
+          aka: [
+            "/workflow/{locationId}/rename-directory/{id}"
+          ],
           method: "PUT",
           url: "https://backend.leadconnectorhq.com/workflow/{locationId}/rename-directory/{folderId}",
           path: "/workflow/{locationId}/rename-directory/{folderId}",
@@ -25085,7 +25381,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "none-observed"
           },
           sources: [
-            "services/WorkflowService.ts:168"
+            "services/WorkflowService.ts:168",
+            "workflows/20-api/03-endpoints.md:388"
           ]
         },
         {
@@ -25174,7 +25471,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "none-observed"
           },
           sources: [
-            "services/WorkflowService.ts:648"
+            "services/WorkflowService.ts:648",
+            "workflows/20-api/03-endpoints.md:174"
           ]
         },
         {
@@ -25293,6 +25591,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "services/ScheduledPauseService.ts:64",
+            "workflows/50-runtime/scheduled-pause.md:22",
             "workflows/70-research/ENDPOINT-SWEEP-2026-08-25.md:69"
           ]
         },
@@ -25367,7 +25666,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "none-observed"
           },
           sources: [
-            "services/ScheduledPauseService.ts:74"
+            "services/ScheduledPauseService.ts:74",
+            "workflows/50-runtime/scheduled-pause.md:23"
           ]
         },
         {
@@ -25409,7 +25709,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "none-observed"
           },
           sources: [
-            "services/ScheduledPauseService.ts:102"
+            "services/ScheduledPauseService.ts:102",
+            "workflows/50-runtime/scheduled-pause.md:25"
           ]
         },
         {
@@ -25486,7 +25787,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "none-observed"
           },
           sources: [
-            "services/ScheduledPauseService.ts:92"
+            "services/ScheduledPauseService.ts:92",
+            "workflows/50-runtime/scheduled-pause.md:24"
           ]
         },
         {
@@ -25946,7 +26248,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "none-observed"
           },
           sources: [
-            "services/TagService.ts:10"
+            "services/TagService.ts:10",
+            "workflows/10-anatomy/07-id-resolution.md:239"
           ]
         },
         {
@@ -26006,7 +26309,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "services/BaseService.ts:17",
             "_shared/schema-harvest.md:72",
             "workflows/00-overview/10-caveats.md:142",
-            "workflows/10-anatomy/04-workflow-anatomy.md:452",
+            "workflows/10-anatomy/04-workflow-anatomy.md:457",
             "workflows/10-anatomy/workflow-json-schema.md:26",
             "workflows/10-anatomy/workflow-json-schema.md:281"
           ]
@@ -26051,8 +26354,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "services/BaseService.ts:36",
-            "workflows/10-anatomy/04-workflow-anatomy.md:429",
-            "workflows/10-anatomy/04-workflow-anatomy.md:566",
+            "workflows/10-anatomy/04-workflow-anatomy.md:434",
+            "workflows/10-anatomy/04-workflow-anatomy.md:571",
             "workflows/10-anatomy/05-build-flow.md:24",
             "workflows/20-api/trigger-create.md:11",
             "workflows/30-types/triggers/affiliate_created.md:63"
@@ -26320,6 +26623,44 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "services/BaseService.ts:50"
+          ]
+        },
+        {
+          id: "workflows--workflow-update-workflow-note",
+          method: "PUT",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/update-workflow-note/{wid}",
+          path: "/workflow/{locationId}/update-workflow-note/{wid}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "wid"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/10-anatomy/06-fields-glossary.md:137"
           ]
         },
         {
@@ -26799,9 +27140,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "services/api/workflow-asset-validation.ts:33",
-            "workflows/30-types/steps/email.md:144",
+            "workflows/30-types/steps/email.md:146",
             "workflows/30-types/steps/if_else.md:31",
-            "workflows/40-rules/server-side-validation.md:229"
+            "workflows/40-rules/server-side-validation.md:246"
           ]
         },
         {
@@ -26842,7 +27183,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "services/WorkflowAISettingsService.ts:19",
-            "workflows/20-api/03-endpoints.md:295",
+            "workflows/20-api/03-endpoints.md:305",
             "workflows/70-research/ENDPOINT-SWEEP-2026-08-25.md:67"
           ]
         },
@@ -26956,7 +27297,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           sources: [
             "services/api/workflow-settings.ts:13",
             "services/api/workflow-settings.ts:57",
-            "workflows/20-api/03-endpoints.md:294",
+            "workflows/20-api/03-endpoints.md:304",
             "workflows/70-research/ENDPOINT-SWEEP-2026-08-25.md:66"
           ]
         },
@@ -28930,7 +29271,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           responseMode: "json",
           extraHeaders: [],
           operation: "fetchBrandBoardById",
-          service: "brand-kit",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -29039,7 +29380,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           responseMode: "json",
           extraHeaders: [],
           operation: "fetchBrandVoiceById",
-          service: "brand-kit",
+          service: "workflows",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -29293,7 +29634,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           sources: [
             "services/CustomWebhookService.ts:99",
             "workflows/10-anatomy/07-id-resolution.md:207",
-            "workflows/20-api/03-endpoints.md:299"
+            "workflows/20-api/03-endpoints.md:309"
           ]
         },
         {
@@ -30304,7 +30645,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:686",
             "services/McpConnectionService.ts:154",
             "services/marketplaceServices/WorkflowMarketplaceService.ts:392",
-            "workflows/20-api/03-endpoints.md:344",
+            "workflows/20-api/03-endpoints.md:354",
             "workflows/70-research/ENDPOINTS.md:242"
           ]
         },
@@ -31538,7 +31879,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "marketplace-apps/10-anatomy/marketplace-rail.md:45",
             "marketplace-apps/10-anatomy/marketplace-rail.md:236",
             "workflows/10-anatomy/07-id-resolution.md:206",
-            "workflows/40-rules/marketplace-asset-publisher-classes.md:10"
+            "workflows/40-rules/08-validators.md:179"
           ]
         },
         {
@@ -31867,7 +32208,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/WorkflowCopyLogsService.ts:20"
+            "services/marketplaceServices/WorkflowCopyLogsService.ts:20",
+            "workflows/20-api/copy-to-sub-account.md:33"
           ]
         },
         {
@@ -31925,7 +32267,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/WorkflowCopyLogsService.ts:29"
+            "services/marketplaceServices/WorkflowCopyLogsService.ts:29",
+            "workflows/20-api/copy-to-sub-account.md:32"
           ]
         },
         {
@@ -31979,7 +32322,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/WorkflowCopyLogsService.ts:10"
+            "services/marketplaceServices/WorkflowCopyLogsService.ts:10",
+            "workflows/20-api/copy-to-sub-account.md:31"
           ]
         },
         {
@@ -32016,7 +32360,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           sources: [
             "services/marketplaceServices/WorkflowMarketplaceService.ts:138",
             "workflows/20-api/smart-lists.md:13",
-            "workflows/20-api/smart-lists.md:75",
+            "workflows/20-api/smart-lists.md:81",
             "workflows/70-research/ENDPOINTS.md:76",
             "workflows/70-research/RUNTIME-DATA-2.md:72"
           ]
@@ -32450,7 +32794,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "services/marketplaceServices/WorkflowMarketplaceService.ts:181",
-            "workflows/20-api/03-endpoints.md:354",
+            "workflows/20-api/03-endpoints.md:364",
             "workflows/50-runtime/11-runtime-logs.md:145",
             "workflows/50-runtime/11-runtime-logs.md:242",
             "workflows/70-research/ENDPOINTS.md:193",
@@ -33136,10 +33480,10 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "services/marketplaceServices/WorkflowMarketplaceService.ts:212",
-            "workflows/20-api/03-endpoints.md:355",
+            "workflows/20-api/03-endpoints.md:365",
             "workflows/50-runtime/11-runtime-logs.md:189",
             "workflows/50-runtime/11-runtime-logs.md:245",
-            "workflows/50-runtime/observed-query-shapes.md:60"
+            "workflows/50-runtime/observed-query-shapes.md:61"
           ]
         },
         {
@@ -33205,7 +33549,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "services/marketplaceServices/WorkflowMarketplaceService.ts:260",
             "workflows/50-runtime/11-runtime-logs.md:159",
             "workflows/50-runtime/11-runtime-logs.md:243",
-            "workflows/50-runtime/observed-query-shapes.md:43",
+            "workflows/50-runtime/observed-query-shapes.md:44",
             "workflows/70-research/ENDPOINTS.md:195",
             "workflows/70-research/VERSIONS-STATS-LOGS.md:549"
           ]
@@ -33261,6 +33605,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "services/api/sticky-notes.ts:38",
+            "workflows/20-api/03-endpoints.md:375",
             "workflows/70-research/SETTINGS-NOTES.md:267"
           ]
         },
@@ -33311,6 +33656,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "services/api/sticky-notes.ts:18",
+            "workflows/20-api/03-endpoints.md:373",
             "workflows/70-research/SETTINGS-NOTES.md:264"
           ]
         },
@@ -33366,6 +33712,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "services/api/sticky-notes.ts:31",
+            "workflows/20-api/03-endpoints.md:374",
             "workflows/70-research/SETTINGS-NOTES.md:266"
           ]
         },
@@ -33407,6 +33754,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "services/api/sticky-notes.ts:9",
+            "workflows/20-api/03-endpoints.md:372",
             "workflows/70-research/SETTINGS-NOTES.md:263"
           ]
         },
@@ -33462,7 +33810,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "services/api/sticky-notes.ts:23",
-            "workflows/20-api/03-endpoints.md:353",
+            "workflows/20-api/03-endpoints.md:363",
             "workflows/70-research/SETTINGS-NOTES.md:265"
           ]
         },
@@ -33763,7 +34111,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:360",
+            "ai-agents/20-api/12-ai-agents-api.md:381",
             "ai-agents/20-api/agent-deployment-routing.md:25",
             "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:98"
           ]
@@ -33911,9 +34259,164 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-logs.md:50",
-            "ai-agents/20-api/agent-logs.md:109",
-            "ai-agents/20-api/agent-logs.md:172"
+            "ai-agents/20-api/agent-logs.md:69",
+            "ai-agents/20-api/agent-logs.md:128",
+            "ai-agents/20-api/agent-logs.md:191"
+          ]
+        },
+        {
+          id: "ai-agents--agent-logs-feedback",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/agent-logs/feedback",
+          path: "/agent-logs/feedback",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/agent-logs.md:30"
+          ]
+        },
+        {
+          id: "ai-agents--agent-logs-feedback-post",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/agent-logs/feedback",
+          path: "/agent-logs/feedback",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/agent-logs.md:31"
+          ]
+        },
+        {
+          id: "ai-agents--feedback-config",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/agent-logs/feedback/config",
+          path: "/agent-logs/feedback/config",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/agent-logs.md:30"
+          ]
+        },
+        {
+          id: "ai-agents--feedback-context",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/agent-logs/feedback/context",
+          path: "/agent-logs/feedback/context",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/agent-logs.md:31"
+          ]
+        },
+        {
+          id: "ai-agents--feedback-states",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/agent-logs/feedback/states",
+          path: "/agent-logs/feedback/states",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/agent-logs.md:31"
           ]
         },
         {
@@ -33946,8 +34449,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-logs.md:52",
-            "ai-agents/20-api/agent-logs.md:159"
+            "ai-agents/20-api/agent-logs.md:71",
+            "ai-agents/20-api/agent-logs.md:178"
           ]
         },
         {
@@ -33983,7 +34486,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-logs.md:59"
+            "ai-agents/20-api/agent-logs.md:78"
           ]
         },
         {
@@ -34025,9 +34528,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-logs.md:32",
-            "ai-agents/20-api/agent-logs.md:49",
-            "ai-agents/20-api/agent-logs.md:69"
+            "ai-agents/20-api/agent-logs.md:51",
+            "ai-agents/20-api/agent-logs.md:68",
+            "ai-agents/20-api/agent-logs.md:88"
           ]
         },
         {
@@ -34064,7 +34567,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-logs.md:60"
+            "ai-agents/20-api/agent-logs.md:79"
           ]
         },
         {
@@ -34108,9 +34611,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-logs.md:53",
-            "ai-agents/20-api/agent-logs.md:282",
-            "ai-agents/20-api/agent-logs.md:283"
+            "ai-agents/20-api/agent-logs.md:72",
+            "ai-agents/20-api/agent-logs.md:305",
+            "ai-agents/20-api/agent-logs.md:306"
           ]
         },
         {
@@ -34157,9 +34660,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-logs.md:55",
-            "ai-agents/20-api/agent-logs.md:289",
-            "ai-agents/20-api/agent-logs.md:300"
+            "ai-agents/20-api/agent-logs.md:74",
+            "ai-agents/20-api/agent-logs.md:312",
+            "ai-agents/20-api/agent-logs.md:323"
           ]
         },
         {
@@ -34205,8 +34708,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-logs.md:57",
-            "ai-agents/20-api/agent-logs.md:301"
+            "ai-agents/20-api/agent-logs.md:76",
+            "ai-agents/20-api/agent-logs.md:324"
           ]
         },
         {
@@ -34252,9 +34755,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-logs.md:54",
-            "ai-agents/20-api/agent-logs.md:285",
-            "ai-agents/20-api/agent-logs.md:298"
+            "ai-agents/20-api/agent-logs.md:73",
+            "ai-agents/20-api/agent-logs.md:308",
+            "ai-agents/20-api/agent-logs.md:321"
           ]
         },
         {
@@ -34306,9 +34809,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-logs.md:56",
-            "ai-agents/20-api/agent-logs.md:209",
-            "ai-agents/20-api/agent-logs.md:299"
+            "ai-agents/20-api/agent-logs.md:75",
+            "ai-agents/20-api/agent-logs.md:232",
+            "ai-agents/20-api/agent-logs.md:322"
           ]
         },
         {
@@ -34350,8 +34853,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-logs.md:51",
-            "ai-agents/20-api/agent-logs.md:182"
+            "ai-agents/20-api/agent-logs.md:70",
+            "ai-agents/20-api/agent-logs.md:201"
           ]
         },
         {
@@ -34394,8 +34897,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-logs.md:58",
-            "ai-agents/20-api/agent-logs.md:200"
+            "ai-agents/20-api/agent-logs.md:77",
+            "ai-agents/20-api/agent-logs.md:219"
           ]
         },
         {
@@ -34428,7 +34931,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-logs.md:61"
+            "ai-agents/20-api/agent-logs.md:80"
           ]
         },
         {
@@ -34465,7 +34968,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-logs.md:63"
+            "ai-agents/20-api/agent-logs.md:82"
           ]
         },
         {
@@ -34502,7 +35005,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-logs.md:62"
+            "ai-agents/20-api/agent-logs.md:81"
           ]
         },
         {
@@ -34513,6 +35016,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "write",
+          note: `NO TASK NEEDS THIS \u2014 coordinator decision T8 (2026-09-26): legacy flow-agent (node-graph Agent Studio) authoring is excluded; anton is that builder's AI runtime, and the Managed-Agent editor also POSTs it on open (a write-on-open, 2026-09-25 UI walk). IF THE USER WANTS IT: GHL can do it \u2014 AI Agents \u2192 Agent Studio (flow agents) in the UI, or the flow builder embedded in Voice AI / Conversation AI. Written where agents read it: corpus ai-agents/00-overview "What GHL can do that this plugin does not author", and the same table in skills ghl-conversation-ai and ghl-voice-ai.`,
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -34533,7 +35037,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:224"
+            "ai-agents/20-api/12-ai-agents-api.md:245"
           ]
         },
         {
@@ -34580,7 +35084,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:226"
+            "ai-agents/20-api/12-ai-agents-api.md:247"
           ]
         },
         {
@@ -34633,7 +35137,39 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:223"
+            "ai-agents/20-api/12-ai-agents-api.md:244"
+          ]
+        },
+        {
+          id: "ai-agents--super-agent-agents-post",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/agent-studio/super-agent/agents",
+          path: "/agent-studio/super-agent/agents",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/12-ai-agents-api.md:45",
+            "ai-agents/20-api/12-ai-agents-api.md:253"
           ]
         },
         {
@@ -34664,7 +35200,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:236"
+            "ai-agents/20-api/12-ai-agents-api.md:257"
           ]
         },
         {
@@ -34709,7 +35245,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:225"
+            "ai-agents/20-api/12-ai-agents-api.md:246"
           ]
         },
         {
@@ -34754,9 +35290,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:221",
-            "ai-agents/20-api/12-ai-agents-api.md:228",
-            "ai-agents/20-api/12-ai-agents-api.md:357"
+            "ai-agents/20-api/12-ai-agents-api.md:242",
+            "ai-agents/20-api/12-ai-agents-api.md:249",
+            "ai-agents/20-api/12-ai-agents-api.md:378"
           ]
         },
         {
@@ -34796,10 +35332,10 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:220",
-            "ai-agents/20-api/12-ai-agents-api.md:228",
+            "ai-agents/20-api/12-ai-agents-api.md:241",
+            "ai-agents/20-api/12-ai-agents-api.md:249",
             "ai-agents/20-api/managed-agent-workflow-invocation.md:22",
-            "ai-agents/20-api/12-ai-agents-api.md:356"
+            "ai-agents/20-api/12-ai-agents-api.md:377"
           ]
         },
         {
@@ -34881,7 +35417,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:222",
+            "ai-agents/20-api/12-ai-agents-api.md:243",
             "ai-agents/20-api/managed-agent-workflow-invocation.md:23"
           ]
         },
@@ -34913,12 +35449,12 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:54",
-            "ai-agents/20-api/12-ai-agents-api.md:219",
-            "ai-agents/20-api/12-ai-agents-api.md:232",
-            "ai-agents/20-api/12-ai-agents-api.md:234",
-            "ai-agents/20-api/12-ai-agents-api.md:327",
-            "ai-agents/20-api/12-ai-agents-api.md:355"
+            "ai-agents/20-api/12-ai-agents-api.md:75",
+            "ai-agents/20-api/12-ai-agents-api.md:240",
+            "ai-agents/20-api/12-ai-agents-api.md:253",
+            "ai-agents/20-api/12-ai-agents-api.md:255",
+            "ai-agents/20-api/12-ai-agents-api.md:348",
+            "ai-agents/20-api/12-ai-agents-api.md:376"
           ]
         },
         {
@@ -34951,7 +35487,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:228"
+            "ai-agents/20-api/12-ai-agents-api.md:249"
           ]
         },
         {
@@ -35020,16 +35556,86 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:80",
-            "ai-agents/20-api/12-ai-agents-api.md:84",
-            "ai-agents/20-api/12-ai-agents-api.md:111",
-            "ai-agents/20-api/12-ai-agents-api.md:275",
-            "ai-agents/20-api/12-ai-agents-api.md:325",
-            "ai-agents/20-api/12-ai-agents-api.md:348"
+            "ai-agents/20-api/12-ai-agents-api.md:101",
+            "ai-agents/20-api/12-ai-agents-api.md:105",
+            "ai-agents/20-api/12-ai-agents-api.md:132",
+            "ai-agents/20-api/12-ai-agents-api.md:296",
+            "ai-agents/20-api/12-ai-agents-api.md:346",
+            "ai-agents/20-api/12-ai-agents-api.md:369"
           ]
         },
         {
-          id: "ask-ai--followup-settings",
+          id: "ai-agents--ai-employees-actions-delete",
+          method: "DELETE",
+          url: "https://services.leadconnectorhq.com/ai-employees/actions/{actionId}",
+          path: "/ai-employees/actions/{actionId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "actionId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/30-types/conversation-ai-actions.md:43"
+          ]
+        },
+        {
+          id: "ai-agents--ai-employees-actions-put",
+          method: "PUT",
+          url: "https://services.leadconnectorhq.com/ai-employees/actions/{actionId}",
+          path: "/ai-employees/actions/{actionId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "actionId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/30-types/conversation-ai-actions.md:42"
+          ]
+        },
+        {
+          id: "ai-agents--followup-settings",
           method: "PATCH",
           url: "https://services.leadconnectorhq.com/ai-employees/actions/followup/settings",
           path: "/ai-employees/actions/followup/settings",
@@ -35043,7 +35649,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: "ask-ai",
+          service: "ai-agents",
           tree: "documented",
           pathParams: [],
           query: [],
@@ -35056,6 +35662,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
+            "ai-agents/30-types/conversation-ai-actions.md:48",
             "ask-ai/30-types/skills/conversation-ai--update-followup-settings.md:16"
           ]
         },
@@ -35096,7 +35703,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:81"
+            "ai-agents/20-api/12-ai-agents-api.md:102"
           ]
         },
         {
@@ -35127,8 +35734,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:77",
-            "ai-agents/20-api/12-ai-agents-api.md:349"
+            "ai-agents/20-api/12-ai-agents-api.md:98",
+            "ai-agents/20-api/12-ai-agents-api.md:370"
           ]
         },
         {
@@ -35174,7 +35781,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/20-api/conversation-ai-boundary.md:77",
-            "ai-agents/30-types/conversation-ai-actions.md:46",
+            "ai-agents/30-types/conversation-ai-actions.md:96",
             "workflows/30-types/triggers/conv_ai_autonomous_trigger.md:110",
             "workflows/30-types/triggers/conv_ai_autonomous_trigger.md:265",
             "workflows/70-research/2026-08-26-flow-bot-probe.md:138"
@@ -35272,11 +35879,11 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:54",
-            "ai-agents/20-api/12-ai-agents-api.md:74",
-            "ai-agents/20-api/12-ai-agents-api.md:84",
-            "ai-agents/20-api/12-ai-agents-api.md:325",
+            "ai-agents/20-api/12-ai-agents-api.md:75",
+            "ai-agents/20-api/12-ai-agents-api.md:95",
+            "ai-agents/20-api/12-ai-agents-api.md:105",
             "ai-agents/20-api/12-ai-agents-api.md:346",
+            "ai-agents/20-api/12-ai-agents-api.md:367",
             "ask-ai/30-types/skills/crm-conversation-ai.md:23"
           ]
         },
@@ -35312,7 +35919,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:79"
+            "ai-agents/20-api/12-ai-agents-api.md:100"
           ]
         },
         {
@@ -35351,9 +35958,10 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:76",
-            "ai-agents/20-api/12-ai-agents-api.md:84",
-            "ai-agents/20-api/12-ai-agents-api.md:347"
+            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:102",
+            "ai-agents/20-api/12-ai-agents-api.md:97",
+            "ai-agents/20-api/12-ai-agents-api.md:105",
+            "ai-agents/20-api/12-ai-agents-api.md:368"
           ]
         },
         {
@@ -35393,9 +36001,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:75",
-            "ai-agents/20-api/12-ai-agents-api.md:107",
-            "ai-agents/20-api/12-ai-agents-api.md:349"
+            "ai-agents/20-api/12-ai-agents-api.md:96",
+            "ai-agents/20-api/12-ai-agents-api.md:128",
+            "ai-agents/20-api/12-ai-agents-api.md:370"
           ]
         },
         {
@@ -35532,7 +36140,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/20-api/conversation-ai-boundary.md:76",
-            "ai-agents/30-types/conversation-ai-actions.md:56"
+            "ai-agents/30-types/conversation-ai-actions.md:106"
           ]
         },
         {
@@ -35570,7 +36178,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:20"
+            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:24"
           ]
         },
         {
@@ -35605,8 +36213,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:11",
-            "ai-agents/20-api/12-ai-agents-api.md:78",
+            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:13",
+            "ai-agents/20-api/12-ai-agents-api.md:99",
             "ai-agents/20-api/conversation-ai-boundary.md:20"
           ]
         },
@@ -35647,7 +36255,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-logs.md:306",
+            "ai-agents/20-api/agent-logs.md:329",
             "ai-agents/20-api/logs-deployment-email.md:46"
           ]
         },
@@ -35849,6 +36457,79 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           ]
         },
         {
+          id: "pipelines-opportunities--associations-relations",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/associations/relations/",
+          path: "/associations/relations/",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "pipelines-opportunities",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "pipelines-opportunities/20-api/opportunities.md:158"
+          ]
+        },
+        {
+          id: "pipelines-opportunities--relations-record",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/associations/relations/record/{contactId}",
+          path: "/associations/relations/record/{contactId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "pipelines-opportunities",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "contactId"
+            }
+          ],
+          query: [
+            {
+              name: "associationIds",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "pipelines-opportunities/20-api/opportunities.md:164"
+          ]
+        },
+        {
           id: "forms--submission-v2",
           method: "GET",
           url: "https://services.leadconnectorhq.com/attribution_service/form/submission/v2/{locationId}",
@@ -35883,6 +36564,50 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "forms/00-overview/forms-surveys-quizzes.md:57",
             "forms/20-api/forms.md:238",
             "forms/20-api/public-renderer-and-submit.md:130"
+          ]
+        },
+        {
+          id: "pipelines-opportunities--search-v2",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/audit/search/v2",
+          path: "/audit/search/v2",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "pipelines-opportunities",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "documentType",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "type",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "pipelines-opportunities/20-api/opportunities.md:217"
           ]
         },
         {
@@ -37211,8 +37936,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-deployment-routing.md:140",
-            "ai-agents/20-api/agent-deployment-routing.md:356"
+            "ai-agents/20-api/agent-deployment-routing.md:173",
+            "ai-agents/20-api/agent-deployment-routing.md:389"
           ]
         },
         {
@@ -37440,9 +38165,12 @@ Flagged to the operator as a security observation about the vendor, not a capabi
         },
         {
           id: "ai-agents--contacts",
+          aka: [
+            "/contacts/{id}"
+          ],
           method: "GET",
-          url: "https://services.leadconnectorhq.com/contacts/{id}",
-          path: "/contacts/{id}",
+          url: "https://services.leadconnectorhq.com/contacts/{contactId}",
+          path: "/contacts/{contactId}",
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
@@ -37457,11 +38185,11 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: "ai-agents",
+          service: "platform",
           tree: "documented",
           pathParams: [
             {
-              name: "id"
+              name: "contactId"
             }
           ],
           query: [],
@@ -37474,8 +38202,43 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-logs.md:65",
-            "ai-agents/20-api/agent-logs.md:66"
+            "ai-agents/20-api/agent-logs.md:84",
+            "ai-agents/20-api/agent-logs.md:85"
+          ]
+        },
+        {
+          id: "pipelines-opportunities--contacts",
+          method: "PUT",
+          url: "https://services.leadconnectorhq.com/contacts/{contactId}",
+          path: "/contacts/{contactId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "pipelines-opportunities",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "contactId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "pipelines-opportunities/20-api/opportunities.md:153"
           ]
         },
         {
@@ -37647,6 +38410,50 @@ Flagged to the operator as a security observation about the vendor, not a capabi
         },
         {
           id: "ai-agents--conversations-ai-prompt",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/conversations-ai/prompt",
+          path: "/conversations-ai/prompt",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "intentType",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/conversation-ai-boundary.md:91"
+          ]
+        },
+        {
+          id: "ai-agents--conversations-ai-prompt-post",
           method: "POST",
           url: "https://services.leadconnectorhq.com/conversations-ai/prompt",
           path: "/conversations-ai/prompt",
@@ -37673,7 +38480,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/knowledge-base.md:237"
+            "ai-agents/20-api/conversation-ai-boundary.md:94"
           ]
         },
         {
@@ -37708,7 +38515,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/knowledge-base.md:238"
+            "ai-agents/20-api/conversation-ai-boundary.md:95"
           ]
         },
         {
@@ -37752,8 +38559,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:82",
-            "ai-agents/20-api/knowledge-base.md:236"
+            "ai-agents/20-api/12-ai-agents-api.md:103",
+            "ai-agents/20-api/conversation-ai-boundary.md:92"
           ]
         },
         {
@@ -37774,48 +38581,30 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           service: "ai-agents",
           tree: "documented",
           pathParams: [],
-          query: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "intentType",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
             path: "documented",
-            query: "none-observed",
+            query: "documented",
             body: "unresolved",
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/knowledge-base.md:235"
-          ]
-        },
-        {
-          id: "ai-agents--chunk-content",
-          method: "PUT",
-          url: "https://services.leadconnectorhq.com/conversations-ai/train/chunk/content",
-          path: "/conversations-ai/train/chunk/content",
-          origin: "https://services.leadconnectorhq.com",
-          rail: "ai",
-          kind: "write",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "ai-agents",
-          tree: "documented",
-          pathParams: [],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/knowledge-base.md:234"
+            "ai-agents/20-api/conversation-ai-boundary.md:93"
           ]
         },
         {
@@ -38002,8 +38791,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-deployment-routing.md:382",
-            "ai-agents/20-api/agent-deployment-routing.md:417"
+            "ai-agents/20-api/agent-deployment-routing.md:415",
+            "ai-agents/20-api/agent-deployment-routing.md:450"
           ]
         },
         {
@@ -40154,7 +40943,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "services/marketplaceServices/InboundWebhookRequestService.ts:20",
-            "workflows/40-rules/publish-gate.md:91",
+            "workflows/40-rules/publish-gate.md:111",
             "workflows/40-rules/validation-gate.md:97",
             "workflows/70-research/INBOUND-WEBHOOK.md:34",
             "workflows/40-rules/inbound-webhook-accepts-any-trigger-id.md:18"
@@ -40330,7 +41119,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-deployment-routing.md:353"
+            "ai-agents/20-api/agent-deployment-routing.md:386"
           ]
         },
         {
@@ -40362,10 +41151,10 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/knowledge-base.md:107",
-            "ai-agents/20-api/knowledge-base.md:116",
-            "ai-agents/20-api/knowledge-base.md:117",
-            "ai-agents/20-api/knowledge-base.md:258"
+            "ai-agents/20-api/knowledge-base.md:132",
+            "ai-agents/20-api/knowledge-base.md:141",
+            "ai-agents/20-api/knowledge-base.md:142",
+            "ai-agents/20-api/knowledge-base.md:281"
           ]
         },
         {
@@ -40400,7 +41189,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/knowledge-base.md:50"
+            "ai-agents/20-api/knowledge-base.md:58"
           ]
         },
         {
@@ -40435,43 +41224,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/knowledge-base.md:46"
-          ]
-        },
-        {
-          id: "ai-agents--knowledge-base-post",
-          method: "POST",
-          url: "https://services.leadconnectorhq.com/knowledge-base/{knowledgeBaseId}",
-          path: "/knowledge-base/{knowledgeBaseId}",
-          origin: "https://services.leadconnectorhq.com",
-          rail: "ai",
-          kind: "write",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "ai-agents",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "knowledgeBaseId"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/knowledge-base.md:60",
-            "ai-agents/20-api/knowledge-base.md:253"
+            "ai-agents/20-api/knowledge-base.md:54"
           ]
         },
         {
@@ -40506,42 +41259,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/knowledge-base.md:49"
-          ]
-        },
-        {
-          id: "ai-agents--knowledge-base-bulk",
-          method: "POST",
-          url: "https://services.leadconnectorhq.com/knowledge-base/{knowledgeBaseId}/bulk",
-          path: "/knowledge-base/{knowledgeBaseId}/bulk",
-          origin: "https://services.leadconnectorhq.com",
-          rail: "ai",
-          kind: "write",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "ai-agents",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "knowledgeBaseId"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/knowledge-base.md:61"
+            "ai-agents/20-api/knowledge-base.md:57"
           ]
         },
         {
@@ -40582,12 +41300,12 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:293",
-            "ai-agents/20-api/knowledge-base.md:47",
-            "ai-agents/20-api/knowledge-base.md:77",
-            "ai-agents/20-api/knowledge-base.md:91",
-            "ai-agents/20-api/knowledge-base.md:92",
-            "ai-agents/20-api/knowledge-base.md:129"
+            "ai-agents/20-api/12-ai-agents-api.md:314",
+            "ai-agents/20-api/knowledge-base.md:55",
+            "ai-agents/20-api/knowledge-base.md:102",
+            "ai-agents/20-api/knowledge-base.md:116",
+            "ai-agents/20-api/knowledge-base.md:117",
+            "ai-agents/20-api/knowledge-base.md:154"
           ]
         },
         {
@@ -40631,8 +41349,52 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/knowledge-base.md:52",
-            "ai-agents/20-api/knowledge-base.md:132"
+            "ai-agents/20-api/knowledge-base.md:60",
+            "ai-agents/20-api/knowledge-base.md:157"
+          ]
+        },
+        {
+          id: "ai-agents--chunk-content",
+          method: "PUT",
+          url: "https://services.leadconnectorhq.com/knowledge-base/crawler/chunk/content",
+          path: "/knowledge-base/crawler/chunk/content",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "chunkId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/conversation-ai-boundary.md:99"
           ]
         },
         {
@@ -40663,7 +41425,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/knowledge-base.md:68"
+            "ai-agents/20-api/knowledge-base.md:74"
           ]
         },
         {
@@ -40694,10 +41456,11 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:292",
+            "ai-agents/20-api/12-ai-agents-api.md:313",
             "ai-agents/20-api/conversation-ai-boundary.md:79",
-            "ai-agents/20-api/knowledge-base.md:51",
-            "ai-agents/20-api/knowledge-base.md:71"
+            "ai-agents/20-api/knowledge-base.md:59",
+            "ai-agents/20-api/knowledge-base.md:77",
+            "ai-agents/20-api/knowledge-base.md:313"
           ]
         },
         {
@@ -40728,7 +41491,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/knowledge-base.md:55"
+            "ai-agents/20-api/knowledge-base.md:63"
           ]
         },
         {
@@ -40759,7 +41522,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/knowledge-base.md:56"
+            "ai-agents/20-api/knowledge-base.md:64"
           ]
         },
         {
@@ -40794,7 +41557,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/knowledge-base.md:58"
+            "ai-agents/20-api/knowledge-base.md:66"
           ]
         },
         {
@@ -40829,7 +41592,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/knowledge-base.md:57"
+            "ai-agents/20-api/knowledge-base.md:65"
           ]
         },
         {
@@ -40860,7 +41623,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/knowledge-base.md:59"
+            "ai-agents/20-api/knowledge-base.md:67"
           ]
         },
         {
@@ -40924,8 +41687,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:359",
-            "ai-agents/20-api/knowledge-base.md:172",
+            "ai-agents/20-api/12-ai-agents-api.md:380",
+            "ai-agents/20-api/knowledge-base.md:197",
             "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:19",
             "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:48"
           ]
@@ -40962,8 +41725,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/knowledge-base.md:174",
-            "ai-agents/20-api/knowledge-base.md:226"
+            "ai-agents/20-api/knowledge-base.md:199",
+            "ai-agents/20-api/knowledge-base.md:254"
           ]
         },
         {
@@ -40998,8 +41761,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/knowledge-base.md:175",
-            "ai-agents/20-api/knowledge-base.md:207"
+            "ai-agents/20-api/knowledge-base.md:200",
+            "ai-agents/20-api/knowledge-base.md:232"
           ]
         },
         {
@@ -41047,9 +41810,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/knowledge-base.md:53",
-            "ai-agents/20-api/knowledge-base.md:131",
-            "ai-agents/20-api/knowledge-base.md:173",
+            "ai-agents/20-api/knowledge-base.md:61",
+            "ai-agents/20-api/knowledge-base.md:156",
+            "ai-agents/20-api/knowledge-base.md:198",
             "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:49"
           ]
         },
@@ -41081,9 +41844,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:289",
-            "ai-agents/20-api/12-ai-agents-api.md:358",
-            "ai-agents/20-api/knowledge-base.md:259"
+            "ai-agents/20-api/12-ai-agents-api.md:310",
+            "ai-agents/20-api/12-ai-agents-api.md:379",
+            "ai-agents/20-api/knowledge-base.md:282"
           ]
         },
         {
@@ -41118,8 +41881,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:291",
-            "ai-agents/20-api/knowledge-base.md:263"
+            "ai-agents/20-api/12-ai-agents-api.md:312",
+            "ai-agents/20-api/knowledge-base.md:286"
           ]
         },
         {
@@ -41154,7 +41917,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/knowledge-base.md:260"
+            "ai-agents/20-api/knowledge-base.md:283"
           ]
         },
         {
@@ -41189,8 +41952,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:290",
-            "ai-agents/20-api/knowledge-base.md:261"
+            "ai-agents/20-api/12-ai-agents-api.md:311",
+            "ai-agents/20-api/knowledge-base.md:284"
           ]
         },
         {
@@ -41225,7 +41988,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/knowledge-base.md:262"
+            "ai-agents/20-api/knowledge-base.md:285"
           ]
         },
         {
@@ -41256,7 +42019,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/knowledge-base.md:54"
+            "ai-agents/20-api/knowledge-base.md:62"
           ]
         },
         {
@@ -41287,7 +42050,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/knowledge-base.md:64"
+            "ai-agents/20-api/knowledge-base.md:70"
           ]
         },
         {
@@ -41322,7 +42085,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/knowledge-base.md:67"
+            "ai-agents/20-api/knowledge-base.md:73"
           ]
         },
         {
@@ -41357,7 +42120,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/knowledge-base.md:62"
+            "ai-agents/20-api/knowledge-base.md:68"
           ]
         },
         {
@@ -41392,7 +42155,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/knowledge-base.md:66"
+            "ai-agents/20-api/knowledge-base.md:72"
           ]
         },
         {
@@ -41427,7 +42190,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/knowledge-base.md:65"
+            "ai-agents/20-api/knowledge-base.md:71"
           ]
         },
         {
@@ -41462,7 +42225,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/knowledge-base.md:63"
+            "ai-agents/20-api/knowledge-base.md:69"
           ]
         },
         {
@@ -41565,7 +42328,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/20-api/agent-deployment-routing.md:55",
-            "ai-agents/20-api/agent-deployment-routing.md:357"
+            "ai-agents/20-api/agent-deployment-routing.md:390"
           ]
         },
         {
@@ -46968,7 +47731,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "services/EmailSettingsService.ts:23",
-            "memberships-courses/20-api/client-portal-and-analytics.md:78"
+            "memberships-courses/20-api/client-portal-and-analytics.md:84"
           ]
         },
         {
@@ -48065,6 +48828,284 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           ]
         },
         {
+          id: "pipelines-opportunities--opportunities",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/opportunities/",
+          path: "/opportunities/",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "pipelines-opportunities",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "pipelines-opportunities/20-api/opportunities.md:106"
+          ]
+        },
+        {
+          id: "pipelines-opportunities--opportunities-delete",
+          method: "DELETE",
+          url: "https://services.leadconnectorhq.com/opportunities/{opportunityId}",
+          path: "/opportunities/{opportunityId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "pipelines-opportunities",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "opportunityId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "pipelines-opportunities/20-api/opportunities.md:195",
+            "pipelines-opportunities/20-api/pipelines.md:250"
+          ]
+        },
+        {
+          id: "pipelines-opportunities--opportunities-get",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/opportunities/{opportunityId}",
+          path: "/opportunities/{opportunityId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "pipelines-opportunities",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "opportunityId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "pipelines-opportunities/20-api/opportunities.md:99",
+            "pipelines-opportunities/20-api/opportunities.md:120"
+          ]
+        },
+        {
+          id: "pipelines-opportunities--opportunities-put",
+          method: "PUT",
+          url: "https://services.leadconnectorhq.com/opportunities/{opportunityId}",
+          path: "/opportunities/{opportunityId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "pipelines-opportunities",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "opportunityId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "pipelines-opportunities/20-api/opportunities.md:129"
+          ]
+        },
+        {
+          id: "pipelines-opportunities--opportunities-followers",
+          method: "DELETE",
+          url: "https://services.leadconnectorhq.com/opportunities/{opportunityId}/followers",
+          path: "/opportunities/{opportunityId}/followers",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "pipelines-opportunities",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "opportunityId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "pipelines-opportunities/20-api/opportunities.md:225"
+          ]
+        },
+        {
+          id: "pipelines-opportunities--opportunities-followers-post",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/opportunities/{opportunityId}/followers",
+          path: "/opportunities/{opportunityId}/followers",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "pipelines-opportunities",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "opportunityId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "pipelines-opportunities/20-api/opportunities.md:224"
+          ]
+        },
+        {
+          id: "pipelines-opportunities--opportunities-restore",
+          method: "PUT",
+          url: "https://services.leadconnectorhq.com/opportunities/{opportunityId}/restore",
+          path: "/opportunities/{opportunityId}/restore",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "pipelines-opportunities",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "opportunityId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "pipelines-opportunities/20-api/opportunities.md:207"
+          ]
+        },
+        {
+          id: "pipelines-opportunities--opportunities-sync",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/opportunities/{opportunityId}/sync",
+          path: "/opportunities/{opportunityId}/sync",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "pipelines-opportunities",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "opportunityId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "pipelines-opportunities/20-api/opportunities.md:235"
+          ]
+        },
+        {
           id: "pipelines-opportunities--forecast-column",
           method: "POST",
           url: "https://services.leadconnectorhq.com/opportunities/forecast/column",
@@ -48092,7 +49133,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/forecast.md:63"
+            "pipelines-opportunities/20-api/forecast.md:62"
           ]
         },
         {
@@ -48123,7 +49164,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/forecast.md:65"
+            "pipelines-opportunities/20-api/forecast.md:63"
           ]
         },
         {
@@ -48154,7 +49195,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/forecast.md:66"
+            "pipelines-opportunities/20-api/forecast.md:64"
           ]
         },
         {
@@ -48185,7 +49226,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/forecast.md:64"
+            "pipelines-opportunities/20-api/forecast.md:61"
           ]
         },
         {
@@ -48218,6 +49259,24 @@ Flagged to the operator as a security observation about the vendor, not a capabi
               type: "string",
               required: false,
               source: "documented"
+            },
+            {
+              name: "getCount",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "skip",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "limit",
+              type: "string",
+              required: false,
+              source: "documented"
             }
           ],
           body: null,
@@ -48229,7 +49288,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/forecast.md:133",
+            "pipelines-opportunities/20-api/forecast.md:137",
             "pipelines-opportunities/20-api/pipelines.md:42"
           ]
         },
@@ -48262,9 +49321,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/forecast.md:121",
             "pipelines-opportunities/20-api/pipelines.md:43",
-            "pipelines-opportunities/20-api/pipelines.md:128"
+            "pipelines-opportunities/20-api/pipelines.md:167"
           ]
         },
         {
@@ -48289,17 +49347,24 @@ Flagged to the operator as a security observation about the vendor, not a capabi
               name: "lostReasonId"
             }
           ],
-          query: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
             path: "documented",
-            query: "none-observed",
+            query: "documented",
             body: "unresolved",
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/forecast.md:134"
+            "pipelines-opportunities/20-api/forecast.md:138"
           ]
         },
         {
@@ -48345,9 +49410,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "forms/20-api/neighbour-services.md:29",
-            "pipelines-opportunities/20-api/forecast.md:131",
-            "pipelines-opportunities/20-api/pipelines.md:152",
-            "pipelines-opportunities/20-api/smart-filters.md:76"
+            "pipelines-opportunities/20-api/pipelines.md:191",
+            "pipelines-opportunities/20-api/smart-filters.md:86"
           ]
         },
         {
@@ -48379,7 +49443,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/forecast.md:113",
             "pipelines-opportunities/20-api/pipelines.md:34",
             "pipelines-opportunities/20-api/pipelines.md:51"
           ]
@@ -48416,8 +49479,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/forecast.md:116",
-            "pipelines-opportunities/20-api/pipelines.md:38"
+            "pipelines-opportunities/20-api/pipelines.md:38",
+            "pipelines-opportunities/20-api/pipelines.md:246"
           ]
         },
         {
@@ -48456,13 +49519,12 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           returns: null,
           confidence: {
             path: "documented",
-            query: "none-observed",
+            query: "documented",
             body: "unresolved",
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/forecast.md:114",
-            "pipelines-opportunities/20-api/pipelines.md:163"
+            "pipelines-opportunities/20-api/pipelines.md:202"
           ]
         },
         {
@@ -48497,7 +49559,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/forecast.md:117",
             "pipelines-opportunities/20-api/pipelines.md:35"
           ]
         },
@@ -48533,7 +49594,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/forecast.md:118",
             "pipelines-opportunities/20-api/pipelines.md:36"
           ]
         },
@@ -48569,7 +49629,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/forecast.md:115",
             "pipelines-opportunities/20-api/pipelines.md:37"
           ]
         },
@@ -48601,10 +49660,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/forecast.md:119",
             "pipelines-opportunities/20-api/pipelines.md:40",
-            "pipelines-opportunities/20-api/pipelines.md:117",
-            "pipelines-opportunities/20-api/pipelines.md:135"
+            "pipelines-opportunities/20-api/pipelines.md:156",
+            "pipelines-opportunities/20-api/pipelines.md:174"
           ]
         },
         {
@@ -48642,8 +49700,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/forecast.md:120",
-            "pipelines-opportunities/20-api/pipelines.md:119",
+            "pipelines-opportunities/20-api/pipelines.md:158",
             "pipelines-opportunities/20-api/pipelines.md:41"
           ]
         },
@@ -48685,8 +49742,39 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/forecast.md:132",
+            "pipelines-opportunities/20-api/forecast.md:139",
             "pipelines-opportunities/20-api/pipelines.md:39"
+          ]
+        },
+        {
+          id: "pipelines-opportunities--opportunities-search",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/opportunities/search",
+          path: "/opportunities/search",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "pipelines-opportunities",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "pipelines-opportunities/20-api/opportunities.md:32"
           ]
         },
         {
@@ -48737,7 +49825,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/smart-filters.md:41"
+            "pipelines-opportunities/20-api/smart-filters.md:51"
           ]
         },
         {
@@ -48768,8 +49856,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/smart-filters.md:83",
-            "pipelines-opportunities/20-api/smart-filters.md:104"
+            "pipelines-opportunities/20-api/smart-filters.md:91",
+            "pipelines-opportunities/20-api/smart-filters.md:163"
           ]
         },
         {
@@ -48804,7 +49892,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/smart-filters.md:85"
+            "pipelines-opportunities/20-api/smart-filters.md:145"
           ]
         },
         {
@@ -48852,7 +49940,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/smart-filters.md:42"
+            "pipelines-opportunities/20-api/smart-filters.md:52"
           ]
         },
         {
@@ -48887,7 +49975,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/smart-filters.md:84"
+            "pipelines-opportunities/20-api/smart-filters.md:130"
           ]
         },
         {
@@ -48922,7 +50010,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/smart-filters.md:86"
+            "pipelines-opportunities/20-api/smart-filters.md:146"
           ]
         },
         {
@@ -48953,7 +50041,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/smart-filters.md:87"
+            "pipelines-opportunities/20-api/smart-filters.md:147"
           ]
         },
         {
@@ -48984,7 +50072,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/smart-filters.md:89"
+            "pipelines-opportunities/20-api/smart-filters.md:148"
           ]
         },
         {
@@ -49015,7 +50103,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/smart-filters.md:88"
+            "pipelines-opportunities/20-api/smart-filters.md:131"
           ]
         },
         {
@@ -49441,8 +50529,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-deployment-routing.md:225",
-            "ai-agents/20-api/agent-deployment-routing.md:416"
+            "ai-agents/20-api/agent-deployment-routing.md:258",
+            "ai-agents/20-api/agent-deployment-routing.md:449"
           ]
         },
         {
@@ -49473,7 +50561,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-deployment-routing.md:227"
+            "ai-agents/20-api/agent-deployment-routing.md:260"
           ]
         },
         {
@@ -49511,8 +50599,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-deployment-routing.md:226",
-            "ai-agents/20-api/agent-deployment-routing.md:415"
+            "ai-agents/20-api/agent-deployment-routing.md:259",
+            "ai-agents/20-api/agent-deployment-routing.md:448"
           ]
         },
         {
@@ -49550,7 +50638,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-deployment-routing.md:228"
+            "ai-agents/20-api/agent-deployment-routing.md:261"
           ]
         },
         {
@@ -49648,7 +50736,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "platform/20-api/snapshots.md:36"
+            "platform/20-api/snapshots.md:36",
+            "platform/20-api/snapshots.md:161"
           ]
         },
         {
@@ -50322,7 +51411,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-deployment-routing.md:355"
+            "ai-agents/20-api/agent-deployment-routing.md:388"
           ]
         },
         {
@@ -51278,12 +52367,12 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:141",
-            "ai-agents/20-api/12-ai-agents-api.md:149",
+            "ai-agents/20-api/12-ai-agents-api.md:162",
             "ai-agents/20-api/12-ai-agents-api.md:170",
-            "ai-agents/20-api/12-ai-agents-api.md:276",
-            "ai-agents/20-api/12-ai-agents-api.md:306",
-            "ai-agents/20-api/12-ai-agents-api.md:353"
+            "ai-agents/20-api/12-ai-agents-api.md:191",
+            "ai-agents/20-api/12-ai-agents-api.md:297",
+            "ai-agents/20-api/12-ai-agents-api.md:327",
+            "ai-agents/20-api/12-ai-agents-api.md:374"
           ]
         },
         {
@@ -51318,8 +52407,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:142",
-            "ai-agents/20-api/12-ai-agents-api.md:172"
+            "ai-agents/20-api/12-ai-agents-api.md:163",
+            "ai-agents/20-api/12-ai-agents-api.md:193"
           ]
         },
         {
@@ -51578,7 +52667,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:143"
+            "ai-agents/20-api/12-ai-agents-api.md:164"
           ]
         },
         {
@@ -51611,12 +52700,12 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:54",
-            "ai-agents/20-api/12-ai-agents-api.md:137",
-            "ai-agents/20-api/12-ai-agents-api.md:149",
-            "ai-agents/20-api/12-ai-agents-api.md:157",
-            "ai-agents/20-api/12-ai-agents-api.md:326",
-            "ai-agents/20-api/12-ai-agents-api.md:350"
+            "ai-agents/20-api/12-ai-agents-api.md:75",
+            "ai-agents/20-api/12-ai-agents-api.md:158",
+            "ai-agents/20-api/12-ai-agents-api.md:170",
+            "ai-agents/20-api/12-ai-agents-api.md:178",
+            "ai-agents/20-api/12-ai-agents-api.md:347",
+            "ai-agents/20-api/12-ai-agents-api.md:371"
           ]
         },
         {
@@ -51699,7 +52788,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:158"
+            "ai-agents/20-api/12-ai-agents-api.md:179"
           ]
         },
         {
@@ -51741,7 +52830,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:140"
+            "ai-agents/20-api/12-ai-agents-api.md:161"
           ]
         },
         {
@@ -51789,12 +52878,47 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:138",
-            "ai-agents/20-api/12-ai-agents-api.md:149",
-            "ai-agents/20-api/12-ai-agents-api.md:351",
-            "ai-agents/20-api/voice-ai-boundary.md:58",
-            "ai-agents/20-api/voice-ai-boundary.md:21",
-            "ai-agents/20-api/voice-ai-boundary.md:22"
+            "ai-agents/20-api/12-ai-agents-api.md:159",
+            "ai-agents/20-api/12-ai-agents-api.md:170",
+            "ai-agents/20-api/12-ai-agents-api.md:372",
+            "ai-agents/20-api/voice-ai-boundary.md:62",
+            "ai-agents/20-api/voice-ai-boundary.md:23",
+            "ai-agents/20-api/voice-ai-boundary.md:24"
+          ]
+        },
+        {
+          id: "ai-agents--voice-ai-agents-patch",
+          method: "PATCH",
+          url: "https://services.leadconnectorhq.com/voice-ai/agents/{agentId}",
+          path: "/voice-ai/agents/{agentId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "agentId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:204"
           ]
         },
         {
@@ -51847,9 +52971,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:139",
-            "ai-agents/20-api/12-ai-agents-api.md:149",
-            "ai-agents/20-api/12-ai-agents-api.md:352"
+            "ai-agents/20-api/12-ai-agents-api.md:160",
+            "ai-agents/20-api/12-ai-agents-api.md:170",
+            "ai-agents/20-api/12-ai-agents-api.md:373"
           ]
         },
         {
@@ -51957,8 +53081,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/voice-ai-boundary.md:59",
-            "ai-agents/20-api/12-ai-agents-api.md:145"
+            "ai-agents/20-api/voice-ai-boundary.md:63",
+            "ai-agents/20-api/12-ai-agents-api.md:166"
           ]
         },
         {
@@ -52066,7 +53190,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:146"
+            "ai-agents/20-api/12-ai-agents-api.md:167"
           ]
         },
         {
@@ -52097,7 +53221,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/voice-ai-boundary.md:56"
+            "ai-agents/20-api/voice-ai-boundary.md:60"
           ]
         },
         {
@@ -52161,7 +53285,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/voice-ai-boundary.md:57"
+            "ai-agents/20-api/voice-ai-boundary.md:61"
           ]
         },
         {
@@ -52263,8 +53387,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/20-api/logs-deployment-email.md:24",
-            "ai-agents/20-api/voice-ai-boundary.md:67",
-            "ai-agents/30-types/voice-ai-actions.md:83"
+            "ai-agents/20-api/voice-ai-boundary.md:71",
+            "ai-agents/30-types/voice-ai-actions.md:90"
           ]
         },
         {
@@ -52296,7 +53420,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/20-api/logs-deployment-email.md:25",
-            "ai-agents/20-api/voice-ai-boundary.md:68"
+            "ai-agents/20-api/voice-ai-boundary.md:72"
           ]
         },
         {
@@ -52331,7 +53455,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/voice-ai-boundary.md:71"
+            "ai-agents/20-api/voice-ai-boundary.md:75"
           ]
         },
         {
@@ -52643,10 +53767,10 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:147",
+            "ai-agents/20-api/12-ai-agents-api.md:168",
             "ai-agents/20-api/logs-deployment-email.md:83",
-            "ai-agents/20-api/voice-ai-boundary.md:69",
-            "ai-agents/30-types/voice-ai-actions.md:65"
+            "ai-agents/20-api/voice-ai-boundary.md:73",
+            "ai-agents/30-types/voice-ai-actions.md:60"
           ]
         },
         {
@@ -52740,7 +53864,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/20-api/logs-deployment-email.md:22",
-            "ai-agents/20-api/voice-ai-boundary.md:64"
+            "ai-agents/20-api/voice-ai-boundary.md:68"
           ]
         },
         {
@@ -52772,7 +53896,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/20-api/logs-deployment-email.md:23",
-            "ai-agents/20-api/voice-ai-boundary.md:65"
+            "ai-agents/20-api/voice-ai-boundary.md:69"
           ]
         },
         {
@@ -52804,7 +53928,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/20-api/logs-deployment-email.md:19",
-            "ai-agents/20-api/voice-ai-boundary.md:66"
+            "ai-agents/20-api/voice-ai-boundary.md:70"
           ]
         },
         {
@@ -52839,7 +53963,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/voice-ai-boundary.md:70"
+            "ai-agents/20-api/voice-ai-boundary.md:74"
           ]
         },
         {
@@ -52870,7 +53994,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/voice-ai-boundary.md:60"
+            "ai-agents/20-api/voice-ai-boundary.md:64"
           ]
         },
         {
@@ -53010,11 +54134,11 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:42",
-            "ai-agents/20-api/12-ai-agents-api.md:144",
-            "ai-agents/20-api/12-ai-agents-api.md:354",
-            "ai-agents/20-api/voice-ai-boundary.md:61",
-            "ai-agents/20-api/voice-ai-boundary.md:78"
+            "ai-agents/20-api/12-ai-agents-api.md:63",
+            "ai-agents/20-api/12-ai-agents-api.md:165",
+            "ai-agents/20-api/12-ai-agents-api.md:375",
+            "ai-agents/20-api/voice-ai-boundary.md:65",
+            "ai-agents/20-api/voice-ai-boundary.md:82"
           ]
         },
         {
@@ -53045,7 +54169,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/voice-ai-boundary.md:63"
+            "ai-agents/20-api/voice-ai-boundary.md:67"
           ]
         },
         {
@@ -53076,7 +54200,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/voice-ai-boundary.md:62"
+            "ai-agents/20-api/voice-ai-boundary.md:66"
           ]
         },
         {
@@ -55092,7 +56216,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           kind: "write",
           note: "DELIBERATELY NOT WRITTEN 2026-09-19: on the test sub-account the GET answers {} \u2014 no settings document exists \u2014 so a PUT would CREATE one that cannot be restored to 'absent'. body {feature:{\u2026}} per the bundle. Prove it only on an account where the document already exists, with read -> change -> read -> restore."
         },
-        "PUT /workflow/{locationId}/{id}/recover": {
+        "PUT /workflow/{locationId}/{wid}/recover": {
           reach: "absent",
           credentialClass: "agency-admin-bearer",
           kind: "write",
@@ -55180,6 +56304,12 @@ Flagged to the operator as a security observation about the vendor, not a capabi
         },
         "GET /workflows-marketplace/integration/slack/users": {
           note: `Needs oAuthId: the id of a CONNECTED Slack account (GoogleSheetsService / SlackService take it from the step's chosen account). The sandbox has none connected (GET /workflow/oauth2/get-all-tokens -> []), so it answers 422 "oAuthId should not be empty". NOT PROVEN: a human must connect a Slack account in the sandbox first. Evidence: knowledge sniffs/reached-2026-09-23.`
+        },
+        "POST /agent-studio/agents/anton/session": {
+          note: `NO TASK NEEDS THIS \u2014 coordinator decision T8 (2026-09-26): legacy flow-agent (node-graph Agent Studio) authoring is excluded; anton is that builder's AI runtime, and the Managed-Agent editor also POSTs it on open (a write-on-open, 2026-09-25 UI walk). IF THE USER WANTS IT: GHL can do it \u2014 AI Agents \u2192 Agent Studio (flow agents) in the UI, or the flow builder embedded in Voice AI / Conversation AI. Written where agents read it: corpus ai-agents/00-overview "What GHL can do that this plugin does not author", and the same table in skills ghl-conversation-ai and ghl-voice-ai.`
+        },
+        "GET /agent-studio/agents/agents-with-folders": {
+          note: "Read by get_ai_configuration_bundle to INVENTORY an account's flow agents (legacy node-graph Agent Studio) \u2014 reading them is in scope. AUTHORING flow agents is excluded (coordinator decision T8, 2026-09-26; new ones are creatable only by five hard-coded agencies). IF THE USER WANTS IT: GHL can do it \u2014 AI Agents \u2192 Agent Studio (flow agents), or the flow builder embedded in Voice AI / Conversation AI; see corpus ai-agents/00-overview."
         }
       }
     };
@@ -58444,9 +59574,9 @@ var init_define_TOOL_CATALOG = __esm({
   }
 });
 
-// node_modules/ajv/dist/compile/codegen/code.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/codegen/code.js
 var require_code = __commonJS({
-  "node_modules/ajv/dist/compile/codegen/code.js"(exports) {
+  "../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/codegen/code.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -58604,9 +59734,9 @@ var require_code = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/codegen/scope.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/codegen/scope.js
 var require_scope = __commonJS({
-  "node_modules/ajv/dist/compile/codegen/scope.js"(exports) {
+  "../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/codegen/scope.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -58755,9 +59885,9 @@ var require_scope = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/codegen/index.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/codegen/index.js
 var require_codegen = __commonJS({
-  "node_modules/ajv/dist/compile/codegen/index.js"(exports) {
+  "../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/codegen/index.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -59481,9 +60611,9 @@ var require_codegen = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/util.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/util.js
 var require_util = __commonJS({
-  "node_modules/ajv/dist/compile/util.js"(exports) {
+  "../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/util.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -59654,9 +60784,9 @@ var require_util = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/names.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/names.js
 var require_names = __commonJS({
-  "node_modules/ajv/dist/compile/names.js"(exports) {
+  "../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/names.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -59699,9 +60829,9 @@ var require_names = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/errors.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/errors.js
 var require_errors = __commonJS({
-  "node_modules/ajv/dist/compile/errors.js"(exports) {
+  "../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/errors.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -59827,9 +60957,9 @@ var require_errors = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/validate/boolSchema.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/validate/boolSchema.js
 var require_boolSchema = __commonJS({
-  "node_modules/ajv/dist/compile/validate/boolSchema.js"(exports) {
+  "../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/validate/boolSchema.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -59884,9 +61014,9 @@ var require_boolSchema = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/rules.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/rules.js
 var require_rules = __commonJS({
-  "node_modules/ajv/dist/compile/rules.js"(exports) {
+  "../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/rules.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -59921,9 +61051,9 @@ var require_rules = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/validate/applicability.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/validate/applicability.js
 var require_applicability = __commonJS({
-  "node_modules/ajv/dist/compile/validate/applicability.js"(exports) {
+  "../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/validate/applicability.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -59950,9 +61080,9 @@ var require_applicability = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/validate/dataType.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/validate/dataType.js
 var require_dataType = __commonJS({
-  "node_modules/ajv/dist/compile/validate/dataType.js"(exports) {
+  "../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/validate/dataType.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -60140,9 +61270,9 @@ var require_dataType = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/validate/defaults.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/validate/defaults.js
 var require_defaults = __commonJS({
-  "node_modules/ajv/dist/compile/validate/defaults.js"(exports) {
+  "../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/validate/defaults.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -60183,9 +61313,9 @@ var require_defaults = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/code.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/code.js
 var require_code2 = __commonJS({
-  "node_modules/ajv/dist/vocabularies/code.js"(exports) {
+  "../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/code.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -60322,9 +61452,9 @@ var require_code2 = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/validate/keyword.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/validate/keyword.js
 var require_keyword = __commonJS({
-  "node_modules/ajv/dist/compile/validate/keyword.js"(exports) {
+  "../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/validate/keyword.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -60446,9 +61576,9 @@ var require_keyword = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/validate/subschema.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/validate/subschema.js
 var require_subschema = __commonJS({
-  "node_modules/ajv/dist/compile/validate/subschema.js"(exports) {
+  "../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/validate/subschema.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -60535,9 +61665,9 @@ var require_subschema = __commonJS({
   }
 });
 
-// node_modules/fast-deep-equal/index.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/fast-deep-equal/index.js
 var require_fast_deep_equal = __commonJS({
-  "node_modules/fast-deep-equal/index.js"(exports, module) {
+  "../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/fast-deep-equal/index.js"(exports, module) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -60576,9 +61706,9 @@ var require_fast_deep_equal = __commonJS({
   }
 });
 
-// node_modules/json-schema-traverse/index.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/json-schema-traverse/index.js
 var require_json_schema_traverse = __commonJS({
-  "node_modules/json-schema-traverse/index.js"(exports, module) {
+  "../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/json-schema-traverse/index.js"(exports, module) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -60670,9 +61800,9 @@ var require_json_schema_traverse = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/resolve.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/resolve.js
 var require_resolve = __commonJS({
-  "node_modules/ajv/dist/compile/resolve.js"(exports) {
+  "../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/resolve.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -60832,9 +61962,9 @@ var require_resolve = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/validate/index.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/validate/index.js
 var require_validate = __commonJS({
-  "node_modules/ajv/dist/compile/validate/index.js"(exports) {
+  "../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/validate/index.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -61346,9 +62476,9 @@ var require_validate = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/runtime/validation_error.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/runtime/validation_error.js
 var require_validation_error = __commonJS({
-  "node_modules/ajv/dist/runtime/validation_error.js"(exports) {
+  "../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/runtime/validation_error.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -61368,9 +62498,9 @@ var require_validation_error = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/ref_error.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/ref_error.js
 var require_ref_error = __commonJS({
-  "node_modules/ajv/dist/compile/ref_error.js"(exports) {
+  "../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/ref_error.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -61391,9 +62521,9 @@ var require_ref_error = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/index.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/index.js
 var require_compile = __commonJS({
-  "node_modules/ajv/dist/compile/index.js"(exports) {
+  "../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/index.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -61621,9 +62751,9 @@ var require_compile = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/refs/data.json
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/refs/data.json
 var require_data = __commonJS({
-  "node_modules/ajv/dist/refs/data.json"(exports, module) {
+  "../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/refs/data.json"(exports, module) {
     module.exports = {
       $id: "https://raw.githubusercontent.com/ajv-validator/ajv/master/lib/refs/data.json#",
       description: "Meta-schema for $data reference (JSON AnySchema extension proposal)",
@@ -61640,9 +62770,9 @@ var require_data = __commonJS({
   }
 });
 
-// node_modules/fast-uri/lib/utils.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/fast-uri/lib/utils.js
 var require_utils = __commonJS({
-  "node_modules/fast-uri/lib/utils.js"(exports, module) {
+  "../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/fast-uri/lib/utils.js"(exports, module) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -61959,9 +63089,9 @@ var require_utils = __commonJS({
   }
 });
 
-// node_modules/fast-uri/lib/schemes.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/fast-uri/lib/schemes.js
 var require_schemes = __commonJS({
-  "node_modules/fast-uri/lib/schemes.js"(exports, module) {
+  "../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/fast-uri/lib/schemes.js"(exports, module) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -62175,9 +63305,9 @@ var require_schemes = __commonJS({
   }
 });
 
-// node_modules/fast-uri/index.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/fast-uri/index.js
 var require_fast_uri = __commonJS({
-  "node_modules/fast-uri/index.js"(exports, module) {
+  "../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/fast-uri/index.js"(exports, module) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -62473,9 +63603,9 @@ var require_fast_uri = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/runtime/uri.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/runtime/uri.js
 var require_uri = __commonJS({
-  "node_modules/ajv/dist/runtime/uri.js"(exports) {
+  "../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/runtime/uri.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -62490,9 +63620,9 @@ var require_uri = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/core.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/core.js
 var require_core = __commonJS({
-  "node_modules/ajv/dist/core.js"(exports) {
+  "../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/core.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -63107,9 +64237,9 @@ var require_core = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/core/id.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/core/id.js
 var require_id = __commonJS({
-  "node_modules/ajv/dist/vocabularies/core/id.js"(exports) {
+  "../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/core/id.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -63128,9 +64258,9 @@ var require_id = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/core/ref.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/core/ref.js
 var require_ref = __commonJS({
-  "node_modules/ajv/dist/vocabularies/core/ref.js"(exports) {
+  "../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/core/ref.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -63256,9 +64386,9 @@ var require_ref = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/core/index.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/core/index.js
 var require_core2 = __commonJS({
-  "node_modules/ajv/dist/vocabularies/core/index.js"(exports) {
+  "../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/core/index.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -63283,9 +64413,9 @@ var require_core2 = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/validation/limitNumber.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/limitNumber.js
 var require_limitNumber = __commonJS({
-  "node_modules/ajv/dist/vocabularies/validation/limitNumber.js"(exports) {
+  "../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/limitNumber.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -63321,9 +64451,9 @@ var require_limitNumber = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/validation/multipleOf.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/multipleOf.js
 var require_multipleOf = __commonJS({
-  "node_modules/ajv/dist/vocabularies/validation/multipleOf.js"(exports) {
+  "../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/multipleOf.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -63355,9 +64485,9 @@ var require_multipleOf = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/runtime/ucs2length.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/runtime/ucs2length.js
 var require_ucs2length = __commonJS({
-  "node_modules/ajv/dist/runtime/ucs2length.js"(exports) {
+  "../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/runtime/ucs2length.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -63387,9 +64517,9 @@ var require_ucs2length = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/validation/limitLength.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/limitLength.js
 var require_limitLength = __commonJS({
-  "node_modules/ajv/dist/vocabularies/validation/limitLength.js"(exports) {
+  "../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/limitLength.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -63425,9 +64555,9 @@ var require_limitLength = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/validation/pattern.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/pattern.js
 var require_pattern = __commonJS({
-  "node_modules/ajv/dist/vocabularies/validation/pattern.js"(exports) {
+  "../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/pattern.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -63468,9 +64598,9 @@ var require_pattern = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/validation/limitProperties.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/limitProperties.js
 var require_limitProperties = __commonJS({
-  "node_modules/ajv/dist/vocabularies/validation/limitProperties.js"(exports) {
+  "../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/limitProperties.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -63503,9 +64633,9 @@ var require_limitProperties = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/validation/required.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/required.js
 var require_required = __commonJS({
-  "node_modules/ajv/dist/vocabularies/validation/required.js"(exports) {
+  "../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/required.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -63591,9 +64721,9 @@ var require_required = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/validation/limitItems.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/limitItems.js
 var require_limitItems = __commonJS({
-  "node_modules/ajv/dist/vocabularies/validation/limitItems.js"(exports) {
+  "../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/limitItems.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -63626,9 +64756,9 @@ var require_limitItems = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/runtime/equal.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/runtime/equal.js
 var require_equal = __commonJS({
-  "node_modules/ajv/dist/runtime/equal.js"(exports) {
+  "../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/runtime/equal.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -63643,9 +64773,9 @@ var require_equal = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/validation/uniqueItems.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/uniqueItems.js
 var require_uniqueItems = __commonJS({
-  "node_modules/ajv/dist/vocabularies/validation/uniqueItems.js"(exports) {
+  "../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/uniqueItems.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -63716,9 +64846,9 @@ var require_uniqueItems = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/validation/const.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/const.js
 var require_const = __commonJS({
-  "node_modules/ajv/dist/vocabularies/validation/const.js"(exports) {
+  "../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/const.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -63751,9 +64881,9 @@ var require_const = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/validation/enum.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/enum.js
 var require_enum = __commonJS({
-  "node_modules/ajv/dist/vocabularies/validation/enum.js"(exports) {
+  "../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/enum.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -63806,9 +64936,9 @@ var require_enum = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/validation/index.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/index.js
 var require_validation = __commonJS({
-  "node_modules/ajv/dist/vocabularies/validation/index.js"(exports) {
+  "../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/index.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -63850,9 +64980,9 @@ var require_validation = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/additionalItems.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/additionalItems.js
 var require_additionalItems = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/additionalItems.js"(exports) {
+  "../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/additionalItems.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -63909,9 +65039,9 @@ var require_additionalItems = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/items.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/items.js
 var require_items = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/items.js"(exports) {
+  "../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/items.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -63972,9 +65102,9 @@ var require_items = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/prefixItems.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/prefixItems.js
 var require_prefixItems = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/prefixItems.js"(exports) {
+  "../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/prefixItems.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -63995,9 +65125,9 @@ var require_prefixItems = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/items2020.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/items2020.js
 var require_items2020 = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/items2020.js"(exports) {
+  "../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/items2020.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -64036,9 +65166,9 @@ var require_items2020 = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/contains.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/contains.js
 var require_contains = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/contains.js"(exports) {
+  "../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/contains.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -64136,9 +65266,9 @@ var require_contains = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/dependencies.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/dependencies.js
 var require_dependencies = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/dependencies.js"(exports) {
+  "../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/dependencies.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -64236,9 +65366,9 @@ var require_dependencies = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/propertyNames.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/propertyNames.js
 var require_propertyNames = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/propertyNames.js"(exports) {
+  "../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/propertyNames.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -64285,9 +65415,9 @@ var require_propertyNames = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/additionalProperties.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/additionalProperties.js
 var require_additionalProperties = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/additionalProperties.js"(exports) {
+  "../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/additionalProperties.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -64397,9 +65527,9 @@ var require_additionalProperties = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/properties.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/properties.js
 var require_properties = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/properties.js"(exports) {
+  "../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/properties.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -64461,9 +65591,9 @@ var require_properties = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/patternProperties.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/patternProperties.js
 var require_patternProperties = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/patternProperties.js"(exports) {
+  "../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/patternProperties.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -64541,9 +65671,9 @@ var require_patternProperties = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/not.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/not.js
 var require_not = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/not.js"(exports) {
+  "../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/not.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -64578,9 +65708,9 @@ var require_not = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/anyOf.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/anyOf.js
 var require_anyOf = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/anyOf.js"(exports) {
+  "../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/anyOf.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -64601,9 +65731,9 @@ var require_anyOf = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/oneOf.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/oneOf.js
 var require_oneOf = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/oneOf.js"(exports) {
+  "../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/oneOf.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -64665,9 +65795,9 @@ var require_oneOf = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/allOf.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/allOf.js
 var require_allOf = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/allOf.js"(exports) {
+  "../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/allOf.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -64698,9 +65828,9 @@ var require_allOf = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/if.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/if.js
 var require_if = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/if.js"(exports) {
+  "../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/if.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -64773,9 +65903,9 @@ var require_if = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/thenElse.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/thenElse.js
 var require_thenElse = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/thenElse.js"(exports) {
+  "../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/thenElse.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -64797,9 +65927,9 @@ var require_thenElse = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/index.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/index.js
 var require_applicator = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/index.js"(exports) {
+  "../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/index.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -64851,9 +65981,9 @@ var require_applicator = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/format/format.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/format/format.js
 var require_format = __commonJS({
-  "node_modules/ajv/dist/vocabularies/format/format.js"(exports) {
+  "../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/format/format.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -64947,9 +66077,9 @@ var require_format = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/format/index.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/format/index.js
 var require_format2 = __commonJS({
-  "node_modules/ajv/dist/vocabularies/format/index.js"(exports) {
+  "../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/format/index.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -64964,9 +66094,9 @@ var require_format2 = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/metadata.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/metadata.js
 var require_metadata = __commonJS({
-  "node_modules/ajv/dist/vocabularies/metadata.js"(exports) {
+  "../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/metadata.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -64993,9 +66123,9 @@ var require_metadata = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/draft7.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/draft7.js
 var require_draft7 = __commonJS({
-  "node_modules/ajv/dist/vocabularies/draft7.js"(exports) {
+  "../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/draft7.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -65021,9 +66151,9 @@ var require_draft7 = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/discriminator/types.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/discriminator/types.js
 var require_types = __commonJS({
-  "node_modules/ajv/dist/vocabularies/discriminator/types.js"(exports) {
+  "../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/discriminator/types.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -65041,9 +66171,9 @@ var require_types = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/discriminator/index.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/discriminator/index.js
 var require_discriminator = __commonJS({
-  "node_modules/ajv/dist/vocabularies/discriminator/index.js"(exports) {
+  "../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/discriminator/index.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -65152,9 +66282,9 @@ var require_discriminator = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/refs/json-schema-draft-07.json
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/refs/json-schema-draft-07.json
 var require_json_schema_draft_07 = __commonJS({
-  "node_modules/ajv/dist/refs/json-schema-draft-07.json"(exports, module) {
+  "../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/refs/json-schema-draft-07.json"(exports, module) {
     module.exports = {
       $schema: "http://json-schema.org/draft-07/schema#",
       $id: "http://json-schema.org/draft-07/schema#",
@@ -65309,9 +66439,9 @@ var require_json_schema_draft_07 = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/ajv.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/ajv.js
 var require_ajv = __commonJS({
-  "node_modules/ajv/dist/ajv.js"(exports, module) {
+  "../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/ajv.js"(exports, module) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -65385,9 +66515,9 @@ var require_ajv = __commonJS({
   }
 });
 
-// node_modules/ajv-formats/dist/formats.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv-formats/dist/formats.js
 var require_formats = __commonJS({
-  "node_modules/ajv-formats/dist/formats.js"(exports) {
+  "../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv-formats/dist/formats.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -65594,9 +66724,9 @@ var require_formats = __commonJS({
   }
 });
 
-// node_modules/ajv-formats/dist/limit.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv-formats/dist/limit.js
 var require_limit = __commonJS({
-  "node_modules/ajv-formats/dist/limit.js"(exports) {
+  "../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv-formats/dist/limit.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -65672,9 +66802,9 @@ var require_limit = __commonJS({
   }
 });
 
-// node_modules/ajv-formats/dist/index.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv-formats/dist/index.js
 var require_dist = __commonJS({
-  "node_modules/ajv-formats/dist/index.js"(exports, module) {
+  "../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv-formats/dist/index.js"(exports, module) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -65728,7 +66858,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/server/mcp.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/server/mcp.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -65736,7 +66866,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/server/index.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/server/index.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -65744,7 +66874,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -65752,7 +66882,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-compat.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-compat.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -65760,7 +66890,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v3/errors.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v3/errors.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -65768,7 +66898,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v3/locales/en.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v3/locales/en.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -65776,7 +66906,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v3/ZodError.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v3/ZodError.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -65784,7 +66914,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v3/helpers/util.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v3/helpers/util.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -65924,7 +67054,7 @@ var getParsedType = (data2) => {
   }
 };
 
-// node_modules/zod/v3/ZodError.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v3/ZodError.js
 var ZodIssueCode = util.arrayToEnum([
   "invalid_type",
   "invalid_literal",
@@ -66038,7 +67168,7 @@ ZodError.create = (issues) => {
   return error51;
 };
 
-// node_modules/zod/v3/locales/en.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v3/locales/en.js
 var errorMap = (issue2, _ctx) => {
   let message;
   switch (issue2.code) {
@@ -66141,13 +67271,13 @@ var errorMap = (issue2, _ctx) => {
 };
 var en_default = errorMap;
 
-// node_modules/zod/v3/errors.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v3/errors.js
 var overrideErrorMap = en_default;
 function getErrorMap() {
   return overrideErrorMap;
 }
 
-// node_modules/zod/v3/helpers/parseUtil.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v3/helpers/parseUtil.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -66262,7 +67392,7 @@ var isDirty = (x) => x.status === "dirty";
 var isValid = (x) => x.status === "valid";
 var isAsync = (x) => typeof Promise !== "undefined" && x instanceof Promise;
 
-// node_modules/zod/v3/types.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v3/types.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -66270,7 +67400,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v3/helpers/errorUtil.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v3/helpers/errorUtil.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -66283,7 +67413,7 @@ var errorUtil;
   errorUtil2.toString = (message) => typeof message === "string" ? message : message?.message;
 })(errorUtil || (errorUtil = {}));
 
-// node_modules/zod/v3/types.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v3/types.js
 var ParseInputLazyPath = class {
   constructor(parent, value, path, key) {
     this._cachedPath = [];
@@ -69686,7 +70816,7 @@ var nullableType = ZodNullable.create;
 var preprocessType = ZodEffects.createWithPreprocess;
 var pipelineType = ZodPipeline.create;
 
-// node_modules/zod/v4/mini/external.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/mini/external.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -69694,7 +70824,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v4/core/index.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/index.js
 var core_exports2 = {};
 __export(core_exports2, {
   $ZodAny: () => $ZodAny,
@@ -69979,7 +71109,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v4/core/core.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/core.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -70062,7 +71192,7 @@ function config(newConfig) {
   return globalConfig;
 }
 
-// node_modules/zod/v4/core/parse.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/parse.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -70070,7 +71200,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v4/core/errors.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/errors.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -70078,7 +71208,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v4/core/util.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/util.js
 var util_exports = {};
 __export(util_exports, {
   BIGINT_FORMAT_RANGES: () => BIGINT_FORMAT_RANGES,
@@ -70780,7 +71910,7 @@ var Class = class {
   }
 };
 
-// node_modules/zod/v4/core/errors.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/errors.js
 var initializer = (inst, def) => {
   inst.name = "$ZodError";
   Object.defineProperty(inst, "_zod", {
@@ -70919,7 +72049,7 @@ function prettifyError(error51) {
   return lines.join("\n");
 }
 
-// node_modules/zod/v4/core/parse.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/parse.js
 var _parse = (_Err) => (schema2, value, _ctx, _params) => {
   const ctx = _ctx ? { ..._ctx, async: false } : { async: false };
   const result = schema2._zod.run({ value, issues: [] }, ctx);
@@ -71007,7 +72137,7 @@ var _safeDecodeAsync = (_Err) => async (schema2, value, _ctx) => {
 };
 var safeDecodeAsync = /* @__PURE__ */ _safeDecodeAsync($ZodRealError);
 
-// node_modules/zod/v4/core/schemas.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/schemas.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -71015,7 +72145,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v4/core/checks.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/checks.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -71023,7 +72153,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v4/core/regexes.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/regexes.js
 var regexes_exports = {};
 __export(regexes_exports, {
   base64: () => base64,
@@ -71188,7 +72318,7 @@ var sha512_hex = /^[0-9a-fA-F]{128}$/;
 var sha512_base64 = /* @__PURE__ */ fixedBase64(86, "==");
 var sha512_base64url = /* @__PURE__ */ fixedBase64url(86);
 
-// node_modules/zod/v4/core/checks.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/checks.js
 var $ZodCheck = /* @__PURE__ */ $constructor("$ZodCheck", (inst, def) => {
   var _a3;
   inst._zod ?? (inst._zod = {});
@@ -71736,7 +72866,7 @@ var $ZodCheckOverwrite = /* @__PURE__ */ $constructor("$ZodCheckOverwrite", (ins
   };
 });
 
-// node_modules/zod/v4/core/doc.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/doc.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -71778,7 +72908,7 @@ var Doc = class {
   }
 };
 
-// node_modules/zod/v4/core/versions.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/versions.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -71791,7 +72921,7 @@ var version = {
   patch: 3
 };
 
-// node_modules/zod/v4/core/schemas.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/schemas.js
 var $ZodType = /* @__PURE__ */ $constructor("$ZodType", (inst, def) => {
   var _a3;
   inst ?? (inst = {});
@@ -73884,7 +75014,7 @@ function handleRefineResult(result, payload, input, inst) {
   }
 }
 
-// node_modules/zod/v4/locales/index.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/index.js
 var locales_exports = {};
 __export(locales_exports, {
   ar: () => ar_default,
@@ -73947,7 +75077,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v4/locales/ar.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/ar.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -74060,7 +75190,7 @@ function ar_default() {
   };
 }
 
-// node_modules/zod/v4/locales/az.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/az.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -74172,7 +75302,7 @@ function az_default() {
   };
 }
 
-// node_modules/zod/v4/locales/be.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/be.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -74335,7 +75465,7 @@ function be_default() {
   };
 }
 
-// node_modules/zod/v4/locales/bg.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/bg.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -74462,7 +75592,7 @@ function bg_default() {
   };
 }
 
-// node_modules/zod/v4/locales/ca.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/ca.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -74577,7 +75707,7 @@ function ca_default() {
   };
 }
 
-// node_modules/zod/v4/locales/cs.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/cs.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -74695,7 +75825,7 @@ function cs_default() {
   };
 }
 
-// node_modules/zod/v4/locales/da.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/da.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -74817,7 +75947,7 @@ function da_default() {
   };
 }
 
-// node_modules/zod/v4/locales/de.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/de.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -74932,7 +76062,7 @@ function de_default() {
   };
 }
 
-// node_modules/zod/v4/locales/el.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/el.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -75048,7 +76178,7 @@ function el_default() {
   };
 }
 
-// node_modules/zod/v4/locales/en.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/en.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -75167,7 +76297,7 @@ function en_default2() {
   };
 }
 
-// node_modules/zod/v4/locales/eo.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/eo.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -75283,7 +76413,7 @@ function eo_default() {
   };
 }
 
-// node_modules/zod/v4/locales/es.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/es.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -75422,7 +76552,7 @@ function es_default() {
   };
 }
 
-// node_modules/zod/v4/locales/fa.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/fa.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -75543,7 +76673,7 @@ function fa_default() {
   };
 }
 
-// node_modules/zod/v4/locales/fi.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/fi.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -75662,7 +76792,7 @@ function fi_default() {
   };
 }
 
-// node_modules/zod/v4/locales/fr.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/fr.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -75794,7 +76924,7 @@ function fr_default() {
   };
 }
 
-// node_modules/zod/v4/locales/fr-CA.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/fr-CA.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -75908,7 +77038,7 @@ function fr_CA_default() {
   };
 }
 
-// node_modules/zod/v4/locales/he.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/he.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -76109,7 +77239,7 @@ function he_default() {
   };
 }
 
-// node_modules/zod/v4/locales/hr.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/hr.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -76238,7 +77368,7 @@ function hr_default() {
   };
 }
 
-// node_modules/zod/v4/locales/hu.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/hu.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -76353,7 +77483,7 @@ function hu_default() {
   };
 }
 
-// node_modules/zod/v4/locales/hy.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/hy.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -76507,7 +77637,7 @@ function hy_default() {
   };
 }
 
-// node_modules/zod/v4/locales/id.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/id.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -76620,7 +77750,7 @@ function id_default() {
   };
 }
 
-// node_modules/zod/v4/locales/is.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/is.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -76736,7 +77866,7 @@ function is_default() {
   };
 }
 
-// node_modules/zod/v4/locales/it.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/it.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -76851,7 +77981,7 @@ function it_default() {
   };
 }
 
-// node_modules/zod/v4/locales/ja.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/ja.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -76965,7 +78095,7 @@ function ja_default() {
   };
 }
 
-// node_modules/zod/v4/locales/ka.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/ka.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -77084,7 +78214,7 @@ function ka_default() {
   };
 }
 
-// node_modules/zod/v4/locales/kh.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/kh.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -77092,7 +78222,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v4/locales/km.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/km.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -77209,12 +78339,12 @@ function km_default() {
   };
 }
 
-// node_modules/zod/v4/locales/kh.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/kh.js
 function kh_default() {
   return km_default();
 }
 
-// node_modules/zod/v4/locales/ko.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/ko.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -77332,7 +78462,7 @@ function ko_default() {
   };
 }
 
-// node_modules/zod/v4/locales/lt.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/lt.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -77542,7 +78672,7 @@ function lt_default() {
   };
 }
 
-// node_modules/zod/v4/locales/mk.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/mk.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -77658,7 +78788,7 @@ function mk_default() {
   };
 }
 
-// node_modules/zod/v4/locales/ms.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/ms.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -77772,7 +78902,7 @@ function ms_default() {
   };
 }
 
-// node_modules/zod/v4/locales/nl.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/nl.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -77889,7 +79019,7 @@ function nl_default() {
   };
 }
 
-// node_modules/zod/v4/locales/no.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/no.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -78004,7 +79134,7 @@ function no_default() {
   };
 }
 
-// node_modules/zod/v4/locales/ota.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/ota.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -78120,7 +79250,7 @@ function ota_default() {
   };
 }
 
-// node_modules/zod/v4/locales/ps.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/ps.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -78241,7 +79371,7 @@ function ps_default() {
   };
 }
 
-// node_modules/zod/v4/locales/pl.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/pl.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -78357,7 +79487,7 @@ function pl_default() {
   };
 }
 
-// node_modules/zod/v4/locales/pt.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/pt.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -78472,7 +79602,7 @@ function pt_default() {
   };
 }
 
-// node_modules/zod/v4/locales/ro.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/ro.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -78598,7 +79728,7 @@ function ro_default() {
   };
 }
 
-// node_modules/zod/v4/locales/ru.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/ru.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -78761,7 +79891,7 @@ function ru_default() {
   };
 }
 
-// node_modules/zod/v4/locales/sl.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/sl.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -78877,7 +80007,7 @@ function sl_default() {
   };
 }
 
-// node_modules/zod/v4/locales/sv.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/sv.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -78994,7 +80124,7 @@ function sv_default() {
   };
 }
 
-// node_modules/zod/v4/locales/ta.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/ta.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -79111,7 +80241,7 @@ function ta_default() {
   };
 }
 
-// node_modules/zod/v4/locales/th.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/th.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -79228,7 +80358,7 @@ function th_default() {
   };
 }
 
-// node_modules/zod/v4/locales/tr.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/tr.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -79340,7 +80470,7 @@ function tr_default() {
   };
 }
 
-// node_modules/zod/v4/locales/ua.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/ua.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -79348,7 +80478,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v4/locales/uk.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/uk.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -79463,12 +80593,12 @@ function uk_default() {
   };
 }
 
-// node_modules/zod/v4/locales/ua.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/ua.js
 function ua_default() {
   return uk_default();
 }
 
-// node_modules/zod/v4/locales/ur.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/ur.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -79585,7 +80715,7 @@ function ur_default() {
   };
 }
 
-// node_modules/zod/v4/locales/uz.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/uz.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -79702,7 +80832,7 @@ function uz_default() {
   };
 }
 
-// node_modules/zod/v4/locales/vi.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/vi.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -79817,7 +80947,7 @@ function vi_default() {
   };
 }
 
-// node_modules/zod/v4/locales/zh-CN.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/zh-CN.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -79933,7 +81063,7 @@ function zh_CN_default() {
   };
 }
 
-// node_modules/zod/v4/locales/zh-TW.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/zh-TW.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -80047,7 +81177,7 @@ function zh_TW_default() {
   };
 }
 
-// node_modules/zod/v4/locales/yo.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/yo.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -80161,7 +81291,7 @@ function yo_default() {
   };
 }
 
-// node_modules/zod/v4/core/registries.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/registries.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -80217,7 +81347,7 @@ function registry() {
 (_a2 = globalThis).__zod_globalRegistry ?? (_a2.__zod_globalRegistry = registry());
 var globalRegistry = globalThis.__zod_globalRegistry;
 
-// node_modules/zod/v4/core/api.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/api.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -81262,7 +82392,7 @@ function _stringFormat(Class2, format, fnOrRegex, _params = {}) {
   return inst;
 }
 
-// node_modules/zod/v4/core/to-json-schema.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/to-json-schema.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -81627,7 +82757,7 @@ var createStandardJSONSchemaMethod = (schema2, io, processors = {}) => (params) 
   return finalize(ctx, schema2);
 };
 
-// node_modules/zod/v4/core/json-schema-processors.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/json-schema-processors.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -82177,7 +83307,7 @@ function toJSONSchema(input, params) {
   return finalize(ctx, input);
 }
 
-// node_modules/zod/v4/core/json-schema-generator.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/json-schema-generator.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -82258,7 +83388,7 @@ var JSONSchemaGenerator = class {
   }
 };
 
-// node_modules/zod/v4/core/json-schema.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/json-schema.js
 var json_schema_exports = {};
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
@@ -82267,7 +83397,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v4/mini/parse.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/mini/parse.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -82275,7 +83405,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v4/mini/schemas.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/mini/schemas.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -82327,7 +83457,7 @@ function object(shape, params) {
   return new ZodMiniObject(def);
 }
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-compat.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-compat.js
 function isZ4Schema(s) {
   const schema2 = s;
   return !!schema2._zod;
@@ -82471,7 +83601,7 @@ function getLiteralValue(schema2) {
   return void 0;
 }
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/types.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/types.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -82479,7 +83609,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v4/classic/external.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/classic/external.js
 var external_exports = {};
 __export(external_exports, {
   $brand: () => $brand,
@@ -82728,7 +83858,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v4/classic/schemas.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/classic/schemas.js
 var schemas_exports2 = {};
 __export(schemas_exports2, {
   ZodAny: () => ZodAny2,
@@ -82905,7 +84035,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v4/classic/checks.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/classic/checks.js
 var checks_exports2 = {};
 __export(checks_exports2, {
   endsWith: () => _endsWith,
@@ -82945,7 +84075,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v4/classic/iso.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/classic/iso.js
 var iso_exports2 = {};
 __export(iso_exports2, {
   ZodISODate: () => ZodISODate,
@@ -82992,7 +84122,7 @@ function duration2(params) {
   return _isoDuration(ZodISODuration, params);
 }
 
-// node_modules/zod/v4/classic/parse.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/classic/parse.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -83000,7 +84130,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v4/classic/errors.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/classic/errors.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -83046,7 +84176,7 @@ var ZodRealError = /* @__PURE__ */ $constructor("ZodError", initializer2, {
   Parent: Error
 });
 
-// node_modules/zod/v4/classic/parse.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/classic/parse.js
 var parse2 = /* @__PURE__ */ _parse(ZodRealError);
 var parseAsync2 = /* @__PURE__ */ _parseAsync(ZodRealError);
 var safeParse3 = /* @__PURE__ */ _safeParse(ZodRealError);
@@ -83060,7 +84190,7 @@ var safeDecode2 = /* @__PURE__ */ _safeDecode(ZodRealError);
 var safeEncodeAsync2 = /* @__PURE__ */ _safeEncodeAsync(ZodRealError);
 var safeDecodeAsync2 = /* @__PURE__ */ _safeDecodeAsync(ZodRealError);
 
-// node_modules/zod/v4/classic/schemas.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/classic/schemas.js
 var _installedGroups = /* @__PURE__ */ new WeakMap();
 function _installLazyMethods(inst, group, methods) {
   const proto = Object.getPrototypeOf(inst);
@@ -84350,7 +85480,7 @@ function preprocess(fn, schema2) {
   });
 }
 
-// node_modules/zod/v4/classic/compat.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/classic/compat.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -84382,7 +85512,7 @@ var ZodFirstPartyTypeKind2;
 /* @__PURE__ */ (function(ZodFirstPartyTypeKind3) {
 })(ZodFirstPartyTypeKind2 || (ZodFirstPartyTypeKind2 = {}));
 
-// node_modules/zod/v4/classic/from-json-schema.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/classic/from-json-schema.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -84868,7 +85998,7 @@ function fromJSONSchema(schema2, params) {
   return convertSchema(normalized, ctx);
 }
 
-// node_modules/zod/v4/classic/coerce.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/classic/coerce.js
 var coerce_exports2 = {};
 __export(coerce_exports2, {
   bigint: () => bigint3,
@@ -84899,10 +86029,10 @@ function date4(params) {
   return _coercedDate(ZodDate2, params);
 }
 
-// node_modules/zod/v4/classic/external.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/classic/external.js
 config(en_default2());
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/types.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/types.js
 var LATEST_PROTOCOL_VERSION = "2025-11-25";
 var SUPPORTED_PROTOCOL_VERSIONS = [LATEST_PROTOCOL_VERSION, "2025-06-18", "2025-03-26", "2024-11-05", "2024-10-07"];
 var RELATED_TASK_META_KEY = "io.modelcontextprotocol/related-task";
@@ -86433,7 +87563,7 @@ var UrlElicitationRequiredError = class extends McpError {
   }
 };
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/interfaces.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/interfaces.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -86444,7 +87574,7 @@ function isTerminal(status) {
   return status === "completed" || status === "failed" || status === "cancelled";
 }
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-json-schema-compat.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-json-schema-compat.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -86452,7 +87582,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod-to-json-schema/dist/esm/index.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/index.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -86460,7 +87590,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod-to-json-schema/dist/esm/Options.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/Options.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -86500,7 +87630,7 @@ var getDefaultOptions = (options) => typeof options === "string" ? {
   ...options
 };
 
-// node_modules/zod-to-json-schema/dist/esm/Refs.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/Refs.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -86527,7 +87657,7 @@ var getRefs = (options) => {
   };
 };
 
-// node_modules/zod-to-json-schema/dist/esm/errorMessages.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/errorMessages.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -86549,7 +87679,7 @@ function setResponseValueAndErrors(res, key, value, errorMessage, refs) {
   addErrorMessage(res, key, errorMessage, refs);
 }
 
-// node_modules/zod-to-json-schema/dist/esm/getRelativePath.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/getRelativePath.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -86565,7 +87695,7 @@ var getRelativePath = (pathA, pathB) => {
   return [(pathA.length - i).toString(), ...pathB.slice(i)].join("/");
 };
 
-// node_modules/zod-to-json-schema/dist/esm/parseDef.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parseDef.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -86573,7 +87703,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod-to-json-schema/dist/esm/selectParser.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/selectParser.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -86581,7 +87711,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/any.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/any.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -86603,7 +87733,7 @@ function parseAnyDef(refs) {
   };
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/array.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/array.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -86633,7 +87763,7 @@ function parseArrayDef(def, refs) {
   return res;
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/bigint.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/bigint.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -86685,7 +87815,7 @@ function parseBigintDef(def, refs) {
   return res;
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/boolean.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/boolean.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -86698,7 +87828,7 @@ function parseBooleanDef() {
   };
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/branded.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/branded.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -86709,7 +87839,7 @@ function parseBrandedDef(_def, refs) {
   return parseDef(_def.type._def, refs);
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/catch.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/catch.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -86720,7 +87850,7 @@ var parseCatchDef = (def, refs) => {
   return parseDef(def.innerType._def, refs);
 };
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/date.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/date.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -86785,7 +87915,7 @@ var integerDateParser = (def, refs) => {
   return res;
 };
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/default.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/default.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -86799,7 +87929,7 @@ function parseDefaultDef(_def, refs) {
   };
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/effects.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/effects.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -86810,7 +87940,7 @@ function parseEffectsDef(_def, refs) {
   return refs.effectStrategy === "input" ? parseDef(_def.schema._def, refs) : parseAnyDef(refs);
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/enum.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/enum.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -86824,7 +87954,7 @@ function parseEnumDef(def) {
   };
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/intersection.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/intersection.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -86872,7 +88002,7 @@ function parseIntersectionDef(def, refs) {
   } : void 0;
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/literal.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/literal.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -86898,7 +88028,7 @@ function parseLiteralDef(def, refs) {
   };
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/map.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/map.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -86906,7 +88036,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/record.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/record.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -86914,7 +88044,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/string.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/string.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -87245,7 +88375,7 @@ function stringifyRegExpWithFlags(regex, refs) {
   return pattern;
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/record.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/record.js
 function parseRecordDef(def, refs) {
   if (refs.target === "openAi") {
     console.warn("Warning: OpenAI may not support records in schemas! Try an array of key-value pairs instead.");
@@ -87297,7 +88427,7 @@ function parseRecordDef(def, refs) {
   return schema2;
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/map.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/map.js
 function parseMapDef(def, refs) {
   if (refs.mapStrategy === "record") {
     return parseRecordDef(def, refs);
@@ -87322,7 +88452,7 @@ function parseMapDef(def, refs) {
   };
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/nativeEnum.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/nativeEnum.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -87342,7 +88472,7 @@ function parseNativeEnumDef(def) {
   };
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/never.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/never.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -87358,7 +88488,7 @@ function parseNeverDef(refs) {
   };
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/null.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/null.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -87374,7 +88504,7 @@ function parseNullDef(refs) {
   };
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/nullable.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/nullable.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -87382,7 +88512,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/union.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/union.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -87456,7 +88586,7 @@ var asAnyOf = (def, refs) => {
   return anyOf.length ? { anyOf } : void 0;
 };
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/nullable.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/nullable.js
 function parseNullableDef(def, refs) {
   if (["ZodString", "ZodNumber", "ZodBigInt", "ZodBoolean", "ZodNull"].includes(def.innerType._def.typeName) && (!def.innerType._def.checks || !def.innerType._def.checks.length)) {
     if (refs.target === "openApi3") {
@@ -87488,7 +88618,7 @@ function parseNullableDef(def, refs) {
   return base && { anyOf: [base, { type: "null" }] };
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/number.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/number.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -87543,7 +88673,7 @@ function parseNumberDef(def, refs) {
   return res;
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/object.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/object.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -87619,7 +88749,7 @@ function safeIsOptional(schema2) {
   }
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/optional.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/optional.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -87644,7 +88774,7 @@ var parseOptionalDef = (def, refs) => {
   } : parseAnyDef(refs);
 };
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/pipeline.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/pipeline.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -87670,7 +88800,7 @@ var parsePipelineDef = (def, refs) => {
   };
 };
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/promise.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/promise.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -87681,7 +88811,7 @@ function parsePromiseDef(def, refs) {
   return parseDef(def.type._def, refs);
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/set.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/set.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -87707,7 +88837,7 @@ function parseSetDef(def, refs) {
   return schema2;
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/tuple.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/tuple.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -87741,7 +88871,7 @@ function parseTupleDef(def, refs) {
   }
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/undefined.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/undefined.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -87754,7 +88884,7 @@ function parseUndefinedDef(refs) {
   };
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/unknown.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/unknown.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -87765,7 +88895,7 @@ function parseUnknownDef(refs) {
   return parseAnyDef(refs);
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/readonly.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/readonly.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -87776,7 +88906,7 @@ var parseReadonlyDef = (def, refs) => {
   return parseDef(def.innerType._def, refs);
 };
 
-// node_modules/zod-to-json-schema/dist/esm/selectParser.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/selectParser.js
 var selectParser = (def, typeName, refs) => {
   switch (typeName) {
     case ZodFirstPartyTypeKind.ZodString:
@@ -87852,7 +88982,7 @@ var selectParser = (def, typeName, refs) => {
   }
 };
 
-// node_modules/zod-to-json-schema/dist/esm/parseDef.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parseDef.js
 function parseDef(def, refs, forceResolution = false) {
   const seenItem = refs.seen.get(def);
   if (refs.override) {
@@ -87908,7 +89038,7 @@ var addMeta = (def, refs, jsonSchema) => {
   return jsonSchema;
 };
 
-// node_modules/zod-to-json-schema/dist/esm/parseTypes.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parseTypes.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -87916,7 +89046,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod-to-json-schema/dist/esm/zodToJsonSchema.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/zodToJsonSchema.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -87984,7 +89114,7 @@ var zodToJsonSchema = (schema2, options) => {
   return combined;
 };
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-json-schema-compat.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-json-schema-compat.js
 function mapMiniTarget(t) {
   if (!t)
     return "draft-7";
@@ -88026,7 +89156,7 @@ function parseWithCompat(schema2, data2) {
   return result.data;
 }
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js
 var DEFAULT_REQUEST_TIMEOUT_MSEC = 6e4;
 var Protocol = class {
   constructor(_options) {
@@ -88980,7 +90110,7 @@ function mergeCapabilities(base, additional) {
   return result;
 }
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/validation/ajv-provider.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/validation/ajv-provider.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -89054,7 +90184,7 @@ var AjvJsonSchemaValidator = class {
   }
 };
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/server.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/server.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -89273,7 +90403,7 @@ var ExperimentalServerTasks = class {
   }
 };
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/helpers.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/helpers.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -89314,7 +90444,7 @@ function assertClientRequestTaskCapability(requests, method, entityName) {
   }
 }
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/server/index.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/server/index.js
 var Server = class extends Protocol {
   /**
    * Initializes this server with the given name and version information.
@@ -89694,7 +90824,7 @@ var Server = class extends Protocol {
   }
 };
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/server/completable.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/server/completable.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -89714,7 +90844,7 @@ var McpZodTypeKind;
   McpZodTypeKind2["Completable"] = "McpCompletable";
 })(McpZodTypeKind || (McpZodTypeKind = {}));
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/shared/uriTemplate.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/uriTemplate.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -89722,7 +90852,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/shared/toolNameValidation.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/toolNameValidation.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -89786,7 +90916,7 @@ function validateAndWarnToolName(name) {
   return result.isValid;
 }
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/mcp-server.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/mcp-server.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -89807,7 +90937,7 @@ var ExperimentalMcpServerTasks = class {
   }
 };
 
-// node_modules/zod/index.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/index.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -89815,7 +90945,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/server/mcp.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/server/mcp.js
 var McpServer = class {
   constructor(serverInfo, options) {
     this._registeredResources = {};
@@ -90607,7 +91737,7 @@ var EMPTY_COMPLETION_RESULT = {
   }
 };
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/server/stdio.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/server/stdio.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -90616,7 +91746,7 @@ init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 import process3 from "node:process";
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/shared/stdio.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/stdio.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -90650,7 +91780,7 @@ function serializeMessage(message) {
   return JSON.stringify(message) + "\n";
 }
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/server/stdio.js
+// ../../../../../../../../../../../Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/server/stdio.js
 var StdioServerTransport = class {
   constructor(_stdin = process3.stdin, _stdout = process3.stdout) {
     this._stdin = _stdin;

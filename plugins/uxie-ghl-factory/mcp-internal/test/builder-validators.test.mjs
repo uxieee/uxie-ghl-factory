@@ -115,15 +115,17 @@ test('a validator that throws is recorded as crashed, not silently skipped', () 
   assert.match(r.crashed[0].error, /helper missing/);
 });
 
-test('the type-to-validator map covers 114 types, and the shortfall is named not hidden', () => {
+test('the type-to-validator map covers 115 types, and the shortfall is named not hidden', () => {
   // 136 cards carry a Validator meta line and 118 name one. 61 had a body while this file came
   // from the 2026-05-17 capture; the 2026-09-14 re-mine brought the trigger validators with it and
   // took that to 114 — contact_created, form_submission, appointment, opportunity_* and 48 more
   // gained one, and NOTHING lost one. The gap that remains is still reported rather than rounded
-  // up: naming 136 would overstate coverage.
+  // up: naming 136 would overstate coverage. 2026-09-26 (workflows parity wave 1, cards not capture): +contact_tag
+  // (its Validator line corrected), +workflow_ai_generate_image (new card), -user_log_in (trigger removed from the
+  // builder) → 115.
   const bag = compileValidators(SOURCE);
   const vname = validatorNamesFor(CARDS, bag);
-  assert.equal(Object.keys(vname).length, 114,
+  assert.equal(Object.keys(vname).length, 115,
     'if this moves, the capture or the cards changed — read which, do not re-baseline');
   const named = CARDS.filter((c) => {
     const line = c.meta?.Validator;
