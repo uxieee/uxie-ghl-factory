@@ -7577,7 +7577,7 @@
    "family": "steps",
    "title": "custom_code",
    "status": "source-derived",
-   "lastVerified": "2026-08-22",
+   "lastVerified": "2026-09-25",
    "summary": "Execute user-supplied JavaScript and yield an `output` object that downstream steps can reference (e.g. `{{custom_code.<order>.output.<key>}}`).",
    "meta": {
     "Section": "`internal`",
@@ -7607,7 +7607,7 @@
      "type": "object",
      "required": false,
      "default": "{}",
-     "notes": "Object passed into the function as input — keys are exposed as variables in scope. 100% (often empty)."
+     "notes": "Object passed into the function as input. The code reads it as `inputData.<key>`: a bare `<key>` is not defined `[proven-live 2026-09-25]`. 100% (often empty)."
     },
     {
      "name": "language",
