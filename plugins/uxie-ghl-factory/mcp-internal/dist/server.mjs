@@ -97943,7 +97943,7 @@ function parseIR(ir, { externalRefs } = {}) {
   return { ...ir, triggers };
 }
 var REQUIRES_OPPORTUNITY = /* @__PURE__ */ new Set(["update_opportunity", "internal_update_opportunity"]);
-var CREATES_OPPORTUNITY = /* @__PURE__ */ new Set(["create_opportunity", "create_opportunity_strict", "internal_create_opportunity"]);
+var CREATES_OPPORTUNITY = /* @__PURE__ */ new Set(["create_opportunity_strict", "internal_create_opportunity"]);
 function checkOpportunityAssociation(norm3, oppTriggerTypes) {
   const rootAssoc = norm3.triggers.length > 0 && norm3.triggers.every((t) => oppTriggerTypes.has(t.type));
   const walk3 = (nodes, assoc) => {
@@ -97951,7 +97951,7 @@ function checkOpportunityAssociation(norm3, oppTriggerTypes) {
       if (REQUIRES_OPPORTUNITY.has(n.type) && !assoc && n.assocGuaranteed !== true)
         throw new IRError(
           "OPP_UNASSOCIATED",
-          `update_opportunity '${n.ref}' has no associated opportunity on its path \u2014 add a find_opportunity (put this step in its Found branch, and a create_opportunity in Not Found), add a create_opportunity before it, use an opportunity trigger on ALL triggers, or set assocGuaranteed:true if you know association is established in a way the checker can't see.`
+          `update_opportunity '${n.ref}' has no associated opportunity on its path \u2014 add a find_opportunity (put this step in its Found branch, and a create_opportunity in Not Found), add a create_opportunity_strict before it (a native create_opportunity does NOT bind its card \u2014 the update is skipped at run time), use an opportunity trigger on ALL triggers, or set assocGuaranteed:true if you know association is established in a way the checker can't see.`
         );
       if (CREATES_OPPORTUNITY.has(n.type)) assoc = true;
       for (const b of n.branches ?? []) walk3(b.then, b.assocGuaranteed === true || assoc);
@@ -98688,6 +98688,49 @@ function lintContactFieldTemplates(templates, stepIds, warn) {
     if (wanted && !wanted.has(step.id)) continue;
     checkContactFieldShape(step.attributes ?? {}, { ref: step.name ?? step.id ?? "?", warn });
   }
+}
+
+// ../skills/create-ghl-workflow/engine/lints/formatter-skips.mjs
+init_define_BUILDER_VALIDATORS();
+init_define_CONTACT_FILTER_FIELDS();
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
+init_define_TOOL_CATALOG();
+function numberFormatterFieldTypes(action) {
+  const [from, to] = String(action ?? "").split("_to_");
+  if (!from || !to) return null;
+  return { fromFieldType: from, toFieldType: to.replace("formatted_", "") };
+}
+var isZeroSkip = (v) => v !== void 0 && v !== null && v !== "" && Number(v) === 0;
+function lintFormatterSkips(templates) {
+  const out = [];
+  for (const t of Array.isArray(templates) ? templates.filter(Boolean) : []) {
+    const a = t.attributes ?? {};
+    if (t.type === "number_formatter") {
+      const want = numberFormatterFieldTypes(a.action);
+      const f = a.format ?? {};
+      if (!want) continue;
+      for (const k of ["fromFieldType", "toFieldType"]) {
+        if (f[k] !== void 0 && f[k] !== want[k])
+          out.push({
+            code: "FORMATTER_RUNTIME_SKIP",
+            severity: "error",
+            stepId: t.id,
+            msg: `number_formatter '${t.name ?? t.id}' has format.${k} '${f[k]}' but action '${a.action}' needs '${want[k]}' \u2014 GHL skips this step on every run (invalid-data) and its output renders empty. Set ${k}: '${want[k]}'.`
+          });
+      }
+    }
+    if (t.type === "text_formatter" && a.formatterType === "trim" && isZeroSkip(a.extras?.skip)) {
+      out.push({
+        code: "FORMATTER_RUNTIME_SKIP",
+        severity: "error",
+        stepId: t.id,
+        msg: `text_formatter '${t.name ?? t.id}' trims with skip ${JSON.stringify(a.extras.skip)} \u2014 GHL skips this step on every run ("Invalid data. key: skip, value: 0") and its output renders empty. Omit skip to trim from the start.`
+      });
+    }
+  }
+  return out;
 }
 
 // ../skills/create-ghl-workflow/engine/required-fields.mjs
@@ -162434,7 +162477,40 @@ function attributesFor(node, ctx) {
   const out = normalizeAttrs(node, node.attributes ?? {}, ctx);
   if (node.type === "update_contact_field")
     checkContactFieldShape(out, { ref: node.ref ?? node.name ?? "?", warn: ctx?.warn });
+  if (node.type === "workflow_goal") return withGoalConditionIds(out, ctx);
+  if (node.type === "number_formatter") return withNumberFormatterFieldTypes(out, node);
+  if (node.type === "text_formatter") return withoutZeroTrimSkip(out, node, ctx);
   return out;
+}
+function withNumberFormatterFieldTypes(attrs, node) {
+  const want = numberFormatterFieldTypes(attrs?.action);
+  if (!want) return attrs;
+  const format = { ...attrs.format ?? {} };
+  for (const k of ["fromFieldType", "toFieldType"]) {
+    if (format[k] === void 0) format[k] = want[k];
+    else if (format[k] !== want[k])
+      throw new IRError(
+        "FORMATTER_FIELD_TYPE",
+        `number_formatter '${node.ref ?? node.name}' has format.${k} '${format[k]}' but action '${attrs.action}' needs '${want[k]}'. GHL saves this and then skips the step on every run (invalid-data), leaving its output empty. Omit ${k} (the compiler derives it) or set '${want[k]}'.`
+      );
+  }
+  return { ...attrs, format };
+}
+function withoutZeroTrimSkip(attrs, node, ctx) {
+  if (attrs?.formatterType !== "trim" || !isZeroSkip(attrs?.extras?.skip)) return attrs;
+  const { skip, ...extras } = attrs.extras;
+  ctx?.warn?.(`FORMATTER_SKIP_ZERO: text_formatter '${node.ref ?? node.name}' trim skip ${JSON.stringify(skip)} removed \u2014 GHL skips the step at run time when skip is 0; without it the trim starts at the first character.`);
+  return { ...attrs, extras };
+}
+function withGoalConditionIds(attrs, ctx) {
+  if (!Array.isArray(attrs?.segments)) return attrs;
+  return {
+    ...attrs,
+    segments: attrs.segments.map((seg) => !Array.isArray(seg?.conditions) ? seg : {
+      ...seg,
+      conditions: seg.conditions.map((c) => c && typeof c === "object" && !c.id ? { ...c, id: ctx.idGen() } : c)
+    })
+  };
 }
 var MARKETPLACE_ENVELOPE_KEYS = /* @__PURE__ */ new Set([
   "__customInputs__",
@@ -164001,6 +164077,11 @@ function buildTrigger(t, ctx, wid, refMap) {
     const ghlText = r.i18n && ctx?.catalog?.i18n?.[r.i18n] ? ` \u2014 GHL: "${ctx.catalog.i18n[r.i18n]}"` : "";
     if (empty2) ctx?.warn?.(`TRIGGER_FILTER: '${t.name ?? t.type}' (${t.type}) \u2014 GHL requires filter '${r.field}'${r.beDedupeAssetType ? " (the SERVER blocks the save without it)" : ""}${ghlText}`);
   }
+  if (t.type === "opportunity_status_changed" && !conditions.some((c) => ["moved-from-status", "moved-to-status"].includes(c?.id) || ["opportunity.status", "opportunity.oldStatus"].includes(c?.field)))
+    throw new IRError(
+      "TRIGGER_REQUIRED_FILTER",
+      `trigger '${t.name ?? t.type}' (opportunity_status_changed) has no status row \u2014 GHL refuses to publish it ("Opportunity Status is required"). Add { field: 'opportunity.status', value: '<open|won|lost|abandoned>' } (Moved to status) and/or { field: 'opportunity.oldStatus', value: ... } (Moved from status).`
+    );
   if (t.convTriggerBotId && !conditions.some((c) => c?.field === "botId")) {
     conditions = [
       ...conditions,
@@ -166054,7 +166135,7 @@ function checkOpportunityAssociationTemplates(templates, rootAssoc = false) {
       if (REQUIRES_OPPORTUNITY.has(cur.type) && !assoc)
         throw new IRError(
           "OPP_UNASSOCIATED",
-          `step '${cur.name ?? cur.id}' (${cur.id}) updates an opportunity but none is associated on its path \u2014 add a create step or a find_opportunity Found scope before it, or pass assumeAssociated:true if ALL the workflow's triggers are opportunity-based.`
+          `step '${cur.name ?? cur.id}' (${cur.id}) updates an opportunity but none is associated on its path \u2014 add an internal_create_opportunity (a native create_opportunity does NOT bind its card) or a find_opportunity Found scope before it, or pass assumeAssociated:true if ALL the workflow's triggers are opportunity-based.`
         );
       if (CREATES_OPPORTUNITY.has(cur.type)) assoc = true;
       if (Array.isArray(cur.next)) {
@@ -171017,6 +171098,7 @@ function runLints(doc, {
       for (const f of lintEntryStep(T)) F("platform", f.code, f.severity, f.msg, f.stepId ? { stepId: f.stepId } : {});
       for (const f of lintPublishRules(T)) F("platform", f.code, f.severity, f.msg, { stepId: f.stepId });
       for (const f of lintOpportunityWrites(T)) F("platform", f.code, f.severity, f.msg, { stepId: f.stepId });
+      for (const f of lintFormatterSkips(T)) F("platform", f.code, f.severity, f.msg, { stepId: f.stepId });
       for (const f of lintTriggerRows(triggers, catalog)) F("platform", f.code, f.severity, f.msg, { triggerId: f.triggerId });
       for (const f of lintNameLength(T, triggers))
         F("platform", f.code, f.severity, f.msg, f.stepId ? { stepId: f.stepId } : { triggerId: f.triggerId });

@@ -1518,7 +1518,7 @@
    "family": "triggers",
    "title": "appointment",
    "status": "source-derived",
-   "lastVerified": "2026-09-25",
+   "lastVerified": "2026-09-26",
    "summary": "Fires on appointment events (booked / status changes) in the chosen calendar.",
    "meta": {
     "Trigger value": "`appointment`",
@@ -1564,6 +1564,27 @@
      "type": "select",
      "operator": "`—`",
      "options": "`customer`, `user`, `api`, `workflow`"
+    },
+    {
+     "label": "In calendar group",
+     "field": "`appointment.calendarProviderId`",
+     "type": "select",
+     "operator": "`==`",
+     "options": "the location's calendar groups; offered only when the location has at least one group"
+    },
+    {
+     "label": "Only for grouped calendars",
+     "field": "`appointment.isV3`",
+     "type": "select",
+     "operator": "`==`",
+     "options": "`true` / `false`; offered only when the location has a calendar group"
+    },
+    {
+     "label": "User is",
+     "field": "`appointment.assignedUserId`",
+     "type": "select",
+     "operator": "`==`",
+     "options": "dependent row, offered after a `calendar.id` or calendar-group row"
     }
    ],
    "validator": "`appointmentValidator` checks the following fields (warning-level results) per `sniffs/bundle/trigger-validators-summary.json::appointmentValidator`:\n\n- `appointment.assignedUserId`\n- `calendar.id`\n\nAll other fields and the body envelope pass without validator inspection. Empty filters / conditions are permitted at create time — the publish flow uses the same validator chain (`docs/08-validators.md`).",
@@ -2598,7 +2619,7 @@
     }
    ],
    "validator": "`assignToUserValidator` (per `sniffs/bundle/validators.json`):\n\n- If `user_list.length === 0` **AND** `customUserList` is unset, emits `user_list_required` warning.\n- For each user ID in `user_list`, emits a `resource: \"user\"` warning so the resolver verifies the user still exists in the location.\n\nPer `validators-summary.json`: 5 fields referenced; result level `warning`.",
-   "notes": "- `traffic_split: \"unevenly\"` with two users and weights 3/1 is stored and read back as authored `[proven-live 2026-09-26]` — but authored through the API it keeps `total_index: 0` and `traffic_index: []`, because it is the BUILDER that computes both on save (`setTrafficIndex`, `models/actions/AssignToUser.ts:71-111`). Whether the runtime splits by weight without them is untested (the uneven run was not executed: a run could assign a test contact to a second real user). A single-user `equally` step assigned the contact (`assignedTo` read back) `[proven-live 2026-09-26]` (`sniffs/workflows-wave1-2026-09-25/live-B-semantics.json`).\n- `customUserList` accepts a handlebar that must resolve to a valid user ID at run time; no validator pre-flight on the handlebar contents.\n- `traffic_index` and `total_index` are derived from `traffic_weightage` by the builder on save, not runtime counters. An API-built step should store what the builder would compute (for 2 users weighted 1:1 → `total_index: 2`, `traffic_index: [{id:A,indexes:[1]},{id:B,indexes:[2]}]`) `[source-derived 2026-09-26 — models/actions/AssignToUser.ts:71-111]`.\n- `only_unassigned_contact: true` short-circuits the rotation when the contact already has an `assignedTo` — no rotation advance, no new assignment.\n- For weighted distribution set `traffic_split: \"unevenly\"` and `traffic_weightage: { [userId]: weight }` with every weight ≥ 1 (the enum has no `\"weighted\"` value) `[source-derived 2026-09-26 — models/actions/AssignToUser.ts:5; components/actions/crm/AssignToUser.vue:118]`.",
+   "notes": "- **`unevenly` splits by weight at run time, with or without the builder's index** `[proven-live 2026-09-26]`: weights 3/1 over two users, 4 run-created contacts in sequence → assignments A, A, A, B — both for a step authored through the API (stored `total_index: 0`, `traffic_index: []`) and for one carrying the builder-computed `total_index: 4`, `traffic_index: [{A:[1,2,3]},{B:[4]}]` (`setTrafficIndex`, `models/actions/AssignToUser.ts:69-111`). The runtime derives the rotation from `user_list` + `traffic_weightage`; the two index fields are builder bookkeeping. Each run logs `contact got assigned to user with id: …` (`sniffs/workflows-wave1-2026-09-25/live-D-assign-uneven.json`; test users only, never real ones).\n- `customUserList` accepts a handlebar that must resolve to a valid user ID at run time; no validator pre-flight on the handlebar contents.\n- `traffic_index` and `total_index` are derived from `traffic_weightage` by the builder on save, not runtime counters. An API-built step should store what the builder would compute (for 2 users weighted 1:1 → `total_index: 2`, `traffic_index: [{id:A,indexes:[1]},{id:B,indexes:[2]}]`) `[source-derived 2026-09-26 — models/actions/AssignToUser.ts:71-111]`.\n- `only_unassigned_contact: true` short-circuits the rotation when the contact already has an `assignedTo` — no rotation advance, no new assignment.\n- For weighted distribution set `traffic_split: \"unevenly\"` and `traffic_weightage: { [userId]: weight }` with every weight ≥ 1 (the enum has no `\"weighted\"` value) `[source-derived 2026-09-26 — models/actions/AssignToUser.ts:5; components/actions/crm/AssignToUser.vue:118]`.",
    "hasCanonicalExample": true
   },
   {
@@ -4201,12 +4222,19 @@
      "label": "Product",
      "field": "`membership.product.id`",
      "type": "multiselect",
-     "operator": "`—`",
-     "options": "—"
+     "operator": "`is-any-of` / `is-none-of`",
+     "options": "the location's membership products"
+    },
+    {
+     "label": "Category",
+     "field": "`membership.category.id`",
+     "type": "multiselect",
+     "operator": "`is-any-of`",
+     "options": "offered only when the Product row holds exactly one product; the options are that product's categories"
     }
    ],
    "validator": "`membershipCourseValidator` emits a **warning-level** `custom_field` reference check for every `contact.*` row in `conditions[]` except `contact.tags`. The builder resolves each against the location's custom fields: an unknown field id gives `contact_custom_field_not_found`, and a picklist value that is not one of the field's options gives `invalid_custom_field_value`. Every finding, warning or error, is pushed into the builder's highlight-error map with no severity filter, and a non-empty map blocks Publish in the builder (a client-side gate). [source-derived 2026-09-26 — utils/validators/triggers/additional-trigger-validators.ts:125-137; utils/validators/template-validator.ts:740-768; utils/validators/template-validator.ts:188-202; utils/highlight-errors.ts:14-27; hooks/use-publish-gate.ts:95-106]",
-   "notes": "- Single `Product` filter row on `membership.product.id` (multiselect). Validator (`membershipCourseValidator`) runs only the checks listed under `## Validator`.",
+   "notes": "- Rows cascade: `membership.product.id` (is-any-of / is-none-of), then `membership.category.id` once exactly one product is chosen. [source-derived 2026-09-26 — models/Triggers/Filters/MembershipCategoryCompletedFilter.ts:14-47, 91-155] Validator (`membershipCourseValidator`) runs only the checks listed under `## Validator`.",
    "hasCanonicalExample": false
   },
   {
@@ -4230,12 +4258,19 @@
      "label": "Product",
      "field": "`membership.product.id`",
      "type": "multiselect",
-     "operator": "`—`",
-     "options": "—"
+     "operator": "`is-any-of` / `is-none-of`",
+     "options": "the location's membership products"
+    },
+    {
+     "label": "Category",
+     "field": "`membership.category.id`",
+     "type": "multiselect",
+     "operator": "`is-any-of`",
+     "options": "offered only when the Product row holds exactly one product; the options are that product's categories"
     }
    ],
    "validator": "`membershipCourseValidator` emits a **warning-level** `custom_field` reference check for every `contact.*` row in `conditions[]` except `contact.tags`. The builder resolves each against the location's custom fields: an unknown field id gives `contact_custom_field_not_found`, and a picklist value that is not one of the field's options gives `invalid_custom_field_value`. Every finding, warning or error, is pushed into the builder's highlight-error map with no severity filter, and a non-empty map blocks Publish in the builder (a client-side gate). [source-derived 2026-09-26 — utils/validators/triggers/additional-trigger-validators.ts:125-137; utils/validators/template-validator.ts:740-768; utils/validators/template-validator.ts:188-202; utils/highlight-errors.ts:14-27; hooks/use-publish-gate.ts:95-106]",
-   "notes": "- Single `Product` filter row on `membership.product.id` (multiselect). Validator (`membershipCourseValidator`) runs only the checks listed under `## Validator`.",
+   "notes": "- Rows cascade: `membership.product.id` (is-any-of / is-none-of), then `membership.category.id` once exactly one product is chosen. [source-derived 2026-09-26 — models/Triggers/Filters/MembershipCategoryStartedFilter.ts:14-48, 76-140] Validator (`membershipCourseValidator`) runs only the checks listed under `## Validator`.",
    "hasCanonicalExample": false
   },
   {
@@ -6043,7 +6078,7 @@
    "family": "triggers",
    "title": "conv_ai_autonomous_trigger",
    "status": "proven-live",
-   "lastVerified": "2026-08-31",
+   "lastVerified": "2026-09-26",
    "summary": "Fires from an autonomous conversation AI bot action — treated as a 'goto' jump trigger.",
    "meta": {
     "Trigger value": "`conv_ai_autonomous_trigger`",
@@ -6059,7 +6094,7 @@
      "name": "customTriggerType",
      "type": "select",
      "required": true,
-     "notes": "default `book_appointment`. Only the first option's wire value is captured."
+     "notes": "default `book_appointment`. Switching the type rewrites the description (Book appointment → the default text; Custom scenario → empty) and, unless the name was edited, sets the trigger name to the type's label. [source-derived 2026-09-26 — components/trigger-filters/ConversationAIAutonomousTrigger.vue:100-103, 111-185]"
     },
     {
      "name": "customTriggerDescription",
@@ -6071,7 +6106,7 @@
      "name": "customTriggerPriority",
      "type": "number",
      "required": true,
-     "notes": "stored as a **string** — `\"8\"`, not `8`. Default `8`."
+     "notes": "the untouched seed is the **string** `'8'`; once the drawer sets it, it writes a **number** (e.g. `7.5`). [source-derived 2026-09-26 — components/trigger-filters/ConversationAIAutonomousTrigger.vue:100-103, 111-185]"
     },
     {
      "name": "customTriggerSensitivity",
@@ -6086,8 +6121,8 @@
      "fieldType": "select",
      "required": true,
      "title": "Choose custom trigger",
-     "options": "`book_appointment` · Custom scenario",
-     "notes": "default `book_appointment`. Only the first option's wire value is captured."
+     "options": "`book_appointment` · `custom_scenario`",
+     "notes": "default `book_appointment`. Switching the type rewrites the description (Book appointment → the default text; Custom scenario → empty) and, unless the name was edited, sets the trigger name to the type's label. [source-derived 2026-09-26 — components/trigger-filters/ConversationAIAutonomousTrigger.vue:100-103, 111-185]"
     },
     {
      "field": "customTriggerDescription",
@@ -6102,8 +6137,8 @@
      "fieldType": "number",
      "required": true,
      "title": "Priority",
-     "options": "1–10 (stepper)",
-     "notes": "stored as a **string** — `\"8\"`, not `8`. Default `8`."
+     "options": "stepper; the setter clamps to 0–10 and rounds to 2 decimals",
+     "notes": "the untouched seed is the **string** `'8'`; once the drawer sets it, it writes a **number** (e.g. `7.5`). [source-derived 2026-09-26 — components/trigger-filters/ConversationAIAutonomousTrigger.vue:100-103, 111-185]"
     },
     {
      "field": "customTriggerSensitivity",
@@ -6123,7 +6158,7 @@
    "family": "triggers",
    "title": "conv_ai_trigger",
    "status": "proven-live",
-   "lastVerified": "2026-08-26",
+   "lastVerified": "2026-09-26",
    "summary": "Fires when a conversation AI bot session starts for a contact.",
    "meta": {
     "Trigger value": "`conv_ai_trigger`",
@@ -6153,7 +6188,7 @@
     }
    ],
    "validator": "None bound in TriggerMaster — picker uses runtime defaults. Per `sniffs/bundle/trigger-registry-parsed.json::entries[]` for `conv_ai_trigger`, the `validation.code` slot is empty.",
-   "notes": "- Carries `inCompatibleActions()`, `recommendedActions()`, and `uiControls.disable()` functions in the registry — the builder uses these to filter the action picker and gate adding duplicate conv-AI triggers. Per `DISCOVERIES.md §15`.\n- Conditions use a `botId` field as a free-text input (not a filter row from a TS model). Per `catalog/trigger-examples/conv_ai_trigger.json`.\n- **The API enforces none of the builder's immutability.** The flow builder makes this trigger uneditable and the workflow undeletable; the API does not. Live-proven 2026-08-26, one attempt each, each read back separately: `PUT` with a different `botId` → 200, applied (the flow now belongs to another agent); `PUT` with `type: \"contact_tag\"` → 200, applied, conditions wiped. Only DELETE is refused, with `403 Workflows with type \"agent\" cannot be deleted`. Breaking either half orphans the bot — it keeps `objectiveBuilderWorkflowId` while nothing can enter the flow. The engine therefore refuses `modifyTrigger`/`deleteTrigger` on a `conv_ai_trigger` itself (hatch: `ctx.allowFlowTriggerEdit`).\n- **Flow workflows report `status: \"published\"`** on creation, whether engine-built or UI-built, while non-flow workflows on the same account stay `draft`. The draft-first guarantee does not hold for `workflowType: \"agent\"`. [proven-live — observed on every flow workflow on the test account; cause unexplained]\n- **A flow can only be entered by this trigger, and can only gain custom triggers.** `uiControls.hideOtherTriggers` filters the whole trigger picker down to `conv_ai_autonomous_trigger` once a `conv_ai_trigger` exists — so a flow workflow can never gain an ordinary trigger, only up to 3 [`Custom triggers`](./conv_ai_autonomous_trigger.md). Confirmed live: with the plan state resolved, \"Add new trigger\" shows exactly one option, \"Custom trigger\".\n- **Not supported in the Advanced Builder.** `uiControls.disable` returns *\"Conversation AI trigger is not supported in Advanced Builder\"* when the advanced canvas is active. This matters on accounts that default to it.\n- **Only one per workflow, and it cannot share a workflow with any other trigger type** — *\"conv_ai_trigger_already_exists_in_workflow\"* / *\"cannot_add_conv_ai_trigger_with_other_triggers\"*.\n- **It cannot be added to an already-existing workflow.** If `workflow.version > 1` the builder refuses with *\"conv_ai_trigger_cant_be_added_to_already_existing_workflow\"* — a flow must be a flow from creation. [source-derived — from `uiControls.disable`; not tested against the API, which enforces none of the other rules on this surface]",
+   "notes": "- Carries `inCompatibleActions()`, `recommendedActions()`, and `uiControls.disable()` functions in the registry — the builder uses these to filter the action picker and gate adding duplicate conv-AI triggers. Per `DISCOVERIES.md §15`.\n- Conditions use a `botId` field as a free-text input (not a filter row from a TS model). Per `catalog/trigger-examples/conv_ai_trigger.json`.\n- **The API enforces none of the builder's immutability.** The flow builder makes this trigger uneditable and the workflow undeletable; the API does not. Live-proven 2026-08-26, one attempt each, each read back separately: `PUT` with a different `botId` → 200, applied (the flow now belongs to another agent); `PUT` with `type: \"contact_tag\"` → 200, applied, conditions wiped. Only DELETE is refused, with `403 Workflows with type \"agent\" cannot be deleted`. Breaking either half orphans the bot — it keeps `objectiveBuilderWorkflowId` while nothing can enter the flow. The engine therefore refuses `modifyTrigger`/`deleteTrigger` on a `conv_ai_trigger` itself (hatch: `ctx.allowFlowTriggerEdit`).\n- **Flow workflows report `status: \"published\"`** on creation, whether engine-built or UI-built, while non-flow workflows on the same account stay `draft`. The draft-first guarantee does not hold for `workflowType: \"agent\"`. [proven-live — observed on every flow workflow on the test account] The builder side matches: a workflow holding a `conv_ai_trigger` is **locked to published** — the status toggle is disabled (tooltip \"Workflows with Agent Triggers must always be published\"), because drafting one would orphan in-flight AI conversations. [source-derived 2026-09-26 — components/workflow-page-header/WorkflowStatusToggle.vue:7-21, 64-81]\n- **A flow can only be entered by this trigger, and can only gain custom triggers.** `uiControls.hideOtherTriggers` filters the whole trigger picker down to `conv_ai_autonomous_trigger` once a `conv_ai_trigger` exists — so a flow workflow can never gain an ordinary trigger, only up to 3 [`Custom triggers`](./conv_ai_autonomous_trigger.md). Confirmed live: with the plan state resolved, \"Add new trigger\" shows exactly one option, \"Custom trigger\".\n- **Not supported in the Advanced Builder.** `uiControls.disable` returns *\"Conversation AI trigger is not supported in Advanced Builder\"* when the advanced canvas is active. This matters on accounts that default to it.\n- **Only one per workflow, and it cannot share a workflow with any other trigger type** — *\"conv_ai_trigger_already_exists_in_workflow\"* / *\"cannot_add_conv_ai_trigger_with_other_triggers\"*.\n- **It cannot be added to an already-existing workflow.** If `workflow.version > 1` the builder refuses with *\"conv_ai_trigger_cant_be_added_to_already_existing_workflow\"* — a flow must be a flow from creation. [source-derived — from `uiControls.disable`; not tested against the API, which enforces none of the other rules on this surface]",
    "hasCanonicalExample": false
   },
   {
@@ -7619,7 +7654,7 @@
     }
    ],
    "validator": "`createOpportunityActionValidator` (length 642, result level `warning`). Per `sniffs/bundle/validators.json::createOpportunityActionValidator`:\n\n```\nif (pipeline_id) {\n  push { resource: \"pipeline\", field: \"pipeline_id\", value: pipeline_id }\n  if (pipeline_stage_id) {\n    push { resource: \"pipeline_stage\", field: \"pipeline_stage_id\",\n           value: pipeline_stage_id, context: { pipelineId: pipeline_id } }\n  }\n} else {\n  push { field: \"pipeline_id\", message: \"pipeline_required\" }\n}\n\nfor each f in fields:\n  if (f.field) push { resource: \"opp_custom_field\", field: f.field, ... }\n```\n\nTwo existence lookups: `pipeline` and `pipeline_stage` (the latter is contextualized by the parent `pipelineId`). Every entry is `result: \"warning\"` — the builder's validator never blocks a save or publish on its own `[source-derived 2026-09-26 — utils/validators/opportunity-action-validators.ts:7-50]`. What does catch a missing stage is GHL's `validate-assets`, which answered \"Referenced Pipeline Stage does not exist\" on a nonexistent stage id (see [`a-trigger-filter-ghl-did-not-understand`](../../40-rules/a-trigger-filter-ghl-did-not-understand.md)).\n\n`fields_referenced: [\"pipeline_id\", \"pipeline_stage_id\"]`.",
-   "notes": "- **`abandoned` is a current status** `[proven-live 2026-09-26]`: a step with `opportunity_status: \"abandoned\"` created a card whose read-back status is `abandoned`. The step stores **snake_case** `pipeline_id` / `pipeline_stage_id` / `opportunity_status` / `opportunity_name` (read back on a separate request) (`sniffs/workflows-wave1-2026-09-25/live-C-opportunity.json`).\n- 🔴 **This step does not bind its card to the run** `[proven-live 2026-09-26]`: an If/Else on `opportunities` / `pipelineStageId` placed after it read ELSE although the card had just been created in that stage — immediately, after a 1-minute wait, and for an `abandoned` card alike (`sniffs/workflows-wave1-2026-09-25/live-C3-opp-condition.json`). Positive control: the SAME condition after a `find_opportunity` (Found branch) took the stage branch for a contact holding a card in that stage (`sniffs/workflows-wave1-2026-09-25/live-C4-opp-control.json`). So an opportunity branch or update after this step needs a `find_opportunity` in front of it.\n- **`create_opportunity` actually updates** if the contact already has an opportunity in the same pipeline — an open one, and a **lost** one too: it reopens that card and overwrites its stage, name and value. Only `allow_multiple: true` creates a second card `[proven-live 2026-09-25]`. Proven by runtime differential, not inferred from the registry's display name — see below. The \"create vs update\" decision happens at runtime; this step doesn't expose a discriminator.\n- **`pipeline_id` format varies.** Older pipelines use MongoIDs (e.g. `\"PIPELINE_ID\"`), newer use UUIDs. The validator accepts both — the publish endpoint's `resource: \"pipeline\"` lookup resolves either.\n- **`pipeline_stage_id` is UUID-format** even when the pipeline is MongoID-format. Two different id stores.\n- **`opportunity_status: \"abandoned\"` is a current value**, one of the four in the builder's Status enum and offered in the status picker `[source-derived 2026-09-26 — models/Workflow.ts:666-671; models/actions/CreateOpportunity.ts:220-227]`.\n- **Deprecated in the builder.** The step carries a banner saying Create/Update \"will soon be deprecated\", replaced by Create Opportunity and Update Opportunity; existing workflows are unaffected `[source-derived 2026-09-26 — components/actions/crm/CreateOpportunity.vue:6; i18n 5176]`. Which step types those two are is not named in the banner.\n- **`monetary_value` is a string, not a number.** Stored as `\"\"` or `\"123.45\"`. Handlebars work here.\n- For internal/AI-driven creation, see [`internal_create_opportunity`](./internal_create_opportunity.md) (different attribute shape).",
+   "notes": "- **`abandoned` is a current status** `[proven-live 2026-09-26]`: a step with `opportunity_status: \"abandoned\"` created a card whose read-back status is `abandoned`. The step stores **snake_case** `pipeline_id` / `pipeline_stage_id` / `opportunity_status` / `opportunity_name` (read back on a separate request) (`sniffs/workflows-wave1-2026-09-25/live-C-opportunity.json`).\n- 🔴 **This step does not bind its card to the run** `[proven-live 2026-09-26]`: an If/Else on `opportunities` / `pipelineStageId` placed after it read ELSE although the card had just been created in that stage — immediately, after a 1-minute wait, and for an `abandoned` card alike (`sniffs/workflows-wave1-2026-09-25/live-C3-opp-condition.json`). Positive control: the SAME condition after a `find_opportunity` (Found branch) took the stage branch for a contact holding a card in that stage (`sniffs/workflows-wave1-2026-09-25/live-C4-opp-control.json`). The update side agrees: an `internal_update_opportunity` (status won) right after this step logged `skipped` \"Internal Action Error - Please use Opportunity trigger/find opportunity action to get the opportunity\" and the card stayed `open`, while the same update after [`internal_create_opportunity`](./internal_create_opportunity.md) wrote the card (`won`) (`sniffs/workflows-wave1-2026-09-25/live-W24-create-binds.json`) `[proven-live 2026-09-26]`. So an opportunity branch or update after this step needs a `find_opportunity` in front of it, or use `internal_create_opportunity` when the next step must act on the new card.\n- **`create_opportunity` actually updates** if the contact already has an opportunity in the same pipeline — an open one, and a **lost** one too: it reopens that card and overwrites its stage, name and value. Only `allow_multiple: true` creates a second card `[proven-live 2026-09-25]`. Proven by runtime differential, not inferred from the registry's display name — see below. The \"create vs update\" decision happens at runtime; this step doesn't expose a discriminator.\n- **`pipeline_id` format varies.** Older pipelines use MongoIDs (e.g. `\"PIPELINE_ID\"`), newer use UUIDs. The validator accepts both — the publish endpoint's `resource: \"pipeline\"` lookup resolves either.\n- **`pipeline_stage_id` is UUID-format** even when the pipeline is MongoID-format. Two different id stores.\n- **`opportunity_status: \"abandoned\"` is a current value**, one of the four in the builder's Status enum and offered in the status picker `[source-derived 2026-09-26 — models/Workflow.ts:666-671; models/actions/CreateOpportunity.ts:220-227]`.\n- **Deprecated in the builder.** The step carries a banner saying Create/Update \"will soon be deprecated\", replaced by Create Opportunity and Update Opportunity; existing workflows are unaffected `[source-derived 2026-09-26 — components/actions/crm/CreateOpportunity.vue:6; i18n 5176]`. Which step types those two are is not named in the banner.\n- **`monetary_value` is a string, not a number.** Stored as `\"\"` or `\"123.45\"`. Handlebars work here.\n- For internal/AI-driven creation, see [`internal_create_opportunity`](./internal_create_opportunity.md) (different attribute shape).",
    "hasCanonicalExample": true
   },
   {
@@ -7729,10 +7764,97 @@
     "Special flags": "none",
     "Corpus frequency": "0 occurrence(s) across 326 corpus workflows"
    },
+   "fields": [
+    {
+     "name": "`contact.customFields` (id `custom-field`)",
+     "type": "select",
+     "required": false
+    },
+    {
+     "name": "`opportunity.customFields` (id `opportunity-date-field`)",
+     "type": "select",
+     "required": false
+    },
+    {
+     "name": "`contact.tags` (id `has-tag`)",
+     "type": "select",
+     "required": false
+    },
+    {
+     "name": "`customDateField.monthValue` (id `month-value`)",
+     "type": "select",
+     "required": false
+    },
+    {
+     "name": "`customDateField.dayValue` (id `day-value`)",
+     "type": "select",
+     "required": false
+    },
+    {
+     "name": "`customDateField.dateValue` (id `before-days-in-number`)",
+     "type": "number",
+     "required": false
+    },
+    {
+     "name": "`customDateField.dateValue` (id `after-days-in-number`)",
+     "type": "number",
+     "required": false
+    }
+   ],
+   "filterRows": [
+    {
+     "field": "contact.customFields (id custom-field)",
+     "fieldType": "Contact date field",
+     "required": false,
+     "title": "`custom-field-eq`",
+     "options": "value = the id of a contact custom field with dataType `DATE`"
+    },
+    {
+     "field": "opportunity.customFields (id opportunity-date-field)",
+     "fieldType": "Opportunity date field",
+     "required": false,
+     "title": "`custom-field-eq`",
+     "options": "value = the id of an opportunity custom field with dataType `DATE`"
+    },
+    {
+     "field": "contact.tags (id has-tag)",
+     "fieldType": "Has tag",
+     "required": false,
+     "title": "`index-of-true`",
+     "options": "the location's tags"
+    },
+    {
+     "field": "customDateField.monthValue (id month-value)",
+     "fieldType": "Month is",
+     "required": false,
+     "title": "`==`",
+     "options": "offered only after a date-field row exists"
+    },
+    {
+     "field": "customDateField.dayValue (id day-value)",
+     "fieldType": "Day is",
+     "required": false,
+     "title": "`==`",
+     "options": "offered only after a date-field row exists"
+    },
+    {
+     "field": "customDateField.dateValue (id before-days-in-number)",
+     "fieldType": "Before no. of days",
+     "required": false,
+     "title": "`time-diff-now-lte`",
+     "options": "offered only after a date-field row exists; one of before/after"
+    },
+    {
+     "field": "customDateField.dateValue (id after-days-in-number)",
+     "fieldType": "After no. of days",
+     "required": false,
+     "title": "`time-diff-now-gte`",
+     "options": "offered only after a date-field row exists; one of before/after"
+    }
+   ],
    "validator": "`customDateReminderValidator` emits an **error-level** `custom_field` reference check for every `contact.*` row in `conditions[]` except `contact.customFields`, `contact.tags`, any other `*.customFields` date-field row. The builder resolves each against the location's custom fields: an unknown field id gives `contact_custom_field_not_found`, and a picklist value that is not one of the field's options gives `invalid_custom_field_value`. Every finding, warning or error, is pushed into the builder's highlight-error map with no severity filter, and a non-empty map blocks Publish in the builder (a client-side gate). [source-derived 2026-09-26 — utils/validators/triggers/contact-validators.ts:72-88; utils/validators/template-validator.ts:740-768; utils/validators/template-validator.ts:188-202; utils/highlight-errors.ts:14-27; hooks/use-publish-gate.ts:95-106]",
-   "notes": "- No filter rows surfaced in the TS model (`CustomDateReminderFilter.filter_rows = []`). The reminder offset (days before/after) and custom-field-id selection live in `conditions[]` or higher-level state — open the recovered TS for the full row composition. Per `sniffs/bundle/recovered-source/src/models/Triggers/Filters/CustomDateReminderFilter.ts`.",
-   "hasCanonicalExample": false,
-   "configSurface": "none"
+   "notes": "- The date field is chosen by the required `*.customFields` row (operator `custom-field-eq`, value = the field id); the offset is a `customDateField.dateValue` row (`time-diff-now-lte` before / `time-diff-now-gte` after), or pin a calendar day with the month/day rows. [source-derived 2026-09-26 — models/Triggers/Filters/CustomDateReminderFilter.ts:85-167, 191-193, 320-367; models/Triggers/TriggerMain.ts:414-422, 936-940]",
+   "hasCanonicalExample": false
   },
   {
    "type": "custom_object_changed",
@@ -7750,10 +7872,26 @@
     "Special flags": "none",
     "Corpus frequency": "0 occurrence(s) across 326 corpus workflows"
    },
+   "fields": [
+    {
+     "name": "`<object field key>` (id = the same key)",
+     "type": "per field data type",
+     "required": false,
+     "notes": "one row per object field; the list is the workflow's custom object's own fields minus TEXTBOX_LIST, FILE_UPLOAD, PHONE, SIGNATURE, DATE and DATE_TIME"
+    }
+   ],
+   "filterRows": [
+    {
+     "field": "<object field key> (id = the same key)",
+     "fieldType": "the field's label",
+     "required": false,
+     "title": "`has-changed` (has changed) or `==` (has changed to); multiselect fields: `add-index-of-true` (added) / `remove-index-of-true` (removed)",
+     "options": "one row per object field; the list is the workflow's custom object's own fields minus TEXTBOX_LIST, FILE_UPLOAD, PHONE, SIGNATURE, DATE and DATE_TIME"
+    }
+   ],
    "validator": "`customObjectTriggerValidator` emits a warning-level `custom_object_field` reference check for every `customObject.*` row in `conditions[]`, carrying the row's value. Every finding, warning or error, is pushed into the builder's highlight-error map with no severity filter, and a non-empty map blocks Publish in the builder (a client-side gate). [source-derived 2026-09-26 — utils/validators/triggers/additional-trigger-validators.ts:142-166; utils/validators/template-validator.ts:188-202; utils/highlight-errors.ts:14-27; hooks/use-publish-gate.ts:95-106]",
-   "notes": "- Filter class `CustomObjectsFilter` declares zero filter rows in the static TS model — actual field selection is dynamic against the custom-object schema at runtime. Per `sniffs/bundle/recovered-source/src/models/Triggers/Filters/CustomObjectsFilter.ts`.",
-   "hasCanonicalExample": false,
-   "configSurface": "none"
+   "notes": "- Filter class `CustomObjectsFilter` builds its rows at load time from the object's schema (see Filter rows); a row's `field` is the object field's key. On `custom_object_changed`, \"has changed to\" is stored as operator `==`. [source-derived 2026-09-26 — models/Triggers/Filters/CustomObjectsFilter.ts:14-64, 107-112, 220-290]",
+   "hasCanonicalExample": false
   },
   {
    "type": "custom_object_created",
@@ -7771,10 +7909,26 @@
     "Special flags": "none",
     "Corpus frequency": "0 occurrence(s) across 326 corpus workflows"
    },
+   "fields": [
+    {
+     "name": "`<object field key>` (id = the same key)",
+     "type": "per field data type",
+     "required": false,
+     "notes": "one row per object field; the list is the workflow's custom object's own fields minus TEXTBOX_LIST, FILE_UPLOAD, PHONE, SIGNATURE, DATE and DATE_TIME"
+    }
+   ],
+   "filterRows": [
+    {
+     "field": "<object field key> (id = the same key)",
+     "fieldType": "the field's label",
+     "required": false,
+     "title": "the field type's standard operator menu (`OperatorOptions[<type>]`); multiselect fields: `==` (includes), `has_value`, `has_no_value`",
+     "options": "one row per object field; the list is the workflow's custom object's own fields minus TEXTBOX_LIST, FILE_UPLOAD, PHONE, SIGNATURE, DATE and DATE_TIME"
+    }
+   ],
    "validator": "`customObjectTriggerValidator` emits a warning-level `custom_object_field` reference check for every `customObject.*` row in `conditions[]`, carrying the row's value. Every finding, warning or error, is pushed into the builder's highlight-error map with no severity filter, and a non-empty map blocks Publish in the builder (a client-side gate). [source-derived 2026-09-26 — utils/validators/triggers/additional-trigger-validators.ts:142-166; utils/validators/template-validator.ts:188-202; utils/highlight-errors.ts:14-27; hooks/use-publish-gate.ts:95-106]",
-   "notes": "- Filter class `CustomObjectsFilter` declares zero filter rows in the static TS model — actual field selection is dynamic against the custom-object schema at runtime. Per `sniffs/bundle/recovered-source/src/models/Triggers/Filters/CustomObjectsFilter.ts`.",
-   "hasCanonicalExample": false,
-   "configSurface": "none"
+   "notes": "- Filter class `CustomObjectsFilter` builds its rows at load time from the object's schema (see Filter rows); a row's `field` is the object field's key. [source-derived 2026-09-26 — models/Triggers/Filters/CustomObjectsFilter.ts:14-64, 107-112, 220-290]",
+   "hasCanonicalExample": false
   },
   {
    "type": "custom_webhook",
@@ -7893,7 +8047,7 @@
    "family": "triggers",
    "title": "customer_appointment",
    "status": "source-derived",
-   "lastVerified": "2026-08-22",
+   "lastVerified": "2026-09-26",
    "summary": "Fires on customer-side appointment events (booked by the contact).",
    "meta": {
     "Trigger value": "`customer_appointment`",
@@ -7918,10 +8072,24 @@
      "type": "select",
      "operator": "`index-of-true`",
      "options": "—"
+    },
+    {
+     "label": "In calendar group",
+     "field": "`appointment.calendarProviderId`",
+     "type": "select",
+     "operator": "`==`",
+     "options": "the location's calendar groups (teams); offered only when the location has at least one group"
+    },
+    {
+     "label": "User is",
+     "field": "`appointment.assignedUserId`",
+     "type": "select",
+     "operator": "`==`",
+     "options": "dependent row: after `calendar.id`, the calendar's selected team members; after a calendar-group row, all location users. Deleted when the calendar / group row changes or is deleted"
     }
    ],
    "validator": "`appointmentValidator` checks the following fields (warning-level results) per `sniffs/bundle/trigger-validators-summary.json::appointmentValidator`:\n\n- `appointment.assignedUserId`\n- `calendar.id`\n\nAll other fields and the body envelope pass without validator inspection. Empty filters / conditions are permitted at create time — the publish flow uses the same validator chain (`docs/08-validators.md`).",
-   "notes": "- Trimmed filter set vs. `appointment`: only `calendar.id` and `contact.tags` (Has Tag) are exposed. Validator is the same `appointmentValidator`.",
+   "notes": "- Smaller filter set than `appointment` (no status / event-type / modified-by rows, and no `appointment.isV3` row), but not just two rows: `calendar.id`, `contact.tags`, a calendar-group row and a dependent `appointment.assignedUserId` row. Calendly calendars are filtered out of the calendar options. Validator is the same `appointmentValidator`. [source-derived 2026-09-26 — models/Triggers/Filters/CustomerAppointmentFilter.ts:16-33, 38-76, 91-184]",
    "hasCanonicalExample": false
   },
   {
@@ -8806,7 +8974,7 @@
      "type": "string",
      "required": true,
      "default": "—",
-     "notes": "`datetime`: ISO text carrying the location's timezone offset (`moment.tz(…, locationTimeZone).format()`, e.g. `2026-10-01T09:00:00+10:00`). `custom_field`: a merge tag such as `{{task.dueDate}}`. `recurring`: the day — 0-6 (Sun-Sat) for `day_week`, 1-31 for `day_month`; the builder stores the option's number although the interface types `value` as string `[source-derived 2026-09-26 — models/actions/EventStartDate.ts:11,79-100,150-152]`."
+     "notes": "`datetime`: ISO text carrying the location's timezone offset (`moment.tz(…, locationTimeZone).format()`, e.g. `2026-10-01T09:00:00+10:00`). `custom_field`: a merge tag such as `{{task.dueDate}}`. `recurring`: the day — 0-6 (Sun-Sat) for `day_week`, 1-31 for `day_month`; the builder stores the option's number although the interface types `value` as string `[source-derived 2026-09-26 — models/actions/EventStartDate.ts:11,79-100,150-152]`. The recurring day lives in `value`; `IEventStartDate` has no `recurring_value` key `[source-derived 2026-09-26 — models/actions/EventStartDate.ts:9-15,58-60]`."
     },
     {
      "name": "recurring_type",
@@ -8824,7 +8992,7 @@
     }
    ],
    "validator": "`eventStartDateValidator` (per `sniffs/bundle/validators.json`):\n\n- `event_start_type` must be set, else `event_start_type_required`.\n- `value` must not be empty/undefined, else `event_start_value_required`.\n- If `event_start_type === \"custom_field\"` and `value` is set, `value` must be a valid handlebar (`isValidHandleBar(value)`), else `event_start_invalid_custom_variable`.\n\nPer `validators-summary.json`: 2 fields referenced (`event_start_type`, `value`); result level `warning`.",
-   "notes": "- The event-start anchor is referenced by downstream `wait` steps in the `\"event_date\"` mode (see `wait` action's subtype variants) — this step writes the anchor; `wait` reads from it.\n- `event_start_type` has exactly three values: `\"datetime\"`, `\"custom_field\"`, `\"recurring\"` `[source-derived 2026-09-26 — models/actions/EventStartDate.ts:6]`. There is no `\"contact_field\"` or `\"specific_date\"`.\n- The handlebar in `value` is validated lexically (`isValidHandleBar`) — server-side resolution can still fail at run time if the referenced field is unset.",
+   "notes": "- The event-start anchor is referenced by downstream `wait` steps in the `\"event_date\"` mode (see `wait` action's subtype variants) — this step writes the anchor; `wait` reads from it.\n- `event_start_type` has exactly three values: `\"datetime\"`, `\"custom_field\"`, `\"recurring\"` `[source-derived 2026-09-26 — models/actions/EventStartDate.ts:6]`.\n- The handlebar in `value` is validated lexically (`isValidHandleBar`) — server-side resolution can still fail at run time if the referenced field is unset.",
    "hasCanonicalExample": true
   },
   {
@@ -8927,15 +9095,57 @@
    },
    "conditions": [
     {
-     "label": "Page Is",
-     "field": "``",
+     "label": "Page is",
+     "field": "`fb.pageId`",
      "type": "select",
-     "operator": "`—`",
-     "options": "—"
+     "operator": "`==`",
+     "options": "the location's connected pages; seeded as a mandatory row on every new trigger"
+    },
+    {
+     "label": "Post type is",
+     "field": "`fb.postType`",
+     "type": "select",
+     "operator": "`index-of-true`",
+     "options": "`published` | `custom`; offered once the page row has a value"
+    },
+    {
+     "label": "Post is",
+     "field": "`fb.postId`",
+     "type": "select_with_pagination",
+     "operator": "`==`",
+     "options": "when post type is `published`; the page's posts, paginated"
+    },
+    {
+     "label": "Post is",
+     "field": "`fb.postUrlOrId`",
+     "type": "input",
+     "operator": "`index-of-true`",
+     "options": "when post type is `custom`; a post URL or id"
+    },
+    {
+     "label": "Contains phrase",
+     "field": "`fb.body`",
+     "type": "string",
+     "operator": "`string-contains-any-of`",
+     "options": "phrase list"
+    },
+    {
+     "label": "Exact match",
+     "field": "`fb.body`",
+     "type": "input",
+     "operator": "`string-matches-any-of`",
+     "options": "phrase list; both body rows may be used together"
+    },
+    {
+     "label": "(hidden toggle)",
+     "field": "`isFirstLevelComment`",
+     "type": "input",
+     "operator": "`==`",
+     "options": "`true`; added by the \"first-level comments only\" toggle, removed when it is off; hidden from the row list"
     }
    ],
    "validator": "`facebookCommentValidator` makes live checks. It runs the Facebook integration check for the location, then, when a `fb.pageId` row exists: calls `GET /integrations/facebook/{loc}/pages` and warns `page_not_found` when the page is not among them; for `fb.postType == custom` it resolves `fb.postUrlOrId` as a `fb_post` reference unless the value parses as a URL; otherwise it resolves each `fb.postId` as a `fb_post` reference. All its findings are warning-level. Every finding, warning or error, is pushed into the builder's highlight-error map with no severity filter, and a non-empty map blocks Publish in the builder (a client-side gate). [source-derived 2026-09-26 — utils/validators/fb-ig-validators.ts:20-157; utils/validators/template-validator.ts:188-202; utils/highlight-errors.ts:14-27; hooks/use-publish-gate.ts:95-106]",
-   "notes": "- `facebookCommentValidator` runs only the checks listed under `## Validator`. Filter class `UserCommentsOnPostFilter` has one `Page Is` row with `value` null in the static TS — the actual page-id binding is resolved against the connected Facebook page at runtime.",
+   "notes": "- `facebookCommentValidator` runs only the checks listed under `## Validator`. Filter class `UserCommentsOnPostFilter`: the page row is stored as `fb.pageId` with the chosen page id as its value (see Filter rows). [source-derived 2026-09-26 — models/Triggers/Filters/UserCommentsOnPostFilter.ts:14-33, 56-207; models/Triggers/TriggerMain.ts:195-217, 380-382]",
    "hasCanonicalExample": false
   },
   {
@@ -8943,7 +9153,7 @@
    "family": "steps",
    "title": "facebook_conversion_api",
    "status": "source-derived",
-   "lastVerified": "2026-08-22",
+   "lastVerified": "2026-09-26",
    "summary": "Send a server-side conversion event to Meta via the Conversion API (CAPI), bypassing browser-side pixel tracking.",
    "meta": {
     "Section": "`marketing` / `internal` (registered under both — per `sniffs/bundle/registry-parsed.json::entries[59]`; the README lists it under `internal`).",
@@ -8965,22 +9175,22 @@
      "name": "event_type",
      "type": "EventType",
      "required": true,
-     "default": "—",
-     "notes": "E.g. `\"lead_event\"`, `\"purchase\"` (corpus shows `\"lead_event\"`)."
+     "default": "\"funnel_event\"",
+     "notes": "`\"funnel_event\"` | `\"lead_event\"` | `\"instagram_dm\"` `[source-derived 2026-09-26 — models/actions/FacebookConversationApi.ts:28-45,49]`."
     },
     {
      "name": "access_token",
      "type": "string",
      "required": true,
-     "default": "—",
-     "notes": "Meta CAPI access token."
+     "default": "\"\"",
+     "notes": "Meta CAPI access token. Required by the builder only for `connection_type: \"INTEGRATION\"`; `AD_MANAGER` needs none `[source-derived 2026-09-26 — models/actions/FacebookConversationApi.ts:150-152,161-172]`."
     },
     {
      "name": "event_name",
      "type": "string",
      "required": false,
-     "default": "—",
-     "notes": "Custom event name (alternate to `event_type`)."
+     "default": "\"Lead\"",
+     "notes": "Not an alternative to `event_type`: the standard event sent, from a fixed list — 18 Facebook standard events (`AddPaymentInfo` … `ViewContent`) for funnel events, 14 Instagram events (`Purchase`, `LeadSubmitted`, … `ReviewProvided`) for `instagram_dm`. Shown for `funnel_event` and `instagram_dm`. **`Purchase` requires `value` and `currency`** `[source-derived 2026-09-26 — models/actions/FacebookConversationApi.ts:140-144,182-199; utils/facebook.ts:1-37; components/actions/crm/FacebookConversation.vue:179-184]`."
     },
     {
      "name": "pixel_id",
@@ -8994,7 +9204,7 @@
      "type": "string",
      "required": false,
      "default": "—",
-     "notes": "Pipeline stage tagging. Corpus shows `\"Lead\"`."
+     "notes": "Only for `event_type: \"lead_event\"`. Corpus shows `\"Lead\"` `[source-derived 2026-09-26 — components/actions/crm/FacebookConversation.vue:161]`."
     },
     {
      "name": "value",
@@ -9007,7 +9217,7 @@
      "name": "currency",
      "type": "string",
      "required": false,
-     "default": "—",
+     "default": "\"USD\"",
      "notes": "ISO currency."
     },
     {
@@ -9015,28 +9225,28 @@
      "type": "string",
      "required": false,
      "default": "—",
-     "notes": "Page ID."
+     "notes": "Page id, from the ad-publishing service's page list `[source-derived 2026-09-26 — components/actions/crm/FacebookConversation.vue:61-80; services/marketplaceServices/AdPublishing.ts:48-64]`."
     },
     {
      "name": "igUserId",
      "type": "string",
      "required": false,
      "default": "—",
-     "notes": "Instagram user ID."
+     "notes": "Instagram account id for the chosen page, from `GET /facebook/page/{pageId}/instagram`; picking one clears `pixel_id` `[source-derived 2026-09-26 — models/actions/FacebookConversationApi.ts:130-133; services/marketplaceServices/AdPublishing.ts:63-70]`."
     },
     {
      "name": "test_event_code",
      "type": "string",
      "required": false,
      "default": "—",
-     "notes": "Meta test-event mode."
+     "notes": "Meta test-event mode; shown only for funnel / IG events over `INTEGRATION` `[source-derived 2026-09-26 — components/actions/crm/FacebookConversation.vue:239-262]`."
     },
     {
      "name": "connection_type",
      "type": "ConnectionType",
      "required": false,
-     "default": "—",
-     "notes": "`\"INTEGRATION\"` (default) or `\"AD_MANAGER\"` (per validator branch)."
+     "default": "\"INTEGRATION\"",
+     "notes": "`\"INTEGRATION\"` or `\"AD_MANAGER\"` (pixel picker, no access token) `[source-derived 2026-09-26 — models/actions/FacebookConversationApi.ts:29,55,161-172]`."
     },
     {
      "name": "isCustomMappingEnabled",
@@ -9050,7 +9260,7 @@
      "type": "{ fbLeadId?, fbClidId?, igSid? }",
      "required": false,
      "default": "—",
-     "notes": "Alt attribution IDs."
+     "notes": "The key depends on `event_type`: `fbLeadId` for lead events, `fbClidId` for funnel events, `igSid` for IG DM; at least one required when enabled `[source-derived 2026-09-26 — models/actions/FacebookConversationApi.ts:154-158; components/actions/crm/FacebookConversation.vue:285-345]`."
     }
    ],
    "validator": "`facebookConversionApiValidator` (per `sniffs/bundle/validators.json`):\n\n- If `connection_type === \"AD_MANAGER\"`: includes `facebookIntegrationValidator(locationId)` checks.\n- `pixel_id` set, else `meta_dataset_id_required` warning.\n\nPer `validators-summary.json`: 1 field referenced (`pixel_id`); result level `warning`.",
@@ -9078,12 +9288,19 @@
      "label": "Page Is",
      "field": "`facebook.pageId`",
      "type": "select",
-     "operator": "`—`",
-     "options": "—"
+     "operator": "`==`",
+     "options": "\"Any\" (`''`) plus the location's lead-gen pages; seeded on every new trigger"
+    },
+    {
+     "label": "Form is",
+     "field": "`facebook.formId`",
+     "type": "multiselect",
+     "operator": "`is-any-of`",
+     "options": "\"Any\" (`['']`) plus the chosen page's lead forms; seeded on every new trigger"
     }
    ],
    "validator": "`facebookLeadGenValidator` emits a **warning-level** `custom_field` reference check for every `contact.*` row in `conditions[]` except `contact.tags`. The builder resolves each against the location's custom fields: an unknown field id gives `contact_custom_field_not_found`, and a picklist value that is not one of the field's options gives `invalid_custom_field_value`. Every finding, warning or error, is pushed into the builder's highlight-error map with no severity filter, and a non-empty map blocks Publish in the builder (a client-side gate). [source-derived 2026-09-26 — utils/validators/triggers/additional-trigger-validators.ts:47-55; utils/validators/template-validator.ts:740-768; utils/validators/template-validator.ts:188-202; utils/highlight-errors.ts:14-27; hooks/use-publish-gate.ts:95-106]",
-   "notes": "- Single filter row: `facebook.pageId`. Trigger persistence requires the Facebook integration to be connected at the location — that gating is checked at runtime, not at trigger create.",
+   "notes": "- Two builder-seeded rows: `facebook.pageId` (`==`) and `facebook.formId` (`is-any-of`). \"Any\" is saved by leaving the row out of `conditions[]`. [source-derived 2026-09-26 — models/Triggers/Filters/FacebookLeadGenFilter.ts:85-183, 599-615; models/Triggers/TriggerMain.ts:655-657, 888-890] Trigger persistence requires the Facebook integration to be connected at the location — that gating is checked at runtime, not at trigger create.",
    "hasCanonicalExample": false
   },
   {
@@ -9181,41 +9398,90 @@
    "family": "steps",
    "title": "fb_interactive_messenger",
    "status": "source-derived",
-   "lastVerified": "2026-08-22",
-   "summary": "Send an interactive Facebook Messenger message (buttons, quick-replies, structured payload). Resolved from `!ident:FB_INTERACTIVE_MESSENGER`.",
+   "lastVerified": "2026-09-26",
+   "summary": "Send an interactive Facebook Messenger message with buttons and/or quick replies, branching on the contact's choice. Resolved from `!ident:FB_INTERACTIVE_MESSENGER`.",
    "meta": {
     "Section": "`communication` (per `sniffs/bundle/registry-parsed.json::entries[27]`)",
-    "Validator": "No validator key registered in `sniffs/bundle/validators.json`.",
-    "Hybrid / multi-path?": "Likely multi-path (interactive payloads emit branches keyed to button/quick-reply selections) — not verified from corpus.",
+    "Validator": "None registered (registry entry has no `validation`).",
+    "Hybrid / multi-path?": "Multi-path (`cat: MULTI_PATH`): one branch per button / quick reply plus Default Timeout `[source-derived 2026-09-26 — utils/workflows.ts:543-551]`.",
     "Corpus frequency": "0 occurrences (not present in `sniffs/bundle/og-action-ui-metadata.json`).",
     "Premium / beta?": "Not flagged.",
-    "UI editor source": "`sniffs/bundle/recovered-source/src/models/actions/FbInteractiveMessenger.ts` (interface empty per `og-action-ui-from-sourcemap.json::FbInteractiveMessenger::fields == {}`)."
+    "UI editor source": "`recovered-source/src/models/actions/FbInteractiveMessenger.ts` extending `models/actions/InteractiveMessenger.ts` (+ `InteractiveMessengers/QuickReplies.ts`)"
    },
    "fields": [
     {
-     "name": "type",
-     "type": "'fb_interactive_messenger'",
+     "name": "name",
+     "type": "string",
      "required": true,
-     "default": "—",
-     "notes": "Discriminator."
+     "default": "\"Facebook interactive messenger\"",
+     "notes": "Action name, kept inside `attributes` `[source-derived 2026-09-26 — models/actions/FbInteractiveMessenger.ts:19-29]`."
     },
     {
-     "name": "payload",
-     "type": "object",
+     "name": "replyType",
+     "type": "string",
+     "required": true,
+     "default": "`\"comment_reply\"` for the first such step in the workflow, `\"dm_reply\"` for later ones",
+     "notes": "`\"dm_reply\"` (\"Reply to DM\") | `\"comment_reply\"` (\"Reply to comment via DM\") `[source-derived 2026-09-26 — models/actions/InteractiveMessenger.ts:23-35; models/actions/FbInteractiveMessenger.ts:19-29]`."
+    },
+    {
+     "name": "message",
+     "type": "string",
+     "required": true,
+     "default": "—",
+     "notes": "Message text; the builder saves it as plain text (`parseHTMLToBody(...).trim()`). An empty message blocks save `[source-derived 2026-09-26 — models/actions/InteractiveMessenger.ts:106-113,123-130,166]`."
+    },
+    {
+     "name": "templateId",
+     "type": "string",
      "required": false,
      "default": "—",
-     "notes": "Facebook structured-message payload (text + buttons / quick_replies / template)."
+     "notes": "A saved SMS snippet. Picking one deletes `message`, `attachments` and `urlAttachments` and fills `message` from the snippet; `\"none\"` deletes `templateId` `[source-derived 2026-09-26 — models/actions/InteractiveMessenger.ts:283-317]`."
+    },
+    {
+     "name": "attachments",
+     "type": "IStoredFile[]",
+     "required": false,
+     "default": "—",
+     "notes": "Uploaded files (html/php/zip/rar filtered out) `[source-derived 2026-09-26 — models/actions/InteractiveMessenger.ts:226-270]`."
+    },
+    {
+     "name": "urlAttachments",
+     "type": "string[]",
+     "required": false,
+     "default": "—",
+     "notes": "Attachment URLs `[source-derived 2026-09-26 — models/actions/InteractiveMessenger.ts:274-276]`."
+    },
+    {
+     "name": "timeout",
+     "type": "number (minutes)",
+     "required": true,
+     "default": "1",
+     "notes": "How long to wait for a button / reply before the **Default Timeout** branch. Empty or negative blocks save `[source-derived 2026-09-26 — models/actions/InteractiveMessenger.ts:64-65,102-104,182-193]`."
+    },
+    {
+     "name": "actionType",
+     "type": "string",
+     "required": true,
+     "default": "\"buttons\"",
+     "notes": "`\"buttons\"` | `\"quick_replies\"`; back-filled to `\"buttons\"` when absent `[source-derived 2026-09-26 — models/actions/InteractiveMessenger.ts:74-77; models/actions/InteractiveMessengers/QuickReplies.ts:43-45]`."
     },
     {
      "name": "transitions",
-     "type": "array",
+     "type": "IBranch[]",
+     "required": true,
+     "default": "Default Timeout",
+     "notes": "The step's branches: the Default Timeout branch (`conditionType: \"default\"`), then one per button — `condition` = button kind, `subCondition` = the URL or the formatted phone number — then the quick-reply branches appended on save `[source-derived 2026-09-26 — models/actions/InteractiveMessenger.ts:102-104,195-224,339-345]`."
+    },
+    {
+     "name": "quickReplies",
+     "type": "{ transitions: IBranch[] }",
      "required": false,
      "default": "—",
-     "notes": "Branch IDs keyed to button selections."
+     "notes": "Quick-reply branches: up to **13**, each `condition` = the reply text (cut to 20 characters), `subCondition: \"quick_reply\"`, `meta.actionType: \"quick_replies\"` `[source-derived 2026-09-26 — models/actions/InteractiveMessengers/QuickReplies.ts:10,36-55; models/actions/InteractiveMessenger.ts:339-341]`."
     }
    ],
-   "validator": "No validator registered. Publish doesn't pre-flight.",
-   "notes": "- Resolved from a `FB_INTERACTIVE_MESSENGER` enum identifier in the registry source; the JS bundle likely contains the full interactive shape in a sub-bundle (not the OG one) which wasn't part of the source-map recovery.\n- Likely shares lower-level send-machinery with `messenger` (the plain version), but with an additional payload-structuring step.\n- Empty TS interface suggests dynamic-fields handling — fields may be configured via the bundle's component-level state rather than a typed model.",
+   "validator": "No bundle validator: the registry entry (`cat: MULTI_PATH`) carries no `validation` `[source-derived 2026-09-26 — utils/workflows.ts:543-551]`. The builder's own save checks: non-empty `message`, a non-empty non-negative `timeout`, a valid URL for `web_url` buttons, a valid country code + phone number for `phone_number` buttons, non-empty button names and quick-reply texts `[source-derived 2026-09-26 — models/actions/InteractiveMessenger.ts:106-121,182-224; models/actions/InteractiveMessengers/QuickReplies.ts:14]`.",
+   "notes": "- **Multi-path step.** Every button and quick reply is a branch; the Default Timeout branch catches contacts who do not respond within `timeout` minutes `[source-derived 2026-09-26 — models/actions/InteractiveMessenger.ts:102-104; utils/workflows.ts:546]`.\n- **Buttons:** up to **3** buttons (\"Add up to three actions buttons\"; `MAX_TRANSITION_COUNT` 4 including Default Timeout); button kinds `web_url` (Open Website), `phone_number` (Call Number), `postback` (Perform Actions) `[source-derived 2026-09-26 — models/actions/FbInteractiveMessenger.ts:9-17,33-69]`.\n- **A Call Number button ends its path.** The builder sets `currentStepEnd` on `phone_number` branches: \"The 'Call' action is final and cannot be followed by subsequent actions. After the call action, the contact will move to the 'Default Timeout' branch.\" `[source-derived 2026-09-26 — models/actions/InteractiveMessenger.ts:132-149]`.\n- Drawn on the same messaging model family as [`messenger`](./messenger.md) / [`instagram-dm`](./instagram-dm.md) (SMS snippets as templates, same attachment filter).",
    "hasCanonicalExample": true
   },
   {
@@ -9377,7 +9643,7 @@
    "family": "triggers",
    "title": "form_submission",
    "status": "source-derived",
-   "lastVerified": "2026-08-22",
+   "lastVerified": "2026-09-26",
    "summary": "Fires when a contact submits the configured form.",
    "meta": {
     "Trigger value": "`form_submission`",
@@ -9405,7 +9671,7 @@
     }
    ],
    "validator": "`formSubmissionValidator` checks the following fields (warning-level results) per `sniffs/bundle/trigger-validators-summary.json::formSubmissionValidator`:\n\n- `form.id`\n\nAll other fields and the body envelope pass without validator inspection. Empty filters / conditions are permitted at create time — the publish flow uses the same validator chain (`docs/08-validators.md`).",
-   "notes": "- `formSubmissionValidator` warns when `form.id` is empty or unknown for the location. The trigger persists either way; warnings show in the UI but don't block publish.",
+   "notes": "- `formSubmissionValidator` warns when `form.id` is empty or unknown for the location. The trigger persists either way, but in the builder any trigger-validator finding, warning included, lands in the highlight-error map and blocks Publish (a client-side gate). [source-derived 2026-09-26 — utils/validators/template-validator.ts:188-202, 670-680; utils/highlight-errors.ts:14-27; hooks/use-publish-gate.ts:95-106]",
    "hasCanonicalExample": false
   },
   {
@@ -9508,7 +9774,7 @@
    "family": "steps",
    "title": "google_adword",
    "status": "source-derived",
-   "lastVerified": "2026-08-22",
+   "lastVerified": "2026-09-26",
    "summary": "Send a conversion event to Google Ads (Adwords), optionally with custom click-ID mapping. README also references this as `add_to_google_adword`.",
    "meta": {
     "Section": "`marketing` (per `sniffs/bundle/registry-parsed.json::entries[56]`)",
@@ -9531,34 +9797,34 @@
      "type": "string",
      "required": true,
      "default": "—",
-     "notes": "E.g. `\"lead\"`, `\"purchase\"`."
+     "notes": "The **name of a conversion action in the connected Google Ads account**, picked from a list the builder fetches with `POST /{locationId}/adwords` (workflows backend, proxied to ad-publishing), or `\"Other\"`. Picking a listed one auto-fills `conversion_name` and `conversion_action_id` `[source-derived 2026-09-26 — services/WorkflowService.ts:700-722; models/actions/GoogleAdword.ts:19-27]`."
     },
     {
      "name": "conversion_name",
      "type": "string",
      "required": true,
      "default": "—",
-     "notes": "Validator: non-empty."
+     "notes": "Validator: non-empty. With `\"Other\"` it is typed by hand and must be spelled EXACTLY as the conversion in the connected Google Ads account `[source-derived 2026-09-26 — components/actions/crm/GoogleAdwordsAction.vue:35-50; i18n 3073]`."
     },
     {
      "name": "conversion_action_id",
      "type": "string",
      "required": false,
      "default": "—",
-     "notes": "Google Ads conversion action resource ID."
+     "notes": "Filled from the fetched conversion list; deleted when `conversion_type` is `\"Other\"` `[source-derived 2026-09-26 — models/actions/GoogleAdword.ts:19-27,51-56,67-69]`."
     },
     {
      "name": "conversion_value",
      "type": "string",
      "required": false,
-     "default": "—",
+     "default": "\"1\"",
      "notes": "Conversion value as string. If non-handlebar, must parse as positive float (validator)."
     },
     {
      "name": "currency",
      "type": "string",
      "required": false,
-     "default": "—",
+     "default": "\"USD\"",
      "notes": "ISO currency."
     },
     {
@@ -9573,7 +9839,7 @@
      "type": "ICustomMapping",
      "required": true,
      "default": "—",
-     "notes": "Must have at least one of `gclid`, `gbraid`, `wbraid`."
+     "notes": "Must have at least one of `gclid`, `gbraid`, `wbraid`. Mapped values take priority; unmapped ones fall back to the system-captured click ids `[source-derived 2026-09-26 — i18n 1029]`."
     }
    ],
    "validator": "`googleAdwordValidator` (per `sniffs/bundle/validators.json`):\n\n- `conversion_name` non-empty, else `conversion_name_required`.\n- If `conversion_value` is set and not a handlebar (`startsWith(\"{{\")` skips), parse to float; must be positive, else `conversion_value_must_be_positive`.\n- If `isCustomMappingEnabled`:\n  - `customMapping` must be set, else `custom_mapping_required`.\n  - `customMapping` must have at least one of `gclid`, `gbraid`, `wbraid`, else `at_least_one_click_id_required`.\n\nPer `validators-summary.json`: 3 fields referenced; result level `warning`.",
@@ -10434,11 +10700,53 @@
    },
    "conditions": [
     {
-     "label": "Page Is",
-     "field": "``",
+     "label": "Page is",
+     "field": "`ig.pageId`",
      "type": "select",
-     "operator": "`—`",
-     "options": "—"
+     "operator": "`==`",
+     "options": "the location's connected pages; seeded as a mandatory row on every new trigger"
+    },
+    {
+     "label": "Post type is",
+     "field": "`ig.postType`",
+     "type": "select",
+     "operator": "`index-of-true`",
+     "options": "`published` | `custom`; offered once the page row has a value"
+    },
+    {
+     "label": "Post is",
+     "field": "`ig.postId`",
+     "type": "select_with_pagination",
+     "operator": "`==`",
+     "options": "when post type is `published`; the page's posts, paginated"
+    },
+    {
+     "label": "Post is",
+     "field": "`ig.postUrlOrId`",
+     "type": "input",
+     "operator": "`index-of-true`",
+     "options": "when post type is `custom`; a post URL or id"
+    },
+    {
+     "label": "Contains phrase",
+     "field": "`ig.body`",
+     "type": "string",
+     "operator": "`string-contains-any-of`",
+     "options": "phrase list"
+    },
+    {
+     "label": "Exact match",
+     "field": "`ig.body`",
+     "type": "input",
+     "operator": "`string-matches-any-of`",
+     "options": "phrase list; both body rows may be used together"
+    },
+    {
+     "label": "(hidden toggle)",
+     "field": "`isFirstLevelComment`",
+     "type": "input",
+     "operator": "`==`",
+     "options": "`true`; added by the \"first-level comments only\" toggle, removed when it is off; hidden from the row list"
     }
    ],
    "validator": "`instagramCommentValidator` makes live checks. It runs the Instagram integration check for the location, then, when a `ig.pageId` row exists: looks the page up in the cached Instagram connected-accounts list and warns `page_not_found` (or `page_integration_not_valid` for a Facebook-linked page without Instagram); for `ig.postType == custom` it resolves `ig.postUrlOrId` as a `ig_post` reference unless the value parses as a URL; otherwise it resolves each `ig.postId` as a `ig_post` reference. All its findings are warning-level. Every finding, warning or error, is pushed into the builder's highlight-error map with no severity filter, and a non-empty map blocks Publish in the builder (a client-side gate). [source-derived 2026-09-26 — utils/validators/fb-ig-validators.ts:20-157; utils/validators/template-validator.ts:188-202; utils/highlight-errors.ts:14-27; hooks/use-publish-gate.ts:95-106]",
@@ -10490,41 +10798,90 @@
    "family": "steps",
    "title": "ig_interactive_messenger",
    "status": "source-derived",
-   "lastVerified": "2026-08-22",
+   "lastVerified": "2026-09-26",
    "summary": "Send an interactive Instagram DM with buttons or quick-replies. Resolved from `!ident:IG_INTERACTIVE_MESSENGER`.",
    "meta": {
     "Section": "`communication` (per `sniffs/bundle/registry-parsed.json::entries[28]`)",
-    "Validator": "No validator key registered in `sniffs/bundle/validators.json`.",
-    "Hybrid / multi-path?": "Likely multi-path — not verified.",
+    "Validator": "None registered (registry entry has no `validation`).",
+    "Hybrid / multi-path?": "Multi-path (`cat: MULTI_PATH`): one branch per button / quick reply plus Default Timeout `[source-derived 2026-09-26 — utils/workflows.ts:552-560]`.",
     "Corpus frequency": "0 occurrences (not present in `sniffs/bundle/og-action-ui-metadata.json`).",
     "Premium / beta?": "Not flagged.",
-    "UI editor source": "`sniffs/bundle/recovered-source/src/models/actions/IgInteractiveMessenger.ts` (interface empty per `og-action-ui-from-sourcemap.json::IgInteractiveMessenger::fields == {}`)."
+    "UI editor source": "`recovered-source/src/models/actions/IgInteractiveMessenger.ts` extending `models/actions/InteractiveMessenger.ts` (+ `InteractiveMessengers/QuickReplies.ts`)"
    },
    "fields": [
     {
-     "name": "type",
-     "type": "'ig_interactive_messenger'",
+     "name": "name",
+     "type": "string",
      "required": true,
-     "default": "—",
-     "notes": "Discriminator."
+     "default": "\"Instagram interactive messenger\"",
+     "notes": "Action name, kept inside `attributes` `[source-derived 2026-09-26 — models/actions/IgInteractiveMessenger.ts:36-45]`."
     },
     {
-     "name": "payload",
-     "type": "object",
+     "name": "replyType",
+     "type": "string",
+     "required": true,
+     "default": "`\"comment_reply\"` for the first such step in the workflow, `\"dm_reply\"` for later ones",
+     "notes": "`\"dm_reply\"` (\"Reply to DM\") | `\"comment_reply\"` (\"Reply to comment via DM\") `[source-derived 2026-09-26 — models/actions/InteractiveMessenger.ts:23-35; models/actions/IgInteractiveMessenger.ts:36-45]`."
+    },
+    {
+     "name": "message",
+     "type": "string",
+     "required": true,
+     "default": "—",
+     "notes": "Message text; the builder saves it as plain text (`parseHTMLToBody(...).trim()`). An empty message blocks save `[source-derived 2026-09-26 — models/actions/InteractiveMessenger.ts:106-113,123-130,166]`."
+    },
+    {
+     "name": "templateId",
+     "type": "string",
      "required": false,
      "default": "—",
-     "notes": "Instagram structured-message payload."
+     "notes": "A saved SMS snippet. Picking one deletes `message`, `attachments` and `urlAttachments` and fills `message` from the snippet; `\"none\"` deletes `templateId` `[source-derived 2026-09-26 — models/actions/InteractiveMessenger.ts:283-317]`."
+    },
+    {
+     "name": "attachments",
+     "type": "IStoredFile[]",
+     "required": false,
+     "default": "—",
+     "notes": "Uploaded files (html/php/zip/rar filtered out) `[source-derived 2026-09-26 — models/actions/InteractiveMessenger.ts:226-270]`."
+    },
+    {
+     "name": "urlAttachments",
+     "type": "string[]",
+     "required": false,
+     "default": "—",
+     "notes": "Attachment URLs `[source-derived 2026-09-26 — models/actions/InteractiveMessenger.ts:274-276]`."
+    },
+    {
+     "name": "timeout",
+     "type": "number (minutes)",
+     "required": true,
+     "default": "1",
+     "notes": "How long to wait for a button / reply before the **Default Timeout** branch. Empty or negative blocks save `[source-derived 2026-09-26 — models/actions/InteractiveMessenger.ts:64-65,102-104,182-193]`."
+    },
+    {
+     "name": "actionType",
+     "type": "string",
+     "required": true,
+     "default": "\"buttons\"",
+     "notes": "`\"buttons\"` | `\"quick_replies\"`; back-filled to `\"buttons\"` when absent `[source-derived 2026-09-26 — models/actions/InteractiveMessenger.ts:74-77; models/actions/InteractiveMessengers/QuickReplies.ts:43-45]`."
     },
     {
      "name": "transitions",
-     "type": "array",
+     "type": "IBranch[]",
+     "required": true,
+     "default": "Default Timeout",
+     "notes": "The step's branches: the Default Timeout branch (`conditionType: \"default\"`), then one per button — `condition` = button kind, `subCondition` = the URL or the formatted phone number — then the quick-reply branches appended on save `[source-derived 2026-09-26 — models/actions/InteractiveMessenger.ts:102-104,195-224,339-345]`."
+    },
+    {
+     "name": "quickReplies",
+     "type": "{ transitions: IBranch[] }",
      "required": false,
      "default": "—",
-     "notes": "Branches per button."
+     "notes": "Quick-reply branches: up to **13**, each `condition` = the reply text (cut to 20 characters), `subCondition: \"quick_reply\"`, `meta.actionType: \"quick_replies\"` `[source-derived 2026-09-26 — models/actions/InteractiveMessengers/QuickReplies.ts:10,36-55; models/actions/InteractiveMessenger.ts:339-341]`."
     }
    ],
-   "validator": "No validator registered. Publish doesn't pre-flight.",
-   "notes": "- Instagram interactive DMs require the contact to be within the 24-hour customer-care messaging window per Meta policy — runtime constraint, not validator-enforced.\n- Likely shares scaffolding with `instagram-dm` and the FB interactive sibling.",
+   "validator": "No bundle validator: the registry entry (`cat: MULTI_PATH`) carries no `validation` `[source-derived 2026-09-26 — utils/workflows.ts:552-560]`. The builder's own save checks: non-empty `message`, a non-empty non-negative `timeout`, a valid URL for `web_url` buttons, a valid country code + phone number for `phone_number` buttons, non-empty button names and quick-reply texts `[source-derived 2026-09-26 — models/actions/InteractiveMessenger.ts:106-121,182-224; models/actions/InteractiveMessengers/QuickReplies.ts:14]`.",
+   "notes": "- **Multi-path step.** Every button and quick reply is a branch; the Default Timeout branch catches contacts who do not respond within `timeout` minutes `[source-derived 2026-09-26 — models/actions/InteractiveMessenger.ts:102-104; utils/workflows.ts:555]`.\n- **Buttons:** up to **2** buttons (\"Add up to two actions buttons\"; `MAX_TRANSITION_COUNT` 3 including Default Timeout); button kinds `web_url` (Open Website) and `postback` (Perform Actions) — no Call Number option `[source-derived 2026-09-26 — models/actions/IgInteractiveMessenger.ts:9-17,49-80]`.\n- **A Call Number button ends its path.** The builder sets `currentStepEnd` on `phone_number` branches: \"The 'Call' action is final and cannot be followed by subsequent actions. After the call action, the contact will move to the 'Default Timeout' branch.\" `[source-derived 2026-09-26 — models/actions/InteractiveMessenger.ts:132-149]`.\n- **IG keeps only one of buttons / quick replies.** On save the builder drops the quick-reply branches when `actionType: \"buttons\"`, and the button branches otherwise (the Default Timeout branch stays) `[source-derived 2026-09-26 — models/actions/InteractiveMessenger.ts:319-337]`.\n- **IG quick replies show only when the message has no attachments** `[source-derived 2026-09-26 — i18n 4824 `interactiveMessenger.igQuickRepliesDescription`]`.\n- Instagram interactive DMs require the contact to be within the 24-hour customer-care messaging window per Meta policy — runtime constraint, not validator-enforced.\n- Drawn on the same messaging model family as [`messenger`](./messenger.md) / [`instagram-dm`](./instagram-dm.md) (SMS snippets as templates, same attachment filter).",
    "hasCanonicalExample": true
   },
   {
@@ -10798,7 +11155,7 @@
     }
    ],
    "validator": "**None in the bundle.** `validator: null` per `og-action-ui-metadata.json::internal_create_opportunity`; no `internalCreateOpportunityValidator` in `validators.json` — this is an INTERNAL marketplace asset. Required-ness comes from the asset's `inputs[].required` and its dynamic-field generator (which marks `pipelineId` `required: true`). The asset also carries its own `validation` function: a negative `monetaryValue` in `__customInputFields__` fails with \"Opportunity value should be a numeric value\" `[source-derived 2026-09-26 — sniffs/workflows-domain-recon-2026-09-25/marketplace-assets-2026-09-25.json internal_create_opportunity.validation, inputs[DYNAMIC].dynamicFieldsConfig.customGenerator]`. Whether publish runs that function on an API-built step is not established.",
-   "notes": "- **`pipelineId` is camelCase here.** The user-facing `create_opportunity` uses `pipeline_id` (snake_case). Don't normalize.\n- **`workflowsActionType: \"INTERNAL\"`** sibling marker — internal helper, not in user picker.\n- **`__customInputFields__: []` is observed publishable**, but without a stage / name the runtime presumably uses pipeline defaults. Not verified.\n- **The `filterField` enum** for entries inside `__customInputFields__` mirrors the keys you'd set in the user-facing `create_opportunity.attributes` — `pipelineStageId`, `name`, `status`, `source`, `monetaryValue`, `contactId`. The \"filter\" naming is borrowed from the custom-object filter UI even though this isn't a filter.\n- **No validator means no publish-time pipeline-existence check.** Verify your `pipelineId` out-of-band.",
+   "notes": "- 🔴 **This create BINDS its card to the run; the native `create_opportunity` does not** `[proven-live 2026-09-26]`. An `internal_update_opportunity` (status won) right after this step logged `success` and the new card read `won`; the same update after a native [`create_opportunity`](./create_opportunity.md) logged `skipped` (\"Please use Opportunity trigger/find opportunity action to get the opportunity\") and its card stayed `open` (`sniffs/workflows-wave1-2026-09-25/live-W24-create-binds.json`). Use this step when a later step must act on the card it creates.\n- **`pipelineId` is camelCase here.** The user-facing `create_opportunity` uses `pipeline_id` (snake_case). Don't normalize.\n- **`workflowsActionType: \"INTERNAL\"`** sibling marker — internal helper, not in user picker.\n- **`__customInputFields__: []` is observed publishable**, but without a stage / name the runtime presumably uses pipeline defaults. Not verified.\n- **The `filterField` enum** for entries inside `__customInputFields__` mirrors the keys you'd set in the user-facing `create_opportunity.attributes` — `pipelineStageId`, `name`, `status`, `source`, `monetaryValue`, `contactId`. The \"filter\" naming is borrowed from the custom-object filter UI even though this isn't a filter.\n- **No validator means no publish-time pipeline-existence check.** Verify your `pipelineId` out-of-band.",
    "hasCanonicalExample": true
   },
   {
@@ -10924,7 +11281,7 @@
     }
    ],
    "validator": "**None in the bundle.** `validator: null`, `validator_delegation_chain: []`, `required_fields_per_validator: []` per `og-action-ui-metadata.json::internal_update_opportunity`; no `internalUpdateOpportunityValidator` in `validators.json` — this is an INTERNAL marketplace asset. Required-ness comes from the asset's `inputs[].required` (and its dynamic-field generator). The asset carries its own `validation` function: a negative `monetaryValue` in `__customInputFields__` fails with \"Opportunity value should be a numeric value\" `[source-derived 2026-09-26 — sniffs/workflows-domain-recon-2026-09-25/marketplace-assets-2026-09-25.json internal_update_opportunity.validation]`. Whether publish runs that function on an API-built step is not established; the runtime may be stricter.",
-   "notes": "- 🔴 **Unbound update → a `skipped` row, not silence** `[proven-live 2026-09-26]`: `{success:false, isSkipped:true, msg: \"Internal Action Error - Please use Opportunity trigger/find opportunity action to get the opportunity\"}`; the card is untouched and the run continues. Reproduced three ways: in a workflow WITH an opportunity trigger entered by direct enrolment (a contact without a card, and one holding an open card — `sniffs/workflows-wave1-2026-09-25/live-C3-opp-condition.json`), and in a trigger-less workflow under `find_opportunity`'s Not-Found branch (`sniffs/workflows-wave1-2026-09-25/live-C4-opp-control.json`). The 2026-09-25 note below (no row at all) did not reproduce in either shape.\n- 🔴 **With no associated opportunity the step vanishes, and nothing says so** `[proven-live 2026-09-25]`. In a run that entered by contact (a manual or tag enrolment, not an opportunity trigger) with no Find Opportunity before it, the step wrote **no log row at all**. There was no `skipped` and no \"use Opportunity trigger / find opportunity\" message, and the card was untouched. An If/Else on an opportunity field in the same run read no card and fell to the else branch. After a `find_opportunity` (pipeline filter, `latest`), the same step wrote the found card only (a Won card in another pipeline was untouched), and the If/Else read that card `sniffs/afy-onboarding-tests-2026-09-25/live-O-batch.json`.\n- A date custom field accepts `{{right_now.date}}`. It stored `2026-09-25` (YYYY-MM-DD) `[proven-live 2026-09-25]` `sniffs/afy-onboarding-tests-2026-09-25/live-O-batch.json`.\n- **`workflowsActionType: \"INTERNAL\"`** is the top-level marker (sibling of `attributes`) that distinguishes internal-helper rows from user-authored ones. The UI hides these unless an internal path created them.\n- **The `__customInputFields__` shape mirrors a custom-object filter UI** — same `filterField` / `value` / `valueFieldType` keys as filter rows elsewhere. The \"update\" is encoded as a list of field-write directives.\n- **No validator means no publish-time existence check** on pipeline/stage ids. Verify your `value`s out-of-band.\n- **Most corpus rows update `status` or `pipelineStageId`.** Some carry two entries (pipeline + stage) to relocate the opp.\n- **The lack of `opportunityId` field** suggests the runtime targets the contact's \"current\" opportunity (the one matched by an upstream `find_opportunity` step). Not verified — but the pattern is consistent in corpus workflows that pair `find_opportunity` → `internal_update_opportunity`.",
+   "notes": "- 🔴 **Unbound update → a `skipped` row, not silence** `[proven-live 2026-09-26]`: `{success:false, isSkipped:true, msg: \"Internal Action Error - Please use Opportunity trigger/find opportunity action to get the opportunity\"}`; the card is untouched and the run continues. Reproduced three ways: in a workflow WITH an opportunity trigger entered by direct enrolment (a contact without a card, and one holding an open card — `sniffs/workflows-wave1-2026-09-25/live-C3-opp-condition.json`), and in a trigger-less workflow under `find_opportunity`'s Not-Found branch (`sniffs/workflows-wave1-2026-09-25/live-C4-opp-control.json`). \n- **What binds a card for this step** `[proven-live 2026-09-26]`: an opportunity trigger, a `find_opportunity` Found branch, or an earlier `internal_create_opportunity` on the path. After `find_opportunity` (pipeline filter, `latest`) the step wrote the found card only (a Won card in another pipeline was untouched) `sniffs/afy-onboarding-tests-2026-09-25/live-O-batch.json`; after `internal_create_opportunity` it wrote the card that step made (`won`). A native [`create_opportunity`](./create_opportunity.md) does NOT bind: the same update after it logged the `skipped` row above and the card stayed `open` (`sniffs/workflows-wave1-2026-09-25/live-W24-create-binds.json`). A 2026-09-25 run (`live-O-batch.json`) read NO log row for an unbound update; every later unbound run (`live-C-opportunity.json`, `live-C3-opp-condition.json`, `live-C4-opp-control.json`, `live-W24-create-binds.json`) wrote the `skipped` row, so read the logs a while after the run before concluding the step did not run.\n- A date custom field accepts `{{right_now.date}}`. It stored `2026-09-25` (YYYY-MM-DD) `[proven-live 2026-09-25]` `sniffs/afy-onboarding-tests-2026-09-25/live-O-batch.json`.\n- **`workflowsActionType: \"INTERNAL\"`** is the top-level marker (sibling of `attributes`) that distinguishes internal-helper rows from user-authored ones. The UI hides these unless an internal path created them.\n- **The `__customInputFields__` shape mirrors a custom-object filter UI** — same `filterField` / `value` / `valueFieldType` keys as filter rows elsewhere. The \"update\" is encoded as a list of field-write directives.\n- **No validator means no publish-time existence check** on pipeline/stage ids. Verify your `value`s out-of-band.\n- **Most corpus rows update `status` or `pipelineStageId`.** Some carry two entries (pipeline + stage) to relocate the opp.\n- **The lack of `opportunityId` field** suggests the runtime targets the contact's \"current\" opportunity (the one matched by an upstream `find_opportunity` step). Not verified — but the pattern is consistent in corpus workflows that pair `find_opportunity` → `internal_update_opportunity`.",
    "hasCanonicalExample": true
   },
   {
@@ -10948,19 +11305,19 @@
      "label": "Invoice Status",
      "field": "`invoice.status`",
      "type": "select",
-     "operator": "`—`",
-     "options": "—"
+     "operator": "`==`",
+     "options": "`sent`, `viewed`, `paid`, `partially_paid`, `void` — mandatory; a new trigger is seeded with `invoice.status == sent`"
     },
     {
      "label": "Tag",
      "field": "`contact.tags`",
      "type": "select",
-     "operator": "`—`",
-     "options": "—"
+     "operator": "`==`, `!=`, `contains-any`, `contains-none`",
+     "options": "the location's tags; legacy `index-of-true` / `index-of-false` are migrated to `==` / `!=` on load"
     }
    ],
    "validator": "`invoiceValidator` emits a **warning-level** `custom_field` reference check for every `contact.*` row in `conditions[]` except `contact.tags`. The builder resolves each against the location's custom fields: an unknown field id gives `contact_custom_field_not_found`, and a picklist value that is not one of the field's options gives `invalid_custom_field_value`. Every finding, warning or error, is pushed into the builder's highlight-error map with no severity filter, and a non-empty map blocks Publish in the builder (a client-side gate). [source-derived 2026-09-26 — utils/validators/triggers/additional-trigger-validators.ts:99-107; utils/validators/template-validator.ts:740-768; utils/validators/template-validator.ts:188-202; utils/highlight-errors.ts:14-27; hooks/use-publish-gate.ts:95-106]",
-   "notes": "- Single `invoice.status` filter row. Status transitions follow the invoice document state machine — pre-payment, paid, voided, refunded.",
+   "notes": "- The `invoice.status` row is mandatory and seeded as `sent` on a new trigger. Its values are `sent`, `viewed`, `paid`, `partially_paid` and `void` (an `overdue` value is commented out in the enum). An optional tag row can be added. [source-derived 2026-09-26 — models/Workflow.ts:673-680; models/Triggers/Filters/InvoiceFilter.ts:15-49, 69-106]",
    "hasCanonicalExample": false
   },
   {
@@ -11034,7 +11391,7 @@
    "family": "steps",
    "title": "ivr_connect_call",
    "status": "source-derived",
-   "lastVerified": "2026-08-22",
+   "lastVerified": "2026-09-26",
    "summary": "IVR widget: bridge the inbound call to one or more users or custom phone numbers.",
    "meta": {
     "Section": "`ivr` (per `sniffs/bundle/registry-parsed.json::entries[68]`)",
@@ -11042,7 +11399,7 @@
     "Hybrid / multi-path?": "Linear.",
     "Corpus frequency": "0 occurrences (validator-only entry per `sniffs/bundle/og-action-ui-metadata.json::ivr_connect_call`).",
     "Premium / beta?": "Not flagged.",
-    "UI editor source": "Not recovered (no entry in `og-action-ui-from-sourcemap.json`)."
+    "UI editor source": "`recovered-source/src/models/actions/ivr/IVRConnectCall.ts` (interface `IIVRConnectCall`) + `components/actions/ivr/IVRConnectCall.vue`"
    },
    "fields": [
     {
@@ -11054,21 +11411,70 @@
     },
     {
      "name": "users",
-     "type": "array of user IDs",
+     "type": "`string[]` (user ids)",
      "required": true,
      "default": "[]",
-     "notes": "Internal users to ring."
+     "notes": "Users to ring. Each is called on their default IVR channel for the location — phone number, mobile app, web app or SIP; a user with no phone number is disabled in the picker (\"Please add a phone number … in Settings > My Staff > User Info\") `[source-derived 2026-09-26 — models/actions/ivr/IVRConnectCall.ts:9-14; components/actions/ivr/IVRConnectCall.vue:418-440,480-492; i18n 4020]`."
     },
     {
      "name": "customNumbers",
-     "type": "array of `{ number, isValid }`",
+     "type": "{ country, phone, displayValue, isValid }[]",
      "required": true,
      "default": "[]",
-     "notes": "External numbers to dial. Each must have `isValid: true`."
+     "notes": "External numbers to dial. Each must have `isValid: true` `[source-derived 2026-09-26 — models/actions/ivr/IVRConnectCall.ts:15-20]`."
+    },
+    {
+     "name": "userId",
+     "type": "string",
+     "required": false,
+     "default": "\"\"",
+     "notes": "Present in the interface and defaults `[source-derived 2026-09-26 — models/actions/ivr/IVRConnectCall.ts:30,76]`."
+    },
+    {
+     "name": "timeout",
+     "type": "number (s)",
+     "required": true,
+     "default": "10",
+     "notes": "Ring timeout, **5–600** s `[source-derived 2026-09-26 — models/actions/ivr/IVRConnectCall.ts:24,44-45,73,245-247; components/actions/ivr/IVRConnectCall.vue:396-402]`."
+    },
+    {
+     "name": "timeLimit",
+     "type": "number (s)",
+     "required": true,
+     "default": "3600",
+     "notes": "Max call duration, **10–14400** s (4 h) `[source-derived 2026-09-26 — models/actions/ivr/IVRConnectCall.ts:25,42-43,74,241-243; components/actions/ivr/IVRConnectCall.vue:386-392]`."
+    },
+    {
+     "name": "record",
+     "type": "`\"record-from-answer\"` | `\"record-from-ringing\"`",
+     "required": false,
+     "default": "absent",
+     "notes": "\"Record call\" toggle: on writes `\"record-from-answer\"`, off deletes the key; the UI never writes `record-from-ringing` `[source-derived 2026-09-26 — models/actions/ivr/IVRConnectCall.ts:26,187-193; components/actions/ivr/IVRConnectCall.vue:255-266]`."
+    },
+    {
+     "name": "detectVoicemail",
+     "type": "bool",
+     "required": false,
+     "default": "false",
+     "notes": "\"This would incur charges and might introduce a minor delay\" `[source-derived 2026-09-26 — models/actions/ivr/IVRConnectCall.ts:27,77; i18n 4346]`."
+    },
+    {
+     "name": "isSayPlayOn",
+     "type": "bool",
+     "required": false,
+     "default": "false",
+     "notes": "Whisper on/off: \"Plays a private message to the person who answers before the call connects\" `[source-derived 2026-09-26 — models/actions/ivr/IVRConnectCall.ts:28,78; i18n 3673]`."
+    },
+    {
+     "name": "sayPlayAttributes",
+     "type": "IIVRSayOrPlay",
+     "required": false,
+     "default": "{loop:1, widgetType:\"say\", message:\"This is an automated call from workflows\", language:\"en-US\", voice:\"woman\", type:\"ivr_say\"}",
+     "notes": "The whisper, same shape as [`ivr_say`](./ivr_say.md) `[source-derived 2026-09-26 — models/actions/ivr/IVRConnectCall.ts:29,64-80]`."
     }
    ],
    "validator": "`ivrConnectCallValidator` (per `sniffs/bundle/validators.json`):\n\n- `users.length + customNumbers.length === 0` → `ivr_connect_number_required` warning.\n- `users.length + customNumbers.length > 10` → `ivr_connect_max_numbers` warning (max 10 destinations).\n- Any `customNumbers[i].isValid === false` → `ivr_connect_invalid_number` warning.\n\nPer `validators-summary.json`: 2 fields referenced (`customNumbers`, `users`); result level `warning`.",
-   "notes": "- Max 10 destinations is a hard publish warning — not enforced at create-time but at publish.\n- `customNumbers[i].isValid` appears to be set by the UI after a phone-number-validation pass; the validator only checks the flag, not the format.\n- Ring behavior (parallel vs. sequential, fall-through) likely controlled by runtime config; not user-settable in the shape recovered here.",
+   "notes": "- Max 10 destinations is a hard publish warning — not enforced at create-time but at publish.\n- `customNumbers[i].isValid` appears to be set by the UI after a phone-number-validation pass; the validator only checks the flag, not the format.\n- **Timing, recording, voicemail detection and whisper are user-settable** (`timeout`, `timeLimit`, `record`, `detectVoicemail`, `isSayPlayOn` + `sayPlayAttributes`) — see the table. The only ring mode offered is \"Single number\" (`connectCallToOptions`; a code comment says simul-ring may open later), and it is not stored as an attribute `[source-derived 2026-09-26 — models/actions/ivr/IVRConnectCall.ts:46-54]`.",
    "hasCanonicalExample": true
   },
   {
@@ -11076,7 +11482,7 @@
    "family": "steps",
    "title": "ivr_gather",
    "status": "source-derived",
-   "lastVerified": "2026-08-22",
+   "lastVerified": "2026-09-26",
    "summary": "IVR widget: gather DTMF (keypad) input from the caller, branching on the digit pressed.",
    "meta": {
     "Section": "`ivr` (per `sniffs/bundle/registry-parsed.json::entries[66]`)",
@@ -11084,7 +11490,7 @@
     "Hybrid / multi-path?": "Likely multi-path (one branch per digit), but the validator is no-op and no corpus example exists to confirm structure.",
     "Corpus frequency": "0 occurrences (validator-only entry per `sniffs/bundle/og-action-ui-metadata.json::ivr_gather`).",
     "Premium / beta?": "Not flagged.",
-    "UI editor source": "Not recovered (no entry in `og-action-ui-from-sourcemap.json`)."
+    "UI editor source": "`recovered-source/src/models/actions/ivr/IVRGather.ts` + `components/actions/ivr/IVRGather.vue`"
    },
    "fields": [
     {
@@ -11095,43 +11501,71 @@
      "notes": "Discriminator."
     },
     {
-     "name": "widgetType",
+     "name": "name",
      "type": "string",
-     "required": false,
-     "default": "—",
-     "notes": "Sibling validator (`ivrSayValidator`) branches on `widgetType` (`\"say\"` vs `\"play\"`); a gather equivalent may exist."
+     "required": true,
+     "default": "\"Gather Input on call\"",
+     "notes": "Action name, kept inside `attributes`."
+    },
+    {
+     "name": "loop",
+     "type": "number",
+     "required": true,
+     "default": "1",
+     "notes": "Prompt repeats; raised to ≥ 1 on save `[source-derived 2026-09-26 — models/actions/ivr/IVRGather.ts:151-155]`."
     },
     {
      "name": "numDigits",
      "type": "number",
      "required": false,
-     "default": "—",
-     "notes": "Max digits to gather."
+     "default": "1",
+     "notes": "Digits to collect; raised to ≥ 1."
     },
     {
      "name": "timeout",
-     "type": "number",
-     "required": false,
-     "default": "—",
-     "notes": "Gather timeout in seconds."
+     "type": "number (s)",
+     "required": true,
+     "default": "5",
+     "notes": "Raised to ≥ 5."
+    },
+    {
+     "name": "enableFinishOnKey",
+     "type": "bool",
+     "required": true,
+     "default": "false",
+     "notes": "Turns on `finishOnKey`."
     },
     {
      "name": "finishOnKey",
      "type": "string",
      "required": false,
      "default": "—",
-     "notes": "Key that terminates the gather (e.g. `#`)."
+     "notes": "Key that ends input (e.g. `#`)."
     },
     {
-     "name": "branches",
-     "type": "array",
+     "name": "`widgetType` + prompt fields",
+     "type": "`'say'` | `'play'`",
+     "required": true,
+     "default": "\"say\"",
+     "notes": "The inline prompt: `message` / `language` / `voice` for say, `audioUrl` / `fileName` for play — same fields and limits as [`ivr_say`](./ivr_say.md) `[source-derived 2026-09-26 — models/actions/ivr/IVRGather.ts:8,20,31,54-57]`."
+    },
+    {
+     "name": "convertToMultipath",
+     "type": "bool",
+     "required": true,
+     "default": "false",
+     "notes": "Branches on the digits entered. Back-filled to `false` on older steps `[source-derived 2026-09-26 — models/actions/ivr/IVRGather.ts:17,49-52,135-145]`."
+    },
+    {
+     "name": "`cat`, `transitions`",
+     "type": "multi-path",
      "required": false,
-     "default": "—",
-     "notes": "One transition per accepted digit."
+     "default": "[]",
+     "notes": "Up to 10 branches: a \"None\" branch (`conditionType: \"default\"`) plus user-defined ones whose name is letters/numbers (≤ 50) and whose `condition` is the digits (numeric, ≤ 50) `[source-derived 2026-09-26 — models/actions/ivr/IVRGather.ts:75-106,135-145]`."
     }
    ],
-   "validator": "`ivrGatherValidator` is a no-op — returns `[]` unconditionally. Per `validators-summary.json`: zero fields referenced. Publish never warns on this step.",
-   "notes": "- The entire IVR family (5 actions) was recovered with empty TS interfaces and minimal validator coverage — these are early/internal feature additions where bundle-level enforcement hasn't been built.\n- IVR runtime (likely Twilio-backed; see `reference/microservices.md` if mapped) handles all enforcement at execution time.\n- The sibling `ivr_say` validator is the only one in the IVR family that actually checks fields — extrapolate field naming from it (`widgetType`, `language`, `voice`, `message`, `audioUrl`).",
+   "validator": "`ivrGatherValidator` is a no-op — returns `[]` (\"Validation is handled by IVRSay embedded in gather\") `[source-derived 2026-09-26 — utils/validators/additional-action-validators.ts:1162-1165]`. The builder's own save checks are the ranges and branch rules in the table.",
+   "notes": "- The IVR models ARE in the recovered source (`models/actions/ivr/`); only the bundle validators are thin — the builder enforces its rules in the models `[source-derived 2026-09-26 — models/actions/ivr/IVRGather.ts]`.\n- IVR runtime (likely Twilio-backed; see `reference/microservices.md` if mapped) handles all enforcement at execution time.\n- The prompt fields are the `ivr_say` fields inlined on the gather step (not a nested object) `[source-derived 2026-09-26 — models/actions/ivr/IVRGather.ts:20,54-57]`.",
    "hasCanonicalExample": true
   },
   {
@@ -11139,7 +11573,7 @@
    "family": "steps",
    "title": "ivr_hangup",
    "status": "source-derived",
-   "lastVerified": "2026-08-22",
+   "lastVerified": "2026-09-26",
    "summary": "IVR widget: terminate the call.",
    "meta": {
     "Section": "`ivr` (per `sniffs/bundle/registry-parsed.json::entries[69]`)",
@@ -11147,7 +11581,7 @@
     "Hybrid / multi-path?": "Linear (terminates the call leg).",
     "Corpus frequency": "0 occurrences (validator-only entry per `sniffs/bundle/og-action-ui-metadata.json::ivr_hangup`).",
     "Premium / beta?": "Not flagged.",
-    "UI editor source": "Not recovered (no entry in `og-action-ui-from-sourcemap.json`)."
+    "UI editor source": "`recovered-source/src/models/actions/ivr/IVRHangup.ts` + `components/actions/ivr/IVRHangup.vue`"
    },
    "fields": [
     {
@@ -11156,10 +11590,24 @@
      "required": true,
      "default": "—",
      "notes": "Discriminator."
+    },
+    {
+     "name": "isSayPlayOn",
+     "type": "bool",
+     "required": true,
+     "default": "false",
+     "notes": "Play a goodbye message before hanging up `[source-derived 2026-09-26 — models/actions/ivr/IVRHangup.ts:9,34-40]`."
+    },
+    {
+     "name": "sayPlayAttributes",
+     "type": "IIVRSayOrPlay",
+     "required": true,
+     "default": "{loop:1, widgetType:\"say\", message:\"This is an automated message.\"}",
+     "notes": "The goodbye message, same shape as [`ivr_say`](./ivr_say.md); play mode accepts MP3/WAV `[source-derived 2026-09-26 — models/actions/ivr/IVRHangup.ts:10,27-40; components/actions/ivr/IVRHangup.vue:81,219]`."
     }
    ],
    "validator": "`ivrHangupValidator` is a no-op. Per `validators-summary.json`: zero fields referenced. Publish never warns.",
-   "notes": "- Terminates the IVR call leg. Any further workflow steps after this won't execute against the call context.\n- No optional \"say message before hanging up\" field observed — pair with `ivr_say` upstream for a goodbye message.",
+   "notes": "- Terminates the IVR call leg. Any further workflow steps after this won't execute against the call context.\n- **Optional goodbye say/play:** `isSayPlayOn: true` + `sayPlayAttributes` plays a message before hanging up `[source-derived 2026-09-26 — models/actions/ivr/IVRHangup.ts:7-11,23-40]`.",
    "hasCanonicalExample": true
   },
   {
@@ -11196,7 +11644,7 @@
    "family": "steps",
    "title": "ivr_say",
    "status": "source-derived",
-   "lastVerified": "2026-08-22",
+   "lastVerified": "2026-09-26",
    "summary": "IVR widget: speak a TTS message to the caller, or play a pre-recorded audio file.",
    "meta": {
     "Section": "`ivr` (per `sniffs/bundle/registry-parsed.json::entries[67]`)",
@@ -11204,7 +11652,7 @@
     "Hybrid / multi-path?": "Linear.",
     "Corpus frequency": "0 occurrences (validator-only entry per `sniffs/bundle/og-action-ui-metadata.json::ivr_say`).",
     "Premium / beta?": "Not flagged.",
-    "UI editor source": "Not recovered (no entry in `og-action-ui-from-sourcemap.json`)."
+    "UI editor source": "`recovered-source/src/models/actions/ivr/IVRSay.ts` (`IIVRSayOrPlay` = `IIVRSay` | `IIVRPlay`)"
    },
    "fields": [
     {
@@ -11218,29 +11666,29 @@
      "name": "widgetType",
      "type": "'say' | 'play'",
      "required": true,
-     "default": "—",
+     "default": "\"say\"",
      "notes": "Selects TTS vs. audio-file mode."
     },
     {
      "name": "loop",
      "type": "number",
      "required": true,
-     "default": "—",
-     "notes": "Loop count."
+     "default": "1",
+     "notes": "Loop count; the builder saves `max(loop, 1)`, so `0` becomes `1` `[source-derived 2026-09-26 — models/actions/ivr/IVRSay.ts:34,184]`."
     },
     {
      "name": "language",
      "type": "string",
      "required": true,
-     "default": "—",
-     "notes": "TTS language code."
+     "default": "\"en-US\"",
+     "notes": "Only `\"en-US\"` is offered `[source-derived 2026-09-26 — models/actions/ivr/IVRSay.ts:31,62-67]`."
     },
     {
      "name": "voice",
      "type": "string",
      "required": true,
-     "default": "—",
-     "notes": "TTS voice ID."
+     "default": "\"woman\"",
+     "notes": "Only `\"man\"` | `\"woman\"` `[source-derived 2026-09-26 — models/actions/ivr/IVRSay.ts:32,51-60]`."
     },
     {
      "name": "message",
@@ -11254,11 +11702,18 @@
      "type": "string",
      "required": true,
      "default": "—",
-     "notes": "URL to MP3/WAV file."
+     "notes": "URL of the uploaded audio file (MP3/WAV; upload capped at 16 MB) `[source-derived 2026-09-26 — models/actions/ivr/IVRSay.ts:8-12,69,214]`."
+    },
+    {
+     "name": "fileName",
+     "type": "string",
+     "required": false,
+     "default": "\"\"",
+     "notes": "Uploaded file's name, stored beside `audioUrl` `[source-derived 2026-09-26 — models/actions/ivr/IVRSay.ts:10,108,165]`."
     }
    ],
    "validator": "`ivrSayValidator` (per `sniffs/bundle/validators.json`):\n\n- `loop` set, else `ivr_loop_required` warning.\n- If `widgetType === \"say\"`:\n  - `language` set, else `ivr_language_required`.\n  - `message` set, else `ivr_message_required`.\n  - `voice` set, else `ivr_voice_required`.\n- If `widgetType === \"play\"`:\n  - `audioUrl` set, else (per chain — source truncated in extracted output).\n\nPer `validators-summary.json`: 5 fields referenced (audioUrl, language, loop, message, voice); result level `warning`.",
-   "notes": "- `widgetType` is the branching discriminator within the validator; the same action type covers both TTS and prerecorded audio.\n- Voice/language conventions match Amazon Polly / Twilio Say verb syntax (e.g. `Polly.Joanna`, `en-US`).\n- `loop: 0` may mean infinite loop or no-loop — not specified in bundle.",
+   "notes": "- `widgetType` is the branching discriminator within the validator; the same action type covers both TTS and prerecorded audio.\n- **Voices are only `man` / `woman`; language only `en-US`** — the builder offers no other TTS voice ids `[source-derived 2026-09-26 — models/actions/ivr/IVRSay.ts:51-67]`.\n- `loop` below 1 is raised to 1 by the builder on save `[source-derived 2026-09-26 — models/actions/ivr/IVRSay.ts:184]`; what the runtime does with a stored `0` is not established.",
    "hasCanonicalExample": true
   },
   {
@@ -13269,12 +13724,26 @@
      "label": "Product",
      "field": "`membership.product.id`",
      "type": "multiselect",
-     "operator": "`—`",
-     "options": "—"
+     "operator": "`is-any-of` / `is-none-of`",
+     "options": "the location's membership products"
+    },
+    {
+     "label": "Category",
+     "field": "`membership.category.id`",
+     "type": "multiselect",
+     "operator": "`is-any-of`",
+     "options": "offered only when the Product row holds exactly one product; the options are that product's categories"
+    },
+    {
+     "label": "Lesson",
+     "field": "`membership.lesson.id`",
+     "type": "multiselect",
+     "operator": "`is-any-of`",
+     "options": "offered only when the Category row holds exactly one category; the options are that category's lessons"
     }
    ],
    "validator": "`membershipCourseValidator` emits a **warning-level** `custom_field` reference check for every `contact.*` row in `conditions[]` except `contact.tags`. The builder resolves each against the location's custom fields: an unknown field id gives `contact_custom_field_not_found`, and a picklist value that is not one of the field's options gives `invalid_custom_field_value`. Every finding, warning or error, is pushed into the builder's highlight-error map with no severity filter, and a non-empty map blocks Publish in the builder (a client-side gate). [source-derived 2026-09-26 — utils/validators/triggers/additional-trigger-validators.ts:125-137; utils/validators/template-validator.ts:740-768; utils/validators/template-validator.ts:188-202; utils/highlight-errors.ts:14-27; hooks/use-publish-gate.ts:95-106]",
-   "notes": "- Single `Product` filter row on `membership.product.id` (multiselect). Validator (`membershipCourseValidator`) runs only the checks listed under `## Validator`.",
+   "notes": "- Rows cascade: `membership.product.id` (is-any-of / is-none-of), then `membership.category.id` once exactly one product is chosen, then `membership.lesson.id` once exactly one category is chosen. [source-derived 2026-09-26 — models/Triggers/Filters/MembershipLessonCompletedFilter.ts:15-48, 75-111, 150-201] Validator (`membershipCourseValidator`) runs only the checks listed under `## Validator`.",
    "hasCanonicalExample": false
   },
   {
@@ -13298,12 +13767,26 @@
      "label": "Product",
      "field": "`membership.product.id`",
      "type": "multiselect",
-     "operator": "`—`",
-     "options": "—"
+     "operator": "`is-any-of` / `is-none-of`",
+     "options": "the location's membership products"
+    },
+    {
+     "label": "Category",
+     "field": "`membership.category.id`",
+     "type": "multiselect",
+     "operator": "`is-any-of`",
+     "options": "offered only when the Product row holds exactly one product; the options are that product's categories"
+    },
+    {
+     "label": "Lesson",
+     "field": "`membership.lesson.id`",
+     "type": "multiselect",
+     "operator": "`is-any-of`",
+     "options": "offered only when the Category row holds exactly one category; the options are that category's lessons"
     }
    ],
    "validator": "`membershipCourseValidator` emits a **warning-level** `custom_field` reference check for every `contact.*` row in `conditions[]` except `contact.tags`. The builder resolves each against the location's custom fields: an unknown field id gives `contact_custom_field_not_found`, and a picklist value that is not one of the field's options gives `invalid_custom_field_value`. Every finding, warning or error, is pushed into the builder's highlight-error map with no severity filter, and a non-empty map blocks Publish in the builder (a client-side gate). [source-derived 2026-09-26 — utils/validators/triggers/additional-trigger-validators.ts:125-137; utils/validators/template-validator.ts:740-768; utils/validators/template-validator.ts:188-202; utils/highlight-errors.ts:14-27; hooks/use-publish-gate.ts:95-106]",
-   "notes": "- Single `Product` filter row on `membership.product.id` (multiselect). Validator (`membershipCourseValidator`) runs only the checks listed under `## Validator`.",
+   "notes": "- Rows cascade: `membership.product.id` (is-any-of / is-none-of), then `membership.category.id` once exactly one product is chosen, then `membership.lesson.id` once exactly one category is chosen. [source-derived 2026-09-26 — models/Triggers/Filters/MembershipLessonStartedFilter.ts:15-48, 75-111, 150-201] Validator (`membershipCourseValidator`) runs only the checks listed under `## Validator`.",
    "hasCanonicalExample": false
   },
   {
@@ -13877,10 +14360,25 @@
     "Special flags": "none",
     "Corpus frequency": "0 occurrence(s) across 326 corpus workflows"
    },
+   "fields": [
+    {
+     "name": "offer.id",
+     "type": "select",
+     "required": false
+    }
+   ],
+   "filterRows": [
+    {
+     "field": "offer.id",
+     "fieldType": "Offer",
+     "required": false,
+     "title": "`==`",
+     "options": "the location's membership offers"
+    }
+   ],
    "validator": "`membershipCourseValidator` emits a **warning-level** `custom_field` reference check for every `contact.*` row in `conditions[]` except `contact.tags`. The builder resolves each against the location's custom fields: an unknown field id gives `contact_custom_field_not_found`, and a picklist value that is not one of the field's options gives `invalid_custom_field_value`. Every finding, warning or error, is pushed into the builder's highlight-error map with no severity filter, and a non-empty map blocks Publish in the builder (a client-side gate). [source-derived 2026-09-26 — utils/validators/triggers/additional-trigger-validators.ts:125-137; utils/validators/template-validator.ts:740-768; utils/validators/template-validator.ts:188-202; utils/highlight-errors.ts:14-27; hooks/use-publish-gate.ts:95-106]",
-   "notes": "- Zero static filter rows. Validator (`membershipCourseValidator`) runs only the checks listed under `## Validator`. Per `sniffs/bundle/og-trigger-filters-from-sourcemap.json` and `sniffs/bundle/trigger-validators-summary.json::membershipCourseValidator`.",
-   "hasCanonicalExample": false,
-   "configSurface": "none"
+   "notes": "- One `offer.id` row (class `MembershipOfferAccessFilter`). [source-derived 2026-09-26 — models/Triggers/TriggerMain.ts:782-785; models/Triggers/Filters/MembershipOfferAccessFilter.ts:11-36] Validator (`membershipCourseValidator`) runs only the checks listed under `## Validator`.",
+   "hasCanonicalExample": false
   },
   {
    "type": "membership_grant_offer",
@@ -15050,7 +15548,7 @@
    "family": "triggers",
    "title": "opportunity_changed",
    "status": "source-derived",
-   "lastVerified": "2026-09-25",
+   "lastVerified": "2026-09-26",
    "summary": "Fires when an opportunity is updated (any field change).",
    "meta": {
     "Trigger value": "`opportunity_changed`",
@@ -15070,11 +15568,18 @@
      "options": "—"
     },
     {
+     "label": "Pipeline stage",
+     "field": "`opportunity.pipelineStageId`",
+     "type": "select",
+     "operator": "`==`",
+     "options": "the chosen pipeline's stages (value = stage id); offered only after an In pipeline row exists, and deleted with it"
+    },
+    {
      "label": "Tag",
      "field": "`contact.tags`",
      "type": "select",
-     "operator": "`==`",
-     "options": "—"
+     "operator": "`==`, `!=`, `contains-any`, `contains-none`",
+     "options": "the location's tags; legacy `index-of-true` / `index-of-false` migrate to `==` / `!=` on load"
     },
     {
      "label": "Assigned to",
@@ -15109,18 +15614,18 @@
      "field": "`opportunity.status`",
      "type": "select",
      "operator": "`—`",
-     "options": "—"
+     "options": "`open`, `won`, `lost`, `abandoned`"
     },
     {
      "label": "Lost Reason",
      "field": "`opportunity.lostReasonId`",
      "type": "select",
      "operator": "`—`",
-     "options": "—"
+     "options": "the location's lost reasons; value = the lost reason's `_id`"
     }
    ],
    "validator": "`opportunityValidator` checks the following fields (warning-level results) per `sniffs/bundle/trigger-validators-summary.json::opportunityValidator`:\n\n- `opportunity.assignedTo`\n- `opportunity.pipelineId`\n- `opportunity.pipelineStageId`\n\nAll other fields and the body envelope pass without validator inspection. Empty filters / conditions are permitted at create time — the publish flow uses the same validator chain (`docs/08-validators.md`).",
-   "notes": "- **Filter on an opportunity CUSTOM field with `field: \"opportunity.<fieldId>\"`** (builder source `TriggerFilter.isOpportunityCustomField`). Editing that field on the card fires the trigger when the new value matches. A non-matching edit logs `Filter not matched - <field name>` with the actual and expected values `[proven-live 2026-09-25]` `sniffs/afy-onboarding-tests-2026-09-25/live-O-batch.json`.\n- `opportunityValidator` warns when `opportunity.assignedTo`, `opportunity.pipelineId`, or `opportunity.pipelineStageId` reference IDs that don't exist in the target location. Warnings do not block publish. Per `sniffs/bundle/trigger-validators-summary.json::opportunityValidator`.",
+   "notes": "- **Filter on an opportunity CUSTOM field with `field: \"opportunity.<fieldId>\"`** (builder source `TriggerFilter.isOpportunityCustomField`). Editing that field on the card fires the trigger when the new value matches. A non-matching edit logs `Filter not matched - <field name>` with the actual and expected values `[proven-live 2026-09-25]` `sniffs/afy-onboarding-tests-2026-09-25/live-O-batch.json`.\n- `opportunityValidator` warns when `opportunity.assignedTo`, `opportunity.pipelineId`, or `opportunity.pipelineStageId` reference IDs that don't exist in the target location. Any trigger-validator finding, warning included, lands in the builder's highlight-error map and blocks Publish in the builder (a client-side gate) [source-derived 2026-09-26 — utils/validators/triggers/opportunity-validators.ts:38-89; utils/validators/template-validator.ts:188-202, 670-680; hooks/use-publish-gate.ts:95-106]. Per `sniffs/bundle/trigger-validators-summary.json::opportunityValidator`.",
    "hasCanonicalExample": false
   },
   {
@@ -15128,7 +15633,7 @@
    "family": "triggers",
    "title": "opportunity_created",
    "status": "source-derived",
-   "lastVerified": "2026-09-25",
+   "lastVerified": "2026-09-26",
    "summary": "Fires when an opportunity is created.",
    "meta": {
     "Trigger value": "`opportunity_created`",
@@ -15148,11 +15653,18 @@
      "options": "—"
     },
     {
+     "label": "Pipeline stage",
+     "field": "`opportunity.pipelineStageId`",
+     "type": "select",
+     "operator": "`==`",
+     "options": "the chosen pipeline's stages (value = stage id); offered only after an In pipeline row exists, and deleted with it"
+    },
+    {
      "label": "Tag",
      "field": "`contact.tags`",
      "type": "select",
-     "operator": "`—`",
-     "options": "—"
+     "operator": "`==`, `!=`, `contains-any`, `contains-none`",
+     "options": "the location's tags; legacy `index-of-true` / `index-of-false` migrate to `==` / `!=` on load"
     },
     {
      "label": "Assigned to",
@@ -15187,18 +15699,18 @@
      "field": "`opportunity.status`",
      "type": "select",
      "operator": "`—`",
-     "options": "—"
+     "options": "`open`, `won`, `lost`, `abandoned`"
     },
     {
      "label": "Lost Reason",
      "field": "`opportunity.lostReasonId`",
      "type": "select",
      "operator": "`—`",
-     "options": "—"
+     "options": "the location's lost reasons; value = the lost reason's `_id`"
     }
    ],
    "validator": "`opportunityValidator` checks the following fields (warning-level results) per `sniffs/bundle/trigger-validators-summary.json::opportunityValidator`:\n\n- `opportunity.assignedTo`\n- `opportunity.pipelineId`\n- `opportunity.pipelineStageId`\n\nAll other fields and the body envelope pass without validator inspection. Empty filters / conditions are permitted at create time — the publish flow uses the same validator chain (`docs/08-validators.md`).",
-   "notes": "- **A card created by a workflow's `create_opportunity` step fires this trigger**, the same as an API-created card. Both qualified with pipeline and stage filters `[proven-live 2026-09-25]` `sniffs/afy-onboarding-tests-2026-09-25/live-O-batch.json`.\n- `opportunityValidator` warns when `opportunity.assignedTo`, `opportunity.pipelineId`, or `opportunity.pipelineStageId` reference IDs that don't exist in the target location. Warnings do not block publish. Per `sniffs/bundle/trigger-validators-summary.json::opportunityValidator`.",
+   "notes": "- **A card created by a workflow's `create_opportunity` step fires this trigger**, the same as an API-created card. Both qualified with pipeline and stage filters `[proven-live 2026-09-25]` `sniffs/afy-onboarding-tests-2026-09-25/live-O-batch.json`.\n- `opportunityValidator` warns when `opportunity.assignedTo`, `opportunity.pipelineId`, or `opportunity.pipelineStageId` reference IDs that don't exist in the target location. Any trigger-validator finding, warning included, lands in the builder's highlight-error map and blocks Publish in the builder (a client-side gate) [source-derived 2026-09-26 — utils/validators/triggers/opportunity-validators.ts:38-89; utils/validators/template-validator.ts:188-202, 670-680; hooks/use-publish-gate.ts:95-106]. Per `sniffs/bundle/trigger-validators-summary.json::opportunityValidator`.",
    "hasCanonicalExample": false
   },
   {
@@ -15206,7 +15718,7 @@
    "family": "triggers",
    "title": "opportunity_decay",
    "status": "source-derived",
-   "lastVerified": "2026-08-22",
+   "lastVerified": "2026-09-26",
    "summary": "Fires after an opportunity has been inactive for the configured duration.",
    "meta": {
     "Trigger value": "`opportunity_decay`",
@@ -15224,6 +15736,13 @@
      "type": "select",
      "operator": "`—`",
      "options": "—"
+    },
+    {
+     "label": "Pipeline stage",
+     "field": "`opportunity.pipelineStageId`",
+     "type": "select",
+     "operator": "`==`",
+     "options": "the chosen pipeline's stages (value = stage id); offered only after an In pipeline row exists, and deleted with it"
     },
     {
      "label": "Duration in days",
@@ -15279,18 +15798,18 @@
      "field": "`opportunity.status`",
      "type": "select",
      "operator": "`—`",
-     "options": "—"
+     "options": "`open`, `won`, `lost`, `abandoned`"
     },
     {
      "label": "Lost Reason",
      "field": "`opportunity.lostReasonId`",
      "type": "select",
      "operator": "`—`",
-     "options": "—"
+     "options": "the location's lost reasons; value = the lost reason's `_id`"
     }
    ],
    "validator": "`opportunityValidator` checks the following fields (warning-level results) per `sniffs/bundle/trigger-validators-summary.json::opportunityValidator`:\n\n- `opportunity.assignedTo`\n- `opportunity.pipelineId`\n- `opportunity.pipelineStageId`\n\nAll other fields and the body envelope pass without validator inspection. Empty filters / conditions are permitted at create time — the publish flow uses the same validator chain (`docs/08-validators.md`).",
-   "notes": "- `opportunityValidator` warns when `opportunity.assignedTo`, `opportunity.pipelineId`, or `opportunity.pipelineStageId` reference IDs that don't exist in the target location. Warnings do not block publish. Per `sniffs/bundle/trigger-validators-summary.json::opportunityValidator`.",
+   "notes": "- `opportunityValidator` warns when `opportunity.assignedTo`, `opportunity.pipelineId`, or `opportunity.pipelineStageId` reference IDs that don't exist in the target location. Any trigger-validator finding, warning included, lands in the builder's highlight-error map and blocks Publish in the builder (a client-side gate) [source-derived 2026-09-26 — utils/validators/triggers/opportunity-validators.ts:38-89; utils/validators/template-validator.ts:188-202, 670-680; hooks/use-publish-gate.ts:95-106]. Per `sniffs/bundle/trigger-validators-summary.json::opportunityValidator`.",
    "hasCanonicalExample": false
   },
   {
@@ -15298,7 +15817,7 @@
    "family": "triggers",
    "title": "opportunity_status_changed",
    "status": "source-derived",
-   "lastVerified": "2026-08-22",
+   "lastVerified": "2026-09-26",
    "summary": "Fires when an opportunity moves from one status to another.",
    "meta": {
     "Trigger value": "`opportunity_status_changed`",
@@ -15315,14 +15834,14 @@
      "field": "`opportunity.oldStatus`",
      "type": "select",
      "operator": "`—`",
-     "options": "—"
+     "options": "`open`, `won`, `lost`, `abandoned`"
     },
     {
      "label": "Moved to status",
      "field": "`opportunity.status`",
      "type": "select",
      "operator": "`—`",
-     "options": "—"
+     "options": "`open`, `won`, `lost`, `abandoned`"
     },
     {
      "label": "In pipeline",
@@ -15332,11 +15851,18 @@
      "options": "—"
     },
     {
+     "label": "Pipeline stage",
+     "field": "`opportunity.pipelineStageId`",
+     "type": "select",
+     "operator": "`==`",
+     "options": "the chosen pipeline's stages (value = stage id); offered only after an In pipeline row exists, and deleted with it"
+    },
+    {
      "label": "Tag",
      "field": "`contact.tags`",
      "type": "select",
-     "operator": "`—`",
-     "options": "—"
+     "operator": "`==`, `!=`, `contains-any`, `contains-none`",
+     "options": "the location's tags; legacy `index-of-true` / `index-of-false` migrate to `==` / `!=` on load"
     },
     {
      "label": "Assigned to",
@@ -15371,11 +15897,11 @@
      "field": "`opportunity.lostReasonId`",
      "type": "select",
      "operator": "`—`",
-     "options": "—"
+     "options": "the location's lost reasons; value = the lost reason's `_id`"
     }
    ],
    "validator": "`opportunityValidator` checks the following fields (warning-level results) per `sniffs/bundle/trigger-validators-summary.json::opportunityValidator`:\n\n- `opportunity.assignedTo`\n- `opportunity.pipelineId`\n- `opportunity.pipelineStageId`\n\nAll other fields and the body envelope pass without validator inspection. Empty filters / conditions are permitted at create time — the publish flow uses the same validator chain (`docs/08-validators.md`).",
-   "notes": "- `opportunityValidator` warns when `opportunity.assignedTo`, `opportunity.pipelineId`, or `opportunity.pipelineStageId` reference IDs that don't exist in the target location. Warnings do not block publish. Per `sniffs/bundle/trigger-validators-summary.json::opportunityValidator`.",
+   "notes": "- `opportunityValidator` warns when `opportunity.assignedTo`, `opportunity.pipelineId`, or `opportunity.pipelineStageId` reference IDs that don't exist in the target location. Any trigger-validator finding, warning included, lands in the builder's highlight-error map and blocks Publish in the builder (a client-side gate) [source-derived 2026-09-26 — utils/validators/triggers/opportunity-validators.ts:38-89; utils/validators/template-validator.ts:188-202, 670-680; hooks/use-publish-gate.ts:95-106]. Per `sniffs/bundle/trigger-validators-summary.json::opportunityValidator`.",
    "hasCanonicalExample": false
   },
   {
@@ -15534,7 +16060,7 @@
    "family": "triggers",
    "title": "pipeline_stage_updated",
    "status": "source-derived",
-   "lastVerified": "2026-08-22",
+   "lastVerified": "2026-09-26",
    "summary": "Fires when an opportunity is moved between pipeline stages.",
    "meta": {
     "Trigger value": "`pipeline_stage_updated`",
@@ -15554,11 +16080,18 @@
      "options": "—"
     },
     {
+     "label": "Pipeline stage",
+     "field": "`opportunity.pipelineStageId`",
+     "type": "select",
+     "operator": "`==`",
+     "options": "the chosen pipeline's stages (value = stage id); offered only after an In pipeline row exists, and deleted with it"
+    },
+    {
      "label": "Tag",
      "field": "`contact.tags`",
      "type": "select",
-     "operator": "`—`",
-     "options": "—"
+     "operator": "`==`, `!=`, `contains-any`, `contains-none`",
+     "options": "the location's tags; legacy `index-of-true` / `index-of-false` migrate to `==` / `!=` on load"
     },
     {
      "label": "Assigned to",
@@ -15593,18 +16126,18 @@
      "field": "`opportunity.status`",
      "type": "select",
      "operator": "`—`",
-     "options": "—"
+     "options": "`open`, `won`, `lost`, `abandoned`"
     },
     {
      "label": "Lost Reason",
      "field": "`opportunity.lostReasonId`",
      "type": "select",
      "operator": "`—`",
-     "options": "—"
+     "options": "the location's lost reasons; value = the lost reason's `_id`"
     }
    ],
    "validator": "`opportunityValidator` checks the following fields (warning-level results) per `sniffs/bundle/trigger-validators-summary.json::opportunityValidator`:\n\n- `opportunity.assignedTo`\n- `opportunity.pipelineId`\n- `opportunity.pipelineStageId`\n\nAll other fields and the body envelope pass without validator inspection. Empty filters / conditions are permitted at create time — the publish flow uses the same validator chain (`docs/08-validators.md`).",
-   "notes": "- Filter UI uses `PipelineFilter` (not a dedicated class) because the trigger semantically narrows on a pipeline; the `opportunity.pipelineStageId` value is normally moved through the `conditions[]` array rather than the filter rows.\n- `opportunityValidator` warns when `opportunity.assignedTo`, `opportunity.pipelineId`, or `opportunity.pipelineStageId` reference IDs that don't exist in the target location. Warnings do not block publish. Per `sniffs/bundle/trigger-validators-summary.json::opportunityValidator`.",
+   "notes": "- Filter UI uses `PipelineFilter`. The stage is an ordinary filter row: once an In pipeline row exists the builder offers `opportunity.pipelineStageId` (`==`, value = stage id), and like every row it is saved in `conditions[]`. [source-derived 2026-09-26 — models/Triggers/Filters/PipelineFilter.ts:215-270; models/Triggers/TriggerMain.ts:888-903]\n- **A stage rename fires nothing; a card move fires for every card.** Renaming stages raised no `pipeline_stage_updated` across a full pipeline restructure, while moving cards into their new stages fired the trigger once per card. A trigger filtered only to the pipeline (no stage row) catches every one of those moves. Proof: [`pipelines-opportunities/20-api/pipelines.md`](../../../pipelines-opportunities/20-api/pipelines.md) \"A stage RENAME raises no event; a CARD MOVE raises everything\" (that page's proof).\n- `opportunityValidator` warns when `opportunity.assignedTo`, `opportunity.pipelineId`, or `opportunity.pipelineStageId` reference IDs that don't exist in the target location. Any trigger-validator finding, warning included, lands in the builder's highlight-error map and blocks Publish in the builder (a client-side gate) [source-derived 2026-09-26 — utils/validators/triggers/opportunity-validators.ts:38-89; utils/validators/template-validator.ts:188-202, 670-680; hooks/use-publish-gate.ts:95-106]. Per `sniffs/bundle/trigger-validators-summary.json::opportunityValidator`.",
    "hasCanonicalExample": false
   },
   {
@@ -15792,12 +16325,12 @@
      "label": "Product",
      "field": "`membership.product.id`",
      "type": "multiselect",
-     "operator": "`—`",
-     "options": "—"
+     "operator": "`is-any-of` / `is-none-of`",
+     "options": "the location's membership products"
     }
    ],
    "validator": "`membershipCourseValidator` emits a **warning-level** `custom_field` reference check for every `contact.*` row in `conditions[]` except `contact.tags`. The builder resolves each against the location's custom fields: an unknown field id gives `contact_custom_field_not_found`, and a picklist value that is not one of the field's options gives `invalid_custom_field_value`. Every finding, warning or error, is pushed into the builder's highlight-error map with no severity filter, and a non-empty map blocks Publish in the builder (a client-side gate). [source-derived 2026-09-26 — utils/validators/triggers/additional-trigger-validators.ts:125-137; utils/validators/template-validator.ts:740-768; utils/validators/template-validator.ts:188-202; utils/highlight-errors.ts:14-27; hooks/use-publish-gate.ts:95-106]",
-   "notes": "- Single `Product` filter row on `membership.product.id` (multiselect). Validator (`membershipCourseValidator`) runs only the checks listed under `## Validator`.",
+   "notes": "- Single `Product` filter row on `membership.product.id` (multiselect, `is-any-of` / `is-none-of`). [source-derived 2026-09-26 — models/Triggers/Filters/MembershipProductCompletedFilter.ts:13-45; models/Triggers/TriggerMain.ts:804-806] Validator (`membershipCourseValidator`) runs only the checks listed under `## Validator`.",
    "hasCanonicalExample": false
   },
   {
@@ -15818,15 +16351,15 @@
    },
    "conditions": [
     {
-     "label": "Select Product",
-     "field": "`product.id`",
-     "type": "select",
-     "operator": "`—`",
-     "options": "—"
+     "label": "Product",
+     "field": "`membership.product.id`",
+     "type": "multiselect",
+     "operator": "`is-any-of` / `is-none-of`",
+     "options": "the location's membership products"
     }
    ],
    "validator": "`membershipCourseValidator` emits a **warning-level** `custom_field` reference check for every `contact.*` row in `conditions[]` except `contact.tags`. The builder resolves each against the location's custom fields: an unknown field id gives `contact_custom_field_not_found`, and a picklist value that is not one of the field's options gives `invalid_custom_field_value`. Every finding, warning or error, is pushed into the builder's highlight-error map with no severity filter, and a non-empty map blocks Publish in the builder (a client-side gate). [source-derived 2026-09-26 — utils/validators/triggers/additional-trigger-validators.ts:125-137; utils/validators/template-validator.ts:740-768; utils/validators/template-validator.ts:188-202; utils/highlight-errors.ts:14-27; hooks/use-publish-gate.ts:95-106]",
-   "notes": "- Class `MembershipProductProgressPercentageFilter` — single `product.id` select row plus a progress percentage tracked separately in `conditions[]`. Open the recovered TS for full row layout. Per `sniffs/bundle/recovered-source/src/models/Triggers/Filters/MembershipProductProgressPercentageFilter.ts`.",
+   "notes": "- `product_started` uses `MembershipProductCompletedFilter`, the same class as `product_completed`: one `membership.product.id` multiselect row with `is-any-of` / `is-none-of`. (`MembershipProductProgressPercentageFilter` belongs to `product_progress_percentage`.) [source-derived 2026-09-26 — models/Triggers/TriggerMain.ts:804-806; models/Triggers/Filters/MembershipProductCompletedFilter.ts:13-45]",
    "hasCanonicalExample": false
   },
   {
@@ -16744,7 +17277,7 @@
    "family": "triggers",
    "title": "scheduler_trigger",
    "status": "source-derived",
-   "lastVerified": "2026-08-22",
+   "lastVerified": "2026-09-26",
    "summary": "Fires on a cron-like schedule (hourly / daily / weekly / monthly / cron).",
    "meta": {
     "Trigger value": "`scheduler_trigger`",
@@ -16762,10 +17295,80 @@
      "type": "select",
      "operator": "`==`",
      "options": "`hourly`, `daily`, `weekly`, `monthly`, `cron`"
+    },
+    {
+     "label": "Every (hours)",
+     "field": "`scheduler.hourly.every`",
+     "type": "number",
+     "operator": "`==`",
+     "options": "hourly only; integer 1–255"
+    },
+    {
+     "label": "At what time",
+     "field": "`scheduler.daily.times`",
+     "type": "multiselect",
+     "operator": "`==`",
+     "options": "daily only; `HH:MM` on a 15-minute grid (`00:00` … `23:45`)"
+    },
+    {
+     "label": "On days",
+     "field": "`scheduler.weekly.days`",
+     "type": "multiselect",
+     "operator": "`==`",
+     "options": "weekly; `monday` … `sunday`"
+    },
+    {
+     "label": "At what time",
+     "field": "`scheduler.weekly.times`",
+     "type": "multiselect",
+     "operator": "`==`",
+     "options": "weekly; 15-minute grid"
+    },
+    {
+     "label": "Pattern",
+     "field": "`scheduler.monthly.patternType`",
+     "type": "select",
+     "operator": "`==`",
+     "options": "monthly; `dayOfMonth` | `nthWeekday`"
+    },
+    {
+     "label": "On days",
+     "field": "`scheduler.monthly.days`",
+     "type": "multiselect",
+     "operator": "`==`",
+     "options": "monthly + `dayOfMonth`; `'1'` … `'31'` (strings)"
+    },
+    {
+     "label": "Week",
+     "field": "`scheduler.monthly.weekIndex`",
+     "type": "multiselect",
+     "operator": "`==`",
+     "options": "monthly + `nthWeekday`; `'1'` … `'4'` (strings)"
+    },
+    {
+     "label": "Day of week",
+     "field": "`scheduler.monthly.weekday`",
+     "type": "multiselect",
+     "operator": "`==`",
+     "options": "monthly + `nthWeekday`; `monday` … `sunday`"
+    },
+    {
+     "label": "At what time",
+     "field": "`scheduler.monthly.times`",
+     "type": "multiselect",
+     "operator": "`==`",
+     "options": "monthly (both patterns); 15-minute grid"
+    },
+    {
+     "label": "Cron expression",
+     "field": "`scheduler.cron.expression`",
+     "type": "input",
+     "operator": "`==`",
+     "options": "cron only; see Notes for the refused expressions"
     }
    ],
    "validator": "`schedulerValidator` checks the following fields (warning-level results) per `sniffs/bundle/trigger-validators-summary.json::schedulerValidator`:\n\n- `scheduler.interval`\n\nAll other fields and the body envelope pass without validator inspection. Empty filters / conditions are permitted at create time — the publish flow uses the same validator chain (`docs/08-validators.md`).",
-   "notes": "- `requiresInternalAccess: true` — listed only for internal-staff users in the picker; regular users won't see it. Whether the server enforces this on create has not been tested.\n- Beyond the single `Interval` filter row, the runtime config uses sub-fields (`scheduler.weekly.days`, `scheduler.weekly.times`, `scheduler.daily.times`, `scheduler.monthly.pattern`, etc.) that live in the `conditions[]` array — see corpus example. Per `sniffs/bundle/recovered-source/src/models/Triggers/Filters/SchedulerTriggerFilter.ts` (operator literals `cron-expression`, `daily-times`, `hourly-every`, `interval-type`, `monthly-pattern`, `monthly-pattern-type`, `monthly-week-index`, `monthly-weekday`, `weekly-days`, `weekly-times`).\n- Server-managed: each scheduler trigger gets a `schedule_runtime.task_ref` (queue + name + EXEC type) returned on read. Don't send `schedule_runtime` on create — the server manages it.",
+   "notes": "- `requiresInternalAccess: true` — listed only for internal-staff users in the picker; regular users won't see it. Whether the server enforces this on create has not been tested.\n- Every scheduler setting is a row in `conditions[]` (see the table). Monthly uses `scheduler.monthly.patternType` (not `scheduler.monthly.pattern`): `dayOfMonth` adds `monthly.days` + `monthly.times`; `nthWeekday` adds `monthly.weekIndex` + `monthly.weekday` + `monthly.times`. `scheduler.hourly.every` must be an integer from 1 to 255 — the class also has a `validateHourlyInterval` capping at 168, but nothing calls it. A cron expression the builder refuses as high-frequency (runs more than once an hour): minute field `*`, a minute list (`0,30`), a minute step under 60 (`*/15`), or a minute range (`0-30`). An hour step such as `0 */2 * * *` is allowed. [source-derived 2026-09-26 — models/Triggers/Filters/SchedulerTriggerFilter.ts:15-31, 40-60, 383-399, 464-476, 552-708; utils/cron-validation.ts:11-67]\n- Server-managed: each scheduler trigger gets a `schedule_runtime.task_ref` (queue + name + EXEC type) returned on read. Don't send `schedule_runtime` on create — the server manages it.",
    "hasCanonicalExample": false
   },
   {
@@ -16773,8 +17376,8 @@
    "family": "steps",
    "title": "send_to_eliza",
    "status": "source-derived",
-   "lastVerified": "2026-08-22",
-   "summary": "Send the contact's conversation context to the Eliza service (GHL's conversational AI back-end), optionally targeting a specific user.",
+   "lastVerified": "2026-09-26",
+   "summary": "Send the contact to the **Eliza Agent Platform** — a separately purchased product the sub-account must be added to — optionally targeting a specific Eliza user `[source-derived 2026-09-26 — components/actions/crm/SendToEliza.vue:85-90; i18n 3237-3239]`.",
    "meta": {
     "Section": "`eliza` (per `sniffs/bundle/registry-parsed.json::entries[50]`)",
     "Validator": "`sendToElizaValidator` — no-op (`n=>[]` per `sniffs/bundle/validators.json::sendToElizaValidator`).",
@@ -16800,7 +17403,7 @@
     }
    ],
    "validator": "`sendToElizaValidator` is a no-op — returns `[]`. Per `validators-summary.json`: zero fields referenced. Publish never warns on this step.",
-   "notes": "- No validator means missing `userId` while `sendToSpecificUser === true` won't warn at publish; the Eliza service likely errors at runtime.\n- \"Eliza\" is GHL's internal name for the AI assistant service (see `reference/microservices.md` for topology if mapped).",
+   "notes": "- No validator means missing `userId` while `sendToSpecificUser === true` won't warn at publish; the Eliza service likely errors at runtime.\n- **Only usable with an Eliza Agent Platform subscription.** On open the drawer calls `GET {appEngine}/dialogflow/eliza-location-status/{locationId}`; if `bot_service` is false the Save button is hidden and an upsell (\"If you have already purchased Eliza Agent Platform, please add this sub-account in Eliza first\") with a contact-admin email (`POST {appEngine}/workflow/sendElizaMailToAgencyAdmin?elizaAgentPlatform=true`) is shown `[source-derived 2026-09-26 — components/actions/crm/SendToEliza.vue:230-256; services/ElizaService.ts:10-22; i18n 3237-3239]`.\n- **A configured \"send to Eliza\" tag is applied first.** If the location status returns `send_eliza_tag`, the workflow assigns that tag to the contact before sending to Eliza `[source-derived 2026-09-26 — components/actions/crm/SendToEliza.vue:21-28,251; i18n 3234]`.\n- **`userId` choices come from Eliza, not the location's users:** `GET /{locationId}/eliza-users` (workflows backend) `[source-derived 2026-09-26 — services/WorkflowService.ts:630-640]`.",
    "hasCanonicalExample": true
   },
   {
@@ -18867,7 +19470,7 @@
     }
    ],
    "validator": "No trigger-specific validator: `user_log_in` has no entry in the builder's trigger registry, so the `membershipCourseValidator` the old page named is not attached to it. [source-derived 2026-09-26 — utils/trigger.ts:672-809]",
-   "notes": "- Earlier versions of this page described a native `courses` trigger with `masterType: \"highlevel\"` and a `MembershipUserLogin.ts` filter class. Neither exists in the 2026-09-25 source; build it as the INTERNAL marketplace trigger above. [source-derived 2026-09-26 — utils/trigger.ts:672-809; marketplace-assets-2026-09-25.json]\n- The asset's custom-variable list is empty (`customVars: []`), so the trigger exposes no `{{user_log_in.*}}` variables of its own.\n- The asset is in the unfiltered assets read; whether it appears under every `workflowTypes` value was not checked here (the catalogue depends on the workflow type — see `20-api/03-endpoints.md`).",
+   "notes": "- The asset's custom-variable list is empty (`customVars: []`), so the trigger exposes no `{{user_log_in.*}}` variables of its own.\n- The asset is in the unfiltered assets read; whether it appears under every `workflowTypes` value was not checked here (the catalogue depends on the workflow type — see `20-api/03-endpoints.md`).",
    "hasCanonicalExample": false
   },
   {
@@ -19246,7 +19849,7 @@
    "family": "steps",
    "title": "webhook",
    "status": "source-derived",
-   "lastVerified": "2026-08-22",
+   "lastVerified": "2026-09-26",
    "summary": "Simple outbound HTTP request — POST or GET — with custom key/value data and headers. Lighter-weight than [`custom_webhook`](./custom_webhook.md) (no auth, no body content-type, no response capture).",
    "meta": {
     "Section": "`send_data`",
@@ -19276,7 +19879,7 @@
      "type": "IKeyValue[]",
      "required": true,
      "default": "[]",
-     "notes": "Array of `{ key, value }`. For POST: form-encoded body. For GET: query-string overlay. Validator requires non-empty `key` per row. 100%."
+     "notes": "Array of `{ key, value }`. POST: labelled \"Custom data\" — \"These custom key-value pairs will be included along with the standard data\" (GHL's standard contact payload). GET: labelled \"Query string params\" `[source-derived 2026-09-26 — components/actions/Webhook.vue:66-81; i18n 871-872,3058-3059]`. 100%."
     },
     {
      "name": "headers",
@@ -19286,8 +19889,8 @@
      "notes": "HTTP headers. Same key/value entry shape. 100% (often empty)."
     }
    ],
-   "validator": "`webhookValidator` (length 672, result level `warning`). Per `sniffs/bundle/validators.json::webhookValidator`:\n\n```\nif (!url || !url.trim())   push { field: \"url\",    message: \"webhook_url_required\" }\nif (!method)               push { field: \"method\", message: \"http_method_required\" }\nif (customData.some(row => !row.key?.trim() || row.value === null || row.value === undefined))\n                           push { field: \"customData\", message: \"custom_data_has_empty_fields\" }\nif (headers.some(row => !row.key?.trim() || row.value === null || row.value === undefined))\n                           push { field: \"headers\",    message: \"headers_have_empty_fields\" }\n```\n\n`fields_referenced: [\"customData\", \"headers\", \"method\", \"url\"]`.\n\nEmpty arrays are OK; but each entry in a non-empty array must have a non-empty `key` and a defined `value` (empty string is fine — only `null`/`undefined` fail).",
-   "notes": "- **For JSON body, use [`custom_webhook`](./custom_webhook.md), not `webhook`.** This action's `customData` is form-encoded key/value pairs only — no `Content-Type: application/json` mode. If the target expects JSON, switch types.\n- **GET method with `customData` overlays the query string.** POST sends them in the form-encoded body.\n- **No response capture.** This action doesn't save the response — downstream `{{webhook.<order>.response}}` references won't work. Use `custom_webhook` if you need the response.\n- **No authorization.** Embed any required auth tokens in `headers` (e.g. `{ key: \"Authorization\", value: \"Bearer ...\" }`).\n- **`customData[].value` accepts empty string** but not `null` or `undefined`. The validator distinguishes — if you build the row programmatically, set `value: \"\"` for empty.\n- **Handlebars** work in `url`, `customData[].value`, and `headers[].value`. Resolved at execution time.",
+   "validator": "`webhookValidator` (length 672, result level `warning`). Per `sniffs/bundle/validators.json::webhookValidator`:\n\n```\nif (!url || !url.trim())   push { field: \"url\",    message: \"webhook_url_required\" }\nif (!method)               push { field: \"method\", message: \"http_method_required\" }\nif (customData.some(row => !row.key?.trim() || row.value === null || row.value === undefined))\n                           push { field: \"customData\", message: \"custom_data_has_empty_fields\" }\nif (headers.some(row => !row.key?.trim() || row.value === null || row.value === undefined))\n                           push { field: \"headers\",    message: \"headers_has_empty_fields\" }\n```\n\n`fields_referenced: [\"customData\", \"headers\", \"method\", \"url\"]`.\n\nEmpty arrays are OK; but each entry in a non-empty array must have a non-empty `key` and a defined `value` — the **validator** lets an empty-string `value` through (only `null`/`undefined` fail) `[source-derived 2026-09-26 — utils/validators/webhook-validators.ts:34-56]`. The **builder drawer is stricter**: it refuses to save a row with an empty `value` (\"empty field is not allowed\", `emptyValues` tests `!data.value`) or a URL that fails its pattern (anything containing `{{` passes) `[source-derived 2026-09-26 — utils/validation.ts:68-80,179-186; models/actions/Webhook.ts:53-65]`.",
+   "notes": "- **This action has no body editor, content-type or auth setting** — only `url`, `method`, `customData` and `headers` `[source-derived 2026-09-26 — models/actions/Webhook.ts]`. A POST sends GHL's standard contact payload plus the `customData` pairs; the wire encoding is not stated in the builder source. For a body you control, use [`custom_webhook`](./custom_webhook.md).\n- **GET: `customData` is \"Query string params\"; POST: the pairs ride with the standard data** `[source-derived 2026-09-26 — components/actions/Webhook.vue:66-81]`.\n- **No response capture.** This action doesn't save the response — downstream `{{webhook.<order>.response}}` references won't work. Use `custom_webhook` if you need the response.\n- **No authorization.** Embed any required auth tokens in `headers` (e.g. `{ key: \"Authorization\", value: \"Bearer ...\" }`).\n- **`customData[].value: \"\"` passes the publish validator but not the builder drawer** — the drawer's save check refuses empty values, so a UI re-save of an API-built step with `\"\"` will fail until filled `[source-derived 2026-09-26 — utils/validation.ts:179-186]`. `null`/`undefined` fail both.\n- **Handlebars** work in `url`, `customData[].value`, and `headers[].value`. Resolved at execution time.",
    "hasCanonicalExample": true
   },
   {

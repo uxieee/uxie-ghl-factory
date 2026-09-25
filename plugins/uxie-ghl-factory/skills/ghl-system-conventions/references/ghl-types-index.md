@@ -112,7 +112,7 @@ uxie-ghl-factory plugin is installed — same data.
 | `facebook_add_to_custom_audience` | source-derived | Add the contact to a Facebook (Meta) custom audience for ad targeting. |
 | `facebook_conversion_api` | source-derived | Send a server-side conversion event to Meta via the Conversion API (CAPI), bypassing browser-side pixel tracking. |
 | `facebook_remove_from_custom_audience` | source-derived | Remove the contact from a Facebook (Meta) custom audience. |
-| `fb_interactive_messenger` | source-derived | Send an interactive Facebook Messenger message (buttons, quick-replies, structured payload). Resolved from `!ident:FB_INTERACTIVE_MESSENGER`. |
+| `fb_interactive_messenger` | source-derived | Send an interactive Facebook Messenger message with buttons and/or quick replies, branching on the contact's choice. Resolved from `!ident:FB_INTERACTIVE_MESSENGER`. |
 | `find_contact` | source-derived | Look up a contact by one or more field values; branch into "Contact Found" / "Contact Not Found" paths. |
 | `find_opportunity` | source-derived | Multi-path search: look up an opportunity matching a filter spec; branches to `"Opportunity Found"` or `"Opportunity Not Found"`. |
 | `gmb` | source-derived | Send a Google Business Profile (formerly Google My Business / GMB) message to the contact via the connected GBP integration. |
@@ -146,7 +146,7 @@ uxie-ghl-factory plugin is installed — same data.
 | `respond_on_comment` | source-derived | Respond to a social-media comment that triggered the workflow (e.g. a comment-trigger flow on Facebook/Instagram). |
 | `review_request` | source-derived | Send a review-request prompt (Google or Facebook) to the contact via SMS or email. |
 | `router` | source-derived | Multi-branch step that sends the contact down **every** branch whose conditions match, one branch after another, left to right. Unlike `if_else` it does not stop at the first match. Beta: hidden from the action picker unless the session is on staging / internal GHL or an allowlisted agency or locati |
-| `send_to_eliza` | source-derived | Send the contact's conversation context to the Eliza service (GHL's conversational AI back-end), optionally targeting a specific user. |
+| `send_to_eliza` | source-derived | Send the contact to the **Eliza Agent Platform** — a separately purchased product the sub-account must be added to — optionally targeting a specific Eliza user `[source-derived 2026-09-26 — components/actions/crm/SendToEliza.vue:85-90; i18n 3237-3239]`. |
 | `slack_message` | source-derived | Send a message via a connected Slack integration to a public channel, private channel, or as a direct message. |
 | `sms` | source-derived | Send an SMS (or MMS via `attachments` / `urlAttachments`) to the contact. |
 | `stripe_one_time_charge` | source-derived | Charge a Stripe customer a one-time amount in a given currency. |
