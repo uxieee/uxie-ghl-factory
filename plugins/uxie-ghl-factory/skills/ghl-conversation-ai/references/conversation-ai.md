@@ -41,7 +41,7 @@ into three parts, not a tool-calling system prompt.
 | Default KB (idempotent get-or-create) | `POST` | `/knowledge-base/default` (`{locationId, migrateDocs:true}`) |
 | Default prompt template | `GET` | `/conversations-ai/prompt/default?locationId=…&intentType=…` |
 | Deployment routing rows (one per channel) | `GET` | `/agent-deployment/routing-config/configs?locationId=…&agentId=…` |
-| Update a routing row (full row only) | `PATCH` | `/agent-deployment/routing-config/configs/:rowId` |
+| Update a routing row (the PATCH merges: send only the keys you change) | `PATCH` | `/agent-deployment/routing-config/configs/:rowId` |
 | Live-chat widget picker (`offset`+`limit` required) | `GET` | `/chat-widget/list?locationId=…&chatType=liveChat&offset=0&limit=20` |
 
 Auth: Bearer **plus** `token-id` — the dual-credential AI rail (`raw_request` with `host:"ai"`
@@ -176,8 +176,17 @@ live?" audit must read the rows directly.
 Each row: `{channel, providerId, enabled, allIdentifiers, specificIdentifiers[], includeTags,
 includeTagsOperator, excludeTags, excludeTagsOperator}`. `allIdentifiers:true` routes every
 identifier on that channel ("All widgets") and `specificIdentifiers` is then empty;
-`allIdentifiers:false` pins the row to the listed ids. The `…Tags` / `…Operator` fields
-(`"AND"` observed) were seen in the row shape only — their matching semantics are unexercised.
+`allIdentifiers:false` pins the row to the listed ids. The tag filters match the obvious way:
+`AND` needs every listed tag, `OR` any one, and `excludeTags` blocks a carrier (live-proven
+2026-09-11, corpus `ai-agents/50-runtime/routing-tag-matching.md`).
+
+🔴 **Two bots can share one channel (one SMS number) by tag** (live-proven 2026-09-25). Enabling a
+second row on the same channel + `providerId` answers `409` only when the two audiences
+**overlap**. Bot A `includeTags:[X]` beside bot B `includeTags:[Y]` coexists. Bot B
+`includeTags:[]` (everyone) or `[X]` 409s. Bot B `includeTags:[]` + `excludeTags:[X]` coexists
+and also covers untagged contacts, which is the "everyone else" pattern. With two include rows, a
+contact carrying neither tag gets **no bot**. Delivery was proven on Live_Chat; inbound SMS was
+not exercised (the test account has no number).
 
 🔴 **A row pinned to a dead identifier is a silent mute.** A `Live_Chat` row with
 `allIdentifiers:false` and `specificIdentifiers` naming a widget that no longer exists was found
