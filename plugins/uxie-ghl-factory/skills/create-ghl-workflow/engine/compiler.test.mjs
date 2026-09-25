@@ -77,6 +77,18 @@ test('disabled IR step emits native pause metadata without dropping canvas posit
   assert.equal('isDisabled' in step.attributes, false);
 });
 
+test('disabled: true on a WAIT is refused — GHL ignores the flag there and the wait still runs (live 2026-09-25)', () => {
+  const ir = { ...linearIR, graph: [...linearIR.graph, {
+    ref: 'wOff', kind: 'action', type: 'wait', name: 'Wait 1 day', disabled: true,
+    attributes: { type: 'time', startAfter: { type: 'days', value: 1, when: 'after' } } }] };
+  assert.throws(() => compile(ir, ctx()), (e) => e.code === 'STEP_NOT_DISABLEABLE' && /'Wait 1 day' is a wait/.test(e.message));
+});
+
+test('disabled: true on an if_else container is refused — the builder cannot switch off a branching step', () => {
+  const ir = { ...ifElseIR, graph: ifElseIR.graph.map((n) => n.kind === 'if_else' ? { ...n, disabled: true } : n) };
+  assert.throws(() => compile(ir, ctx()), (e) => e.code === 'STEP_NOT_DISABLEABLE' && /branching step/.test(e.message));
+});
+
 const ifElseIR = {
   name: 'Branchy', triggers: [{ ref: 't', type: 'contact_tag', name: 'T', filters: [] }],
   graph: [

@@ -46,7 +46,7 @@ test('markdown index lists EVERY step and trigger type', () => {
   for (const t of Object.keys(d.steps)) assert.ok(md.includes('`' + t + '`'), `step ${t} missing from index`);
   for (const t of Object.keys(d.triggers)) assert.ok(md.includes('`' + t + '`'), `trigger ${t} missing from index`);
   assert.match(md, /Regenerate: `node scripts\/query-catalog-cli\.mjs --md/);
-  assert.match(md, /Native pause.*every step type/i);
+  assert.match(md, /Native switch-off.*disabled WAIT still waits/i);
   assert.match(md, /advanceCanvasMeta\.isDisabled/);
 });
 

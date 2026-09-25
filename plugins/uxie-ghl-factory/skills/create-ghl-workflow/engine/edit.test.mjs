@@ -98,6 +98,26 @@ test('setStepDisabled preserves config and position, flips both directions, and 
   assert.deepEqual(alreadyEnabled.diff.modifiedSteps, []);
 });
 
+test('a WAIT cannot be switched off: GHL stores the flag and the wait still holds the contact (live 2026-09-25)', () => {
+  const base = chain().map((t) => t.id === 's2'
+    ? { ...t, type: 'wait', name: 'Wait 1 day', attributes: { type: 'time', startAfter: { type: 'days', value: 1, when: 'after' } } }
+    : t);
+  assert.throws(() => edit.setStepDisabled(base, 's2', true), /STEP_NOT_DISABLEABLE.*'Wait 1 day' is a wait.*still holds the contact/);
+  assert.throws(() => edit.disableStepsByType(base, 'wait', true), /STEP_NOT_DISABLEABLE/);
+  // Clearing a stray flag stays possible: enabling is never refused.
+  const stray = base.map((t) => t.id === 's2' ? { ...t, advanceCanvasMeta: { isDisabled: true } } : t);
+  assert.equal(edit.setStepDisabled(stray, 's2', false).templates.find((t) => t.id === 's2').advanceCanvasMeta.isDisabled, false);
+});
+
+test('the other steps GHL\'s builder cannot switch off are refused too: goto, drip, goal, branching containers', () => {
+  for (const type of ['goto', 'drip', 'workflow_goal']) {
+    const base = chain().map((t) => t.id === 's2' ? { ...t, type } : t);
+    assert.throws(() => edit.setStepDisabled(base, 's2', true), new RegExp(`STEP_NOT_DISABLEABLE.*is a ${type}`));
+  }
+  const container = chain().map((t) => t.id === 's2' ? { ...t, type: 'if_else', next: ['b1', 'b2'] } : t);
+  assert.throws(() => edit.setStepDisabled(container, 's2', true), /STEP_NOT_DISABLEABLE.*branching step/);
+});
+
 test('disableStepsByType changes only matching steps that need a state flip', () => {
   assert.equal(typeof edit.disableStepsByType, 'function');
   const base = chain().map((t) => t.id === 's3'

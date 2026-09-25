@@ -156,9 +156,12 @@ export function renderMarkdown(d) {
     'webhook/custom-code workaround for a native action, without searching here first.');
   out.push('');
   if (d.stepCapabilities?.isDisabled) {
-    out.push('**Native pause (every step type):** set IR `disabled: true` to emit top-level ' +
-      '`advanceCanvasMeta.isDisabled: true`. This is the same per-action pause used by ' +
-      'GHL\'s ⏸ button; it preserves the step config and skips that step at runtime.');
+    out.push('**Native switch-off (actions):** set IR `disabled: true` to emit top-level ' +
+      '`advanceCanvasMeta.isDisabled: true`, the same flag as GHL\'s ⏸ button. It keeps the step ' +
+      'config, and at runtime the action is skipped (log status `skipped`, "This Action is disabled."). ' +
+      '🔴 **A disabled WAIT still waits**: GHL stores the flag and ignores it. The builder refuses to ' +
+      'disable wait, goto, drip, goal, condition roots and multi-path containers. To take a wait out, ' +
+      'delete it.');
     out.push('');
   }
   out.push('Legend: ✅ verified-live (round-tripped against a live account) · ◐ bundle-derived · ▫ live-schema (marketplace) · ⚑ recon-fields (field structure captured; not yet commit-verified).');

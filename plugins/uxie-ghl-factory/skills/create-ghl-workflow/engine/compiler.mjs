@@ -9,6 +9,7 @@ import { checkStepOutputRefs } from './step-outputs.mjs';
 import { normalizeSettings } from './settings.mjs';
 import { stripNullNext } from './terminals.mjs';
 import { stepNotesToComments } from './step-notes.mjs';
+import { disableRefusal } from './disable-rules.mjs';
 import { checkContactFieldShape } from './contact-field-shapes.mjs';
 import { enforceRequiredFields, INNER_ATTRIBUTE_TYPE } from './required-fields.mjs';
 import { coerceDefault } from './action-schema.mjs';
@@ -1043,6 +1044,8 @@ function withStepDisabled(node, template, ctx) {
   // newest first. Absent/empty → no `comments` key, so every prior emitted shape is unchanged.
   if (Array.isArray(node.notes) && node.notes.length) out = { ...out, comments: stepNotesToComments(node.notes, ctx ?? {}) };
   if (node.disabled !== true) return out;
+  const refused = disableRefusal(out);
+  if (refused) throw new IRError('STEP_NOT_DISABLEABLE', `disabled: true refused — ${refused}`);
   return {
     ...out,
     advanceCanvasMeta: {

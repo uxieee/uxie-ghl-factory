@@ -23,9 +23,11 @@ test('voice_ai_outbound_call resolves as an internal action requiring agentId/fr
   assert.deepEqual(step.requiredFields, ['agentId', 'fromPhoneNumber']);
 });
 
-test('catalog exposes native pause as a universal step capability', () => {
+test('catalog exposes the native switch-off, and says a disabled WAIT is not honoured (live 2026-09-25)', () => {
   const pause = loadCatalog().stepCapabilities().isDisabled;
-  assert.equal(pause.appliesTo, 'all-step-types');
+  assert.match(pause.appliesTo, /^actions/);
+  assert.deepEqual(pause.notHonouredBy, ['wait']);
+  assert.match(pause.description, /disabled WAIT still waits/);
   assert.equal(pause.irField, 'disabled');
   assert.equal(pause.templatePath, 'advanceCanvasMeta.isDisabled');
 });

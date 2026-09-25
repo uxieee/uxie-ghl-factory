@@ -18,6 +18,7 @@ import { stepRefsOf, danglingStepRefs } from './graph-refs.mjs';
 import { enforceTemplates } from './enforce.mjs';
 import { gotoLoops } from './goto-loops.mjs';
 import { leakedOppNames } from './opp-shapes.mjs';
+import { disableRefusal } from './disable-rules.mjs';
 
 // `active` is a read-only projection of a trigger's own `status` field ("draft"|"published")
 // — `active === (status !== "draft")` — not a field any PUT body sets directly. A per-trigger
@@ -337,6 +338,10 @@ export function renameStep(templates, stepId, name) {
 // attributes), and the rest of the step must round-trip byte-for-byte in shape.
 function setDisabledWhere(templates, matches, disabled) {
   const desired = disabled === true;
+  if (desired) {
+    const refused = templates.filter(matches).map(disableRefusal).filter(Boolean);
+    if (refused.length) throw new Error(`STEP_NOT_DISABLEABLE: ${refused.join('; ')}`);
+  }
   const changed = [];
   const out = templates.map((t) => {
     if (!matches(t) || Boolean(t.advanceCanvasMeta?.isDisabled) === desired) return t;

@@ -176,7 +176,7 @@ var define_ENDPOINT_CATALOG_default;
 var init_define_ENDPOINT_CATALOG = __esm({
   "<define:__ENDPOINT_CATALOG__>"() {
     define_ENDPOINT_CATALOG_default = {
-      generated: "2026-09-24",
+      generated: "2026-09-25",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
       count: 1145,
       endpoints: [
@@ -97482,6 +97482,24 @@ function stepNotesToComments(notes, ctx = {}) {
   return notes.map((t) => stepNoteRecord(t, { uid: ctx.uid, now: ctx.now, idGen: ctx.idGen })).reverse();
 }
 
+// ../skills/create-ghl-workflow/engine/disable-rules.mjs
+init_define_BUILDER_VALIDATORS();
+init_define_CONTACT_FILTER_FIELDS();
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
+init_define_TOOL_CATALOG();
+var BUILDER_REFUSES = /* @__PURE__ */ new Set(["wait", "goto", "drip", "workflow_goal"]);
+function disableRefusal(t) {
+  if (t?.type === "wait")
+    return `'${t.name ?? t.id}' is a wait: GHL ignores the switch-off on a wait and it still holds the contact for its full time. Delete the wait instead`;
+  if (BUILDER_REFUSES.has(t?.type))
+    return `'${t.name ?? t.id}' is a ${t.type}: GHL's builder cannot switch it off, and what the flag does to it at runtime is unproven. Delete it instead`;
+  if (Array.isArray(t?.next))
+    return `'${t.name ?? t.id}' is a branching step (${t.type}): GHL's builder cannot switch off a condition or multi-path container. Switch off the actions inside it instead`;
+  return null;
+}
+
 // ../skills/create-ghl-workflow/engine/contact-field-shapes.mjs
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
@@ -104066,10 +104084,13 @@ var catalog_data_default = {
   triggerCount: 204,
   stepCapabilities: {
     isDisabled: {
-      appliesTo: "all-step-types",
+      appliesTo: "actions \u2014 the builder refuses wait, goto, drip, workflow_goal, condition roots and multi-path containers",
       irField: "disabled",
       templatePath: "advanceCanvasMeta.isDisabled",
-      description: "Native per-action pause; preserves the full step config and skips the step at runtime"
+      notHonouredBy: [
+        "wait"
+      ],
+      description: 'Native per-action switch-off; keeps the full step config. At runtime a disabled action is skipped (log status "skipped", skippedFor advance-canvas-node-disabled). A disabled WAIT still waits: the flag is stored and ignored (proven-live 2026-09-25, corpus workflows/40-rules/disabled-steps.md)'
     }
   },
   filterModels: {
@@ -161887,6 +161908,8 @@ function withStepDisabled(node, template, ctx) {
   let out = template;
   if (Array.isArray(node.notes) && node.notes.length) out = { ...out, comments: stepNotesToComments(node.notes, ctx ?? {}) };
   if (node.disabled !== true) return out;
+  const refused = disableRefusal(out);
+  if (refused) throw new IRError("STEP_NOT_DISABLEABLE", `disabled: true refused \u2014 ${refused}`);
   return {
     ...out,
     advanceCanvasMeta: {
@@ -164455,6 +164478,10 @@ function renameStep(templates, stepId, name) {
 }
 function setDisabledWhere(templates, matches, disabled) {
   const desired = disabled === true;
+  if (desired) {
+    const refused = templates.filter(matches).map(disableRefusal).filter(Boolean);
+    if (refused.length) throw new Error(`STEP_NOT_DISABLEABLE: ${refused.join("; ")}`);
+  }
   const changed = [];
   const out = templates.map((t) => {
     if (!matches(t) || Boolean(t.advanceCanvasMeta?.isDisabled) === desired) return t;

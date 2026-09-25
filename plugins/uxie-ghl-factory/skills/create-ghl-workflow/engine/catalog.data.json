@@ -6475,10 +6475,13 @@
  "triggerCount": 204,
  "stepCapabilities": {
   "isDisabled": {
-   "appliesTo": "all-step-types",
+   "appliesTo": "actions — the builder refuses wait, goto, drip, workflow_goal, condition roots and multi-path containers",
    "irField": "disabled",
    "templatePath": "advanceCanvasMeta.isDisabled",
-   "description": "Native per-action pause; preserves the full step config and skips the step at runtime"
+   "notHonouredBy": [
+    "wait"
+   ],
+   "description": "Native per-action switch-off; keeps the full step config. At runtime a disabled action is skipped (log status \"skipped\", skippedFor advance-canvas-node-disabled). A disabled WAIT still waits: the flag is stored and ignored (proven-live 2026-09-25, corpus workflows/40-rules/disabled-steps.md)"
   }
  },
  "filterModels": {
