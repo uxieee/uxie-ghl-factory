@@ -11,6 +11,35 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.0.3] — 2026-09-25
+
+**Type cards now carry their whole Notes and Validator sections.** Until now every card shipped only
+the first line of each. The card builder's section reader stopped at the end of the first line,
+so 238 cards lost everything after their first gotcha and 136 lost most of their validator
+description. Now 181 cards carry full multi-line notes and 75 full validators. No card lost the line
+it had before. The same fix repairs 41 field cells whose backticks were half-stripped (for example
+`` default `English `` now reads `` default `English` ``).
+
+**Workflow behaviour proven live today, now in the cards and the specialist catalogue:**
+
+- **`custom_webhook`:**
+  - A **5xx** holds the run on the step and retries: 5 attempts over about 50 minutes, then
+    `failed_retry_limit_reached`, and the run carries on with `{{custom_webhook.N.status}}` = 500.
+  - A **4xx** fails, and the run carries on at once.
+  - A **200 with an error in its body** counts as a success.
+  - The catalogue had said "no built-in retry on 5xx", which was wrong.
+- **`create_opportunity`** reuses the contact's card in the pipeline, a **lost** one included. It
+  reopens that card and overwrites its stage, name and value. Only `allow_multiple: true` creates a
+  second card.
+- **`inbound_webhook`**: every POST starts its own run, even with re-entry off, because the run starts
+  with no contact.
+- **`customer_reply`**: two filter rows are ANDed. With no filter it fires on every inbound message.
+- **`appointment` trigger**: a Conversation AI booking arrives with "Created By" = `user`, so a
+  `customer` filter skips bot bookings.
+- **Conversation AI guide:** two bots can share one channel by tag. Only overlapping tag scopes (or a
+  no-tag catch-all) conflict with a 409. Include-X beside exclude-X coexists. It also stops saying tag
+  matching is unexercised, and that a routing-row PATCH must send the full row: the PATCH merges.
+
 ## [1.0.2] — 2026-09-25
 
 **Switching off a wait is refused, because GHL ignores it.** A step switched off with the builder's
