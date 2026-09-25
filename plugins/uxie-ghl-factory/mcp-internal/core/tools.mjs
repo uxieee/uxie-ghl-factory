@@ -36,7 +36,7 @@ import { needsVocabularies, checkVocabularyRefs, fetchDispositionNames } from '.
 import { callerCredentialClass, reachForCaller } from './credential-class.mjs';
 import { SCHEDULER_TRIGGER_TYPE, schedulerPreviewBody, interpretSchedulerPreview } from '../../skills/create-ghl-workflow/engine/scheduler-preview.mjs';
 import { planReadinessChecks, runReadinessChecks } from '../../skills/create-ghl-workflow/engine/preflight.mjs';
-import { parseActionSchema, parseTriggerSchema, checkWorkflow, marketplaceDrift } from '../../skills/create-ghl-workflow/engine/action-schema.mjs';
+import { parseActionSchema, parseTriggerSchema, checkWorkflow, marketplaceDrift, assetsPath } from '../../skills/create-ghl-workflow/engine/action-schema.mjs';
 import { INNER_ATTRIBUTE_TYPE } from '../../skills/create-ghl-workflow/engine/required-fields.mjs';
 import { validateForWrite } from '../../skills/create-ghl-workflow/engine/write-validation.mjs';
 import { liveValidate } from '../../skills/create-ghl-workflow/engine/live-validate.mjs';
@@ -773,20 +773,19 @@ const ATTR_WRITING_OPS = new Set([
 // The builder's "Resolve N Errors" list, computed for an edit before it is sent. Same catalog and
 // same predicate check_workflow uses, so the two can never disagree about what the builder shows.
 // Returns [] on any failure: this is a reporting layer, never a gate.
-async function editSchemaViolations(gw, loc, templates, triggers, ops, prefetchedAssets) {
+async function editSchemaViolations(gw, loc, templates, triggers, ops, prefetchedAssets, wf) {
   if (!(ops ?? []).some((o) => ATTR_WRITING_OPS.has(o?.op))) return [];
-  return schemaViolationsFor(gw, loc, templates, triggers, prefetchedAssets);
+  return schemaViolationsFor(gw, loc, templates, triggers, prefetchedAssets, wf);
 }
 // The ungated core, shared with repair_workflow (which has no op list to gate on — a whole
 // document is being replaced, so any non-empty diff is worth the catalog fetch).
-async function schemaViolationsFor(gw, loc, templates, triggers, prefetchedAssets) {
+async function schemaViolationsFor(gw, loc, templates, triggers, prefetchedAssets, wf) {
   try {
     // A marketplace op has already fetched this exact payload to resolve its keys. Reuse it
     // rather than asking for the same 3 MB twice in one edit.
     let assets = prefetchedAssets;
     if (!assets) {
-      const resp = await gw.call('GET',
-        `/workflows-marketplace/location/${loc}/assets?workflowTypes=default,contacts`);
+      const resp = await gw.call('GET', assetsPath(loc, wf));
       if (!resp?.ok || !resp.json) return [];
       assets = resp.json;
     }
@@ -2359,8 +2358,7 @@ export const TOOLS = [
       let actionSchema = null;
       let triggerSchema = null;
       try {
-        const assetsResp = await gw.call('GET',
-          `/workflows-marketplace/location/${loc}/assets?workflowTypes=default,contacts`);
+        const assetsResp = await gw.call('GET', assetsPath(loc, body.json));
         if (assetsResp?.ok && assetsResp.json) {
           actionSchema = parseActionSchema(assetsResp.json);
           triggerSchema = parseTriggerSchema(assetsResp.json);
@@ -4857,7 +4855,7 @@ export const TOOLS = [
       // still gets a real (empty) index, so an unresolvable key raises the engine's own
       // MARKETPLACE_KEY_UNKNOWN rather than a `.get is not a function` crash.
       const marketplaceRaw = opsUseMarketplace(args.ops)
-        ? await fetchMarketplace((m, path, body) => gw.call(m, path, body), args.locationId)
+        ? await fetchMarketplace((m, path, body) => gw.call(m, path, body), args.locationId, fresh)
         : { assets: null, modules: { actions: [], triggers: [] } };
       const marketplace = buildMarketplaceIndex(marketplaceRaw);
       const ctx = {
@@ -5021,7 +5019,7 @@ export const TOOLS = [
       // so the confirm preview shows what a human would see on opening the builder.
       // Advisory and fail-open, matching the build path: an unreachable catalog must not become a
       // new way for a working edit to die.
-      const schemaViolations = await editSchemaViolations(gw, locationPath, templates, existingTriggers, args.ops, marketplaceRaw.assets);
+      const schemaViolations = await editSchemaViolations(gw, locationPath, templates, existingTriggers, args.ops, marketplaceRaw.assets, fresh);
       // Every schema violation ALSO lands in the warnings channel: on the rails three silent caps
       // showed up only inside this block while the top-level result read ok (backlog 25).
       for (const v of schemaViolations) warnings.push(`SCHEMA: '${v.step ?? v.stepId}' (${v.type}): ${(v.messages ?? []).join('; ')}`);
@@ -5631,7 +5629,7 @@ export const TOOLS = [
       let assetPreflight = null;
       let readiness = [];
       if (touchedIds.size) {
-        schemaViolations = await schemaViolationsFor(gw, locationPath, args.templates, existingTriggers, null);
+        schemaViolations = await schemaViolationsFor(gw, locationPath, args.templates, existingTriggers, null, fresh);
         for (const v of schemaViolations) warnings.push(`SCHEMA: '${v.step ?? v.stepId}' (${v.type}): ${(v.messages ?? []).join('; ')}`);
         const assets = await assetPreflightFor({
           gw, loc: args.locationId, templates: args.templates, triggers: existingTriggers,

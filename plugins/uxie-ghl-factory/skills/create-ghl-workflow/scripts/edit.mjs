@@ -210,18 +210,17 @@ try {
 // fail) — or a shape/classification warning captured during compile is silently swallowed.
 const warnings = [];
 const flushWarnings = () => { for (const w of warnings) console.warn('warn:', w); };
+const fresh = (await call('GET', `/workflow/${LOC}/${WID}?includeScheduledPauseInfo=true`)).json;
+if (!fresh || !fresh.workflowData) { console.error('could not GET workflow', WID, '—', JSON.stringify(fresh).slice(0, 200)); process.exit(2); }
 // Marketplace index, gated the same way the build path gates it (orchestrate()'s
 // `usesMarketplace`): fetched ONLY when an op actually carries marketplace:true, so a
 // native edit issues exactly the requests it always has. An empty index is still a real
 // index, so an unresolvable key raises MARKETPLACE_KEY_UNKNOWN rather than crashing.
 const marketplace = opsUseMarketplace(ops)
-  ? buildMarketplaceIndex(await fetchMarketplace(call, LOC))
+  ? buildMarketplaceIndex(await fetchMarketplace(call, LOC, fresh))
   : buildMarketplaceIndex({ assets: null, modules: { actions: [], triggers: [] } });
 const ctx = { loc: LOC, cid: undefined, uid: UID, companyAge: 0, idGen: makeUuidV4, catalog: loadCatalog(),
   marketplace, customFields, warn: (msg) => warnings.push(msg) };
-
-const fresh = (await call('GET', `/workflow/${LOC}/${WID}?includeScheduledPauseInfo=true`)).json;
-if (!fresh || !fresh.workflowData) { console.error('could not GET workflow', WID, '—', JSON.stringify(fresh).slice(0, 200)); process.exit(2); }
 
 // THE ACCOUNT RESOLVER, gated exactly as the MCP tool gates it: fetchEntities is 21 GETs, so it
 // runs only when an op actually carries a name. --ignore-unresolved proceeds anyway.
