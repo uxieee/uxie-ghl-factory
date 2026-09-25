@@ -11,6 +11,36 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.0.8] — 2026-09-25
+
+**Three silent failures fixed, all found by re-running 41 tools live.**
+
+- **`create_convai_agent` refuses a prompt-based bot with no goal, personality or instructions.** A bot
+  created that way can never be updated: GHL answers 500 to every later update, even one that adds a
+  goal, and part of the update still saves. Any one of the three fields is enough. `update_convai_agent`
+  now refuses such a bot before sending anything (`AGENT_UNUPDATABLE`).
+- **A bot rename now verifies.** The verifier compared `employeeName`, which is how the name is written,
+  with a record that reads it back as `name`, so every rename reported "unverified".
+- **AI Studio returns the builder's question.** A generation that paused to ask something has no build
+  status, so `generate_studio_site` and `get_studio_generation_status` reported "still running" until
+  they timed out. They now return the question, ready for `answer_studio_question`.
+
+**`build_workflow` and `edit_workflow` refuse two merge tags GHL accepts and then drops.** A bracket
+index into a webhook response (`…numbers[0]…`) makes GHL skip the whole field write. A Custom Code tag
+without `.output.` renders empty. The error names the working form. `strictMergeTags: false` turns it
+into a warning.
+
+**The Custom Code card now describes the real runtime, and corrects 1.0.6/1.0.7.** Those releases
+said Custom Code has no network. It does, through GHL's `customRequest` helper
+(`get/post/put/patch/delete/head/options`, returning `{data, headers, status}`). A failed call throws a
+string that `JSON.parse` turns into `{status, error: <body>}`. Also built in: `fileDownloader`, `_csv`,
+`_base64`, `_uuid`, lodash and moment. The `_cache` helper exists but every call fails. Scripts stop
+after 60 seconds. Python runs with `requests`, `pandas` and `numpy`, and blocks `os`, `sys` and names
+starting with `_`.
+
+**Every stale tool proof is current again.** All 41 tools were re-run live, and the workflows suite
+passed 339/339.
+
 ## [1.0.7] — 2026-09-25
 
 **The `custom_webhook` and `custom_code` type cards now carry the warnings 1.0.6 announced.** 1.0.6 put
