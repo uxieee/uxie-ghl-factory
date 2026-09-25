@@ -153,7 +153,7 @@ not — it sends you checking something that cannot fail.
 | trigger casing — root `workflowId` camelCase, `location_id`/`company_id` snake | the compiler's casing-lint, `CASING` |
 | condition shapes | author SIMPLE intent (`{conditionType, tag}` / `{conditionType, stage}`); `normalizeCondition` emits the stored four-key shape per type. Never hand-craft the tag/stage shape |
 | trigger filters | author lean intent; the engine expands to `{field, operator, value, title, type}` |
-| opportunity association | `OPP_UNASSOCIATED` hard-fails a build whose `update_opportunity` has no opp trigger, no prior `create_opportunity`, and no `find_opportunity` Found branch |
+| opportunity association | `OPP_UNASSOCIATED` hard-fails a build whose `update_opportunity` has no opp trigger, no prior `create_opportunity_strict`, and no `find_opportunity` Found branch. A native `create_opportunity` does NOT bind its card: an update after it is skipped at run time (live 2026-09-26) |
 | missing account dependencies | the build ABORTS before creating anything, naming what is missing |
 | dropped subtrees | `authored` / `compiled` / `round-trip` are reported together, because round-trip alone compares sent-vs-got and once hid a dropped 51-step subtree |
 
@@ -171,7 +171,7 @@ workflow that builds clean, verifies clean, and behaves wrongly at runtime.
   `--ack-dead-branch` — the inverse shipped once and the normal path silently released nothing.
 - **Edit-mode has three unchecked opportunity cases.** `editCommitBody` throws when an edit CREATES
   an unassociated `internal_update_opportunity`, but it does not catch moving an existing update
-  out of a Found scope, deleting the `create_opportunity` it depends on, or raw template mutation
+  out of a Found scope, deleting the `internal_create_opportunity` it depends on, or raw template mutation
   that skips `editCommitBody`. Verify those yourself.
 - **`workflow_id` takes an ID, not a name.** The engine does not resolve it. GHL's asset
   pre-flight DOES refuse an id that does not exist on the location (`ASSET_WORKFLOW_NOT_FOUND`,
@@ -197,9 +197,9 @@ workflow that builds clean, verifies clean, and behaves wrongly at runtime.
 - About to `--publish` without the user's explicit OK → stop.
 - Got a 401 → the JWT expired. Re-capture it yourself via `uxie-ghl-factory:internal-connect`
   and resume; this is not a reason to stop or to ask.
-- About to add `update_opportunity` with no opp trigger, no prior `create_opportunity`, and outside a `find_opportunity` Found branch → the engine aborts with `OPP_UNASSOCIATED`; build find-or-create first.
+- About to add `update_opportunity` with no opp trigger, no prior `create_opportunity_strict` (a native `create_opportunity` does not bind), and outside a `find_opportunity` Found branch → the engine aborts with `OPP_UNASSOCIATED`; build find-or-create first.
 - Got `DEAD_BRANCH` on a commit → do NOT reflexively pass `--ack-dead-branch`. Read which branch took the existing chain and which one now ends at END, and confirm that is the routing you meant. This guard exists because the inverse shipped once and the normal path silently released nothing.
-- Adding an opportunity step via EDIT-MODE → `editCommitBody` now throws `OPP_UNASSOCIATED` when the edit CREATES an unassociated `internal_update_opportunity`; pass `assumeAssociated: true` only after verifying ALL the workflow's triggers are opportunity-based. Still unchecked: moving an existing update out of a Found scope, deleting the `create_opportunity` it depends on, or raw template mutation that skips `editCommitBody` — verify those yourself.
+- Adding an opportunity step via EDIT-MODE → `editCommitBody` now throws `OPP_UNASSOCIATED` when the edit CREATES an unassociated `internal_update_opportunity`; pass `assumeAssociated: true` only after verifying ALL the workflow's triggers are opportunity-based. Still unchecked: moving an existing update out of a Found scope, deleting the `internal_create_opportunity` it depends on, or raw template mutation that skips `editCommitBody` — verify those yourself.
 
 ## Resources
 

@@ -11,7 +11,10 @@ const tagTrigger = { ref: 't1', type: 'contact_tag', name: 'Tag', filters: [] };
 const oppTrigger = { ref: 't2', type: 'opportunity_created', name: 'Opp', filters: [] };
 const upd = (ref, extra = {}) => ({ ref, kind: 'action', type: 'update_opportunity', name: 'Upd',
   attributes: { updates: [{ field: 'status', value: 'won' }] }, ...extra });
-const crt = (ref) => ({ ref, kind: 'action', type: 'create_opportunity', name: 'Create',
+// The BINDING create is internal_create_opportunity (authored create_opportunity_strict).
+const crt = (ref) => ({ ref, kind: 'action', type: 'create_opportunity_strict', name: 'Create',
+  attributes: { pipelineId: 'P', stageId: 'S' } });
+const nativeCrt = (ref) => ({ ref, kind: 'action', type: 'create_opportunity', name: 'Create (native)',
   attributes: { pipelineId: 'P', stageId: 'S' } });
 const check = (triggers, graph) =>
   checkOpportunityAssociation(parseIR({ name: 'W', triggers, graph }), OPP_TRIGGERS);
@@ -39,6 +42,19 @@ test('error message names the ref and the fixes', () => {
 
 test('create then update in same scope passes', () => {
   check([tagTrigger], [crt('c1'), upd('u1')]);
+});
+
+// Live 2026-09-26 (sniffs/workflows-wave1-2026-09-25/live-W24-create-binds.json): after a NATIVE
+// create_opportunity the update is skipped ("Please use Opportunity trigger/find opportunity action")
+// and the card stays open; after internal_create_opportunity the same update writes it (won).
+test('native create_opportunity does NOT bind: a following update is rejected', () => {
+  fails([tagTrigger], [nativeCrt('c1'), upd('u1')]);
+  fails([], [nativeCrt('c1'), upd('u1')]);
+});
+
+test('the rejection tells the author the native create does not bind', () => {
+  try { check([tagTrigger], [nativeCrt('c1'), upd('u1')]); assert.fail('should throw'); }
+  catch (e) { assert.match(e.message, /native create_opportunity does NOT bind/); }
 });
 
 test('create satisfies later siblings and their child scopes', () => {
@@ -200,6 +216,11 @@ test('templates: bare internal_update_opportunity throws; rootAssoc=true passes'
 test('templates: preceding internal_create_opportunity satisfies', () => {
   const t = [tpl('c1', 'internal_create_opportunity', 's2', null), tpl('s2', 'internal_update_opportunity', null, 'c1')];
   checkOpportunityAssociationTemplates(t, false);
+});
+
+test('templates: a preceding NATIVE create_opportunity does not satisfy (edit path)', () => {
+  const t = [tpl('c1', 'create_opportunity', 's2', null), tpl('s2', 'internal_update_opportunity', null, 'c1')];
+  assert.throws(() => checkOpportunityAssociationTemplates(t, false), (e) => e.code === 'OPP_UNASSOCIATED');
 });
 
 test('templates: find_opportunity Found scope passes, Not-Found fails', () => {

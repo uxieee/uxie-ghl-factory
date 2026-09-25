@@ -875,7 +875,8 @@ export function checkOpportunityAssociationTemplates(templates, rootAssoc = fals
       if (REQUIRES_OPPORTUNITY.has(cur.type) && !assoc)
         throw new IRError('OPP_UNASSOCIATED',
           `step '${cur.name ?? cur.id}' (${cur.id}) updates an opportunity but none is associated on its path — ` +
-          `add a create step or a find_opportunity Found scope before it, or pass assumeAssociated:true ` +
+          `add an internal_create_opportunity (a native create_opportunity does NOT bind its card) or a ` +
+          `find_opportunity Found scope before it, or pass assumeAssociated:true ` +
           `if ALL the workflow's triggers are opportunity-based.`);
       if (CREATES_OPPORTUNITY.has(cur.type)) assoc = true;
       if (Array.isArray(cur.next)) {

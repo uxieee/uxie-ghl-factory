@@ -93,7 +93,7 @@ instances across the same 326-workflow corpus. One example JSON per type lives a
 | `email` | Send email | `template_id`, `subject`, `html`, `from_email/name` | `template_id: "none"` (**literal string**) means "use inline `subject`/`html`"; a Mongo ID means "load that template." Omitting it or sending `null`/`""` can misbehave (`docs/09-gotchas.md #10`). |
 | `sms` | Send SMS | `body`, `attachments` | |
 | `internal_notification` | Fan a single event across 4 channels (email/SMS/in-app/whatsapp) in **one** action | `notification`, `email`, `sms`, `whatsapp` | Chaining several separate `internal_notification` steps (one per channel) instead of configuring all four inside one action is a common anti-pattern flagged by `ghl-specialist` (`action-gotchas.md`) — bloats the canvas and fragments the audit trail. |
-| `manual-sms` / `manual-call` / `call` / `voicemail` | Manual/outbound-dial actions | `call_connect`, `timeout` (1–120s) | |
+| `manual-sms` / `manual-call` / `call` / `voicemail` | Manual/outbound-dial actions | `call_connect`, `timeout` (1–600 s; 0 refused) | |
 
 ### CRM / contact state
 | `type` | What it does | Key attributes | Trap |

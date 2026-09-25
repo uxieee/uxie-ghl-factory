@@ -413,7 +413,12 @@ export function parseIR(ir, { externalRefs } = {}) {
 // has an opportunity ASSOCIATED in the workflow context. Association sources:
 //   1. ALL entry triggers are opportunity-based (catalog category 'opportunities'
 //      — the caller passes that set; ir.mjs stays catalog-free),
-//   2. a create_opportunity earlier on the same path,
+//   2. a create_opportunity_strict (internal_create_opportunity) earlier on the same path —
+//      NOT the builder's native create_opportunity (Create/Update): an update after it is
+//      SKIPPED at run time, "Internal Action Error - Please use Opportunity trigger/find
+//      opportunity action to get the opportunity", and the card is untouched, while the same
+//      update after internal_create_opportunity writes the card (live 2026-09-26,
+//      sniffs/workflows-wave1-2026-09-25/live-W24-create-binds.json),
 //   3. being inside a find_opportunity `onFound` scope.
 // A mixed trigger set does NOT seed the root (contacts entering via the non-opp
 // trigger carry no opportunity). `assocGuaranteed: true` on a node or on a
@@ -421,7 +426,7 @@ export function parseIR(ir, { externalRefs } = {}) {
 // can't prove (trigger-identity if/else, goto convergence). Lexical per-scope
 // only — no propagation across goto edges (v1 limitation, see the spec).
 export const REQUIRES_OPPORTUNITY = new Set(['update_opportunity', 'internal_update_opportunity']);
-export const CREATES_OPPORTUNITY = new Set(['create_opportunity', 'create_opportunity_strict', 'internal_create_opportunity']);
+export const CREATES_OPPORTUNITY = new Set(['create_opportunity_strict', 'internal_create_opportunity']);
 
 export function checkOpportunityAssociation(norm, oppTriggerTypes) {
   const rootAssoc = norm.triggers.length > 0 && norm.triggers.every((t) => oppTriggerTypes.has(t.type));
@@ -431,7 +436,8 @@ export function checkOpportunityAssociation(norm, oppTriggerTypes) {
         throw new IRError('OPP_UNASSOCIATED',
           `update_opportunity '${n.ref}' has no associated opportunity on its path — ` +
           `add a find_opportunity (put this step in its Found branch, and a create_opportunity in Not Found), ` +
-          `add a create_opportunity before it, use an opportunity trigger on ALL triggers, ` +
+          `add a create_opportunity_strict before it (a native create_opportunity does NOT bind its card — ` +
+          `the update is skipped at run time), use an opportunity trigger on ALL triggers, ` +
           `or set assocGuaranteed:true if you know association is established in a way the checker can't see.`);
       if (CREATES_OPPORTUNITY.has(n.type)) assoc = true; // flows to later siblings + their child scopes
       for (const b of n.branches ?? []) walk(b.then, b.assocGuaranteed === true || assoc);

@@ -138,10 +138,11 @@ form in the table above.
 An `opportunities`/`pipelineStageId` if_else evaluates against the opportunity associated with
 the *workflow run*, not "any opp the contact has". If the contact didn't enter via an
 opportunity trigger (`opportunity_created`, `pipeline_stage_updated`, …) and the path never ran
-`create_opportunity`/`find_opportunity`, the run has no associated opportunity and the condition
+`find_opportunity` (Found) or `create_opportunity_strict`, the run has no associated opportunity and the condition
 falls to None even when the stage id is correct — the same OPP_UNASSOCIATED rule the compiler
-enforces for `update_opportunity`. Enter via an opp trigger (or create/find on the path) before
-an opp-stage branch.
+enforces for `update_opportunity`. A native `create_opportunity` on the path does NOT associate
+its card (live 2026-09-25: the stage condition fell to None right after it). Enter via an opp
+trigger, or find the card, before an opp-stage branch.
 
 - **Node kinds** — a CLOSED set: `action` (any linear type), `wait`, `if_else` (N≥2 branches,
   one optional `else: true`), `split` (`workflow_split`, weighted/random), `ai_decision`

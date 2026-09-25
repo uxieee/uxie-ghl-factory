@@ -11,6 +11,7 @@ import { stripNullNext } from './terminals.mjs';
 import { stepNotesToComments } from './step-notes.mjs';
 import { disableRefusal } from './disable-rules.mjs';
 import { checkContactFieldShape } from './contact-field-shapes.mjs';
+import { numberFormatterFieldTypes, isZeroSkip } from './lints/formatter-skips.mjs';
 import { enforceRequiredFields, INNER_ATTRIBUTE_TYPE } from './required-fields.mjs';
 import { coerceDefault } from './action-schema.mjs';
 import { enforceTemplates } from './enforce.mjs';
@@ -65,7 +66,54 @@ function attributesFor(node, ctx) {
   // Runs on the compiled attrs (post-normalize) so it sees exactly what will be sent.
   if (node.type === 'update_contact_field')
     checkContactFieldShape(out, { ref: node.ref ?? node.name ?? '?', warn: ctx?.warn });
+  if (node.type === 'workflow_goal') return withGoalConditionIds(out, ctx);
+  if (node.type === 'number_formatter') return withNumberFormatterFieldTypes(out, node);
+  if (node.type === 'text_formatter') return withoutZeroTrimSkip(out, node, ctx);
   return out;
+}
+
+// number_formatter's format.fromFieldType / toFieldType are the action's own `<from>_to_<to>` split —
+// the builder derives them (NumberFormatter.ts setFieldTypes) and GHL SKIPS the step at run time when
+// they differ (live 2026-09-25, lints/formatter-skips.mjs). Fill them when absent; refuse a
+// contradiction rather than silently rewrite what the author wrote.
+function withNumberFormatterFieldTypes(attrs, node) {
+  const want = numberFormatterFieldTypes(attrs?.action);
+  if (!want) return attrs;
+  const format = { ...(attrs.format ?? {}) };
+  for (const k of ['fromFieldType', 'toFieldType']) {
+    if (format[k] === undefined) format[k] = want[k];
+    else if (format[k] !== want[k])
+      throw new IRError('FORMATTER_FIELD_TYPE',
+        `number_formatter '${node.ref ?? node.name}' has format.${k} '${format[k]}' but action '${attrs.action}' needs `
+        + `'${want[k]}'. GHL saves this and then skips the step on every run (invalid-data), leaving its output empty. `
+        + `Omit ${k} (the compiler derives it) or set '${want[k]}'.`);
+  }
+  return { ...attrs, format };
+}
+
+// text_formatter trim with extras.skip 0 is skipped at run time ("Invalid data. key: skip, value: 0",
+// live 2026-09-25); omitting skip trims from the start, which is what skip 0 means. Drop it.
+function withoutZeroTrimSkip(attrs, node, ctx) {
+  if (attrs?.formatterType !== 'trim' || !isZeroSkip(attrs?.extras?.skip)) return attrs;
+  const { skip, ...extras } = attrs.extras;
+  ctx?.warn?.(`FORMATTER_SKIP_ZERO: text_formatter '${node.ref ?? node.name}' trim skip ${JSON.stringify(skip)} removed — `
+    + `GHL skips the step at run time when skip is 0; without it the trim starts at the first character.`);
+  return { ...attrs, extras };
+}
+
+// Every workflow_goal condition carries an `id`. Without one GHL refuses the whole save with
+// "ID is required" (measured live 2026-09-25, sniffs/workflows-wave1-2026-09-25/
+// live-B-semantics-run1-goal-id-missing.json) — and no author writes a UUID by hand. An id the
+// author did supply is kept.
+function withGoalConditionIds(attrs, ctx) {
+  if (!Array.isArray(attrs?.segments)) return attrs;
+  return {
+    ...attrs,
+    segments: attrs.segments.map((seg) => (!Array.isArray(seg?.conditions) ? seg : {
+      ...seg,
+      conditions: seg.conditions.map((c) => (c && typeof c === 'object' && !c.id ? { ...c, id: ctx.idGen() } : c)),
+    })),
+  };
 }
 
 // Envelope keys the builder stores on a marketplace step but no app `inputs` list
@@ -2152,6 +2200,18 @@ export function buildTrigger(t, ctx, wid, refMap) {
     const ghlText = r.i18n && ctx?.catalog?.i18n?.[r.i18n] ? ` — GHL: "${ctx.catalog.i18n[r.i18n]}"` : '';
     if (empty) ctx?.warn?.(`TRIGGER_FILTER: '${t.name ?? t.type}' (${t.type}) — GHL requires filter '${r.field}'${r.beDedupeAssetType ? ' (the SERVER blocks the save without it)' : ''}${ghlText}`);
   }
+  // opportunity_status_changed needs a "Moved from status" or "Moved to status" row. The builder
+  // checks it client-side (TriggerMain.checkRequiredOpportunityStatusChanged, by filter id) and the
+  // SERVER refuses the PUBLISH without it: MISSING_REQUIRED_TRIGGER_FIELDS "Opportunity Status is
+  // required" (live 2026-09-25, sniffs/workflows-wave1-2026-09-25/live-C-opportunity.json). The draft
+  // saves clean, so without this the build reports success on a workflow that can never go live.
+  if (t.type === 'opportunity_status_changed'
+    && !conditions.some((c) => ['moved-from-status', 'moved-to-status'].includes(c?.id)
+      || ['opportunity.status', 'opportunity.oldStatus'].includes(c?.field)))
+    throw new IRError('TRIGGER_REQUIRED_FILTER',
+      `trigger '${t.name ?? t.type}' (opportunity_status_changed) has no status row — GHL refuses to publish it `
+      + `("Opportunity Status is required"). Add { field: 'opportunity.status', value: '<open|won|lost|abandoned>' } `
+      + `(Moved to status) and/or { field: 'opportunity.oldStatus', value: ... } (Moved from status).`);
   // FLOW-BOT BINDING — a FLOW_BUILDER_BOT's flow binds to its agent through a CONDITION ROW,
   // not through a top-level key.
   //

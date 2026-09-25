@@ -105,8 +105,12 @@ custom-value address, an un-overridden step sends from the wrong identity.
 context**. Association comes from exactly three sources: an opportunity-based trigger
 (all 5: `opportunity_created`, `opportunity_status_changed`, `opportunity_changed`,
 `pipeline_stage_updated`, `opportunity_decay` — and every trigger on the workflow must
-be one of them), a prior `create_opportunity` on the same path, or the **Opportunity
-Found** branch of `find_opportunity`. The engine rejects anything else with
+be one of them), a prior `create_opportunity_strict` (`internal_create_opportunity`) on the
+same path, or the **Opportunity Found** branch of `find_opportunity`. A native
+`create_opportunity` does NOT bind the card it makes: an update after it logs `skipped`
+("Internal Action Error - Please use Opportunity trigger/find opportunity action to get the
+opportunity") and the card is untouched, while the same update after
+`internal_create_opportunity` writes it (live 2026-09-26). The engine rejects anything else with
 `IRError OPP_UNASSOCIATED`.
 
 Canonical IR pattern (non-opp trigger → find, update in Found, create in Not Found,
