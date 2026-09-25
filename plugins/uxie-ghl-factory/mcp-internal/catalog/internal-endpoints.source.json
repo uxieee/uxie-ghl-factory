@@ -20,16 +20,16 @@
     {
       "tree": "documented",
       "dir": "corpus",
-      "capturedAt": "2026-09-25T18:33:22.147Z",
+      "capturedAt": "2026-09-25T19:04:34.656Z",
       "hash": "corpus",
-      "fileCount": 871,
-      "endpoints": 871
+      "fileCount": 878,
+      "endpoints": 878
     }
   ],
   "note": "SOURCE-DERIVED ONLY, merged from every mined front-end. `tree` on each row says which app calls it. The plugin owns kind/note/summary/reach/coveredBy and merges them at read time. A row proves a GHL front-end calls that path — not that your token reaches it, and not that calling it is safe.",
-  "discoveredCallSites": 1346,
-  "skippedCallSites": 700,
-  "count": 1165,
+  "discoveredCallSites": 1353,
+  "skippedCallSites": 702,
+  "count": 1171,
   "endpoints": [
     {
       "id": "facebook-service--get-ad-account-by-id",
@@ -1174,7 +1174,7 @@
         "Version"
       ],
       "operation": "fetchAssociationsForObject",
-      "service": "forms",
+      "service": null,
       "query": [
         {
           "name": "locationId",
@@ -1196,7 +1196,7 @@
         "workflows/70-research/ENDPOINTS.md:146"
       ],
       "serviceClass": "AssociationsService",
-      "serviceBasis": "inferred-from-path"
+      "serviceBasis": "unattributed"
     },
     {
       "id": "workflows--blacklist",
@@ -1553,7 +1553,7 @@
       },
       "sources": [
         "memberships-courses/20-api/build-api.md:301",
-        "workflows/40-rules/marketplace-asset-publisher-classes.md:103"
+        "workflows/40-rules/marketplace-asset-publisher-classes.md:106"
       ],
       "serviceBasis": "declared"
     },
@@ -1632,7 +1632,7 @@
       },
       "sources": [
         "memberships-courses/20-api/endpoints.md:112",
-        "workflows/40-rules/marketplace-asset-publisher-classes.md:103"
+        "workflows/40-rules/marketplace-asset-publisher-classes.md:106"
       ],
       "serviceBasis": "declared"
     },
@@ -7102,7 +7102,7 @@
       },
       "sources": [
         "services/marketplaceServices/FacebookService.ts:39",
-        "workflows/30-types/triggers/facebook_comment_on_post.md:36"
+        "workflows/30-types/triggers/facebook_comment_on_post.md:44"
       ],
       "serviceClass": "FacebookService",
       "serviceBasis": "inferred-from-path"
@@ -7952,6 +7952,32 @@
       "serviceBasis": "declared"
     },
     {
+      "id": "pipelines-opportunities--lists-dynamic-post",
+      "method": "POST",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/lists/dynamic/{locationId}/",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "pipelines-opportunities",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "pipelines-opportunities/20-api/smart-views.md:36"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
       "id": "platform--lists-dynamic-get",
       "method": "GET",
       "origin": "https://backend.leadconnectorhq.com",
@@ -7976,6 +8002,7 @@
         "platform/20-api/smart-lists.md:26",
         "platform/20-api/smart-lists.md:294",
         "platform/20-api/smart-lists.md:332",
+        "pipelines-opportunities/20-api/smart-views.md:37",
         "workflows/20-api/smart-lists.md:76",
         "workflows/70-research/ENDPOINTS.md:78"
       ],
@@ -7985,7 +8012,7 @@
       ]
     },
     {
-      "id": "platform--lists-dynamic-delete",
+      "id": "pipelines-opportunities--lists-dynamic-delete",
       "method": "DELETE",
       "origin": "https://backend.leadconnectorhq.com",
       "path": "/lists/dynamic/{locationId}/{smartListId}",
@@ -7995,7 +8022,7 @@
       "extraHeaders": [],
       "tree": "documented",
       "operation": null,
-      "service": "platform",
+      "service": "pipelines-opportunities",
       "query": [],
       "body": null,
       "returns": null,
@@ -8006,6 +8033,7 @@
         "returns": "unresolved"
       },
       "sources": [
+        "pipelines-opportunities/20-api/smart-views.md:39",
         "platform/20-api/smart-lists.md:292",
         "workflows/20-api/smart-lists.md:79",
         "workflows/70-research/ENDPOINTS.md:81"
@@ -8013,7 +8041,7 @@
       "serviceBasis": "declared"
     },
     {
-      "id": "workflows--lists-dynamic-put",
+      "id": "pipelines-opportunities--lists-dynamic-put",
       "method": "PUT",
       "origin": "https://backend.leadconnectorhq.com",
       "path": "/lists/dynamic/{locationId}/{smartListId}",
@@ -8034,11 +8062,12 @@
         "returns": "unresolved"
       },
       "sources": [
+        "pipelines-opportunities/20-api/smart-views.md:38",
         "workflows/20-api/smart-lists.md:78",
         "workflows/70-research/ENDPOINTS.md:80"
       ],
       "serviceBasis": "reviewed",
-      "serviceClass": "workflows",
+      "serviceClass": "pipelines-opportunities",
       "serviceReason": "MOVED to its owning surface: smart lists; every sibling /lists/dynamic row is platform"
     },
     {
@@ -10204,7 +10233,7 @@
         "memberships-courses/20-api/build-api.md:108",
         "memberships-courses/20-api/offers.md:41",
         "memberships-courses/70-research/2026-07-18-internal-api-recon.md:75",
-        "workflows/40-rules/marketplace-asset-publisher-classes.md:104"
+        "workflows/40-rules/marketplace-asset-publisher-classes.md:107"
       ],
       "serviceBasis": "declared"
     },
@@ -10449,7 +10478,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "workflows/40-rules/marketplace-asset-publisher-classes.md:104"
+        "workflows/40-rules/marketplace-asset-publisher-classes.md:107"
       ],
       "serviceBasis": "reviewed",
       "serviceClass": "workflows",
@@ -10529,7 +10558,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "workflows/40-rules/marketplace-asset-publisher-classes.md:108"
+        "workflows/40-rules/marketplace-asset-publisher-classes.md:111"
       ],
       "serviceBasis": "reviewed",
       "serviceClass": "workflows",
@@ -12735,7 +12764,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "workflows/40-rules/marketplace-asset-publisher-classes.md:102"
+        "workflows/40-rules/marketplace-asset-publisher-classes.md:105"
       ],
       "serviceBasis": "reviewed",
       "serviceClass": "workflows",
@@ -19631,7 +19660,7 @@
       "sources": [
         "services/BaseService.ts:50",
         "workflows/10-anatomy/04-workflow-anatomy.md:31",
-        "workflows/30-types/triggers/conv_ai_autonomous_trigger.md:233",
+        "workflows/30-types/triggers/conv_ai_autonomous_trigger.md:231",
         "workflows/40-rules/09-gotchas.md:225",
         "workflows/70-research/2026-08-26-flow-bot-probe.md:171"
       ],
@@ -20643,7 +20672,7 @@
       },
       "sources": [
         "services/BaseService.ts:46",
-        "workflows/30-types/triggers/conv_ai_autonomous_trigger.md:233",
+        "workflows/30-types/triggers/conv_ai_autonomous_trigger.md:231",
         "workflows/50-runtime/flow-bot-four-node-certification.md:58"
       ],
       "serviceClass": "TriggerService",
@@ -23762,7 +23791,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "workflows/40-rules/marketplace-asset-publisher-classes.md:79"
+        "workflows/40-rules/marketplace-asset-publisher-classes.md:82"
       ],
       "serviceBasis": "declared"
     },
@@ -23812,7 +23841,7 @@
       },
       "sources": [
         "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:220",
-        "workflows/40-rules/marketplace-asset-publisher-classes.md:78",
+        "workflows/40-rules/marketplace-asset-publisher-classes.md:81",
         "workflows/30-types/steps/conversationai_services_booking.md:61",
         "workflows/50-runtime/flow-bot-four-node-certification.md:27"
       ],
@@ -28312,7 +28341,7 @@
         "ai-agents/20-api/conversation-ai-boundary.md:77",
         "ai-agents/30-types/conversation-ai-actions.md:96",
         "workflows/30-types/triggers/conv_ai_autonomous_trigger.md:110",
-        "workflows/30-types/triggers/conv_ai_autonomous_trigger.md:265",
+        "workflows/30-types/triggers/conv_ai_autonomous_trigger.md:262",
         "workflows/70-research/2026-08-26-flow-bot-probe.md:138"
       ],
       "serviceBasis": "declared"
@@ -28819,6 +28848,45 @@
       "serviceBasis": "declared"
     },
     {
+      "id": "pipelines-opportunities--object-key-opportunity",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/associations/objectKey/opportunity",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "pipelines-opportunities",
+      "query": [
+        {
+          "name": "relationsCount",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "recordId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "pipelines-opportunities/20-api/opportunities.md:171"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
       "id": "pipelines-opportunities--associations-relations",
       "method": "POST",
       "origin": "https://services.leadconnectorhq.com",
@@ -28848,7 +28916,7 @@
       "id": "pipelines-opportunities--relations-record",
       "method": "GET",
       "origin": "https://services.leadconnectorhq.com",
-      "path": "/associations/relations/record/{contactId}",
+      "path": "/associations/relations/record/{opportunityId}",
       "authRail": "bearer+token-id",
       "transport": "json",
       "responseMode": "json",
@@ -28873,7 +28941,37 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/opportunities.md:164"
+        "pipelines-opportunities/20-api/opportunities.md:164",
+        "pipelines-opportunities/20-api/opportunities.md:169"
+      ],
+      "serviceBasis": "declared",
+      "aka": [
+        "/associations/relations/record/{contactId}"
+      ]
+    },
+    {
+      "id": "pipelines-opportunities--records-count",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/associations/relations/task/records/count",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "pipelines-opportunities",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "pipelines-opportunities/20-api/opportunities.md:296"
       ],
       "serviceBasis": "declared"
     },
@@ -28940,7 +29038,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/opportunities.md:217"
+        "pipelines-opportunities/20-api/opportunities.md:228"
       ],
       "serviceBasis": "declared"
     },
@@ -32516,6 +32614,32 @@
       },
       "sources": [
         "ai-agents/20-api/agent-deployment-routing.md:386"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "pipelines-opportunities--invoices-finalize",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/invoices/finalize",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "pipelines-opportunities",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "pipelines-opportunities/20-api/opportunities.md:315"
       ],
       "serviceBasis": "declared"
     },
@@ -38486,6 +38610,32 @@
       "serviceBasis": "inferred-from-path"
     },
     {
+      "id": "pipelines-opportunities--notes-search",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/notes/search",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "pipelines-opportunities",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "pipelines-opportunities/20-api/opportunities.md:267"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
       "id": "forms--objects",
       "method": "GET",
       "origin": "https://services.leadconnectorhq.com",
@@ -38508,6 +38658,32 @@
       },
       "sources": [
         "forms/20-api/neighbour-services.md:27"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "pipelines-opportunities--records-search",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/objects/task/records/search",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "pipelines-opportunities",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "pipelines-opportunities/20-api/opportunities.md:292"
       ],
       "serviceBasis": "declared"
     },
@@ -38559,7 +38735,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/opportunities.md:195",
+        "pipelines-opportunities/20-api/opportunities.md:206",
         "pipelines-opportunities/20-api/pipelines.md:250"
       ],
       "serviceBasis": "declared"
@@ -38613,7 +38789,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/opportunities.md:129"
+        "pipelines-opportunities/20-api/opportunities.md:129",
+        "pipelines-opportunities/20-api/opportunities.md:300"
       ],
       "serviceBasis": "declared"
     },
@@ -38639,7 +38816,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/opportunities.md:225"
+        "pipelines-opportunities/20-api/opportunities.md:236"
       ],
       "serviceBasis": "declared"
     },
@@ -38665,7 +38842,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/opportunities.md:224"
+        "pipelines-opportunities/20-api/opportunities.md:235"
       ],
       "serviceBasis": "declared"
     },
@@ -38691,7 +38868,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/opportunities.md:207"
+        "pipelines-opportunities/20-api/opportunities.md:218"
       ],
       "serviceBasis": "declared"
     },
@@ -38717,7 +38894,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/opportunities.md:235"
+        "pipelines-opportunities/20-api/opportunities.md:246"
       ],
       "serviceBasis": "declared"
     },
@@ -39323,7 +39500,7 @@
       },
       "sources": [
         "pipelines-opportunities/20-api/smart-filters.md:91",
-        "pipelines-opportunities/20-api/smart-filters.md:163"
+        "pipelines-opportunities/20-api/smart-filters.md:182"
       ],
       "serviceBasis": "declared"
     },
@@ -39349,7 +39526,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/smart-filters.md:145"
+        "pipelines-opportunities/20-api/smart-filters.md:146"
       ],
       "serviceBasis": "declared"
     },
@@ -39440,7 +39617,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/smart-filters.md:146"
+        "pipelines-opportunities/20-api/smart-filters.md:147"
       ],
       "serviceBasis": "declared"
     },
@@ -39466,7 +39643,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/smart-filters.md:147"
+        "pipelines-opportunities/20-api/smart-filters.md:145"
       ],
       "serviceBasis": "declared"
     },
@@ -39492,7 +39669,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/smart-filters.md:148"
+        "pipelines-opportunities/20-api/smart-filters.md:167"
       ],
       "serviceBasis": "declared"
     },

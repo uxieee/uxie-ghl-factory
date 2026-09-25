@@ -178,7 +178,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
     define_ENDPOINT_CATALOG_default = {
       generated: "2026-09-25",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 1172,
+      count: 1178,
       endpoints: [
         {
           id: "facebook-service--get-ad-account-by-id",
@@ -1603,7 +1603,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "fetchAssociationsForObject",
-          service: "forms",
+          service: null,
           tree: "workflow-builder",
           pathParams: [
             {
@@ -2126,7 +2126,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "memberships-courses/20-api/build-api.md:301",
-            "workflows/40-rules/marketplace-asset-publisher-classes.md:103"
+            "workflows/40-rules/marketplace-asset-publisher-classes.md:106"
           ]
         },
         {
@@ -2242,7 +2242,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "memberships-courses/20-api/endpoints.md:112",
-            "workflows/40-rules/marketplace-asset-publisher-classes.md:103"
+            "workflows/40-rules/marketplace-asset-publisher-classes.md:106"
           ]
         },
         {
@@ -9170,7 +9170,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/marketplaceServices/FacebookService.ts:39",
-            "workflows/30-types/triggers/facebook_comment_on_post.md:36"
+            "workflows/30-types/triggers/facebook_comment_on_post.md:44"
           ]
         },
         {
@@ -10070,7 +10070,42 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
-          id: "platform--lists-dynamic-delete",
+          id: "pipelines-opportunities--lists-dynamic-post",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/lists/dynamic/{locationId}/",
+          path: "/lists/dynamic/{locationId}/",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "pipelines-opportunities",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "pipelines-opportunities/20-api/smart-views.md:36"
+          ]
+        },
+        {
+          id: "pipelines-opportunities--lists-dynamic-delete",
           method: "DELETE",
           url: "https://backend.leadconnectorhq.com/lists/dynamic/{locationId}/{smartListId}",
           path: "/lists/dynamic/{locationId}/{smartListId}",
@@ -10084,7 +10119,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: "platform",
+          service: "pipelines-opportunities",
           tree: "documented",
           pathParams: [
             {
@@ -10104,6 +10139,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
+            "pipelines-opportunities/20-api/smart-views.md:39",
             "platform/20-api/smart-lists.md:292",
             "workflows/20-api/smart-lists.md:79",
             "workflows/70-research/ENDPOINTS.md:81"
@@ -10150,12 +10186,13 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "platform/20-api/smart-lists.md:26",
             "platform/20-api/smart-lists.md:294",
             "platform/20-api/smart-lists.md:332",
+            "pipelines-opportunities/20-api/smart-views.md:37",
             "workflows/20-api/smart-lists.md:76",
             "workflows/70-research/ENDPOINTS.md:78"
           ]
         },
         {
-          id: "workflows--lists-dynamic-put",
+          id: "pipelines-opportunities--lists-dynamic-put",
           method: "PUT",
           url: "https://backend.leadconnectorhq.com/lists/dynamic/{locationId}/{smartListId}",
           path: "/lists/dynamic/{locationId}/{smartListId}",
@@ -10190,6 +10227,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
+            "pipelines-opportunities/20-api/smart-views.md:38",
             "workflows/20-api/smart-lists.md:78",
             "workflows/70-research/ENDPOINTS.md:80"
           ]
@@ -13119,7 +13157,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "memberships-courses/20-api/build-api.md:108",
             "memberships-courses/20-api/offers.md:41",
             "memberships-courses/70-research/2026-07-18-internal-api-recon.md:75",
-            "workflows/40-rules/marketplace-asset-publisher-classes.md:104"
+            "workflows/40-rules/marketplace-asset-publisher-classes.md:107"
           ]
         },
         {
@@ -13472,7 +13510,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "workflows/40-rules/marketplace-asset-publisher-classes.md:104"
+            "workflows/40-rules/marketplace-asset-publisher-classes.md:107"
           ]
         },
         {
@@ -13575,7 +13613,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "workflows/40-rules/marketplace-asset-publisher-classes.md:108"
+            "workflows/40-rules/marketplace-asset-publisher-classes.md:111"
           ]
         },
         {
@@ -16316,7 +16354,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "workflows/40-rules/marketplace-asset-publisher-classes.md:102"
+            "workflows/40-rules/marketplace-asset-publisher-classes.md:105"
           ]
         },
         {
@@ -25125,7 +25163,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           sources: [
             "services/BaseService.ts:50",
             "workflows/10-anatomy/04-workflow-anatomy.md:31",
-            "workflows/30-types/triggers/conv_ai_autonomous_trigger.md:233",
+            "workflows/30-types/triggers/conv_ai_autonomous_trigger.md:231",
             "workflows/40-rules/09-gotchas.md:225",
             "workflows/70-research/2026-08-26-flow-bot-probe.md:171"
           ]
@@ -26491,7 +26529,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "services/BaseService.ts:46",
-            "workflows/30-types/triggers/conv_ai_autonomous_trigger.md:233",
+            "workflows/30-types/triggers/conv_ai_autonomous_trigger.md:231",
             "workflows/50-runtime/flow-bot-four-node-certification.md:58"
           ]
         },
@@ -30273,7 +30311,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "workflows/40-rules/marketplace-asset-publisher-classes.md:79"
+            "workflows/40-rules/marketplace-asset-publisher-classes.md:82"
           ]
         },
         {
@@ -30342,7 +30380,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:220",
-            "workflows/40-rules/marketplace-asset-publisher-classes.md:78",
+            "workflows/40-rules/marketplace-asset-publisher-classes.md:81",
             "workflows/30-types/steps/conversationai_services_booking.md:61",
             "workflows/50-runtime/flow-bot-four-node-certification.md:27"
           ]
@@ -35783,7 +35821,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "ai-agents/20-api/conversation-ai-boundary.md:77",
             "ai-agents/30-types/conversation-ai-actions.md:96",
             "workflows/30-types/triggers/conv_ai_autonomous_trigger.md:110",
-            "workflows/30-types/triggers/conv_ai_autonomous_trigger.md:265",
+            "workflows/30-types/triggers/conv_ai_autonomous_trigger.md:262",
             "workflows/70-research/2026-08-26-flow-bot-probe.md:138"
           ]
         },
@@ -36457,6 +36495,50 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           ]
         },
         {
+          id: "pipelines-opportunities--object-key-opportunity",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/associations/objectKey/opportunity",
+          path: "/associations/objectKey/opportunity",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "pipelines-opportunities",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "relationsCount",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "recordId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "pipelines-opportunities/20-api/opportunities.md:171"
+          ]
+        },
+        {
           id: "pipelines-opportunities--associations-relations",
           method: "POST",
           url: "https://services.leadconnectorhq.com/associations/relations/",
@@ -36489,9 +36571,12 @@ Flagged to the operator as a security observation about the vendor, not a capabi
         },
         {
           id: "pipelines-opportunities--relations-record",
+          aka: [
+            "/associations/relations/record/{contactId}"
+          ],
           method: "GET",
-          url: "https://services.leadconnectorhq.com/associations/relations/record/{contactId}",
-          path: "/associations/relations/record/{contactId}",
+          url: "https://services.leadconnectorhq.com/associations/relations/record/{opportunityId}",
+          path: "/associations/relations/record/{opportunityId}",
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
@@ -36506,7 +36591,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           tree: "documented",
           pathParams: [
             {
-              name: "contactId"
+              name: "opportunityId"
             }
           ],
           query: [
@@ -36526,7 +36611,39 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/opportunities.md:164"
+            "pipelines-opportunities/20-api/opportunities.md:164",
+            "pipelines-opportunities/20-api/opportunities.md:169"
+          ]
+        },
+        {
+          id: "pipelines-opportunities--records-count",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/associations/relations/task/records/count",
+          path: "/associations/relations/task/records/count",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "pipelines-opportunities",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "pipelines-opportunities/20-api/opportunities.md:296"
           ]
         },
         {
@@ -36607,7 +36724,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/opportunities.md:217"
+            "pipelines-opportunities/20-api/opportunities.md:228"
           ]
         },
         {
@@ -41120,6 +41237,37 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/20-api/agent-deployment-routing.md:386"
+          ]
+        },
+        {
+          id: "pipelines-opportunities--invoices-finalize",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/invoices/finalize",
+          path: "/invoices/finalize",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "pipelines-opportunities",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "pipelines-opportunities/20-api/opportunities.md:315"
           ]
         },
         {
@@ -48790,6 +48938,37 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           ]
         },
         {
+          id: "pipelines-opportunities--notes-search",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/notes/search",
+          path: "/notes/search",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "pipelines-opportunities",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "pipelines-opportunities/20-api/opportunities.md:267"
+          ]
+        },
+        {
           id: "forms--objects",
           method: "GET",
           url: "https://services.leadconnectorhq.com/objects/",
@@ -48825,6 +49004,37 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "forms/20-api/neighbour-services.md:27"
+          ]
+        },
+        {
+          id: "pipelines-opportunities--records-search",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/objects/task/records/search",
+          path: "/objects/task/records/search",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "pipelines-opportunities",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "pipelines-opportunities/20-api/opportunities.md:292"
           ]
         },
         {
@@ -48890,7 +49100,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/opportunities.md:195",
+            "pipelines-opportunities/20-api/opportunities.md:206",
             "pipelines-opportunities/20-api/pipelines.md:250"
           ]
         },
@@ -48962,7 +49172,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/opportunities.md:129"
+            "pipelines-opportunities/20-api/opportunities.md:129",
+            "pipelines-opportunities/20-api/opportunities.md:300"
           ]
         },
         {
@@ -48997,7 +49208,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/opportunities.md:225"
+            "pipelines-opportunities/20-api/opportunities.md:236"
           ]
         },
         {
@@ -49032,7 +49243,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/opportunities.md:224"
+            "pipelines-opportunities/20-api/opportunities.md:235"
           ]
         },
         {
@@ -49067,7 +49278,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/opportunities.md:207"
+            "pipelines-opportunities/20-api/opportunities.md:218"
           ]
         },
         {
@@ -49102,7 +49313,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/opportunities.md:235"
+            "pipelines-opportunities/20-api/opportunities.md:246"
           ]
         },
         {
@@ -49857,7 +50068,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "pipelines-opportunities/20-api/smart-filters.md:91",
-            "pipelines-opportunities/20-api/smart-filters.md:163"
+            "pipelines-opportunities/20-api/smart-filters.md:182"
           ]
         },
         {
@@ -49892,7 +50103,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/smart-filters.md:145"
+            "pipelines-opportunities/20-api/smart-filters.md:146"
           ]
         },
         {
@@ -50010,7 +50221,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/smart-filters.md:146"
+            "pipelines-opportunities/20-api/smart-filters.md:147"
           ]
         },
         {
@@ -50041,7 +50252,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/smart-filters.md:147"
+            "pipelines-opportunities/20-api/smart-filters.md:145"
           ]
         },
         {
@@ -50072,7 +50283,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/smart-filters.md:148"
+            "pipelines-opportunities/20-api/smart-filters.md:167"
           ]
         },
         {
