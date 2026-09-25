@@ -7793,7 +7793,7 @@
     }
    ],
    "validator": "`customWebhookValidator` (length 2518, result level `warning`). Per `sniffs/bundle/validators.json::customWebhookValidator`:",
-   "notes": "- 🔴 **A 5xx holds the run on this step and retries** (+5, +10, +15 min…). **A 4xx fails, and the run carries on at once.** A 200 with an error in its body is a success. Branch on `{{custom_webhook.N.status}}` or `.response.<path>`. See \"What a failed call does to the run\" `[proven-live 2026-09-25]`.",
+   "notes": "- 🔴 **A 5xx holds the run on this step and retries** (+5, +10, +15, +20 min…). **A 4xx fails, and the run carries on at once.** A 200 with an error in its body is a success. Branch on `{{custom_webhook.N.status}}` or `.response.<path>`. See \"What a failed call does to the run\" `[proven-live 2026-09-25]`.",
    "hasCanonicalExample": true
   },
   {
