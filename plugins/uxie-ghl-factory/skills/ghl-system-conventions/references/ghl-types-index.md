@@ -549,7 +549,7 @@ uxie-ghl-factory plugin is installed — same data.
 | `workflow_ai_decision_maker` | workflow_ai_decision_maker | proven-live |
 | `workflow_ai_email_parser` | workflow_ai_email_parser | source-derived |
 | `workflow_ai_extract_data` | workflow_ai_extract_data | proven-live |
-| `workflow_ai_intent_detection` | workflow_ai_intent_detection | source-derived |
+| `workflow_ai_intent_detection` | workflow_ai_intent_detection | proven-live |
 | `workflow_ai_summarize_text` | workflow_ai_summarize_text | proven-live |
 | `workflow_ai_translate_content` | workflow_ai_translate_content | proven-live |
 | `workflow-ai` | Marketplace — workflow_ai | source-derived |
