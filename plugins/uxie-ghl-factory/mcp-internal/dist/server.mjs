@@ -64016,9 +64016,9 @@ var init_define_TOOL_CATALOG = __esm({
   }
 });
 
-// node_modules/ajv/dist/compile/codegen/code.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/codegen/code.js
 var require_code = __commonJS({
-  "node_modules/ajv/dist/compile/codegen/code.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/codegen/code.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -64176,9 +64176,9 @@ var require_code = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/codegen/scope.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/codegen/scope.js
 var require_scope = __commonJS({
-  "node_modules/ajv/dist/compile/codegen/scope.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/codegen/scope.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -64327,9 +64327,9 @@ var require_scope = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/codegen/index.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/codegen/index.js
 var require_codegen = __commonJS({
-  "node_modules/ajv/dist/compile/codegen/index.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/codegen/index.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -65053,9 +65053,9 @@ var require_codegen = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/util.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/util.js
 var require_util = __commonJS({
-  "node_modules/ajv/dist/compile/util.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/util.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -65226,9 +65226,9 @@ var require_util = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/names.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/names.js
 var require_names = __commonJS({
-  "node_modules/ajv/dist/compile/names.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/names.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -65271,9 +65271,9 @@ var require_names = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/errors.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/errors.js
 var require_errors = __commonJS({
-  "node_modules/ajv/dist/compile/errors.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/errors.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -65399,9 +65399,9 @@ var require_errors = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/validate/boolSchema.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/validate/boolSchema.js
 var require_boolSchema = __commonJS({
-  "node_modules/ajv/dist/compile/validate/boolSchema.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/validate/boolSchema.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -65456,9 +65456,9 @@ var require_boolSchema = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/rules.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/rules.js
 var require_rules = __commonJS({
-  "node_modules/ajv/dist/compile/rules.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/rules.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -65493,9 +65493,9 @@ var require_rules = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/validate/applicability.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/validate/applicability.js
 var require_applicability = __commonJS({
-  "node_modules/ajv/dist/compile/validate/applicability.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/validate/applicability.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -65522,9 +65522,9 @@ var require_applicability = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/validate/dataType.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/validate/dataType.js
 var require_dataType = __commonJS({
-  "node_modules/ajv/dist/compile/validate/dataType.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/validate/dataType.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -65712,9 +65712,9 @@ var require_dataType = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/validate/defaults.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/validate/defaults.js
 var require_defaults = __commonJS({
-  "node_modules/ajv/dist/compile/validate/defaults.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/validate/defaults.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -65755,9 +65755,9 @@ var require_defaults = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/code.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/code.js
 var require_code2 = __commonJS({
-  "node_modules/ajv/dist/vocabularies/code.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/code.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -65894,9 +65894,9 @@ var require_code2 = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/validate/keyword.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/validate/keyword.js
 var require_keyword = __commonJS({
-  "node_modules/ajv/dist/compile/validate/keyword.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/validate/keyword.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -66018,9 +66018,9 @@ var require_keyword = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/validate/subschema.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/validate/subschema.js
 var require_subschema = __commonJS({
-  "node_modules/ajv/dist/compile/validate/subschema.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/validate/subschema.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -66107,9 +66107,9 @@ var require_subschema = __commonJS({
   }
 });
 
-// node_modules/fast-deep-equal/index.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/fast-deep-equal/index.js
 var require_fast_deep_equal = __commonJS({
-  "node_modules/fast-deep-equal/index.js"(exports, module) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/fast-deep-equal/index.js"(exports, module) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -66148,9 +66148,9 @@ var require_fast_deep_equal = __commonJS({
   }
 });
 
-// node_modules/json-schema-traverse/index.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/json-schema-traverse/index.js
 var require_json_schema_traverse = __commonJS({
-  "node_modules/json-schema-traverse/index.js"(exports, module) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/json-schema-traverse/index.js"(exports, module) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -66242,9 +66242,9 @@ var require_json_schema_traverse = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/resolve.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/resolve.js
 var require_resolve = __commonJS({
-  "node_modules/ajv/dist/compile/resolve.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/resolve.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -66404,9 +66404,9 @@ var require_resolve = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/validate/index.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/validate/index.js
 var require_validate = __commonJS({
-  "node_modules/ajv/dist/compile/validate/index.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/validate/index.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -66918,9 +66918,9 @@ var require_validate = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/runtime/validation_error.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/runtime/validation_error.js
 var require_validation_error = __commonJS({
-  "node_modules/ajv/dist/runtime/validation_error.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/runtime/validation_error.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -66940,9 +66940,9 @@ var require_validation_error = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/ref_error.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/ref_error.js
 var require_ref_error = __commonJS({
-  "node_modules/ajv/dist/compile/ref_error.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/ref_error.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -66963,9 +66963,9 @@ var require_ref_error = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/index.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/index.js
 var require_compile = __commonJS({
-  "node_modules/ajv/dist/compile/index.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/index.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -67193,9 +67193,9 @@ var require_compile = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/refs/data.json
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/refs/data.json
 var require_data = __commonJS({
-  "node_modules/ajv/dist/refs/data.json"(exports, module) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/refs/data.json"(exports, module) {
     module.exports = {
       $id: "https://raw.githubusercontent.com/ajv-validator/ajv/master/lib/refs/data.json#",
       description: "Meta-schema for $data reference (JSON AnySchema extension proposal)",
@@ -67212,9 +67212,9 @@ var require_data = __commonJS({
   }
 });
 
-// node_modules/fast-uri/lib/utils.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/fast-uri/lib/utils.js
 var require_utils = __commonJS({
-  "node_modules/fast-uri/lib/utils.js"(exports, module) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/fast-uri/lib/utils.js"(exports, module) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -67531,9 +67531,9 @@ var require_utils = __commonJS({
   }
 });
 
-// node_modules/fast-uri/lib/schemes.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/fast-uri/lib/schemes.js
 var require_schemes = __commonJS({
-  "node_modules/fast-uri/lib/schemes.js"(exports, module) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/fast-uri/lib/schemes.js"(exports, module) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -67747,9 +67747,9 @@ var require_schemes = __commonJS({
   }
 });
 
-// node_modules/fast-uri/index.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/fast-uri/index.js
 var require_fast_uri = __commonJS({
-  "node_modules/fast-uri/index.js"(exports, module) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/fast-uri/index.js"(exports, module) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -68045,9 +68045,9 @@ var require_fast_uri = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/runtime/uri.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/runtime/uri.js
 var require_uri = __commonJS({
-  "node_modules/ajv/dist/runtime/uri.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/runtime/uri.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -68062,9 +68062,9 @@ var require_uri = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/core.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/core.js
 var require_core = __commonJS({
-  "node_modules/ajv/dist/core.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/core.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -68679,9 +68679,9 @@ var require_core = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/core/id.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/core/id.js
 var require_id = __commonJS({
-  "node_modules/ajv/dist/vocabularies/core/id.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/core/id.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -68700,9 +68700,9 @@ var require_id = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/core/ref.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/core/ref.js
 var require_ref = __commonJS({
-  "node_modules/ajv/dist/vocabularies/core/ref.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/core/ref.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -68828,9 +68828,9 @@ var require_ref = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/core/index.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/core/index.js
 var require_core2 = __commonJS({
-  "node_modules/ajv/dist/vocabularies/core/index.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/core/index.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -68855,9 +68855,9 @@ var require_core2 = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/validation/limitNumber.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/limitNumber.js
 var require_limitNumber = __commonJS({
-  "node_modules/ajv/dist/vocabularies/validation/limitNumber.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/limitNumber.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -68893,9 +68893,9 @@ var require_limitNumber = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/validation/multipleOf.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/multipleOf.js
 var require_multipleOf = __commonJS({
-  "node_modules/ajv/dist/vocabularies/validation/multipleOf.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/multipleOf.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -68927,9 +68927,9 @@ var require_multipleOf = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/runtime/ucs2length.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/runtime/ucs2length.js
 var require_ucs2length = __commonJS({
-  "node_modules/ajv/dist/runtime/ucs2length.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/runtime/ucs2length.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -68959,9 +68959,9 @@ var require_ucs2length = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/validation/limitLength.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/limitLength.js
 var require_limitLength = __commonJS({
-  "node_modules/ajv/dist/vocabularies/validation/limitLength.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/limitLength.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -68997,9 +68997,9 @@ var require_limitLength = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/validation/pattern.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/pattern.js
 var require_pattern = __commonJS({
-  "node_modules/ajv/dist/vocabularies/validation/pattern.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/pattern.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -69040,9 +69040,9 @@ var require_pattern = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/validation/limitProperties.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/limitProperties.js
 var require_limitProperties = __commonJS({
-  "node_modules/ajv/dist/vocabularies/validation/limitProperties.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/limitProperties.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -69075,9 +69075,9 @@ var require_limitProperties = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/validation/required.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/required.js
 var require_required = __commonJS({
-  "node_modules/ajv/dist/vocabularies/validation/required.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/required.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -69163,9 +69163,9 @@ var require_required = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/validation/limitItems.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/limitItems.js
 var require_limitItems = __commonJS({
-  "node_modules/ajv/dist/vocabularies/validation/limitItems.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/limitItems.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -69198,9 +69198,9 @@ var require_limitItems = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/runtime/equal.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/runtime/equal.js
 var require_equal = __commonJS({
-  "node_modules/ajv/dist/runtime/equal.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/runtime/equal.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -69215,9 +69215,9 @@ var require_equal = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/validation/uniqueItems.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/uniqueItems.js
 var require_uniqueItems = __commonJS({
-  "node_modules/ajv/dist/vocabularies/validation/uniqueItems.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/uniqueItems.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -69288,9 +69288,9 @@ var require_uniqueItems = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/validation/const.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/const.js
 var require_const = __commonJS({
-  "node_modules/ajv/dist/vocabularies/validation/const.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/const.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -69323,9 +69323,9 @@ var require_const = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/validation/enum.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/enum.js
 var require_enum = __commonJS({
-  "node_modules/ajv/dist/vocabularies/validation/enum.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/enum.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -69378,9 +69378,9 @@ var require_enum = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/validation/index.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/index.js
 var require_validation = __commonJS({
-  "node_modules/ajv/dist/vocabularies/validation/index.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/index.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -69422,9 +69422,9 @@ var require_validation = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/additionalItems.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/additionalItems.js
 var require_additionalItems = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/additionalItems.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/additionalItems.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -69481,9 +69481,9 @@ var require_additionalItems = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/items.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/items.js
 var require_items = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/items.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/items.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -69544,9 +69544,9 @@ var require_items = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/prefixItems.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/prefixItems.js
 var require_prefixItems = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/prefixItems.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/prefixItems.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -69567,9 +69567,9 @@ var require_prefixItems = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/items2020.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/items2020.js
 var require_items2020 = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/items2020.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/items2020.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -69608,9 +69608,9 @@ var require_items2020 = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/contains.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/contains.js
 var require_contains = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/contains.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/contains.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -69708,9 +69708,9 @@ var require_contains = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/dependencies.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/dependencies.js
 var require_dependencies = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/dependencies.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/dependencies.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -69808,9 +69808,9 @@ var require_dependencies = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/propertyNames.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/propertyNames.js
 var require_propertyNames = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/propertyNames.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/propertyNames.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -69857,9 +69857,9 @@ var require_propertyNames = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/additionalProperties.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/additionalProperties.js
 var require_additionalProperties = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/additionalProperties.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/additionalProperties.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -69969,9 +69969,9 @@ var require_additionalProperties = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/properties.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/properties.js
 var require_properties = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/properties.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/properties.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -70033,9 +70033,9 @@ var require_properties = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/patternProperties.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/patternProperties.js
 var require_patternProperties = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/patternProperties.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/patternProperties.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -70113,9 +70113,9 @@ var require_patternProperties = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/not.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/not.js
 var require_not = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/not.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/not.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -70150,9 +70150,9 @@ var require_not = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/anyOf.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/anyOf.js
 var require_anyOf = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/anyOf.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/anyOf.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -70173,9 +70173,9 @@ var require_anyOf = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/oneOf.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/oneOf.js
 var require_oneOf = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/oneOf.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/oneOf.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -70237,9 +70237,9 @@ var require_oneOf = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/allOf.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/allOf.js
 var require_allOf = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/allOf.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/allOf.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -70270,9 +70270,9 @@ var require_allOf = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/if.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/if.js
 var require_if = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/if.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/if.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -70345,9 +70345,9 @@ var require_if = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/thenElse.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/thenElse.js
 var require_thenElse = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/thenElse.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/thenElse.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -70369,9 +70369,9 @@ var require_thenElse = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/index.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/index.js
 var require_applicator = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/index.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/index.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -70423,9 +70423,9 @@ var require_applicator = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/format/format.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/format/format.js
 var require_format = __commonJS({
-  "node_modules/ajv/dist/vocabularies/format/format.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/format/format.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -70519,9 +70519,9 @@ var require_format = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/format/index.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/format/index.js
 var require_format2 = __commonJS({
-  "node_modules/ajv/dist/vocabularies/format/index.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/format/index.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -70536,9 +70536,9 @@ var require_format2 = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/metadata.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/metadata.js
 var require_metadata = __commonJS({
-  "node_modules/ajv/dist/vocabularies/metadata.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/metadata.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -70565,9 +70565,9 @@ var require_metadata = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/draft7.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/draft7.js
 var require_draft7 = __commonJS({
-  "node_modules/ajv/dist/vocabularies/draft7.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/draft7.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -70593,9 +70593,9 @@ var require_draft7 = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/discriminator/types.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/discriminator/types.js
 var require_types = __commonJS({
-  "node_modules/ajv/dist/vocabularies/discriminator/types.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/discriminator/types.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -70613,9 +70613,9 @@ var require_types = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/discriminator/index.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/discriminator/index.js
 var require_discriminator = __commonJS({
-  "node_modules/ajv/dist/vocabularies/discriminator/index.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/discriminator/index.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -70724,9 +70724,9 @@ var require_discriminator = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/refs/json-schema-draft-07.json
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/refs/json-schema-draft-07.json
 var require_json_schema_draft_07 = __commonJS({
-  "node_modules/ajv/dist/refs/json-schema-draft-07.json"(exports, module) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/refs/json-schema-draft-07.json"(exports, module) {
     module.exports = {
       $schema: "http://json-schema.org/draft-07/schema#",
       $id: "http://json-schema.org/draft-07/schema#",
@@ -70881,9 +70881,9 @@ var require_json_schema_draft_07 = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/ajv.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/ajv.js
 var require_ajv = __commonJS({
-  "node_modules/ajv/dist/ajv.js"(exports, module) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/ajv.js"(exports, module) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -70957,9 +70957,9 @@ var require_ajv = __commonJS({
   }
 });
 
-// node_modules/ajv-formats/dist/formats.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv-formats/dist/formats.js
 var require_formats = __commonJS({
-  "node_modules/ajv-formats/dist/formats.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv-formats/dist/formats.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -71166,9 +71166,9 @@ var require_formats = __commonJS({
   }
 });
 
-// node_modules/ajv-formats/dist/limit.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv-formats/dist/limit.js
 var require_limit = __commonJS({
-  "node_modules/ajv-formats/dist/limit.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv-formats/dist/limit.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -71244,9 +71244,9 @@ var require_limit = __commonJS({
   }
 });
 
-// node_modules/ajv-formats/dist/index.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv-formats/dist/index.js
 var require_dist = __commonJS({
-  "node_modules/ajv-formats/dist/index.js"(exports, module) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv-formats/dist/index.js"(exports, module) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -71300,7 +71300,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/server/mcp.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/server/mcp.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -71308,7 +71308,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/server/index.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/server/index.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -71316,7 +71316,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -71324,7 +71324,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-compat.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-compat.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -71332,7 +71332,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v3/errors.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v3/errors.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -71340,7 +71340,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v3/locales/en.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v3/locales/en.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -71348,7 +71348,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v3/ZodError.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v3/ZodError.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -71356,7 +71356,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v3/helpers/util.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v3/helpers/util.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -71496,7 +71496,7 @@ var getParsedType = (data2) => {
   }
 };
 
-// node_modules/zod/v3/ZodError.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v3/ZodError.js
 var ZodIssueCode = util.arrayToEnum([
   "invalid_type",
   "invalid_literal",
@@ -71610,7 +71610,7 @@ ZodError.create = (issues) => {
   return error51;
 };
 
-// node_modules/zod/v3/locales/en.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v3/locales/en.js
 var errorMap = (issue2, _ctx) => {
   let message;
   switch (issue2.code) {
@@ -71713,13 +71713,13 @@ var errorMap = (issue2, _ctx) => {
 };
 var en_default = errorMap;
 
-// node_modules/zod/v3/errors.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v3/errors.js
 var overrideErrorMap = en_default;
 function getErrorMap() {
   return overrideErrorMap;
 }
 
-// node_modules/zod/v3/helpers/parseUtil.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v3/helpers/parseUtil.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -71834,7 +71834,7 @@ var isDirty = (x) => x.status === "dirty";
 var isValid = (x) => x.status === "valid";
 var isAsync = (x) => typeof Promise !== "undefined" && x instanceof Promise;
 
-// node_modules/zod/v3/types.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v3/types.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -71842,7 +71842,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v3/helpers/errorUtil.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v3/helpers/errorUtil.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -71855,7 +71855,7 @@ var errorUtil;
   errorUtil2.toString = (message) => typeof message === "string" ? message : message?.message;
 })(errorUtil || (errorUtil = {}));
 
-// node_modules/zod/v3/types.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v3/types.js
 var ParseInputLazyPath = class {
   constructor(parent, value, path, key) {
     this._cachedPath = [];
@@ -75258,7 +75258,7 @@ var nullableType = ZodNullable.create;
 var preprocessType = ZodEffects.createWithPreprocess;
 var pipelineType = ZodPipeline.create;
 
-// node_modules/zod/v4/mini/external.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/mini/external.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -75266,7 +75266,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v4/core/index.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/index.js
 var core_exports2 = {};
 __export(core_exports2, {
   $ZodAny: () => $ZodAny,
@@ -75551,7 +75551,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v4/core/core.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/core.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -75634,7 +75634,7 @@ function config(newConfig) {
   return globalConfig;
 }
 
-// node_modules/zod/v4/core/parse.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/parse.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -75642,7 +75642,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v4/core/errors.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/errors.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -75650,7 +75650,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v4/core/util.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/util.js
 var util_exports = {};
 __export(util_exports, {
   BIGINT_FORMAT_RANGES: () => BIGINT_FORMAT_RANGES,
@@ -76352,7 +76352,7 @@ var Class = class {
   }
 };
 
-// node_modules/zod/v4/core/errors.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/errors.js
 var initializer = (inst, def) => {
   inst.name = "$ZodError";
   Object.defineProperty(inst, "_zod", {
@@ -76491,7 +76491,7 @@ function prettifyError(error51) {
   return lines.join("\n");
 }
 
-// node_modules/zod/v4/core/parse.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/parse.js
 var _parse = (_Err) => (schema2, value, _ctx, _params) => {
   const ctx = _ctx ? { ..._ctx, async: false } : { async: false };
   const result = schema2._zod.run({ value, issues: [] }, ctx);
@@ -76579,7 +76579,7 @@ var _safeDecodeAsync = (_Err) => async (schema2, value, _ctx) => {
 };
 var safeDecodeAsync = /* @__PURE__ */ _safeDecodeAsync($ZodRealError);
 
-// node_modules/zod/v4/core/schemas.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/schemas.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -76587,7 +76587,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v4/core/checks.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/checks.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -76595,7 +76595,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v4/core/regexes.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/regexes.js
 var regexes_exports = {};
 __export(regexes_exports, {
   base64: () => base64,
@@ -76760,7 +76760,7 @@ var sha512_hex = /^[0-9a-fA-F]{128}$/;
 var sha512_base64 = /* @__PURE__ */ fixedBase64(86, "==");
 var sha512_base64url = /* @__PURE__ */ fixedBase64url(86);
 
-// node_modules/zod/v4/core/checks.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/checks.js
 var $ZodCheck = /* @__PURE__ */ $constructor("$ZodCheck", (inst, def) => {
   var _a3;
   inst._zod ?? (inst._zod = {});
@@ -77308,7 +77308,7 @@ var $ZodCheckOverwrite = /* @__PURE__ */ $constructor("$ZodCheckOverwrite", (ins
   };
 });
 
-// node_modules/zod/v4/core/doc.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/doc.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -77350,7 +77350,7 @@ var Doc = class {
   }
 };
 
-// node_modules/zod/v4/core/versions.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/versions.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -77363,7 +77363,7 @@ var version = {
   patch: 3
 };
 
-// node_modules/zod/v4/core/schemas.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/schemas.js
 var $ZodType = /* @__PURE__ */ $constructor("$ZodType", (inst, def) => {
   var _a3;
   inst ?? (inst = {});
@@ -79456,7 +79456,7 @@ function handleRefineResult(result, payload, input, inst) {
   }
 }
 
-// node_modules/zod/v4/locales/index.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/index.js
 var locales_exports = {};
 __export(locales_exports, {
   ar: () => ar_default,
@@ -79519,7 +79519,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v4/locales/ar.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/ar.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -79632,7 +79632,7 @@ function ar_default() {
   };
 }
 
-// node_modules/zod/v4/locales/az.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/az.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -79744,7 +79744,7 @@ function az_default() {
   };
 }
 
-// node_modules/zod/v4/locales/be.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/be.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -79907,7 +79907,7 @@ function be_default() {
   };
 }
 
-// node_modules/zod/v4/locales/bg.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/bg.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -80034,7 +80034,7 @@ function bg_default() {
   };
 }
 
-// node_modules/zod/v4/locales/ca.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/ca.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -80149,7 +80149,7 @@ function ca_default() {
   };
 }
 
-// node_modules/zod/v4/locales/cs.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/cs.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -80267,7 +80267,7 @@ function cs_default() {
   };
 }
 
-// node_modules/zod/v4/locales/da.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/da.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -80389,7 +80389,7 @@ function da_default() {
   };
 }
 
-// node_modules/zod/v4/locales/de.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/de.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -80504,7 +80504,7 @@ function de_default() {
   };
 }
 
-// node_modules/zod/v4/locales/el.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/el.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -80620,7 +80620,7 @@ function el_default() {
   };
 }
 
-// node_modules/zod/v4/locales/en.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/en.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -80739,7 +80739,7 @@ function en_default2() {
   };
 }
 
-// node_modules/zod/v4/locales/eo.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/eo.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -80855,7 +80855,7 @@ function eo_default() {
   };
 }
 
-// node_modules/zod/v4/locales/es.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/es.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -80994,7 +80994,7 @@ function es_default() {
   };
 }
 
-// node_modules/zod/v4/locales/fa.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/fa.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -81115,7 +81115,7 @@ function fa_default() {
   };
 }
 
-// node_modules/zod/v4/locales/fi.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/fi.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -81234,7 +81234,7 @@ function fi_default() {
   };
 }
 
-// node_modules/zod/v4/locales/fr.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/fr.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -81366,7 +81366,7 @@ function fr_default() {
   };
 }
 
-// node_modules/zod/v4/locales/fr-CA.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/fr-CA.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -81480,7 +81480,7 @@ function fr_CA_default() {
   };
 }
 
-// node_modules/zod/v4/locales/he.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/he.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -81681,7 +81681,7 @@ function he_default() {
   };
 }
 
-// node_modules/zod/v4/locales/hr.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/hr.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -81810,7 +81810,7 @@ function hr_default() {
   };
 }
 
-// node_modules/zod/v4/locales/hu.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/hu.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -81925,7 +81925,7 @@ function hu_default() {
   };
 }
 
-// node_modules/zod/v4/locales/hy.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/hy.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -82079,7 +82079,7 @@ function hy_default() {
   };
 }
 
-// node_modules/zod/v4/locales/id.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/id.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -82192,7 +82192,7 @@ function id_default() {
   };
 }
 
-// node_modules/zod/v4/locales/is.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/is.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -82308,7 +82308,7 @@ function is_default() {
   };
 }
 
-// node_modules/zod/v4/locales/it.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/it.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -82423,7 +82423,7 @@ function it_default() {
   };
 }
 
-// node_modules/zod/v4/locales/ja.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/ja.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -82537,7 +82537,7 @@ function ja_default() {
   };
 }
 
-// node_modules/zod/v4/locales/ka.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/ka.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -82656,7 +82656,7 @@ function ka_default() {
   };
 }
 
-// node_modules/zod/v4/locales/kh.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/kh.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -82664,7 +82664,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v4/locales/km.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/km.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -82781,12 +82781,12 @@ function km_default() {
   };
 }
 
-// node_modules/zod/v4/locales/kh.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/kh.js
 function kh_default() {
   return km_default();
 }
 
-// node_modules/zod/v4/locales/ko.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/ko.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -82904,7 +82904,7 @@ function ko_default() {
   };
 }
 
-// node_modules/zod/v4/locales/lt.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/lt.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -83114,7 +83114,7 @@ function lt_default() {
   };
 }
 
-// node_modules/zod/v4/locales/mk.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/mk.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -83230,7 +83230,7 @@ function mk_default() {
   };
 }
 
-// node_modules/zod/v4/locales/ms.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/ms.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -83344,7 +83344,7 @@ function ms_default() {
   };
 }
 
-// node_modules/zod/v4/locales/nl.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/nl.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -83461,7 +83461,7 @@ function nl_default() {
   };
 }
 
-// node_modules/zod/v4/locales/no.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/no.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -83576,7 +83576,7 @@ function no_default() {
   };
 }
 
-// node_modules/zod/v4/locales/ota.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/ota.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -83692,7 +83692,7 @@ function ota_default() {
   };
 }
 
-// node_modules/zod/v4/locales/ps.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/ps.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -83813,7 +83813,7 @@ function ps_default() {
   };
 }
 
-// node_modules/zod/v4/locales/pl.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/pl.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -83929,7 +83929,7 @@ function pl_default() {
   };
 }
 
-// node_modules/zod/v4/locales/pt.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/pt.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -84044,7 +84044,7 @@ function pt_default() {
   };
 }
 
-// node_modules/zod/v4/locales/ro.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/ro.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -84170,7 +84170,7 @@ function ro_default() {
   };
 }
 
-// node_modules/zod/v4/locales/ru.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/ru.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -84333,7 +84333,7 @@ function ru_default() {
   };
 }
 
-// node_modules/zod/v4/locales/sl.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/sl.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -84449,7 +84449,7 @@ function sl_default() {
   };
 }
 
-// node_modules/zod/v4/locales/sv.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/sv.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -84566,7 +84566,7 @@ function sv_default() {
   };
 }
 
-// node_modules/zod/v4/locales/ta.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/ta.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -84683,7 +84683,7 @@ function ta_default() {
   };
 }
 
-// node_modules/zod/v4/locales/th.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/th.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -84800,7 +84800,7 @@ function th_default() {
   };
 }
 
-// node_modules/zod/v4/locales/tr.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/tr.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -84912,7 +84912,7 @@ function tr_default() {
   };
 }
 
-// node_modules/zod/v4/locales/ua.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/ua.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -84920,7 +84920,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v4/locales/uk.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/uk.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -85035,12 +85035,12 @@ function uk_default() {
   };
 }
 
-// node_modules/zod/v4/locales/ua.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/ua.js
 function ua_default() {
   return uk_default();
 }
 
-// node_modules/zod/v4/locales/ur.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/ur.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -85157,7 +85157,7 @@ function ur_default() {
   };
 }
 
-// node_modules/zod/v4/locales/uz.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/uz.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -85274,7 +85274,7 @@ function uz_default() {
   };
 }
 
-// node_modules/zod/v4/locales/vi.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/vi.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -85389,7 +85389,7 @@ function vi_default() {
   };
 }
 
-// node_modules/zod/v4/locales/zh-CN.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/zh-CN.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -85505,7 +85505,7 @@ function zh_CN_default() {
   };
 }
 
-// node_modules/zod/v4/locales/zh-TW.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/zh-TW.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -85619,7 +85619,7 @@ function zh_TW_default() {
   };
 }
 
-// node_modules/zod/v4/locales/yo.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/yo.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -85733,7 +85733,7 @@ function yo_default() {
   };
 }
 
-// node_modules/zod/v4/core/registries.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/registries.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -85789,7 +85789,7 @@ function registry() {
 (_a2 = globalThis).__zod_globalRegistry ?? (_a2.__zod_globalRegistry = registry());
 var globalRegistry = globalThis.__zod_globalRegistry;
 
-// node_modules/zod/v4/core/api.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/api.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -86834,7 +86834,7 @@ function _stringFormat(Class2, format, fnOrRegex, _params = {}) {
   return inst;
 }
 
-// node_modules/zod/v4/core/to-json-schema.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/to-json-schema.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -87199,7 +87199,7 @@ var createStandardJSONSchemaMethod = (schema2, io, processors = {}) => (params) 
   return finalize(ctx, schema2);
 };
 
-// node_modules/zod/v4/core/json-schema-processors.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/json-schema-processors.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -87749,7 +87749,7 @@ function toJSONSchema(input, params) {
   return finalize(ctx, input);
 }
 
-// node_modules/zod/v4/core/json-schema-generator.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/json-schema-generator.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -87830,7 +87830,7 @@ var JSONSchemaGenerator = class {
   }
 };
 
-// node_modules/zod/v4/core/json-schema.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/json-schema.js
 var json_schema_exports = {};
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
@@ -87839,7 +87839,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v4/mini/parse.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/mini/parse.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -87847,7 +87847,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v4/mini/schemas.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/mini/schemas.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -87899,7 +87899,7 @@ function object(shape, params) {
   return new ZodMiniObject(def);
 }
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-compat.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-compat.js
 function isZ4Schema(s) {
   const schema2 = s;
   return !!schema2._zod;
@@ -88043,7 +88043,7 @@ function getLiteralValue(schema2) {
   return void 0;
 }
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/types.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/types.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -88051,7 +88051,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v4/classic/external.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/classic/external.js
 var external_exports = {};
 __export(external_exports, {
   $brand: () => $brand,
@@ -88300,7 +88300,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v4/classic/schemas.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/classic/schemas.js
 var schemas_exports2 = {};
 __export(schemas_exports2, {
   ZodAny: () => ZodAny2,
@@ -88477,7 +88477,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v4/classic/checks.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/classic/checks.js
 var checks_exports2 = {};
 __export(checks_exports2, {
   endsWith: () => _endsWith,
@@ -88517,7 +88517,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v4/classic/iso.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/classic/iso.js
 var iso_exports2 = {};
 __export(iso_exports2, {
   ZodISODate: () => ZodISODate,
@@ -88564,7 +88564,7 @@ function duration2(params) {
   return _isoDuration(ZodISODuration, params);
 }
 
-// node_modules/zod/v4/classic/parse.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/classic/parse.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -88572,7 +88572,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v4/classic/errors.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/classic/errors.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -88618,7 +88618,7 @@ var ZodRealError = /* @__PURE__ */ $constructor("ZodError", initializer2, {
   Parent: Error
 });
 
-// node_modules/zod/v4/classic/parse.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/classic/parse.js
 var parse2 = /* @__PURE__ */ _parse(ZodRealError);
 var parseAsync2 = /* @__PURE__ */ _parseAsync(ZodRealError);
 var safeParse3 = /* @__PURE__ */ _safeParse(ZodRealError);
@@ -88632,7 +88632,7 @@ var safeDecode2 = /* @__PURE__ */ _safeDecode(ZodRealError);
 var safeEncodeAsync2 = /* @__PURE__ */ _safeEncodeAsync(ZodRealError);
 var safeDecodeAsync2 = /* @__PURE__ */ _safeDecodeAsync(ZodRealError);
 
-// node_modules/zod/v4/classic/schemas.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/classic/schemas.js
 var _installedGroups = /* @__PURE__ */ new WeakMap();
 function _installLazyMethods(inst, group, methods) {
   const proto = Object.getPrototypeOf(inst);
@@ -89922,7 +89922,7 @@ function preprocess(fn, schema2) {
   });
 }
 
-// node_modules/zod/v4/classic/compat.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/classic/compat.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -89954,7 +89954,7 @@ var ZodFirstPartyTypeKind2;
 /* @__PURE__ */ (function(ZodFirstPartyTypeKind3) {
 })(ZodFirstPartyTypeKind2 || (ZodFirstPartyTypeKind2 = {}));
 
-// node_modules/zod/v4/classic/from-json-schema.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/classic/from-json-schema.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -90440,7 +90440,7 @@ function fromJSONSchema(schema2, params) {
   return convertSchema(normalized, ctx);
 }
 
-// node_modules/zod/v4/classic/coerce.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/classic/coerce.js
 var coerce_exports2 = {};
 __export(coerce_exports2, {
   bigint: () => bigint3,
@@ -90471,10 +90471,10 @@ function date4(params) {
   return _coercedDate(ZodDate2, params);
 }
 
-// node_modules/zod/v4/classic/external.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/classic/external.js
 config(en_default2());
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/types.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/types.js
 var LATEST_PROTOCOL_VERSION = "2025-11-25";
 var SUPPORTED_PROTOCOL_VERSIONS = [LATEST_PROTOCOL_VERSION, "2025-06-18", "2025-03-26", "2024-11-05", "2024-10-07"];
 var RELATED_TASK_META_KEY = "io.modelcontextprotocol/related-task";
@@ -92005,7 +92005,7 @@ var UrlElicitationRequiredError = class extends McpError {
   }
 };
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/interfaces.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/interfaces.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -92016,7 +92016,7 @@ function isTerminal(status) {
   return status === "completed" || status === "failed" || status === "cancelled";
 }
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-json-schema-compat.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-json-schema-compat.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -92024,7 +92024,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod-to-json-schema/dist/esm/index.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/index.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -92032,7 +92032,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod-to-json-schema/dist/esm/Options.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/Options.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -92072,7 +92072,7 @@ var getDefaultOptions = (options) => typeof options === "string" ? {
   ...options
 };
 
-// node_modules/zod-to-json-schema/dist/esm/Refs.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/Refs.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -92099,7 +92099,7 @@ var getRefs = (options) => {
   };
 };
 
-// node_modules/zod-to-json-schema/dist/esm/errorMessages.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/errorMessages.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -92121,7 +92121,7 @@ function setResponseValueAndErrors(res, key, value, errorMessage, refs) {
   addErrorMessage(res, key, errorMessage, refs);
 }
 
-// node_modules/zod-to-json-schema/dist/esm/getRelativePath.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/getRelativePath.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -92137,7 +92137,7 @@ var getRelativePath = (pathA, pathB) => {
   return [(pathA.length - i).toString(), ...pathB.slice(i)].join("/");
 };
 
-// node_modules/zod-to-json-schema/dist/esm/parseDef.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parseDef.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -92145,7 +92145,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod-to-json-schema/dist/esm/selectParser.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/selectParser.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -92153,7 +92153,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/any.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/any.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -92175,7 +92175,7 @@ function parseAnyDef(refs) {
   };
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/array.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/array.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -92205,7 +92205,7 @@ function parseArrayDef(def, refs) {
   return res;
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/bigint.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/bigint.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -92257,7 +92257,7 @@ function parseBigintDef(def, refs) {
   return res;
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/boolean.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/boolean.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -92270,7 +92270,7 @@ function parseBooleanDef() {
   };
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/branded.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/branded.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -92281,7 +92281,7 @@ function parseBrandedDef(_def, refs) {
   return parseDef(_def.type._def, refs);
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/catch.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/catch.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -92292,7 +92292,7 @@ var parseCatchDef = (def, refs) => {
   return parseDef(def.innerType._def, refs);
 };
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/date.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/date.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -92357,7 +92357,7 @@ var integerDateParser = (def, refs) => {
   return res;
 };
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/default.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/default.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -92371,7 +92371,7 @@ function parseDefaultDef(_def, refs) {
   };
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/effects.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/effects.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -92382,7 +92382,7 @@ function parseEffectsDef(_def, refs) {
   return refs.effectStrategy === "input" ? parseDef(_def.schema._def, refs) : parseAnyDef(refs);
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/enum.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/enum.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -92396,7 +92396,7 @@ function parseEnumDef(def) {
   };
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/intersection.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/intersection.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -92444,7 +92444,7 @@ function parseIntersectionDef(def, refs) {
   } : void 0;
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/literal.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/literal.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -92470,7 +92470,7 @@ function parseLiteralDef(def, refs) {
   };
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/map.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/map.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -92478,7 +92478,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/record.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/record.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -92486,7 +92486,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/string.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/string.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -92817,7 +92817,7 @@ function stringifyRegExpWithFlags(regex, refs) {
   return pattern;
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/record.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/record.js
 function parseRecordDef(def, refs) {
   if (refs.target === "openAi") {
     console.warn("Warning: OpenAI may not support records in schemas! Try an array of key-value pairs instead.");
@@ -92869,7 +92869,7 @@ function parseRecordDef(def, refs) {
   return schema2;
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/map.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/map.js
 function parseMapDef(def, refs) {
   if (refs.mapStrategy === "record") {
     return parseRecordDef(def, refs);
@@ -92894,7 +92894,7 @@ function parseMapDef(def, refs) {
   };
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/nativeEnum.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/nativeEnum.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -92914,7 +92914,7 @@ function parseNativeEnumDef(def) {
   };
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/never.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/never.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -92930,7 +92930,7 @@ function parseNeverDef(refs) {
   };
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/null.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/null.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -92946,7 +92946,7 @@ function parseNullDef(refs) {
   };
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/nullable.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/nullable.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -92954,7 +92954,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/union.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/union.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -93028,7 +93028,7 @@ var asAnyOf = (def, refs) => {
   return anyOf.length ? { anyOf } : void 0;
 };
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/nullable.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/nullable.js
 function parseNullableDef(def, refs) {
   if (["ZodString", "ZodNumber", "ZodBigInt", "ZodBoolean", "ZodNull"].includes(def.innerType._def.typeName) && (!def.innerType._def.checks || !def.innerType._def.checks.length)) {
     if (refs.target === "openApi3") {
@@ -93060,7 +93060,7 @@ function parseNullableDef(def, refs) {
   return base && { anyOf: [base, { type: "null" }] };
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/number.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/number.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -93115,7 +93115,7 @@ function parseNumberDef(def, refs) {
   return res;
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/object.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/object.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -93191,7 +93191,7 @@ function safeIsOptional(schema2) {
   }
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/optional.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/optional.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -93216,7 +93216,7 @@ var parseOptionalDef = (def, refs) => {
   } : parseAnyDef(refs);
 };
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/pipeline.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/pipeline.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -93242,7 +93242,7 @@ var parsePipelineDef = (def, refs) => {
   };
 };
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/promise.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/promise.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -93253,7 +93253,7 @@ function parsePromiseDef(def, refs) {
   return parseDef(def.type._def, refs);
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/set.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/set.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -93279,7 +93279,7 @@ function parseSetDef(def, refs) {
   return schema2;
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/tuple.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/tuple.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -93313,7 +93313,7 @@ function parseTupleDef(def, refs) {
   }
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/undefined.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/undefined.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -93326,7 +93326,7 @@ function parseUndefinedDef(refs) {
   };
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/unknown.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/unknown.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -93337,7 +93337,7 @@ function parseUnknownDef(refs) {
   return parseAnyDef(refs);
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/readonly.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/readonly.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -93348,7 +93348,7 @@ var parseReadonlyDef = (def, refs) => {
   return parseDef(def.innerType._def, refs);
 };
 
-// node_modules/zod-to-json-schema/dist/esm/selectParser.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/selectParser.js
 var selectParser = (def, typeName, refs) => {
   switch (typeName) {
     case ZodFirstPartyTypeKind.ZodString:
@@ -93424,7 +93424,7 @@ var selectParser = (def, typeName, refs) => {
   }
 };
 
-// node_modules/zod-to-json-schema/dist/esm/parseDef.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parseDef.js
 function parseDef(def, refs, forceResolution = false) {
   const seenItem = refs.seen.get(def);
   if (refs.override) {
@@ -93480,7 +93480,7 @@ var addMeta = (def, refs, jsonSchema) => {
   return jsonSchema;
 };
 
-// node_modules/zod-to-json-schema/dist/esm/parseTypes.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parseTypes.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -93488,7 +93488,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod-to-json-schema/dist/esm/zodToJsonSchema.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/zodToJsonSchema.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -93556,7 +93556,7 @@ var zodToJsonSchema = (schema2, options) => {
   return combined;
 };
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-json-schema-compat.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-json-schema-compat.js
 function mapMiniTarget(t) {
   if (!t)
     return "draft-7";
@@ -93598,7 +93598,7 @@ function parseWithCompat(schema2, data2) {
   return result.data;
 }
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js
 var DEFAULT_REQUEST_TIMEOUT_MSEC = 6e4;
 var Protocol = class {
   constructor(_options) {
@@ -94552,7 +94552,7 @@ function mergeCapabilities(base, additional) {
   return result;
 }
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/validation/ajv-provider.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/validation/ajv-provider.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -94626,7 +94626,7 @@ var AjvJsonSchemaValidator = class {
   }
 };
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/server.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/server.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -94845,7 +94845,7 @@ var ExperimentalServerTasks = class {
   }
 };
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/helpers.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/helpers.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -94886,7 +94886,7 @@ function assertClientRequestTaskCapability(requests, method, entityName) {
   }
 }
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/server/index.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/server/index.js
 var Server = class extends Protocol {
   /**
    * Initializes this server with the given name and version information.
@@ -95266,7 +95266,7 @@ var Server = class extends Protocol {
   }
 };
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/server/completable.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/server/completable.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -95286,7 +95286,7 @@ var McpZodTypeKind;
   McpZodTypeKind2["Completable"] = "McpCompletable";
 })(McpZodTypeKind || (McpZodTypeKind = {}));
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/shared/uriTemplate.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/uriTemplate.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -95294,7 +95294,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/shared/toolNameValidation.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/toolNameValidation.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -95358,7 +95358,7 @@ function validateAndWarnToolName(name) {
   return result.isValid;
 }
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/mcp-server.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/mcp-server.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -95379,7 +95379,7 @@ var ExperimentalMcpServerTasks = class {
   }
 };
 
-// node_modules/zod/index.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/index.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -95387,7 +95387,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/server/mcp.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/server/mcp.js
 var McpServer = class {
   constructor(serverInfo, options) {
     this._registeredResources = {};
@@ -96179,7 +96179,7 @@ var EMPTY_COMPLETION_RESULT = {
   }
 };
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/server/stdio.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/server/stdio.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -96188,7 +96188,7 @@ init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 import process3 from "node:process";
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/shared/stdio.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/stdio.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -96222,7 +96222,7 @@ function serializeMessage(message) {
   return JSON.stringify(message) + "\n";
 }
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/server/stdio.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/server/stdio.js
 var StdioServerTransport = class {
   constructor(_stdin = process3.stdin, _stdout = process3.stdout) {
     this._stdin = _stdin;
@@ -99794,7 +99794,7 @@ var autosaveEnvelope = ({ funnelId, pageData, pageVersion = 1 }) => ({
     popup: false
   }
 });
-var auditPageData = (pageData) => {
+var auditPageData = (pageData, { stepType } = {}) => {
   const problems = [];
   if (!pageData.settings?.settings?.background) {
     problems.push("settings.settings.background is missing: the public page will render but the BUILDER will hang forever (bgStyle() destructures bgImage from it unguarded). Use buildPageData(), or add builderSettings().");
@@ -99852,7 +99852,7 @@ var auditPageData = (pageData) => {
           problems.push(`node ${n.id} (${n.meta}): extra.${prop} must be a RAW object, not {value: \u2026} \u2014 wrapping it 500s the public page with "reading 'bgColor'" while the builder shows nothing wrong`);
         }
       }
-      if (n.type === "element" && NEEDS_STEP_TYPE[n.meta]) {
+      if (n.type === "element" && NEEDS_STEP_TYPE[n.meta] && stepType !== NEEDS_STEP_TYPE[n.meta]) {
         problems.push(`node ${n.id} (${n.meta}): this kind renders only on a step of type '${NEEDS_STEP_TYPE[n.meta]}' \u2014 on a plain funnel page it 500s (or 404s for blog kinds). Create the step with that type.`);
       }
       if (n.type === "element" && NEEDS_CONTEXT[n.meta]) {
@@ -99905,6 +99905,11 @@ async function readLookups(gw, locationId, funnelId) {
   const r = await gw.call("GET", `/funnels/lookup/list?locationId=${enc(locationId)}&funnelId=${enc(funnelId)}`);
   const rows = Array.isArray(r.json?.data) ? r.json.data : Array.isArray(r.json) ? r.json : [];
   return { res: r, rows };
+}
+async function readFunnelPages(gw, locationId, funnelId) {
+  const r = await gw.call("GET", `/funnels/page/list?funnelId=${enc(funnelId)}&locationId=${enc(locationId)}`);
+  const pages = Array.isArray(r.json) ? r.json : Array.isArray(r.json?.data) ? r.json.data : [];
+  return { res: r, pages };
 }
 var stepView = (s, i) => ({
   id: s.id,
@@ -100135,6 +100140,105 @@ async function reread(readFn, okFn, { tries = 5, delays = [0, 500, 1e3, 2e3, 3e3
     if (okFn(last)) return { value: last, attempts: i + 1, settled: true };
   }
   return { value: last, attempts: tries, settled: false };
+}
+var CLONE_FUNNEL_NOTE = "The copy has NO domain and NO public paths (no lookup rows), and it keeps the SOURCE's funnel path and step urls. Attach a domain with settings {domainId, funnelPath}: on the source's domain GHL silently renames every colliding step/page path with a numeric suffix (measured /x \u2192 /x-5424), so read get_funnel view lookups after the attach and move the step paths with update-step url (a path move is refused before a domain is attached).";
+function planCloneFunnel({ funnel, name, locationId, existing }) {
+  const n = String(name ?? "").trim();
+  if (!n) return { refuse: "clone-funnel needs name: the copy's name (the route returns no id; the copy is found by this exact name)" };
+  const clash = (existing ?? []).filter((f) => String(f.name ?? "").trim().toLowerCase() === n.toLowerCase());
+  if (clash.length) return { refuse: `a document named ${JSON.stringify(clash[0].name)} already exists on this location (${clash.map((f) => f._id ?? f.id).join(", ")}); the copy could not be told apart from it. Pick an unused name.` };
+  return { method: "POST", path: "/funnels/funnel/clone-funnel-to-locations", body: { funnelId: funnel._id ?? funnel.id, funnelName: n, locationIds: [locationId] }, name: n };
+}
+function planArchivePage({ funnel, pageId, expectName, pageRecord, locationId }) {
+  const step = (funnel.steps ?? []).find((s) => (s.pages ?? []).includes(pageId));
+  if (!step) return { refuse: `page ${pageId} is not on any step of this funnel` };
+  if ((step.pages ?? []).length < 2) return { refuse: `page ${pageId} is the only page of step ${JSON.stringify(step.name)}; GHL refuses to archive the only page of a step (delete the step instead)` };
+  if (step.split === true) return { refuse: "this step is running a split test; archiving a page also ends the split in the UI, which is not proven here. Declare a winner (split-test declare-winner) instead." };
+  if (typeof expectName !== "string" || pageRecord?.name !== expectName) {
+    return { refuse: `target check failed: page ${pageId} is named ${JSON.stringify(pageRecord?.name ?? null)}, not ${JSON.stringify(expectName)}. Nothing was archived.` };
+  }
+  const fid = funnel._id ?? funnel.id;
+  return {
+    method: "POST",
+    path: "/funnels/funnel/update-funnel-and-page",
+    body: { funnelId: fid, locationId, funnelStepDetails: { stepId: step.id, pages: step.pages.filter((p2) => p2 !== pageId) }, archivePageId: pageId, stepId: step.id },
+    target: { pageId, name: pageRecord.name, step: stepView(step, 0) }
+  };
+}
+function planRestorePage({ funnel, pageId, pages, locationId }) {
+  const rec = (pages ?? []).find((p2) => (p2._id ?? p2.id) === pageId);
+  if (!rec) return { refuse: `page ${pageId} is not a page of this funnel` };
+  if (rec.deleted !== true) return { refuse: `page ${pageId} is not archived (deleted:false); nothing to restore` };
+  const step = (funnel.steps ?? []).find((s) => s.id === rec.stepId);
+  if (!step) return { refuse: `the archived page's step ${rec.stepId} is no longer on this funnel; the UI offers restore only from the step` };
+  if (step.split === true) return { refuse: "cannot restore a page while the step runs a split test (the UI refuses the same)" };
+  if ((step.pages ?? []).length > 1) return { refuse: "the step already has a variation; the UI refuses to restore a page then. Archive the variation first." };
+  return { method: "POST", path: "/funnels/funnel/update-funnel-and-page", body: { funnelId: funnel._id ?? funnel.id, locationId, restoreArchivePageId: pageId }, target: { pageId, name: rec.name, step: stepView(step, 0) } };
+}
+var IMPORT_PAGE_NOTE = "Products attached to the source page are NOT imported (GHL's own warning). The page is a copy with a new id; it gets its own public path.";
+function planImportPage({ funnel, stepId, source, sourceStepId, sourcePageIndex = 0, locationId, userId }) {
+  const target = (funnel.steps ?? []).find((s) => s.id === stepId);
+  if (!target) return { refuse: `target step ${stepId} is not on this funnel` };
+  if ((target.pages ?? []).length !== 1) return { refuse: `target step has ${(target.pages ?? []).length} pages; import adds a variation, so the step must have exactly one` };
+  if (target.split === true) return { refuse: "the target step runs a split test" };
+  const src = (source?.steps ?? []).find((s) => s.id === sourceStepId);
+  if (!src) return { refuse: `source step ${sourceStepId} is not on the source funnel` };
+  const idx = Number(sourcePageIndex);
+  if (!Number.isInteger(idx) || idx < 0 || idx >= (src.pages ?? []).length) return { refuse: `sourcePageIndex must be 0..${(src.pages ?? []).length - 1} (the source step's pages)` };
+  if (!userId) return { refuse: "this credential carries no user id, and clone-funnel-step requires one" };
+  const fid = funnel._id ?? funnel.id;
+  return {
+    method: "POST",
+    path: "/funnels/funnel/clone-funnel-step/",
+    body: {
+      stepId: sourceStepId,
+      funnelId: fid,
+      funnels: [fid],
+      locationId,
+      userId,
+      stepIdToImportInto: stepId,
+      pageIndexToImportInto: String(target.pages.length),
+      pageIndexToImport: String(idx),
+      funnelIdToImport: source._id ?? source.id
+    },
+    target: { step: stepView(target, 0), sourcePageId: src.pages[idx] }
+  };
+}
+var STORE_PATHS = Object.freeze([
+  "/store-product-list",
+  "/store-product-detail",
+  "/store-cart",
+  "/store-checkout",
+  "/store-thank-you",
+  "/store-product-list-page",
+  "/store-product-detail-page",
+  "/store-cart-page",
+  "/store-checkout-page",
+  "/store-thank-you-page"
+]);
+var BILLING_FIELDS_NOTE = 'LOCATION-WIDE side effect: when a checkout page with the billing address enabled is saved in the builder, GHL creates a "Billing Info" contact custom-field folder and 7 "Billing Address - \u2026" contact fields on the location (measured; a second call created no duplicate fields; a duplicate folder could not be ruled out, folders are not listable). They are not removed with the store.';
+function planAddStore({ funnel, domainName, taken }) {
+  if (funnel.type && funnel.type !== "funnel") return { refuse: `add-store adds a store to a FUNNEL; this document is a ${funnel.type} (a website store is made with create_funnel kind store)` };
+  if (funnel.isStoreActive === true) return { refuse: "this funnel already has a store (isStoreActive)" };
+  if (!domainName) return { refuse: "the funnel has no domain; the store pages would get no public paths. Attach a domain first." };
+  if ((taken ?? []).length) return { refuse: `${taken.length} store path(s) are already held on ${domainName}: ${taken.join(", ")}. The store's paths are fixed and held per DOMAIN; what GHL does when they collide (suffix, fail or steal) is unmeasured, so nothing was sent. Free them or use a funnel on another domain.` };
+  return {
+    method: "POST",
+    path: "/funnels/store/create-in-funnel",
+    body: { funnelId: funnel._id ?? funnel.id, domainName, importTheme: true },
+    then: "GHL creates the 5 pages EMPTY (a blank public page); each is then autosaved with its one store element (build_funnel_page compose). The builder's imported theme (header, colours, typography) is NOT applied."
+  };
+}
+var BILLING_ON_SAVE_NOTE = `This page has a checkout with the billing address enabled. This tool's write does not touch contact fields, but the next save of this page IN THE BUILDER creates a "Billing Info" contact custom-field folder + 7 "Billing Address - \u2026" contact fields on the location if they are not there (measured; a repeat created no duplicate fields).`;
+function billingCheckouts(pageData) {
+  const out = [];
+  const walk3 = (nodes) => {
+    for (const n of nodes ?? []) {
+      if (n?.extra?.step1?.value?.enableBillingAddress) out.push({ id: n.id, meta: n.meta });
+    }
+  };
+  for (const s of pageData?.sections ?? []) walk3(s.elements);
+  return out;
 }
 
 // core/funnel-create.mjs
@@ -182334,6 +182438,7 @@ async function editPage(args, deps, composeSection, { composeLeaf, popupIds, fon
     sectionsBefore: current.sections.length,
     sectionsAfter: pageData.sections.length,
     ...problems.length ? { preexistingProblems: problems } : {},
+    ...billingCheckouts(pageData).length ? { billingAddress: { checkouts: billingCheckouts(pageData), note: BILLING_ON_SAVE_NOTE } } : {},
     willPublish: args.publish === true,
     note: args.publish === true ? "Writes a draft through autosave AND PUBLISHES it: the public page changes. Nothing outside the named ops changes." : "Writes a DRAFT through autosave. Nothing outside the named ops changes. A published page shows neither content nor SEO changes until it is published again (publish:true)."
   };
@@ -190373,7 +190478,13 @@ var TOOLS2 = [
           e.remediation ?? `Element kinds are a closed set of ${ELEMENT_KINDS.length}; see the funnels corpus for the list.`
         );
       }
-      const problems = auditPageData(pageData);
+      let stepType;
+      const typed = pageData.sections.some((sec) => sec.elements.some((e) => e.type === "element" && NEEDS_STEP_TYPE[e.meta]));
+      if (typed) {
+        const fr = await readFunnel(deps.makeGw({ loc: args.locationId, state: deps.state }), args.locationId, args.funnelId);
+        stepType = fr.res.ok ? (fr.funnel?.steps ?? []).find((st) => st.id === args.stepId)?.type : void 0;
+      }
+      const problems = auditPageData(pageData, { stepType });
       if (problems.length) {
         return withFailureData(
           fail(
@@ -190392,6 +190503,7 @@ var TOOLS2 = [
         compiledCssBytes: cssBytes,
         kinds: [...new Set(pageData.sections.flatMap((s) => s.elements.filter((e) => e.type === "element").map((e) => e.meta)))],
         audit: "clean",
+        ...billingCheckouts(pageData).length ? { billingAddress: { checkouts: billingCheckouts(pageData), note: BILLING_ON_SAVE_NOTE } } : {},
         note: args.publish === true ? "This writes a draft AND PUBLISHES it \u2014 the page becomes visible to the public at its mapped path. It does not map a path that does not already exist." : "This writes a DRAFT. It does not publish, and it does not map a public path.",
         willPublish: args.publish === true
       };
@@ -190647,11 +190759,11 @@ var TOOLS2 = [
   },
   {
     name: "get_funnel",
-    description: `${describe3("get_funnel", "Read one GHL funnel or website document through a single flat view")}. Views: summary (steps with their pages, split state and paths), lookups (every public path row with its publishStatus / redirect action \u2014 the ROUTING truth; a step with no row 404s in public), settings (the funnel-settings fields as update-settings names them), versions (one page: live vs drafts, sorted by timestamp, not by array position), security (custom response headers), events (Meta pixel / CAPI events, first 20), cookie-consent (funnel-level banner config). Siblings: find_ghl_site resolves a domain/name to the document id first; audit_site sweeps a whole site for dangling references and publish drift \u2014 this tool does not repeat that audit. Read-only.`,
+    description: `${describe3("get_funnel", "Read one GHL funnel or website document through a single flat view")}. Views: summary (steps with their pages, split state and paths), lookups (every public path row with its publishStatus / redirect action \u2014 the ROUTING truth; a step with no row 404s in public), settings (the funnel-settings fields as update-settings names them), versions (one page: live vs drafts, sorted by timestamp, not by array position), security (custom response headers), events (Meta pixel / CAPI events, first 20), cookie-consent (funnel-level banner config), share (the funnel's share link, if one exists: who it is shared with and the import URL \u2014 read-only; creating a share is left to the UI because it cannot be removed below the $497 plan), archived-pages (pages archived by a page "delete" or a split-test winner, restorable with edit_funnel restore-page). Siblings: find_ghl_site resolves a domain/name to the document id first; audit_site sweeps a whole site for dangling references and publish drift \u2014 this tool does not repeat that audit. Read-only.`,
     inputSchema: schema({
       locationId: external_exports.string(),
       funnelId: external_exports.string(),
-      view: external_exports.enum(["summary", "lookups", "settings", "versions", "security", "events", "cookie-consent"]).default("summary"),
+      view: external_exports.enum(["summary", "lookups", "settings", "versions", "security", "events", "cookie-consent", "share", "archived-pages"]).default("summary"),
       pageId: external_exports.string().optional()
     }),
     capabilities: [
@@ -190660,12 +190772,35 @@ var TOOLS2 = [
       { method: "GET", path: "/funnels/builder/get-versions" },
       { method: "GET", path: "/funnels/funnel/headers" },
       { method: "GET", path: "/funnels/event" },
-      { method: "GET", path: "/funnels/funnel/cookie-consent" }
+      { method: "GET", path: "/funnels/funnel/cookie-consent" },
+      { method: "GET", path: "/funnels/builder/funnel-share-details/{funnelId}" },
+      { method: "GET", path: "/funnels/page/list" }
     ],
     handler: async (args, deps) => guard(async () => {
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
       const L = encodeURIComponent(args.locationId), F = encodeURIComponent(args.funnelId);
       const view = args.view ?? "summary";
+      if (view === "share") {
+        const r = await gw.call("GET", `/funnels/builder/funnel-share-details/${F}`);
+        if (r.status === 400 && /share funnel not found/i.test(JSON.stringify(r.json ?? ""))) return ok({ funnelId: args.funnelId, share: null, shared: false });
+        if (!r.ok) return fromHttp(r.status, r.json);
+        const d = r.json?.data ?? {};
+        return ok({
+          funnelId: args.funnelId,
+          shared: true,
+          share: { shareId: d.shareId, shareWith: d.shareWith, funnelName: d.funnelName, importUrl: d.shareId ? `https://app.gohighlevel.com/funnels/share/${d.shareId}` : null },
+          note: "shareWith ALL = anyone with the link can import a copy into their own account. Narrowing it to the agency or removing it is gated to the $497 plan in the UI."
+        });
+      }
+      if (view === "archived-pages") {
+        const { res: r, pages } = await readFunnelPages(gw, args.locationId, args.funnelId);
+        if (!r.ok) return fromHttp(r.status, r.json);
+        return ok({
+          funnelId: args.funnelId,
+          archived: pages.filter((p2) => p2.deleted === true).map((p2) => ({ pageId: p2._id, name: p2.name, stepId: p2.stepId, updatedAt: p2.updatedAt })),
+          note: "Restore with edit_funnel restore-page: the page returns on a NEW path minted from its name. The UI refuses a restore while the step runs a split or already has a second page."
+        });
+      }
       if (view === "versions") {
         if (!args.pageId) return fail(CODES.VALIDATION_FAILED, 'view "versions" needs pageId', `Pass the pageId (view "summary" lists each step's pages).`);
         const r = await gw.call("GET", `/funnels/builder/get-versions?pageId=${encodeURIComponent(args.pageId)}`);
@@ -190715,12 +190850,32 @@ var TOOLS2 = [
   },
   {
     name: "edit_funnel",
-    description: `${describe3("edit_funnel", "Edit a GHL funnel or website document: settings, steps, publish state, headers")}. One op per call; preview by default, confirm:true writes and reads back on a separate request. Ops: settings (always sends the UI's FULL update-settings body from a fresh read, so only the fields you name change; diffs the read-back), create-step (refused when the funnel has no domain \u2014 such a step gets no lookup row and 404s), update-step (rename and/or move-path: one PUT moves the live route; Cloudflare may serve the old path for minutes, so it never retries), reorder-steps (full permutation only \u2014 the route replaces the steps array), clone-step, delete-step (target check: stepId AND its current name), publish-page / unpublish-page (the builder's own route: PUT /funnels/lookup/multiple on the step+page rows; unpublish answers 404 or 301 to a URL; no version is created \u2014 to publish CONTENT use build_funnel_page publish:true), add-header (custom response header; applies to the EXACT-CASE path only), split-test (action add-variation {variationPath}: a draft copy of the control on its own pre-checked path; start {controlTraffic}: changes live traffic; declare-winner {winnerPageId}: the other page is archived and the split ends \u2014 EXACT-CASE path only), delete-funnel (target check: funnelId AND expectName; refused while any page still serves \u2014 unpublish first; the edge can serve the deleted page ~70 s). update-step also renames the step's page record, as the UI does. Page SEO, tracking code, custom CSS and background are PAGE writes: use build_funnel_page edit mode (\`seo\`, op \`page\`). A bare extra page (create-page) is not offered: it makes an ORPHAN page on no step \u2014 create-step makes a step with its page, split-test add-variation adds a second. Funnel FOLDERS (create, rename, move) are organisational only and are left to the Sites screen. Siblings: create_funnel makes the document, get_funnel reads, build_funnel_page writes page content, audit_site audits.`,
+    description: `${describe3("edit_funnel", "Edit a GHL funnel or website document: settings, steps, publish state, headers")}. One op per call; preview by default, confirm:true writes and reads back on a separate request. Ops: settings (always sends the UI's FULL update-settings body from a fresh read, so only the fields you name change; diffs the read-back), create-step (refused when the funnel has no domain \u2014 such a step gets no lookup row and 404s), update-step (rename and/or move-path: one PUT moves the live route; Cloudflare may serve the old path for minutes, so it never retries), reorder-steps (full permutation only \u2014 the route replaces the steps array), clone-step, delete-step (target check: stepId AND its current name), publish-page / unpublish-page (the builder's own route: PUT /funnels/lookup/multiple on the step+page rows; unpublish answers 404 or 301 to a URL; no version is created \u2014 to publish CONTENT use build_funnel_page publish:true), add-header (custom response header; applies to the EXACT-CASE path only), split-test (action add-variation {variationPath}: a draft copy of the control on its own pre-checked path; start {controlTraffic}: changes live traffic; declare-winner {winnerPageId}: the other page is archived and the split ends \u2014 EXACT-CASE path only), delete-funnel (target check: funnelId AND expectName; refused while any page still serves \u2014 unpublish first; the edge can serve the deleted page ~70 s), clone-funnel {name} (a copy in THIS location: the route returns no id, so the name must be unused and the copy is found by it; the copy has NO domain and NO public paths and keeps the source's step urls \u2014 attaching the source's domain renames each colliding path with a numeric suffix), archive-page {pageId, expectName} (what the UI calls "delete \u2014 permanently": the page is ARCHIVED and restorable; refused on the only page of a step and on a running split), restore-page {pageId} (an archived page back onto its step; it gets a NEW public path minted from the page name \u2014 the old path stays 404), import-page {stepId, sourceFunnelId, sourceStepId, sourcePageIndex} (a copy of another step's page as the target step's second page; products are NOT imported), add-store (5 store steps on fixed domain-level paths, pre-checked; GHL creates the pages EMPTY, so each is then filled with its store element; LOCATION-WIDE side effect: saving the checkout in the builder creates a "Billing Info" contact-field folder + 7 billing fields). Sharing a funnel is NOT offered: opening the Share modal creates a link anyone can import, and below the $497 plan it cannot be narrowed or removed \u2014 read a share with get_funnel view share; create one in Sites \u2192 \u22EE \u2192 Share only on purpose. update-step also renames the step's page record, as the UI does. Page SEO, tracking code, custom CSS and background are PAGE writes: use build_funnel_page edit mode (\`seo\`, op \`page\`). A bare extra page (create-page) is not offered: it makes an ORPHAN page on no step \u2014 create-step makes a step with its page, split-test add-variation adds a second. Funnel FOLDERS (create, rename, move) are organisational only and are left to the Sites screen. Siblings: create_funnel makes the document, get_funnel reads, build_funnel_page writes page content, audit_site audits.`,
     inputSchema: schema({
       locationId: external_exports.string(),
       funnelId: external_exports.string(),
-      op: external_exports.enum(["settings", "create-step", "update-step", "reorder-steps", "clone-step", "delete-step", "publish-page", "unpublish-page", "add-header", "split-test", "delete-funnel"]),
+      op: external_exports.enum([
+        "settings",
+        "create-step",
+        "update-step",
+        "reorder-steps",
+        "clone-step",
+        "delete-step",
+        "publish-page",
+        "unpublish-page",
+        "add-header",
+        "split-test",
+        "delete-funnel",
+        "clone-funnel",
+        "archive-page",
+        "restore-page",
+        "import-page",
+        "add-store"
+      ]),
       action: external_exports.enum(["add-variation", "start", "declare-winner"]).optional(),
+      sourceFunnelId: external_exports.string().optional(),
+      sourceStepId: external_exports.string().optional(),
+      sourcePageIndex: external_exports.number().int().min(0).optional(),
       controlTraffic: external_exports.number().int().min(0).max(100).optional(),
       winnerPageId: external_exports.string().optional(),
       variationPath: external_exports.string().optional(),
@@ -190754,7 +190909,12 @@ var TOOLS2 = [
       { method: "POST", path: "/funnels/funnel/clone-control-page/" },
       { method: "POST", path: "/funnels/lookup/create" },
       { method: "POST", path: "/funnels/lookup/exists" },
-      { method: "POST", path: "/funnels/funnel/update-funnel-and-page" }
+      { method: "POST", path: "/funnels/funnel/update-funnel-and-page" },
+      { method: "GET", path: "/funnels/funnel/list" },
+      { method: "GET", path: "/funnels/page/list" },
+      { method: "GET", path: "/funnels/page/{pageId}" },
+      { method: "POST", path: "/funnels/funnel/clone-funnel-to-locations" },
+      { method: "POST", path: "/funnels/store/create-in-funnel" }
     ],
     handler: async (args, deps) => {
       let tracked = null;
@@ -190851,6 +191011,65 @@ var TOOLS2 = [
             }
             break;
           }
+          case "clone-funnel": {
+            const all = await listAllDocuments(gw, args.locationId);
+            if (!all.rows) return fromHttp(all.res?.status, all.res?.json);
+            if (all.truncated) {
+              plan = { refuse: "the document list could not be walked to its end, so the copy's name cannot be proven unused" };
+              break;
+            }
+            plan = planCloneFunnel({ funnel, name: args.name, locationId: args.locationId, existing: all.rows });
+            break;
+          }
+          case "archive-page": {
+            if (need("pageId") || need("expectName")) {
+              plan = { refuse: need("pageId") ?? need("expectName") };
+              break;
+            }
+            const pr = await gw.call("GET", `/funnels/page/${encodeURIComponent(args.pageId)}?locationId=${encodeURIComponent(args.locationId)}`);
+            if (!pr.ok) return fromHttp(pr.status, pr.json);
+            plan = planArchivePage({ funnel, pageId: args.pageId, expectName: args.expectName, pageRecord: pr.json?.data ?? pr.json, locationId: args.locationId });
+            break;
+          }
+          case "restore-page": {
+            if (need("pageId")) {
+              plan = { refuse: need("pageId") };
+              break;
+            }
+            const { res: pl, pages } = await readFunnelPages(gw, args.locationId, args.funnelId);
+            if (!pl.ok) return fromHttp(pl.status, pl.json);
+            plan = planRestorePage({ funnel, pageId: args.pageId, pages, locationId: args.locationId });
+            break;
+          }
+          case "import-page": {
+            if (need("stepId") || need("sourceFunnelId") || need("sourceStepId")) {
+              plan = { refuse: need("stepId") ?? need("sourceFunnelId") ?? need("sourceStepId") };
+              break;
+            }
+            const src = args.sourceFunnelId === args.funnelId ? { res, funnel } : await readFunnel(gw, args.locationId, args.sourceFunnelId);
+            if (!src.res.ok) return fromHttp(src.res.status, src.res.json);
+            plan = planImportPage({ funnel, stepId: args.stepId, source: src.funnel, sourceStepId: args.sourceStepId, sourcePageIndex: args.sourcePageIndex ?? 0, locationId: args.locationId, userId: gw.uid });
+            break;
+          }
+          case "add-store": {
+            let domainName;
+            if (funnel.domainId) {
+              const d = await gw.call("GET", `/funnels/domain/?locationId=${encodeURIComponent(args.locationId)}`);
+              const list = d.json?.domains ?? d.json?.data ?? [];
+              domainName = (Array.isArray(list) ? list : []).find((x) => (x.id ?? x._id) === funnel.domainId)?.url;
+            }
+            const taken = [];
+            if (domainName) {
+              for (const p2 of STORE_PATHS) {
+                const ex = await gw.call("POST", "/funnels/lookup/exists", { domain: domainName, path: p2, locationId: args.locationId });
+                if (!ex.ok) return fromHttp(ex.status, ex.json);
+                if (ex.json?.exists !== false) taken.push(p2);
+              }
+            }
+            plan = planAddStore({ funnel, domainName, taken });
+            if (!plan.refuse) plan.notes = [BILLING_FIELDS_NOTE];
+            break;
+          }
           default:
             plan = { refuse: `unknown op ${args.op}` };
         }
@@ -190859,7 +191078,9 @@ var TOOLS2 = [
           op: args.op,
           ...plan.steps ? { requests: plan.steps } : { request: { method: plan.method, path: plan.path, body: plan.body } },
           ...plan.target ? { target: plan.target } : {},
-          ...plan.rows ? { lookupRows: plan.rows } : {}
+          ...plan.rows ? { lookupRows: plan.rows } : {},
+          ...plan.then ? { then: plan.then } : {},
+          ...plan.notes ? { notes: plan.notes } : args.op === "clone-funnel" ? { notes: [CLONE_FUNNEL_NOTE] } : args.op === "import-page" ? { notes: [IMPORT_PAGE_NOTE] } : args.op === "archive-page" ? { notes: ["GHL's modal calls this a permanent delete; the page is ARCHIVED and restore-page brings it back (on a new path)."] } : {}
         };
         if (args.confirm !== true) {
           return withFailureData(fail(CODES.CONFIRM_REQUIRED, `edit_funnel ${args.op} preview is ready; no write was sent.`, args.op === "create-step" && !args.step?.id ? "Repeat with confirm:true (pass step.id from this preview to send the identical id)." : "Repeat with confirm:true to send exactly this request."), { preview });
@@ -190959,9 +191180,15 @@ var TOOLS2 = [
           case "publish-page":
           case "unpublish-page": {
             const ids = new Set(plan.body.lookups.map((l) => l.lookupId));
-            const rows = (await readLookups(gw, args.locationId, fid)).rows.filter((r) => ids.has(r._id));
             const want = new Map(plan.body.lookups.map((l) => [l.lookupId, l]));
-            const bad = rows.filter((r) => r.publishStatus !== want.get(r._id).publishStatus || r.type !== want.get(r._id).type);
+            const badOf = (rows2) => rows2.filter((r) => r.publishStatus !== want.get(r._id).publishStatus || r.type !== want.get(r._id).type);
+            const got = await reread(
+              async () => (await readLookups(gw, args.locationId, fid)).rows.filter((r) => ids.has(r._id)),
+              (rows2) => rows2.length === ids.size && !badOf(rows2).length,
+              deps.rereadOptions ?? {}
+            );
+            const rows = got.value;
+            const bad = badOf(rows);
             const out = { op: args.op, lookups: rows.map(lookupView), note: CACHE_NOTE };
             if (bad.length || rows.length !== ids.size) return withFailureData(fail(CODES.VERIFY_FAILED, "the lookup rows did not read back in the requested publish state", "Compare data.lookups."), out);
             return ok(out);
@@ -191024,6 +191251,124 @@ var TOOLS2 = [
               note: 'The losing page is archived (the step overview lists it under "Archived pages").'
             };
             if (s?.split !== false || JSON.stringify(s?.pages) !== JSON.stringify([plan.target.winner]) || loserRow) return withFailureData(fail(CODES.VERIFY_FAILED, "the step did not read back with the winner as its only page", "Compare data.step."), out);
+            return ok(out);
+          }
+          case "clone-funnel": {
+            const got = await reread(async () => {
+              const all = await listAllDocuments(gw, args.locationId);
+              const hits2 = (all.rows ?? []).filter((f) => String(f.name ?? "").trim() === plan.name);
+              if (hits2.length !== 1) return { hits: hits2 };
+              const c = await readFunnel(gw, args.locationId, hits2[0]._id ?? hits2[0].id);
+              return { hits: hits2, copy: c.funnel };
+            }, (x) => x.hits.length === 1 && (x.copy?.steps ?? []).length === (funnel.steps ?? []).length, deps.rereadOptions ?? {});
+            const { hits, copy } = got.value;
+            const copyId = hits.length === 1 ? hits[0]._id ?? hits[0].id : null;
+            const rows = copyId ? (await readLookups(gw, args.locationId, copyId)).rows : [];
+            const out = {
+              op: "clone-funnel",
+              source: { id: fid, name: funnel.name, steps: (funnel.steps ?? []).length },
+              copyId,
+              copy: copy ? { name: copy.name, url: copy.url, domainId: copy.domainId || null, steps: (copy.steps ?? []).map(stepView) } : null,
+              copyLookupRows: rows.length,
+              note: CLONE_FUNNEL_NOTE
+            };
+            if (hits.length !== 1) return withFailureData(fail(CODES.VERIFY_FAILED, `clone answered ${w.status} but ${hits.length} documents read back with the name ${JSON.stringify(plan.name)}`, "Do not clone again: list the location's documents (find_ghl_site list:true)."), out);
+            if ((copy?.steps ?? []).length !== (funnel.steps ?? []).length) return withFailureData(fail(CODES.VERIFY_FAILED, `the copy read back with ${(copy?.steps ?? []).length} step(s); the source has ${(funnel.steps ?? []).length}`, "Re-read the copy with get_funnel before cloning again."), out);
+            return ok(out);
+          }
+          case "archive-page": {
+            const got = await reread(
+              async () => ({ f: await fresh(), p: (await readFunnelPages(gw, args.locationId, fid)).pages }),
+              (x) => !(x.f?.steps ?? []).some((s2) => (s2.pages ?? []).includes(args.pageId)) && x.p.some((p2) => p2._id === args.pageId && p2.deleted === true),
+              deps.rereadOptions ?? {}
+            );
+            const s = (got.value.f?.steps ?? []).find((x) => x.id === plan.target.step.id);
+            const rec = got.value.p.find((p2) => p2._id === args.pageId);
+            const rows = (await readLookups(gw, args.locationId, fid)).rows.filter((r) => r.typeId === args.pageId).map(lookupView);
+            const out = {
+              op: "archive-page",
+              archived: plan.target,
+              step: s ? stepView(s, 0) : null,
+              pageRecord: rec ? { id: rec._id, name: rec.name, deleted: rec.deleted } : null,
+              pageLookupRowsLeft: rows,
+              note: "ARCHIVED, not deleted: restore-page brings it back, on a NEW path minted from the page name."
+            };
+            if (!got.settled) return withFailureData(fail(CODES.VERIFY_FAILED, "the page did not read back as archived (off the step, deleted:true in the page list)", "Compare data.step / data.pageRecord."), out);
+            return ok(out);
+          }
+          case "restore-page": {
+            const got = await reread(
+              async () => ({ f: await fresh(), l: (await readLookups(gw, args.locationId, fid)).rows }),
+              (x) => (x.f?.steps ?? []).some((s2) => (s2.pages ?? []).includes(args.pageId)) && x.l.some((r) => r.typeId === args.pageId),
+              deps.rereadOptions ?? {}
+            );
+            const s = (got.value.f?.steps ?? []).find((x) => x.id === plan.target.step.id);
+            const row = got.value.l.find((r) => r.typeId === args.pageId);
+            const out = {
+              op: "restore-page",
+              restored: plan.target,
+              step: s ? stepView(s, 0) : null,
+              newPath: row ? lookupView(row) : null,
+              note: "The restored page serves on newPath (minted from the page NAME); its path from before the archive stays 404."
+            };
+            if (!got.settled) return withFailureData(fail(CODES.VERIFY_FAILED, "the page did not read back on its step with a public path", "Compare data.step / data.newPath."), out);
+            return ok(out);
+          }
+          case "import-page": {
+            const before = new Set(plan.target.step.pages);
+            const got = await reread(async () => ({ f: await fresh(), l: (await readLookups(gw, args.locationId, fid)).rows }), (x) => {
+              const st = (x.f?.steps ?? []).find((y) => y.id === args.stepId);
+              const nu = (st?.pages ?? []).filter((p2) => !before.has(p2));
+              return nu.length === 1 && (!funnel.domainId || x.l.some((r) => r.typeId === nu[0]));
+            }, deps.rereadOptions ?? {});
+            const s = (got.value.f?.steps ?? []).find((x) => x.id === args.stepId);
+            const added = (s?.pages ?? []).filter((p2) => !before.has(p2));
+            const row = added.length === 1 ? got.value.l.find((r) => r.typeId === added[0]) : null;
+            const out = {
+              op: "import-page",
+              step: s ? stepView(s, 0) : null,
+              importedPageId: added.length === 1 ? added[0] : null,
+              fromPageId: plan.target.sourcePageId,
+              path: row ? lookupView(row) : null,
+              note: funnel.domainId ? IMPORT_PAGE_NOTE : `${IMPORT_PAGE_NOTE} This funnel has no domain, so the page has no public path yet.`
+            };
+            if (!got.settled) return withFailureData(fail(CODES.VERIFY_FAILED, `expected one new page with a public path on the target step, read back ${added.length}`, "Re-read with get_funnel before importing again."), out);
+            return ok(out);
+          }
+          case "add-store": {
+            const created = (plan.response?.createdPages ?? []).map((p2) => ({ key: p2.key, name: p2.name, stepId: p2.stepId, pageId: p2.pageId }));
+            const ids = new Set(created.map((p2) => p2.stepId));
+            const bfp = TOOLS2.find((t) => t.name === "build_funnel_page");
+            const filled = [];
+            for (const p2 of created) {
+              const r = await bfp.handler({
+                locationId: args.locationId,
+                funnelId: fid,
+                stepId: p2.stepId,
+                pageId: p2.pageId,
+                sections: [{ columns: [{ elements: [{ meta: p2.key }] }] }],
+                confirm: true
+              }, deps);
+              filled.push({ key: p2.key, pageId: p2.pageId, ok: r.ok === true, ...r.ok ? { sections: r.data?.readBack?.sections ?? null } : { code: r.code, detail: r.detail ?? null } });
+            }
+            const got = await reread(
+              async () => ({ f: await fresh(), l: (await readLookups(gw, args.locationId, fid)).rows }),
+              (x) => x.f?.isStoreActive === true && created.length === 5 && created.every((p2) => (x.f.steps ?? []).some((s) => s.id === p2.stepId)) && created.every((p2) => x.l.some((r) => r.typeId === p2.stepId)),
+              deps.rereadOptions ?? {}
+            );
+            const steps = (got.value.f?.steps ?? []).filter((s) => ids.has(s.id)).map(stepView);
+            const out = {
+              op: "add-store",
+              isStoreActive: got.value.f?.isStoreActive ?? null,
+              created,
+              filled,
+              steps,
+              lookups: got.value.l.filter((r) => ids.has(r.typeId) || created.some((p2) => p2.pageId === r.typeId)).map(lookupView),
+              notes: [BILLING_FIELDS_NOTE]
+            };
+            if (!got.settled) return withFailureData(fail(CODES.VERIFY_FAILED, "the store did not read back (isStoreActive, 5 store steps, each with a public path)", "Compare data.steps / data.lookups; do not add the store again."), out);
+            const empty2 = filled.filter((f) => !f.ok);
+            if (empty2.length) return withFailureData(fail(CODES.VERIFY_FAILED, `the store was created but ${empty2.length} of its pages could not be filled: ${empty2.map((f) => f.key).join(", ")} \u2014 they serve a BLANK page`, "Fill each named page with build_funnel_page (one element of that store kind); do not add the store again."), out);
             return ok(out);
           }
           default:

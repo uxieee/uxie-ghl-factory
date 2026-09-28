@@ -2050,6 +2050,16 @@
     "path": "/funnels/funnel/cookie-consent"
   },
   {
+    "tool": "get_funnel",
+    "method": "GET",
+    "path": "/funnels/builder/funnel-share-details/{funnelId}"
+  },
+  {
+    "tool": "get_funnel",
+    "method": "GET",
+    "path": "/funnels/page/list"
+  },
+  {
     "tool": "edit_funnel",
     "method": "GET",
     "path": "/funnels/funnel/fetch/{funnelId}"
@@ -2138,6 +2148,31 @@
     "tool": "edit_funnel",
     "method": "POST",
     "path": "/funnels/funnel/update-funnel-and-page"
+  },
+  {
+    "tool": "edit_funnel",
+    "method": "GET",
+    "path": "/funnels/funnel/list"
+  },
+  {
+    "tool": "edit_funnel",
+    "method": "GET",
+    "path": "/funnels/page/list"
+  },
+  {
+    "tool": "edit_funnel",
+    "method": "GET",
+    "path": "/funnels/page/{pageId}"
+  },
+  {
+    "tool": "edit_funnel",
+    "method": "POST",
+    "path": "/funnels/funnel/clone-funnel-to-locations"
+  },
+  {
+    "tool": "edit_funnel",
+    "method": "POST",
+    "path": "/funnels/store/create-in-funnel"
   },
   {
     "tool": "audit_site",

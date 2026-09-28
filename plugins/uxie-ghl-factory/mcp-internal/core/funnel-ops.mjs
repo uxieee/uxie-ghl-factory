@@ -55,6 +55,13 @@ export async function readLookups(gw, locationId, funnelId) {
   return { res: r, rows };
 }
 
+// Every page record of a document, archived ones included (deleted:true) — the step overview's "Archived pages" source.
+export async function readFunnelPages(gw, locationId, funnelId) {
+  const r = await gw.call('GET', `/funnels/page/list?funnelId=${enc(funnelId)}&locationId=${enc(locationId)}`);
+  const pages = Array.isArray(r.json) ? r.json : Array.isArray(r.json?.data) ? r.json.data : [];
+  return { res: r, pages };
+}
+
 export const stepView = (s, i) => ({
   id: s.id, name: s.name, url: s.url, type: s.type, pages: s.pages ?? [], sequence: s.sequence ?? i,
   split: s.split === true, controlTraffic: s.control_traffic ?? s.controlTraffic ?? null,
@@ -289,4 +296,111 @@ export async function reread(readFn, okFn, { tries = 5, delays = [0, 500, 1000, 
     if (okFn(last)) return { value: last, attempts: i + 1, settled: true };
   }
   return { value: last, attempts: tries, settled: false };
+}
+
+// ── Object operations (knowledge sniffs/funnels-wave13-objects-2026-09-28; each body is the UI's captured one) ──
+
+// Clone a whole funnel/website into THIS location. The funnels list's Clone modal sends ONE call,
+// POST /funnels/funnel/clone-funnel-to-locations {funnelId, funnelName, locationIds}, answered {ok:true} with NO
+// id, so the copy is found afterwards by its exact name — which is why the name must be unused beforehand.
+// The copy keeps the source's funnelPath and step urls but has NO domain and NO lookup rows: it serves nothing
+// until a domain is attached, and attaching the source's domain collides on every path.
+export const CLONE_FUNNEL_NOTE = 'The copy has NO domain and NO public paths (no lookup rows), and it keeps the SOURCE\'s funnel path and step urls. Attach a domain with settings {domainId, funnelPath}: on the source\'s domain GHL silently renames every colliding step/page path with a numeric suffix (measured /x → /x-5424), so read get_funnel view lookups after the attach and move the step paths with update-step url (a path move is refused before a domain is attached).';
+export function planCloneFunnel({ funnel, name, locationId, existing }) {
+  const n = String(name ?? '').trim();
+  if (!n) return { refuse: 'clone-funnel needs name: the copy\'s name (the route returns no id; the copy is found by this exact name)' };
+  const clash = (existing ?? []).filter((f) => String(f.name ?? '').trim().toLowerCase() === n.toLowerCase());
+  if (clash.length) return { refuse: `a document named ${JSON.stringify(clash[0].name)} already exists on this location (${clash.map((f) => f._id ?? f.id).join(', ')}); the copy could not be told apart from it. Pick an unused name.` };
+  return { method: 'POST', path: '/funnels/funnel/clone-funnel-to-locations', body: { funnelId: funnel._id ?? funnel.id, funnelName: n, locationIds: [locationId] }, name: n };
+}
+
+// Archive ("delete") one page of a step. The step overview's trash sends POST /funnels/funnel/update-funnel-and-page
+// {funnelId, locationId, funnelStepDetails:{stepId, pages:<the rest>}, archivePageId, stepId}. Its modal says the page
+// is permanently deleted; it is ARCHIVED (listed under Archived pages, restorable). The server refuses the only page
+// of a step ("Cannot delete the only page in a step"); on a running split the UI also ends the split — unproven here,
+// so refused.
+export function planArchivePage({ funnel, pageId, expectName, pageRecord, locationId }) {
+  const step = (funnel.steps ?? []).find((s) => (s.pages ?? []).includes(pageId));
+  if (!step) return { refuse: `page ${pageId} is not on any step of this funnel` };
+  if ((step.pages ?? []).length < 2) return { refuse: `page ${pageId} is the only page of step ${JSON.stringify(step.name)}; GHL refuses to archive the only page of a step (delete the step instead)` };
+  if (step.split === true) return { refuse: 'this step is running a split test; archiving a page also ends the split in the UI, which is not proven here. Declare a winner (split-test declare-winner) instead.' };
+  if (typeof expectName !== 'string' || pageRecord?.name !== expectName) {
+    return { refuse: `target check failed: page ${pageId} is named ${JSON.stringify(pageRecord?.name ?? null)}, not ${JSON.stringify(expectName)}. Nothing was archived.` };
+  }
+  const fid = funnel._id ?? funnel.id;
+  return {
+    method: 'POST', path: '/funnels/funnel/update-funnel-and-page',
+    body: { funnelId: fid, locationId, funnelStepDetails: { stepId: step.id, pages: step.pages.filter((p) => p !== pageId) }, archivePageId: pageId, stepId: step.id },
+    target: { pageId, name: pageRecord.name, step: stepView(step, 0) },
+  };
+}
+
+// Restore an archived page: POST /funnels/funnel/update-funnel-and-page {funnelId, locationId, restoreArchivePageId}.
+// Archived pages are the step's rows in GET /funnels/page/list with deleted:true. The UI refuses while the step runs
+// a split or already has a second page. The restored page gets a NEW public path minted from the page NAME — not its
+// old path, which stays 404 — so links to the old path stay dead.
+export function planRestorePage({ funnel, pageId, pages, locationId }) {
+  const rec = (pages ?? []).find((p) => (p._id ?? p.id) === pageId);
+  if (!rec) return { refuse: `page ${pageId} is not a page of this funnel` };
+  if (rec.deleted !== true) return { refuse: `page ${pageId} is not archived (deleted:false); nothing to restore` };
+  const step = (funnel.steps ?? []).find((s) => s.id === rec.stepId);
+  if (!step) return { refuse: `the archived page's step ${rec.stepId} is no longer on this funnel; the UI offers restore only from the step` };
+  if (step.split === true) return { refuse: 'cannot restore a page while the step runs a split test (the UI refuses the same)' };
+  if ((step.pages ?? []).length > 1) return { refuse: 'the step already has a variation; the UI refuses to restore a page then. Archive the variation first.' };
+  return { method: 'POST', path: '/funnels/funnel/update-funnel-and-page', body: { funnelId: funnel._id ?? funnel.id, locationId, restoreArchivePageId: pageId }, target: { pageId, name: rec.name, step: stepView(step, 0) } };
+}
+
+// Import a page from another step (any funnel/website/webinar on the location) as a new page of a target step: the
+// step overview's "Create variation → Use existing → Import". POST /funnels/funnel/clone-funnel-step/ {stepId:<source
+// step>, funnelId:<target funnel>, funnels:[<target funnel>], locationId, userId, stepIdToImportInto, pageIndexToImportInto,
+// pageIndexToImport, funnelIdToImport:<source funnel>}. Products on the source page are NOT imported (the UI warns so).
+export const IMPORT_PAGE_NOTE = 'Products attached to the source page are NOT imported (GHL\'s own warning). The page is a copy with a new id; it gets its own public path.';
+export function planImportPage({ funnel, stepId, source, sourceStepId, sourcePageIndex = 0, locationId, userId }) {
+  const target = (funnel.steps ?? []).find((s) => s.id === stepId);
+  if (!target) return { refuse: `target step ${stepId} is not on this funnel` };
+  if ((target.pages ?? []).length !== 1) return { refuse: `target step has ${(target.pages ?? []).length} pages; import adds a variation, so the step must have exactly one` };
+  if (target.split === true) return { refuse: 'the target step runs a split test' };
+  const src = (source?.steps ?? []).find((s) => s.id === sourceStepId);
+  if (!src) return { refuse: `source step ${sourceStepId} is not on the source funnel` };
+  const idx = Number(sourcePageIndex);
+  if (!Number.isInteger(idx) || idx < 0 || idx >= (src.pages ?? []).length) return { refuse: `sourcePageIndex must be 0..${(src.pages ?? []).length - 1} (the source step's pages)` };
+  if (!userId) return { refuse: 'this credential carries no user id, and clone-funnel-step requires one' };
+  const fid = funnel._id ?? funnel.id;
+  return {
+    method: 'POST', path: '/funnels/funnel/clone-funnel-step/',
+    body: { stepId: sourceStepId, funnelId: fid, funnels: [fid], locationId, userId, stepIdToImportInto: stepId,
+      pageIndexToImportInto: String(target.pages.length), pageIndexToImport: String(idx), funnelIdToImport: source._id ?? source.id },
+    target: { step: stepView(target, 0), sourcePageId: src.pages[idx] },
+  };
+}
+
+// Add an online store to a FUNNEL: the page builder's Store → Add to funnel → Import theme sends
+// POST /funnels/store/create-in-funnel {funnelId, domainName, importTheme:true} → 5 store steps at DOMAIN-LEVEL generic
+// paths. Those paths are held per domain, so any other document on the domain holding one of them makes a collision:
+// every path is pre-checked. Measured side effect: the builder's next save of the checkout page (step1.enableBillingAddress)
+// posts /leadgen-common/custom-field/billing-address, which CREATED a "Billing Info" contact-field folder + 7 billing
+// address fields location-wide (a second call created no duplicate fields). This op itself never sends that call.
+// create-in-funnel alone leaves the 5 pages EMPTY (0 sections; each path answered 200 with a blank page), so the op then
+// fills each with its store element, as the builder's own saves do (sniffs/funnels-wave14-object-tools-2026-09-29).
+export const STORE_PATHS = Object.freeze(['/store-product-list', '/store-product-detail', '/store-cart', '/store-checkout', '/store-thank-you',
+  '/store-product-list-page', '/store-product-detail-page', '/store-cart-page', '/store-checkout-page', '/store-thank-you-page']);
+export const BILLING_FIELDS_NOTE = 'LOCATION-WIDE side effect: when a checkout page with the billing address enabled is saved in the builder, GHL creates a "Billing Info" contact custom-field folder and 7 "Billing Address - …" contact fields on the location (measured; a second call created no duplicate fields; a duplicate folder could not be ruled out, folders are not listable). They are not removed with the store.';
+export function planAddStore({ funnel, domainName, taken }) {
+  if (funnel.type && funnel.type !== 'funnel') return { refuse: `add-store adds a store to a FUNNEL; this document is a ${funnel.type} (a website store is made with create_funnel kind store)` };
+  if (funnel.isStoreActive === true) return { refuse: 'this funnel already has a store (isStoreActive)' };
+  if (!domainName) return { refuse: 'the funnel has no domain; the store pages would get no public paths. Attach a domain first.' };
+  if ((taken ?? []).length) return { refuse: `${taken.length} store path(s) are already held on ${domainName}: ${taken.join(', ')}. The store\'s paths are fixed and held per DOMAIN; what GHL does when they collide (suffix, fail or steal) is unmeasured, so nothing was sent. Free them or use a funnel on another domain.` };
+  return { method: 'POST', path: '/funnels/store/create-in-funnel', body: { funnelId: funnel._id ?? funnel.id, domainName, importTheme: true },
+    then: 'GHL creates the 5 pages EMPTY (a blank public page); each is then autosaved with its one store element (build_funnel_page compose). The builder\'s imported theme (header, colours, typography) is NOT applied.' };
+}
+
+// Checkout-type nodes whose billing address is on (extra.step1.value.enableBillingAddress) — the builder's own trigger
+// (storeCustomFieldOptions, run on every page save) for the location-wide billing fields. This plugin's autosave does
+// not send that call; a later builder save of the page does.
+export const BILLING_ON_SAVE_NOTE = 'This page has a checkout with the billing address enabled. This tool\'s write does not touch contact fields, but the next save of this page IN THE BUILDER creates a "Billing Info" contact custom-field folder + 7 "Billing Address - …" contact fields on the location if they are not there (measured; a repeat created no duplicate fields).';
+export function billingCheckouts(pageData) {
+  const out = [];
+  const walk = (nodes) => { for (const n of nodes ?? []) { if (n?.extra?.step1?.value?.enableBillingAddress) out.push({ id: n.id, meta: n.meta }); } };
+  for (const s of pageData?.sections ?? []) walk(s.elements);
+  return out;
 }

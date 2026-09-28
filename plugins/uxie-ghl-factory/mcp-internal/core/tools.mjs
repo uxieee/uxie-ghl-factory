@@ -14,12 +14,14 @@ import { makeAuditCircuit, makeAuditGateway, makeAuditLimiter } from './audit-ga
 import { makeGateway } from './gateway.mjs';
 import {
   ELEMENT_KINDS, buildPageData, autosaveEnvelope, auditPageData, makeLeaf, makeColumn,
-  makeSection, textCss, buttonCss, leafStyleCss, nodeStylesFromCss, resetIds, val,
+  makeSection, textCss, buttonCss, leafStyleCss, nodeStylesFromCss, resetIds, val, NEEDS_STEP_TYPE,
 } from './funnel-pages.mjs';
 import {
   readFunnel, readLookups, stepView, lookupView, settingsFrom, settingsBody, settingsDiff, normPath,
   planCreateStep, planUpdateStep, planReorder, planCloneStep, planDeleteStep, planPublishState, planAddHeader,
   planDeleteFunnel, planSplit, SERVING, reread, SETTINGS_KEYS, CACHE_NOTE, EXACT_CASE_NOTE,
+  readFunnelPages, planCloneFunnel, planArchivePage, planRestorePage, planImportPage, planAddStore, STORE_PATHS,
+  CLONE_FUNNEL_NOTE, IMPORT_PAGE_NOTE, BILLING_FIELDS_NOTE, BILLING_ON_SAVE_NOTE, billingCheckouts,
 } from './funnel-ops.mjs';
 import { planCreateFunnel, createdId, EXPECT_TYPE, KINDS as FUNNEL_KINDS, STORE_DANGLING_FORM_NOTE, listAllDocuments } from './funnel-create.mjs';
 import { applyPageEdits, verifyEdits, checkPageTarget, pageDataForWrite, seoMeta, seoDiff, findNode } from './page-edit.mjs';
@@ -1941,6 +1943,7 @@ async function editPage(args, deps, composeSection, { composeLeaf, popupIds, fon
   const problems = auditPageData(pageData);
   const preview = { mode: 'edit', target: target.step, pageId: args.pageId, ops: report.map(({ expect, expectPage, ...r }) => r), ...(seo ? { seo: { from: seo.before, to: seo.write } } : {}), sectionsBefore: current.sections.length, sectionsAfter: pageData.sections.length,
     ...(problems.length ? { preexistingProblems: problems } : {}),
+    ...(billingCheckouts(pageData).length ? { billingAddress: { checkouts: billingCheckouts(pageData), note: BILLING_ON_SAVE_NOTE } } : {}),
     willPublish: args.publish === true,
     note: args.publish === true
       ? 'Writes a draft through autosave AND PUBLISHES it: the public page changes. Nothing outside the named ops changes.'
@@ -10795,7 +10798,15 @@ export const TOOLS = [
           e.remediation ?? `Element kinds are a closed set of ${ELEMENT_KINDS.length}; see the funnels corpus for the list.`);
       }
 
-      const problems = auditPageData(pageData);
+      // A step-typed kind (store cart/checkout/thank-you, blog content) is only valid on a step of that type: read the
+      // step's real type instead of refusing the kind everywhere (it used to refuse them even on a store step).
+      let stepType;
+      const typed = pageData.sections.some((sec) => sec.elements.some((e) => e.type === 'element' && NEEDS_STEP_TYPE[e.meta]));
+      if (typed) {
+        const fr = await readFunnel(deps.makeGw({ loc: args.locationId, state: deps.state }), args.locationId, args.funnelId);
+        stepType = fr.res.ok ? (fr.funnel?.steps ?? []).find((st) => st.id === args.stepId)?.type : undefined;
+      }
+      const problems = auditPageData(pageData, { stepType });
       if (problems.length) {
         return withFailureData(
           fail(CODES.VALIDATION_FAILED, `The composed page would save with 201 and then fail: ${problems.length} problem(s).`,
@@ -10812,6 +10823,7 @@ export const TOOLS = [
         compiledCssBytes: cssBytes,
         kinds: [...new Set(pageData.sections.flatMap((s) => s.elements.filter((e) => e.type === 'element').map((e) => e.meta)))],
         audit: 'clean',
+        ...(billingCheckouts(pageData).length ? { billingAddress: { checkouts: billingCheckouts(pageData), note: BILLING_ON_SAVE_NOTE } } : {}),
         note: args.publish === true
           ? 'This writes a draft AND PUBLISHES it — the page becomes visible to the public at its mapped path. It does not map a path that does not already exist.'
           : 'This writes a DRAFT. It does not publish, and it does not map a public path.',
@@ -11090,14 +11102,17 @@ export const TOOLS = [
       + 'with its publishStatus / redirect action — the ROUTING truth; a step with no row 404s in public), '
       + 'settings (the funnel-settings fields as update-settings names them), versions (one page: '
       + 'live vs drafts, sorted by timestamp, not by array position), security (custom response headers), '
-      + 'events (Meta pixel / CAPI events, first 20), cookie-consent (funnel-level banner config). '
+      + 'events (Meta pixel / CAPI events, first 20), cookie-consent (funnel-level banner config), share (the '
+      + 'funnel\'s share link, if one exists: who it is shared with and the import URL — read-only; creating a share is '
+      + 'left to the UI because it cannot be removed below the $497 plan), archived-pages (pages archived by a page '
+      + '"delete" or a split-test winner, restorable with edit_funnel restore-page). '
       + 'Siblings: find_ghl_site resolves a domain/name to the document id first; audit_site sweeps a whole '
       + 'site for dangling references and publish drift — this tool does not repeat that audit. '
       + 'Read-only.',
     inputSchema: schema({
       locationId: z.string(),
       funnelId: z.string(),
-      view: z.enum(['summary', 'lookups', 'settings', 'versions', 'security', 'events', 'cookie-consent']).default('summary'),
+      view: z.enum(['summary', 'lookups', 'settings', 'versions', 'security', 'events', 'cookie-consent', 'share', 'archived-pages']).default('summary'),
       pageId: z.string().optional(),
     }),
     capabilities: [
@@ -11107,11 +11122,28 @@ export const TOOLS = [
       { method: 'GET', path: '/funnels/funnel/headers' },
       { method: 'GET', path: '/funnels/event' },
       { method: 'GET', path: '/funnels/funnel/cookie-consent' },
+      { method: 'GET', path: '/funnels/builder/funnel-share-details/{funnelId}' },
+      { method: 'GET', path: '/funnels/page/list' },
     ],
     handler: async (args, deps) => guard(async () => {
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
       const L = encodeURIComponent(args.locationId), F = encodeURIComponent(args.funnelId);
       const view = args.view ?? 'summary';
+      if (view === 'share') {
+        // No share answers 400 "Share funnel not found" (measured on a funnel never shared): not configured, not a failure.
+        const r = await gw.call('GET', `/funnels/builder/funnel-share-details/${F}`);
+        if (r.status === 400 && /share funnel not found/i.test(JSON.stringify(r.json ?? ''))) return ok({ funnelId: args.funnelId, share: null, shared: false });
+        if (!r.ok) return fromHttp(r.status, r.json);
+        const d = r.json?.data ?? {};
+        return ok({ funnelId: args.funnelId, shared: true, share: { shareId: d.shareId, shareWith: d.shareWith, funnelName: d.funnelName, importUrl: d.shareId ? `https://app.gohighlevel.com/funnels/share/${d.shareId}` : null },
+          note: 'shareWith ALL = anyone with the link can import a copy into their own account. Narrowing it to the agency or removing it is gated to the $497 plan in the UI.' });
+      }
+      if (view === 'archived-pages') {
+        const { res: r, pages } = await readFunnelPages(gw, args.locationId, args.funnelId);
+        if (!r.ok) return fromHttp(r.status, r.json);
+        return ok({ funnelId: args.funnelId, archived: pages.filter((p) => p.deleted === true).map((p) => ({ pageId: p._id, name: p.name, stepId: p.stepId, updatedAt: p.updatedAt })),
+          note: 'Restore with edit_funnel restore-page: the page returns on a NEW path minted from its name. The UI refuses a restore while the step runs a split or already has a second page.' });
+      }
       if (view === 'versions') {
         if (!args.pageId) return fail(CODES.VALIDATION_FAILED, 'view "versions" needs pageId', 'Pass the pageId (view "summary" lists each step\'s pages).');
         const r = await gw.call('GET', `/funnels/builder/get-versions?pageId=${encodeURIComponent(args.pageId)}`);
@@ -11168,7 +11200,17 @@ export const TOOLS = [
       + 'pre-checked path; start {controlTraffic}: changes live traffic; declare-winner {winnerPageId}: the '
       + 'other page is archived and the split ends — EXACT-CASE path only), delete-funnel '
       + '(target check: funnelId AND expectName; refused while any page still serves — unpublish '
-      + 'first; the edge can serve the deleted page ~70 s). update-step also renames the step\'s page '
+      + 'first; the edge can serve the deleted page ~70 s), clone-funnel {name} (a copy in THIS location: the route '
+      + 'returns no id, so the name must be unused and the copy is found by it; the copy has NO domain and NO public '
+      + 'paths and keeps the source\'s step urls — attaching the source\'s domain renames each colliding path with a numeric suffix), archive-page {pageId, expectName} (what the UI calls "delete — '
+      + 'permanently": the page is ARCHIVED and restorable; refused on the only page of a step and on a running split), '
+      + 'restore-page {pageId} (an archived page back onto its step; it gets a NEW public path minted from the page '
+      + 'name — the old path stays 404), import-page {stepId, sourceFunnelId, sourceStepId, sourcePageIndex} (a copy '
+      + 'of another step\'s page as the target step\'s second page; products are NOT imported), add-store (5 store '
+      + 'steps on fixed domain-level paths, pre-checked; GHL creates the pages EMPTY, so each is then filled with its store element; LOCATION-WIDE side effect: saving the checkout in the builder '
+      + 'creates a "Billing Info" contact-field folder + 7 billing fields). Sharing a funnel is NOT offered: opening '
+      + 'the Share modal creates a link anyone can import, and below the $497 plan it cannot be narrowed or removed — '
+      + 'read a share with get_funnel view share; create one in Sites → ⋮ → Share only on purpose. update-step also renames the step\'s page '
       + 'record, as the UI does. Page SEO, tracking code, custom CSS and background are PAGE writes: use '
       + 'build_funnel_page edit mode (`seo`, op `page`). A bare extra page (create-page) is not offered: it makes an ORPHAN page on no step — create-step '
       + 'makes a step with its page, split-test add-variation adds a second. Funnel FOLDERS (create, rename, move) '
@@ -11177,8 +11219,12 @@ export const TOOLS = [
     inputSchema: schema({
       locationId: z.string(),
       funnelId: z.string(),
-      op: z.enum(['settings', 'create-step', 'update-step', 'reorder-steps', 'clone-step', 'delete-step', 'publish-page', 'unpublish-page', 'add-header', 'split-test', 'delete-funnel']),
+      op: z.enum(['settings', 'create-step', 'update-step', 'reorder-steps', 'clone-step', 'delete-step', 'publish-page', 'unpublish-page', 'add-header', 'split-test', 'delete-funnel',
+        'clone-funnel', 'archive-page', 'restore-page', 'import-page', 'add-store']),
       action: z.enum(['add-variation', 'start', 'declare-winner']).optional(),
+      sourceFunnelId: z.string().optional(),
+      sourceStepId: z.string().optional(),
+      sourcePageIndex: z.number().int().min(0).optional(),
       controlTraffic: z.number().int().min(0).max(100).optional(),
       winnerPageId: z.string().optional(),
       variationPath: z.string().optional(),
@@ -11213,6 +11259,11 @@ export const TOOLS = [
       { method: 'POST', path: '/funnels/lookup/create' },
       { method: 'POST', path: '/funnels/lookup/exists' },
       { method: 'POST', path: '/funnels/funnel/update-funnel-and-page' },
+      { method: 'GET', path: '/funnels/funnel/list' },
+      { method: 'GET', path: '/funnels/page/list' },
+      { method: 'GET', path: '/funnels/page/{pageId}' },
+      { method: 'POST', path: '/funnels/funnel/clone-funnel-to-locations' },
+      { method: 'POST', path: '/funnels/store/create-in-funnel' },
     ],
     handler: async (args, deps) => {
       let tracked = null;
@@ -11287,12 +11338,61 @@ export const TOOLS = [
             }
             break;
           }
+          case 'clone-funnel': {
+            const all = await listAllDocuments(gw, args.locationId);
+            if (!all.rows) return fromHttp(all.res?.status, all.res?.json);
+            if (all.truncated) { plan = { refuse: 'the document list could not be walked to its end, so the copy\'s name cannot be proven unused' }; break; }
+            plan = planCloneFunnel({ funnel, name: args.name, locationId: args.locationId, existing: all.rows });
+            break;
+          }
+          case 'archive-page': {
+            if (need('pageId') || need('expectName')) { plan = { refuse: need('pageId') ?? need('expectName') }; break; }
+            const pr = await gw.call('GET', `/funnels/page/${encodeURIComponent(args.pageId)}?locationId=${encodeURIComponent(args.locationId)}`);
+            if (!pr.ok) return fromHttp(pr.status, pr.json);
+            plan = planArchivePage({ funnel, pageId: args.pageId, expectName: args.expectName, pageRecord: pr.json?.data ?? pr.json, locationId: args.locationId });
+            break;
+          }
+          case 'restore-page': {
+            if (need('pageId')) { plan = { refuse: need('pageId') }; break; }
+            const { res: pl, pages } = await readFunnelPages(gw, args.locationId, args.funnelId);
+            if (!pl.ok) return fromHttp(pl.status, pl.json);
+            plan = planRestorePage({ funnel, pageId: args.pageId, pages, locationId: args.locationId });
+            break;
+          }
+          case 'import-page': {
+            if (need('stepId') || need('sourceFunnelId') || need('sourceStepId')) { plan = { refuse: need('stepId') ?? need('sourceFunnelId') ?? need('sourceStepId') }; break; }
+            const src = args.sourceFunnelId === args.funnelId ? { res: res, funnel } : await readFunnel(gw, args.locationId, args.sourceFunnelId);
+            if (!src.res.ok) return fromHttp(src.res.status, src.res.json);
+            plan = planImportPage({ funnel, stepId: args.stepId, source: src.funnel, sourceStepId: args.sourceStepId, sourcePageIndex: args.sourcePageIndex ?? 0, locationId: args.locationId, userId: gw.uid });
+            break;
+          }
+          case 'add-store': {
+            let domainName;
+            if (funnel.domainId) {
+              const d = await gw.call('GET', `/funnels/domain/?locationId=${encodeURIComponent(args.locationId)}`);
+              const list = d.json?.domains ?? d.json?.data ?? [];
+              domainName = (Array.isArray(list) ? list : []).find((x) => (x.id ?? x._id) === funnel.domainId)?.url;
+            }
+            const taken = [];
+            if (domainName) {
+              for (const p of STORE_PATHS) {
+                const ex = await gw.call('POST', '/funnels/lookup/exists', { domain: domainName, path: p, locationId: args.locationId });
+                if (!ex.ok) return fromHttp(ex.status, ex.json);
+                if (ex.json?.exists !== false) taken.push(p);
+              }
+            }
+            plan = planAddStore({ funnel, domainName, taken });
+            if (!plan.refuse) plan.notes = [BILLING_FIELDS_NOTE];
+            break;
+          }
           default: plan = { refuse: `unknown op ${args.op}` };
         }
         if (plan.refuse) return fail(CODES.VALIDATION_FAILED, plan.refuse, 'Nothing was sent. Read the funnel with get_funnel and adjust the arguments.');
 
         const preview = { op: args.op, ...(plan.steps ? { requests: plan.steps } : { request: { method: plan.method, path: plan.path, body: plan.body } }),
-          ...(plan.target ? { target: plan.target } : {}), ...(plan.rows ? { lookupRows: plan.rows } : {}) };
+          ...(plan.target ? { target: plan.target } : {}), ...(plan.rows ? { lookupRows: plan.rows } : {}), ...(plan.then ? { then: plan.then } : {}),
+          ...(plan.notes ? { notes: plan.notes } : args.op === 'clone-funnel' ? { notes: [CLONE_FUNNEL_NOTE] } : args.op === 'import-page' ? { notes: [IMPORT_PAGE_NOTE] }
+            : args.op === 'archive-page' ? { notes: ['GHL\'s modal calls this a permanent delete; the page is ARCHIVED and restore-page brings it back (on a new path).'] } : {}) };
         if (args.confirm !== true) {
           return withFailureData(fail(CODES.CONFIRM_REQUIRED, `edit_funnel ${args.op} preview is ready; no write was sent.`, args.op === 'create-step' && !args.step?.id ? 'Repeat with confirm:true (pass step.id from this preview to send the identical id).' : 'Repeat with confirm:true to send exactly this request.'), { preview });
         }
@@ -11394,9 +11494,14 @@ export const TOOLS = [
           case 'publish-page':
           case 'unpublish-page': {
             const ids = new Set(plan.body.lookups.map((l) => l.lookupId));
-            const rows = (await readLookups(gw, args.locationId, fid)).rows.filter((r) => ids.has(r._id));
             const want = new Map(plan.body.lookups.map((l) => [l.lookupId, l]));
-            const bad = rows.filter((r) => r.publishStatus !== want.get(r._id).publishStatus || r.type !== want.get(r._id).type);
+            const badOf = (rows) => rows.filter((r) => r.publishStatus !== want.get(r._id).publishStatus || r.type !== want.get(r._id).type);
+            // The rows lag the PUT: measured one page row still `publishStatus:null` on the first read after an
+            // unpublish that a read moments later showed applied. Re-read, bounded, before calling it failed.
+            const got = await reread(async () => (await readLookups(gw, args.locationId, fid)).rows.filter((r) => ids.has(r._id)),
+              (rows) => rows.length === ids.size && !badOf(rows).length, deps.rereadOptions ?? {});
+            const rows = got.value;
+            const bad = badOf(rows);
             const out = { op: args.op, lookups: rows.map(lookupView), note: CACHE_NOTE };
             if (bad.length || rows.length !== ids.size) return withFailureData(fail(CODES.VERIFY_FAILED, 'the lookup rows did not read back in the requested publish state', 'Compare data.lookups.'), out);
             return ok(out);
@@ -11444,6 +11549,84 @@ export const TOOLS = [
             const out = { op: 'split-test', action: 'declare-winner', ...plan.target, step: s ? stepView(s, 0) : null, archivedPageLookupLeft: Boolean(loserRow),
               note: 'The losing page is archived (the step overview lists it under "Archived pages").' };
             if (s?.split !== false || JSON.stringify(s?.pages) !== JSON.stringify([plan.target.winner]) || loserRow) return withFailureData(fail(CODES.VERIFY_FAILED, 'the step did not read back with the winner as its only page', 'Compare data.step.'), out);
+            return ok(out);
+          }
+          case 'clone-funnel': {
+            // No id comes back: find the copy by the name proven unused before the write.
+            const got = await reread(async () => {
+              const all = await listAllDocuments(gw, args.locationId);
+              const hits = (all.rows ?? []).filter((f) => String(f.name ?? '').trim() === plan.name);
+              if (hits.length !== 1) return { hits };
+              const c = await readFunnel(gw, args.locationId, hits[0]._id ?? hits[0].id);
+              return { hits, copy: c.funnel };
+            }, (x) => x.hits.length === 1 && (x.copy?.steps ?? []).length === (funnel.steps ?? []).length, deps.rereadOptions ?? {});
+            const { hits, copy } = got.value;
+            const copyId = hits.length === 1 ? (hits[0]._id ?? hits[0].id) : null;
+            const rows = copyId ? (await readLookups(gw, args.locationId, copyId)).rows : [];
+            const out = { op: 'clone-funnel', source: { id: fid, name: funnel.name, steps: (funnel.steps ?? []).length }, copyId,
+              copy: copy ? { name: copy.name, url: copy.url, domainId: copy.domainId || null, steps: (copy.steps ?? []).map(stepView) } : null, copyLookupRows: rows.length, note: CLONE_FUNNEL_NOTE };
+            if (hits.length !== 1) return withFailureData(fail(CODES.VERIFY_FAILED, `clone answered ${w.status} but ${hits.length} documents read back with the name ${JSON.stringify(plan.name)}`, 'Do not clone again: list the location\'s documents (find_ghl_site list:true).'), out);
+            if ((copy?.steps ?? []).length !== (funnel.steps ?? []).length) return withFailureData(fail(CODES.VERIFY_FAILED, `the copy read back with ${(copy?.steps ?? []).length} step(s); the source has ${(funnel.steps ?? []).length}`, 'Re-read the copy with get_funnel before cloning again.'), out);
+            return ok(out);
+          }
+          case 'archive-page': {
+            const got = await reread(async () => ({ f: await fresh(), p: (await readFunnelPages(gw, args.locationId, fid)).pages }),
+              (x) => !(x.f?.steps ?? []).some((s) => (s.pages ?? []).includes(args.pageId)) && x.p.some((p) => p._id === args.pageId && p.deleted === true), deps.rereadOptions ?? {});
+            const s = (got.value.f?.steps ?? []).find((x) => x.id === plan.target.step.id);
+            const rec = got.value.p.find((p) => p._id === args.pageId);
+            const rows = (await readLookups(gw, args.locationId, fid)).rows.filter((r) => r.typeId === args.pageId).map(lookupView);
+            const out = { op: 'archive-page', archived: plan.target, step: s ? stepView(s, 0) : null, pageRecord: rec ? { id: rec._id, name: rec.name, deleted: rec.deleted } : null, pageLookupRowsLeft: rows,
+              note: 'ARCHIVED, not deleted: restore-page brings it back, on a NEW path minted from the page name.' };
+            if (!got.settled) return withFailureData(fail(CODES.VERIFY_FAILED, 'the page did not read back as archived (off the step, deleted:true in the page list)', 'Compare data.step / data.pageRecord.'), out);
+            return ok(out);
+          }
+          case 'restore-page': {
+            const got = await reread(async () => ({ f: await fresh(), l: (await readLookups(gw, args.locationId, fid)).rows }),
+              (x) => (x.f?.steps ?? []).some((s) => (s.pages ?? []).includes(args.pageId)) && x.l.some((r) => r.typeId === args.pageId), deps.rereadOptions ?? {});
+            const s = (got.value.f?.steps ?? []).find((x) => x.id === plan.target.step.id);
+            const row = got.value.l.find((r) => r.typeId === args.pageId);
+            const out = { op: 'restore-page', restored: plan.target, step: s ? stepView(s, 0) : null, newPath: row ? lookupView(row) : null,
+              note: 'The restored page serves on newPath (minted from the page NAME); its path from before the archive stays 404.' };
+            if (!got.settled) return withFailureData(fail(CODES.VERIFY_FAILED, 'the page did not read back on its step with a public path', 'Compare data.step / data.newPath.'), out);
+            return ok(out);
+          }
+          case 'import-page': {
+            const before = new Set(plan.target.step.pages);
+            const got = await reread(async () => ({ f: await fresh(), l: (await readLookups(gw, args.locationId, fid)).rows }), (x) => {
+              const st = (x.f?.steps ?? []).find((y) => y.id === args.stepId);
+              const nu = (st?.pages ?? []).filter((p) => !before.has(p));
+              // A funnel with no domain mints no lookup rows, so there is no path to wait for.
+              return nu.length === 1 && (!funnel.domainId || x.l.some((r) => r.typeId === nu[0]));
+            }, deps.rereadOptions ?? {});
+            const s = (got.value.f?.steps ?? []).find((x) => x.id === args.stepId);
+            const added = (s?.pages ?? []).filter((p) => !before.has(p));
+            const row = added.length === 1 ? got.value.l.find((r) => r.typeId === added[0]) : null;
+            const out = { op: 'import-page', step: s ? stepView(s, 0) : null, importedPageId: added.length === 1 ? added[0] : null, fromPageId: plan.target.sourcePageId, path: row ? lookupView(row) : null,
+              note: funnel.domainId ? IMPORT_PAGE_NOTE : `${IMPORT_PAGE_NOTE} This funnel has no domain, so the page has no public path yet.` };
+            if (!got.settled) return withFailureData(fail(CODES.VERIFY_FAILED, `expected one new page with a public path on the target step, read back ${added.length}`, 'Re-read with get_funnel before importing again.'), out);
+            return ok(out);
+          }
+          case 'add-store': {
+            const created = (plan.response?.createdPages ?? []).map((p) => ({ key: p.key, name: p.name, stepId: p.stepId, pageId: p.pageId }));
+            const ids = new Set(created.map((p) => p.stepId));
+            // create-in-funnel makes the 5 pages EMPTY (0 sections, no page data — measured: each public path then
+            // answered 200 with a blank page). In the UI the builder fills them on its next saves. Fill each with its
+            // store element through build_funnel_page's own compose path, so the store is never left blank.
+            const bfp = TOOLS.find((t) => t.name === 'build_funnel_page');
+            const filled = [];
+            for (const p of created) {
+              const r = await bfp.handler({ locationId: args.locationId, funnelId: fid, stepId: p.stepId, pageId: p.pageId,
+                sections: [{ columns: [{ elements: [{ meta: p.key }] }] }], confirm: true }, deps);
+              filled.push({ key: p.key, pageId: p.pageId, ok: r.ok === true, ...(r.ok ? { sections: r.data?.readBack?.sections ?? null } : { code: r.code, detail: r.detail ?? null }) });
+            }
+            const got = await reread(async () => ({ f: await fresh(), l: (await readLookups(gw, args.locationId, fid)).rows }),
+              (x) => x.f?.isStoreActive === true && created.length === 5 && created.every((p) => (x.f.steps ?? []).some((s) => s.id === p.stepId)) && created.every((p) => x.l.some((r) => r.typeId === p.stepId)), deps.rereadOptions ?? {});
+            const steps = (got.value.f?.steps ?? []).filter((s) => ids.has(s.id)).map(stepView);
+            const out = { op: 'add-store', isStoreActive: got.value.f?.isStoreActive ?? null, created, filled, steps,
+              lookups: got.value.l.filter((r) => ids.has(r.typeId) || created.some((p) => p.pageId === r.typeId)).map(lookupView), notes: [BILLING_FIELDS_NOTE] };
+            if (!got.settled) return withFailureData(fail(CODES.VERIFY_FAILED, 'the store did not read back (isStoreActive, 5 store steps, each with a public path)', 'Compare data.steps / data.lookups; do not add the store again.'), out);
+            const empty = filled.filter((f) => !f.ok);
+            if (empty.length) return withFailureData(fail(CODES.VERIFY_FAILED, `the store was created but ${empty.length} of its pages could not be filled: ${empty.map((f) => f.key).join(', ')} — they serve a BLANK page`, 'Fill each named page with build_funnel_page (one element of that store kind); do not add the store again.'), out);
             return ok(out);
           }
           default: return ok({ op: args.op, status: w.status });

@@ -418,7 +418,9 @@ export const autosaveEnvelope = ({ funnelId, pageData, pageVersion = 1 }) => ({
 });
 
 /** Structural checks the write path will NOT do for you. Returns [] when the page is sane. */
-export const auditPageData = (pageData) => {
+// `stepType`: the type of the step the page sits on, when the caller has read it. Without it the step-typed kinds
+// (store cart/checkout/thank-you, blog content) are flagged, because a static audit cannot tell where the page lives.
+export const auditPageData = (pageData, { stepType } = {}) => {
   const problems = [];
   // A page missing this renders in public and hangs the BUILDER — the failure mode with no error.
   if (!pageData.settings?.settings?.background) {
@@ -489,7 +491,7 @@ export const auditPageData = (pageData) => {
           problems.push(`node ${n.id} (${n.meta}): extra.${prop} must be a RAW object, not {value: …} — wrapping it 500s the public page with "reading 'bgColor'" while the builder shows nothing wrong`);
         }
       }
-      if (n.type === 'element' && NEEDS_STEP_TYPE[n.meta]) {
+      if (n.type === 'element' && NEEDS_STEP_TYPE[n.meta] && stepType !== NEEDS_STEP_TYPE[n.meta]) {
         problems.push(`node ${n.id} (${n.meta}): this kind renders only on a step of type '${NEEDS_STEP_TYPE[n.meta]}' — on a plain funnel page it 500s (or 404s for blog kinds). Create the step with that type.`);
       }
       if (n.type === 'element' && NEEDS_CONTEXT[n.meta]) {
