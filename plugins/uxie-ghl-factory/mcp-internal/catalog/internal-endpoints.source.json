@@ -20,16 +20,16 @@
     {
       "tree": "documented",
       "dir": "corpus",
-      "capturedAt": "2026-09-28T23:17:58.989Z",
+      "capturedAt": "2026-09-28T23:55:47.032Z",
       "hash": "corpus",
-      "fileCount": 1111,
-      "endpoints": 1111
+      "fileCount": 1112,
+      "endpoints": 1112
     }
   ],
   "note": "SOURCE-DERIVED ONLY, merged from every mined front-end. `tree` on each row says which app calls it. The plugin owns kind/note/summary/reach/coveredBy and merges them at read time. A row proves a GHL front-end calls that path — not that your token reaches it, and not that calling it is safe.",
-  "discoveredCallSites": 1586,
-  "skippedCallSites": 655,
-  "count": 1377,
+  "discoveredCallSites": 1587,
+  "skippedCallSites": 656,
+  "count": 1378,
   "endpoints": [
     {
       "id": "facebook-service--get-ad-account-by-id",
@@ -3161,6 +3161,32 @@
       ],
       "serviceClass": "ConversationMessageService",
       "serviceBasis": "unattributed"
+    },
+    {
+      "id": "workflows--messages-email",
+      "method": "GET",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/conversations/messages/email/{id}",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "workflows",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "workflows/40-rules/settings-semantics.md:185"
+      ],
+      "serviceBasis": "declared"
     },
     {
       "id": "email-service--get-preference-sub-types",
@@ -19103,7 +19129,7 @@
       },
       "sources": [
         "forms/20-api/public-renderer-and-submit.md:88",
-        "forms/30-types/standard-elements.md:91"
+        "forms/30-types/standard-elements.md:92"
       ],
       "serviceBasis": "declared",
       "aka": [
@@ -19514,11 +19540,11 @@
         "services/BaseService.ts:30",
         "workflows/20-api/03-endpoints.md:191",
         "workflows/20-api/trash-and-restore.md:24",
+        "workflows/40-rules/publish-gate.md:138",
+        "workflows/40-rules/settings-semantics.md:167",
         "workflows/00-overview/10-caveats.md:138",
         "workflows/10-anatomy/04-workflow-anatomy.md:40",
-        "workflows/10-anatomy/07-id-resolution.md:204",
-        "workflows/30-types/steps/if_else.md:34",
-        "workflows/40-rules/09-gotchas.md:386"
+        "workflows/10-anatomy/07-id-resolution.md:204"
       ],
       "serviceClass": "WorkflowService",
       "serviceBasis": "inferred-from-path",

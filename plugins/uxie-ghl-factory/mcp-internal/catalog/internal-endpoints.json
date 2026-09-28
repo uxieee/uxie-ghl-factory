@@ -1,7 +1,7 @@
 {
   "generated": "2026-09-28",
   "note": "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path — not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-  "count": 1387,
+  "count": 1388,
   "endpoints": [
     {
       "id": "facebook-service--get-ad-account-by-id",
@@ -4061,6 +4061,41 @@
       },
       "sources": [
         "services/marketplaceServices/ConversationMessageService.ts:10"
+      ]
+    },
+    {
+      "id": "workflows--messages-email",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/conversations/messages/email/{id}",
+      "path": "/conversations/messages/email/{id}",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "workflows",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "id"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "workflows/40-rules/settings-semantics.md:185"
       ]
     },
     {
@@ -24364,7 +24399,7 @@
       },
       "sources": [
         "forms/20-api/public-renderer-and-submit.md:88",
-        "forms/30-types/standard-elements.md:91"
+        "forms/30-types/standard-elements.md:92"
       ]
     },
     {
@@ -25005,11 +25040,11 @@
         "services/BaseService.ts:30",
         "workflows/20-api/03-endpoints.md:191",
         "workflows/20-api/trash-and-restore.md:24",
+        "workflows/40-rules/publish-gate.md:138",
+        "workflows/40-rules/settings-semantics.md:167",
         "workflows/00-overview/10-caveats.md:138",
         "workflows/10-anatomy/04-workflow-anatomy.md:40",
-        "workflows/10-anatomy/07-id-resolution.md:204",
-        "workflows/30-types/steps/if_else.md:34",
-        "workflows/40-rules/09-gotchas.md:386"
+        "workflows/10-anatomy/07-id-resolution.md:204"
       ]
     },
     {
