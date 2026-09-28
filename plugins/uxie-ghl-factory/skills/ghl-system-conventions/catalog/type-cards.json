@@ -6763,7 +6763,7 @@
     }
    ],
    "validator": "`copyContactToSubaccountValidator` (per `sniffs/bundle/validators.json`):\n\n- `attributes.newLocations` must be non-empty, else `at_least_one_location_required` warning.\n\nPer `validators-summary.json`: 1 field referenced; result level `warning`.",
-   "notes": "- `newLocations` entries are objects `{value, label}` — `value` is the target location ID, `label` is UI-only.\n- Cross-account copy requires the source location to have agency-level permissions or an admin-granted relationship to the target — not enforced by the validator.\n- `tags` here adds tags **to the copied contact in the target**, separately from `withTags` which copies existing tags.",
+   "notes": "- 🔴 **Not buildable on the sandbox, runtime UNPROVEN — targets ANOTHER sub-account; the designated test sub-account is the only live-fire sub-account.** `[blocked 2026-09-28]` GHL refuses to store the step at all without it (its asset check names the missing connection / sub-account) (`sniffs/workflows-wave1-2026-09-25/live-3O-blocked-drafts.json`).\n- `newLocations` entries are objects `{value, label}` — `value` is the target location ID, `label` is UI-only.\n- Cross-account copy requires the source location to have agency-level permissions or an admin-granted relationship to the target — not enforced by the validator.\n- `tags` here adds tags **to the copied contact in the target**, separately from `withTags` which copies existing tags.",
    "hasCanonicalExample": true
   },
   {
@@ -9074,7 +9074,7 @@
     }
    ],
    "validator": "`facebookCustomAudienceValidator` (per `sniffs/bundle/validators.json`):\n\n- Includes `facebookIntegrationValidator(locationId)` checks — verifies the FB integration is connected at the location.\n- `facebook_account_id` set, else `facebook_account_required`. If set, issues an absolute-URL resource check to FB ad-publishing service (`${adPublishingURL}/facebook/ad-accounts/${facebook_account_id}?locationId=${loc}`) to verify the account exists.\n- `facebook_custom_audience_id` set: similar resource check against `${adPublishingURL}/facebook/custom-audience?adAccountId=${facebook_account_id}` (chain continues, source truncated in extracted output).\n\nPer `validators-summary.json`: 2 fields referenced; result level `warning`.",
-   "notes": "- Validator issues actual HTTP requests (resource checks) — this is one of the few OG validators that hits external services at publish time rather than being pure static analysis.\n- The validator chain re-uses the same shape as `facebook_remove_from_custom_audience` (same `facebookCustomAudienceValidator`).\n- Audience matching uses email/phone hashing per Meta's Custom Audience API requirements — handled server-side.",
+   "notes": "- 🔴 **Runtime UNPROVEN — needs a connected Meta ads account on the sandbox; third-party integrations are out of scope (coordinator 2026-09-28).** `[blocked 2026-09-28]` What IS proven: our build stores it as a DRAFT and it reads back unchanged (`sniffs/workflows-wave1-2026-09-25/live-3O-blocked-drafts.json`), with the fields the builder/GHL require: `facebook_account_id`, `facebook_custom_audience_id`. Whether it runs, what it sends and what it skips is not known.\n- Validator issues actual HTTP requests (resource checks) — this is one of the few OG validators that hits external services at publish time rather than being pure static analysis.\n- The validator chain re-uses the same shape as `facebook_remove_from_custom_audience` (same `facebookCustomAudienceValidator`).\n- Audience matching uses email/phone hashing per Meta's Custom Audience API requirements — handled server-side.",
    "hasCanonicalExample": true
   },
   {
@@ -9153,7 +9153,7 @@
    "family": "steps",
    "title": "facebook_conversion_api",
    "status": "source-derived",
-   "lastVerified": "2026-09-26",
+   "lastVerified": "2026-09-28",
    "summary": "Send a server-side conversion event to Meta via the Conversion API (CAPI), bypassing browser-side pixel tracking.",
    "meta": {
     "Section": "`marketing` / `internal` (registered under both — per `sniffs/bundle/registry-parsed.json::entries[59]`; the README lists it under `internal`).",
@@ -9264,7 +9264,7 @@
     }
    ],
    "validator": "`facebookConversionApiValidator` (per `sniffs/bundle/validators.json`):\n\n- If `connection_type === \"AD_MANAGER\"`: includes `facebookIntegrationValidator(locationId)` checks.\n- `pixel_id` set, else `meta_dataset_id_required` warning.\n\nPer `validators-summary.json`: 1 field referenced (`pixel_id`); result level `warning`.",
-   "notes": "- `access_token` should ideally be sourced from a custom value (`{{custom_values.fb_capi_token}}`) — corpus example pastes it directly, which is a leak risk. Validator does not enforce token presence.\n- `connection_type` determines whether the validator runs the integration-validator chain. `\"INTEGRATION\"` (the default) skips the FB integration check.\n- The validator is unusually permissive — only `pixel_id` is required; everything else is server-validated at run time.",
+   "notes": "- 🔴 **Runtime UNPROVEN — needs a connected Meta Conversion API account on the sandbox; third-party integrations are out of scope (coordinator 2026-09-28).** `[blocked 2026-09-28]` What IS proven: our build stores it as a DRAFT and it reads back unchanged (`sniffs/workflows-wave1-2026-09-25/live-3O-blocked-drafts.json`), with the fields the builder/GHL require: `event_type`, `currency`, `connection_type`, `pixel_id`, `stage_name`, `access_token`. Whether it runs, what it sends and what it skips is not known.\n- `access_token` should ideally be sourced from a custom value (`{{custom_values.fb_capi_token}}`) — corpus example pastes it directly, which is a leak risk. Validator does not enforce token presence.\n- `connection_type` determines whether the validator runs the integration-validator chain. `\"INTEGRATION\"` (the default) skips the FB integration check.\n- The validator is unusually permissive — only `pixel_id` is required; everything else is server-validated at run time.",
    "hasCanonicalExample": true
   },
   {
@@ -9342,7 +9342,7 @@
     }
    ],
    "validator": "`facebookCustomAudienceValidator` is shared. See [`facebook_add_to_custom_audience.md`](./facebook_add_to_custom_audience.md#validator) for the chain.\n\nPer `validators-summary.json`: 2 fields referenced; result level `warning`.",
-   "notes": "- Shares the validator with the add variant — both run the same FB resource checks at publish.\n- Removal from a custom audience does not delete the contact, only their inclusion in the targeting list.\n- Meta enforces an audience-must-be-of-customer-list-type constraint for removal — runtime concern.",
+   "notes": "- 🔴 **Runtime UNPROVEN — needs a connected Meta ads account on the sandbox; third-party integrations are out of scope (coordinator 2026-09-28).** `[blocked 2026-09-28]` What IS proven: our build stores it as a DRAFT and it reads back unchanged (`sniffs/workflows-wave1-2026-09-25/live-3O-blocked-drafts.json`), with the fields the builder/GHL require: `facebook_account_id`, `facebook_custom_audience_id`. Whether it runs, what it sends and what it skips is not known.\n- Shares the validator with the add variant — both run the same FB resource checks at publish.\n- Removal from a custom audience does not delete the contact, only their inclusion in the targeting list.\n- Meta enforces an audience-must-be-of-customer-list-type constraint for removal — runtime concern.",
    "hasCanonicalExample": true
   },
   {
@@ -9398,7 +9398,7 @@
    "family": "steps",
    "title": "fb_interactive_messenger",
    "status": "source-derived",
-   "lastVerified": "2026-09-26",
+   "lastVerified": "2026-09-28",
    "summary": "Send an interactive Facebook Messenger message with buttons and/or quick replies, branching on the contact's choice. Resolved from `!ident:FB_INTERACTIVE_MESSENGER`.",
    "meta": {
     "Section": "`communication` (per `sniffs/bundle/registry-parsed.json::entries[27]`)",
@@ -9481,7 +9481,7 @@
     }
    ],
    "validator": "No bundle validator: the registry entry (`cat: MULTI_PATH`) carries no `validation` `[source-derived 2026-09-26 — utils/workflows.ts:543-551]`. The builder's own save checks: non-empty `message`, a non-empty non-negative `timeout`, a valid URL for `web_url` buttons, a valid country code + phone number for `phone_number` buttons, non-empty button names and quick-reply texts `[source-derived 2026-09-26 — models/actions/InteractiveMessenger.ts:106-121,182-224; models/actions/InteractiveMessengers/QuickReplies.ts:14]`.",
-   "notes": "- **Multi-path step.** Every button and quick reply is a branch; the Default Timeout branch catches contacts who do not respond within `timeout` minutes `[source-derived 2026-09-26 — models/actions/InteractiveMessenger.ts:102-104; utils/workflows.ts:546]`.\n- **Buttons:** up to **3** buttons (\"Add up to three actions buttons\"; `MAX_TRANSITION_COUNT` 4 including Default Timeout); button kinds `web_url` (Open Website), `phone_number` (Call Number), `postback` (Perform Actions) `[source-derived 2026-09-26 — models/actions/FbInteractiveMessenger.ts:9-17,33-69]`.\n- **A Call Number button ends its path.** The builder sets `currentStepEnd` on `phone_number` branches: \"The 'Call' action is final and cannot be followed by subsequent actions. After the call action, the contact will move to the 'Default Timeout' branch.\" `[source-derived 2026-09-26 — models/actions/InteractiveMessenger.ts:132-149]`.\n- Drawn on the same messaging model family as [`messenger`](./messenger.md) / [`instagram-dm`](./instagram-dm.md) (SMS snippets as templates, same attachment filter).",
+   "notes": "- 🔴 **Runtime UNPROVEN — needs a connected Facebook Messenger account on the sandbox; third-party integrations are out of scope (coordinator 2026-09-28).** `[blocked 2026-09-28]` What IS proven: our build stores it as a DRAFT and it reads back unchanged (`sniffs/workflows-wave1-2026-09-25/live-3O4-blocked-drafts.json`), with the fields the builder/GHL require: `replyType`, `timeout`. Whether it runs, what it sends and what it skips is not known.\n- **Multi-path step.** Every button and quick reply is a branch; the Default Timeout branch catches contacts who do not respond within `timeout` minutes `[source-derived 2026-09-26 — models/actions/InteractiveMessenger.ts:102-104; utils/workflows.ts:546]`.\n- **Buttons:** up to **3** buttons (\"Add up to three actions buttons\"; `MAX_TRANSITION_COUNT` 4 including Default Timeout); button kinds `web_url` (Open Website), `phone_number` (Call Number), `postback` (Perform Actions) `[source-derived 2026-09-26 — models/actions/FbInteractiveMessenger.ts:9-17,33-69]`.\n- **A Call Number button ends its path.** The builder sets `currentStepEnd` on `phone_number` branches: \"The 'Call' action is final and cannot be followed by subsequent actions. After the call action, the contact will move to the 'Default Timeout' branch.\" `[source-derived 2026-09-26 — models/actions/InteractiveMessenger.ts:132-149]`.\n- Drawn on the same messaging model family as [`messenger`](./messenger.md) / [`instagram-dm`](./instagram-dm.md) (SMS snippets as templates, same attachment filter).",
    "hasCanonicalExample": true
   },
   {
@@ -9766,7 +9766,7 @@
     }
    ],
    "validator": "No validator registered. Publish does not pre-flight this step. Server-side enforcement (e.g. GBP integration connected, contact has a GBP-eligible identity) presumably happens at runtime.",
-   "notes": "- The README at `reference/steps/og/README.md` labels this `gmb_messaging` — the registry source uses bare `gmb`. Honor the registry value.\n- Google Business Profile messaging is a deprecated Google product (sunset rolling out 2024–2025) — runtime availability may be unstable.\n- No validator means publish doesn't warn on missing body or integration; runtime errors are the only signal.",
+   "notes": "- 🔴 **Runtime UNPROVEN — needs a connected Google Business Profile account on the sandbox; third-party integrations are out of scope (coordinator 2026-09-28).** `[blocked 2026-09-28]` What IS proven: our build stores it as a DRAFT and it reads back unchanged (`sniffs/workflows-wave1-2026-09-25/live-3O-blocked-drafts.json`), with the fields the builder/GHL require: `(type only)`. Whether it runs, what it sends and what it skips is not known.\n- The README at `reference/steps/og/README.md` labels this `gmb_messaging` — the registry source uses bare `gmb`. Honor the registry value.\n- Google Business Profile messaging is a deprecated Google product (sunset rolling out 2024–2025) — runtime availability may be unstable.\n- No validator means publish doesn't warn on missing body or integration; runtime errors are the only signal.",
    "hasCanonicalExample": true
   },
   {
@@ -9774,7 +9774,7 @@
    "family": "steps",
    "title": "google_adword",
    "status": "source-derived",
-   "lastVerified": "2026-09-26",
+   "lastVerified": "2026-09-28",
    "summary": "Send a conversion event to Google Ads (Adwords), optionally with custom click-ID mapping. README also references this as `add_to_google_adword`.",
    "meta": {
     "Section": "`marketing` (per `sniffs/bundle/registry-parsed.json::entries[56]`)",
@@ -9843,7 +9843,7 @@
     }
    ],
    "validator": "`googleAdwordValidator` (per `sniffs/bundle/validators.json`):\n\n- `conversion_name` non-empty, else `conversion_name_required`.\n- If `conversion_value` is set and not a handlebar (`startsWith(\"{{\")` skips), parse to float; must be positive, else `conversion_value_must_be_positive`.\n- If `isCustomMappingEnabled`:\n  - `customMapping` must be set, else `custom_mapping_required`.\n  - `customMapping` must have at least one of `gclid`, `gbraid`, `wbraid`, else `at_least_one_click_id_required`.\n\nPer `validators-summary.json`: 3 fields referenced; result level `warning`.",
-   "notes": "- `gclid` (Google Click ID), `gbraid` (iOS app campaigns), `wbraid` (web app campaigns) are mutually-exclusive Google Ads attribution IDs; the validator only requires that one is present, not which.\n- `conversion_value` is a string that may be a handlebar (`{{...}}`) — the handlebar prefix skips numeric validation.\n- Google Ads OAuth/auth happens at the location level; this step doesn't carry auth tokens.",
+   "notes": "- 🔴 **Runtime UNPROVEN — needs a connected Google Ads account on the sandbox; third-party integrations are out of scope (coordinator 2026-09-28).** `[blocked 2026-09-28]` What IS proven: our build stores it as a DRAFT and it reads back unchanged (`sniffs/workflows-wave1-2026-09-25/live-3O3-blocked-drafts.json`), with the fields the builder/GHL require: `conversion_name`, `conversion_type`. Whether it runs, what it sends and what it skips is not known.\n- `gclid` (Google Click ID), `gbraid` (iOS app campaigns), `wbraid` (web app campaigns) are mutually-exclusive Google Ads attribution IDs; the validator only requires that one is present, not which.\n- `conversion_value` is a string that may be a handlebar (`{{...}}`) — the handlebar prefix skips numeric validation.\n- Google Ads OAuth/auth happens at the location level; this step doesn't carry auth tokens.",
    "hasCanonicalExample": true
   },
   {
@@ -9920,7 +9920,7 @@
     }
    ],
    "validator": "`googleAnalyticsValidator` (per `sniffs/bundle/validators.json`):\n\n- If `action_type === \"google_analytics_4\"`:\n  - `measurement_id` non-empty, else `measurement_id_required`.\n  - `event` non-empty, else `event_name_required`.\n  - `api_secret` non-empty, else `api_secret_required`.\n- No checks for legacy UA (`tracking_id`, `event_category`, etc.) — those branches are silent.\n\nPer `validators-summary.json`: 3 fields referenced; result level `warning`.",
-   "notes": "- Validator only enforces GA4 branch; legacy UA support is in the interface but unguarded — UA was sunset July 2023 so this branch is effectively dead.\n- `api_secret` should ideally come from a custom value (not a literal) so it stays out of the workflow body.\n- The runtime presumably sends via Measurement Protocol — direct GA Reporting API not used.",
+   "notes": "- 🔴 **Runtime UNPROVEN — needs a connected Google Analytics account on the sandbox; third-party integrations are out of scope (coordinator 2026-09-28).** `[blocked 2026-09-28]` What IS proven: our build stores it as a DRAFT and it reads back unchanged (`sniffs/workflows-wave1-2026-09-25/live-3O4-blocked-drafts.json`), with the fields the builder/GHL require: `action_type`, `tracking_id`, `event_category`, `event_action`, `event_label`. Whether it runs, what it sends and what it skips is not known.\n- Validator only enforces GA4 branch; legacy UA support is in the interface but unguarded — UA was sunset July 2023 so this branch is effectively dead.\n- `api_secret` should ideally come from a custom value (not a literal) so it stays out of the workflow body.\n- The runtime presumably sends via Measurement Protocol — direct GA Reporting API not used.",
    "hasCanonicalExample": true
   },
   {
@@ -10131,7 +10131,7 @@
    "family": "steps",
    "title": "google_sheets",
    "status": "source-derived",
-   "lastVerified": "2026-09-26",
+   "lastVerified": "2026-09-28",
    "summary": "Write a row to a connected Google Sheet. Routes through the location's OAuth integration with Google.",
    "meta": {
     "Section": "`send_data`",
@@ -10214,7 +10214,7 @@
     }
    ],
    "validator": "`googleSheetsIntegrationValidator` (length 549, result level `warning`). Per `sniffs/bundle/validators.json::googleSheetsIntegrationValidator`:\n\n```\nconst account = attributes.account\nif (!account?.id) push { field: \"oAuthId\", message: \"select_google_account\" }\nelse {\n  return [{\n    url:  `${integrationsURL}/google/connections?locationId=${extras.locationId}`,\n    method: \"GET\",\n    absoluteUrl: true,\n    headers: googleConnectionsHeaders(),\n    transformResponse: (data) => {\n      const connections = mapGoogleConnections(data.data)\n      return connections.some(c => (c.altId ?? c.id) === account.id)\n        ? []\n        : { field: \"oAuthId\", message: \"google_integration_not_valid\" }\n    }\n  }]\n}\n```\n\nTwo distinct enforcements:\n\n1. **`account.id` must be set** — otherwise emit `\"select_google_account\"`.\n2. **The account id must exist in the location's connected Google integrations**, verified via a side `GET` to `/google/connections`. If not connected, emit `\"google_integration_not_valid\"`.\n\n`fields_referenced: [\"oAuthId\"]` (a virtual field — the validator pushes the field name `oAuthId` even though the data lives under `attributes.account.id`).",
-   "notes": "- **The validator does a live integration lookup.** Publishing this step calls `GET /integrations/google/connections?locationId=...` to verify the `account.id` is currently connected. A disconnected account fails publish even if the workflow was previously valid.\n- **`account.idType: \"altId\"`** means the `account.id` is the Google profile's alt-id (the value seen in `altId` on the connection response). Some accounts may use the raw `id` instead — the validator's `transformResponse` checks both.\n- **`columnRange` defines the slice the `values` write into.** The row goes into the next empty row across columns `[\"A\", \"J\"]`. `values.length` should match `columnRange[1] - columnRange[0] + 1`.\n- **`sheetHeaders` is a UI cache** — not consumed at runtime. Don't depend on it staying in sync with the actual sheet.\n- **`values` accepts Handlebars in each element.** Resolved at execution.\n- **11 actions exist; only `create_row` is in the corpus.** The others (`create_multiple_rows`, `lookup_row`, `lookup_multiple_rows`, `update_row`, `update_multiple_rows`, `update_row_from_lookup`, `delete_row`, `delete_row_from_lookup`, `format_row`, `remove_row`) have no captured example; their per-action fields have not been written up here. Note `delete_row` **clears** a row and `remove_row` **deletes** it [source-derived 2026-09-26 — models/actions/premium-actions/GoogleSheetsApi.ts:99-155; i18n `clear_specific_spreadsheet_row`, `remove_specific_spreadsheet_row_description`].\n- **Premium gate.** `isPremiumAction: true`.",
+   "notes": "- 🔴 **Runtime UNPROVEN — needs a connected Google Sheets account on the sandbox; third-party integrations are out of scope (coordinator 2026-09-28).** `[blocked 2026-09-28]` What IS proven: our build stores it as a DRAFT and it reads back unchanged (`sniffs/workflows-wave1-2026-09-25/live-3O2-blocked-drafts.json`), with the fields the builder/GHL require: `action`. Whether it runs, what it sends and what it skips is not known.\n- **The validator does a live integration lookup.** Publishing this step calls `GET /integrations/google/connections?locationId=...` to verify the `account.id` is currently connected. A disconnected account fails publish even if the workflow was previously valid.\n- **`account.idType: \"altId\"`** means the `account.id` is the Google profile's alt-id (the value seen in `altId` on the connection response). Some accounts may use the raw `id` instead — the validator's `transformResponse` checks both.\n- **`columnRange` defines the slice the `values` write into.** The row goes into the next empty row across columns `[\"A\", \"J\"]`. `values.length` should match `columnRange[1] - columnRange[0] + 1`.\n- **`sheetHeaders` is a UI cache** — not consumed at runtime. Don't depend on it staying in sync with the actual sheet.\n- **`values` accepts Handlebars in each element.** Resolved at execution.\n- **11 actions exist; only `create_row` is in the corpus.** The others (`create_multiple_rows`, `lookup_row`, `lookup_multiple_rows`, `update_row`, `update_multiple_rows`, `update_row_from_lookup`, `delete_row`, `delete_row_from_lookup`, `format_row`, `remove_row`) have no captured example; their per-action fields have not been written up here. Note `delete_row` **clears** a row and `remove_row` **deletes** it [source-derived 2026-09-26 — models/actions/premium-actions/GoogleSheetsApi.ts:99-155; i18n `clear_specific_spreadsheet_row`, `remove_specific_spreadsheet_row_description`].\n- **Premium gate.** `isPremiumAction: true`.",
    "hasCanonicalExample": true
   },
   {
@@ -10798,7 +10798,7 @@
    "family": "steps",
    "title": "ig_interactive_messenger",
    "status": "source-derived",
-   "lastVerified": "2026-09-26",
+   "lastVerified": "2026-09-28",
    "summary": "Send an interactive Instagram DM with buttons or quick-replies. Resolved from `!ident:IG_INTERACTIVE_MESSENGER`.",
    "meta": {
     "Section": "`communication` (per `sniffs/bundle/registry-parsed.json::entries[28]`)",
@@ -10881,7 +10881,7 @@
     }
    ],
    "validator": "No bundle validator: the registry entry (`cat: MULTI_PATH`) carries no `validation` `[source-derived 2026-09-26 — utils/workflows.ts:552-560]`. The builder's own save checks: non-empty `message`, a non-empty non-negative `timeout`, a valid URL for `web_url` buttons, a valid country code + phone number for `phone_number` buttons, non-empty button names and quick-reply texts `[source-derived 2026-09-26 — models/actions/InteractiveMessenger.ts:106-121,182-224; models/actions/InteractiveMessengers/QuickReplies.ts:14]`.",
-   "notes": "- **Multi-path step.** Every button and quick reply is a branch; the Default Timeout branch catches contacts who do not respond within `timeout` minutes `[source-derived 2026-09-26 — models/actions/InteractiveMessenger.ts:102-104; utils/workflows.ts:555]`.\n- **Buttons:** up to **2** buttons (\"Add up to two actions buttons\"; `MAX_TRANSITION_COUNT` 3 including Default Timeout); button kinds `web_url` (Open Website) and `postback` (Perform Actions) — no Call Number option `[source-derived 2026-09-26 — models/actions/IgInteractiveMessenger.ts:9-17,49-80]`.\n- **A Call Number button ends its path.** The builder sets `currentStepEnd` on `phone_number` branches: \"The 'Call' action is final and cannot be followed by subsequent actions. After the call action, the contact will move to the 'Default Timeout' branch.\" `[source-derived 2026-09-26 — models/actions/InteractiveMessenger.ts:132-149]`.\n- **IG keeps only one of buttons / quick replies.** On save the builder drops the quick-reply branches when `actionType: \"buttons\"`, and the button branches otherwise (the Default Timeout branch stays) `[source-derived 2026-09-26 — models/actions/InteractiveMessenger.ts:319-337]`.\n- **IG quick replies show only when the message has no attachments** `[source-derived 2026-09-26 — i18n 4824 `interactiveMessenger.igQuickRepliesDescription`]`.\n- Instagram interactive DMs require the contact to be within the 24-hour customer-care messaging window per Meta policy — runtime constraint, not validator-enforced.\n- Drawn on the same messaging model family as [`messenger`](./messenger.md) / [`instagram-dm`](./instagram-dm.md) (SMS snippets as templates, same attachment filter).",
+   "notes": "- 🔴 **Not buildable on the sandbox, runtime UNPROVEN — needs a connected Instagram account on the sandbox; third-party integrations are out of scope (coordinator 2026-09-28).** `[blocked 2026-09-28]` GHL refuses to store the step at all without it (its asset check names the missing connection / sub-account) (`sniffs/workflows-wave1-2026-09-25/live-3O-blocked-drafts.json`).\n- **Multi-path step.** Every button and quick reply is a branch; the Default Timeout branch catches contacts who do not respond within `timeout` minutes `[source-derived 2026-09-26 — models/actions/InteractiveMessenger.ts:102-104; utils/workflows.ts:555]`.\n- **Buttons:** up to **2** buttons (\"Add up to two actions buttons\"; `MAX_TRANSITION_COUNT` 3 including Default Timeout); button kinds `web_url` (Open Website) and `postback` (Perform Actions) — no Call Number option `[source-derived 2026-09-26 — models/actions/IgInteractiveMessenger.ts:9-17,49-80]`.\n- **A Call Number button ends its path.** The builder sets `currentStepEnd` on `phone_number` branches: \"The 'Call' action is final and cannot be followed by subsequent actions. After the call action, the contact will move to the 'Default Timeout' branch.\" `[source-derived 2026-09-26 — models/actions/InteractiveMessenger.ts:132-149]`.\n- **IG keeps only one of buttons / quick replies.** On save the builder drops the quick-reply branches when `actionType: \"buttons\"`, and the button branches otherwise (the Default Timeout branch stays) `[source-derived 2026-09-26 — models/actions/InteractiveMessenger.ts:319-337]`.\n- **IG quick replies show only when the message has no attachments** `[source-derived 2026-09-26 — i18n 4824 `interactiveMessenger.igQuickRepliesDescription`]`.\n- Instagram interactive DMs require the contact to be within the 24-hour customer-care messaging window per Meta policy — runtime constraint, not validator-enforced.\n- Drawn on the same messaging model family as [`messenger`](./messenger.md) / [`instagram-dm`](./instagram-dm.md) (SMS snippets as templates, same attachment filter).",
    "hasCanonicalExample": true
   },
   {
@@ -11055,7 +11055,7 @@
    "family": "steps",
    "title": "instagram-dm",
    "status": "source-derived",
-   "lastVerified": "2026-09-26",
+   "lastVerified": "2026-09-28",
    "summary": "Send an Instagram direct message via the connected Instagram-business integration.",
    "meta": {
     "Section": "`communication` (per `sniffs/bundle/registry-parsed.json::entries[20]`)",
@@ -11096,7 +11096,7 @@
     }
    ],
    "validator": "`instagramDmValidator` (per `sniffs/bundle/validators.json`):\n\n```text\ninstagramDmValidator=n=>socialMessageValidator(n,\"ig\")\n```\n\nDelegates to `socialMessageValidator(n, \"ig\")`, which:\n\n1. Runs `instagramIntegrationValidator()` — checks for IG-business connection.\n2. Runs `baseSmsValidator` — body presence/length (with `instagram_message_required` translation key).\n3. Scans body for `illegalWordsSms` matches.",
-   "notes": "- **Blocked until Facebook is connected.** For `messenger` and `instagram-dm` the drawer wraps the form in an integration layout: with no Facebook connection it shows the \"not connected\" state instead of the editor `[source-derived 2026-09-26 — components/actions/send-sms-layout-state.ts:3-12; components/actions/SendSMS.vue:6-86,526-541]`.\n- **IG DM body limit is 1000 characters** in the builder (the code comment says 2000; the check is `> 1000`) `[source-derived 2026-09-26 — models/actions/SMS.ts:454-462]`.\n\n- IG DM sends require the contact to have messaged the IG business account first (24-hour window) — runtime concern, not validator-enforced.\n- Type slug uses hyphen (`instagram-dm`), not underscore — atypical for OG actions but matches registry.\n- Shares `socialMessageValidator` with `messenger`; differs in the integration check.",
+   "notes": "- 🔴 **Not buildable on the sandbox, runtime UNPROVEN — needs a connected Instagram account on the sandbox; third-party integrations are out of scope (coordinator 2026-09-28).** `[blocked 2026-09-28]` GHL refuses to store the step at all without it (its asset check names the missing connection / sub-account) (`sniffs/workflows-wave1-2026-09-25/live-3O-blocked-drafts.json`).\n- **Blocked until Facebook is connected.** For `messenger` and `instagram-dm` the drawer wraps the form in an integration layout: with no Facebook connection it shows the \"not connected\" state instead of the editor `[source-derived 2026-09-26 — components/actions/send-sms-layout-state.ts:3-12; components/actions/SendSMS.vue:6-86,526-541]`.\n- **IG DM body limit is 1000 characters** in the builder (the code comment says 2000; the check is `> 1000`) `[source-derived 2026-09-26 — models/actions/SMS.ts:454-462]`.\n\n- IG DM sends require the contact to have messaged the IG business account first (24-hour window) — runtime concern, not validator-enforced.\n- Type slug uses hyphen (`instagram-dm`), not underscore — atypical for OG actions but matches registry.\n- Shares `socialMessageValidator` with `messenger`; differs in the integration check.",
    "hasCanonicalExample": true
   },
   {
@@ -11383,7 +11383,7 @@
     }
    ],
    "validator": "`ivrRecordValidator` is a no-op. Per `validators-summary.json`: zero fields referenced. Publish never warns.",
-   "notes": "- Validator name (`ivrRecordValidator`) doesn't match the action type (`ivr_collect_voicemail`) — typical of the IVR family where validator names map loosely to action types.\n- Recording storage and retrieval (likely Twilio/AWS S3) happens server-side; not surfaced in the step body.\n- The README lists this as `ivr_record` — the actual type discriminator in the registry is `ivr_collect_voicemail`.",
+   "notes": "- 🔴 **Runtime UNPROVEN — needs an inbound call to an IVR number — the sandbox has no phone number (Xander: no purchase).** `[blocked 2026-09-28]` What IS proven: our build stores it as a DRAFT and it reads back unchanged (`sniffs/workflows-wave1-2026-09-25/live-3O2-blocked-drafts.json`), with the fields the builder/GHL require: `(type only)`. Whether it runs, what it sends and what it skips is not known.\n- Validator name (`ivrRecordValidator`) doesn't match the action type (`ivr_collect_voicemail`) — typical of the IVR family where validator names map loosely to action types.\n- Recording storage and retrieval (likely Twilio/AWS S3) happens server-side; not surfaced in the step body.\n- The README lists this as `ivr_record` — the actual type discriminator in the registry is `ivr_collect_voicemail`.",
    "hasCanonicalExample": true
   },
   {
@@ -11391,7 +11391,7 @@
    "family": "steps",
    "title": "ivr_connect_call",
    "status": "source-derived",
-   "lastVerified": "2026-09-26",
+   "lastVerified": "2026-09-28",
    "summary": "IVR widget: bridge the inbound call to one or more users or custom phone numbers.",
    "meta": {
     "Section": "`ivr` (per `sniffs/bundle/registry-parsed.json::entries[68]`)",
@@ -11474,7 +11474,7 @@
     }
    ],
    "validator": "`ivrConnectCallValidator` (per `sniffs/bundle/validators.json`):\n\n- `users.length + customNumbers.length === 0` → `ivr_connect_number_required` warning.\n- `users.length + customNumbers.length > 10` → `ivr_connect_max_numbers` warning (max 10 destinations).\n- Any `customNumbers[i].isValid === false` → `ivr_connect_invalid_number` warning.\n\nPer `validators-summary.json`: 2 fields referenced (`customNumbers`, `users`); result level `warning`.",
-   "notes": "- Max 10 destinations is a hard publish warning — not enforced at create-time but at publish.\n- `customNumbers[i].isValid` appears to be set by the UI after a phone-number-validation pass; the validator only checks the flag, not the format.\n- **Timing, recording, voicemail detection and whisper are user-settable** (`timeout`, `timeLimit`, `record`, `detectVoicemail`, `isSayPlayOn` + `sayPlayAttributes`) — see the table. The only ring mode offered is \"Single number\" (`connectCallToOptions`; a code comment says simul-ring may open later), and it is not stored as an attribute `[source-derived 2026-09-26 — models/actions/ivr/IVRConnectCall.ts:46-54]`.",
+   "notes": "- 🔴 **Runtime UNPROVEN — needs an inbound call to an IVR number — the sandbox has no phone number (Xander: no purchase).** `[blocked 2026-09-28]` What IS proven: our build stores it as a DRAFT and it reads back unchanged (`sniffs/workflows-wave1-2026-09-25/live-3O3-blocked-drafts.json`), with the fields the builder/GHL require: `timeout`, `timeLimit`, `userId`, `users`, `isSayPlayOn`. Whether it runs, what it sends and what it skips is not known.\n- Max 10 destinations is a hard publish warning — not enforced at create-time but at publish.\n- `customNumbers[i].isValid` appears to be set by the UI after a phone-number-validation pass; the validator only checks the flag, not the format.\n- **Timing, recording, voicemail detection and whisper are user-settable** (`timeout`, `timeLimit`, `record`, `detectVoicemail`, `isSayPlayOn` + `sayPlayAttributes`) — see the table. The only ring mode offered is \"Single number\" (`connectCallToOptions`; a code comment says simul-ring may open later), and it is not stored as an attribute `[source-derived 2026-09-26 — models/actions/ivr/IVRConnectCall.ts:46-54]`.",
    "hasCanonicalExample": true
   },
   {
@@ -11482,7 +11482,7 @@
    "family": "steps",
    "title": "ivr_gather",
    "status": "source-derived",
-   "lastVerified": "2026-09-26",
+   "lastVerified": "2026-09-28",
    "summary": "IVR widget: gather DTMF (keypad) input from the caller, branching on the digit pressed.",
    "meta": {
     "Section": "`ivr` (per `sniffs/bundle/registry-parsed.json::entries[66]`)",
@@ -11565,7 +11565,7 @@
     }
    ],
    "validator": "`ivrGatherValidator` is a no-op — returns `[]` (\"Validation is handled by IVRSay embedded in gather\") `[source-derived 2026-09-26 — utils/validators/additional-action-validators.ts:1162-1165]`. The builder's own save checks are the ranges and branch rules in the table.",
-   "notes": "- The IVR models ARE in the recovered source (`models/actions/ivr/`); only the bundle validators are thin — the builder enforces its rules in the models `[source-derived 2026-09-26 — models/actions/ivr/IVRGather.ts]`.\n- IVR runtime (likely Twilio-backed; see `reference/microservices.md` if mapped) handles all enforcement at execution time.\n- The prompt fields are the `ivr_say` fields inlined on the gather step (not a nested object) `[source-derived 2026-09-26 — models/actions/ivr/IVRGather.ts:20,54-57]`.",
+   "notes": "- 🔴 **Runtime UNPROVEN — needs an inbound call to an IVR number — the sandbox has no phone number (Xander: no purchase).** `[blocked 2026-09-28]` What IS proven: our build stores it as a DRAFT and it reads back unchanged (`sniffs/workflows-wave1-2026-09-25/live-3O3-blocked-drafts.json`), with the fields the builder/GHL require: `widgetType`, `message`, `language`, `voice`, `loop`. Whether it runs, what it sends and what it skips is not known.\n- The IVR models ARE in the recovered source (`models/actions/ivr/`); only the bundle validators are thin — the builder enforces its rules in the models `[source-derived 2026-09-26 — models/actions/ivr/IVRGather.ts]`.\n- IVR runtime (likely Twilio-backed; see `reference/microservices.md` if mapped) handles all enforcement at execution time.\n- The prompt fields are the `ivr_say` fields inlined on the gather step (not a nested object) `[source-derived 2026-09-26 — models/actions/ivr/IVRGather.ts:20,54-57]`.",
    "hasCanonicalExample": true
   },
   {
@@ -11573,7 +11573,7 @@
    "family": "steps",
    "title": "ivr_hangup",
    "status": "source-derived",
-   "lastVerified": "2026-09-26",
+   "lastVerified": "2026-09-28",
    "summary": "IVR widget: terminate the call.",
    "meta": {
     "Section": "`ivr` (per `sniffs/bundle/registry-parsed.json::entries[69]`)",
@@ -11607,7 +11607,7 @@
     }
    ],
    "validator": "`ivrHangupValidator` is a no-op. Per `validators-summary.json`: zero fields referenced. Publish never warns.",
-   "notes": "- Terminates the IVR call leg. Any further workflow steps after this won't execute against the call context.\n- **Optional goodbye say/play:** `isSayPlayOn: true` + `sayPlayAttributes` plays a message before hanging up `[source-derived 2026-09-26 — models/actions/ivr/IVRHangup.ts:7-11,23-40]`.",
+   "notes": "- 🔴 **Runtime UNPROVEN — needs an inbound call to an IVR number — the sandbox has no phone number (Xander: no purchase).** `[blocked 2026-09-28]` What IS proven: our build stores it as a DRAFT and it reads back unchanged (`sniffs/workflows-wave1-2026-09-25/live-3O3-blocked-drafts.json`), with the fields the builder/GHL require: `isSayPlayOn`. Whether it runs, what it sends and what it skips is not known.\n- Terminates the IVR call leg. Any further workflow steps after this won't execute against the call context.\n- **Optional goodbye say/play:** `isSayPlayOn: true` + `sayPlayAttributes` plays a message before hanging up `[source-derived 2026-09-26 — models/actions/ivr/IVRHangup.ts:7-11,23-40]`.",
    "hasCanonicalExample": true
   },
   {
@@ -11644,7 +11644,7 @@
    "family": "steps",
    "title": "ivr_say",
    "status": "source-derived",
-   "lastVerified": "2026-09-26",
+   "lastVerified": "2026-09-28",
    "summary": "IVR widget: speak a TTS message to the caller, or play a pre-recorded audio file.",
    "meta": {
     "Section": "`ivr` (per `sniffs/bundle/registry-parsed.json::entries[67]`)",
@@ -11713,7 +11713,7 @@
     }
    ],
    "validator": "`ivrSayValidator` (per `sniffs/bundle/validators.json`):\n\n- `loop` set, else `ivr_loop_required` warning.\n- If `widgetType === \"say\"`:\n  - `language` set, else `ivr_language_required`.\n  - `message` set, else `ivr_message_required`.\n  - `voice` set, else `ivr_voice_required`.\n- If `widgetType === \"play\"`:\n  - `audioUrl` set, else (per chain — source truncated in extracted output).\n\nPer `validators-summary.json`: 5 fields referenced (audioUrl, language, loop, message, voice); result level `warning`.",
-   "notes": "- `widgetType` is the branching discriminator within the validator; the same action type covers both TTS and prerecorded audio.\n- **Voices are only `man` / `woman`; language only `en-US`** — the builder offers no other TTS voice ids `[source-derived 2026-09-26 — models/actions/ivr/IVRSay.ts:51-67]`.\n- `loop` below 1 is raised to 1 by the builder on save `[source-derived 2026-09-26 — models/actions/ivr/IVRSay.ts:184]`; what the runtime does with a stored `0` is not established.",
+   "notes": "- 🔴 **Runtime UNPROVEN — needs an inbound call to an IVR number — the sandbox has no phone number (Xander: no purchase).** `[blocked 2026-09-28]` What IS proven: our build stores it as a DRAFT and it reads back unchanged (`sniffs/workflows-wave1-2026-09-25/live-3O3-blocked-drafts.json`), with the fields the builder/GHL require: `widgetType`, `message`, `language`, `voice`, `loop`. Whether it runs, what it sends and what it skips is not known.\n- `widgetType` is the branching discriminator within the validator; the same action type covers both TTS and prerecorded audio.\n- **Voices are only `man` / `woman`; language only `en-US`** — the builder offers no other TTS voice ids `[source-derived 2026-09-26 — models/actions/ivr/IVRSay.ts:51-67]`.\n- `loop` below 1 is raised to 1 by the builder on save `[source-derived 2026-09-26 — models/actions/ivr/IVRSay.ts:184]`; what the runtime does with a stored `0` is not established.",
    "hasCanonicalExample": true
   },
   {
@@ -14502,7 +14502,7 @@
    "family": "steps",
    "title": "messenger",
    "status": "source-derived",
-   "lastVerified": "2026-09-26",
+   "lastVerified": "2026-09-28",
    "summary": "Send a Facebook Messenger message via the connected Facebook page integration.",
    "meta": {
     "Section": "`communication` (per `sniffs/bundle/registry-parsed.json::entries[19]`)",
@@ -14543,7 +14543,7 @@
     }
    ],
    "validator": "`messengerValidator` (per `sniffs/bundle/validators.json`):\n\n```text\nmessengerValidator=n=>socialMessageValidator(n,\"fb\")\n```\n\nDelegates to `socialMessageValidator(n, \"fb\")`, which:\n\n1. Runs `facebookIntegrationValidator(locationId)` — checks the location has a Facebook integration.\n2. Runs `baseSmsValidator` — checks `body` length and structure (with `messenger_message_required` translation key).\n3. Filters `body` words against `illegalWordsSms` list; emits `sms_contains_illegal_words` if matches.",
-   "notes": "- **Blocked until Facebook is connected.** For `messenger` and `instagram-dm` the drawer wraps the form in an integration layout: with no Facebook connection it shows the \"not connected\" state instead of the editor `[source-derived 2026-09-26 — components/actions/send-sms-layout-state.ts:3-12; components/actions/SendSMS.vue:6-86,526-541]`.\n\n- `socialMessageValidator` is shared with `instagram-dm`; behavior diverges by the second arg (`\"fb\"` vs `\"ig\"`).\n- Facebook page integration must be connected at the location level — validator surfaces this as an external resource check.\n- The illegal-words list is the SMS list, applied to Messenger bodies — flagged words trigger a publish warning.",
+   "notes": "- 🔴 **Runtime UNPROVEN — needs a connected Facebook Messenger account on the sandbox; third-party integrations are out of scope (coordinator 2026-09-28).** `[blocked 2026-09-28]` What IS proven: our build stores it as a DRAFT and it reads back unchanged (`sniffs/workflows-wave1-2026-09-25/live-3O2-blocked-drafts.json`), with the fields the builder/GHL require: `body`. Whether it runs, what it sends and what it skips is not known.\n- **Blocked until Facebook is connected.** For `messenger` and `instagram-dm` the drawer wraps the form in an integration layout: with no Facebook connection it shows the \"not connected\" state instead of the editor `[source-derived 2026-09-26 — components/actions/send-sms-layout-state.ts:3-12; components/actions/SendSMS.vue:6-86,526-541]`.\n\n- `socialMessageValidator` is shared with `instagram-dm`; behavior diverges by the second arg (`\"fb\"` vs `\"ig\"`).\n- Facebook page integration must be connected at the location level — validator surfaces this as an external resource check.\n- The illegal-words list is the SMS list, applied to Messenger bodies — flagged words trigger a publish warning.",
    "hasCanonicalExample": true
   },
   {
@@ -17185,7 +17185,7 @@
     }
    ],
    "validator": "`respondOnCommentValidator` (per `sniffs/bundle/validators.json`):\n\n- `commentResponse` (an array) must have length > 0, else `respond_comment_required` warning.\n- Each string in `commentResponse` must be non-empty, else `respond_comment_empty` warning.\n\nPer `validators-summary.json`: 1 field referenced; result level `warning`.",
-   "notes": "- Used in tandem with social-comment triggers (Facebook page comment, Instagram comment); the trigger captures the comment and this step posts back to the same thread.\n- Whether each `commentResponse` string is rotated, randomized, or all sent isn't documented in the bundle.",
+   "notes": "- 🔴 **Runtime UNPROVEN — needs a connected Facebook/Instagram page account on the sandbox; third-party integrations are out of scope (coordinator 2026-09-28).** `[blocked 2026-09-28]` What IS proven: our build stores it as a DRAFT and it reads back unchanged (`sniffs/workflows-wave1-2026-09-25/live-3O3-blocked-drafts.json`), with the fields the builder/GHL require: `commentResponse`, `likeComment`. Whether it runs, what it sends and what it skips is not known.\n- Used in tandem with social-comment triggers (Facebook page comment, Instagram comment); the trigger captures the comment and this step posts back to the same thread.\n- Whether each `commentResponse` string is rotated, randomized, or all sent isn't documented in the bundle.",
    "hasCanonicalExample": true
   },
   {
@@ -17747,7 +17747,7 @@
     }
    ],
    "validator": "`slackMessageValidator` (per `sniffs/bundle/validators.json`):\n\n- `integration.id` set, else `slack_integration_required`.\n- `action.id` set, else `slack_action_type_required`.\n- `channel.id` set, else `slack_channel_required`.\n- `text` non-whitespace, else `slack_message_required`.\n- When `action.id === \"direct-message\"`, `userSource.id` set, else `slack_user_source_required`.\n\nPer `validators-summary.json`: 5 fields referenced; result level `warning`.",
-   "notes": "- `integration.idType: \"altId\"` — the integration ID is a composite of workspace + connected-user references; treat as opaque.\n- `text` accepts Slack mrkdwn (`*bold*`, `<url|label>`, `<@channel>`, etc.) and `{{handlebars}}`.\n- DM mode requires `userSource` resolution which itself depends on the location's user-source mapping; not enforced beyond `userSource.id` presence.",
+   "notes": "- 🔴 **Runtime UNPROVEN — needs a connected Slack account on the sandbox; third-party integrations are out of scope (coordinator 2026-09-28).** `[blocked 2026-09-28]` What IS proven: our build stores it as a DRAFT and it reads back unchanged (`sniffs/workflows-wave1-2026-09-25/live-3O2-blocked-drafts.json`), with the fields the builder/GHL require: `integration`, `action`, `channel`, `text`. Whether it runs, what it sends and what it skips is not known.\n- `integration.idType: \"altId\"` — the integration ID is a composite of workspace + connected-user references; treat as opaque.\n- `text` accepts Slack mrkdwn (`*bold*`, `<url|label>`, `<@channel>`, etc.) and `{{handlebars}}`.\n- DM mode requires `userSource` resolution which itself depends on the location's user-source mapping; not enforced beyond `userSource.id` presence.",
    "hasCanonicalExample": true
   },
   {
@@ -17970,7 +17970,7 @@
     }
    ],
    "validator": "`stripeOneTimeChargeValidator` (per `sniffs/bundle/validators.json`):\n\n- `amount` set and non-empty, else `amount_required`.\n- If `amount` doesn't start with `{{`, must parse as a positive float, else `amount_must_be_positive`.\n- `currency` set and non-empty, else `currency_required`.\n- `stripe_customer_id` set and non-empty, else `stripe_customer_id_required`.\n- `description` not validated despite being marked required in the TS interface — drift between interface and validator.\n\nPer `validators-summary.json`: 3 fields referenced; result level `warning`.",
-   "notes": "- `amount` is a string, not a number — the validator parses it. The handlebar-prefix check (`startsWith(\"{{\")`) is the runtime escape hatch for dynamic amounts.\n- Currency is uppercase ISO-4217 per Stripe convention; the validator doesn't enforce format.\n- `stripe_customer_id` must resolve to a real Stripe customer on the location's connected account — runtime constraint, not pre-flight.\n- Charge failures (declined card, insufficient funds) surface in the workflow context per Stripe webhook responses — handling is downstream concern.",
+   "notes": "- 🔴 **Runtime UNPROVEN — needs a connected Stripe account on the sandbox; third-party integrations are out of scope (coordinator 2026-09-28); never run, not even as a no-account probe (coordinator).** `[blocked 2026-09-28]` What IS proven: our build stores it as a DRAFT and it reads back unchanged (`sniffs/workflows-wave1-2026-09-25/live-3O3-blocked-drafts.json`), with the fields the builder/GHL require: `amount`, `currency`, `stripe_customer_id`, `description`. Whether it runs, what it sends and what it skips is not known.\n- `amount` is a string, not a number — the validator parses it. The handlebar-prefix check (`startsWith(\"{{\")`) is the runtime escape hatch for dynamic amounts.\n- Currency is uppercase ISO-4217 per Stripe convention; the validator doesn't enforce format.\n- `stripe_customer_id` must resolve to a real Stripe customer on the location's connected account — runtime constraint, not pre-flight.\n- Charge failures (declined card, insufficient funds) surface in the workflow context per Stripe webhook responses — handling is downstream concern.",
    "hasCanonicalExample": true
   },
   {
