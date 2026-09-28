@@ -11,6 +11,25 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.16.0] — 2026-09-29
+
+**New: `build_workflow` routes a contact on the intent of a reply. Executed live on the test account.**
+
+- **New — IR kind `ai_intent`.** It compiles to GHL's AI intent detection step the way the builder stores it: a
+  three-way container with fixed Positive / Negative / None lanes. Omitted lanes are empty.
+  - Branch names other than positive, negative and none are refused by name.
+  - An empty input text is refused.
+  - A step after the container is refused, as with every container.
+  - Before this, the step compiled as a straight line the builder never produces, and it could not branch.
+  - Proven live: the compiled container matches a builder-authored one, and it draws its three lanes in the builder.
+    GHL's validator accepts it. A billed run sent a positive reply down Positive and a negative reply down Negative.
+    The None lane has not been run.
+- Workflow skill traps:
+  - 🔴 `clear_associated_company_fields`: the builder says it skips when there is no company; it FAILS. Where a
+    company exists, it logs success and clears nothing, even with the builder's own row. No workflow step has been
+    shown to blank a company field.
+  - `workflow_ai_extract_data` output is `.N.<fieldName>`. `.N.output.<fieldName>` renders empty.
+
 ## [1.15.3] — 2026-09-29
 
 **Docs: delete routes for AI agents, and type cards for every workflow AI step. Executed live on the test account.**
