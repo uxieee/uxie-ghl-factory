@@ -1,7 +1,7 @@
 {
   "generated": "2026-09-28",
   "note": "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path — not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-  "count": 1350,
+  "count": 1355,
   "endpoints": [
     {
       "id": "facebook-service--get-ad-account-by-id",
@@ -2392,7 +2392,7 @@
         "services/api/chat-widget-service.ts:35",
         "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:127",
         "funnels/10-anatomy/websites-and-global-sections.md:278",
-        "funnels/20-api/funnels-api.md:354",
+        "funnels/20-api/funnels-api.md:356",
         "workflows/70-research/ENDPOINTS.md:137"
       ]
     },
@@ -3059,7 +3059,43 @@
         "returns": "unresolved"
       },
       "sources": [
-        "workflows/30-types/steps/if_else.md:105"
+        "workflows/30-types/steps/if_else.md:105",
+        "workflows/30-types/triggers/note_add.md:85"
+      ]
+    },
+    {
+      "id": "workflows--contacts-tags",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/contacts/{id}/tags",
+      "path": "/contacts/{id}/tags",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "workflows",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "id"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "workflows/30-types/triggers/contact_tag.md:86"
       ]
     },
     {
@@ -5044,7 +5080,8 @@
         "returns": "none-observed"
       },
       "sources": [
-        "services/marketplaceServices/TemplateService.ts:417"
+        "services/marketplaceServices/TemplateService.ts:417",
+        "funnels/20-api/webinars.md:105"
       ]
     },
     {
@@ -7435,7 +7472,7 @@
       },
       "sources": [
         "funnels/40-rules/silent-failures.md:578",
-        "funnels/20-api/funnels-api.md:243",
+        "funnels/20-api/funnels-api.md:245",
         "funnels/20-api/publish-routing-and-site-settings.md:43",
         "funnels/40-rules/autosave-writes-only-the-data-file.md:11",
         "funnels/40-rules/autosave-writes-only-the-data-file.md:31",
@@ -7471,7 +7508,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/funnels-api.md:301"
+        "funnels/20-api/funnels-api.md:303"
       ]
     },
     {
@@ -7619,7 +7656,7 @@
       },
       "sources": [
         "funnels/10-anatomy/routing-and-publishing.md:71",
-        "funnels/20-api/funnels-api.md:286",
+        "funnels/20-api/funnels-api.md:288",
         "funnels/40-rules/autosave-writes-only-the-data-file.md:32",
         "funnels/40-rules/silent-failures.md:802",
         "funnels/40-rules/silent-failures.md:1073",
@@ -7703,8 +7740,8 @@
         "funnels/10-anatomy/page-content.md:13",
         "funnels/10-anatomy/routing-and-publishing.md:31",
         "funnels/10-anatomy/styling-and-saved-assets.md:131",
-        "funnels/20-api/funnels-api.md:141",
-        "funnels/20-api/funnels-api.md:232",
+        "funnels/20-api/funnels-api.md:143",
+        "funnels/20-api/funnels-api.md:234",
         "funnels/30-types/section.md:78"
       ]
     },
@@ -8154,7 +8191,7 @@
       },
       "sources": [
         "funnels/10-anatomy/routing-and-publishing.md:72",
-        "funnels/20-api/funnels-api.md:287",
+        "funnels/20-api/funnels-api.md:289",
         "funnels/60-recipes/add-a-page-to-a-funnel.md:40",
         "funnels/60-recipes/build-a-multi-step-funnel.md:78"
       ]
@@ -8187,7 +8224,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/funnels-api.md:300",
+        "funnels/20-api/funnels-api.md:302",
         "funnels/20-api/publish-routing-and-site-settings.md:56"
       ]
     },
@@ -8384,7 +8421,7 @@
       },
       "sources": [
         "funnels/10-anatomy/domains-and-public-urls.md:21",
-        "funnels/20-api/funnels-api.md:220"
+        "funnels/20-api/funnels-api.md:222"
       ]
     },
     {
@@ -8623,7 +8660,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/funnels-api.md:109"
+        "funnels/20-api/funnels-api.md:111"
       ]
     },
     {
@@ -8771,7 +8808,7 @@
       },
       "sources": [
         "funnels/10-anatomy/domains-and-public-urls.md:107",
-        "funnels/20-api/funnels-api.md:145",
+        "funnels/20-api/funnels-api.md:147",
         "funnels/40-rules/silent-failures.md:120",
         "funnels/40-rules/silent-failures.md:237"
       ]
@@ -9005,7 +9042,7 @@
       },
       "sources": [
         "funnels/10-anatomy/page-content.md:22",
-        "funnels/20-api/funnels-api.md:117",
+        "funnels/20-api/funnels-api.md:119",
         "funnels/40-rules/silent-failures.md:524",
         "funnels/60-recipes/add-a-page-to-a-funnel.md:29",
         "funnels/60-recipes/author-native-elements.md:56",
@@ -9042,7 +9079,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/funnels-api.md:91",
+        "funnels/20-api/funnels-api.md:93",
         "funnels/40-rules/silent-failures.md:564"
       ]
     },
@@ -9132,9 +9169,10 @@
       "sources": [
         "services/marketplaceServices/FunnelsService.ts:21",
         "funnels/20-api/funnels-api.md:17",
-        "funnels/20-api/funnels-api.md:98",
-        "funnels/20-api/funnels-api.md:83",
-        "funnels/20-api/funnels-api.md:229",
+        "funnels/20-api/funnels-api.md:100",
+        "funnels/20-api/funnels-api.md:85",
+        "funnels/20-api/funnels-api.md:231",
+        "funnels/20-api/webinars.md:47",
         "funnels/40-rules/silent-failures.md:1044",
         "funnels/60-recipes/build-a-multi-step-funnel.md:50"
       ]
@@ -9176,8 +9214,8 @@
         "funnels/00-overview/index.md:29",
         "funnels/00-overview/index.md:66",
         "funnels/10-anatomy/websites-and-global-sections.md:300",
-        "funnels/20-api/funnels-api.md:308",
-        "funnels/20-api/funnels-api.md:375",
+        "funnels/20-api/funnels-api.md:310",
+        "funnels/20-api/funnels-api.md:377",
         "funnels/40-rules/autosave-writes-only-the-data-file.md:58"
       ]
     },
@@ -9216,7 +9254,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/funnels-api.md:317"
+        "funnels/20-api/funnels-api.md:319"
       ]
     },
     {
@@ -9398,7 +9436,7 @@
         "ai-studio/10-anatomy/project.md:17",
         "funnels/10-anatomy/websites-and-global-sections.md:34",
         "funnels/20-api/funnels-api.md:17",
-        "funnels/20-api/funnels-api.md:228",
+        "funnels/20-api/funnels-api.md:230",
         "funnels/40-rules/silent-failures.md:655"
       ]
     },
@@ -9438,7 +9476,7 @@
       "sources": [
         "funnels/10-anatomy/domains-and-public-urls.md:109",
         "funnels/10-anatomy/domains-and-public-urls.md:163",
-        "funnels/20-api/funnels-api.md:162",
+        "funnels/20-api/funnels-api.md:164",
         "funnels/40-rules/silent-failures.md:123",
         "funnels/40-rules/silent-failures.md:245",
         "funnels/40-rules/silent-failures.md:531"
@@ -9475,7 +9513,38 @@
       },
       "sources": [
         "funnels/20-api/funnel-object-operations.md:72",
-        "funnels/20-api/funnels-api.md:199"
+        "funnels/20-api/funnels-api.md:201"
+      ]
+    },
+    {
+      "id": "funnels--funnel-update-funnel-name",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/funnels/funnel/update-funnel-name",
+      "path": "/funnels/funnel/update-funnel-name",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/20-api/webinars.md:46"
       ]
     },
     {
@@ -9512,7 +9581,7 @@
         "funnels/10-anatomy/domains-and-public-urls.md:33",
         "funnels/10-anatomy/websites-and-global-sections.md:264",
         "funnels/10-anatomy/websites-and-global-sections.md:490",
-        "funnels/20-api/funnels-api.md:326",
+        "funnels/20-api/funnels-api.md:328",
         "funnels/40-rules/silent-failures.md:988"
       ]
     },
@@ -9582,6 +9651,138 @@
       },
       "sources": [
         "funnels/20-api/funnel-object-operations.md:143"
+      ]
+    },
+    {
+      "id": "funnels--funnel-webinar",
+      "method": "PATCH",
+      "url": "https://backend.leadconnectorhq.com/funnels/funnel/webinar/{funnelId}",
+      "path": "/funnels/funnel/webinar/{funnelId}",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "funnelId"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/20-api/webinars.md:31"
+      ]
+    },
+    {
+      "id": "funnels--notifications-stats",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/funnels/funnel/webinar/{funnelId}/notifications/stats",
+      "path": "/funnels/funnel/webinar/{funnelId}/notifications/stats",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "funnelId"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/20-api/webinars.md:87"
+      ]
+    },
+    {
+      "id": "funnels--webinar-rrule-text",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/funnels/funnel/webinar/rrule-text",
+      "path": "/funnels/funnel/webinar/rrule-text",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/20-api/webinars.md:75"
+      ]
+    },
+    {
+      "id": "funnels--webinar-sessions",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/funnels/funnel/webinar/sessions",
+      "path": "/funnels/funnel/webinar/sessions",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/20-api/webinars.md:69"
       ]
     },
     {
@@ -9679,7 +9880,7 @@
       },
       "sources": [
         "funnels/10-anatomy/domains-and-public-urls.md:93",
-        "funnels/20-api/funnels-api.md:307",
+        "funnels/20-api/funnels-api.md:309",
         "funnels/40-rules/silent-failures.md:270",
         "funnels/40-rules/silent-failures.md:937",
         "funnels/40-rules/silent-failures.md:967",
@@ -9752,7 +9953,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/funnels-api.md:99",
+        "funnels/20-api/funnels-api.md:101",
         "funnels/20-api/url-redirects.md:65"
       ]
     },
@@ -10130,7 +10331,7 @@
       },
       "sources": [
         "funnels/10-anatomy/routing-and-publishing.md:41",
-        "funnels/20-api/funnels-api.md:306",
+        "funnels/20-api/funnels-api.md:308",
         "funnels/10-anatomy/routing-and-publishing.md:61",
         "funnels/60-recipes/add-a-page-to-a-funnel.md:45"
       ]
@@ -10441,7 +10642,7 @@
         "funnels/10-anatomy/websites-and-global-sections.md:540",
         "funnels/20-api/funnel-ai.md:75",
         "funnels/20-api/funnel-object-operations.md:84",
-        "funnels/20-api/funnels-api.md:230"
+        "funnels/20-api/funnels-api.md:232"
       ]
     },
     {
@@ -10474,7 +10675,7 @@
       },
       "sources": [
         "funnels/10-anatomy/page-content.md:22",
-        "funnels/20-api/funnels-api.md:134",
+        "funnels/20-api/funnels-api.md:136",
         "funnels/40-rules/silent-failures.md:120"
       ]
     },
@@ -10558,7 +10759,7 @@
       },
       "sources": [
         "funnels/20-api/funnel-object-operations.md:91",
-        "funnels/20-api/funnels-api.md:231"
+        "funnels/20-api/funnels-api.md:233"
       ]
     },
     {
@@ -16866,7 +17067,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/funnels-api.md:384"
+        "funnels/20-api/funnels-api.md:386"
       ]
     },
     {
@@ -21750,6 +21951,41 @@
       ]
     },
     {
+      "id": "funnels--attendees-count",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/stats/webinar/{funnelId}/attendees/count",
+      "path": "/stats/webinar/{funnelId}/attendees/count",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "funnelId"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/20-api/webinars.md:88"
+      ]
+    },
+    {
       "id": "surveys-service--get-surveys",
       "method": "GET",
       "url": "https://backend.leadconnectorhq.com/surveys",
@@ -21852,6 +22088,70 @@
       "sources": [
         "services/marketplaceServices/SurveysService.ts:20",
         "workflows/70-research/ENDPOINTS.md:150"
+      ]
+    },
+    {
+      "id": "funnels--templates-list",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/templates/list",
+      "path": "/templates/list",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/20-api/webinars.md:106"
+      ]
+    },
+    {
+      "id": "funnels--template-load",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/templates/template/load",
+      "path": "/templates/template/load",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [
+        "create_funnel"
+      ],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/20-api/webinars.md:107"
       ]
     },
     {
@@ -24800,6 +25100,7 @@
         "push_snapshot",
         "rename_workflow",
         "repair_workflow",
+        "restore_workflow_version",
         "unpublish_workflows",
         "validate_workflow"
       ],
@@ -24862,7 +25163,8 @@
       "coveredBy": [
         "edit_workflow",
         "publish_workflow",
-        "repair_workflow"
+        "repair_workflow",
+        "restore_workflow_version"
       ],
       "rawCallable": true,
       "transport": "json",
@@ -25135,7 +25437,8 @@
       "kind": "read",
       "reach": "source-only",
       "coveredBy": [
-        "get_workflow_version"
+        "get_workflow_version",
+        "restore_workflow_version"
       ],
       "rawCallable": true,
       "transport": "json",
@@ -29696,6 +29999,7 @@
         "get_workflow_stats",
         "publish_workflow",
         "repair_workflow",
+        "restore_workflow_version",
         "validate_workflow"
       ],
       "rawCallable": true,
@@ -29746,7 +30050,8 @@
       "reach": "source-only",
       "coveredBy": [
         "build_workflow",
-        "edit_workflow"
+        "edit_workflow",
+        "restore_workflow_version"
       ],
       "rawCallable": true,
       "transport": "json",
@@ -29792,7 +30097,8 @@
       "kind": "destructive",
       "reach": "source-only",
       "coveredBy": [
-        "edit_workflow"
+        "edit_workflow",
+        "restore_workflow_version"
       ],
       "rawCallable": true,
       "transport": "json",
@@ -36213,7 +36519,8 @@
         "fast_forward_contacts",
         "get_workflow_logs",
         "get_workflow_runtime_window",
-        "get_workflow_stats"
+        "get_workflow_stats",
+        "restore_workflow_version"
       ],
       "rawCallable": true,
       "transport": "json",
@@ -37565,6 +37872,8 @@
       "sources": [
         "ai-agents/20-api/12-ai-agents-api.md:381",
         "ai-agents/20-api/agent-deployment-routing.md:25",
+        "ai-agents/20-api/agent-deployment-routing.md:267",
+        "ai-agents/20-api/agent-deployment-routing.md:467",
         "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:98"
       ]
     },
@@ -37597,11 +37906,15 @@
       },
       "sources": [
         "ai-agents/20-api/agent-deployment-routing.md:105",
+        "ai-agents/20-api/agent-deployment-routing.md:269",
         "workflows/50-runtime/flow-bot-four-node-certification.md:55"
       ]
     },
     {
       "id": "ai-agents--routing-config-configs-get",
+      "aka": [
+        "/agent-deployment/routing-config/configs/{id}"
+      ],
       "method": "GET",
       "url": "https://services.leadconnectorhq.com/agent-deployment/routing-config/configs/{rowId}",
       "path": "/agent-deployment/routing-config/configs/{rowId}",
@@ -37632,11 +37945,16 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/agent-deployment-routing.md:75"
+        "ai-agents/20-api/agent-deployment-routing.md:268",
+        "ai-agents/20-api/agent-deployment-routing.md:75",
+        "ai-agents/20-api/agent-deployment-routing.md:466"
       ]
     },
     {
       "id": "ai-agents--routing-config-configs-patch",
+      "aka": [
+        "/agent-deployment/routing-config/configs/{id}"
+      ],
       "method": "PATCH",
       "url": "https://services.leadconnectorhq.com/agent-deployment/routing-config/configs/{rowId}",
       "path": "/agent-deployment/routing-config/configs/{rowId}",
@@ -37668,6 +37986,7 @@
         "returns": "unresolved"
       },
       "sources": [
+        "ai-agents/20-api/agent-deployment-routing.md:270",
         "ai-agents/20-api/agent-deployment-routing.md:87",
         "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:99"
       ]
@@ -40294,7 +40613,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/00-overview/index.md:85"
+        "ai-agents/00-overview/index.md:87"
       ]
     },
     {
@@ -40329,7 +40648,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/00-overview/index.md:84"
+        "ai-agents/00-overview/index.md:86"
       ]
     },
     {
@@ -42624,8 +42943,8 @@
       },
       "sources": [
         "ai-agents/10-anatomy/voice-ai-agent-shape.md:467",
-        "ai-agents/20-api/agent-deployment-routing.md:173",
-        "ai-agents/20-api/agent-deployment-routing.md:389"
+        "ai-agents/20-api/agent-deployment-routing.md:182",
+        "ai-agents/20-api/agent-deployment-routing.md:407"
       ]
     },
     {
@@ -43480,8 +43799,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/agent-deployment-routing.md:415",
-        "ai-agents/20-api/agent-deployment-routing.md:450"
+        "ai-agents/20-api/agent-deployment-routing.md:433",
+        "ai-agents/20-api/agent-deployment-routing.md:468"
       ]
     },
     {
@@ -45811,7 +46130,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/agent-deployment-routing.md:386"
+        "ai-agents/20-api/agent-deployment-routing.md:404"
       ]
     },
     {
@@ -46960,7 +47279,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/00-overview/index.md:87",
+        "ai-agents/00-overview/index.md:89",
         "ai-agents/20-api/knowledge-base.md:199",
         "ai-agents/20-api/knowledge-base.md:254"
       ]
@@ -47786,7 +48105,7 @@
       },
       "sources": [
         "ai-agents/20-api/agent-deployment-routing.md:55",
-        "ai-agents/20-api/agent-deployment-routing.md:390"
+        "ai-agents/20-api/agent-deployment-routing.md:408"
       ]
     },
     {
@@ -56263,159 +56582,6 @@
       ]
     },
     {
-      "id": "ai-agents--routing-config-configs-get-get",
-      "method": "GET",
-      "url": "https://services.leadconnectorhq.com/routing-config/configs",
-      "path": "/routing-config/configs",
-      "origin": "https://services.leadconnectorhq.com",
-      "rail": "ai",
-      "kind": "read",
-      "reach": "source-only",
-      "coveredBy": [],
-      "rawCallable": true,
-      "transport": "json",
-      "responseMode": "json",
-      "extraHeaders": [],
-      "operation": null,
-      "service": "ai-agents",
-      "tree": "documented",
-      "pathParams": [],
-      "query": [
-        {
-          "name": "locationId",
-          "type": "string",
-          "required": false,
-          "source": "documented"
-        },
-        {
-          "name": "agentId",
-          "type": "string",
-          "required": false,
-          "source": "documented"
-        }
-      ],
-      "body": null,
-      "returns": null,
-      "confidence": {
-        "path": "documented",
-        "query": "documented",
-        "body": "unresolved",
-        "returns": "unresolved"
-      },
-      "sources": [
-        "ai-agents/20-api/agent-deployment-routing.md:258",
-        "ai-agents/20-api/agent-deployment-routing.md:449"
-      ]
-    },
-    {
-      "id": "ai-agents--routing-config-configs-post-post",
-      "method": "POST",
-      "url": "https://services.leadconnectorhq.com/routing-config/configs",
-      "path": "/routing-config/configs",
-      "origin": "https://services.leadconnectorhq.com",
-      "rail": "ai",
-      "kind": "write",
-      "reach": "source-only",
-      "coveredBy": [],
-      "rawCallable": true,
-      "transport": "json",
-      "responseMode": "json",
-      "extraHeaders": [],
-      "operation": null,
-      "service": "ai-agents",
-      "tree": "documented",
-      "pathParams": [],
-      "query": [],
-      "body": null,
-      "returns": null,
-      "confidence": {
-        "path": "documented",
-        "query": "none-observed",
-        "body": "unresolved",
-        "returns": "unresolved"
-      },
-      "sources": [
-        "ai-agents/20-api/agent-deployment-routing.md:260"
-      ]
-    },
-    {
-      "id": "ai-agents--routing-config-configs-get-get-get",
-      "aka": [
-        "/routing-config/configs/{id}"
-      ],
-      "method": "GET",
-      "url": "https://services.leadconnectorhq.com/routing-config/configs/{rowId}",
-      "path": "/routing-config/configs/{rowId}",
-      "origin": "https://services.leadconnectorhq.com",
-      "rail": "ai",
-      "kind": "read",
-      "reach": "source-only",
-      "coveredBy": [],
-      "rawCallable": true,
-      "transport": "json",
-      "responseMode": "json",
-      "extraHeaders": [],
-      "operation": null,
-      "service": "ai-agents",
-      "tree": "documented",
-      "pathParams": [
-        {
-          "name": "rowId"
-        }
-      ],
-      "query": [],
-      "body": null,
-      "returns": null,
-      "confidence": {
-        "path": "documented",
-        "query": "none-observed",
-        "body": "unresolved",
-        "returns": "unresolved"
-      },
-      "sources": [
-        "ai-agents/20-api/agent-deployment-routing.md:259",
-        "ai-agents/20-api/agent-deployment-routing.md:448"
-      ]
-    },
-    {
-      "id": "ai-agents--routing-config-configs-patch-patch",
-      "aka": [
-        "/routing-config/configs/{id}"
-      ],
-      "method": "PATCH",
-      "url": "https://services.leadconnectorhq.com/routing-config/configs/{rowId}",
-      "path": "/routing-config/configs/{rowId}",
-      "origin": "https://services.leadconnectorhq.com",
-      "rail": "ai",
-      "kind": "write",
-      "reach": "source-only",
-      "coveredBy": [],
-      "rawCallable": true,
-      "transport": "json",
-      "responseMode": "json",
-      "extraHeaders": [],
-      "operation": null,
-      "service": "ai-agents",
-      "tree": "documented",
-      "pathParams": [
-        {
-          "name": "rowId"
-        }
-      ],
-      "query": [],
-      "body": null,
-      "returns": null,
-      "confidence": {
-        "path": "documented",
-        "query": "none-observed",
-        "body": "unresolved",
-        "returns": "unresolved"
-      },
-      "sources": [
-        "ai-agents/20-api/agent-deployment-routing.md:261"
-      ]
-    },
-    {
       "id": "platform--snapshot-get-assets-get",
       "method": "GET",
       "url": "https://services.leadconnectorhq.com/snapshots-appengine/snapshot/{snapshotId}/get_assets",
@@ -57185,7 +57351,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/agent-deployment-routing.md:388"
+        "ai-agents/20-api/agent-deployment-routing.md:406"
       ]
     },
     {

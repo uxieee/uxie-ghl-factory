@@ -178,7 +178,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
     define_ENDPOINT_CATALOG_default = {
       generated: "2026-09-28",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 1350,
+      count: 1355,
       endpoints: [
         {
           id: "facebook-service--get-ad-account-by-id",
@@ -2569,7 +2569,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "services/api/chat-widget-service.ts:35",
             "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:127",
             "funnels/10-anatomy/websites-and-global-sections.md:278",
-            "funnels/20-api/funnels-api.md:354",
+            "funnels/20-api/funnels-api.md:356",
             "workflows/70-research/ENDPOINTS.md:137"
           ]
         },
@@ -3236,7 +3236,43 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "workflows/30-types/steps/if_else.md:105"
+            "workflows/30-types/steps/if_else.md:105",
+            "workflows/30-types/triggers/note_add.md:85"
+          ]
+        },
+        {
+          id: "workflows--contacts-tags",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/contacts/{id}/tags",
+          path: "/contacts/{id}/tags",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/30-types/triggers/contact_tag.md:86"
           ]
         },
         {
@@ -5221,7 +5257,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/TemplateService.ts:417"
+            "services/marketplaceServices/TemplateService.ts:417",
+            "funnels/20-api/webinars.md:105"
           ]
         },
         {
@@ -7612,7 +7649,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/40-rules/silent-failures.md:578",
-            "funnels/20-api/funnels-api.md:243",
+            "funnels/20-api/funnels-api.md:245",
             "funnels/20-api/publish-routing-and-site-settings.md:43",
             "funnels/40-rules/autosave-writes-only-the-data-file.md:11",
             "funnels/40-rules/autosave-writes-only-the-data-file.md:31",
@@ -7648,7 +7685,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/funnels-api.md:301"
+            "funnels/20-api/funnels-api.md:303"
           ]
         },
         {
@@ -7796,7 +7833,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/10-anatomy/routing-and-publishing.md:71",
-            "funnels/20-api/funnels-api.md:286",
+            "funnels/20-api/funnels-api.md:288",
             "funnels/40-rules/autosave-writes-only-the-data-file.md:32",
             "funnels/40-rules/silent-failures.md:802",
             "funnels/40-rules/silent-failures.md:1073",
@@ -7880,8 +7917,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "funnels/10-anatomy/page-content.md:13",
             "funnels/10-anatomy/routing-and-publishing.md:31",
             "funnels/10-anatomy/styling-and-saved-assets.md:131",
-            "funnels/20-api/funnels-api.md:141",
-            "funnels/20-api/funnels-api.md:232",
+            "funnels/20-api/funnels-api.md:143",
+            "funnels/20-api/funnels-api.md:234",
             "funnels/30-types/section.md:78"
           ]
         },
@@ -8331,7 +8368,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/10-anatomy/routing-and-publishing.md:72",
-            "funnels/20-api/funnels-api.md:287",
+            "funnels/20-api/funnels-api.md:289",
             "funnels/60-recipes/add-a-page-to-a-funnel.md:40",
             "funnels/60-recipes/build-a-multi-step-funnel.md:78"
           ]
@@ -8364,7 +8401,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/funnels-api.md:300",
+            "funnels/20-api/funnels-api.md:302",
             "funnels/20-api/publish-routing-and-site-settings.md:56"
           ]
         },
@@ -8561,7 +8598,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/10-anatomy/domains-and-public-urls.md:21",
-            "funnels/20-api/funnels-api.md:220"
+            "funnels/20-api/funnels-api.md:222"
           ]
         },
         {
@@ -8800,7 +8837,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/funnels-api.md:109"
+            "funnels/20-api/funnels-api.md:111"
           ]
         },
         {
@@ -8948,7 +8985,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/10-anatomy/domains-and-public-urls.md:107",
-            "funnels/20-api/funnels-api.md:145",
+            "funnels/20-api/funnels-api.md:147",
             "funnels/40-rules/silent-failures.md:120",
             "funnels/40-rules/silent-failures.md:237"
           ]
@@ -9182,7 +9219,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/10-anatomy/page-content.md:22",
-            "funnels/20-api/funnels-api.md:117",
+            "funnels/20-api/funnels-api.md:119",
             "funnels/40-rules/silent-failures.md:524",
             "funnels/60-recipes/add-a-page-to-a-funnel.md:29",
             "funnels/60-recipes/author-native-elements.md:56",
@@ -9219,7 +9256,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/funnels-api.md:91",
+            "funnels/20-api/funnels-api.md:93",
             "funnels/40-rules/silent-failures.md:564"
           ]
         },
@@ -9309,9 +9346,10 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "services/marketplaceServices/FunnelsService.ts:21",
             "funnels/20-api/funnels-api.md:17",
-            "funnels/20-api/funnels-api.md:98",
-            "funnels/20-api/funnels-api.md:83",
-            "funnels/20-api/funnels-api.md:229",
+            "funnels/20-api/funnels-api.md:100",
+            "funnels/20-api/funnels-api.md:85",
+            "funnels/20-api/funnels-api.md:231",
+            "funnels/20-api/webinars.md:47",
             "funnels/40-rules/silent-failures.md:1044",
             "funnels/60-recipes/build-a-multi-step-funnel.md:50"
           ]
@@ -9353,8 +9391,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "funnels/00-overview/index.md:29",
             "funnels/00-overview/index.md:66",
             "funnels/10-anatomy/websites-and-global-sections.md:300",
-            "funnels/20-api/funnels-api.md:308",
-            "funnels/20-api/funnels-api.md:375",
+            "funnels/20-api/funnels-api.md:310",
+            "funnels/20-api/funnels-api.md:377",
             "funnels/40-rules/autosave-writes-only-the-data-file.md:58"
           ]
         },
@@ -9393,7 +9431,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/funnels-api.md:317"
+            "funnels/20-api/funnels-api.md:319"
           ]
         },
         {
@@ -9575,7 +9613,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "ai-studio/10-anatomy/project.md:17",
             "funnels/10-anatomy/websites-and-global-sections.md:34",
             "funnels/20-api/funnels-api.md:17",
-            "funnels/20-api/funnels-api.md:228",
+            "funnels/20-api/funnels-api.md:230",
             "funnels/40-rules/silent-failures.md:655"
           ]
         },
@@ -9615,7 +9653,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "funnels/10-anatomy/domains-and-public-urls.md:109",
             "funnels/10-anatomy/domains-and-public-urls.md:163",
-            "funnels/20-api/funnels-api.md:162",
+            "funnels/20-api/funnels-api.md:164",
             "funnels/40-rules/silent-failures.md:123",
             "funnels/40-rules/silent-failures.md:245",
             "funnels/40-rules/silent-failures.md:531"
@@ -9652,7 +9690,38 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/20-api/funnel-object-operations.md:72",
-            "funnels/20-api/funnels-api.md:199"
+            "funnels/20-api/funnels-api.md:201"
+          ]
+        },
+        {
+          id: "funnels--funnel-update-funnel-name",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/funnels/funnel/update-funnel-name",
+          path: "/funnels/funnel/update-funnel-name",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/20-api/webinars.md:46"
           ]
         },
         {
@@ -9689,7 +9758,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "funnels/10-anatomy/domains-and-public-urls.md:33",
             "funnels/10-anatomy/websites-and-global-sections.md:264",
             "funnels/10-anatomy/websites-and-global-sections.md:490",
-            "funnels/20-api/funnels-api.md:326",
+            "funnels/20-api/funnels-api.md:328",
             "funnels/40-rules/silent-failures.md:988"
           ]
         },
@@ -9759,6 +9828,138 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/20-api/funnel-object-operations.md:143"
+          ]
+        },
+        {
+          id: "funnels--funnel-webinar",
+          method: "PATCH",
+          url: "https://backend.leadconnectorhq.com/funnels/funnel/webinar/{funnelId}",
+          path: "/funnels/funnel/webinar/{funnelId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "funnelId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/20-api/webinars.md:31"
+          ]
+        },
+        {
+          id: "funnels--notifications-stats",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/funnels/funnel/webinar/{funnelId}/notifications/stats",
+          path: "/funnels/funnel/webinar/{funnelId}/notifications/stats",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "funnelId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/20-api/webinars.md:87"
+          ]
+        },
+        {
+          id: "funnels--webinar-rrule-text",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/funnels/funnel/webinar/rrule-text",
+          path: "/funnels/funnel/webinar/rrule-text",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/20-api/webinars.md:75"
+          ]
+        },
+        {
+          id: "funnels--webinar-sessions",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/funnels/funnel/webinar/sessions",
+          path: "/funnels/funnel/webinar/sessions",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/20-api/webinars.md:69"
           ]
         },
         {
@@ -9856,7 +10057,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/10-anatomy/domains-and-public-urls.md:93",
-            "funnels/20-api/funnels-api.md:307",
+            "funnels/20-api/funnels-api.md:309",
             "funnels/40-rules/silent-failures.md:270",
             "funnels/40-rules/silent-failures.md:937",
             "funnels/40-rules/silent-failures.md:967",
@@ -9929,7 +10130,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/funnels-api.md:99",
+            "funnels/20-api/funnels-api.md:101",
             "funnels/20-api/url-redirects.md:65"
           ]
         },
@@ -10307,7 +10508,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/10-anatomy/routing-and-publishing.md:41",
-            "funnels/20-api/funnels-api.md:306",
+            "funnels/20-api/funnels-api.md:308",
             "funnels/10-anatomy/routing-and-publishing.md:61",
             "funnels/60-recipes/add-a-page-to-a-funnel.md:45"
           ]
@@ -10618,7 +10819,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "funnels/10-anatomy/websites-and-global-sections.md:540",
             "funnels/20-api/funnel-ai.md:75",
             "funnels/20-api/funnel-object-operations.md:84",
-            "funnels/20-api/funnels-api.md:230"
+            "funnels/20-api/funnels-api.md:232"
           ]
         },
         {
@@ -10651,7 +10852,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/10-anatomy/page-content.md:22",
-            "funnels/20-api/funnels-api.md:134",
+            "funnels/20-api/funnels-api.md:136",
             "funnels/40-rules/silent-failures.md:120"
           ]
         },
@@ -10735,7 +10936,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/20-api/funnel-object-operations.md:91",
-            "funnels/20-api/funnels-api.md:231"
+            "funnels/20-api/funnels-api.md:233"
           ]
         },
         {
@@ -17043,7 +17244,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/funnels-api.md:384"
+            "funnels/20-api/funnels-api.md:386"
           ]
         },
         {
@@ -21927,6 +22128,41 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "funnels--attendees-count",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/stats/webinar/{funnelId}/attendees/count",
+          path: "/stats/webinar/{funnelId}/attendees/count",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "funnelId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/20-api/webinars.md:88"
+          ]
+        },
+        {
           id: "surveys-service--get-surveys",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/surveys",
@@ -22029,6 +22265,70 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "services/marketplaceServices/SurveysService.ts:20",
             "workflows/70-research/ENDPOINTS.md:150"
+          ]
+        },
+        {
+          id: "funnels--templates-list",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/templates/list",
+          path: "/templates/list",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/20-api/webinars.md:106"
+          ]
+        },
+        {
+          id: "funnels--template-load",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/templates/template/load",
+          path: "/templates/template/load",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [
+            "create_funnel"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/20-api/webinars.md:107"
           ]
         },
         {
@@ -24977,6 +25277,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "push_snapshot",
             "rename_workflow",
             "repair_workflow",
+            "restore_workflow_version",
             "unpublish_workflows",
             "validate_workflow"
           ],
@@ -25039,7 +25340,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           coveredBy: [
             "edit_workflow",
             "publish_workflow",
-            "repair_workflow"
+            "repair_workflow",
+            "restore_workflow_version"
           ],
           rawCallable: true,
           transport: "json",
@@ -25317,7 +25619,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           kind: "read",
           reach: "source-only",
           coveredBy: [
-            "get_workflow_version"
+            "get_workflow_version",
+            "restore_workflow_version"
           ],
           rawCallable: true,
           transport: "json",
@@ -25675,7 +25978,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          note: "FENCED \u2014 it MOVES REAL CONTACTS through a live workflow. Standing P5 exclusion, authorised 2026-09-15: anything that fast-forwards contacts is excluded regardless of class, and that holds on the sandbox too because its contacts are real. Reachable, never called by a tool. \u{1F534} Two of this family are additionally guarded at the raw_request door, because they answer 200 while doing silent damage \u2014 start-workflow accepts an empty body and enrols a phantom, and remove-stuck-statuses WITHOUT a non-empty statusIds evicts EVERY contact at the step, stuck or not (live-measured: a contact merely WAITING, healthy, day one of seven, was removed). \u2014 PRIOR NOTE: Proven live 2026-09-19, by accident and then measured. \u{1F534} AN EMPTY BODY IS ACCEPTED AND CREATES A PHANTOM ENROLMENT: {} -> 200 'ADD To WF:<id> recordId: undefined', and the execution log then holds added_to_workflow + the first step for an execution with NO contactId. It was stopped with stop-execution on its workflowStatusId. The real body (testWorkflowForObjectRecords) is the builder's Test Workflow payload plus actionFrom{userId, channel:'web_app', source:'workflow_test_page'}. Never probe this route with an empty body.",
+          note: `FENCED \u2014 it MOVES REAL CONTACTS through a live workflow. Standing P5 exclusion, authorised 2026-09-15: anything that fast-forwards contacts is excluded regardless of class, and that holds on the sandbox too because its contacts are real. Reachable, never called by a tool. \u{1F534} Two of this family are additionally guarded at the raw_request door, because they answer 200 while doing silent damage \u2014 start-workflow accepts an empty body and enrols a phantom, and remove-stuck-statuses WITHOUT a non-empty statusIds evicts EVERY contact at the step, stuck or not (live-measured: a contact merely WAITING, healthy, day one of seven, was removed). \u{1F534} A TEST RUN ON A DRAFT EXECUTES FOR REAL, sends included: proven live 2026-09-28 (sniffs/workflows-wave1-2026-09-25/live-3BL-test-run.json). A never-published draft's tag step was applied to the contact exactly as on a published workflow, and the rows carry meta.addedSource.source 'workflow_test_page'. "Test" is not a dry run. \u2014 PRIOR NOTE: Proven live 2026-09-19, by accident and then measured. \u{1F534} AN EMPTY BODY IS ACCEPTED AND CREATES A PHANTOM ENROLMENT: {} -> 200 'ADD To WF:<id> recordId: undefined', and the execution log then holds added_to_workflow + the first step for an execution with NO contactId. It was stopped with stop-execution on its workflowStatusId. The real body (testWorkflowForObjectRecords) is the builder's Test Workflow payload plus actionFrom{userId, channel:'web_app', source:'workflow_test_page'}. Never probe this route with an empty body.`,
           reach: "proven",
           provenFor: [
             "agency-admin-bearer"
@@ -29881,6 +30184,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "get_workflow_stats",
             "publish_workflow",
             "repair_workflow",
+            "restore_workflow_version",
             "validate_workflow"
           ],
           rawCallable: true,
@@ -29931,7 +30235,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           reach: "source-only",
           coveredBy: [
             "build_workflow",
-            "edit_workflow"
+            "edit_workflow",
+            "restore_workflow_version"
           ],
           rawCallable: true,
           transport: "json",
@@ -29977,7 +30282,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           kind: "destructive",
           reach: "source-only",
           coveredBy: [
-            "edit_workflow"
+            "edit_workflow",
+            "restore_workflow_version"
           ],
           rawCallable: true,
           transport: "json",
@@ -36401,7 +36707,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "fast_forward_contacts",
             "get_workflow_logs",
             "get_workflow_runtime_window",
-            "get_workflow_stats"
+            "get_workflow_stats",
+            "restore_workflow_version"
           ],
           rawCallable: true,
           transport: "json",
@@ -37754,6 +38061,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:381",
             "ai-agents/20-api/agent-deployment-routing.md:25",
+            "ai-agents/20-api/agent-deployment-routing.md:267",
+            "ai-agents/20-api/agent-deployment-routing.md:467",
             "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:98"
           ]
         },
@@ -37786,11 +38095,15 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/20-api/agent-deployment-routing.md:105",
+            "ai-agents/20-api/agent-deployment-routing.md:269",
             "workflows/50-runtime/flow-bot-four-node-certification.md:55"
           ]
         },
         {
           id: "ai-agents--routing-config-configs-get",
+          aka: [
+            "/agent-deployment/routing-config/configs/{id}"
+          ],
           method: "GET",
           url: "https://services.leadconnectorhq.com/agent-deployment/routing-config/configs/{rowId}",
           path: "/agent-deployment/routing-config/configs/{rowId}",
@@ -37821,11 +38134,16 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-deployment-routing.md:75"
+            "ai-agents/20-api/agent-deployment-routing.md:268",
+            "ai-agents/20-api/agent-deployment-routing.md:75",
+            "ai-agents/20-api/agent-deployment-routing.md:466"
           ]
         },
         {
           id: "ai-agents--routing-config-configs-patch",
+          aka: [
+            "/agent-deployment/routing-config/configs/{id}"
+          ],
           method: "PATCH",
           url: "https://services.leadconnectorhq.com/agent-deployment/routing-config/configs/{rowId}",
           path: "/agent-deployment/routing-config/configs/{rowId}",
@@ -37857,6 +38175,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
+            "ai-agents/20-api/agent-deployment-routing.md:270",
             "ai-agents/20-api/agent-deployment-routing.md:87",
             "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:99"
           ]
@@ -40483,7 +40802,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/00-overview/index.md:85"
+            "ai-agents/00-overview/index.md:87"
           ]
         },
         {
@@ -40518,7 +40837,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/00-overview/index.md:84"
+            "ai-agents/00-overview/index.md:86"
           ]
         },
         {
@@ -42813,8 +43132,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/10-anatomy/voice-ai-agent-shape.md:467",
-            "ai-agents/20-api/agent-deployment-routing.md:173",
-            "ai-agents/20-api/agent-deployment-routing.md:389"
+            "ai-agents/20-api/agent-deployment-routing.md:182",
+            "ai-agents/20-api/agent-deployment-routing.md:407"
           ]
         },
         {
@@ -43669,8 +43988,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-deployment-routing.md:415",
-            "ai-agents/20-api/agent-deployment-routing.md:450"
+            "ai-agents/20-api/agent-deployment-routing.md:433",
+            "ai-agents/20-api/agent-deployment-routing.md:468"
           ]
         },
         {
@@ -46000,7 +46319,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-deployment-routing.md:386"
+            "ai-agents/20-api/agent-deployment-routing.md:404"
           ]
         },
         {
@@ -47149,7 +47468,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/00-overview/index.md:87",
+            "ai-agents/00-overview/index.md:89",
             "ai-agents/20-api/knowledge-base.md:199",
             "ai-agents/20-api/knowledge-base.md:254"
           ]
@@ -47975,7 +48294,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/20-api/agent-deployment-routing.md:55",
-            "ai-agents/20-api/agent-deployment-routing.md:390"
+            "ai-agents/20-api/agent-deployment-routing.md:408"
           ]
         },
         {
@@ -56452,159 +56771,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           ]
         },
         {
-          id: "ai-agents--routing-config-configs-get-get",
-          method: "GET",
-          url: "https://services.leadconnectorhq.com/routing-config/configs",
-          path: "/routing-config/configs",
-          origin: "https://services.leadconnectorhq.com",
-          rail: "ai",
-          kind: "read",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "ai-agents",
-          tree: "documented",
-          pathParams: [],
-          query: [
-            {
-              name: "locationId",
-              type: "string",
-              required: false,
-              source: "documented"
-            },
-            {
-              name: "agentId",
-              type: "string",
-              required: false,
-              source: "documented"
-            }
-          ],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "documented",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/agent-deployment-routing.md:258",
-            "ai-agents/20-api/agent-deployment-routing.md:449"
-          ]
-        },
-        {
-          id: "ai-agents--routing-config-configs-post-post",
-          method: "POST",
-          url: "https://services.leadconnectorhq.com/routing-config/configs",
-          path: "/routing-config/configs",
-          origin: "https://services.leadconnectorhq.com",
-          rail: "ai",
-          kind: "write",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "ai-agents",
-          tree: "documented",
-          pathParams: [],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/agent-deployment-routing.md:260"
-          ]
-        },
-        {
-          id: "ai-agents--routing-config-configs-get-get-get",
-          aka: [
-            "/routing-config/configs/{id}"
-          ],
-          method: "GET",
-          url: "https://services.leadconnectorhq.com/routing-config/configs/{rowId}",
-          path: "/routing-config/configs/{rowId}",
-          origin: "https://services.leadconnectorhq.com",
-          rail: "ai",
-          kind: "read",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "ai-agents",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "rowId"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/agent-deployment-routing.md:259",
-            "ai-agents/20-api/agent-deployment-routing.md:448"
-          ]
-        },
-        {
-          id: "ai-agents--routing-config-configs-patch-patch",
-          aka: [
-            "/routing-config/configs/{id}"
-          ],
-          method: "PATCH",
-          url: "https://services.leadconnectorhq.com/routing-config/configs/{rowId}",
-          path: "/routing-config/configs/{rowId}",
-          origin: "https://services.leadconnectorhq.com",
-          rail: "ai",
-          kind: "write",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "ai-agents",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "rowId"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/agent-deployment-routing.md:261"
-          ]
-        },
-        {
           id: "platform--snapshot-get-assets-get",
           method: "GET",
           url: "https://services.leadconnectorhq.com/snapshots-appengine/snapshot/{snapshotId}/get_assets",
@@ -57374,7 +57540,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-deployment-routing.md:388"
+            "ai-agents/20-api/agent-deployment-routing.md:406"
           ]
         },
         {
@@ -62871,7 +63037,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           kind: "write",
           reach: "proven",
           credentialClass: "agency-admin-bearer",
-          note: "FENCED \u2014 it MOVES REAL CONTACTS through a live workflow. Standing P5 exclusion, authorised 2026-09-15: anything that fast-forwards contacts is excluded regardless of class, and that holds on the sandbox too because its contacts are real. Reachable, never called by a tool. \u{1F534} Two of this family are additionally guarded at the raw_request door, because they answer 200 while doing silent damage \u2014 start-workflow accepts an empty body and enrols a phantom, and remove-stuck-statuses WITHOUT a non-empty statusIds evicts EVERY contact at the step, stuck or not (live-measured: a contact merely WAITING, healthy, day one of seven, was removed). \u2014 PRIOR NOTE: Proven live 2026-09-19, by accident and then measured. \u{1F534} AN EMPTY BODY IS ACCEPTED AND CREATES A PHANTOM ENROLMENT: {} -> 200 'ADD To WF:<id> recordId: undefined', and the execution log then holds added_to_workflow + the first step for an execution with NO contactId. It was stopped with stop-execution on its workflowStatusId. The real body (testWorkflowForObjectRecords) is the builder's Test Workflow payload plus actionFrom{userId, channel:'web_app', source:'workflow_test_page'}. Never probe this route with an empty body."
+          note: `FENCED \u2014 it MOVES REAL CONTACTS through a live workflow. Standing P5 exclusion, authorised 2026-09-15: anything that fast-forwards contacts is excluded regardless of class, and that holds on the sandbox too because its contacts are real. Reachable, never called by a tool. \u{1F534} Two of this family are additionally guarded at the raw_request door, because they answer 200 while doing silent damage \u2014 start-workflow accepts an empty body and enrols a phantom, and remove-stuck-statuses WITHOUT a non-empty statusIds evicts EVERY contact at the step, stuck or not (live-measured: a contact merely WAITING, healthy, day one of seven, was removed). \u{1F534} A TEST RUN ON A DRAFT EXECUTES FOR REAL, sends included: proven live 2026-09-28 (sniffs/workflows-wave1-2026-09-25/live-3BL-test-run.json). A never-published draft's tag step was applied to the contact exactly as on a published workflow, and the rows carry meta.addedSource.source 'workflow_test_page'. "Test" is not a dry run. \u2014 PRIOR NOTE: Proven live 2026-09-19, by accident and then measured. \u{1F534} AN EMPTY BODY IS ACCEPTED AND CREATES A PHANTOM ENROLMENT: {} -> 200 'ADD To WF:<id> recordId: undefined', and the execution log then holds added_to_workflow + the first step for an execution with NO contactId. It was stopped with stop-execution on its workflowStatusId. The real body (testWorkflowForObjectRecords) is the builder's Test Workflow payload plus actionFrom{userId, channel:'web_app', source:'workflow_test_page'}. Never probe this route with an empty body.`
         },
         "POST /workflow/{locationId}/{workflowId}/upload": {
           reach: "reached",
@@ -66831,6 +66997,48 @@ var init_define_TOOL_CATALOG = __esm({
           "funnels--funnel-create",
           "template-library-service--load-workflow-via-template-id",
           "funnels--blog-list"
+        ]
+      },
+      restore_workflow_version: {
+        description: "Restore a workflow to an earlier version \u2014 proof: live-canary (2026-09-28); risk: write",
+        risk: "write",
+        proof: "live-canary (2026-09-28)",
+        proofFloor: "external-receipt-required",
+        proofRows: [
+          "workflow-service--update",
+          "workflow-service--get-version-by-number-and-workflow-id",
+          "trigger-service--create",
+          "trigger-service--delete",
+          "trigger-service--find-all",
+          "workflow-marketplace-service--get-contact-count-per-step",
+          "workflow-service--find-by-id"
+        ],
+        proofFloorRows: [
+          "workflow-service--update",
+          "workflow-service--get-version-by-number-and-workflow-id",
+          "trigger-service--create",
+          "trigger-service--delete",
+          "trigger-service--find-all",
+          "workflow-marketplace-service--get-contact-count-per-step",
+          "workflow-service--find-by-id"
+        ],
+        riskRows: [
+          "workflow-service--update",
+          "workflow-service--get-version-by-number-and-workflow-id",
+          "trigger-service--create",
+          "trigger-service--delete",
+          "trigger-service--find-all",
+          "workflow-marketplace-service--get-contact-count-per-step",
+          "workflow-service--find-by-id"
+        ],
+        rows: [
+          "workflow-service--update",
+          "workflow-service--get-version-by-number-and-workflow-id",
+          "trigger-service--create",
+          "trigger-service--delete",
+          "trigger-service--find-all",
+          "workflow-marketplace-service--get-contact-count-per-step",
+          "workflow-service--find-by-id"
         ]
       }
     };
@@ -106858,6 +107066,79 @@ function pickStats(json2, workflowId) {
   if (!Number.isFinite(total)) return null;
   const finished = Number(mine.finished);
   return { total, finished: Number.isFinite(finished) ? finished : null };
+}
+
+// core/version-restore.mjs
+init_define_BUILDER_VALIDATORS();
+init_define_CONTACT_FILTER_FIELDS();
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
+init_define_TOOL_CATALOG();
+var SETTINGS_KEYS2 = ["timezone", "stopOnResponse", "allowMultiple", "allowMultipleOpportunity", "autoMarkAsRead", "window", "senderAddress", "eventStartDate"];
+function triggerFromVersion(src, { workflowId, status = "draft", locationId, companyId, companyAge }) {
+  const copy = JSON.parse(JSON.stringify(src ?? {}));
+  if (copy.type === "inbound_webhook" && !copy.predeterminedId) copy.predeterminedId = copy.id ?? copy._id;
+  const { id: _id1, _id: _id2, workflow_id: _snake, ...rest } = copy;
+  const body2 = { ...rest, workflowId, status, active: false };
+  if (Array.isArray(body2.actions)) body2.actions = body2.actions.map((a) => ({ ...a, workflow_id: workflowId }));
+  if (locationId) body2.location_id = locationId;
+  if (companyId) body2.company_id = companyId;
+  if (companyAge !== void 0 && companyAge !== null) body2.company_age = companyAge;
+  return body2;
+}
+function restoreBody(version2, { name, targetVersion, userId, oldTriggers = [], newTriggers = [], restoredAt = /* @__PURE__ */ new Date() }) {
+  const settings = {};
+  for (const k of SETTINGS_KEYS2) settings[k] = k === "eventStartDate" ? version2.startDate ?? version2.eventStartDate : version2[k];
+  return {
+    name,
+    isRestoreRequest: true,
+    status: "draft",
+    ...settings,
+    workflowData: version2.workflowData,
+    updatedBy: userId,
+    version: targetVersion,
+    oldTriggers,
+    newTriggers,
+    triggersChanged: true,
+    modifiedSteps: [],
+    deletedSteps: [],
+    createdSteps: [],
+    meta: {
+      ...version2.meta || {},
+      versionRestore: {
+        restoredFromVersion: version2._id ?? version2.id,
+        versionBeforeRestore: targetVersion,
+        restoredAt: restoredAt instanceof Date ? restoredAt.toISOString() : restoredAt,
+        restoredBy: userId
+      }
+    }
+  };
+}
+var stepKey = (t) => JSON.stringify({ type: t?.type, name: t?.name, attributes: t?.attributes ?? null, next: t?.next ?? null, parentKey: t?.parentKey ?? null });
+var trigKey = (t) => JSON.stringify({ type: t?.type, name: t?.name ?? null, conditions: t?.conditions ?? [] });
+function diffVersion(current, version2, currentTriggers = []) {
+  const cur = new Map((current?.workflowData?.templates ?? current?.templates ?? []).map((t) => [t.id, t]));
+  const ver = new Map((version2?.workflowData?.templates ?? []).map((t) => [t.id, t]));
+  const line = (t) => ({ id: t.id, type: t.type, name: t.name ?? null });
+  const steps = {
+    added: [...ver.values()].filter((t) => !cur.has(t.id)).map(line),
+    removed: [...cur.values()].filter((t) => !ver.has(t.id)).map(line),
+    changed: [...ver.values()].filter((t) => cur.has(t.id) && stepKey(cur.get(t.id)) !== stepKey(t)).map(line)
+  };
+  const vt = version2?.triggersData ?? [];
+  const triggers = {
+    current: currentTriggers.map((t) => ({ id: t.id ?? t._id, type: t.type, name: t.name ?? null })),
+    fromVersion: vt.map((t) => ({ type: t.type, name: t.name ?? null })),
+    identical: currentTriggers.length === vt.length && JSON.stringify(currentTriggers.map(trigKey).sort()) === JSON.stringify(vt.map(trigKey).sort())
+  };
+  const settings = {};
+  for (const k of SETTINGS_KEYS2) {
+    const a = current?.[k] ?? null, b = (k === "eventStartDate" ? version2?.startDate ?? version2?.eventStartDate : version2?.[k]) ?? null;
+    if (JSON.stringify(a) !== JSON.stringify(b)) settings[k] = { from: a, to: b };
+  }
+  const name = (current?.name ?? null) !== (version2?.name ?? null) ? { from: current?.name ?? null, to: version2?.name ?? null } : null;
+  return { steps, triggers, settings, name };
 }
 
 // core/audit-configuration.mjs
@@ -174898,6 +175179,12 @@ function instantiateRowTemplate(f, key, extra) {
   }
   return null;
 }
+var PIPELINE_STAGE_ROW = { field: "opportunity.pipelineStageId", title: "Pipeline stage", type: "select", operator: "==", requires: "opportunity.pipelineId" };
+var DEPENDENT_TRIGGER_ROWS = {
+  pipeline_stage_updated: [PIPELINE_STAGE_ROW],
+  opportunity_status_changed: [PIPELINE_STAGE_ROW],
+  opportunity_changed: [PIPELINE_STAGE_ROW]
+};
 function expandFilter(f, rows, extra = {}) {
   if (f.field && f.operator && f.title && f.type) {
     if (typeof f.type !== "string" || typeof f.operator !== "string")
@@ -174914,6 +175201,16 @@ function expandFilter(f, rows, extra = {}) {
     const instantiated = instantiateRowTemplate(f, key, extra);
     if (instantiated) return instantiated;
     const triggerType = extra?.meta?.type ?? extra?.meta?.id ?? "?";
+    const dep = (DEPENDENT_TRIGGER_ROWS[triggerType] ?? []).find((r) => r.field === key || norm3(r.title) === norm3(key));
+    if (dep) {
+      if (f.operator && f.operator !== dep.operator)
+        throw new IRError(
+          "FILTER_OPERATOR",
+          `trigger filter '${dep.title}' on '${triggerType}' is stored by the drawer with operator '${dep.operator}' only, not '${f.operator}'.`
+        );
+      const { on: _on, ...rest } = f;
+      return { ...rest, field: dep.field, operator: dep.operator, title: f.title ?? dep.title, type: f.type ?? dep.type };
+    }
     const seen = (observed_trigger_filters_default[triggerType] ?? []).find((r) => r.field === key || r.id === key || norm3(r.title) === norm3(key));
     if (seen) {
       const operator2 = f.operator ?? (seen.operators.length === 1 ? seen.operators[0] : void 0);
@@ -175027,6 +175324,13 @@ function buildTrigger(t, ctx, wid, refMap) {
   const meta3 = ctx.catalog.trigger(t.type);
   const rows = meta3?.filterRows ?? [];
   let conditions = (t.filters ?? []).map((f) => expandFilter(f, rows, { ctx, meta: meta3 }));
+  for (const dep of DEPENDENT_TRIGGER_ROWS[t.type] ?? []) {
+    if (conditions.some((c) => c?.field === dep.field) && !conditions.some((c) => c?.field === dep.requires))
+      throw new IRError(
+        "TRIGGER_FILTER_PARENT",
+        `trigger '${t.name ?? t.type}' (${t.type}) has a '${dep.title}' row but no '${dep.requires}' row \u2014 the drawer offers '${dep.title}' only after that row is chosen. Add { field: '${dep.requires}', value: '<pipeline id>' }.`
+      );
+  }
   if (ctx?.skipTriggerSeeds !== true) {
     const seedRows = (ctx?.catalog?.trigger?.(t.type)?.seededFilters?.rows ?? []).filter((r) => r.verdict === "seed-confirmed" && r.seedRow?.field);
     for (const r of seedRows.reverse()) {
@@ -189154,6 +189458,85 @@ var TOOLS2 = [
         templates,
         meta: v.meta ?? null
       });
+    }, args)
+  },
+  {
+    name: "restore_workflow_version",
+    description: `${describe3("restore_workflow_version", "Restore a workflow to an earlier version \u2014 risk: write")}. Roll a workflow back to one of its version-history snapshots, exactly as the builder's version drawer does: delete the current triggers, recreate the version's triggers (inactive), then save the version's steps, settings and name with isRestoreRequest:true. It ALWAYS lands as a DRAFT and records meta.versionRestore. Target proof: pass the workflow id AND its current name; a mismatch is refused. Refused like the builder refuses it: a PUBLISHED workflow (unpublish_workflows first), a workflow with contacts active in any step, and the version it is already on. Preview by default (version number, step diff added/removed/changed, trigger and settings changes); confirm:true writes and reads the workflow and its triggers back. Trigger ids change (an inbound webhook keeps its URL). Read versions with list_workflow_versions / get_workflow_version.`,
+    inputSchema: schema({
+      locationId: external_exports.string(),
+      workflowId: external_exports.string(),
+      workflowName: external_exports.string().describe("the workflow's CURRENT name \u2014 the target proof"),
+      version: external_exports.number().int().positive().describe("the version number to restore (list_workflow_versions)"),
+      confirm: external_exports.boolean().default(false)
+    }),
+    capabilities: [
+      { method: "GET", path: "/workflow/{loc}/{wid}" },
+      { method: "GET", path: "/workflow/{loc}/{wid}/history-by-number/{n}" },
+      { method: "GET", path: "/workflow/{loc}/trigger" },
+      { method: "GET", path: "/workflows/status/search/count-per-step" },
+      { method: "DELETE", path: "/workflow/{loc}/trigger/{tid}" },
+      { method: "POST", path: "/workflow/{loc}/trigger" },
+      { method: "PUT", path: "/workflow/{loc}/{wid}" }
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+      const loc = encodeURIComponent(args.locationId), wid = encodeURIComponent(args.workflowId);
+      const cur = await getWorkflow(gw, args.locationId, args.workflowId);
+      if (!cur.ok) return fromHttp(cur.status, cur.json);
+      const wf = cur.json ?? {};
+      if ((wf.name ?? "") !== args.workflowName)
+        return fail(CODES.VALIDATION_FAILED, `target proof failed: workflow ${args.workflowId} is named "${wf.name ?? ""}", not "${args.workflowName}". Nothing was written.`, "Pass the workflow's current name exactly (get_workflow).");
+      if (wf.status === "published")
+        return fail(CODES.VALIDATION_FAILED, `the workflow is PUBLISHED. The builder refuses this too ("Can't restore published workflows"). Nothing was written.`, "unpublish_workflows first, then restore. The restore lands as a draft either way.");
+      if (Number(wf.version) === Number(args.version))
+        return fail(CODES.VALIDATION_FAILED, `version ${args.version} is the version the workflow is already on. Nothing was written.`, "list_workflow_versions shows the earlier versions.");
+      const vr = await gw.call("GET", `/workflow/${loc}/${wid}/history-by-number/${encodeURIComponent(String(args.version))}`);
+      if (!vr.ok) return fromHttp(vr.status, vr.json);
+      const version2 = vr.json ?? null;
+      if (!version2?.workflowData)
+        return fail(CODES.VALIDATION_FAILED, `version ${args.version} came back without workflowData. Nothing was written.`, "Check the number with list_workflow_versions (GHL keeps 30 days or the last 10).");
+      const cps = await gw.call("GET", `/workflows/status/search/count-per-step?${new URLSearchParams({ workflowId: args.workflowId, locationId: args.locationId })}`);
+      if (!cps.ok) return fromHttp(cps.status, cps.json);
+      const active = recordsFrom2(cps.json, "data", "rows").filter((x) => Number(x.total ?? 0) > 0);
+      if (active.length)
+        return withFailureData(
+          fail(CODES.VALIDATION_FAILED, 'contacts are active in this workflow. The builder refuses this too ("There are active contacts in the workflow"). Nothing was written.', "Let them finish or remove them first."),
+          { activeSteps: active.map((x) => ({ stepId: x.currentStepId ?? x.stepId ?? null, total: x.total })) }
+        );
+      const before = await listWorkflowTriggers(gw, args.locationId, args.workflowId);
+      if (!before.response.ok) return fromHttp(before.response.status, before.response.json);
+      const diff = diffVersion(wf, version2, before.triggers);
+      const preview = { workflowId: args.workflowId, name: wf.name, restoreVersion: version2.version ?? args.version, versionStatus: version2.status ?? null, currentVersion: wf.version ?? null, landsAs: "draft", diff };
+      if (args.confirm !== true)
+        return withFailureData(fail(CODES.CONFIRM_REQUIRED, "Restore preview is ready; no write was sent.", "Review data.preview (steps added/removed/changed, triggers, settings), then repeat with confirm:true."), { preview });
+      const userId = wf.updatedBy ?? null;
+      const progress = { triggersDeleted: [], triggersCreated: [], documentSaved: false };
+      for (const t of before.triggers) {
+        const tid = t.id ?? t._id;
+        const d = await gw.call("DELETE", `/workflow/${loc}/trigger/${encodeURIComponent(tid)}${userId ? `?userId=${encodeURIComponent(userId)}` : ""}`);
+        if (!d.ok) return withFailureData(fromHttp(d.status, d.json), { partialProgress: progress, triggersBefore: before.triggers });
+        progress.triggersDeleted.push(tid);
+      }
+      for (const src of version2.triggersData ?? []) {
+        const body2 = triggerFromVersion(src, { workflowId: args.workflowId, status: "draft", locationId: args.locationId, companyId: wf.companyId, companyAge: wf.companyAge });
+        const c = await gw.call("POST", `/workflow/${loc}/trigger`, body2);
+        if (!c.ok) return withFailureData(fromHttp(c.status, c.json), { partialProgress: progress, triggersBefore: before.triggers });
+        progress.triggersCreated.push(c.json?.id ?? c.json?._id ?? c.json ?? null);
+      }
+      const mid = await listWorkflowTriggers(gw, args.locationId, args.workflowId);
+      const put = await gw.call("PUT", `/workflow/${loc}/${wid}`, restoreBody(version2, { name: version2.name ?? wf.name, targetVersion: wf.version, userId, oldTriggers: before.triggers, newTriggers: mid.triggers }));
+      if (!put.ok) return withFailureData(fromHttp(put.status, put.json), { partialProgress: progress, triggersBefore: before.triggers });
+      progress.documentSaved = true;
+      const back = await getWorkflow(gw, args.locationId, args.workflowId);
+      const after = back.ok ? back.json : null;
+      const trg = await listWorkflowTriggers(gw, args.locationId, args.workflowId);
+      const wantIds = (version2.workflowData.templates ?? []).map((t) => t.id).sort();
+      const gotIds = (after?.workflowData?.templates ?? []).map((t) => t.id).sort();
+      const verified = Boolean(after) && after.status === "draft" && JSON.stringify(wantIds) === JSON.stringify(gotIds) && Boolean(after.meta?.versionRestore) && trg.triggers.length === (version2.triggersData ?? []).length;
+      const data2 = { restored: true, verified, from: { version: wf.version, name: wf.name }, to: { version: after?.version ?? null, name: after?.name ?? null, status: after?.status ?? null, steps: gotIds.length, triggers: trg.triggers.map((t) => ({ id: t.id ?? t._id, type: t.type, name: t.name ?? null, status: t.status ?? null })), versionRestore: after?.meta?.versionRestore ?? null }, progress };
+      if (!verified) return withFailureData(fail(CODES.VERIFY_FAILED, "GHL accepted the restore but the read-back does not match the version (steps, draft status, versionRestore or trigger count).", "Inspect data.to against get_workflow_version."), data2);
+      return ok(data2);
     }, args)
   },
   {
