@@ -11,6 +11,27 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.9.0] — 2026-09-29
+
+**Managed Agents authored to proven truth: every trigger and tool, least-privilege plugins, and location-time schedules
+refused when mislabelled. Voice agents disclose their post-call defaults. Each change was executed live on the test
+account.**
+
+AI agents:
+- **Fixed — `create_studio_agent` ignored `plugins`.** Every agent got the Default plugin with all 540 CRM skills (SMS,
+  email, contact and opportunity writes), whatever the caller asked for. `plugins: []` now builds an agent with none.
+  Every preview names the plugin default (or "none"), the triggers, and that nothing is published.
+- **Fixed — only the first trigger was kept.** Several triggers per agent are written (GHL stores them), across all 13
+  trigger types. Mixing chat with other triggers is refused, as GHL refuses it. All 7 tool ids GHL offers are accepted;
+  unknown ids are refused, because GHL would store them silently.
+- **Schedules run in the LOCATION's timezone; the trigger's timezone field is ignored** (proven by differential). A
+  schedule whose timezone differs from the location's is refused before anything is written.
+- **`create_voiceai_agent`:** the preview discloses the post-call defaults GHL applies (call summary saved as a note on
+  the caller's contact, a notification email to all admins), and `postCall.saveCallSummaryAsNote` can switch the note off
+  at create.
+- Docs: the Agent Studio reference is rewritten to the proven truth. Flow agents are reachable through Voice AI → Flow
+  Builder. The Managed Agents AI build is not billed.
+
 ## [1.8.0] — 2026-09-29
 
 **Uploaded custom fonts on funnel pages; the merge-tag strictness switches the error message promised now exist; a warning
