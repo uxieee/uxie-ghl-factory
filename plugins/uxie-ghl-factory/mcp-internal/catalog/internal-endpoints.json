@@ -1,7 +1,7 @@
 {
   "generated": "2026-09-28",
   "note": "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path — not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-  "count": 1300,
+  "count": 1302,
   "endpoints": [
     {
       "id": "facebook-service--get-ad-account-by-id",
@@ -9986,7 +9986,9 @@
       "rail": "workflow",
       "kind": "write",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "edit_funnel"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -10018,7 +10020,10 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "edit_funnel",
+        "get_funnel"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -18062,6 +18067,80 @@
       },
       "sources": [
         "funnels/40-rules/silent-failures.md:322"
+      ]
+    },
+    {
+      "id": "typed--edit_funnel--products",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/products/{productId}",
+      "path": "/products/{productId}",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "proven",
+      "coveredBy": [
+        "edit_funnel"
+      ],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "edit_funnel",
+      "tree": "typed-tool",
+      "pathParams": [
+        {
+          "name": "productId"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "proven",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "capability-manifest.json (edit_funnel)"
+      ]
+    },
+    {
+      "id": "typed--edit_funnel--products-price",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/products/{productId}/price",
+      "path": "/products/{productId}/price",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "proven",
+      "coveredBy": [
+        "edit_funnel"
+      ],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "edit_funnel",
+      "tree": "typed-tool",
+      "pathParams": [
+        {
+          "name": "productId"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "proven",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "capability-manifest.json (edit_funnel)"
       ]
     },
     {
