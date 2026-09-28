@@ -20,16 +20,16 @@
     {
       "tree": "documented",
       "dir": "corpus",
-      "capturedAt": "2026-09-25T19:04:34.656Z",
+      "capturedAt": "2026-09-28T10:36:36.114Z",
       "hash": "corpus",
-      "fileCount": 878,
-      "endpoints": 878
+      "fileCount": 889,
+      "endpoints": 889
     }
   ],
   "note": "SOURCE-DERIVED ONLY, merged from every mined front-end. `tree` on each row says which app calls it. The plugin owns kind/note/summary/reach/coveredBy and merges them at read time. A row proves a GHL front-end calls that path — not that your token reaches it, and not that calling it is safe.",
-  "discoveredCallSites": 1353,
+  "discoveredCallSites": 1364,
   "skippedCallSites": 702,
-  "count": 1171,
+  "count": 1179,
   "endpoints": [
     {
       "id": "facebook-service--get-ad-account-by-id",
@@ -1633,6 +1633,32 @@
       "sources": [
         "memberships-courses/20-api/endpoints.md:112",
         "workflows/40-rules/marketplace-asset-publisher-classes.md:106"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "ai-agents--chat-widget-forms",
+      "method": "POST",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/chat-widget/forms",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/30-types/conversation-ai-actions.md:63"
       ],
       "serviceBasis": "declared"
     },
@@ -25387,7 +25413,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "workflows/30-types/steps/add_to_workflow.md:65",
+        "workflows/30-types/steps/add_to_workflow.md:66",
         "workflows/60-recipes/recipes/cross-workflow-handoff.md:170"
       ],
       "serviceBasis": "declared"
@@ -28161,12 +28187,12 @@
         "returns": "unresolved"
       },
       "sources": [
+        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:110",
         "ai-agents/20-api/12-ai-agents-api.md:101",
         "ai-agents/20-api/12-ai-agents-api.md:105",
         "ai-agents/20-api/12-ai-agents-api.md:132",
         "ai-agents/20-api/12-ai-agents-api.md:296",
-        "ai-agents/20-api/12-ai-agents-api.md:346",
-        "ai-agents/20-api/12-ai-agents-api.md:369"
+        "ai-agents/20-api/12-ai-agents-api.md:346"
       ],
       "serviceBasis": "declared"
     },
@@ -28192,7 +28218,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/30-types/conversation-ai-actions.md:43"
+        "ai-agents/30-types/conversation-ai-actions.md:44"
       ],
       "serviceBasis": "declared"
     },
@@ -28218,7 +28244,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/30-types/conversation-ai-actions.md:42"
+        "ai-agents/30-types/conversation-ai-actions.md:43"
       ],
       "serviceBasis": "declared"
     },
@@ -28244,7 +28270,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/30-types/conversation-ai-actions.md:48",
+        "ai-agents/30-types/conversation-ai-actions.md:68",
         "ask-ai/30-types/skills/conversation-ai--update-followup-settings.md:16"
       ],
       "serviceBasis": "declared"
@@ -28278,7 +28304,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/12-ai-agents-api.md:102"
+        "ai-agents/20-api/12-ai-agents-api.md:102",
+        "ai-agents/30-types/conversation-ai-actions.md:45"
       ],
       "serviceBasis": "declared"
     },
@@ -28339,7 +28366,7 @@
       },
       "sources": [
         "ai-agents/20-api/conversation-ai-boundary.md:77",
-        "ai-agents/30-types/conversation-ai-actions.md:96",
+        "ai-agents/30-types/conversation-ai-actions.md:117",
         "workflows/30-types/triggers/conv_ai_autonomous_trigger.md:110",
         "workflows/30-types/triggers/conv_ai_autonomous_trigger.md:262",
         "workflows/70-research/2026-08-26-flow-bot-probe.md:138"
@@ -28420,12 +28447,12 @@
         "returns": "unresolved"
       },
       "sources": [
+        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:109",
         "ai-agents/20-api/12-ai-agents-api.md:75",
         "ai-agents/20-api/12-ai-agents-api.md:95",
         "ai-agents/20-api/12-ai-agents-api.md:105",
         "ai-agents/20-api/12-ai-agents-api.md:346",
-        "ai-agents/20-api/12-ai-agents-api.md:367",
-        "ask-ai/30-types/skills/crm-conversation-ai.md:23"
+        "ai-agents/20-api/12-ai-agents-api.md:367"
       ],
       "serviceBasis": "declared"
     },
@@ -28441,7 +28468,14 @@
       "tree": "documented",
       "operation": null,
       "service": "ai-agents",
-      "query": [],
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
       "body": null,
       "returns": null,
       "confidence": {
@@ -28451,9 +28485,13 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/12-ai-agents-api.md:100"
+        "ai-agents/20-api/12-ai-agents-api.md:100",
+        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:115"
       ],
-      "serviceBasis": "declared"
+      "serviceBasis": "declared",
+      "aka": [
+        "/ai-employees/employees/{id}"
+      ]
     },
     {
       "id": "ai-agents--ai-employees-employees-get",
@@ -28477,12 +28515,15 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:102",
         "ai-agents/20-api/12-ai-agents-api.md:97",
         "ai-agents/20-api/12-ai-agents-api.md:105",
-        "ai-agents/20-api/12-ai-agents-api.md:368"
+        "ai-agents/20-api/12-ai-agents-api.md:368",
+        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:21"
       ],
-      "serviceBasis": "declared"
+      "serviceBasis": "declared",
+      "aka": [
+        "/ai-employees/employees/{id}"
+      ]
     },
     {
       "id": "ai-agents--ai-employees-employees-put",
@@ -28508,6 +28549,7 @@
       "sources": [
         "ai-agents/20-api/12-ai-agents-api.md:96",
         "ai-agents/20-api/12-ai-agents-api.md:128",
+        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:113",
         "ai-agents/20-api/12-ai-agents-api.md:370"
       ],
       "serviceBasis": "declared",
@@ -28606,18 +28648,26 @@
       "tree": "documented",
       "operation": null,
       "service": "ai-agents",
-      "query": [],
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
       "body": null,
       "returns": null,
       "confidence": {
         "path": "documented",
-        "query": "none-observed",
+        "query": "documented",
         "body": "unresolved",
         "returns": "unresolved"
       },
       "sources": [
+        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:41",
         "ai-agents/20-api/conversation-ai-boundary.md:76",
-        "ai-agents/30-types/conversation-ai-actions.md:106"
+        "ai-agents/30-types/conversation-ai-actions.md:128"
       ],
       "serviceBasis": "declared"
     },
@@ -28643,7 +28693,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:24"
+        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:37"
       ],
       "serviceBasis": "declared"
     },
@@ -28659,17 +28709,30 @@
       "tree": "documented",
       "operation": null,
       "service": "ai-agents",
-      "query": [],
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "limit",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
       "body": null,
       "returns": null,
       "confidence": {
         "path": "documented",
-        "query": "none-observed",
+        "query": "documented",
         "body": "unresolved",
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:13",
+        "ai-agents/10-anatomy/conversation-ai-agent-shape.md:21",
         "ai-agents/20-api/12-ai-agents-api.md:99",
         "ai-agents/20-api/conversation-ai-boundary.md:20"
       ],
@@ -28732,6 +28795,32 @@
       },
       "sources": [
         "ai-agents/20-api/logs-deployment-email.md:47"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "ai-agents--interactions-trial",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/ai-employees/interactions/trial",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/30-types/conversation-ai-actions.md:60"
       ],
       "serviceBasis": "declared"
     },
@@ -28882,7 +28971,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/opportunities.md:171"
+        "pipelines-opportunities/20-api/opportunities.md:174"
       ],
       "serviceBasis": "declared"
     },
@@ -28908,7 +28997,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/opportunities.md:158"
+        "pipelines-opportunities/20-api/opportunities.md:161"
       ],
       "serviceBasis": "declared"
     },
@@ -28941,8 +29030,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/opportunities.md:164",
-        "pipelines-opportunities/20-api/opportunities.md:169"
+        "pipelines-opportunities/20-api/opportunities.md:167",
+        "pipelines-opportunities/20-api/opportunities.md:172"
       ],
       "serviceBasis": "declared",
       "aka": [
@@ -28971,7 +29060,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/opportunities.md:296"
+        "pipelines-opportunities/20-api/opportunities.md:299"
       ],
       "serviceBasis": "declared"
     },
@@ -29038,7 +29127,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/opportunities.md:228"
+        "pipelines-opportunities/20-api/opportunities.md:231"
       ],
       "serviceBasis": "declared"
     },
@@ -29639,6 +29728,136 @@
         "brand-kit/20-api/brand-voices.md:24",
         "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:55",
         "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:157"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "pipelines-opportunities--logs-search",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/bulk-actions/logs/search",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "pipelines-opportunities",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "pipelines-opportunities/20-api/bulk-actions.md:57"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "pipelines-opportunities--bulk-actions-request",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/bulk-actions/request",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "pipelines-opportunities",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "pipelines-opportunities/20-api/bulk-actions.md:23"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "pipelines-opportunities--bulk-actions-request-get",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/bulk-actions/request/{bulkRequestId}",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "pipelines-opportunities",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "pipelines-opportunities/20-api/bulk-actions.md:56"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "pipelines-opportunities--request-fetch",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/bulk-actions/request/fetch",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "pipelines-opportunities",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "pipelines-opportunities/20-api/bulk-actions.md:55"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "pipelines-opportunities--request-revert",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/bulk-actions/request/revert/{bulkRequestId}",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "pipelines-opportunities",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "pipelines-opportunities/20-api/bulk-actions.md:68"
       ],
       "serviceBasis": "declared"
     },
@@ -30260,7 +30479,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/opportunities.md:153"
+        "pipelines-opportunities/20-api/opportunities.md:156"
       ],
       "serviceBasis": "declared"
     },
@@ -32639,7 +32858,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/opportunities.md:315"
+        "pipelines-opportunities/20-api/opportunities.md:318"
       ],
       "serviceBasis": "declared"
     },
@@ -33526,6 +33745,33 @@
       "serviceBasis": "declared"
     },
     {
+      "id": "pipelines-opportunities--locations-put",
+      "method": "PUT",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/locations/{locationId}",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "pipelines-opportunities",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "pipelines-opportunities/20-api/settings.md:35",
+        "pipelines-opportunities/20-api/settings.md:36"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
       "id": "services--search",
       "method": "GET",
       "origin": "https://services.leadconnectorhq.com",
@@ -33749,7 +33995,7 @@
         "sourceId"
       ],
       "operation": "findById",
-      "service": "memberships-courses",
+      "service": "pipelines-opportunities",
       "query": [],
       "body": null,
       "returns": null,
@@ -33760,10 +34006,10 @@
         "returns": "none-observed"
       },
       "sources": [
-        "services/LocationService.ts:26"
+        "services/LocationService.ts:26",
+        "pipelines-opportunities/20-api/settings.md:24"
       ],
-      "serviceClass": "LocationService",
-      "serviceBasis": "inferred-from-path"
+      "serviceBasis": "declared"
     },
     {
       "id": "user-purchase-service--get-revenue-by-offers",
@@ -38631,7 +38877,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/opportunities.md:267"
+        "pipelines-opportunities/20-api/opportunities.md:270"
       ],
       "serviceBasis": "declared"
     },
@@ -38683,7 +38929,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/opportunities.md:292"
+        "pipelines-opportunities/20-api/opportunities.md:295"
       ],
       "serviceBasis": "declared"
     },
@@ -38735,7 +38981,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/opportunities.md:206",
+        "pipelines-opportunities/20-api/opportunities.md:209",
         "pipelines-opportunities/20-api/pipelines.md:250"
       ],
       "serviceBasis": "declared"
@@ -38763,7 +39009,7 @@
       },
       "sources": [
         "pipelines-opportunities/20-api/opportunities.md:99",
-        "pipelines-opportunities/20-api/opportunities.md:120"
+        "pipelines-opportunities/20-api/opportunities.md:123"
       ],
       "serviceBasis": "declared"
     },
@@ -38789,8 +39035,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/opportunities.md:129",
-        "pipelines-opportunities/20-api/opportunities.md:300"
+        "pipelines-opportunities/20-api/opportunities.md:132",
+        "pipelines-opportunities/20-api/opportunities.md:303"
       ],
       "serviceBasis": "declared"
     },
@@ -38816,7 +39062,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/opportunities.md:236"
+        "pipelines-opportunities/20-api/opportunities.md:239"
       ],
       "serviceBasis": "declared"
     },
@@ -38842,7 +39088,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/opportunities.md:235"
+        "pipelines-opportunities/20-api/opportunities.md:238"
       ],
       "serviceBasis": "declared"
     },
@@ -38868,7 +39114,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/opportunities.md:218"
+        "pipelines-opportunities/20-api/bulk-actions.md:77",
+        "pipelines-opportunities/20-api/opportunities.md:221"
       ],
       "serviceBasis": "declared"
     },
@@ -38894,7 +39141,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/opportunities.md:246"
+        "pipelines-opportunities/20-api/opportunities.md:249"
       ],
       "serviceBasis": "declared"
     },

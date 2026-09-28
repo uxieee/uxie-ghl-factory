@@ -178,7 +178,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
     define_ENDPOINT_CATALOG_default = {
       generated: "2026-09-28",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 1178,
+      count: 1186,
       endpoints: [
         {
           id: "facebook-service--get-ad-account-by-id",
@@ -2243,6 +2243,37 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "memberships-courses/20-api/endpoints.md:112",
             "workflows/40-rules/marketplace-asset-publisher-classes.md:106"
+          ]
+        },
+        {
+          id: "ai-agents--chat-widget-forms",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/chat-widget/forms",
+          path: "/chat-widget/forms",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/30-types/conversation-ai-actions.md:63"
           ]
         },
         {
@@ -32214,7 +32245,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "workflows/30-types/steps/add_to_workflow.md:65",
+            "workflows/30-types/steps/add_to_workflow.md:66",
             "workflows/60-recipes/recipes/cross-workflow-handoff.md:170"
           ]
         },
@@ -35626,12 +35657,12 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
+            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:110",
             "ai-agents/20-api/12-ai-agents-api.md:101",
             "ai-agents/20-api/12-ai-agents-api.md:105",
             "ai-agents/20-api/12-ai-agents-api.md:132",
             "ai-agents/20-api/12-ai-agents-api.md:296",
-            "ai-agents/20-api/12-ai-agents-api.md:346",
-            "ai-agents/20-api/12-ai-agents-api.md:369"
+            "ai-agents/20-api/12-ai-agents-api.md:346"
           ]
         },
         {
@@ -35666,7 +35697,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/30-types/conversation-ai-actions.md:43"
+            "ai-agents/30-types/conversation-ai-actions.md:44"
           ]
         },
         {
@@ -35701,7 +35732,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/30-types/conversation-ai-actions.md:42"
+            "ai-agents/30-types/conversation-ai-actions.md:43"
           ]
         },
         {
@@ -35732,7 +35763,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/30-types/conversation-ai-actions.md:48",
+            "ai-agents/30-types/conversation-ai-actions.md:68",
             "ask-ai/30-types/skills/conversation-ai--update-followup-settings.md:16"
           ]
         },
@@ -35773,7 +35804,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:102"
+            "ai-agents/20-api/12-ai-agents-api.md:102",
+            "ai-agents/30-types/conversation-ai-actions.md:45"
           ]
         },
         {
@@ -35851,7 +35883,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/20-api/conversation-ai-boundary.md:77",
-            "ai-agents/30-types/conversation-ai-actions.md:96",
+            "ai-agents/30-types/conversation-ai-actions.md:117",
             "workflows/30-types/triggers/conv_ai_autonomous_trigger.md:110",
             "workflows/30-types/triggers/conv_ai_autonomous_trigger.md:262",
             "workflows/70-research/2026-08-26-flow-bot-probe.md:138"
@@ -35949,16 +35981,19 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
+            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:109",
             "ai-agents/20-api/12-ai-agents-api.md:75",
             "ai-agents/20-api/12-ai-agents-api.md:95",
             "ai-agents/20-api/12-ai-agents-api.md:105",
             "ai-agents/20-api/12-ai-agents-api.md:346",
-            "ai-agents/20-api/12-ai-agents-api.md:367",
-            "ask-ai/30-types/skills/crm-conversation-ai.md:23"
+            "ai-agents/20-api/12-ai-agents-api.md:367"
           ]
         },
         {
           id: "ai-agents--ai-employees-employees-delete",
+          aka: [
+            "/ai-employees/employees/{id}"
+          ],
           method: "DELETE",
           url: "https://services.leadconnectorhq.com/ai-employees/employees/{agentId}",
           path: "/ai-employees/employees/{agentId}",
@@ -35979,7 +36014,14 @@ Flagged to the operator as a security observation about the vendor, not a capabi
               name: "agentId"
             }
           ],
-          query: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
@@ -35989,11 +36031,15 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:100"
+            "ai-agents/20-api/12-ai-agents-api.md:100",
+            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:115"
           ]
         },
         {
           id: "ai-agents--ai-employees-employees-get",
+          aka: [
+            "/ai-employees/employees/{id}"
+          ],
           method: "GET",
           url: "https://services.leadconnectorhq.com/ai-employees/employees/{agentId}",
           path: "/ai-employees/employees/{agentId}",
@@ -36028,10 +36074,10 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:102",
             "ai-agents/20-api/12-ai-agents-api.md:97",
             "ai-agents/20-api/12-ai-agents-api.md:105",
-            "ai-agents/20-api/12-ai-agents-api.md:368"
+            "ai-agents/20-api/12-ai-agents-api.md:368",
+            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:21"
           ]
         },
         {
@@ -36073,6 +36119,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:96",
             "ai-agents/20-api/12-ai-agents-api.md:128",
+            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:113",
             "ai-agents/20-api/12-ai-agents-api.md:370"
           ]
         },
@@ -36199,18 +36246,26 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           service: "ai-agents",
           tree: "documented",
           pathParams: [],
-          query: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
             path: "documented",
-            query: "none-observed",
+            query: "documented",
             body: "unresolved",
             returns: "unresolved"
           },
           sources: [
+            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:41",
             "ai-agents/20-api/conversation-ai-boundary.md:76",
-            "ai-agents/30-types/conversation-ai-actions.md:106"
+            "ai-agents/30-types/conversation-ai-actions.md:128"
           ]
         },
         {
@@ -36248,7 +36303,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:24"
+            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:37"
           ]
         },
         {
@@ -36273,17 +36328,30 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           service: "ai-agents",
           tree: "documented",
           pathParams: [],
-          query: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "limit",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
             path: "documented",
-            query: "none-observed",
+            query: "documented",
             body: "unresolved",
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:13",
+            "ai-agents/10-anatomy/conversation-ai-agent-shape.md:21",
             "ai-agents/20-api/12-ai-agents-api.md:99",
             "ai-agents/20-api/conversation-ai-boundary.md:20"
           ]
@@ -36362,6 +36430,37 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/20-api/logs-deployment-email.md:47"
+          ]
+        },
+        {
+          id: "ai-agents--interactions-trial",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/ai-employees/interactions/trial",
+          path: "/ai-employees/interactions/trial",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/30-types/conversation-ai-actions.md:60"
           ]
         },
         {
@@ -36567,7 +36666,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/opportunities.md:171"
+            "pipelines-opportunities/20-api/opportunities.md:174"
           ]
         },
         {
@@ -36598,7 +36697,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/opportunities.md:158"
+            "pipelines-opportunities/20-api/opportunities.md:161"
           ]
         },
         {
@@ -36647,8 +36746,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/opportunities.md:164",
-            "pipelines-opportunities/20-api/opportunities.md:169"
+            "pipelines-opportunities/20-api/opportunities.md:167",
+            "pipelines-opportunities/20-api/opportunities.md:172"
           ]
         },
         {
@@ -36679,7 +36778,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/opportunities.md:296"
+            "pipelines-opportunities/20-api/opportunities.md:299"
           ]
         },
         {
@@ -36760,7 +36859,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/opportunities.md:228"
+            "pipelines-opportunities/20-api/opportunities.md:231"
           ]
         },
         {
@@ -37567,6 +37666,169 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "brand-kit/20-api/brand-voices.md:24",
             "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:55",
             "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:157"
+          ]
+        },
+        {
+          id: "pipelines-opportunities--logs-search",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/bulk-actions/logs/search",
+          path: "/bulk-actions/logs/search",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "pipelines-opportunities",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "pipelines-opportunities/20-api/bulk-actions.md:57"
+          ]
+        },
+        {
+          id: "pipelines-opportunities--bulk-actions-request",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/bulk-actions/request",
+          path: "/bulk-actions/request",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "pipelines-opportunities",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "pipelines-opportunities/20-api/bulk-actions.md:23"
+          ]
+        },
+        {
+          id: "pipelines-opportunities--bulk-actions-request-get",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/bulk-actions/request/{bulkRequestId}",
+          path: "/bulk-actions/request/{bulkRequestId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "pipelines-opportunities",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "bulkRequestId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "pipelines-opportunities/20-api/bulk-actions.md:56"
+          ]
+        },
+        {
+          id: "pipelines-opportunities--request-fetch",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/bulk-actions/request/fetch",
+          path: "/bulk-actions/request/fetch",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "pipelines-opportunities",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "pipelines-opportunities/20-api/bulk-actions.md:55"
+          ]
+        },
+        {
+          id: "pipelines-opportunities--request-revert",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/bulk-actions/request/revert/{bulkRequestId}",
+          path: "/bulk-actions/request/revert/{bulkRequestId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "pipelines-opportunities",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "bulkRequestId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "pipelines-opportunities/20-api/bulk-actions.md:68"
           ]
         },
         {
@@ -38391,7 +38653,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/opportunities.md:153"
+            "pipelines-opportunities/20-api/opportunities.md:156"
           ]
         },
         {
@@ -41307,7 +41569,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/opportunities.md:315"
+            "pipelines-opportunities/20-api/opportunities.md:318"
           ]
         },
         {
@@ -42417,6 +42679,42 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           ]
         },
         {
+          id: "pipelines-opportunities--locations-put",
+          method: "PUT",
+          url: "https://services.leadconnectorhq.com/locations/{locationId}",
+          path: "/locations/{locationId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "pipelines-opportunities",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "pipelines-opportunities/20-api/settings.md:35",
+            "pipelines-opportunities/20-api/settings.md:36"
+          ]
+        },
+        {
           id: "services--search",
           method: "GET",
           url: "https://services.leadconnectorhq.com/locations/{locationId}/customValues/search",
@@ -42695,7 +42993,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "sourceId"
           ],
           operation: "findById",
-          service: "memberships-courses",
+          service: "pipelines-opportunities",
           tree: "memberships",
           pathParams: [
             {
@@ -42712,7 +43010,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "none-observed"
           },
           sources: [
-            "services/LocationService.ts:26"
+            "services/LocationService.ts:26",
+            "pipelines-opportunities/20-api/settings.md:24"
           ]
         },
         {
@@ -49005,7 +49304,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/opportunities.md:267"
+            "pipelines-opportunities/20-api/opportunities.md:270"
           ]
         },
         {
@@ -49074,7 +49373,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/opportunities.md:292"
+            "pipelines-opportunities/20-api/opportunities.md:295"
           ]
         },
         {
@@ -49148,7 +49447,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/opportunities.md:206",
+            "pipelines-opportunities/20-api/opportunities.md:209",
             "pipelines-opportunities/20-api/pipelines.md:250"
           ]
         },
@@ -49187,7 +49486,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "pipelines-opportunities/20-api/opportunities.md:99",
-            "pipelines-opportunities/20-api/opportunities.md:120"
+            "pipelines-opportunities/20-api/opportunities.md:123"
           ]
         },
         {
@@ -49228,8 +49527,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/opportunities.md:129",
-            "pipelines-opportunities/20-api/opportunities.md:300"
+            "pipelines-opportunities/20-api/opportunities.md:132",
+            "pipelines-opportunities/20-api/opportunities.md:303"
           ]
         },
         {
@@ -49264,7 +49563,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/opportunities.md:236"
+            "pipelines-opportunities/20-api/opportunities.md:239"
           ]
         },
         {
@@ -49299,7 +49598,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/opportunities.md:235"
+            "pipelines-opportunities/20-api/opportunities.md:238"
           ]
         },
         {
@@ -49338,7 +49637,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/opportunities.md:218"
+            "pipelines-opportunities/20-api/bulk-actions.md:77",
+            "pipelines-opportunities/20-api/opportunities.md:221"
           ]
         },
         {
@@ -49377,7 +49677,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/opportunities.md:246"
+            "pipelines-opportunities/20-api/opportunities.md:249"
           ]
         },
         {
