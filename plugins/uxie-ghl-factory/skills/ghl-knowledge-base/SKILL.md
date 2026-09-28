@@ -125,8 +125,13 @@ agentLayer, chunks, totalChunks, latencyMs, idempotencyKey}` → `{conversationI
 `GET …/retrieval-test/conversations?locationId=&knowledgeBaseId=` lists them, `GET …/conversations/{id}?locationId=`
 reads one, `DELETE` the same removes it (then 404 "Conversation not found").
 
-**7. The crawler judges what the CDN serves, and refuses thin pages.** Status `Restricted` with `error:
-"Insufficient content (174 chars)"`. A page you just edited can be judged on its stale cached copy.
+**7. The crawler judges what the CDN serves, refuses thin pages, and obeys robots.txt.** Status `Restricted` with `error:
+"Insufficient content (174 chars)"`. A page you just edited can be judged on its stale cached copy. 🔴 The crawler reads
+robots.txt as user agent **`AITrainingBot`**. A blocked page still gets **201 `status: "Processing"`** on the POST, then
+`status: "Restricted"`, `error.code: "ROBOTS_TXT_BLOCKED"`, `retryable: false`, and no URL is stored. GHL's own
+`app.gohighlevel.com/v2/preview/{pageId}` URLs are blocked this way (proven live 2026-09-29). **A 201 is not a crawl:**
+read `GET /knowledge-base/crawler/status?locationId=&knowledgeBaseId=` for `operationDetails.status` and `.error`, and
+point the user to Rich Text when robots.txt blocks the page.
 
 ## Sources — what ran live (2026-09-26 / 28)
 
@@ -136,7 +141,7 @@ id. Full shapes: corpus `ai-agents/20-api/knowledge-base.md` → "Sources execut
 | Source | Create | Read | Remove | Traps |
 |---|---|---|---|---|
 | FAQ | `POST /knowledge-base/faqs` `{locationId, knowledgeBaseId, question, answer, metadata?}` → `{faq{…, id}}` | `GET /knowledge-base/faqs?locationId=&knowledgeBaseIds=&limit=&offset=` → `{faqs, count, hasMore}` | — | a duplicate question → **409** "A FAQ with this question already exists in this knowledge base"; the 1000-character answer cap is client-only (1001 stored) |
-| Rich text | `POST /knowledge-base/rich-text/` `{locationId, knowledgeBaseId, title, content (HTML)}` → `status:"training"` | `GET /knowledge-base/rich-text/{id}/status?locationId=` → `{sourceType, status, stages[CHUNKING, EMBEDDING]{state, durationMs}}` | `DELETE /knowledge-base/rich-text/{id}` | trained in ~3 s; the server adds generated questions to the chunk; edit with PUT (Trap 5) |
+| Rich text | `POST /knowledge-base/rich-text/` `{locationId, knowledgeBaseId, title, content (HTML)}` → `status:"training"` | `GET /knowledge-base/rich-text/{id}/status?locationId=` → `{sourceType, status, stages[CHUNKING, EMBEDDING]{state, durationMs}}` | `DELETE /knowledge-base/rich-text/{id}` | trained in ~3 s; the server adds generated questions to the chunk; edit with PUT (Trap 5); the editor also offers bulk delete (`/rich-text/bulk`) and a per-document cancel (`/rich-text/{id}/cancel`), neither executed |
 | Web crawler | `POST /knowledge-base/crawler` `{locationId, url, option: "Exact" \| "Path" \| "Domain", knowledgeBaseId}` → `{operationId, status:"Processing"}` | `GET /knowledge-base/crawler?locationId=&knowledgeBaseId=` → `{count, urls[]}`; `GET …/crawler/status` = the **latest** operation only; `GET …/crawler/pages/content?locationId=&urlId=&knowledgeBaseId=` → the scraped text | `DELETE /knowledge-base/crawler` `{locationId, urlIds, deleteAll:false, knowledgeBaseId}` → `{deletedCount}` | Exact mode **trains with no separate train call**; `sitemap-preview` refuses Exact (400); the URL refresh `PUT /knowledge-base/crawler?locationId=&knowledgeBaseId=` `{urlIds, refreshAll, urlIdsToSkip}` answered 200 and changed nothing within 8 s, so its effect is unproven; Path / Domain, cancel and retry are unexercised |
 | URL auto-refresh | `POST /knowledge-base/crawler/automation` `{knowledgeBaseId, refreshFrequency: DAILY \| WEEKLY \| MONTHLY}` → an ACTIVE `WEBSITE_RETRAIN` task, first run a week out for WEEKLY | `GET …/crawler/automation/latest?knowledgeBaseId=` | `DELETE …/crawler/automation/{id}` (then `latest` → `data:null`) | the update `PUT …/automation/{id}` needs `taskId` = the automation's own id (422 "taskId must be a string" without it) |
 | File | **multipart** `POST /knowledge-base/files` | `GET /knowledge-base/files/{id}`; `…/{id}/status` stages CONVERSION → EXTRACTION → CHUNKING → EMBEDDING | `DELETE /knowledge-base/files/{id}` (then 400 "Invalid file ID") | ≤ 10 MB, `.pdf .doc .docx .md`; trained in ~3 s |
@@ -145,9 +150,12 @@ id. Full shapes: corpus `ai-agents/20-api/knowledge-base.md` → "Sources execut
 🔴 **Files and tables are multipart uploads.** `raw_request` sends JSON only, so neither can be created through
 this plugin today: point the user to the editor's Files / Tables tab.
 
-The scraped text of a crawled page is edited in the editor through `PUT /knowledge-base/crawler/pages/content`
-`{content, userId}` (source-derived, not executed). The `/conversations-ai/train/chunk/content` route older notes
-gave is not called by the Knowledge Base app.
+The scraped text of a crawled page is edited through View scraped content → Save:
+`PUT /knowledge-base/crawler/pages/content?locationId=&urlId=&knowledgeBaseId=` `{content}` → 200 with an empty body. The
+row retrains and reads back `status: "Successful"`, **`contentEditedByUser: true`**, and retrieval returns the edited text
+(proven live 2026-09-29). Retraining the URL from the website reverts the edit (the editor's warning). The URL list's
+`content` field is a storage URL to the text file, not the text itself. The `/conversations-ai/train/chunk/content`
+route older notes gave is not called by the Knowledge Base app.
 
 **Gaps**: `GET /knowledge-base/gaps/counts?locationId=` → `{data[{knowledgeBaseId, gapCount}]}` for the whole
 location; `GET /knowledge-base/gaps?locationId=&knowledgeBaseId=&status=open&page=&perPage=` →
@@ -181,8 +189,9 @@ knowledge-base triggers per bot (server) · at least one KB must be selected whe
 list, rename, delete and associated-entities read; FAQ, rich text (create, full-replace PUT, delete), web crawler
 (Exact mode, delete, auto-refresh create/update/delete), file and table sources (uploaded from the editor, then
 read and deleted through the API); retrieval and its history; the gap list and the gap archive/restore write.
-**Not proven:** the crawl refresh's effect, Path / Domain crawls, crawl cancel / retry, the scraped-text edit, gap
-fill, and everything in the table above. Treat a first write of an unproven operation as a throwaway validation run
+Also live-proven (2026-09-29): the scraped-text edit, and a robots.txt-blocked crawl's status and error. **Not proven:** the
+crawl refresh's effect; Path / Domain crawls; crawl cancel / retry (an Exact crawl of one page finishes in about 2 s, and
+anything longer needs a multi-page crawl); gap fill; and everything in the table above. Treat a first write of an unproven operation as a throwaway validation run
 on a test sub-account.
 
 ## Scope
