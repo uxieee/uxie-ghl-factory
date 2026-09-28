@@ -3191,7 +3191,8 @@ export const TOOLS = [
   {
     name: 'get_workflow_logs',
     description: describe('get_workflow_logs',
-      'Read executions, enrollment and per-step contact counts; executionId returns one run\'s full step trace. '
+      'Read executions, enrollment and per-step contact counts; executionId returns one run\'s full step trace (the id is a log row\'s '
+      + 'workflowStatusId; rows carry meta.version, the version that run started on). '
       + '\u{1F534} AN EMPTY LOG IS AMBIGUOUS: [] means the same thing for "the trigger never matched" and for '
       + '"enrolled, not yet fired". Confirm from an independent source (the contact\'s own tags or fields) '
       + 'before concluding a workflow is broken \u2014 or that it is fine.'
