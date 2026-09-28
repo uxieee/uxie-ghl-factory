@@ -11,6 +11,17 @@
 // below are reproduced from the page-builder bundle's own defaults table, GHL's `"sqaure"` typo
 // included, because that is what the renderer matches on.
 export const KIND_DEFAULT_EXTRA = Object.freeze({
+  // 🔴 A video's source lives in videoProperties.value; the generic media empty (a background-image shape) gave a composed
+  // video NO source, and the public page showed an empty 16:9 box (knowledge sniffs/funnels-wave17-analytics-2026-09-29/
+  // live-tool.video-default.json). The builder's own saved shape (readback.video.json there): playBackControls,
+  // leadVideoOptions and checkStep are RAW objects.
+  "video": {
+    "videoProperties": { "value": { "url": "", "type": "youtube", "autoplay": 0, "controls": 1, "thumbnailURL": "", "embedURL": "", "width": 100,
+      "selfHostedVideo": { "id": "", "name": "", "thumbnail": "https://stcdn.leadconnectorhq.com/funnel/img/video.png", "thumbnailName": "Video Thumbnail.png" } } },
+    "playBackControls": { "autoplay": false, "allowPlayPause": false, "playBackSpeed": false, "showPendingTime": false, "showProgressBar": true, "showFullScreenToggle": true, "loop": false },
+    "leadVideoOptions": { "isLeadGenVideo": false, "isVideoPlayAllowed": false, "timeStamp": 0, "formElement": null },
+    "checkStep": { "checkStep": false, "step": {} },
+  },
   // 🔴 one-step-order with an empty step1 renders ONLY name + email, yet the public validator still demands a phone
   // (showPhone ?? true) — so no order could ever be submitted ("Make sure that you filled all the details!", nothing sent;
   // knowledge sniffs/funnels-wave15-actions-2026-09-29). The builder's own ONE_STEP_ORDER defaults, verbatim from its

@@ -2070,6 +2070,26 @@
     "path": "/funnels/order-form/products/"
   },
   {
+    "tool": "get_funnel",
+    "method": "GET",
+    "path": "/stats/"
+  },
+  {
+    "tool": "get_funnel",
+    "method": "GET",
+    "path": "/stats/count"
+  },
+  {
+    "tool": "get_funnel",
+    "method": "GET",
+    "path": "/stats/optin/conversion-rate"
+  },
+  {
+    "tool": "get_funnel",
+    "method": "GET",
+    "path": "/stats/video/stats"
+  },
+  {
     "tool": "edit_funnel",
     "method": "GET",
     "path": "/funnels/funnel/fetch/{funnelId}"
