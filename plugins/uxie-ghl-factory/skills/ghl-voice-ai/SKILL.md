@@ -146,10 +146,11 @@ If the user wants one of these, **GHL can do it** — say so and point to the UI
 |---|---|---|
 | Flow-builder voice agents (node graph, `CUSTOM_LLM` over agent-execution) | Voice AI → Create Agent → Flow Builder | legacy flow-builder generation, not engine-authored |
 | Custom Action 2.0 variants beyond the verified CAP (Send Email / SMS / WhatsApp), MCP servers | Voice agent → Actions → New Action | source-derived only so far |
-| Prompt Optimizer / Prompt Evaluator | Voice agent → Prompt Optimizer (Labs) | billed, Labs-gated |
+| Prompt Optimizer / Prompt Evaluator | Voice agent → Prompt Optimizer (Labs); the Evaluator and Edit with AI exist only in the legacy editor | billed, Labs-gated |
 | Voice cloning / importing a community voice | Voice picker → My voices | not engine-authored |
 | Buying numbers, number pools, KYC | Voice agent → Deploy → Buy new number | purchases and compliance |
 | Outbound consent tool (apply / audit consent language) | Voice AI → Outbound settings | compliance, account-wide |
+| Agent templates (Browse Marketplace) | Voice AI → Create Agent → Browse Marketplace → Install | every template is a marketplace app; Install is an OAuth grant of the app to the location |
 
 ## Scope
 
