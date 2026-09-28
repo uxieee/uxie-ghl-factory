@@ -2286,7 +2286,12 @@ export const TOOLS = [
       + 'record, overlays your spec, applies the builder\'s own bot-type cleanup, PUTs the WHOLE record, '
       + 're-reads, and diffs every field the update did not set. A partial PUT resets omitted agent-level '
       + 'booleans (cancelEnabled/rescheduleEnabled measured live), so a partial is never sent. Any '
-      + 'collateral change fails with AGENT_COLLATERAL_CHANGED. Previews by default; confirm:true writes.'),
+      + 'collateral change fails with AGENT_COLLATERAL_CHANGED. PROMPT: an agent saved in the current builder '
+      + 'stores its prompt as one fullPrompt document; the bot then answers from it and GHL ignores writes to '
+      + 'personality/goal/instructions (live 2026-09-29). Pass spec.fullPrompt (the whole text; it switches the '
+      + 'agent to fullPrompt for good). The three fields on such an agent, or with fullPrompt, refuse with '
+      + 'FULLPROMPT_OWNS_PROMPT before any write, returning currentFullPrompt. The result names promptOwner. '
+      + 'Previews by default; confirm:true writes.'),
     inputSchema: schema({
       locationId: z.string(),
       agentId: z.string(),
@@ -2311,6 +2316,11 @@ export const TOOLS = [
       try {
         plan = compileConvaiUpdateFromRecord(record, args.spec, { agentId: args.agentId, locationId: args.locationId });
       } catch (error) {
+        if (error.code === 'FULLPROMPT_OWNS_PROMPT') {
+          return withFailureData(fail('FULLPROMPT_OWNS_PROMPT', error.message,
+            'Nothing was sent. Resend with the whole new prompt as spec.fullPrompt and without personality, goal or instructions.'),
+          { currentFullPrompt: error.currentFullPrompt ?? null });
+        }
         return fail(CODES.ENGINE_ABORT, `update rejected (${error.code ?? 'ENGINE_ABORT'}): ${error.message}`,
           'The spec was rejected before any request was sent — nothing was written.');
       }
@@ -2331,7 +2341,7 @@ export const TOOLS = [
         plan: { update: { method: 'PUT', path, body: plan.body }, collateralKeys: plan.collateralKeys, before: record, expected },
         gw,
       });
-      const data = { preview, verification: report.verification, collateral: report.collateral };
+      const data = { preview, verification: report.verification, collateral: report.collateral, promptOwner: plan.promptOwner };
       return report.ok
         ? ok(data)
         : withFailureData(fail(report.code ?? CODES.ENGINE_ABORT,

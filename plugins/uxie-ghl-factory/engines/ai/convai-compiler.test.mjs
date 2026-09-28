@@ -803,3 +803,56 @@ test('T4: a stopBot with fewer than 2 examples is refused before any request (se
   assert.throws(() => compileConvaiAction({ type: 'stopBot', name: 'S', details: { stopBotExamples: ['bye'] } }, { locationId: 'L' }), (e) => e instanceof IRError);
   assert.doesNotThrow(() => compileConvaiAction({ type: 'stopBot', name: 'S' }, { locationId: 'L' }));
 });
+
+// t19 (2026-09-29): the current builder saves the prompt as ONE fullPrompt document. Measured live on the designated test
+// sub-account: once fullPrompt is stored the three fields are frozen (a PUT changing them is ignored) and the bot answers
+// from fullPrompt. So an edit of the three fields on such an agent must be refused before sending, and fullPrompt taken whole.
+const FP_RECORD = { id: 'A1', locationId: 'LOC', employeeName: 'Bot', botType: 'PROMPT_BASED_BOT', personality: 'p', goal: 'g', instructions: 'old',
+  fullPrompt: '## Personality\n\np\n\n## Goal\n\ng\n\n## Instructions\n\nold' };
+const at = { agentId: 'A1', locationId: 'LOC' };
+
+test('t19: the three prompt fields on an agent with a stored fullPrompt refuse FULLPROMPT_OWNS_PROMPT and return the stored prompt', () => {
+  for (const spec of [{ instructions: 'new' }, { personality: 'x' }, { goal: 'x', name: 'n' }]) {
+    assert.throws(() => compileConvaiUpdateFromRecord(FP_RECORD, spec, at), (e) => {
+      assert.equal(e.code, 'FULLPROMPT_OWNS_PROMPT'); assert.equal(e.currentFullPrompt, FP_RECORD.fullPrompt); assert.match(e.message, /Nothing was sent/);
+      return true;
+    });
+  }
+  // CONTROL (the differential): the same spec on an agent WITHOUT fullPrompt compiles and writes the field.
+  const { fullPrompt, ...noFp } = FP_RECORD;
+  assert.equal(compileConvaiUpdateFromRecord(noFp, { instructions: 'new' }, at).body.instructions, 'new');
+  // An EMPTY stored fullPrompt counts as absent.
+  assert.equal(compileConvaiUpdateFromRecord({ ...FP_RECORD, fullPrompt: '' }, { instructions: 'new' }, at).promptOwner, 'fields');
+});
+
+test('t19: fullPrompt together with any of the three fields is refused on ANY agent (ambiguous)', () => {
+  const { fullPrompt, ...noFp } = FP_RECORD;
+  for (const rec of [FP_RECORD, noFp]) {
+    assert.throws(() => compileConvaiUpdateFromRecord(rec, { fullPrompt: 'whole', goal: 'g2' }, at), (e) => e.code === 'FULLPROMPT_OWNS_PROMPT' && /ambiguous/.test(e.message));
+  }
+});
+
+test('t19: spec.fullPrompt is written whole, verified as a set key, and names fullPrompt as the owner', () => {
+  const plan = compileConvaiUpdateFromRecord(FP_RECORD, { fullPrompt: '## Instructions\n\nnew whole prompt' }, at);
+  assert.equal(plan.body.fullPrompt, '## Instructions\n\nnew whole prompt');
+  assert.ok(!plan.collateralKeys.includes('fullPrompt')); assert.equal(plan.promptOwner, 'fullPrompt');
+  // The three frozen fields ride along unchanged as collateral.
+  for (const k of ['personality', 'goal', 'instructions']) { assert.ok(plan.collateralKeys.includes(k)); assert.equal(plan.body[k], FP_RECORD[k]); }
+  // Allowed on an agent without one (what the builder does), and switches the owner.
+  const { fullPrompt, ...noFp } = FP_RECORD;
+  assert.equal(compileConvaiUpdateFromRecord(noFp, { fullPrompt: 'x' }, at).promptOwner, 'fullPrompt');
+  // An ordinary update keeps the stored fullPrompt as collateral.
+  const other = compileConvaiUpdateFromRecord(FP_RECORD, { mode: 'off' }, at);
+  assert.ok(other.collateralKeys.includes('fullPrompt')); assert.equal(other.promptOwner, 'fullPrompt');
+});
+
+test('t19: an empty or non-string fullPrompt is refused, and so is fullPrompt on a non-prompt bot', () => {
+  for (const v of ['', '   ', 5]) assert.throws(() => compileConvaiUpdateFromRecord(FP_RECORD, { fullPrompt: v }, at), (e) => e.code === 'SCHEMA');
+  assert.throws(() => compileConvaiUpdateFromRecord({ ...FP_RECORD, botType: 'FLOW_BUILDER_BOT' }, { fullPrompt: 'x' }, at), (e) => e.code === 'SPEC_KEY_UNAPPLIED');
+});
+
+test('t19: a stored fullPrompt counts as a prompt for the no-prompt refusal (the builder saves the three fields empty)', () => {
+  const rec = { ...FP_RECORD, personality: '', goal: '', instructions: '' };
+  assert.doesNotThrow(() => compileConvaiUpdateFromRecord(rec, { name: 'x' }, at));
+  assert.throws(() => compileConvaiUpdateFromRecord({ ...rec, fullPrompt: '' }, { name: 'x' }, at), (e) => e.code === 'AGENT_UNUPDATABLE');
+});

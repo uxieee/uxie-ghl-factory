@@ -524,10 +524,36 @@ export function compileConvaiUpdateFromRecord(current, partialIr, { agentId, loc
       + 'resets omitted agent-level booleans (measured live 2026-08-28).');
   }
   const norm = parseConvaiPartialIR(partialIr);
+  // THE BUILDER NOW SAVES ONE PROMPT. The current Conversation AI builder writes the prompt as a single
+  // `fullPrompt` markdown document ("## Personality … ## Goal … ## Instructions …") and sends the three
+  // fields as "". Live on the designated test sub-account 2026-09-29: once `fullPrompt` is stored the
+  // server keeps the three fields at their old values and IGNORES a PUT that changes them, and the bot
+  // answers from `fullPrompt` (a trial reply carried the fullPrompt marker while `instructions` held
+  // another). An edit of the three fields on such an agent writes nothing that matters, so it is refused
+  // before sending. What `fullPrompt: ""` does is not measured: an empty one counts as absent and is
+  // never written.
+  const storedFullPrompt = nonEmpty(current.fullPrompt) ? current.fullPrompt : null;
+  const fieldsAsked = PROMPT_KEYS.filter((k) => partialIr?.[k] !== undefined);
+  const fullPromptOwns = (message) => Object.assign(new IRError('FULLPROMPT_OWNS_PROMPT', message), { currentFullPrompt: storedFullPrompt });
+  if (norm.fullPrompt !== undefined) {
+    if (!nonEmpty(norm.fullPrompt)) throw new IRError('SCHEMA', 'fullPrompt must be a non-empty string: the whole prompt, as the builder stores it. An empty one is not written (its effect is unmeasured).');
+    if (fieldsAsked.length) {
+      throw fullPromptOwns(`the spec sets fullPrompt AND [${fieldsAsked.join(', ')}], which is ambiguous: the bot answers from fullPrompt `
+        + 'once it is stored, and the three fields are then frozen. Nothing was sent. Pass the whole prompt as fullPrompt alone.');
+    }
+    if ((current.botType ?? 'PROMPT_BASED_BOT') !== 'PROMPT_BASED_BOT') {
+      throw new IRError('SPEC_KEY_UNAPPLIED', `fullPrompt is the prompt bot's builder field; this agent is ${current.botType}. Nothing was sent.`);
+    }
+  } else if (storedFullPrompt && fieldsAsked.length) {
+    throw fullPromptOwns(`this agent's prompt lives in fullPrompt (the current builder saved it), so the bot answers from fullPrompt and `
+      + `[${fieldsAsked.join(', ')}] are frozen: GHL ignores a write to them (live 2026-09-29). Nothing was sent. Pass the whole new `
+      + 'prompt as spec.fullPrompt; the stored one is returned as currentFullPrompt.');
+  }
   // See compileConvaiAgent: a prompt bot stored with none of the three prompt fields 500s on every
   // PUT, including one that supplies them, and the 500 still applies part of the body. Refuse
-  // before sending rather than half-write.
-  if (current.botType !== 'FLOW_BUILDER_BOT' && !PROMPT_KEYS.some((k) => nonEmpty(current[k]))) {
+  // before sending rather than half-write. A stored fullPrompt is a prompt: the builder itself saves
+  // such agents with the three fields empty.
+  if (current.botType !== 'FLOW_BUILDER_BOT' && !storedFullPrompt && !PROMPT_KEYS.some((k) => nonEmpty(current[k]))) {
     throw new IRError('AGENT_UNUPDATABLE',
       'this agent has no goal, personality or instructions, and GHL answers 500 to every update of such an '
       + 'agent (live 2026-09-25), even one that adds them, while still applying part of the change. Nothing '
@@ -562,6 +588,7 @@ export function compileConvaiUpdateFromRecord(current, partialIr, { agentId, loc
   }
   for (const [k, v] of Object.entries(responseStyleFields(norm))) { body[k] = v; setKeys.add(k); }
   if (norm.name !== undefined) { body.employeeName = norm.name; setKeys.add('employeeName'); }
+  if (norm.fullPrompt !== undefined) { body.fullPrompt = norm.fullPrompt; setKeys.add('fullPrompt'); }
   // `wait` and `sleep` are NOT in UPDATE_FIELD_MAP because they fan out to several wire keys.
   // compileConvaiUpdate (the pre-0.64.0 partial-PUT compiler) handled them here and this
   // read-merge-write replacement did not, so from 0.64.0 until 2026-09-10 a spec carrying either
@@ -587,7 +614,7 @@ export function compileConvaiUpdateFromRecord(current, partialIr, { agentId, loc
   // what it knows and never looks at what it was handed. A caller who misspells a key, or reaches
   // for one this rail does not carry, otherwise gets a clean success and no change — the same
   // silent-discard class as an unrecognised node kind.
-  const applicable = new Set([...Object.keys(UPDATE_FIELD_MAP), 'wait', 'sleep']);
+  const applicable = new Set([...Object.keys(UPDATE_FIELD_MAP), 'wait', 'sleep', 'fullPrompt']);
   const unapplied = Object.keys(partialIr ?? {}).filter((k) => !applicable.has(k));
   if (unapplied.length) {
     const actionsAsked = unapplied.includes('actions');
@@ -631,6 +658,8 @@ export function compileConvaiUpdateFromRecord(current, partialIr, { agentId, loc
     authHeader: AUTH_HEADER,
     collateralKeys,
     writeOnlyKeys,
+    // Which field the bot answers from after this write: fullPrompt once one is stored, else the three fields.
+    promptOwner: nonEmpty(cleaned.fullPrompt) ? 'fullPrompt' : 'fields',
   };
 }
 
