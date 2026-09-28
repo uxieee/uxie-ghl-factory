@@ -20,7 +20,7 @@
     {
       "tree": "documented",
       "dir": "corpus",
-      "capturedAt": "2026-09-28T17:08:32.992Z",
+      "capturedAt": "2026-09-28T17:14:46.000Z",
       "hash": "corpus",
       "fileCount": 1000,
       "endpoints": 1000
@@ -29417,7 +29417,7 @@
         "ai-agents/20-api/12-ai-agents-api.md:241",
         "ai-agents/20-api/12-ai-agents-api.md:249",
         "ai-agents/20-api/managed-agent-workflow-invocation.md:22",
-        "ai-agents/10-anatomy/managed-agent-shape.md:78",
+        "ai-agents/10-anatomy/managed-agent-shape.md:80",
         "ai-agents/20-api/12-ai-agents-api.md:377"
       ],
       "serviceBasis": "declared",
@@ -29543,7 +29543,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/managed-agent-shape.md:88"
+        "ai-agents/10-anatomy/managed-agent-shape.md:92"
       ],
       "serviceBasis": "declared"
     },
@@ -30547,7 +30547,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/managed-agent-shape.md:102"
+        "ai-agents/10-anatomy/managed-agent-shape.md:107"
       ],
       "serviceBasis": "declared"
     },
@@ -30580,7 +30580,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/managed-agent-shape.md:100",
+        "ai-agents/10-anatomy/managed-agent-shape.md:104",
         "ai-agents/20-api/conversation-ai-boundary.md:82",
         "ai-studio/60-recipes/run-one-generation.md:26"
       ],

@@ -37304,7 +37304,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "ai-agents/20-api/12-ai-agents-api.md:241",
             "ai-agents/20-api/12-ai-agents-api.md:249",
             "ai-agents/20-api/managed-agent-workflow-invocation.md:22",
-            "ai-agents/10-anatomy/managed-agent-shape.md:78",
+            "ai-agents/10-anatomy/managed-agent-shape.md:80",
             "ai-agents/20-api/12-ai-agents-api.md:377"
           ]
         },
@@ -37423,7 +37423,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/managed-agent-shape.md:88"
+            "ai-agents/10-anatomy/managed-agent-shape.md:92"
           ]
         },
         {
@@ -38706,7 +38706,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/managed-agent-shape.md:102"
+            "ai-agents/10-anatomy/managed-agent-shape.md:107"
           ]
         },
         {
@@ -38747,7 +38747,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/managed-agent-shape.md:100",
+            "ai-agents/10-anatomy/managed-agent-shape.md:104",
             "ai-agents/20-api/conversation-ai-boundary.md:82",
             "ai-studio/60-recipes/run-one-generation.md:26"
           ]
@@ -62805,9 +62805,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       create_studio_agent: {
-        description: "Create Agent Studio agent \u2014 proof: live-runtime (2026-09-25); risk: write",
+        description: "Create Agent Studio agent \u2014 proof: live-runtime (2026-09-28); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-25)",
+        proof: "live-runtime (2026-09-28)",
         proofFloor: "live-runtime (2026-07-21)",
         proofRows: [
           "ai-studio-agent-build"
@@ -180298,6 +180298,7 @@ function checkPostCall(pc) {
   assertObject(pc, "postCall");
   if (pc.sendPostCallNotificationTo !== void 0) assertObject(pc.sendPostCallNotificationTo, "postCall.sendPostCallNotificationTo");
   assertArrayIfPresent(pc.callEndWorkflowIds, "postCall.callEndWorkflowIds");
+  assertBooleanIfPresent(pc.saveCallSummaryAsNote, "postCall.saveCallSummaryAsNote");
 }
 function checkOutbound(ob) {
   if (ob === void 0) return;
@@ -180457,6 +180458,8 @@ function buildUpdateBody(ir, { locationId } = {}) {
     callEndWorkflowIds: postCall.callEndWorkflowIds ?? DEFAULTS2.callEndWorkflowIds,
     advancedSettingsEnabled: ir.advancedSettingsEnabled ?? DEFAULTS2.advancedSettingsEnabled,
     sendPostCallNotificationTo: postCall.sendPostCallNotificationTo ?? DEFAULTS2.sendPostCallNotificationTo,
+    // GHL's own default is ON (every call summary saved as a note on the caller's contact); sent only when asked.
+    ...postCall.saveCallSummaryAsNote !== void 0 ? { saveCallSummaryAsNote: postCall.saveCallSummaryAsNote } : {},
     agentWorkingHours: ir.agentWorkingHours ?? DEFAULTS2.agentWorkingHours,
     maxCallDuration: callSettings.maxCallDuration ?? DEFAULTS2.maxCallDuration,
     voiceTemperature: voice.voiceTemperature ?? DEFAULTS2.voiceTemperature,
@@ -180706,7 +180709,9 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var DEFAULT_MODEL = "anthropic/claude-sonnet-4-6";
-var TOOLS = ["web_search", "image_generation", "kb_search"];
+var TOOLS = ["web_search", "kb_search", "web_fetch", "image_generation", "tts_generation", "video_generation", "mcp"];
+var TRIGGER_MIX_RULE = 'A Managed Agent can be triggered by chat alone, or by a combination of non-chat triggers, but not both; "workflows" can be combined with either.';
+var IMAGE_QUALITIES = ["low", "medium", "high"];
 function assertNonEmptyString3(v, field) {
   if (typeof v !== "string" || v.length === 0) throw new IRError2("SCHEMA", `${field} must be a non-empty string`);
 }
@@ -180738,15 +180743,32 @@ function checkTrigger(ir) {
   const hasSingle = ir.trigger !== void 0;
   const hasArray = ir.triggers !== void 0;
   if (hasSingle && hasArray) throw new IRError2("SCHEMA", "specify either `trigger` or `triggers`, not both");
-  if (hasSingle) {
-    if (Array.isArray(ir.trigger)) throw new IRError2("TOO_MANY_TRIGGERS", "trigger must be a single object, not an array \u2014 Super Agents support only ONE active trigger");
-    checkTriggerShape(ir.trigger, "trigger");
+  if (hasSingle && Array.isArray(ir.trigger)) throw new IRError2("SCHEMA", "trigger must be a single object; use `triggers` for several");
+  if (hasArray && !Array.isArray(ir.triggers)) throw new IRError2("SCHEMA", "triggers must be an array");
+  const list = hasSingle ? [ir.trigger] : hasArray ? ir.triggers : [];
+  list.forEach((t) => checkTriggerShape(t, hasSingle ? "trigger" : "triggers[]"));
+  const types = list.map((t) => t.type);
+  if (types.includes("chat") && types.some((t) => t !== "chat" && t !== "workflows")) throw new IRError2("TRIGGER_MIX", TRIGGER_MIX_RULE);
+  for (const t of list.filter((x) => x.type === "schedule")) {
+    const sch = t.config?.schedule;
+    if (!sch || typeof sch !== "object") throw new IRError2("SCHEMA", "a schedule trigger needs config.schedule {mode, startDate, startTime, \u2026}");
+    if (!["once", "interval", "cron"].includes(sch.mode)) throw new IRError2("SCHEMA", "config.schedule.mode must be once, interval or cron");
   }
-  if (hasArray) {
-    if (!Array.isArray(ir.triggers)) throw new IRError2("SCHEMA", "triggers must be an array");
-    if (ir.triggers.length > 1) throw new IRError2("TOO_MANY_TRIGGERS", `Super Agents support only ONE active trigger; got ${ir.triggers.length}`);
-    for (const t of ir.triggers) checkTriggerShape(t, "triggers[]");
+}
+function checkPlugins(plugins) {
+  if (plugins === void 0) return;
+  if (!Array.isArray(plugins)) throw new IRError2("SCHEMA", "plugins must be an array ([] for no apps)");
+  for (const p2 of plugins) {
+    if (!p2 || typeof p2 !== "object" || typeof p2.slug !== "string" || !p2.slug) throw new IRError2("SCHEMA", "each plugin must be an object with a slug");
   }
+}
+function checkMedia(ir) {
+  if (ir.imageGeneration !== void 0 && ir.imageGeneration !== null) {
+    assertObject2(ir.imageGeneration, "imageGeneration");
+    if (ir.imageGeneration.quality !== void 0 && !IMAGE_QUALITIES.includes(ir.imageGeneration.quality))
+      throw new IRError2("SCHEMA", `imageGeneration.quality must be one of ${IMAGE_QUALITIES.join(", ")}`);
+  }
+  if (ir.mediaSettings !== void 0) assertObject2(ir.mediaSettings, "mediaSettings");
 }
 function checkKnowledgeBaseIds2(ids) {
   if (ids === void 0) return;
@@ -180769,6 +180791,8 @@ function parseSuperAgentIR(ir) {
   assertStringIfPresent2(ir.model, "model");
   checkTools(ir.tools);
   checkTrigger(ir);
+  checkPlugins(ir.plugins);
+  checkMedia(ir);
   assertStringIfPresent2(ir.reasoningEffort, "reasoningEffort");
   checkKnowledgeBaseIds2(ir.knowledgeBaseIds);
   checkStarterPrompts(ir.starterPrompts);
@@ -180777,22 +180801,22 @@ function parseSuperAgentIR(ir) {
 
 // ../engines/ai/studio-compiler.mjs
 var AUTH_HEADER3 = "ai";
+var DEFAULT_PLUGINS = [{ slug: "default", name: "Default", description: "Built-in crm skills for your agent", skills: [], allSkills: true }];
 var DEFAULTS3 = {
   contextManagement: { strategy: "summarize", keepRecentTurns: 10, compactionThreshold: 0.9 },
   reasoningEffort: "medium",
-  plugins: [{ slug: "default", name: "Default", description: "Built-in crm skills for your agent", skills: [], allSkills: true }],
+  plugins: DEFAULT_PLUGINS,
   description: ""
 };
 function buildTriggers(norm3) {
-  const t = norm3.trigger ?? (Array.isArray(norm3.triggers) ? norm3.triggers[0] : void 0);
-  if (!t) return [];
-  return [{
+  const list = norm3.trigger ? [norm3.trigger] : Array.isArray(norm3.triggers) ? norm3.triggers : [];
+  return list.map((t) => ({
     type: t.type,
     name: t.name ?? t.type,
     enabled: t.enabled ?? true,
     config: t.config ?? {},
     triggerMessage: t.triggerMessage ?? ""
-  }];
+  }));
 }
 function buildConfig(norm3) {
   const tools = new Set(norm3.tools ?? []);
@@ -180807,10 +180831,12 @@ function buildConfig(norm3) {
     triggers: buildTriggers(norm3),
     contextManagement: DEFAULTS3.contextManagement,
     reasoning: { effort: norm3.reasoningEffort ?? DEFAULTS3.reasoningEffort },
-    plugins: DEFAULTS3.plugins,
+    plugins: norm3.plugins ?? DEFAULTS3.plugins,
     starterPrompts: norm3.starterPrompts ?? [],
     knowledgeBaseIds,
-    actions: []
+    actions: [],
+    ...norm3.imageGeneration !== void 0 ? { imageGeneration: norm3.imageGeneration } : {},
+    ...norm3.mediaSettings !== void 0 ? { mediaSettings: norm3.mediaSettings } : {}
   };
 }
 function compileSuperAgentUpdate(ir, { agentId, locationId } = {}) {
@@ -182136,8 +182162,26 @@ function compileAiAgentPlan(kind, args) {
   };
   const create = compileSuperAgentCreate(studioSpec, { locationId: args.locationId, companyId: args.companyId });
   const update = compileSuperAgentUpdate(studioSpec, { agentId: "{agentId}", locationId: args.locationId });
-  const { name, systemPrompt } = update.body.config ?? {};
-  return { create, actions: [], followUps: [update], verifyExpected: { config: { name, systemPrompt } } };
+  const { name, systemPrompt, plugins, triggers } = update.body.config ?? {};
+  const verified = { name, systemPrompt };
+  if (args.spec?.plugins !== void 0) verified.plugins = plugins;
+  if (args.spec?.trigger !== void 0 || args.spec?.triggers !== void 0) verified.triggers = triggers;
+  return { create, actions: [], followUps: [update], verifyExpected: { config: verified } };
+}
+function studioDefaultsNote(spec = {}) {
+  const plugins = spec.plugins === void 0 ? "NOT SET \u2014 GHL default applies: the Default plugin with ALL built-in CRM skills (can send SMS/email and write contacts and opportunities). Pass plugins:[] for no apps." : spec.plugins.length ? `as given: ${spec.plugins.map((p2) => p2.slug).join(", ")}` : "none (plugins: [])";
+  const list = spec.trigger ? [spec.trigger] : spec.triggers ?? [];
+  return { plugins, triggers: list.length ? list.map((t) => t.type).join(", ") : "none given (the AI build may add a chat trigger)", publish: "never \u2014 the agent stays a draft" };
+}
+function voiceDefaultsNote(spec = {}) {
+  const pc = spec.postCall ?? {};
+  const note = pc.saveCallSummaryAsNote === void 0 ? "NOT SET \u2014 GHL default ON: every call summary is saved as a note on the caller's contact. Set postCall.saveCallSummaryAsNote:false to stop it." : String(pc.saveCallSummaryAsNote);
+  const mail = pc.sendPostCallNotificationTo === void 0 ? "NOT SET \u2014 default ON for all admins: an email after every call. Set postCall.sendPostCallNotificationTo to change it." : JSON.stringify(pc.sendPostCallNotificationTo);
+  return { saveCallSummaryAsNote: note, sendPostCallNotificationTo: mail };
+}
+function scheduleTimezones(spec = {}) {
+  const list = spec.trigger ? [spec.trigger] : spec.triggers ?? [];
+  return list.filter((t) => t?.type === "schedule").map((t) => t.config?.schedule?.timezone).filter((z2) => typeof z2 === "string" && z2.length);
 }
 var aiPlanPreview = (plan) => ({
   create: descriptorPreview(plan.create),
@@ -183465,7 +183509,7 @@ var TOOLS2 = [
   },
   {
     name: "create_voiceai_agent",
-    description: `${describe3("create_voiceai_agent", "Create Voice AI agent")}. Live-proven end-to-end on GROM AU 2026-07-21 (create \u2192 full-replace update \u2192 verified). Confirmation-gated: preview compiles a no-write plan.`,
+    description: `${describe3("create_voiceai_agent", "Create Voice AI agent")}. Live-proven end-to-end (create \u2192 full-replace update \u2192 verified). \u{1F534} Post-call defaults: unless spec.postCall says otherwise, every call summary is saved as a NOTE on the caller's contact (GHL default) and ALL admins get an email after every call \u2014 set postCall.saveCallSummaryAsNote:false and postCall.sendPostCallNotificationTo to change them; the preview names what applies. Confirmation-gated: preview compiles a no-write plan.`,
     inputSchema: schema({ locationId: external_exports.string(), spec: external_exports.object({}).passthrough(), confirm: external_exports.boolean().default(false) }),
     capabilities: [
       { method: "POST", path: "/voice-ai/agents" },
@@ -183475,7 +183519,7 @@ var TOOLS2 = [
     ],
     handler: async (args, deps) => guard(async () => {
       const plan = compileAiAgentPlan("voiceai", args);
-      const preview = aiPlanPreview(plan);
+      const preview = { ...aiPlanPreview(plan), defaults: voiceDefaultsNote(args.spec) };
       if (args.confirm !== true) return withFailureData(fail(
         CODES.CONFIRM_REQUIRED,
         "Voice AI agent preview is ready; no gateway call or write was made.",
@@ -183547,7 +183591,7 @@ var TOOLS2 = [
   },
   {
     name: "create_studio_agent",
-    description: `${describe3("create_studio_agent", "Create Agent Studio agent")}. Live-proven end-to-end on GROM AU 2026-07-21 (SSE build \u2192 follow-up PUT \u2192 verified). Provide buildPrompt (the AI build instruction) and/or systemPrompt (the exact runtime prompt) \u2014 either alone works; both keeps their distinct roles. Confirmation-gated: preview compiles a no-write plan.`,
+    description: `${describe3("create_studio_agent", "Create Agent Studio agent")}. Creates a Managed Agent (the UI's AI Agents \u2192 Agent Studio tab): SSE build, then a full-config PUT, then a verified re-read. Provide buildPrompt and/or systemPrompt \u2014 either alone works. spec may set tools (web_search, kb_search, web_fetch, image_generation, tts_generation, video_generation, mcp), knowledgeBaseIds, plugins, imageGeneration, mediaSettings and triggers (several; chat must stand alone, workflows combines with either). \u{1F534} Omitting plugins gives GHL's default: the Default plugin with ALL its CRM skills (it can message contacts and write records); pass plugins:[] for none \u2014 the preview names what applies. \u{1F534} A schedule runs in the LOCATION's timezone; a schedule labelled with another timezone is refused. The agent is created as a draft (never published). Confirmation-gated: preview compiles a no-write plan.`,
     inputSchema: schema({ locationId: external_exports.string(), companyId: external_exports.string().optional(), spec: external_exports.object({}).passthrough(), confirm: external_exports.boolean().default(false) }),
     capabilities: [
       { method: "SSE", path: "/agent-studio/super-agents/build" },
@@ -183556,13 +183600,30 @@ var TOOLS2 = [
     ],
     handler: async (args, deps) => guard(async () => {
       const plan = compileAiAgentPlan("studio", args);
-      const preview = aiPlanPreview(plan);
+      const preview = { ...aiPlanPreview(plan), defaults: studioDefaultsNote(args.spec) };
       if (args.confirm !== true) return withFailureData(fail(
         CODES.CONFIRM_REQUIRED,
         "Agent Studio preview is ready; no gateway call or write was made.",
-        "Review data.preview, then repeat the same locationId, companyId, and spec with confirm:true for a throwaway validation run."
+        "Review data.preview (and data.preview.defaults), then repeat the same locationId, companyId, and spec with confirm:true for a throwaway validation run."
       ), { preview });
-      const report = await executeAgentPlan({ plan, gw: deps.makeGw({ loc: args.locationId, rail: "ai", state: deps.state }) });
+      const gw = deps.makeGw({ loc: args.locationId, rail: "ai", state: deps.state });
+      const labelled = scheduleTimezones(args.spec);
+      if (labelled.length) {
+        const loc = await gw.call("GET", `/locations/${encodeURIComponent(args.locationId)}`, void 0, { base: AI_BASE3 });
+        const zone = loc.ok ? loc.json?.location?.timezone ?? loc.json?.timezone ?? null : null;
+        if (!zone) return withFailureData(fail(
+          "SCHEDULE_TIMEZONE_UNKNOWN",
+          "This spec has a schedule trigger, and the location timezone could not be read \u2014 nothing was created.",
+          "GHL runs a schedule in the location's own timezone. Read the location, then retry."
+        ), { preview });
+        const bad = [...new Set(labelled.filter((z2) => z2 !== zone))];
+        if (bad.length) return withFailureData(fail(
+          "SCHEDULE_TIMEZONE_MISMATCH",
+          `GHL runs a Managed Agent schedule in the LOCATION's timezone (${zone}) and ignores the trigger's timezone field (live 2026-09-28: a once-schedule labelled 17:30 "UTC" fired at 17:30 ${zone}). This spec labels a schedule ${bad.join(", ")} \u2014 nothing was created.`,
+          `Write startDate/startTime as ${zone} wall-clock time and set timezone to "${zone}".`
+        ), { preview, locationTimezone: zone });
+      }
+      const report = await executeAgentPlan({ plan, gw });
       const data2 = { preview, created: { agentId: report.agentId, actionIds: report.actionIds }, followUps: report.followUps, actions: report.actions, verification: report.verification };
       return report.ok ? ok(data2) : withFailureData(fail(
         report.code,
