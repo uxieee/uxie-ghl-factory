@@ -176690,6 +176690,7 @@ function compileVoiceAiPartialUpdate(current, spec, { agentId, locationId } = {}
 }
 var same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 var KB_KEYS = ["knowledgeBaseIds", "knowledgeBasePrompt"];
+var MODEL_CASCADE = /* @__PURE__ */ new Set(["provider", "providerAgentId", "providerAgents", "agentSettings.s2sBehaviour"]);
 var kbActions = (record2) => (record2?.actions ?? []).filter((a) => a?.actionType === "KNOWLEDGE_BASE");
 function readSet(record2, key) {
   if (key === "knowledgeBasePrompt") {
@@ -176767,6 +176768,8 @@ async function executeVoiceAiUpdate({ plan, before, gw, serverMessage: serverMes
   const b = fields(before);
   const a = fields(after);
   const changed = [];
+  const cascade = [];
+  const modelChange = plan.setKeys.includes("llmModel");
   const kbChange = plan.setKeys.some((k) => KB_KEYS.includes(k));
   const nonKb = (list) => JSON.stringify((list ?? []).filter((x) => x?.actionType !== "KNOWLEDGE_BASE"));
   const kbIds = new Set([...kbActions(before), ...kbActions(after)].map((x) => x._id));
@@ -176776,10 +176779,14 @@ async function executeVoiceAiUpdate({ plan, before, gw, serverMessage: serverMes
     if (kbChange && k === "actionIds" && same((b[k] ?? []).filter((x) => !kbIds.has(x)), (a[k] ?? []).filter((x) => !kbIds.has(x)))) continue;
     if (same(b[k], a[k])) continue;
     if (b[k] === void 0 && isObj(a[k]) && !Object.keys(a[k]).length) continue;
+    if (modelChange && MODEL_CASCADE.has(k)) {
+      cascade.push({ key: k, before: b[k], after: a[k] });
+      continue;
+    }
     changed.push({ key: k, before: b[k], after: a[k] });
   }
   const verification = { verified: mismatches.length === 0 && confirmed.length > 0, confirmed, mismatches };
-  const collateral = { unchanged: changed.length === 0, changed };
+  const collateral = { unchanged: changed.length === 0, changed, ...cascade.length ? { cascade } : {} };
   if (changed.length) {
     return {
       ok: false,
