@@ -252,6 +252,31 @@ test('rule 3: non-string values at a matched key are refused, not ignored', () =
   }
 });
 
+// The flow editor's Knowledge Base tool node carries `additionalParameters.locationId` as a JSON-schema
+// descriptor {type, description: <location id>} (live capture 2026-09-28). A descriptor is scanned, not refused.
+test('rule 3: a schema descriptor naming the permitted location passes', () => {
+  const body = { nodes: [{ nodeConfig: { params: { knowledgeBaseIds: ['kb1'], locationId: PERMITTED },
+    additionalParameters: { query: { type: 'string', description: 'q' }, locationId: { type: 'string', description: PERMITTED } } } }] };
+  assert.equal(checkLocationBinding(raw({ method: 'PATCH', body })), null);
+});
+
+test('rule 3: a schema descriptor naming a FOREIGN location is refused and named (control)', () => {
+  for (const d of [{ type: 'string', description: FOREIGN }, { type: 'array', values: [PERMITTED, FOREIGN] }, { enum: [FOREIGN] }]) {
+    const r = checkLocationBinding(raw({ method: 'PATCH', body: { additionalParameters: { locationId: d } } }));
+    assert.equal(r?.code, CODES.LOCATION_FORBIDDEN, `${JSON.stringify(d)} must be refused`);
+    assert.match(r.detail, new RegExp(FOREIGN), 'must name the foreign id');
+  }
+});
+
+test('rule 3: a descriptor with any non-schema key, a bad type, or no value is still an unusable shape (control)', () => {
+  for (const d of [{ type: 'string', description: PERMITTED, extra: 'x' }, { type: 'bogus', description: PERMITTED },
+    { type: 'string' }, { description: { nested: PERMITTED } }, { $ne: null }]) {
+    const r = checkLocationBinding(raw({ method: 'PATCH', body: { locationId: d } }));
+    assert.equal(r?.code, CODES.LOCATION_FORBIDDEN, `${JSON.stringify(d)} must be refused`);
+    assert.match(r.detail, /not a string or list of strings/, `${JSON.stringify(d)} must be refused as an unusable shape`);
+  }
+});
+
 test('rule 3: an array of permitted strings is allowed', () => {
   assert.equal(checkLocationBinding(raw({ method: 'POST', body: { locationId: [PERMITTED] } })), null);
 });

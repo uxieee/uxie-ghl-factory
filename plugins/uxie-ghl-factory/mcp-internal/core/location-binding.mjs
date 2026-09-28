@@ -142,6 +142,29 @@ const MAX_NODES = 10_000;
 // matched key is REFUSED. Ignoring them would let {"locationId": ["FOREIGN"]} and
 // {"locationId": {"$ne": null}} past, because the strings under them sit at array indices and
 // nested keys rather than at the exact key.
+// A JSON-schema DESCRIPTOR under a location key. GHL's flow editor writes a Knowledge Base tool node with
+// `additionalParameters.locationId: {type: "string", description: "<the location id>"}` — the tool's
+// parameter schema, whose values name the location. Such an object is scanned instead of refused: its
+// keys must ALL be schema words, `type` must be a JSON-schema type name, and every other string value
+// must be a location this registration may act on. Any other key → still unusable.
+const DESCRIPTOR_KEYS = new Set(['type', 'description', 'values', 'enum', 'default']);
+const SCHEMA_TYPES = new Set(['string', 'array', 'object', 'number', 'integer', 'boolean', 'null']);
+function descriptorLocations(x) {
+  if (!x || typeof x !== 'object' || Array.isArray(x)) return null;
+  const keys = Object.keys(x);
+  if (!keys.length || !keys.every((k) => DESCRIPTOR_KEYS.has(k))) return null;
+  if (x.type !== undefined && !(typeof x.type === 'string' && SCHEMA_TYPES.has(x.type))) return null;
+  const ids = [];
+  for (const k of keys) {
+    if (k === 'type') continue;
+    const v = x[k];
+    if (typeof v === 'string') ids.push(v);
+    else if (Array.isArray(v) && v.every((s) => typeof s === 'string')) ids.push(...v);
+    else return null;
+  }
+  return ids.length ? ids : null;
+}
+
 function scanBodyLocations(value, allowed) {
   let nodes = 0;
   // WHICH cap tripped, not merely THAT one did. A refusal that names no limit reads as a generic
@@ -160,7 +183,7 @@ function scanBodyLocations(value, allowed) {
         // The array branch below inspects x's elements without recursing through walk() -- count
         // them against the same node budget here, or an array at a matched key scans uncapped.
         if (Array.isArray(x) && (nodes += x.length) > MAX_NODES) { tripped ??= 'nodes'; return false; }
-        const values = typeof x === 'string' ? [x] : (Array.isArray(x) && x.every((s) => typeof s === 'string') ? x : null);
+        const values = typeof x === 'string' ? [x] : (Array.isArray(x) && x.every((s) => typeof s === 'string') ? x : descriptorLocations(x));
         if (values === null) { bad.push({ unusable: true }); return true; }
         for (const id of values) if (!allowed.has(id)) { bad.push({ id }); return true; }
       } else if (!walk(x, depth + 1)) return false;
