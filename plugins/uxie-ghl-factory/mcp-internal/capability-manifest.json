@@ -2075,6 +2075,11 @@
     "path": "/blogs/site"
   },
   {
+    "tool": "create_funnel",
+    "method": "POST",
+    "path": "/funnels/funnel/webinar/sessions"
+  },
+  {
     "tool": "get_funnel",
     "method": "GET",
     "path": "/funnels/funnel/fetch/{funnelId}"
