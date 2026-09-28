@@ -382,7 +382,7 @@ other unlisted `actionType`.
 
 | Task | Route | Trap |
 |---|---|---|
-| Dashboard metrics | `GET /voice-ai/dashboard/agents?locationId=&timezone=` (+ `/detailed`) | the default **Live** view neither counts nor lists Test Audio calls |
+| Dashboard metrics | `GET /voice-ai/dashboard/agents?locationId=&timezone=&timePeriod=&startTime=&endTime=`; `/detailed` also takes `type` (`CALLS`, `ATTEMPTED_CALLS`) and `direction` (`INBOUND`, `OUTBOUND`) | `timePeriod` (`THIS_WEEK`, `LAST_WEEK`, `LAST_7_DAYS`, `THIS_MONTH`, `THIS_YEAR`, `CUSTOM`) and epoch-ms `startTime`/`endTime` are **required** (422 without them); the builder's default **Live** view neither counts nor lists Test Audio calls |
 | Call logs | `GET /voice-ai/dashboard/call-logs?locationId=` | returns test calls too, including the operator's contact id |
 | Agent list with folders | `GET /voice-ai/agents/agents-with-folders?locationId=` | — |
 | Folders | see "Duplicate, folders, delete, test calls" | deleting a folder keeps its agents |
@@ -392,7 +392,7 @@ other unlisted `actionType`.
 | Community voices | `GET /voice-ai/voices/search?provider=elevenlabs&query=&locationId=`, `POST /voice-ai/voices/import/{providerVoiceId}?companyId=&provider=`, `GET /voice-ai/voices/my-voices?locationId=&companyId=`, `GET /voice-ai/voices/{recordId}/agents?companyId=` | **10 imports per account**; delete is keyed by **providerVoiceId**: `DELETE /voice-ai/voices/my-voices/{providerVoiceId}?companyId=` (the record id 404s) |
 | Test call | `POST /voice-ai/call/create-trial-web-call/{agentId}`, `GET /voice-ai/call/{callId}?locationId=&agentId=`, `GET /voice-ai/call/trial-usage?agentId=&locationId=` | 1200 free s per **agent** per day; `payPerUse` bills; 🔴 binds to the operator's own contact |
 | Call feedback | `PATCH /voice-ai/call/{callId}/feedback?locationId=&agentId= {isPositive, feedbackOptions[], additionalComments}` | **write-once** (409 on a second); a comment on a positive rating was dropped |
-| Pricing estimate | client-side from `GET {billing}/billing-config/LOCATION/{locationId}?companyId=` and the builder's model table | not a stored field |
+| Pricing estimate | none: the builder computes the "tokens · $/min" line itself (the source of its rate table was not captured) | not a stored field and no route to read it |
 | Translate the prompt | `POST /voice-ai/translate/ai {text, target}` → `["…"]` | the builder pastes the **array wrapper** `["…"]` into the prompt: strip it before saving |
 | Edit with AI | `POST /voice-ai/ai-generation/prompt-suggestion/stream {agentId, improvementPrompt, selectedText, fullPrompt}` | returns only the rewritten selection; saves nothing |
 | s2s prompt check | `POST /voice-ai/agents/{id}/s2s/prompt-validate {locationId}` → `{mode, fem, bem, prompt, changes[], warnings[], confidence}` | saves nothing |
