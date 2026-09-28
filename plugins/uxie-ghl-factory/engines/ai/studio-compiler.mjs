@@ -66,7 +66,10 @@ function buildTriggers(norm) {
     name: t.name ?? t.type,
     enabled: t.enabled ?? true,
     config: t.config ?? {},
-    triggerMessage: t.triggerMessage ?? '',
+    // Omitted when not given: GHL replaces a missing or empty triggerMessage with a per-type default (live
+    // 2026-09-28: chat → "A new chat conversation has started with a contact. Begin the intake flow."), so an
+    // emitted '' could never verify.
+    ...(t.triggerMessage !== undefined ? { triggerMessage: t.triggerMessage } : {}),
   }));
 }
 

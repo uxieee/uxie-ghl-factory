@@ -73,6 +73,8 @@ Never ask the user something recon or the brief already answers.
   driving `convai-compiler.mjs`.
 - `references/agent-studio.md` — **Managed Agents** (the UI's "Agent Studio" tab; the internal
   `/agent-studio/super-agent/*` surface that `create_studio_agent` drives).
+  Read its **Traps** first: a builder-chat edit can re-add every CRM skill; the agent-view chat bills while the
+  test panel is free; a use-case template creates an agent.
 
 Sibling skills: **`ghl-voice-ai`** (phone agents, internal rail) and **`ghl-knowledge-base`**
 (the content both products consume).
@@ -143,7 +145,7 @@ If the user wants one of these, **GHL can do it** — say so and point to the UI
 | API Call action (custom HTTP call during the chat) | Conversation AI agent → Build → Actions → API Call | an Actions-Platform skill with a mandatory test run; not yet engine-authored |
 | Active Hours (per-bot working hours, off-hours reply) | Agent → Deploy → Working Hours (needs Labs "Working Hours for Conversation AI") | Labs-gated per location |
 | Prompt Optimizer (simulated test chats, auto-optimise) | Agent editor → Prompt Optimizer (Labs) | billed per run, Labs-gated |
-| Flow agents (the node-graph canvas) | Voice AI → Create Agent → **Flow Builder** (any location with the flag); AI Agents → Agent Studio (flow agents, create limited to five agencies) | tool/action nodes and deploy unproven; corpus `ai-agents/10-anatomy/flow-agent-shape.md` |
+| Flow agents (the node-graph canvas) | Voice AI → Create Agent → **Flow Builder** (any location with the flag); AI Agents → Agent Studio (flow agents, create limited to five agencies) | no typed tool; corpus `ai-agents/10-anatomy/flow-agent-shape.md` has the graph, tools, actions, AI Router and Deploy. 🔴 A Router edge with no condition lets the agent hang up at any turn; Build with AI (vera) built no End Call node when asked to end the call |
 | Chat widgets (create / style / install) | Sites → Chat Widget | raw request only, no typed tool |
 | AI Suite billing, usage limits, rebilling | Agency → AI Suite | agency billing, account-wide |
 

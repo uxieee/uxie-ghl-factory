@@ -20,8 +20,9 @@ marked *bundle* are from the `superagentsApp` build and not executed.
 
 An autonomous, tool-using agent — closer to a GPT/assistant-builder than a scripted chat bot. Distinct from
 Conversation AI (a channel-bound chat bot with a three-part prompt) and Voice AI (a phone agent). Configured with
-**instructions**, **capabilities**, **apps / skills**, **actions** and **one or more triggers**; run in chat or on
-triggers; billed per run on two meters (`managed-agents` and `managed-agents-test` for test runs).
+**instructions**, **capabilities**, **apps / skills**, **custom skills** and **one or more triggers**; run in chat or
+on triggers. Real runs (triggers, the agent-view chat) bill USD on `MANAGED_AGENTS`; test-panel runs only use a
+count on `MANAGED_AGENTS_TEST` (30 a month).
 
 The editor (UI walk 2026-09-25): "Edit this agent with chat" (AI builder) · Test Agent · Publish · **Triggers** ·
 **Apps** (Default + marketplace apps) · **Capabilities** — Web search, Image generation, Audio generation (MP3),
@@ -38,7 +39,11 @@ detail page shows Activity and a **Memory** tab marked "SOON".
 | `GET` | `/agent-studio/super-agent/agents/:id/activity?locationId=` | Trigger/chat run log |
 | `POST` | `/agent-studio/super-agent/agents/:id/publish` | `{locationId}` → `status: "published"`; arms the triggers, mints a `triggerId` on each (proven live) |
 | `POST` | `/agent-studio/super-agent/agents/:id/unpublish` | `{locationId}` → back to `draft`, `hasPublishedVersion: false`; triggers stop (proven live) |
-| `POST` | `/agent-studio/super-agent/agents/:id/test` | test panel on a PUBLISHED agent: `{message, locationId, sessionId?}` → SSE `reasoning_delta` / `text_delta` / `completed {finalText, sessionId}`; uses one of 30 test runs a month (proven live) |
+| `POST` | `/agent-studio/super-agent/agents/:id/test` | test panel: `{message, locationId, sessionId?, contactId?}` → SSE `reasoning_delta` / `tool_started` / `tool_completed` / `text_delta` / `completed {finalText, sessionId}`; **works on a DRAFT**; uses one of 30 test runs a month, no USD (proven live) |
+| `POST` | `/agent-studio/super-agent/agents/:id/execute` | the agent view's chat: `{message, locationId}` → SSE `session` … `completed`; runs a draft too, is listed in activity (`kind: chat`) and sessions, and **bills USD** (US$0.039 for one short reply) (proven live) |
+| `POST` | `/agent-studio/super-agents/build` + `existingAgentId` | "Edit this agent with chat": the AI builder edits AND SAVES the agent itself (proven live) — see Traps |
+| `POST` | `/agent-studio/super-agent/agents/from-template` | `{templateId, locationId}` — a "Start from a use case" card: creates a draft agent at once (proven live) — see Traps |
+| `POST` / `GET` | `/agent-studio/plugins/custom-skills` | custom skills are location-level records `{name, description, skillContent (Markdown + front-matter), agentIds}`; the agent's config does not change; a run loads one with a `use_plugin` call (proven live) |
 | `POST` | `/agent-studio/agents/anton/session` | builder-chat session — note `anton` is the **flow** builder's runtime; the Managed-Agent editor fires this on open (a write-on-open) and only reads history from it |
 | `POST` | `/agent-studio/super-agent/agents` | the product's own Save: `{locationId, agencyId, builderSessionId, config, folderId?}` (*bundle*; not yet used by this plugin) |
 | `DELETE` | `/agent-studio/super-agent/agents/:id?locationId=` | Delete → `{success:true}` |
@@ -64,8 +69,7 @@ Auth: **`token-id`** header — same as Conversation AI and Voice AI, NOT the wo
     "reasoning": {"effort": "medium"},
     "plugins": [{"slug": "default", "name": "Default", "skills": [], "allSkills": true}],
     "starterPrompts": [{"label": "...", "prompt": "..."}],
-    "knowledgeBaseIds": ["..."],
-    "actions": []
+    "knowledgeBaseIds": ["..."]
   },
   "isOotb": false, "antonSessionId": "...", "deleted": false,
   "versionId": "...", "hasPublishedVersion": false, "hasUnpublishedChanges": true
@@ -98,12 +102,30 @@ Auth: **`token-id`** header — same as Conversation AI and Voice AI, NOT the wo
 - `imageGeneration: {quality: low|medium|high}` and `mediaSettings: {tts: {voice, instructions}, video:
   {durationSeconds}}` pass through when given.
 - `contextManagement`, `reasoning.effort` — server defaults `{strategy:"summarize", keepRecentTurns:10,
-  compactionThreshold:0.9}` and `{effort:"medium"}`. The config also carries `actions[]` (Actions-Platform
-  instances `{actionName, actionId, triggerCondition, basePrompt}`, *bundle*), `customApiEnabled`,
-  `customApiCalls`. Per-skill scoping within the Default plugin (unchecking a built-in tool category) never
+  compactionThreshold:0.9}` and `{effort:"medium"}`. 🔴 **`actions` is NOT stored**: a PUT carrying `actions:
+  [{actionName, actionId, triggerCondition, basePrompt}]` (the bundle's shape) answered 200 and read back without
+  it, and the agent could not run the action — the editor has no Actions section either. `customApiEnabled` is a
+  toggle (`customApiCalls` add outside HTTP calls; not exercised). Per-skill scoping within the Default plugin (unchecking a built-in tool category) never
   persisted a PUT in the captured beta UI session — an unresolved gap, not something this compiler drives.
 - `knowledgeBaseIds` — capture shows `null` when unset (never an empty array); the compiler
   preserves that null-vs-array distinction rather than defaulting to `[]`.
+
+## Traps (proven live 2026-09-28)
+
+- 🔴 **"Edit this agent with chat" can widen the agent.** One turn asked only to "make the tone friendlier. Change
+  nothing else." changed the prompt and **re-added the Default plugin with ALL CRM skills** to a `plugins: []` agent
+  (and reset `starterPrompts` to `null`). It saves the agent itself. Re-read `plugins` after every builder-chat edit.
+- 🔴 **The agent-view chat bills; the test panel does not.** Test with `…/test` (works on a draft, uses a free test
+  count). `…/execute` bills USD even on a draft.
+- **Templates create agents.** Picking a "Start from a use case" card calls `…/from-template` and creates a draft at
+  once — the "Customer Support Agent" template carries the Default plugin (all CRM skills), `kb_search` +
+  `web_search`, a chat trigger and a prompt with a "Settings (edit these for your business)" block. Rename it and set
+  `plugins` before anything goes live.
+- **Generated media stays behind.** `image_generation` and `tts_generation` save their PNG / MP3 into the location's
+  media library.
+- **A trigger with no `triggerMessage` gets a per-type default** from GHL (chat: "A new chat conversation has started
+  with a contact. Begin the intake flow."). `create_studio_agent` leaves it to GHL and does not verify it.
+- **The test panel does not need a publish** — keep test agents as drafts.
 
 ## PUT is whole-object replace (like Voice AI; unlike Conversation AI's merge)
 
