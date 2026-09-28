@@ -238,7 +238,8 @@ export async function executeAgentPlan({ plan, gw, verifyExpected } = {}) {
   const refused = [];
   for (let index = 0; index < (plan.actions ?? []).length; index++) {
     const action = threadAgentId(plan.actions[index], report.agentId);
-    const label = { index, type: action.body?.type ?? null, name: action.body?.name ?? null };
+    // Conversation AI action bodies carry `type`, Voice AI ones `actionType`
+    const label = { index, type: action.body?.type ?? action.body?.actionType ?? null, name: action.body?.name ?? null };
     try {
       const result = await gw.call(action.method, action.path, action.body, { base: AI_BASE });
       const observed = { ...label, path: action.path, status: result.status, id: actionId(result.json) };

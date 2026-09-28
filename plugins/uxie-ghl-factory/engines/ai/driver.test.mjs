@@ -297,3 +297,20 @@ test('executeAgentUpdate verifies a rename against the read shape `name`, and a 
   const bad = await executeAgentUpdate({ plan, gw: gwWith('Old') });
   assert.equal(bad.code, 'AGENT_VERIFY_MISMATCH');
 });
+
+// Voice AI action bodies carry `actionType`, not Conversation AI's `type`: the action report named every voice
+// action `type: null` (live 2026-09-28, create_voiceai_agent report on TEST-CONF-AI-VAI-03).
+test('a Voice AI action is labelled by its actionType in the report and in a partial-build summary', async () => {
+  const gw = { call: async (method, path) => {
+    if (path === '/voice-ai/agents') return callResponse({ id: 'va1' }, 201);
+    if (path === '/voice-ai/actions') return { ok: false, status: 422, json: { message: ['Invalid actionParameters for the given actionType'] } };
+    return callResponse({ id: 'va1' });
+  } };
+  const plan = { create: { method: 'POST', path: '/voice-ai/agents', body: { locationId: 'L' } }, followUps: [],
+    actions: [{ method: 'POST', path: '/voice-ai/actions', body: { actionType: 'SMS', name: 'Send it' } }] };
+  const out = await executeAgentPlan({ plan, gw });
+  assert.equal(out.code, 'AGENT_PARTIAL_BUILD');
+  const text = JSON.stringify(out);
+  assert.ok(text.includes('"type":"SMS"'), text.slice(0, 600));
+  assert.ok(/action 0 \(SMS "Send it"\) refused/.test(out.partialBuild.summary), out.partialBuild.summary);
+});

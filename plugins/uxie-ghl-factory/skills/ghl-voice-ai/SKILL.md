@@ -119,8 +119,8 @@ Full set: `ai-agents/40-rules/constraints.md`.
 | create → full-replace update → verify | **live-proven end-to-end.** `POST /voice-ai/agents` takes only `{locationId}` and returns an id; the follow-up `PUT …?publishAgent=true&mode=update` applies the config and the re-read confirms it |
 | `CALL_TRANSFER`, `DATA_EXTRACTION` | **live-fired** |
 | `WORKFLOW_TRIGGER` | **ran on a live call** (2026-09-28 web call: the tool fired mid-call and spoke its static `triggerMessage`) |
-| `SMS` | **created live** with the builder's body `{triggerPrompt, triggerMessage, triggerMessageType, messageBody}`; the two-key body 422s. Not run on a call |
-| the other 3 action types | **capture-verified, not live-fired** — validated against `voiceai-actions-all.json`, never individually round-tripped |
+| `SMS`, `APPOINTMENT_BOOKING`, `AGENT_TRANSFER_CHILD` | **created live by `create_voiceai_agent`** and read back (booking mints `GET_SLOTS` / `BOOK_SLOT`, the transfer mints its `AGENT_TRANSFER` root); not run on a call |
+| `CAP` | **capture-verified, not live-fired** |
 | `IN_CALL_DATA_EXTRACTION`, `MCP` | **untested.** Do not assume `IN_CALL_DATA_EXTRACTION` mirrors `DATA_EXTRACTION` |
 
 The seven types verified live are `CALL_TRANSFER`, `WORKFLOW_TRIGGER`, `SMS`, `DATA_EXTRACTION`,
