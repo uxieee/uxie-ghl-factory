@@ -1,78 +1,8 @@
 {
   "generated": "2026-09-28",
   "note": "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path — not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-  "count": 1332,
+  "count": 1350,
   "endpoints": [
-    {
-      "id": "ai-agents--actions",
-      "method": "GET",
-      "url": "https://backend.leadconnectorhq.com/actions/{id}",
-      "path": "/actions/{id}",
-      "origin": "https://backend.leadconnectorhq.com",
-      "rail": "workflow",
-      "kind": "read",
-      "reach": "source-only",
-      "coveredBy": [],
-      "rawCallable": true,
-      "transport": "json",
-      "responseMode": "json",
-      "extraHeaders": [],
-      "operation": null,
-      "service": "ai-agents",
-      "tree": "documented",
-      "pathParams": [
-        {
-          "name": "id"
-        }
-      ],
-      "query": [],
-      "body": null,
-      "returns": null,
-      "confidence": {
-        "path": "documented",
-        "query": "none-observed",
-        "body": "unresolved",
-        "returns": "unresolved"
-      },
-      "sources": [
-        "ai-agents/20-api/actions-and-plugins.md:61"
-      ]
-    },
-    {
-      "id": "ai-agents--actions-safe-template",
-      "method": "GET",
-      "url": "https://backend.leadconnectorhq.com/actions/{id}/safe-template",
-      "path": "/actions/{id}/safe-template",
-      "origin": "https://backend.leadconnectorhq.com",
-      "rail": "workflow",
-      "kind": "read",
-      "reach": "source-only",
-      "coveredBy": [],
-      "rawCallable": true,
-      "transport": "json",
-      "responseMode": "json",
-      "extraHeaders": [],
-      "operation": null,
-      "service": "ai-agents",
-      "tree": "documented",
-      "pathParams": [
-        {
-          "name": "id"
-        }
-      ],
-      "query": [],
-      "body": null,
-      "returns": null,
-      "confidence": {
-        "path": "documented",
-        "query": "none-observed",
-        "body": "unresolved",
-        "returns": "unresolved"
-      },
-      "sources": [
-        "ai-agents/20-api/actions-and-plugins.md:61"
-      ]
-    },
     {
       "id": "facebook-service--get-ad-account-by-id",
       "method": "GET",
@@ -609,11 +539,12 @@
       },
       "sources": [
         "ai-agents/10-anatomy/flow-agent-shape.md:142",
-        "ai-agents/20-api/actions-and-plugins.md:25"
+        "ai-agents/20-api/actions-and-plugins.md:25",
+        "ai-agents/20-api/actions-and-plugins.md:61"
       ]
     },
     {
-      "id": "ai-agents--actions-safe-template-get",
+      "id": "ai-agents--actions-safe-template",
       "method": "GET",
       "url": "https://backend.leadconnectorhq.com/agent-execution/actions/{actionId}/safe-template",
       "path": "/agent-execution/actions/{actionId}/safe-template",
@@ -651,7 +582,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/actions-and-plugins.md:27"
+        "ai-agents/20-api/actions-and-plugins.md:27",
+        "ai-agents/20-api/actions-and-plugins.md:61"
       ]
     },
     {
@@ -10888,6 +10820,703 @@
       ]
     },
     {
+      "id": "ai-agents--industry-agents-agents",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/industry-agents/agents",
+      "path": "/industry-agents/agents",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "ai-agents",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "pageSize",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/industry-agents.md:32"
+      ]
+    },
+    {
+      "id": "ai-agents--industry-agents-agents-post",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/industry-agents/agents",
+      "path": "/industry-agents/agents",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "ai-agents",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/industry-agents.md:42"
+      ]
+    },
+    {
+      "id": "ai-agents--industry-agents-agents-delete",
+      "method": "DELETE",
+      "url": "https://backend.leadconnectorhq.com/industry-agents/agents/{id}",
+      "path": "/industry-agents/agents/{id}",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "destructive",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "ai-agents",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "id"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/industry-agents.md:42"
+      ]
+    },
+    {
+      "id": "ai-agents--industry-agents-agents-patch",
+      "method": "PATCH",
+      "url": "https://backend.leadconnectorhq.com/industry-agents/agents/{id}",
+      "path": "/industry-agents/agents/{id}",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "ai-agents",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "id"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/industry-agents.md:42"
+      ]
+    },
+    {
+      "id": "ai-agents--agents-booking-calendar",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/industry-agents/agents/{id}/booking-calendar",
+      "path": "/industry-agents/agents/{id}/booking-calendar",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "ai-agents",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "id"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/industry-agents.md:44"
+      ]
+    },
+    {
+      "id": "ai-agents--booking-calendar-members",
+      "method": "PUT",
+      "url": "https://backend.leadconnectorhq.com/industry-agents/agents/{id}/booking-calendar/members",
+      "path": "/industry-agents/agents/{id}/booking-calendar/members",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "ai-agents",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "id"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/industry-agents.md:44"
+      ]
+    },
+    {
+      "id": "ai-agents--agents-deploy",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/industry-agents/agents/{id}/deploy",
+      "path": "/industry-agents/agents/{id}/deploy",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "ai-agents",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "id"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/industry-agents.md:43"
+      ]
+    },
+    {
+      "id": "ai-agents--industry-agents-business-defaults",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/industry-agents/business-defaults",
+      "path": "/industry-agents/business-defaults",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "ai-agents",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/industry-agents.md:33"
+      ]
+    },
+    {
+      "id": "ai-agents--industry-agents-calendars",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/industry-agents/calendars",
+      "path": "/industry-agents/calendars",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "ai-agents",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/industry-agents.md:46"
+      ]
+    },
+    {
+      "id": "ai-agents--industry-agents-calendars-get",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/industry-agents/calendars/{id}",
+      "path": "/industry-agents/calendars/{id}",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "ai-agents",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "id"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/industry-agents.md:46"
+      ]
+    },
+    {
+      "id": "ai-agents--industry-agents-conversation-logs",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/industry-agents/conversation-logs",
+      "path": "/industry-agents/conversation-logs",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "ai-agents",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/industry-agents.md:36"
+      ]
+    },
+    {
+      "id": "ai-agents--conversation-logs-transcript",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/industry-agents/conversation-logs/transcript",
+      "path": "/industry-agents/conversation-logs/transcript",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "ai-agents",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/industry-agents.md:46"
+      ]
+    },
+    {
+      "id": "ai-agents--industry-agents-countries",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/industry-agents/countries",
+      "path": "/industry-agents/countries",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "ai-agents",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/industry-agents.md:46"
+      ]
+    },
+    {
+      "id": "ai-agents--industry-agents-knowledge-bases",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/industry-agents/knowledge-bases",
+      "path": "/industry-agents/knowledge-bases",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "ai-agents",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/industry-agents.md:35"
+      ]
+    },
+    {
+      "id": "ai-agents--tags-search",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/industry-agents/tags/search",
+      "path": "/industry-agents/tags/search",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "ai-agents",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/industry-agents.md:46"
+      ]
+    },
+    {
+      "id": "ai-agents--industry-agents-template-services",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/industry-agents/template-services",
+      "path": "/industry-agents/template-services",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "ai-agents",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "vertical",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "industry",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/industry-agents.md:34"
+      ]
+    },
+    {
+      "id": "ai-agents--industry-agents-timezones",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/industry-agents/timezones",
+      "path": "/industry-agents/timezones",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "ai-agents",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/industry-agents.md:46"
+      ]
+    },
+    {
+      "id": "ai-agents--industry-agents-trial-chat",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/industry-agents/trial-chat",
+      "path": "/industry-agents/trial-chat",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "ai-agents",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/industry-agents.md:45"
+      ]
+    },
+    {
+      "id": "ai-agents--users-search",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/industry-agents/users/search",
+      "path": "/industry-agents/users/search",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "ai-agents",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/industry-agents.md:46"
+      ]
+    },
+    {
+      "id": "ai-agents--industry-agents-workflows",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/industry-agents/workflows",
+      "path": "/industry-agents/workflows",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "ai-agents",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/industry-agents.md:46"
+      ]
+    },
+    {
       "id": "facebook-service--get-account-ids",
       "method": "GET",
       "url": "https://backend.leadconnectorhq.com/integrations/facebook/{locationId}/allAdAccounts",
@@ -20622,7 +21251,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "get_funnel"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -20678,7 +21309,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "get_funnel"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -20899,7 +21532,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "get_funnel"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -21039,7 +21674,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "get_funnel"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -21109,7 +21746,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/50-runtime/analytics.md:72"
+        "funnels/50-runtime/analytics.md:75"
       ]
     },
     {
@@ -39655,7 +40292,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/00-overview/index.md:83"
+        "ai-agents/00-overview/index.md:85"
       ]
     },
     {
@@ -39690,7 +40327,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/00-overview/index.md:82"
+        "ai-agents/00-overview/index.md:84"
       ]
     },
     {
@@ -46321,7 +46958,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/00-overview/index.md:85",
+        "ai-agents/00-overview/index.md:87",
         "ai-agents/20-api/knowledge-base.md:199",
         "ai-agents/20-api/knowledge-base.md:254"
       ]
@@ -47093,7 +47730,7 @@
       ]
     },
     {
-      "id": "ai-agents--tags-search",
+      "id": "ai-agents--tags-search-get",
       "method": "GET",
       "url": "https://services.leadconnectorhq.com/locations/{locationId}/tags/search",
       "path": "/locations/{locationId}/tags/search",
