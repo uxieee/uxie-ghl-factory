@@ -39,6 +39,15 @@
         "commit:ddaf7b05"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-29",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:27d303dc"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
@@ -53,6 +62,7 @@
       "PATCH https://backend.leadconnectorhq.com /funnels/funnel/update/{}": "4a1aa4c23083223f7775fff0ffa3a6148434f7f00fa56f5556abab8c9da2e710",
       "POST https://backend.leadconnectorhq.com /funnels/funnel/clone-control-page": "d183c05c291ca64bf51f55a9664a7425ca494953e4644dfb2254661b7231bead",
       "POST https://backend.leadconnectorhq.com /funnels/funnel/clone-funnel-step": "2625afaef8d395f484583a653d8f063f323ad26609404ba47bac5dd4625f1bd4",
+      "POST https://backend.leadconnectorhq.com /funnels/funnel/clone-funnel-to-locations": "e4c8f7e43c4a168c1d55f276a6ac8b0645156f76f05091de39d7cb9334ac95be",
       "POST https://backend.leadconnectorhq.com /funnels/funnel/create-step": "14bcb50dd0ec4702536cc9cc89def97c4ccbc06f6b0c4936db4bc54236d9ffe6",
       "POST https://backend.leadconnectorhq.com /funnels/funnel/delete": "03b76962c956f54258f3e1dd609012e2375bd78d70c0333c15c6a5c6c2067348",
       "POST https://backend.leadconnectorhq.com /funnels/funnel/delete-step": "38ad4ca5e07c2267e3b2c766fc494445d2142eadaa9091512e6fe3b958810ad7",
@@ -62,6 +72,7 @@
       "POST https://backend.leadconnectorhq.com /funnels/funnel/update-settings": "04aa42c84de003e0c38a88f58eb6eb8bcd11d46cf741c7dfc1a72dd881ab54f3",
       "POST https://backend.leadconnectorhq.com /funnels/lookup/create": "2679a6f1d9b45f7141abfa746532bcd50db7554538a473aa46a82b1c6fce31e1",
       "POST https://backend.leadconnectorhq.com /funnels/lookup/exists": "16b5337bc09a462c8d429cd8b2b4d9afbf16afe00f3548859815f1f0d3a0ece7",
+      "POST https://backend.leadconnectorhq.com /funnels/store/create-in-funnel": "8412d455dfad26c6d8494d95755c0da1d7dfaee59de906d112ff081716f854c6",
       "PUT https://backend.leadconnectorhq.com /funnels/funnel/step/{}": "2d7cb629f1115364da1d16ef733fbbeb0446fb8ab94e0c91533fcdd663f2ebf7",
       "PUT https://backend.leadconnectorhq.com /funnels/lookup/multiple": "b8e3ddf74f11d5431331cda00208e70086c16f9eef3c4115a575eedfb3277f3a"
     },
