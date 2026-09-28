@@ -178,7 +178,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
     define_ENDPOINT_CATALOG_default = {
       generated: "2026-09-28",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 1271,
+      count: 1273,
       endpoints: [
         {
           id: "facebook-service--get-ad-account-by-id",
@@ -43795,6 +43795,56 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           ]
         },
         {
+          id: "ai-agents--pages-content-put",
+          method: "PUT",
+          url: "https://services.leadconnectorhq.com/knowledge-base/crawler/pages/content",
+          path: "/knowledge-base/crawler/pages/content",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "urlId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "knowledgeBaseId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/knowledge-base.md:341"
+          ]
+        },
+        {
           id: "ai-agents--crawler-status",
           method: "GET",
           url: "https://services.leadconnectorhq.com/knowledge-base/crawler/status",
@@ -43870,7 +43920,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "ai-agents/20-api/conversation-ai-boundary.md:79",
             "ai-agents/20-api/knowledge-base.md:59",
             "ai-agents/20-api/knowledge-base.md:77",
-            "ai-agents/20-api/knowledge-base.md:348"
+            "ai-agents/20-api/knowledge-base.md:355"
           ]
         },
         {
@@ -44405,7 +44455,51 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/knowledge-base.md:338"
+            "ai-agents/20-api/knowledge-base.md:345"
+          ]
+        },
+        {
+          id: "ai-agents--knowledge-base-oauth",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/knowledge-base/oauth",
+          path: "/knowledge-base/oauth",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "type",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/knowledge-base.md:340"
           ]
         },
         {

@@ -20,16 +20,16 @@
     {
       "tree": "documented",
       "dir": "corpus",
-      "capturedAt": "2026-09-28T15:24:37.040Z",
+      "capturedAt": "2026-09-28T15:29:19.528Z",
       "hash": "corpus",
-      "fileCount": 979,
-      "endpoints": 979
+      "fileCount": 981,
+      "endpoints": 981
     }
   ],
   "note": "SOURCE-DERIVED ONLY, merged from every mined front-end. `tree` on each row says which app calls it. The plugin owns kind/note/summary/reach/coveredBy and merges them at read time. A row proves a GHL front-end calls that path — not that your token reaches it, and not that calling it is safe.",
-  "discoveredCallSites": 1454,
+  "discoveredCallSites": 1456,
   "skippedCallSites": 703,
-  "count": 1263,
+  "count": 1265,
   "endpoints": [
     {
       "id": "facebook-service--get-ad-account-by-id",
@@ -34616,6 +34616,51 @@
       "serviceBasis": "declared"
     },
     {
+      "id": "ai-agents--pages-content-put",
+      "method": "PUT",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/knowledge-base/crawler/pages/content",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "urlId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "knowledgeBaseId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/knowledge-base.md:341"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
       "id": "ai-agents--crawler-status",
       "method": "GET",
       "origin": "https://services.leadconnectorhq.com",
@@ -34680,7 +34725,7 @@
         "ai-agents/20-api/conversation-ai-boundary.md:79",
         "ai-agents/20-api/knowledge-base.md:59",
         "ai-agents/20-api/knowledge-base.md:77",
-        "ai-agents/20-api/knowledge-base.md:348"
+        "ai-agents/20-api/knowledge-base.md:355"
       ],
       "serviceBasis": "declared"
     },
@@ -35111,7 +35156,46 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/knowledge-base.md:338"
+        "ai-agents/20-api/knowledge-base.md:345"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "ai-agents--knowledge-base-oauth",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/knowledge-base/oauth",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/knowledge-base.md:340"
       ],
       "serviceBasis": "declared"
     },
