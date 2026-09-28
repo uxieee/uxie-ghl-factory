@@ -154,6 +154,14 @@ target. Read them with **`find_ghl_site`** `includeRedirects:true` (domains, eve
 
 What the builder does that a 2xx will not tell you (all measured live):
 
+- 🔴 **A composed page must stay saveable in the builder.** The builder recomputes every element's styles and fonts
+  on each save and reads many values unguarded; one node missing one makes the WHOLE page unsaveable there
+  ("Error while creating page!", nothing is sent) while the public page renders fine. `build_funnel_page` writes the
+  builder's own defaults for the kinds that need them (order forms, nav menus, FAQ, image feature, blog, blog
+  subscribe form, category navigation, the store kinds) and never writes a font prop as a list; proven by composing
+  all 54 non-step-typed kinds and all five store pages and saving each in the builder. After a hand-made edit, open
+  the page in the builder and save once: if it refuses, a node is malformed.
+
 - 🔴 **The builder's first save of an API-composed page adds an EMPTY popup**, and merely opening the
   General tab of a button whose action is empty rewrites it to `openPopup` pointing at that popup — a
   behaviour change nobody clicked (an empty popup never shows, so the button then does nothing). After a
