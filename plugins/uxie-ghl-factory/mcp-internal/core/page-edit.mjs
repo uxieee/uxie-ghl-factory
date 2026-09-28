@@ -19,7 +19,7 @@ export function findNode(pageData, nodeId) {
 }
 
 import { sectionKnobs, sectionInnerRule, BUILDER_INNER_MAX_WIDTH } from './funnel-pages.mjs';
-import { typographyValue, setRootVars, TYPOGRAPHY_SLOTS } from './page-fonts.mjs';
+import { typographyValue, setRootVars, TYPOGRAPHY_SLOTS, typographySlot, isCustomFont, upsertCustomFont, customFamily } from './page-fonts.mjs';
 import { entranceClass, hoverClass, entranceCss, hoverCss, stripAnimationCss, parentAnimationOffset, ENTRANCE_METAS, HOVER_METAS } from './page-animation.mjs';
 
 const mergeInto = (node, key, patch) => {
@@ -168,9 +168,12 @@ export function applyPageEdits(pageData, ops, { compileStyles = () => '' } = {})
         const vars = {}; const fams = [];
         for (const [which, family] of [['headline', o.typography.headlineFont], ['content', o.typography.contentFont]]) {
           if (!family) continue;
-          const [key, varName, label] = TYPOGRAPHY_SLOTS[which];
-          if (t?.fonts) t.fonts[key] = { id: varName, text: t.fonts[key]?.text ?? label, value: typographyValue(family), isCustom: false };
-          vars[`--${varName}`] = `'${family}'`; vars[typographyValue(family).value.slice(4, -1)] = `'${family}'`; fams.push(family);
+          const [key] = TYPOGRAPHY_SLOTS[which];
+          const { slot, vars: v, family: fam } = typographySlot(which, family, t?.fonts?.[key]?.text);
+          if (t?.fonts) t.fonts[key] = slot;
+          Object.assign(vars, v);
+          // An uploaded font (resolved from {customFontId} by the tool) loads from customFonts, not fontsToLoad.
+          if (fam) fams.push(fam); else upsertCustomFont(next, family);
         }
         const g = next.general?.general;
         if (g) { const merged = [...new Set([...(g.fontsToLoad ?? []), ...fams])]; g.fontsToLoad = merged; g.fontsToLoadForPreview = merged; }
@@ -222,6 +225,13 @@ export function verifyEdits(stored, report) {
       for (const [which, family] of [['headline', e.typography?.headlineFont], ['content', e.typography?.contentFont]]) {
         if (!family) continue;
         const [key, varName] = TYPOGRAPHY_SLOTS[which];
+        if (isCustomFont(family)) {
+          const slot = stored.settings?.settings?.typography?.fonts?.[key];
+          if (slot?.value?.value !== `'${customFamily(family)}'` || slot?.isCustom !== true) wrong.push(`typography.${key}`);
+          if (!(stored.general?.general?.customFonts ?? []).some((f) => f.id === family.id && f.url === family.url)) wrong.push(`customFonts.${family.id}`);
+          if (!(stored.pageStyles ?? '').includes(`--${varName}: '${customFamily(family)}'`) && !(stored.pageStyles ?? '').includes(`--${varName}:'${customFamily(family)}'`)) wrong.push(`pageStyles.--${varName}`);
+          continue;
+        }
         if (stored.settings?.settings?.typography?.fonts?.[key]?.value?.text !== family) wrong.push(`typography.${key}`);
         if (!(stored.general?.general?.fontsToLoad ?? []).includes(family)) wrong.push(`fontsToLoad.${family}`);
         if (!new RegExp(`--${varName}\\s*:\\s*'${family.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}'`).test(stored.pageStyles ?? '')) wrong.push(`pageStyles.--${varName}`);

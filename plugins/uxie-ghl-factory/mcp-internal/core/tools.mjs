@@ -27,7 +27,7 @@ import { planCreateFunnel, createdId, EXPECT_TYPE, KINDS as FUNNEL_KINDS, STORE_
 import { applyPageEdits, verifyEdits, checkPageTarget, pageDataForWrite, seoMeta, seoDiff, findNode } from './page-edit.mjs';
 import { entranceClass, hoverClass, entranceCss, hoverCss, ENTRANCE_METAS, HOVER_METAS, ENTRANCE_ANIMATIONS, HOVER_ANIMATIONS } from './page-animation.mjs';
 import { makePopup, popupRefProblems } from './page-popup.mjs';
-import { fontRegistry, typographyValue, typographyFamily, setRootVars, typographyRule, TYPOGRAPHY_SLOTS } from './page-fonts.mjs';
+import { fontRegistry, typographyValue, typographyFamily, setRootVars, typographyRule, TYPOGRAPHY_SLOTS, typographySlot, isCustomFont, upsertCustomFont, resolveCustomFont } from './page-fonts.mjs';
 import { checkRecord, metaPost, recordDrift } from './page-seo.mjs';
 import { planCreate, planUpdate, planDelete, resolveTarget, listRedirects, statsBody, rowId, RESERVED_PREFIXES } from './redirects.mjs';
 import { collectWorkflowRuntimeWindow, validateRuntimeWindowInput } from './workflow-runtime-window.mjs';
@@ -1819,9 +1819,12 @@ function applyTypography(pageData, typo, reg) {
   const t = pageData.settings?.settings?.typography;
   const vars = { ...reg.vars() };
   for (const [which, family] of Object.entries(typo ?? {})) {
-    const [key, varName, label] = TYPOGRAPHY_SLOTS[which];
-    if (t?.fonts) t.fonts[key] = { id: varName, text: t.fonts[key]?.text ?? label, value: typographyValue(family), isCustom: false };
-    vars[`--${varName}`] = `'${family}'`;
+    const [key] = TYPOGRAPHY_SLOTS[which];
+    const { slot, vars: v } = typographySlot(which, family, t?.fonts?.[key]?.text);
+    if (t?.fonts) t.fonts[key] = slot;
+    Object.assign(vars, v);
+    // An uploaded font is not a Google face: it loads from general.customFonts, never from fontsToLoad.
+    if (isCustomFont(family)) upsertCustomFont(pageData, family);
   }
   const g = pageData.general?.general;
   if (g) {
@@ -10637,7 +10640,10 @@ export const TOOLS = [
       + 'layout knobs, saved section/element templates and global/universal sections (drag-inserted). '
       + 'FONTS: typography {headlineFont, contentFont} (compose top-level; edit: op page) sets the page fonts the builder\'s '
       + 'way (setting + faces loaded + :root --headlinefont/--contentfont); an element\'s font: \'headline\'|\'content\' uses '
-      + 'them (refused while the page has none). Every css.font / styles.fontFamily is written as var(--<name>) with its '
+      + 'them (refused while the page has none). A slot may name an UPLOADED font by id — {customFontId} from GET '
+      + '/funnels/custom-fonts — written as the builder writes it (isCustom slot, general.customFonts entry the renderer '
+      + 'emits @font-face from, :root vars; never in fontsToLoad); uploading a font is left to the builder '
+      + '(Typography → Upload Fonts). Every css.font / styles.fontFamily is written as var(--<name>) with its '
       + ':root variable and fontsToLoad entry, because the builder recomputes fontsToLoad from var references on every '
       + 'save and a literal family would stop loading after anyone saves the page there.',
     inputSchema: schema({
@@ -10647,7 +10653,7 @@ export const TOOLS = [
       stepId: z.string(),
       sections: z.array(z.record(z.any())).min(1).optional(),
       popups: z.array(z.record(z.any())).optional(),
-      typography: z.object({ headlineFont: z.string().min(1).optional(), contentFont: z.string().min(1).optional() }).optional(),
+      typography: z.object({ headlineFont: z.union([z.string().min(1), z.object({ customFontId: z.string().min(1) })]).optional(), contentFont: z.union([z.string().min(1), z.object({ customFontId: z.string().min(1) })]).optional() }).optional(),
       edits: z.array(z.object({
         op: z.enum(['set', 'append-section', 'append-popup', 'remove-node', 'page']),
         nodeId: z.string().optional(),
@@ -10657,7 +10663,7 @@ export const TOOLS = [
         hoverAnimation: z.object({ name: z.enum(HOVER_ANIMATIONS) }).passthrough().optional(),
         openPopup: z.string().optional(),
         font: z.enum(['headline', 'content']).optional(),
-        typography: z.object({ headlineFont: z.string().min(1).optional(), contentFont: z.string().min(1).optional() }).optional(),
+        typography: z.object({ headlineFont: z.union([z.string().min(1), z.object({ customFontId: z.string().min(1) })]).optional(), contentFont: z.union([z.string().min(1), z.object({ customFontId: z.string().min(1) })]).optional() }).optional(),
         sticky: z.enum(['none', 'top', 'bottom']).optional(),
         width: z.enum(['full', 'wide', 'midWide', 'small']).optional(),
         fullWidthRows: z.boolean().optional(),
@@ -10687,6 +10693,7 @@ export const TOOLS = [
       { method: 'GET', path: '/funnels/page/{pageId}' },
       { method: 'GET', path: '/funnels/builder/get-versions' },
       { method: 'POST', path: '/funnels/builder/publish-version' },
+      { method: 'GET', path: '/funnels/custom-fonts' },
     ],
     handler: async (args, deps) => guard(async () => {
       resetIds();
@@ -10697,6 +10704,23 @@ export const TOOLS = [
       // still loads after anyone saves the page in the builder (bl-267; core/page-fonts.mjs). `fonts.reg`
       // collects them; `fonts.typography` is the page's headline/content setting a `font:` element needs.
       const DEFAULT_FONTS = ['Arial', 'Georgia', 'Roboto'];
+      // A typography slot may name an UPLOADED font by id ({customFontId}); resolve each against the location's
+      // custom fonts before anything is composed, so a wrong id is refused rather than written as a dead face.
+      const slots = [args.typography, ...(args.edits ?? []).filter((e) => e.op === 'page').map((e) => e.typography)].filter(Boolean);
+      const ids = [...new Set(slots.flatMap((t) => [t.headlineFont, t.contentFont]).filter((f) => f && typeof f === 'object').map((f) => f.customFontId))];
+      if (ids.length) {
+        const gw0 = deps.makeGw({ loc: args.locationId, state: deps.state });
+        const byId = new Map();
+        for (const id of ids) {
+          const { res, font, count } = await resolveCustomFont(gw0, args.locationId, id);
+          if (!res.ok) return fromHttp(res.status, res.json);
+          if (!font) return fail(CODES.VALIDATION_FAILED, `custom font ${id} is not on this location (it has ${count} uploaded font(s))`, 'List them with GET /funnels/custom-fonts?locationId= (raw_request) and pass one\'s _id; uploading a font is done in the builder (Typography → Upload Fonts).');
+          byId.set(id, font);
+        }
+        const swap = (t) => { for (const k of ['headlineFont', 'contentFont']) if (t[k] && typeof t[k] === 'object') t[k] = byId.get(t[k].customFontId); };
+        args = { ...args, typography: args.typography ? { ...args.typography } : args.typography, edits: args.edits?.map((e) => (e.op === 'page' && e.typography ? { ...e, typography: { ...e.typography } } : e)) };
+        for (const t of [args.typography, ...(args.edits ?? []).filter((e) => e.op === 'page').map((e) => e.typography)].filter(Boolean)) swap(t);
+      }
       const fonts = { reg: fontRegistry(args.fonts ?? DEFAULT_FONTS), typography: { headline: args.typography?.headlineFont ?? null, content: args.typography?.contentFont ?? null } };
       const viaVar = (st) => {
         if (!st?.fontFamily) return st;
@@ -10780,7 +10804,7 @@ export const TOOLS = [
         const typo = {};
         for (const [which, family] of Object.entries(fonts.typography)) {
           if (!family) continue;
-          fonts.reg.add(family);
+          if (!isCustomFont(family)) fonts.reg.add(family);
           typo[which] = family;
         }
         pageData = buildPageData({
@@ -10870,7 +10894,8 @@ export const TOOLS = [
       // THE PUBLISH STATE IS REPORTED ON EVERY RUN, published or not — because the trap here is
       // invisible until it has already cost you. The public renderer serves the newest `live`
       // version if the page has one, and falls back to the newest draft if the page has NEVER been
-      // published (proven 2026-09-10, funnels/40-rules rule 27). So while a page is unpublished
+      // published (proven 2026-09-10, funnels/40-rules rule 27) — but a NEW page was measured (2026-09-29) getting
+      // its first version promoted to live by its second save. So while a page is unpublished
       // every autosave appears publicly within seconds and publishing looks optional; the first
       // publish pins the page to that version and every later autosave stops reaching the public
       // URL, with a 201 on each one. A caller who never sees this state cannot know which regime
@@ -10904,7 +10929,11 @@ export const TOOLS = [
         staleBySeconds: liveIdx >= 0 ? Math.max(0, secs(newest) - secs(pinnedTo)) : null,
         servingNote: liveIdx >= 0
           ? 'This page is PINNED to a published version. The public URL serves that version, NOT the draft this call just wrote.'
-          : 'This page has never been published, so the public URL falls back to the newest draft — the one this call just wrote.',
+          // Measured 2026-09-29 (knowledge sniffs/funnels-wave14-object-tools-2026-09-29 live-differential.first-version-live.json):
+          // on a NEW page the SECOND autosave flipped the FIRST version to `live`, so "newest draft is served" lasted one
+          // save. Older never-published pages were measured (2026-09-10) holding many drafts and no live version, so this
+          // is not every page — but a caller must know it can happen on the very next write.
+          : 'This page has never been published, so the public URL serves the draft this call just wrote. 🔴 On a new page GHL was measured turning the FIRST version live on the SECOND save; if it does here, the next write will not be public until a publish (publish:true). publishState on the next run shows which happened.',
       };
 
       let published = null;

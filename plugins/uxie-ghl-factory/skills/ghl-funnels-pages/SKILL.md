@@ -110,7 +110,10 @@ An empty popup is refused — GHL never renders it — and so is an openPopup na
 
 **Fonts** — page typography `{headlineFont, contentFont}` (compose: top-level `typography`; edit: op `page`
 `typography`) writes the builder's setting, loads the faces and declares `--headlinefont` / `--contentfont`;
-an element with `font: 'headline'|'content'` uses them (refused when the page has none set). Every other
+an element with `font: 'headline'|'content'` uses them (refused when the page has none set). A slot can
+name an UPLOADED font instead: `{customFontId: "<_id>"}` from `GET /funnels/custom-fonts?locationId=` — written as the
+builder writes it (`isCustom` slot, a `general.customFonts` entry the renderer turns into `@font-face`, the
+`:root` variables; it is never in `fontsToLoad`); an unknown id is refused. Every other
 family (`css.font`, `styles.fontFamily`) is written as the builder writes a picked font — `var(--<name>)` with
 its `:root` variable and a `fontsToLoad` entry. 🔴 The builder recomputes `fontsToLoad` on every save from
 `var(--…)` references only, so a LITERAL family (what this tool wrote until this fix, and any raw page edit)
@@ -146,6 +149,7 @@ target. Read them with **`find_ghl_site`** `includeRedirects:true` (domains, eve
 | saved assets: section / element templates, universal sections and elements, global sections | page builder → Save Section / Save Element; Quick Add → Saved Assets | builder-owned synced assets; inserting one is a drag in the builder |
 | share a funnel (a link anyone can import) | Sites → Funnels → row ⋮ → Share | 🔴 merely OPENING the Share modal creates a link shared with ALL; narrowing it to the agency or removing it needs the $497 plan. Read one with `get_funnel view share` |
 | clone a funnel into ANOTHER sub-account | Sites → Funnels → row ⋮ → Clone → pick locations | the same route as `clone-funnel`; cross-location delivery is not proven, so the tool clones into this location only |
+| upload a custom font (.ttf .otf .woff .woff2, max 100 per sub-account) | page builder → Typography → a font picker → Upload Fonts → Manage Fonts | a multipart file upload from the user's device or media library; once uploaded, `build_funnel_page` typography uses it by `{customFontId}` |
 | visitor geo-location | nothing to set | a runtime lookup (`GET /funnels/funnel/geo-location/` → the visitor's country) the builder uses to format prices |
 
 What the builder does that a 2xx will not tell you (all measured live):
@@ -198,8 +202,10 @@ the builder and naked in public, or the reverse.
 🔴 **Publishing FREEZES the page.** The public URL serves the newest `live` version if one exists,
 and falls back to the newest draft if the page has never been published. So while unpublished,
 every autosave appears publicly and publishing looks optional — and the first publish pins the page,
-after which every later write is invisible in public with a 201 on each one. `build_funnel_page`
-reports this on every run; read `publishState` before believing any public fetch.
+after which every later write is invisible in public with a 201 on each one. 🔴 A NEW page can pin itself
+without a publish: measured 2026-09-29, a fresh step's second autosave turned its FIRST version live, and the
+public page stayed on that first version through every later save. `build_funnel_page` reports the state on
+every run; read `publishState` before believing any public fetch.
 
 ## Which reference for which job
 

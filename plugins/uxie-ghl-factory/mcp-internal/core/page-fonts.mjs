@@ -86,3 +86,43 @@ export function setRootVars(pageStyles, vars) {
 
 /** The compiled rule the builder writes for a text node whose extra.typography names a page font. */
 export const typographyRule = (id, which) => `.hl_page-preview--content .c${id}{font-family:var(--${TYPOGRAPHY_SLOTS[which][1]})}`;
+
+// ── Custom (uploaded) fonts ── measured on a builder-saved page (knowledge sniffs/funnels-wave12-structure-tool-2026-09-28
+// live-page.custom-fonts.json; funnels-wave14-object-tools-2026-09-29 reads-custom-font-shape.json):
+//   slot   {id, text, value: {text: <name>, value: "'customhl-<fontId>-<name>'"}, isCustom: true}
+//   general.general.customFonts [{name, url, id, format}] — the renderer emits @font-face from these
+//   :root  --headlinefont: 'customhl-<fontId>-<name>';  --customhl-<fontId>-<slug>: 'customhl-<fontId>-<name>';
+//   fontsToLoad does NOT list it (it is not a Google/bunny face).
+// A custom font is named by its id from GET /funnels/custom-fonts; uploading one is left to the builder.
+export const isCustomFont = (f) => typeof f === 'object' && f !== null && f.custom === true;
+export const customFamily = (f) => `customhl-${f.id}-${f.name}`;
+export const customTypographyValue = (f) => ({ text: f.name, value: `'${customFamily(f)}'` });
+
+/** The slot object and the :root variables for one typography slot, custom font or family name. */
+export function typographySlot(which, font, currentText) {
+  const [, varName, label] = TYPOGRAPHY_SLOTS[which];
+  if (isCustomFont(font)) {
+    const fam = customFamily(font);
+    return { slot: { id: varName, text: currentText ?? label, value: customTypographyValue(font), isCustom: true },
+      vars: { [`--${varName}`]: `'${fam}'`, [fontSlug(fam)]: `'${fam}'` }, family: null };
+  }
+  return { slot: { id: varName, text: currentText ?? label, value: typographyValue(font), isCustom: false },
+    vars: { [`--${varName}`]: `'${font}'`, [fontSlug(font)]: `'${font}'` }, family: font };
+}
+
+/** Record a custom font where the renderer reads it (general.general.customFonts), once per id. */
+export function upsertCustomFont(pageData, f) {
+  const g = pageData.general?.general;
+  if (!g) return;
+  const list = (g.customFonts ?? []).filter((x) => x.id !== f.id);
+  g.customFonts = [...list, { name: f.name, url: f.url, id: f.id, format: f.format }];
+}
+
+/** Resolve {customFontId} against the location's uploaded fonts. */
+export async function resolveCustomFont(gw, locationId, id) {
+  const r = await gw.call('GET', `/funnels/custom-fonts?locationId=${encodeURIComponent(locationId)}`);
+  if (!r.ok) return { res: r, font: null, count: null };
+  const rows = Array.isArray(r.json?.data) ? r.json.data : Array.isArray(r.json) ? r.json : [];
+  const hit = rows.find((x) => (x._id ?? x.id) === id && x.deleted !== true);
+  return { res: r, count: rows.length, font: hit ? { custom: true, id: hit._id ?? hit.id, name: hit.name, url: hit.url, format: hit.format } : null };
+}

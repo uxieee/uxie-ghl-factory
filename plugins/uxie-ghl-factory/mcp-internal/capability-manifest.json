@@ -1980,6 +1980,11 @@
     "path": "/funnels/builder/publish-version"
   },
   {
+    "tool": "build_funnel_page",
+    "method": "GET",
+    "path": "/funnels/custom-fonts"
+  },
+  {
     "tool": "create_funnel",
     "method": "GET",
     "path": "/funnels/funnel/list"
