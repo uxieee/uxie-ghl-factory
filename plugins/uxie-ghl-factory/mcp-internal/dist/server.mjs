@@ -178,7 +178,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
     define_ENDPOINT_CATALOG_default = {
       generated: "2026-09-28",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 1219,
+      count: 1243,
       endpoints: [
         {
           id: "facebook-service--get-ad-account-by-id",
@@ -4490,7 +4490,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: null,
+          service: "funnels",
           tree: "documented",
           pathParams: [
             {
@@ -4526,7 +4526,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: null,
+          service: "funnels",
           tree: "documented",
           pathParams: [
             {
@@ -4565,7 +4565,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: null,
+          service: "funnels",
           tree: "documented",
           pathParams: [
             {
@@ -4604,7 +4604,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: null,
+          service: "funnels",
           tree: "documented",
           pathParams: [
             {
@@ -4622,6 +4622,106 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "ai-studio/_data/endpoints.json"
+          ]
+        },
+        {
+          id: "funnels--domains-hub",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/domains/hub",
+          path: "/domains/hub",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "companyId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "isNative",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/20-api/url-redirects.md:125"
+          ]
+        },
+        {
+          id: "funnels--hub-migration-required-domain",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/domains/hub/migration-required-domain",
+          path: "/domains/hub/migration-required-domain",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "limit",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "offset",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/20-api/url-redirects.md:130"
           ]
         },
         {
@@ -7284,7 +7384,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "funnels/10-anatomy/routing-and-publishing.md:31",
             "funnels/20-api/funnels-api.md:110",
             "funnels/20-api/funnels-api.md:183",
-            "funnels/60-recipes/author-native-elements.md:44"
+            "funnels/60-recipes/author-native-elements.md:44",
+            "funnels/60-recipes/edit-a-page-in-place.md:21"
           ]
         },
         {
@@ -7738,6 +7839,47 @@ var init_define_ENDPOINT_CATALOG = __esm({
         {
           id: "funnels--funnels-domain",
           method: "GET",
+          url: "https://backend.leadconnectorhq.com/funnels/domain",
+          path: "/funnels/domain",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [
+            "audit_site",
+            "edit_funnel"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/20-api/url-redirects.md:122"
+          ]
+        },
+        {
+          id: "funnels--funnels-domain-get",
+          method: "GET",
           url: "https://backend.leadconnectorhq.com/funnels/domain/",
           path: "/funnels/domain/",
           origin: "https://backend.leadconnectorhq.com",
@@ -7778,6 +7920,48 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "funnels/10-anatomy/domains-and-public-urls.md:21",
             "funnels/20-api/funnels-api.md:171"
+          ]
+        },
+        {
+          id: "funnels--funnels-domain-get-get",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/funnels/domain/{domainId}",
+          path: "/funnels/domain/{domainId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "domainId"
+            }
+          ],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/20-api/url-redirects.md:123"
           ]
         },
         {
@@ -7845,6 +8029,37 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "funnels/20-api/publish-routing-and-site-settings.md:99",
             "funnels/20-api/publish-routing-and-site-settings.md:107"
+          ]
+        },
+        {
+          id: "funnels--domain-validate",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/funnels/domain/validate",
+          path: "/funnels/domain/validate",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/20-api/url-redirects.md:133"
           ]
         },
         {
@@ -8843,7 +9058,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/url-redirects.md:62"
+            "funnels/20-api/url-redirects.md:65"
           ]
         },
         {
@@ -8959,6 +9174,115 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/10-anatomy/domains-and-public-urls.md:167"
+          ]
+        },
+        {
+          id: "funnels--lookup-redirect",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/funnels/lookup/redirect",
+          path: "/funnels/lookup/redirect",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/20-api/url-redirects.md:77",
+            "funnels/20-api/url-redirects.md:113"
+          ]
+        },
+        {
+          id: "funnels--lookup-redirect-delete",
+          method: "DELETE",
+          url: "https://backend.leadconnectorhq.com/funnels/lookup/redirect/{id}",
+          path: "/funnels/lookup/redirect/{id}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/20-api/url-redirects.md:79"
+          ]
+        },
+        {
+          id: "funnels--lookup-redirect-patch",
+          method: "PATCH",
+          url: "https://backend.leadconnectorhq.com/funnels/lookup/redirect/{id}",
+          path: "/funnels/lookup/redirect/{id}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/20-api/url-redirects.md:78"
           ]
         },
         {
@@ -14826,7 +15150,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "Version"
           ],
           operation: "list",
-          service: "forms",
+          service: null,
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -15356,6 +15680,41 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "pipelines-opportunities/20-api/pipelines.md:27",
             "platform/20-api/api-gap-matrix.md:25"
+          ]
+        },
+        {
+          id: "pipelines-opportunities--opportunities-smart-filters",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/opportunities/smart-filters",
+          path: "/opportunities/smart-filters",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          note: "smarttag rows: 60 per pipeline, enforced (400 SMART_FILTER_CREATE_FAILED); duplicate names and conditions are accepted. `filters` grammar: conditions {field, operator, value} and groups {group:'AND'|'OR', filters:[\u2026]}; top-level elements are ANDed. Fields: status, assigned_to, followers, last_stage_change_date, last_status_change_date, date_added, date_updated, wonOn, lostOn, monetary_value, source, current_campaigns, pipeline_stage_id (stage ID), custom_fields.<key without 'opportunity.'>. Dates are operator 'range' with value {gte, lte, selection} (thisWeek = Monday to Sunday in the location timezone); for presets the app recomputes the window from `selection` at render time, so the stored gte/lte are a snapshot, not the rule. \u{1F534} A smart tag is evaluated IN THE BROWSER only: nothing is stored on the opportunity, it is not searchable, and no workflow trigger or condition can see it \u2014 repeat its conditions in a workflow filter instead. A rule that throws matches nothing, silently. The UI's 'Prebuilt tags' (High Value, New Lead, Unassigned Deal, Hot Deal) are presets saved through this same call, with no preset marker. filterType:'smartlist' is accepted but INERT: no screen reads it (saved views live in /lists/dynamic). (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api/smart-filters.md + 40-rules/smart-tags.md)",
+          reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "pipelines-opportunities",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "pipelines-opportunities/40-rules/smart-tags.md:144"
           ]
         },
         {
@@ -16125,6 +16484,37 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "platform/20-api/payment-links.md:126",
             "platform/70-research/2026-09-02-payment-links-capture.md:46"
+          ]
+        },
+        {
+          id: "ai-agents--ai-supervisor-agents",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/performance-ai/ai-supervisor/agents",
+          path: "/performance-ai/ai-supervisor/agents",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:301"
           ]
         },
         {
@@ -18989,6 +19379,37 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "funnels--stats-url-redirect",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/stats/url-redirect",
+          path: "/stats/url-redirect",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/20-api/url-redirects.md:98"
+          ]
+        },
+        {
           id: "surveys-service--get-surveys",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/surveys",
@@ -19127,6 +19548,41 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "workflows/70-research/ENDPOINTS.md:94"
+          ]
+        },
+        {
+          id: "pipelines-opportunities--user-preferences",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/user-preferences/{userId}",
+          path: "/user-preferences/{userId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "pipelines-opportunities",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "userId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "pipelines-opportunities/20-api/smart-views.md:79"
           ]
         },
         {
@@ -37177,7 +37633,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/opportunities.md:174"
+            "pipelines-opportunities/20-api/opportunities.md:187"
           ]
         },
         {
@@ -37208,7 +37664,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/opportunities.md:161"
+            "pipelines-opportunities/20-api/opportunities.md:174"
           ]
         },
         {
@@ -37257,8 +37713,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/opportunities.md:167",
-            "pipelines-opportunities/20-api/opportunities.md:172"
+            "pipelines-opportunities/20-api/opportunities.md:180",
+            "pipelines-opportunities/20-api/opportunities.md:185"
           ]
         },
         {
@@ -37289,7 +37745,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/opportunities.md:299"
+            "pipelines-opportunities/20-api/opportunities.md:312"
           ]
         },
         {
@@ -37370,7 +37826,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/opportunities.md:231"
+            "pipelines-opportunities/20-api/opportunities.md:244"
           ]
         },
         {
@@ -38177,6 +38633,69 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "brand-kit/20-api/brand-voices.md:24",
             "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:55",
             "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:157"
+          ]
+        },
+        {
+          id: "pipelines-opportunities--bulk-actions-import",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/bulk-actions/import",
+          path: "/bulk-actions/import",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "pipelines-opportunities",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "pipelines-opportunities/20-api/bulk-actions.md:88",
+            "pipelines-opportunities/20-api/bulk-actions.md:94"
+          ]
+        },
+        {
+          id: "pipelines-opportunities--external-fetch",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/bulk-actions/import/external/fetch",
+          path: "/bulk-actions/import/external/fetch",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "pipelines-opportunities",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "pipelines-opportunities/20-api/bulk-actions.md:99"
           ]
         },
         {
@@ -39164,7 +39683,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/opportunities.md:156"
+            "pipelines-opportunities/20-api/opportunities.md:169"
           ]
         },
         {
@@ -42080,7 +42599,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/opportunities.md:318"
+            "pipelines-opportunities/20-api/opportunities.md:331"
           ]
         },
         {
@@ -50415,7 +50934,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/opportunities.md:270"
+            "pipelines-opportunities/20-api/opportunities.md:283"
           ]
         },
         {
@@ -50443,6 +50962,49 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           service: "forms",
           tree: "documented",
           pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "forms/20-api/neighbour-services.md:27",
+            "pipelines-opportunities/20-api/settings.md:80"
+          ]
+        },
+        {
+          id: "pipelines-opportunities--objects",
+          method: "PUT",
+          url: "https://services.leadconnectorhq.com/objects/{objectKey}",
+          path: "/objects/{objectKey}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "pipelines-opportunities",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "objectKey"
+            }
+          ],
           query: [],
           body: null,
           returns: null,
@@ -50453,7 +51015,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "forms/20-api/neighbour-services.md:27"
+            "pipelines-opportunities/20-api/settings.md:81"
           ]
         },
         {
@@ -50484,7 +51046,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/opportunities.md:295"
+            "pipelines-opportunities/20-api/opportunities.md:308"
           ]
         },
         {
@@ -50558,7 +51120,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/opportunities.md:209",
+            "pipelines-opportunities/20-api/opportunities.md:222",
             "pipelines-opportunities/20-api/pipelines.md:263"
           ]
         },
@@ -50639,7 +51201,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "pipelines-opportunities/20-api/opportunities.md:132",
-            "pipelines-opportunities/20-api/opportunities.md:303"
+            "pipelines-opportunities/20-api/opportunities.md:154",
+            "pipelines-opportunities/20-api/opportunities.md:316"
           ]
         },
         {
@@ -50674,7 +51237,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/opportunities.md:239"
+            "pipelines-opportunities/20-api/opportunities.md:252"
           ]
         },
         {
@@ -50709,7 +51272,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/opportunities.md:238"
+            "pipelines-opportunities/20-api/opportunities.md:251"
           ]
         },
         {
@@ -50749,7 +51312,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "pipelines-opportunities/20-api/bulk-actions.md:77",
-            "pipelines-opportunities/20-api/opportunities.md:221"
+            "pipelines-opportunities/20-api/opportunities.md:234"
           ]
         },
         {
@@ -50788,7 +51351,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/opportunities.md:249"
+            "pipelines-opportunities/20-api/opportunities.md:262"
           ]
         },
         {
@@ -51018,6 +51581,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
+            "pipelines-opportunities/20-api/forecast.md:149",
             "pipelines-opportunities/20-api/pipelines.md:43",
             "pipelines-opportunities/20-api/pipelines.md:169"
           ]
@@ -51599,7 +52163,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           ]
         },
         {
-          id: "pipelines-opportunities--opportunities-smart-filters",
+          id: "pipelines-opportunities--opportunities-smart-filters-get",
           method: "GET",
           url: "https://services.leadconnectorhq.com/opportunities/smart-filters",
           path: "/opportunities/smart-filters",
@@ -51682,7 +52246,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "pipelines-opportunities/20-api/smart-filters.md:91",
-            "pipelines-opportunities/20-api/smart-filters.md:182"
+            "pipelines-opportunities/20-api/smart-filters.md:188"
           ]
         },
         {
@@ -51721,11 +52285,11 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/smart-filters.md:146"
+            "pipelines-opportunities/20-api/smart-filters.md:152"
           ]
         },
         {
-          id: "pipelines-opportunities--opportunities-smart-filters-get",
+          id: "pipelines-opportunities--opportunities-smart-filters-get-get",
           method: "GET",
           url: "https://services.leadconnectorhq.com/opportunities/smart-filters/{smartFilterId}",
           path: "/opportunities/smart-filters/{smartFilterId}",
@@ -51847,7 +52411,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/smart-filters.md:147"
+            "pipelines-opportunities/20-api/smart-filters.md:153"
           ]
         },
         {
@@ -51878,7 +52442,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/smart-filters.md:145"
+            "pipelines-opportunities/20-api/smart-filters.md:151"
           ]
         },
         {
@@ -51909,7 +52473,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/smart-filters.md:167"
+            "pipelines-opportunities/20-api/smart-filters.md:173"
           ]
         },
         {
@@ -54630,6 +55194,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
         },
         {
           id: "ai-agents--voice-ai-agents-delete",
+          aka: [
+            "/voice-ai/agents/{id}"
+          ],
           method: "DELETE",
           url: "https://services.leadconnectorhq.com/voice-ai/agents/{agentId}",
           path: "/voice-ai/agents/{agentId}",
@@ -54667,7 +55234,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:161"
+            "ai-agents/20-api/12-ai-agents-api.md:161",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:276"
           ]
         },
         {
@@ -54726,6 +55294,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
         },
         {
           id: "ai-agents--voice-ai-agents-patch",
+          aka: [
+            "/voice-ai/agents/{id}"
+          ],
           method: "PATCH",
           url: "https://services.leadconnectorhq.com/voice-ai/agents/{agentId}",
           path: "/voice-ai/agents/{agentId}",
@@ -54746,17 +55317,25 @@ Flagged to the operator as a security observation about the vendor, not a capabi
               name: "agentId"
             }
           ],
-          query: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
             path: "documented",
-            query: "none-observed",
+            query: "documented",
             body: "unresolved",
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:204"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:204",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:243"
           ]
         },
         {
@@ -54999,6 +55578,41 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           ]
         },
         {
+          id: "ai-agents--agents-duplicate",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/voice-ai/agents/{id}/duplicate",
+          path: "/voice-ai/agents/{id}/duplicate",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:264"
+          ]
+        },
+        {
           id: "ai-agents--agents-transfer-connections",
           method: "GET",
           url: "https://services.leadconnectorhq.com/voice-ai/agents/{id}/transfer-connections",
@@ -55062,6 +55676,37 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/20-api/voice-ai-boundary.md:60"
+          ]
+        },
+        {
+          id: "ai-agents--agents-bulk-delete",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/voice-ai/agents/bulk-delete",
+          path: "/voice-ai/agents/bulk-delete",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:278"
           ]
         },
         {
@@ -55130,6 +55775,54 @@ Flagged to the operator as a security observation about the vendor, not a capabi
         },
         {
           id: "ai-agents--voice-ai-call",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/voice-ai/call/{callId}",
+          path: "/voice-ai/call/{callId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "callId"
+            }
+          ],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "agentId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:286"
+          ]
+        },
+        {
+          id: "ai-agents--voice-ai-call-patch",
           method: "PATCH",
           url: "https://services.leadconnectorhq.com/voice-ai/call/{callId}",
           path: "/voice-ai/call/{callId}",
@@ -55199,6 +55892,79 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           ]
         },
         {
+          id: "ai-agents--call-create-trial-web-call",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/voice-ai/call/create-trial-web-call/{agentId}",
+          path: "/voice-ai/call/create-trial-web-call/{agentId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "agentId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:282"
+          ]
+        },
+        {
+          id: "ai-agents--call-live-transcript",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/voice-ai/call/live-transcript/{agentId}/{callId}",
+          path: "/voice-ai/call/live-transcript/{agentId}/{callId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "agentId"
+            },
+            {
+              name: "callId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:285"
+          ]
+        },
+        {
           id: "ai-agents--call-trial",
           method: "GET",
           url: "https://services.leadconnectorhq.com/voice-ai/call/trial",
@@ -55216,16 +55982,42 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           service: "ai-agents",
           tree: "documented",
           pathParams: [],
-          query: [],
+          query: [
+            {
+              name: "page",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "pageSize",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "agentId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
             path: "documented",
-            query: "none-observed",
+            query: "documented",
             body: "unresolved",
             returns: "unresolved"
           },
           sources: [
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:288",
             "ai-agents/20-api/logs-deployment-email.md:24",
             "ai-agents/20-api/voice-ai-boundary.md:71",
             "ai-agents/30-types/voice-ai-actions.md:90"
@@ -55249,16 +56041,30 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           service: "ai-agents",
           tree: "documented",
           pathParams: [],
-          query: [],
+          query: [
+            {
+              name: "agentId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
             path: "documented",
-            query: "none-observed",
+            query: "documented",
             body: "unresolved",
             returns: "unresolved"
           },
           sources: [
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:289",
             "ai-agents/20-api/logs-deployment-email.md:25",
             "ai-agents/20-api/voice-ai-boundary.md:72"
           ]
@@ -55641,6 +56447,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:249",
             "ai-agents/20-api/logs-deployment-email.md:93"
           ]
         },
@@ -55824,6 +56631,69 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           service: "ai-agents",
           tree: "documented",
           pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "page",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "pageSize",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "sortBy",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "includeEmpty",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:272",
+            "ai-agents/20-api/voice-ai-boundary.md:64"
+          ]
+        },
+        {
+          id: "ai-agents--voice-ai-folders-post",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/voice-ai/folders",
+          path: "/voice-ai/folders",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
           query: [],
           body: null,
           returns: null,
@@ -55834,7 +56704,112 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/voice-ai-boundary.md:64"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:271"
+          ]
+        },
+        {
+          id: "ai-agents--voice-ai-folders-delete",
+          method: "DELETE",
+          url: "https://services.leadconnectorhq.com/voice-ai/folders/{id}",
+          path: "/voice-ai/folders/{id}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:275"
+          ]
+        },
+        {
+          id: "ai-agents--voice-ai-folders-put",
+          method: "PUT",
+          url: "https://services.leadconnectorhq.com/voice-ai/folders/{id}",
+          path: "/voice-ai/folders/{id}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:274"
+          ]
+        },
+        {
+          id: "ai-agents--agents-move",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/voice-ai/folders/agents/move/{folderId}",
+          path: "/voice-ai/folders/agents/move/{folderId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "folderId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:273"
           ]
         },
         {
@@ -176831,7 +177806,8 @@ var WRITABLE = /* @__PURE__ */ new Set([
   "voicemailOption",
   "welcomeMessage",
   "welcomeMessageMode",
-  ...NESTED_WHOLE
+  ...NESTED_WHOLE,
+  "sessionVariables"
 ]);
 var ELSEWHERE = {
   actions: "actions are their own resource (POST/PUT/DELETE /voice-ai/actions)",
@@ -176844,7 +177820,6 @@ var ELSEWHERE = {
   capActions: "actions are their own resource",
   appointmentBookingAction: "actions are their own resource",
   mcpServers: "MCP servers are their own resource (/voice-ai/mcp/*)",
-  sessionVariables: "session variables are written by PATCH /voice-ai/agents/{id} (the builder's own path), not this PUT",
   inboundNumber: "numbers are assigned on the deploy screen (location-wide)",
   inboundNumbers: "numbers are assigned on the deploy screen (location-wide)",
   inboundPhoneNumber: "numbers are assigned on the deploy screen (location-wide)",
@@ -176865,6 +177840,34 @@ function readFlat(record2, key) {
   if (key === "welcomeMessage") return record2?.welcomeMessage ?? record2?.agentWelcomeMessage;
   if (key in (record2 ?? {})) return record2[key];
   return s[key];
+}
+var SESSION_VAR_NAME = /^session\.[A-Za-z0-9_-]+$/;
+var SESSION_VAR_TYPES = ["string", "number", "boolean", "object", "array"];
+function mergeSessionVariables(stored, entries) {
+  if (!Array.isArray(entries) || !entries.length) {
+    throw new IRError2("SCHEMA", "sessionVariables must be a non-empty array of { name, label?, dataType?, defaultValue?, description? } (or { name, remove: true }). It is merged into the stored list by name; nothing stored is dropped unless removed by name.");
+  }
+  const out = (Array.isArray(stored) ? stored : []).map((v) => ({ ...v }));
+  const seen = /* @__PURE__ */ new Set();
+  for (const e of entries) {
+    if (!isObj(e) || typeof e.name !== "string") throw new IRError2("SCHEMA", "each sessionVariables entry needs a string name");
+    if (seen.has(e.name)) throw new IRError2("SCHEMA", `sessionVariables names ${e.name} twice (the server refuses duplicates: 400 "Duplicate session variable name")`);
+    seen.add(e.name);
+    const i = out.findIndex((v) => v.name === e.name);
+    if (e.remove === true) {
+      if (i < 0) throw new IRError2("SCHEMA", `cannot remove session variable ${e.name}: the agent has none of that name. Nothing was sent.`);
+      out.splice(i, 1);
+      continue;
+    }
+    if (!SESSION_VAR_NAME.test(e.name)) throw new IRError2("SCHEMA", `session variable name ${JSON.stringify(e.name)} must be "session." followed by letters, numbers, underscores or dashes (server rule)`);
+    if (e.name.length > 64) throw new IRError2("SCHEMA", `session variable name ${e.name} exceeds 64 characters (server rule)`);
+    const { remove, ...fields2 } = e;
+    const next = i < 0 ? { label: e.name.slice("session.".length), dataType: "string", defaultValue: "", ...fields2 } : { ...out[i], ...fields2 };
+    if (!SESSION_VAR_TYPES.includes(next.dataType)) throw new IRError2("SCHEMA", `session variable ${e.name} dataType must be one of ${SESSION_VAR_TYPES.join(", ")} (server rule)`);
+    if (i < 0) out.push(next);
+    else out[i] = next;
+  }
+  return out;
 }
 function compileVoiceAiPartialUpdate(current, spec, { agentId, locationId } = {}) {
   if (!agentId) throw new IRError2("MISSING_FIELD", "update_voiceai_agent requires agentId");
@@ -176901,6 +177904,8 @@ function compileVoiceAiPartialUpdate(current, spec, { agentId, locationId } = {}
       }
       const stored = readFlat(current, k);
       body2[k] = writable(k, { ...isObj(stored) ? stored : {}, ...v });
+    } else if (k === "sessionVariables") {
+      body2[k] = mergeSessionVariables(current.sessionVariables, v);
     } else {
       body2[k] = v;
     }
@@ -178826,7 +179831,7 @@ var TOOLS2 = [
     name: "update_voiceai_agent",
     description: describe3(
       "update_voiceai_agent",
-      "Change an EXISTING Voice AI agent: reads it, sends only the keys in spec (flat write names, e.g. agentPrompt, llmModel, voiceId, maxCallDuration, responsiveness, translation), merges any nested object over the stored one, re-reads and diffs every other field. If a refusal still stored the value (the voice provider refuses after GHL saves), it writes the previous values back and says so. Refuses action arrays, numbers, session variables and unknown keys. To create an agent use create_voiceai_agent. Previews by default; confirm:true writes."
+      "Change an EXISTING Voice AI agent: reads it, sends only the keys in spec (flat write names, e.g. agentPrompt, llmModel, voiceId, maxCallDuration, responsiveness, translation), merges any nested object over the stored one, re-reads and diffs every other field. If a refusal still stored the value (the voice provider refuses after GHL saves), it writes the previous values back and says so. sessionVariables are MERGED by name into the stored list ({name, remove:true} removes one; nothing else is dropped). Refuses action arrays, numbers and unknown keys. \u{1F534} A Test Audio call binds to the SIGNED-IN USER's own contact: on an agent that updates contact fields, saves summary notes or runs post-call workflows, a test call writes to that real contact. To create an agent use create_voiceai_agent. Previews by default; confirm:true writes."
     ),
     inputSchema: schema({ locationId: external_exports.string(), agentId: external_exports.string(), spec: external_exports.object({}).passthrough(), confirm: external_exports.boolean().default(false) }),
     capabilities: [

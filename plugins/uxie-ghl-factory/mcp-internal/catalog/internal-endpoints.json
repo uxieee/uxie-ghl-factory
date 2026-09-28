@@ -1,7 +1,7 @@
 {
   "generated": "2026-09-28",
   "note": "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path — not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-  "count": 1219,
+  "count": 1243,
   "endpoints": [
     {
       "id": "facebook-service--get-ad-account-by-id",
@@ -4313,7 +4313,7 @@
       "responseMode": "json",
       "extraHeaders": [],
       "operation": null,
-      "service": null,
+      "service": "funnels",
       "tree": "documented",
       "pathParams": [
         {
@@ -4349,7 +4349,7 @@
       "responseMode": "json",
       "extraHeaders": [],
       "operation": null,
-      "service": null,
+      "service": "funnels",
       "tree": "documented",
       "pathParams": [
         {
@@ -4388,7 +4388,7 @@
       "responseMode": "json",
       "extraHeaders": [],
       "operation": null,
-      "service": null,
+      "service": "funnels",
       "tree": "documented",
       "pathParams": [
         {
@@ -4427,7 +4427,7 @@
       "responseMode": "json",
       "extraHeaders": [],
       "operation": null,
-      "service": null,
+      "service": "funnels",
       "tree": "documented",
       "pathParams": [
         {
@@ -4445,6 +4445,106 @@
       },
       "sources": [
         "ai-studio/_data/endpoints.json"
+      ]
+    },
+    {
+      "id": "funnels--domains-hub",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/domains/hub",
+      "path": "/domains/hub",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "companyId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "isNative",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/20-api/url-redirects.md:125"
+      ]
+    },
+    {
+      "id": "funnels--hub-migration-required-domain",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/domains/hub/migration-required-domain",
+      "path": "/domains/hub/migration-required-domain",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "limit",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "offset",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/20-api/url-redirects.md:130"
       ]
     },
     {
@@ -7107,7 +7207,8 @@
         "funnels/10-anatomy/routing-and-publishing.md:31",
         "funnels/20-api/funnels-api.md:110",
         "funnels/20-api/funnels-api.md:183",
-        "funnels/60-recipes/author-native-elements.md:44"
+        "funnels/60-recipes/author-native-elements.md:44",
+        "funnels/60-recipes/edit-a-page-in-place.md:21"
       ]
     },
     {
@@ -7561,6 +7662,47 @@
     {
       "id": "funnels--funnels-domain",
       "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/funnels/domain",
+      "path": "/funnels/domain",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [
+        "audit_site",
+        "edit_funnel"
+      ],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/20-api/url-redirects.md:122"
+      ]
+    },
+    {
+      "id": "funnels--funnels-domain-get",
+      "method": "GET",
       "url": "https://backend.leadconnectorhq.com/funnels/domain/",
       "path": "/funnels/domain/",
       "origin": "https://backend.leadconnectorhq.com",
@@ -7601,6 +7743,48 @@
       "sources": [
         "funnels/10-anatomy/domains-and-public-urls.md:21",
         "funnels/20-api/funnels-api.md:171"
+      ]
+    },
+    {
+      "id": "funnels--funnels-domain-get-get",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/funnels/domain/{domainId}",
+      "path": "/funnels/domain/{domainId}",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "domainId"
+        }
+      ],
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/20-api/url-redirects.md:123"
       ]
     },
     {
@@ -7668,6 +7852,37 @@
       "sources": [
         "funnels/20-api/publish-routing-and-site-settings.md:99",
         "funnels/20-api/publish-routing-and-site-settings.md:107"
+      ]
+    },
+    {
+      "id": "funnels--domain-validate",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/funnels/domain/validate",
+      "path": "/funnels/domain/validate",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/20-api/url-redirects.md:133"
       ]
     },
     {
@@ -8666,7 +8881,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/url-redirects.md:62"
+        "funnels/20-api/url-redirects.md:65"
       ]
     },
     {
@@ -8782,6 +8997,115 @@
       },
       "sources": [
         "funnels/10-anatomy/domains-and-public-urls.md:167"
+      ]
+    },
+    {
+      "id": "funnels--lookup-redirect",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/funnels/lookup/redirect",
+      "path": "/funnels/lookup/redirect",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/20-api/url-redirects.md:77",
+        "funnels/20-api/url-redirects.md:113"
+      ]
+    },
+    {
+      "id": "funnels--lookup-redirect-delete",
+      "method": "DELETE",
+      "url": "https://backend.leadconnectorhq.com/funnels/lookup/redirect/{id}",
+      "path": "/funnels/lookup/redirect/{id}",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "destructive",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "id"
+        }
+      ],
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/20-api/url-redirects.md:79"
+      ]
+    },
+    {
+      "id": "funnels--lookup-redirect-patch",
+      "method": "PATCH",
+      "url": "https://backend.leadconnectorhq.com/funnels/lookup/redirect/{id}",
+      "path": "/funnels/lookup/redirect/{id}",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "id"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/20-api/url-redirects.md:78"
       ]
     },
     {
@@ -14649,7 +14973,7 @@
         "Version"
       ],
       "operation": "list",
-      "service": "forms",
+      "service": null,
       "tree": "workflow-builder",
       "pathParams": [],
       "query": [
@@ -15179,6 +15503,41 @@
       "sources": [
         "pipelines-opportunities/20-api/pipelines.md:27",
         "platform/20-api/api-gap-matrix.md:25"
+      ]
+    },
+    {
+      "id": "pipelines-opportunities--opportunities-smart-filters",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/opportunities/smart-filters",
+      "path": "/opportunities/smart-filters",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "note": "smarttag rows: 60 per pipeline, enforced (400 SMART_FILTER_CREATE_FAILED); duplicate names and conditions are accepted. `filters` grammar: conditions {field, operator, value} and groups {group:'AND'|'OR', filters:[…]}; top-level elements are ANDed. Fields: status, assigned_to, followers, last_stage_change_date, last_status_change_date, date_added, date_updated, wonOn, lostOn, monetary_value, source, current_campaigns, pipeline_stage_id (stage ID), custom_fields.<key without 'opportunity.'>. Dates are operator 'range' with value {gte, lte, selection} (thisWeek = Monday to Sunday in the location timezone); for presets the app recomputes the window from `selection` at render time, so the stored gte/lte are a snapshot, not the rule. 🔴 A smart tag is evaluated IN THE BROWSER only: nothing is stored on the opportunity, it is not searchable, and no workflow trigger or condition can see it — repeat its conditions in a workflow filter instead. A rule that throws matches nothing, silently. The UI's 'Prebuilt tags' (High Value, New Lead, Unassigned Deal, Hot Deal) are presets saved through this same call, with no preset marker. filterType:'smartlist' is accepted but INERT: no screen reads it (saved views live in /lists/dynamic). (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api/smart-filters.md + 40-rules/smart-tags.md)",
+      "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "pipelines-opportunities",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "pipelines-opportunities/40-rules/smart-tags.md:144"
       ]
     },
     {
@@ -15948,6 +16307,37 @@
       "sources": [
         "platform/20-api/payment-links.md:126",
         "platform/70-research/2026-09-02-payment-links-capture.md:46"
+      ]
+    },
+    {
+      "id": "ai-agents--ai-supervisor-agents",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/performance-ai/ai-supervisor/agents",
+      "path": "/performance-ai/ai-supervisor/agents",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "ai-agents",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:301"
       ]
     },
     {
@@ -18812,6 +19202,37 @@
       ]
     },
     {
+      "id": "funnels--stats-url-redirect",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/stats/url-redirect",
+      "path": "/stats/url-redirect",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/20-api/url-redirects.md:98"
+      ]
+    },
+    {
       "id": "surveys-service--get-surveys",
       "method": "GET",
       "url": "https://backend.leadconnectorhq.com/surveys",
@@ -18950,6 +19371,41 @@
       },
       "sources": [
         "workflows/70-research/ENDPOINTS.md:94"
+      ]
+    },
+    {
+      "id": "pipelines-opportunities--user-preferences",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/user-preferences/{userId}",
+      "path": "/user-preferences/{userId}",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "pipelines-opportunities",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "userId"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "pipelines-opportunities/20-api/smart-views.md:79"
       ]
     },
     {
@@ -36988,7 +37444,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/opportunities.md:174"
+        "pipelines-opportunities/20-api/opportunities.md:187"
       ]
     },
     {
@@ -37019,7 +37475,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/opportunities.md:161"
+        "pipelines-opportunities/20-api/opportunities.md:174"
       ]
     },
     {
@@ -37068,8 +37524,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/opportunities.md:167",
-        "pipelines-opportunities/20-api/opportunities.md:172"
+        "pipelines-opportunities/20-api/opportunities.md:180",
+        "pipelines-opportunities/20-api/opportunities.md:185"
       ]
     },
     {
@@ -37100,7 +37556,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/opportunities.md:299"
+        "pipelines-opportunities/20-api/opportunities.md:312"
       ]
     },
     {
@@ -37181,7 +37637,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/opportunities.md:231"
+        "pipelines-opportunities/20-api/opportunities.md:244"
       ]
     },
     {
@@ -37988,6 +38444,69 @@
         "brand-kit/20-api/brand-voices.md:24",
         "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:55",
         "brand-kit/70-research/2026-09-04-brand-voice-and-brand-kit.md:157"
+      ]
+    },
+    {
+      "id": "pipelines-opportunities--bulk-actions-import",
+      "method": "POST",
+      "url": "https://services.leadconnectorhq.com/bulk-actions/import",
+      "path": "/bulk-actions/import",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "pipelines-opportunities",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "pipelines-opportunities/20-api/bulk-actions.md:88",
+        "pipelines-opportunities/20-api/bulk-actions.md:94"
+      ]
+    },
+    {
+      "id": "pipelines-opportunities--external-fetch",
+      "method": "POST",
+      "url": "https://services.leadconnectorhq.com/bulk-actions/import/external/fetch",
+      "path": "/bulk-actions/import/external/fetch",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "pipelines-opportunities",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "pipelines-opportunities/20-api/bulk-actions.md:99"
       ]
     },
     {
@@ -38975,7 +39494,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/opportunities.md:156"
+        "pipelines-opportunities/20-api/opportunities.md:169"
       ]
     },
     {
@@ -41891,7 +42410,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/opportunities.md:318"
+        "pipelines-opportunities/20-api/opportunities.md:331"
       ]
     },
     {
@@ -50226,7 +50745,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/opportunities.md:270"
+        "pipelines-opportunities/20-api/opportunities.md:283"
       ]
     },
     {
@@ -50254,6 +50773,49 @@
       "service": "forms",
       "tree": "documented",
       "pathParams": [],
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "forms/20-api/neighbour-services.md:27",
+        "pipelines-opportunities/20-api/settings.md:80"
+      ]
+    },
+    {
+      "id": "pipelines-opportunities--objects",
+      "method": "PUT",
+      "url": "https://services.leadconnectorhq.com/objects/{objectKey}",
+      "path": "/objects/{objectKey}",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "pipelines-opportunities",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "objectKey"
+        }
+      ],
       "query": [],
       "body": null,
       "returns": null,
@@ -50264,7 +50826,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "forms/20-api/neighbour-services.md:27"
+        "pipelines-opportunities/20-api/settings.md:81"
       ]
     },
     {
@@ -50295,7 +50857,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/opportunities.md:295"
+        "pipelines-opportunities/20-api/opportunities.md:308"
       ]
     },
     {
@@ -50369,7 +50931,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/opportunities.md:209",
+        "pipelines-opportunities/20-api/opportunities.md:222",
         "pipelines-opportunities/20-api/pipelines.md:263"
       ]
     },
@@ -50450,7 +51012,8 @@
       },
       "sources": [
         "pipelines-opportunities/20-api/opportunities.md:132",
-        "pipelines-opportunities/20-api/opportunities.md:303"
+        "pipelines-opportunities/20-api/opportunities.md:154",
+        "pipelines-opportunities/20-api/opportunities.md:316"
       ]
     },
     {
@@ -50485,7 +51048,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/opportunities.md:239"
+        "pipelines-opportunities/20-api/opportunities.md:252"
       ]
     },
     {
@@ -50520,7 +51083,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/opportunities.md:238"
+        "pipelines-opportunities/20-api/opportunities.md:251"
       ]
     },
     {
@@ -50560,7 +51123,7 @@
       },
       "sources": [
         "pipelines-opportunities/20-api/bulk-actions.md:77",
-        "pipelines-opportunities/20-api/opportunities.md:221"
+        "pipelines-opportunities/20-api/opportunities.md:234"
       ]
     },
     {
@@ -50599,7 +51162,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/opportunities.md:249"
+        "pipelines-opportunities/20-api/opportunities.md:262"
       ]
     },
     {
@@ -50829,6 +51392,7 @@
         "returns": "unresolved"
       },
       "sources": [
+        "pipelines-opportunities/20-api/forecast.md:149",
         "pipelines-opportunities/20-api/pipelines.md:43",
         "pipelines-opportunities/20-api/pipelines.md:169"
       ]
@@ -51410,7 +51974,7 @@
       ]
     },
     {
-      "id": "pipelines-opportunities--opportunities-smart-filters",
+      "id": "pipelines-opportunities--opportunities-smart-filters-get",
       "method": "GET",
       "url": "https://services.leadconnectorhq.com/opportunities/smart-filters",
       "path": "/opportunities/smart-filters",
@@ -51493,7 +52057,7 @@
       },
       "sources": [
         "pipelines-opportunities/20-api/smart-filters.md:91",
-        "pipelines-opportunities/20-api/smart-filters.md:182"
+        "pipelines-opportunities/20-api/smart-filters.md:188"
       ]
     },
     {
@@ -51532,11 +52096,11 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/smart-filters.md:146"
+        "pipelines-opportunities/20-api/smart-filters.md:152"
       ]
     },
     {
-      "id": "pipelines-opportunities--opportunities-smart-filters-get",
+      "id": "pipelines-opportunities--opportunities-smart-filters-get-get",
       "method": "GET",
       "url": "https://services.leadconnectorhq.com/opportunities/smart-filters/{smartFilterId}",
       "path": "/opportunities/smart-filters/{smartFilterId}",
@@ -51658,7 +52222,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/smart-filters.md:147"
+        "pipelines-opportunities/20-api/smart-filters.md:153"
       ]
     },
     {
@@ -51689,7 +52253,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/smart-filters.md:145"
+        "pipelines-opportunities/20-api/smart-filters.md:151"
       ]
     },
     {
@@ -51720,7 +52284,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/smart-filters.md:167"
+        "pipelines-opportunities/20-api/smart-filters.md:173"
       ]
     },
     {
@@ -54441,6 +55005,9 @@
     },
     {
       "id": "ai-agents--voice-ai-agents-delete",
+      "aka": [
+        "/voice-ai/agents/{id}"
+      ],
       "method": "DELETE",
       "url": "https://services.leadconnectorhq.com/voice-ai/agents/{agentId}",
       "path": "/voice-ai/agents/{agentId}",
@@ -54478,7 +55045,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/12-ai-agents-api.md:161"
+        "ai-agents/20-api/12-ai-agents-api.md:161",
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:276"
       ]
     },
     {
@@ -54537,6 +55105,9 @@
     },
     {
       "id": "ai-agents--voice-ai-agents-patch",
+      "aka": [
+        "/voice-ai/agents/{id}"
+      ],
       "method": "PATCH",
       "url": "https://services.leadconnectorhq.com/voice-ai/agents/{agentId}",
       "path": "/voice-ai/agents/{agentId}",
@@ -54557,17 +55128,25 @@
           "name": "agentId"
         }
       ],
-      "query": [],
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
       "body": null,
       "returns": null,
       "confidence": {
         "path": "documented",
-        "query": "none-observed",
+        "query": "documented",
         "body": "unresolved",
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:204"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:204",
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:243"
       ]
     },
     {
@@ -54810,6 +55389,41 @@
       ]
     },
     {
+      "id": "ai-agents--agents-duplicate",
+      "method": "POST",
+      "url": "https://services.leadconnectorhq.com/voice-ai/agents/{id}/duplicate",
+      "path": "/voice-ai/agents/{id}/duplicate",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "ai-agents",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "id"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:264"
+      ]
+    },
+    {
       "id": "ai-agents--agents-transfer-connections",
       "method": "GET",
       "url": "https://services.leadconnectorhq.com/voice-ai/agents/{id}/transfer-connections",
@@ -54873,6 +55487,37 @@
       },
       "sources": [
         "ai-agents/20-api/voice-ai-boundary.md:60"
+      ]
+    },
+    {
+      "id": "ai-agents--agents-bulk-delete",
+      "method": "POST",
+      "url": "https://services.leadconnectorhq.com/voice-ai/agents/bulk-delete",
+      "path": "/voice-ai/agents/bulk-delete",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "ai-agents",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:278"
       ]
     },
     {
@@ -54941,6 +55586,54 @@
     },
     {
       "id": "ai-agents--voice-ai-call",
+      "method": "GET",
+      "url": "https://services.leadconnectorhq.com/voice-ai/call/{callId}",
+      "path": "/voice-ai/call/{callId}",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "ai-agents",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "callId"
+        }
+      ],
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "agentId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:286"
+      ]
+    },
+    {
+      "id": "ai-agents--voice-ai-call-patch",
       "method": "PATCH",
       "url": "https://services.leadconnectorhq.com/voice-ai/call/{callId}",
       "path": "/voice-ai/call/{callId}",
@@ -55010,6 +55703,79 @@
       ]
     },
     {
+      "id": "ai-agents--call-create-trial-web-call",
+      "method": "POST",
+      "url": "https://services.leadconnectorhq.com/voice-ai/call/create-trial-web-call/{agentId}",
+      "path": "/voice-ai/call/create-trial-web-call/{agentId}",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "ai-agents",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "agentId"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:282"
+      ]
+    },
+    {
+      "id": "ai-agents--call-live-transcript",
+      "method": "GET",
+      "url": "https://services.leadconnectorhq.com/voice-ai/call/live-transcript/{agentId}/{callId}",
+      "path": "/voice-ai/call/live-transcript/{agentId}/{callId}",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "ai-agents",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "agentId"
+        },
+        {
+          "name": "callId"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:285"
+      ]
+    },
+    {
       "id": "ai-agents--call-trial",
       "method": "GET",
       "url": "https://services.leadconnectorhq.com/voice-ai/call/trial",
@@ -55027,16 +55793,42 @@
       "service": "ai-agents",
       "tree": "documented",
       "pathParams": [],
-      "query": [],
+      "query": [
+        {
+          "name": "page",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "pageSize",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "agentId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
       "body": null,
       "returns": null,
       "confidence": {
         "path": "documented",
-        "query": "none-observed",
+        "query": "documented",
         "body": "unresolved",
         "returns": "unresolved"
       },
       "sources": [
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:288",
         "ai-agents/20-api/logs-deployment-email.md:24",
         "ai-agents/20-api/voice-ai-boundary.md:71",
         "ai-agents/30-types/voice-ai-actions.md:90"
@@ -55060,16 +55852,30 @@
       "service": "ai-agents",
       "tree": "documented",
       "pathParams": [],
-      "query": [],
+      "query": [
+        {
+          "name": "agentId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
       "body": null,
       "returns": null,
       "confidence": {
         "path": "documented",
-        "query": "none-observed",
+        "query": "documented",
         "body": "unresolved",
         "returns": "unresolved"
       },
       "sources": [
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:289",
         "ai-agents/20-api/logs-deployment-email.md:25",
         "ai-agents/20-api/voice-ai-boundary.md:72"
       ]
@@ -55452,6 +56258,7 @@
         "returns": "unresolved"
       },
       "sources": [
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:249",
         "ai-agents/20-api/logs-deployment-email.md:93"
       ]
     },
@@ -55635,6 +56442,69 @@
       "service": "ai-agents",
       "tree": "documented",
       "pathParams": [],
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "page",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "pageSize",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "sortBy",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "includeEmpty",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:272",
+        "ai-agents/20-api/voice-ai-boundary.md:64"
+      ]
+    },
+    {
+      "id": "ai-agents--voice-ai-folders-post",
+      "method": "POST",
+      "url": "https://services.leadconnectorhq.com/voice-ai/folders",
+      "path": "/voice-ai/folders",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "ai-agents",
+      "tree": "documented",
+      "pathParams": [],
       "query": [],
       "body": null,
       "returns": null,
@@ -55645,7 +56515,112 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/voice-ai-boundary.md:64"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:271"
+      ]
+    },
+    {
+      "id": "ai-agents--voice-ai-folders-delete",
+      "method": "DELETE",
+      "url": "https://services.leadconnectorhq.com/voice-ai/folders/{id}",
+      "path": "/voice-ai/folders/{id}",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "destructive",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "ai-agents",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "id"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:275"
+      ]
+    },
+    {
+      "id": "ai-agents--voice-ai-folders-put",
+      "method": "PUT",
+      "url": "https://services.leadconnectorhq.com/voice-ai/folders/{id}",
+      "path": "/voice-ai/folders/{id}",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "ai-agents",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "id"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:274"
+      ]
+    },
+    {
+      "id": "ai-agents--agents-move",
+      "method": "POST",
+      "url": "https://services.leadconnectorhq.com/voice-ai/folders/agents/move/{folderId}",
+      "path": "/voice-ai/folders/agents/move/{folderId}",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "ai-agents",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "folderId"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:273"
       ]
     },
     {
