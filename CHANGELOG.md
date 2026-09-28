@@ -11,6 +11,25 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.15.0] — 2026-09-29
+
+**New: `update_convai_agent` can change the prompt of an agent saved in the current Conversation AI builder.
+Executed live on the test account.**
+
+- **New — `spec.fullPrompt`.** Once an agent has been saved in the current builder, its prompt lives in one
+  `fullPrompt` document. The bot answers from it, and GHL ignores writes to personality, goal and instructions.
+  - Measured live in 3 billed trials: a marker placed in `fullPrompt` came back in the reply, while the instructions
+    field was ignored.
+  - `spec.fullPrompt` is written whole and verified on a separate read. Writing it on an agent that has none moves
+    that agent to fullPrompt for good.
+- **Clearer refusal.** Setting personality, goal or instructions on a fullPrompt agent, or together with `fullPrompt`,
+  now refuses with FULLPROMPT_OWNS_PROMPT before any write, and returns the stored prompt. Before this, the write was
+  sent and failed with AGENT_VERIFY_MISMATCH.
+- The result names `promptOwner` ("fullPrompt" or "fields").
+- Conversation AI skill: where the prompt lives, and what the tool may write.
+
+Catalogue: a path-parameter rename on the AI employee routes. No route was added or lost.
+
 ## [1.14.0] — 2026-09-29
 
 **New: create a workflow from an old version. Every marketplace step key now has a type card. Executed live on the
