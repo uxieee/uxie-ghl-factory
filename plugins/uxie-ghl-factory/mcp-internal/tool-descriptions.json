@@ -2053,9 +2053,9 @@
     ]
   },
   "edit_pipeline": {
-    "description": "Edit a pipeline and its stages safely — proof: external-receipt-required; risk: write",
+    "description": "Edit a pipeline and its stages safely — proof: live-runtime (2026-09-28); risk: write",
     "risk": "write",
-    "proof": "external-receipt-required",
+    "proof": "live-runtime (2026-09-28)",
     "proofFloor": "external-receipt-required",
     "proofRows": [
       "pipelines-opportunities--opportunities-pipelines",
