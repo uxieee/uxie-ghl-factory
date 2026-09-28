@@ -26131,6 +26131,7 @@
       },
       "sources": [
         "services/ErrorNotificationService.ts:72",
+        "workflows/20-api/error-notification-settings.md:18",
         "workflows/40-rules/settings-semantics.md:93",
         "workflows/50-runtime/error-notifications.md:39",
         "workflows/70-research/ENDPOINT-SWEEP-2026-08-25.md:65"
@@ -26175,6 +26176,7 @@
       },
       "sources": [
         "services/ErrorNotificationService.ts:81",
+        "workflows/20-api/error-notification-settings.md:27",
         "workflows/50-runtime/error-notifications.md:40",
         "workflows/70-research/RUNTIME-DATA-2.md:91"
       ]
@@ -26218,6 +26220,7 @@
       },
       "sources": [
         "services/ErrorNotificationService.ts:90",
+        "workflows/20-api/error-notification-settings.md:26",
         "workflows/50-runtime/error-notifications.md:41",
         "workflows/70-research/RUNTIME-DATA-2.md:91"
       ]
@@ -44030,7 +44033,7 @@
       },
       "sources": [
         "services/marketplaceServices/InboundWebhookRequestService.ts:20",
-        "workflows/40-rules/publish-gate.md:111",
+        "workflows/40-rules/publish-gate.md:119",
         "workflows/40-rules/validation-gate.md:97",
         "workflows/70-research/INBOUND-WEBHOOK.md:34",
         "workflows/40-rules/inbound-webhook-accepts-any-trigger-id.md:18"

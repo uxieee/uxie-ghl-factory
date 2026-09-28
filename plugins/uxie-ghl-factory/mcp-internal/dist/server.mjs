@@ -26314,6 +26314,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "services/ErrorNotificationService.ts:72",
+            "workflows/20-api/error-notification-settings.md:18",
             "workflows/40-rules/settings-semantics.md:93",
             "workflows/50-runtime/error-notifications.md:39",
             "workflows/70-research/ENDPOINT-SWEEP-2026-08-25.md:65"
@@ -26358,6 +26359,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "services/ErrorNotificationService.ts:81",
+            "workflows/20-api/error-notification-settings.md:27",
             "workflows/50-runtime/error-notifications.md:40",
             "workflows/70-research/RUNTIME-DATA-2.md:91"
           ]
@@ -26401,6 +26403,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "services/ErrorNotificationService.ts:90",
+            "workflows/20-api/error-notification-settings.md:26",
             "workflows/50-runtime/error-notifications.md:41",
             "workflows/70-research/RUNTIME-DATA-2.md:91"
           ]
@@ -44219,7 +44222,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "services/marketplaceServices/InboundWebhookRequestService.ts:20",
-            "workflows/40-rules/publish-gate.md:111",
+            "workflows/40-rules/publish-gate.md:119",
             "workflows/40-rules/validation-gate.md:97",
             "workflows/70-research/INBOUND-WEBHOOK.md:34",
             "workflows/40-rules/inbound-webhook-accepts-any-trigger-id.md:18"
@@ -188108,7 +188111,7 @@ var TOOLS2 = [
         },
         enrollment,
         triggerCounts,
-        note: "Needs Review = workflows with a recent failing step (the list page's tab badge). errorEmailSettings.users are who GHL emails on failures; null = never configured. Clearing a flag is a DELETE on error-notification/{workflowId} \u2014 deliberately not exposed here. triggerCounts (opt-in) is the last 30 days; neverMatches = the triggers fired and not once matched their filters \u2014 a ghost workflowId reads 0/0, never an error, so it cannot be told from a quiet workflow here."
+        note: "Needs Review = workflows with a recent failing step (the list page's tab badge). errorEmailSettings.users are EXTRA recipients: GHL emails every agency and location admin on failures by default (UI copy), so users:[] means admins only; null = never configured. Clearing a flag is a DELETE on error-notification/{workflowId} \u2014 deliberately not exposed here. triggerCounts (opt-in) is the last 30 days; neverMatches = the triggers fired and not once matched their filters \u2014 a ghost workflowId reads 0/0, never an error, so it cannot be told from a quiet workflow here."
       });
     }, args)
   },
@@ -190305,7 +190308,7 @@ var TOOLS2 = [
   },
   {
     name: "set_workflow_error_alerts",
-    description: `${describe3("set_workflow_error_alerts", "Set who GHL emails when a workflow step fails \u2014 risk: write")}. Location-wide: the recipients (user ids) and the on/off switch behind the Workflows list's error-notification settings. get_account_workflow_overview reports the current state as needsReview.errorEmailSettings \u2014 \`null\` or an empty \`users\` means NOBODY is told when a workflow breaks. \u{1F534} GHL's own route REPLACES the recipient list, so this tool READS the current list, MERGES addUsers / removeUsers into it, and writes the result \u2014 an existing recipient is never dropped by an add. Every id in addUsers must be a user of this location (checked before any write). Preview by default; confirm:true writes, then reads the settings back and reports \`verified\`.`,
+    description: `${describe3("set_workflow_error_alerts", "Set who GHL emails when a workflow step fails \u2014 risk: write")}. Location-wide: the recipients (user ids) and the on/off switch behind the Workflows list's error-notification settings. get_account_workflow_overview reports the current state as needsReview.errorEmailSettings \u2014 \u{1F534} \`users\` ADDS recipients: GHL emails every agency and location admin by default, and an empty \`users\` means "admins only", not nobody (GHL copy, i18n workflow.notifications.sub_account_admin_email; the picker excludes sub-account admins, ErrorNotificationSettings.vue:28-30,147 \u2014 UI copy, delivery not observed). \`null\` = never configured. So any failing step can mail every admin; narrowing \`users\` cannot prevent it. \u{1F534} GHL's own route REPLACES the recipient list, so this tool READS the current list, MERGES addUsers / removeUsers into it, and writes the result \u2014 an existing recipient is never dropped by an add. Every id in addUsers must be a user of this location (checked before any write). Preview by default; confirm:true writes, then reads the settings back and reports \`verified\`.`,
     inputSchema: schema({
       locationId: external_exports.string(),
       addUsers: external_exports.array(external_exports.string()).default([]),
