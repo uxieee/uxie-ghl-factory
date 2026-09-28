@@ -9739,7 +9739,8 @@ export const TOOLS = [
       + 'owner NAMES; GHL itself labels stage and owner rows with UUIDs. Weighting follows the pipeline\'s '
       + 'useOpportunityProbability switch. Slippage bands: the server default is "1+ times AND 7+ days" for medium, '
       + 'the app sends OR; read the returned rule strings. raw:true adds the service\'s untouched answer. No public '
-      + 'API equivalent. Stores nothing. To change pipelines use edit_pipeline; to list them, list_account_entities.',
+      + 'API equivalent. Stores nothing. Not for editing: edit_pipeline changes pipelines and stages; the public '
+      + 'opportunities tools (ghl MCP) read and change individual opportunities; list_account_entities lists pipelines.',
     inputSchema: schema({
       locationId: z.string(),
       view: z.enum(FORECAST_VIEWS),
