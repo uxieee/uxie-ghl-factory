@@ -11,6 +11,30 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.6.0] — 2026-09-28
+
+**Fix: fonts set through `build_funnel_page` stopped loading the first time anyone saved the page in the builder.
+New: page-wide heading and body fonts. Conversation AI docs brought up to the live proofs. Each change was executed
+live on the test account.**
+
+Funnels & websites (`build_funnel_page`):
+- 🔴 **Fixed — fonts lost after a builder save (bl-267).** A font set with `css.font` / `styles.fontFamily` was written as
+  a literal family. The builder's save recomputes the page's font list from font VARIABLES only, so it dropped those
+  faces, and the text silently fell back to a default font. Fonts are now written the way the builder writes a
+  picked font (a `:root` variable plus the page font list), so they keep loading after any save. Before a builder
+  save, pages render exactly as before (proven side by side). Two spellings that map to one font variable are refused.
+- **New page typography:** `typography: {headlineFont, contentFont}` (compose, and the edit `page` op) sets the page's
+  heading and body fonts in the builder's own shape. An element can use `font: 'headline' | 'content'`, which is
+  refused when the page has no such typography. Proven through a builder re-save.
+
+AI agents (Conversation AI) docs:
+- Six action types live-proven with per-type caps. Action update/delete executed. KB-trigger text is optional (editor
+  1000, server caps at 4 triggers). The old "required, 10–500" was wrong.
+- New "Around the agent": list paging (limit ≥10; skip/page refused), folders, duplicate (drops the response style),
+  dashboard metrics enum, test chat (fires only Stop Bot), primary agent. Form bots are API-only now.
+
+Catalogue: +6 documented routes (Conversation AI folders, move, duplicate).
+
 ## [1.5.0] — 2026-09-28
 
 **Funnel page structure, motion and popups through `build_funnel_page`; an SMS-template lint; the manual SMS/call
