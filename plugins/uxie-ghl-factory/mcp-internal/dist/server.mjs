@@ -59679,9 +59679,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       build_workflow: {
-        description: "Build workflow \u2014 proof: live-runtime (2026-09-25), floor: documented; risk: write",
+        description: "Build workflow \u2014 proof: live-runtime (2026-09-28), floor: documented; risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-25)",
+        proof: "live-runtime (2026-09-28)",
         proofFloor: "documented",
         proofRows: [
           "entities-tags-create",
@@ -100969,7 +100969,7 @@ init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
-var CONTACT_FIELD_ACTION_TYPES = ["update_field_data", "clear_field_data"];
+var CONTACT_FIELD_ACTION_TYPES = ["update_field_data", "add_field_data", "clear_field_data"];
 var DEFAULT_CONTACT_FIELD_ACTION_TYPE = "update_field_data";
 var CLEAR_HINT = "Use actionType:'clear_field_data' to empty a field and actionType:'update_field_data' to write one.";
 function isEmptyFieldValue(value) {
@@ -100993,10 +100993,15 @@ function checkContactFieldShape(attrs, { ref = "?", warn } = {}) {
   const actionType = declared ?? DEFAULT_CONTACT_FIELD_ACTION_TYPE;
   const where = `update_contact_field '${ref}'`;
   if (declared != null && !CONTACT_FIELD_ACTION_TYPES.includes(declared)) {
-    warn(`CONTACT_FIELD_ACTION_TYPE_UNKNOWN: ${where} declares actionType '${declared}', which is neither of the two the builder offers (${CONTACT_FIELD_ACTION_TYPES.join(", ")}). GHL stores an unrecognised discriminator as authored and the step saves clean, so a typo here is silent. ` + CLEAR_HINT);
+    warn(`CONTACT_FIELD_ACTION_TYPE_UNKNOWN: ${where} declares actionType '${declared}', which is not one of the three the builder offers (${CONTACT_FIELD_ACTION_TYPES.join(", ")}). GHL stores an unrecognised discriminator as authored and the step saves clean, so a typo here is silent. ` + CLEAR_HINT);
     return;
   }
   const blank = fields2.filter(fieldSuppliesNoValue);
+  if (actionType === "add_field_data") {
+    if (!blank.length) return;
+    warn(`CONTACT_FIELD_EMPTY_VALUE: ${where} is 'add_field_data' and ${blank.length} of ${fields2.length} field(s) carry an empty value \u2014 [${blank.map((f) => label(f, fields2.indexOf(f))).join(", ")}]. Nothing is appended for them. ${CLEAR_HINT}`);
+    return;
+  }
   if (actionType === "update_field_data") {
     if (!blank.length) return;
     const named = blank.map((f) => label(f, fields2.indexOf(f))).join(", ");
@@ -163987,6 +163992,24 @@ var getAll = (o, path) => {
   }
   return cur.filter((v) => v != null);
 };
+function resolveAuthoredStepRefs(templates, refMap) {
+  const ids = new Set((templates ?? []).map((t) => t.id));
+  const map2 = (v) => typeof v === "string" && !ids.has(v) && refMap?.has?.(v) ? refMap.get(v) : v;
+  const out = [];
+  for (const t of templates ?? []) {
+    for (const [type, path, kind] of STEP_REF_FIELDS) {
+      if (t.type !== type || path.includes(".") || path.includes("[]") || !t.attributes) continue;
+      const v = t.attributes[path];
+      if (v == null || v === "") continue;
+      const next = kind === "array" ? Array.isArray(v) ? v.map(map2) : v : map2(v);
+      if (JSON.stringify(next) !== JSON.stringify(v)) {
+        t.attributes[path] = next;
+        out.push({ id: t.id, path, from: v, to: next });
+      }
+    }
+  }
+  return out;
+}
 function stepRefsOf(t) {
   const out = [];
   for (const [type, path, kind] of STEP_REF_FIELDS) {
@@ -165373,6 +165396,20 @@ function waitAttributes(node, ctx) {
   const wt = node.waitType ?? (node.config ? "time" : a.type ?? "time");
   if (wt === "time") {
     const c = node.config ?? {};
+    const dynPeriod = a.timePeriodInputMode === "dynamic" || a.dynamicTimePeriod !== void 0;
+    const dynUnit = a.unitInputMode === "dynamic" || a.dynamicUnit !== void 0;
+    for (const [on, key] of [[dynPeriod, "dynamicTimePeriod"], [dynUnit, "dynamicUnit"]]) {
+      const v = typeof a[key] === "string" ? a[key].trim() : "";
+      if (on && !(v.startsWith("{{") && v.endsWith("}}")))
+        throw new IRError(
+          "WAIT_DYNAMIC",
+          `wait '${node.ref}': ${key} must be a {{merge tag}} (got ${JSON.stringify(a[key])}) \u2014 the builder marks anything else as an error.`
+        );
+    }
+    const dynamicKeys = {
+      ...dynPeriod ? { timePeriodInputMode: "dynamic", dynamicTimePeriod: a.dynamicTimePeriod.trim() } : {},
+      ...dynUnit ? { unitInputMode: "dynamic", dynamicUnit: a.dynamicUnit.trim() } : {}
+    };
     const startAfter = {
       type: c.unit ?? a.startAfter?.type,
       value: c.value ?? a.startAfter?.value,
@@ -165390,7 +165427,7 @@ function waitAttributes(node, ctx) {
       );
     if (startAfter.type === "hours")
       ctx?.warn?.(`WAIT_UNIT_SOFT: wait '${node.ref}' uses 'hours'; the drawer writes the singular 'hour' (Wait.ts startAfterTypeOptions maps label "hours" -> value 'hour'). Both spellings exist in stored workflows; prefer 'hour' until a live probe confirms the scheduler reads 'hours'.`);
-    const base = { type: "time", startAfter, ...hybrid };
+    const base = { type: "time", startAfter, ...dynamicKeys, ...hybrid };
     const w = node.window ?? a.window;
     if (w) {
       base.window = w.condition === "exact" ? { condition: "exact", days: w.days ?? [], start: w.start } : { condition: "when", days: w.days ?? [0, 1, 2, 3, 4, 5, 6], start: w.start, end: w.end };
@@ -166736,6 +166773,7 @@ function compile(ir, ctx) {
       );
     for (const tb of []) void tb;
   }
+  resolveAuthoredStepRefs(templates, refMap);
   enforceTemplates(templates, ctx?.catalog, ctx);
   checkStepRefs(templates, IRError, [...ctx.externalRefs?.ids ?? []]);
   const _templates = templates;

@@ -180,9 +180,9 @@
     ]
   },
   "build_workflow": {
-    "description": "Build workflow — proof: live-runtime (2026-09-25), floor: documented; risk: write",
+    "description": "Build workflow — proof: live-runtime (2026-09-28), floor: documented; risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-09-25)",
+    "proof": "live-runtime (2026-09-28)",
     "proofFloor": "documented",
     "proofRows": [
       "entities-tags-create",
