@@ -13,6 +13,16 @@
         "row:pipelines-opportunities--forecast-summary"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-28",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:16af8e51",
+        "row:pipelines-opportunities--forecast-summary"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
