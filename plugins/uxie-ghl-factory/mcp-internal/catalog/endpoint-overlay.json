@@ -1411,11 +1411,15 @@
     },
     "POST /opportunities/lost-reason": {
       "reach": "proven",
-      "note": "Executed on the designated sandbox 2026-09-10, write-parity sweep, with a read-back on a separate request. Body {name, locationId}; locationId is also required in the QUERY. Proven by differential: 7 -> 8 reasons, found by name. Returns {lostReason:{_id,...}}."
+      "note": "Creates a lost reason (the edit form's 'Type to create'); the public API has only the list. (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api)\n— PRIOR NOTE: Executed on the designated sandbox 2026-09-10, write-parity sweep, with a read-back on a separate request. Body {name, locationId}; locationId is also required in the QUERY. Proven by differential: 7 -> 8 reasons, found by name. Returns {lostReason:{_id,...}}.",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "write"
     },
     "POST /opportunities/pipelines": {
       "reach": "proven",
-      "note": "Executed on the designated sandbox 2026-09-10, write-parity sweep, read back on a separate request. Body {name, locationId, stages:[{name, position}]}. Proven by differential: 6 -> 7 pipelines, found by name."
+      "note": "Needs locationId, name and stages[{name, position}] (position 0-based). Every stage needs stageWinProbability or all are rewritten to an even ramp. The public opportunities-v3 create-pipeline is the ToS-clean alternative. (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api)\n— PRIOR NOTE: Executed on the designated sandbox 2026-09-10, write-parity sweep, read back on a separate request. Body {name, locationId, stages:[{name, position}]}. Proven by differential: 6 -> 7 pipelines, found by name.",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "write"
     },
     "POST /phone-system/call-dispositions": {
       "requiredQuery": [
@@ -1770,7 +1774,10 @@
       "note": "🔴 THE EMAIL SENDER DISPLAY NAME, and it is WRITABLE — it had been reported to a client as UI-only. Body {fromEmail, fromName}; send BOTH, the handler takes them together so omitting fromEmail may clear it. Scope key is companyId for entityType COMPANY, else locationId. ⚠️ NOT PROVEN HERE — no reach. The only execution is a PEER SESSION's, on a CLIENT account this project may never write to, verified there by re-reading two independent services — fromEmail, warmup, defaultDomain and all eight types[] percentages survived untouched. 🔴 HIGH BLAST RADIUS, NEEDS EXPLICIT HUMAN APPROVAL: types[] read all eight rails at 100% (calendar, invoices, oneToOne, bulk-request, campaign, workflow, client-portal, client-portal-otp), so this one field is the sender identity on INVOICES and on replies staff type by hand in Conversations. It cannot be scoped to one rail. It could not be reproduced on GROM Sandbox: that account has zero sending domains, so there is nothing to address. Proving it needs a domain on a test sub-account AND the user's explicit word, because of the blast radius below. ⚠️ SCOPE OF THE EVIDENCE: the one account behind this row read domainOwnershipType 'location_owned', type 'leadconnector'. The agency-owned and shared-domain shapes have never been seen, and a shared domain's headers are plausibly not a single location's to set — do not generalise this row to them. SCOPE: this addresses a domain from /email-isv/feature/domain/list, which carries only LOCATION-OWNED domains. On an account whose sending domain is agency-owned the list is empty and there is no reachable target at all — check list is non-empty before offering this as the way to change a sender name."
     },
     "PUT /lists/dynamic/{locationId}/{smartListId}": {
-      "note": "FENCED by the operator-approved plan of 2026-09-19, not probed: smart lists belong to another surface's tool."
+      "note": "Same body WITHOUT objectKey (422 'property objectKey should not exist'). (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api)\n— PRIOR NOTE: FENCED by the operator-approved plan of 2026-09-19, not probed: smart lists belong to another surface's tool.",
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "write"
     },
     "PUT /membership/.../categories": {
       "note": "🔴 THIS ROW IS UNCALLABLE: its path contains a literal \"...\" left by the source miner, and unlike the other truncated rows it has NO full-path twin in the catalogue — the real path was lost in mining and needs re-capture before this endpoint can be reached at all. Measured 2026-09-10."
@@ -1805,7 +1812,9 @@
         "locationId"
       ],
       "summary": "Replaces a pipeline's name, flags and its WHOLE stages array.",
-      "note": "Two traps. (1) It refuses an echo of what GET returns: strip id, dateAdded, dateUpdated, locationId and position from the TOP level or it 422s naming all five (live 2026-09-02). Inside stages, id and position are required. (2) FULL REPLACE on stages -- a stage OMITTED from the array is silently DELETED, with no warning and nothing in the response. Build the array from a fresh GET every time; never send a partial one; never drop a stage still holding cards. `stages` must contain at least 1 element."
+      "note": "USE edit_pipeline, not this row. stages[] is a FULL REPLACE: a stage left out is DELETED and its cards drop silently into the first stage (no audit row); one stage without stageWinProbability makes GHL rewrite every probability to an even ramp. The body is the GET row minus id, position, dateAdded, dateUpdated, locationId at the top level. (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api)\n— PRIOR NOTE: Two traps. (1) It refuses an echo of what GET returns: strip id, dateAdded, dateUpdated, locationId and position from the TOP level or it 422s naming all five (live 2026-09-02). Inside stages, id and position are required. (2) FULL REPLACE on stages -- a stage OMITTED from the array is silently DELETED, with no warning and nothing in the response. Build the array from a fresh GET every time; never send a partial one; never drop a stage still holding cards. `stages` must contain at least 1 element.",
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer"
     },
     "PUT /payment-links/{id}": {
       "kind": "write",
@@ -2038,6 +2047,138 @@
     },
     "GET /agent-studio/agents/agents-with-folders": {
       "note": "Read by get_ai_configuration_bundle to INVENTORY an account's flow agents (legacy node-graph Agent Studio) — reading them is in scope. AUTHORING flow agents is excluded (coordinator decision T8, 2026-09-26; new ones are creatable only by five hard-coded agencies). IF THE USER WANTS IT: GHL can do it — AI Agents → Agent Studio (flow agents), or the flow builder embedded in Voice AI / Conversation AI; see corpus ai-agents/00-overview."
+    },
+    "PATCH /opportunities/pipelines/{pipelineId}/position": {
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "write",
+      "note": "Body {prevPipelineId, nextPipelineId, initialPosition, targetPosition}, 1-based. An EMPTY body is accepted (200) and MOVES the pipeline; raw_request refuses a body without an integer targetPosition. (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api)"
+    },
+    "DELETE /opportunities/pipelines/{pipelineId}": {
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "destructive",
+      "note": "Deletes the pipeline AND every opportunity in it; those deletions write no DELETED audit row, so they cannot be restored from Settings > Audit logs. Prove the target (id + name + card count) first. (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api)"
+    },
+    "POST /opportunities/pipelines/{pipelineId}/clone": {
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "write",
+      "note": "Builds a pipeline from the request BODY (the app's Duplicate); copies the source's smart tags and permission record server-side; the new pipeline has no position key until one PATCH …/position. (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api)"
+    },
+    "POST /opportunities/pipelines/{pipelineId}/duplicate": {
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "write",
+      "note": "COPIES INTO OTHER SUB-ACCOUNTS (body {locationIds:[...]}); its own location is refused 400. Cross-account path not exercised: it writes a second account. IF THE USER WANTS IT: GHL can do it from Pipelines > row menu > Copy to sub-accounts. (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api)"
+    },
+    "PUT /opportunities/pipelines/permissions/{pipelineId}": {
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "write",
+      "note": "Needs locationId in the body and REFUSES pipelineId (the reverse of the pipeline update). An update without overrides clears existing overrides. defaultAccess all|some|all_except|none. (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api)"
+    },
+    "POST /opportunities/search": {
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "read",
+      "note": "Answers 201 for a read. A wrong value shape can answer 201 with ZERO rows: name contains needs a scalar; source matches only the exact full value; numbers need operator:'range' {gt|gte|lt|lte} (operator 'gt' is 422). page with searchAfter is 400. The index lags a write ~2 s: read back through GET /opportunities/{id}. (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api)"
+    },
+    "POST /opportunities/": {
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "write",
+      "note": "Takes source and lostReasonId. A second card for the same contact in the same pipeline is refused 400 OPPORTUNITY_NO_DUPLICATE (meta.existingId) unless the location allows duplicates. The public create is the everyday route. (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api)"
+    },
+    "PUT /opportunities/{opportunityId}": {
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "write",
+      "note": "A partial (diff) update. lost is accepted without a reason; lostReasonId survives a move to won; a backward stage move is allowed. The public update stores the same keys (source and forecast fields included, though its spec omits them). (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api)"
+    },
+    "DELETE /opportunities/{opportunityId}": {
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "destructive",
+      "note": "Writes a DELETED audit row and can be undone with PUT /opportunities/{id}/restore {forceRestore:false}. (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api)"
+    },
+    "PUT /opportunities/{opportunityId}/restore": {
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "write",
+      "note": "Body {forceRestore:false}: brings a deleted card back in its stage and status. Cards deleted by a pipeline delete cannot be restored. (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api)"
+    },
+    "POST /opportunities/{opportunityId}/sync": {
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "write",
+      "note": "{locationId} -> 201 {success:true}; nothing observable changed on read-back and no screen calls it. (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api)"
+    },
+    "GET /opportunities/lost-reason/{lostReasonId}": {
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "read",
+      "note": "One {_id, name, locationId, deleted, createdAt, updatedAt} record. (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api)"
+    },
+    "POST /opportunities/smart-filters": {
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "write",
+      "note": "smarttag rows: 60 per pipeline, enforced (400 SMART_FILTER_CREATE_FAILED); duplicate names and conditions are accepted. filterType:'smartlist' is accepted but INERT: no screen reads it (saved views live in /lists/dynamic). (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api)"
+    },
+    "PUT /opportunities/smart-filters/{smartFilterId}": {
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "write",
+      "note": "{name, description, color, filters, position} read back verbatim. (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api)"
+    },
+    "DELETE /opportunities/smart-filters/{smartFilterId}": {
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "destructive",
+      "note": "Soft delete: 404 by id afterwards; POST …/restore brings it back. (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api)"
+    },
+    "POST /opportunities/smart-filters/{smartFilterId}/restore": {
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "write",
+      "note": "The app sends {} and it works on a deleted tag; controls answer NOT_DELETED / NOT_FOUND. (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api)"
+    },
+    "GET /lists/dynamic/{locationId}/": {
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "read",
+      "note": "objectKey=opportunity lists the board's saved views. objectKey is NOT validated: a nonsense key answers the same empty 200, so an empty list is not evidence. (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api)"
+    },
+    "POST /lists/dynamic/{locationId}/": {
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "write",
+      "note": "Saved board view: {name, columns, sort, pageLimit, objectKey:'opportunity', filters, pipelineIds, viewType}; pipelineIds scopes where it shows. (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api)"
+    },
+    "DELETE /lists/dynamic/{locationId}/{smartListId}": {
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "destructive",
+      "note": "Final: the view reads 404 'Smartlist does not exist' afterwards; there is no restore. (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api)"
+    },
+    "GET /lists/dynamic/{locationId}/{smartListId}": {
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "read",
+      "note": "One saved view by id; 404 'Smartlist does not exist' after a delete. (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api)"
+    },
+    "GET /associations/relations/record/{opportunityId}": {
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "read",
+      "note": "For OPPORTUNITIES_CONTACTS_ASSOCIATION this answers EMPTY from the opportunity side even when the card has contacts; read from the contact side, or use the search row's relations[] (includeTopRelations:true). (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api)"
+    },
+    "POST /invoices/finalize": {
+      "reach": "proven",
+      "credentialClass": "agency-admin-bearer",
+      "kind": "write",
+      "note": "The invoice editor's SAVE, drafts included: it did not send (read back status draft, sentAt null). It needs the contact's email and an E.164 phone in contactDetails (422 otherwise, which the UI swallows). opportunityDetails.opportunityId links the card. (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api)"
     }
   }
 }

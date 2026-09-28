@@ -38,8 +38,9 @@ A wrong value shape can answer **201 with zero rows**. Always run a baseline and
 
 ## Records
 
-- `source` and `lostReasonId` are accepted by the internal create and update; the public API takes
-  neither.
+- The public update stores `source`, `forecastExpectedCloseDate` and `forecastProbability`, although its
+  published spec lists none of them (proven through the public tools). A lost reason goes through the
+  public status route: `status:"lost"` with `lostReasonId`.
 - A second opportunity for the same contact in the same pipeline is refused while duplicates are
   off (`OPPORTUNITY_NO_DUPLICATE`, with the blocking card's id in `meta.existingId`).
 - **Additional contacts are association relations, not a field.** The relation reads from the
