@@ -108960,10 +108960,11 @@ var KNOWN_TRIGGER_KEYS = /* @__PURE__ */ new Set([
   "targetActionId",
   "convTriggerBotId"
 ]);
+var TYPE_TRIGGER_KEYS = { custom_date_reminder: /* @__PURE__ */ new Set(["config"]) };
 function checkTriggerKeys(triggers) {
   for (const t of triggers ?? []) {
     if (!t || typeof t !== "object") throw new IRError("TRIGGER_KEY", "each trigger must be an object");
-    const bad = Object.keys(t).filter((k) => !KNOWN_TRIGGER_KEYS.has(k));
+    const bad = Object.keys(t).filter((k) => !KNOWN_TRIGGER_KEYS.has(k) && !TYPE_TRIGGER_KEYS[t.type]?.has(k));
     if (!bad.length) continue;
     const hint = bad.includes("conditions") ? " Filter rows are authored as `filters`; `conditions` is how GHL STORES them. Nothing here reads `conditions`, so the trigger would be posted with NO filters and fire on everything." : "";
     throw new IRError(
@@ -109962,7 +109963,7 @@ function illegalSmsWords(body2, vocab) {
 // ../skills/create-ghl-workflow/engine/catalog.data.json
 var catalog_data_default = {
   marketplaceFilterOperators: {
-    _source: "recovered-source MarketplaceFilter.ts:1137-1149 (defaults), :1386-1450 (menus); conditions.ts:46 (OperatorOptions)",
+    _source: "recovered-source (bundle 2026-09-25) MarketplaceFilter.ts:1178-1194 (default per field type), :1418-1486 (menus: custom list, string, multiselect), :309-331 (array-to-array + legacy index-of-true migration); conditions.ts:229-266 (numerical = OperatorOptions.numerical)",
     legacyAccepted: [
       "is-not-empty"
     ],
@@ -109971,7 +109972,8 @@ var catalog_data_default = {
       multiselect_with_pagination: "is-any-of",
       select: "==",
       select_with_pagination: "==",
-      string: "string-contains-any-of"
+      string: "string-contains-any-of",
+      numerical: "=="
     },
     menus: {
       string: [
@@ -109986,14 +109988,25 @@ var catalog_data_default = {
         "has_no_value"
       ],
       multiselect: [
-        "index-of-true",
-        "index-of-false",
+        "is-any-of",
+        "is-none-of",
         "has_value",
         "has_no_value"
       ],
       multiselectArrayToArray: [
         "contains-any",
         "is-none-of",
+        "has_value",
+        "has_no_value"
+      ],
+      numerical: [
+        "==",
+        "!=",
+        ">",
+        ">=",
+        "<",
+        "<=",
+        "between",
         "has_value",
         "has_no_value"
       ],
@@ -175333,12 +175346,27 @@ function casingLint({ triggerBodies, autoSaveBody }) {
     throw new IRError("CASING", "workflow body must use camelCase locationId/companyId");
 }
 var MARKETPLACE_OPERATORS = /* @__PURE__ */ new Set(["string-contains-any-of", "is-not-empty"]);
-function marketplaceFilterType(entry, field) {
-  return entry?.filters?.find((x) => x.field === field || x.reference === field)?.fieldType ?? entry?.customVars?.find((v) => v.reference === field || v.name === field)?.fieldType ?? "string";
+function marketplaceFilterCfg(entry, field) {
+  return entry?.filters?.find((x) => x.field === field || x.reference === field) ?? entry?.customVars?.find((v) => v.reference === field || v.name === field) ?? null;
 }
-function marketplaceMenuFor(table, type) {
-  const key = type === "multiselect" || type === "multiselect_with_pagination" ? "multiselect" : type === "select_with_pagination" ? "select" : type;
-  return table.menus[key] ?? table.menus.string;
+function marketplaceFilterType(entry, field) {
+  return marketplaceFilterCfg(entry, field)?.fieldType ?? "string";
+}
+function marketplaceOperatorModel(entry, field, table) {
+  const cfg = marketplaceFilterCfg(entry, field);
+  const ftype = cfg?.fieldType ?? "string";
+  const custom2 = Array.isArray(cfg?.customOperators) ? cfg.customOperators.filter((o) => o && typeof o === "object" && typeof o.value === "string" && typeof o.label === "string").map((o) => o.value) : [];
+  if (custom2.length) return { ftype, menu: custom2, def: cfg?.defaultOperator ?? custom2[0], multi: false, arr: false };
+  const multi = ftype === "multiselect" || ftype === "multiselect_with_pagination";
+  const arr = multi && (cfg?.useArrayToArrayComparison === true || ftype === "multiselect" && /^(contact|business)\./.test(String(field ?? "")));
+  let menu = multi ? arr ? table.menus.multiselectArrayToArray : table.menus.multiselect : ftype === "select_with_pagination" ? table.menus.select : table.menus[ftype] ?? table.menus.string;
+  if (multi && entry?.workflowsTriggerType === "INTEGRATION_AI") menu = [...menu, ...table.menus.integrationAiExtra ?? []];
+  const def = cfg?.defaultOperator ?? (multi ? arr ? "contains-any" : "is-any-of" : table.defaults[ftype] ?? table.defaults.string);
+  return { ftype, menu, def, multi, arr };
+}
+function migrateLegacyMarketplaceOperator(op, model) {
+  if (model.multi && op === "index-of-true") return model.arr ? "contains-any" : "is-any-of";
+  return op;
 }
 function checkMarketplaceFilters(triggers, ctx) {
   const values = [];
@@ -175348,9 +175376,14 @@ function checkMarketplaceFilters(triggers, ctx) {
     const entry = ctx?.marketplace?.get?.(t.type, "trigger") ?? null;
     for (const f of t.filters ?? []) {
       if (table) {
-        const ftype = marketplaceFilterType(entry, f.field);
-        const menu = marketplaceMenuFor(table, ftype);
-        const operator = f.operator ?? table.defaults[ftype] ?? table.defaults.string;
+        const model = marketplaceOperatorModel(entry, f.field, table);
+        const { ftype, menu } = model;
+        const migrated = migrateLegacyMarketplaceOperator(f.operator, model);
+        if (migrated !== f.operator) {
+          ctx?.warn?.(`MARKETPLACE_FILTER_OPERATOR_MIGRATED: '${t.name ?? t.type}' filter '${f.field}' used the legacy '${f.operator}'; the drawer rewrites it to '${migrated}' on load, so '${migrated}' is written.`);
+          f.operator = migrated;
+        }
+        const operator = f.operator ?? model.def;
         if (!operator) {
           throw new IRError(
             "MARKETPLACE_FILTER_OPERATOR",
@@ -175635,14 +175668,15 @@ function buildTrigger(t, ctx, wid, refMap) {
     marketplaceMasterType = entry.publisher ? "internal" : "marketplace";
     const table = ctx?.catalog?.marketplaceFilterOperators ?? null;
     conditions = conditions.map((c) => {
-      const ftype = marketplaceFilterType(entry, c.field);
+      const model = table ? marketplaceOperatorModel(entry, c.field, table) : null;
+      const ftype = model?.ftype ?? marketplaceFilterType(entry, c.field);
       const title = c.title ?? entry?.filters?.find((x) => x.field === c.field || x.reference === c.field)?.name ?? entry?.customVars?.find((v) => v.reference === c.field)?.name;
       return {
         ...c,
         id: c.id ?? c.field,
         ...c.type ? {} : { type: ftype },
         ...title ? { title } : {},
-        ...c.operator ? {} : table?.defaults?.[ftype] ? { operator: table.defaults[ftype] } : {}
+        ...c.operator ? { operator: model ? migrateLegacyMarketplaceOperator(c.operator, model) : c.operator } : model?.def ? { operator: model.def } : {}
       };
     });
   }
@@ -190930,6 +190964,11 @@ var TOOLS2 = [
         "The workflow IR: {name, triggers: [{type, name, filters: [{field, operator, value}]}], graph: [{ref, kind, type, name, attributes}]}. The step list is `graph`, NOT `steps`. A trigger's filter rows are `filters` \u2014 `conditions` is how GHL STORES them and is refused here, because nothing reads it and the trigger would go live unscoped. `locationId` is this tool's own argument and does not belong inside spec."
       ),
       ignoreUnresolved: external_exports.boolean().default(false),
+      // The build path's validate-assets hatch. orchestrate.mjs reads opts.ignoreAssetErrors and its own refusal tells the
+      // caller to "pass ignoreAssetErrors to build anyway" — but this tool neither declared nor forwarded it, so that advice
+      // could not be followed (live 2026-09-28, T1 sweep: a draft whose trigger names an unconnected integration). Same class
+      // as the unwired strictMergeTags hatch (wave10).
+      ignoreAssetErrors: external_exports.boolean().default(false),
       // hatch for GHL's WORKFLOW-level rules (graph-rules.mjs): true, or the GHL rule names to skip
       skipWorkflowRules: external_exports.union([external_exports.boolean(), external_exports.array(external_exports.string())]).optional(),
       // Custom-code sandbox pre-flight (on by default): run each custom_code step in GHL's sandbox
@@ -190994,6 +191033,7 @@ var TOOLS2 = [
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
       const report = await orchestrate(args.spec, gw, {
         ignoreUnresolved: args.ignoreUnresolved ?? false,
+        ignoreAssetErrors: args.ignoreAssetErrors === true,
         skipWorkflowRules: args.skipWorkflowRules,
         strictCustomCode: args.strictCustomCode === true,
         skipCustomCodeTest: args.skipCustomCodeTest === true,
@@ -191026,7 +191066,7 @@ var TOOLS2 = [
   },
   {
     name: "edit_workflow",
-    description: describe3("edit_workflow", "Preview or confirmation-gate edits to an existing workflow through the canonical edit engine. Confirmed step edits use only the plain workflow PUT and are round-trip verified. Guard hatches, each named by the guard that refuses: allowGotoLoops, deadBranchAcknowledged, allowFlowTriggerEdit, allowDanglingParentKeys, allowDanglingStepRefs, allowOverCap. OP KEYS ARE STRICT: an unknown key on any op refuses the whole call by name (a dropped key once re-sent the stored record and verified clean \u2014 R-96). Ops \u2014 steps: appendStep, insertAfter, insertBefore, appendToBranch (anchor: branchEntryId | containerId+branch | branchRef), deleteStep, modifyStep (attrPatch/stepPatch \u2014 never `attributes`, never `name`; re-normalised through the compiler), retypeStep (full attributes), renameStep, setStepDisabled, disableStepsByType, moveStep, addBranch (if/else, or an AI splitter: alias addSplitterBranch), deleteBranch {containerId, branch} (an author-defined branch and everything under it), deleteContainer, repairParentKeys, addStepNote, duplicateStep, replaceTag, replaceFieldId, replaceInAttributes; triggers: addTrigger, modifyTrigger {triggerId|name, trigger:{name?, filters? (author rows) | conditions? (stored rows, sent verbatim), active?, target?|targetActionId?}} \u2014 a top-level conditions/name/status is refused, not ignored; a patch that changes nothing is a NOOP, not a write; the verifier holds the store to what YOU asked for and to the server's own date_updated stamp; deleteTrigger, duplicateTrigger; settings: updateSettings (Settings-tab keys plus `name`); notes: addStickyNote, updateStickyNote. Names in steps and triggers resolve to ids against the account (ignoreUnresolved to bypass). Runs the same pre-write validation ladder as build_workflow: workflow + graph-context rules, GHL's asset-reference validator (hatch: ignoreAssetErrors), the custom-code sandbox test on custom_code steps this edit touches (skipCustomCodeTest / strictCustomCode), account-readiness signals, and a builder-required-field check on the persisted document."),
+    description: describe3("edit_workflow", "Preview, or with confirm write, edits to an existing workflow (the canonical edit engine). Confirmed step edits use only the plain workflow PUT, round-trip verified. Guard hatches, each named by the guard that refuses: allowGotoLoops, deadBranchAcknowledged, allowFlowTriggerEdit, allowDanglingParentKeys, allowDanglingStepRefs, allowOverCap. OP KEYS ARE STRICT: an unknown key on any op refuses the whole call by name. Ops \u2014 steps: appendStep, insertAfter, insertBefore, appendToBranch (anchor: branchEntryId | containerId+branch | branchRef), deleteStep, modifyStep (attrPatch/stepPatch \u2014 never `attributes`, never `name`; re-normalised through the compiler), retypeStep (full attributes), renameStep, setStepDisabled, disableStepsByType, moveStep, addBranch (if/else, or an AI splitter: alias addSplitterBranch), deleteBranch {containerId, branch} (an author-defined branch and everything under it), deleteContainer, repairParentKeys, addStepNote, duplicateStep, replaceTag, replaceFieldId, replaceInAttributes; triggers: addTrigger, modifyTrigger {triggerId|name, trigger:{name?, filters? (author rows) | conditions? (stored rows, sent verbatim), active?, target?|targetActionId?}} \u2014 a top-level conditions/name/status is refused, not ignored; a patch that changes nothing is a NOOP, not a write; deleteTrigger, duplicateTrigger; settings: updateSettings (Settings-tab keys plus `name`); notes: addStickyNote, updateStickyNote. Names in steps and triggers resolve to ids (ignoreUnresolved to bypass). Runs the same pre-write validation ladder as build_workflow: workflow + graph-context rules, GHL's asset-reference validator (hatch: ignoreAssetErrors), the custom-code sandbox test on custom_code steps this edit touches (skipCustomCodeTest / strictCustomCode), account-readiness signals, and a builder-required-field check on the persisted document. Verifier rules: skill references/editing.md."),
     inputSchema: schema({
       locationId: external_exports.string(),
       workflowId: external_exports.string(),
