@@ -286,6 +286,7 @@ wrong stage. Every guard below exists because that happened on a live account (2
 | Code | Fires when | The silent failure it replaces |
 |---|---|---|
 | `NODE_KEY` | An unknown node-level key, or a scope (`onFound`/`onEvent`/…) on a type with no container handler for it | The whole subtree was discarded; the build reported a clean round-trip for a fraction of the IR |
+| `BRANCH_KEY` / `BRANCH_OP` | An if_else branch key other than `ref, name, conditions, then, else, op, assocGuaranteed`; or `op` not `and`/`or` | An unknown branch key was ignored: `operator: 'or'` built an AND branch. A branch's conditions are AND-ed unless it sets `op: 'or'` (the builder's segment AND/OR toggle) |
 | `NODE_DROPPED` | An authored node never reached the built payload (engine backstop) | As above — the authored-vs-compiled proof that round-trip verification never gave |
 | `EMPTY_STEP` | A `wait` with no/partial duration, or an `update_opportunity` with nothing to update | `startAfter: {}` (the wait **did not pause** — 4 messages in 6 seconds) and `__customInputFields__: []` (a stage move that never moved) |
 | `COND_SHAPE` | A dead opportunity-stage condition spelling | A branch that publishes clean and never evaluates |

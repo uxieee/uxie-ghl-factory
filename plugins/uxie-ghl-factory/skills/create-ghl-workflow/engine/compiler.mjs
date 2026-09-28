@@ -1428,7 +1428,7 @@ export function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
           branches: conditioned.map((b, bi) => ({
             id: conditionedIds[bi], name: b.name,
             segments: (b.conditions && b.conditions.length)
-              ? [{ __segmentId: ctx.idGen(), operator: 'and', conditions: b.conditions.map((c) => expandCondition(c, ctx)) }]
+              ? [{ __segmentId: ctx.idGen(), operator: b.op ?? 'and', conditions: b.conditions.map((c) => expandCondition(c, ctx)) }]
               : [],
             operator: 'and',
             showErrors: false, branchNameError: 'Branch name cannot be empty!',
