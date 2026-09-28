@@ -1306,9 +1306,9 @@
     ]
   },
   "list_agent_sessions": {
-    "description": "Agent Logs sessions — the AI Agents log table, filterable and cursor-paged — proof: live-runtime (2026-09-25); risk: read",
+    "description": "Agent Logs sessions — the AI Agents log table, filterable and cursor-paged — proof: live-runtime (2026-09-28); risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-09-25)",
+    "proof": "live-runtime (2026-09-28)",
     "proofFloor": "live-runtime (2026-09-03)",
     "proofRows": [
       "ai-agents--agent-logs-logs"

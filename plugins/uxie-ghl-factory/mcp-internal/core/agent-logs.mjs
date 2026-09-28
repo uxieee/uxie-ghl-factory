@@ -20,6 +20,14 @@
 //     locationId alone returns the complete turn.
 
 export const SORT_FIELDS = ['timestamp', 'agentName', 'aiProduct', 'contactName', 'channel', 'durationMs', 'totalTokens'];
+
+// Measured 2026-09-28 (ai-agents wave 6): GHL answers sortBy:"durationMs" in an order that is NOT sorted —
+// descending returned 175970, 183610, 169490 … with 8 of 19 pairs out of order, identically on two runs.
+// timestamp and totalTokens sort correctly. The rows are GHL's; only the claim that they are ordered is false.
+export const UNRELIABLE_SORTS = {
+  durationMs: 'GHL does not really sort by durationMs: the page comes back in a partly unsorted order (live 2026-09-28: 8 of 19 pairs out of order). Re-sort the rows yourself, or sort by timestamp or totalTokens, which GHL sorts correctly.',
+};
+export const sortNote = (sortBy) => UNRELIABLE_SORTS[sortBy] ?? null;
 export const TIME_RANGES = ['1_day', '7_days', '14_days', '30_days', '90_days', 'custom'];
 export const PRODUCTS = ['agent_studio', 'voice_ai', 'conversation_ai', 'superagents', 'ask_ai', 'agent_logs_assistant'];
 export const MAX_OFFSET = 500;
