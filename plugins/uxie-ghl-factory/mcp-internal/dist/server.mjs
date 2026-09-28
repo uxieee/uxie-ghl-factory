@@ -178,7 +178,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
     define_ENDPOINT_CATALOG_default = {
       generated: "2026-09-28",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 1290,
+      count: 1291,
       endpoints: [
         {
           id: "facebook-service--get-ad-account-by-id",
@@ -31842,7 +31842,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "Version"
           ],
           operation: "fetchDynamicSourceOptions",
-          service: "workflows",
+          service: null,
           tree: "workflow-builder",
           pathParams: [
             {
@@ -32045,7 +32045,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "Version"
           ],
           operation: "fetchActionDynamicSourceDetails",
-          service: "workflows",
+          service: null,
           tree: "workflow-builder",
           pathParams: [
             {
@@ -32160,7 +32160,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "Version"
           ],
           operation: "fetchActionInputAllOptions",
-          service: "workflows",
+          service: null,
           tree: "workflow-builder",
           pathParams: [
             {
@@ -32226,7 +32226,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "Version"
           ],
           operation: "fetchActionInputListOptions",
-          service: "workflows",
+          service: null,
           tree: "workflow-builder",
           pathParams: [
             {
@@ -32351,7 +32351,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "Version"
           ],
           operation: "getActionByKey",
-          service: "workflows",
+          service: null,
           tree: "workflow-builder",
           pathParams: [
             {
@@ -32379,6 +32379,37 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           ]
         },
         {
+          id: "ai-agents--invoke-managed-agents-dynamic-fields",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/workflows-marketplace/actions/published/invoke_managed_agents/dynamic-fields",
+          path: "/workflows-marketplace/actions/published/invoke_managed_agents/dynamic-fields",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/managed-agent-workflow-invocation.md:63"
+          ]
+        },
+        {
           id: "workflows-marketplace-platform-service--get-action-stats",
           aka: [
             "/workflows-marketplace/actions/stats/{key}"
@@ -32402,7 +32433,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "Version"
           ],
           operation: "getActionStats",
-          service: "workflows",
+          service: null,
           tree: "workflow-builder",
           pathParams: [
             {
@@ -32481,7 +32512,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "Version"
           ],
           operation: "fetchIntegrationApps",
-          service: "workflows",
+          service: null,
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -32528,7 +32559,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "Version"
           ],
           operation: "resetIntegrationToken",
-          service: "workflows",
+          service: null,
           tree: "workflow-builder",
           pathParams: [
             {
@@ -32579,7 +32610,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "Version"
           ],
           operation: "initiateOAuthAuthorization",
-          service: "workflows",
+          service: null,
           tree: "workflow-builder",
           pathParams: [
             {
@@ -32642,7 +32673,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "Version"
           ],
           operation: "fetchIntegrationOauthToken",
-          service: "workflows",
+          service: null,
           tree: "workflow-builder",
           pathParams: [
             {
@@ -32703,7 +32734,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           responseMode: "json",
           extraHeaders: [],
           operation: "fetchDrives",
-          service: "workflows",
+          service: null,
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -32769,7 +32800,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           responseMode: "json",
           extraHeaders: [],
           operation: "fetchSpreadsheets",
-          service: "workflows",
+          service: null,
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -32846,7 +32877,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           responseMode: "json",
           extraHeaders: [],
           operation: "fetchSheets",
-          service: "workflows",
+          service: null,
           tree: "workflow-builder",
           pathParams: [
             {
@@ -32904,7 +32935,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           responseMode: "json",
           extraHeaders: [],
           operation: "fetchSheetHeaders",
-          service: "workflows",
+          service: null,
           tree: "workflow-builder",
           pathParams: [
             {
@@ -32969,7 +33000,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           responseMode: "json",
           extraHeaders: [],
           operation: "fetchSlackIntegrations",
-          service: "workflows",
+          service: null,
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -33022,7 +33053,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "Version"
           ],
           operation: "getSlackOAuthStartUrl",
-          service: "workflows",
+          service: null,
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -33067,7 +33098,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           responseMode: "json",
           extraHeaders: [],
           operation: "fetchSlackPrivateChannels",
-          service: "workflows",
+          service: null,
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -33133,7 +33164,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           responseMode: "json",
           extraHeaders: [],
           operation: "fetchSlackPublicChannels",
-          service: "workflows",
+          service: null,
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -33199,7 +33230,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           responseMode: "json",
           extraHeaders: [],
           operation: "fetchSlackUsers",
-          service: "workflows",
+          service: null,
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -33268,7 +33299,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "Version"
           ],
           operation: "testAction",
-          service: "workflows",
+          service: null,
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -33341,7 +33372,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "Version"
           ],
           operation: "deregisterTestWebhook",
-          service: "workflows",
+          service: null,
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -33413,7 +33444,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "Version"
           ],
           operation: "fetchWebhookStatus",
-          service: "workflows",
+          service: null,
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -33480,7 +33511,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "Version"
           ],
           operation: "registerTestPolling",
-          service: "workflows",
+          service: null,
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -33554,7 +33585,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "Version"
           ],
           operation: "registerTestWebhook",
-          service: "workflows",
+          service: null,
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -33628,7 +33659,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "Version"
           ],
           operation: "testTrigger",
-          service: "workflows",
+          service: null,
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -33709,7 +33740,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "Version"
           ],
           operation: "getActionsAndTriggers",
-          service: "workflows",
+          service: null,
           tree: "workflow-builder",
           pathParams: [
             {
@@ -33761,7 +33792,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "Version"
           ],
           operation: "fetchTriggerDynamicSourceDetails",
-          service: "workflows",
+          service: null,
           tree: "workflow-builder",
           pathParams: [
             {
@@ -33873,7 +33904,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: "workflows",
+          service: null,
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -44016,7 +44047,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/flow-agent-shape.md:91",
+            "ai-agents/10-anatomy/flow-agent-shape.md:96",
             "ai-agents/20-api/12-ai-agents-api.md:314",
             "ai-agents/20-api/knowledge-base.md:55",
             "ai-agents/20-api/knowledge-base.md:102",
@@ -97497,10 +97528,29 @@ function matchTemplates(pathname, method, endpoints2) {
 var isAgencyWideWrite = (method, segs) => method !== "GET" && segs[0] === "workflow" && segs[2] === "workflow-company-setting";
 var MAX_DEPTH = 32;
 var MAX_NODES = 1e4;
+var DESCRIPTOR_KEYS = /* @__PURE__ */ new Set(["type", "description", "values", "enum", "default"]);
+var SCHEMA_TYPES = /* @__PURE__ */ new Set(["string", "array", "object", "number", "integer", "boolean", "null"]);
+function descriptorLocations(x) {
+  if (!x || typeof x !== "object" || Array.isArray(x)) return null;
+  const keys = Object.keys(x);
+  if (!keys.length || !keys.every((k) => DESCRIPTOR_KEYS.has(k))) return null;
+  if (x.type !== void 0 && !(typeof x.type === "string" && SCHEMA_TYPES.has(x.type))) return null;
+  const ids = [];
+  for (const k of keys) {
+    if (k === "type") continue;
+    const v = x[k];
+    if (typeof v === "string") ids.push(v);
+    else if (Array.isArray(v) && v.every((s) => typeof s === "string")) ids.push(...v);
+    else return null;
+  }
+  return ids.length ? ids : null;
+}
 function scanBodyLocations(value, allowed) {
   let nodes = 0;
   let tripped = null;
   const bad = [];
+  let emptyNested = 0;
+  let anchored = false;
   const walk3 = (v, depth) => {
     if (bad.length) return true;
     if (depth > MAX_DEPTH) {
@@ -97519,21 +97569,28 @@ function scanBodyLocations(value, allowed) {
           tripped ??= "nodes";
           return false;
         }
-        const values = typeof x === "string" ? [x] : Array.isArray(x) && x.every((s) => typeof s === "string") ? x : null;
+        const values = typeof x === "string" ? [x] : Array.isArray(x) && x.every((s) => typeof s === "string") ? x : descriptorLocations(x);
         if (values === null) {
           bad.push({ unusable: true });
           return true;
         }
-        for (const id of values) if (!allowed.has(id)) {
-          bad.push({ id });
-          return true;
+        for (const id of values) {
+          if (id === "" && depth > 0) {
+            emptyNested++;
+            continue;
+          }
+          if (!allowed.has(id)) {
+            bad.push({ id });
+            return true;
+          }
+          anchored = true;
         }
       } else if (!walk3(x, depth + 1)) return false;
     }
     return true;
   };
   const withinCaps = walk3(value, 0);
-  return { withinCaps, bad, tripped };
+  return { withinCaps, bad, tripped, emptyNested, anchored };
 }
 function checkLocationBinding({ tool, args, allowed, legacyLocationsEnvSet = false, ...opts }) {
   const kind = classifyCall(tool, args);
@@ -97598,6 +97655,7 @@ function checkLocationBinding({ tool, args, allowed, legacyLocationsEnvSet = fal
         "No per-location binding can sanction an agency-wide write. Make the change per location."
       );
     }
+    let urlAnchored = false;
     for (const key of ["locationId", "location_id"]) {
       for (const v of url2.searchParams.getAll(key)) {
         if (!allowed.has(v)) return fail(
@@ -97605,6 +97663,7 @@ function checkLocationBinding({ tool, args, allowed, legacyLocationsEnvSet = fal
           `the request targets ${v}, which this registration is not permitted to act on`,
           "Target a permitted account, or rebind the registration."
         );
+        urlAnchored = true;
       }
     }
     for (const e of matchTemplates(url2.pathname, method, opts.endpoints ?? [])) {
@@ -97616,6 +97675,7 @@ function checkLocationBinding({ tool, args, allowed, legacyLocationsEnvSet = fal
           `the request path targets ${v}, which this registration is not permitted to act on`,
           "Target a permitted account, or rebind the registration."
         );
+        if (v) urlAnchored = true;
       }
     }
     let body2 = args?.body;
@@ -97627,7 +97687,7 @@ function checkLocationBinding({ tool, args, allowed, legacyLocationsEnvSet = fal
       }
     }
     if (body2 !== void 0) {
-      const { withinCaps, bad, tripped } = scanBodyLocations(body2, allowed);
+      const { withinCaps, bad, tripped, emptyNested, anchored } = scanBodyLocations(body2, allowed);
       if (!withinCaps) {
         const limit = tripped === "depth" ? `nesting deeper than ${MAX_DEPTH} levels` : `more than ${MAX_NODES.toLocaleString("en-US")} nodes`;
         return fail(
@@ -97646,6 +97706,13 @@ function checkLocationBinding({ tool, args, allowed, legacyLocationsEnvSet = fal
           CODES.LOCATION_FORBIDDEN,
           `the request body targets ${first.id}, which this registration is not permitted to act on`,
           "Target a permitted account, or rebind the registration."
+        );
+      }
+      if (emptyNested && !anchored && !urlAnchored) {
+        return fail(
+          CODES.LOCATION_FORBIDDEN,
+          "the request body carries only empty location ids, and no permitted location anchors the request",
+          "Put the permitted locationId in the body, the query or the path. An empty id names no account."
         );
       }
     }

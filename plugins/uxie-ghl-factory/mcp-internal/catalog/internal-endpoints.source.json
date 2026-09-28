@@ -20,16 +20,16 @@
     {
       "tree": "documented",
       "dir": "corpus",
-      "capturedAt": "2026-09-28T17:39:56.850Z",
+      "capturedAt": "2026-09-28T17:48:38.691Z",
       "hash": "corpus",
-      "fileCount": 1001,
-      "endpoints": 1001
+      "fileCount": 1002,
+      "endpoints": 1002
     }
   ],
   "note": "SOURCE-DERIVED ONLY, merged from every mined front-end. `tree` on each row says which app calls it. The plugin owns kind/note/summary/reach/coveredBy and merges them at read time. A row proves a GHL front-end calls that path — not that your token reaches it, and not that calling it is safe.",
-  "discoveredCallSites": 1476,
+  "discoveredCallSites": 1477,
   "skippedCallSites": 704,
-  "count": 1282,
+  "count": 1283,
   "endpoints": [
     {
       "id": "facebook-service--get-ad-account-by-id",
@@ -24919,7 +24919,7 @@
         "Version"
       ],
       "operation": "fetchDynamicSourceOptions",
-      "service": "workflows",
+      "service": null,
       "query": [
         {
           "name": "locationId",
@@ -24986,7 +24986,7 @@
         "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:289"
       ],
       "serviceClass": "WorkflowsMarketplacePlatformService",
-      "serviceBasis": "inferred-from-path"
+      "serviceBasis": "unattributed"
     },
     {
       "id": "workflows-marketplace-platform-service--get-action-branches-fields",
@@ -25089,7 +25089,7 @@
         "Version"
       ],
       "operation": "fetchActionDynamicSourceDetails",
-      "service": "workflows",
+      "service": null,
       "query": [
         {
           "name": "locationId",
@@ -25120,7 +25120,7 @@
         "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:603"
       ],
       "serviceClass": "WorkflowsMarketplacePlatformService",
-      "serviceBasis": "inferred-from-path"
+      "serviceBasis": "unattributed"
     },
     {
       "id": "workflows--actions-dynamic-source",
@@ -25176,7 +25176,7 @@
         "Version"
       ],
       "operation": "fetchActionInputAllOptions",
-      "service": "workflows",
+      "service": null,
       "query": [
         {
           "name": "locationId",
@@ -25212,7 +25212,7 @@
         "workflows/50-runtime/flow-bot-four-node-certification.md:27"
       ],
       "serviceClass": "WorkflowsMarketplacePlatformService",
-      "serviceBasis": "inferred-from-path",
+      "serviceBasis": "unattributed",
       "aka": [
         "/workflows-marketplace/actions/options/conversationai_services_booking"
       ]
@@ -25232,7 +25232,7 @@
         "Version"
       ],
       "operation": "fetchActionInputListOptions",
-      "service": "workflows",
+      "service": null,
       "query": [
         {
           "name": "locationId",
@@ -25265,7 +25265,7 @@
         "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:204"
       ],
       "serviceClass": "WorkflowsMarketplacePlatformService",
-      "serviceBasis": "inferred-from-path"
+      "serviceBasis": "unattributed"
     },
     {
       "id": "workflows-marketplace-platform-service--get-action-dynamic-fields",
@@ -25334,7 +25334,7 @@
         "Version"
       ],
       "operation": "getActionByKey",
-      "service": "workflows",
+      "service": null,
       "query": [
         {
           "name": "locationId",
@@ -25355,7 +25355,33 @@
         "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:148"
       ],
       "serviceClass": "WorkflowsMarketplacePlatformService",
-      "serviceBasis": "inferred-from-path"
+      "serviceBasis": "unattributed"
+    },
+    {
+      "id": "ai-agents--invoke-managed-agents-dynamic-fields",
+      "method": "POST",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/workflows-marketplace/actions/published/invoke_managed_agents/dynamic-fields",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/managed-agent-workflow-invocation.md:63"
+      ],
+      "serviceBasis": "declared"
     },
     {
       "id": "workflows-marketplace-platform-service--get-action-stats",
@@ -25372,7 +25398,7 @@
         "Version"
       ],
       "operation": "getActionStats",
-      "service": "workflows",
+      "service": null,
       "query": [],
       "body": null,
       "returns": null,
@@ -25388,7 +25414,7 @@
         "services/api/marketplace-stats-service.ts:7"
       ],
       "serviceClass": "WorkflowsMarketplacePlatformService",
-      "serviceBasis": "inferred-from-path",
+      "serviceBasis": "unattributed",
       "aka": [
         "/workflows-marketplace/actions/stats/{key}"
       ]
@@ -25408,7 +25434,7 @@
         "Version"
       ],
       "operation": "fetchIntegrationApps",
-      "service": "workflows",
+      "service": null,
       "query": [
         {
           "name": "locationId",
@@ -25433,7 +25459,7 @@
         "workflows/70-research/ENDPOINTS.md:242"
       ],
       "serviceClass": "WorkflowsMarketplacePlatformService",
-      "serviceBasis": "inferred-from-path"
+      "serviceBasis": "unattributed"
     },
     {
       "id": "workflows-marketplace-platform-service--reset-integration-token",
@@ -25450,7 +25476,7 @@
         "Version"
       ],
       "operation": "resetIntegrationToken",
-      "service": "workflows",
+      "service": null,
       "query": [
         {
           "name": "locationId",
@@ -25475,7 +25501,7 @@
         "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:674"
       ],
       "serviceClass": "WorkflowsMarketplacePlatformService",
-      "serviceBasis": "inferred-from-path"
+      "serviceBasis": "unattributed"
     },
     {
       "id": "workflows-marketplace-platform-service--initiate-oauth-authorization",
@@ -25492,7 +25518,7 @@
         "Version"
       ],
       "operation": "initiateOAuthAuthorization",
-      "service": "workflows",
+      "service": null,
       "query": [
         {
           "name": "locationId",
@@ -25528,7 +25554,7 @@
         "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:506"
       ],
       "serviceClass": "WorkflowsMarketplacePlatformService",
-      "serviceBasis": "inferred-from-path"
+      "serviceBasis": "unattributed"
     },
     {
       "id": "workflows-marketplace-platform-service--fetch-integration-oauth-token",
@@ -25545,7 +25571,7 @@
         "Version"
       ],
       "operation": "fetchIntegrationOauthToken",
-      "service": "workflows",
+      "service": null,
       "query": [
         {
           "name": "locationId",
@@ -25584,7 +25610,7 @@
         "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:440"
       ],
       "serviceClass": "WorkflowsMarketplacePlatformService",
-      "serviceBasis": "inferred-from-path"
+      "serviceBasis": "unattributed"
     },
     {
       "id": "backend--fetch-drives",
@@ -25597,7 +25623,7 @@
       "tree": "workflow-builder",
       "extraHeaders": [],
       "operation": "fetchDrives",
-      "service": "workflows",
+      "service": null,
       "query": [
         {
           "name": "locationId",
@@ -25645,7 +25671,7 @@
         "services/api/google-sheets-workflows-service.ts:54"
       ],
       "serviceClass": null,
-      "serviceBasis": "inferred-from-path"
+      "serviceBasis": "unattributed"
     },
     {
       "id": "backend--fetch-spreadsheets",
@@ -25658,7 +25684,7 @@
       "tree": "workflow-builder",
       "extraHeaders": [],
       "operation": "fetchSpreadsheets",
-      "service": "workflows",
+      "service": null,
       "query": [
         {
           "name": "locationId",
@@ -25718,7 +25744,7 @@
         "services/api/google-sheets-workflows-service.ts:73"
       ],
       "serviceClass": null,
-      "serviceBasis": "inferred-from-path"
+      "serviceBasis": "unattributed"
     },
     {
       "id": "backend--fetch-sheets",
@@ -25731,7 +25757,7 @@
       "tree": "workflow-builder",
       "extraHeaders": [],
       "operation": "fetchSheets",
-      "service": "workflows",
+      "service": null,
       "query": [
         {
           "name": "locationId",
@@ -25768,7 +25794,7 @@
         "services/api/google-sheets-workflows-service.ts:90"
       ],
       "serviceClass": null,
-      "serviceBasis": "inferred-from-path"
+      "serviceBasis": "unattributed"
     },
     {
       "id": "backend--fetch-sheet-headers",
@@ -25781,7 +25807,7 @@
       "tree": "workflow-builder",
       "extraHeaders": [],
       "operation": "fetchSheetHeaders",
-      "service": "workflows",
+      "service": null,
       "query": [
         {
           "name": "locationId",
@@ -25818,7 +25844,7 @@
         "services/api/google-sheets-workflows-service.ts:111"
       ],
       "serviceClass": null,
-      "serviceBasis": "inferred-from-path"
+      "serviceBasis": "unattributed"
     },
     {
       "id": "backend--fetch-slack-integrations",
@@ -25831,7 +25857,7 @@
       "tree": "workflow-builder",
       "extraHeaders": [],
       "operation": "fetchSlackIntegrations",
-      "service": "workflows",
+      "service": null,
       "query": [
         {
           "name": "locationId",
@@ -25862,7 +25888,7 @@
         "services/api/slack-workflows-service.ts:90"
       ],
       "serviceClass": null,
-      "serviceBasis": "inferred-from-path"
+      "serviceBasis": "unattributed"
     },
     {
       "id": "slack-service--get-slack-oauth-start-url",
@@ -25880,7 +25906,7 @@
         "Version"
       ],
       "operation": "getSlackOAuthStartUrl",
-      "service": "workflows",
+      "service": null,
       "query": [
         {
           "name": "locationId",
@@ -25907,7 +25933,7 @@
         "services/SlackService.ts:32"
       ],
       "serviceClass": "SlackService",
-      "serviceBasis": "inferred-from-path"
+      "serviceBasis": "unattributed"
     },
     {
       "id": "backend--fetch-slack-private-channels",
@@ -25920,7 +25946,7 @@
       "tree": "workflow-builder",
       "extraHeaders": [],
       "operation": "fetchSlackPrivateChannels",
-      "service": "workflows",
+      "service": null,
       "query": [
         {
           "name": "locationId",
@@ -25968,7 +25994,7 @@
         "services/api/slack-workflows-service.ts:120"
       ],
       "serviceClass": null,
-      "serviceBasis": "inferred-from-path"
+      "serviceBasis": "unattributed"
     },
     {
       "id": "backend--fetch-slack-public-channels",
@@ -25981,7 +26007,7 @@
       "tree": "workflow-builder",
       "extraHeaders": [],
       "operation": "fetchSlackPublicChannels",
-      "service": "workflows",
+      "service": null,
       "query": [
         {
           "name": "locationId",
@@ -26029,7 +26055,7 @@
         "services/api/slack-workflows-service.ts:103"
       ],
       "serviceClass": null,
-      "serviceBasis": "inferred-from-path"
+      "serviceBasis": "unattributed"
     },
     {
       "id": "backend--fetch-slack-users",
@@ -26042,7 +26068,7 @@
       "tree": "workflow-builder",
       "extraHeaders": [],
       "operation": "fetchSlackUsers",
-      "service": "workflows",
+      "service": null,
       "query": [
         {
           "name": "locationId",
@@ -26090,7 +26116,7 @@
         "services/api/slack-workflows-service.ts:133"
       ],
       "serviceClass": null,
-      "serviceBasis": "inferred-from-path"
+      "serviceBasis": "unattributed"
     },
     {
       "id": "workflows-marketplace-platform-service--test-action",
@@ -26107,7 +26133,7 @@
         "Version"
       ],
       "operation": "testAction",
-      "service": "workflows",
+      "service": null,
       "query": [
         {
           "name": "locationId",
@@ -26159,7 +26185,7 @@
         "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:415"
       ],
       "serviceClass": "WorkflowsMarketplacePlatformService",
-      "serviceBasis": "inferred-from-path"
+      "serviceBasis": "unattributed"
     },
     {
       "id": "workflows-marketplace-platform-service--deregister-test-webhook",
@@ -26176,7 +26202,7 @@
         "Version"
       ],
       "operation": "deregisterTestWebhook",
-      "service": "workflows",
+      "service": null,
       "query": [
         {
           "name": "locationId",
@@ -26227,7 +26253,7 @@
         "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:370"
       ],
       "serviceClass": "WorkflowsMarketplacePlatformService",
-      "serviceBasis": "inferred-from-path"
+      "serviceBasis": "unattributed"
     },
     {
       "id": "workflows-marketplace-platform-service--fetch-webhook-status",
@@ -26244,7 +26270,7 @@
         "Version"
       ],
       "operation": "fetchWebhookStatus",
-      "service": "workflows",
+      "service": null,
       "query": [
         {
           "name": "locationId",
@@ -26290,7 +26316,7 @@
         "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:641"
       ],
       "serviceClass": "WorkflowsMarketplacePlatformService",
-      "serviceBasis": "inferred-from-path"
+      "serviceBasis": "unattributed"
     },
     {
       "id": "workflows-marketplace-platform-service--register-test-polling",
@@ -26307,7 +26333,7 @@
         "Version"
       ],
       "operation": "registerTestPolling",
-      "service": "workflows",
+      "service": null,
       "query": [
         {
           "name": "locationId",
@@ -26360,7 +26386,7 @@
         "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:360"
       ],
       "serviceClass": "WorkflowsMarketplacePlatformService",
-      "serviceBasis": "inferred-from-path"
+      "serviceBasis": "unattributed"
     },
     {
       "id": "workflows-marketplace-platform-service--register-test-webhook",
@@ -26377,7 +26403,7 @@
         "Version"
       ],
       "operation": "registerTestWebhook",
-      "service": "workflows",
+      "service": null,
       "query": [
         {
           "name": "locationId",
@@ -26430,7 +26456,7 @@
         "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:345"
       ],
       "serviceClass": "WorkflowsMarketplacePlatformService",
-      "serviceBasis": "inferred-from-path"
+      "serviceBasis": "unattributed"
     },
     {
       "id": "workflows-marketplace-platform-service--test-trigger",
@@ -26447,7 +26473,7 @@
         "Version"
       ],
       "operation": "testTrigger",
-      "service": "workflows",
+      "service": null,
       "query": [
         {
           "name": "locationId",
@@ -26500,7 +26526,7 @@
         "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:387"
       ],
       "serviceClass": "WorkflowsMarketplacePlatformService",
-      "serviceBasis": "inferred-from-path"
+      "serviceBasis": "unattributed"
     },
     {
       "id": "workflows-marketplace-platform-service--get-actions-and-triggers",
@@ -26517,7 +26543,7 @@
         "Version"
       ],
       "operation": "getActionsAndTriggers",
-      "service": "workflows",
+      "service": null,
       "query": [
         {
           "name": "workflowTypes",
@@ -26543,7 +26569,7 @@
         "workflows/30-types/steps/edit_conversation.md:18"
       ],
       "serviceClass": "WorkflowsMarketplacePlatformService",
-      "serviceBasis": "inferred-from-path"
+      "serviceBasis": "unattributed"
     },
     {
       "id": "workflows-marketplace-platform-service--fetch-trigger-dynamic-source-details",
@@ -26560,7 +26586,7 @@
         "Version"
       ],
       "operation": "fetchTriggerDynamicSourceDetails",
-      "service": "workflows",
+      "service": null,
       "query": [
         {
           "name": "locationId",
@@ -26591,7 +26617,7 @@
         "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:631"
       ],
       "serviceClass": "WorkflowsMarketplacePlatformService",
-      "serviceBasis": "inferred-from-path"
+      "serviceBasis": "unattributed"
     },
     {
       "id": "workflows-marketplace-platform-service--fetch-trigger-filter-list-options",
@@ -26648,7 +26674,7 @@
       "tree": "workflow-builder",
       "extraHeaders": [],
       "operation": null,
-      "service": "workflows",
+      "service": null,
       "query": [
         {
           "name": "locationId",
@@ -26685,7 +26711,7 @@
         "services/api/document-template-service.ts:17"
       ],
       "serviceClass": null,
-      "serviceBasis": "inferred-from-path"
+      "serviceBasis": "unattributed"
     },
     {
       "id": "workflows-marketplace-platform-service--get-trigger-dynamic-fields",
@@ -34759,7 +34785,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/flow-agent-shape.md:91",
+        "ai-agents/10-anatomy/flow-agent-shape.md:96",
         "ai-agents/20-api/12-ai-agents-api.md:314",
         "ai-agents/20-api/knowledge-base.md:55",
         "ai-agents/20-api/knowledge-base.md:102",

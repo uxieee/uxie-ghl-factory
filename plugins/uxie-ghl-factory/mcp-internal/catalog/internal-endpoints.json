@@ -1,7 +1,7 @@
 {
   "generated": "2026-09-28",
   "note": "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path — not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-  "count": 1290,
+  "count": 1291,
   "endpoints": [
     {
       "id": "facebook-service--get-ad-account-by-id",
@@ -31655,7 +31655,7 @@
         "Version"
       ],
       "operation": "fetchDynamicSourceOptions",
-      "service": "workflows",
+      "service": null,
       "tree": "workflow-builder",
       "pathParams": [
         {
@@ -31858,7 +31858,7 @@
         "Version"
       ],
       "operation": "fetchActionDynamicSourceDetails",
-      "service": "workflows",
+      "service": null,
       "tree": "workflow-builder",
       "pathParams": [
         {
@@ -31973,7 +31973,7 @@
         "Version"
       ],
       "operation": "fetchActionInputAllOptions",
-      "service": "workflows",
+      "service": null,
       "tree": "workflow-builder",
       "pathParams": [
         {
@@ -32039,7 +32039,7 @@
         "Version"
       ],
       "operation": "fetchActionInputListOptions",
-      "service": "workflows",
+      "service": null,
       "tree": "workflow-builder",
       "pathParams": [
         {
@@ -32164,7 +32164,7 @@
         "Version"
       ],
       "operation": "getActionByKey",
-      "service": "workflows",
+      "service": null,
       "tree": "workflow-builder",
       "pathParams": [
         {
@@ -32192,6 +32192,37 @@
       ]
     },
     {
+      "id": "ai-agents--invoke-managed-agents-dynamic-fields",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/workflows-marketplace/actions/published/invoke_managed_agents/dynamic-fields",
+      "path": "/workflows-marketplace/actions/published/invoke_managed_agents/dynamic-fields",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "ai-agents",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/managed-agent-workflow-invocation.md:63"
+      ]
+    },
+    {
       "id": "workflows-marketplace-platform-service--get-action-stats",
       "aka": [
         "/workflows-marketplace/actions/stats/{key}"
@@ -32215,7 +32246,7 @@
         "Version"
       ],
       "operation": "getActionStats",
-      "service": "workflows",
+      "service": null,
       "tree": "workflow-builder",
       "pathParams": [
         {
@@ -32294,7 +32325,7 @@
         "Version"
       ],
       "operation": "fetchIntegrationApps",
-      "service": "workflows",
+      "service": null,
       "tree": "workflow-builder",
       "pathParams": [],
       "query": [
@@ -32341,7 +32372,7 @@
         "Version"
       ],
       "operation": "resetIntegrationToken",
-      "service": "workflows",
+      "service": null,
       "tree": "workflow-builder",
       "pathParams": [
         {
@@ -32392,7 +32423,7 @@
         "Version"
       ],
       "operation": "initiateOAuthAuthorization",
-      "service": "workflows",
+      "service": null,
       "tree": "workflow-builder",
       "pathParams": [
         {
@@ -32455,7 +32486,7 @@
         "Version"
       ],
       "operation": "fetchIntegrationOauthToken",
-      "service": "workflows",
+      "service": null,
       "tree": "workflow-builder",
       "pathParams": [
         {
@@ -32516,7 +32547,7 @@
       "responseMode": "json",
       "extraHeaders": [],
       "operation": "fetchDrives",
-      "service": "workflows",
+      "service": null,
       "tree": "workflow-builder",
       "pathParams": [],
       "query": [
@@ -32582,7 +32613,7 @@
       "responseMode": "json",
       "extraHeaders": [],
       "operation": "fetchSpreadsheets",
-      "service": "workflows",
+      "service": null,
       "tree": "workflow-builder",
       "pathParams": [],
       "query": [
@@ -32659,7 +32690,7 @@
       "responseMode": "json",
       "extraHeaders": [],
       "operation": "fetchSheets",
-      "service": "workflows",
+      "service": null,
       "tree": "workflow-builder",
       "pathParams": [
         {
@@ -32717,7 +32748,7 @@
       "responseMode": "json",
       "extraHeaders": [],
       "operation": "fetchSheetHeaders",
-      "service": "workflows",
+      "service": null,
       "tree": "workflow-builder",
       "pathParams": [
         {
@@ -32782,7 +32813,7 @@
       "responseMode": "json",
       "extraHeaders": [],
       "operation": "fetchSlackIntegrations",
-      "service": "workflows",
+      "service": null,
       "tree": "workflow-builder",
       "pathParams": [],
       "query": [
@@ -32835,7 +32866,7 @@
         "Version"
       ],
       "operation": "getSlackOAuthStartUrl",
-      "service": "workflows",
+      "service": null,
       "tree": "workflow-builder",
       "pathParams": [],
       "query": [
@@ -32880,7 +32911,7 @@
       "responseMode": "json",
       "extraHeaders": [],
       "operation": "fetchSlackPrivateChannels",
-      "service": "workflows",
+      "service": null,
       "tree": "workflow-builder",
       "pathParams": [],
       "query": [
@@ -32946,7 +32977,7 @@
       "responseMode": "json",
       "extraHeaders": [],
       "operation": "fetchSlackPublicChannels",
-      "service": "workflows",
+      "service": null,
       "tree": "workflow-builder",
       "pathParams": [],
       "query": [
@@ -33012,7 +33043,7 @@
       "responseMode": "json",
       "extraHeaders": [],
       "operation": "fetchSlackUsers",
-      "service": "workflows",
+      "service": null,
       "tree": "workflow-builder",
       "pathParams": [],
       "query": [
@@ -33081,7 +33112,7 @@
         "Version"
       ],
       "operation": "testAction",
-      "service": "workflows",
+      "service": null,
       "tree": "workflow-builder",
       "pathParams": [],
       "query": [
@@ -33154,7 +33185,7 @@
         "Version"
       ],
       "operation": "deregisterTestWebhook",
-      "service": "workflows",
+      "service": null,
       "tree": "workflow-builder",
       "pathParams": [],
       "query": [
@@ -33226,7 +33257,7 @@
         "Version"
       ],
       "operation": "fetchWebhookStatus",
-      "service": "workflows",
+      "service": null,
       "tree": "workflow-builder",
       "pathParams": [],
       "query": [
@@ -33293,7 +33324,7 @@
         "Version"
       ],
       "operation": "registerTestPolling",
-      "service": "workflows",
+      "service": null,
       "tree": "workflow-builder",
       "pathParams": [],
       "query": [
@@ -33367,7 +33398,7 @@
         "Version"
       ],
       "operation": "registerTestWebhook",
-      "service": "workflows",
+      "service": null,
       "tree": "workflow-builder",
       "pathParams": [],
       "query": [
@@ -33441,7 +33472,7 @@
         "Version"
       ],
       "operation": "testTrigger",
-      "service": "workflows",
+      "service": null,
       "tree": "workflow-builder",
       "pathParams": [],
       "query": [
@@ -33522,7 +33553,7 @@
         "Version"
       ],
       "operation": "getActionsAndTriggers",
-      "service": "workflows",
+      "service": null,
       "tree": "workflow-builder",
       "pathParams": [
         {
@@ -33574,7 +33605,7 @@
         "Version"
       ],
       "operation": "fetchTriggerDynamicSourceDetails",
-      "service": "workflows",
+      "service": null,
       "tree": "workflow-builder",
       "pathParams": [
         {
@@ -33686,7 +33717,7 @@
       "responseMode": "json",
       "extraHeaders": [],
       "operation": null,
-      "service": "workflows",
+      "service": null,
       "tree": "workflow-builder",
       "pathParams": [],
       "query": [
@@ -43827,7 +43858,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/flow-agent-shape.md:91",
+        "ai-agents/10-anatomy/flow-agent-shape.md:96",
         "ai-agents/20-api/12-ai-agents-api.md:314",
         "ai-agents/20-api/knowledge-base.md:55",
         "ai-agents/20-api/knowledge-base.md:102",
