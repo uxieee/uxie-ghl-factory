@@ -20,16 +20,16 @@
     {
       "tree": "documented",
       "dir": "corpus",
-      "capturedAt": "2026-09-28T16:40:42.150Z",
+      "capturedAt": "2026-09-28T17:08:32.992Z",
       "hash": "corpus",
-      "fileCount": 997,
-      "endpoints": 997
+      "fileCount": 1000,
+      "endpoints": 1000
     }
   ],
   "note": "SOURCE-DERIVED ONLY, merged from every mined front-end. `tree` on each row says which app calls it. The plugin owns kind/note/summary/reach/coveredBy and merges them at read time. A row proves a GHL front-end calls that path — not that your token reaches it, and not that calling it is safe.",
-  "discoveredCallSites": 1472,
+  "discoveredCallSites": 1475,
   "skippedCallSites": 704,
-  "count": 1280,
+  "count": 1282,
   "endpoints": [
     {
       "id": "facebook-service--get-ad-account-by-id",
@@ -8607,7 +8607,7 @@
       },
       "sources": [
         "services/marketplaceServices/WorkflowMarketplaceService.ts:414",
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:441"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:444"
       ],
       "serviceClass": "WorkflowMarketplaceService",
       "serviceBasis": "inferred-from-path"
@@ -10353,7 +10353,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:433"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:436"
       ],
       "serviceBasis": "declared"
     },
@@ -10379,7 +10379,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:445"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:448"
       ],
       "serviceBasis": "declared"
     },
@@ -12101,7 +12101,7 @@
       "sources": [
         "services/api/slack-marketplace-install-service.ts:129",
         "services/marketplaceServices/WorkflowMarketplaceService.ts:492",
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:446",
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:449",
         "workflows/70-research/ENDPOINTS.md:243"
       ],
       "serviceClass": null,
@@ -29137,6 +29137,32 @@
       ]
     },
     {
+      "id": "ai-agents--agent-studio-agents",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/agent-studio/agents",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/10-anatomy/flow-agent-shape.md:29"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
       "id": "ai-agents--anton-session",
       "method": "POST",
       "origin": "https://services.leadconnectorhq.com",
@@ -29160,6 +29186,33 @@
       "sources": [
         "ai-agents/10-anatomy/managed-agent-shape.md:28",
         "ai-agents/20-api/12-ai-agents-api.md:245"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "ai-agents--agents-versions",
+      "method": "PATCH",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/agent-studio/agents/versions/{versionId}",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/10-anatomy/flow-agent-shape.md:42",
+        "ai-agents/10-anatomy/flow-agent-shape.md:44"
       ],
       "serviceBasis": "declared"
     },
@@ -31911,7 +31964,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:454"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:457"
       ],
       "serviceBasis": "declared"
     },
@@ -31962,7 +32015,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:456",
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:459",
         "ai-agents/20-api/agent-deployment-routing.md:173",
         "ai-agents/20-api/agent-deployment-routing.md:389"
       ],
@@ -44420,12 +44473,12 @@
         "returns": "unresolved"
       },
       "sources": [
+        "ai-agents/10-anatomy/flow-agent-shape.md:34",
         "ai-agents/20-api/12-ai-agents-api.md:75",
         "ai-agents/20-api/12-ai-agents-api.md:158",
         "ai-agents/20-api/12-ai-agents-api.md:170",
         "ai-agents/20-api/12-ai-agents-api.md:178",
-        "ai-agents/20-api/12-ai-agents-api.md:347",
-        "ai-agents/20-api/12-ai-agents-api.md:371"
+        "ai-agents/20-api/12-ai-agents-api.md:347"
       ],
       "serviceBasis": "declared"
     },
@@ -44610,6 +44663,7 @@
       },
       "sources": [
         "ai-agents/10-anatomy/voice-ai-agent-shape.md:204",
+        "ai-agents/10-anatomy/flow-agent-shape.md:45",
         "ai-agents/10-anatomy/voice-ai-agent-shape.md:257"
       ],
       "serviceBasis": "declared",
@@ -44808,7 +44862,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:458",
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:461",
         "ai-agents/20-api/logs-deployment-email.md:113"
       ],
       "serviceBasis": "declared"
@@ -44842,7 +44896,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:457"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:460"
       ],
       "serviceBasis": "declared"
     },
@@ -45197,7 +45251,7 @@
       "id": "ai-agents--call-create-trial-web-call",
       "method": "POST",
       "origin": "https://services.leadconnectorhq.com",
-      "path": "/voice-ai/call/create-trial-web-call/{agentId}",
+      "path": "/voice-ai/call/create-trial-web-call/{voiceAiAgentId}",
       "authRail": "bearer+token-id",
       "transport": "json",
       "responseMode": "json",
@@ -45215,9 +45269,13 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:391"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:391",
+        "ai-agents/10-anatomy/flow-agent-shape.md:47"
       ],
-      "serviceBasis": "declared"
+      "serviceBasis": "declared",
+      "aka": [
+        "/voice-ai/call/create-trial-web-call/{agentId}"
+      ]
     },
     {
       "id": "ai-agents--call-live-transcript",
@@ -45961,7 +46019,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:464"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:467"
       ],
       "serviceBasis": "declared"
     },

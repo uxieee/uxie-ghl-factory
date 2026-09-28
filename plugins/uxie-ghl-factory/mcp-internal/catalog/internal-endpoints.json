@@ -1,7 +1,7 @@
 {
   "generated": "2026-09-28",
   "note": "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path — not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-  "count": 1288,
+  "count": 1290,
   "endpoints": [
     {
       "id": "facebook-service--get-ad-account-by-id",
@@ -10882,7 +10882,7 @@
       },
       "sources": [
         "services/marketplaceServices/WorkflowMarketplaceService.ts:414",
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:441"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:444"
       ]
     },
     {
@@ -13164,7 +13164,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:433"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:436"
       ]
     },
     {
@@ -13195,7 +13195,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:445"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:448"
       ]
     },
     {
@@ -15405,7 +15405,7 @@
       "sources": [
         "services/api/slack-marketplace-install-service.ts:129",
         "services/marketplaceServices/WorkflowMarketplaceService.ts:492",
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:446",
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:449",
         "workflows/70-research/ENDPOINTS.md:243"
       ]
     },
@@ -36717,6 +36717,37 @@
       ]
     },
     {
+      "id": "ai-agents--agent-studio-agents",
+      "method": "POST",
+      "url": "https://services.leadconnectorhq.com/agent-studio/agents",
+      "path": "/agent-studio/agents",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "ai-agents",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/10-anatomy/flow-agent-shape.md:29"
+      ]
+    },
+    {
       "id": "ai-agents--anton-session",
       "method": "POST",
       "url": "https://services.leadconnectorhq.com/agent-studio/agents/anton/session",
@@ -36747,6 +36778,42 @@
       "sources": [
         "ai-agents/10-anatomy/managed-agent-shape.md:28",
         "ai-agents/20-api/12-ai-agents-api.md:245"
+      ]
+    },
+    {
+      "id": "ai-agents--agents-versions",
+      "method": "PATCH",
+      "url": "https://services.leadconnectorhq.com/agent-studio/agents/versions/{versionId}",
+      "path": "/agent-studio/agents/versions/{versionId}",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "ai-agents",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "versionId"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/10-anatomy/flow-agent-shape.md:42",
+        "ai-agents/10-anatomy/flow-agent-shape.md:44"
       ]
     },
     {
@@ -40291,7 +40358,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:454"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:457"
       ]
     },
     {
@@ -40352,7 +40419,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:456",
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:459",
         "ai-agents/20-api/agent-deployment-routing.md:173",
         "ai-agents/20-api/agent-deployment-routing.md:389"
       ]
@@ -56243,12 +56310,12 @@
         "returns": "unresolved"
       },
       "sources": [
+        "ai-agents/10-anatomy/flow-agent-shape.md:34",
         "ai-agents/20-api/12-ai-agents-api.md:75",
         "ai-agents/20-api/12-ai-agents-api.md:158",
         "ai-agents/20-api/12-ai-agents-api.md:170",
         "ai-agents/20-api/12-ai-agents-api.md:178",
-        "ai-agents/20-api/12-ai-agents-api.md:347",
-        "ai-agents/20-api/12-ai-agents-api.md:371"
+        "ai-agents/20-api/12-ai-agents-api.md:347"
       ]
     },
     {
@@ -56477,6 +56544,7 @@
       },
       "sources": [
         "ai-agents/10-anatomy/voice-ai-agent-shape.md:204",
+        "ai-agents/10-anatomy/flow-agent-shape.md:45",
         "ai-agents/10-anatomy/voice-ai-agent-shape.md:257"
       ]
     },
@@ -56732,7 +56800,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:458",
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:461",
         "ai-agents/20-api/logs-deployment-email.md:113"
       ]
     },
@@ -56778,7 +56846,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:457"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:460"
       ]
     },
     {
@@ -57220,9 +57288,12 @@
     },
     {
       "id": "ai-agents--call-create-trial-web-call",
+      "aka": [
+        "/voice-ai/call/create-trial-web-call/{agentId}"
+      ],
       "method": "POST",
-      "url": "https://services.leadconnectorhq.com/voice-ai/call/create-trial-web-call/{agentId}",
-      "path": "/voice-ai/call/create-trial-web-call/{agentId}",
+      "url": "https://services.leadconnectorhq.com/voice-ai/call/create-trial-web-call/{voiceAiAgentId}",
+      "path": "/voice-ai/call/create-trial-web-call/{voiceAiAgentId}",
       "origin": "https://services.leadconnectorhq.com",
       "rail": "ai",
       "kind": "write",
@@ -57237,7 +57308,7 @@
       "tree": "documented",
       "pathParams": [
         {
-          "name": "agentId"
+          "name": "voiceAiAgentId"
         }
       ],
       "query": [],
@@ -57250,7 +57321,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:391"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:391",
+        "ai-agents/10-anatomy/flow-agent-shape.md:47"
       ]
     },
     {
@@ -58181,7 +58253,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:464"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:467"
       ]
     },
     {

@@ -178,7 +178,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
     define_ENDPOINT_CATALOG_default = {
       generated: "2026-09-28",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 1288,
+      count: 1290,
       endpoints: [
         {
           id: "facebook-service--get-ad-account-by-id",
@@ -11059,7 +11059,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/marketplaceServices/WorkflowMarketplaceService.ts:414",
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:441"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:444"
           ]
         },
         {
@@ -13341,7 +13341,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:433"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:436"
           ]
         },
         {
@@ -13372,7 +13372,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:445"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:448"
           ]
         },
         {
@@ -15582,7 +15582,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "services/api/slack-marketplace-install-service.ts:129",
             "services/marketplaceServices/WorkflowMarketplaceService.ts:492",
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:446",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:449",
             "workflows/70-research/ENDPOINTS.md:243"
           ]
         },
@@ -36906,6 +36906,37 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           ]
         },
         {
+          id: "ai-agents--agent-studio-agents",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/agent-studio/agents",
+          path: "/agent-studio/agents",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/10-anatomy/flow-agent-shape.md:29"
+          ]
+        },
+        {
           id: "ai-agents--anton-session",
           method: "POST",
           url: "https://services.leadconnectorhq.com/agent-studio/agents/anton/session",
@@ -36936,6 +36967,42 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           sources: [
             "ai-agents/10-anatomy/managed-agent-shape.md:28",
             "ai-agents/20-api/12-ai-agents-api.md:245"
+          ]
+        },
+        {
+          id: "ai-agents--agents-versions",
+          method: "PATCH",
+          url: "https://services.leadconnectorhq.com/agent-studio/agents/versions/{versionId}",
+          path: "/agent-studio/agents/versions/{versionId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "versionId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/10-anatomy/flow-agent-shape.md:42",
+            "ai-agents/10-anatomy/flow-agent-shape.md:44"
           ]
         },
         {
@@ -40480,7 +40547,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:454"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:457"
           ]
         },
         {
@@ -40541,7 +40608,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:456",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:459",
             "ai-agents/20-api/agent-deployment-routing.md:173",
             "ai-agents/20-api/agent-deployment-routing.md:389"
           ]
@@ -56432,12 +56499,12 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
+            "ai-agents/10-anatomy/flow-agent-shape.md:34",
             "ai-agents/20-api/12-ai-agents-api.md:75",
             "ai-agents/20-api/12-ai-agents-api.md:158",
             "ai-agents/20-api/12-ai-agents-api.md:170",
             "ai-agents/20-api/12-ai-agents-api.md:178",
-            "ai-agents/20-api/12-ai-agents-api.md:347",
-            "ai-agents/20-api/12-ai-agents-api.md:371"
+            "ai-agents/20-api/12-ai-agents-api.md:347"
           ]
         },
         {
@@ -56666,6 +56733,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/10-anatomy/voice-ai-agent-shape.md:204",
+            "ai-agents/10-anatomy/flow-agent-shape.md:45",
             "ai-agents/10-anatomy/voice-ai-agent-shape.md:257"
           ]
         },
@@ -56921,7 +56989,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:458",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:461",
             "ai-agents/20-api/logs-deployment-email.md:113"
           ]
         },
@@ -56967,7 +57035,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:457"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:460"
           ]
         },
         {
@@ -57409,9 +57477,12 @@ Flagged to the operator as a security observation about the vendor, not a capabi
         },
         {
           id: "ai-agents--call-create-trial-web-call",
+          aka: [
+            "/voice-ai/call/create-trial-web-call/{agentId}"
+          ],
           method: "POST",
-          url: "https://services.leadconnectorhq.com/voice-ai/call/create-trial-web-call/{agentId}",
-          path: "/voice-ai/call/create-trial-web-call/{agentId}",
+          url: "https://services.leadconnectorhq.com/voice-ai/call/create-trial-web-call/{voiceAiAgentId}",
+          path: "/voice-ai/call/create-trial-web-call/{voiceAiAgentId}",
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "write",
@@ -57426,7 +57497,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           tree: "documented",
           pathParams: [
             {
-              name: "agentId"
+              name: "voiceAiAgentId"
             }
           ],
           query: [],
@@ -57439,7 +57510,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:391"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:391",
+            "ai-agents/10-anatomy/flow-agent-shape.md:47"
           ]
         },
         {
@@ -58370,7 +58442,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:464"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:467"
           ]
         },
         {
@@ -168493,6 +168565,19 @@ var NAMESPACE_POLICY = Object.freeze({
   allow: /* @__PURE__ */ new Set(["{{location.id}}"])
 });
 var TOKEN = /\{\{\s*([A-Za-z_][\w-]*)((?:\.[^{}]*)?)\s*\}\}/g;
+var UNRESOLVED = "GHL cannot resolve it \u2014 in a contact-field value it renders EMPTY with no error (measured 2026-09-28); other steps unmeasured";
+var INVOICE_UNDEFINED_TAGS = new Set([
+  "company.address",
+  "company.city",
+  "company.state",
+  "company.website",
+  "company.logo",
+  "customer.company",
+  "customer.address",
+  "customer.city",
+  "customer.state",
+  "customer.postal_code"
+].map((k) => `{{invoice.${k}}}`));
 var compact = (s) => String(s ?? "").replace(/\s+/g, "");
 var split = (full) => {
   const m = /^\{\{([^.}]+)\.?(.*)\}\}$/.exec(full);
@@ -168626,29 +168711,41 @@ function evaluateMergeTags(templates, mergeTags, opts = {}) {
           });
           continue;
         }
+        if (INVOICE_UNDEFINED_TAGS.has(full)) {
+          out.push({
+            where,
+            kind: "renders-undefined",
+            severity: "warning",
+            ns,
+            tag: full,
+            suggestions: [],
+            msg: `${full} renders the literal word "undefined" when the invoice's business/customer has no such data (measured 2026-09-28). Wrap it: {{default ${full.slice(2, -2)} ""}}`
+          });
+          continue;
+        }
         if (P.ignore.has(ns) || P.ownedElsewhere.has(ns) || opts?.assetOutputs?.has?.(ns) || staticTags.has(full)) continue;
         const candidates = [...staticTags];
         const push = (severity, kind, msg) => out.push({ where, kind, severity, ns, tag: full, suggestions: suggestTags(full, candidates), msg });
         if (P.perLocation[ns]) {
           const vocab = perLocationVocabulary(ns, opts);
           if (vocab === null) {
-            push("warning", "unknown", `${full} is not a picker tag and this location's ${P.perLocation[ns]} were not fetched \u2014 unverifiable; it renders literally if the field does not exist`);
+            push("warning", "unknown", `${full} is not a picker tag and this location's ${P.perLocation[ns]} were not fetched \u2014 unverifiable; if the field does not exist, ${UNRESOLVED}`);
             continue;
           }
           if (vocab.has(full)) continue;
           candidates.push(...vocab);
-          push("error", "unknown", `${full} is not a picker tag and not one of this location's ${vocab.size} ${P.perLocation[ns]} \u2014 it will render literally`);
+          push("error", "unknown", `${full} is not a picker tag and not one of this location's ${vocab.size} ${P.perLocation[ns]} \u2014 ${UNRESOLVED}`);
           continue;
         }
         if (P.closed.has(ns)) {
-          push("error", "unknown", `${full} is not a picker variable in the closed namespace '${ns}' \u2014 it will render literally at runtime`);
+          push("error", "unknown", `${full} is not a picker variable in the closed namespace '${ns}' \u2014 ${UNRESOLVED}`);
           continue;
         }
         if (P.gated.has(ns)) {
-          push("warning", "unknown", `${full} is not a picker variable in '${ns}' (a trigger/action-gated menu) \u2014 it will render literally unless a matching trigger/action provides it`);
+          push("warning", "unknown", `${full} is not a picker variable in '${ns}' (a trigger/action-gated menu) \u2014 unless a matching trigger/action provides it, ${UNRESOLVED}`);
           continue;
         }
-        push("warning", "unknown-namespace", `${full} uses a namespace the picker does not list ('${ns}') \u2014 it will render literally`);
+        push("warning", "unknown-namespace", `${full} uses a namespace the picker does not list ('${ns}') \u2014 ${UNRESOLVED}`);
       }
     });
   }
@@ -168677,9 +168774,9 @@ function checkMergeTags(templates, catalog, ctx) {
   if (errors.length)
     throw new IRError(
       "MERGE_TAG_UNKNOWN",
-      `MERGE_TAG_UNKNOWN: ${errors.length} merge tag(s) GHL cannot resolve \u2014 each would render literally, render empty, or stop its step (the reason is on each line):
+      `MERGE_TAG_UNKNOWN: ${errors.length} merge tag(s) GHL cannot resolve \u2014 each fails silently (renders empty in a contact-field value, measured) or stops its step (the reason is on each line):
 ` + errors.map((f) => `  ${f.where}: ${f.msg}`).join("\n") + `
-Author tags from the picker inventory (search_merge_tags / catalog mergeTags), or pass strictMergeTags:false to demote to warnings.`
+Author tags from the picker inventory (search_merge_tags / catalog mergeTags), or pass strictMergeTags:false (build_workflow / edit_workflow) to demote to warnings.`
     );
   return F;
 }
@@ -175390,7 +175487,11 @@ async function orchestrate(ir, gw, opts = {}) {
       skipEnforcement: opts.skipEnforcement,
       // the caller's deliberate force-build: the opportunity name guard warns instead of throwing
       ignoreUnresolved: opts.ignoreUnresolved === true,
-      allowUnknownStepTypes: opts.allowUnknownStepTypes
+      allowUnknownStepTypes: opts.allowUnknownStepTypes,
+      // merge-tags.mjs hatches. MERGE_TAG_UNKNOWN names strictMergeTags:false as the remedy, and
+      // until wave10 neither reached this ctx, so the advice could not be followed.
+      strictMergeTags: opts.strictMergeTags,
+      skipMergeTagCheck: opts.skipMergeTagCheck
     });
   } catch (e) {
     if (e?.name === "IRError") {
@@ -185764,6 +185865,10 @@ var TOOLS2 = [
       // and save the REAL output; strict → a failing run aborts the build instead of warning.
       strictCustomCode: external_exports.boolean().default(false),
       skipCustomCodeTest: external_exports.boolean().default(false),
+      // merge-tags.mjs hatches: strictMergeTags:false demotes MERGE_TAG_UNKNOWN to warnings;
+      // skipMergeTagCheck:true skips the merge-tag check entirely.
+      strictMergeTags: external_exports.boolean().optional(),
+      skipMergeTagCheck: external_exports.boolean().optional(),
       // With spec.sampleWebhookPayload: POST the sample to each inbound_webhook trigger's receiving
       // URL and pin it as the reference so {{inboundWebhookRequest.*}} tags are real.
       // optional, NOT default(false): a default made this always false, so orchestrate's
@@ -185822,7 +185927,9 @@ var TOOLS2 = [
         strictCustomCode: args.strictCustomCode === true,
         skipCustomCodeTest: args.skipCustomCodeTest === true,
         pinWebhookSample: typeof args.pinWebhookSample === "boolean" ? args.pinWebhookSample : void 0,
-        allowValidationFailure: args.allowValidationFailure === true
+        allowValidationFailure: args.allowValidationFailure === true,
+        strictMergeTags: args.strictMergeTags === false ? false : void 0,
+        skipMergeTagCheck: args.skipMergeTagCheck === true
       });
       const data2 = buildWorkflowData(report, args.locationId);
       if (!report.aborted) return ok(data2);
@@ -185886,6 +185993,10 @@ var TOOLS2 = [
       // build_workflow: strict → a failing sandbox run refuses the edit instead of warning.
       strictCustomCode: external_exports.boolean().default(false),
       skipCustomCodeTest: external_exports.boolean().default(false),
+      // merge-tags.mjs hatches: strictMergeTags:false demotes MERGE_TAG_UNKNOWN to warnings;
+      // skipMergeTagCheck:true skips the merge-tag check entirely.
+      strictMergeTags: external_exports.boolean().optional(),
+      skipMergeTagCheck: external_exports.boolean().optional(),
       // Optimistic concurrency. The stale-read window is silent: the PUT carries the whole
       // templates array, so an edit authored against an old graph simply erases the newer one.
       expectedVersion: external_exports.number().int().positive().optional(),
@@ -186060,6 +186171,8 @@ var TOOLS2 = [
           marketplace,
           ...customFields !== void 0 ? { customFields } : {},
           ...customValues !== void 0 ? { customValues } : {},
+          ...args.strictMergeTags === false ? { strictMergeTags: false } : {},
+          ...args.skipMergeTagCheck === true ? { skipMergeTagCheck: true } : {},
           warn: (message) => warnings.push(message)
         };
         let editOps = args.ops;
