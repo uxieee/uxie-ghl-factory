@@ -200,7 +200,31 @@ export const makeColumn = ({ children, widthPct, padX = 20, salt }) => {
   return col;
 };
 
-export const makeSection = ({ columns, background = 'transparent', padY = 60, maxWidth = 1100, elementCss = '', pageId, funnelId, locationId, salt }) => {
+// Section knobs from the builder's General tab (UI-measured, knowledge sniffs/funnels-wave11-structure-styling-2026-09-28;
+// option values from the builder's section config): Sticky → extra.sticky, Width → class.width,
+// "Allow Rows to take entire width" → extra.allowRowMaxWidth plus the compiled `#<id>>.inner{max-width:100%}`.
+export const SECTION_STICKY = Object.freeze({ none: 'noneSticky', top: 'stickyTop', bottom: 'stickyBottom' });
+export const SECTION_WIDTH = Object.freeze({ full: 'fullSection', wide: 'wideSection', midWide: 'midWideSection', small: 'midSection' });
+// The builder's sectionStyle(): with rows allowed full width the inner is 100 %, otherwise 1170px. The builder
+// RECOMPILES this rule on every save, so a composed `maxWidth` other than 1170 lasts only until someone saves
+// the page in the builder.
+export const BUILDER_INNER_MAX_WIDTH = 1170;
+export const sectionInnerRule = (sid, { fullWidthRows, maxWidth }) => `#${sid}>.inner{max-width:${fullWidthRows ? '100%' : `${maxWidth}px`}}`;
+export function sectionKnobs({ sticky, width, fullWidthRows } = {}) {
+  const extra = {}; const cls = {};
+  if (sticky !== undefined) {
+    if (!SECTION_STICKY[sticky]) throw Object.assign(new Error(`section sticky must be one of ${Object.keys(SECTION_STICKY).join(', ')}`), { remediation: 'none = scrolls away; top/bottom = stays fixed to that edge while the page scrolls.' });
+    extra.sticky = val(SECTION_STICKY[sticky]);
+  }
+  if (width !== undefined) {
+    if (!SECTION_WIDTH[width]) throw Object.assign(new Error(`section width must be one of ${Object.keys(SECTION_WIDTH).join(', ')}`), { remediation: 'The builder\'s Width dropdown: Full, Wide, Mid Wide, Small.' });
+    cls.width = val(SECTION_WIDTH[width]);
+  }
+  if (fullWidthRows !== undefined) extra.allowRowMaxWidth = val(fullWidthRows === true);
+  return { extra, cls };
+}
+
+export const makeSection = ({ columns, background = 'transparent', padY = 60, maxWidth = 1100, elementCss = '', pageId, funnelId, locationId, salt, sticky, width, fullWidthRows }) => {
   // 🔴 COLUMN WIDTHS MUST FILL THE ROW. A column is `flex: 1 1 auto`, so the `width` compiled here
   // acts as a flex BASIS, not a fixed size: a row whose widths sum to less than 100 does not leave a
   // gap, it GROWS every column to fill. Two columns at 33.33% render at 50% each — the page looks
@@ -237,14 +261,16 @@ export const makeSection = ({ columns, background = 'transparent', padY = 60, ma
   const row = envelope(rid, 'row', 'row', 'c-row', { bgImage: BG_IMAGE },
     { paddingTop: px(0), paddingBottom: px(0), backgroundColor: val('transparent') });
   row.child = columns.map((c) => c.col.id);
+  const knobs = sectionKnobs({ sticky, width, fullWidthRows });
   const meta = envelope(sid, 'section', 'section', 'c-section',
-    { sticky: val('noneSticky'), bgImage: BG_IMAGE, allowRowMaxWidth: val(false) },
-    { backgroundColor: val(background), paddingTop: px(padY), paddingBottom: px(padY), paddingLeft: px(20), paddingRight: px(20) });
+    { sticky: val('noneSticky'), bgImage: BG_IMAGE, allowRowMaxWidth: val(false), ...knobs.extra },
+    { backgroundColor: val(background), paddingTop: px(padY), paddingBottom: px(padY), paddingLeft: px(20), paddingRight: px(20) },
+    knobs.cls);
   meta._id = sid; meta.child = [rid]; meta.isGlobal = false;
 
   const scaffold = [
     `${PREFIX} .${sid}{box-shadow:none;padding:${padY}px 20px;margin:0;background-color:${background};border:0}`,
-    `#${sid}>.inner{max-width:${maxWidth}px}`,
+    sectionInnerRule(sid, { fullWidthRows: fullWidthRows === true, maxWidth }),
     `${PREFIX} .${rid}{margin:0 auto;padding:0;width:100%;background-color:transparent;box-shadow:none;border:0}`,
     ...columns.map(({ col, widthPct }) => `${PREFIX} .${col.id}{padding:0 20px;width:${widthPct}%;margin:0;background-color:transparent;box-shadow:none;border:0}`
       + `#${col.id}>.inner{flex-direction:column;justify-content:center;align-items:inherit;flex-wrap:nowrap}`),

@@ -23,6 +23,8 @@ import {
 } from './funnel-ops.mjs';
 import { planCreateFunnel, createdId, EXPECT_TYPE, KINDS as FUNNEL_KINDS, STORE_DANGLING_FORM_NOTE, listAllDocuments } from './funnel-create.mjs';
 import { applyPageEdits, verifyEdits, checkPageTarget, pageDataForWrite, seoMeta, seoDiff } from './page-edit.mjs';
+import { entranceClass, hoverClass, entranceCss, hoverCss, ENTRANCE_METAS, HOVER_METAS, ENTRANCE_ANIMATIONS, HOVER_ANIMATIONS } from './page-animation.mjs';
+import { makePopup, popupRefProblems } from './page-popup.mjs';
 import { checkRecord, metaPost, recordDrift } from './page-seo.mjs';
 import { planCreate, planUpdate, planDelete, resolveTarget, listRedirects, statsBody, rowId, RESERVED_PREFIXES } from './redirects.mjs';
 import { collectWorkflowRuntimeWindow, validateRuntimeWindowInput } from './workflow-runtime-window.mjs';
@@ -1808,7 +1810,10 @@ const assertProjectLocation = async (api, projectId, locationId) => {
 // build_funnel_page EDIT MODE. Reads the page as stored, applies only the named ops (core/page-edit.mjs),
 // writes it back through the same autosave, and verifies each op by VALUE on a separate read. The target
 // check comes first: an in-place write to the wrong pageId answers 201 and silently replaces a page.
-async function editPage(args, deps, composeSection) {
+// The builder's autosave says whether the page carries popups (integrations.popup); ours says the same.
+const withPopupFlag = (env) => ({ ...env, integrations: { ...env.integrations, popup: (env.pageData?.popupsList ?? []).length > 0 } });
+
+async function editPage(args, deps, composeSection, { composeLeaf, popupIds } = {}) {
   if (!args.stepName) return fail(CODES.VALIDATION_FAILED, 'edit mode needs stepName', 'Pass the exact name of the step that owns pageId — it is the target check that stops a wrong pageId overwriting another page.');
   const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
   const { res, funnel } = await readFunnel(gw, args.locationId, args.funnelId);
@@ -1829,7 +1834,25 @@ async function editPage(args, deps, composeSection) {
   const salt = `E${Date.now().toString(36).toUpperCase()}`;
   let ops;
   try {
+    // The page's own popups, by name and id, then any this call appends — before the ops that may name them.
+    for (const p of current.popupsList ?? []) { const root = (p.elements ?? []).find((n) => n.id === p.id); popupIds?.set(root?.title ?? p.id, p.id); popupIds?.set(p.id, p.id); }
+    const builtPopups = new Map();
+    (args.edits ?? []).forEach((e, i) => {
+      if (e.op !== 'append-popup') return;
+      if (!e.popup) throw new Error(`edits[${i}]: append-popup needs \`popup\` (the same shape as popups[i])`);
+      if (popupIds.has(e.popup.name)) throw new Error(`edits[${i}]: this page already has a popup named "${e.popup.name}"`);
+      const built = makePopup(e.popup, i, composeLeaf, `${salt}P`, `edits[${i}].popup`);
+      popupIds.set(built.name, built.entry.id);
+      builtPopups.set(i, built);
+    });
     ops = (args.edits ?? []).map((e, i) => {
+      if (e.op === 'append-popup') return { op: 'append-popup', popup: builtPopups.get(i) };
+      if (e.op === 'set' && e.openPopup !== undefined) {
+        const pid = popupIds.get(e.openPopup);
+        if (!pid) throw new Error(`edits[${i}]: openPopup "${e.openPopup}" names no popup on this page (${[...popupIds.keys()].filter((k) => !k.startsWith('hl_main_popup-')).join(', ') || 'it has none'})`);
+        const { openPopup, ...rest } = e;
+        return { ...rest, extra: { ...(e.extra ?? {}), action: { value: 'openPopup' }, popupId: { value: pid } } };
+      }
       if (e.op === 'append-section') {
         if (!e.section) throw new Error(`edits[${i}]: append-section needs \`section\` (the same shape as sections[i])`);
         return { op: 'append-section', section: composeSection(e.section, i, salt) };
@@ -1843,6 +1866,12 @@ async function editPage(args, deps, composeSection) {
   }
   const { pageData: edited, report, errors } = applyPageEdits(current, ops, { compileStyles: (id, _meta, styles) => leafStyleCss(id, styles) });
   if (errors.length) return withFailureData(fail(CODES.VALIDATION_FAILED, `${errors.length} edit(s) could not be applied; nothing was written`, 'data.report names each refused op.'), { report });
+  // An openPopup this call wrote must name a popup the page has (a dangling one does nothing on click).
+  const touched = new Set([...report.filter((r) => r.op === 'set').map((r) => r.nodeId),
+    ...edited.sections.filter((sec) => report.some((r) => r.op === 'append-section' && r.sectionId === sec.id)).flatMap((sec) => sec.elements.map((n) => n.id)),
+    ...(edited.popupsList ?? []).filter((p) => report.some((r) => r.op === 'append-popup' && r.popupId === p.id)).flatMap((p) => p.elements.map((n) => n.id))]);
+  const refs = popupRefProblems(edited, touched);
+  if (refs.length) return withFailureData(fail(CODES.VALIDATION_FAILED, `openPopup names a popup this page does not have; nothing was written: ${refs.join('; ')}`, 'Add the popup (append-popup) in the same call, or name one of the page\'s popups.'), { report });
   // buildPageData() is what wraps new nodes with their canonical `element` copy; run the appended
   // sections through it, and keep the stored sections exactly as read.
   const pageData = { ...edited, sections: edited.sections.map((sec, i) => (report.some((r) => r.op === 'append-section' && r.sectionId === sec.id)
@@ -1886,7 +1915,7 @@ async function editPage(args, deps, composeSection) {
     if (!w.ok) return withFailureData(fromHttp(w.status, w.json), { note: 'nothing was written: the page-record SEO write was refused, so the autosave was not sent' });
   }
   const saved = await gw.call('POST', `/funnels/builder/autosave/${encodeURIComponent(args.pageId)}`,
-    { ...autosaveEnvelope({ funnelId: args.funnelId, pageData, pageVersion: args.pageVersion }), meta: seo ? seo.write : keepMeta });
+    { ...withPopupFlag(autosaveEnvelope({ funnelId: args.funnelId, pageData, pageVersion: args.pageVersion })), meta: seo ? seo.write : keepMeta });
   if (!saved.ok) return fromHttp(saved.status, saved.json);
   if (seo) {
     const seoRead = await reread(
@@ -10544,19 +10573,40 @@ export const TOOLS = [
       + 'written back as read, and each op is verified by VALUE on a separate read. Get node ids from the '
       + 'page data (GET /funnels/builder/page/data?pageId=). Not here, done in the builder: schema markup (SEO '
       + 'panel → Schema markup; its own object), the autosave on/off switch (browser-local; every write here is '
-      + 'one autosave). Visitor geo-location is a runtime lookup with nothing to set.',
+      + 'one autosave). Visitor geo-location is a runtime lookup with nothing to set. '
+      + 'STRUCTURE + MOTION: a section spec takes sticky (none|top|bottom), width (full|wide|midWide|small) and '
+      + 'fullWidthRows (not with maxWidth) — in edit mode `set` on the section id takes those three; an element spec '
+      + '(or `set`) takes entranceAnimation {name, duration, delay, scale, easing} (heading, sub-heading, paragraph, '
+      + 'rich-text, bulletList, button, image) and, on a button, hoverAnimation {name, duration, delay, easing + the '
+      + 'effect\'s knob: scale | angle | distance | borderThickness | blur, spread}; the class knobs AND the builder\'s '
+      + 'compiled rules are written (byte-equal to a builder save). `popups` [{name, width full|medium|small, showOn '
+      + "'exit'|'none'|{delay}, closeOnOutsideClick, position, background, columns}] (edit mode: append-popup) and an "
+      + 'element\'s openPopup: "<popup name>" wire a button to one. Refused: an EMPTY popup (GHL never renders it) and '
+      + 'an openPopup naming a popup the page lacks. TRAP: the builder\'s first save of an API-composed page adds an '
+      + 'empty popup, and opening an empty-action button\'s General tab rewrites it to openPopup on that popup — '
+      + 're-read buttons after a builder session. Not here, done in the builder: button theme presets (set styles '
+      + 'directly; a theme\'s radius class loses to the compiled rule), brand-palette colours (write literals), column '
+      + 'layout knobs, saved section/element templates and global/universal sections (drag-inserted).',
     inputSchema: schema({
       locationId: z.string(),
       funnelId: z.string(),
       pageId: z.string(),
       stepId: z.string(),
       sections: z.array(z.record(z.any())).min(1).optional(),
+      popups: z.array(z.record(z.any())).optional(),
       edits: z.array(z.object({
-        op: z.enum(['set', 'append-section', 'remove-node', 'page']),
+        op: z.enum(['set', 'append-section', 'append-popup', 'remove-node', 'page']),
         nodeId: z.string().optional(),
         extra: z.record(z.any()).optional(),
         styles: z.record(z.any()).optional(),
+        entranceAnimation: z.object({ name: z.enum(ENTRANCE_ANIMATIONS), duration: z.number().positive().optional(), delay: z.number().min(0).optional(), scale: z.number().positive().optional(), easing: z.enum(['linear', 'ease-in', 'ease-out', 'ease-in-out']).optional() }).optional(),
+        hoverAnimation: z.object({ name: z.enum(HOVER_ANIMATIONS) }).passthrough().optional(),
+        openPopup: z.string().optional(),
+        sticky: z.enum(['none', 'top', 'bottom']).optional(),
+        width: z.enum(['full', 'wide', 'midWide', 'small']).optional(),
+        fullWidthRows: z.boolean().optional(),
         section: z.record(z.any()).optional(),
+        popup: z.record(z.any()).optional(),
         trackingCode: z.object({ headerCode: z.string().optional(), footerCode: z.string().optional() }).optional(),
         customCss: z.string().optional(),
         background: z.object({ imageUrl: z.string().optional(), imageOptions: z.string().optional(), color: z.string().optional() }).optional(),
@@ -10584,26 +10634,53 @@ export const TOOLS = [
     ],
     handler: async (args, deps) => guard(async () => {
       resetIds();
+      // Popup names → ids, filled as popups are built (compose: args.popups; edit: the page's own and any
+      // append-popup), so a button's `openPopup: "<name>"` resolves to the popup it names.
+      const popupIds = new Map();
+      // One leaf composer for sections and popups alike: node + the compiled rules the public page serves.
+      const composeLeaf = (e, salt) => {
+        let cls = {};
+        if (e.entranceAnimation) {
+          if (!ENTRANCE_METAS.includes(e.meta)) throw new Error(`entranceAnimation: the builder offers it on ${ENTRANCE_METAS.join(', ')} — not on ${e.meta}`);
+          cls = { ...cls, ...entranceClass(e.entranceAnimation) };
+        }
+        if (e.hoverAnimation) {
+          if (!HOVER_METAS.includes(e.meta)) throw new Error(`hoverAnimation: the builder offers it on buttons only — not on ${e.meta}`);
+          cls = { ...cls, ...hoverClass(e.hoverAnimation) };
+        }
+        let extra = { ...(e.html !== undefined ? { text: val(e.html) } : {}), ...(e.extra ?? {}) };
+        if (e.openPopup !== undefined) {
+          const pid = popupIds.get(e.openPopup) ?? ([...popupIds.values()].includes(e.openPopup) ? e.openPopup : null);
+          if (!pid) throw Object.assign(new Error(`openPopup "${e.openPopup}" names no popup on this page (${[...popupIds.keys()].join(', ') || 'it has none'})`), { remediation: 'Name a popup from `popups` (or an append-popup in the same call) by its name.' });
+          extra = { ...extra, action: val('openPopup'), popupId: val(pid) };
+        }
+        const leaf = makeLeaf({
+          meta: e.meta,
+          extra,
+          // A `css` block also yields the node styles it implies, so the builder canvas and the
+          // public render agree (bl-120); an authored `styles` key always wins.
+          styles: { ...(e.css ? nodeStylesFromCss(e.meta, e.css) : {}), ...(e.styles ?? {}) },
+          cls,
+          tag: e.tag ?? '',
+          salt,
+        });
+        // An explicit `css` block wins — it can express breakpoints, descendant selectors and
+        // pseudo-states that a flat style map cannot. Otherwise the leaf's `styles` are
+        // COMPILED, so styling set through `styles` alone reaches the public renderer instead
+        // of living only on the builder canvas. See leafStyleCss for what that used to cost.
+        let css = e.css ? (e.meta === 'button' ? buttonCss(leaf.id, e.css) : textCss(leaf.id, e.css)) : leafStyleCss(leaf.id, e.styles);
+        // Animations: the builder's own compiled rules, byte for byte (core/page-animation.mjs).
+        css += entranceCss(leaf.id, leaf.class) + hoverCss(leaf.id, leaf.class);
+        return { leaf, css };
+      };
       // One composer for both modes: a section spec → a section node tree with its compiled stylesheet.
       const composeSection = (spec, si, saltBase = 'S') => {
+        if (spec.fullWidthRows === true && spec.maxWidth !== undefined) throw Object.assign(new Error('a section takes fullWidthRows OR maxWidth, not both: fullWidthRows makes the rows\' container 100% wide'), { remediation: 'Drop one of them.' });
         const css = [];
         const columns = (spec.columns ?? []).map((c, ci) => {
           const leaves = (c.elements ?? []).map((e) => {
-            const leaf = makeLeaf({
-              meta: e.meta,
-              extra: { ...(e.html !== undefined ? { text: val(e.html) } : {}), ...(e.extra ?? {}) },
-              // A `css` block also yields the node styles it implies, so the builder canvas and the
-              // public render agree (bl-120); an authored `styles` key always wins.
-              styles: { ...(e.css ? nodeStylesFromCss(e.meta, e.css) : {}), ...(e.styles ?? {}) },
-              tag: e.tag ?? '',
-              salt: `${saltBase}${si}C${ci}`,
-            });
-            // An explicit `css` block wins — it can express breakpoints, descendant selectors and
-            // pseudo-states that a flat style map cannot. Otherwise the leaf's `styles` are
-            // COMPILED, so styling set through `styles` alone reaches the public renderer instead
-            // of living only on the builder canvas. See leafStyleCss for what that used to cost.
-            if (e.css) css.push(e.meta === 'button' ? buttonCss(leaf.id, e.css) : textCss(leaf.id, e.css));
-            else { const auto = leafStyleCss(leaf.id, e.styles); if (auto) css.push(auto); }
+            const { leaf, css: lc } = composeLeaf(e, `${saltBase}${si}C${ci}`);
+            if (lc) css.push(lc);
             return leaf;
           });
           const widthPct = c.widthPct ?? Math.round(10000 / (spec.columns.length || 1)) / 100;
@@ -10612,18 +10689,29 @@ export const TOOLS = [
         return makeSection({
           columns, background: spec.background ?? 'transparent', padY: spec.padY ?? 60,
           maxWidth: spec.maxWidth ?? 1100, elementCss: css.join(''),
+          sticky: spec.sticky, width: spec.width, fullWidthRows: spec.fullWidthRows,
           pageId: args.pageId, funnelId: args.funnelId, locationId: args.locationId, salt: `${saltBase}${si}`,
         });
       };
-      if (args.edits || args.seo) return editPage(args, deps, composeSection);
+      if (args.edits || args.seo) return editPage(args, deps, composeSection, { composeLeaf, popupIds });
       if (!args.sections) return fail(CODES.VALIDATION_FAILED, 'pass `sections` (compose a whole page) or `edits` + `stepName` (change an existing page in place)', 'See the tool description for both shapes.');
       let pageData;
       try {
+        // Popups first, so buttons in the sections can name them.
+        const popups = (args.popups ?? []).map((spec, pi) => {
+          if (popupIds.has(spec?.name)) throw new Error(`two popups are named "${spec.name}"; openPopup names a popup by its name`);
+          const built = makePopup(spec, pi, composeLeaf);
+          popupIds.set(built.name, built.entry.id);
+          return built;
+        });
         const sections = args.sections.map((spec, si) => composeSection(spec, si));
         pageData = buildPageData({
           pageId: args.pageId, stepId: args.stepId, funnelId: args.funnelId, locationId: args.locationId,
-          sections, pageStyles: args.pageStyles ?? '', fonts: args.fonts, colors: args.colors,
+          sections, pageStyles: `${args.pageStyles ?? ''}${popups.map((p) => p.css).join('')}`, fonts: args.fonts, colors: args.colors,
         });
+        pageData.popupsList = popups.map((p) => p.entry);
+        const refs = popupRefProblems(pageData);
+        if (refs.length) throw Object.assign(new Error(refs.join('; ')), { remediation: 'A button whose action is openPopup must name a popup on this page — use `openPopup: "<popup name>"` on the element.' });
       } catch (e) {
         // A thrown composer error may carry its own remediation; the default below is only right for
         // the element-kind failure, and was misleading on every other one.
@@ -10672,7 +10760,7 @@ export const TOOLS = [
           'Retry; or write without publish:true and publish from the builder, which sends its own meta.');
       }
       const saved = await gw.call('POST', `/funnels/builder/autosave/${encodeURIComponent(args.pageId)}`,
-        { ...autosaveEnvelope({ funnelId: args.funnelId, pageData, pageVersion: args.pageVersion }), ...(recMeta?.ok ? { meta: seoMeta(recMeta.json?.meta ?? {}, {}) } : {}) });
+        { ...withPopupFlag(autosaveEnvelope({ funnelId: args.funnelId, pageData, pageVersion: args.pageVersion })), ...(recMeta?.ok ? { meta: seoMeta(recMeta.json?.meta ?? {}, {}) } : {}) });
       if (!saved.ok) return fromHttp(saved.status, saved.json);
 
       // Read back on a SEPARATE request. A 201 from autosave proves the request parsed, nothing more.
