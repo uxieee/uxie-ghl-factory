@@ -145,6 +145,13 @@ counting:
 - the Minute Timer is evergreen per visitor.
 The expire action is `url` (+ `redirectUrl`) or `hide` (+ `hideElements` / `showElements`, node ids).
 
+**Customer Access Center** (`nav-menu-v2` on a store): pass `extra.enableCustomerLogin {value: true}` and
+`extra.cacItems {value: [...]}`. The builder's own two items are My Orders (`goTo: "go-to-cac"`, `goToCacPage:
+"orders" | "wishlist"`) and Logout (`goTo: "logout"`). They are the only place those two actions exist: the
+builder's item editor never offers them. In public the items show only to a LOGGED-IN store customer. Everyone
+else gets a user icon linking to the store's `/store-product-list/store/account/login`, which is Turnstile-gated.
+It needs a domain whose default page is a store page.
+
 **Upsell** (`upsell` leaf): `extra.productDetails` is a RAW snapshot of a CATALOGUE product (`{_id, name, amount,
 currency, hasVariants, label, value: <product id>, …}`), not a step product. It renders every price of that product, with
 `saleAction` as for order forms. The purchase itself charges a card saved by an earlier order in the funnel.
