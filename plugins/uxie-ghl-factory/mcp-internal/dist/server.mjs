@@ -64881,9 +64881,9 @@ var init_define_TOOL_CATALOG = __esm({
   }
 });
 
-// node_modules/ajv/dist/compile/codegen/code.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/codegen/code.js
 var require_code = __commonJS({
-  "node_modules/ajv/dist/compile/codegen/code.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/codegen/code.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -65041,9 +65041,9 @@ var require_code = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/codegen/scope.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/codegen/scope.js
 var require_scope = __commonJS({
-  "node_modules/ajv/dist/compile/codegen/scope.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/codegen/scope.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -65192,9 +65192,9 @@ var require_scope = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/codegen/index.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/codegen/index.js
 var require_codegen = __commonJS({
-  "node_modules/ajv/dist/compile/codegen/index.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/codegen/index.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -65918,9 +65918,9 @@ var require_codegen = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/util.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/util.js
 var require_util = __commonJS({
-  "node_modules/ajv/dist/compile/util.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/util.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -66091,9 +66091,9 @@ var require_util = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/names.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/names.js
 var require_names = __commonJS({
-  "node_modules/ajv/dist/compile/names.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/names.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -66136,9 +66136,9 @@ var require_names = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/errors.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/errors.js
 var require_errors = __commonJS({
-  "node_modules/ajv/dist/compile/errors.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/errors.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -66264,9 +66264,9 @@ var require_errors = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/validate/boolSchema.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/validate/boolSchema.js
 var require_boolSchema = __commonJS({
-  "node_modules/ajv/dist/compile/validate/boolSchema.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/validate/boolSchema.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -66321,9 +66321,9 @@ var require_boolSchema = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/rules.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/rules.js
 var require_rules = __commonJS({
-  "node_modules/ajv/dist/compile/rules.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/rules.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -66358,9 +66358,9 @@ var require_rules = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/validate/applicability.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/validate/applicability.js
 var require_applicability = __commonJS({
-  "node_modules/ajv/dist/compile/validate/applicability.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/validate/applicability.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -66387,9 +66387,9 @@ var require_applicability = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/validate/dataType.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/validate/dataType.js
 var require_dataType = __commonJS({
-  "node_modules/ajv/dist/compile/validate/dataType.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/validate/dataType.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -66577,9 +66577,9 @@ var require_dataType = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/validate/defaults.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/validate/defaults.js
 var require_defaults = __commonJS({
-  "node_modules/ajv/dist/compile/validate/defaults.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/validate/defaults.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -66620,9 +66620,9 @@ var require_defaults = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/code.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/code.js
 var require_code2 = __commonJS({
-  "node_modules/ajv/dist/vocabularies/code.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/code.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -66759,9 +66759,9 @@ var require_code2 = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/validate/keyword.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/validate/keyword.js
 var require_keyword = __commonJS({
-  "node_modules/ajv/dist/compile/validate/keyword.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/validate/keyword.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -66883,9 +66883,9 @@ var require_keyword = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/validate/subschema.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/validate/subschema.js
 var require_subschema = __commonJS({
-  "node_modules/ajv/dist/compile/validate/subschema.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/validate/subschema.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -66972,9 +66972,9 @@ var require_subschema = __commonJS({
   }
 });
 
-// node_modules/fast-deep-equal/index.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/fast-deep-equal/index.js
 var require_fast_deep_equal = __commonJS({
-  "node_modules/fast-deep-equal/index.js"(exports, module) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/fast-deep-equal/index.js"(exports, module) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -67013,9 +67013,9 @@ var require_fast_deep_equal = __commonJS({
   }
 });
 
-// node_modules/json-schema-traverse/index.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/json-schema-traverse/index.js
 var require_json_schema_traverse = __commonJS({
-  "node_modules/json-schema-traverse/index.js"(exports, module) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/json-schema-traverse/index.js"(exports, module) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -67107,9 +67107,9 @@ var require_json_schema_traverse = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/resolve.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/resolve.js
 var require_resolve = __commonJS({
-  "node_modules/ajv/dist/compile/resolve.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/resolve.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -67269,9 +67269,9 @@ var require_resolve = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/validate/index.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/validate/index.js
 var require_validate = __commonJS({
-  "node_modules/ajv/dist/compile/validate/index.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/validate/index.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -67783,9 +67783,9 @@ var require_validate = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/runtime/validation_error.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/runtime/validation_error.js
 var require_validation_error = __commonJS({
-  "node_modules/ajv/dist/runtime/validation_error.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/runtime/validation_error.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -67805,9 +67805,9 @@ var require_validation_error = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/ref_error.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/ref_error.js
 var require_ref_error = __commonJS({
-  "node_modules/ajv/dist/compile/ref_error.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/ref_error.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -67828,9 +67828,9 @@ var require_ref_error = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/index.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/index.js
 var require_compile = __commonJS({
-  "node_modules/ajv/dist/compile/index.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/index.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -68058,9 +68058,9 @@ var require_compile = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/refs/data.json
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/refs/data.json
 var require_data = __commonJS({
-  "node_modules/ajv/dist/refs/data.json"(exports, module) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/refs/data.json"(exports, module) {
     module.exports = {
       $id: "https://raw.githubusercontent.com/ajv-validator/ajv/master/lib/refs/data.json#",
       description: "Meta-schema for $data reference (JSON AnySchema extension proposal)",
@@ -68077,9 +68077,9 @@ var require_data = __commonJS({
   }
 });
 
-// node_modules/fast-uri/lib/utils.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/fast-uri/lib/utils.js
 var require_utils = __commonJS({
-  "node_modules/fast-uri/lib/utils.js"(exports, module) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/fast-uri/lib/utils.js"(exports, module) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -68396,9 +68396,9 @@ var require_utils = __commonJS({
   }
 });
 
-// node_modules/fast-uri/lib/schemes.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/fast-uri/lib/schemes.js
 var require_schemes = __commonJS({
-  "node_modules/fast-uri/lib/schemes.js"(exports, module) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/fast-uri/lib/schemes.js"(exports, module) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -68612,9 +68612,9 @@ var require_schemes = __commonJS({
   }
 });
 
-// node_modules/fast-uri/index.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/fast-uri/index.js
 var require_fast_uri = __commonJS({
-  "node_modules/fast-uri/index.js"(exports, module) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/fast-uri/index.js"(exports, module) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -68910,9 +68910,9 @@ var require_fast_uri = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/runtime/uri.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/runtime/uri.js
 var require_uri = __commonJS({
-  "node_modules/ajv/dist/runtime/uri.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/runtime/uri.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -68927,9 +68927,9 @@ var require_uri = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/core.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/core.js
 var require_core = __commonJS({
-  "node_modules/ajv/dist/core.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/core.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -69544,9 +69544,9 @@ var require_core = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/core/id.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/core/id.js
 var require_id = __commonJS({
-  "node_modules/ajv/dist/vocabularies/core/id.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/core/id.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -69565,9 +69565,9 @@ var require_id = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/core/ref.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/core/ref.js
 var require_ref = __commonJS({
-  "node_modules/ajv/dist/vocabularies/core/ref.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/core/ref.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -69693,9 +69693,9 @@ var require_ref = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/core/index.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/core/index.js
 var require_core2 = __commonJS({
-  "node_modules/ajv/dist/vocabularies/core/index.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/core/index.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -69720,9 +69720,9 @@ var require_core2 = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/validation/limitNumber.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/limitNumber.js
 var require_limitNumber = __commonJS({
-  "node_modules/ajv/dist/vocabularies/validation/limitNumber.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/limitNumber.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -69758,9 +69758,9 @@ var require_limitNumber = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/validation/multipleOf.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/multipleOf.js
 var require_multipleOf = __commonJS({
-  "node_modules/ajv/dist/vocabularies/validation/multipleOf.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/multipleOf.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -69792,9 +69792,9 @@ var require_multipleOf = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/runtime/ucs2length.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/runtime/ucs2length.js
 var require_ucs2length = __commonJS({
-  "node_modules/ajv/dist/runtime/ucs2length.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/runtime/ucs2length.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -69824,9 +69824,9 @@ var require_ucs2length = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/validation/limitLength.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/limitLength.js
 var require_limitLength = __commonJS({
-  "node_modules/ajv/dist/vocabularies/validation/limitLength.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/limitLength.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -69862,9 +69862,9 @@ var require_limitLength = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/validation/pattern.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/pattern.js
 var require_pattern = __commonJS({
-  "node_modules/ajv/dist/vocabularies/validation/pattern.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/pattern.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -69905,9 +69905,9 @@ var require_pattern = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/validation/limitProperties.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/limitProperties.js
 var require_limitProperties = __commonJS({
-  "node_modules/ajv/dist/vocabularies/validation/limitProperties.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/limitProperties.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -69940,9 +69940,9 @@ var require_limitProperties = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/validation/required.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/required.js
 var require_required = __commonJS({
-  "node_modules/ajv/dist/vocabularies/validation/required.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/required.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -70028,9 +70028,9 @@ var require_required = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/validation/limitItems.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/limitItems.js
 var require_limitItems = __commonJS({
-  "node_modules/ajv/dist/vocabularies/validation/limitItems.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/limitItems.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -70063,9 +70063,9 @@ var require_limitItems = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/runtime/equal.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/runtime/equal.js
 var require_equal = __commonJS({
-  "node_modules/ajv/dist/runtime/equal.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/runtime/equal.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -70080,9 +70080,9 @@ var require_equal = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/validation/uniqueItems.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/uniqueItems.js
 var require_uniqueItems = __commonJS({
-  "node_modules/ajv/dist/vocabularies/validation/uniqueItems.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/uniqueItems.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -70153,9 +70153,9 @@ var require_uniqueItems = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/validation/const.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/const.js
 var require_const = __commonJS({
-  "node_modules/ajv/dist/vocabularies/validation/const.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/const.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -70188,9 +70188,9 @@ var require_const = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/validation/enum.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/enum.js
 var require_enum = __commonJS({
-  "node_modules/ajv/dist/vocabularies/validation/enum.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/enum.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -70243,9 +70243,9 @@ var require_enum = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/validation/index.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/index.js
 var require_validation = __commonJS({
-  "node_modules/ajv/dist/vocabularies/validation/index.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/index.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -70287,9 +70287,9 @@ var require_validation = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/additionalItems.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/additionalItems.js
 var require_additionalItems = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/additionalItems.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/additionalItems.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -70346,9 +70346,9 @@ var require_additionalItems = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/items.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/items.js
 var require_items = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/items.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/items.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -70409,9 +70409,9 @@ var require_items = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/prefixItems.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/prefixItems.js
 var require_prefixItems = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/prefixItems.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/prefixItems.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -70432,9 +70432,9 @@ var require_prefixItems = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/items2020.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/items2020.js
 var require_items2020 = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/items2020.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/items2020.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -70473,9 +70473,9 @@ var require_items2020 = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/contains.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/contains.js
 var require_contains = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/contains.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/contains.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -70573,9 +70573,9 @@ var require_contains = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/dependencies.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/dependencies.js
 var require_dependencies = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/dependencies.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/dependencies.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -70673,9 +70673,9 @@ var require_dependencies = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/propertyNames.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/propertyNames.js
 var require_propertyNames = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/propertyNames.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/propertyNames.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -70722,9 +70722,9 @@ var require_propertyNames = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/additionalProperties.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/additionalProperties.js
 var require_additionalProperties = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/additionalProperties.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/additionalProperties.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -70834,9 +70834,9 @@ var require_additionalProperties = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/properties.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/properties.js
 var require_properties = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/properties.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/properties.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -70898,9 +70898,9 @@ var require_properties = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/patternProperties.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/patternProperties.js
 var require_patternProperties = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/patternProperties.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/patternProperties.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -70978,9 +70978,9 @@ var require_patternProperties = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/not.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/not.js
 var require_not = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/not.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/not.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -71015,9 +71015,9 @@ var require_not = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/anyOf.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/anyOf.js
 var require_anyOf = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/anyOf.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/anyOf.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -71038,9 +71038,9 @@ var require_anyOf = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/oneOf.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/oneOf.js
 var require_oneOf = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/oneOf.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/oneOf.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -71102,9 +71102,9 @@ var require_oneOf = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/allOf.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/allOf.js
 var require_allOf = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/allOf.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/allOf.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -71135,9 +71135,9 @@ var require_allOf = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/if.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/if.js
 var require_if = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/if.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/if.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -71210,9 +71210,9 @@ var require_if = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/thenElse.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/thenElse.js
 var require_thenElse = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/thenElse.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/thenElse.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -71234,9 +71234,9 @@ var require_thenElse = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/index.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/index.js
 var require_applicator = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/index.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/index.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -71288,9 +71288,9 @@ var require_applicator = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/format/format.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/format/format.js
 var require_format = __commonJS({
-  "node_modules/ajv/dist/vocabularies/format/format.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/format/format.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -71384,9 +71384,9 @@ var require_format = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/format/index.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/format/index.js
 var require_format2 = __commonJS({
-  "node_modules/ajv/dist/vocabularies/format/index.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/format/index.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -71401,9 +71401,9 @@ var require_format2 = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/metadata.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/metadata.js
 var require_metadata = __commonJS({
-  "node_modules/ajv/dist/vocabularies/metadata.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/metadata.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -71430,9 +71430,9 @@ var require_metadata = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/draft7.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/draft7.js
 var require_draft7 = __commonJS({
-  "node_modules/ajv/dist/vocabularies/draft7.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/draft7.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -71458,9 +71458,9 @@ var require_draft7 = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/discriminator/types.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/discriminator/types.js
 var require_types = __commonJS({
-  "node_modules/ajv/dist/vocabularies/discriminator/types.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/discriminator/types.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -71478,9 +71478,9 @@ var require_types = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/discriminator/index.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/discriminator/index.js
 var require_discriminator = __commonJS({
-  "node_modules/ajv/dist/vocabularies/discriminator/index.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/discriminator/index.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -71589,9 +71589,9 @@ var require_discriminator = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/refs/json-schema-draft-07.json
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/refs/json-schema-draft-07.json
 var require_json_schema_draft_07 = __commonJS({
-  "node_modules/ajv/dist/refs/json-schema-draft-07.json"(exports, module) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/refs/json-schema-draft-07.json"(exports, module) {
     module.exports = {
       $schema: "http://json-schema.org/draft-07/schema#",
       $id: "http://json-schema.org/draft-07/schema#",
@@ -71746,9 +71746,9 @@ var require_json_schema_draft_07 = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/ajv.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/ajv.js
 var require_ajv = __commonJS({
-  "node_modules/ajv/dist/ajv.js"(exports, module) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/ajv.js"(exports, module) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -71822,9 +71822,9 @@ var require_ajv = __commonJS({
   }
 });
 
-// node_modules/ajv-formats/dist/formats.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv-formats/dist/formats.js
 var require_formats = __commonJS({
-  "node_modules/ajv-formats/dist/formats.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv-formats/dist/formats.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -72031,9 +72031,9 @@ var require_formats = __commonJS({
   }
 });
 
-// node_modules/ajv-formats/dist/limit.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv-formats/dist/limit.js
 var require_limit = __commonJS({
-  "node_modules/ajv-formats/dist/limit.js"(exports) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv-formats/dist/limit.js"(exports) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -72109,9 +72109,9 @@ var require_limit = __commonJS({
   }
 });
 
-// node_modules/ajv-formats/dist/index.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv-formats/dist/index.js
 var require_dist = __commonJS({
-  "node_modules/ajv-formats/dist/index.js"(exports, module) {
+  "../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv-formats/dist/index.js"(exports, module) {
     "use strict";
     init_define_BUILDER_VALIDATORS();
     init_define_CONTACT_FILTER_FIELDS();
@@ -72165,7 +72165,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/server/mcp.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/server/mcp.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -72173,7 +72173,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/server/index.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/server/index.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -72181,7 +72181,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -72189,7 +72189,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-compat.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-compat.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -72197,7 +72197,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v3/errors.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v3/errors.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -72205,7 +72205,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v3/locales/en.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v3/locales/en.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -72213,7 +72213,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v3/ZodError.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v3/ZodError.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -72221,7 +72221,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v3/helpers/util.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v3/helpers/util.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -72361,7 +72361,7 @@ var getParsedType = (data2) => {
   }
 };
 
-// node_modules/zod/v3/ZodError.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v3/ZodError.js
 var ZodIssueCode = util.arrayToEnum([
   "invalid_type",
   "invalid_literal",
@@ -72475,7 +72475,7 @@ ZodError.create = (issues) => {
   return error51;
 };
 
-// node_modules/zod/v3/locales/en.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v3/locales/en.js
 var errorMap = (issue2, _ctx) => {
   let message;
   switch (issue2.code) {
@@ -72578,13 +72578,13 @@ var errorMap = (issue2, _ctx) => {
 };
 var en_default = errorMap;
 
-// node_modules/zod/v3/errors.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v3/errors.js
 var overrideErrorMap = en_default;
 function getErrorMap() {
   return overrideErrorMap;
 }
 
-// node_modules/zod/v3/helpers/parseUtil.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v3/helpers/parseUtil.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -72699,7 +72699,7 @@ var isDirty = (x) => x.status === "dirty";
 var isValid = (x) => x.status === "valid";
 var isAsync = (x) => typeof Promise !== "undefined" && x instanceof Promise;
 
-// node_modules/zod/v3/types.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v3/types.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -72707,7 +72707,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v3/helpers/errorUtil.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v3/helpers/errorUtil.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -72720,7 +72720,7 @@ var errorUtil;
   errorUtil2.toString = (message) => typeof message === "string" ? message : message?.message;
 })(errorUtil || (errorUtil = {}));
 
-// node_modules/zod/v3/types.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v3/types.js
 var ParseInputLazyPath = class {
   constructor(parent, value, path, key) {
     this._cachedPath = [];
@@ -76123,7 +76123,7 @@ var nullableType = ZodNullable.create;
 var preprocessType = ZodEffects.createWithPreprocess;
 var pipelineType = ZodPipeline.create;
 
-// node_modules/zod/v4/mini/external.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/mini/external.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -76131,7 +76131,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v4/core/index.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/index.js
 var core_exports2 = {};
 __export(core_exports2, {
   $ZodAny: () => $ZodAny,
@@ -76416,7 +76416,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v4/core/core.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/core.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -76499,7 +76499,7 @@ function config(newConfig) {
   return globalConfig;
 }
 
-// node_modules/zod/v4/core/parse.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/parse.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -76507,7 +76507,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v4/core/errors.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/errors.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -76515,7 +76515,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v4/core/util.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/util.js
 var util_exports = {};
 __export(util_exports, {
   BIGINT_FORMAT_RANGES: () => BIGINT_FORMAT_RANGES,
@@ -77217,7 +77217,7 @@ var Class = class {
   }
 };
 
-// node_modules/zod/v4/core/errors.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/errors.js
 var initializer = (inst, def) => {
   inst.name = "$ZodError";
   Object.defineProperty(inst, "_zod", {
@@ -77356,7 +77356,7 @@ function prettifyError(error51) {
   return lines.join("\n");
 }
 
-// node_modules/zod/v4/core/parse.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/parse.js
 var _parse = (_Err) => (schema2, value, _ctx, _params) => {
   const ctx = _ctx ? { ..._ctx, async: false } : { async: false };
   const result = schema2._zod.run({ value, issues: [] }, ctx);
@@ -77444,7 +77444,7 @@ var _safeDecodeAsync = (_Err) => async (schema2, value, _ctx) => {
 };
 var safeDecodeAsync = /* @__PURE__ */ _safeDecodeAsync($ZodRealError);
 
-// node_modules/zod/v4/core/schemas.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/schemas.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -77452,7 +77452,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v4/core/checks.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/checks.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -77460,7 +77460,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v4/core/regexes.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/regexes.js
 var regexes_exports = {};
 __export(regexes_exports, {
   base64: () => base64,
@@ -77625,7 +77625,7 @@ var sha512_hex = /^[0-9a-fA-F]{128}$/;
 var sha512_base64 = /* @__PURE__ */ fixedBase64(86, "==");
 var sha512_base64url = /* @__PURE__ */ fixedBase64url(86);
 
-// node_modules/zod/v4/core/checks.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/checks.js
 var $ZodCheck = /* @__PURE__ */ $constructor("$ZodCheck", (inst, def) => {
   var _a3;
   inst._zod ?? (inst._zod = {});
@@ -78173,7 +78173,7 @@ var $ZodCheckOverwrite = /* @__PURE__ */ $constructor("$ZodCheckOverwrite", (ins
   };
 });
 
-// node_modules/zod/v4/core/doc.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/doc.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -78215,7 +78215,7 @@ var Doc = class {
   }
 };
 
-// node_modules/zod/v4/core/versions.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/versions.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -78228,7 +78228,7 @@ var version = {
   patch: 3
 };
 
-// node_modules/zod/v4/core/schemas.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/schemas.js
 var $ZodType = /* @__PURE__ */ $constructor("$ZodType", (inst, def) => {
   var _a3;
   inst ?? (inst = {});
@@ -80321,7 +80321,7 @@ function handleRefineResult(result, payload, input, inst) {
   }
 }
 
-// node_modules/zod/v4/locales/index.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/index.js
 var locales_exports = {};
 __export(locales_exports, {
   ar: () => ar_default,
@@ -80384,7 +80384,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v4/locales/ar.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/ar.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -80497,7 +80497,7 @@ function ar_default() {
   };
 }
 
-// node_modules/zod/v4/locales/az.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/az.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -80609,7 +80609,7 @@ function az_default() {
   };
 }
 
-// node_modules/zod/v4/locales/be.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/be.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -80772,7 +80772,7 @@ function be_default() {
   };
 }
 
-// node_modules/zod/v4/locales/bg.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/bg.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -80899,7 +80899,7 @@ function bg_default() {
   };
 }
 
-// node_modules/zod/v4/locales/ca.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/ca.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -81014,7 +81014,7 @@ function ca_default() {
   };
 }
 
-// node_modules/zod/v4/locales/cs.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/cs.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -81132,7 +81132,7 @@ function cs_default() {
   };
 }
 
-// node_modules/zod/v4/locales/da.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/da.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -81254,7 +81254,7 @@ function da_default() {
   };
 }
 
-// node_modules/zod/v4/locales/de.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/de.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -81369,7 +81369,7 @@ function de_default() {
   };
 }
 
-// node_modules/zod/v4/locales/el.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/el.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -81485,7 +81485,7 @@ function el_default() {
   };
 }
 
-// node_modules/zod/v4/locales/en.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/en.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -81604,7 +81604,7 @@ function en_default2() {
   };
 }
 
-// node_modules/zod/v4/locales/eo.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/eo.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -81720,7 +81720,7 @@ function eo_default() {
   };
 }
 
-// node_modules/zod/v4/locales/es.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/es.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -81859,7 +81859,7 @@ function es_default() {
   };
 }
 
-// node_modules/zod/v4/locales/fa.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/fa.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -81980,7 +81980,7 @@ function fa_default() {
   };
 }
 
-// node_modules/zod/v4/locales/fi.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/fi.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -82099,7 +82099,7 @@ function fi_default() {
   };
 }
 
-// node_modules/zod/v4/locales/fr.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/fr.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -82231,7 +82231,7 @@ function fr_default() {
   };
 }
 
-// node_modules/zod/v4/locales/fr-CA.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/fr-CA.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -82345,7 +82345,7 @@ function fr_CA_default() {
   };
 }
 
-// node_modules/zod/v4/locales/he.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/he.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -82546,7 +82546,7 @@ function he_default() {
   };
 }
 
-// node_modules/zod/v4/locales/hr.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/hr.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -82675,7 +82675,7 @@ function hr_default() {
   };
 }
 
-// node_modules/zod/v4/locales/hu.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/hu.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -82790,7 +82790,7 @@ function hu_default() {
   };
 }
 
-// node_modules/zod/v4/locales/hy.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/hy.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -82944,7 +82944,7 @@ function hy_default() {
   };
 }
 
-// node_modules/zod/v4/locales/id.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/id.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -83057,7 +83057,7 @@ function id_default() {
   };
 }
 
-// node_modules/zod/v4/locales/is.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/is.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -83173,7 +83173,7 @@ function is_default() {
   };
 }
 
-// node_modules/zod/v4/locales/it.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/it.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -83288,7 +83288,7 @@ function it_default() {
   };
 }
 
-// node_modules/zod/v4/locales/ja.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/ja.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -83402,7 +83402,7 @@ function ja_default() {
   };
 }
 
-// node_modules/zod/v4/locales/ka.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/ka.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -83521,7 +83521,7 @@ function ka_default() {
   };
 }
 
-// node_modules/zod/v4/locales/kh.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/kh.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -83529,7 +83529,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v4/locales/km.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/km.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -83646,12 +83646,12 @@ function km_default() {
   };
 }
 
-// node_modules/zod/v4/locales/kh.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/kh.js
 function kh_default() {
   return km_default();
 }
 
-// node_modules/zod/v4/locales/ko.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/ko.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -83769,7 +83769,7 @@ function ko_default() {
   };
 }
 
-// node_modules/zod/v4/locales/lt.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/lt.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -83979,7 +83979,7 @@ function lt_default() {
   };
 }
 
-// node_modules/zod/v4/locales/mk.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/mk.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -84095,7 +84095,7 @@ function mk_default() {
   };
 }
 
-// node_modules/zod/v4/locales/ms.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/ms.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -84209,7 +84209,7 @@ function ms_default() {
   };
 }
 
-// node_modules/zod/v4/locales/nl.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/nl.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -84326,7 +84326,7 @@ function nl_default() {
   };
 }
 
-// node_modules/zod/v4/locales/no.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/no.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -84441,7 +84441,7 @@ function no_default() {
   };
 }
 
-// node_modules/zod/v4/locales/ota.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/ota.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -84557,7 +84557,7 @@ function ota_default() {
   };
 }
 
-// node_modules/zod/v4/locales/ps.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/ps.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -84678,7 +84678,7 @@ function ps_default() {
   };
 }
 
-// node_modules/zod/v4/locales/pl.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/pl.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -84794,7 +84794,7 @@ function pl_default() {
   };
 }
 
-// node_modules/zod/v4/locales/pt.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/pt.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -84909,7 +84909,7 @@ function pt_default() {
   };
 }
 
-// node_modules/zod/v4/locales/ro.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/ro.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -85035,7 +85035,7 @@ function ro_default() {
   };
 }
 
-// node_modules/zod/v4/locales/ru.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/ru.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -85198,7 +85198,7 @@ function ru_default() {
   };
 }
 
-// node_modules/zod/v4/locales/sl.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/sl.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -85314,7 +85314,7 @@ function sl_default() {
   };
 }
 
-// node_modules/zod/v4/locales/sv.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/sv.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -85431,7 +85431,7 @@ function sv_default() {
   };
 }
 
-// node_modules/zod/v4/locales/ta.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/ta.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -85548,7 +85548,7 @@ function ta_default() {
   };
 }
 
-// node_modules/zod/v4/locales/th.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/th.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -85665,7 +85665,7 @@ function th_default() {
   };
 }
 
-// node_modules/zod/v4/locales/tr.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/tr.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -85777,7 +85777,7 @@ function tr_default() {
   };
 }
 
-// node_modules/zod/v4/locales/ua.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/ua.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -85785,7 +85785,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v4/locales/uk.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/uk.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -85900,12 +85900,12 @@ function uk_default() {
   };
 }
 
-// node_modules/zod/v4/locales/ua.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/ua.js
 function ua_default() {
   return uk_default();
 }
 
-// node_modules/zod/v4/locales/ur.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/ur.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -86022,7 +86022,7 @@ function ur_default() {
   };
 }
 
-// node_modules/zod/v4/locales/uz.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/uz.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -86139,7 +86139,7 @@ function uz_default() {
   };
 }
 
-// node_modules/zod/v4/locales/vi.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/vi.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -86254,7 +86254,7 @@ function vi_default() {
   };
 }
 
-// node_modules/zod/v4/locales/zh-CN.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/zh-CN.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -86370,7 +86370,7 @@ function zh_CN_default() {
   };
 }
 
-// node_modules/zod/v4/locales/zh-TW.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/zh-TW.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -86484,7 +86484,7 @@ function zh_TW_default() {
   };
 }
 
-// node_modules/zod/v4/locales/yo.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/yo.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -86598,7 +86598,7 @@ function yo_default() {
   };
 }
 
-// node_modules/zod/v4/core/registries.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/registries.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -86654,7 +86654,7 @@ function registry() {
 (_a2 = globalThis).__zod_globalRegistry ?? (_a2.__zod_globalRegistry = registry());
 var globalRegistry = globalThis.__zod_globalRegistry;
 
-// node_modules/zod/v4/core/api.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/api.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -87699,7 +87699,7 @@ function _stringFormat(Class2, format, fnOrRegex, _params = {}) {
   return inst;
 }
 
-// node_modules/zod/v4/core/to-json-schema.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/to-json-schema.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -88064,7 +88064,7 @@ var createStandardJSONSchemaMethod = (schema2, io, processors = {}) => (params) 
   return finalize(ctx, schema2);
 };
 
-// node_modules/zod/v4/core/json-schema-processors.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/json-schema-processors.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -88614,7 +88614,7 @@ function toJSONSchema(input, params) {
   return finalize(ctx, input);
 }
 
-// node_modules/zod/v4/core/json-schema-generator.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/json-schema-generator.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -88695,7 +88695,7 @@ var JSONSchemaGenerator = class {
   }
 };
 
-// node_modules/zod/v4/core/json-schema.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/json-schema.js
 var json_schema_exports = {};
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
@@ -88704,7 +88704,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v4/mini/parse.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/mini/parse.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -88712,7 +88712,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v4/mini/schemas.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/mini/schemas.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -88764,7 +88764,7 @@ function object(shape, params) {
   return new ZodMiniObject(def);
 }
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-compat.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-compat.js
 function isZ4Schema(s) {
   const schema2 = s;
   return !!schema2._zod;
@@ -88908,7 +88908,7 @@ function getLiteralValue(schema2) {
   return void 0;
 }
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/types.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/types.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -88916,7 +88916,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v4/classic/external.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/classic/external.js
 var external_exports = {};
 __export(external_exports, {
   $brand: () => $brand,
@@ -89165,7 +89165,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v4/classic/schemas.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/classic/schemas.js
 var schemas_exports2 = {};
 __export(schemas_exports2, {
   ZodAny: () => ZodAny2,
@@ -89342,7 +89342,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v4/classic/checks.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/classic/checks.js
 var checks_exports2 = {};
 __export(checks_exports2, {
   endsWith: () => _endsWith,
@@ -89382,7 +89382,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v4/classic/iso.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/classic/iso.js
 var iso_exports2 = {};
 __export(iso_exports2, {
   ZodISODate: () => ZodISODate,
@@ -89429,7 +89429,7 @@ function duration2(params) {
   return _isoDuration(ZodISODuration, params);
 }
 
-// node_modules/zod/v4/classic/parse.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/classic/parse.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -89437,7 +89437,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v4/classic/errors.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/classic/errors.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -89483,7 +89483,7 @@ var ZodRealError = /* @__PURE__ */ $constructor("ZodError", initializer2, {
   Parent: Error
 });
 
-// node_modules/zod/v4/classic/parse.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/classic/parse.js
 var parse2 = /* @__PURE__ */ _parse(ZodRealError);
 var parseAsync2 = /* @__PURE__ */ _parseAsync(ZodRealError);
 var safeParse3 = /* @__PURE__ */ _safeParse(ZodRealError);
@@ -89497,7 +89497,7 @@ var safeDecode2 = /* @__PURE__ */ _safeDecode(ZodRealError);
 var safeEncodeAsync2 = /* @__PURE__ */ _safeEncodeAsync(ZodRealError);
 var safeDecodeAsync2 = /* @__PURE__ */ _safeDecodeAsync(ZodRealError);
 
-// node_modules/zod/v4/classic/schemas.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/classic/schemas.js
 var _installedGroups = /* @__PURE__ */ new WeakMap();
 function _installLazyMethods(inst, group, methods) {
   const proto = Object.getPrototypeOf(inst);
@@ -90787,7 +90787,7 @@ function preprocess(fn, schema2) {
   });
 }
 
-// node_modules/zod/v4/classic/compat.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/classic/compat.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -90819,7 +90819,7 @@ var ZodFirstPartyTypeKind2;
 /* @__PURE__ */ (function(ZodFirstPartyTypeKind3) {
 })(ZodFirstPartyTypeKind2 || (ZodFirstPartyTypeKind2 = {}));
 
-// node_modules/zod/v4/classic/from-json-schema.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/classic/from-json-schema.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -91305,7 +91305,7 @@ function fromJSONSchema(schema2, params) {
   return convertSchema(normalized, ctx);
 }
 
-// node_modules/zod/v4/classic/coerce.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/classic/coerce.js
 var coerce_exports2 = {};
 __export(coerce_exports2, {
   bigint: () => bigint3,
@@ -91336,10 +91336,10 @@ function date4(params) {
   return _coercedDate(ZodDate2, params);
 }
 
-// node_modules/zod/v4/classic/external.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/classic/external.js
 config(en_default2());
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/types.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/types.js
 var LATEST_PROTOCOL_VERSION = "2025-11-25";
 var SUPPORTED_PROTOCOL_VERSIONS = [LATEST_PROTOCOL_VERSION, "2025-06-18", "2025-03-26", "2024-11-05", "2024-10-07"];
 var RELATED_TASK_META_KEY = "io.modelcontextprotocol/related-task";
@@ -92870,7 +92870,7 @@ var UrlElicitationRequiredError = class extends McpError {
   }
 };
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/interfaces.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/interfaces.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -92881,7 +92881,7 @@ function isTerminal(status) {
   return status === "completed" || status === "failed" || status === "cancelled";
 }
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-json-schema-compat.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-json-schema-compat.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -92889,7 +92889,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod-to-json-schema/dist/esm/index.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/index.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -92897,7 +92897,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod-to-json-schema/dist/esm/Options.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/Options.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -92937,7 +92937,7 @@ var getDefaultOptions = (options) => typeof options === "string" ? {
   ...options
 };
 
-// node_modules/zod-to-json-schema/dist/esm/Refs.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/Refs.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -92964,7 +92964,7 @@ var getRefs = (options) => {
   };
 };
 
-// node_modules/zod-to-json-schema/dist/esm/errorMessages.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/errorMessages.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -92986,7 +92986,7 @@ function setResponseValueAndErrors(res, key, value, errorMessage, refs) {
   addErrorMessage(res, key, errorMessage, refs);
 }
 
-// node_modules/zod-to-json-schema/dist/esm/getRelativePath.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/getRelativePath.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -93002,7 +93002,7 @@ var getRelativePath = (pathA, pathB) => {
   return [(pathA.length - i).toString(), ...pathB.slice(i)].join("/");
 };
 
-// node_modules/zod-to-json-schema/dist/esm/parseDef.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parseDef.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -93010,7 +93010,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod-to-json-schema/dist/esm/selectParser.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/selectParser.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -93018,7 +93018,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/any.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/any.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -93040,7 +93040,7 @@ function parseAnyDef(refs) {
   };
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/array.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/array.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -93070,7 +93070,7 @@ function parseArrayDef(def, refs) {
   return res;
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/bigint.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/bigint.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -93122,7 +93122,7 @@ function parseBigintDef(def, refs) {
   return res;
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/boolean.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/boolean.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -93135,7 +93135,7 @@ function parseBooleanDef() {
   };
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/branded.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/branded.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -93146,7 +93146,7 @@ function parseBrandedDef(_def, refs) {
   return parseDef(_def.type._def, refs);
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/catch.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/catch.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -93157,7 +93157,7 @@ var parseCatchDef = (def, refs) => {
   return parseDef(def.innerType._def, refs);
 };
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/date.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/date.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -93222,7 +93222,7 @@ var integerDateParser = (def, refs) => {
   return res;
 };
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/default.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/default.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -93236,7 +93236,7 @@ function parseDefaultDef(_def, refs) {
   };
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/effects.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/effects.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -93247,7 +93247,7 @@ function parseEffectsDef(_def, refs) {
   return refs.effectStrategy === "input" ? parseDef(_def.schema._def, refs) : parseAnyDef(refs);
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/enum.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/enum.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -93261,7 +93261,7 @@ function parseEnumDef(def) {
   };
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/intersection.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/intersection.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -93309,7 +93309,7 @@ function parseIntersectionDef(def, refs) {
   } : void 0;
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/literal.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/literal.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -93335,7 +93335,7 @@ function parseLiteralDef(def, refs) {
   };
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/map.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/map.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -93343,7 +93343,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/record.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/record.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -93351,7 +93351,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/string.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/string.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -93682,7 +93682,7 @@ function stringifyRegExpWithFlags(regex, refs) {
   return pattern;
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/record.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/record.js
 function parseRecordDef(def, refs) {
   if (refs.target === "openAi") {
     console.warn("Warning: OpenAI may not support records in schemas! Try an array of key-value pairs instead.");
@@ -93734,7 +93734,7 @@ function parseRecordDef(def, refs) {
   return schema2;
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/map.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/map.js
 function parseMapDef(def, refs) {
   if (refs.mapStrategy === "record") {
     return parseRecordDef(def, refs);
@@ -93759,7 +93759,7 @@ function parseMapDef(def, refs) {
   };
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/nativeEnum.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/nativeEnum.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -93779,7 +93779,7 @@ function parseNativeEnumDef(def) {
   };
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/never.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/never.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -93795,7 +93795,7 @@ function parseNeverDef(refs) {
   };
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/null.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/null.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -93811,7 +93811,7 @@ function parseNullDef(refs) {
   };
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/nullable.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/nullable.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -93819,7 +93819,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/union.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/union.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -93893,7 +93893,7 @@ var asAnyOf = (def, refs) => {
   return anyOf.length ? { anyOf } : void 0;
 };
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/nullable.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/nullable.js
 function parseNullableDef(def, refs) {
   if (["ZodString", "ZodNumber", "ZodBigInt", "ZodBoolean", "ZodNull"].includes(def.innerType._def.typeName) && (!def.innerType._def.checks || !def.innerType._def.checks.length)) {
     if (refs.target === "openApi3") {
@@ -93925,7 +93925,7 @@ function parseNullableDef(def, refs) {
   return base && { anyOf: [base, { type: "null" }] };
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/number.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/number.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -93980,7 +93980,7 @@ function parseNumberDef(def, refs) {
   return res;
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/object.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/object.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -94056,7 +94056,7 @@ function safeIsOptional(schema2) {
   }
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/optional.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/optional.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -94081,7 +94081,7 @@ var parseOptionalDef = (def, refs) => {
   } : parseAnyDef(refs);
 };
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/pipeline.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/pipeline.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -94107,7 +94107,7 @@ var parsePipelineDef = (def, refs) => {
   };
 };
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/promise.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/promise.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -94118,7 +94118,7 @@ function parsePromiseDef(def, refs) {
   return parseDef(def.type._def, refs);
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/set.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/set.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -94144,7 +94144,7 @@ function parseSetDef(def, refs) {
   return schema2;
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/tuple.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/tuple.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -94178,7 +94178,7 @@ function parseTupleDef(def, refs) {
   }
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/undefined.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/undefined.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -94191,7 +94191,7 @@ function parseUndefinedDef(refs) {
   };
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/unknown.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/unknown.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -94202,7 +94202,7 @@ function parseUnknownDef(refs) {
   return parseAnyDef(refs);
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/readonly.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/readonly.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -94213,7 +94213,7 @@ var parseReadonlyDef = (def, refs) => {
   return parseDef(def.innerType._def, refs);
 };
 
-// node_modules/zod-to-json-schema/dist/esm/selectParser.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/selectParser.js
 var selectParser = (def, typeName, refs) => {
   switch (typeName) {
     case ZodFirstPartyTypeKind.ZodString:
@@ -94289,7 +94289,7 @@ var selectParser = (def, typeName, refs) => {
   }
 };
 
-// node_modules/zod-to-json-schema/dist/esm/parseDef.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parseDef.js
 function parseDef(def, refs, forceResolution = false) {
   const seenItem = refs.seen.get(def);
   if (refs.override) {
@@ -94345,7 +94345,7 @@ var addMeta = (def, refs, jsonSchema) => {
   return jsonSchema;
 };
 
-// node_modules/zod-to-json-schema/dist/esm/parseTypes.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parseTypes.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -94353,7 +94353,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/zod-to-json-schema/dist/esm/zodToJsonSchema.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/zodToJsonSchema.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -94421,7 +94421,7 @@ var zodToJsonSchema = (schema2, options) => {
   return combined;
 };
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-json-schema-compat.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-json-schema-compat.js
 function mapMiniTarget(t) {
   if (!t)
     return "draft-7";
@@ -94463,7 +94463,7 @@ function parseWithCompat(schema2, data2) {
   return result.data;
 }
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js
 var DEFAULT_REQUEST_TIMEOUT_MSEC = 6e4;
 var Protocol = class {
   constructor(_options) {
@@ -95417,7 +95417,7 @@ function mergeCapabilities(base, additional) {
   return result;
 }
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/validation/ajv-provider.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/validation/ajv-provider.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -95491,7 +95491,7 @@ var AjvJsonSchemaValidator = class {
   }
 };
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/server.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/server.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -95710,7 +95710,7 @@ var ExperimentalServerTasks = class {
   }
 };
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/helpers.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/helpers.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -95751,7 +95751,7 @@ function assertClientRequestTaskCapability(requests, method, entityName) {
   }
 }
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/server/index.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/server/index.js
 var Server = class extends Protocol {
   /**
    * Initializes this server with the given name and version information.
@@ -96131,7 +96131,7 @@ var Server = class extends Protocol {
   }
 };
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/server/completable.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/server/completable.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -96151,7 +96151,7 @@ var McpZodTypeKind;
   McpZodTypeKind2["Completable"] = "McpCompletable";
 })(McpZodTypeKind || (McpZodTypeKind = {}));
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/shared/uriTemplate.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/uriTemplate.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -96159,7 +96159,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/shared/toolNameValidation.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/toolNameValidation.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -96223,7 +96223,7 @@ function validateAndWarnToolName(name) {
   return result.isValid;
 }
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/mcp-server.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/mcp-server.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -96244,7 +96244,7 @@ var ExperimentalMcpServerTasks = class {
   }
 };
 
-// node_modules/zod/index.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/index.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -96252,7 +96252,7 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/server/mcp.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/server/mcp.js
 var McpServer = class {
   constructor(serverInfo, options) {
     this._registeredResources = {};
@@ -97044,7 +97044,7 @@ var EMPTY_COMPLETION_RESULT = {
   }
 };
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/server/stdio.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/server/stdio.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -97053,7 +97053,7 @@ init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 import process3 from "node:process";
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/shared/stdio.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/stdio.js
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
 init_define_ENDPOINT_CATALOG();
@@ -97087,7 +97087,7 @@ function serializeMessage(message) {
   return JSON.stringify(message) + "\n";
 }
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/server/stdio.js
+// ../../../../../plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/server/stdio.js
 var StdioServerTransport = class {
   constructor(_stdin = process3.stdin, _stdout = process3.stdout) {
     this._stdin = _stdin;
@@ -102819,6 +102819,56 @@ function planRestorePage({ funnel, pageId, pages, locationId }) {
   if (step.split === true) return { refuse: "cannot restore a page while the step runs a split test (the UI refuses the same)" };
   if ((step.pages ?? []).length > 1) return { refuse: "the step already has a variation; the UI refuses to restore a page then. Archive the variation first." };
   return { method: "POST", path: "/funnels/funnel/update-funnel-and-page", body: { funnelId: funnel._id ?? funnel.id, locationId, restoreArchivePageId: pageId }, target: { pageId, name: rec.name, step: stepView(step, 0) } };
+}
+async function readStepProducts(gw, locationId, funnelId, stepId) {
+  const q3 = `locationId=${encodeURIComponent(locationId)}&funnel=${encodeURIComponent(funnelId)}&step=${encodeURIComponent(stepId)}`;
+  const res = await gw.call("GET", `/funnels/order-form/products/?${q3}`);
+  return { res, rows: (res.json?.products ?? []).filter((r) => r.deleted !== true) };
+}
+function stepProductView(r) {
+  const idOf3 = (x) => (x && typeof x === "object" ? x._id : x) ?? null;
+  return {
+    stepProductId: r._id,
+    name: r.name,
+    displayText: r.displayText ?? "",
+    product: { id: idOf3(r.product), name: typeof r.product === "object" ? r.product?.name ?? null : null },
+    price: { id: idOf3(r.price), ...typeof r.price === "object" ? { name: r.price?.name, amount: r.price?.amount, currency: r.price?.currency, type: r.price?.type } : {} },
+    quantity: r.quantity ?? null,
+    bump: r.bumpProduct === true
+  };
+}
+var STEP_PRODUCT_NOTE = "The returned stepProductId is what a sell-product button needs: extra.productId = {value: {id: <stepProductId>}}. An order form on this step lists every step product.";
+function planAddStepProduct({ funnel, stepId, expectName, product, prices, existing, priceId, displayText, quantity, bump, locationId }) {
+  const step = (funnel.steps ?? []).find((s) => s.id === stepId);
+  if (!step) return { refuse: `step ${stepId} is not on this funnel` };
+  if (typeof expectName !== "string" || step.name !== expectName) {
+    return { refuse: `target check failed: step ${stepId} is named ${JSON.stringify(step.name ?? null)}, not ${JSON.stringify(expectName)}. Nothing was added.` };
+  }
+  if (!product?._id) return { refuse: "the product did not read back from this location" };
+  const price = (prices ?? []).find((p2) => p2._id === priceId);
+  if (!price) {
+    return { refuse: `price ${priceId} is not a price of product ${JSON.stringify(product.name)} (its prices: ${(prices ?? []).map((p2) => `${p2._id} ${JSON.stringify(p2.name)}`).join(", ") || "none"})` };
+  }
+  const dup = (existing ?? []).find((e) => String(e.product?._id ?? e.product) === product._id && String(e.price?._id ?? e.price) === priceId && e.deleted !== true);
+  if (dup) return { refuse: `this step already lists ${JSON.stringify(product.name)} at that price (step product ${dup._id}); nothing was added` };
+  const q3 = quantity ?? {};
+  return {
+    method: "POST",
+    path: "/funnels/order-form/products",
+    body: {
+      locationId,
+      funnel: funnel._id ?? funnel.id,
+      step: stepId,
+      name: product.name,
+      displayText: displayText ?? "",
+      product: product._id,
+      price: priceId,
+      bumpProduct: bump === true,
+      quantity: { max: q3.max ?? 1, allowMultiple: q3.allowMultiple === true },
+      authorizeAmount: 0
+    },
+    target: { step: stepView(step, 0), product: { id: product._id, name: product.name }, price: { id: price._id, name: price.name, amount: price.amount, currency: price.currency, type: price.type } }
+  };
 }
 var IMPORT_PAGE_NOTE = "Products attached to the source page are NOT imported (GHL's own warning). The page is a copy with a new id; it gets its own public path.";
 function planImportPage({ funnel, stepId, source, sourceStepId, sourcePageIndex = 0, locationId, userId }) {
@@ -193639,12 +193689,13 @@ var TOOLS2 = [
   },
   {
     name: "get_funnel",
-    description: `${describe3("get_funnel", "Read one GHL funnel or website document through a single flat view")}. Views: summary (steps with their pages, split state and paths), lookups (every public path row with its publishStatus / redirect action \u2014 the ROUTING truth; a step with no row 404s in public), settings (the funnel-settings fields as update-settings names them), versions (one page: live vs drafts, sorted by timestamp, not by array position), security (custom response headers), events (Meta pixel / CAPI events, first 20), cookie-consent (funnel-level banner config), share (the funnel's share link, if one exists: who it is shared with and the import URL \u2014 read-only; creating a share is left to the UI because it cannot be removed below the $497 plan), archived-pages (pages archived by a page "delete" or a split-test winner, restorable with edit_funnel restore-page). Siblings: find_ghl_site resolves a domain/name to the document id first; audit_site sweeps a whole site for dangling references and publish drift \u2014 this tool does not repeat that audit. Read-only.`,
+    description: `${describe3("get_funnel", "Read one GHL funnel or website document through a single flat view")}. Views: summary (steps with their pages, split state and paths), lookups (every public path row with its publishStatus / redirect action \u2014 the ROUTING truth; a step with no row 404s in public), settings (the funnel-settings fields as update-settings names them), versions (one page: live vs drafts, sorted by timestamp, not by array position), security (custom response headers), events (Meta pixel / CAPI events, first 20), cookie-consent (funnel-level banner config), share (the funnel's share link, if one exists: who it is shared with and the import URL \u2014 read-only; creating a share is left to the UI because it cannot be removed below the $497 plan), archived-pages (pages archived by a page "delete" or a split-test winner, restorable with edit_funnel restore-page), step-products {stepId} (the products a step's order form lists and its sell buttons sell, with product and price names \u2014 add one with edit_funnel add-step-product). Siblings: find_ghl_site resolves a domain/name to the document id first; audit_site sweeps a whole site for dangling references and publish drift \u2014 this tool does not repeat that audit. Read-only.`,
     inputSchema: schema({
       locationId: external_exports.string(),
       funnelId: external_exports.string(),
-      view: external_exports.enum(["summary", "lookups", "settings", "versions", "security", "events", "cookie-consent", "share", "archived-pages"]).default("summary"),
-      pageId: external_exports.string().optional()
+      view: external_exports.enum(["summary", "lookups", "settings", "versions", "security", "events", "cookie-consent", "share", "archived-pages", "step-products"]).default("summary"),
+      pageId: external_exports.string().optional(),
+      stepId: external_exports.string().optional()
     }),
     capabilities: [
       { method: "GET", path: "/funnels/funnel/fetch/{funnelId}" },
@@ -193654,7 +193705,8 @@ var TOOLS2 = [
       { method: "GET", path: "/funnels/event" },
       { method: "GET", path: "/funnels/funnel/cookie-consent" },
       { method: "GET", path: "/funnels/builder/funnel-share-details/{funnelId}" },
-      { method: "GET", path: "/funnels/page/list" }
+      { method: "GET", path: "/funnels/page/list" },
+      { method: "GET", path: "/funnels/order-form/products/" }
     ],
     handler: async (args, deps) => guard(async () => {
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
@@ -193680,6 +193732,12 @@ var TOOLS2 = [
           archived: pages.filter((p2) => p2.deleted === true).map((p2) => ({ pageId: p2._id, name: p2.name, stepId: p2.stepId, updatedAt: p2.updatedAt })),
           note: "Restore with edit_funnel restore-page: the page returns on a NEW path minted from its name. The UI refuses a restore while the step runs a split or already has a second page."
         });
+      }
+      if (view === "step-products") {
+        if (!args.stepId) return fail(CODES.VALIDATION_FAILED, 'view "step-products" needs stepId', 'Pass the stepId (view "summary" lists the steps).');
+        const { res: r, rows } = await readStepProducts(gw, args.locationId, args.funnelId, args.stepId);
+        if (!r.ok) return fromHttp(r.status, r.json);
+        return ok({ funnelId: args.funnelId, stepId: args.stepId, stepProducts: rows.map(stepProductView), note: STEP_PRODUCT_NOTE });
       }
       if (view === "versions") {
         if (!args.pageId) return fail(CODES.VALIDATION_FAILED, 'view "versions" needs pageId', `Pass the pageId (view "summary" lists each step's pages).`);
@@ -193730,7 +193788,7 @@ var TOOLS2 = [
   },
   {
     name: "edit_funnel",
-    description: `${describe3("edit_funnel", "Edit a GHL funnel or website document: settings, steps, publish state, headers")}. One op per call; preview by default, confirm:true writes and reads back on a separate request. Ops: settings (always sends the UI's FULL update-settings body from a fresh read, so only the fields you name change; diffs the read-back), create-step (refused when the funnel has no domain \u2014 such a step gets no lookup row and 404s), update-step (rename and/or move-path: one PUT moves the live route; Cloudflare may serve the old path for minutes, so it never retries), reorder-steps (full permutation only \u2014 the route replaces the steps array), clone-step, delete-step (target check: stepId AND its current name), publish-page / unpublish-page (the builder's own route: PUT /funnels/lookup/multiple on the step+page rows; unpublish answers 404 or 301 to a URL; no version is created \u2014 to publish CONTENT use build_funnel_page publish:true), add-header (custom response header; applies to the EXACT-CASE path only), split-test (action add-variation {variationPath}: a draft copy of the control on its own pre-checked path; start {controlTraffic}: changes live traffic; declare-winner {winnerPageId}: the other page is archived and the split ends \u2014 EXACT-CASE path only), delete-funnel (target check: funnelId AND expectName; refused while any page still serves \u2014 unpublish first; the edge can serve the deleted page ~70 s), clone-funnel {name} (a copy in THIS location: the route returns no id, so the name must be unused and the copy is found by it; the copy has NO domain and NO public paths and keeps the source's step urls \u2014 attaching the source's domain renames each colliding path with a numeric suffix), archive-page {pageId, expectName} (what the UI calls "delete \u2014 permanently": the page is ARCHIVED and restorable; refused on the only page of a step and on a running split), restore-page {pageId} (an archived page back onto its step; it gets a NEW public path minted from the page name \u2014 the old path stays 404), import-page {stepId, sourceFunnelId, sourceStepId, sourcePageIndex} (a copy of another step's page as the target step's second page; products are NOT imported), add-store (5 store steps on fixed domain-level paths, pre-checked; GHL creates the pages EMPTY, so each is then filled with its store element; LOCATION-WIDE side effect: saving the checkout in the builder creates a "Billing Info" contact-field folder + 7 billing fields). Sharing a funnel is NOT offered: opening the Share modal creates a link anyone can import, and below the $497 plan it cannot be narrowed or removed \u2014 read a share with get_funnel view share; create one in Sites \u2192 \u22EE \u2192 Share only on purpose. update-step also renames the step's page record, as the UI does. Page SEO, tracking code, custom CSS and background are PAGE writes: use build_funnel_page edit mode (\`seo\`, op \`page\`). A bare extra page (create-page) is not offered: it makes an ORPHAN page on no step \u2014 create-step makes a step with its page, split-test add-variation adds a second. Funnel FOLDERS (create, rename, move) are organisational only and are left to the Sites screen. Siblings: create_funnel makes the document, get_funnel reads, build_funnel_page writes page content, audit_site audits.`,
+    description: `${describe3("edit_funnel", "Edit a GHL funnel or website document: settings, steps, publish state, headers")}. One op per call; preview by default, confirm:true writes and reads back on a separate request. Ops: settings (always sends the UI's FULL update-settings body from a fresh read, so only the fields you name change; diffs the read-back), create-step (refused when the funnel has no domain \u2014 such a step gets no lookup row and 404s), update-step (rename and/or move-path: one PUT moves the live route; Cloudflare may serve the old path for minutes, so it never retries), reorder-steps (full permutation only \u2014 the route replaces the steps array), clone-step, delete-step (target check: stepId AND its current name), publish-page / unpublish-page (the builder's own route: PUT /funnels/lookup/multiple on the step+page rows; unpublish answers 404 or 301 to a URL; no version is created \u2014 to publish CONTENT use build_funnel_page publish:true), add-header (custom response header; applies to the EXACT-CASE path only), split-test (action add-variation {variationPath}: a draft copy of the control on its own pre-checked path; start {controlTraffic}: changes live traffic; declare-winner {winnerPageId}: the other page is archived and the split ends \u2014 EXACT-CASE path only), delete-funnel (target check: funnelId AND expectName; refused while any page still serves \u2014 unpublish first; the edge can serve the deleted page ~70 s), clone-funnel {name} (a copy in THIS location: the route returns no id, so the name must be unused and the copy is found by it; the copy has NO domain and NO public paths and keeps the source's step urls \u2014 attaching the source's domain renames each colliding path with a numeric suffix), archive-page {pageId, expectName} (what the UI calls "delete \u2014 permanently": the page is ARCHIVED and restorable; refused on the only page of a step and on a running split), restore-page {pageId} (an archived page back onto its step; it gets a NEW public path minted from the page name \u2014 the old path stays 404), import-page {stepId, sourceFunnelId, sourceStepId, sourcePageIndex} (a copy of another step's page as the target step's second page; products are NOT imported), add-store (5 store steps on fixed domain-level paths, pre-checked; GHL creates the pages EMPTY, so each is then filled with its store element; LOCATION-WIDE side effect: saving the checkout in the builder creates a "Billing Info" contact-field folder + 7 billing fields), add-step-product {stepId, expectName, productId, priceId, displayText?, quantity? {max, allowMultiple}, bump?} (the step's Products tab: what its order form lists and what a one-click up/down-sell button sells; target check on the step id AND name; the price must be one of that product's prices; an identical product+price already on the step is refused; returns stepProductId \u2014 the id a sell-product button stores as productId {id}; remove/update are not offered). Sharing a funnel is NOT offered: opening the Share modal creates a link anyone can import, and below the $497 plan it cannot be narrowed or removed \u2014 read a share with get_funnel view share; create one in Sites \u2192 \u22EE \u2192 Share only on purpose. update-step also renames the step's page record, as the UI does. Page SEO, tracking code, custom CSS and background are PAGE writes: use build_funnel_page edit mode (\`seo\`, op \`page\`). A bare extra page (create-page) is not offered: it makes an ORPHAN page on no step \u2014 create-step makes a step with its page, split-test add-variation adds a second. Funnel FOLDERS (create, rename, move) are organisational only and are left to the Sites screen. Siblings: create_funnel makes the document, get_funnel reads, build_funnel_page writes page content, audit_site audits.`,
     inputSchema: schema({
       locationId: external_exports.string(),
       funnelId: external_exports.string(),
@@ -193750,7 +193808,8 @@ var TOOLS2 = [
         "archive-page",
         "restore-page",
         "import-page",
-        "add-store"
+        "add-store",
+        "add-step-product"
       ]),
       action: external_exports.enum(["add-variation", "start", "declare-winner"]).optional(),
       sourceFunnelId: external_exports.string().optional(),
@@ -193769,6 +193828,11 @@ var TOOLS2 = [
       pageId: external_exports.string().optional(),
       redirect: external_exports.object({ type: external_exports.enum(["404", "url"]), url: external_exports.string().optional() }).optional(),
       header: external_exports.object({ key: external_exports.string(), value: external_exports.string() }).optional(),
+      productId: external_exports.string().optional(),
+      priceId: external_exports.string().optional(),
+      displayText: external_exports.string().optional(),
+      quantity: external_exports.object({ max: external_exports.number().int().min(1).optional(), allowMultiple: external_exports.boolean().optional() }).optional(),
+      bump: external_exports.boolean().optional(),
       confirm: external_exports.boolean().default(false)
     }),
     capabilities: [
@@ -193794,7 +193858,11 @@ var TOOLS2 = [
       { method: "GET", path: "/funnels/page/list" },
       { method: "GET", path: "/funnels/page/{pageId}" },
       { method: "POST", path: "/funnels/funnel/clone-funnel-to-locations" },
-      { method: "POST", path: "/funnels/store/create-in-funnel" }
+      { method: "POST", path: "/funnels/store/create-in-funnel" },
+      { method: "GET", path: "/products/{productId}" },
+      { method: "GET", path: "/products/{productId}/price" },
+      { method: "GET", path: "/funnels/order-form/products/" },
+      { method: "POST", path: "/funnels/order-form/products" }
     ],
     handler: async (args, deps) => {
       let tracked = null;
@@ -193948,6 +194016,35 @@ var TOOLS2 = [
             }
             plan = planAddStore({ funnel, domainName, taken });
             if (!plan.refuse) plan.notes = [BILLING_FIELDS_NOTE];
+            break;
+          }
+          case "add-step-product": {
+            const miss = need("stepId") ?? need("expectName") ?? need("productId") ?? need("priceId");
+            if (miss) {
+              plan = { refuse: miss };
+              break;
+            }
+            const L = encodeURIComponent(args.locationId), P = encodeURIComponent(args.productId);
+            const pr = await gw.call("GET", `/products/${P}?locationId=${L}`);
+            if (!pr.ok) return fromHttp(pr.status, pr.json);
+            const pp = await gw.call("GET", `/products/${P}/price?locationId=${L}`);
+            if (!pp.ok) return fromHttp(pp.status, pp.json);
+            const sp = await readStepProducts(gw, args.locationId, args.funnelId, args.stepId);
+            if (!sp.res.ok) return fromHttp(sp.res.status, sp.res.json);
+            plan = planAddStepProduct({
+              funnel,
+              stepId: args.stepId,
+              expectName: args.expectName,
+              product: pr.json,
+              prices: pp.json?.prices ?? [],
+              existing: sp.rows,
+              priceId: args.priceId,
+              displayText: args.displayText,
+              quantity: args.quantity,
+              bump: args.bump,
+              locationId: args.locationId
+            });
+            if (!plan.refuse) plan.notes = [STEP_PRODUCT_NOTE];
             break;
           }
           default:
@@ -194249,6 +194346,29 @@ var TOOLS2 = [
             if (!got.settled) return withFailureData(fail(CODES.VERIFY_FAILED, "the store did not read back (isStoreActive, 5 store steps, each with a public path)", "Compare data.steps / data.lookups; do not add the store again."), out);
             const empty2 = filled.filter((f) => !f.ok);
             if (empty2.length) return withFailureData(fail(CODES.VERIFY_FAILED, `the store was created but ${empty2.length} of its pages could not be filled: ${empty2.map((f) => f.key).join(", ")} \u2014 they serve a BLANK page`, "Fill each named page with build_funnel_page (one element of that store kind); do not add the store again."), out);
+            return ok(out);
+          }
+          case "add-step-product": {
+            const id = plan.response?._id ?? plan.response?.product?._id ?? null;
+            const got = await reread(
+              async () => (await readStepProducts(gw, args.locationId, fid, args.stepId)).rows,
+              (rows) => rows.some((r) => r._id === id),
+              deps.rereadOptions ?? {}
+            );
+            const row = got.value.find((r) => r._id === id);
+            const out = {
+              op: "add-step-product",
+              stepProductId: id,
+              step: plan.target.step,
+              product: plan.target.product,
+              price: plan.target.price,
+              readBack: row ? stepProductView(row) : null,
+              stepProducts: got.value.map(stepProductView),
+              note: STEP_PRODUCT_NOTE
+            };
+            if (!id) return withFailureData(fail(CODES.VERIFY_FAILED, `the write answered ${w.status} without a step-product id`, "Read the step with get_funnel view step-products before adding again."), out);
+            const same2 = row && String(row.product?._id ?? row.product) === plan.body.product && String(row.price?._id ?? row.price) === plan.body.price;
+            if (!same2) return withFailureData(fail(CODES.VERIFY_FAILED, "the step product did not read back on the step with the requested product and price", "Compare data.stepProducts; do not add again blindly."), out);
             return ok(out);
           }
           default:
