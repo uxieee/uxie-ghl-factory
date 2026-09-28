@@ -2,7 +2,8 @@
 //
 // Why the state matters enough to test: the public renderer serves the newest `live` version if a
 // page has one, and falls back to the newest draft if the page has NEVER been published
-// (funnels/40-rules rule 27, proven live 2026-09-10). So an unpublished page shows every autosave
+// (funnels/40-rules rule 27, proven live 2026-09-10; a NEW page was measured 2026-09-29 getting its first version
+// promoted to live by its second save, rule 42). So an unpublished page shows every autosave
 // publicly within seconds — and the first publish silently inverts that, pinning the page and
 // leaving every later write invisible with a 201 on each one. These tests pin both regimes.
 import { test } from 'node:test';
