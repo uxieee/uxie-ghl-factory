@@ -11,6 +11,27 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.10.1] — 2026-09-29
+
+**Correction: `set_workflow_error_alerts` said an empty recipient list alerts nobody. GHL emails every agency and location
+admin by default. Plus Managed Agent verification and trap docs. Each change was executed live on the test account.**
+
+- 🔴 **`set_workflow_error_alerts` description corrected.** `users` ADDS recipients. With none set, every agency and
+  location admin is still emailed about a workflow error, per GHL's own UI copy (the `sub_account_admin_email` i18n key
+  beside the recipients picker; delivery itself not observed). The old text said null or empty `users` meant nobody
+  is told. No behaviour change.
+- **Fixed — `create_studio_agent` reported AGENT_VERIFICATION_FAILED on a correct agent** when a trigger had no
+  `triggerMessage`: GHL fills a per-type default. The tool now leaves it for GHL to fill, names the default in the
+  preview, and verifies only what it wrote.
+- Managed Agents skill, new traps (proven live):
+  - 🔴 "Edit this agent with chat" can re-add the Default plugin (all CRM skills) to an agent built with none, and reset
+    starter prompts. Re-read `plugins` after any builder-chat edit.
+  - 🔴 Chatting with an agent from its own page is billed; the test panel is free and works on a draft.
+  - Agent actions are not stored. Templates create agents with the Default plugin. Generated images and audio land in
+    the media library.
+
+Catalogue: +7 documented routes.
+
 ## [1.10.0] — 2026-09-29
 
 **Sell a product from a funnel step; If/Else OR branches; email cc/bcc actually sent; Voice rename no longer reported as
