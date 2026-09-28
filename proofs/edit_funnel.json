@@ -12,6 +12,15 @@
         "commit:806527b2"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-28",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:1c37b2d7"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {

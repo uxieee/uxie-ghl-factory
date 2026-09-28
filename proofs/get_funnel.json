@@ -12,6 +12,15 @@
         "commit:806527b2"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-28",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:1c37b2d7"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
@@ -19,7 +28,7 @@
     "endpoints": {},
     "builds": {},
     "code": {
-      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#get_funnel": "421d0863c7d227b878f54de5f3f5c4d0ec95b3d71b9c4851a759c093f9bf1bef",
+      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#get_funnel": "6b6725731304985b00008181c7b10c0d87b582ef5a1528f25698b2cc48a55c1e",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "e65c2384aefb498ce49453dd2d6d8d1a1d8351fd6d337aef5256eb982e1db02f",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
       "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "a223838eb7dbacd4b07e852c05c2728539093efea90eda104565aba5386074e4",
