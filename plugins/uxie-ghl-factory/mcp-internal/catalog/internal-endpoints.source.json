@@ -20,16 +20,16 @@
     {
       "tree": "documented",
       "dir": "corpus",
-      "capturedAt": "2026-09-28T18:22:13.789Z",
+      "capturedAt": "2026-09-28T18:43:23.617Z",
       "hash": "corpus",
-      "fileCount": 1012,
-      "endpoints": 1012
+      "fileCount": 1019,
+      "endpoints": 1019
     }
   ],
   "note": "SOURCE-DERIVED ONLY, merged from every mined front-end. `tree` on each row says which app calls it. The plugin owns kind/note/summary/reach/coveredBy and merges them at read time. A row proves a GHL front-end calls that path — not that your token reaches it, and not that calling it is safe.",
-  "discoveredCallSites": 1487,
-  "skippedCallSites": 705,
-  "count": 1292,
+  "discoveredCallSites": 1494,
+  "skippedCallSites": 707,
+  "count": 1297,
   "endpoints": [
     {
       "id": "facebook-service--get-ad-account-by-id",
@@ -2219,7 +2219,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "workflows/50-runtime/forcing-and-removing-contacts.md:30"
+        "workflows/50-runtime/forcing-and-removing-contacts.md:45"
       ],
       "serviceBasis": "reviewed",
       "serviceReason": "OWNED: enrols a contact into a workflow"
@@ -2246,7 +2246,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "workflows/50-runtime/forcing-and-removing-contacts.md:149"
+        "workflows/50-runtime/forcing-and-removing-contacts.md:164"
       ],
       "serviceBasis": "reviewed",
       "aka": [
@@ -3073,6 +3073,32 @@
         "ask-ai/30-types/skills/conversation-ai--onboarding.md:111",
         "ask-ai/30-types/skills/voice-ai--onboarding.md:218",
         "ask-ai/30-types/skills/voice-ai--onboarding.md:240"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "funnels--countdown-timer-fetch",
+      "method": "GET",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/countdown-timer/fetch/",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "funnels",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/30-types/native-elements.md:127"
       ],
       "serviceBasis": "declared"
     },
@@ -18243,12 +18269,12 @@
       "sources": [
         "services/BaseService.ts:30",
         "workflows/20-api/03-endpoints.md:191",
+        "workflows/20-api/trash-and-restore.md:24",
         "workflows/00-overview/10-caveats.md:138",
         "workflows/10-anatomy/04-workflow-anatomy.md:40",
         "workflows/10-anatomy/07-id-resolution.md:204",
         "workflows/30-types/steps/if_else.md:34",
-        "workflows/40-rules/09-gotchas.md:386",
-        "workflows/10-anatomy/workflow-json-schema.md:25"
+        "workflows/40-rules/09-gotchas.md:386"
       ],
       "serviceClass": "WorkflowService",
       "serviceBasis": "inferred-from-path",
@@ -19024,7 +19050,8 @@
         "returns": "none-observed"
       },
       "sources": [
-        "services/WorkflowService.ts:387"
+        "services/WorkflowService.ts:387",
+        "workflows/50-runtime/forcing-and-removing-contacts.md:30"
       ],
       "serviceClass": "WorkflowService",
       "serviceBasis": "inferred-from-path"
@@ -19061,7 +19088,8 @@
         "returns": "none-observed"
       },
       "sources": [
-        "services/WorkflowService.ts:370"
+        "services/WorkflowService.ts:370",
+        "workflows/50-runtime/forcing-and-removing-contacts.md:32"
       ],
       "serviceClass": "WorkflowService",
       "serviceBasis": "inferred-from-path"
@@ -19530,7 +19558,8 @@
       "sources": [
         "services/WorkflowService.ts:673",
         "workflows/20-api/03-endpoints.md:171",
-        "workflows/20-api/03-endpoints.md:387"
+        "workflows/20-api/03-endpoints.md:387",
+        "workflows/20-api/trash-and-restore.md:18"
       ],
       "serviceClass": "WorkflowService",
       "serviceBasis": "inferred-from-path"
@@ -20406,7 +20435,7 @@
       },
       "sources": [
         "services/ErrorNotificationService.ts:72",
-        "workflows/40-rules/settings-semantics.md:91",
+        "workflows/40-rules/settings-semantics.md:93",
         "workflows/50-runtime/error-notifications.md:39",
         "workflows/70-research/ENDPOINT-SWEEP-2026-08-25.md:65"
       ],
@@ -21470,7 +21499,8 @@
       },
       "sources": [
         "services/WorkflowService.ts:648",
-        "workflows/20-api/03-endpoints.md:174"
+        "workflows/20-api/03-endpoints.md:174",
+        "workflows/20-api/trash-and-restore.md:33"
       ],
       "serviceClass": "WorkflowService",
       "serviceBasis": "inferred-from-path"
@@ -22753,7 +22783,7 @@
       },
       "sources": [
         "services/api/workflow-asset-validation.ts:33",
-        "workflows/30-types/steps/email.md:159",
+        "workflows/30-types/steps/email.md:160",
         "workflows/30-types/steps/if_else.md:31",
         "workflows/40-rules/server-side-validation.md:246"
       ],
@@ -27366,7 +27396,7 @@
         "workflows/50-runtime/11-runtime-logs.md:37",
         "workflows/50-runtime/11-runtime-logs.md:113",
         "workflows/50-runtime/11-runtime-logs.md:241",
-        "workflows/50-runtime/forcing-and-removing-contacts.md:66",
+        "workflows/50-runtime/forcing-and-removing-contacts.md:81",
         "workflows/50-runtime/observed-query-shapes.md:19"
       ],
       "serviceClass": "WorkflowMarketplaceService",
@@ -29452,6 +29482,65 @@
       "serviceBasis": "declared"
     },
     {
+      "id": "ai-agents--plugins-custom-skills",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/agent-studio/plugins/custom-skills",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/10-anatomy/managed-agent-shape.md:150"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "ai-agents--plugins-custom-skills-post",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/agent-studio/plugins/custom-skills",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/10-anatomy/managed-agent-shape.md:148"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
       "id": "ai-agents--plugins-default",
       "method": "GET",
       "origin": "https://services.leadconnectorhq.com",
@@ -29652,7 +29741,7 @@
         "ai-agents/20-api/12-ai-agents-api.md:241",
         "ai-agents/20-api/12-ai-agents-api.md:249",
         "ai-agents/20-api/managed-agent-workflow-invocation.md:22",
-        "ai-agents/10-anatomy/managed-agent-shape.md:80",
+        "ai-agents/10-anatomy/managed-agent-shape.md:83",
         "ai-agents/20-api/12-ai-agents-api.md:377"
       ],
       "serviceBasis": "declared",
@@ -29757,6 +29846,32 @@
       "serviceBasis": "declared"
     },
     {
+      "id": "ai-agents--agents-execute",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/agent-studio/super-agent/agents/{id}/execute",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/10-anatomy/managed-agent-shape.md:123"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
       "id": "ai-agents--agents-test",
       "method": "POST",
       "origin": "https://services.leadconnectorhq.com",
@@ -29778,7 +29893,33 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/managed-agent-shape.md:96"
+        "ai-agents/10-anatomy/managed-agent-shape.md:99"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "ai-agents--agents-from-template",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/agent-studio/super-agent/agents/from-template",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/10-anatomy/managed-agent-shape.md:167"
       ],
       "serviceBasis": "declared"
     },
@@ -29804,12 +29945,12 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/managed-agent-shape.md:76",
+        "ai-agents/10-anatomy/managed-agent-shape.md:79",
+        "ai-agents/10-anatomy/managed-agent-shape.md:117",
         "ai-agents/20-api/12-ai-agents-api.md:75",
         "ai-agents/20-api/12-ai-agents-api.md:240",
         "ai-agents/20-api/12-ai-agents-api.md:253",
-        "ai-agents/20-api/12-ai-agents-api.md:255",
-        "ai-agents/20-api/12-ai-agents-api.md:348"
+        "ai-agents/20-api/12-ai-agents-api.md:255"
       ],
       "serviceBasis": "declared"
     },
@@ -30835,7 +30976,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/managed-agent-shape.md:111"
+        "ai-agents/10-anatomy/managed-agent-shape.md:134"
       ],
       "serviceBasis": "declared"
     },
@@ -30868,7 +31009,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/managed-agent-shape.md:108",
+        "ai-agents/10-anatomy/managed-agent-shape.md:131",
         "ai-agents/20-api/conversation-ai-boundary.md:82",
         "ai-studio/60-recipes/run-one-generation.md:26"
       ],

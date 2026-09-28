@@ -178,7 +178,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
     define_ENDPOINT_CATALOG_default = {
       generated: "2026-09-28",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 1302,
+      count: 1307,
       endpoints: [
         {
           id: "facebook-service--get-ad-account-by-id",
@@ -2957,7 +2957,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "workflows/50-runtime/forcing-and-removing-contacts.md:149"
+            "workflows/50-runtime/forcing-and-removing-contacts.md:164"
           ]
         },
         {
@@ -3073,7 +3073,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "workflows/50-runtime/forcing-and-removing-contacts.md:30"
+            "workflows/50-runtime/forcing-and-removing-contacts.md:45"
           ]
         },
         {
@@ -4090,6 +4090,37 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "ask-ai/30-types/skills/conversation-ai--onboarding.md:111",
             "ask-ai/30-types/skills/voice-ai--onboarding.md:218",
             "ask-ai/30-types/skills/voice-ai--onboarding.md:240"
+          ]
+        },
+        {
+          id: "funnels--countdown-timer-fetch",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/countdown-timer/fetch/",
+          path: "/countdown-timer/fetch/",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/30-types/native-elements.md:127"
           ]
         },
         {
@@ -23615,12 +23646,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "services/BaseService.ts:30",
             "workflows/20-api/03-endpoints.md:191",
+            "workflows/20-api/trash-and-restore.md:24",
             "workflows/00-overview/10-caveats.md:138",
             "workflows/10-anatomy/04-workflow-anatomy.md:40",
             "workflows/10-anatomy/07-id-resolution.md:204",
             "workflows/30-types/steps/if_else.md:34",
-            "workflows/40-rules/09-gotchas.md:386",
-            "workflows/10-anatomy/workflow-json-schema.md:25"
+            "workflows/40-rules/09-gotchas.md:386"
           ]
         },
         {
@@ -24551,7 +24582,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "none-observed"
           },
           sources: [
-            "services/WorkflowService.ts:387"
+            "services/WorkflowService.ts:387",
+            "workflows/50-runtime/forcing-and-removing-contacts.md:30"
           ]
         },
         {
@@ -24603,7 +24635,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "none-observed"
           },
           sources: [
-            "services/WorkflowService.ts:370"
+            "services/WorkflowService.ts:370",
+            "workflows/50-runtime/forcing-and-removing-contacts.md:32"
           ]
         },
         {
@@ -25194,7 +25227,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           sources: [
             "services/WorkflowService.ts:673",
             "workflows/20-api/03-endpoints.md:171",
-            "workflows/20-api/03-endpoints.md:387"
+            "workflows/20-api/03-endpoints.md:387",
+            "workflows/20-api/trash-and-restore.md:18"
           ]
         },
         {
@@ -26280,7 +26314,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "services/ErrorNotificationService.ts:72",
-            "workflows/40-rules/settings-semantics.md:91",
+            "workflows/40-rules/settings-semantics.md:93",
             "workflows/50-runtime/error-notifications.md:39",
             "workflows/70-research/ENDPOINT-SWEEP-2026-08-25.md:65"
           ]
@@ -27658,7 +27692,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "services/WorkflowService.ts:648",
-            "workflows/20-api/03-endpoints.md:174"
+            "workflows/20-api/03-endpoints.md:174",
+            "workflows/20-api/trash-and-restore.md:33"
           ]
         },
         {
@@ -29326,7 +29361,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "services/api/workflow-asset-validation.ts:33",
-            "workflows/30-types/steps/email.md:159",
+            "workflows/30-types/steps/email.md:160",
             "workflows/30-types/steps/if_else.md:31",
             "workflows/40-rules/server-side-validation.md:246"
           ]
@@ -34811,7 +34846,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "workflows/50-runtime/11-runtime-logs.md:37",
             "workflows/50-runtime/11-runtime-logs.md:113",
             "workflows/50-runtime/11-runtime-logs.md:241",
-            "workflows/50-runtime/forcing-and-removing-contacts.md:66",
+            "workflows/50-runtime/forcing-and-removing-contacts.md:81",
             "workflows/50-runtime/observed-query-shapes.md:19"
           ]
         },
@@ -37372,6 +37407,75 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           ]
         },
         {
+          id: "ai-agents--plugins-custom-skills",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/agent-studio/plugins/custom-skills",
+          path: "/agent-studio/plugins/custom-skills",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/10-anatomy/managed-agent-shape.md:150"
+          ]
+        },
+        {
+          id: "ai-agents--plugins-custom-skills-post",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/agent-studio/plugins/custom-skills",
+          path: "/agent-studio/plugins/custom-skills",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/10-anatomy/managed-agent-shape.md:148"
+          ]
+        },
+        {
           id: "ai-agents--plugins-default",
           method: "GET",
           url: "https://services.leadconnectorhq.com/agent-studio/plugins/default",
@@ -37670,7 +37774,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "ai-agents/20-api/12-ai-agents-api.md:241",
             "ai-agents/20-api/12-ai-agents-api.md:249",
             "ai-agents/20-api/managed-agent-workflow-invocation.md:22",
-            "ai-agents/10-anatomy/managed-agent-shape.md:80",
+            "ai-agents/10-anatomy/managed-agent-shape.md:83",
             "ai-agents/20-api/12-ai-agents-api.md:377"
           ]
         },
@@ -37758,6 +37862,41 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           ]
         },
         {
+          id: "ai-agents--agents-execute",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/agent-studio/super-agent/agents/{id}/execute",
+          path: "/agent-studio/super-agent/agents/{id}/execute",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/10-anatomy/managed-agent-shape.md:123"
+          ]
+        },
+        {
           id: "ai-agents--agents-test",
           method: "POST",
           url: "https://services.leadconnectorhq.com/agent-studio/super-agent/agents/{id}/test",
@@ -37789,7 +37928,38 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/managed-agent-shape.md:96"
+            "ai-agents/10-anatomy/managed-agent-shape.md:99"
+          ]
+        },
+        {
+          id: "ai-agents--agents-from-template",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/agent-studio/super-agent/agents/from-template",
+          path: "/agent-studio/super-agent/agents/from-template",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/10-anatomy/managed-agent-shape.md:167"
           ]
         },
         {
@@ -37820,12 +37990,12 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/managed-agent-shape.md:76",
+            "ai-agents/10-anatomy/managed-agent-shape.md:79",
+            "ai-agents/10-anatomy/managed-agent-shape.md:117",
             "ai-agents/20-api/12-ai-agents-api.md:75",
             "ai-agents/20-api/12-ai-agents-api.md:240",
             "ai-agents/20-api/12-ai-agents-api.md:253",
-            "ai-agents/20-api/12-ai-agents-api.md:255",
-            "ai-agents/20-api/12-ai-agents-api.md:348"
+            "ai-agents/20-api/12-ai-agents-api.md:255"
           ]
         },
         {
@@ -39135,7 +39305,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/managed-agent-shape.md:111"
+            "ai-agents/10-anatomy/managed-agent-shape.md:134"
           ]
         },
         {
@@ -39176,7 +39346,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/managed-agent-shape.md:108",
+            "ai-agents/10-anatomy/managed-agent-shape.md:131",
             "ai-agents/20-api/conversation-ai-boundary.md:82",
             "ai-studio/60-recipes/run-one-generation.md:26"
           ]
@@ -183112,7 +183282,10 @@ function buildTriggers(norm3) {
     name: t.name ?? t.type,
     enabled: t.enabled ?? true,
     config: t.config ?? {},
-    triggerMessage: t.triggerMessage ?? ""
+    // Omitted when not given: GHL replaces a missing or empty triggerMessage with a per-type default (live
+    // 2026-09-28: chat → "A new chat conversation has started with a contact. Begin the intake flow."), so an
+    // emitted '' could never verify.
+    ...t.triggerMessage !== void 0 ? { triggerMessage: t.triggerMessage } : {}
   }));
 }
 function buildConfig(norm3) {
@@ -184482,7 +184655,13 @@ function compileAiAgentPlan(kind, args) {
 function studioDefaultsNote(spec = {}) {
   const plugins = spec.plugins === void 0 ? "NOT SET \u2014 GHL default applies: the Default plugin with ALL built-in CRM skills (can send SMS/email and write contacts and opportunities). Pass plugins:[] for no apps." : spec.plugins.length ? `as given: ${spec.plugins.map((p2) => p2.slug).join(", ")}` : "none (plugins: [])";
   const list = spec.trigger ? [spec.trigger] : spec.triggers ?? [];
-  return { plugins, triggers: list.length ? list.map((t) => t.type).join(", ") : "none given (the AI build may add a chat trigger)", publish: "never \u2014 the agent stays a draft" };
+  const defaulted = list.filter((t) => t.triggerMessage === void 0).map((t) => t.type);
+  return {
+    plugins,
+    triggers: list.length ? list.map((t) => t.type).join(", ") : "none given (the AI build may add a chat trigger)",
+    ...defaulted.length ? { triggerMessage: `not given for ${defaulted.join(", ")} \u2014 GHL fills a per-type default message` } : {},
+    publish: "never \u2014 the agent stays a draft"
+  };
 }
 function voiceDefaultsNote(spec = {}) {
   const pc = spec.postCall ?? {};
