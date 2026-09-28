@@ -11,6 +11,22 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.1.2] — 2026-09-28
+
+**`update_voiceai_agent` could not change an AI disclosure at all; fixed, with three more workflow-engine and Voice
+AI fixes — each executed live.**
+
+- **`update_voiceai_agent`:** every `aiDisclaimerConfiguration` change failed (422). GHL reads the object with a key
+  it refuses on write (`isGreetingMessageDynamic`), and the tool echoed it back. The key is now dropped from the body,
+  and a spec that sends it is refused before anything is written. It also refuses `backchannelFrequency` outside
+  0–1: the voice provider rejects such a value only after GHL has already stored it.
+- **`create_voiceai_agent`:** an SMS action now sends the body GHL's builder sends (message and message type); the
+  old two-key body was refused by GHL.
+- **Wait steps:** "jump to a specific step" and reply/email-event targets can be written by step reference, so they
+  can be built at all; waits with a dynamic duration (a merge tag) keep it — GHL honours it at run time, and
+  `edit_workflow` no longer strips it from waits built in the UI.
+- **Update contact field:** "add to field" is a real mode and no longer warned as unknown.
+
 ## [1.1.1] — 2026-09-28
 
 **The 1.1.0 server bundle carried the build machine's folder paths in 311 comment lines; this build carries none.**
