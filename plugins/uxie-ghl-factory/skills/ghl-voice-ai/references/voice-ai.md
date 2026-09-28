@@ -378,21 +378,29 @@ other unlisted `actionType`.
     `action_executed`). Free seconds come from `GET /voice-ai/call/trial-usage` (1200 a day; `payPerUse` is what bills).
   - 🔴 The call binds to the **signed-in user's own contact** (see SKILL.md trap 7).
 
+## The builder's Save (live-proven 2026-09-28)
+
+- Save is one `PUT /voice-ai/agents/{id}?publishAgent=true&mode=update` with a flat body of about 61 keys. Pending
+  action writes go first. Every key the user did not change is kept, including the actions.
+- 🔴 A Save also writes two defaults that `create_voiceai_agent` never stores: `agentSettings.languages: ["en-US"]`
+  and `spamConfig.postCallAnalysis {enabled: false, blockThreshold: 5, notifyMode: "admin", …}`. After a user's first
+  save in the UI, an engine-built agent shows those two keys; they are not drift.
+
 ## Raw routes and their traps (no typed tool — use `raw_request`, `host: "ai"`; live-proven 2026-09-28)
 
 | Task | Route | Trap |
 |---|---|---|
-| Dashboard metrics | `GET /voice-ai/dashboard/agents?locationId=&timezone=&timePeriod=&startTime=&endTime=`; `/detailed` also takes `type` (`CALLS`, `ATTEMPTED_CALLS`) and `direction` (`INBOUND`, `OUTBOUND`) | `timePeriod` (`THIS_WEEK`, `LAST_WEEK`, `LAST_7_DAYS`, `THIS_MONTH`, `THIS_YEAR`, `CUSTOM`) and epoch-ms `startTime`/`endTime` are **required** (422 without them); the builder's default **Live** view neither counts nor lists Test Audio calls |
+| Dashboard metrics | `GET /voice-ai/dashboard/agents?locationId=&timezone=&timePeriod=&startTime=&endTime=`; `/detailed` also takes `type` (`CALLS`, `ATTEMPTED_CALLS`) and `direction` (`INBOUND`, `OUTBOUND`) | `timePeriod` (`THIS_WEEK`, `LAST_WEEK`, `LAST_7_DAYS`, `THIS_MONTH`, `THIS_YEAR`, `CUSTOM`) and epoch-ms `startTime`/`endTime` are **required** (422 without them); the call log's source select is **Live · Test**: Live (the default) neither counts nor lists Test Audio calls, **Test** lists them with their rating |
 | Call logs | `GET /voice-ai/dashboard/call-logs?locationId=` | returns test calls too, including the operator's contact id |
 | Agent list with folders | `GET /voice-ai/agents/agents-with-folders?locationId=` | — |
 | Folders | see "Duplicate, folders, delete, test calls" | deleting a folder keeps its agents |
-| Duplicate / delete / bulk delete | `POST /voice-ai/agents/{id}/duplicate`, `DELETE /voice-ai/agents/{id}?locationId=`, `POST /voice-ai/agents/bulk-delete {locationId, agentIds}` | the duplicate drops hangup prompt / hold phrases / voiceModel; after a delete a read is **403**, not 404 |
+| Duplicate / delete / bulk delete | `POST /voice-ai/agents/{id}/duplicate`, `DELETE /voice-ai/agents/{id}?locationId=`, `POST /voice-ai/agents/bulk-delete {locationId, agentIds}` | the duplicate drops hangup prompt / hold phrases / voiceModel; after a delete a read is **403**, not 404; the Delete modal lists "Agents that can transfer to this agent" (they get disconnected); the list's Bulk Actions are Move to Different Folder and Delete only |
 | Voice library | `GET /voice-ai/voices/all?locationId=` | `voiceId` is the 20-char providerVoiceId, not the 24-char `_id` |
 | s2s voices | flat `voiceId` on an s2s agent → `s2sBehaviour.voiceId`; 10 OpenAI voices (marin, cedar, ash, ballad, coral, sage, verse, alloy, echo, shimmer) | an unknown name answers 200 and is **silently not stored** |
 | Community voices | `GET /voice-ai/voices/search?provider=elevenlabs&query=&locationId=`, `POST /voice-ai/voices/import/{providerVoiceId}?companyId=&provider=`, `GET /voice-ai/voices/my-voices?locationId=&companyId=`, `GET /voice-ai/voices/{recordId}/agents?companyId=` | **10 imports per account**; delete is keyed by **providerVoiceId**: `DELETE /voice-ai/voices/my-voices/{providerVoiceId}?companyId=` (the record id 404s) |
 | Test call | `POST /voice-ai/call/create-trial-web-call/{agentId}`, `GET /voice-ai/call/{callId}?locationId=&agentId=`, `GET /voice-ai/call/trial-usage?agentId=&locationId=` | 1200 free s per **agent** per day; `payPerUse` bills; 🔴 binds to the operator's own contact |
 | Call feedback | `PATCH /voice-ai/call/{callId}/feedback?locationId=&agentId= {isPositive, feedbackOptions[], additionalComments}` | **write-once** (409 on a second); a comment on a positive rating was dropped |
-| Pricing estimate | none: the builder computes the "tokens · $/min" line itself (the source of its rate table was not captured) | not a stored field and no route to read it |
+| Pricing estimate | s2s agents: `GET /voice-ai/agents/{id}/s2s-tokenizer?locationId=` → `{model, unitPricePerMinute, surchargePerMinute, pricePerMinute, segments {prompts, tools, injections}, total, limit}` (the builder's "1.2k/15k tokens · $0.20/min") | a text agent answers **400** (its range is computed in the browser from the bundle's price table); not stored, and it follows the stored prompt |
 | Translate the prompt | `POST /voice-ai/translate/ai {text, target}` → `["…"]` | the builder pastes the **array wrapper** `["…"]` into the prompt: strip it before saving |
 | Edit with AI | `POST /voice-ai/ai-generation/prompt-suggestion/stream {agentId, improvementPrompt, selectedText, fullPrompt}` | returns only the rewritten selection; saves nothing |
 | s2s prompt check | `POST /voice-ai/agents/{id}/s2s/prompt-validate {locationId}` → `{mode, fem, bem, prompt, changes[], warnings[], confidence}` | saves nothing |

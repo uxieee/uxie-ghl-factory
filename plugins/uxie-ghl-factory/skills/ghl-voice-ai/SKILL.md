@@ -108,7 +108,8 @@ configured at all.
 ## Limits worth knowing before you author
 
 Agent name ≤40 chars · greeting ≤190 · execution message ≤500 · folder name ≤100 ·
-custom API actions need `apiUrl` and, when auth is on, an API key · hold phrases ≤20 · session variable names
+custom API actions need `apiUrl` and, when auth is on, an API key · hold phrases ≤20 · post-call workflows
+(`callEndWorkflowIds`) ≤10 · session variable names
 `session.[A-Za-z0-9_-]+`, ≤64, unique.
 Full set: `ai-agents/40-rules/constraints.md`.
 
