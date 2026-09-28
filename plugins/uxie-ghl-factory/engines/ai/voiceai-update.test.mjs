@@ -356,3 +356,41 @@ test('prompts: set one section + reset another verifies per section; the untouch
   assert.equal(r2.code, 'AGENT_COLLATERAL_CHANGED');
   assert.deepEqual(r2.collateral.changed.map((c) => c.key), ['prompts.dateAndTimeAwareness']);
 });
+
+// A rename re-templates the prompt (live 2026-09-28, twice): GHL rewrites every occurrence of the old name inside
+// agentPrompt. Expected, not collateral — ONLY when the diff is exactly old name → new name at every occurrence.
+const withPrompt = (p) => ({ ...RECORD(), agentName: 'My Agent 861', agentPrompt: p });
+const retemplate = (old, neu) => (next) => { next.agentPrompt = next.agentPrompt.split(old).join(neu); };
+
+test('a rename whose only prompt change is the name re-templated at every occurrence verifies, with a note', async () => {
+  const before = withPrompt('You are My Agent 861, a helper. Sign off as My Agent 861.');
+  const gw = fakeGw({ record: before, collateral: retemplate('My Agent 861', 'TEST-CONF-AI-X') });
+  const plan = compileVoiceAiPartialUpdate(before, { agentName: 'TEST-CONF-AI-X' }, { agentId: 'A', locationId: 'L' });
+  const r = await executeVoiceAiUpdate({ plan, before, gw, serverMessage });
+  assert.equal(r.ok, true, JSON.stringify(r));
+  assert.equal(r.collateral.unchanged, true);
+  assert.deepEqual(r.collateral.retemplated, [{ key: 'agentPrompt', from: 'My Agent 861', to: 'TEST-CONF-AI-X' }]);
+  assert.match(r.collateral.note, /re-templated/);
+});
+
+test('CONTROL: a rename plus ANY other prompt change is still collateral', async () => {
+  const before = withPrompt('You are My Agent 861, a helper.');
+  const gw = fakeGw({ record: before, collateral: (n) => { retemplate('My Agent 861', 'TEST-CONF-AI-X')(n); n.agentPrompt += ' Extra.'; } });
+  const plan = compileVoiceAiPartialUpdate(before, { agentName: 'TEST-CONF-AI-X' }, { agentId: 'A', locationId: 'L' });
+  const r = await executeVoiceAiUpdate({ plan, before, gw, serverMessage });
+  assert.equal(r.ok, false); assert.equal(r.code, 'AGENT_COLLATERAL_CHANGED');
+  assert.deepEqual(r.collateral.changed.map((c) => c.key), ['agentPrompt']);
+});
+
+test('CONTROL: only SOME occurrences re-templated, or a prompt change with no rename, is still collateral', async () => {
+  const partial = withPrompt('You are My Agent 861. Sign off as My Agent 861.');
+  const gw1 = fakeGw({ record: partial, collateral: (n) => { n.agentPrompt = n.agentPrompt.replace('My Agent 861', 'TEST-CONF-AI-X'); } });
+  const p1 = compileVoiceAiPartialUpdate(partial, { agentName: 'TEST-CONF-AI-X' }, { agentId: 'A', locationId: 'L' });
+  const r1 = await executeVoiceAiUpdate({ plan: p1, before: partial, gw: gw1, serverMessage });
+  assert.equal(r1.code, 'AGENT_COLLATERAL_CHANGED');
+  const plain = withPrompt('You are My Agent 861.');
+  const gw2 = fakeGw({ record: plain, collateral: (n) => { n.agentPrompt = 'Something else.'; } });
+  const p2 = compileVoiceAiPartialUpdate(plain, { maxCallDuration: 600 }, { agentId: 'A', locationId: 'L' });
+  const r2 = await executeVoiceAiUpdate({ plan: p2, before: plain, gw: gw2, serverMessage });
+  assert.equal(r2.code, 'AGENT_COLLATERAL_CHANGED');
+});

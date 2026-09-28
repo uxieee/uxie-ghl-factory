@@ -346,6 +346,15 @@ export async function executeVoiceAiUpdate({ plan, before, gw, serverMessage }) 
   const kbChange = plan.setKeys.some((k) => KB_KEYS.includes(k));
   const nonKb = (list) => JSON.stringify((list ?? []).filter((x) => x?.actionType !== 'KNOWLEDGE_BASE'));
   const kbIds = new Set([...kbActions(before), ...kbActions(after)].map((x) => x._id));
+  // A rename re-templates the prompt: GHL rewrites every occurrence of the old agentName inside agentPrompt (live
+  // 2026-09-28, twice). That is expected ONLY when agentName was sent, agentPrompt was not, and replacing the old name
+  // with the new one at every occurrence reproduces the new prompt exactly — any other prompt change stays collateral.
+  const retemplated = [];
+  const oldName = readFlat(before, 'agentName'); const newName = plan.body.agentName;
+  const renameOnly = plan.setKeys.includes('agentName') && !plan.setKeys.includes('agentPrompt')
+    && typeof oldName === 'string' && oldName.length > 0 && typeof newName === 'string' && oldName !== newName;
+  const isRetemplate = (x, y) => renameOnly && typeof x === 'string' && typeof y === 'string' && x.includes(oldName)
+    && x.split(oldName).join(newName) === y;
   for (const k of new Set([...Object.keys(b), ...Object.keys(a)])) {
     if (setNames.has(k)) continue;
     // an s2s voice change moves s2sBehaviour.voiceId: expected, while any other s2s key moving stays collateral
@@ -357,6 +366,7 @@ export async function executeVoiceAiUpdate({ plan, before, gw, serverMessage }) 
     if (kbChange && k === 'actions' && nonKb(b[k]) === nonKb(a[k])) continue;
     if (kbChange && k === 'actionIds' && same((b[k] ?? []).filter((x) => !kbIds.has(x)), (a[k] ?? []).filter((x) => !kbIds.has(x)))) continue;
     if (same(b[k], a[k])) continue;
+    if (k === 'agentPrompt' && isRetemplate(b[k], a[k])) { retemplated.push({ key: k, from: oldName, to: newName }); continue; }
     if (b[k] === undefined && isObj(a[k]) && !Object.keys(a[k]).length) continue; // e.g. prompts: undefined -> {}
     if (modelChange && MODEL_CASCADE.has(k)) { cascade.push({ key: k, before: b[k], after: a[k] }); continue; }
     changed.push({ key: k, before: b[k], after: a[k] });
@@ -377,7 +387,8 @@ export async function executeVoiceAiUpdate({ plan, before, gw, serverMessage }) 
     }
   }
   const verification = { verified: mismatches.length === 0 && confirmed.length > 0, confirmed, mismatches };
-  const collateral = { unchanged: changed.length === 0, changed, ...(cascade.length ? { cascade } : {}) };
+  const collateral = { unchanged: changed.length === 0, changed, ...(cascade.length ? { cascade } : {}),
+    ...(retemplated.length ? { retemplated, note: `GHL re-templated the agent name inside agentPrompt ("${oldName}" → "${newName}" at every occurrence); nothing else in the prompt moved` } : {}) };
   if (changed.length) {
     return { ok: false, code: 'AGENT_COLLATERAL_CHANGED', verification, collateral,
       detail: `the update moved ${changed.length} field(s) it was not asked to touch: ${changed.map((c) => c.key).join(', ')}` };
