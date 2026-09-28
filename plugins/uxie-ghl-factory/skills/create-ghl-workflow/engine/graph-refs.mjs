@@ -52,6 +52,29 @@ const getAll = (o, path) => {
   return cur.filter((v) => v != null);
 };
 
+/** Map AUTHORED ref names in flat step-reference fields to the ids the compiler minted for them.
+ *  Step ids exist only after compile, so without this an author could not name a wait's jump target
+ *  (specificDateStep / appointmentSpecificStep) or its reply/email steps at build time: the builder's
+ *  REQUIRED_FIELD rule demanded the key and nothing could supply a valid id (live 2026-09-28,
+ *  knowledge sniffs/workflows-wave1-2026-09-25/live-3C-waits-run1-specific-step-refused.json).
+ *  A value that is already a template id, or is not a known ref, is left untouched — checkStepRefs
+ *  then judges it. Mutates `templates` in place; returns the rewrites made. */
+export function resolveAuthoredStepRefs(templates, refMap) {
+  const ids = new Set((templates ?? []).map((t) => t.id));
+  const map = (v) => (typeof v === 'string' && !ids.has(v) && refMap?.has?.(v) ? refMap.get(v) : v);
+  const out = [];
+  for (const t of templates ?? []) {
+    for (const [type, path, kind] of STEP_REF_FIELDS) {
+      if (t.type !== type || path.includes('.') || path.includes('[]') || !t.attributes) continue;
+      const v = t.attributes[path];
+      if (v == null || v === '') continue;
+      const next = kind === 'array' ? (Array.isArray(v) ? v.map(map) : v) : map(v);
+      if (JSON.stringify(next) !== JSON.stringify(v)) { t.attributes[path] = next; out.push({ id: t.id, path, from: v, to: next }); }
+    }
+  }
+  return out;
+}
+
 /** Every reference held by `t` (typed step template), as [{path, id}]. Empty values are not refs. */
 export function stepRefsOf(t) {
   const out = [];

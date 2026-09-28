@@ -17,7 +17,7 @@ const field = (over = {}) => ({ field: 'k3Hq9ZtVb7WnP2xLc8Ra', value: '', title:
 
 // ─── the two builder dropdown values ────────────────────────────────────────────────
 test('the closed actionType list is exactly what the builder offers', () => {
-  assert.deepEqual(CONTACT_FIELD_ACTION_TYPES, ['update_field_data', 'clear_field_data']);
+  assert.deepEqual(CONTACT_FIELD_ACTION_TYPES, ['update_field_data', 'add_field_data', 'clear_field_data']);
 });
 
 // ─── the primary defect: an empty update_field_data that was meant to be a clear ─────
@@ -189,4 +189,15 @@ test('the templates lint ignores other step types', () => {
   const warn = sink();
   lintContactFieldTemplates([{ id: 'S1', type: 'add_contact_tag', attributes: { tags: [] } }], null, warn);
   assert.deepEqual(warn.messages, []);
+});
+
+// Live 2026-09-28 (live-3B-fields-math.json): add_field_data appended 'b' to a MULTIPLE_OPTIONS
+// field holding ['a']. It is a real mode, so it must not be reported as an unknown discriminator.
+test('add_field_data is a known actionType: no UNKNOWN warning; an empty add is flagged', () => {
+  const w1 = []; checkContactFieldShape({ actionType: 'add_field_data', fields: [{ field: 'F', value: ['b'] }] }, { ref: 'a', warn: (m) => w1.push(m) });
+  assert.deepEqual(w1, []);
+  const w2 = []; checkContactFieldShape({ actionType: 'add_field_data', fields: [{ field: 'F', value: '' }] }, { ref: 'a', warn: (m) => w2.push(m) });
+  assert.equal(w2.length, 1); assert.match(w2[0], /^CONTACT_FIELD_EMPTY_VALUE/);
+  const w3 = []; checkContactFieldShape({ actionType: 'append_field_data', fields: [{ field: 'F', value: 'x' }] }, { ref: 'a', warn: (m) => w3.push(m) });
+  assert.match(w3[0], /^CONTACT_FIELD_ACTION_TYPE_UNKNOWN/);
 });
