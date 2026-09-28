@@ -80,7 +80,7 @@ export const WRITABLE = new Set([
   'pronunciationDictionary', 'reminderAfterIdleTimeSeconds', 'reminderFrequency', 'responsiveness', 'ringDurationSeconds',
   'saveCallSummaryAsNote', 'sendUserIdleReminders', 'sttMode', 'timezone', 'vocabSpecialization', 'voiceId', 'voiceModel',
   'voiceSpeed', 'voiceTemperature', 'voiceVolume', 'voicemailOption', 'welcomeMessage', 'welcomeMessageMode',
-  ...NESTED_WHOLE, 'sessionVariables', 's2sBehaviour',
+  ...NESTED_WHOLE, 'sessionVariables', 's2sBehaviour', 'prompts', 'disabledPrompts',
 ]);
 
 // Separate resources, or keys whose write lives elsewhere.
@@ -153,6 +153,37 @@ export function mergeSessionVariables(stored, entries) {
   return out;
 }
 
+// System-prompt sections (measured 2026-09-28 on a test agent, each read back): `prompts` holds only the overridden
+// sections; a PUT MERGES by section and `{section: null}` REMOVES the override (the section returns to Default).
+// GHL STORES exactly these five — the builder's System Prompts sections. /prompts/defaults is NOT the list: it serves
+// endCall / endCallSts / endCallSpamDetection / greetingRule, which a prompts write answers 200 and silently DROPS, and
+// it does not serve personality / appointmentBooking, which are stored.
+export const PROMPT_SECTIONS = ['personality', 'appointmentBooking', 'dateAndTimeAwareness', 'numericAndEmailHandling', 'emailConfirmationProcess'];
+const PROMPT_ELSEWHERE = {
+  endCall: 'the hangup prompt is endCallConfig.instruction (send endCallConfig)',
+  endCallSts: 'the speech-to-speech hangup prompt is endCallConfig.instruction (send endCallConfig)',
+  endCallSpamDetection: 'the spam rule is endCallConfig.spamDetectionInstruction (send endCallConfig)',
+  greetingRule: 'GHL does not store it: a prompts write answered 200 and dropped it',
+};
+export function compilePrompts(v) {
+  if (!isObj(v) || !Object.keys(v).length) throw new IRError('SCHEMA', 'prompts must be an object of { section: text | null }');
+  const elsewhere = Object.keys(v).filter((k) => k in PROMPT_ELSEWHERE);
+  if (elsewhere.length) {
+    throw new IRError('SPEC_KEY_UNAPPLIED', elsewhere.map((k) => `prompts.${k}: ${PROMPT_ELSEWHERE[k]}`).join('; ') + '. Nothing was sent.');
+  }
+  const unknown = Object.keys(v).filter((k) => !PROMPT_SECTIONS.includes(k));
+  if (unknown.length) {
+    throw new IRError('SPEC_KEY_UNAPPLIED', `unknown system-prompt section(s) [${unknown.join(', ')}]. Sections GHL stores: `
+      + `${PROMPT_SECTIONS.join(', ')}. Nothing was sent.`);
+  }
+  for (const [k, text] of Object.entries(v)) {
+    if (text !== null && (typeof text !== 'string' || !text.trim())) {
+      throw new IRError('SCHEMA', `prompts.${k} must be text, or null to reset the section to GHL's default`);
+    }
+  }
+  return { ...v };
+}
+
 export function compileVoiceAiPartialUpdate(current, spec, { agentId, locationId } = {}) {
   if (!agentId) throw new IRError('MISSING_FIELD', 'update_voiceai_agent requires agentId');
   if (!isObj(current)) throw new IRError('SCHEMA', 'the CURRENT agent record is required — read it first');
@@ -194,6 +225,15 @@ export function compileVoiceAiPartialUpdate(current, spec, { agentId, locationId
       }
       const stored = readFlat(current, k);
       body[k] = writable(k, { ...(isObj(stored) ? stored : {}), ...v });
+    } else if (k === 'prompts') {
+      body[k] = compilePrompts(v);
+    } else if (k === 'disabledPrompts') {
+      // whole-array replace, as the builder sends it; clearing ([]) is not measured (the builder never sends an empty list)
+      if (!Array.isArray(v) || !v.length || v.some((x) => typeof x !== 'string' || !x.trim())) {
+        throw new IRError('SCHEMA', 'disabledPrompts must be a non-empty array of section names (it replaces the stored list). '
+          + 'An empty list is refused: clearing it has not been measured. Nothing was sent.');
+      }
+      body[k] = [...v];
     } else if (k === 's2sBehaviour') {
       body[k] = compileS2sBehaviour(current, v);
     } else if (k === 'sessionVariables') {
@@ -259,7 +299,12 @@ export async function executeVoiceAiUpdate({ plan, before, gw, serverMessage }) 
     const message = serverMessage(put?.json) ?? `HTTP ${put?.status ?? '?'}`;
     if (!stored.length) return { ok: false, code: 'AGENT_UPDATE_FAILED', status: put?.status ?? null, detail: message, written: [] };
     const undo = { locationId: plan.body.locationId };
-    for (const k of stored) undo[k] = writable(k, readFlat(before, k));
+    for (const k of stored) {
+      // prompts merge by section: restore exactly the sections sent (a stored text, or null where none was stored)
+      undo[k] = k === 'prompts'
+        ? Object.fromEntries(Object.keys(plan.body.prompts).map((s) => [s, before?.prompts?.[s] ?? null]))
+        : writable(k, readFlat(before, k));
+    }
     const u = await gw.call('PUT', plan.path, undo);
     const again = await read();
     const diverged = stored.filter((k) => !same(readFlat(again, k), readFlat(before, k)));
@@ -287,7 +332,12 @@ export async function executeVoiceAiUpdate({ plan, before, gw, serverMessage }) 
   const confirmed = []; const mismatches = [];
   // s2sBehaviour is a merge: verify the keys sent, and treat any other s2sBehaviour key moving as collateral below
   const pick = (o, keys) => Object.fromEntries(keys.filter((x) => isObj(o) && x in o).map((x) => [x, o[x]]));
-  const got = (k) => (k === 's2sBehaviour' ? pick(readFlat(after, k), Object.keys(plan.expected[k])) : readSet(after, k));
+  const got = (k) => {
+    if (k === 's2sBehaviour') return pick(readFlat(after, k), Object.keys(plan.expected[k]));
+    // a section sent as null is verified by its ABSENCE from the stored overrides
+    if (k === 'prompts') return Object.fromEntries(Object.keys(plan.expected.prompts).map((s) => [s, after?.prompts?.[s] ?? null]));
+    return readSet(after, k);
+  };
   for (const k of plan.setKeys) (same(got(k), plan.expected[k]) ? confirmed : mismatches).push(k);
   const setNames = new Set(plan.setKeys.flatMap(readNames));
   const b = fields(before); const a = fields(after);
@@ -310,6 +360,13 @@ export async function executeVoiceAiUpdate({ plan, before, gw, serverMessage }) 
     if (b[k] === undefined && isObj(a[k]) && !Object.keys(a[k]).length) continue; // e.g. prompts: undefined -> {}
     if (modelChange && MODEL_CASCADE.has(k)) { cascade.push({ key: k, before: b[k], after: a[k] }); continue; }
     changed.push({ key: k, before: b[k], after: a[k] });
+  }
+  if (plan.setKeys.includes('prompts')) {
+    const pb = before?.prompts ?? {}; const pa = after?.prompts ?? {};
+    for (const s of new Set([...Object.keys(pb), ...Object.keys(pa)])) {
+      if (s in plan.expected.prompts) continue;
+      if (!same(pb[s], pa[s])) changed.push({ key: `prompts.${s}`, before: pb[s], after: pa[s] });
+    }
   }
   if (plan.setKeys.includes('s2sBehaviour')) {
     const sb = readFlat(before, 's2sBehaviour') ?? {}; const sa = readFlat(after, 's2sBehaviour') ?? {};

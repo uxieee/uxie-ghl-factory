@@ -311,3 +311,48 @@ test('an s2s agent: voiceId is read from s2sBehaviour.voiceId, verifies, and is 
   assert.deepEqual(r.verification.confirmed, ['voiceId']);
   assert.equal(readFlat(RECORD(), 'voiceId'), 'v1'); // a text agent still reads the TTS voice
 });
+
+test('prompts: only the five sections GHL stores; the dropped ones are refused with where they live; values text or null', () => {
+  const opts = { agentId: 'A', locationId: 'L' };
+  assert.throws(() => compileVoiceAiPartialUpdate(RECORD(), { prompts: { endCall: 'x' } }, opts), (e) => e.code === 'SPEC_KEY_UNAPPLIED' && /endCallConfig.instruction/.test(e.message));
+  assert.throws(() => compileVoiceAiPartialUpdate(RECORD(), { prompts: { greetingRule: 'x' } }, opts), /does not store it/);
+  assert.throws(() => compileVoiceAiPartialUpdate(RECORD(), { prompts: { bogus: 'x' } }, opts), (e) => /dateAndTimeAwareness/.test(e.message));
+  assert.throws(() => compileVoiceAiPartialUpdate(RECORD(), { prompts: { personality: '' } }, opts), /text, or null/);
+  const plan = compileVoiceAiPartialUpdate(RECORD(), { prompts: { personality: 'Warm.', emailConfirmationProcess: null } }, opts);
+  assert.deepEqual(plan.body.prompts, { personality: 'Warm.', emailConfirmationProcess: null });
+});
+
+test('disabledPrompts: a non-empty list replaces; an empty list is refused (clearing unmeasured)', () => {
+  assert.throws(() => compileVoiceAiPartialUpdate(RECORD(), { disabledPrompts: [] }, { agentId: 'A', locationId: 'L' }), /empty list is refused/);
+  assert.deepEqual(compileVoiceAiPartialUpdate(RECORD(), { disabledPrompts: ['personality'] }, { agentId: 'A', locationId: 'L' }).body.disabledPrompts, ['personality']);
+});
+
+// the measured server: prompts merge by section, null removes the override
+function promptsGw(record) {
+  const gw = fakeGw({ record }); const inner = gw.call;
+  gw.call = async (m, p, b) => {
+    if (m === 'PUT' && b?.prompts) {
+      const { prompts, ...rest } = b; const r = await inner(m, p, rest);
+      const next = { ...(r.json.prompts ?? {}) };
+      for (const [k, v] of Object.entries(prompts)) { if (v === null) delete next[k]; else next[k] = v; }
+      r.json.prompts = next; await inner('PUT', p, { prompts: next }); return r;
+    }
+    return inner(m, p, b);
+  };
+  return gw;
+}
+
+test('prompts: set one section + reset another verifies per section; the untouched override stays; a moved one is collateral', async () => {
+  const before = RECORD(); before.prompts = { dateAndTimeAwareness: 'custom date', numericAndEmailHandling: 'custom numbers' };
+  const opts = { agentId: 'A', locationId: 'L' };
+  const plan = compileVoiceAiPartialUpdate(before, { prompts: { emailConfirmationProcess: 'Spell it back.', numericAndEmailHandling: null } }, opts);
+  const r = await executeVoiceAiUpdate({ plan, before, gw: promptsGw(before), serverMessage });
+  assert.equal(r.ok, true, JSON.stringify(r));
+  assert.deepEqual(r.verification.confirmed, ['prompts']);
+  const b2 = RECORD(); b2.prompts = { dateAndTimeAwareness: 'custom date' };
+  const gw2 = promptsGw(b2); const inner = gw2.call;
+  gw2.call = async (m, p, b) => { const r2 = await inner(m, p, b); if (m === 'PUT' && b?.prompts) { await inner('PUT', p, { prompts: { ...r2.json.prompts, dateAndTimeAwareness: 'moved' } }); } return r2; };
+  const r2 = await executeVoiceAiUpdate({ plan: compileVoiceAiPartialUpdate(b2, { prompts: { personality: 'x' } }, opts), before: b2, gw: gw2, serverMessage });
+  assert.equal(r2.code, 'AGENT_COLLATERAL_CHANGED');
+  assert.deepEqual(r2.collateral.changed.map((c) => c.key), ['prompts.dateAndTimeAwareness']);
+});
