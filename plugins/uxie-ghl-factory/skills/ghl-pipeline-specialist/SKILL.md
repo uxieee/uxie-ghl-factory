@@ -18,7 +18,7 @@ pipelines, stages, and opportunity distribution before asking.
 ## Execute
 | Task | Use | Why |
 |---|---|---|
-| Create or delete a pipeline | public `opportunities-v3` pipeline actions (ghl MCP) | ToS-clean; single calls. Deleting a pipeline deletes its cards with no restore — confirm with the user first |
+| Create or delete a pipeline | public `opportunities-v3` pipeline actions (ghl MCP) | ToS-clean; single calls. Give every stage `position` (0-based) AND `stageWinProbability`: the action's schema omits position, which GHL requires (422), and a missing probability rewrites them all. Deleting a pipeline deletes its cards with no restore — confirm with the user first |
 | Edit an existing pipeline: rename, add / rename / reorder / recolour / re-weight / REMOVE stages | internal `edit_pipeline` | The stages array is a full replace: a stage left out is deleted and its cards silently land in the first stage. edit_pipeline previews, refuses to drop a stage holding cards unless told where they go, moves them, and reads back. Never hand-build a stages array for a raw PUT |
 | Opportunity records: create, update, status, owner, followers, search | public `opportunities__*` (ghl MCP) | everyday record work |
 | Forecast (expected revenue, slipping deals, close-date buckets) | internal `get_pipeline_forecast` (view: summary / timeline / drilldown / slippage) | no public equivalent; it joins stage, pipeline and owner names that GHL returns as UUIDs |
