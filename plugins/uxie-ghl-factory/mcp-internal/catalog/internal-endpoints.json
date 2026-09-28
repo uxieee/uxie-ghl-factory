@@ -43818,17 +43818,17 @@
       "returns": null,
       "confidence": {
         "path": "documented",
-        "query": "documented",
+        "query": "none-observed",
         "body": "unresolved",
         "returns": "unresolved"
       },
       "sources": [
+        "ai-agents/10-anatomy/flow-agent-shape.md:91",
         "ai-agents/20-api/12-ai-agents-api.md:314",
         "ai-agents/20-api/knowledge-base.md:55",
         "ai-agents/20-api/knowledge-base.md:102",
         "ai-agents/20-api/knowledge-base.md:116",
-        "ai-agents/20-api/knowledge-base.md:117",
-        "ai-agents/20-api/knowledge-base.md:154"
+        "ai-agents/20-api/knowledge-base.md:117"
       ]
     },
     {
