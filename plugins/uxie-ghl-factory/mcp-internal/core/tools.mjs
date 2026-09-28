@@ -11258,7 +11258,7 @@ export const TOOLS = [
       + 'domain); a store and a webinar are GHL\'s BLANK TEMPLATE installs — that is the UI\'s own blank path '
       + '(store: 7 steps, cart/checkout/product pages, no products; webinar: registration, confirmation, '
       + 'broadcast and expired pages, bound to the registration form you name, which must be one of this '
-      + 'location\'s forms); a blog gets a Blog Home and a Blog Post step. The blank store\'s Contact Us page '
+      + 'location\'s forms; webinar.date is the calendar day and the start is converted from webinar.timezone to UTC — GHL\'s own one-off wizard uses the browser\'s offset instead — and the session is read back); a blog gets a Blog Home and a Blog Post step. The blank store\'s Contact Us page '
       + 'embeds a form from GHL\'s template account that does not exist here — rebind it. Other templates '
       + 'are not offered: an install can bring side assets. The funnels list\'s "Build with AI" (the AI '
       + 'builder; it creates a funnel on click) is left to the UI — this tool plus build_funnel_page is the '
@@ -11269,7 +11269,9 @@ export const TOOLS = [
       name: z.string(),
       description: z.string().optional(),
       webinar: z.object({
-        timezone: z.string(), date: z.string(), startTime: z.string(), endTime: z.string(),
+        timezone: z.string().describe('IANA timezone the webinar runs in, e.g. America/New_York'),
+        date: z.string().describe('the session\'s calendar day "YYYY-MM-DD"; startTime on that day in `timezone` is converted to UTC for you'),
+        startTime: z.string(), endTime: z.string(),
         formId: z.string(), videoUrl: z.string().optional(),
       }).optional(),
       confirm: z.boolean().default(false),
@@ -11283,6 +11285,7 @@ export const TOOLS = [
       { method: 'POST', path: '/funnels/funnel/create' },
       { method: 'POST', path: '/templates/template/load' },
       { method: 'POST', path: '/blogs/site' },
+      { method: 'POST', path: '/funnels/funnel/webinar/sessions' },
     ],
     handler: async (args, deps) => {
       let tracked = null;
@@ -11332,6 +11335,18 @@ export const TOOLS = [
           ...(args.kind === 'blog' ? { blogList: blogRow ? { id: blogRow._id, name: blogRow.name } : null } : {}),
           ...(args.kind === 'store' ? { note: STORE_DANGLING_FORM_NOTE } : {}),
         };
+        // A webinar's schedule is proven by its SESSION, not the stored strings: GHL builds the session from endDate.
+        if (args.kind === 'webinar' && id) {
+          const want = Date.parse(plan.sessionStart);
+          const got = await reread(async () => (await gw.call('POST', '/funnels/funnel/webinar/sessions', { webinarId: id, locationId: args.locationId, includeDeleted: false })).json?.webinarSessions ?? [],
+            (rows) => rows.length > 0, deps.rereadOptions ?? {});
+          const sessions = got.value.map((x) => ({ start: x.sessionStart, end: x.sessionEnd, timezone: x.timezone }));
+          out.sessions = sessions;
+          out.sessionStart = { sent: plan.sessionStart, wall: `${args.webinar.startTime} ${args.webinar.timezone}` };
+          if (!sessions.some((x) => Date.parse(x.start) === want)) {
+            return withFailureData(fail(CODES.VERIFY_FAILED, `the webinar was created but its session does not start at ${plan.sessionStart} (${out.sessionStart.wall})`, 'Open Sites → Webinars → ⋮ → Edit and check the date and time; do not create again.'), out);
+          }
+        }
         const typeOk = f && f.type === EXPECT_TYPE[args.kind] && (args.kind !== 'store' || f.isStoreActive === true);
         if (!f || f.name !== name || !typeOk || (args.kind === 'blog' && !blogRow)) {
           return withFailureData(fail(CODES.VERIFY_FAILED, `create answered ${w.status} but the ${args.kind} did not read back as created`, 'Do not create again: find_ghl_site list:true first.'), out);

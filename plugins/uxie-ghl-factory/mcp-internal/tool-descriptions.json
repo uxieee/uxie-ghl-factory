@@ -2222,9 +2222,9 @@
     ]
   },
   "create_funnel": {
-    "description": "Create a funnel, website, store, webinar or blog document on a location — proof: live-runtime (2026-09-28); risk: write",
+    "description": "Create a funnel, website, store, webinar or blog document on a location — proof: live-runtime (2026-09-29); risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-09-28)",
+    "proof": "live-runtime (2026-09-29)",
     "proofFloor": "external-receipt-required",
     "proofRows": [
       "funnels--funnel-create",

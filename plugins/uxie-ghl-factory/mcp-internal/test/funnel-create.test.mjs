@@ -4,7 +4,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { TOOLS } from '../core/tools.mjs';
-import { planCreateFunnel, createdId, listAllDocuments, BLANK_TEMPLATES } from '../core/funnel-create.mjs';
+import { planCreateFunnel, createdId, listAllDocuments, BLANK_TEMPLATES, webinarStartUtc } from '../core/funnel-create.mjs';
 import { planDeleteFunnel, planSplit, splitStamp } from '../core/funnel-ops.mjs';
 
 const tool = (n) => TOOLS.find((t) => t.name === n);
@@ -68,8 +68,8 @@ test('planCreateFunnel sends each kind exactly as its New screen does', () => {
   const wb = planCreateFunnel({ kind: 'webinar', name: 'W', locationId: 'L', companyId: 'C', webinar: w, formName: 'Reg' });
   assert.equal(wb.body.templateId, BLANK_TEMPLATES.webinar);
   assert.equal(wb.body.subProduct, 'live');
-  assert.deepEqual([wb.body.extras.webinarProperties.endDate, wb.body.extras.webinarProperties.endTime, wb.body.extras.webinarProperties.webinarEndTime], [w.date, '10:00', '11:00'],
-    'the wizard stores the START as endDate/endTime and the END as webinarEndTime');
+  assert.deepEqual([wb.body.extras.webinarProperties.endDate, wb.body.extras.webinarProperties.endTime, wb.body.extras.webinarProperties.webinarEndTime], ['2026-10-01T02:00:00Z', '10:00', '11:00'],
+    'the wizard stores the START as endDate/endTime and the END as webinarEndTime; endDate is that start in UTC');
   assert.match(planCreateFunnel({ kind: 'webinar', name: 'W', locationId: 'L', companyId: 'C', webinar: { ...w, formId: '' } }).refuse, /formId/);
   assert.match(planCreateFunnel({ kind: 'webinar', name: 'W', locationId: 'L', companyId: 'C', webinar: { ...w, startTime: '9am' } }).refuse, /HH:mm/);
   assert.match(planCreateFunnel({ kind: 'nope', name: 'x' }).refuse, /kind/);
@@ -81,7 +81,7 @@ test('createdId reads each route\'s own response shape', () => {
   assert.equal(createdId('blog', {}), null);
 });
 
-function createDeps({ existing = [], created = null, forms = { FORM1: 'Reg' } } = {}) {
+function createDeps({ existing = [], created = null, forms = { FORM1: 'Reg' }, sessionStart = null } = {}) {
   const calls = [];
   let doc = null;
   return {
@@ -92,7 +92,8 @@ function createDeps({ existing = [], created = null, forms = { FORM1: 'Reg' } } 
       if (path.startsWith('/forms/')) { const id = path.split('/')[2]; return forms[id] ? { ok: true, status: 200, json: { form: { name: forms[id] } } } : { ok: false, status: 401, json: { message: 'Access Forbidden' } }; }
       if (path.startsWith('/locations/')) return { ok: true, status: 200, json: { location: { companyId: 'C1' }, companyId: 'C1' } };
       if (path === '/funnels/funnel/create') { doc = { _id: 'NEW', name: body.name, type: body.type, steps: [] }; return { ok: true, status: 201, json: { ok: true, id: 'NEW', name: body.name } }; }
-      if (path === '/templates/template/load') { doc = { _id: 'NEW', name: body.extras.name, type: body.product === 'stores' ? 'website' : 'webinar', isStoreActive: body.product === 'stores', steps: [{ id: 's', name: 'x', pages: ['p'] }] }; return { ok: true, status: 201, json: { status: 'ok', data: { status: 'completed', target: { asset: 'funnels', assetId: 'NEW' } } } }; }
+      if (path === '/funnels/funnel/webinar/sessions') { const e = sessionStart ?? doc?.endDate; return { ok: true, status: 201, json: { webinarSessions: e ? [{ sessionStart: new Date(Date.parse(e)).toISOString(), sessionEnd: null, timezone: doc?.tz }] : [] } }; }
+      if (path === '/templates/template/load') { doc = { endDate: body.extras.webinarProperties?.endDate, tz: body.extras.webinarProperties?.timezone, _id: 'NEW', name: body.extras.name, type: body.product === 'stores' ? 'website' : 'webinar', isStoreActive: body.product === 'stores', steps: [{ id: 's', name: 'x', pages: ['p'] }] }; return { ok: true, status: 201, json: { status: 'ok', data: { status: 'completed', target: { asset: 'funnels', assetId: 'NEW' } } } }; }
       if (path === '/blogs/site') { doc = { _id: 'NEWB', name: body.title, type: 'blog', steps: [] }; return { ok: true, status: 201, json: {} }; }
       if (path.startsWith('/funnels/funnel/blog/list/')) return { ok: true, status: 200, json: { data: doc ? [doc] : [] } };
       if (path.startsWith('/funnels/funnel/fetch/')) return doc && path.includes(doc._id) ? { ok: true, status: 200, json: structuredClone(created ?? doc) } : { ok: false, status: 400, json: { message: 'Funnel does not exist or is deleted' } };
@@ -242,4 +243,31 @@ test('declare-winner tolerates the archived page\'s lookup row lingering for one
   const w = await ef({ op: 'split-test', stepId: 'S1', action: 'declare-winner', winnerPageId: 'P1', confirm: true }, d);
   assert.equal(w.ok, true, w.detail);
   assert.equal(w.data.archivedPageLookupLeft, false);
+});
+
+// Rule 47 (knowledge funnels/40-rules/silent-failures.md): GHL's one-off wizard stores the start with the BROWSER's
+// offset, so a Manila machine creating "10:00 New York" got a 02:00Z session. The tool converts in webinar.timezone.
+test('webinar start: the calendar day + startTime are converted in webinar.timezone, whatever the caller\'s offset', () => {
+  const ny = { timezone: 'America/New_York', startTime: '10:00' };
+  assert.equal(webinarStartUtc({ ...ny, date: '2026-10-01' }).utc, '2026-10-01T14:00:00Z', 'EDT: UTC-4');
+  assert.equal(webinarStartUtc({ ...ny, date: '2026-12-01' }).utc, '2026-12-01T15:00:00Z', 'EST: UTC-5');
+  assert.equal(webinarStartUtc({ ...ny, date: '2026-10-01T10:00:00-04:00' }).utc, '2026-10-01T14:00:00Z', 'an instant whose offset agrees is accepted');
+  // control: the exact shape GHL's wizard sends from a UTC+8 browser is refused, naming the day to send instead
+  assert.match(webinarStartUtc({ ...ny, date: '2026-10-01T10:00:00+08:00' }).refuse, /disagrees with the webinar timezone.*"2026-10-01"/);
+  assert.equal(webinarStartUtc({ timezone: 'Asia/Manila', startTime: '10:00', date: '2026-10-01' }).utc, '2026-10-01T02:00:00Z');
+  assert.match(webinarStartUtc({ ...ny, date: '2027-03-14', startTime: '02:30' }).refuse, /daylight-saving gap/);
+  assert.match(webinarStartUtc({ ...ny, timezone: 'Nope/X', date: '2026-10-01' }).refuse, /IANA/);
+  assert.match(webinarStartUtc({ ...ny, date: 'Oct 1' }).refuse, /YYYY-MM-DD/);
+});
+
+test('create_funnel webinar: sends the UTC start, reads the SESSION back, and fails loudly when it runs at another time', async () => {
+  const w = { timezone: 'America/New_York', date: '2026-10-01', startTime: '10:00', endTime: '11:00', formId: 'FORM1' };
+  const d = createDeps();
+  const r = await cf({ kind: 'webinar', name: 'TEST ny', webinar: w, confirm: true }, d);
+  assert.equal(r.ok, true, r.detail);
+  assert.equal(writes(d.calls)[0].body.extras.webinarProperties.endDate, '2026-10-01T14:00:00Z');
+  assert.equal(r.data.sessions[0].start, '2026-10-01T14:00:00.000Z');
+  const shifted = await cf({ kind: 'webinar', name: 'TEST ny2', webinar: w, confirm: true }, createDeps({ sessionStart: '2026-10-01T02:00:00Z' }));
+  assert.equal(shifted.code, 'VERIFY_FAILED', 'a session at another instant is not success');
+  assert.equal(shifted.data.sessionStart.sent, '2026-10-01T14:00:00Z');
 });
