@@ -11,6 +11,37 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.12.0] — 2026-09-29
+
+**Two new tools: roll a workflow back to an earlier version, and switch a Conversation AI agent on or off per channel
+without touching any other agent's routing. Fix: opportunity triggers filtered by pipeline stage were refused by GHL.
+Each change was executed live on the test account.**
+
+Workflows:
+- **New `restore_workflow_version`:** restore a workflow to an earlier version, as a draft. It targets the workflow by id
+  AND current name. The preview shows the version number and the step, trigger, settings and name changes. It refuses
+  what the builder refuses: a published workflow, contacts still in a step, or the current version. It runs the
+  builder's sequence (triggers replaced, content restored with forceDraft) and reads back.
+- **Fixed — opportunity triggers with a pipeline-stage filter were refused by GHL** ("Invalid value for the 'Pipeline
+  Stage' filter"). The dependent stage row is now written with the builder's operator and title; the "in pipeline"
+  parent is required. `pipeline_stage_updated` fires both on a move into the stage and on a create in it.
+- Skill: deleting workflows and publishing from the list are pointed to the UI; restore from the Deleted tab is
+  documented. 🔴 A test run on a DRAFT executes for real, sends included. The time window holds sends only.
+
+AI agents:
+- **New `set_agent_deployment`:** write one agent's channel routing row (Conversation AI → Deploy): create it or update
+  it. It reads the whole routing table before and after and fails unless every other agent's row is byte-identical. It
+  refuses ambiguous targets and impossible identifiers, lists other agents whose tag audience would collide, and never
+  deletes: a row is turned off with `enabled: false`. Proven with disabled rows only; no live channel was touched.
+- Skill: routing writes go through the tool. Tag filters ARE editable in the builder (Has tags / Doesn't have tags,
+  AND/OR). There is no AI simulation tab and no per-row hours.
+
+Funnels & websites:
+- Pointed to rather than authored: webinar schedule, recurrence and notifications (a one-off webinar is stored with
+  the SAVING browser's UTC offset, not the webinar's timezone), and Widget Marketplace widgets.
+
+Catalogue: routing-config rows corrected to `/agent-deployment/routing-config/*`; webinar, template and email rows added.
+
 ## [1.11.0] — 2026-09-29
 
 **Funnel stats in `get_funnel`; fix: a composed video rendered an empty box; workflow settings semantics and agent
