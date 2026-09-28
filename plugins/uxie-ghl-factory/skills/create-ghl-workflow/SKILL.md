@@ -188,8 +188,9 @@ workflow that builds clean, verifies clean, and behaves wrongly at runtime.
   "If no company is associated, this action will be skipped". On a contact with no company it
   FAILS, and a failed step emails every admin by default. Its sibling `update_associated_company`
   really does skip. Where a company exists, it logs `success` and clears NOTHING, even with the
-  builder's own row (live 2026-09-28, twice). To blank company fields, use
-  `update_associated_company`. The engine cannot see any of this: whether a contact has a company
+  builder's own row (live 2026-09-28, twice). No workflow step has been shown to blank a company
+  field. `update_associated_company` overwrites a field with a new value (proven); an empty value
+  was never run. The engine cannot see any of this: whether a contact has a company
   is runtime data. The company steps' fields live in `__customInputFields__` rows
   (`{filterField: "business.<key>", valueField}`), not in `inputs`. Read the card.
 - **`workflow_ai_extract_data` output is `{{workflow_ai_extract_data.N.<fieldName>}}`.**
