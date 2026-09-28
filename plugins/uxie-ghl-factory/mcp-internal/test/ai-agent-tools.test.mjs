@@ -76,3 +76,44 @@ test('studio keeps both distinct when both supplied', () => {
   assert.ok(plan.create.body.message.includes('Build a greeter.'));
   assert.equal(plan.verifyExpected.config.systemPrompt, 'You are a greeter.');
 });
+
+// T9 (2026-09-28). Live: a new Managed Agent carries the Default plugin with every CRM skill unless told
+// otherwise; a schedule runs in the LOCATION's timezone (a once-schedule labelled 17:30 "UTC" fired at 17:30
+// Europe/London); a new Voice AI agent saves each call summary as a note on the caller and emails all admins.
+test('create_studio_agent preview names the plugin default, and plugins:[] when given (control)', async () => {
+  const deps = { state: {}, makeGw: () => { throw new Error('preview must not create gateway'); } };
+  const dflt = await tool('create_studio_agent').handler({ locationId: 'L', companyId: 'A', spec: studio }, deps);
+  assert.match(dflt.data.preview.defaults.plugins, /ALL built-in CRM skills/);
+  const none = await tool('create_studio_agent').handler({ locationId: 'L', companyId: 'A', spec: { ...studio, plugins: [] } }, deps);
+  assert.match(none.data.preview.defaults.plugins, /^none/);
+});
+
+test('create_studio_agent refuses a schedule labelled with a timezone other than the location\'s, before any write', async () => {
+  const calls = [];
+  const gw = { call: async (m, p) => { calls.push(`${m} ${p}`); return { ok: true, status: 200, json: { location: { timezone: 'Europe/London' } } }; }, stream: async () => { throw new Error('must not build'); } };
+  const deps = { state: {}, makeGw: () => gw };
+  const spec = { ...studio, plugins: [], triggers: [{ type: 'schedule', config: { schedule: { mode: 'once', startDate: '2026-12-31', startTime: '17:30', timezone: 'UTC' } } }] };
+  const r = await tool('create_studio_agent').handler({ locationId: 'L', companyId: 'A', spec, confirm: true }, deps);
+  assert.equal(r.code, 'SCHEDULE_TIMEZONE_MISMATCH');
+  assert.match(r.detail, /Europe\/London/);
+  assert.deepEqual(calls, ['GET /locations/L']);
+});
+
+test('create_studio_agent lets a schedule in the location\'s own timezone through to the build (control)', async () => {
+  const calls = [];
+  const gw = { call: async (m, p) => { calls.push(`${m} ${p}`); return { ok: true, status: 200, json: { location: { timezone: 'Europe/London' } } }; }, stream: async () => { calls.push('STREAM build'); throw new Error('stop here'); } };
+  const deps = { state: {}, makeGw: () => gw };
+  const spec = { ...studio, plugins: [], triggers: [{ type: 'schedule', config: { schedule: { mode: 'once', startDate: '2026-12-31', startTime: '17:30', timezone: 'Europe/London' } } }] };
+  const r = await tool('create_studio_agent').handler({ locationId: 'L', companyId: 'A', spec, confirm: true }, deps);
+  assert.notEqual(r.code, 'SCHEDULE_TIMEZONE_MISMATCH');
+  assert.ok(calls.includes('STREAM build') || calls.some((c) => c.startsWith('POST')), JSON.stringify(calls));
+});
+
+test('create_voiceai_agent preview names the post-call defaults, and an explicit false when given (control)', async () => {
+  const deps = { state: {}, makeGw: () => { throw new Error('preview must not create gateway'); } };
+  const dflt = await tool('create_voiceai_agent').handler({ locationId: 'L', spec: voiceai }, deps);
+  assert.match(dflt.data.preview.defaults.saveCallSummaryAsNote, /default ON/);
+  assert.match(dflt.data.preview.defaults.sendPostCallNotificationTo, /all admins/);
+  const off = await tool('create_voiceai_agent').handler({ locationId: 'L', spec: { ...voiceai, postCall: { saveCallSummaryAsNote: false } } }, deps);
+  assert.equal(off.data.preview.defaults.saveCallSummaryAsNote, 'false');
+});

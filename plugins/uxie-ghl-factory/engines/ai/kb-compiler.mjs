@@ -138,18 +138,13 @@ function parseKbTableUploadIR({ knowledgeBaseId, csvFilename } = {}) {
   return { knowledgeBaseId, csvFilename };
 }
 
-// compileKbTableUpload — the full Tables pipeline, one descriptor per captured step:
-//   1. upload         POST .../upload (multipart) -> {fileId, name, ...}
-//   2. schema         GET  .../:fileId/schema      -> auto-detected column schema
-//   3. selectColumns  POST .../:fileId/select-columns -> finalizes schema, queues Parquet
-//   4. parquetStatus  GET  .../:fileId/parquet-status  -> poll until COLUMNS_VALIDATED/READY
-//   5. summary        GET  .../:fileId/summary         -> feeds the wizard's Summary step
-//   6. delete         DELETE .../:fileId
-// This module never builds the multipart body itself — the note on `upload` documents
-// what the caller must supply. `selectColumns`'s body is a template, not a literal
-// request body: the capture shows `selectedColumns` must be the (possibly caller-edited)
-// `availableColumns` array from the `schema` response — this compiler has no network
-// access to fetch that response, so it cannot fill the array in for the caller.
+// compileKbTableUpload — NOT A PROVEN CONTRACT. It encodes the 2026-07 capture's Tables pipeline
+// (upload -> /:fileId/schema -> select-columns -> /:fileId/parquet-status -> /:fileId/summary -> delete).
+// The live pipeline measured 2026-09-28 is upload (multipart) -> POST /:fileId/select-columns -> GET /:fileId/status
+// (ANALYZING -> PROCESSING -> INDEXING) -> GET /:fileId/data?page=&limit= -> DELETE /:fileId; the schema,
+// parquet-status and summary steps were not seen. No tool calls this; the live routes and bodies are in
+// skills/ghl-knowledge-base/SKILL.md ("Sources — what ran live"). The upload is multipart, which this module
+// never builds; `selectColumns`'s body is a template the caller fills.
 export function compileKbTableUpload(input, { locationId } = {}) {
   const { knowledgeBaseId, csvFilename } = parseKbTableUploadIR(input);
   const base = `/knowledge-base/table/location/${locationId}/kb/${knowledgeBaseId}`;

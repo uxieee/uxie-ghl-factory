@@ -121,6 +121,7 @@ function checkPostCall(pc) {
   assertObject(pc, 'postCall');
   if (pc.sendPostCallNotificationTo !== undefined) assertObject(pc.sendPostCallNotificationTo, 'postCall.sendPostCallNotificationTo');
   assertArrayIfPresent(pc.callEndWorkflowIds, 'postCall.callEndWorkflowIds');
+  assertBooleanIfPresent(pc.saveCallSummaryAsNote, 'postCall.saveCallSummaryAsNote');
 }
 
 function checkOutbound(ob) {

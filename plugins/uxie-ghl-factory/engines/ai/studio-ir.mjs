@@ -17,20 +17,24 @@ export { IRError };
 // also the default studio-compiler.mjs falls back to when the IR omits `model`.
 export const DEFAULT_MODEL = 'anthropic/claude-sonnet-4-6';
 
-// config.tools[] enum — agent-studio-internal.md: "Capabilities -> tools[] 1:1:
-// web_search, image_generation; attaching a KB auto-adds kb_search." All three are
-// captured live (studio-update.json variants 1/3/4).
-export const TOOLS = ['web_search', 'image_generation', 'kb_search'];
+// config.tools[] — the built-in capability ids. Each was written to a Managed Agent and read back live
+// (2026-09-28), and the editor lists them under Capabilities / Knowledge / Apps. The server does NOT
+// validate this list (an unknown id was stored), so this engine does. Attaching a KB auto-adds kb_search.
+export const TOOLS = ['web_search', 'kb_search', 'web_fetch', 'image_generation', 'tts_generation', 'video_generation', 'mcp'];
 
-// config.triggers[].type values actually observed live: 'chat' (studio-create.json's
-// default "Chat Started" trigger, auto-added by the NL build) and 'contact_created'
-// (studio-update.json variant 2, "Add trigger" -> "Contact created"). The doc's
-// endpoint map also lists 6 more UI labels (Form submitted, Lead tag, Schedule,
-// Appointment booked, Appointment status, Opportunity created, Opportunity status
-// changed) but their wire `type` slugs were never captured, so — same epistemic
-// stance as voiceai-ir.mjs's VERIFIED_ACTION_TYPES — this engine does not guess
-// them. Any trigger.type string is accepted; only these two are "verified".
-export const VERIFIED_TRIGGER_TYPES = ['chat', 'contact_created'];
+// config.triggers[].type — the 13 types the editor's Add-trigger picker offers. Each type's config was
+// written and read back live (2026-09-28). The server enforces one rule about them, the chat-alone rule
+// below; everything else the editor requires (a form, a calendar, a page…) is client-side only.
+export const VERIFIED_TRIGGER_TYPES = ['chat', 'form', 'tag', 'schedule', 'appointment_booked', 'appointment_status',
+  'contact_created', 'opportunity_created', 'opportunity_status_changed', 'survey_submission', 'facebook_lead_gen',
+  'facebook_comment', 'workflows'];
+
+// The server's own rule, verbatim from its 400: "A Managed Agent can be triggered by chat alone, or by a
+// combination of non-chat triggers (…), but not both. Being invoked from a workflow is an exception — it
+// can be combined with either."
+export const TRIGGER_MIX_RULE = 'A Managed Agent can be triggered by chat alone, or by a combination of non-chat triggers, but not both; "workflows" can be combined with either.';
+
+export const IMAGE_QUALITIES = ['low', 'medium', 'high'];
 
 function assertNonEmptyString(v, field) {
   if (typeof v !== 'string' || v.length === 0) throw new IRError('SCHEMA', `${field} must be a non-empty string`);
@@ -72,27 +76,43 @@ function checkTriggerShape(t, field) {
   assertStringIfPresent(t.triggerMessage, `${field}.triggerMessage`);
 }
 
-// Single-trigger constraint: per agent-studio-internal.md, "PUT REPLACES the whole
-// `config` object... the UI only supports one active trigger at a time per agent,
-// not multiple concurrent triggers" (selecting a new type REPLACES the array, it
-// never appends). This IR mirrors that with a singular `trigger` field (the primary,
-// documented input shape) but also accepts a raw `triggers` array — for callers that
-// already have a wire-shaped list (e.g. reconciled from a prior GET) — PROVIDED it
-// has at most one element; 2+ elements is a hard IRError, since the real builder can
-// never produce or accept that shape.
+// Triggers: a singular `trigger` or a `triggers` array of any length (several triggers were stored and
+// read back live; the editor marks each added type "Added"). An older version of this file allowed only
+// one — that came from a capture, and the platform refutes it.
 function checkTrigger(ir) {
   const hasSingle = ir.trigger !== undefined;
   const hasArray = ir.triggers !== undefined;
   if (hasSingle && hasArray) throw new IRError('SCHEMA', 'specify either `trigger` or `triggers`, not both');
-  if (hasSingle) {
-    if (Array.isArray(ir.trigger)) throw new IRError('TOO_MANY_TRIGGERS', 'trigger must be a single object, not an array — Super Agents support only ONE active trigger');
-    checkTriggerShape(ir.trigger, 'trigger');
+  if (hasSingle && Array.isArray(ir.trigger)) throw new IRError('SCHEMA', 'trigger must be a single object; use `triggers` for several');
+  if (hasArray && !Array.isArray(ir.triggers)) throw new IRError('SCHEMA', 'triggers must be an array');
+  const list = hasSingle ? [ir.trigger] : hasArray ? ir.triggers : [];
+  list.forEach((t) => checkTriggerShape(t, hasSingle ? 'trigger' : 'triggers[]'));
+  const types = list.map((t) => t.type);
+  if (types.includes('chat') && types.some((t) => t !== 'chat' && t !== 'workflows')) throw new IRError('TRIGGER_MIX', TRIGGER_MIX_RULE);
+  for (const t of list.filter((x) => x.type === 'schedule')) {
+    const sch = t.config?.schedule;
+    if (!sch || typeof sch !== 'object') throw new IRError('SCHEMA', 'a schedule trigger needs config.schedule {mode, startDate, startTime, …}');
+    if (!['once', 'interval', 'cron'].includes(sch.mode)) throw new IRError('SCHEMA', 'config.schedule.mode must be once, interval or cron');
   }
-  if (hasArray) {
-    if (!Array.isArray(ir.triggers)) throw new IRError('SCHEMA', 'triggers must be an array');
-    if (ir.triggers.length > 1) throw new IRError('TOO_MANY_TRIGGERS', `Super Agents support only ONE active trigger; got ${ir.triggers.length}`);
-    for (const t of ir.triggers) checkTriggerShape(t, 'triggers[]');
+}
+
+// plugins[] — the apps an agent may use. Absent means GHL's default: the Default plugin with ALL of its
+// built-in CRM skills (it can message contacts and write CRM records). [] removes every app.
+function checkPlugins(plugins) {
+  if (plugins === undefined) return;
+  if (!Array.isArray(plugins)) throw new IRError('SCHEMA', 'plugins must be an array ([] for no apps)');
+  for (const p of plugins) {
+    if (!p || typeof p !== 'object' || typeof p.slug !== 'string' || !p.slug) throw new IRError('SCHEMA', 'each plugin must be an object with a slug');
   }
+}
+
+function checkMedia(ir) {
+  if (ir.imageGeneration !== undefined && ir.imageGeneration !== null) {
+    assertObject(ir.imageGeneration, 'imageGeneration');
+    if (ir.imageGeneration.quality !== undefined && !IMAGE_QUALITIES.includes(ir.imageGeneration.quality))
+      throw new IRError('SCHEMA', `imageGeneration.quality must be one of ${IMAGE_QUALITIES.join(', ')}`);
+  }
+  if (ir.mediaSettings !== undefined) assertObject(ir.mediaSettings, 'mediaSettings');
 }
 
 function checkKnowledgeBaseIds(ids) {
@@ -125,6 +145,8 @@ export function parseSuperAgentIR(ir) {
   assertStringIfPresent(ir.model, 'model');
   checkTools(ir.tools);
   checkTrigger(ir);
+  checkPlugins(ir.plugins);
+  checkMedia(ir);
   assertStringIfPresent(ir.reasoningEffort, 'reasoningEffort');
   checkKnowledgeBaseIds(ir.knowledgeBaseIds);
   checkStarterPrompts(ir.starterPrompts);

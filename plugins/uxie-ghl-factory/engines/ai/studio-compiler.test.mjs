@@ -111,14 +111,33 @@ test('compileSuperAgentUpdate: rejects invalid IR (bad tool enum)', () => {
     (e) => e.code === 'BAD_TOOL');
 });
 
-test('compileSuperAgentUpdate: rejects invalid IR (2+ triggers)', () => {
-  const ir = {
-    name: 'X',
-    systemPrompt: 'Y',
-    triggers: [{ type: 'chat' }, { type: 'contact_created' }],
-  };
+test('compileSuperAgentUpdate: rejects chat mixed with a non-chat trigger', () => {
+  const ir = { name: 'X', systemPrompt: 'Y', triggers: [{ type: 'chat' }, { type: 'contact_created' }] };
   assert.throws(() => compileSuperAgentUpdate(ir, { agentId: AGENT_ID, locationId: LOCATION_ID }),
-    (e) => e.code === 'TOO_MANY_TRIGGERS');
+    (e) => e.code === 'TRIGGER_MIX');
+});
+
+test('compileSuperAgentUpdate: emits EVERY trigger (was: only the first)', () => {
+  const ir = { name: 'X', systemPrompt: 'Y', triggers: [{ type: 'tag', config: { tagIds: ['a'], tagNames: ['a'], tagAction: 'added' } }, { type: 'workflows' }] };
+  const { body } = compileSuperAgentUpdate(ir, { agentId: AGENT_ID, locationId: LOCATION_ID });
+  assert.deepEqual(body.config.triggers.map((t) => t.type), ['tag', 'workflows']);
+});
+
+test('compileSuperAgentUpdate: plugins [] is honoured; omitted means the all-skills Default (control)', () => {
+  const none = compileSuperAgentUpdate({ name: 'X', systemPrompt: 'Y', plugins: [] }, { agentId: AGENT_ID, locationId: LOCATION_ID });
+  assert.deepEqual(none.body.config.plugins, []);
+  const dflt = compileSuperAgentUpdate({ name: 'X', systemPrompt: 'Y' }, { agentId: AGENT_ID, locationId: LOCATION_ID });
+  assert.equal(dflt.body.config.plugins[0].slug, 'default');
+  assert.equal(dflt.body.config.plugins[0].allSkills, true);
+});
+
+test('compileSuperAgentUpdate: imageGeneration and mediaSettings pass through only when given', () => {
+  const withMedia = compileSuperAgentUpdate({ name: 'X', systemPrompt: 'Y', imageGeneration: { quality: 'low' }, mediaSettings: { tts: { voice: 'nova' } } }, { agentId: AGENT_ID, locationId: LOCATION_ID });
+  assert.deepEqual(withMedia.body.config.imageGeneration, { quality: 'low' });
+  assert.deepEqual(withMedia.body.config.mediaSettings, { tts: { voice: 'nova' } });
+  const plain = compileSuperAgentUpdate({ name: 'X', systemPrompt: 'Y' }, { agentId: AGENT_ID, locationId: LOCATION_ID });
+  assert.equal('imageGeneration' in plain.body.config, false);
+  assert.equal('mediaSettings' in plain.body.config, false);
 });
 
 // --- compileSuperAgentCreate (POST /agent-studio/super-agents/build) --------------

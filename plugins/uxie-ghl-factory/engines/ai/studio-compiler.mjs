@@ -44,35 +44,30 @@ export const BUILD_MODES = ['fast'];
 // (no variation was ever observed across any of the 4 update-capture variants):
 //   - contextManagement: identical {strategy, keepRecentTurns, compactionThreshold}
 //     across studio-create.json and every studio-update.json variant.
-//   - plugins: identical single 'default' plugin entry (skills:[], allSkills:true,
-//     i.e. "all 423 built-in CRM tools enabled") across every capture. Per-skill
-//     scoping is flagged as an unresolved/gated UI path in agent-studio-internal.md's
-//     "Open items" #1 — unchecking a category never fired a PUT in the captured
-//     session — so this compiler has no grounded way to emit a narrower plugins[]
-//     and does not attempt to.
+//   - plugins: GHL's own default for a new agent — the Default plugin with every built-in CRM skill
+//     (allSkills:true; 540 skills on 2026-09-28, including sending SMS/email and writing contacts and
+//     opportunities). Used only when the IR omits `plugins`; `plugins: []` (no apps) is honoured, and
+//     the tool's preview names the default so it is never applied silently.
+export const DEFAULT_PLUGINS = [{ slug: 'default', name: 'Default', description: 'Built-in crm skills for your agent', skills: [], allSkills: true }];
+
 const DEFAULTS = {
   contextManagement: { strategy: 'summarize', keepRecentTurns: 10, compactionThreshold: 0.9 },
   reasoningEffort: 'medium',
-  plugins: [{ slug: 'default', name: 'Default', description: 'Built-in crm skills for your agent', skills: [], allSkills: true }],
+  plugins: DEFAULT_PLUGINS,
   description: '',
 };
 
-// Normalize the IR's singular `trigger` (or, if given instead, the length-<=1
-// `triggers` array — see studio-ir.mjs's checkTrigger) into the wire's `triggers[]`.
-// Per the capture: selecting a trigger type REPLACES the array wholesale, so this is
-// always emitted as a 0- or 1-element array, never merged with anything prior — the
-// caller supplies the full desired trigger (if any) on every call, consistent with
-// the full-replace semantics of the surrounding config object.
+// The IR's singular `trigger` or its `triggers` array, mapped whole onto the wire's `triggers[]` (the
+// config is a full replace, so the caller supplies every trigger it wants on every call).
 function buildTriggers(norm) {
-  const t = norm.trigger ?? (Array.isArray(norm.triggers) ? norm.triggers[0] : undefined);
-  if (!t) return [];
-  return [{
+  const list = norm.trigger ? [norm.trigger] : Array.isArray(norm.triggers) ? norm.triggers : [];
+  return list.map((t) => ({
     type: t.type,
     name: t.name ?? t.type,
     enabled: t.enabled ?? true,
     config: t.config ?? {},
     triggerMessage: t.triggerMessage ?? '',
-  }];
+  }));
 }
 
 // Build the full `config` object — field names/order trace 1:1 to
@@ -99,10 +94,12 @@ function buildConfig(norm) {
     triggers: buildTriggers(norm),
     contextManagement: DEFAULTS.contextManagement,
     reasoning: { effort: norm.reasoningEffort ?? DEFAULTS.reasoningEffort },
-    plugins: DEFAULTS.plugins,
+    plugins: norm.plugins ?? DEFAULTS.plugins,
     starterPrompts: norm.starterPrompts ?? [],
     knowledgeBaseIds,
     actions: [],
+    ...(norm.imageGeneration !== undefined ? { imageGeneration: norm.imageGeneration } : {}),
+    ...(norm.mediaSettings !== undefined ? { mediaSettings: norm.mediaSettings } : {}),
   };
 }
 

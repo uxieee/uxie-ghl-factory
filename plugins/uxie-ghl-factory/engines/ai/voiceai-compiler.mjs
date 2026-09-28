@@ -161,6 +161,8 @@ function buildUpdateBody(ir, { locationId } = {}) {
     callEndWorkflowIds: postCall.callEndWorkflowIds ?? DEFAULTS.callEndWorkflowIds,
     advancedSettingsEnabled: ir.advancedSettingsEnabled ?? DEFAULTS.advancedSettingsEnabled,
     sendPostCallNotificationTo: postCall.sendPostCallNotificationTo ?? DEFAULTS.sendPostCallNotificationTo,
+    // GHL's own default is ON (every call summary saved as a note on the caller's contact); sent only when asked.
+    ...(postCall.saveCallSummaryAsNote !== undefined ? { saveCallSummaryAsNote: postCall.saveCallSummaryAsNote } : {}),
     agentWorkingHours: ir.agentWorkingHours ?? DEFAULTS.agentWorkingHours,
     maxCallDuration: callSettings.maxCallDuration ?? DEFAULTS.maxCallDuration,
     voiceTemperature: voice.voiceTemperature ?? DEFAULTS.voiceTemperature,
