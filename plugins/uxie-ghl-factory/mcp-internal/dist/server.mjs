@@ -178,7 +178,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
     define_ENDPOINT_CATALOG_default = {
       generated: "2026-09-28",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 1356,
+      count: 1359,
       endpoints: [
         {
           id: "facebook-service--get-ad-account-by-id",
@@ -46624,7 +46624,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/20-api/knowledge-base.md:319",
-            "ai-agents/20-api/knowledge-base.md:344"
+            "ai-agents/20-api/knowledge-base.md:344",
+            "ai-agents/20-api/knowledge-base.md:365"
           ]
         },
         {
@@ -46930,7 +46931,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/knowledge-base.md:324"
+            "ai-agents/20-api/knowledge-base.md:324",
+            "ai-agents/20-api/knowledge-base.md:367"
           ]
         },
         {
@@ -47060,7 +47062,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "ai-agents/20-api/conversation-ai-boundary.md:79",
             "ai-agents/20-api/knowledge-base.md:63",
             "ai-agents/20-api/knowledge-base.md:81",
-            "ai-agents/20-api/knowledge-base.md:369"
+            "ai-agents/20-api/knowledge-base.md:383"
           ]
         },
         {
@@ -47596,7 +47598,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/knowledge-base.md:359"
+            "ai-agents/20-api/knowledge-base.md:373"
           ]
         },
         {
@@ -56774,8 +56776,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/template-library.md:98",
-            "funnels/20-api/template-library.md:100"
+            "funnels/20-api/template-library.md:137",
+            "funnels/20-api/template-library.md:139"
           ]
         },
         {
@@ -58167,6 +58169,37 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           ]
         },
         {
+          id: "funnels--templates-brand-kits",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/templates/brand-kits",
+          path: "/templates/brand-kits",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/20-api/template-library.md:109"
+          ]
+        },
+        {
           id: "funnels--category-list",
           method: "GET",
           url: "https://services.leadconnectorhq.com/templates/category/list",
@@ -58224,7 +58257,38 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "funnels/20-api/template-library.md:22",
-            "funnels/20-api/template-library.md:143"
+            "funnels/20-api/template-library.md:182"
+          ]
+        },
+        {
+          id: "funnels--library-activity",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/templates/library/activity",
+          path: "/templates/library/activity",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/20-api/template-library.md:111"
           ]
         },
         {
@@ -58257,7 +58321,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           sources: [
             "services/TemplateLibraryService.ts:18",
             "funnels/20-api/template-library.md:35",
-            "funnels/20-api/template-library.md:118",
+            "funnels/20-api/template-library.md:110",
+            "funnels/20-api/template-library.md:116",
+            "funnels/20-api/template-library.md:157",
             "funnels/60-recipes/author-native-elements.md:45"
           ]
         },
@@ -58319,7 +58385,38 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "funnels/20-api/template-library.md:19",
-            "funnels/20-api/template-library.md:133"
+            "funnels/20-api/template-library.md:172"
+          ]
+        },
+        {
+          id: "funnels--template-search-recent",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/templates/template-search/recent",
+          path: "/templates/template-search/recent",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/20-api/template-library.md:107"
           ]
         },
         {
@@ -58449,7 +58546,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/template-library.md:23"
+            "funnels/20-api/template-library.md:23",
+            "funnels/20-api/template-library.md:130"
           ]
         },
         {
@@ -58486,7 +58584,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "funnels/20-api/funnels-api.md:66",
             "funnels/20-api/funnels-api.md:67",
             "funnels/20-api/template-library.md:77",
-            "funnels/20-api/template-library.md:153",
+            "funnels/20-api/template-library.md:192",
             "funnels/30-types/synthesis-contract.md:158"
           ]
         },

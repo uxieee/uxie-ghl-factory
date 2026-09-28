@@ -20,16 +20,16 @@
     {
       "tree": "documented",
       "dir": "corpus",
-      "capturedAt": "2026-09-28T19:58:07.088Z",
+      "capturedAt": "2026-09-28T20:03:12.206Z",
       "hash": "corpus",
-      "fileCount": 1075,
-      "endpoints": 1075
+      "fileCount": 1078,
+      "endpoints": 1078
     }
   ],
   "note": "SOURCE-DERIVED ONLY, merged from every mined front-end. `tree` on each row says which app calls it. The plugin owns kind/note/summary/reach/coveredBy and merges them at read time. A row proves a GHL front-end calls that path — not that your token reaches it, and not that calling it is safe.",
-  "discoveredCallSites": 1550,
+  "discoveredCallSites": 1553,
   "skippedCallSites": 654,
-  "count": 1346,
+  "count": 1349,
   "endpoints": [
     {
       "id": "facebook-service--get-ad-account-by-id",
@@ -36847,7 +36847,8 @@
       },
       "sources": [
         "ai-agents/20-api/knowledge-base.md:319",
-        "ai-agents/20-api/knowledge-base.md:344"
+        "ai-agents/20-api/knowledge-base.md:344",
+        "ai-agents/20-api/knowledge-base.md:365"
       ],
       "serviceBasis": "declared"
     },
@@ -37113,7 +37114,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/knowledge-base.md:324"
+        "ai-agents/20-api/knowledge-base.md:324",
+        "ai-agents/20-api/knowledge-base.md:367"
       ],
       "serviceBasis": "declared"
     },
@@ -37228,7 +37230,7 @@
         "ai-agents/20-api/conversation-ai-boundary.md:79",
         "ai-agents/20-api/knowledge-base.md:63",
         "ai-agents/20-api/knowledge-base.md:81",
-        "ai-agents/20-api/knowledge-base.md:369"
+        "ai-agents/20-api/knowledge-base.md:383"
       ],
       "serviceBasis": "declared"
     },
@@ -37660,7 +37662,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/knowledge-base.md:359"
+        "ai-agents/20-api/knowledge-base.md:373"
       ],
       "serviceBasis": "declared"
     },
@@ -44732,8 +44734,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/template-library.md:98",
-        "funnels/20-api/template-library.md:100"
+        "funnels/20-api/template-library.md:137",
+        "funnels/20-api/template-library.md:139"
       ],
       "serviceBasis": "declared"
     },
@@ -45792,6 +45794,32 @@
       "serviceBasis": "declared"
     },
     {
+      "id": "funnels--templates-brand-kits",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/templates/brand-kits",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "funnels",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/20-api/template-library.md:109"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
       "id": "funnels--category-list",
       "method": "GET",
       "origin": "https://services.leadconnectorhq.com",
@@ -45839,7 +45867,33 @@
       },
       "sources": [
         "funnels/20-api/template-library.md:22",
-        "funnels/20-api/template-library.md:143"
+        "funnels/20-api/template-library.md:182"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "funnels--library-activity",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/templates/library/activity",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "funnels",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/20-api/template-library.md:111"
       ],
       "serviceBasis": "declared"
     },
@@ -45867,7 +45921,9 @@
       "sources": [
         "services/TemplateLibraryService.ts:18",
         "funnels/20-api/template-library.md:35",
-        "funnels/20-api/template-library.md:118",
+        "funnels/20-api/template-library.md:110",
+        "funnels/20-api/template-library.md:116",
+        "funnels/20-api/template-library.md:157",
         "funnels/60-recipes/author-native-elements.md:45"
       ],
       "serviceClass": "TemplateLibraryService",
@@ -45921,7 +45977,33 @@
       },
       "sources": [
         "funnels/20-api/template-library.md:19",
-        "funnels/20-api/template-library.md:133"
+        "funnels/20-api/template-library.md:172"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "funnels--template-search-recent",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/templates/template-search/recent",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "funnels",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/20-api/template-library.md:107"
       ],
       "serviceBasis": "declared"
     },
@@ -46025,7 +46107,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/template-library.md:23"
+        "funnels/20-api/template-library.md:23",
+        "funnels/20-api/template-library.md:130"
       ],
       "serviceBasis": "declared"
     },
@@ -46055,7 +46138,7 @@
         "funnels/20-api/funnels-api.md:66",
         "funnels/20-api/funnels-api.md:67",
         "funnels/20-api/template-library.md:77",
-        "funnels/20-api/template-library.md:153",
+        "funnels/20-api/template-library.md:192",
         "funnels/30-types/synthesis-contract.md:158"
       ],
       "serviceClass": "TemplateLibraryService",
