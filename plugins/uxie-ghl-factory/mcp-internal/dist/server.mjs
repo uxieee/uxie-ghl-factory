@@ -178,7 +178,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
     define_ENDPOINT_CATALOG_default = {
       generated: "2026-09-28",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 1260,
+      count: 1261,
       endpoints: [
         {
           id: "facebook-service--get-ad-account-by-id",
@@ -2335,13 +2335,13 @@ var init_define_ENDPOINT_CATALOG = __esm({
           pathParams: [],
           query: [
             {
-              name: "locationId",
+              name: "chatType",
               type: "string",
               required: false,
               source: "documented"
             },
             {
-              name: "offset",
+              name: "locationId",
               type: "string",
               required: false,
               source: "documented"
@@ -2353,7 +2353,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
               source: "documented"
             },
             {
-              name: "chatType",
+              name: "offset",
               type: "string",
               required: false,
               source: "documented"
@@ -2373,7 +2373,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/api/chat-widget-service.ts:35",
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:452",
             "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:127",
             "funnels/10-anatomy/websites-and-global-sections.md:278",
             "funnels/20-api/funnels-api.md:354",
@@ -10497,7 +10496,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/marketplaceServices/WorkflowMarketplaceService.ts:414",
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:439"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:441"
           ]
         },
         {
@@ -12710,7 +12709,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          summary: "The Voice/Conversation AI template grid (Create Agent \u2192 Browse Marketplace): marketplace apps with their bots.",
+          note: 'NO TASK NEEDS THIS \u2014 coordinator decision 2026-09-28: the plugin does not install agent templates. Every row is a MARKETPLACE APP (appId, isPaidApp, companyName, installs); installing one is Install \u2192 "Install confirmation" \u2192 Allow & install = POST /oauth/authorize, an OAuth grant of the app to the location (even LeadConnector apps with allowedScopes []). Pages with &skip= (page=/offset= ignored); query= filters. IF THE USER WANTS IT: GHL can do it. Tell them to install it in the UI: AI Agents \u2192 Voice AI \u2192 Create Agent \u2192 Browse Marketplace \u2192 the template \u2192 Install. Then build or edit the agent with create_voiceai_agent / update_voiceai_agent.',
+          reach: "proven",
+          provenFor: [
+            "agency-admin-bearer"
+          ],
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -12743,7 +12747,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:431"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:433"
           ]
         },
         {
@@ -12774,7 +12778,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:443"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:445"
           ]
         },
         {
@@ -14984,7 +14988,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "services/api/slack-marketplace-install-service.ts:129",
             "services/marketplaceServices/WorkflowMarketplaceService.ts:492",
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:444",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:446",
             "workflows/70-research/ENDPOINTS.md:243"
           ]
         },
@@ -39544,6 +39548,37 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           ]
         },
         {
+          id: "ai-agents--chat-widget",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/chat-widget/",
+          path: "/chat-widget/",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:454"
+          ]
+        },
+        {
           id: "ai-agents--chat-widget-list-get",
           method: "GET",
           url: "https://services.leadconnectorhq.com/chat-widget/list",
@@ -39574,12 +39609,6 @@ Flagged to the operator as a security observation about the vendor, not a capabi
               source: "documented"
             },
             {
-              name: "chatType",
-              type: "string",
-              required: false,
-              source: "documented"
-            },
-            {
               name: "offset",
               type: "string",
               required: false,
@@ -39587,6 +39616,12 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             },
             {
               name: "limit",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "chatType",
               type: "string",
               required: false,
               source: "documented"
@@ -39601,6 +39636,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:456",
             "ai-agents/20-api/agent-deployment-routing.md:173",
             "ai-agents/20-api/agent-deployment-routing.md:389"
           ]
@@ -55854,7 +55890,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:454",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:458",
             "ai-agents/20-api/logs-deployment-email.md:99"
           ]
         },
@@ -55900,7 +55936,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:453"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:457"
           ]
         },
         {
@@ -57303,7 +57339,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:460"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:464"
           ]
         },
         {
@@ -60015,6 +60051,13 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           credentialClass: "agency-admin-bearer",
           kind: "write",
           note: "The invoice editor's SAVE, drafts included: it did not send (read back status draft, sentAt null). It needs the contact's email and an E.164 phone in contactDetails (422 otherwise, which the UI swallows). opportunityDetails.opportunityId links the card. (pipelines-opportunities, proven live on the designated sandbox 2026-09-25..28; knowledge corpus pipelines-opportunities/20-api)"
+        },
+        "GET /marketplace/apps/templates/ai/search": {
+          reach: "proven",
+          credentialClass: "agency-admin-bearer",
+          kind: "read",
+          summary: "The Voice/Conversation AI template grid (Create Agent \u2192 Browse Marketplace): marketplace apps with their bots.",
+          note: 'NO TASK NEEDS THIS \u2014 coordinator decision 2026-09-28: the plugin does not install agent templates. Every row is a MARKETPLACE APP (appId, isPaidApp, companyName, installs); installing one is Install \u2192 "Install confirmation" \u2192 Allow & install = POST /oauth/authorize, an OAuth grant of the app to the location (even LeadConnector apps with allowedScopes []). Pages with &skip= (page=/offset= ignored); query= filters. IF THE USER WANTS IT: GHL can do it. Tell them to install it in the UI: AI Agents \u2192 Voice AI \u2192 Create Agent \u2192 Browse Marketplace \u2192 the template \u2192 Install. Then build or edit the agent with create_voiceai_agent / update_voiceai_agent.'
         }
       }
     };

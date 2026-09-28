@@ -1,7 +1,7 @@
 {
   "generated": "2026-09-28",
   "note": "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path — not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-  "count": 1260,
+  "count": 1261,
   "endpoints": [
     {
       "id": "facebook-service--get-ad-account-by-id",
@@ -2158,13 +2158,13 @@
       "pathParams": [],
       "query": [
         {
-          "name": "locationId",
+          "name": "chatType",
           "type": "string",
           "required": false,
           "source": "documented"
         },
         {
-          "name": "offset",
+          "name": "locationId",
           "type": "string",
           "required": false,
           "source": "documented"
@@ -2176,7 +2176,7 @@
           "source": "documented"
         },
         {
-          "name": "chatType",
+          "name": "offset",
           "type": "string",
           "required": false,
           "source": "documented"
@@ -2196,7 +2196,6 @@
       },
       "sources": [
         "services/api/chat-widget-service.ts:35",
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:452",
         "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:127",
         "funnels/10-anatomy/websites-and-global-sections.md:278",
         "funnels/20-api/funnels-api.md:354",
@@ -10320,7 +10319,7 @@
       },
       "sources": [
         "services/marketplaceServices/WorkflowMarketplaceService.ts:414",
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:439"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:441"
       ]
     },
     {
@@ -12533,7 +12532,12 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "summary": "The Voice/Conversation AI template grid (Create Agent → Browse Marketplace): marketplace apps with their bots.",
+      "note": "NO TASK NEEDS THIS — coordinator decision 2026-09-28: the plugin does not install agent templates. Every row is a MARKETPLACE APP (appId, isPaidApp, companyName, installs); installing one is Install → \"Install confirmation\" → Allow & install = POST /oauth/authorize, an OAuth grant of the app to the location (even LeadConnector apps with allowedScopes []). Pages with &skip= (page=/offset= ignored); query= filters. IF THE USER WANTS IT: GHL can do it. Tell them to install it in the UI: AI Agents → Voice AI → Create Agent → Browse Marketplace → the template → Install. Then build or edit the agent with create_voiceai_agent / update_voiceai_agent.",
+      "reach": "proven",
+      "provenFor": [
+        "agency-admin-bearer"
+      ],
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -12566,7 +12570,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:431"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:433"
       ]
     },
     {
@@ -12597,7 +12601,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:443"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:445"
       ]
     },
     {
@@ -14807,7 +14811,7 @@
       "sources": [
         "services/api/slack-marketplace-install-service.ts:129",
         "services/marketplaceServices/WorkflowMarketplaceService.ts:492",
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:444",
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:446",
         "workflows/70-research/ENDPOINTS.md:243"
       ]
     },
@@ -39355,6 +39359,37 @@
       ]
     },
     {
+      "id": "ai-agents--chat-widget",
+      "method": "POST",
+      "url": "https://services.leadconnectorhq.com/chat-widget/",
+      "path": "/chat-widget/",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "ai-agents",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:454"
+      ]
+    },
+    {
       "id": "ai-agents--chat-widget-list-get",
       "method": "GET",
       "url": "https://services.leadconnectorhq.com/chat-widget/list",
@@ -39385,12 +39420,6 @@
           "source": "documented"
         },
         {
-          "name": "chatType",
-          "type": "string",
-          "required": false,
-          "source": "documented"
-        },
-        {
           "name": "offset",
           "type": "string",
           "required": false,
@@ -39398,6 +39427,12 @@
         },
         {
           "name": "limit",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "chatType",
           "type": "string",
           "required": false,
           "source": "documented"
@@ -39412,6 +39447,7 @@
         "returns": "unresolved"
       },
       "sources": [
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:456",
         "ai-agents/20-api/agent-deployment-routing.md:173",
         "ai-agents/20-api/agent-deployment-routing.md:389"
       ]
@@ -55665,7 +55701,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:454",
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:458",
         "ai-agents/20-api/logs-deployment-email.md:99"
       ]
     },
@@ -55711,7 +55747,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:453"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:457"
       ]
     },
     {
@@ -57114,7 +57150,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:460"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:464"
       ]
     },
     {
