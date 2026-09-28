@@ -94,9 +94,10 @@ object**. The flow builder sends partial PUTs without `mode` (`{locationId, agen
   `voiceModel` (`auto, eleven_v3, eleven_multilingual_v2, eleven_flash_v2_5, eleven_turbo_v2_5, eleven_flash_v2,
   eleven_turbo_v2, sonic-3, sonic-3-latest, tts-1, gpt-4o-mini-tts`).
 - Client-only (stored past the editor's limit): `endCallAfterSilenceMs`, `translation.language`.
-- 🔴 **Provider-side refusals still write:** `llmModel` (checked against the provider's list) and `beginMessageDelayMs`
-  (0–5 s at the provider, 0–10 s in the editor) answered 400 and GHL kept the value.
-- `backchannelWords` answered 200 and read back `[]` while `enableBackchannel` was off.
+- 🔴 **Provider-side refusals still write:** `llmModel` (checked against the provider's list), `beginMessageDelayMs`
+  (0–5 s at the provider, 0–10 s in the editor) and `backchannelFrequency` (0–1) answered 400 and GHL kept the value.
+  `update_voiceai_agent` refuses the two bounds before sending.
+- `backchannelWords` is stored only while `enableBackchannel` is on (off: 200 and `[]`).
 
 `update_voiceai_agent` is the tool for all of this. The create path below still builds a whole document.
 
@@ -199,7 +200,9 @@ dispatches on `actionType` and, for each of these, validates the capture's requi
 field(s) and merges the caller's `actionParameters` over any capture-grounded defaults:
 - **`WORKFLOW_TRIGGER`** ("Trigger a workflow") — required: `workflowId`, `triggerPrompt`,
   `triggerMessage`, `triggerMessageType`. No defaults — all user-authored.
-- **`SMS`** ("Send SMS") — required: `messageBody`.
+- **`SMS`** ("Send SMS") — required: `triggerPrompt`, `triggerMessage`, `messageBody`; `triggerMessageType`
+  `static_text` (default) or `prompt`. That is the builder's own body. `{triggerPrompt, messageBody}` alone answers
+  422 `"Invalid actionParameters for the given actionType"` (measured 2026-09-28).
 - **`DATA_EXTRACTION`** ("Update contact field") — required: `contactFieldId`,
   `contactFieldKey`, `contactFieldDataType`. **Full shape + live-proof: see "DATA_EXTRACTION
   in depth" below.**
