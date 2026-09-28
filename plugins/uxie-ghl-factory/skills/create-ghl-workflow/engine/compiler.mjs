@@ -2044,6 +2044,20 @@ function instantiateRowTemplate(f, key, extra) {
   return null;
 }
 
+// DEPENDENT drawer rows the recovered static model does not list and no UI-built trigger of this type
+// was seen to store. The opportunity drawers append "Pipeline stage" only once an "In pipeline" row
+// exists, always with operator '==', and delete it with that row (PipelineFilter.ts:220-233,
+// OpportunityStatusFilter.ts:215, OpportunityChangedFilter.ts:389; bundle 2026-09-25). Authored without
+// an operator it went out as 'none' and GHL's validator refused it — "Invalid value for the 'Pipeline
+// Stage' filter" — while with '==' it saved and fired on a move INTO the stage and on a create in it
+// (live 2026-09-28, sniffs/workflows-wave1-2026-09-25/live-3BP-opp-triggers.json, live-3BP2-stage-row-probe.json).
+const PIPELINE_STAGE_ROW = { field: 'opportunity.pipelineStageId', title: 'Pipeline stage', type: 'select', operator: '==', requires: 'opportunity.pipelineId' };
+export const DEPENDENT_TRIGGER_ROWS = {
+  pipeline_stage_updated: [PIPELINE_STAGE_ROW],
+  opportunity_status_changed: [PIPELINE_STAGE_ROW],
+  opportunity_changed: [PIPELINE_STAGE_ROW],
+};
+
 function expandFilter(f, rows, extra = {}) {
   // already complete — but still normalize a scalar-op value, so a hand-authored
   // ['tag'] can't silently reintroduce the inert-trigger bug via this passthrough.
@@ -2075,6 +2089,14 @@ function expandFilter(f, rows, extra = {}) {
     // UI-written trigger of this type was SEEN to store this field, so its title/type/id are filled
     // from that observation. The authored operator always wins; one is supplied only when exactly one
     // was ever observed, and that is said.
+    const dep = (DEPENDENT_TRIGGER_ROWS[triggerType] ?? []).find((r) => r.field === key || norm(r.title) === norm(key));
+    if (dep) {
+      if (f.operator && f.operator !== dep.operator)
+        throw new IRError('FILTER_OPERATOR',
+          `trigger filter '${dep.title}' on '${triggerType}' is stored by the drawer with operator '${dep.operator}' only, not '${f.operator}'.`);
+      const { on: _on, ...rest } = f;
+      return { ...rest, field: dep.field, operator: dep.operator, title: f.title ?? dep.title, type: f.type ?? dep.type };
+    }
     const seen = (OBSERVED_TRIGGER_FILTERS[triggerType] ?? []).find((r) => r.field === key || r.id === key || norm(r.title) === norm(key));
     if (seen) {
       const operator = f.operator ?? (seen.operators.length === 1 ? seen.operators[0] : undefined);
@@ -2225,6 +2247,14 @@ export function buildTrigger(t, ctx, wid, refMap) {
   const meta = ctx.catalog.trigger(t.type);
   const rows = meta?.filterRows ?? [];
   let conditions = (t.filters ?? []).map((f) => expandFilter(f, rows, { ctx, meta }));
+  // A dependent row exists in the drawer only under its parent row, so a trigger carrying one without
+  // the parent is one the builder cannot produce (and the stage id means nothing without its pipeline).
+  for (const dep of DEPENDENT_TRIGGER_ROWS[t.type] ?? []) {
+    if (conditions.some((c) => c?.field === dep.field) && !conditions.some((c) => c?.field === dep.requires))
+      throw new IRError('TRIGGER_FILTER_PARENT',
+        `trigger '${t.name ?? t.type}' (${t.type}) has a '${dep.title}' row but no '${dep.requires}' row — the drawer offers `
+        + `'${dep.title}' only after that row is chosen. Add { field: '${dep.requires}', value: '<pipeline id>' }.`);
+  }
   // TRIGGER SEEDS — rows the UI adds to this trigger type by itself (TriggerMain.addMandatoryFilters,
   // on creation AND load). Only corpus-CONFIRMED rows are seeded (appointment.eventType == 'normal'
   // is present and FIRST on 95% of stored appointment triggers), with the exact stored shape.

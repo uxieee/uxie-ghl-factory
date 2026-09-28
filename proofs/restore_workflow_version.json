@@ -1,0 +1,41 @@
+{
+  "tool": "restore_workflow_version",
+  "surfaces": [
+    "workflows"
+  ],
+  "runs": [
+    {
+      "at": "2026-09-28",
+      "result": "pass",
+      "how": "manual",
+      "proofClass": "live-canary",
+      "evidence": [
+        "corpus:workflows/20-api/version-history.md",
+        "commit:3d52ecd3"
+      ],
+      "location": "…zn6B"
+    }
+  ],
+  "depends": {
+    "hashedAt": "2026-09-28",
+    "endpoints": {
+      "DELETE https://backend.leadconnectorhq.com /workflow/{}/trigger/{}": "e1a6f1ba728d208ef3d5efc7d48a88a3798725a5e5d4fffcd2a77febe9e2cfdd",
+      "GET https://backend.leadconnectorhq.com /workflow/{}/trigger": "08350cea684b7ac76430d36af66e093c3753ee489a66e250efef0ba978eeb148",
+      "GET https://backend.leadconnectorhq.com /workflow/{}/{}": "d75bf4cca526ca32f133f5f381cb7a68530031528b4caa2d713addcae0c55ffc",
+      "GET https://backend.leadconnectorhq.com /workflow/{}/{}/history-by-number/{}": "c67a3d11cb80e14b368a835e9ac2b5408a3d0d355348e31a6c8768a9003b6496",
+      "GET https://backend.leadconnectorhq.com /workflows/status/search/count-per-step": "b3a90cd758f345cf6ea41e5d8685a4db7c3f7c0b1ea488a1c1ca83d54f7f99e4",
+      "POST https://backend.leadconnectorhq.com /workflow/{}/trigger": "6a78aa9bec4460fa5016f4b949f2d8c3c7319dbd89fea788f53a6e20dcbae1c0",
+      "PUT https://backend.leadconnectorhq.com /workflow/{}/{}": "98d9424900af4b2bd12cbc0af3b3a9c4714ed80439b7276c8b005cbc91964123"
+    },
+    "builds": {
+      "builder-chunks": "assets/index-BZBeFyAW.js"
+    },
+    "code": {
+      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#restore_workflow_version": "30ca735ea0ce61698df018f7fb8405ee9a587f86e976c7100a075c263042ea60",
+      "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "e65c2384aefb498ce49453dd2d6d8d1a1d8351fd6d337aef5256eb982e1db02f",
+      "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
+      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "a979be67ccb31b7cff865f678e7261b5e1638965085b4a963ddf08e9e472af01",
+      "plugins/uxie-ghl-factory/mcp-internal/core/version-restore.mjs": "8e391e399f4b91e55f90ff70288533f773dd4fc95d31f656d8aaaf3741ce3b99"
+    }
+  }
+}
