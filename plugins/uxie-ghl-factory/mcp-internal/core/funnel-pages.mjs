@@ -70,6 +70,11 @@ const SHAPE_BY_KIND = Object.freeze({
 // An empty value shaped by what the renderer will do with it. Name-based guessing is a heuristic,
 // not a rule — the per-kind table above overrides it where live probing proved it wrong.
 export const emptyFor = (prop, meta) => {
+  // 🔴 A FONT prop is a string, whatever the kind. The builder feeds every element's `typography` (and each
+  // *FontFamily) to isCustomFont(value) → value.replace(…) on EVERY save; an array there (nav-menu was forced to
+  // arrays) throws, and the page can never be saved in the builder again while its public render stays fine
+  // (knowledge sniffs/funnels-wave15-actions-2026-09-29 live-differential.builder-save-kinds.json). Empty = no font.
+  if (/^typography$|fontfamily$/i.test(prop)) return { value: '' };
   const forced = meta && SHAPE_BY_KIND[meta];
   if (forced === 'arrays') return { value: [] };
   if (forced === 'strings') return { value: '' };
@@ -94,6 +99,7 @@ export const emptyFor = (prop, meta) => {
 // `type: "blog"` and `create-step` 404s on `type: "blog-post"`, so a blog CONTAINER can only be
 // obtained by installing a blogs template (`POST /templates/template/load`, product `blogs`).
 export { KIND_DEFAULT_EXTRA };
+import { KIND_DEFAULT_STYLES, KIND_CONFIG_EXTRA } from './kind-style-defaults.mjs';
 
 export const NEEDS_STEP_TYPE = Object.freeze({
   'store-cart': 'store', 'store-checkout': 'store', 'store-thank-you': 'store',
@@ -149,7 +155,8 @@ export const completeExtra = (meta, given = {}) => {
   const declared = ELEMENTS[meta]?.extraProps ?? [];
   // Kinds with a required object a heuristic cannot invent (store `customText`, blog show-options)
   // get the real default first; the shaped empty is only the last resort.
-  const known = KIND_DEFAULT_EXTRA[meta] ?? {};
+  // Hand-curated required objects first, then the builder-save config fill (kind-style-defaults.mjs).
+  const known = { ...(KIND_CONFIG_EXTRA[meta] ?? {}), ...(KIND_DEFAULT_EXTRA[meta] ?? {}) };
   const out = {};
   for (const prop of declared) {
     // 🔴 `visibility` and `customClass` are declared on most kinds, and the envelope already gives
@@ -179,10 +186,31 @@ const BUTTON_STYLE_DEFAULTS = {
   secondaryColor: { value: 'var(--white)' },
   backgroundColor: { value: 'var(--blue)' },
 };
+// 🔴 THE SAME TRAP ON THE ORDER FORMS: the builder's orderFormStyles reads styles.buttonColor / buttonTextColor /
+// formBgColor / buttonSize / formRadius / textAlign `.value` UNGUARDED on every save, so an order form composed with
+// styles:{} made the whole page unsaveable in the builder ("Error while creating page!", nothing sent) while it
+// rendered in public. These are the builder's own ONE_STEP_ORDER defaults, read from its element registry
+// (page builder index.e1b163ff.js); an authored style is never overwritten.
+const ORDER_FORM_STYLE_DEFAULTS = {
+  textAlign: { value: 'left' },
+  buttonColor: { value: 'var(--secondary)' },
+  buttonTextColor: { value: 'var(--white)' },
+  buttonSize: { value: '1rem' },
+  buttonStyle: { value: 'none' },
+  formBgColor: { value: '#ffffff' },
+  formRadius: { value: 5, unit: 'px' },
+};
+// The nav menus: navMenuStyles / generateNavBarTextStyles read styles.lineHeight and ~30 more style values unguarded.
+// These are the builder's own NAV_MENU_V2 default styles, verbatim from its element registry (index.e1b163ff.js);
+// both nav kinds go through the same style function.
+const NAV_MENU_STYLE_DEFAULTS = {"paddingTop": {"value": 8, "unit": "px"}, "paddingBottom": {"value": 8, "unit": "px"}, "paddingLeft": {"value": 10, "unit": "px"}, "paddingRight": {"value": 10, "unit": "px"}, "marginTop": {"value": 0, "unit": "px"}, "marginBottom": {"value": 0, "unit": "px"}, "marginLeft": {"value": 0, "unit": "px"}, "marginRight": {"value": 0, "unit": "px"}, "lineHeight": {"value": 1.3, "unit": "em"}, "textTransform": {"value": "none"}, "letterSpacing": {"value": 0, "unit": "px"}, "textAlign": {"value": "left"}, "fontWeight": {"value": "normal", "desktop": "400"}, "backgroundColor": {"value": "var(--white)"}, "mobileBackgroundColor": {"value": "var(--white)"}, "popupBackgroundColor": {"value": "var(--white)"}, "mobilePopupBackgroundColor": {"value": "var(--white)"}, "color": {"value": "var(--text-color)"}, "inlineColors": {"value": []}, "hoverBackgroundColor": {"value": "var(--black)"}, "hoverTextColor": {"value": "var(--white)"}, "boldTextColor": {"value": "var(--black)"}, "italicTextColor": {"value": "var(--black)"}, "underlineTextColor": {"value": "var(--black)"}, "iconColor": {"value": "var(--black)"}, "cartIconColor": {"value": "var(--black)"}, "userIconColor": {"value": "var(--black)"}, "cartIconActiveColor": {"value": "var(--black)"}, "submenuBackgroundColor": {"value": "var(--white)"}, "submenuMobileBackgroundColor": {"value": "var(--white)"}, "submenuColor": {"value": "var(--text-color)"}, "submenuHoverBackgroundColor": {"value": "var(--black)"}, "submenuHoverTextColor": {"value": "var(--white)"}, "borderColor": {"value": "#000000"}, "borderStyle": {"value": "none"}, "borderWidth": {"value": "0px"}, "borderRadius": {"value": "0px"}, "boxShadow": {"value": "none"}};
+const STYLE_DEFAULTS = { button: BUTTON_STYLE_DEFAULTS, 'one-step-order': ORDER_FORM_STYLE_DEFAULTS, 'two-setp-order': ORDER_FORM_STYLE_DEFAULTS,
+  'nav-menu': NAV_MENU_STYLE_DEFAULTS, 'nav-menu-v2': NAV_MENU_STYLE_DEFAULTS };
 export const makeLeaf = ({ meta, extra = {}, styles = {}, cls = {}, tag = '', salt }) => {
   if (!ELEMENTS[meta]) throw new Error(`unknown element meta '${meta}' — the vocabulary is a closed set of ${ELEMENT_KINDS.length}`);
   const id = mkId(meta, salt);
-  const withDefaults = meta === 'button' ? { ...BUTTON_STYLE_DEFAULTS, ...styles } : styles;
+  const base = { ...(KIND_DEFAULT_STYLES[meta] ?? {}), ...(STYLE_DEFAULTS[meta] ?? {}) };
+  const withDefaults = Object.keys(base).length ? { ...base, ...styles } : styles;
   const node = envelope(id, 'element', meta, ELEMENTS[meta].tagName, completeExtra(meta, extra), withDefaults, cls);
   // Most leaves carry tag:''. The store and blog kinds carry their tagName, and do not render without it.
   node.tag = tag || (TAG_IS_TAGNAME.has(meta) ? ELEMENTS[meta].tagName : '');
