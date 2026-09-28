@@ -6,6 +6,8 @@ import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js';
 import { TOOLS, registerTools } from '../core/tools.mjs';
 
 const publishTool = () => TOOLS.find((candidate) => candidate.name === 'publish_workflow');
+// The reply measured 2026-09-28 on a publish that LANDED (workflows wave21).
+const ENVOY_RESET = 'upstream connect error or disconnect/reset before headers. reset reason: connection termination';
 
 const workflow = ({ status = 'draft', version = 3 } = {}) => ({
   _id: 'WID',
@@ -28,6 +30,9 @@ const workflow = ({ status = 'draft', version = 3 } = {}) => ({
 
 function publishGateway({
   initial = workflow(), refreshVersion, failWorkflowGets = [], throwAfterPublishApply = false,
+  // The publish PUT's reply fails WITHOUT being applied: 'throw' (transport) or '503' (the measured
+  // envoy body). Paired with throwAfterPublishApply / publish503AfterApply, which apply it first.
+  publishFailsBeforeApply = null, publish503AfterApply = false,
   // Models the measured truth (throwaway workflows on the designated test sub-account,
   // 2026-08-28): `active` is a READ-ONLY PROJECTION of a trigger's own `status` field
   // ("draft"|"published") — `active === (status !== "draft")`. The workflow-level
@@ -97,6 +102,8 @@ function publishGateway({
         return { status: 200, ok: true, json: { id: tid } };
       }
       if (method === 'PUT' && path === '/workflow/LOC/WID') {
+        if (publishFailsBeforeApply === 'throw') throw new Error('socket hang up before the publish PUT reached upstream');
+        if (publishFailsBeforeApply === '503') return { status: 503, ok: false, json: { message: ENVOY_RESET } };
         current = { ...structuredClone(body), version: body.version + 1 };
         // The measured mechanism: the document PUT's OWN draft→published transition cascades
         // status:'published' onto every trigger, sub-second — not anything in
@@ -106,6 +113,7 @@ function publishGateway({
           triggers = triggers.map((trigger) => ({ ...trigger, active: true }));
         }
         if (throwAfterPublishApply) throw new Error('transport lost after publish PUT applied');
+        if (publish503AfterApply) return { status: 503, ok: false, json: { message: ENVOY_RESET } };
         return { status: 200, ok: true, json: { id: 'WID' } };
       }
       return { status: 404, ok: false, json: { message: `no fixture for ${method} ${path}` } };
@@ -331,23 +339,48 @@ test('post-PUT verification failure reports acknowledged publish progress and ur
   assert.equal(current().status, 'published', 'the fixture confirms why a bare GET error was misleading');
 });
 
-test('publish PUT applied then transport throws reports an urgent ambiguous write without losing the failure', async () => {
-  const { gw, current } = publishGateway({ throwAfterPublishApply: true });
-  const result = await publishTool().handler(
-    { locationId: 'LOC', workflowId: 'WID', confirm: true },
-    deps(gw),
-  );
+// A FAILED PUBLISH REPLY IS NOT AN UNPUBLISHED WORKFLOW (wave21). This test used to assert the opposite — the PUT
+// had landed (current().status === 'published') and the tool reported failure with putApplied:false. That is the
+// shape that left a real specimen live on 2026-09-28. One fresh read now decides.
+for (const [label, opts] of [['a transport throw', { throwAfterPublishApply: true }], ['the measured 503 upstream reset', { publish503AfterApply: true }]]) {
+  test(`publish PUT applied, then ${label}: a fresh read shows published → ok, publishedDespiteTransportError, verified`, async () => {
+    const { gw, current, calls } = publishGateway(opts);
+    const result = await publishTool().handler({ locationId: 'LOC', workflowId: 'WID', confirm: true }, deps(gw));
+    assert.equal(result.ok, true, JSON.stringify(result));
+    assert.equal(current().status, 'published');
+    assert.equal(result.data.verify.roundTrip, true);
+    assert.ok(result.data.publishedDespiteTransportError.code);
+    assert.match(result.data.transportNote, /IS live/);
+    assert.equal(result.data.partialProgress.putOutcome.recoveredByReadBack, true);
+    assert.equal(result.data.partialProgress.putOutcome.statusAfterFailure, 'published');
+    assert.equal(calls.filter(({ method, path }) => method === 'PUT' && path === '/workflow/LOC/WID').length, 1, 'the publish is never re-sent');
+  });
+}
 
+for (const kind of ['throw', '503']) {
+  test(`publish PUT NOT applied (${kind}): a fresh read shows draft → failure that SAYS it was not published`, async () => {
+    const { gw, current } = publishGateway({ publishFailsBeforeApply: kind });
+    const result = await publishTool().handler({ locationId: 'LOC', workflowId: 'WID', confirm: true }, deps(gw));
+    assert.equal(result.ok, false);
+    assert.equal(current().status, 'draft');
+    assert.equal(result.data.partialProgress.putApplied, false);
+    assert.equal(result.data.partialProgress.putOutcome.statusAfterFailure, 'draft');
+    assert.match(result.data.note, /shows the workflow draft — it was not published/);
+    assert.equal(result.data.partialProgress.verification.attempted, false);
+  });
+}
+
+test('publish PUT fails AND the re-read fails: still an urgent AMBIGUOUS failure (nothing is claimed either way)', async () => {
+  // GETs 1 and 2 are the preflight refresh and the version-bearing refresh; 3 is the re-read after the failed PUT.
+  const { gw } = publishGateway({ throwAfterPublishApply: true, failWorkflowGets: [3] });
+  const result = await publishTool().handler({ locationId: 'LOC', workflowId: 'WID', confirm: true }, deps(gw));
   assert.equal(result.ok, false);
   assert.equal(result.code, 'ENGINE_ABORT');
   assert.match(result.detail, /transport lost after publish PUT applied/);
   assert.match(result.remediation, /URGENT/i);
-  assert.equal(result.data.partialProgress.putApplied, false);
-  assert.equal(result.data.partialProgress.putOutcome.attempted, true);
-  assert.equal(result.data.partialProgress.putOutcome.acknowledged, false);
   assert.equal(result.data.partialProgress.putOutcome.ambiguous, true);
-  assert.equal(result.data.partialProgress.verification.attempted, false);
-  assert.equal(current().status, 'published');
+  assert.equal(result.data.partialProgress.putOutcome.statusAfterFailure, null);
+  assert.match(result.data.note, /ambiguous/);
 });
 
 // ── the layers publish never ran (0.84.0) ────────────────────────────────────────────────────

@@ -488,7 +488,7 @@ test('list_workflows walks and reconciles an ordinary location id', async () => 
 test('raw_request refuses non-GET without making a gateway call', async () => {
   const gw = gwStub();
   const result = await tool('raw_request').handler(
-    { locationId: 'L', method: 'POST', path: '/x' },
+    { locationId: 'L', method: 'POST', path: '/x', body: { name: 'x' } },
     deps(gw),
   );
 

@@ -91,6 +91,28 @@ export function refuseRawRequest({ method, path, body }) {
   return null;
 }
 
+// EMPTY WRITE BODY (workflows wave21, 2026-09-29). Not path-scoped like RULES: a POST/PUT/PATCH
+// that carries nothing ({}, [], or no body at all, judged AS SENT) is refused on every route unless
+// the caller says the route really takes no body (allowEmptyBody:true — a bodiless enrol or publish).
+// Why a general rule rather than one more row: an empty start-workflow body enrolled a PHANTOM
+// (measured, rule start-workflow-empty-body), and on 2026-09-28 an inspection script sent an empty
+// POST /opportunities/ by accident — nothing guarded it, and its response was never read. An empty
+// body is how a write gets "probed" for its schema, and a write route answers that by doing
+// something or nothing; neither is safe to learn from. The path-scoped RULES still run first and
+// still refuse their shapes whatever allowEmptyBody says.
+const WRITE_METHODS = new Set(['POST', 'PUT', 'PATCH']);
+/** The refusal for an empty write body, or null. `method` upper-case; `body` already JSON-parsed. */
+export function refuseEmptyWriteBody({ method, body, allowEmptyBody = false }) {
+  if (!WRITE_METHODS.has(method) || allowEmptyBody === true) return null;
+  const wire = onWire(body);
+  if (!(wire === undefined || wire === null || isEmptyOnWire(wire))) return null;
+  return {
+    rule: 'empty-write-body',
+    message: `raw_request ${method} with an EMPTY body (${wire === undefined ? 'no body' : JSON.stringify(wire)}) is refused before sending: an empty start-workflow body enrolled a phantom contact-less execution, and an empty write elicits nothing safe.`,
+    hint: 'Send the route\'s real body — describe_endpoint carries the measured shape, and a builder capture or the source is the other place to take it from. If the route genuinely takes NO body (a bodiless enrol or publish), repeat the call with allowEmptyBody:true.',
+  };
+}
+
 /**
  * The catalogue row a WIRE path belongs to, or null. Rows are templated (`/workflow/{locationId}/…`);
  * a `{param}` segment matches any one segment. Several rows can match one path
