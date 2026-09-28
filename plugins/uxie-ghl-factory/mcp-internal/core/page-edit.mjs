@@ -19,6 +19,7 @@ export function findNode(pageData, nodeId) {
 }
 
 import { sectionKnobs, sectionInnerRule, BUILDER_INNER_MAX_WIDTH } from './funnel-pages.mjs';
+import { typographyValue, setRootVars, TYPOGRAPHY_SLOTS } from './page-fonts.mjs';
 import { entranceClass, hoverClass, entranceCss, hoverCss, stripAnimationCss, parentAnimationOffset, ENTRANCE_METAS, HOVER_METAS } from './page-animation.mjs';
 
 const mergeInto = (node, key, patch) => {
@@ -81,6 +82,10 @@ export function applyPageEdits(pageData, ops, { compileStyles = () => '' } = {})
           clsPatch = { ...clsPatch, ...hoverClass(o.hoverAnimation) };
         }
       } catch (e) { report.push({ i, op: 'set', nodeId: o.nodeId, error: e.message }); continue; }
+      if (typeof o.appendCss === 'string' && o.appendCss) {
+        hit.section.general = { ...(hit.section.general ?? {}), sectionStyles: `${hit.section.general?.sectionStyles ?? ''}${o.appendCss}` };
+        changed.push('section.general.sectionStyles');
+      }
       if (Object.keys(clsPatch).length) {
         // A new entrance replaces every timing knob of the old one; a new hover replaces the old knobs.
         if (o.entranceAnimation) for (const k of ['animationScale', 'animationDuration', 'animationDelay', 'animationEasing']) { delete hit.node.class?.[k]; if (hit.node.element?.class) delete hit.node.element.class[k]; }
@@ -156,8 +161,24 @@ export function applyPageEdits(pageData, ops, { compileStyles = () => '' } = {})
         next.settings = { ...(next.settings ?? {}), settings: { ...(next.settings?.settings ?? {}), background: nextBg } };
         changed.push('settings.settings.background');
       }
-      if (!changed.length) { report.push({ i, op: 'page', error: 'page op needs trackingCode, customCss or background (SEO goes in `seo`)' }); continue; }
-      report.push({ i, op: 'page', changed, expectPage: { trackingCode: o.trackingCode, customCss: o.customCss, background: o.background } });
+      if (o.typography && (o.typography.headlineFont || o.typography.contentFont)) {
+        // The builder's shape: the setting, the face in fontsToLoad, and the :root variables in pageStyles
+        // (the renderer reads --headlinefont/--contentfont from there only; wave12 typography differential).
+        const t = next.settings?.settings?.typography;
+        const vars = {}; const fams = [];
+        for (const [which, family] of [['headline', o.typography.headlineFont], ['content', o.typography.contentFont]]) {
+          if (!family) continue;
+          const [key, varName, label] = TYPOGRAPHY_SLOTS[which];
+          if (t?.fonts) t.fonts[key] = { id: varName, text: t.fonts[key]?.text ?? label, value: typographyValue(family), isCustom: false };
+          vars[`--${varName}`] = `'${family}'`; vars[typographyValue(family).value.slice(4, -1)] = `'${family}'`; fams.push(family);
+        }
+        const g = next.general?.general;
+        if (g) { const merged = [...new Set([...(g.fontsToLoad ?? []), ...fams])]; g.fontsToLoad = merged; g.fontsToLoadForPreview = merged; }
+        next.pageStyles = setRootVars(next.pageStyles, vars);
+        changed.push('settings.settings.typography', 'general.general.fontsToLoad', 'pageStyles');
+      }
+      if (!changed.length) { report.push({ i, op: 'page', error: 'page op needs trackingCode, customCss, background or typography (SEO goes in `seo`)' }); continue; }
+      report.push({ i, op: 'page', changed, expectPage: { trackingCode: o.trackingCode, customCss: o.customCss, background: o.background, typography: o.typography } });
     } else {
       report.push({ i, op: o.op, error: `unknown op ${o.op} (set | append-section | append-popup | remove-node | page)` });
     }
@@ -198,6 +219,13 @@ export function verifyEdits(stored, report) {
       const bg = stored.settings?.settings?.background;
       if (e.background?.imageUrl !== undefined && bg?.bgImage?.value?.url !== e.background.imageUrl) wrong.push('background.imageUrl');
       if (e.background?.color !== undefined && bg?.backgroundColor?.value !== e.background.color) wrong.push('background.color');
+      for (const [which, family] of [['headline', e.typography?.headlineFont], ['content', e.typography?.contentFont]]) {
+        if (!family) continue;
+        const [key, varName] = TYPOGRAPHY_SLOTS[which];
+        if (stored.settings?.settings?.typography?.fonts?.[key]?.value?.text !== family) wrong.push(`typography.${key}`);
+        if (!(stored.general?.general?.fontsToLoad ?? []).includes(family)) wrong.push(`fontsToLoad.${family}`);
+        if (!new RegExp(`--${varName}\\s*:\\s*'${family.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}'`).test(stored.pageStyles ?? '')) wrong.push(`pageStyles.--${varName}`);
+      }
       out.push({ page: true, applied: wrong.length === 0, ...(wrong.length ? { notApplied: wrong } : {}) });
     }
   }

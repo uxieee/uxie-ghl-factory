@@ -91,6 +91,14 @@ class knobs AND the builder's compiled rules, byte-equal to what the builder sav
 background, columns}]` (edit mode: `append-popup`) and a button's `openPopup: "<popup name>"` open one.
 An empty popup is refused — GHL never renders it — and so is an openPopup naming a popup the page lacks.
 
+**Fonts** — page typography `{headlineFont, contentFont}` (compose: top-level `typography`; edit: op `page`
+`typography`) writes the builder's setting, loads the faces and declares `--headlinefont` / `--contentfont`;
+an element with `font: 'headline'|'content'` uses them (refused when the page has none set). Every other
+family (`css.font`, `styles.fontFamily`) is written as the builder writes a picked font — `var(--<name>)` with
+its `:root` variable and a `fontsToLoad` entry. 🔴 The builder recomputes `fontsToLoad` on every save from
+`var(--…)` references only, so a LITERAL family (what this tool wrote until this fix, and any raw page edit)
+stops loading the first time anyone saves the page in the builder; the text falls back silently.
+
 Page-level settings ride the same mode: op `page` sets tracking code (header/footer), custom CSS and the
 page background; `seo` sets title, description, keywords, author, social image and language. SEO is
 written twice, as the builder does: to the page record (`POST /funnels/funnel/funnel-page/{pageId}`
