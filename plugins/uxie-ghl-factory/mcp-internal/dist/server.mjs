@@ -106229,6 +106229,32 @@ var catalog_data_default = {
           }
         }
       ],
+      time_only: [
+        {
+          value: "==",
+          label: {
+            i18nKey: "is"
+          }
+        },
+        {
+          value: "!=",
+          label: {
+            i18nKey: "is_not"
+          }
+        },
+        {
+          value: "has_value",
+          label: {
+            i18nKey: "is_not_empty_op"
+          }
+        },
+        {
+          value: "has_no_value",
+          label: {
+            i18nKey: "is_empty"
+          }
+        }
+      ],
       contact_reply: [
         {
           value: "message.body",
@@ -106722,6 +106748,7 @@ var catalog_data_default = {
       USER: "select",
       DATE: "date",
       DATE_TIME: "date",
+      TIME: "time_only",
       TEXTBOX_LIST: "textbox_list",
       FILE_UPLOAD: "file",
       SIGNATURE: "file",
@@ -106776,13 +106803,13 @@ var catalog_data_default = {
       order: 43,
       invoice: 41,
       membership: 10,
-      event: 48,
+      event: 49,
       payment: 35,
       subscription: 12,
       refund: 8,
       opportunity: 12,
       inboundWebhookRequest: 1,
-      voice_ai: 3,
+      voice_ai: 4,
       conversations_ai: 2
     },
     dynamicNamespacesNote: "Static {{merge tags}} the builder picker offers, with label/type/group. Dynamic namespaces (custom fields, inbound webhook paths, internal-action outputs, custom values) are per-account and NOT enumerable here \u2014 validation must treat unknown tags in those namespaces as unknowable, not wrong.",
@@ -108778,6 +108805,14 @@ var catalog_data_default = {
         group: "getEventOptions"
       },
       {
+        tag: "{{event.ticket.wallet_links}}",
+        label: {
+          i18nKey: "workflow.eventMenu.walletLinks"
+        },
+        type: "TEXT",
+        group: "getEventOptions"
+      },
+      {
         tag: "{{event.ticket.pdf_link}}",
         label: {
           i18nKey: "workflow.eventMenu.pdfLink"
@@ -109450,6 +109485,12 @@ var catalog_data_default = {
         group: "getVoiceAIOptions"
       },
       {
+        tag: "{{voice_ai.formattedTranscript}}",
+        label: "Formatted Transcript",
+        type: "TEXT",
+        group: "getVoiceAIOptions"
+      },
+      {
         tag: "{{conversations_ai.summary}}",
         label: "Summary",
         type: "TEXT",
@@ -110008,6 +110049,7 @@ var catalog_data_default = {
     "workflow.eventMenu.count": "Count",
     "workflow.eventMenu.names": "Names",
     "workflow.eventMenu.qrLinks": "QR Links",
+    "workflow.eventMenu.walletLinks": "Wallet Links",
     "workflow.eventMenu.pdfLink": "PDF Link",
     "workflow.eventMenu.checkedInAt": "Checked In At",
     "workflow.eventMenu.method": "Method",
@@ -112167,7 +112209,7 @@ var catalog_data_default = {
       },
       uiDefaults: {
         prompt: "",
-        model: "gpt-5.6-luna",
+        model: "gpt-6-luna",
         tools: [],
         outputFormat: "text",
         outputDescription: "",
@@ -155744,7 +155786,28 @@ Rules to Follow:
       confidence: "bundle-derived",
       filterClass: "MembershipUserLogin",
       filterRows: [],
-      filterRowsSource: "may-one-off"
+      filterRowsSource: "may-one-off",
+      filterChecks: {
+        validator: "membershipCourseValidator",
+        assetChecks: [],
+        customFieldSweeps: [
+          {
+            resource: "custom_field",
+            prefix: "contact.",
+            excludeStandard: true,
+            exclude: [
+              "product.id",
+              "category.id",
+              "lesson.id",
+              "offer.id",
+              "contact.tags"
+            ],
+            severity: "warning",
+            note: "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+          }
+        ],
+        shapeRules: []
+      }
     },
     conv_ai_trigger: {
       type: "conv_ai_trigger",
@@ -155754,6 +155817,9 @@ Rules to Follow:
       premium: false,
       confidence: "verified-live",
       example: "catalog/trigger-examples/conv_ai_trigger.json",
+      filterChecks: {
+        provenZero: "no-ghl-trigger-validator"
+      },
       isGotoTrigger: false,
       filterRows: [
         {
