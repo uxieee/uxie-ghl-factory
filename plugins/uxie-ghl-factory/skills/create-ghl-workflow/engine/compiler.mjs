@@ -225,7 +225,11 @@ function marketplaceAttributes(node, ctx) {
   // The live shape always repeats the step type inside attributes. This is NOT gated on
   // meta.attrKeys the way the native path is — that gate reads the native catalog, which
   // by definition does not describe a third-party app.
-  out.type = node.type;
+  // …except where the stored inner spelling differs from the step key: task-notification stores
+  // attributes.type 'task_notification' (INNER_ATTRIBUTE_TYPE). Forcing the key here contradicted the
+  // document gate's INNER_TYPE check, so a marketplace-authored Add Task could not be built at all
+  // (live 2026-09-28, knowledge sniffs/workflows-wave1-2026-09-25/live-3W-ifelse-output-groups-run2-task-inner-type.json).
+  out.type = INNER_ATTRIBUTE_TYPE[node.type] ?? node.type;
   // The native path injects __customInputs__ via normalizeAttrs when the catalog
   // says usesCustomInputs — marketplace bypasses that path entirely (there is no
   // native catalog meta for a third-party type), so it must inject its own copy.

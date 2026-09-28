@@ -21,3 +21,27 @@ test('workflow_contact / workflow_object / ai_bot_booked_appointment: subtype = 
 test('other groups are untouched (no subtype invented)', () => {
   assert.equal(normalizeCondition({ conditionType: 'number_formatter', conditionOperator: '>', conditionValue: '1' }, {}).conditionSubType, undefined);
 });
+
+test('a marketplace-authored Add Task stores attributes.type task_notification (its inner spelling), not the step key', async () => {
+  const { compile } = await import('./compiler.mjs');
+  const { buildMarketplaceIndex } = await import('./marketplace.mjs');
+  const { loadCatalog } = await import('./catalog.mjs');
+  const assets = { actions: [{ appName: 'contact', actions: [{ key: 'task-notification', workflowsActionType: 'INTERNAL', section: 'contact',
+    inputs: [{ field: 'title', fieldType: 'string', required: true }, { field: 'body', fieldType: 'rich-text', required: true }, { field: 'dueDate', fieldType: 'duration-picker', required: true }] }] }] };
+  let n = 0;
+  const t = compile({ name: 'wf', triggers: [], graph: [{ ref: 'p', kind: 'action', marketplace: true, type: 'task-notification', name: 'Add task', attributes: { title: 'T', body: 'B', dueDate: 1 } }] },
+    { loc: 'LOC', cid: 'CID', uid: 'UID', companyAge: 0, idGen: () => `id-${++n}`, catalog: loadCatalog(), marketplace: buildMarketplaceIndex({ assets, modules: { actions: [], triggers: [] } }), warn: () => {} })
+    .autoSaveBody.workflowData.templates[0];
+  assert.equal(t.type, 'task-notification');
+  assert.equal(t.attributes.type, 'task_notification');
+});
+
+test('merge-tag brace check: a JSON body ending in }} is balanced; an unclosed {{ or a stray }} in text still warns', async () => {
+  const { evaluateMergeTags } = await import('./merge-tags.mjs');
+  const { loadCatalog } = await import('./catalog.mjs');
+  const M = loadCatalog().mergeTags;
+  const run = (v) => evaluateMergeTags([{ id: 'w', type: 'custom_webhook', name: 'W', attributes: { body: { rawData: v } } }], M).filter((f) => f.kind === 'unbalanced');
+  assert.deepEqual(run(JSON.stringify({ tcwf: { email: '{{contact.email}}', kind: 'x' } })), []);
+  assert.equal(run('Hello {{contact.first_name}').length, 1);
+  assert.equal(run('Hello }} there').length, 1);
+});
