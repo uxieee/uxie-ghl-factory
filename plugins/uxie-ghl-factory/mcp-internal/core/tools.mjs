@@ -2123,6 +2123,8 @@ export const TOOLS = [
       + '({name, remove:true} removes one; nothing else is dropped). s2sBehaviour {responseDepth, vadEagerness, languages} '
       + 'only on a speech-to-speech agent (stored provider lc): it MERGES, languages REPLACE the list as base codes (en-US → en); '
       + 'GHL stores any string for the two enums, so refusing values outside the builder\'s lists is this tool\'s rule. '
+      + 'prompts {section: text|null} MERGES by section (null resets it to Default); sections are checked against GHL\'s '
+      + 'live /prompts/defaults. disabledPrompts replaces the list; an empty list is refused (clearing is unmeasured). '
       + 'Refuses action arrays, numbers and unknown keys. '
       + '🔴 A Test Audio call binds to the SIGNED-IN USER\'s own contact: on an agent that updates contact fields, saves '
       + 'summary notes or runs post-call workflows, a test call writes to that real contact. '
@@ -2130,6 +2132,7 @@ export const TOOLS = [
     inputSchema: schema({ locationId: z.string(), agentId: z.string(), spec: z.object({}).passthrough(), confirm: z.boolean().default(false) }),
     capabilities: [
       { method: 'GET', path: '/voice-ai/agents/{agentId}' },
+      { method: 'GET', path: '/voice-ai/agents/{agentId}/prompts/defaults' },
       { method: 'PUT', path: '/voice-ai/agents/{agentId}' },
     ],
     handler: async (args, deps) => guard(async () => {
@@ -2140,9 +2143,16 @@ export const TOOLS = [
       if (!before || typeof before !== 'object') {
         return fail(CODES.ENGINE_ABORT, 'the agent GET returned no record.', 'Confirm the agentId; nothing was written.');
       }
+      // system-prompt sections are validated against GHL's live list, read in this same call
+      let promptSections;
+      if (args.spec && typeof args.spec === 'object' && 'prompts' in args.spec) {
+        const defs = await gw.call('GET', `/voice-ai/agents/${args.agentId}/prompts/defaults?locationId=${encodeURIComponent(args.locationId)}`);
+        if (!defs?.ok) return fromHttp(defs?.status ?? 502, defs?.json);
+        promptSections = Object.keys(defs.json ?? {}).filter((k) => k !== 'traceId');
+      }
       let plan;
       try {
-        plan = compileVoiceAiPartialUpdate(before, args.spec, { agentId: args.agentId, locationId: args.locationId });
+        plan = compileVoiceAiPartialUpdate(before, args.spec, { agentId: args.agentId, locationId: args.locationId, promptSections });
       } catch (error) {
         return fail(CODES.ENGINE_ABORT, `update rejected (${error.code ?? 'ENGINE_ABORT'}): ${error.message}`,
           'The spec was rejected before any request was sent — nothing was written.');
