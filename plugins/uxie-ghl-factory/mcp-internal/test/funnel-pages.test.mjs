@@ -374,3 +374,13 @@ test('completeExtra gives blog, photo-video-gallery and upsell the defaults thei
   assert.deepEqual(upsell.productDetails, {}, 'no account product is baked into the default');
   assert.equal(upsell.saleAction.value, GO_TO_NEXT_STEP);
 });
+
+test('every action the builder menu offers passes the audit (the list once held 8 of 19)', () => {
+  const { data } = page();
+  for (const v of ['none', 'download-file', 'show-hide-element', 'scroll-to-element', 'sell-product', 'add-to-cart',
+    'buy-now', 'click-to-call', 'click-to-sms', 'click-to-mail', 'go-to-membership']) {
+    const d = structuredClone(data);
+    d.sections[0].elements.find((n) => n.type === 'element').extra.action = { value: v };
+    assert.deepEqual(auditPageData(d).filter((p) => /action/.test(p)), [], v);
+  }
+});

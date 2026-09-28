@@ -45,9 +45,17 @@ const PREFIX = '.hl_page-preview--content';
 // STYLE_PROPS_VALUE from the builder bundle — the values a click action may take. `goToNextStep`
 // is NOT one of them: that camelCase guess was stored by autosave with a 201 and the button then
 // did nothing at all. Presence checks do not catch a wrong ENUM, so this list exists.
+//
+// The list is the WHOLE enum (18 values) plus `go-to-membership`, which the button's action menu
+// offers but the enum omits. Until 2026-09-28 it held only 8 and refused real actions — `none`,
+// `download-file`, `click-to-call`/`sms`/`mail`, `show-hide-element`, `scroll-to-element`, the store
+// actions — so the tool could not author half of what the builder can (found building the action
+// specimen, knowledge sniffs/funnels-wave8-actions-2026-09-28).
 export const ACTION_VALUES = Object.freeze([
-  'go-to-next-funnel-step', 'go-to-funnel-step', 'step-path', 'url',
-  'openPopup', 'go-to-product-collection', 'go-to-cac', 'logout',
+  'go-to-next-funnel-step', 'go-to-product-collection', 'go-to-funnel-step', 'step-path', 'url',
+  'download-file', 'openPopup', 'show-hide-element', 'scroll-to-element', 'sell-product',
+  'add-to-cart', 'buy-now', 'click-to-call', 'click-to-sms', 'click-to-mail', 'none',
+  'go-to-cac', 'logout', 'go-to-membership',
 ]);
 export const GO_TO_NEXT_STEP = 'go-to-next-funnel-step';
 
