@@ -11,6 +11,23 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.4.1] — 2026-09-28
+
+**Correction: `build_funnel_page` `seo` now writes through GHL's REST route. 1.3.0 said no such route existed; that
+was wrong. Plus a credential-guard fix for workflows. Each change was executed live on the test account.**
+
+- **`build_funnel_page` seo:** it writes the page record through `POST /funnels/funnel/funnel-page/{pageId}`, the route
+  the builder uses for "Edit page details". The name and url it sends are the values it read just before. After the
+  write it verifies them unchanged, and a mismatch reports a possible concurrent rename. The Firestore write 1.3.0
+  used, and the second credential it minted for it, are gone. Behaviour for callers is unchanged: SEO is merged,
+  verified, carried in every save, and published with `publish:true`.
+- **Workflows credential guard:** an empty value under a secret-named key (the ChatGPT step's `apiKey: ""`, which
+  makes GHL use its own key) is no longer refused as a credential. An export no longer turns it into
+  `"<redacted>"`, which would have stored that literal as the key if written back. The same applies to a webhook's
+  explicit no-auth object. Every non-empty value is still refused on write and redacted on export.
+
+Catalogue: +4 documented routes (blog site create, funnel blog list, update-funnel-and-page, Voice AI action↔agent).
+
 ## [1.4.0] — 2026-09-28
 
 **New `create_funnel`, so a funnel or website can be built without first clicking in GHL. Funnel split tests and
