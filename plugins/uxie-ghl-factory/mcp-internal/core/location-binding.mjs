@@ -142,6 +142,29 @@ const MAX_NODES = 10_000;
 // matched key is REFUSED. Ignoring them would let {"locationId": ["FOREIGN"]} and
 // {"locationId": {"$ne": null}} past, because the strings under them sit at array indices and
 // nested keys rather than at the exact key.
+// A JSON-schema DESCRIPTOR under a location key. GHL's flow editor writes a Knowledge Base tool node with
+// `additionalParameters.locationId: {type: "string", description: "<the location id>"}` — the tool's
+// parameter schema, whose values name the location. Such an object is scanned instead of refused: its
+// keys must ALL be schema words, `type` must be a JSON-schema type name, and every other string value
+// must be a location this registration may act on. Any other key → still unusable.
+const DESCRIPTOR_KEYS = new Set(['type', 'description', 'values', 'enum', 'default']);
+const SCHEMA_TYPES = new Set(['string', 'array', 'object', 'number', 'integer', 'boolean', 'null']);
+function descriptorLocations(x) {
+  if (!x || typeof x !== 'object' || Array.isArray(x)) return null;
+  const keys = Object.keys(x);
+  if (!keys.length || !keys.every((k) => DESCRIPTOR_KEYS.has(k))) return null;
+  if (x.type !== undefined && !(typeof x.type === 'string' && SCHEMA_TYPES.has(x.type))) return null;
+  const ids = [];
+  for (const k of keys) {
+    if (k === 'type') continue;
+    const v = x[k];
+    if (typeof v === 'string') ids.push(v);
+    else if (Array.isArray(v) && v.every((s) => typeof s === 'string')) ids.push(...v);
+    else return null;
+  }
+  return ids.length ? ids : null;
+}
+
 function scanBodyLocations(value, allowed) {
   let nodes = 0;
   // WHICH cap tripped, not merely THAT one did. A refusal that names no limit reads as a generic
@@ -149,6 +172,11 @@ function scanBodyLocations(value, allowed) {
   // payload at all — see the note at the refusal below for what that actually cost.
   let tripped = null;
   const bad = [];
+  // An EMPTY id nested below the body's top level names no account (the flow editor's edge snapshots
+  // carry the untouched palette template, `nodeConfig.nodeConfig.params.locationId: ""`). It is counted,
+  // not refused — and the caller refuses the request unless a bound location anchors it elsewhere.
+  let emptyNested = 0;
+  let anchored = false;
   const walk = (v, depth) => {
     if (bad.length) return true;
     if (depth > MAX_DEPTH) { tripped ??= 'depth'; return false; }
@@ -160,15 +188,19 @@ function scanBodyLocations(value, allowed) {
         // The array branch below inspects x's elements without recursing through walk() -- count
         // them against the same node budget here, or an array at a matched key scans uncapped.
         if (Array.isArray(x) && (nodes += x.length) > MAX_NODES) { tripped ??= 'nodes'; return false; }
-        const values = typeof x === 'string' ? [x] : (Array.isArray(x) && x.every((s) => typeof s === 'string') ? x : null);
+        const values = typeof x === 'string' ? [x] : (Array.isArray(x) && x.every((s) => typeof s === 'string') ? x : descriptorLocations(x));
         if (values === null) { bad.push({ unusable: true }); return true; }
-        for (const id of values) if (!allowed.has(id)) { bad.push({ id }); return true; }
+        for (const id of values) {
+          if (id === '' && depth > 0) { emptyNested++; continue; }
+          if (!allowed.has(id)) { bad.push({ id }); return true; }
+          anchored = true;
+        }
       } else if (!walk(x, depth + 1)) return false;
     }
     return true;
   };
   const withinCaps = walk(value, 0);
-  return { withinCaps, bad, tripped };
+  return { withinCaps, bad, tripped, emptyNested, anchored };
 }
 
 export function checkLocationBinding({ tool, args, allowed, legacyLocationsEnvSet = false, ...opts }) {
@@ -241,11 +273,13 @@ export function checkLocationBinding({ tool, args, allowed, legacyLocationsEnvSe
         'this endpoint writes settings across every location under the agency',
         'No per-location binding can sanction an agency-wide write. Make the change per location.');
     }
+    let urlAnchored = false;
     for (const key of ['locationId', 'location_id']) {
       for (const v of url.searchParams.getAll(key)) {
         if (!allowed.has(v)) return fail(CODES.LOCATION_FORBIDDEN,
           `the request targets ${v}, which this registration is not permitted to act on`,
           'Target a permitted account, or rebind the registration.');
+        urlAnchored = true;
       }
     }
     for (const e of matchTemplates(url.pathname, method, opts.endpoints ?? [])) {
@@ -259,13 +293,14 @@ export function checkLocationBinding({ tool, args, allowed, legacyLocationsEnvSe
         if (v && !allowed.has(v)) return fail(CODES.LOCATION_FORBIDDEN,
           `the request path targets ${v}, which this registration is not permitted to act on`,
           'Target a permitted account, or rebind the registration.');
+        if (v) urlAnchored = true;
       }
     }
 
     let body = args?.body;
     if (typeof body === 'string') { try { body = JSON.parse(body); } catch { body = undefined; } }
     if (body !== undefined) {
-      const { withinCaps, bad, tripped } = scanBodyLocations(body, allowed);
+      const { withinCaps, bad, tripped, emptyNested, anchored } = scanBodyLocations(body, allowed);
       // NAME the limit and NAME the way through. The old message said only that the body was "too
       // large or too deeply nested", which is true and useless: a caller on a live client build
       // read it as a blanket size ceiling on the typed rail, concluded the MCP could not carry a
@@ -298,6 +333,11 @@ export function checkLocationBinding({ tool, args, allowed, legacyLocationsEnvSe
           : fail(CODES.LOCATION_FORBIDDEN,
               `the request body targets ${first.id}, which this registration is not permitted to act on`,
               'Target a permitted account, or rebind the registration.');
+      }
+      if (emptyNested && !anchored && !urlAnchored) {
+        return fail(CODES.LOCATION_FORBIDDEN,
+          'the request body carries only empty location ids, and no permitted location anchors the request',
+          'Put the permitted locationId in the body, the query or the path. An empty id names no account.');
       }
     }
   }
