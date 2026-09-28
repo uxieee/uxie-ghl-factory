@@ -57,6 +57,8 @@ test('action arrays, numbers, session variables and unknown keys are refused bef
 test('the provider-enforced delay bound is refused early (the provider refuses AFTER GHL stores)', () => {
   assert.throws(() => compileVoiceAiPartialUpdate(RECORD(), { beginMessageDelayMs: 11000 }, { agentId: 'A', locationId: 'L' }), /0–5000/);
   assert.doesNotThrow(() => compileVoiceAiPartialUpdate(RECORD(), { beginMessageDelayMs: 5000 }, { agentId: 'A', locationId: 'L' }));
+  assert.throws(() => compileVoiceAiPartialUpdate(RECORD(), { backchannelFrequency: 1.5 }, { agentId: 'A', locationId: 'L' }), /0–1/);
+  assert.doesNotThrow(() => compileVoiceAiPartialUpdate(RECORD(), { backchannelFrequency: 1 }, { agentId: 'A', locationId: 'L' }));
 });
 
 test('reads map flat write names to the nested read', () => {

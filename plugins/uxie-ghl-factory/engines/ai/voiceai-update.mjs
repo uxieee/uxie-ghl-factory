@@ -9,7 +9,7 @@
 //   - Writes are FLAT and reads are NESTED (most settings come back under `agentSettings`; voiceId inside
 //     agentSettings.voice, language as agentSettings.language.code, ringDurationSeconds as ringDurationMs / 1000).
 //   - 🔴 Some refusals come from the VOICE PROVIDER after GHL has stored the value: `llmModel: "bogus-llm"` and
-//     `beginMessageDelayMs: 11000` both answered HTTP 400 carrying the provider's error, and GHL kept the value, so
+//     `beginMessageDelayMs: 11000` (and `backchannelFrequency: 1.5`) answered HTTP 400 carrying the provider's error, and GHL kept the value, so
 //     the GHL record and the provider agent diverged. This module restores the previous values when that happens.
 //   - `knowledgeBaseIds` is stored on the agent AND makes the server mint (or remove) a KNOWLEDGE_BASE action. The
 //     `knowledgeBasePrompt` is stored as that action's actionParameters.triggerPrompt — never on the agent — and is
@@ -53,7 +53,11 @@ const ELSEWHERE = {
 
 // Bounds the VOICE PROVIDER enforces after GHL has already stored the value (see the header). Refused here so the
 // record never diverges. GHL's own validator refuses the other bounds with nothing written, so they need no copy here.
-const PROVIDER_BOUNDS = { beginMessageDelayMs: [0, 5000, 'Begin message delay ms must be between 0 and 5 seconds'] };
+const PROVIDER_BOUNDS = {
+  beginMessageDelayMs: [0, 5000, 'Begin message delay ms must be between 0 and 5 seconds'],
+  // Measured 2026-09-28: 1.5 answered 400 "backchannel_frequency must be within [0,1]" and was stored.
+  backchannelFrequency: [0, 1, 'backchannel_frequency must be within [0,1]'],
+};
 
 const isObj = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 
