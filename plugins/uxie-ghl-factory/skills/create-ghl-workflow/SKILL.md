@@ -19,8 +19,8 @@ soup, or raw API calls.
 
 ## Before you author a step: read its card
 
-`search_step_types` then `describe_step_type` give you the **real field set** for any of the 284
-documented step and trigger types — every field, its type, whether it is required, its default,
+`search_step_types` then `describe_step_type` give you the **real field set** for any of the 524
+documented step and trigger type cards (every marketplace step key has its own) — every field, its type, whether it is required, its default,
 and the notes that matter.
 
 ```

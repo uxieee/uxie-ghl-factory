@@ -234,10 +234,11 @@ const credentialFailure = (code = CODES.VALIDATION_FAILED) => fail(
 let sharedAuditLimiter = null;
 let sharedAuditCircuit = null;
 // ── Step/trigger type cards ───────────────────────────────────────────────────────────────
-// The corpus documents 284 step and trigger types with their real field tables; the plugin
-// used to ship only 68 single step examples, and one example pins ONE value of every
-// discriminator (see create-ghl-workflow/references/step-shapes.md). Loading all 284 is not an
-// option — the catalog is ~134,000 tokens. So it is served the way the public rail serves its
+// The corpus documents 524 step and trigger type cards (523 keys: 147 native, 376 marketplace; since
+// wave18 every marketplace STEP key has its own card, not only its app's page) with their real field
+// tables; the plugin used to ship only 68 single step examples, and one example pins ONE value of every
+// discriminator (see create-ghl-workflow/references/step-shapes.md). Loading them all is not an
+// option — the catalog is ~1.24 MB. So it is served the way the public rail serves its
 // API catalog: a ranked search returning stubs, then one card on request.
 //
 //   whole catalog  ~134,000 tokens     one search page  ~360     one card  ~400
@@ -2120,6 +2121,86 @@ async function siteRedirects(deps, locationId) {
     clicks30d: clicks,
     note: 'Clicks are counted per path as typed; a case-varied hit counts in the total but not in the stored path\'s row.',
   };
+}
+
+// restore_workflow_version with asNewWorkflowName — the version drawer's "Create new workflow from this version"
+// (use-create-new-from-version.ts:54-69): a blank create, then the version's triggers recreated on the NEW id
+// (isRestoreToSameWorkflow:false, so no predeterminedId) and the same restore PUT. The source is only read.
+// The blank create is the engine's empty-graph build, the route proven live in 3BM.
+async function workflowIdsNamed(gw, locationId, name) {
+  const ids = [];
+  const want = name.trim().toLowerCase();
+  for (let off = 0; off < 5000; off += 100) {
+    const q = new URLSearchParams({ type: 'workflow', limit: '100', offset: String(off), sortBy: 'name', sortOrder: 'asc',
+      includeCustomObjects: 'true', includeObjectiveBuilder: 'true', search: name });
+    const r = await gw.call('GET', `/workflow/${encodeURIComponent(locationId)}/list?${q}`);
+    if (!r.ok) return null;
+    const rows = r.json?.rows ?? [];
+    for (const row of rows) if (String(row.name ?? '').trim().toLowerCase() === want) ids.push(row._id ?? row.id);
+    if (rows.length < 100) break;
+  }
+  return ids;
+}
+
+async function createWorkflowFromVersion(args, deps, gw, wf) {
+  const newName = String(args.asNewWorkflowName ?? '').trim();
+  if (!newName) return fail(CODES.VALIDATION_FAILED, 'asNewWorkflowName is empty. Nothing was written.', 'Pass the new workflow\'s name.');
+  const loc = encodeURIComponent(args.locationId), wid = encodeURIComponent(args.workflowId);
+  const vr = await gw.call('GET', `/workflow/${loc}/${wid}/history-by-number/${encodeURIComponent(String(args.version))}`);
+  if (!vr.ok) return fromHttp(vr.status, vr.json);
+  const version = vr.json ?? null;
+  if (!version?.workflowData)
+    return fail(CODES.VALIDATION_FAILED, `version ${args.version} came back without workflowData. Nothing was written.`, 'Check the number with list_workflow_versions (GHL keeps 30 days or the last 10).');
+  const taken = await workflowIdsNamed(gw, args.locationId, newName);
+  if (!taken) return fail(CODES.ENGINE_ABORT, 'the workflow list could not be read, so the new name could not be checked. Nothing was written.', 'Retry; the name check is not skipped.');
+  if (taken.length)
+    return withFailureData(fail(CODES.VALIDATION_FAILED, `a workflow named "${newName}" already exists on this location. Nothing was written.`, 'Pick a name no workflow carries.'), { existing: taken });
+  const templates = version.workflowData.templates ?? [];
+  const preview = {
+    mode: 'createFromVersion', source: { workflowId: args.workflowId, name: wf.name, status: wf.status ?? null, currentVersion: wf.version ?? null },
+    restoreVersion: version.version ?? args.version, versionStatus: version.status ?? null, newName, landsAs: 'draft',
+    steps: templates.map((t) => ({ id: t.id, type: t.type, name: t.name ?? null })),
+    triggers: (version.triggersData ?? []).map((t) => ({ type: t.type, name: t.name ?? null })),
+    note: 'The source workflow is not written. Trigger ids are new; an inbound webhook trigger gets a NEW URL.',
+  };
+  if (args.confirm !== true)
+    return withFailureData(fail(CODES.CONFIRM_REQUIRED, 'Create-from-version preview is ready; no write was sent.', 'Review data.preview, then repeat with confirm:true.'), { preview });
+
+  const progress = { workflowCreated: null, triggersCreated: [], documentSaved: false };
+  const build = await (deps.orchestrate ?? orchestrate)({ name: newName, triggers: [], graph: [] }, gw, {});
+  progress.workflowCreated = build?.wid ?? null;
+  if (build?.aborted || !build?.wid)
+    return withFailureData(fail(CODES.ENGINE_ABORT, `the blank create failed: ${build?.aborted ?? 'no workflow id'}`, progress.workflowCreated ? `A draft ${progress.workflowCreated} may exist under "${newName}"; inspect it.` : 'Nothing was created.'), { partialProgress: progress });
+  const nid = build.wid;
+  const blank = await getWorkflow(gw, args.locationId, nid);
+  if (!blank.ok) return withFailureData(fromHttp(blank.status, blank.json), { partialProgress: progress });
+  const nwf = blank.json ?? {};
+  const userId = nwf.updatedBy ?? wf.updatedBy ?? null;
+  for (const src of version.triggersData ?? []) {
+    const body = triggerFromVersion(src, { workflowId: nid, status: 'draft', locationId: args.locationId, companyId: nwf.companyId ?? wf.companyId, companyAge: nwf.companyAge ?? wf.companyAge, sameWorkflow: false });
+    const c = await gw.call('POST', `/workflow/${loc}/trigger`, body);
+    if (!c.ok) return withFailureData(fromHttp(c.status, c.json), { partialProgress: progress });
+    progress.triggersCreated.push(c.json?.id ?? c.json?._id ?? c.json ?? null);
+  }
+  const mid = await listWorkflowTriggers(gw, args.locationId, nid);
+  const put = await gw.call('PUT', `/workflow/${loc}/${encodeURIComponent(nid)}`, restoreBody(version, { name: newName, targetVersion: nwf.version, userId, oldTriggers: [], newTriggers: mid.triggers }));
+  if (!put.ok) return withFailureData(fromHttp(put.status, put.json), { partialProgress: progress });
+  progress.documentSaved = true;
+  const back = await getWorkflow(gw, args.locationId, nid);
+  const after = back.ok ? back.json : null;
+  const trg = await listWorkflowTriggers(gw, args.locationId, nid);
+  const src2 = await getWorkflow(gw, args.locationId, args.workflowId);
+  const wantIds = templates.map((t) => t.id).sort();
+  const gotIds = (after?.workflowData?.templates ?? []).map((t) => t.id).sort();
+  const sourceUntouched = src2.ok && Number(src2.json?.version) === Number(wf.version) && src2.json?.status === wf.status;
+  const verified = Boolean(after) && after.name === newName && after.status === 'draft' && JSON.stringify(wantIds) === JSON.stringify(gotIds)
+    && Boolean(after.meta?.versionRestore) && trg.triggers.length === (version.triggersData ?? []).length && sourceUntouched;
+  const data = { created: true, verified, sourceUntouched, from: { workflowId: args.workflowId, name: wf.name, version: version.version ?? args.version },
+    to: { workflowId: nid, name: after?.name ?? null, version: after?.version ?? null, status: after?.status ?? null, steps: gotIds.length,
+      triggers: trg.triggers.map((t) => ({ id: t.id ?? t._id, type: t.type, name: t.name ?? null, status: t.status ?? null })), versionRestore: after?.meta?.versionRestore ?? null },
+    progress };
+  if (!verified) return withFailureData(fail(CODES.VERIFY_FAILED, 'GHL accepted the create-from-version but the read-back does not match (name, draft status, steps, versionRestore, trigger count, or the source changed).', 'Inspect data.to against get_workflow_version.'), data);
+  return ok(data);
 }
 
 // `get_workflow_digest`'s `include` vocabulary. ONE value, and it ADDS the untrimmed document
@@ -4055,17 +4136,26 @@ export const TOOLS = [
       + 'refuses it: a PUBLISHED workflow (unpublish_workflows first), a workflow with contacts active in any step, '
       + 'and the version it is already on. Preview by default (version number, step diff added/removed/changed, trigger '
       + 'and settings changes); confirm:true writes and reads the workflow and its triggers back. Trigger ids change '
-      + '(an inbound webhook keeps its URL). Read versions with list_workflow_versions / get_workflow_version.',
+      + '(an inbound webhook keeps its URL). Read versions with list_workflow_versions / get_workflow_version. '
+      + 'asNewWorkflowName = the drawer\'s "Create new workflow from this version": the source is NOT touched (so it may be '
+      + 'published, busy, or on that version); a blank DRAFT is created under the new name at the location root, the version\'s '
+      + 'triggers are recreated on it (new ids; an inbound webhook gets a NEW URL) and its steps saved, then read back. '
+      + 'A name any listed workflow already carries is refused (agent-type workflows are not in the list).',
     inputSchema: schema({
       locationId: z.string(),
       workflowId: z.string(),
       workflowName: z.string().describe('the workflow\'s CURRENT name — the target proof'),
       version: z.number().int().positive().describe('the version number to restore (list_workflow_versions)'),
+      asNewWorkflowName: z.string().optional().describe('create a NEW draft workflow from the version under this name instead of restoring in place'),
       confirm: z.boolean().default(false),
     }),
     capabilities: [
       { method: 'GET', path: '/workflow/{loc}/{wid}' },
       { method: 'GET', path: '/workflow/{loc}/{wid}/history-by-number/{n}' },
+      // asNewWorkflowName only: the taken-name walk and the blank create (the engine's empty-graph build).
+      { method: 'GET', path: '/workflow/{loc}/list' },
+      { method: 'POST', path: '/workflow/{loc}' },
+      { method: 'POST', path: '/workflow/{loc}/{wid}/validate-workflows' },
       { method: 'GET', path: '/workflow/{loc}/trigger' },
       { method: 'GET', path: '/workflows/status/search/count-per-step' },
       { method: 'DELETE', path: '/workflow/{loc}/trigger/{tid}' },
@@ -4080,6 +4170,7 @@ export const TOOLS = [
       const wf = cur.json ?? {};
       if ((wf.name ?? '') !== args.workflowName)
         return fail(CODES.VALIDATION_FAILED, `target proof failed: workflow ${args.workflowId} is named "${wf.name ?? ''}", not "${args.workflowName}". Nothing was written.`, 'Pass the workflow\'s current name exactly (get_workflow).');
+      if (args.asNewWorkflowName !== undefined) return createWorkflowFromVersion(args, deps, gw, wf);
       if (wf.status === 'published')
         return fail(CODES.VALIDATION_FAILED, 'the workflow is PUBLISHED. The builder refuses this too ("Can\'t restore published workflows"). Nothing was written.', 'unpublish_workflows first, then restore. The restore lands as a draft either way.');
       if (Number(wf.version) === Number(args.version))
@@ -6825,7 +6916,7 @@ export const TOOLS = [
   {
     name: 'search_step_types',
     description: `${describe('search_step_types', 'Search workflow step and trigger types — risk: read')}. `
-      + 'Ranked search over all 284 documented GHL workflow step and trigger types. Returns compact '
+      + 'Ranked search over all 524 documented GHL workflow step and trigger type cards (every marketplace step key included). Returns compact '
       + 'STUBS — type, family, one-line summary, field count. Call describe_step_type on the ONE type '
       + 'you pick to get its field table. Do not build a step from a stub, and do not copy a captured '
       + 'example without checking the card: an example pins one value of every discriminator field. '
@@ -6872,7 +6963,9 @@ export const TOOLS = [
       + 'its default, and the notes that matter (discriminators, validator rules, stored-as-string traps). '
       + 'Also carries filter rows for triggers, custom variables the type exposes downstream, and the '
       + 'validator name. This is the union of valid values — a captured example is one sample of it. '
-      + 'Reads no account data.',
+      + 'A marketplace step key (family steps-marketplace) has its own card: source "measured" when its fields were '
+      + 'proven live, "asset" when read from the published app asset; whether the app is connected on an account is '
+      + 'describe_marketplace_action. Reads no account data.',
     inputSchema: schema({
       type: z.string().describe('the exact type slug, e.g. "chatgpt", "send_sms", "contact_changed"'),
     }),
@@ -6915,8 +7008,8 @@ export const TOOLS = [
       + 'Read what a MARKETPLACE (third-party app) workflow action actually accepts: its published '
       + 'template, the custom variables it declares, its branch configuration, and — because the schema '
       + 'names the owning app — whether that app is installed and OAuth-connected on this sub-account. '
-      + 'Marketplace actions are the step types `describe_step_type` knows least about, because their '
-      + 'field schema lives on the app rather than in the step-type catalogue. '
+      + '`describe_step_type` carries a card per marketplace step key (fields, proven notes); this tool adds the '
+      + 'LIVE published schema and the app\'s connection state on this sub-account. '
       + 'Pass the action KEY as it appears in a step\'s `type` (e.g. `imessage_a`). '
       + 'Sections that answer empty are reported as `present:false` with the reason, never merged into '
       + 'the schema as though the action declared nothing.',
