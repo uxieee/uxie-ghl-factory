@@ -178,8 +178,78 @@ var init_define_ENDPOINT_CATALOG = __esm({
     define_ENDPOINT_CATALOG_default = {
       generated: "2026-09-28",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 1312,
+      count: 1332,
       endpoints: [
+        {
+          id: "ai-agents--actions",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/actions/{id}",
+          path: "/actions/{id}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/actions-and-plugins.md:61"
+          ]
+        },
+        {
+          id: "ai-agents--actions-safe-template",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/actions/{id}/safe-template",
+          path: "/actions/{id}/safe-template",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/actions-and-plugins.md:61"
+          ]
+        },
         {
           id: "facebook-service--get-ad-account-by-id",
           method: "GET",
@@ -717,6 +787,92 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "ai-agents/10-anatomy/flow-agent-shape.md:142",
             "ai-agents/20-api/actions-and-plugins.md:25"
+          ]
+        },
+        {
+          id: "ai-agents--actions-safe-template-get",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/agent-execution/actions/{actionId}/safe-template",
+          path: "/agent-execution/actions/{actionId}/safe-template",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "actionId"
+            }
+          ],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/actions-and-plugins.md:27"
+          ]
+        },
+        {
+          id: "ai-agents--actions-spec",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/agent-execution/actions/spec",
+          path: "/agent-execution/actions/spec",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "actionName",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "actionEntity",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/actions-and-plugins.md:26"
           ]
         },
         {
@@ -3857,6 +4013,37 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "workflows/30-types/steps/manual-sms.md:72"
+          ]
+        },
+        {
+          id: "ai-agents--conversations-messages",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/conversations/messages",
+          path: "/conversations/messages",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/actions-and-plugins.md:47"
           ]
         },
         {
@@ -20566,6 +20753,397 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "funnels--stats",
+          method: "DELETE",
+          url: "https://backend.leadconnectorhq.com/stats/",
+          path: "/stats/",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "funnelId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/50-runtime/analytics.md:62"
+          ]
+        },
+        {
+          id: "funnels--stats-get",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/stats/",
+          path: "/stats/",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "funnelId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "fromDate",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "toDate",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/50-runtime/analytics.md:32"
+          ]
+        },
+        {
+          id: "funnels--stats-count",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/stats/count",
+          path: "/stats/count",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "eventType",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/50-runtime/analytics.md:24"
+          ]
+        },
+        {
+          id: "funnels--count-split",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/stats/count/split",
+          path: "/stats/count/split",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "eventType",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/50-runtime/analytics.md:28"
+          ]
+        },
+        {
+          id: "funnels--count-webinar",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/stats/count/webinar",
+          path: "/stats/count/webinar",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "eventType",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/50-runtime/analytics.md:31"
+          ]
+        },
+        {
+          id: "funnels--device-split",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/stats/device/split",
+          path: "/stats/device/split",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "eventType",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/50-runtime/analytics.md:29"
+          ]
+        },
+        {
+          id: "funnels--stats-event",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/stats/event",
+          path: "/stats/event",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/50-runtime/analytics.md:45"
+          ]
+        },
+        {
+          id: "funnels--graph-data",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/stats/graph/data",
+          path: "/stats/graph/data",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "eventType",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/50-runtime/analytics.md:26"
+          ]
+        },
+        {
+          id: "funnels--optin-conversion-rate",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/stats/optin/conversion-rate",
+          path: "/stats/optin/conversion-rate",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "eventType",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/50-runtime/analytics.md:25"
+          ]
+        },
+        {
+          id: "funnels--top-user-data",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/stats/top/user-data",
+          path: "/stats/top/user-data",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "eventType",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/50-runtime/analytics.md:27"
+          ]
+        },
+        {
           id: "funnels--stats-url-redirect",
           method: "POST",
           url: "https://backend.leadconnectorhq.com/stats/url-redirect",
@@ -20596,6 +21174,119 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/20-api/url-redirects.md:104"
+          ]
+        },
+        {
+          id: "funnels--video-event",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/stats/video/event",
+          path: "/stats/video/event",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/50-runtime/analytics.md:50"
+          ]
+        },
+        {
+          id: "funnels--video-stats",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/stats/video/stats",
+          path: "/stats/video/stats",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "eventType",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "includeGraphData",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/50-runtime/analytics.md:30"
+          ]
+        },
+        {
+          id: "funnels--stats-webinar-sessions",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/stats/webinar-sessions",
+          path: "/stats/webinar-sessions",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "sessionBreakdown",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/50-runtime/analytics.md:72"
           ]
         },
         {
@@ -23978,7 +24669,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
         {
           id: "workflow-service--get-version-by-number-and-workflow-id",
           aka: [
-            "/workflow/{locationId}/{wid}/history-by-number/{n}"
+            "/workflow/{locationId}/{wid}/history-by-number/{n}",
+            "/workflow/{locationId}/{wid}/history-by-number/{version}"
           ],
           method: "GET",
           url: "https://backend.leadconnectorhq.com/workflow/{locationId}/{workflowId}/history-by-number/{versionNumber}",
@@ -24019,7 +24711,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "services/WorkflowService.ts:550",
-            "workflows/20-api/version-history.md:18"
+            "workflows/20-api/version-history.md:18",
+            "workflows/50-runtime/11-runtime-logs.md:218"
           ]
         },
         {
@@ -25312,6 +26005,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
         },
         {
           id: "drip-schedule-service--get-contacts",
+          aka: [
+            "/workflow/{locationId}/drip-schedule/{wid}/step/{stepId}/contacts"
+          ],
           method: "GET",
           url: "https://backend.leadconnectorhq.com/workflow/{locationId}/drip-schedule/{workflowId}/step/{stepId}/contacts",
           path: "/workflow/{locationId}/drip-schedule/{workflowId}/step/{stepId}/contacts",
@@ -25372,11 +26068,15 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "erased"
           },
           sources: [
-            "services/DripScheduleService.ts:28"
+            "services/DripScheduleService.ts:28",
+            "workflows/30-types/steps/drip.md:101"
           ]
         },
         {
           id: "drip-schedule-service--get-step-stats",
+          aka: [
+            "/workflow/{locationId}/drip-schedule/{wid}/step/{stepId}/stats"
+          ],
           method: "GET",
           url: "https://backend.leadconnectorhq.com/workflow/{locationId}/drip-schedule/{workflowId}/step/{stepId}/stats",
           path: "/workflow/{locationId}/drip-schedule/{workflowId}/step/{stepId}/stats",
@@ -25424,7 +26124,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "erased"
           },
           sources: [
-            "services/DripScheduleService.ts:23"
+            "services/DripScheduleService.ts:23",
+            "workflows/30-types/steps/drip.md:97"
           ]
         },
         {
@@ -25471,7 +26172,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "erased"
           },
           sources: [
-            "services/DripScheduleService.ts:18"
+            "services/DripScheduleService.ts:18",
+            "workflows/30-types/steps/drip.md:104"
           ]
         },
         {
@@ -26212,7 +26914,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "services/ErrorNotificationService.ts:54",
-            "workflows/50-runtime/error-notifications.md:36"
+            "workflows/50-runtime/error-notifications.md:36",
+            "workflows/50-runtime/error-notifications.md:65"
           ]
         },
         {
@@ -34888,7 +35591,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "services/marketplaceServices/WorkflowMarketplaceService.ts:166",
             "workflows/50-runtime/11-runtime-logs.md:37",
             "workflows/50-runtime/11-runtime-logs.md:113",
-            "workflows/50-runtime/11-runtime-logs.md:241",
+            "workflows/50-runtime/11-runtime-logs.md:251",
             "workflows/50-runtime/forcing-and-removing-contacts.md:81",
             "workflows/50-runtime/observed-query-shapes.md:19"
           ]
@@ -35035,7 +35738,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           sources: [
             "services/marketplaceServices/WorkflowMarketplaceService.ts:237",
             "workflows/50-runtime/11-runtime-logs.md:190",
-            "workflows/50-runtime/11-runtime-logs.md:246",
+            "workflows/50-runtime/11-runtime-logs.md:256",
             "workflows/70-research/RAIL.md:134",
             "workflows/70-research/RUNTIME-DATA-2.md:70"
           ]
@@ -35095,7 +35798,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "services/marketplaceServices/WorkflowMarketplaceService.ts:181",
             "workflows/20-api/03-endpoints.md:364",
             "workflows/50-runtime/11-runtime-logs.md:145",
-            "workflows/50-runtime/11-runtime-logs.md:242",
+            "workflows/50-runtime/11-runtime-logs.md:252",
             "workflows/70-research/ENDPOINTS.md:193",
             "workflows/70-research/RAIL.md:115"
           ]
@@ -35173,7 +35876,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "services/marketplaceServices/WorkflowMarketplaceService.ts:281",
             "services/marketplaceServices/WorkflowMarketplaceService.ts:296",
             "workflows/50-runtime/11-runtime-logs.md:203",
-            "workflows/50-runtime/11-runtime-logs.md:244",
+            "workflows/50-runtime/11-runtime-logs.md:254",
             "workflows/70-research/ENDPOINTS.md:196"
           ]
         },
@@ -35781,7 +36484,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "services/marketplaceServices/WorkflowMarketplaceService.ts:212",
             "workflows/20-api/03-endpoints.md:365",
             "workflows/50-runtime/11-runtime-logs.md:189",
-            "workflows/50-runtime/11-runtime-logs.md:245",
+            "workflows/50-runtime/11-runtime-logs.md:255",
             "workflows/50-runtime/observed-query-shapes.md:61"
           ]
         },
@@ -35847,7 +36550,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           sources: [
             "services/marketplaceServices/WorkflowMarketplaceService.ts:260",
             "workflows/50-runtime/11-runtime-logs.md:159",
-            "workflows/50-runtime/11-runtime-logs.md:243",
+            "workflows/50-runtime/11-runtime-logs.md:253",
             "workflows/50-runtime/observed-query-shapes.md:44",
             "workflows/70-research/ENDPOINTS.md:195",
             "workflows/70-research/VERSIONS-STATS-LOGS.md:549"
@@ -37705,7 +38408,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:247",
-            "ai-agents/20-api/actions-and-plugins.md:45"
+            "ai-agents/20-api/actions-and-plugins.md:74"
           ]
         },
         {
@@ -39107,6 +39810,76 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/10-anatomy/conversation-ai-agent-shape.md:104"
+          ]
+        },
+        {
+          id: "ai-agents--employees-global",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/ai-employees/employees/global/{locationId}",
+          path: "/ai-employees/employees/global/{locationId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/00-overview/index.md:83"
+          ]
+        },
+        {
+          id: "ai-agents--employees-migrate",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/ai-employees/employees/migrate/{locationId}",
+          path: "/ai-employees/employees/migrate/{locationId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/00-overview/index.md:82"
           ]
         },
         {
@@ -45737,6 +46510,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
+            "ai-agents/00-overview/index.md:85",
             "ai-agents/20-api/knowledge-base.md:199",
             "ai-agents/20-api/knowledge-base.md:254"
           ]

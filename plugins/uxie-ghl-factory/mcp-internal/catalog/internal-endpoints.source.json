@@ -20,17 +20,69 @@
     {
       "tree": "documented",
       "dir": "corpus",
-      "capturedAt": "2026-09-28T18:52:48.647Z",
+      "capturedAt": "2026-09-28T19:10:50.579Z",
       "hash": "corpus",
-      "fileCount": 1024,
-      "endpoints": 1024
+      "fileCount": 1049,
+      "endpoints": 1049
     }
   ],
   "note": "SOURCE-DERIVED ONLY, merged from every mined front-end. `tree` on each row says which app calls it. The plugin owns kind/note/summary/reach/coveredBy and merges them at read time. A row proves a GHL front-end calls that path — not that your token reaches it, and not that calling it is safe.",
-  "discoveredCallSites": 1499,
-  "skippedCallSites": 707,
-  "count": 1302,
+  "discoveredCallSites": 1524,
+  "skippedCallSites": 654,
+  "count": 1322,
   "endpoints": [
+    {
+      "id": "ai-agents--actions",
+      "method": "GET",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/actions/{id}",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/actions-and-plugins.md:61"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "ai-agents--actions-safe-template",
+      "method": "GET",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/actions/{id}/safe-template",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/actions-and-plugins.md:61"
+      ],
+      "serviceBasis": "declared"
+    },
     {
       "id": "facebook-service--get-ad-account-by-id",
       "method": "GET",
@@ -486,6 +538,78 @@
       "sources": [
         "ai-agents/10-anatomy/flow-agent-shape.md:142",
         "ai-agents/20-api/actions-and-plugins.md:25"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "ai-agents--actions-safe-template-get",
+      "method": "GET",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/agent-execution/actions/{actionId}/safe-template",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/actions-and-plugins.md:27"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "ai-agents--actions-spec",
+      "method": "GET",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/agent-execution/actions/spec",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [
+        {
+          "name": "actionName",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "actionEntity",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/actions-and-plugins.md:26"
       ],
       "serviceBasis": "declared"
     },
@@ -2870,6 +2994,32 @@
       },
       "sources": [
         "workflows/30-types/steps/manual-sms.md:72"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "ai-agents--conversations-messages",
+      "method": "POST",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/conversations/messages",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/actions-and-plugins.md:47"
       ],
       "serviceBasis": "declared"
     },
@@ -15977,6 +16127,347 @@
       "serviceBasis": "inferred-from-path"
     },
     {
+      "id": "funnels--stats",
+      "method": "DELETE",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/stats/",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "funnels",
+      "query": [
+        {
+          "name": "funnelId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/50-runtime/analytics.md:62"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "funnels--stats-get",
+      "method": "GET",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/stats/",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "funnels",
+      "query": [
+        {
+          "name": "funnelId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "fromDate",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "toDate",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/50-runtime/analytics.md:32"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "funnels--stats-count",
+      "method": "GET",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/stats/count",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "funnels",
+      "query": [
+        {
+          "name": "eventType",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/50-runtime/analytics.md:24"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "funnels--count-split",
+      "method": "GET",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/stats/count/split",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "funnels",
+      "query": [
+        {
+          "name": "eventType",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/50-runtime/analytics.md:28"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "funnels--count-webinar",
+      "method": "GET",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/stats/count/webinar",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "funnels",
+      "query": [
+        {
+          "name": "eventType",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/50-runtime/analytics.md:31"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "funnels--device-split",
+      "method": "GET",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/stats/device/split",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "funnels",
+      "query": [
+        {
+          "name": "eventType",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/50-runtime/analytics.md:29"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "funnels--stats-event",
+      "method": "POST",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/stats/event",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "funnels",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/50-runtime/analytics.md:45"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "funnels--graph-data",
+      "method": "GET",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/stats/graph/data",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "funnels",
+      "query": [
+        {
+          "name": "eventType",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/50-runtime/analytics.md:26"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "funnels--optin-conversion-rate",
+      "method": "GET",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/stats/optin/conversion-rate",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "funnels",
+      "query": [
+        {
+          "name": "eventType",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/50-runtime/analytics.md:25"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "funnels--top-user-data",
+      "method": "GET",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/stats/top/user-data",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "funnels",
+      "query": [
+        {
+          "name": "eventType",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/50-runtime/analytics.md:27"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
       "id": "funnels--stats-url-redirect",
       "method": "POST",
       "origin": "https://backend.leadconnectorhq.com",
@@ -15999,6 +16490,104 @@
       },
       "sources": [
         "funnels/20-api/url-redirects.md:104"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "funnels--video-event",
+      "method": "POST",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/stats/video/event",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "funnels",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/50-runtime/analytics.md:50"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "funnels--video-stats",
+      "method": "GET",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/stats/video/stats",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "funnels",
+      "query": [
+        {
+          "name": "eventType",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "includeGraphData",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/50-runtime/analytics.md:30"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "funnels--stats-webinar-sessions",
+      "method": "GET",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/stats/webinar-sessions",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "funnels",
+      "query": [
+        {
+          "name": "sessionBreakdown",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/50-runtime/analytics.md:72"
       ],
       "serviceBasis": "declared"
     },
@@ -18525,12 +19114,14 @@
       },
       "sources": [
         "services/WorkflowService.ts:550",
-        "workflows/20-api/version-history.md:18"
+        "workflows/20-api/version-history.md:18",
+        "workflows/50-runtime/11-runtime-logs.md:218"
       ],
       "serviceClass": "WorkflowService",
       "serviceBasis": "inferred-from-path",
       "aka": [
-        "/workflow/{locationId}/{wid}/history-by-number/{n}"
+        "/workflow/{locationId}/{wid}/history-by-number/{n}",
+        "/workflow/{locationId}/{wid}/history-by-number/{version}"
       ]
     },
     {
@@ -19667,10 +20258,14 @@
         "returns": "erased"
       },
       "sources": [
-        "services/DripScheduleService.ts:28"
+        "services/DripScheduleService.ts:28",
+        "workflows/30-types/steps/drip.md:101"
       ],
       "serviceClass": "DripScheduleService",
-      "serviceBasis": "inferred-from-path"
+      "serviceBasis": "inferred-from-path",
+      "aka": [
+        "/workflow/{locationId}/drip-schedule/{wid}/step/{stepId}/contacts"
+      ]
     },
     {
       "id": "drip-schedule-service--get-step-stats",
@@ -19698,10 +20293,14 @@
         "returns": "erased"
       },
       "sources": [
-        "services/DripScheduleService.ts:23"
+        "services/DripScheduleService.ts:23",
+        "workflows/30-types/steps/drip.md:97"
       ],
       "serviceClass": "DripScheduleService",
-      "serviceBasis": "inferred-from-path"
+      "serviceBasis": "inferred-from-path",
+      "aka": [
+        "/workflow/{locationId}/drip-schedule/{wid}/step/{stepId}/stats"
+      ]
     },
     {
       "id": "drip-schedule-service--get-preview",
@@ -19733,7 +20332,8 @@
         "returns": "erased"
       },
       "sources": [
-        "services/DripScheduleService.ts:18"
+        "services/DripScheduleService.ts:18",
+        "workflows/30-types/steps/drip.md:104"
       ],
       "serviceClass": "DripScheduleService",
       "serviceBasis": "inferred-from-path"
@@ -20366,10 +20966,10 @@
       },
       "sources": [
         "services/ErrorNotificationService.ts:54",
-        "workflows/50-runtime/error-notifications.md:36"
+        "workflows/50-runtime/error-notifications.md:36",
+        "workflows/50-runtime/error-notifications.md:65"
       ],
-      "serviceClass": "ErrorNotificationService",
-      "serviceBasis": "inferred-from-path"
+      "serviceBasis": "declared"
     },
     {
       "id": "error-notification-service--get-error-workflows-count",
@@ -27433,7 +28033,7 @@
         "services/marketplaceServices/WorkflowMarketplaceService.ts:166",
         "workflows/50-runtime/11-runtime-logs.md:37",
         "workflows/50-runtime/11-runtime-logs.md:113",
-        "workflows/50-runtime/11-runtime-logs.md:241",
+        "workflows/50-runtime/11-runtime-logs.md:251",
         "workflows/50-runtime/forcing-and-removing-contacts.md:81",
         "workflows/50-runtime/observed-query-shapes.md:19"
       ],
@@ -27551,7 +28151,7 @@
       "sources": [
         "services/marketplaceServices/WorkflowMarketplaceService.ts:237",
         "workflows/50-runtime/11-runtime-logs.md:190",
-        "workflows/50-runtime/11-runtime-logs.md:246",
+        "workflows/50-runtime/11-runtime-logs.md:256",
         "workflows/70-research/RAIL.md:134",
         "workflows/70-research/RUNTIME-DATA-2.md:70"
       ],
@@ -27596,7 +28196,7 @@
         "services/marketplaceServices/WorkflowMarketplaceService.ts:181",
         "workflows/20-api/03-endpoints.md:364",
         "workflows/50-runtime/11-runtime-logs.md:145",
-        "workflows/50-runtime/11-runtime-logs.md:242",
+        "workflows/50-runtime/11-runtime-logs.md:252",
         "workflows/70-research/ENDPOINTS.md:193",
         "workflows/70-research/RAIL.md:115"
       ],
@@ -27665,7 +28265,7 @@
         "services/marketplaceServices/WorkflowMarketplaceService.ts:281",
         "services/marketplaceServices/WorkflowMarketplaceService.ts:296",
         "workflows/50-runtime/11-runtime-logs.md:203",
-        "workflows/50-runtime/11-runtime-logs.md:244",
+        "workflows/50-runtime/11-runtime-logs.md:254",
         "workflows/70-research/ENDPOINTS.md:196"
       ],
       "serviceClass": "WorkflowMarketplaceService",
@@ -28255,7 +28855,7 @@
         "services/marketplaceServices/WorkflowMarketplaceService.ts:212",
         "workflows/20-api/03-endpoints.md:365",
         "workflows/50-runtime/11-runtime-logs.md:189",
-        "workflows/50-runtime/11-runtime-logs.md:245",
+        "workflows/50-runtime/11-runtime-logs.md:255",
         "workflows/50-runtime/observed-query-shapes.md:61"
       ],
       "serviceClass": "WorkflowMarketplaceService",
@@ -28310,7 +28910,7 @@
       "sources": [
         "services/marketplaceServices/WorkflowMarketplaceService.ts:260",
         "workflows/50-runtime/11-runtime-logs.md:159",
-        "workflows/50-runtime/11-runtime-logs.md:243",
+        "workflows/50-runtime/11-runtime-logs.md:253",
         "workflows/50-runtime/observed-query-shapes.md:44",
         "workflows/70-research/ENDPOINTS.md:195",
         "workflows/70-research/VERSIONS-STATS-LOGS.md:549"
@@ -29732,7 +30332,7 @@
       },
       "sources": [
         "ai-agents/20-api/12-ai-agents-api.md:247",
-        "ai-agents/20-api/actions-and-plugins.md:45"
+        "ai-agents/20-api/actions-and-plugins.md:74"
       ],
       "serviceBasis": "declared"
     },
@@ -30842,6 +31442,58 @@
       },
       "sources": [
         "ai-agents/10-anatomy/conversation-ai-agent-shape.md:104"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "ai-agents--employees-global",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/ai-employees/employees/global/{locationId}",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/00-overview/index.md:83"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "ai-agents--employees-migrate",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/ai-employees/employees/migrate/{locationId}",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/00-overview/index.md:82"
       ],
       "serviceBasis": "declared"
     },
@@ -36135,6 +36787,7 @@
         "returns": "unresolved"
       },
       "sources": [
+        "ai-agents/00-overview/index.md:85",
         "ai-agents/20-api/knowledge-base.md:199",
         "ai-agents/20-api/knowledge-base.md:254"
       ],
