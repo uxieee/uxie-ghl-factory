@@ -178,7 +178,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
     define_ENDPOINT_CATALOG_default = {
       generated: "2026-09-28",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 1307,
+      count: 1312,
       endpoints: [
         {
           id: "facebook-service--get-ad-account-by-id",
@@ -615,6 +615,37 @@ var init_define_ENDPOINT_CATALOG = __esm({
         },
         {
           id: "ai-agents--agent-execution-actions",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/agent-execution/actions",
+          path: "/agent-execution/actions",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/actions-and-plugins.md:23"
+          ]
+        },
+        {
+          id: "ai-agents--agent-execution-actions-post",
           method: "POST",
           url: "https://backend.leadconnectorhq.com/agent-execution/actions",
           path: "/agent-execution/actions",
@@ -641,7 +672,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/flow-agent-shape.md:132"
+            "ai-agents/10-anatomy/flow-agent-shape.md:139",
+            "ai-agents/20-api/actions-and-plugins.md:24"
           ]
         },
         {
@@ -666,7 +698,14 @@ var init_define_ENDPOINT_CATALOG = __esm({
               name: "actionId"
             }
           ],
-          query: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
@@ -676,7 +715,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/flow-agent-shape.md:135"
+            "ai-agents/10-anatomy/flow-agent-shape.md:142",
+            "ai-agents/20-api/actions-and-plugins.md:25"
           ]
         },
         {
@@ -26315,7 +26355,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           sources: [
             "services/ErrorNotificationService.ts:72",
             "workflows/20-api/error-notification-settings.md:18",
-            "workflows/40-rules/settings-semantics.md:93",
+            "workflows/40-rules/settings-semantics.md:109",
             "workflows/50-runtime/error-notifications.md:39",
             "workflows/70-research/ENDPOINT-SWEEP-2026-08-25.md:65"
           ]
@@ -37311,6 +37351,44 @@ Flagged to the operator as a security observation about the vendor, not a capabi
         },
         {
           id: "ai-agents--agent-studio-agents",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/agent-studio/agents",
+          path: "/agent-studio/agents",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/10-anatomy/flow-agent-shape.md:117"
+          ]
+        },
+        {
+          id: "ai-agents--agent-studio-agents-post",
           method: "POST",
           url: "https://services.leadconnectorhq.com/agent-studio/agents",
           path: "/agent-studio/agents",
@@ -37371,6 +37449,110 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           sources: [
             "ai-agents/10-anatomy/managed-agent-shape.md:28",
             "ai-agents/20-api/12-ai-agents-api.md:245"
+          ]
+        },
+        {
+          id: "ai-agents--agents-folders",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/agent-studio/agents/folders",
+          path: "/agent-studio/agents/folders",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/10-anatomy/managed-agent-shape.md:158"
+          ]
+        },
+        {
+          id: "ai-agents--agents-folders-post",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/agent-studio/agents/folders",
+          path: "/agent-studio/agents/folders",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/10-anatomy/managed-agent-shape.md:157"
+          ]
+        },
+        {
+          id: "ai-agents--folders-move-agents",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/agent-studio/agents/folders/{folderId}/move-agents",
+          path: "/agent-studio/agents/folders/{folderId}/move-agents",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "folderId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/10-anatomy/managed-agent-shape.md:159"
           ]
         },
         {
@@ -37522,7 +37704,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:247"
+            "ai-agents/20-api/12-ai-agents-api.md:247",
+            "ai-agents/20-api/actions-and-plugins.md:45"
           ]
         },
         {
@@ -37554,6 +37737,12 @@ Flagged to the operator as a security observation about the vendor, not a capabi
               source: "documented"
             },
             {
+              name: "folderId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
               name: "page",
               type: "string",
               required: false,
@@ -37575,6 +37764,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
+            "ai-agents/10-anatomy/managed-agent-shape.md:161",
             "ai-agents/20-api/12-ai-agents-api.md:244"
           ]
         },
@@ -37962,7 +38152,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/managed-agent-shape.md:167"
+            "ai-agents/10-anatomy/managed-agent-shape.md:176"
           ]
         },
         {
@@ -44614,7 +44804,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/flow-agent-shape.md:126",
+            "ai-agents/10-anatomy/flow-agent-shape.md:133",
             "ai-agents/20-api/12-ai-agents-api.md:314",
             "ai-agents/20-api/knowledge-base.md:55",
             "ai-agents/20-api/knowledge-base.md:102",

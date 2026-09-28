@@ -20,16 +20,16 @@
     {
       "tree": "documented",
       "dir": "corpus",
-      "capturedAt": "2026-09-28T18:44:40.866Z",
+      "capturedAt": "2026-09-28T18:52:48.647Z",
       "hash": "corpus",
-      "fileCount": 1019,
-      "endpoints": 1019
+      "fileCount": 1024,
+      "endpoints": 1024
     }
   ],
   "note": "SOURCE-DERIVED ONLY, merged from every mined front-end. `tree` on each row says which app calls it. The plugin owns kind/note/summary/reach/coveredBy and merges them at read time. A row proves a GHL front-end calls that path — not that your token reaches it, and not that calling it is safe.",
-  "discoveredCallSites": 1494,
+  "discoveredCallSites": 1499,
   "skippedCallSites": 707,
-  "count": 1297,
+  "count": 1302,
   "endpoints": [
     {
       "id": "facebook-service--get-ad-account-by-id",
@@ -404,6 +404,32 @@
     },
     {
       "id": "ai-agents--agent-execution-actions",
+      "method": "GET",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/agent-execution/actions",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/actions-and-plugins.md:23"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "ai-agents--agent-execution-actions-post",
       "method": "POST",
       "origin": "https://backend.leadconnectorhq.com",
       "path": "/agent-execution/actions",
@@ -424,7 +450,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/flow-agent-shape.md:132"
+        "ai-agents/10-anatomy/flow-agent-shape.md:139",
+        "ai-agents/20-api/actions-and-plugins.md:24"
       ],
       "serviceBasis": "declared"
     },
@@ -440,7 +467,14 @@
       "tree": "documented",
       "operation": null,
       "service": "ai-agents",
-      "query": [],
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
       "body": null,
       "returns": null,
       "confidence": {
@@ -450,7 +484,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/flow-agent-shape.md:135"
+        "ai-agents/10-anatomy/flow-agent-shape.md:142",
+        "ai-agents/20-api/actions-and-plugins.md:25"
       ],
       "serviceBasis": "declared"
     },
@@ -20436,7 +20471,7 @@
       "sources": [
         "services/ErrorNotificationService.ts:72",
         "workflows/20-api/error-notification-settings.md:18",
-        "workflows/40-rules/settings-semantics.md:93",
+        "workflows/40-rules/settings-semantics.md:109",
         "workflows/50-runtime/error-notifications.md:39",
         "workflows/70-research/ENDPOINT-SWEEP-2026-08-25.md:65"
       ],
@@ -29406,6 +29441,39 @@
     },
     {
       "id": "ai-agents--agent-studio-agents",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/agent-studio/agents",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/10-anatomy/flow-agent-shape.md:117"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "ai-agents--agent-studio-agents-post",
       "method": "POST",
       "origin": "https://services.leadconnectorhq.com",
       "path": "/agent-studio/agents",
@@ -29454,6 +29522,91 @@
       "sources": [
         "ai-agents/10-anatomy/managed-agent-shape.md:28",
         "ai-agents/20-api/12-ai-agents-api.md:245"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "ai-agents--agents-folders",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/agent-studio/agents/folders",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/10-anatomy/managed-agent-shape.md:158"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "ai-agents--agents-folders-post",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/agent-studio/agents/folders",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/10-anatomy/managed-agent-shape.md:157"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "ai-agents--folders-move-agents",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/agent-studio/agents/folders/{folderId}/move-agents",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/10-anatomy/managed-agent-shape.md:159"
       ],
       "serviceBasis": "declared"
     },
@@ -29578,7 +29731,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/12-ai-agents-api.md:247"
+        "ai-agents/20-api/12-ai-agents-api.md:247",
+        "ai-agents/20-api/actions-and-plugins.md:45"
       ],
       "serviceBasis": "declared"
     },
@@ -29597,6 +29751,12 @@
       "query": [
         {
           "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "folderId",
           "type": "string",
           "required": false,
           "source": "documented"
@@ -29623,6 +29783,7 @@
         "returns": "unresolved"
       },
       "sources": [
+        "ai-agents/10-anatomy/managed-agent-shape.md:161",
         "ai-agents/20-api/12-ai-agents-api.md:244"
       ],
       "serviceBasis": "declared"
@@ -29922,7 +30083,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/managed-agent-shape.md:167"
+        "ai-agents/10-anatomy/managed-agent-shape.md:176"
       ],
       "serviceBasis": "declared"
     },
@@ -35187,7 +35348,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/flow-agent-shape.md:126",
+        "ai-agents/10-anatomy/flow-agent-shape.md:133",
         "ai-agents/20-api/12-ai-agents-api.md:314",
         "ai-agents/20-api/knowledge-base.md:55",
         "ai-agents/20-api/knowledge-base.md:102",
