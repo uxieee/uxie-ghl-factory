@@ -20,7 +20,7 @@
     {
       "tree": "documented",
       "dir": "corpus",
-      "capturedAt": "2026-09-28T15:16:17.568Z",
+      "capturedAt": "2026-09-28T15:24:37.040Z",
       "hash": "corpus",
       "fileCount": 979,
       "endpoints": 979
@@ -5577,7 +5577,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/10-anatomy/styling-and-saved-assets.md:83"
+        "funnels/10-anatomy/styling-and-saved-assets.md:107"
       ],
       "serviceBasis": "declared"
     },
@@ -5702,7 +5702,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/10-anatomy/styling-and-saved-assets.md:79",
+        "funnels/10-anatomy/styling-and-saved-assets.md:103",
         "funnels/10-anatomy/websites-and-global-sections.md:96"
       ],
       "serviceBasis": "declared"
@@ -5738,7 +5738,7 @@
       "sources": [
         "funnels/10-anatomy/page-content.md:13",
         "funnels/10-anatomy/routing-and-publishing.md:31",
-        "funnels/10-anatomy/styling-and-saved-assets.md:98",
+        "funnels/10-anatomy/styling-and-saved-assets.md:122",
         "funnels/20-api/funnels-api.md:141",
         "funnels/20-api/funnels-api.md:232",
         "funnels/30-types/section.md:78"
@@ -5826,7 +5826,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/10-anatomy/styling-and-saved-assets.md:81"
+        "funnels/10-anatomy/styling-and-saved-assets.md:105"
       ],
       "serviceBasis": "declared"
     },
@@ -6143,7 +6143,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/10-anatomy/styling-and-saved-assets.md:76"
+        "funnels/10-anatomy/styling-and-saved-assets.md:100"
       ],
       "serviceBasis": "declared"
     },
