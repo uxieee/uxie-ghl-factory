@@ -1889,16 +1889,42 @@ const MARKETPLACE_OPERATORS = new Set(['string-contains-any-of', 'is-not-empty']
 // A marketplace filter's operator menu depends on the FILTER TYPE the app declares, not on a
 // single global rule. The old rule ("exactly two operators, and no equals") was a STRING-filter
 // fact applied to every type, so a multiselect customVar could not be filtered at all (F5-19).
-function marketplaceFilterType(entry, field) {
-  return entry?.filters?.find((x) => x.field === field || x.reference === field)?.fieldType
-    ?? entry?.customVars?.find((v) => v.reference === field || v.name === field)?.fieldType
-    ?? 'string';
+function marketplaceFilterCfg(entry, field) {
+  return entry?.filters?.find((x) => x.field === field || x.reference === field)
+    ?? entry?.customVars?.find((v) => v.reference === field || v.name === field)
+    ?? null;
 }
-function marketplaceMenuFor(table, type) {
-  const key = type === 'multiselect' || type === 'multiselect_with_pagination' ? 'multiselect'
-    : type === 'select_with_pagination' ? 'select'
-      : type;
-  return table.menus[key] ?? table.menus.string;
+function marketplaceFilterType(entry, field) {
+  return marketplaceFilterCfg(entry, field)?.fieldType ?? 'string';
+}
+// The drawer's operator model for ONE marketplace filter (MarketplaceFilter.ts, bundle 2026-09-25):
+//  - an asset-declared customOperators list wins outright, in its declared order (:1418-1424, marketplaceFilterHelpers.ts:10-21);
+//  - a multiselect offers is-any-of — or contains-any when the filter compares array to array (asset flag, or a
+//    contact./business. custom field) — plus is-none-of / has_value / has_no_value, and array-contains-substring on an
+//    INTEGRATION_AI trigger (:1449-1486, :309-321);
+//  - any other type offers OperatorOptions[type] (numerical: == … between), a string the phrase menu;
+//  - the pre-selected operator is the asset's defaultOperator, else the menu's first (:450-466 setDefaultOperator).
+export function marketplaceOperatorModel(entry, field, table) {
+  const cfg = marketplaceFilterCfg(entry, field);
+  const ftype = cfg?.fieldType ?? 'string';
+  const custom = Array.isArray(cfg?.customOperators)
+    ? cfg.customOperators.filter((o) => o && typeof o === 'object' && typeof o.value === 'string' && typeof o.label === 'string').map((o) => o.value)
+    : [];
+  if (custom.length) return { ftype, menu: custom, def: cfg?.defaultOperator ?? custom[0], multi: false, arr: false };
+  const multi = ftype === 'multiselect' || ftype === 'multiselect_with_pagination';
+  const arr = multi && (cfg?.useArrayToArrayComparison === true || (ftype === 'multiselect' && /^(contact|business)\./.test(String(field ?? ''))));
+  let menu = multi ? (arr ? table.menus.multiselectArrayToArray : table.menus.multiselect)
+    : ftype === 'select_with_pagination' ? table.menus.select
+      : (table.menus[ftype] ?? table.menus.string);
+  if (multi && entry?.workflowsTriggerType === 'INTEGRATION_AI') menu = [...menu, ...(table.menus.integrationAiExtra ?? [])];
+  const def = cfg?.defaultOperator ?? (multi ? (arr ? 'contains-any' : 'is-any-of') : (table.defaults[ftype] ?? table.defaults.string));
+  return { ftype, menu, def, multi, arr };
+}
+// A stored multiselect row may carry the legacy index-of-true; the drawer rewrites it on load to the modern
+// operator for its comparison mode (MarketplaceFilter.ts:322-331). The engine does the same instead of refusing.
+function migrateLegacyMarketplaceOperator(op, model) {
+  if (model.multi && op === 'index-of-true') return model.arr ? 'contains-any' : 'is-any-of';
+  return op;
 }
 
 function checkMarketplaceFilters(triggers, ctx) {
@@ -1911,9 +1937,14 @@ function checkMarketplaceFilters(triggers, ctx) {
       if (table) {
         // Per-type: default the operator the way the drawer defaults it, and refuse only what its
         // menu for THIS type does not offer.
-        const ftype = marketplaceFilterType(entry, f.field);
-        const menu = marketplaceMenuFor(table, ftype);
-        const operator = f.operator ?? table.defaults[ftype] ?? table.defaults.string;
+        const model = marketplaceOperatorModel(entry, f.field, table);
+        const { ftype, menu } = model;
+        const migrated = migrateLegacyMarketplaceOperator(f.operator, model);
+        if (migrated !== f.operator) {
+          ctx?.warn?.(`MARKETPLACE_FILTER_OPERATOR_MIGRATED: '${t.name ?? t.type}' filter '${f.field}' used the legacy '${f.operator}'; the drawer rewrites it to '${migrated}' on load, so '${migrated}' is written.`);
+          f.operator = migrated;
+        }
+        const operator = f.operator ?? model.def;
         if (!operator) {
           throw new IRError('MARKETPLACE_FILTER_OPERATOR',
             `trigger '${t.name ?? t.type}' filters '${f.field}' with no operator and this filter type `
@@ -2285,7 +2316,8 @@ export function buildTrigger(t, ctx, wid, refMap) {
     // is otherwise emitted with no operator at all, which saves clean and never matches.
     const table = ctx?.catalog?.marketplaceFilterOperators ?? null;
     conditions = conditions.map((c) => {
-      const ftype = marketplaceFilterType(entry, c.field);
+      const model = table ? marketplaceOperatorModel(entry, c.field, table) : null;
+      const ftype = model?.ftype ?? marketplaceFilterType(entry, c.field);
       const title = c.title
         ?? entry?.filters?.find((x) => x.field === c.field || x.reference === c.field)?.name
         ?? entry?.customVars?.find((v) => v.reference === c.field)?.name;
@@ -2294,7 +2326,7 @@ export function buildTrigger(t, ctx, wid, refMap) {
         id: c.id ?? c.field,
         ...(c.type ? {} : { type: ftype }),
         ...(title ? { title } : {}),
-        ...(c.operator ? {} : (table?.defaults?.[ftype] ? { operator: table.defaults[ftype] } : {})),
+        ...(c.operator ? { operator: model ? migrateLegacyMarketplaceOperator(c.operator, model) : c.operator } : (model?.def ? { operator: model.def } : {})),
       };
     });
   }
