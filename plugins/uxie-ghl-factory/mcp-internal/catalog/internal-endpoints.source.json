@@ -20,7 +20,7 @@
     {
       "tree": "documented",
       "dir": "corpus",
-      "capturedAt": "2026-09-28T20:44:41.728Z",
+      "capturedAt": "2026-09-28T21:06:14.738Z",
       "hash": "corpus",
       "fileCount": 1098,
       "endpoints": 1098
@@ -34865,8 +34865,8 @@
       },
       "sources": [
         "ai-agents/20-api/conversation-ai-boundary.md:58",
-        "ai-agents/20-api/conversation-ai-per-contact-toggle.md:43",
-        "ai-agents/20-api/conversation-ai-per-contact-toggle.md:120"
+        "ai-agents/20-api/conversation-ai-per-contact-toggle.md:50",
+        "ai-agents/20-api/conversation-ai-per-contact-toggle.md:127"
       ],
       "serviceBasis": "declared"
     },
@@ -34892,7 +34892,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/conversation-ai-per-contact-toggle.md:93"
+        "ai-agents/20-api/conversation-ai-per-contact-toggle.md:100"
       ],
       "serviceBasis": "declared"
     },
@@ -34919,9 +34919,9 @@
       },
       "sources": [
         "ai-agents/20-api/conversation-ai-boundary.md:58",
-        "ai-agents/20-api/conversation-ai-per-contact-toggle.md:75",
-        "ai-agents/20-api/conversation-ai-per-contact-toggle.md:121",
-        "ai-agents/20-api/conversation-ai-per-contact-toggle.md:123"
+        "ai-agents/20-api/conversation-ai-per-contact-toggle.md:82",
+        "ai-agents/20-api/conversation-ai-per-contact-toggle.md:128",
+        "ai-agents/20-api/conversation-ai-per-contact-toggle.md:130"
       ],
       "serviceBasis": "declared",
       "aka": [

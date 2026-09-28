@@ -29307,7 +29307,8 @@
         "list_workflow_folders",
         "list_workflows",
         "move_workflows",
-        "rename_workflow"
+        "rename_workflow",
+        "restore_workflow_version"
       ],
       "rawCallable": true,
       "transport": "json",
@@ -43986,8 +43987,8 @@
       },
       "sources": [
         "ai-agents/20-api/conversation-ai-boundary.md:58",
-        "ai-agents/20-api/conversation-ai-per-contact-toggle.md:43",
-        "ai-agents/20-api/conversation-ai-per-contact-toggle.md:120"
+        "ai-agents/20-api/conversation-ai-per-contact-toggle.md:50",
+        "ai-agents/20-api/conversation-ai-per-contact-toggle.md:127"
       ]
     },
     {
@@ -44018,7 +44019,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/conversation-ai-per-contact-toggle.md:93"
+        "ai-agents/20-api/conversation-ai-per-contact-toggle.md:100"
       ]
     },
     {
@@ -44059,9 +44060,9 @@
       },
       "sources": [
         "ai-agents/20-api/conversation-ai-boundary.md:58",
-        "ai-agents/20-api/conversation-ai-per-contact-toggle.md:75",
-        "ai-agents/20-api/conversation-ai-per-contact-toggle.md:121",
-        "ai-agents/20-api/conversation-ai-per-contact-toggle.md:123"
+        "ai-agents/20-api/conversation-ai-per-contact-toggle.md:82",
+        "ai-agents/20-api/conversation-ai-per-contact-toggle.md:128",
+        "ai-agents/20-api/conversation-ai-per-contact-toggle.md:130"
       ]
     },
     {
