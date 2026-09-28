@@ -123,8 +123,10 @@ Delegate never-hand-roll: don't call these endpoints ad hoc — drive them throu
 | Surface | Status |
 |---|---|
 | create → read → verify → delete | **live-proven** — engine drove a real agent through the internal API and it round-tripped |
-| `humanHandOver` action | **live-proven** |
-| the other 6 action types | **capture-verified, not live-fired.** Each validates its required fields against `convai-actions-all.json` and merges capture-grounded defaults, but none has been individually round-tripped |
+| actions `humanHandOver`, `triggerWorkflow`, `updateContactField`, `stopBot`, `transferBot`, `advancedFollowup` | **live-proven** — created, updated (`PUT /ai-employees/actions/{id}`) and deleted (`DELETE`, which also removes the agent's pointer) on a test account, 2026-09-26 |
+| `appointmentBooking` action | **capture-verified, not live-fired** |
+| what a test chat fires | **only Stop Bot.** Handover, Trigger a Workflow and Contact Info produced no action in a trial, so a trial does not prove them (`references/conversation-ai.md` → "Test chat") |
+| list, folders, duplicate, dashboard metrics | **live-proven** — routes and traps in `references/conversation-ai.md` → "Around the agent" |
 | partial-PUT semantics | **refuted for booleans** — a partial PUT reset cancel/reschedule live (2026-08-28); read-merge-write is the safe shape |
 
 The seven types are `humanHandOver`, `appointmentBooking`, `triggerWorkflow`,
