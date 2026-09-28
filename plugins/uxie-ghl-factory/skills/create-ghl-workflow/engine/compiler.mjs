@@ -948,6 +948,24 @@ function waitAttributes(node, ctx) {
     // all fired within 6 SECONDS instead of over 6 days. An empty or partial startAfter
     // must never compile.
     const c = node.config ?? {};
+    // DYNAMIC period / unit (the drawer's "custom value" inputs, Wait.ts:100-103): the runtime reads
+    // them — a wait with startAfter.value 1 and dynamicTimePeriod {{contact.num}} = 3 held 3 min 4 s
+    // (live 2026-09-28, knowledge sniffs/workflows-wave1-2026-09-25/live-3C-waits.json). They were
+    // dropped here, so a dynamic wait could not be built. startAfter still ships (the proven shape
+    // carries both); the builder's own rule (checkForTimePeriodDynamicError, Wait.ts:1461-1470) is
+    // that a dynamic input must be a {{merge tag}}.
+    const dynPeriod = a.timePeriodInputMode === 'dynamic' || a.dynamicTimePeriod !== undefined;
+    const dynUnit = a.unitInputMode === 'dynamic' || a.dynamicUnit !== undefined;
+    for (const [on, key] of [[dynPeriod, 'dynamicTimePeriod'], [dynUnit, 'dynamicUnit']]) {
+      const v = typeof a[key] === 'string' ? a[key].trim() : '';
+      if (on && !(v.startsWith('{{') && v.endsWith('}}')))
+        throw new IRError('WAIT_DYNAMIC',
+          `wait '${node.ref}': ${key} must be a {{merge tag}} (got ${JSON.stringify(a[key])}) — the builder marks anything else as an error.`);
+    }
+    const dynamicKeys = {
+      ...(dynPeriod ? { timePeriodInputMode: 'dynamic', dynamicTimePeriod: a.dynamicTimePeriod.trim() } : {}),
+      ...(dynUnit ? { unitInputMode: 'dynamic', dynamicUnit: a.dynamicUnit.trim() } : {}),
+    };
     const startAfter = { type: c.unit ?? a.startAfter?.type, value: c.value ?? a.startAfter?.value,
       when: c.when ?? a.startAfter?.when ?? 'after' };
     if (startAfter.type == null || startAfter.value == null)
@@ -965,7 +983,7 @@ function waitAttributes(node, ctx) {
       ctx?.warn?.(`WAIT_UNIT_SOFT: wait '${node.ref}' uses 'hours'; the drawer writes the singular `
         + `'hour' (Wait.ts startAfterTypeOptions maps label "hours" -> value 'hour'). Both spellings `
         + `exist in stored workflows; prefer 'hour' until a live probe confirms the scheduler reads 'hours'.`);
-    const base = { type: 'time', startAfter, ...hybrid };
+    const base = { type: 'time', startAfter, ...dynamicKeys, ...hybrid };
     // "Advance window" — resume-on days + resume-between-hours (live-verified shape).
     // Accept it from either the node level or attributes, mirroring the duration.
     const w = node.window ?? a.window;
