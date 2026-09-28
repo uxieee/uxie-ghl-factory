@@ -16,6 +16,6 @@ test('a notification that names no recipient is refused, not broadcast', () => {
 test('each explicit recipient still compiles (controls)', () => {
   assert.equal(one({ type: 'notification', notification: { userType: 'user', selectedUser: 'U1', title: 't', body: 'b' } }).notification.userType, 'user');
   assert.equal(one({ type: 'notification', notification: { selectedUser: 'U1', title: 't', body: 'b' } }).notification.userType, 'user');
-  assert.equal(one({ type: 'email', email: { to: 'x@example.invalid', subject: 's', html: '<p>x</p>' } }).email.userType, 'custom_email');
+  assert.equal(one({ type: 'email', email: { to: '{{contact.email}}', subject: 's', html: '<p>x</p>' } }).email.userType, 'custom_email');
   assert.equal(one({ type: 'email', email: { userType: 'all', subject: 's', html: '<p>x</p>' } }).email.userType, 'all');
 });
