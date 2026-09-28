@@ -59961,9 +59961,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       create_voiceai_agent: {
-        description: "Create Voice AI agent \u2014 proof: live-runtime (2026-09-25); risk: write",
+        description: "Create Voice AI agent \u2014 proof: live-runtime (2026-09-28); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-25)",
+        proof: "live-runtime (2026-09-28)",
         proofFloor: "live-runtime (2026-07-21)",
         proofRows: [
           "ai-voiceai-agent-create"
@@ -176016,9 +176016,16 @@ function buildWorkflowTriggerParams(p2) {
   assertRequiredParam(p2.triggerMessageType, "triggerMessageType", "WORKFLOW_TRIGGER");
   return { ...p2 };
 }
+var TRIGGER_MESSAGE_TYPES = ["static_text", "prompt"];
 function buildSmsParams(p2) {
+  assertRequiredParam(p2.triggerPrompt, "triggerPrompt", "SMS");
+  assertRequiredParam(p2.triggerMessage, "triggerMessage", "SMS");
   assertRequiredParam(p2.messageBody, "messageBody", "SMS");
-  return { ...p2 };
+  const triggerMessageType = p2.triggerMessageType ?? "static_text";
+  if (!TRIGGER_MESSAGE_TYPES.includes(triggerMessageType)) {
+    throw new IRError2("SCHEMA", `SMS action.actionParameters.triggerMessageType must be one of ${TRIGGER_MESSAGE_TYPES.join(", ")}, got: ${JSON.stringify(triggerMessageType)}`);
+  }
+  return { ...p2, triggerMessageType };
 }
 function buildDataExtractionParams(p2) {
   assertRequiredParam(p2.contactFieldId, "contactFieldId", "DATA_EXTRACTION");
@@ -176677,7 +176684,11 @@ var ELSEWHERE = {
   numberPoolId: "numbers are assigned on the deploy screen (location-wide)",
   provider: "the provider changes only through the upgrade (switch-provider) path"
 };
-var PROVIDER_BOUNDS = { beginMessageDelayMs: [0, 5e3, "Begin message delay ms must be between 0 and 5 seconds"] };
+var PROVIDER_BOUNDS = {
+  beginMessageDelayMs: [0, 5e3, "Begin message delay ms must be between 0 and 5 seconds"],
+  // Measured 2026-09-28: 1.5 answered 400 "backchannel_frequency must be within [0,1]" and was stored.
+  backchannelFrequency: [0, 1, "backchannel_frequency must be within [0,1]"]
+};
 var isObj = (v) => v !== null && typeof v === "object" && !Array.isArray(v);
 function readFlat(record2, key) {
   const s = record2?.agentSettings ?? {};
