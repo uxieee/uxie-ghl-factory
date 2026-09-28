@@ -462,9 +462,9 @@
     ]
   },
   "create_voiceai_agent": {
-    "description": "Create Voice AI agent — proof: live-runtime (2026-09-25); risk: write",
+    "description": "Create Voice AI agent — proof: live-runtime (2026-09-28); risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-09-25)",
+    "proof": "live-runtime (2026-09-28)",
     "proofFloor": "live-runtime (2026-07-21)",
     "proofRows": [
       "ai-voiceai-agent-create"
