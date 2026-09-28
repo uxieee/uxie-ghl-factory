@@ -184,6 +184,12 @@ workflow that builds clean, verifies clean, and behaves wrongly at runtime.
   it then publishes clean and silently no-ops at runtime.
 - **Marketplace steps build fine and only RUN if the app is installed** on that location. 282 of the
   385 step types are marketplace; a build is not a proof it will fire.
+- **`clear_associated_company_fields` FAILS on a contact with no company**, while its sibling
+  `update_associated_company` only SKIPS (live 2026-09-28). A failed step triggers GHL's workflow
+  error notification, which emails every admin by default. Put it behind an If/Else that checks
+  the contact has a company. The engine cannot see this: whether a contact has a company is
+  runtime data. The fields of the company steps live in `__customInputFields__` rows
+  (`{filterField: "business.<key>", valueField}`), not in `inputs`. Read the card.
 - **A step type's card, not its example.** An example is one capture, so it pins one value of every
   discriminator. `describe_step_type` carries the union.
 - **Publishing is never implied.** Everything builds as `draft`; `--publish` is opt-in and gated on
