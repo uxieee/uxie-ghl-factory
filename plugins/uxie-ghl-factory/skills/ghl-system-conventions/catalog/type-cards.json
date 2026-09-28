@@ -5723,7 +5723,7 @@
    "family": "steps-marketplace",
    "title": "Marketplace — contact",
    "status": "source-derived",
-   "lastVerified": "2026-08-22",
+   "lastVerified": "2026-09-28",
    "summary": "`appName: \"contact\"` exposes **11 actions** in `sniffs/02-assets.json::actions[2].actions[]`. `executionConfig.type` set: `API`, `CODE`, `INTERNAL_REQUEST`. `workflowsActionType`: `INTERNAL`. `section` values: `contact`.",
    "fields": [
     {

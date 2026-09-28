@@ -187106,6 +187106,16 @@ function stepCountIntegrity({ authored, compiled, steps }) {
     warning: mismatch ? `LOUD STEP-COUNT MISMATCH: ${counts}. ${unpersisted ? "GHL stored a different number of steps than were sent" : "fewer steps compiled than nodes were authored"} \u2014 the draft may be incomplete.` : compiled > authored ? `compiled and persisted step counts match (${counts}); the extra ${compiled - authored} are container branch/transition steps.` : "authored, compiled, and persisted step counts match."
   };
 }
+function triggerWriteFailure(report) {
+  const trg = report?.triggers ?? {};
+  const failed = trg.failed ?? [];
+  const unscoped = trg.payloadMismatches ?? [];
+  if (!failed.length && !unscoped.length) return null;
+  const parts = [];
+  if (failed.length) parts.push(`${failed.length} of ${trg.authored ?? "?"} trigger(s) were REFUSED by GHL: ` + failed.map((f) => `'${f.name ?? f.type}' (${f.type}) HTTP ${f.status ?? "?"}${f.error ? ` ${String(f.error).slice(0, 160)}` : ""}`).join("; "));
+  if (unscoped.length) parts.push(`${unscoped.length} trigger(s) were stored WITHOUT the filters that scope them, so they would fire on everything of their type: ` + unscoped.map((m) => `'${m.name ?? m.type}' missing [${(m.missing ?? []).join(", ")}]`).join("; "));
+  return `Workflow ${report?.wid ?? "(unknown id)"} EXISTS as a draft, but ${parts.join(". ")}.`;
+}
 function buildWorkflowData(report, locationId) {
   const { mismatch, warning: countWarning } = stepCountIntegrity(report);
   const trg = report.triggers ?? {};
@@ -191043,7 +191053,20 @@ var TOOLS2 = [
         skipMergeTagCheck: args.skipMergeTagCheck === true
       });
       const data2 = buildWorkflowData(report, args.locationId);
-      if (!report.aborted) return ok(data2);
+      if (!report.aborted) {
+        const triggerFailure = triggerWriteFailure(report);
+        if (triggerFailure) {
+          return withFailureData(
+            fail(
+              CODES.VERIFY_FAILED,
+              triggerFailure,
+              "Fix the named trigger(s) with edit_workflow (addTrigger / modifyTrigger), or delete the draft. data carries the full build report."
+            ),
+            data2?.data ?? data2
+          );
+        }
+        return ok(data2);
+      }
       const unresolved = report.unresolved ?? [];
       const dependencyAbort = report.aborted.startsWith("Missing account dependencies:");
       const httpFailure = Number.isInteger(report.failureHttp?.status) ? fromHttp(report.failureHttp.status, report.failureHttp.body) : null;
