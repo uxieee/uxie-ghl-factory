@@ -2246,5 +2246,47 @@
       "template-library-service--load-workflow-via-template-id",
       "funnels--blog-list"
     ]
+  },
+  "restore_workflow_version": {
+    "description": "Restore a workflow to an earlier version — proof: live-canary (2026-09-28); risk: write",
+    "risk": "write",
+    "proof": "live-canary (2026-09-28)",
+    "proofFloor": "external-receipt-required",
+    "proofRows": [
+      "workflow-service--update",
+      "workflow-service--get-version-by-number-and-workflow-id",
+      "trigger-service--create",
+      "trigger-service--delete",
+      "trigger-service--find-all",
+      "workflow-marketplace-service--get-contact-count-per-step",
+      "workflow-service--find-by-id"
+    ],
+    "proofFloorRows": [
+      "workflow-service--update",
+      "workflow-service--get-version-by-number-and-workflow-id",
+      "trigger-service--create",
+      "trigger-service--delete",
+      "trigger-service--find-all",
+      "workflow-marketplace-service--get-contact-count-per-step",
+      "workflow-service--find-by-id"
+    ],
+    "riskRows": [
+      "workflow-service--update",
+      "workflow-service--get-version-by-number-and-workflow-id",
+      "trigger-service--create",
+      "trigger-service--delete",
+      "trigger-service--find-all",
+      "workflow-marketplace-service--get-contact-count-per-step",
+      "workflow-service--find-by-id"
+    ],
+    "rows": [
+      "workflow-service--update",
+      "workflow-service--get-version-by-number-and-workflow-id",
+      "trigger-service--create",
+      "trigger-service--delete",
+      "trigger-service--find-all",
+      "workflow-marketplace-service--get-contact-count-per-step",
+      "workflow-service--find-by-id"
+    ]
   }
 }
