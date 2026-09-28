@@ -1849,8 +1849,18 @@ export const TOOLS = [
       ), { preview });
       const report = await executeAgentPlan({ plan, gw: deps.makeGw({ loc: args.locationId, rail: 'ai', state: deps.state }) });
       const data = { preview, created: { agentId: report.agentId, actionIds: report.actionIds }, followUps: report.followUps, actions: report.actions, verification: report.verification };
-      return report.ok ? ok(data) : withFailureData(fail(report.code, 'Conversation AI creation did not complete and verify.',
-        'Inspect data.created and data.verification before retrying; remove any unintended canary agent manually.'), data);
+      if (report.partialBuild) {
+        data.partialBuild = report.partialBuild;
+        return withFailureData(fail(report.code, `PARTIAL BUILD: ${report.partialBuild.summary}.`,
+          'The agent is live without the refused actions. Fix each refused action from its serverMessage and attach it to '
+          + 'this agentId with the action endpoints; do not re-run the create, which would make a second agent.'), data);
+      }
+      if (report.serverMessage) data.serverMessage = report.serverMessage;
+      return report.ok ? ok(data) : withFailureData(fail(report.code,
+        `Conversation AI creation did not complete and verify${report.serverMessage ? `: ${report.serverMessage}` : ''}.`,
+        report.agentId
+          ? `Agent ${report.agentId} exists; inspect data.verification before retrying, and do not re-run the create.`
+          : 'No agent was created; fix the spec from the message and retry.'), data);
     }, args),
   },
   {

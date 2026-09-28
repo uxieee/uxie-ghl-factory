@@ -50,12 +50,14 @@ attaches both). See the parent SKILL.md's Execute section for the capture proced
 ## Agent config
 
 - `employeeName` / `name` — display name.
-- `mode` — `off` | `suggestive` | `auto-pilot`. The product's own UI writes the hyphenated `auto-pilot`; the write
-  also accepts `autoPilot` and stores `auto-pilot` (measured 2026-09-11). `off` disables the bot, `suggestive` drafts
+- `mode` — `off` | `suggestive` | `auto-pilot`. The write takes only the hyphenated `auto-pilot`: `autoPilot` answers
+  422 "mode must be one of the following values: off, suggestive, auto-pilot" (measured 2026-09-11). The tools accept
+  `autoPilot` from a caller and send `auto-pilot`. `off` disables the bot, `suggestive` drafts
   replies for a human to approve (not offered for flow bots), `auto-pilot` sends unattended (capped by
   `autoPilotMaxMessages`, 1–100, default 75).
-- `channels[]` — enum: `SMS`, `IG`, `FB`, `WebChat`, `Live_Chat`, `WhatsApp`, `TIKTOK`, `Email` (the first six are
-  the create default). Non-empty required unless the location has `conversationsAI.channelManagement` on, in which
+- `channels[]` — the server's enum (its own 422, 2026-09-26): `GMB`, `IG`, `FB`, `SMS`, `WebChat`, `WhatsApp`,
+  `Live_Chat`, `Email`, `TIKTOK`. The editor offers eight (`GMB` is accepted but hidden); `WebChat` is the editor's
+  "Chat widget". The create default is `SMS, IG, FB, WebChat, Live_Chat, WhatsApp`. Both tools accept all nine. Non-empty required unless the location has `conversationsAI.channelManagement` on, in which
   case where the bot answers is decided by the deployment rows and `channels` is the legacy "Workflow & Transfer
   bot channels" list.
 - `botType` — enum **`PROMPT_BASED_BOT` | `FLOW_BUILDER_BOT` | `FORM_BASED_BOT`** (three, per the bundle's own enum; `convai-ir.mjs` `BOT_TYPES`). The prompt bot is the
@@ -89,21 +91,27 @@ attaches both). See the parent SKILL.md's Execute section for the capture proced
   knowledgeBaseIds[], triggerCondition, priority}`. This routing concept is internal-only — the
   public KB API manages KB *content*, not this trigger logic.
 - `summary{}` — conversation-summary settings (inactivity threshold, minimum messages before
-  summarizing, notification routing). Also carries **`summary.customFieldId`** and
+  summarizing, notification routing). The PUT validates every inner field, so the summary is always sent WHOLE:
+  `update_convai_agent` lays your keys over the stored summary. Server rules (2026-09-26): `minimumMessages` 3–100;
+  enabling needs `workflowIds` with at least one published workflow UUID (the tool refuses an enable without one). Also carries **`summary.customFieldId`** and
   **`summary.workflowIds[]`**, which make the generated summary workflow-obtainable — see
   "[Conversation summary is workflow-obtainable](#conversation-summary-is-workflow-obtainable-summary)"
   below.
-- `llm{primary, secondary}` — model selection (e.g. `gpt-4.1` / `gpt-4.1-mini`); observed on
-  update captures.
+- `llm{primary, secondary}` — model selection. The server's enum is GHL's current model roster (15 GPT ids on
+  2026-09-26; `GET /ai-employees/employees/models?locationId=` serves it) and its 422 lists the valid ids. Primary and
+  secondary cannot be the same model (server-enforced). Settable on create and update.
+- `businessName` — settable on create and update. `""` answers 200 and does NOT clear a stored name, so the tools
+  refuse an empty value.
 - `respondToImages`, `respondToAudio`, `isObjectiveBuilderEnabled` — secondary knobs, pass through as given.
-- 🔴 `responseLength` / `aiResponseLengthEnabled`, `isPrimary`, `llm`, `knowledgeBaseTriggers` — **NOT passed
-  through on create** (R-64, 2026-09-02): `buildCreateBody` hardcodes `responseLength:'balanced'`,
-  `aiResponseLengthEnabled:false`, `knowledgeBaseTriggers:[]` and drops the author's value with no
-  warning. `knowledgeBaseTriggers` is settable on the update path; `responseLength`, `llm` and
-  `isPrimary` are reachable on neither. Every engine-created agent is `balanced` until this is
-  fixed — set them in the UI or by a direct PUT and read back.
-- `mode` — the write takes `autoPilot`; the READ returns **`auto-pilot`** (hyphenated). The IR accepts
-  both spellings and emits the write one, so a live record can be copied into a spec (fixed 2026-09-02).
+- `responseLength` (`concise` | `balanced` | `detailed`, server enum) with `aiResponseLengthEnabled` (the editor's
+  "Enable Response Style Settings" switch) — settable on create and update. Naming a style turns its switch on unless
+  you pass `aiResponseLengthEnabled` yourself; a style with the switch off is inert.
+- `knowledgeBaseTriggers` — settable on update only (create sends `[]`). `isPrimary` is location-wide and not
+  settable through these tools.
+- **Actions on create:** the agent exists before its first action is posted. If the server refuses an action,
+  `create_convai_agent` still attempts the rest and fails with `AGENT_PARTIAL_BUILD`, naming the agent id, the
+  actions that attached, and each refused action with the server's own message. Fix and attach the refused ones
+  to THAT agent; re-running the create makes a second agent. Stop Bot needs at least 2 examples (server-enforced).
 
 ## Conversation summary is workflow-obtainable (`summary{}`)
 

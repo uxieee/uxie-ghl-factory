@@ -35,14 +35,14 @@ test('executes create and actions, then re-reads and compares persisted state', 
   assert.equal(calls.at(-1).method, 'GET');
 });
 
-test('preserves the created agent and ids for completed actions when a later action fails', async () => {
+test('a refused action is a PARTIAL BUILD: every action attempted, the agent and the server message named', async () => {
   let actionCalls = 0;
   const gw = {
     call: async (_method, path) => {
       if (path === '/voice-ai/agents') return callResponse({ _id: 'voice-1' }, 201);
       actionCalls++;
       if (actionCalls <= 3) return callResponse({ id: `action-${actionCalls}` }, 201);
-      return callResponse({ message: 'action rejected' }, 422);
+      return callResponse({ message: ['transferBotType must be one of the following values: Default, Custom'] }, 422);
     },
   };
   const result = await executeAgentPlan({
@@ -55,8 +55,12 @@ test('preserves the created agent and ids for completed actions when a later act
   assert.equal(result.ok, false);
   assert.equal(result.phase, 'action');
   assert.equal(result.agentId, 'voice-1');
+  assert.equal(result.code, 'AGENT_PARTIAL_BUILD');
   assert.deepEqual(result.actionIds, ['action-1', 'action-2', 'action-3']);
-  assert.deepEqual(result.actions.at(-1), { index: 3, path: '/voice-ai/actions', status: 422, id: null });
+  assert.equal(result.actions.length, 5, 'the fifth action is attempted after the fourth is refused');
+  assert.deepEqual(result.partialBuild.refused.map((r) => r.index), [3, 4]);
+  assert.equal(result.partialBuild.refused[0].serverMessage, 'transferBotType must be one of the following values: Default, Custom');
+  assert.match(result.partialBuild.summary, /agent voice-1 EXISTS with 3 of 5 actions/);
 });
 
 test('D1: a nested authored key absent from the re-read is unverified, not a mismatch', async () => {

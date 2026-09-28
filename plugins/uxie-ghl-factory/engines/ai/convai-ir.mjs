@@ -39,8 +39,12 @@ export function normalizeMode(mode) {
 // and the UI's pre-PUT cleanup has a dedicated branch for it. Nothing in this engine builds one
 // yet, but refusing the type outright would be wrong.
 export const BOT_TYPES = ['PROMPT_BASED_BOT', 'FLOW_BUILDER_BOT', 'FORM_BASED_BOT'];
-// channels enum — observed live on create + update.
-export const CHANNELS = ['SMS', 'IG', 'FB', 'WebChat', 'Live_Chat', 'WhatsApp'];
+// channels enum — the SERVER's own list, quoted from its 422 on the designated test sub-account
+// (2026-09-26): "each value in channels must be one of the following values: GMB, IG, FB, SMS,
+// WebChat, WhatsApp, Live_Chat, Email, TIKTOK". A PUT with all eight UI channels (TIKTOK and Email
+// included) was stored and read back. The editor offers eight; `GMB` is accepted by the server and
+// filtered out of the editor's chips.
+export const CHANNELS = ['SMS', 'IG', 'FB', 'WebChat', 'Live_Chat', 'WhatsApp', 'TIKTOK', 'Email', 'GMB'];
 // humanHandOver was the first live-verified type (convai-action.json). The other 6 UI
 // button-label types (Appointment Booking, Trigger a Workflow, Contact Info, Stop Bot,
 // Transfer Bot, Auto Followup) are now ALSO verified, per
@@ -81,11 +85,56 @@ function checkTones(tones) {
 function checkSummary(summary) {
   if (summary === undefined) return;
   if (!summary || typeof summary !== 'object' || Array.isArray(summary)) throw new IRError('SCHEMA', 'summary must be an object');
+  // Server bounds, measured 2026-09-26: 2 -> 422 "summary.minimumMessages must not be less than 3",
+  // 101 -> "must not be greater than 100".
+  if (summary.minimumMessages !== undefined
+    && (!Number.isInteger(summary.minimumMessages) || summary.minimumMessages < 3 || summary.minimumMessages > 100)) {
+    throw new IRError('SCHEMA', `summary.minimumMessages must be an integer from 3 to 100 (server-enforced), got ${JSON.stringify(summary.minimumMessages)}`);
+  }
   if (summary.workflowIds !== undefined && !Array.isArray(summary.workflowIds)) {
     throw new IRError('SCHEMA', 'summary.workflowIds must be an array — NOTE: the picker offers PUBLISHED workflows only, and the index lags a publish by about a minute');
   }
   if (summary.customFieldId !== undefined && typeof summary.customFieldId !== 'string') {
     throw new IRError('SCHEMA', 'summary.customFieldId must be a string (a contact custom-field id)');
+  }
+}
+
+// Response style. The server enum, quoted from its 422 (2026-09-26): "responseLength must be one of
+// the following values: concise, balanced, detailed". The style only applies with
+// aiResponseLengthEnabled on (the editor's "Enable Response Style Settings" switch).
+export const RESPONSE_LENGTHS = ['concise', 'balanced', 'detailed'];
+
+function checkResponseStyle(ir) {
+  if (ir.responseLength !== undefined && !RESPONSE_LENGTHS.includes(ir.responseLength)) {
+    throw new IRError('SCHEMA', `responseLength must be one of ${RESPONSE_LENGTHS.join(', ')}, got ${JSON.stringify(ir.responseLength)}`);
+  }
+  if (ir.aiResponseLengthEnabled !== undefined && typeof ir.aiResponseLengthEnabled !== 'boolean') {
+    throw new IRError('SCHEMA', 'aiResponseLengthEnabled must be a boolean');
+  }
+}
+
+// llm {primary, secondary}. The model ids are NOT listed here: the server's enum moves with GHL's
+// model roster (15 GPT ids on 2026-09-26) and its 422 names the current list, which the tool passes
+// through. `GET /ai-employees/employees/models?locationId=` serves the catalogue. The one rule that
+// does not move: "llm.Primary and Secondary LLMs cannot be the same" (422, 2026-09-26).
+function checkLlm(llm) {
+  if (llm === undefined) return;
+  if (!llm || typeof llm !== 'object' || Array.isArray(llm)) throw new IRError('SCHEMA', 'llm must be an object {primary, secondary}');
+  for (const k of Object.keys(llm)) {
+    if (k !== 'primary' && k !== 'secondary') throw new IRError('SCHEMA', `llm.${k} is not a field; llm takes primary and secondary`);
+    if (typeof llm[k] !== 'string' || !llm[k]) throw new IRError('SCHEMA', `llm.${k} must be a non-empty model id string`);
+  }
+  if (llm.primary && llm.primary === llm.secondary) {
+    throw new IRError('SCHEMA', 'llm.primary and llm.secondary cannot be the same model (server-enforced)');
+  }
+}
+
+// businessName: "" is ACCEPTED (200) and does NOT clear a stored name (measured 2026-09-26), so an
+// empty string here would report a write that changed nothing.
+function checkBusinessName(name) {
+  if (name === undefined) return;
+  if (typeof name !== 'string' || !name.trim()) {
+    throw new IRError('SCHEMA', 'businessName must be a non-empty string: GHL answers 200 to "" and keeps the old name, so it cannot be cleared over this rail');
   }
 }
 
@@ -164,11 +213,14 @@ export function parseConvaiIR(ir) {
   checkKnowledgeBaseIds(ir.knowledgeBaseIds);
   checkBotType(ir.botType);
   checkFlowFields(ir);
+  checkResponseStyle(ir);
+  checkLlm(ir.llm);
+  checkBusinessName(ir.businessName);
   return { ...ir, mode: normalizeMode(ir.mode) };
 }
 
-// Partial validation — used when compiling an update (PUT /ai-employees/employees/:id,
-// which MERGES per the captured semantics). Every field is optional, but any field that
+// Partial validation — used when compiling an update (PUT /ai-employees/employees/:id). The PUT does
+// NOT merge: the update tool reads the record and sends it whole (see compileConvaiUpdateFromRecord). Every field is optional, but any field that
 // IS present must still satisfy its enum/shape.
 export function parseConvaiPartialIR(ir) {
   if (!ir || typeof ir !== 'object') throw new IRError('SCHEMA', 'IR must be an object');
@@ -183,5 +235,8 @@ export function parseConvaiPartialIR(ir) {
   checkKnowledgeBaseIds(ir.knowledgeBaseIds);
   checkBotType(ir.botType);
   checkFlowFields(ir);
+  checkResponseStyle(ir);
+  checkLlm(ir.llm);
+  checkBusinessName(ir.businessName);
   return ir.mode !== undefined ? { ...ir, mode: normalizeMode(ir.mode) } : { ...ir };
 }

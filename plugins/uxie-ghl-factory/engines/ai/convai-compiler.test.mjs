@@ -751,3 +751,55 @@ test('update: an agent stored with NO prompt field is refused before any PUT, ev
   }
   assert.doesNotThrow(() => compileConvaiUpdateFromRecord({ ...record, instructions: 'i' }, { name: 'x' }, { agentId: 'A1', locationId: 'LOC' }));
 });
+
+// T4 (2026-09-26): the update tool's gaps, each measured live on the designated test sub-account.
+const T4_RECORD = {
+  id: 'a', name: 'TEST agent', goal: 'g', botType: 'PROMPT_BASED_BOT', channels: ['SMS'],
+  summary: { enabled: false, inactivity: { value: 15, unit: 'minutes' }, minimumMessages: 3, workflowIds: [],
+    emailNotifications: { admins: false, allUsers: false, contactAssignedUser: false, specificUsers: [], customEmail: '' } },
+};
+
+test('T4: a partial summary is laid over the stored one and sent WHOLE', () => {
+  const plan = compileConvaiUpdateFromRecord(T4_RECORD, { summary: { minimumMessages: 5, emailNotifications: { admins: true } } }, { agentId: 'a', locationId: 'L' });
+  assert.deepEqual(plan.body.summary, { ...T4_RECORD.summary, minimumMessages: 5, emailNotifications: { ...T4_RECORD.summary.emailNotifications, admins: true } });
+});
+
+test('T4: an unconfigured summary ({}) merges onto the create default, never partial', () => {
+  const plan = compileConvaiUpdateFromRecord({ ...T4_RECORD, summary: {} }, { summary: { minimumMessages: 4 } }, { agentId: 'a', locationId: 'L' });
+  assert.equal(plan.body.summary.minimumMessages, 4);
+  assert.deepEqual(plan.body.summary.inactivity, { value: 15, unit: 'minutes' });
+});
+
+test('T4: enabling the summary without a workflow id is refused before any request', () => {
+  assert.throws(() => compileConvaiUpdateFromRecord(T4_RECORD, { summary: { enabled: true } }, { agentId: 'a', locationId: 'L' }), (e) => e instanceof IRError);
+  const ok = compileConvaiUpdateFromRecord(T4_RECORD, { summary: { enabled: true, workflowIds: ['00000000-0000-4000-8000-000000000001'] } }, { agentId: 'a', locationId: 'L' });
+  assert.equal(ok.body.summary.enabled, true);
+});
+
+test('T4: businessName, llm and response style are applied, and a style turns its switch on', () => {
+  const plan = compileConvaiUpdateFromRecord(T4_RECORD, { businessName: 'B', llm: { primary: 'gpt-4.1', secondary: 'gpt-4.1-mini' }, responseLength: 'concise', channels: ['TIKTOK', 'Email'] }, { agentId: 'a', locationId: 'L' });
+  assert.equal(plan.body.businessName, 'B');
+  assert.deepEqual(plan.body.llm, { primary: 'gpt-4.1', secondary: 'gpt-4.1-mini' });
+  assert.equal(plan.body.responseLength, 'concise');
+  assert.equal(plan.body.aiResponseLengthEnabled, true);
+  assert.deepEqual(plan.body.channels, ['TIKTOK', 'Email']);
+  for (const k of ['businessName', 'llm', 'responseLength', 'aiResponseLengthEnabled']) assert.ok(!plan.collateralKeys.includes(k), k);
+});
+
+test('T4: an explicit aiResponseLengthEnabled:false wins over a named style', () => {
+  const plan = compileConvaiUpdateFromRecord(T4_RECORD, { responseLength: 'detailed', aiResponseLengthEnabled: false }, { agentId: 'a', locationId: 'L' });
+  assert.equal(plan.body.aiResponseLengthEnabled, false);
+});
+
+test('T4: create carries businessName, llm and response style when authored', () => {
+  const { create } = compileConvaiAgent({ name: 'T', mode: 'off', channels: ['Email'], goal: 'g', businessName: 'Biz', llm: { primary: 'gpt-4.1-mini', secondary: 'gpt-4.1' }, responseLength: 'detailed' }, { locationId: 'L' });
+  assert.equal(create.body.businessName, 'Biz');
+  assert.deepEqual(create.body.llm, { primary: 'gpt-4.1-mini', secondary: 'gpt-4.1' });
+  assert.equal(create.body.responseLength, 'detailed');
+  assert.equal(create.body.aiResponseLengthEnabled, true);
+});
+
+test('T4: a stopBot with fewer than 2 examples is refused before any request (server needs 2)', () => {
+  assert.throws(() => compileConvaiAction({ type: 'stopBot', name: 'S', details: { stopBotExamples: ['bye'] } }, { locationId: 'L' }), (e) => e instanceof IRError);
+  assert.doesNotThrow(() => compileConvaiAction({ type: 'stopBot', name: 'S' }, { locationId: 'L' }));
+});

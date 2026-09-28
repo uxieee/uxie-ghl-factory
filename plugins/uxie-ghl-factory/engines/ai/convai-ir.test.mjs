@@ -49,8 +49,26 @@ test('empty channels array rejected', () => {
   assert.throws(() => parseConvaiIR(ir), (e) => e instanceof IRError && e.code === 'BAD_CHANNELS');
 });
 
-test('channels enum matches captured values', () => {
-  assert.deepEqual(CHANNELS, ['SMS', 'IG', 'FB', 'WebChat', 'Live_Chat', 'WhatsApp']);
+test('channels enum is the server list (its 422, 2026-09-26), TIKTOK and Email included', () => {
+  assert.deepEqual([...CHANNELS].sort(), ['Email', 'FB', 'GMB', 'IG', 'Live_Chat', 'SMS', 'TIKTOK', 'WebChat', 'WhatsApp']);
+});
+
+test('llm primary and secondary cannot be the same model', () => {
+  assert.throws(() => parseConvaiPartialIR({ llm: { primary: 'gpt-4.1', secondary: 'gpt-4.1' } }), (e) => e.code === 'SCHEMA');
+  assert.doesNotThrow(() => parseConvaiPartialIR({ llm: { primary: 'gpt-4.1', secondary: 'gpt-4.1-mini' } }));
+  assert.throws(() => parseConvaiPartialIR({ llm: { model: 'gpt-4.1' } }), (e) => e.code === 'SCHEMA');
+});
+
+test('responseLength is the server enum; businessName cannot be empty (200 that clears nothing)', () => {
+  assert.throws(() => parseConvaiPartialIR({ responseLength: 'short' }), (e) => e.code === 'SCHEMA');
+  assert.doesNotThrow(() => parseConvaiPartialIR({ responseLength: 'detailed' }));
+  assert.throws(() => parseConvaiPartialIR({ businessName: '' }), (e) => e.code === 'SCHEMA');
+});
+
+test('summary.minimumMessages is bounded 3..100 by the server', () => {
+  assert.throws(() => parseConvaiPartialIR({ summary: { minimumMessages: 2 } }), (e) => e.code === 'SCHEMA');
+  assert.throws(() => parseConvaiPartialIR({ summary: { minimumMessages: 101 } }), (e) => e.code === 'SCHEMA');
+  assert.doesNotThrow(() => parseConvaiPartialIR({ summary: { minimumMessages: 100 } }));
 });
 
 test('action missing type rejected', () => {

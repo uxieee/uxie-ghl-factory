@@ -37,10 +37,11 @@ function defaultSummary() {
 function buildCreateBody(ir, { locationId }) {
   const wait = ir.wait ?? {};
   const sleep = ir.sleep ?? {};
+  const style = responseStyleFields(ir);
   return {
     locationId,
     employeeName: ir.name,
-    businessName: '',
+    businessName: ir.businessName ?? '',
     mode: ir.mode,
     channels: ir.channels,
     isPrimary: false,
@@ -63,7 +64,7 @@ function buildCreateBody(ir, { locationId }) {
     botType: ir.botType ?? 'PROMPT_BASED_BOT',
     knowledgeBaseIds: ir.knowledgeBaseIds ?? [],
     knowledgeBaseTriggers: [],
-    summary: { ...defaultSummary(), ...(ir.summary ?? {}) },
+    summary: mergeSummary(defaultSummary(), ir.summary),
     respondToImages: ir.respondToImages ?? false,
     respondToAudio: ir.respondToAudio ?? false,
     // Flow-Based Builder linkage. A FLOW_BUILDER_BOT's logic lives in a workflow whose
@@ -73,9 +74,43 @@ function buildCreateBody(ir, { locationId }) {
     // here too lets a caller create an already-linked agent when the workflow id is known.
     objectiveBuilderWorkflowId: ir.objectiveBuilderWorkflowId ?? '',
     isObjectiveBuilderEnabled: ir.isObjectiveBuilderEnabled ?? false,
-    aiResponseLengthEnabled: false,
-    responseLength: 'balanced',
+    aiResponseLengthEnabled: style.aiResponseLengthEnabled ?? false,
+    responseLength: style.responseLength ?? 'balanced',
+    // Only when authored: applyBotTypeCleanup drops an empty llm, and the server picks its default.
+    ...(ir.llm ? { llm: { ...ir.llm } } : {}),
   };
+}
+
+// A response style is inert unless its switch is on, so a caller who names a style without the
+// switch gets the switch turned on with it. An explicit aiResponseLengthEnabled always wins.
+function responseStyleFields(ir) {
+  const out = {};
+  if (ir.responseLength !== undefined) out.responseLength = ir.responseLength;
+  if (ir.aiResponseLengthEnabled !== undefined) out.aiResponseLengthEnabled = ir.aiResponseLengthEnabled;
+  else if (ir.responseLength !== undefined) out.aiResponseLengthEnabled = true;
+  return out;
+}
+
+// THE SUMMARY IS SENT WHOLE. The PUT validates every inner field of `summary`, so a partial one is
+// refused field by field — {enabled:false} alone answered 422 "summary.inactivity should not be
+// empty", "summary.minimumMessages should not be empty", … (designated test sub-account, 2026-09-26).
+// The authored keys are laid over the stored (or default) summary, emailNotifications one level
+// deeper, and an ENABLED summary must name a workflow: the server answered "summary.workflowIds
+// should not be empty" / "must be a UUID" to an enable without one.
+export function mergeSummary(base, patch) {
+  if (patch === undefined) return base;
+  const b = base && typeof base === 'object' && !Array.isArray(base) ? base : {};
+  const merged = { ...b, ...patch };
+  if (patch.emailNotifications !== undefined) {
+    merged.emailNotifications = { ...(b.emailNotifications ?? {}), ...patch.emailNotifications };
+  }
+  if (patch.inactivity !== undefined) merged.inactivity = { ...(b.inactivity ?? {}), ...patch.inactivity };
+  if (merged.enabled === true && !(Array.isArray(merged.workflowIds) && merged.workflowIds.length > 0)) {
+    throw new IRError('SCHEMA',
+      'an enabled summary needs summary.workflowIds with at least one PUBLISHED workflow id (a UUID): the server '
+      + 'refuses the enable without one. The picker offers published workflows only.');
+  }
+  return merged;
 }
 
 // Live-verified 422 gap: POSTing a humanHandOver action without `details.enabled` /
@@ -221,8 +256,16 @@ const STOP_BOT_DETAIL_DEFAULTS = {
   tags: ['stop bot'],
 };
 
+// The server needs at least two examples: one answered 422 "details.At least 2 examples are necessary"
+// (designated test sub-account, 2026-09-26). Refused here so a create does not leave an agent behind
+// without its Stop Bot.
 function buildStopBotDetails(details) {
-  return { ...STOP_BOT_DETAIL_DEFAULTS, ...details };
+  const merged = { ...STOP_BOT_DETAIL_DEFAULTS, ...details };
+  if (!Array.isArray(merged.stopBotExamples) || merged.stopBotExamples.length < 2) {
+    throw new IRError('SCHEMA',
+      `stopBot action.details.stopBotExamples needs at least 2 examples (server-enforced), got: ${JSON.stringify(merged.stopBotExamples)}`);
+  }
+  return merged;
 }
 
 // transferBot: the capture's UI-required-with-asterisk field is only `name`, but
@@ -404,6 +447,10 @@ const UPDATE_FIELD_MAP = {
   botType: 'botType',
   isObjectiveBuilderEnabled: 'isObjectiveBuilderEnabled',
   objectiveBuilderWorkflowId: 'objectiveBuilderWorkflowId',
+  businessName: 'businessName',
+  llm: 'llm',
+  responseLength: 'responseLength',
+  aiResponseLengthEnabled: 'aiResponseLengthEnabled',
 };
 
 // PUT /ai-employees/employees/:agentId — this is a PARTIAL-BODY PUT. Whether the backend merges
@@ -507,6 +554,13 @@ export function compileConvaiUpdateFromRecord(current, partialIr, { agentId, loc
   for (const [irKey, wireKey] of Object.entries(UPDATE_FIELD_MAP)) {
     if (norm[irKey] !== undefined) { body[wireKey] = norm[irKey]; setKeys.add(wireKey); }
   }
+  // Laid over the STORED summary, never sent partial (see mergeSummary). An unconfigured agent stores
+  // `summary: {}`, which is no base at all, so the create default stands in for it.
+  if (norm.summary !== undefined) {
+    const stored = current.summary && typeof current.summary === 'object' && Object.keys(current.summary).length ? current.summary : defaultSummary();
+    body.summary = mergeSummary(stored, norm.summary);
+  }
+  for (const [k, v] of Object.entries(responseStyleFields(norm))) { body[k] = v; setKeys.add(k); }
   if (norm.name !== undefined) { body.employeeName = norm.name; setKeys.add('employeeName'); }
   // `wait` and `sleep` are NOT in UPDATE_FIELD_MAP because they fan out to several wire keys.
   // compileConvaiUpdate (the pre-0.64.0 partial-PUT compiler) handled them here and this

@@ -48,6 +48,15 @@ export function extractAgentId(kind, response) {
 
 const actionId = (body) => responseId(body);
 
+// The server's own words, whole. GHL answers a refused action with `{message: [..every rule it
+// broke..]}`; reporting only `HTTP_422` left the caller guessing (live 2026-09-26: an action refused
+// for "transferBotType must be one of the following values: Default, Custom" surfaced as a bare 422).
+export const serverMessage = (json) => {
+  const m = json?.message ?? json?.error ?? null;
+  if (Array.isArray(m)) return m.join('; ');
+  return typeof m === 'string' ? m : (json ? JSON.stringify(json).slice(0, 1000) : null);
+};
+
 const threadAgentId = (descriptor, agentId) => {
   const body = { ...(descriptor?.body ?? {}) };
   if ('employeeId' in body) body.employeeId = agentId;
@@ -196,7 +205,7 @@ export async function executeAgentPlan({ plan, gw, verifyExpected } = {}) {
   } catch (error) {
     return failure(error?.code ?? 'AGENT_CREATE_FAILED', 'create', report);
   }
-  if (!created.ok) return failure(`HTTP_${created.status}`, 'create', report, { createStatus: created.status });
+  if (!created.ok) return failure(`HTTP_${created.status}`, 'create', report, { createStatus: created.status, serverMessage: serverMessage(created.json) });
   report.agentId = extractAgentId(kind, created);
   if (!report.agentId) {
     // Surface a payload-free event map so a human can locate an agent the stream saved
@@ -222,19 +231,37 @@ export async function executeAgentPlan({ plan, gw, verifyExpected } = {}) {
     }
   }
 
+  // A HALF-BUILT AGENT NEVER READS AS SUCCESS. The agent exists before its first action is posted, so
+  // an action the server refuses leaves a real agent carrying only the actions before it. Every action
+  // is attempted (one refusal does not hide the next one's), and the result names the agent, what
+  // attached, what was refused and why, in the server's words.
+  const refused = [];
   for (let index = 0; index < (plan.actions ?? []).length; index++) {
     const action = threadAgentId(plan.actions[index], report.agentId);
+    const label = { index, type: action.body?.type ?? null, name: action.body?.name ?? null };
     try {
       const result = await gw.call(action.method, action.path, action.body, { base: AI_BASE });
-      const observed = { index, path: action.path, status: result.status, id: actionId(result.json) };
+      const observed = { ...label, path: action.path, status: result.status, id: actionId(result.json) };
+      if (!result.ok) observed.serverMessage = serverMessage(result.json);
       report.actions.push(observed);
-      if (!result.ok) return failure(`HTTP_${result.status}`, 'action', report, { failedAction: observed });
+      if (!result.ok) { refused.push(observed); continue; }
       if (observed.id) report.actionIds.push(observed.id);
     } catch (error) {
-      const observed = { index, path: action.path, status: null, id: null, code: error?.code ?? 'ACTION_FAILED' };
+      const observed = { ...label, path: action.path, status: null, id: null, code: error?.code ?? 'ACTION_FAILED' };
       report.actions.push(observed);
-      return failure(observed.code, 'action', report, { failedAction: observed });
+      refused.push(observed);
     }
+  }
+  if (refused.length) {
+    return failure('AGENT_PARTIAL_BUILD', 'action', report, {
+      partialBuild: {
+        agentId: report.agentId,
+        attached: report.actions.filter((a) => a.id && !refused.includes(a)).map(({ index, type, name, id }) => ({ index, type, name, id })),
+        refused,
+        summary: `agent ${report.agentId} EXISTS with ${report.actionIds.length} of ${(plan.actions ?? []).length} actions; `
+          + refused.map((r) => `action ${r.index} (${r.type} "${r.name}") refused: ${r.serverMessage ?? r.code ?? `HTTP ${r.status}`}`).join('; '),
+      },
+    });
   }
 
   let reread;
@@ -299,8 +326,9 @@ export async function executeAgentUpdate({ plan, gw } = {}) {
 
   const put = await gw.call(update.method ?? 'PUT', update.path, update.body);
   if (!put?.ok) {
+    // Every rule the server named, not the first 300 characters of them.
     return { ok: false, code: 'AGENT_UPDATE_FAILED', phase: 'update', status: put?.status ?? null,
-      detail: JSON.stringify(put?.json ?? '').slice(0, 300) };
+      detail: serverMessage(put?.json) ?? `HTTP ${put?.status ?? '?'}` };
   }
 
   const reread = await gw.call('GET', update.path);
