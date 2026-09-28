@@ -33,7 +33,7 @@ export const NAMESPACE_POLICY = Object.freeze({
   ownedElsewhere: new Set(['custom_webhook', 'custom_code', 'chatgpt', 'ai_agent', 'inboundWebhookRequest',
     'trigger_link', 'datetime_formatter', 'text_formatter', 'number_formatter', 'math_operation',
     'array_functions', 'loop', 'ai_field', 'conversationai_objective', 'affiliate_new_lead', 'contactMethod',
-    'cancellation_link', 'reschedule_link', 'task-notification']),
+    'cancellation_link', 'reschedule_link', 'task-notification', 'workflow_ai_generate_image']),
   ignore: new Set(['else', 'this', 'if', 'unless', 'each', 'with']),
   // Corpus-attested tags the picker does not list. Add nothing here without live proof.
   allow: new Set(['{{location.id}}']),

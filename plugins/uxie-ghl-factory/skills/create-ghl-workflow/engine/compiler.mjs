@@ -137,6 +137,23 @@ function withGoalConditionIds(attrs, ctx) {
   };
 }
 
+// edit_conversation's dataTransformer (live asset, 2026-09-28: knowledge sniffs/workflows-wave1-2026-09-25/
+// live-3S-edit-conversation-asset.json): `read` / `archive` select values 'true'/'false' become booleans and any
+// other value ('none', '') removes the key. GHL's validator refuses the strings ("Read: Expected boolean,
+// received string"), and the default fill above writes the asset's STRING default "true" for an omitted
+// `read` — so without this an archive-only step could not be built (live-3S2-...-run1-read-default-string-refused.json).
+const ASSET_SAVE_TRANSFORMS = Object.freeze({
+  edit_conversation(attrs) {
+    for (const k of ['read', 'archive']) {
+      const v = attrs[k];
+      if (v === true || v === false) continue;
+      if (v === 'true' || v === 'false') attrs[k] = v === 'true';
+      else delete attrs[k];
+    }
+    delete attrs.__none_values__;
+  },
+});
+
 // Envelope keys the builder stores on a marketplace step but no app `inputs` list
 // declares. They are structural, so they are never "unknown".
 const MARKETPLACE_ENVELOPE_KEYS = new Set([
@@ -251,6 +268,11 @@ function marketplaceAttributes(node, ctx) {
       + `blank; filled it with the value "${entry.appName}" declares in its own schema (${typeof coerced === 'object' ? JSON.stringify(coerced) : coerced}). `
       + `Confirm this is what you intend.`);
   }
+
+  // The builder runs an asset's `dataTransformer` on the drawer values before it saves. We cannot run
+  // GHL's code, so the few whose output GHL's validator then TYPES are mirrored here, verbatim in effect.
+  const saveTransform = ASSET_SAVE_TRANSFORMS[node.type];
+  if (saveTransform) saveTransform(out);
 
   // Required inputs, fail-closed. Same semantics as action-schema.mjs: absent AND empty
   // both count as missing, because the builder rejects both.
