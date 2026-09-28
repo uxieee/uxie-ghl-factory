@@ -82,8 +82,10 @@ recomposing a page: `sections` REPLACES the whole page.
 
 Page-level settings ride the same mode: op `page` sets tracking code (header/footer), custom CSS and the
 page background; `seo` sets title, description, keywords, author, social image and language. SEO is
-written twice, as the builder does: Firestore-direct to the page record (the builder's own path — no REST
-route exists) and as `meta` on the autosave's version. 🔴 The public page renders the SERVED VERSION's
+written twice, as the builder does: to the page record (`POST /funnels/funnel/funnel-page/{pageId}`
+`{name, url, meta}` — it rewrites name and url too, so the tool sends the values it just read and
+verifies them unchanged; the builder's own SEO panel writes the same record Firestore-direct) and as
+`meta` on the autosave's version. 🔴 The public page renders the SERVED VERSION's
 meta, so SEO — like content — changes in public only when the page is published again: pass
 `publish:true`. A correct record is not a changed `<title>`.
 

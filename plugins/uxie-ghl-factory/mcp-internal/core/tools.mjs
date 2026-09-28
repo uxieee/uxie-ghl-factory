@@ -23,7 +23,7 @@ import {
 } from './funnel-ops.mjs';
 import { planCreateFunnel, createdId, EXPECT_TYPE, KINDS as FUNNEL_KINDS, STORE_DANGLING_FORM_NOTE, listAllDocuments } from './funnel-create.mjs';
 import { applyPageEdits, verifyEdits, checkPageTarget, pageDataForWrite, seoMeta, seoDiff } from './page-edit.mjs';
-import { checkRecord, writeMeta } from './page-seo.mjs';
+import { checkRecord, metaPost, recordDrift } from './page-seo.mjs';
 import { planCreate, planUpdate, planDelete, resolveTarget, listRedirects, statsBody, rowId, RESERVED_PREFIXES } from './redirects.mjs';
 import { collectWorkflowRuntimeWindow, validateRuntimeWindowInput } from './workflow-runtime-window.mjs';
 import {
@@ -1744,7 +1744,6 @@ export function trackWrites(gw) {
 }
 
 const STUDIO_IDTOKENS = new Map();   // locationId -> { idToken, expiresAt }
-const PAGE_SEO_IDTOKENS = new Map(); // same shape; the page-SEO write mints its own (different Firestore database)
 
 // Wiring shared by the AI Studio read/resolve tools so each one does not repeat it. `gw` carries
 // the Bearer (jwt) rail /vibe-ai lives on; `fb` carries the firebase rail for Firestore history
@@ -1857,8 +1856,8 @@ async function editPage(args, deps, composeSection) {
   const keepMeta = seoMeta(rec.json?.meta ?? {}, {});
   let seo = null;
   if (args.seo) {
-    // The SEO write is Firestore-direct and NOT scoped by the backend, so the page RECORD must resolve
-    // to this location and funnel before anything is written (the step/page check above is not enough).
+    // The SEO write rewrites the page RECORD (name, url and meta), so the record must resolve to this
+    // location and funnel before anything is written (the step/page check above is not enough).
     const recCheck = checkRecord(rec.json, { pageId: args.pageId, locationId: args.locationId, funnelId: args.funnelId });
     if (!recCheck.ok) return fail(CODES.VALIDATION_FAILED, `SEO target check refused: ${recCheck.reason}`, 'Nothing was written. Pass a page of this location and funnel.');
     const cur = rec.json?.meta ?? {};
@@ -1876,29 +1875,33 @@ async function editPage(args, deps, composeSection) {
   }
 
   let seoCheck = null;
-  let fsWrite = null;
+  let recordWrite = null;
   if (seo) {
-    // The builder's order: the page RECORD's meta first (Firestore-direct — what GET /funnels/page/{id}
-    // returns and the public page renders), THEN the autosave, whose own `meta` lands on the draft version.
-    try {
-      fsWrite = await writeMeta({ gwJwt: gw, gwFirebase: deps.makeGw({ loc: args.locationId, state: deps.state, rail: 'firebase' }),
-        locationId: args.locationId, cache: PAGE_SEO_IDTOKENS, pageId: args.pageId, meta: seo.write });
-    } catch (e) {
-      return withFailureData(fail(CODES.ENGINE_ABORT, `nothing was written: the SEO write failed (${e.message})`, e.remediation ?? 'Retry the seo write.'),
-        { firestoreError: e.code ?? null, status: e.status ?? null });
-    }
+    // The builder's order: the page RECORD's meta first (what GET /funnels/page/{id} returns), THEN the
+    // autosave, whose own `meta` lands on the draft version the public page will serve once published.
+    // name and url come from the record read above — the same read the target check used.
+    recordWrite = metaPost(args.pageId, rec.json, seo.write);
+    const w = await gw.call(recordWrite.method, recordWrite.path, recordWrite.body);
+    if (!w.ok) return withFailureData(fromHttp(w.status, w.json), { note: 'nothing was written: the page-record SEO write was refused, so the autosave was not sent' });
   }
   const saved = await gw.call('POST', `/funnels/builder/autosave/${encodeURIComponent(args.pageId)}`,
     { ...autosaveEnvelope({ funnelId: args.funnelId, pageData, pageVersion: args.pageVersion }), meta: seo ? seo.write : keepMeta });
   if (!saved.ok) return fromHttp(saved.status, saved.json);
   if (seo) {
     const seoRead = await reread(
-      async () => { const r = await gw.call('GET', `/funnels/page/${encodeURIComponent(args.pageId)}`); return r.json?.meta ?? r.json?.data?.meta ?? {}; },
-      (m) => seoDiff(m, args.seo).length === 0,
+      async () => (await gw.call('GET', `/funnels/page/${encodeURIComponent(args.pageId)}`)).json ?? {},
+      (r) => seoDiff(r.meta ?? {}, args.seo).length === 0,
       deps.rereadOptions ?? {},
     );
-    const wrong = seoDiff(seoRead.value ?? {}, args.seo);
-    seoCheck = { applied: wrong.length === 0, ...(wrong.length ? { notApplied: wrong } : {}), attempts: seoRead.attempts, firestore: fsWrite };
+    const wrong = seoDiff(seoRead.value?.meta ?? {}, args.seo);
+    const drift = recordDrift(recordWrite.body, seoRead.value);
+    seoCheck = { applied: wrong.length === 0, ...(wrong.length ? { notApplied: wrong } : {}), attempts: seoRead.attempts,
+      recordRoute: recordWrite.path, ...(drift.length ? { recordDrift: drift } : {}) };
+    if (drift.length) {
+      return withFailureData(fail(CODES.VERIFY_FAILED, `the SEO was written but the page record's ${drift.map((d) => d.key).join(' and ')} did not read back as sent`,
+        'The page was probably renamed or moved between this call\'s read and its write (the SEO route writes name and url too). Re-read the page record and the step; restore the name/url if ours overwrote a concurrent change.'),
+        { ...preview, autosave: saved.status, readBack: { seo: seoCheck } });
+    }
   }
   const settled = await reread(
     async () => { const r = await gw.call('GET', pageUrl); return r.json ?? {}; },
@@ -10529,8 +10532,9 @@ export const TOOLS = [
       + 'kept in general.general.pageStyles AND appended to the compiled pageStyles the public page serves; '
       + 'background {imageUrl, color}); and `seo` {title, description, keywords, author, imageUrl, language, '
       + 'customMeta, canonicalMeta} — only the keys you pass change. SEO is written twice, as the builder does: '
-      + 'to the page RECORD (GET /funnels/page/{pageId}) Firestore-direct — the builder\'s path; no REST route '
-      + 'exists — and as `meta` on the autosave\'s version. The public page renders the SERVED VERSION\'s meta, '
+      + 'to the page RECORD (GET /funnels/page/{pageId}) through POST /funnels/funnel/funnel-page/{pageId} — which '
+      + 'also writes the record\'s name and url, so the ones just read are sent and verified unchanged — and as '
+      + '`meta` on the autosave\'s version. The public page renders the SERVED VERSION\'s meta, '
       + 'so pass publish:true (or publish from the builder) for any edit — content or SEO — to reach visitors. '
       + 'The target is checked first (pageId must be a page of stepId, '
       + 'and stepName must match that step exactly; refused otherwise), everything the ops do not name is '
