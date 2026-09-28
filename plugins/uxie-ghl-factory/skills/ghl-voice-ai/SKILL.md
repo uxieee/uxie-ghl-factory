@@ -49,7 +49,8 @@ Corpus (deeper, account-agnostic): `ai-agents/10-anatomy/voice-ai-agent-shape.md
 **1. Edit an existing agent with `update_voiceai_agent`, never with the create compiler.** Measured 2026-09-28 by
 diffing every field: `PUT /voice-ai/agents/{id}` with a **partial** body MERGES at the top level (only the keys
 sent change, on either the mode-less or the `?publishAgent=true&mode=update` rail), but a **nested object** is
-validated whole: a partial one 422s and writes nothing. The tool merges nested objects over the stored ones.
+validated whole: a partial one 422s and writes nothing. The tool merges nested objects over the stored ones and
+drops the one inner key the read carries but the write refuses (`aiDisclaimerConfiguration.isGreetingMessageDynamic`).
 What clobbers live values is the create compiler (`compileVoiceAiUpdate`), which fills every omitted field with its
 own default. It is right for a new agent and wrong for an existing one.
 

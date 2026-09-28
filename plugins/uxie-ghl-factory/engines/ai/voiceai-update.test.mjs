@@ -184,3 +184,26 @@ test('T1b: a model change reports the provider cascade separately; the same fiel
   const r2 = await executeVoiceAiUpdate({ plan: compileVoiceAiPartialUpdate(before, { maxCallDuration: 600 }, { agentId: 'A', locationId: 'L' }), before, gw: fakeGw({ record: before, collateral: flip }), serverMessage });
   assert.equal(r2.code, 'AGENT_COLLATERAL_CHANGED');
 });
+
+test('aiDisclaimerConfiguration: the read-only isGreetingMessageDynamic the read carries is not echoed, and the change verifies', async () => {
+  const before = RECORD();
+  before.aiDisclaimerConfiguration = { disclaimerEnabled: true, outboundDisclaimerType: 'concise', outboundDisclaimerMessage: 'm', outboundIntentMessage: '', isGreetingMessageDynamic: null, playDisclaimerOnEveryCall: true };
+  // measured: echoing the key answers 422 "property isGreetingMessageDynamic should not exist" and writes nothing
+  const gw = fakeGw({ record: before, refuse: (b) => b.aiDisclaimerConfiguration && 'isGreetingMessageDynamic' in b.aiDisclaimerConfiguration });
+  gw.call = ((inner) => async (m, p, b) => {
+    const r = await inner(m, p, b);
+    if (m === 'PUT' && r.ok) r.json.aiDisclaimerConfiguration = { ...r.json.aiDisclaimerConfiguration, isGreetingMessageDynamic: null };
+    return r;
+  })(gw.call);
+  const plan = compileVoiceAiPartialUpdate(before, { aiDisclaimerConfiguration: { playDisclaimerOnEveryCall: false } }, { agentId: 'A', locationId: 'L' });
+  assert.equal('isGreetingMessageDynamic' in plan.body.aiDisclaimerConfiguration, false);
+  assert.equal(plan.body.aiDisclaimerConfiguration.outboundDisclaimerType, 'concise');
+  const r = await executeVoiceAiUpdate({ plan, before, gw, serverMessage });
+  assert.equal(r.ok, true, JSON.stringify(r));
+  assert.deepEqual(r.verification.confirmed, ['aiDisclaimerConfiguration']);
+});
+
+test('aiDisclaimerConfiguration: a spec that sends isGreetingMessageDynamic is refused before sending', () => {
+  assert.throws(() => compileVoiceAiPartialUpdate(RECORD(), { aiDisclaimerConfiguration: { isGreetingMessageDynamic: true } }, { agentId: 'A', locationId: 'L' }),
+    (e) => e.code === 'SPEC_KEY_UNAPPLIED' && /read-only/.test(e.message));
+});

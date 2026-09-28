@@ -85,7 +85,13 @@ object**. The flow builder sends partial PUTs without `mode` (`{locationId, agen
 - A partial PUT **merges at the top level** on both rails: only the keys sent change.
 - A **nested object** (`sendPostCallNotificationTo`, `translation`, `endCallConfig`, `noResponseConfig`,
   `aiDisclaimerConfiguration`) is validated whole: a partial one answers 422 naming every missing inner field and
-  writes nothing. Send the whole object.
+  writes nothing. Send the whole object — minus `aiDisclaimerConfiguration.isGreetingMessageDynamic`, which the read
+  carries (`null`) and the write refuses (422 `"property isGreetingMessageDynamic should not exist"`).
+- Outbound disclosure: `outboundDisclaimerType` is `concise · standard · conversational · custom` (server enum). A
+  `custom` text is checked by GHL for an AI disclosure AND a clear opt-out: a vague one ("say stop calling me") answers
+  400 `"Custom disclaimer must include AI disclosure and clear opt-out"` and writes nothing. The editor's "Verify
+  Disclaimer" runs the same check: `POST /voice-ai/consent/validate-greeting-disclaimer {locationId, text}` →
+  `{pass, reasons[]}`. `outboundIntentMessage` is the Welcome Message's Outbound tab.
 - Writes are flat and reads nest under `agentSettings` (`voiceId` → `agentSettings.voice.voiceId`,
   `language` → `agentSettings.language.code`, `ringDurationSeconds` → `agentSettings.ringDurationMs`).
 - Server bounds (refused, nothing written): `maxCallDuration` ≤ 7200 s; `responsiveness`, `interruptionSensitivity`,

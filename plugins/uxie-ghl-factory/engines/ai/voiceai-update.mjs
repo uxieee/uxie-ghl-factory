@@ -23,6 +23,13 @@ import { IRError } from './convai-ir.mjs';
 export const NESTED_WHOLE = ['aiDisclaimerConfiguration', 'sendPostCallNotificationTo', 'translation', 'noResponseConfig',
   'endCallConfig', 'userFirstFallback'];
 
+// Inner keys the READ carries but the WRITE refuses. Measured 2026-09-28: the stored aiDisclaimerConfiguration reads
+// `isGreetingMessageDynamic: null`, and echoing it answers 422 "property isGreetingMessageDynamic should not exist"
+// (nothing written). The other five nested objects round-trip whole.
+const READ_ONLY_INNER = { aiDisclaimerConfiguration: ['isGreetingMessageDynamic'] };
+const writable = (key, v) => (isObj(v) && READ_ONLY_INNER[key]
+  ? Object.fromEntries(Object.entries(v).filter(([k]) => !READ_ONLY_INNER[key].includes(k))) : v);
+
 // Top-level keys the update may send, beyond the nested ones: the flat builder-save field list (the create tool's
 // follow-up PUT) plus the partial-save keys. Everything else is refused rather than silently sent.
 export const WRITABLE = new Set([
@@ -106,8 +113,13 @@ export function compileVoiceAiPartialUpdate(current, spec, { agentId, locationId
   for (const [k, v] of Object.entries(spec)) {
     if (NESTED_WHOLE.includes(k)) {
       if (!isObj(v)) throw new IRError('SCHEMA', `${k} must be an object (it is sent whole, merged over the stored one)`);
+      const refused = Object.keys(v).filter((x) => READ_ONLY_INNER[k]?.includes(x));
+      if (refused.length) {
+        throw new IRError('SPEC_KEY_UNAPPLIED', `${k}.${refused.join(', ')} is read-only: the agent read carries it but the `
+          + 'write refuses it (422 "should not exist"). Drop it from the spec. Nothing was sent.');
+      }
       const stored = readFlat(current, k);
-      body[k] = { ...(isObj(stored) ? stored : {}), ...v };
+      body[k] = writable(k, { ...(isObj(stored) ? stored : {}), ...v });
     } else {
       body[k] = v;
     }
@@ -127,7 +139,7 @@ function readSet(record, key) {
     const prompts = [...new Set(kbActions(record).map((a) => a.actionParameters?.triggerPrompt))];
     return prompts.length === 1 ? prompts[0] : prompts;
   }
-  return readFlat(record, key);
+  return writable(key, readFlat(record, key));
 }
 const IGNORE = new Set(['updatedAt', 'traceId', '__v']);
 
@@ -163,7 +175,7 @@ export async function executeVoiceAiUpdate({ plan, before, gw, serverMessage }) 
     const message = serverMessage(put?.json) ?? `HTTP ${put?.status ?? '?'}`;
     if (!stored.length) return { ok: false, code: 'AGENT_UPDATE_FAILED', status: put?.status ?? null, detail: message, written: [] };
     const undo = { locationId: plan.body.locationId };
-    for (const k of stored) undo[k] = readFlat(before, k);
+    for (const k of stored) undo[k] = writable(k, readFlat(before, k));
     const u = await gw.call('PUT', plan.path, undo);
     const again = await read();
     const diverged = stored.filter((k) => !same(readFlat(again, k), readFlat(before, k)));
