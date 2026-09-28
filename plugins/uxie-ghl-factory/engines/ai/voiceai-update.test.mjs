@@ -172,3 +172,13 @@ test('T1b: the restore report carries the values, and a restore that does not ve
   assert.equal(r2.code, 'PROVIDER_REFUSED_RESTORE_FAILED');
   assert.deepEqual(r2.diverged, ['llmModel']);
 });
+
+test('T1b: a model change reports the provider cascade separately; the same fields moving on another change are collateral', async () => {
+  const before = { ...RECORD(), provider: 'RETELL', providerAgentId: 'agent_x', providerAgents: [] };
+  const flip = (n) => { n.provider = 'lc'; n.providerAgentId = 'lc_A'; n.providerAgents = [{ provider: 'RETELL' }, { provider: 'lc' }]; n.agentSettings.s2sBehaviour = { voiceId: 'marin' }; };
+  const r = await executeVoiceAiUpdate({ plan: compileVoiceAiPartialUpdate(before, { llmModel: 'gpt-realtime-2.1' }, { agentId: 'A', locationId: 'L' }), before, gw: fakeGw({ record: before, collateral: flip }), serverMessage });
+  assert.equal(r.ok, true, JSON.stringify(r));
+  assert.deepEqual(r.collateral.cascade.map((c) => c.key).sort(), ['agentSettings.s2sBehaviour', 'provider', 'providerAgentId', 'providerAgents']);
+  const r2 = await executeVoiceAiUpdate({ plan: compileVoiceAiPartialUpdate(before, { maxCallDuration: 600 }, { agentId: 'A', locationId: 'L' }), before, gw: fakeGw({ record: before, collateral: flip }), serverMessage });
+  assert.equal(r2.code, 'AGENT_COLLATERAL_CHANGED');
+});
