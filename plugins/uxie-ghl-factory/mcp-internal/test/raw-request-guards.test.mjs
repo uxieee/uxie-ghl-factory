@@ -58,6 +58,18 @@ test('permission/{workflowId} is refused with no `permission` key — a 0 is a k
   assert.equal(refuseRawRequest({ method: 'PUT', path: `/workflow/${L}/permissions`, body: {} }), null);
 });
 
+test('pipeline position is refused without an integer targetPosition — the UI\'s reorder body passes (control)', () => {
+  const path = '/opportunities/pipelines/P1/position';
+  for (const body of [undefined, null, {}, [], { prevPipelineId: 'a' }, { targetPosition: '2' }, { targetPosition: undefined }]) {
+    assert.equal(refuseRawRequest({ method: 'PATCH', path, body })?.rule, 'pipeline-position-needs-target', String(JSON.stringify(body)));
+  }
+  // CONTROL: the body the board's drag sends, measured 2026-09-25.
+  assert.equal(refuseRawRequest({ method: 'PATCH', path, body: { prevPipelineId: 'a', nextPipelineId: 'b', initialPosition: 3, targetPosition: 1 } }), null);
+  // Scoping: the same path with another method, and a stage-level path, are not this rule.
+  assert.equal(refuseRawRequest({ method: 'GET', path, body: undefined }), null);
+  assert.equal(refuseRawRequest({ method: 'PATCH', path: '/opportunities/pipelines/P1', body: {} }), null);
+});
+
 test('guards are method-scoped: a GET on the same path is never refused', () => {
   assert.equal(refuseRawRequest({ method: 'GET', path: `/workflow/${L}/${W}/start-workflow` }), null);
 });

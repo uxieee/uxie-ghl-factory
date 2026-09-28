@@ -4,7 +4,7 @@
 // silent damage, or answers 200 and does nothing. Anything merely dangerous stays behind the
 // confirm gate instead — a guard that second-guesses a deliberate call would just teach callers
 // to route around this tool. Every rule was measured live on the designated sandbox (bulk
-// change-status 2026-09-08, the rest 2026-09-19); the measurements are on the catalogue rows
+// change-status 2026-09-08, pipeline position 2026-09-25, the rest 2026-09-19); the measurements are on the catalogue rows
 // (describe_endpoint prints them).
 //
 // Pure on purpose: no gateway, no catalogue read. tools.mjs passes what it already holds.
@@ -68,6 +68,17 @@ const RULES = [
     message: 'PUT …/permission/{workflowId} with no `permission` key answers 200 with an empty body and changes NOTHING — the 200 carries no information.',
     hint: 'Pass body {permission:<number>}: 50 agency admin, 180 agency user, 280 account admin, 380 all, 404 none. Read the workflow row back to verify.',
   },
+  {
+    // Measured 2026-09-25 on the sandbox: `{}` answered 200, minted a new lexorank `position` and
+    // bumped dateUpdated. The board's drag always sends an integer targetPosition, so a body
+    // without one has no legitimate version.
+    rule: 'pipeline-position-needs-target',
+    method: 'PATCH',
+    path: /^\/opportunities\/pipelines\/[^/]+\/position$/,
+    refuses: (wire) => !(isPlainObject(wire) && Number.isInteger(wire.targetPosition)),
+    message: 'PATCH /opportunities/pipelines/{pipelineId}/position with no integer `targetPosition` is accepted (200) and MOVES the pipeline: an empty body minted a new board position. The endpoint validates nothing.',
+    hint: 'Send the board\'s reorder body {prevPipelineId, nextPipelineId, initialPosition, targetPosition}; positions are 1-based. Read the pipeline list back to verify the order.',
+  },
 ];
 
 /** The refusal for this call, or null. `method` upper-case; `body` already JSON-parsed. */
@@ -113,7 +124,7 @@ export function matchCatalogRow(pool, method, path) {
 // point that can catch it, because the damage is invisible afterwards through every read rail.
 //
 // Judges the PAYLOAD, not the workflow — a pure function of the bytes about to be sent, like the
-// five rules above. Unlike those five, this one has no confirm hatch: there is no legitimate reason
+// rules above. Unlike those, this one has no confirm hatch: there is no legitimate reason
 // to write the literal placeholder into a workflow, so it refuses, full stop.
 //
 // Finds every STRING value in `payload` that CARRIES the placeholder (a substring match on the
