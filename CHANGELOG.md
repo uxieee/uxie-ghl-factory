@@ -11,6 +11,17 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.1.1] — 2026-09-28
+
+**The 1.1.0 server bundle carried the build machine's folder paths in 311 comment lines; this build carries none.**
+
+- `dist/server.mjs` rebuilt from a normal checkout. 1.1.0 was built in a worktree whose `node_modules` was a symlink,
+  so the bundler wrote each dependency's resolved absolute path into its module comment. Behaviour is unchanged —
+  only comments differ. A new test fails any bundle holding an absolute path into `node_modules` or this repo.
+- `update_voiceai_agent`: switching `llmModel` to or from a speech-to-speech model changes the provider and its
+  settings on GHL's side; the tool now reports those as the model's own cascade (`data.collateral.cascade`), not as
+  unexpected changes. Any other field moving is still reported as collateral.
+
 ## [1.1.0] — 2026-09-28
 
 **Five new tools for pipelines, funnels and Voice AI, and fixes to the workflow engine and the Conversation AI
