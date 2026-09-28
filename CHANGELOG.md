@@ -11,6 +11,27 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.15.1] — 2026-09-29
+
+**Fix: 25 AI routes were catalogued on the wrong host. Plus the Conversation AI docs and corrected company step cards.**
+
+- **Fixed — wrong host for industry agents and agent-execution actions.** `search_endpoints` and `describe_endpoint`
+  listed all 25 routes under /industry-agents and /agent-execution on backend.leadconnectorhq.com. They live on
+  services.leadconnectorhq.com, where they were called live. They now carry that host.
+- Conversation AI skill:
+  - the appointment-booking action is saved and read back live, but has never run. The server accepts a draft calendar
+    that the builder refuses;
+  - rows for legacy v1, reporting an AI reply, Marketplace templates and brand voice records;
+  - reference rows for the contact-summary read, reset-memory, the location prompt and intents, the bare draft that
+    Launch Flow Builder creates, and the channels save rule.
+- Workflow step cards:
+  - the three company steps now list their real input fields. They were shown as having none;
+  - 🔴 `clear_associated_company_fields` FAILS on a contact with no company, while `update_associated_company` skips.
+    A failed step can email every admin, so guard it with an If/Else;
+  - delete-contact is marked proven live.
+
+Catalogue: +7 documented routes.
+
 ## [1.15.0] — 2026-09-29
 
 **New: `update_convai_agent` can change the prompt of an agent saved in the current Conversation AI builder.
