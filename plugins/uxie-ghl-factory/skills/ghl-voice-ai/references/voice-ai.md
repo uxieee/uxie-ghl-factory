@@ -24,27 +24,20 @@ unnamed agent** behind — clean up after failures. Evidence: `mcp-internal/READ
 `APPOINTMENT_BOOKING` `calendarId` repointing via `update-action`, `patch-agent` (`voiceId`,
 `sendPostCallNotificationTo`), and the voices catalog read.
 
-**THE ENGINE: still not exercised by any of that.** Every one of those calls went through the
-**public `voice-ai-v3` MCP**, *not* through this skill's `voiceai-compiler.mjs` → internal
-API path. So those results prove the **shapes are right**; they do **not** prove the compiler
-emits them correctly end-to-end. Do not cite a client account as evidence the engine works.
+**THE ENGINE: live-proven through the tools (2026-09-28, designated test sub-account).**
+- `create_voiceai_agent` built three test agents end to end: `POST /voice-ai/agents` → the full-replace PUT → actions.
+  One run attached `WORKFLOW_TRIGGER`, `SMS`, `DATA_EXTRACTION`, `APPOINTMENT_BOOKING` and `AGENT_TRANSFER_CHILD`, all
+  201 and all read back.
+- `update_voiceai_agent` changed every settings group live, each change verified with no collateral.
+- On a Test Audio web call, a `WORKFLOW_TRIGGER` tool fired and spoke its message, and the `end_call` tool ended the call.
 
-⚠️ **Unreconciled — agent create + full-replace update via the engine.** The project record
-says the engine's Voice AI agent create + full-replace update **was live-create-proven on
-GROM AU 2026-07-11** (engine → internal API → real object → verified
-→ **deleted**), alongside the other three compilers. But this doc has always said "NOT yet
-live-proven", and the identical boilerplate still sits in `agent-studio.md` — so the banner is
-*probably* stale, yet nothing survives to confirm it. **Checked and ruled out as evidence:**
-a client account (2026-07-17) — public MCP only, never touches the internal compiler; don't re-check
-it. The only things that would settle this are the deleted GROM-AU objects or a **fresh
-throwaway live-fire through the internal compiler**.
+GHL mints extra actions for two of the types: `APPOINTMENT_BOOKING` adds the children `GET_SLOTS` and `BOOK_SLOT`, and
+`AGENT_TRANSFER_CHILD` adds the root `AGENT_TRANSFER`. A create reports each action it sent. The minted ones show up
+only in the agent read.
 
-**Until then, take the conservative read**: treat a first agent create/full-replace build as a
-small, throwaway, verified, cleaned-up validation run, and say so plainly to the user rather
-than promising a proven path.
-
-Genuinely NOT live-fired: the `WORKFLOW_TRIGGER` / `SMS` / `CAP` / `AGENT_TRANSFER_CHILD`
-action types (unit-tested against their captures only), and `IN_CALL_DATA_EXTRACTION`.
+**Still not exercised:** `CAP`, `CALL_TRANSFER` (its target number must pass GHL's phone validation, and a fictional
+555 number answers 422), `IN_CALL_DATA_EXTRACTION`, and any action's effect on a real phone call (the sandbox has no
+number). A Test Audio call writes to the operator's own contact (SKILL.md trap 7).
 
 ## What Voice AI is
 
