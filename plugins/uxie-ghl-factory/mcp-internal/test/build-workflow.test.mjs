@@ -372,10 +372,15 @@ test('build_workflow maps a known dependency HTTP failure through fromHttp with 
 
 const triggerSpec = () => ({ ...tagSpec(), triggers: [{ ref: 't', type: 'contact_tag', name: 'Tagged', filters: [{ field: 'tagsAdded', value: 'existing-tag' }] }] });
 
-test('build_workflow reports trigger count-integrity and flips partial:true when a trigger POST failed', async () => {
+// 2026-09-28 (coordinator): a build whose trigger POST was refused is NOT ok. It used to answer ok:true + partial with a loud
+// warning; live, ivr_incoming_call was refused while the build reported success. It now answers VERIFY_FAILED, naming the
+// draft that exists, and still carries the same integrity report as data.
+test('build_workflow FAILS (VERIFY_FAILED) when a trigger POST failed, and still reports count-integrity + partial:true', async () => {
   const { gw } = buildGateway({ triggerPostFails: true });
   const result = await buildTool().handler({ locationId: 'LOC', spec: triggerSpec(), ignoreUnresolved: false }, deps(gw));
-  assert.equal(result.ok, true, 'the draft exists, so the call is ok — but it is PARTIAL');
+  assert.equal(result.ok, false, 'a workflow whose trigger was refused never fires — not a success');
+  assert.equal(result.code, 'VERIFY_FAILED');
+  assert.match(result.detail ?? result.message ?? '', /EXISTS as a draft/);
   assert.equal(result.data.partial, true);
   assert.deepEqual({
     authored: result.data.triggerIntegrity.authored, posted: result.data.triggerIntegrity.posted,

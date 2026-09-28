@@ -661,6 +661,24 @@ export function stepCountIntegrity({ authored, compiled, steps }) {
   };
 }
 
+// A build whose document landed but whose TRIGGERS did not is not a success: a workflow with a refused trigger never
+// fires, and one whose filters were not stored fires on everything of its type. build_workflow used to answer ok:true
+// with only a loud warning (live 2026-09-28: ivr_incoming_call refused with "missing trigger conditions", knowledge
+// sniffs/workflows-wave1-2026-09-25/live-3BR-t1-trigger-drafts.json). Only the DEFINITIVE signals fail the call — a refused
+// POST, or filters GHL did not store. A persisted-count difference alone can be list lag and stays a warning.
+export function triggerWriteFailure(report) {
+  const trg = report?.triggers ?? {};
+  const failed = trg.failed ?? [];
+  const unscoped = trg.payloadMismatches ?? [];
+  if (!failed.length && !unscoped.length) return null;
+  const parts = [];
+  if (failed.length) parts.push(`${failed.length} of ${trg.authored ?? '?'} trigger(s) were REFUSED by GHL: `
+    + failed.map((f) => `'${f.name ?? f.type}' (${f.type}) HTTP ${f.status ?? '?'}${f.error ? ` ${String(f.error).slice(0, 160)}` : ''}`).join('; '));
+  if (unscoped.length) parts.push(`${unscoped.length} trigger(s) were stored WITHOUT the filters that scope them, so they would fire on everything of their type: `
+    + unscoped.map((m) => `'${m.name ?? m.type}' missing [${(m.missing ?? []).join(', ')}]`).join('; '));
+  return `Workflow ${report?.wid ?? '(unknown id)'} EXISTS as a draft, but ${parts.join('. ')}.`;
+}
+
 function buildWorkflowData(report, locationId) {
   const { mismatch, warning: countWarning } = stepCountIntegrity(report);
   const trg = report.triggers ?? {};
@@ -5134,7 +5152,15 @@ export const TOOLS = [
         skipMergeTagCheck: args.skipMergeTagCheck === true,
       });
       const data = buildWorkflowData(report, args.locationId);
-      if (!report.aborted) return ok(data);
+      if (!report.aborted) {
+        const triggerFailure = triggerWriteFailure(report);
+        if (triggerFailure) {
+          return withFailureData(fail(CODES.VERIFY_FAILED, triggerFailure,
+            'Fix the named trigger(s) with edit_workflow (addTrigger / modifyTrigger), or delete the draft. data carries the full build report.'),
+            data?.data ?? data);
+        }
+        return ok(data);
+      }
 
       const unresolved = report.unresolved ?? [];
       const dependencyAbort = report.aborted.startsWith('Missing account dependencies:');
