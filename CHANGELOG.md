@@ -11,6 +11,25 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.15.3] — 2026-09-29
+
+**Docs: delete routes for AI agents, and type cards for every workflow AI step. Executed live on the test account.**
+
+- AI skills, each delete proven live:
+  - Agent Studio: the managed agent, folder, custom skill (its id key is `uuid`) and flow agent deletes.
+    🔴 Deleting a flow agent's Voice AI agent does NOT delete the flow agent.
+  - Voice AI: deleting a voice agent detaches its voice chat widget (`voiceAiAgent` reads null) and leaves the widget.
+  - Conversation AI: routing rows have no delete. Deleting the agent removes them.
+- Workflow step cards:
+  - new cards for AI extract data, AI analyze image and AI email parser;
+  - decision maker, translate, summarize and intent detection now carry live runs.
+    🔴 extract data's output merge tag is `.1.<fieldName>`, not `.1.output.<fieldName>`.
+  - Wait: the release after a time window opens takes anywhere from seconds to minutes. Two live runs disagreed.
+  - 🔴 clear associated company fields: the builder says the step is SKIPPED when no company is associated, but at
+    runtime it FAILS.
+
+Catalogue: +3 Agent Studio routes.
+
 ## [1.15.2] — 2026-09-29
 
 **Docs: the create-ghl-workflow skill warns about clearing company fields.**
