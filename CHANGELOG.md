@@ -11,6 +11,25 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.13.1] — 2026-09-29
+
+**Fix: `build_workflow` reported success when a trigger was refused, or stored without its filters. Plus the last
+funnels and AI-agent docs. Executed live on the test account.**
+
+- **Fixed — `build_workflow` returned ok with a trigger that did not work.** When GHL refused a trigger, the workflow
+  existed with no trigger. When a trigger was stored without its filters, it would fire on every event of its type. Both
+  now answer VERIFY_FAILED, naming the draft that exists and each trigger with GHL's status and error. A persisted-count
+  lag alone stays a warning.
+- Funnels skill: the Customer Access Center (My Orders / Logout live only in a store's nav menu). The page builder's
+  Ask AI: hidden on store-active documents; its tabs are labelled the reverse of what they do; every wizard field is an
+  AI call; a run turns the builder's autosave on. Content AI is a paid add-on.
+- Workflows skill: Workflow Maps and template listing settings are pointed to rather than authored.
+- Conversation AI skill: chat widgets. Save sends every setting at once, and is disabled with no error while agency
+  branding has no URL. 🔴 The all-in-one widget builder preselects the first active Voice AI agent, which may not be
+  yours.
+
+Catalogue: chat widget and page-builder AI routes added.
+
 ## [1.13.0] — 2026-09-29
 
 **Tool descriptions fit what a client shows (three had grown past 2048 characters, one to 5095); build_funnel_page
