@@ -16,6 +16,11 @@ import {
   ELEMENT_KINDS, buildPageData, autosaveEnvelope, auditPageData, makeLeaf, makeColumn,
   makeSection, textCss, buttonCss, leafStyleCss, nodeStylesFromCss, resetIds, val,
 } from './funnel-pages.mjs';
+import {
+  readFunnel, readLookups, stepView, lookupView, settingsFrom, settingsBody, settingsDiff, normPath,
+  planCreateStep, planUpdateStep, planReorder, planCloneStep, planDeleteStep, planPublishState, planAddHeader,
+  reread, SETTINGS_KEYS, CACHE_NOTE, EXACT_CASE_NOTE,
+} from './funnel-ops.mjs';
 import { collectWorkflowRuntimeWindow, validateRuntimeWindowInput } from './workflow-runtime-window.mjs';
 import {
   getAiConfigurationBundle,
@@ -10298,10 +10303,19 @@ export const TOOLS = [
       if (!saved.ok) return fromHttp(saved.status, saved.json);
 
       // Read back on a SEPARATE request. A 201 from autosave proves the request parsed, nothing more.
-      const readBack = await gw.call('GET', `/funnels/builder/page/data?pageId=${encodeURIComponent(args.pageId)}`);
-      const got = readBack.json?.sections ?? [];
+      // The page-data read LAGS the write: a reader seconds after a landed autosave was measured
+      // seeing `sections: 0`, and a re-read moments later showed the section. So re-read with backoff
+      // before calling anything missing — a landed write must never be reported as failed.
       const wantIds = pageData.sections.map((s) => s.id);
-      const storedIds = got.map((s) => s.id);
+      const settledRead = await reread(
+        async () => {
+          const r = await gw.call('GET', `/funnels/builder/page/data?pageId=${encodeURIComponent(args.pageId)}`);
+          return (r.json?.sections ?? []).map((s) => s.id);
+        },
+        (ids) => wantIds.every((id) => ids.includes(id)),
+        deps.rereadOptions ?? {},
+      );
+      const storedIds = settledRead.value ?? [];
       const missing = wantIds.filter((id) => !storedIds.includes(id));
 
       // THE PUBLISH STATE IS REPORTED ON EVERY RUN, published or not — because the trap here is
@@ -10428,7 +10442,7 @@ export const TOOLS = [
         pageId: args.pageId,
         autosave: saved.status,
         ...preview,
-        readBack: { sections: storedIds.length, missingSections: missing },
+        readBack: { sections: storedIds.length, missingSections: missing, attempts: settledRead.attempts },
         stored: missing.length === 0,
         publishState,
         ...(published ? { published } : {}),
@@ -10439,6 +10453,261 @@ export const TOOLS = [
           : {}),
       });
     }, args),
+  },
+  {
+    name: 'get_funnel',
+    description: `${describe('get_funnel', 'Read one GHL funnel or website document through a single flat view')}. `
+      + 'Views: summary (steps with their pages, split state and paths), lookups (every public path row '
+      + 'with its publishStatus / redirect action — the ROUTING truth; a step with no row 404s in public), '
+      + 'settings (the funnel-settings fields as update-settings names them), versions (one page: '
+      + 'live vs drafts, sorted by timestamp, not by array position), security (custom response headers), '
+      + 'events (Meta pixel / CAPI events, first 20), cookie-consent (funnel-level banner config). '
+      + 'Siblings: find_ghl_site resolves a domain/name to the document id first; audit_site sweeps a whole '
+      + 'site for dangling references and publish drift — this tool does not repeat that audit. '
+      + 'Read-only.',
+    inputSchema: schema({
+      locationId: z.string(),
+      funnelId: z.string(),
+      view: z.enum(['summary', 'lookups', 'settings', 'versions', 'security', 'events', 'cookie-consent']).default('summary'),
+      pageId: z.string().optional(),
+    }),
+    capabilities: [
+      { method: 'GET', path: '/funnels/funnel/fetch/{funnelId}' },
+      { method: 'GET', path: '/funnels/lookup/list' },
+      { method: 'GET', path: '/funnels/builder/get-versions' },
+      { method: 'GET', path: '/funnels/funnel/headers' },
+      { method: 'GET', path: '/funnels/event' },
+      { method: 'GET', path: '/funnels/funnel/cookie-consent' },
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+      const L = encodeURIComponent(args.locationId), F = encodeURIComponent(args.funnelId);
+      const view = args.view ?? 'summary';
+      if (view === 'versions') {
+        if (!args.pageId) return fail(CODES.VALIDATION_FAILED, 'view "versions" needs pageId', 'Pass the pageId (view "summary" lists each step\'s pages).');
+        const r = await gw.call('GET', `/funnels/builder/get-versions?pageId=${encodeURIComponent(args.pageId)}`);
+        if (!r.ok) return fromHttp(r.status, r.json);
+        const rows = (Array.isArray(r.json) ? r.json : []).map((v) => ({ versionId: v.version_id, pageType: v.pageType, updatedAt: v.updated_at?._seconds ?? null, updatedBy: v.updated_by ?? null }))
+          .sort((a, b) => (b.updatedAt ?? 0) - (a.updatedAt ?? 0));
+        return ok({ pageId: args.pageId, versions: rows, live: rows.find((v) => v.pageType === 'live')?.versionId ?? null,
+          note: 'The public URL serves the LIVE version; /preview/{pageId} serves the newest draft and /preview/{pageId}?version={versionId} pins one version. Restoring a version (builder) creates a NEW draft; the builder\'s Publish then mints a new live version and demotes the old one to draft.' });
+      }
+      if (view === 'security' || view === 'events' || view === 'cookie-consent') {
+        const path = view === 'security' ? `/funnels/funnel/headers?locationId=${L}&funnelId=${F}`
+          : view === 'events' ? `/funnels/event?funnelId=${F}&locationId=${L}&page=1&limit=20`
+            : `/funnels/funnel/cookie-consent?locationId=${L}&funnelId=${F}`;
+        const r = await gw.call('GET', path);
+        // A funnel with no banner saved answers 404 "Cookie consent data url not found!" — that is
+        // "not configured", not a failure (measured on a funnel that never enabled it).
+        if (view === 'cookie-consent' && r.status === 404 && /data url not found/i.test(JSON.stringify(r.json ?? ''))) {
+          return ok({ funnelId: args.funnelId, cookieConsent: null, configured: false });
+        }
+        if (!r.ok) return fromHttp(r.status, r.json);
+        const b = r.json ?? {};
+        if (view === 'security') return ok({ funnelId: args.funnelId, headers: b.securityHeaders ?? [], note: EXACT_CASE_NOTE });
+        if (view === 'events') return ok({ funnelId: args.funnelId, events: (b.events ?? []).map((e) => ({ id: e._id, provider: e.provider, level: e.level, pixelId: e.pixelId, events: e.events, conversionEnabled: e.conversionEnabled, pageIds: e.pageIds })), totalCount: b.totalCount ?? null, ...(b.totalCount > 20 ? { note: 'Only the first 20 are listed (the route caps limit at 20).' } : {}) });
+        const { traceId, ...consent } = b;
+        return ok({ funnelId: args.funnelId, cookieConsent: consent, configured: true, note: 'Cookie consent is FUNNEL-level (every page of the funnel), saved by the builder through POST /funnels/funnel/cookie-consent.' });
+      }
+      const { res, funnel } = await readFunnel(gw, args.locationId, args.funnelId);
+      if (!res.ok) return fromHttp(res.status, res.json);
+      if (view === 'settings') return ok({ funnelId: args.funnelId, settings: settingsFrom(funnel), securityHeaders: funnel.securityHeaders ?? [], cookieConsentUrl: funnel.cookieConsent ?? null });
+      if (view === 'lookups') {
+        const { res: lr, rows } = await readLookups(gw, args.locationId, args.funnelId);
+        if (!lr.ok) return fromHttp(lr.status, lr.json);
+        return ok({ funnelId: args.funnelId, lookups: rows.map(lookupView),
+          note: `A step or page with no row has no public URL. publishStatus null = never touched by publish/unpublish (serves live). publishStatus "unpublished" rows answer 404 (type not_found_page) or 301 (type redirect, action url). ${EXACT_CASE_NOTE}` });
+      }
+      return ok({ funnelId: args.funnelId, name: funnel.name, type: funnel.type, url: funnel.url, domainId: funnel.domainId ?? null,
+        steps: (funnel.steps ?? []).map(stepView) });
+    }, args),
+  },
+  {
+    name: 'edit_funnel',
+    description: `${describe('edit_funnel', 'Edit a GHL funnel or website document: settings, steps, publish state, headers')}. `
+      + 'One op per call; preview by default, confirm:true writes and reads back on a separate request. '
+      + 'Ops: settings (always sends the UI\'s FULL update-settings body from a fresh read, so only the '
+      + 'fields you name change; diffs the read-back), create-step (refused when the funnel has no domain — '
+      + 'such a step gets no lookup row and 404s), update-step (rename and/or move-path: one PUT moves the live '
+      + 'route; Cloudflare may serve the old path for minutes, so it never retries), reorder-steps (full permutation '
+      + 'only — the route replaces the steps array), clone-step, delete-step (target check: stepId AND its '
+      + 'current name), publish-page / unpublish-page (the builder\'s own route: PUT /funnels/lookup/multiple on '
+      + 'the step+page rows; unpublish answers 404 or 301 to a URL; no version is created — to publish CONTENT '
+      + 'use build_funnel_page publish:true), add-header (custom response header; applies to the EXACT-CASE '
+      + 'path only). Siblings: get_funnel reads, build_funnel_page writes page content, audit_site audits.',
+    inputSchema: schema({
+      locationId: z.string(),
+      funnelId: z.string(),
+      op: z.enum(['settings', 'create-step', 'update-step', 'reorder-steps', 'clone-step', 'delete-step', 'publish-page', 'unpublish-page', 'add-header']),
+      settings: z.record(z.any()).optional(),
+      step: z.object({ id: z.string().optional(), name: z.string(), url: z.string(), type: z.string().optional() }).optional(),
+      stepId: z.string().optional(),
+      name: z.string().optional(),
+      url: z.string().optional(),
+      expectName: z.string().optional(),
+      order: z.array(z.string()).optional(),
+      pageId: z.string().optional(),
+      redirect: z.object({ type: z.enum(['404', 'url']), url: z.string().optional() }).optional(),
+      header: z.object({ key: z.string(), value: z.string() }).optional(),
+      confirm: z.boolean().default(false),
+    }),
+    capabilities: [
+      { method: 'GET', path: '/funnels/funnel/fetch/{funnelId}' },
+      { method: 'GET', path: '/funnels/lookup/list' },
+      { method: 'GET', path: '/funnels/domain/' },
+      { method: 'GET', path: '/users/{userId}' },
+      { method: 'POST', path: '/funnels/funnel/update-settings' },
+      { method: 'POST', path: '/funnels/funnel/create-step' },
+      { method: 'PUT', path: '/funnels/funnel/step/{funnelId}' },
+      { method: 'PATCH', path: '/funnels/funnel/update/{funnelId}' },
+      { method: 'POST', path: '/funnels/funnel/clone-funnel-step/' },
+      { method: 'POST', path: '/funnels/funnel/delete-step' },
+      { method: 'PUT', path: '/funnels/lookup/multiple' },
+      { method: 'POST', path: '/funnels/funnel/headers' },
+    ],
+    handler: async (args, deps) => {
+      let tracked = null;
+      return guard(async () => {
+        tracked = trackWrites(deps.makeGw({ loc: args.locationId, state: deps.state }));
+        const gw = tracked.gw;
+        const { res, funnel } = await readFunnel(gw, args.locationId, args.funnelId);
+        if (!res.ok) return fromHttp(res.status, res.json);
+        const need = (k) => (args[k] === undefined ? `op ${args.op} needs ${k}` : null);
+        let plan, requested = null;
+        switch (args.op) {
+          case 'settings': {
+            const s = args.settings ?? {};
+            const unknown = Object.keys(s).filter((k) => !(k in SETTINGS_KEYS));
+            if (!Object.keys(s).length || unknown.length) {
+              return fail(CODES.VALIDATION_FAILED, unknown.length ? `unknown settings key(s): ${unknown.join(', ')}` : 'op settings needs a non-empty settings object',
+                `Settable keys: ${Object.keys(SETTINGS_KEYS).join(', ')}.`);
+            }
+            requested = s;
+            plan = { method: 'POST', path: '/funnels/funnel/update-settings', body: settingsBody(args.locationId, funnel, s) };
+            break;
+          }
+          case 'create-step': plan = need('step') ? { refuse: need('step') } : planCreateStep({ funnel, step: args.step }); break;
+          case 'update-step': {
+            if (need('stepId')) { plan = { refuse: need('stepId') }; break; }
+            let domainName;
+            if (args.url !== undefined && funnel.domainId) {
+              const d = await gw.call('GET', `/funnels/domain/?locationId=${encodeURIComponent(args.locationId)}`);
+              const list = d.json?.domains ?? d.json?.data ?? [];
+              domainName = (Array.isArray(list) ? list : []).find((x) => (x.id ?? x._id) === funnel.domainId)?.url;
+            }
+            plan = planUpdateStep({ funnel, stepId: args.stepId, name: args.name, url: args.url, domainName });
+            break;
+          }
+          case 'reorder-steps': plan = need('order') ? { refuse: need('order') } : planReorder({ funnel, order: args.order }); break;
+          case 'clone-step': plan = need('stepId') ? { refuse: need('stepId') } : planCloneStep({ funnel, stepId: args.stepId, locationId: args.locationId, userId: gw.uid }); break;
+          case 'delete-step': plan = need('stepId') ? { refuse: need('stepId') } : planDeleteStep({ funnel, stepId: args.stepId, expectName: args.expectName }); break;
+          case 'publish-page':
+          case 'unpublish-page': {
+            if (need('pageId')) { plan = { refuse: need('pageId') }; break; }
+            const { res: lr, rows } = await readLookups(gw, args.locationId, args.funnelId);
+            if (!lr.ok) return fromHttp(lr.status, lr.json);
+            let user = gw.uid ? { id: gw.uid } : null;
+            if (gw.uid) {
+              const u = await gw.call('GET', `/users/${encodeURIComponent(gw.uid)}`);
+              const n = [u.json?.firstName ?? u.json?.first_name, u.json?.lastName ?? u.json?.last_name].filter(Boolean).join(' ').trim();
+              if (n) user.name = n;
+            }
+            plan = planPublishState({ funnel, lookups: rows, pageId: args.pageId, publish: args.op === 'publish-page', redirect: args.redirect, user });
+            break;
+          }
+          case 'add-header': plan = need('header') ? { refuse: need('header') } : planAddHeader({ funnel, locationId: args.locationId, key: args.header.key, value: args.header.value }); break;
+          default: plan = { refuse: `unknown op ${args.op}` };
+        }
+        if (plan.refuse) return fail(CODES.VALIDATION_FAILED, plan.refuse, 'Nothing was sent. Read the funnel with get_funnel and adjust the arguments.');
+
+        const preview = { op: args.op, request: { method: plan.method, path: plan.path, body: plan.body },
+          ...(plan.target ? { target: plan.target } : {}), ...(plan.rows ? { lookupRows: plan.rows } : {}) };
+        if (args.confirm !== true) {
+          return withFailureData(fail(CODES.CONFIRM_REQUIRED, `edit_funnel ${args.op} preview is ready; no write was sent.`, args.op === 'create-step' && !args.step?.id ? 'Repeat with confirm:true (pass step.id from this preview to send the identical id).' : 'Repeat with confirm:true to send exactly this request.'), { preview });
+        }
+
+        const w = await gw.call(plan.method, plan.path, plan.body);
+        if (!w.ok) return fromHttp(w.status, w.json);
+
+        // ── read back on SEPARATE requests, per op ──
+        const fresh = async () => (await readFunnel(gw, args.locationId, args.funnelId)).funnel;
+        const fid = args.funnelId;
+        switch (args.op) {
+          case 'settings': {
+            const after = await fresh();
+            const diff = settingsDiff(requested, after);
+            const notApplied = diff.filter((d) => !d.applied);
+            const notes = [];
+            if ('funnelPath' in requested) notes.push(`funnelPath is the funnel ROOT lookup row: it moved in place and the old path now 404s. ${CACHE_NOTE}`);
+            if ('headTrackingCode' in requested || 'bodyTrackingCode' in requested) notes.push('Tracking code renders on every page of the funnel: head code in <head>, body code at the end of <body>.');
+            const out = { op: 'settings', status: w.status, readBack: diff, ...(notes.length ? { notes } : {}) };
+            if (notApplied.length) return withFailureData(fail(CODES.VERIFY_FAILED, `update-settings answered ${w.status} but ${notApplied.length} field(s) did not read back as requested`, 'Compare data.readBack; the server may normalise a value.'), out);
+            return ok(out);
+          }
+          case 'create-step': {
+            const got = await reread(async () => ({ f: await fresh(), l: (await readLookups(gw, args.locationId, fid)).rows }),
+              (x) => (x.f?.steps ?? []).some((s) => s.id === plan.stepId), deps.rereadOptions ?? {});
+            const s = (got.value.f?.steps ?? []).find((x) => x.id === plan.stepId);
+            const rows = got.value.l.filter((r) => r.typeId === plan.stepId || (s?.pages ?? []).includes(r.typeId)).map(lookupView);
+            const out = { op: 'create-step', stepId: plan.stepId, step: s ? stepView(s, 0) : null, lookups: rows };
+            if (!s) return withFailureData(fail(CODES.VERIFY_FAILED, 'create-step answered 2xx but the step did not read back', 'Re-read with get_funnel before retrying; do not create twice.'), out);
+            if (!rows.length) return withFailureData(fail(CODES.VERIFY_FAILED, 'the step exists but has NO lookup row, so it has no public URL', 'Move its path with update-step (url) to mint the row.'), out);
+            return ok(out);
+          }
+          case 'update-step': {
+            const after = await fresh();
+            const s = (after?.steps ?? []).find((x) => x.id === args.stepId);
+            const rows = (await readLookups(gw, args.locationId, fid)).rows.filter((r) => r.typeId === args.stepId).map(lookupView);
+            const nameOk = args.name === undefined || s?.name === args.name;
+            const urlOk = args.url === undefined || (normPath(s?.url) === normPath(args.url) && rows.some((r) => r.path === normPath(args.url)));
+            const out = { op: 'update-step', step: s ? stepView(s, 0) : null, lookups: rows, ...(args.url !== undefined ? { note: CACHE_NOTE } : {}) };
+            if (!nameOk || !urlOk) return withFailureData(fail(CODES.VERIFY_FAILED, 'the step did not read back as requested', 'Compare data.step / data.lookups. Do not retry blindly: the path move may be cached, not failed.'), out);
+            return ok(out);
+          }
+          case 'reorder-steps': {
+            const after = await fresh();
+            const order = [...(after?.steps ?? [])].sort((a, b) => (a.sequence ?? 0) - (b.sequence ?? 0)).map((s) => s.id);
+            const out = { op: 'reorder-steps', order };
+            if (JSON.stringify(order) !== JSON.stringify(args.order)) return withFailureData(fail(CODES.VERIFY_FAILED, 'the step order did not read back as requested', 'Compare data.order.'), out);
+            return ok(out);
+          }
+          case 'clone-step': {
+            const after = await fresh();
+            const before = new Set((funnel.steps ?? []).map((s) => s.id));
+            const added = (after?.steps ?? []).filter((s) => !before.has(s.id)).map(stepView);
+            const out = { op: 'clone-step', newSteps: added, note: 'The clone gets a new page and a SUFFIXED path (e.g. /path-468236); rename/move it with update-step.' };
+            if (added.length !== 1) return withFailureData(fail(CODES.VERIFY_FAILED, `expected exactly one new step, read back ${added.length}`, 'Re-read with get_funnel before retrying.'), out);
+            return ok(out);
+          }
+          case 'delete-step': {
+            const after = await fresh();
+            const still = (after?.steps ?? []).some((s) => s.id === args.stepId);
+            const rows = (await readLookups(gw, args.locationId, fid)).rows.filter((r) => r.typeId === args.stepId);
+            const out = { op: 'delete-step', deleted: plan.target, stepStillPresent: still, lookupRowsLeft: rows.length };
+            if (still || rows.length) return withFailureData(fail(CODES.VERIFY_FAILED, 'delete-step answered 2xx but the step or its lookup rows remain', 'Re-read with get_funnel.'), out);
+            return ok(out);
+          }
+          case 'publish-page':
+          case 'unpublish-page': {
+            const ids = new Set(plan.body.lookups.map((l) => l.lookupId));
+            const rows = (await readLookups(gw, args.locationId, fid)).rows.filter((r) => ids.has(r._id));
+            const want = new Map(plan.body.lookups.map((l) => [l.lookupId, l]));
+            const bad = rows.filter((r) => r.publishStatus !== want.get(r._id).publishStatus || r.type !== want.get(r._id).type);
+            const out = { op: args.op, lookups: rows.map(lookupView), note: CACHE_NOTE };
+            if (bad.length || rows.length !== ids.size) return withFailureData(fail(CODES.VERIFY_FAILED, 'the lookup rows did not read back in the requested publish state', 'Compare data.lookups.'), out);
+            return ok(out);
+          }
+          case 'add-header': {
+            const r = await gw.call('GET', `/funnels/funnel/headers?locationId=${encodeURIComponent(args.locationId)}&funnelId=${encodeURIComponent(fid)}`);
+            const headers = r.json?.securityHeaders ?? [];
+            const out = { op: 'add-header', headers, note: `${EXACT_CASE_NOTE} The builder does not invalidate the cache on this save; the header can take minutes to appear on the exact path.` };
+            if (!headers.some((h) => h.key === args.header.key && h.value === args.header.value)) return withFailureData(fail(CODES.VERIFY_FAILED, 'the header did not read back', 'Re-read with get_funnel view security.'), out);
+            return ok(out);
+          }
+          default: return ok({ op: args.op, status: w.status });
+        }
+      }, args, { sentWrite: () => tracked?.sent() ?? false });
+    },
   },
   {
     name: 'audit_site',
