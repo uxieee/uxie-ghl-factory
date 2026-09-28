@@ -11,6 +11,24 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.14.0] — 2026-09-29
+
+**New: create a workflow from an old version. Every marketplace step key now has a type card. Executed live on the
+test account.**
+
+- **New — `restore_workflow_version` `asNewWorkflowName`.** This matches "Create new workflow from this version" in the
+  version drawer. The version becomes a new DRAFT workflow and the source is only read.
+  - A name that a listed workflow already carries is refused before any write. The match ignores case and spacing.
+  - The version's triggers are recreated on the new workflow with new ids, inactive. An inbound-webhook trigger
+    therefore gets a new URL.
+  - The read-back checks the new draft's content, and checks that the source's version and publish status did not
+    change.
+  - In-place restore is unchanged.
+- **Type cards for every marketplace step key (+228).** `search_step_types` and `describe_step_type` now cover 524
+  documented step and trigger cards. `describe_step_type` and `describe_marketplace_action` say which one answers what.
+  The opportunity marketplace-step card carries the owner/follower proofs, including the trap where GHL silently
+  drops the owner from the followers.
+
 ## [1.13.1] — 2026-09-29
 
 **Fix: `build_workflow` reported success when a trigger was refused, or stored without its filters. Plus the last
