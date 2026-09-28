@@ -50,7 +50,7 @@ export function applyPageEdits(pageData, ops, { compileStyles = () => '' } = {})
         }
       }
       hit.node.updated = true;
-      report.push({ i, op: 'set', nodeId: o.nodeId, meta: hit.node.meta, changed });
+      report.push({ i, op: 'set', nodeId: o.nodeId, meta: hit.node.meta, changed, expect: { extra: o.extra ?? {}, styles: o.styles ?? {} } });
     } else if (o.op === 'append-section') {
       next.sections = [...(next.sections ?? []), { ...o.section, sequence: (next.sections ?? []).length }];
       report.push({ i, op: 'append-section', sectionId: o.section.id, nodes: (o.section.elements ?? []).length });
@@ -81,8 +81,15 @@ export function verifyEdits(stored, report) {
   for (const r of report) {
     if (r.error) continue;
     if (r.op === 'set') {
+      // Compare VALUES, not presence: a set that landed as the old value is the failure to catch.
       const hit = findNode(stored, r.nodeId);
-      out.push({ nodeId: r.nodeId, present: !!hit });
+      const wrong = [];
+      for (const key of ['extra', 'styles']) {
+        for (const [k, v] of Object.entries(r.expect?.[key] ?? {})) {
+          if (JSON.stringify(hit?.node?.[key]?.[k]) !== JSON.stringify(v)) wrong.push(`${key}.${k}`);
+        }
+      }
+      out.push({ nodeId: r.nodeId, present: !!hit, applied: !!hit && wrong.length === 0, ...(wrong.length ? { notApplied: wrong } : {}) });
     } else if (r.op === 'append-section') {
       out.push({ sectionId: r.sectionId, present: (stored.sections ?? []).some((s) => s.id === r.sectionId) });
     } else if (r.op === 'remove-node') {
@@ -91,3 +98,25 @@ export function verifyEdits(stored, report) {
   }
   return out;
 }
+
+// The target check an in-place edit needs: the page must belong to the named step of this funnel, and
+// the caller must name that step exactly. A wrong pageId would otherwise overwrite someone else's page
+// with a 201. Pages on a step are ids (or {id} objects on older documents).
+export function checkPageTarget(funnel, { stepId, pageId, stepName }) {
+  const steps = funnel?.steps ?? [];
+  const step = steps.find((s) => s.id === stepId);
+  if (!step) return { ok: false, reason: `no step ${stepId} in this funnel` };
+  if (step.name !== stepName) return { ok: false, reason: `step ${stepId} is named "${step.name}", not "${stepName}"` };
+  const pages = (step.pages ?? []).map((pg) => (typeof pg === 'string' ? pg : pg?.id ?? pg?._id));
+  if (!pages.includes(pageId)) return { ok: false, reason: `page ${pageId} is not a page of step "${step.name}" (its pages: ${pages.join(', ') || 'none'})` };
+  const owners = steps.filter((s) => (s.pages ?? []).some((pg) => (typeof pg === 'string' ? pg : pg?.id ?? pg?._id) === pageId));
+  if (owners.length !== 1) return { ok: false, reason: `page ${pageId} is claimed by ${owners.length} steps — ambiguous, refusing` };
+  return { ok: true, step: { id: step.id, name: step.name, url: step.url, type: step.type } };
+}
+
+// The page-data read carries a traceId and lacks the `id` the autosave body repeats; everything else is
+// written back as read, so an edit changes only what its ops name.
+export const pageDataForWrite = (read, pageId) => {
+  const { traceId, ...rest } = read ?? {};
+  return { ...rest, id: rest.id ?? pageId, pageId: rest.pageId ?? pageId };
+};

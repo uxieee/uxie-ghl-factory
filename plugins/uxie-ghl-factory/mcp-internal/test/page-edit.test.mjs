@@ -58,3 +58,21 @@ test('append-section then verifyEdits reads each op back from a stored copy', ()
   assert.deepEqual(verifyEdits(pageData, report), [{ sectionId: s.id, present: true }]);
   assert.deepEqual(verifyEdits(data, report), [{ sectionId: s.id, present: false }]);
 });
+
+test('verifyEdits reports a set that read back with the OLD value as not applied', () => {
+  const { h, data } = fixture();
+  const { report } = applyPageEdits(data, [{ op: 'set', nodeId: h.id, extra: { text: val('<h1>New</h1>') } }]);
+  assert.deepEqual(verifyEdits(data, report), [{ nodeId: h.id, present: true, applied: false, notApplied: ['extra.text'] }]);
+});
+
+test('checkPageTarget refuses a wrong step name, a foreign page and an ambiguous owner', async () => {
+  const { checkPageTarget } = await import('../core/page-edit.mjs');
+  const funnel = { steps: [{ id: 's1', name: 'Optin', pages: ['p1'] }, { id: 's2', name: 'Thanks', pages: [{ id: 'p2' }] }] };
+  assert.equal(checkPageTarget(funnel, { stepId: 's1', pageId: 'p1', stepName: 'Optin' }).ok, true);
+  assert.equal(checkPageTarget(funnel, { stepId: 's2', pageId: 'p2', stepName: 'Thanks' }).ok, true);
+  assert.match(checkPageTarget(funnel, { stepId: 's1', pageId: 'p1', stepName: 'optin' }).reason, /named "Optin"/);
+  assert.match(checkPageTarget(funnel, { stepId: 's1', pageId: 'p2', stepName: 'Optin' }).reason, /not a page of step/);
+  assert.match(checkPageTarget(funnel, { stepId: 'nope', pageId: 'p1', stepName: 'Optin' }).reason, /no step/);
+  const twice = { steps: [{ id: 's1', name: 'A', pages: ['p1'] }, { id: 's2', name: 'B', pages: ['p1'] }] };
+  assert.match(checkPageTarget(twice, { stepId: 's1', pageId: 'p1', stepName: 'A' }).reason, /ambiguous/);
+});

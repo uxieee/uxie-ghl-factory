@@ -21,6 +21,7 @@ import {
   planCreateStep, planUpdateStep, planReorder, planCloneStep, planDeleteStep, planPublishState, planAddHeader,
   reread, SETTINGS_KEYS, CACHE_NOTE, EXACT_CASE_NOTE,
 } from './funnel-ops.mjs';
+import { applyPageEdits, verifyEdits, checkPageTarget, pageDataForWrite } from './page-edit.mjs';
 import { collectWorkflowRuntimeWindow, validateRuntimeWindowInput } from './workflow-runtime-window.mjs';
 import {
   getAiConfigurationBundle,
@@ -1799,6 +1800,71 @@ const assertProjectLocation = async (api, projectId, locationId) => {
   }
   return { project, error: null };
 };
+
+// build_funnel_page EDIT MODE. Reads the page as stored, applies only the named ops (core/page-edit.mjs),
+// writes it back through the same autosave, and verifies each op by VALUE on a separate read. The target
+// check comes first: an in-place write to the wrong pageId answers 201 and silently replaces a page.
+async function editPage(args, deps, composeSection) {
+  if (!args.stepName) return fail(CODES.VALIDATION_FAILED, 'edit mode needs stepName', 'Pass the exact name of the step that owns pageId — it is the target check that stops a wrong pageId overwriting another page.');
+  const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+  const { res, funnel } = await readFunnel(gw, args.locationId, args.funnelId);
+  if (!res.ok) return fromHttp(res.status, res.json);
+  const target = checkPageTarget(funnel, { stepId: args.stepId, pageId: args.pageId, stepName: args.stepName });
+  if (!target.ok) return fail(CODES.VALIDATION_FAILED, `target check refused: ${target.reason}`, 'Read the funnel with get_funnel (view summary) and pass the stepId, its exact name and one of its pages.');
+
+  const pageUrl = `/funnels/builder/page/data?pageId=${encodeURIComponent(args.pageId)}`;
+  const read = await gw.call('GET', pageUrl);
+  if (!read.ok) return fromHttp(read.status, read.json);
+  const current = pageDataForWrite(read.json, args.pageId);
+  if (!Array.isArray(current.sections) || current.sections.length === 0) {
+    return fail(CODES.VALIDATION_FAILED, 'the page read back with no sections, so there is nothing to edit in place',
+      'The page-data read can lag a fresh write; re-run in a few seconds, or compose the page with `sections`.');
+  }
+
+  // Appended sections get a salt no earlier build used, so their ids cannot collide with the page's.
+  const salt = `E${Date.now().toString(36).toUpperCase()}`;
+  let ops;
+  try {
+    ops = args.edits.map((e, i) => {
+      if (e.op === 'append-section') {
+        if (!e.section) throw new Error(`edits[${i}]: append-section needs \`section\` (the same shape as sections[i])`);
+        return { op: 'append-section', section: composeSection(e.section, i, salt) };
+      }
+      if (!e.nodeId) throw new Error(`edits[${i}]: ${e.op} needs nodeId`);
+      return e;
+    });
+  } catch (e) {
+    return fail(CODES.VALIDATION_FAILED, e.message, e.remediation ?? 'Fix the op named in the message.');
+  }
+  const { pageData: edited, report, errors } = applyPageEdits(current, ops, { compileStyles: (id, _meta, styles) => leafStyleCss(id, styles) });
+  if (errors.length) return withFailureData(fail(CODES.VALIDATION_FAILED, `${errors.length} edit(s) could not be applied; nothing was written`, 'data.report names each refused op.'), { report });
+  // buildPageData() is what wraps new nodes with their canonical `element` copy; run the appended
+  // sections through it, and keep the stored sections exactly as read.
+  const pageData = { ...edited, sections: edited.sections.map((sec, i) => (report.some((r) => r.op === 'append-section' && r.sectionId === sec.id)
+    ? buildPageData({ pageId: args.pageId, stepId: args.stepId, funnelId: args.funnelId, locationId: args.locationId, sections: [sec] }).sections[0]
+    : sec)).map((sec, i) => ({ ...sec, sequence: i })) };
+  const problems = auditPageData(pageData);
+  const preview = { mode: 'edit', target: target.step, pageId: args.pageId, ops: report.map(({ expect, ...r }) => r), sectionsBefore: current.sections.length, sectionsAfter: pageData.sections.length,
+    ...(problems.length ? { preexistingProblems: problems } : {}),
+    note: 'Writes a DRAFT through autosave. Nothing outside the named ops changes. A PINNED (published) page does not show this until it is published again.' };
+  if (args.confirm !== true) {
+    return withFailureData(fail(CODES.CONFIRM_REQUIRED, 'Funnel page edit preview is ready; no write was sent.', 'Repeat with confirm:true to autosave the edited draft.'), { preview });
+  }
+
+  const saved = await gw.call('POST', `/funnels/builder/autosave/${encodeURIComponent(args.pageId)}`,
+    autosaveEnvelope({ funnelId: args.funnelId, pageData, pageVersion: args.pageVersion }));
+  if (!saved.ok) return fromHttp(saved.status, saved.json);
+  const settled = await reread(
+    async () => { const r = await gw.call('GET', pageUrl); return r.json ?? {}; },
+    (stored) => verifyEdits(stored, report).every((v) => v.applied ?? v.present ?? v.absent),
+    deps.rereadOptions ?? {},
+  );
+  const checks = verifyEdits(settled.value ?? {}, report);
+  const allApplied = checks.every((v) => v.applied ?? v.present ?? v.absent);
+  const out = { ...preview, autosave: saved.status, readBack: { checks, attempts: settled.attempts }, stored: allApplied };
+  if (!allApplied) return withFailureData(fail(CODES.VERIFY_FAILED, 'the autosave was accepted but at least one edit did not read back with its value', 'data.readBack.checks names each op; the page-data read can lag, so re-read before re-writing.'), out);
+  return ok(out);
+}
 
 // `get_workflow_digest`'s `include` vocabulary. ONE value, and it ADDS the untrimmed document
 // rather than filtering anything — kept as a named constant so the schema comment, the handler
@@ -10255,13 +10321,28 @@ export const TOOLS = [
       + 'page while autosave still answers 201), `col.extra.bgImage`, `general.general.fontsToLoad` '
       + 'and `colors`, and child[] holding node IDS that resolve. Verifies by reading the page back on '
       + 'a separate request; pass verifyUrl to also poll the public render for your own copy — one '
-      + 'request there is not a measurement, since the first can serve the previous compile.',
+      + 'request there is not a measurement, since the first can serve the previous compile. '
+      + 'EDIT MODE (pass `edits` + `stepName` instead of `sections`): changes an EXISTING page in place — '
+      + 'ops set (merge extra/styles into one node by id; styles are compiled into the public stylesheet '
+      + 'too), append-section (a section spec in the same shape as `sections[i]`), remove-node (a node and '
+      + 'its descendants, or a whole section). The target is checked first (pageId must be a page of stepId, '
+      + 'and stepName must match that step exactly; refused otherwise), everything the ops do not name is '
+      + 'written back as read, and each op is verified by VALUE on a separate read. Get node ids from the '
+      + 'page data (GET /funnels/builder/page/data?pageId=).',
     inputSchema: schema({
       locationId: z.string(),
       funnelId: z.string(),
       pageId: z.string(),
       stepId: z.string(),
-      sections: z.array(z.record(z.any())).min(1),
+      sections: z.array(z.record(z.any())).min(1).optional(),
+      edits: z.array(z.object({
+        op: z.enum(['set', 'append-section', 'remove-node']),
+        nodeId: z.string().optional(),
+        extra: z.record(z.any()).optional(),
+        styles: z.record(z.any()).optional(),
+        section: z.record(z.any()).optional(),
+      })).min(1).optional(),
+      stepName: z.string().optional(),
       pageStyles: z.string().optional(),
       fonts: z.array(z.string()).optional(),
       colors: z.array(z.record(z.any())).optional(),
@@ -10278,38 +10359,42 @@ export const TOOLS = [
     ],
     handler: async (args, deps) => guard(async () => {
       resetIds();
+      // One composer for both modes: a section spec → a section node tree with its compiled stylesheet.
+      const composeSection = (spec, si, saltBase = 'S') => {
+        const css = [];
+        const columns = (spec.columns ?? []).map((c, ci) => {
+          const leaves = (c.elements ?? []).map((e) => {
+            const leaf = makeLeaf({
+              meta: e.meta,
+              extra: { ...(e.html !== undefined ? { text: val(e.html) } : {}), ...(e.extra ?? {}) },
+              // A `css` block also yields the node styles it implies, so the builder canvas and the
+              // public render agree (bl-120); an authored `styles` key always wins.
+              styles: { ...(e.css ? nodeStylesFromCss(e.meta, e.css) : {}), ...(e.styles ?? {}) },
+              tag: e.tag ?? '',
+              salt: `${saltBase}${si}C${ci}`,
+            });
+            // An explicit `css` block wins — it can express breakpoints, descendant selectors and
+            // pseudo-states that a flat style map cannot. Otherwise the leaf's `styles` are
+            // COMPILED, so styling set through `styles` alone reaches the public renderer instead
+            // of living only on the builder canvas. See leafStyleCss for what that used to cost.
+            if (e.css) css.push(e.meta === 'button' ? buttonCss(leaf.id, e.css) : textCss(leaf.id, e.css));
+            else { const auto = leafStyleCss(leaf.id, e.styles); if (auto) css.push(auto); }
+            return leaf;
+          });
+          const widthPct = c.widthPct ?? Math.round(10000 / (spec.columns.length || 1)) / 100;
+          return { col: makeColumn({ children: leaves, widthPct, padX: c.padX ?? 20, salt: `${saltBase}${si}C${ci}` }), leaves, widthPct };
+        });
+        return makeSection({
+          columns, background: spec.background ?? 'transparent', padY: spec.padY ?? 60,
+          maxWidth: spec.maxWidth ?? 1100, elementCss: css.join(''),
+          pageId: args.pageId, funnelId: args.funnelId, locationId: args.locationId, salt: `${saltBase}${si}`,
+        });
+      };
+      if (args.edits) return editPage(args, deps, composeSection);
+      if (!args.sections) return fail(CODES.VALIDATION_FAILED, 'pass `sections` (compose a whole page) or `edits` + `stepName` (change an existing page in place)', 'See the tool description for both shapes.');
       let pageData;
       try {
-        const sections = args.sections.map((spec, si) => {
-          const css = [];
-          const columns = (spec.columns ?? []).map((c, ci) => {
-            const leaves = (c.elements ?? []).map((e) => {
-              const leaf = makeLeaf({
-                meta: e.meta,
-                extra: { ...(e.html !== undefined ? { text: val(e.html) } : {}), ...(e.extra ?? {}) },
-                // A `css` block also yields the node styles it implies, so the builder canvas and the
-                // public render agree (bl-120); an authored `styles` key always wins.
-                styles: { ...(e.css ? nodeStylesFromCss(e.meta, e.css) : {}), ...(e.styles ?? {}) },
-                tag: e.tag ?? '',
-                salt: `S${si}C${ci}`,
-              });
-              // An explicit `css` block wins — it can express breakpoints, descendant selectors and
-              // pseudo-states that a flat style map cannot. Otherwise the leaf's `styles` are
-              // COMPILED, so styling set through `styles` alone reaches the public renderer instead
-              // of living only on the builder canvas. See leafStyleCss for what that used to cost.
-              if (e.css) css.push(e.meta === 'button' ? buttonCss(leaf.id, e.css) : textCss(leaf.id, e.css));
-              else { const auto = leafStyleCss(leaf.id, e.styles); if (auto) css.push(auto); }
-              return leaf;
-            });
-            const widthPct = c.widthPct ?? Math.round(10000 / (spec.columns.length || 1)) / 100;
-            return { col: makeColumn({ children: leaves, widthPct, padX: c.padX ?? 20, salt: `S${si}C${ci}` }), leaves, widthPct };
-          });
-          return makeSection({
-            columns, background: spec.background ?? 'transparent', padY: spec.padY ?? 60,
-            maxWidth: spec.maxWidth ?? 1100, elementCss: css.join(''),
-            pageId: args.pageId, funnelId: args.funnelId, locationId: args.locationId, salt: `S${si}`,
-          });
-        });
+        const sections = args.sections.map((spec, si) => composeSection(spec, si));
         pageData = buildPageData({
           pageId: args.pageId, stepId: args.stepId, funnelId: args.funnelId, locationId: args.locationId,
           sections, pageStyles: args.pageStyles ?? '', fonts: args.fonts, colors: args.colors,

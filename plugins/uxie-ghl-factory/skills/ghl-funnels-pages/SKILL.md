@@ -63,6 +63,15 @@ routing rows: a step with no row 404s; `publishStatus` null = never touched = li
 `delete-step` (target check: id **and** current name) · `publish-page` / `unpublish-page` ·
 `add-header`.
 
+**`build_funnel_page` edit mode** — change an EXISTING page's content in place: pass `edits` and
+`stepName` instead of `sections`. Ops: `set` (merge `extra`/`styles` into one node by id — styles are
+compiled into the public stylesheet too), `append-section` (same shape as `sections[i]`), `remove-node`
+(a node with its descendants, or a whole section). The page must be a page of `stepId` and `stepName`
+must match that step exactly, or the call is refused — a wrong `pageId` would otherwise be overwritten
+with a 201. Everything the ops do not name is written back as read, and each op is verified by VALUE
+on a separate read. Node ids come from `GET /funnels/builder/page/data?pageId=`. Prefer this over
+recomposing a page: `sections` REPLACES the whole page.
+
 What the builder does that a 2xx will not tell you (all measured live):
 
 - 🔴 **The builder's Publish never calls `publish-version`.** It autosaves with `pageType:"live"` and
