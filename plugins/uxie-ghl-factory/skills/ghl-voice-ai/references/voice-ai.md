@@ -350,6 +350,22 @@ remains unverified — it needs a third-party OAuth-connect flow, explicitly out
 the capture's `_skipped` note — and passes through as accepted-but-unverified, same as any
 other unlisted `actionType`.
 
+## Speech-to-speech agents, languages, test time (live-proven 2026-09-28)
+
+- An s2s model (`llmModel: gpt-realtime-2.1` …) sets `provider: "lc"` and seeds `agentSettings.s2sBehaviour {voiceId:
+  "marin", llmModel, totalTokens}`. The header voice then reads `s2sBehaviour.voiceId`.
+- `s2sBehaviour {responseDepth, vadEagerness, languages}` **merges**, but `languages` **replaces** the list and is
+  stored as base codes (`en-US` → `en`). GHL accepts any string for `responseDepth` (`minimal · low · medium · high ·
+  xhigh`) and `vadEagerness` (`auto · low · medium · high`); `update_voiceai_agent` refuses the others.
+- An s2s builder has no Transcription / Voice Settings / System Prompts sections. Agent Behavior is "Thinking Mode /
+  Eagerness", and the header adds "Validate prompt".
+- The agent `language` uses the builder's codes: Spanish, Italian and French are the bare `es` / `it` / `fr`
+  (`es-ES` → 422 "Language must be a valid language type"); others are region codes.
+- Translation checks are editor-only: GHL stores `translation.enabled` on an English agent and an unknown target.
+- The welcome message is ≤ 190 characters and `welcomeMessageMode` is `ai_custom | user_first` (both **server**). The
+  agent prompt's word limit is editor-only: a ~2,500-word prompt was stored.
+- Test Audio time is **1200 s per agent per day** (`trial-usage?agentId=`).
+
 ## Duplicate, folders, delete, test calls (live-proven 2026-09-28)
 
 - **Duplicate:** `POST /voice-ai/agents/{id}/duplicate {locationId}` → `"<name> - Copy"`, with `originId` /
