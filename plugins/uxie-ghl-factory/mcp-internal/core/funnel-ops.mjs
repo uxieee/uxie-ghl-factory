@@ -196,6 +196,90 @@ export function planAddHeader({ funnel, locationId, key, value }) {
   return { method: 'POST', path: '/funnels/funnel/headers', body: { locationId, funnelId: funnel._id ?? funnel.id, key, value: String(value ?? '') } };
 }
 
+// Delete a whole funnel/website document. Measured (sniffs/funnels-wave10-e-plan-2026-09-28
+// live-object.funnel-delete.json): POST /funnels/funnel/delete {funnelId, locationId, userId} → 201
+// {domains, paths} naming every path it freed; fetch then 400s "Funnel does not exist or is deleted".
+// GHL itself deletes a funnel with LIVE steps without a word, and the edge keeps serving the dead page
+// ~70 s. So this refuses while any step/page row still serves: unpublish those pages first.
+export const SERVING = (r) => (r.type === 'step' || r.type === 'page') && r.publishStatus !== 'unpublished';
+
+export function planDeleteFunnel({ funnel, lookups, expectName, locationId, userId }) {
+  const fid = funnel._id ?? funnel.id;
+  if (typeof expectName !== 'string' || funnel.name !== expectName) {
+    return { refuse: `target check failed: funnel ${fid} is named ${JSON.stringify(funnel.name)}, not ${JSON.stringify(expectName)}. Nothing was deleted.` };
+  }
+  if (!userId) return { refuse: 'this credential carries no user id, and the delete route requires one' };
+  const live = lookups.filter(SERVING);
+  if (live.length) {
+    return { refuse: `${live.length} public path(s) still serve on this document: ${live.map((r) => `${r.domain ?? ''}${r.path}`).join(', ')}. Unpublish each page first (edit_funnel unpublish-page), then delete. Nothing was deleted.` };
+  }
+  return {
+    method: 'POST', path: '/funnels/funnel/delete', body: { funnelId: fid, locationId, userId },
+    target: { id: fid, name: funnel.name, type: funnel.type, steps: (funnel.steps ?? []).length, lookupRows: lookups.length },
+  };
+}
+
+// Split tests — the step overview's own calls (sniffs/funnels-wave1-2026-09-26 ui-cap-split.json,
+// funnels-wave10-e-plan-2026-09-28 live-object.split-test-lifecycle.json):
+//   add-variation   POST /funnels/funnel/clone-control-page/ {locationId, stepName, pageId, domainName}
+//                   → PUT /funnels/funnel/step/{funnelId} {stepId, pages:[control, variation]}
+//                   → POST /funnels/lookup/create {type:"page", typeId, path, funnelId, locationId, domain}
+//   start           PUT /funnels/funnel/step/{funnelId} {stepId, split:true, control_traffic, split_started_at,
+//                   split_ended_at:null, route_all_requests:true, additional_routes:[]}
+//   declare-winner  POST /funnels/funnel/update-funnel-and-page {funnelId, locationId, archivePageId, stepId,
+//                   funnelStepDetails:{stepId, pages:[winner], split:false, control_traffic:100,
+//                   additional_routes:[], route_all_requests:false, split_ended_at}}
+// The UI mints the variation's path from the step NAME (/w1r-optin for "W1R Optin"), which can collide
+// with a real step; here the caller names it and it is pre-checked. Timestamps are the UI's display string.
+export const splitStamp = (d = new Date()) => {
+  const off = -d.getTimezoneOffset(); const sign = off >= 0 ? '+' : '-'; const a = Math.abs(off);
+  const hh = d.getHours() % 12 || 12; const mm = String(d.getMinutes()).padStart(2, '0'); const ss = String(d.getSeconds()).padStart(2, '0');
+  const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  return `${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()} at ${hh}:${mm}:${ss} ${d.getHours() < 12 ? 'AM' : 'PM'} UTC${sign}${String(Math.floor(a / 60)).padStart(2, '0')}:${String(a % 60).padStart(2, '0')}`;
+};
+
+export function planSplit({ funnel, stepId, action, controlTraffic, winnerPageId, variationPath, domainName, locationId, now }) {
+  const fid = funnel._id ?? funnel.id;
+  const step = (funnel.steps ?? []).find((s) => s.id === stepId);
+  if (!step) return { refuse: `step ${stepId} is not on this funnel` };
+  const pages = step.pages ?? [];
+  const put = (body) => ({ method: 'PUT', path: `/funnels/funnel/step/${enc(fid)}`, body: { stepId, ...body } });
+  switch (action) {
+    case 'add-variation': {
+      if (pages.length !== 1) return { refuse: `step has ${pages.length} pages; a variation can only be added to a step with exactly one (the control)` };
+      if (!domainName) return { refuse: 'the funnel has no domain, so the variation would get no public path. Attach a domain first.' };
+      if (typeof variationPath !== 'string' || !variationPath.trim()) return { refuse: 'add-variation needs variationPath: the public path for the variation page (the UI would mint one from the step name, which can collide)' };
+      return {
+        steps: [
+          { method: 'POST', path: '/funnels/funnel/clone-control-page/', body: { locationId, stepName: step.name, pageId: pages[0], domainName } },
+          put({ pages: [pages[0], '<variation pageId from clone-control-page>'] }),
+          { method: 'POST', path: '/funnels/lookup/create', body: { type: 'page', typeId: '<variation pageId>', path: normPath(variationPath.trim()), funnelId: fid, locationId, domain: domainName } },
+        ],
+        exists: { domain: domainName, path: normPath(variationPath.trim()), locationId },
+        step: stepView(step, 0),
+      };
+    }
+    case 'start': {
+      if (pages.length !== 2) return { refuse: `step has ${pages.length} page(s); start needs a control and one variation (add-variation first)` };
+      const ct = controlTraffic ?? 50;
+      if (!Number.isInteger(ct) || ct < 0 || ct > 100) return { refuse: 'controlTraffic is an integer 0..100 (the share the control gets)' };
+      return { ...put({ split: true, control_traffic: ct, split_started_at: splitStamp(now), split_ended_at: null, route_all_requests: true, additional_routes: [] }), step: stepView(step, 0) };
+    }
+    case 'declare-winner': {
+      if (pages.length !== 2) return { refuse: `step has ${pages.length} page(s); there is no variation to decide` };
+      if (!pages.includes(winnerPageId)) return { refuse: `winnerPageId must be one of this step's pages: ${pages.join(', ')}` };
+      const loser = pages.find((p) => p !== winnerPageId);
+      return {
+        method: 'POST', path: '/funnels/funnel/update-funnel-and-page',
+        body: { funnelId: fid, locationId, archivePageId: loser, stepId,
+          funnelStepDetails: { stepId, pages: [winnerPageId], split: false, control_traffic: 100, additional_routes: [], route_all_requests: false, split_ended_at: splitStamp(now) } },
+        target: { winner: winnerPageId, archived: loser, step: stepView(step, 0) },
+      };
+    }
+    default: return { refuse: 'split-test action is add-variation | start | declare-winner' };
+  }
+}
+
 // ── bounded re-read: a write that landed is never reported as failed because one read lagged ──
 export async function reread(readFn, okFn, { tries = 5, delays = [0, 500, 1000, 2000, 3000], sleep = (ms) => new Promise((r) => setTimeout(r, ms)) } = {}) {
   let last;

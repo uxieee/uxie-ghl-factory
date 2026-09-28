@@ -1,7 +1,6 @@
 {
   "tool": "find_ghl_site",
   "surfaces": [
-    "ai-studio",
     "funnels"
   ],
   "runs": [
@@ -34,29 +33,39 @@
         "commit:6848ee55"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-28",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:3a134219"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
     "hashedAt": "2026-09-28",
     "endpoints": {
+      "GET https://backend.leadconnectorhq.com /funnels/domain": "c5b3c268c5e5f235ed1b1a8c81b05a9fcbcff4f25c53173a9643b08828993523",
       "GET https://backend.leadconnectorhq.com /funnels/funnel/list": "a46307268f695398a8ae97eecb8b1e2c3174eef69d6fc11550b0857d5b6de8fb",
-      "GET https://backend.leadconnectorhq.com /vibe-ai/projects": "64930196efabf3eb74b15a7c1a98d46d808c829bdd4fcc94aaa118471e12e20f"
+      "GET https://backend.leadconnectorhq.com /funnels/lookup/redirect/list": "8a7e211086f18ed1980b65f664174dcaf3d9f27ee89f9e9ff3652566681f60d4",
+      "GET https://backend.leadconnectorhq.com /vibe-ai/projects": "64930196efabf3eb74b15a7c1a98d46d808c829bdd4fcc94aaa118471e12e20f",
+      "POST https://backend.leadconnectorhq.com /stats/url-redirect": "b0f18e8fca85f7b1d8984c9b76996125d74dad7f32c4507157113ecd2c2842fd"
     },
     "builds": {
-      "brandBoardsApp": 39,
       "domainConnectApp": 228,
-      "domainResellingApp": 229,
       "funnelWebsiteApp": 230,
       "funnelWebsiteDomainApp": 222,
-      "redirectApp": 222,
-      "vibeEditorApp": 350
+      "redirectApp": 222
     },
     "code": {
-      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#find_ghl_site": "88c3d01a5e197d7dd60d07e8e9e6a88d609419fbb665b4b639ed1f99b1ad2cdb",
+      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#find_ghl_site": "d4b8ba9dc5cb3bae868c85c058d426094767096f62af659f4700846e50b87e73",
       "plugins/uxie-ghl-factory/mcp-internal/core/ai-studio.mjs": "70fe5c44b7821485a92036b762653ccbc5cbc0a5acbd782b4ed59357c24fec95",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "e65c2384aefb498ce49453dd2d6d8d1a1d8351fd6d337aef5256eb982e1db02f",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
-      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "a223838eb7dbacd4b07e852c05c2728539093efea90eda104565aba5386074e4",
+      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "7341e8291a1fda0437a7b465f0ecfb98121a7d9f46ee10a7cfc3f942979d5aab",
+      "plugins/uxie-ghl-factory/mcp-internal/core/funnel-create.mjs": "377e6100e6a2c250d849a685497199e2b194905a7c7da7d333e45297207be027",
       "plugins/uxie-ghl-factory/mcp-internal/core/location-binding.mjs": "709622e649fdb45c200814cc176db342bb52ee63ac40693b4ac7feda0e79488c",
       "plugins/uxie-ghl-factory/mcp-internal/core/redirects.mjs": "ce92df0b6b163024455c4b4e6f65bec980d55c7d852decce30f5577163f68d61"
     }

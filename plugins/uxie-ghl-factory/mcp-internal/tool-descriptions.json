@@ -2220,5 +2220,31 @@
       "funnels--redirect-list",
       "funnels--lookup-exists"
     ]
+  },
+  "create_funnel": {
+    "description": "Create a funnel, website, store, webinar or blog document on a location — proof: live-runtime (2026-09-28); risk: write",
+    "risk": "write",
+    "proof": "live-runtime (2026-09-28)",
+    "proofFloor": "external-receipt-required",
+    "proofRows": [
+      "funnels--funnel-create",
+      "template-library-service--load-workflow-via-template-id",
+      "funnels--blog-list"
+    ],
+    "proofFloorRows": [
+      "funnels--funnel-create",
+      "template-library-service--load-workflow-via-template-id",
+      "funnels--blog-list"
+    ],
+    "riskRows": [
+      "funnels--funnel-create",
+      "template-library-service--load-workflow-via-template-id",
+      "funnels--blog-list"
+    ],
+    "rows": [
+      "funnels--funnel-create",
+      "template-library-service--load-workflow-via-template-id",
+      "funnels--blog-list"
+    ]
   }
 }

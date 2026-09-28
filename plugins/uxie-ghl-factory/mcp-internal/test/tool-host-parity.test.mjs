@@ -115,8 +115,15 @@ test('every known host disagreement still carries a reason (the ledger cannot ro
 // this one sat just over the cap. SETTLED 2026-09-23 by one live GET per host: BOTH answer 200 with
 // the same array (knowledge sniffs/reads-2026-09-23/), so the tool (services, AI rail) and the
 // catalogue (backend) are both right, and this exception is permanent, not pending.
+// create_funnel: the Sites screens call these two on services (the catalogue's origin, from the UI
+// capture); the tool calls backend. Measured 2026-09-28 (knowledge sniffs/funnels-wave10-e-plan-2026-09-28):
+// the blog list answered 200 with the same row on BOTH hosts, and backend template loads answered 201 and
+// installed the blank store and webinar (read back by fetch). The write was not repeated on services
+// just to compare. Both right; permanent.
 const NAMED_TOOL_PATH_EXCEPTIONS = new Set([
   'list_marketplace_apps GET /marketplace/core/search/module',
+  'create_funnel GET /funnels/funnel/blog/list',
+  'create_funnel POST /templates/template/load',
 ]);
 
 test('every tool capability the catalogue knows agrees with the catalogue on ORIGIN', () => {

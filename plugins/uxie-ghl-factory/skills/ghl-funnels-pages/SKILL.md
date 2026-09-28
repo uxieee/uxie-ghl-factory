@@ -42,7 +42,7 @@ funnel ──has many──▶ step ──has many──▶ page (control + spli
 
 | # | step | how |
 |---|---|---|
-| 1 | create the funnel | **no tool** — `POST /funnels/funnel/create` via `raw_request` (recipe 1) |
+| 1 | create the funnel | **`create_funnel`** — `kind` funnel / website / store / webinar / blog; refuses a name already on the location; store and webinar are GHL's blank-template installs (the UI's own blank path) |
 | 2 | attach the domain **before creating steps** | **no tool** — recipe 11. Rows are stamped from the funnel path as it stands when minted, so steps created first get flat paths. 🔴 Run **`audit_site`** first: a path is held per DOMAIN across every document on the location, the attach renames a collision silently and arbitrarily, and routing never follows a later step rename |
 | 3 | create each step (mints its page) | **`edit_funnel` op `create-step`** — refuses on a funnel with no domain (such a step gets no lookup row and 404s); preview returns the `step.id`, pass it back on confirm |
 | 4 | author + publish the page | **`build_funnel_page`** — composes, validates, writes, reads back, and publishes when you pass `publish:true` |
@@ -50,7 +50,7 @@ funnel ──has many──▶ step ──has many──▶ page (control + spli
 | 6 | verify | fetch the URL a visitor would, and read the publish state |
 | 7 | audit before handing over | **`audit_site`** — read-only |
 
-Steps 1 and 2 are still `raw_request` against a recipe; the rest have typed tools.
+Step 2 is still a recipe; the rest have typed tools. 🔴 A store from `create_funnel` embeds a form from GHL's template account on its Contact Us page — it does not exist on the location; rebind it (measured: that id 401s while the location's own forms read).
 
 ## Reading and editing a funnel after it exists
 
@@ -61,7 +61,15 @@ routing rows: a step with no row 404s; `publishStatus` null = never touched = li
 **`edit_funnel`** — one `op` per call, preview first, `confirm:true` writes and reads back:
 `settings` · `create-step` · `update-step` (rename / move path) · `reorder-steps` · `clone-step` ·
 `delete-step` (target check: id **and** current name) · `publish-page` / `unpublish-page` ·
-`add-header`.
+`add-header` · `split-test` (`add-variation` on a path you name and it pre-checks → `start`
+`{controlTraffic}` → `declare-winner` `{winnerPageId}`, which archives the other page) ·
+`delete-funnel` (target check: id **and** `expectName`; refused while any page still serves in public —
+unpublish first; the edge keeps serving a deleted page ~70 s). `update-step` also renames the step's
+page record, as the UI does, so the builder's page title never drifts from the step.
+
+**`find_ghl_site`** `list:true` — every funnel, website, store, webinar and blog on the location, walked
+to the list's `count` (the list honours `limit` exactly, so a single page silently drops the rest),
+filtered by `type` (store = a website with `isStoreActive`) and a name `search`.
 
 **`build_funnel_page` edit mode** — change an EXISTING page's content in place: pass `edits` and
 `stepName` instead of `sections`. Ops: `set` (merge `extra`/`styles` into one node by id — styles are
@@ -84,6 +92,17 @@ update (target only; the source is locked) / delete, preview first, id AND path 
 the storefront/blog prefixes (`/b/ /c/ /product/ /collections/ /post/ /category/ /author/ /tag/`): GHL
 stores those and serves 404 on the exact path. A redirect forwards the request's query string to the
 target. Read them with **`find_ghl_site`** `includeRedirects:true` (domains, every redirect, 30-day clicks).
+
+### Not offered by a tool — tell the user GHL does it, and where
+
+| capability | where in GHL | why no tool |
+|---|---|---|
+| funnel folders (create, rename, move a funnel into one) | Sites → Funnels → Create folder / row Actions → Move to folder | organisational only; `find_ghl_site list:true` shows each document's `folderId` |
+| a bare extra page on a step | — | `POST /funnels/page/create-page` makes an ORPHAN page on no step (measured); `create-step` makes a step with its page, `split-test add-variation` adds a second |
+| the builder's autosave on/off switch | page builder toolbar | a browser-local preference (`localStorage`); every tool write is already one explicit autosave |
+| Build with AI (funnels list) | Sites → Funnels → Build with AI | the AI builder; 🔴 it creates a funnel and a step the moment it is clicked. Use `create_funnel` + `build_funnel_page` |
+| schema markup (JSON-LD) | page builder → SEO panel → Schema markup → Add schema (form view, or AI) | its own object (`/schema-markup/schemas/save`, `ownerType:"funnel_page"`), rendered in `<head>` |
+| visitor geo-location | nothing to set | a runtime lookup (`GET /funnels/funnel/geo-location/` → the visitor's country) the builder uses to format prices |
 
 What the builder does that a 2xx will not tell you (all measured live):
 
@@ -168,8 +187,8 @@ routing and headers on the exact path, after the cache window.
 **IN:** funnel / step / page creation, native-element authoring (all 57 leaf kinds build from
 scratch), art direction, custom HTML, tracking code, page `meta`, public-path and domain routing,
 calendar and product bindings, chat widget, split tests, publishing, site audit. Store pages need a
-step of `type:"store"`; blog pages need a `blog-post` step in a `type:"blog"` funnel, which comes
-from a `blogs` template load.
+step of `type:"store"`; blog pages need a `blog-post` step in a `type:"blog"` funnel, which
+`create_funnel` `kind:"blog"` makes (with a Blog Home step).
 
 **OUT:** pipelines (public API — use the ghl MCP server), workflow wiring (use
 `create-ghl-workflow`), form and calendar *authoring* (use `ghl-forms`; this skill only binds and
