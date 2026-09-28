@@ -2082,5 +2082,43 @@
       "pipelines-opportunities--opportunities-get",
       "pipelines-opportunities--opportunities-pipelines-put-put"
     ]
+  },
+  "get_pipeline_forecast": {
+    "description": "Read the opportunity forecast — proof: external-receipt-required; risk: read",
+    "risk": "read",
+    "proof": "external-receipt-required",
+    "proofFloor": "external-receipt-required",
+    "proofRows": [
+      "pipelines-opportunities--forecast-summary",
+      "pipelines-opportunities--forecast-column",
+      "pipelines-opportunities--forecast-drilldown",
+      "pipelines-opportunities--forecast-slippage",
+      "pipelines-opportunities--opportunities-pipelines",
+      "typed--list_account_entities--users"
+    ],
+    "proofFloorRows": [
+      "pipelines-opportunities--forecast-summary",
+      "pipelines-opportunities--forecast-column",
+      "pipelines-opportunities--forecast-drilldown",
+      "pipelines-opportunities--forecast-slippage",
+      "pipelines-opportunities--opportunities-pipelines",
+      "typed--list_account_entities--users"
+    ],
+    "riskRows": [
+      "pipelines-opportunities--forecast-summary",
+      "pipelines-opportunities--forecast-column",
+      "pipelines-opportunities--forecast-drilldown",
+      "pipelines-opportunities--forecast-slippage",
+      "pipelines-opportunities--opportunities-pipelines",
+      "typed--list_account_entities--users"
+    ],
+    "rows": [
+      "pipelines-opportunities--forecast-summary",
+      "pipelines-opportunities--forecast-column",
+      "pipelines-opportunities--forecast-drilldown",
+      "pipelines-opportunities--forecast-slippage",
+      "pipelines-opportunities--opportunities-pipelines",
+      "typed--list_account_entities--users"
+    ]
   }
 }

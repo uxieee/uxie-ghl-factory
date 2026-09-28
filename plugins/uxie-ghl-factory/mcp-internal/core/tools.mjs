@@ -72,6 +72,7 @@ import {
   leaves as filterLeaves,
 } from './smart-lists.mjs';
 import { planPipelineEdit, verifyPipeline, COLOR_RENDER_MODES } from './pipelines.mjs';
+import { FORECAST_VIEWS, GROUP_BY, PATHS as FORECAST_PATHS, forecastBody, nameMaps, shapeForecast } from './forecast.mjs';
 import { CONFLICT_KEYS, PUSH_CATEGORIES, buildPushBody, checkSelection, diffStored, manifestIndex, nonEmptyCategories, resolveCompanyId } from './snapshots.mjs';
 import {
   digestSpans as digestAgentSpans,
@@ -9723,6 +9724,71 @@ export const TOOLS = [
           'The write was sent; inspect data.stages for what GHL stored.'), result);
       }
       return ok(result);
+    }, args),
+  },
+  // PIPELINE FORECAST (coordinator decision P3). Four report endpoints behind one flat `view` enum;
+  // each is a POST that answers 201 with computed rows and no id. Stage and owner rows come back
+  // labelled with their UUIDs, so the pipeline and user lists are read and the names joined in.
+  {
+    name: 'get_pipeline_forecast',
+    description: `${describe('get_pipeline_forecast', 'Read the opportunity forecast — risk: read')}. `
+      + 'The app\'s Forecast tab: expected, weighted and won revenue grouped by stage, owner, status or close date '
+      + '(view:"summary"); one period\'s deals and metrics (view:"timeline", periodType week|month|quarter with '
+      + 'startDate/endDate); the deals behind a period\'s weighted or unweighted number (view:"drilldown"); and '
+      + 'deals whose close date keeps slipping, by risk band (view:"slippage"). Rows carry pipeline, stage and '
+      + 'owner NAMES; GHL itself labels stage and owner rows with UUIDs. Weighting follows the pipeline\'s '
+      + 'useOpportunityProbability switch. Slippage bands: the server default is "1+ times AND 7+ days" for medium, '
+      + 'the app sends OR; read the returned rule strings. raw:true adds the service\'s untouched answer. No public '
+      + 'API equivalent. Stores nothing. To change pipelines use edit_pipeline; to list them, list_account_entities.',
+    inputSchema: schema({
+      locationId: z.string(),
+      view: z.enum(FORECAST_VIEWS),
+      pipelineId: z.string().optional(),
+      groupBy: z.enum(GROUP_BY).optional(),
+      closeDateBucket: z.enum(['month', 'quarter']).optional(),
+      closeDateMode: z.enum(['all_available', 'windowed']).optional(),
+      periodType: z.enum(['week', 'month', 'quarter']).optional(),
+      startDate: z.string().optional(),
+      endDate: z.string().optional(),
+      showBy: z.enum(['forecast_expected_close_date', 'date_added']).optional(),
+      periodStart: z.string().optional(),
+      metric: z.enum(['weighted', 'unweighted']).optional(),
+      risk: z.enum(['high', 'medium', 'low']).optional(),
+      riskThresholds: z.object({}).passthrough().optional(),
+      page: z.number().int().optional(),
+      limit: z.number().int().optional(),
+      filters: z.array(z.object({}).passthrough()).optional(),
+      raw: z.boolean().default(false),
+    }),
+    capabilities: [
+      { method: 'POST', path: '/opportunities/forecast/summary' },
+      { method: 'POST', path: '/opportunities/forecast/column' },
+      { method: 'POST', path: '/opportunities/forecast/drilldown' },
+      { method: 'POST', path: '/opportunities/forecast/slippage' },
+      { method: 'GET', path: '/opportunities/pipelines' },
+      { method: 'GET', path: '/users/' },
+    ],
+    // The four POSTs are report computations (measured 2026-09-07 and 2026-09-25): they answer 201
+    // with rows and no id. classifyCall would otherwise treat the tool as a write.
+    readOnly: true,
+    handler: async (args, deps) => guard(async () => {
+      const built = forecastBody(args.view, args);
+      if (built.error) return fail(CODES.VALIDATION_FAILED, built.error, 'Adjust the arguments for this view.');
+      const ai = deps.makeGw({ loc: args.locationId, rail: 'ai', state: deps.state });
+      const wf = deps.makeGw({ loc: args.locationId, state: deps.state });
+      const r = await ai.call('POST', FORECAST_PATHS[args.view], built.body);
+      if (!r.ok) return fromHttp(r.status, r.json);
+      // Names are best-effort: a failed lookup leaves ids in place and says so.
+      const notes = [];
+      const pl = await ai.call('GET', `/opportunities/pipelines?${new URLSearchParams({ locationId: args.locationId })}`);
+      if (!pl.ok) notes.push(`pipeline names unavailable (${pl.status}); stage and pipeline ids shown`);
+      const us = await wf.call('GET', `/users/?${new URLSearchParams({ locationId: args.locationId })}`);
+      if (!us.ok) notes.push(`user names unavailable (${us.status}); owner ids shown`);
+      const maps = nameMaps(pl.ok ? pl.json?.pipelines : [], us.ok ? us.json?.users : []);
+      const data = { view: args.view, ...shapeForecast(args.view, r.json, maps) };
+      if (notes.length) data.notes = notes;
+      if (args.raw === true) data.raw = r.json;
+      return ok(data);
     }, args),
   },
   {
