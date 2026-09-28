@@ -28731,7 +28731,7 @@
       },
       "sources": [
         "services/api/workflow-asset-validation.ts:33",
-        "workflows/30-types/steps/email.md:157",
+        "workflows/30-types/steps/email.md:158",
         "workflows/30-types/steps/if_else.md:31",
         "workflows/40-rules/server-side-validation.md:246"
       ]
@@ -36971,7 +36971,7 @@
         "ai-agents/20-api/12-ai-agents-api.md:241",
         "ai-agents/20-api/12-ai-agents-api.md:249",
         "ai-agents/20-api/managed-agent-workflow-invocation.md:22",
-        "ai-agents/10-anatomy/managed-agent-shape.md:72",
+        "ai-agents/10-anatomy/managed-agent-shape.md:78",
         "ai-agents/20-api/12-ai-agents-api.md:377"
       ]
     },
@@ -37090,7 +37090,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/managed-agent-shape.md:82"
+        "ai-agents/10-anatomy/managed-agent-shape.md:88"
       ]
     },
     {
@@ -37121,7 +37121,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/managed-agent-shape.md:70",
+        "ai-agents/10-anatomy/managed-agent-shape.md:76",
         "ai-agents/20-api/12-ai-agents-api.md:75",
         "ai-agents/20-api/12-ai-agents-api.md:240",
         "ai-agents/20-api/12-ai-agents-api.md:253",
@@ -38373,7 +38373,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/managed-agent-shape.md:96"
+        "ai-agents/10-anatomy/managed-agent-shape.md:102"
       ]
     },
     {
@@ -38414,7 +38414,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/managed-agent-shape.md:94",
+        "ai-agents/10-anatomy/managed-agent-shape.md:100",
         "ai-agents/20-api/conversation-ai-boundary.md:82",
         "ai-studio/60-recipes/run-one-generation.md:26"
       ]

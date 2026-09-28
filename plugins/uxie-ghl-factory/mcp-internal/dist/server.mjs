@@ -28918,7 +28918,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "services/api/workflow-asset-validation.ts:33",
-            "workflows/30-types/steps/email.md:157",
+            "workflows/30-types/steps/email.md:158",
             "workflows/30-types/steps/if_else.md:31",
             "workflows/40-rules/server-side-validation.md:246"
           ]
@@ -37160,7 +37160,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "ai-agents/20-api/12-ai-agents-api.md:241",
             "ai-agents/20-api/12-ai-agents-api.md:249",
             "ai-agents/20-api/managed-agent-workflow-invocation.md:22",
-            "ai-agents/10-anatomy/managed-agent-shape.md:72",
+            "ai-agents/10-anatomy/managed-agent-shape.md:78",
             "ai-agents/20-api/12-ai-agents-api.md:377"
           ]
         },
@@ -37279,7 +37279,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/managed-agent-shape.md:82"
+            "ai-agents/10-anatomy/managed-agent-shape.md:88"
           ]
         },
         {
@@ -37310,7 +37310,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/managed-agent-shape.md:70",
+            "ai-agents/10-anatomy/managed-agent-shape.md:76",
             "ai-agents/20-api/12-ai-agents-api.md:75",
             "ai-agents/20-api/12-ai-agents-api.md:240",
             "ai-agents/20-api/12-ai-agents-api.md:253",
@@ -38562,7 +38562,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/managed-agent-shape.md:96"
+            "ai-agents/10-anatomy/managed-agent-shape.md:102"
           ]
         },
         {
@@ -38603,7 +38603,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/managed-agent-shape.md:94",
+            "ai-agents/10-anatomy/managed-agent-shape.md:100",
             "ai-agents/20-api/conversation-ai-boundary.md:82",
             "ai-studio/60-recipes/run-one-generation.md:26"
           ]
@@ -168616,6 +168616,77 @@ function gotoLoops(templates) {
   return out;
 }
 
+// ../skills/create-ghl-workflow/engine/email-defaults.mjs
+init_define_BUILDER_VALIDATORS();
+init_define_CONTACT_FILTER_FIELDS();
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
+init_define_TOOL_CATALOG();
+var CV_REGEX = /\{\{([^{}]+)\}\}/g;
+var CV_ATTR_SINGLE = /\s+data-cv-defaults='[^']*'/gi;
+var CV_ATTR_DOUBLE = /\s+data-cv-defaults="[^"]*"/gi;
+var CV_ATTR_EXTRACT_SINGLE = /data-cv-defaults='([^']*)'/;
+var CV_ATTR_EXTRACT_DOUBLE = /data-cv-defaults="([^"]*)"/;
+var FIRST_TAG_REGEX = /(<[a-zA-Z][^>]*)(>)/;
+var LOOP_OPEN = /^#(each|rss_items)\b/;
+var LOOP_CLOSE = /^\/(each|rss_items)\b/;
+function variableOf(expression) {
+  const t = String(expression ?? "").trim();
+  if (!t || t.startsWith("#") || t.startsWith("/") || t.startsWith("else") || t.startsWith("default ")) return null;
+  return t;
+}
+var loopRelative = (v) => v === "this" || v.startsWith("this.") || v.startsWith("rentals.this.");
+function loopRanges(text) {
+  const ranges = [];
+  const stack = [];
+  for (const m of text.matchAll(CV_REGEX)) {
+    const inner = m[1].trim();
+    if (LOOP_OPEN.test(inner)) {
+      stack.push(m.index);
+      continue;
+    }
+    if (LOOP_CLOSE.test(inner) && stack.length) ranges.push({ start: stack.pop(), end: m.index + m[0].length });
+  }
+  while (stack.length) ranges.push({ start: stack.pop(), end: text.length });
+  return ranges;
+}
+function findVariableOccurrences(text) {
+  if (!text) return [];
+  const out = [];
+  const count = {};
+  const loops = loopRanges(text);
+  for (const m of text.matchAll(CV_REGEX)) {
+    const v = variableOf(m[1]);
+    if (!v || loopRelative(v) || loops.some((r) => m.index >= r.start && m.index < r.end)) continue;
+    const i = count[v] ?? 0;
+    out.push({ variable: v, occurrenceIndex: i, start: m.index, end: m.index + m[0].length });
+    count[v] = i + 1;
+  }
+  return out;
+}
+function extractDefaultsFromHtml(html) {
+  const m = html?.match(CV_ATTR_EXTRACT_SINGLE) ?? html?.match(CV_ATTR_EXTRACT_DOUBLE);
+  if (!m) return {};
+  try {
+    return JSON.parse(m[1].replace(/&#39;/g, "'").replace(/&amp;/g, "&").replace(/&quot;/g, '"'));
+  } catch {
+    return {};
+  }
+}
+function applyHtmlDefaults(html, authored) {
+  const source = authored && Object.keys(authored).length ? authored : extractDefaultsFromHtml(html);
+  if (!html || !Object.keys(source).length) return { html, htmlDefaults: {}, dropped: [] };
+  const stripped = html.replace(CV_ATTR_SINGLE, "").replace(CV_ATTR_DOUBLE, "");
+  const valid = new Set(findVariableOccurrences(stripped).map((o) => `${o.variable}:${o.occurrenceIndex}`));
+  const htmlDefaults = {};
+  const dropped = [];
+  for (const [k, v] of Object.entries(source)) valid.has(k) ? htmlDefaults[k] = v : dropped.push(k);
+  if (!Object.keys(htmlDefaults).length) return { html: stripped, htmlDefaults, dropped };
+  const json2 = JSON.stringify(htmlDefaults).replace(/&/g, "&amp;").replace(/'/g, "&#39;");
+  return { html: stripped.replace(FIRST_TAG_REGEX, `$1 data-cv-defaults='${json2}'$2`), htmlDefaults, dropped };
+}
+
 // ../skills/create-ghl-workflow/catalog/observed-trigger-filters.json
 var observed_trigger_filters_default = {
   affiliate_new_lead: [
@@ -169695,8 +169766,10 @@ function emailAttributes(node, ctx) {
     base.template_id = authoredTemplate;
     base.templatesource = a.templatesource ?? "email-builder";
   } else {
-    base.html = a.html ?? "";
-    base.htmlDefaults = a.htmlDefaults ?? {};
+    const body2 = applyHtmlDefaults(a.html ?? "", a.htmlDefaults);
+    if (body2.dropped.length) ctx?.warn?.(`email "${node.name ?? node.ref}": htmlDefaults ${body2.dropped.join(", ")} match no merge tag in the html (keys are "<tag>:<occurrence>", counted per tag) \u2014 dropped, as the builder does`);
+    base.html = body2.html;
+    base.htmlDefaults = body2.htmlDefaults;
   }
   return base;
 }
