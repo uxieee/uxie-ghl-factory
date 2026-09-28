@@ -350,6 +350,48 @@ export function planRestorePage({ funnel, pageId, pages, locationId }) {
   return { method: 'POST', path: '/funnels/funnel/update-funnel-and-page', body: { funnelId: funnel._id ?? funnel.id, locationId, restoreArchivePageId: pageId }, target: { pageId, name: rec.name, step: stepView(step, 0) } };
 }
 
+// A step product — what the step's order form lists and a one-click up/down-sell button sells: the step's Products
+// tab → POST /funnels/order-form/products {locationId, funnel, step, name, displayText, product, price, bumpProduct,
+// quantity:{max, allowMultiple}, authorizeAmount:0} (captured from the UI). It points to a catalogue product and ONE of
+// its prices; its own _id is what a sell-product button stores as productId {id}. `prices` is the product's price list
+// (GET /products/{id}/price) — a price of another product is refused, as the UI's price picker only offers the product's.
+// The step's Products tab list: GET /funnels/order-form/products/?locationId&funnel&step → {products:[…]} with product
+// and price POPULATED (a by-id read returns them as bare ids). Both shapes are accepted by stepProductView.
+export async function readStepProducts(gw, locationId, funnelId, stepId) {
+  const q = `locationId=${encodeURIComponent(locationId)}&funnel=${encodeURIComponent(funnelId)}&step=${encodeURIComponent(stepId)}`;
+  const res = await gw.call('GET', `/funnels/order-form/products/?${q}`);
+  return { res, rows: (res.json?.products ?? []).filter((r) => r.deleted !== true) };
+}
+export function stepProductView(r) {
+  const idOf = (x) => (x && typeof x === 'object' ? x._id : x) ?? null;
+  return { stepProductId: r._id, name: r.name, displayText: r.displayText ?? '',
+    product: { id: idOf(r.product), name: typeof r.product === 'object' ? r.product?.name ?? null : null },
+    price: { id: idOf(r.price), ...(typeof r.price === 'object' ? { name: r.price?.name, amount: r.price?.amount, currency: r.price?.currency, type: r.price?.type } : {}) },
+    quantity: r.quantity ?? null, bump: r.bumpProduct === true };
+}
+export const STEP_PRODUCT_NOTE = 'The returned stepProductId is what a sell-product button needs: extra.productId = {value: {id: <stepProductId>}}. An order form on this step lists every step product.';
+export function planAddStepProduct({ funnel, stepId, expectName, product, prices, existing, priceId, displayText, quantity, bump, locationId }) {
+  const step = (funnel.steps ?? []).find((s) => s.id === stepId);
+  if (!step) return { refuse: `step ${stepId} is not on this funnel` };
+  if (typeof expectName !== 'string' || step.name !== expectName) {
+    return { refuse: `target check failed: step ${stepId} is named ${JSON.stringify(step.name ?? null)}, not ${JSON.stringify(expectName)}. Nothing was added.` };
+  }
+  if (!product?._id) return { refuse: 'the product did not read back from this location' };
+  const price = (prices ?? []).find((p) => p._id === priceId);
+  if (!price) {
+    return { refuse: `price ${priceId} is not a price of product ${JSON.stringify(product.name)} (its prices: ${(prices ?? []).map((p) => `${p._id} ${JSON.stringify(p.name)}`).join(', ') || 'none'})` };
+  }
+  const dup = (existing ?? []).find((e) => String(e.product?._id ?? e.product) === product._id && String(e.price?._id ?? e.price) === priceId && e.deleted !== true);
+  if (dup) return { refuse: `this step already lists ${JSON.stringify(product.name)} at that price (step product ${dup._id}); nothing was added` };
+  const q = quantity ?? {};
+  return {
+    method: 'POST', path: '/funnels/order-form/products',
+    body: { locationId, funnel: funnel._id ?? funnel.id, step: stepId, name: product.name, displayText: displayText ?? '', product: product._id, price: priceId,
+      bumpProduct: bump === true, quantity: { max: q.max ?? 1, allowMultiple: q.allowMultiple === true }, authorizeAmount: 0 },
+    target: { step: stepView(step, 0), product: { id: product._id, name: product.name }, price: { id: price._id, name: price.name, amount: price.amount, currency: price.currency, type: price.type } },
+  };
+}
+
 // Import a page from another step (any funnel/website/webinar on the location) as a new page of a target step: the
 // step overview's "Create variation → Use existing → Import". POST /funnels/funnel/clone-funnel-step/ {stepId:<source
 // step>, funnelId:<target funnel>, funnels:[<target funnel>], locationId, userId, stepIdToImportInto, pageIndexToImportInto,

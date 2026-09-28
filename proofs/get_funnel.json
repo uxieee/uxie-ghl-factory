@@ -30,17 +30,28 @@
         "commit:ddaf7b05"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-29",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:8cbf1e5c"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
     "hashedAt": "2026-09-28",
     "endpoints": {
+      "GET https://backend.leadconnectorhq.com /funnels/builder/funnel-share-details/{}": "44e1a4c2da4b9fe67004edf2ecaa4e119b87adbcf2ab66c2b2f20eb1f04e46e5",
       "GET https://backend.leadconnectorhq.com /funnels/builder/get-versions": "32754c990877d14c51c299475ab6da2d3cd5cad0760a62c446bd090f473891b6",
       "GET https://backend.leadconnectorhq.com /funnels/event": "eb7f84d6b3af2310e5c90a55c2c99f270aeb8db039ea0503f8d6644285dd4b77",
       "GET https://backend.leadconnectorhq.com /funnels/funnel/cookie-consent": "5189941f35c4396096720e3cfc60302ab543dc7f100e64908b31d22915b9a7e9",
       "GET https://backend.leadconnectorhq.com /funnels/funnel/fetch/{}": "f8882ab1b0d06b2d4806af0b9032cc3373aaed5c54184a9f5fea3a984fb1bd9a",
       "GET https://backend.leadconnectorhq.com /funnels/funnel/headers": "73676ab88f1af9856e809f78903d69a90c75d2e663942936a5ec29fa5e334ac6",
       "GET https://backend.leadconnectorhq.com /funnels/lookup/list": "962f65054f5b6f0e185aacea82a8b71253217cad24eb73aabe3d7cc469e7f5c5",
+      "GET https://backend.leadconnectorhq.com /funnels/order-form/products": "f606aea8e1ed8bd3c076a7c7444665c04dd65ee276404b3fbe63a9d9b8707c2f",
       "GET https://backend.leadconnectorhq.com /funnels/page/list": "f502de909e45ce8c7e94d52e8dd38f16d708c03c02d5d578dd836dd06e10f165"
     },
     "builds": {
@@ -50,11 +61,11 @@
       "redirectApp": 222
     },
     "code": {
-      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#get_funnel": "7939bbe25ecd1a9ec1d725f1f5920fbdeb7c036bfbab0bddfbc2605c72f5554f",
+      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#get_funnel": "89006fdeb545e1dda2f49211d71bc94aabcd603d4ad0ffabb38adeec451b8cea",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "e65c2384aefb498ce49453dd2d6d8d1a1d8351fd6d337aef5256eb982e1db02f",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
       "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "a979be67ccb31b7cff865f678e7261b5e1638965085b4a963ddf08e9e472af01",
-      "plugins/uxie-ghl-factory/mcp-internal/core/funnel-ops.mjs": "009a1b9d15592a56dd547600737c11085d8a9256faa1ad18abe06c9b576ad86c"
+      "plugins/uxie-ghl-factory/mcp-internal/core/funnel-ops.mjs": "54ac5229b5a105d68e0e02bc478333486baeb08984f0b2f9f74025369ba06a3f"
     }
   }
 }
