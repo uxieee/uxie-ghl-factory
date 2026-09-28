@@ -109,7 +109,9 @@ const isObj = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 /** Where the READ carries a flat write key. */
 export function readFlat(record, key) {
   const s = record?.agentSettings ?? {};
-  if (key === 'voiceId') return s.voice?.voiceId ?? record?.voiceId;
+  // on a speech-to-speech agent (provider lc) a flat voiceId lands in s2sBehaviour.voiceId; the TTS voice is untouched
+  // (measured 2026-09-28: {voiceId:'cedar'} → agentSettings.s2sBehaviour.voiceId 'cedar', agentSettings.voice unchanged)
+  if (key === 'voiceId') return (record?.provider === 'lc' ? s.s2sBehaviour?.voiceId : undefined) ?? s.voice?.voiceId ?? record?.voiceId;
   if (key === 'language') return isObj(s.language) ? s.language.code : (s.language ?? record?.language);
   if (key === 'ringDurationSeconds') return typeof s.ringDurationMs === 'number' ? s.ringDurationMs / 1000 : record?.ringDurationSeconds;
   if (key === 'welcomeMessage') return record?.welcomeMessage ?? record?.agentWelcomeMessage;
@@ -296,6 +298,11 @@ export async function executeVoiceAiUpdate({ plan, before, gw, serverMessage }) 
   const kbIds = new Set([...kbActions(before), ...kbActions(after)].map((x) => x._id));
   for (const k of new Set([...Object.keys(b), ...Object.keys(a)])) {
     if (setNames.has(k)) continue;
+    // an s2s voice change moves s2sBehaviour.voiceId: expected, while any other s2s key moving stays collateral
+    if (k === 'agentSettings.s2sBehaviour' && plan.setKeys.includes('voiceId')) {
+      const omitVoice = (o) => (isObj(o) ? Object.fromEntries(Object.entries(o).filter(([x]) => x !== 'voiceId')) : o);
+      if (same(omitVoice(b[k]), omitVoice(a[k]))) continue;
+    }
     // Attaching or detaching a knowledge base mints or removes its KNOWLEDGE_BASE action: expected, not collateral.
     if (kbChange && k === 'actions' && nonKb(b[k]) === nonKb(a[k])) continue;
     if (kbChange && k === 'actionIds' && same((b[k] ?? []).filter((x) => !kbIds.has(x)), (a[k] ?? []).filter((x) => !kbIds.has(x)))) continue;
