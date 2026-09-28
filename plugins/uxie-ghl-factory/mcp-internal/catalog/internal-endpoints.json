@@ -1,7 +1,7 @@
 {
   "generated": "2026-09-28",
   "note": "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path — not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-  "count": 1261,
+  "count": 1262,
   "endpoints": [
     {
       "id": "facebook-service--get-ad-account-by-id",
@@ -3504,6 +3504,41 @@
         "workflows/50-runtime/observed-query-shapes.md:76",
         "workflows/70-research/STATS-RAILS.md:26",
         "workflows/70-research/VERSIONS-STATS-LOGS.md:303"
+      ]
+    },
+    {
+      "id": "workflows--manual-actions-search",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/conversations/manual-actions/{locationId}/search",
+      "path": "/conversations/manual-actions/{locationId}/search",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "workflows",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "locationId"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "workflows/30-types/steps/manual-sms.md:72"
       ]
     },
     {
@@ -35331,9 +35366,9 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/agent-logs.md:69",
-        "ai-agents/20-api/agent-logs.md:128",
-        "ai-agents/20-api/agent-logs.md:191"
+        "ai-agents/20-api/agent-logs.md:114",
+        "ai-agents/20-api/agent-logs.md:173",
+        "ai-agents/20-api/agent-logs.md:236"
       ]
     },
     {
@@ -35416,7 +35451,14 @@
       "service": "ai-agents",
       "tree": "documented",
       "pathParams": [],
-      "query": [],
+      "query": [
+        {
+          "name": "productType",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
       "body": null,
       "returns": null,
       "confidence": {
@@ -35426,7 +35468,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/agent-logs.md:30"
+        "ai-agents/20-api/agent-logs.md:30",
+        "ai-agents/20-api/agent-logs.md:79"
       ]
     },
     {
@@ -35521,8 +35564,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/agent-logs.md:71",
-        "ai-agents/20-api/agent-logs.md:178"
+        "ai-agents/20-api/agent-logs.md:116",
+        "ai-agents/20-api/agent-logs.md:223"
       ]
     },
     {
@@ -35558,7 +35601,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/agent-logs.md:78"
+        "ai-agents/20-api/agent-logs.md:123"
       ]
     },
     {
@@ -35600,9 +35643,9 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/agent-logs.md:51",
-        "ai-agents/20-api/agent-logs.md:68",
-        "ai-agents/20-api/agent-logs.md:88"
+        "ai-agents/20-api/agent-logs.md:96",
+        "ai-agents/20-api/agent-logs.md:113",
+        "ai-agents/20-api/agent-logs.md:133"
       ]
     },
     {
@@ -35629,17 +35672,25 @@
           "name": "sessionId"
         }
       ],
-      "query": [],
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
       "body": null,
       "returns": null,
       "confidence": {
         "path": "documented",
-        "query": "none-observed",
+        "query": "documented",
         "body": "unresolved",
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/agent-logs.md:79"
+        "ai-agents/20-api/agent-logs.md:65",
+        "ai-agents/20-api/agent-logs.md:124"
       ]
     },
     {
@@ -35683,9 +35734,9 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/agent-logs.md:72",
-        "ai-agents/20-api/agent-logs.md:305",
-        "ai-agents/20-api/agent-logs.md:306"
+        "ai-agents/20-api/agent-logs.md:117",
+        "ai-agents/20-api/agent-logs.md:350",
+        "ai-agents/20-api/agent-logs.md:351"
       ]
     },
     {
@@ -35732,9 +35783,9 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/agent-logs.md:74",
-        "ai-agents/20-api/agent-logs.md:312",
-        "ai-agents/20-api/agent-logs.md:323"
+        "ai-agents/20-api/agent-logs.md:119",
+        "ai-agents/20-api/agent-logs.md:357",
+        "ai-agents/20-api/agent-logs.md:368"
       ]
     },
     {
@@ -35780,8 +35831,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/agent-logs.md:76",
-        "ai-agents/20-api/agent-logs.md:324"
+        "ai-agents/20-api/agent-logs.md:121",
+        "ai-agents/20-api/agent-logs.md:369"
       ]
     },
     {
@@ -35827,9 +35878,9 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/agent-logs.md:73",
-        "ai-agents/20-api/agent-logs.md:308",
-        "ai-agents/20-api/agent-logs.md:321"
+        "ai-agents/20-api/agent-logs.md:118",
+        "ai-agents/20-api/agent-logs.md:353",
+        "ai-agents/20-api/agent-logs.md:366"
       ]
     },
     {
@@ -35881,9 +35932,9 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/agent-logs.md:75",
-        "ai-agents/20-api/agent-logs.md:232",
-        "ai-agents/20-api/agent-logs.md:322"
+        "ai-agents/20-api/agent-logs.md:120",
+        "ai-agents/20-api/agent-logs.md:277",
+        "ai-agents/20-api/agent-logs.md:367"
       ]
     },
     {
@@ -35925,8 +35976,9 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/agent-logs.md:70",
-        "ai-agents/20-api/agent-logs.md:201"
+        "ai-agents/20-api/agent-logs.md:77",
+        "ai-agents/20-api/agent-logs.md:115",
+        "ai-agents/20-api/agent-logs.md:246"
       ]
     },
     {
@@ -35969,8 +36021,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/agent-logs.md:77",
-        "ai-agents/20-api/agent-logs.md:219"
+        "ai-agents/20-api/agent-logs.md:122",
+        "ai-agents/20-api/agent-logs.md:264"
       ]
     },
     {
@@ -36003,11 +36055,15 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/agent-logs.md:80"
+        "ai-agents/20-api/agent-logs.md:68",
+        "ai-agents/20-api/agent-logs.md:125"
       ]
     },
     {
       "id": "ai-agents--agent-logs-metrics-layouts-delete",
+      "aka": [
+        "/agent-logs/metrics-layouts/{id}"
+      ],
       "method": "DELETE",
       "url": "https://services.leadconnectorhq.com/agent-logs/metrics-layouts/{layoutId}",
       "path": "/agent-logs/metrics-layouts/{layoutId}",
@@ -36030,21 +36086,32 @@
           "name": "layoutId"
         }
       ],
-      "query": [],
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
       "body": null,
       "returns": null,
       "confidence": {
         "path": "documented",
-        "query": "none-observed",
+        "query": "documented",
         "body": "unresolved",
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/agent-logs.md:82"
+        "ai-agents/20-api/agent-logs.md:71",
+        "ai-agents/20-api/agent-logs.md:127"
       ]
     },
     {
       "id": "ai-agents--agent-logs-metrics-layouts-put",
+      "aka": [
+        "/agent-logs/metrics-layouts/{id}"
+      ],
       "method": "PUT",
       "url": "https://services.leadconnectorhq.com/agent-logs/metrics-layouts/{layoutId}",
       "path": "/agent-logs/metrics-layouts/{layoutId}",
@@ -36067,17 +36134,25 @@
           "name": "layoutId"
         }
       ],
-      "query": [],
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
       "body": null,
       "returns": null,
       "confidence": {
         "path": "documented",
-        "query": "none-observed",
+        "query": "documented",
         "body": "unresolved",
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/agent-logs.md:81"
+        "ai-agents/20-api/agent-logs.md:69",
+        "ai-agents/20-api/agent-logs.md:126"
       ]
     },
     {
@@ -37364,7 +37439,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/agent-logs.md:329",
+        "ai-agents/20-api/agent-logs.md:374",
         "ai-agents/20-api/logs-deployment-email.md:46"
       ]
     },
@@ -39683,8 +39758,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/agent-logs.md:84",
-        "ai-agents/20-api/agent-logs.md:85"
+        "ai-agents/20-api/agent-logs.md:129",
+        "ai-agents/20-api/agent-logs.md:130"
       ]
     },
     {

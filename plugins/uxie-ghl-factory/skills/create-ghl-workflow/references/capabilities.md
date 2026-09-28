@@ -30,8 +30,8 @@ Legend: ✅ verified-live (round-tripped against a live account) · ◐ bundle-d
 - ◐ `ig_interactive_messenger`
 - ◐ `instagram-dm` — attrs: `body`, `template_id`, `attachments`, `urlAttachments`, `to`, `testPhones`, `userType`, `selectedUser`, `assignedUser`, `standardAssignedUser`, `customAssignedUser`, `assignedOwners` +2 more (see card)
 - ✅ `internal_notification` — attrs: `type`, `sms`, `email`, `whatsapp`, `notification`, `userType`, `selectedUser`
-- ✅ `manual-call` — attrs: `assignedUser`, `standardAssignedUser`
-- ✅ `manual-sms` — attrs: `body`, `assignedUser`, `standardAssignedUser`, `attachments`
+- ✅ `manual-call` — attrs: `assignedUser`, `standardAssignedUser`, `customAssignedUser`
+- ✅ `manual-sms` — attrs: `body`, `assignedUser`, `standardAssignedUser`, `attachments`, `template_id`, `urlAttachments`, `to`, `testPhones`, `userType`, `selectedUser`, `customAssignedUser`, `assignedOwners` +2 more (see card)
 - ◐ `messenger` — attrs: `body`, `template_id`, `attachments`, `urlAttachments`, `to`, `testPhones`, `userType`, `selectedUser`, `assignedUser`, `standardAssignedUser`, `customAssignedUser`, `assignedOwners` +2 more (see card)
 - ◐ `respond_on_comment`
 - ✅ `review_request` — attrs: `type`, `review_type`, `overrideReviewLink`

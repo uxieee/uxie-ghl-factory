@@ -178,7 +178,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
     define_ENDPOINT_CATALOG_default = {
       generated: "2026-09-28",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 1261,
+      count: 1262,
       endpoints: [
         {
           id: "facebook-service--get-ad-account-by-id",
@@ -3681,6 +3681,41 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "workflows/50-runtime/observed-query-shapes.md:76",
             "workflows/70-research/STATS-RAILS.md:26",
             "workflows/70-research/VERSIONS-STATS-LOGS.md:303"
+          ]
+        },
+        {
+          id: "workflows--manual-actions-search",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/conversations/manual-actions/{locationId}/search",
+          path: "/conversations/manual-actions/{locationId}/search",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/30-types/steps/manual-sms.md:72"
           ]
         },
         {
@@ -35520,9 +35555,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-logs.md:69",
-            "ai-agents/20-api/agent-logs.md:128",
-            "ai-agents/20-api/agent-logs.md:191"
+            "ai-agents/20-api/agent-logs.md:114",
+            "ai-agents/20-api/agent-logs.md:173",
+            "ai-agents/20-api/agent-logs.md:236"
           ]
         },
         {
@@ -35605,7 +35640,14 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           service: "ai-agents",
           tree: "documented",
           pathParams: [],
-          query: [],
+          query: [
+            {
+              name: "productType",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
@@ -35615,7 +35657,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-logs.md:30"
+            "ai-agents/20-api/agent-logs.md:30",
+            "ai-agents/20-api/agent-logs.md:79"
           ]
         },
         {
@@ -35710,8 +35753,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-logs.md:71",
-            "ai-agents/20-api/agent-logs.md:178"
+            "ai-agents/20-api/agent-logs.md:116",
+            "ai-agents/20-api/agent-logs.md:223"
           ]
         },
         {
@@ -35747,7 +35790,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-logs.md:78"
+            "ai-agents/20-api/agent-logs.md:123"
           ]
         },
         {
@@ -35789,9 +35832,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-logs.md:51",
-            "ai-agents/20-api/agent-logs.md:68",
-            "ai-agents/20-api/agent-logs.md:88"
+            "ai-agents/20-api/agent-logs.md:96",
+            "ai-agents/20-api/agent-logs.md:113",
+            "ai-agents/20-api/agent-logs.md:133"
           ]
         },
         {
@@ -35818,17 +35861,25 @@ Flagged to the operator as a security observation about the vendor, not a capabi
               name: "sessionId"
             }
           ],
-          query: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
             path: "documented",
-            query: "none-observed",
+            query: "documented",
             body: "unresolved",
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-logs.md:79"
+            "ai-agents/20-api/agent-logs.md:65",
+            "ai-agents/20-api/agent-logs.md:124"
           ]
         },
         {
@@ -35872,9 +35923,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-logs.md:72",
-            "ai-agents/20-api/agent-logs.md:305",
-            "ai-agents/20-api/agent-logs.md:306"
+            "ai-agents/20-api/agent-logs.md:117",
+            "ai-agents/20-api/agent-logs.md:350",
+            "ai-agents/20-api/agent-logs.md:351"
           ]
         },
         {
@@ -35921,9 +35972,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-logs.md:74",
-            "ai-agents/20-api/agent-logs.md:312",
-            "ai-agents/20-api/agent-logs.md:323"
+            "ai-agents/20-api/agent-logs.md:119",
+            "ai-agents/20-api/agent-logs.md:357",
+            "ai-agents/20-api/agent-logs.md:368"
           ]
         },
         {
@@ -35969,8 +36020,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-logs.md:76",
-            "ai-agents/20-api/agent-logs.md:324"
+            "ai-agents/20-api/agent-logs.md:121",
+            "ai-agents/20-api/agent-logs.md:369"
           ]
         },
         {
@@ -36016,9 +36067,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-logs.md:73",
-            "ai-agents/20-api/agent-logs.md:308",
-            "ai-agents/20-api/agent-logs.md:321"
+            "ai-agents/20-api/agent-logs.md:118",
+            "ai-agents/20-api/agent-logs.md:353",
+            "ai-agents/20-api/agent-logs.md:366"
           ]
         },
         {
@@ -36070,9 +36121,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-logs.md:75",
-            "ai-agents/20-api/agent-logs.md:232",
-            "ai-agents/20-api/agent-logs.md:322"
+            "ai-agents/20-api/agent-logs.md:120",
+            "ai-agents/20-api/agent-logs.md:277",
+            "ai-agents/20-api/agent-logs.md:367"
           ]
         },
         {
@@ -36114,8 +36165,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-logs.md:70",
-            "ai-agents/20-api/agent-logs.md:201"
+            "ai-agents/20-api/agent-logs.md:77",
+            "ai-agents/20-api/agent-logs.md:115",
+            "ai-agents/20-api/agent-logs.md:246"
           ]
         },
         {
@@ -36158,8 +36210,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-logs.md:77",
-            "ai-agents/20-api/agent-logs.md:219"
+            "ai-agents/20-api/agent-logs.md:122",
+            "ai-agents/20-api/agent-logs.md:264"
           ]
         },
         {
@@ -36192,11 +36244,15 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-logs.md:80"
+            "ai-agents/20-api/agent-logs.md:68",
+            "ai-agents/20-api/agent-logs.md:125"
           ]
         },
         {
           id: "ai-agents--agent-logs-metrics-layouts-delete",
+          aka: [
+            "/agent-logs/metrics-layouts/{id}"
+          ],
           method: "DELETE",
           url: "https://services.leadconnectorhq.com/agent-logs/metrics-layouts/{layoutId}",
           path: "/agent-logs/metrics-layouts/{layoutId}",
@@ -36219,21 +36275,32 @@ Flagged to the operator as a security observation about the vendor, not a capabi
               name: "layoutId"
             }
           ],
-          query: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
             path: "documented",
-            query: "none-observed",
+            query: "documented",
             body: "unresolved",
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-logs.md:82"
+            "ai-agents/20-api/agent-logs.md:71",
+            "ai-agents/20-api/agent-logs.md:127"
           ]
         },
         {
           id: "ai-agents--agent-logs-metrics-layouts-put",
+          aka: [
+            "/agent-logs/metrics-layouts/{id}"
+          ],
           method: "PUT",
           url: "https://services.leadconnectorhq.com/agent-logs/metrics-layouts/{layoutId}",
           path: "/agent-logs/metrics-layouts/{layoutId}",
@@ -36256,17 +36323,25 @@ Flagged to the operator as a security observation about the vendor, not a capabi
               name: "layoutId"
             }
           ],
-          query: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
             path: "documented",
-            query: "none-observed",
+            query: "documented",
             body: "unresolved",
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-logs.md:81"
+            "ai-agents/20-api/agent-logs.md:69",
+            "ai-agents/20-api/agent-logs.md:126"
           ]
         },
         {
@@ -37553,7 +37628,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-logs.md:329",
+            "ai-agents/20-api/agent-logs.md:374",
             "ai-agents/20-api/logs-deployment-email.md:46"
           ]
         },
@@ -39872,8 +39947,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-logs.md:84",
-            "ai-agents/20-api/agent-logs.md:85"
+            "ai-agents/20-api/agent-logs.md:129",
+            "ai-agents/20-api/agent-logs.md:130"
           ]
         },
         {
@@ -103397,6 +103472,25 @@ function lintContactLessSteps(templates, triggers) {
   }));
 }
 
+// ../skills/create-ghl-workflow/engine/lints/sms-template-body.mjs
+init_define_BUILDER_VALIDATORS();
+init_define_CONTACT_FILTER_FIELDS();
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
+init_define_TOOL_CATALOG();
+var TYPES = /* @__PURE__ */ new Set(["sms", "manual-sms"]);
+var hasTemplate = (a) => typeof a?.template_id === "string" && a.template_id !== "" && a.template_id !== "none";
+function lintSmsTemplateBody(templates) {
+  const T = Array.isArray(templates) ? templates.filter(Boolean) : [];
+  return T.filter((t) => TYPES.has(t.type) && hasTemplate(t.attributes) && typeof t.attributes.body === "string" && t.attributes.body.trim() !== "").map((t) => ({
+    code: "SMS_TEMPLATE_OVERRIDES_BODY",
+    severity: "warning",
+    stepId: t.id,
+    msg: `${t.type} '${t.name ?? t.id}' has template_id '${t.attributes.template_id}' AND a body. GHL sends the TEMPLATE's text; this step's body is ignored at runtime. To send the body, clear template_id (or set it to "none"); to send the template, make the body match it so the step reads truthfully.`
+  }));
+}
+
 // ../skills/create-ghl-workflow/engine/required-fields.mjs
 init_define_BUILDER_VALIDATORS();
 init_define_CONTACT_FILTER_FIELDS();
@@ -117909,13 +118003,36 @@ var catalog_data_default = {
       usesCustomInputs: false,
       attrKeys: [
         "assignedUser",
-        "standardAssignedUser"
+        "standardAssignedUser",
+        "customAssignedUser"
       ],
       example: "catalog/step-examples/manual-call.json",
       section: "communication",
       beta: false,
       display_name: "manual_call",
       requiredFields: [],
+      modelFields: {
+        interface: "IManualCall",
+        source: "src/models/actions/manualCall.ts",
+        required: [],
+        fields: [
+          {
+            name: "assignedUser",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "standardAssignedUser",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "customAssignedUser",
+            optional: true,
+            type: "string"
+          }
+        ]
+      },
       enforcement: {
         throw: [],
         warn: [],
@@ -117939,13 +118056,110 @@ var catalog_data_default = {
         "body",
         "assignedUser",
         "standardAssignedUser",
-        "attachments"
+        "attachments",
+        "template_id",
+        "urlAttachments",
+        "to",
+        "testPhones",
+        "userType",
+        "selectedUser",
+        "customAssignedUser",
+        "assignedOwners",
+        "alsoNotifyContactFollowers",
+        "alsoNotifyOpportunityFollowers"
       ],
       example: "catalog/step-examples/manual-sms.json",
       section: "communication",
       beta: false,
       display_name: "manual_sms",
       requiredFields: [],
+      modelFields: {
+        interface: "ISMS",
+        source: "src/models/actions/SMS.ts",
+        required: [],
+        fields: [
+          {
+            name: "body",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "template_id",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "attachments",
+            optional: true,
+            type: "IStoredFile[]"
+          },
+          {
+            name: "urlAttachments",
+            optional: true,
+            type: "string[]"
+          },
+          {
+            name: "to",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "testPhones",
+            optional: true,
+            type: "string[]"
+          },
+          {
+            name: "userType",
+            optional: true,
+            type: "ToTypeSMS"
+          },
+          {
+            name: "selectedUser",
+            optional: true,
+            type: "string[]"
+          },
+          {
+            name: "assignedUser",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "standardAssignedUser",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "customAssignedUser",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "assignedOwners",
+            optional: true,
+            type: "union[]",
+            members: [
+              "contact_owner",
+              "opportunity_owner"
+            ],
+            via: "AssignedOwner"
+          },
+          {
+            name: "alsoNotifyContactFollowers",
+            optional: true,
+            type: "boolean"
+          },
+          {
+            name: "alsoNotifyOpportunityFollowers",
+            optional: true,
+            type: "boolean"
+          },
+          {
+            name: "__tool_schema__",
+            optional: true,
+            type: "Record<string, IToolSchemaField>"
+          }
+        ]
+      },
       enforcement: {
         throw: [],
         warn: [],
@@ -169146,6 +169360,7 @@ function compile(ir, ctx) {
     for (const tb of []) void tb;
   }
   for (const f of lintContactLessSteps(templates, norm3.triggers)) ctx?.warn?.(`${f.code}: ${f.msg}`);
+  for (const f of lintSmsTemplateBody(templates)) ctx?.warn?.(`${f.code}: ${f.msg}`);
   resolveAuthoredStepRefs(templates, refMap);
   enforceTemplates(templates, ctx?.catalog, ctx);
   checkStepRefs(templates, IRError, [...ctx.externalRefs?.ids ?? []]);
@@ -176089,6 +176304,7 @@ function runLints(doc, {
       for (const f of lintOpportunityWrites(T)) F("platform", f.code, f.severity, f.msg, { stepId: f.stepId });
       for (const f of lintFormatterSkips(T)) F("platform", f.code, f.severity, f.msg, { stepId: f.stepId });
       for (const f of lintContactLessSteps(T, triggers)) F("platform", f.code, f.severity, f.msg, { stepId: f.stepId });
+      for (const f of lintSmsTemplateBody(T)) F("platform", f.code, f.severity, f.msg, { stepId: f.stepId });
       for (const f of lintTriggerRows(triggers, catalog)) F("platform", f.code, f.severity, f.msg, { triggerId: f.triggerId });
       for (const f of lintNameLength(T, triggers))
         F("platform", f.code, f.severity, f.msg, f.stepId ? { stepId: f.stepId } : { triggerId: f.triggerId });

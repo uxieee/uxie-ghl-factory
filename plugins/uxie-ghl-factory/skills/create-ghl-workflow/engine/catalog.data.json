@@ -14463,13 +14463,36 @@
    "usesCustomInputs": false,
    "attrKeys": [
     "assignedUser",
-    "standardAssignedUser"
+    "standardAssignedUser",
+    "customAssignedUser"
    ],
    "example": "catalog/step-examples/manual-call.json",
    "section": "communication",
    "beta": false,
    "display_name": "manual_call",
    "requiredFields": [],
+   "modelFields": {
+    "interface": "IManualCall",
+    "source": "src/models/actions/manualCall.ts",
+    "required": [],
+    "fields": [
+     {
+      "name": "assignedUser",
+      "optional": true,
+      "type": "string"
+     },
+     {
+      "name": "standardAssignedUser",
+      "optional": true,
+      "type": "string"
+     },
+     {
+      "name": "customAssignedUser",
+      "optional": true,
+      "type": "string"
+     }
+    ]
+   },
    "enforcement": {
     "throw": [],
     "warn": [],
@@ -14493,13 +14516,110 @@
     "body",
     "assignedUser",
     "standardAssignedUser",
-    "attachments"
+    "attachments",
+    "template_id",
+    "urlAttachments",
+    "to",
+    "testPhones",
+    "userType",
+    "selectedUser",
+    "customAssignedUser",
+    "assignedOwners",
+    "alsoNotifyContactFollowers",
+    "alsoNotifyOpportunityFollowers"
    ],
    "example": "catalog/step-examples/manual-sms.json",
    "section": "communication",
    "beta": false,
    "display_name": "manual_sms",
    "requiredFields": [],
+   "modelFields": {
+    "interface": "ISMS",
+    "source": "src/models/actions/SMS.ts",
+    "required": [],
+    "fields": [
+     {
+      "name": "body",
+      "optional": true,
+      "type": "string"
+     },
+     {
+      "name": "template_id",
+      "optional": true,
+      "type": "string"
+     },
+     {
+      "name": "attachments",
+      "optional": true,
+      "type": "IStoredFile[]"
+     },
+     {
+      "name": "urlAttachments",
+      "optional": true,
+      "type": "string[]"
+     },
+     {
+      "name": "to",
+      "optional": true,
+      "type": "string"
+     },
+     {
+      "name": "testPhones",
+      "optional": true,
+      "type": "string[]"
+     },
+     {
+      "name": "userType",
+      "optional": true,
+      "type": "ToTypeSMS"
+     },
+     {
+      "name": "selectedUser",
+      "optional": true,
+      "type": "string[]"
+     },
+     {
+      "name": "assignedUser",
+      "optional": true,
+      "type": "string"
+     },
+     {
+      "name": "standardAssignedUser",
+      "optional": true,
+      "type": "string"
+     },
+     {
+      "name": "customAssignedUser",
+      "optional": true,
+      "type": "string"
+     },
+     {
+      "name": "assignedOwners",
+      "optional": true,
+      "type": "union[]",
+      "members": [
+       "contact_owner",
+       "opportunity_owner"
+      ],
+      "via": "AssignedOwner"
+     },
+     {
+      "name": "alsoNotifyContactFollowers",
+      "optional": true,
+      "type": "boolean"
+     },
+     {
+      "name": "alsoNotifyOpportunityFollowers",
+      "optional": true,
+      "type": "boolean"
+     },
+     {
+      "name": "__tool_schema__",
+      "optional": true,
+      "type": "Record<string, IToolSchemaField>"
+     }
+    ]
+   },
    "enforcement": {
     "throw": [],
     "warn": [],
