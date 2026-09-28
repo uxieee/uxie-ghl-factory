@@ -10506,7 +10506,8 @@ export const TOOLS = [
         const b = r.json ?? {};
         if (view === 'security') return ok({ funnelId: args.funnelId, headers: b.securityHeaders ?? [], note: EXACT_CASE_NOTE });
         if (view === 'events') return ok({ funnelId: args.funnelId, events: (b.events ?? []).map((e) => ({ id: e._id, provider: e.provider, level: e.level, pixelId: e.pixelId, events: e.events, conversionEnabled: e.conversionEnabled, pageIds: e.pageIds })), totalCount: b.totalCount ?? null, ...(b.totalCount > 20 ? { note: 'Only the first 20 are listed (the route caps limit at 20).' } : {}) });
-        const { traceId, ...consent } = b;
+        // `signature` is a GHL-issued HS256 JWT over the consent data (it carries the user id): never echo it.
+        const { traceId, signature, ...consent } = b;
         return ok({ funnelId: args.funnelId, cookieConsent: consent, configured: true, note: 'Cookie consent is FUNNEL-level (every page of the funnel), saved by the builder through POST /funnels/funnel/cookie-consent.' });
       }
       const { res, funnel } = await readFunnel(gw, args.locationId, args.funnelId);
