@@ -1,7 +1,7 @@
 {
   "generated": "2026-09-28",
   "note": "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path — not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-  "count": 1248,
+  "count": 1251,
   "endpoints": [
     {
       "id": "facebook-service--get-ad-account-by-id",
@@ -16353,7 +16353,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:367"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:388"
       ]
     },
     {
@@ -55064,7 +55064,7 @@
       },
       "sources": [
         "ai-agents/20-api/12-ai-agents-api.md:161",
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:338"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:359"
       ]
     },
     {
@@ -55337,7 +55337,7 @@
       },
       "sources": [
         "ai-agents/20-api/voice-ai-boundary.md:63",
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:264",
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:268",
         "ai-agents/20-api/12-ai-agents-api.md:166"
       ]
     },
@@ -55446,7 +55446,42 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:326"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:347"
+      ]
+    },
+    {
+      "id": "ai-agents--s2s-prompt-validate",
+      "method": "POST",
+      "url": "https://services.leadconnectorhq.com/voice-ai/agents/{id}/s2s/prompt-validate",
+      "path": "/voice-ai/agents/{id}/s2s/prompt-validate",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "ai-agents",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "id"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:313"
       ]
     },
     {
@@ -55544,7 +55579,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:340"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:361"
       ]
     },
     {
@@ -55639,7 +55674,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:301"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:310"
       ]
     },
     {
@@ -55687,7 +55722,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:348"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:369"
       ]
     },
     {
@@ -55770,7 +55805,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:363",
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:384",
         "ai-agents/20-api/logs-deployment-email.md:27"
       ]
     },
@@ -55806,7 +55841,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:344"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:365"
       ]
     },
     {
@@ -55844,7 +55879,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:347"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:368"
       ]
     },
     {
@@ -55900,7 +55935,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:350",
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:371",
         "ai-agents/20-api/logs-deployment-email.md:24",
         "ai-agents/20-api/voice-ai-boundary.md:71",
         "ai-agents/30-types/voice-ai-actions.md:109"
@@ -55947,7 +55982,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:351",
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:372",
         "ai-agents/20-api/logs-deployment-email.md:25",
         "ai-agents/20-api/voice-ai-boundary.md:72"
       ]
@@ -56457,7 +56492,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:308",
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:317",
         "ai-agents/20-api/logs-deployment-email.md:19",
         "ai-agents/20-api/voice-ai-boundary.md:70"
       ]
@@ -56556,7 +56591,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:334",
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:355",
         "ai-agents/20-api/voice-ai-boundary.md:64"
       ]
     },
@@ -56588,7 +56623,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:333"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:354"
       ]
     },
     {
@@ -56623,7 +56658,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:337"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:358"
       ]
     },
     {
@@ -56658,7 +56693,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:336"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:357"
       ]
     },
     {
@@ -56693,7 +56728,42 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:335"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:356"
+      ]
+    },
+    {
+      "id": "ai-agents--performance-report-settings",
+      "method": "DELETE",
+      "url": "https://services.leadconnectorhq.com/voice-ai/performance-report/settings/{agentId}",
+      "path": "/voice-ai/performance-report/settings/{agentId}",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "destructive",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "ai-agents",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "agentId"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:321"
       ]
     },
     {
@@ -56790,6 +56860,37 @@
       ]
     },
     {
+      "id": "ai-agents--translate-ai",
+      "method": "POST",
+      "url": "https://services.leadconnectorhq.com/voice-ai/translate/ai",
+      "path": "/voice-ai/translate/ai",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "ai-agents",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:306"
+      ]
+    },
+    {
       "id": "ai-agents--voices-agents",
       "method": "GET",
       "url": "https://services.leadconnectorhq.com/voice-ai/voices/{recordId}/agents",
@@ -56828,7 +56929,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:319"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:340"
       ]
     },
     {
@@ -56958,7 +57059,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:316"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:337"
       ]
     },
     {
@@ -57002,7 +57103,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:312",
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:333",
         "ai-agents/20-api/voice-ai-boundary.md:66"
       ]
     },
@@ -57038,7 +57139,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:320"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:341"
       ]
     },
     {
@@ -57088,7 +57189,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:314"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:335"
       ]
     },
     {
