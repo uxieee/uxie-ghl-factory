@@ -18,7 +18,7 @@ export function findNode(pageData, nodeId) {
   return null;
 }
 
-import { sectionKnobs, sectionInnerRule, BUILDER_INNER_MAX_WIDTH } from './funnel-pages.mjs';
+import { sectionKnobs, sectionInnerRule, BUILDER_INNER_MAX_WIDTH, videoTypeOf } from './funnel-pages.mjs';
 import { typographyValue, setRootVars, TYPOGRAPHY_SLOTS, typographySlot, isCustomFont, upsertCustomFont, customFamily } from './page-fonts.mjs';
 import { entranceClass, hoverClass, entranceCss, hoverCss, stripAnimationCss, parentAnimationOffset, ENTRANCE_METAS, HOVER_METAS } from './page-animation.mjs';
 
@@ -95,6 +95,15 @@ export function applyPageEdits(pageData, ops, { compileStyles = () => '' } = {})
         const rules = entranceCss(id, hit.node.class, parentAnimationOffset(id, hit.section)) + hoverCss(id, hit.node.class);
         hit.section.general = { ...(hit.section.general ?? {}), sectionStyles: stripAnimationCss(hit.section.general?.sectionStyles ?? '', id) + rules };
         changed.push('section.general.sectionStyles');
+      }
+      // A video's source is ONE object (videoProperties.value): a set naming only a new url keeps the rest of the stored
+      // value, and the player type follows the url (or a Media Storage file) unless the caller names one.
+      if (hit.node.meta === 'video' && o.extra?.videoProperties?.value && typeof o.extra.videoProperties.value === 'object') {
+        const cur = hit.node.extra?.videoProperties?.value ?? {};
+        const given = o.extra.videoProperties.value;
+        const next = { ...cur, ...given, selfHostedVideo: { ...(cur.selfHostedVideo ?? {}), ...(given.selfHostedVideo ?? {}) } };
+        if (!given.type) next.type = given.selfHostedVideo?.id ? 'selfHosted' : (given.url ? (videoTypeOf(given.url) ?? cur.type) : cur.type);
+        o.extra = { ...o.extra, videoProperties: { value: next } };
       }
       if (o.extra && Object.keys(o.extra).length) { mergeInto(hit.node, 'extra', o.extra); changed.push(...Object.keys(o.extra).map((k) => `extra.${k}`)); }
       if (o.styles && Object.keys(o.styles).length) {

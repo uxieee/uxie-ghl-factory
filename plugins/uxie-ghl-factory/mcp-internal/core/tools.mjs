@@ -14,7 +14,7 @@ import { makeAuditCircuit, makeAuditGateway, makeAuditLimiter } from './audit-ga
 import { makeGateway } from './gateway.mjs';
 import {
   ELEMENT_KINDS, buildPageData, autosaveEnvelope, auditPageData, makeLeaf, makeColumn,
-  makeSection, textCss, buttonCss, leafStyleCss, nodeStylesFromCss, resetIds, val, NEEDS_STEP_TYPE,
+  makeSection, textCss, buttonCss, leafStyleCss, nodeStylesFromCss, resetIds, val, NEEDS_STEP_TYPE, videoSourceProblems,
 } from './funnel-pages.mjs';
 import {
   readFunnel, readLookups, stepView, lookupView, settingsFrom, settingsBody, settingsDiff, normPath,
@@ -1954,6 +1954,8 @@ async function editPage(args, deps, composeSection, { composeLeaf, popupIds, fon
     ...(edited.popupsList ?? []).filter((p) => report.some((r) => r.op === 'append-popup' && r.popupId === p.id)).flatMap((p) => p.elements.map((n) => n.id))]);
   const refs = popupRefProblems(edited, touched);
   if (refs.length) return withFailureData(fail(CODES.VALIDATION_FAILED, `openPopup names a popup this page does not have; nothing was written: ${refs.join('; ')}`, 'Add the popup (append-popup) in the same call, or name one of the page\'s popups.'), { report });
+  const vids = videoSourceProblems(edited, touched);
+  if (vids.length) return withFailureData(fail(CODES.VALIDATION_FAILED, `a video this call writes has no source; nothing was written: ${vids.join('; ')}`, 'Set extra.videoProperties = {value: {url}} (or selfHostedVideo for a Media Storage file) on the video.'), { report });
   // buildPageData() is what wraps new nodes with their canonical `element` copy; run the appended
   // sections through it, and keep the stored sections exactly as read.
   const pageData = { ...edited, sections: edited.sections.map((sec, i) => (report.some((r) => r.op === 'append-section' && r.sectionId === sec.id)
@@ -10876,6 +10878,8 @@ export const TOOLS = [
         applyTypography(pageData, typo, fonts.reg);
         const refs = popupRefProblems(pageData);
         if (refs.length) throw Object.assign(new Error(refs.join('; ')), { remediation: 'A button whose action is openPopup must name a popup on this page — use `openPopup: "<popup name>"` on the element.' });
+        const vids = videoSourceProblems(pageData);
+        if (vids.length) throw Object.assign(new Error(vids.join('; ')), { remediation: 'Give each video a source: extra.videoProperties = {value: {url: "<YouTube | Vimeo | Wistia | .mp4 URL>"}} (the type is read off the URL), or {value: {type: "selfHosted", selfHostedVideo: {id, name, url}}} for a Media Storage file.' });
       } catch (e) {
         // A thrown composer error may carry its own remediation; the default below is only right for
         // the element-kind failure, and was misleading on every other one.
@@ -11197,16 +11201,22 @@ export const TOOLS = [
       + 'left to the UI because it cannot be removed below the $497 plan), archived-pages (pages archived by a page '
       + '"delete" or a split-test winner, restorable with edit_funnel restore-page), step-products {stepId} (the '
       + 'products a step\'s order form lists and its sell buttons sell, with product and price names — add one with '
-      + 'edit_funnel add-step-product). '
+      + 'edit_funnel add-step-product), stats {from?, to?: YYYY-MM-DD, default the last 30 days} (the funnel\'s Stats tab per step '
+      + '— page views all/unique, opt-in and sale rates, earnings per view — with step names, plus the totals the Sites Analytics '
+      + 'cards show: page views, opt-ins, sales and their value, opt-in rate, and hosted-video plays/completion; 🔴 only a HOSTED '
+      + 'video (a Media Storage file) reports analytics — YouTube, Vimeo, Wistia and embeds send nothing; RESETTING stats is not '
+      + 'offered: it is irreversible, applies asynchronously (~30 s) and clears the Sites Analytics numbers too — funnel → Stats → Reset). '
       + 'Siblings: find_ghl_site resolves a domain/name to the document id first; audit_site sweeps a whole '
       + 'site for dangling references and publish drift — this tool does not repeat that audit. '
       + 'Read-only.',
     inputSchema: schema({
       locationId: z.string(),
       funnelId: z.string(),
-      view: z.enum(['summary', 'lookups', 'settings', 'versions', 'security', 'events', 'cookie-consent', 'share', 'archived-pages', 'step-products']).default('summary'),
+      view: z.enum(['summary', 'lookups', 'settings', 'versions', 'security', 'events', 'cookie-consent', 'share', 'archived-pages', 'step-products', 'stats']).default('summary'),
       pageId: z.string().optional(),
       stepId: z.string().optional(),
+      from: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+      to: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
     }),
     capabilities: [
       { method: 'GET', path: '/funnels/funnel/fetch/{funnelId}' },
@@ -11218,6 +11228,10 @@ export const TOOLS = [
       { method: 'GET', path: '/funnels/builder/funnel-share-details/{funnelId}' },
       { method: 'GET', path: '/funnels/page/list' },
       { method: 'GET', path: '/funnels/order-form/products/' },
+      { method: 'GET', path: '/stats/' },
+      { method: 'GET', path: '/stats/count' },
+      { method: 'GET', path: '/stats/optin/conversion-rate' },
+      { method: 'GET', path: '/stats/video/stats' },
     ],
     handler: async (args, deps) => guard(async () => {
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
@@ -11243,6 +11257,33 @@ export const TOOLS = [
         const { res: r, rows } = await readStepProducts(gw, args.locationId, args.funnelId, args.stepId);
         if (!r.ok) return fromHttp(r.status, r.json);
         return ok({ funnelId: args.funnelId, stepId: args.stepId, stepProducts: rows.map(stepProductView), note: STEP_PRODUCT_NOTE });
+      }
+      if (view === 'stats') {
+        const { res: fr, funnel: f } = await readFunnel(gw, args.locationId, args.funnelId);
+        if (!fr.ok) return fromHttp(fr.status, fr.json);
+        const day = (d) => d.toISOString().slice(0, 10);
+        const to = args.to ?? day(new Date());
+        const from = args.from ?? day(new Date(Date.parse(`${to}T00:00:00Z`) - 30 * 86400000));
+        const type = f?.type === 'website' ? 'website' : f?.type === 'webinar' ? 'webinar' : 'funnel';
+        const q = `locationId=${L}&fromDate=${from}&toDate=${to}&funnelId=${F}&type=${type}`;
+        const reads = {
+          steps: `/stats/?funnelId=${F}&fromDate=${from}&toDate=${to}&locationId=${L}`,
+          pageViews: `/stats/count?${q}&eventType=page_view`, optins: `/stats/count?${q}&eventType=optin`, sales: `/stats/count?${q}&eventType=sale`,
+          optinRate: `/stats/optin/conversion-rate?${q}&eventType=optin_conversion_rate`, video: `/stats/video/stats?${q}&eventType=video&includeGraphData=false`,
+        };
+        const got = {};
+        for (const [k, p] of Object.entries(reads)) { const r = await gw.call('GET', p); if (!r.ok) return fromHttp(r.status, r.json); got[k] = r.json; }
+        const names = new Map((f?.steps ?? []).map((st) => [st.id, st.name]));
+        const steps = (Array.isArray(got.steps) ? got.steps : []).map((st) => ({ stepId: st.stepId, name: names.get(st.stepId) ?? null,
+          pageViewsAll: st.pageViewsAll ?? 0, pageViewsUnique: st.pageViewsUnique ?? 0, optinsRate: st.optinsRate ?? null, saleRate: st.saleRate ?? null,
+          earningsPerPageViewAll: st.earningsPerPageViewAll ?? 0, pages: (st.pageStats ?? []).map((pg) => ({ pageId: pg.pageId, pageViewsAll: pg.pageViewsAll ?? 0, pageViewsUnique: pg.pageViewsUnique ?? 0 })) }));
+        const vd = got.video?.data ?? {};
+        return ok({ funnelId: args.funnelId, name: f?.name ?? null, from, to,
+          totals: { pageViews: got.pageViews?.totalCount ?? 0, optins: got.optins?.totalCount ?? 0, sales: got.sales?.totalCount ?? 0, saleValue: got.sales?.saleValue ?? 0,
+            optinRate: got.optinRate?.totalCount ?? 0, hostedVideo: { plays: vd.videoPlay ?? 0, completionPct: vd.completion ?? null, averageWatchedPct: vd.averageTime ?? null } },
+          steps,
+          notes: ['Views are counted from public page loads (POST /stats/event); a Stats reset (UI only, not offered here) clears them asynchronously.',
+            'Only a HOSTED video (a Media Storage file) reports plays; YouTube, Vimeo, Wistia and embeds send nothing.'] });
       }
       if (view === 'versions') {
         if (!args.pageId) return fail(CODES.VALIDATION_FAILED, 'view "versions" needs pageId', 'Pass the pageId (view "summary" lists each step\'s pages).');

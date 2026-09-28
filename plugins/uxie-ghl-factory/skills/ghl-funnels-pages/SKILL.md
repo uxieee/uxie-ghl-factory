@@ -130,6 +130,30 @@ three render inline in the public page. 🔴 A survey with **no question** takes
 500 (the renderer reads the survey live; adding one question fixes it with no republish), so check a page's public
 status after binding a survey.
 
+**Video** (`video` leaf): the source is `extra.videoProperties.value` — pass `{url}` (a YouTube, Vimeo, Wistia or .mp4 URL;
+the player `type` is read off it) or `{selfHostedVideo: {id, name, url}}` for a Media Storage file (`type: "selfHosted"`).
+A video with no source is refused (it rendered an empty 16:9 box). In edit mode a `set` naming only a new `url` keeps the
+rest of the stored value. `playBackControls` (`autoplay`, `loop`, `showProgressBar`, …) is a RAW object. 🔴 Only a
+**hosted** video reports analytics (plays, completion). YouTube, Vimeo, Wistia and embeds send nothing.
+
+**Timers** (`countdown`, `minute-timer`, `day-timer`; `marketing-countdown` binds a Marketing → Countdown Timers asset by
+`countdownTimerId`). 🔴 A timer whose end has passed renders NOTHING in public, even though the builder canvas shows it
+counting:
+- a Countdown's `endDate` defaults to the day it is added, at `endTime 00:00` America/New_York — always set an explicit
+  future `endDate` + `endTime`;
+- a Day Timer counts to TODAY's `endTime` and does not roll over — blank for the rest of the day once reached;
+- the Minute Timer is evergreen per visitor.
+The expire action is `url` (+ `redirectUrl`) or `hide` (+ `hideElements` / `showElements`, node ids).
+
+**Upsell** (`upsell` leaf): `extra.productDetails` is a RAW snapshot of a CATALOGUE product (`{_id, name, amount,
+currency, hasVariants, label, value: <product id>, …}`), not a step product. It renders every price of that product, with
+`saleAction` as for order forms. The purchase itself charges a card saved by an earlier order in the funnel.
+
+**Analytics:** `get_funnel` view `stats` gives a funnel's per-step views, opt-in and sale rates and earnings per view,
+with step names, plus the totals the Sites Analytics cards show. Location-wide dashboard reads (`/stats/count`,
+`/stats/graph/data`, `/stats/count/split`, `/stats/device/split`, `/stats/video/stats`, `/stats/count/webinar`) go through
+`raw_request` — see the catalogue rows.
+
 **Fonts** — page typography `{headlineFont, contentFont}` (compose: top-level `typography`; edit: op `page`
 `typography`) writes the builder's setting, loads the faces and declares `--headlinefont` / `--contentfont`;
 an element with `font: 'headline'|'content'` uses them (refused when the page has none set). A slot can
@@ -172,6 +196,7 @@ target. Read them with **`find_ghl_site`** `includeRedirects:true` (domains, eve
 | share a funnel (a link anyone can import) | Sites → Funnels → row ⋮ → Share | 🔴 merely OPENING the Share modal creates a link shared with ALL; narrowing it to the agency or removing it needs the $497 plan. Read one with `get_funnel view share` |
 | clone a funnel into ANOTHER sub-account | Sites → Funnels → row ⋮ → Clone → pick locations | the same route as `clone-funnel`; cross-location delivery is not proven, so the tool clones into this location only |
 | upload a custom font (.ttf .otf .woff .woff2, max 100 per sub-account) | page builder → Typography → a font picker → Upload Fonts → Manage Fonts | a multipart file upload from the user's device or media library; once uploaded, `build_funnel_page` typography uses it by `{customFontId}` |
+| reset a funnel's stats | Funnel → Stats → Reset | irreversible; `DELETE /stats/?funnelId&locationId` applies asynchronously (the numbers read partial for ~30 s, then 0) and also clears that funnel's Sites Analytics numbers |
 | visitor geo-location | nothing to set | a runtime lookup (`GET /funnels/funnel/geo-location/` → the visitor's country) the builder uses to format prices |
 
 What the builder does that a 2xx will not tell you (all measured live):

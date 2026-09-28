@@ -206,12 +206,48 @@ const ORDER_FORM_STYLE_DEFAULTS = {
 const NAV_MENU_STYLE_DEFAULTS = {"paddingTop": {"value": 8, "unit": "px"}, "paddingBottom": {"value": 8, "unit": "px"}, "paddingLeft": {"value": 10, "unit": "px"}, "paddingRight": {"value": 10, "unit": "px"}, "marginTop": {"value": 0, "unit": "px"}, "marginBottom": {"value": 0, "unit": "px"}, "marginLeft": {"value": 0, "unit": "px"}, "marginRight": {"value": 0, "unit": "px"}, "lineHeight": {"value": 1.3, "unit": "em"}, "textTransform": {"value": "none"}, "letterSpacing": {"value": 0, "unit": "px"}, "textAlign": {"value": "left"}, "fontWeight": {"value": "normal", "desktop": "400"}, "backgroundColor": {"value": "var(--white)"}, "mobileBackgroundColor": {"value": "var(--white)"}, "popupBackgroundColor": {"value": "var(--white)"}, "mobilePopupBackgroundColor": {"value": "var(--white)"}, "color": {"value": "var(--text-color)"}, "inlineColors": {"value": []}, "hoverBackgroundColor": {"value": "var(--black)"}, "hoverTextColor": {"value": "var(--white)"}, "boldTextColor": {"value": "var(--black)"}, "italicTextColor": {"value": "var(--black)"}, "underlineTextColor": {"value": "var(--black)"}, "iconColor": {"value": "var(--black)"}, "cartIconColor": {"value": "var(--black)"}, "userIconColor": {"value": "var(--black)"}, "cartIconActiveColor": {"value": "var(--black)"}, "submenuBackgroundColor": {"value": "var(--white)"}, "submenuMobileBackgroundColor": {"value": "var(--white)"}, "submenuColor": {"value": "var(--text-color)"}, "submenuHoverBackgroundColor": {"value": "var(--black)"}, "submenuHoverTextColor": {"value": "var(--white)"}, "borderColor": {"value": "#000000"}, "borderStyle": {"value": "none"}, "borderWidth": {"value": "0px"}, "borderRadius": {"value": "0px"}, "boxShadow": {"value": "none"}};
 const STYLE_DEFAULTS = { button: BUTTON_STYLE_DEFAULTS, 'one-step-order': ORDER_FORM_STYLE_DEFAULTS, 'two-setp-order': ORDER_FORM_STYLE_DEFAULTS,
   'nav-menu': NAV_MENU_STYLE_DEFAULTS, 'nav-menu-v2': NAV_MENU_STYLE_DEFAULTS };
+// A video's source: the builder picks the player from videoProperties.value.type (youtube | vimeo | wistia | custom_embed |
+// html | selfHosted) and reads url (or selfHostedVideo {id, name, url} for a Media Storage file). A caller naming only a
+// url gets the builder's full value around it and a type read off the url; an authored type always wins.
+export const VIDEO_TYPES = Object.freeze(['youtube', 'vimeo', 'wistia', 'custom_embed', 'html', 'selfHosted']);
+export function videoTypeOf(url) {
+  const u = String(url ?? '');
+  if (/youtube\.com|youtu\.be/i.test(u)) return 'youtube';
+  if (/vimeo\.com/i.test(u)) return 'vimeo';
+  if (/wistia\.(com|net)|wi\.st/i.test(u)) return 'wistia';
+  if (/\.(mp4|webm|ogg|m3u8)(\?|$)/i.test(u)) return 'html';
+  return null;
+}
+export function normalizeVideoExtra(extra = {}) {
+  const given = extra.videoProperties;
+  if (!given || typeof given !== 'object') return extra;
+  const v = { ...KIND_DEFAULT_EXTRA.video.videoProperties.value, ...(given.value ?? {}) };
+  v.selfHostedVideo = { ...KIND_DEFAULT_EXTRA.video.videoProperties.value.selfHostedVideo, ...(given.value?.selfHostedVideo ?? {}) };
+  if (!given.value?.type) v.type = v.selfHostedVideo.id ? 'selfHosted' : (videoTypeOf(v.url) ?? v.type);
+  return { ...extra, videoProperties: { value: v } };
+}
+// A composed video with no source renders an empty box in public while every write answers 201.
+export function videoSourceProblems(pageData, onlyIds = null) {
+  const out = [];
+  const walk = (els) => { for (const n of els ?? []) {
+    if (n.meta === 'video' && (!onlyIds || onlyIds.has(n.id))) {
+      const v = n.extra?.videoProperties?.value ?? {};
+      const src = v.type === 'selfHosted' ? v.selfHostedVideo?.id : (v.type === 'custom_embed' ? (v.customEmbedCode ?? v.url) : v.url);
+      if (!src) out.push(`video ${n.id}: no source — set extra.videoProperties.value.url (a YouTube, Vimeo, Wistia or .mp4 URL) or selfHostedVideo {id, name, url} of a Media Storage file; without one the public page shows an empty box`);
+      else if (!VIDEO_TYPES.includes(v.type)) out.push(`video ${n.id}: videoProperties.value.type '${v.type}' is not one of ${VIDEO_TYPES.join(', ')}`);
+    }
+  } };
+  for (const s of pageData.sections ?? []) walk(s.elements);
+  for (const p of pageData.popupsList ?? []) walk(p.elements);
+  return out;
+}
+
 export const makeLeaf = ({ meta, extra = {}, styles = {}, cls = {}, tag = '', salt }) => {
   if (!ELEMENTS[meta]) throw new Error(`unknown element meta '${meta}' — the vocabulary is a closed set of ${ELEMENT_KINDS.length}`);
   const id = mkId(meta, salt);
   const base = { ...(KIND_DEFAULT_STYLES[meta] ?? {}), ...(STYLE_DEFAULTS[meta] ?? {}) };
   const withDefaults = Object.keys(base).length ? { ...base, ...styles } : styles;
-  const node = envelope(id, 'element', meta, ELEMENTS[meta].tagName, completeExtra(meta, extra), withDefaults, cls);
+  const node = envelope(id, 'element', meta, ELEMENTS[meta].tagName, completeExtra(meta, meta === 'video' ? normalizeVideoExtra(extra) : extra), withDefaults, cls);
   // Most leaves carry tag:''. The store and blog kinds carry their tagName, and do not render without it.
   node.tag = tag || (TAG_IS_TAGNAME.has(meta) ? ELEMENTS[meta].tagName : '');
   return node;
