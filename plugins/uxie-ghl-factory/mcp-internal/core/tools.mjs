@@ -9799,7 +9799,8 @@ export const TOOLS = [
       + 'API equivalent. Stores nothing. Not for editing: edit_pipeline changes pipelines and stages; the public '
       + 'opportunities tools (ghl MCP) read and change individual opportunities; list_account_entities lists pipelines. '
       + 'Board-only features have no tool: the board/list layout, card fields, drag-to-change-status, the All pipelines '
-      + 'list, remembered filters, the full-page Record View, and CSV Export/Import. GHL does them on the Opportunities screen.',
+      + 'list, remembered filters, the full-page Record View, and CSV Export/Import. GHL does them on the Opportunities screen. '
+      + 'Which fields search matches is an account-wide setting: Settings › Custom Fields › Edit searchable fields.',
     inputSchema: schema({
       locationId: z.string(),
       view: z.enum(FORECAST_VIEWS),

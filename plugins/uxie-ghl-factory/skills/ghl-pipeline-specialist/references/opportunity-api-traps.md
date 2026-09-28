@@ -58,6 +58,9 @@ A wrong value shape can answer **201 with zero rows**. Always run a baseline and
   The name does not mean sent: it read back as a draft, not sent. It needs the contact's email and
   an E.164 phone. Without them it answers 422 while the UI shows nothing.
 
+- **A lost reason typed into the edit form is created the moment you pick it** (`POST
+  /opportunities/lost-reason`), even if the form is then cancelled. Stray reasons stay in the list.
+
 ## Account settings
 
 - **Owners are synced both ways by default.** Changing an opportunity's owner also changes its
@@ -68,6 +71,11 @@ A wrong value shape can answer **201 with zero rows**. Always run a baseline and
 - "Allow more than one opportunity per contact in the same pipeline" is on a different screen
   (Settings › Objects › Opportunities) and a different key (`allowDuplicateOpportunity`, top level
   of the location write).
+- **Searchable fields are one list per object for the whole account**: `GET /objects/` →
+  `searchableProperties`, written by `PUT /objects/{objectKey}` (objectKey `opportunity`, body
+  `{locationId, searchableProperties}`). The write is a full replace: a field taken out of the list stops
+  matching at once, for every user. To undo a change, write back the list you read first. "Reset to
+  default" gives GHL's defaults, which may not be what the account had.
 - Once the settings screen has been saved, the UI cannot return the settings to "never set". It
   writes explicit `false` instead, which behaves the same.
 
@@ -91,7 +99,15 @@ A wrong value shape can answer **201 with zero rows**. Always run a baseline and
   save through the same create call, with no marker, and can be renamed before saving.
 - 60 tags per pipeline, enforced by the server. Every new tag is saved with `position: 1`.
 
+## Board display
+
+- Card layout (Default / Compact / Unlabeled), card fields and quick actions are saved only on a **saved
+  view** (`/lists/dynamic`, `cardConfig` plus `columns`). "Apply" in Customize card changes the screen and
+  saves nothing. The built-in "Open opportunities" view cannot be overwritten.
+
 ## Bulk actions (UI)
 
 - Bulk edit and bulk delete run as jobs listed under Opportunities › Bulk Actions.
 - A bulk delete can be undone there (Restore) or per card. A bulk edit cannot be undone.
+- A CSV import is a background job (`bulk-import-v2`) that can sit at "processing 0/N" for minutes before
+  it runs. A `Source` column is written to both the contact and the opportunity.
