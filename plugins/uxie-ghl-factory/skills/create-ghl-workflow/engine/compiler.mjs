@@ -12,6 +12,7 @@ import { stepNotesToComments } from './step-notes.mjs';
 import { disableRefusal } from './disable-rules.mjs';
 import { checkContactFieldShape } from './contact-field-shapes.mjs';
 import { numberFormatterFieldTypes, isZeroSkip } from './lints/formatter-skips.mjs';
+import { lintContactLessSteps } from './lints/contact-less-steps.mjs';
 import { enforceRequiredFields, INNER_ATTRIBUTE_TYPE } from './required-fields.mjs';
 import { coerceDefault } from './action-schema.mjs';
 import { enforceTemplates } from './enforce.mjs';
@@ -2716,6 +2717,7 @@ export function compile(ir, ctx) {
         + `Remove them, target a contact workflow instead, or pass skipObjectRules: true.`);
     for (const tb of []) void tb;
   }
+  for (const f of lintContactLessSteps(templates, norm.triggers)) ctx?.warn?.(`${f.code}: ${f.msg}`);
   // Authored ref names in wait jump/reply fields → the minted step ids (graph-refs.mjs).
   resolveAuthoredStepRefs(templates, refMap);
   enforceTemplates(templates, ctx?.catalog, ctx);
