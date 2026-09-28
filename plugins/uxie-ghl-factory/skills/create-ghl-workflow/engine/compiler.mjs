@@ -1781,6 +1781,37 @@ export function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
       return;
     }
 
+    // AI intent detection — GHL's FIXED three-way sentiment router. The shape is the builder's own, captured from its
+    // in-memory document under a write guard (knowledge sniffs/workflows-wave1-2026-09-25/live-3CB-intent-builder-specimen.json):
+    // cat multi-path + convertToMultipath, three pre-defined transitions Positive/Negative/None with fields.branchKey
+    // POSITIVE/NEGATIVE/NONE and meta.__branchKey__ 'predefined_<Name>', `next` = the three transition ids, every transition
+    // order 1, and an omitted branch is an empty lane (its transition carries no `next`).
+    if (n.kind === 'ai_intent') {
+      const type = 'workflow_ai_intent_detection';
+      const name = n.name ?? 'AI intent detection';
+      const byKey = Object.fromEntries((n.branches ?? []).map((b) => [String(b.name).trim().toLowerCase(), b]));
+      const lanes = [['positive', 'Positive', 'POSITIVE'], ['negative', 'Negative', 'NEGATIVE'], ['none', 'None', 'NONE']]
+        .map(([key, label, branchKey]) => ({ key, label, branchKey, b: byKey[key], id: byKey[key]?.ref !== undefined ? idForRef(refMap, ctx, byKey[key].ref) : ctx.idGen() }));
+      const container = {
+        id, type, name, attributes: {
+          inputText: n.inputText ?? n.attributes?.inputText, type, __customInputs__: {}, cat: 'multi-path', convertToMultipath: true,
+          transitions: lanes.map((l) => ({ id: l.id, name: l.label, fields: { branchKey: l.branchKey }, meta: { __branchKey__: `predefined_${l.label}` }, conditionType: 'pre-defined' })),
+          __name__: name,
+        },
+        order: i, parentKey, cat: 'multi-path', workflowsActionType: 'INTERNAL', next: lanes.map((l) => l.id),
+      };
+      if (parentScopeId !== null) container.parent = parentScopeId;
+      templates.push(withStepDisabled(n, container, ctx));
+      for (const l of lanes) {
+        const child = flattenGraph(l.b?.then ?? [], ctx, refMap, l.id);
+        const tr = { id: l.id, parentKey: id, parent: id, type: 'transition', name: l.label, attributes: {}, order: 1, cat: 'transition' };
+        if (child.entryId) tr.next = child.entryId;
+        templates.push(tr);
+        templates.push(...child.templates);
+      }
+      return;
+    }
+
     // AI decision-maker / ConvAI splitter — N author-defined branches routed by an LLM,
     // plus an always-present pre-defined Default Branch (first). Mirrors the verified-live
     // workflow_ai_decision_maker corpus shape. Author supplies branches[{name,description,then}].

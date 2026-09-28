@@ -14,7 +14,7 @@ export const NORMALIZE_SKIP = new Set([
   'internal_update_opportunity', 'internal_create_opportunity', 'update_opportunity', 'create_opportunity',
   'find_opportunity', 'email', 'custom_webhook', 'custom_code', 'webhook', 'voice_ai_outbound_call',
   // branch wiring lives in the attributes
-  'if_else', 'transition', 'workflow_split', 'ai_decision', 'goto', 'loop', 'workflow_goal',
+  'if_else', 'transition', 'workflow_split', 'ai_decision', 'goto', 'loop', 'workflow_goal', 'workflow_ai_intent_detection',
 ]);
 
 // `opts.novelKeys` — the attribute keys the patch INTRODUCED (absent from the stored attributes

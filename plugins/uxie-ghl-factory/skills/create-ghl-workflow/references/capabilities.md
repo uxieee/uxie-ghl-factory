@@ -157,6 +157,7 @@ Legend: ✅ verified-live (round-tripped against a live account) · ◐ bundle-d
 | `if_else` | `if_else` | N≥2 branches, one optional `else: true` |
 | `split` | `workflow_split` | weighted/random branches |
 | `ai_decision` | `workflow_ai_decision_maker` | Default + N LLM branches |
+| `ai_intent` | `workflow_ai_intent_detection` | fixed Positive / Negative / None (`branches[].name`), `inputText` |
 | `wait` | `wait` | plain wait, or multipath on outcomes |
 | `goto` | `goto` | must be last node in its branch |
 | `onFound`/`onNotFound` | `find_contact`, `find_opportunity`, `lc_merge_contact` | pre-set 2-branch finders |

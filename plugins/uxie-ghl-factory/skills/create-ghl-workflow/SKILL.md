@@ -184,12 +184,17 @@ workflow that builds clean, verifies clean, and behaves wrongly at runtime.
   it then publishes clean and silently no-ops at runtime.
 - **Marketplace steps build fine and only RUN if the app is installed** on that location. 282 of the
   385 step types are marketplace; a build is not a proof it will fire.
-- **`clear_associated_company_fields` FAILS on a contact with no company**, while its sibling
-  `update_associated_company` only SKIPS (live 2026-09-28). A failed step triggers GHL's workflow
-  error notification, which emails every admin by default. Put it behind an If/Else that checks
-  the contact has a company. The engine cannot see this: whether a contact has a company is
-  runtime data. The fields of the company steps live in `__customInputFields__` rows
+- **`clear_associated_company_fields`: the builder says it skips; it fails.** Its drawer promises
+  "If no company is associated, this action will be skipped". On a contact with no company it
+  FAILS, and a failed step emails every admin by default. Its sibling `update_associated_company`
+  really does skip. Where a company exists, it logs `success` and clears NOTHING, even with the
+  builder's own row (live 2026-09-28, twice). To blank company fields, use
+  `update_associated_company`. The engine cannot see any of this: whether a contact has a company
+  is runtime data. The company steps' fields live in `__customInputFields__` rows
   (`{filterField: "business.<key>", valueField}`), not in `inputs`. Read the card.
+- **`workflow_ai_extract_data` output is `{{workflow_ai_extract_data.N.<fieldName>}}`.**
+  `{{workflow_ai_extract_data.N.output.<fieldName>}}` builds clean and renders EMPTY (live
+  2026-09-28).
 - **A step type's card, not its example.** An example is one capture, so it pins one value of every
   discriminator. `describe_step_type` carries the union.
 - **Publishing is never implied.** Everything builds as `draft`; `--publish` is opt-in and gated on

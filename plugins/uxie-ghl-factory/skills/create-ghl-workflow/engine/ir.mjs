@@ -30,6 +30,7 @@ const KNOWN_NODE_KEYS = new Set([
   'find', 'match_by',                       // find_opportunity / find_contact / lc_merge_contact
   'reply', 'timeout',                       // multipath wait
   'instructions', 'information',            // ai_decision
+  'inputText',                              // ai_intent
   'target',                                 // goto
   ...SCOPE_KEYS,
 ]);
@@ -47,7 +48,7 @@ const SCOPE_OWNERS = {
   default: ['ai_decision', 'conversationai_ai_splitter', 'split'],
   // Branch/path/target keys are scopes too: a `branches` array on an sms node was authored,
   // never read, and the node compiled as a plain linear step with attributes:{} (F5-14).
-  branches: ['if_else', 'ai_decision', 'conversationai_ai_splitter'],
+  branches: ['if_else', 'ai_decision', 'ai_intent', 'conversationai_ai_splitter'],
   paths: ['split', 'workflow_split'],
   target: ['goto'],
 };
@@ -61,7 +62,13 @@ const SCOPE_OWNERS = {
 // workflow_ai_decision_maker is the WIRE type of the ai_decision kind; without it here an author
 // who wrote the type GHL stores (and describe_step_type shows) reached the linear emit: with
 // branches it tripped NODE_KEY, without them it compiled a single step that cannot branch.
-const KIND_BY_TYPE = { if_else: 'if_else', workflow_split: 'split', ai_decision: 'ai_decision', workflow_ai_decision_maker: 'ai_decision', goto: 'goto' };
+// workflow_ai_intent_detection likewise: the builder ONLY stores it as a branching container (Positive / Negative / None,
+// live builder capture 2026-09-28, knowledge sniffs/workflows-wave1-2026-09-25/live-3CB-intent-builder-specimen.json).
+// Compiled as a plain marketplace step it was a straight line the builder never produces.
+const KIND_BY_TYPE = { if_else: 'if_else', workflow_split: 'split', ai_decision: 'ai_decision', workflow_ai_decision_maker: 'ai_decision',
+  ai_intent: 'ai_intent', workflow_ai_intent_detection: 'ai_intent', goto: 'goto' };
+// ai_intent's branches are FIXED by GHL: exactly these names, each at most once, any may be omitted (an empty lane, as the builder leaves it).
+export const AI_INTENT_BRANCHES = ['positive', 'negative', 'none'];
 
 // The node-kind vocabulary, in full. `kind` selects the HANDLER, so an unrecognised value used to
 // select one by omission: no branch matched, nothing validated, and the compiler emitted a step
@@ -72,7 +79,7 @@ const KIND_BY_TYPE = { if_else: 'if_else', workflow_split: 'split', ai_decision:
 // "kind":"step" as a taxonomy field (step vs trigger), so an author who calls describe_step_type
 // and copies what it shows lands on the one value that disabled every guard downstream. Two keys
 // named `kind`, two disjoint vocabularies, and the catalogue is the one agents read first.
-export const NODE_KINDS = new Set(['action', 'wait', 'if_else', 'split', 'ai_decision', 'goto', 'raw']);
+export const NODE_KINDS = new Set(['action', 'wait', 'if_else', 'split', 'ai_decision', 'ai_intent', 'goto', 'raw']);
 // if_else branch keys the compiler reads; `op` is the conditions' AND/OR (the builder's segment operator).
 const IF_ELSE_BRANCH_KEYS = new Set(['ref', 'name', 'conditions', 'then', 'else', 'op', 'assocGuaranteed']);
 
@@ -361,7 +368,7 @@ export function parseIR(ir, { externalRefs } = {}) {
             + `different vocabulary from the one an authored node uses. Do not copy it onto the step. `
           : '')
         + `Author kind as one of: ${[...NODE_KINDS].join(', ')} — or omit it entirely, which is `
-        + `usually right: the engine infers it from 'type' (if_else, workflow_split, ai_decision, `
+        + `usually right: the engine infers it from 'type' (if_else, workflow_split, ai_decision, ai_intent, `
         + `goto), and everything else defaults to 'action'. `
         + `This used to be accepted and compile to an EMPTY step (attributes {}, no nodeType) that `
         + `wrote clean, verified clean and did nothing.`);
@@ -403,6 +410,21 @@ export function parseIR(ir, { externalRefs } = {}) {
       if ((n.paths ?? []).length < 2) throw new IRError('SPLIT_ARITY', `split '${n.ref}' needs >=2 paths`);
       if (n.mode === 'weighted' && n.paths.some((p) => typeof p.weight !== 'number'))
         throw new IRError('SPLIT_WEIGHT', `split '${n.ref}' weighted requires weight per path`);
+    }
+    if (n.kind === 'ai_intent') {
+      const input = n.inputText ?? n.attributes?.inputText;
+      if (typeof input !== 'string' || !input.trim())
+        throw new IRError('AI_INTENT_INPUT', `ai_intent '${n.ref}' needs a non-empty inputText (the text whose sentiment routes the contact)`);
+      const seenB = new Set();
+      for (const b of n.branches ?? []) {
+        const key = String(b?.name ?? '').trim().toLowerCase();
+        if (!AI_INTENT_BRANCHES.includes(key))
+          throw new IRError('AI_INTENT_BRANCH', `ai_intent '${n.ref}' has a branch named ${JSON.stringify(b?.name ?? null)} — GHL's intent detection has exactly three fixed branches: positive, negative, none`);
+        if (seenB.has(key)) throw new IRError('AI_INTENT_BRANCH', `ai_intent '${n.ref}' names the '${key}' branch twice`);
+        seenB.add(key);
+        const badKeys = Object.keys(b).filter((k) => !['ref', 'name', 'then'].includes(k));
+        if (badKeys.length) throw new IRError('BRANCH_KEY', `ai_intent '${n.ref}' branch '${key}' has unknown key(s) [${badKeys.join(', ')}] — known: ref, name, then`);
+      }
     }
     if (n.kind === 'ai_decision') {
       if ((n.branches ?? []).length < 1) throw new IRError('AI_DECISION_ARITY', `ai_decision '${n.ref}' needs >=1 branch`);
