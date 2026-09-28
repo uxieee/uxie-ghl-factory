@@ -277,6 +277,33 @@ test('rule 3: a descriptor with any non-schema key, a bad type, or no value is s
   }
 });
 
+// The same editor body nests edge SNAPSHOTS that carry the untouched palette template one level down:
+// `nodeConfig.nodeConfig.params.locationId: ""`. A nested empty id names no account; it passes only when a
+// permitted location anchors the request elsewhere (coordinator ruling 2026-09-28).
+test('rule 3: a nested empty locationId passes next to a permitted top-level anchor', () => {
+  const body = { locationId: PERMITTED, edges: [{ targetNode: { nodeConfig: { nodeConfig: { params: { locationId: '' } } } } }] };
+  assert.equal(checkLocationBinding(raw({ method: 'PATCH', body })), null);
+});
+
+test('rule 3: a nested empty locationId passes with a query anchor', () => {
+  assert.equal(checkLocationBinding(raw({ method: 'PATCH', path: `/x?locationId=${PERMITTED}`, body: { a: { locationId: '' } } })), null);
+});
+
+test('rule 3: empty ids are refused as the TOP-LEVEL id, alone, beside a foreign id, and whitespace/"null" stay ids (controls)', () => {
+  const cases = [
+    [{ locationId: '' }, /targets , which/],
+    [{ a: { locationId: '' }, b: [{ locationId: '' }] }, /only empty location ids/],
+    [{ locationId: PERMITTED, a: { locationId: '' }, b: { locationId: FOREIGN } }, new RegExp(FOREIGN)],
+    [{ locationId: PERMITTED, a: { locationId: ' ' } }, /targets  , which/],
+    [{ locationId: PERMITTED, a: { locationId: 'null' } }, /targets null, which/],
+  ];
+  for (const [body, re] of cases) {
+    const r = checkLocationBinding(raw({ method: 'PATCH', body }));
+    assert.equal(r?.code, CODES.LOCATION_FORBIDDEN, `${JSON.stringify(body)} must be refused`);
+    assert.match(r.detail, re, JSON.stringify(body));
+  }
+});
+
 test('rule 3: an array of permitted strings is allowed', () => {
   assert.equal(checkLocationBinding(raw({ method: 'POST', body: { locationId: [PERMITTED] } })), null);
 });
