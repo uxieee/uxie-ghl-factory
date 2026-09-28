@@ -20,16 +20,16 @@
     {
       "tree": "documented",
       "dir": "corpus",
-      "capturedAt": "2026-09-28T14:45:02.048Z",
+      "capturedAt": "2026-09-28T15:08:22.858Z",
       "hash": "corpus",
-      "fileCount": 970,
-      "endpoints": 970
+      "fileCount": 973,
+      "endpoints": 973
     }
   ],
   "note": "SOURCE-DERIVED ONLY, merged from every mined front-end. `tree` on each row says which app calls it. The plugin owns kind/note/summary/reach/coveredBy and merges them at read time. A row proves a GHL front-end calls that path — not that your token reaches it, and not that calling it is safe.",
-  "discoveredCallSites": 1445,
+  "discoveredCallSites": 1448,
   "skippedCallSites": 703,
-  "count": 1254,
+  "count": 1257,
   "endpoints": [
     {
       "id": "facebook-service--get-ad-account-by-id",
@@ -5556,6 +5556,32 @@
       "serviceBasis": "declared"
     },
     {
+      "id": "funnels--funnels-builder",
+      "method": "POST",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/funnels/builder/",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "funnels",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/10-anatomy/styling-and-saved-assets.md:83"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
       "id": "funnels--builder-autosave",
       "method": "POST",
       "origin": "https://backend.leadconnectorhq.com",
@@ -5676,6 +5702,7 @@
         "returns": "unresolved"
       },
       "sources": [
+        "funnels/10-anatomy/styling-and-saved-assets.md:79",
         "funnels/10-anatomy/websites-and-global-sections.md:96"
       ],
       "serviceBasis": "declared"
@@ -5711,10 +5738,10 @@
       "sources": [
         "funnels/10-anatomy/page-content.md:13",
         "funnels/10-anatomy/routing-and-publishing.md:31",
+        "funnels/10-anatomy/styling-and-saved-assets.md:98",
         "funnels/20-api/funnels-api.md:141",
         "funnels/20-api/funnels-api.md:232",
-        "funnels/60-recipes/author-native-elements.md:44",
-        "funnels/60-recipes/edit-a-page-in-place.md:21"
+        "funnels/30-types/section.md:78"
       ],
       "serviceBasis": "declared"
     },
@@ -5774,6 +5801,32 @@
       },
       "sources": [
         "funnels/10-anatomy/websites-and-global-sections.md:339"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "funnels--builder-prebuilt-section-post-post",
+      "method": "POST",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/funnels/builder/prebuilt-section/{collectionId}/",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "funnels",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/10-anatomy/styling-and-saved-assets.md:81"
       ],
       "serviceBasis": "declared"
     },
@@ -6065,6 +6118,32 @@
       "sources": [
         "funnels/20-api/funnels-api.md:300",
         "funnels/20-api/publish-routing-and-site-settings.md:56"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "funnels--section-template-insert",
+      "method": "POST",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/funnels/builder/section-template/insert",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "funnels",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/10-anatomy/styling-and-saved-assets.md:76"
       ],
       "serviceBasis": "declared"
     },
