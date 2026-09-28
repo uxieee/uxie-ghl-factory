@@ -1241,6 +1241,9 @@ function conditionExtras(c) {
 //
 // A full author-supplied shape round-trips unchanged (idempotent); a WRONG legacy tag shape
 // ({conditionSubType:'tag', conditionOperator:'contains'}) is REWRITTEN to the correct one.
+// Condition groups with no sub-type rows: picking the group sets conditionSubType to the group's own name.
+const SELF_NAMED_SUBTYPE = new Set(['workflow_contact', 'workflow_object', 'ai_bot_booked_appointment']);
+
 export function normalizeCondition(rawC, ctx) {
   // Canonicalize opp-stage aliases FIRST so the per-type dispatch below (and the
   // resolver, which shares this helper) only ever sees the one true spelling.
@@ -1299,11 +1302,18 @@ export function normalizeCondition(rawC, ctx) {
     return {
       ...extras,
       conditionType: 'trigger',
-      conditionSubType: c.conditionSubType,
-      conditionOperator: '==',
+      // The builder sets this itself when the group is picked (models/conditions/Condition.ts:857-858), so an
+      // author never names it — and without it GHL refuses the step: "Condition 1 … is missing its field"
+      // (live 2026-09-28, knowledge sniffs/workflows-wave1-2026-09-25/live-3V-ifelse-contact-groups-run1-trigger-subtype-refused.json).
+      conditionSubType: c.conditionSubType ?? 'trigger',
+      conditionOperator: c.conditionOperator ?? '==',
       conditionValue: value,
     };
   }
+
+  // The other groups whose sub-type the builder fills itself (Condition.ts:860-868): one row, named after the group.
+  if (SELF_NAMED_SUBTYPE.has(type) && c.conditionSubType === undefined)
+    return { ...extras, conditionType: type, conditionSubType: type, conditionOperator: c.conditionOperator ?? '==', conditionValue: c.conditionValue };
 
   // contact_detail custom field: default to the UI's "Is <value>" → contain + lowercase.
   // number/date fields want '=='; the author signals that by passing conditionOperator:'=='.
