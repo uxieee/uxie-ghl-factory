@@ -11,6 +11,15 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.15.2] — 2026-09-29
+
+**Docs: the create-ghl-workflow skill warns about clearing company fields.**
+
+- 🔴 `clear_associated_company_fields` FAILS on a contact with no company, while `update_associated_company` only
+  skips. A failed step emails every admin by default, so guard the step with an If/Else on "has company". Proven live.
+- The company steps' fields live in `__customInputFields__` rows (`{filterField: "business.<key>", valueField}`), not
+  in `inputs`.
+
 ## [1.15.1] — 2026-09-29
 
 **Fix: 25 AI routes were catalogued on the wrong host. Plus the Conversation AI docs and corrected company step cards.**
