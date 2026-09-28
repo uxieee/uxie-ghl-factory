@@ -11,6 +11,40 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.10.0] — 2026-09-29
+
+**Sell a product from a funnel step; If/Else OR branches; email cc/bcc actually sent; Voice rename no longer reported as
+a failure; the location guard accepts the flow editor's own saves. Each change was executed live on the test account.**
+
+Funnels & websites:
+- **New `edit_funnel` add-step-product:** put a product and price on a funnel step's order form or upsell. It checks
+  the price belongs to the product, targets the step by id AND name, refuses a duplicate, previews by default and
+  reads back. It returns the step-product id a sell-product button stores. New `get_funnel` view `step-products`.
+- Skill: "Buttons that sell" (add to cart, buy now, product collection, sell product) and form/survey/calendar embeds.
+  🔴 An order form or form that renders is not one that submits: public submissions are Turnstile-gated, so a test
+  order needs a human. 🔴 A survey with no question embedded on a page makes the whole public page error (500); add a
+  question.
+
+Workflows:
+- **Fixed — email cc, bcc and custom subtype were dropped silently.** They passed validation, then never reached GHL,
+  so a send went out with no cc/bcc.
+- **If/Else OR:** a branch takes `op: 'and' | 'or'`; the engine could only write AND. An unknown branch key is now
+  refused (`operator: 'or'` used to build an AND branch silently).
+- **New lint `EVENT_START_RECURRING_SHAPE`:** event-start recurring values must be the builder's numbers and a
+  15-minute "HH:mm" time.
+- Authoring docs: workflow names, custom-value names and Conversation AI employees ARE resolved by name.
+
+AI agents:
+- **`update_voiceai_agent`:** renaming an agent whose prompt contains its name no longer fails with collateral. GHL
+  re-writes the name inside the prompt; the tool now reports that as `collateral.retemplated`, and only when the prompt
+  change is exactly old name → new name.
+- **`raw_request` location guard:** the Voice flow editor's own saves carry a JSON-schema descriptor for locationId
+  and empty template ids inside edge snapshots. The guard now scans the descriptor (every value must be your location)
+  and ignores an empty id only when nested and anchored by your location elsewhere. A top-level empty id is still
+  refused.
+
+Catalogue: +11 documented routes.
+
 ## [1.9.2] — 2026-09-29
 
 **Fix: an order form composed by `build_funnel_page` could not be submitted by any buyer.**
