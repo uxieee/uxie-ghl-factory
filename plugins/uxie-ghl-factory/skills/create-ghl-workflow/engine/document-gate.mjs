@@ -91,6 +91,9 @@ export function multipathDefects(t, byId) {
 }
 
 /** Every attribute key this type is known to carry, from every evidence source there is. */
+// The builder's CORE_ACTIONS: native type names it always renders with the marketplace-asset drawer.
+const CORE_ASSET_ACTIONS = new Set(['task-notification', 'edit_conversation']);
+
 export function knownAttributeKeys(type, card) {
   const model = (card?.modelFields?.fields ?? []).map((f) => f?.name).filter(Boolean);
   return new Set([
@@ -157,8 +160,19 @@ export function gateDocument(templates = [], { catalog = loadCatalog(), marketpl
     if (innerAllowed && 'type' in attrs && !innerAllowed.has(attrs.type)) out.push(finding('INNER_TYPE', 'error', t,
       `attributes.type is ${JSON.stringify(attrs.type)}; '${t.type}' stores ${[...innerAllowed].map((v) => `'${v}'`).join(' or ')}. `
       + 'It saves, publishes and round-trips clean, and the builder\'s drawer then cannot bind it. GHL does not catch this.'));
+    // A step GHL LABELS as an asset (workflowsActionType + a live marketplace key) is rendered by the
+    // asset drawer, not by the native model its card was built from, so its keys are the asset's
+    // inputs — which the compiler already checks against the live asset. edit_conversation is the
+    // case: a CORE_ACTION whose native EditConversation drawer is dead wiring; its card knew `read`
+    // and refused the asset's declared `archive` (live 2026-09-28, knowledge sniffs/workflows-wave1-
+    // 2026-09-25/live-3S-edit-conversation-draft.json). Only the key check is skipped.
+    // publish_workflow and repair judge a document WITHOUT the assets read (marketplaceTypes null), so
+    // the builder's own CORE_ACTIONS — always rendered by the asset drawer (constants/actions.ts:39-40,
+    // AsideSection.vue:1417-1419) — count as labelled on the flag alone.
+    const assetLabelled = typeof t.workflowsActionType === 'string'
+      && (Boolean(marketplaceTypes?.has(t.type)) || CORE_ASSET_ACTIONS.has(t.type));
     const known = knownAttributeKeys(t.type, card);
-    const bad = Object.keys(attrs).filter((k) => !known.has(k));
+    const bad = assetLabelled ? [] : Object.keys(attrs).filter((k) => !known.has(k));
     if (bad.length) out.push(finding('ATTRIBUTE_KEY', card.confidence === 'verified-live' ? 'error' : 'warning', t,
       `unknown attribute key(s) [${bad.join(', ')}] — an invented key saves but moves nothing. GHL does not catch this.`));
     const missing = requiredKeysFor(t.type).filter((k) => !isSupplied(t.type, k, attrs));
