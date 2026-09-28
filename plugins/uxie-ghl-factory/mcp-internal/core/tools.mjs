@@ -5055,6 +5055,11 @@ export const TOOLS = [
         + 'The step list is `graph`, NOT `steps`. A trigger\'s filter rows are `filters` — `conditions` is how GHL STORES them and is refused here, '
         + 'because nothing reads it and the trigger would go live unscoped. `locationId` is this tool\'s own argument and does not belong inside spec.'),
       ignoreUnresolved: z.boolean().default(false),
+      // The build path's validate-assets hatch. orchestrate.mjs reads opts.ignoreAssetErrors and its own refusal tells the
+      // caller to "pass ignoreAssetErrors to build anyway" — but this tool neither declared nor forwarded it, so that advice
+      // could not be followed (live 2026-09-28, T1 sweep: a draft whose trigger names an unconnected integration). Same class
+      // as the unwired strictMergeTags hatch (wave10).
+      ignoreAssetErrors: z.boolean().default(false),
       // hatch for GHL's WORKFLOW-level rules (graph-rules.mjs): true, or the GHL rule names to skip
       skipWorkflowRules: z.union([z.boolean(), z.array(z.string())]).optional(),
       // Custom-code sandbox pre-flight (on by default): run each custom_code step in GHL's sandbox
@@ -5119,6 +5124,7 @@ export const TOOLS = [
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
       const report = await orchestrate(args.spec, gw, {
         ignoreUnresolved: args.ignoreUnresolved ?? false,
+        ignoreAssetErrors: args.ignoreAssetErrors === true,
         skipWorkflowRules: args.skipWorkflowRules,
         strictCustomCode: args.strictCustomCode === true,
         skipCustomCodeTest: args.skipCustomCodeTest === true,
@@ -5160,23 +5166,23 @@ export const TOOLS = [
   },
   {
     name: 'edit_workflow',
-    description: describe('edit_workflow', 'Preview or confirmation-gate edits to an existing workflow through the canonical edit engine. '
-      + 'Confirmed step edits use only the plain workflow PUT and are round-trip verified. '
+    description: describe('edit_workflow', 'Preview, or with confirm write, edits to an existing workflow (the canonical edit engine). '
+      + 'Confirmed step edits use only the plain workflow PUT, round-trip verified. '
       + 'Guard hatches, each named by the guard that refuses: allowGotoLoops, deadBranchAcknowledged, allowFlowTriggerEdit, '
       + 'allowDanglingParentKeys, allowDanglingStepRefs, allowOverCap. '
-      + 'OP KEYS ARE STRICT: an unknown key on any op refuses the whole call by name (a dropped key once re-sent the stored record and verified clean — R-96). '
+      + 'OP KEYS ARE STRICT: an unknown key on any op refuses the whole call by name. '
       + 'Ops — steps: appendStep, insertAfter, insertBefore, appendToBranch (anchor: branchEntryId | '
       + 'containerId+branch | branchRef), deleteStep, modifyStep (attrPatch/stepPatch — never `attributes`, never `name`; re-normalised '
       + 'through the compiler), retypeStep (full attributes), renameStep, setStepDisabled, '
       + 'disableStepsByType, moveStep, addBranch (if/else, or an AI splitter: alias addSplitterBranch), deleteBranch {containerId, branch} (an author-defined branch and everything under it), deleteContainer, repairParentKeys, addStepNote, '
       + 'duplicateStep, replaceTag, replaceFieldId, replaceInAttributes; triggers: addTrigger, '
-      + 'modifyTrigger {triggerId|name, trigger:{name?, filters? (author rows) | conditions? (stored rows, sent verbatim), active?, target?|targetActionId?}} — a top-level conditions/name/status is refused, not ignored; a patch that changes nothing is a NOOP, not a write; the verifier holds the store to what YOU asked for and to the server\'s own date_updated stamp; deleteTrigger, duplicateTrigger; '
+      + 'modifyTrigger {triggerId|name, trigger:{name?, filters? (author rows) | conditions? (stored rows, sent verbatim), active?, target?|targetActionId?}} — a top-level conditions/name/status is refused, not ignored; a patch that changes nothing is a NOOP, not a write; deleteTrigger, duplicateTrigger; '
       + 'settings: updateSettings (Settings-tab keys plus `name`); notes: addStickyNote, updateStickyNote. '
-      + 'Names in steps and triggers resolve to ids against the account (ignoreUnresolved to bypass). '
+      + 'Names in steps and triggers resolve to ids (ignoreUnresolved to bypass). '
       + 'Runs the same pre-write validation ladder as build_workflow: workflow + graph-context rules, '
       + "GHL's asset-reference validator (hatch: ignoreAssetErrors), the custom-code sandbox test on "
       + 'custom_code steps this edit touches (skipCustomCodeTest / strictCustomCode), account-readiness '
-      + 'signals, and a builder-required-field check on the persisted document.'),
+      + 'signals, and a builder-required-field check on the persisted document. Verifier rules: skill references/editing.md.'),
     inputSchema: schema({
       locationId: z.string(),
       workflowId: z.string(),

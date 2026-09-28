@@ -1,6 +1,6 @@
 {
  "marketplaceFilterOperators": {
-  "_source": "recovered-source MarketplaceFilter.ts:1137-1149 (defaults), :1386-1450 (menus); conditions.ts:46 (OperatorOptions)",
+  "_source": "recovered-source (bundle 2026-09-25) MarketplaceFilter.ts:1178-1194 (default per field type), :1418-1486 (menus: custom list, string, multiselect), :309-331 (array-to-array + legacy index-of-true migration); conditions.ts:229-266 (numerical = OperatorOptions.numerical)",
   "legacyAccepted": [
    "is-not-empty"
   ],
@@ -9,7 +9,8 @@
    "multiselect_with_pagination": "is-any-of",
    "select": "==",
    "select_with_pagination": "==",
-   "string": "string-contains-any-of"
+   "string": "string-contains-any-of",
+   "numerical": "=="
   },
   "menus": {
    "string": [
@@ -24,14 +25,25 @@
     "has_no_value"
    ],
    "multiselect": [
-    "index-of-true",
-    "index-of-false",
+    "is-any-of",
+    "is-none-of",
     "has_value",
     "has_no_value"
    ],
    "multiselectArrayToArray": [
     "contains-any",
     "is-none-of",
+    "has_value",
+    "has_no_value"
+   ],
+   "numerical": [
+    "==",
+    "!=",
+    ">",
+    ">=",
+    "<",
+    "<=",
+    "between",
     "has_value",
     "has_no_value"
    ],

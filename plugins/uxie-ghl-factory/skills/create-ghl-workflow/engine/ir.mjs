@@ -284,6 +284,11 @@ export function walkNodes(nodes, visit) {
 // Every key buildTrigger (compiler.mjs) actually reads, plus `active`, which parseIR defaults.
 const KNOWN_TRIGGER_KEYS = new Set(['ref', 'type', 'name', 'filters', 'active', 'marketplace',
   'masterType', 'target', 'targetActionId', 'convTriggerBotId']);
+// Keys ONE trigger type reads and no other does. custom_date_reminder takes its date field and schedule as
+// `config: {field, runHour, offsetDays, matchYear?, timezone?}` (compiler.mjs customDateReminderParts). The allowlist above
+// refused `config` for every type, so the one trigger that needs it could not be authored at all (T1 sweep 2026-09-28, bl-283).
+// Allowing it per type keeps the silent-discard guard for every other type.
+const TYPE_TRIGGER_KEYS = { custom_date_reminder: new Set(['config']) };
 
 /**
  * A trigger's filter rows are authored as `filters`. GHL STORES them as `conditions`, so anyone
@@ -297,7 +302,7 @@ const KNOWN_TRIGGER_KEYS = new Set(['ref', 'type', 'name', 'filters', 'active', 
 function checkTriggerKeys(triggers) {
   for (const t of triggers ?? []) {
     if (!t || typeof t !== 'object') throw new IRError('TRIGGER_KEY', 'each trigger must be an object');
-    const bad = Object.keys(t).filter((k) => !KNOWN_TRIGGER_KEYS.has(k));
+    const bad = Object.keys(t).filter((k) => !KNOWN_TRIGGER_KEYS.has(k) && !TYPE_TRIGGER_KEYS[t.type]?.has(k));
     if (!bad.length) continue;
     const hint = bad.includes('conditions')
       ? ' Filter rows are authored as `filters`; `conditions` is how GHL STORES them. Nothing here reads'
