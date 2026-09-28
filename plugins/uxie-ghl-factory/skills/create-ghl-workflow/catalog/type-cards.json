@@ -6556,11 +6556,14 @@
    "family": "steps-marketplace",
    "app": "company",
    "title": "Clear Associated Company Fields",
-   "status": "source-derived",
-   "source": "asset",
-   "lastVerified": "2026-08-22",
-   "summary": "Clear selected fields of the primary company associated with the contact. If no company is associated, this...",
-   "configSurface": "none",
+   "status": "proven-live",
+   "source": "measured",
+   "lastVerified": "2026-09-28",
+   "summary": "Clear selected fields of the primary company associated with the contact.",
+   "proven": [
+    "- 🔴 **On a contact with NO company, it FAILS** `[proven-live 2026-09-28 — sniffs/workflows-wave1-2026-09-25/live-3BZ2-r7-contact-company.json]`. The log shows `status: failed`, \"Contact does not have a business\", in the same run where `update_associated_company` only skipped. A failed step triggers GHL's workflow error notification, which by default emails every agency and location admin (see [`../../50-runtime/error-notifications.md`](../../50-runtime/error-notifications.md)). **Guard it with an If/Else on the contact having a company**, or run it only where every contact has one.",
+    "- ⚠ **Accepted, not applied, with the row shape the asset declares** `[proven-live 2026-09-28 — sniffs/workflows-wave1-2026-09-25/live-3BZ2-r7-contact-company.json, live-3BZ2-reread-company.json]`. On a contact WITH a company, a `{filterField: \"business.website\"}` row logged `success`, yet the company's website still read back set on a separate direct GET. Whether the builder saves an extra key in the row is unmeasured, and it needs a capture from the builder's own drawer. Until then, do not rely on this step to blank a field."
+   ],
    "page": "corpus/workflows/30-types/steps-marketplace/company.md"
   },
   {
@@ -8646,7 +8649,7 @@
    "family": "steps-marketplace",
    "title": "Marketplace — Company",
    "status": "source-derived",
-   "lastVerified": "2026-08-22",
+   "lastVerified": "2026-09-28",
    "summary": "`appName: \"Company\"` exposes **3 actions** in `sniffs/02-assets.json::actions[25].actions[]`. `executionConfig.type` set: `INTERNAL_REQUEST`. `workflowsActionType`: `INTERNAL`. `section` values: `Company`.",
    "appActions": [
     {
@@ -10437,11 +10440,14 @@
    "family": "steps-marketplace",
    "app": "company",
    "title": "Create And Associate Company",
-   "status": "source-derived",
-   "source": "asset",
-   "lastVerified": "2026-08-22",
+   "status": "proven-live",
+   "source": "measured",
+   "lastVerified": "2026-09-28",
    "summary": "Create a new company record and automatically associate it with the contact in this workflow.",
-   "configSurface": "none",
+   "proven": [
+    "- `[proven-live 2026-09-28 — sniffs/workflows-wave1-2026-09-25/live-3BZ2-r7-contact-company.json]` Built with `build_workflow` and stored exactly as sent. A contact with no company ran it and logged `success`, with \"created Company : <id>\". The effect was read back on separate requests:",
+    "- A contact holds at most ONE company: the association's `secondObjectToFirstObjectMaxLimit` is 1 `[proven-live 2026-09-28 — sniffs/workflows-wave1-2026-09-25/live-3BZ-r7-reads.json]`."
+   ],
    "page": "corpus/workflows/30-types/steps-marketplace/company.md"
   },
   {
@@ -15776,11 +15782,14 @@
    "family": "steps-marketplace",
    "app": "contact",
    "title": "Delete Contact",
-   "status": "source-derived",
-   "source": "asset",
+   "status": "proven-live",
+   "source": "measured",
    "lastVerified": "2026-09-28",
    "summary": "This action permanently deletes the contact from this account and all workflows.",
    "configSurface": "none",
+   "proven": [
+    "**Proven live** `[proven-live 2026-09-28 — sniffs/workflows-wave1-2026-09-25/live-3AQ-delete-contact.json]`. It was authored by our engine as a marketplace step (`attributes: {}`) at the end of an If/Else branch, and stored as `type: \"internal-delete-contact\"`, `workflowsActionType: \"INTERNAL\"`, attributes `{ type, __customInputs__: {} }`, with no `next`."
+   ],
    "page": "corpus/workflows/30-types/steps-marketplace/contact.md"
   },
   {
@@ -28171,11 +28180,13 @@
    "family": "steps-marketplace",
    "app": "company",
    "title": "Update Associated Company",
-   "status": "source-derived",
-   "source": "asset",
-   "lastVerified": "2026-08-22",
-   "summary": "Updates the details of the primary company associated with the contact. If no company is associated, this a...",
-   "configSurface": "none",
+   "status": "proven-live",
+   "source": "measured",
+   "lastVerified": "2026-09-28",
+   "summary": "Updates the details of the primary company associated with the contact.",
+   "proven": [
+    "- `[proven-live 2026-09-28 — sniffs/workflows-wave1-2026-09-25/live-3BZ2-r7-contact-company.json, live-3BZ2-reread-company.json]` On a contact with a company, a `business.description` row logged `success`, and the company read back with the new description (direct `GET /objects/business/records/{id}`, `lastUpdatedBy.sourceId` = the workflow)."
+   ],
    "page": "corpus/workflows/30-types/steps-marketplace/company.md"
   },
   {

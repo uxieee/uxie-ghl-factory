@@ -335,7 +335,7 @@ uxie-ghl-factory plugin is installed — same data.
 | `calendars_create_appointment_note` | Create Appointment / Booking Note | source-derived |
 | `calendars_generate_one_time_booking_link` | Generate One Time Booking Link | source-derived |
 | `certificates` | Marketplace — certificates | source-derived |
-| `clear_associated_company_fields` | Clear Associated Company Fields | source-derived |
+| `clear_associated_company_fields` | Clear Associated Company Fields | proven-live |
 | `clickup` | Marketplace — ClickUp | source-derived |
 | `clickup_add_comment` | Add Comment To Task | source-derived |
 | `clickup_archive_task` | Archive Task | source-derived |
@@ -353,7 +353,7 @@ uxie-ghl-factory plugin is installed — same data.
 | `contact` | Marketplace — contact | source-derived |
 | `contact_email_verification` | Email Verification | source-derived |
 | `conversation-ai` | Marketplace — Conversation AI | source-derived |
-| `create_and_associate_company` | Create And Associate Company | source-derived |
+| `create_and_associate_company` | Create And Associate Company | proven-live |
 | `create_basecamp_project` | Create Project | source-derived |
 | `create_new_document` | Create New Document | source-derived |
 | `create_new_document_page` | Create New Document Page | source-derived |
@@ -391,7 +391,7 @@ uxie-ghl-factory plugin is installed — same data.
 | `internal-add-contact-followers` | Add Contact Followers | proven-live |
 | `internal-add-opportunities-followers` | Add Follower(s) to Opportunity | proven-live |
 | `internal-add-opportunity-owner` | Add Owner to Opportunity | proven-live |
-| `internal-delete-contact` | Delete Contact | source-derived |
+| `internal-delete-contact` | Delete Contact | proven-live |
 | `internal-remove-contact-followers` | Remove Contact Followers | proven-live |
 | `internal-remove-opportunities-followers` | Remove Follower(s) from Opportunity | proven-live |
 | `internal-remove-opportunity-owner` | Remove Owner from Opportunity | proven-live |
@@ -536,7 +536,7 @@ uxie-ghl-factory plugin is installed — same data.
 | `typeform_create_form` | Create Empty Form | source-derived |
 | `typeform_duplicate_existing_form` | Duplicate Existing Form | source-derived |
 | `typeform_search_responses` | Search Responses in a form | source-derived |
-| `update_associated_company` | Update Associated Company | source-derived |
+| `update_associated_company` | Update Associated Company | proven-live |
 | `update_conversation_ai_status` | Update Conversation AI Bot and Status | source-derived |
 | `vapi-ai` | Marketplace — Vapi.ai | source-derived |
 | `voice_ai_outbound_call` | Voice AI Outbound Call | source-derived |
