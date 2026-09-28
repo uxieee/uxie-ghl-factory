@@ -2,6 +2,8 @@
 // (utils/apply-version-to-workflow.ts:18-120 and components/versions/hooks/use-restore-version.ts:66-72, bundle 2026-09-25).
 // The sequence: delete every current trigger, recreate the version's triggers as inactive drafts, then save the whole document
 // with isRestoreRequest:true. A restore always lands as a DRAFT (forceDraft).
+// Create-from-version (use-create-new-from-version.ts:54-69) is a blank create first, then the same trigger
+// recreate and PUT on the NEW id (isRestoreToSameWorkflow:false).
 // Proven live 2026-09-28 on a trigger-less TEST workflow: tag B restored to v3's tag A, status draft,
 // meta.versionRestore set, history gained v5 (knowledge sniffs/workflows-wave1-2026-09-25/live-3BM-versions.json).
 // Pure functions only. The tool in tools.mjs does the I/O.
@@ -11,10 +13,12 @@ const SETTINGS_KEYS = ['timezone', 'stopOnResponse', 'allowMultiple', 'allowMult
 // buildTriggerMainFromVersion (apply-version-to-workflow.ts:18-43). Drop id/_id; bind to the target
 // workflow with camelCase workflowId (the create route binds from that key ONLY — R-95); force status
 // and active:false; point every action at the target; keep an inbound webhook's URL by predeterminedId
-// when restoring into the same workflow.
-export function triggerFromVersion(src, { workflowId, status = 'draft', locationId, companyId, companyAge }) {
+// ONLY when restoring into the same workflow (isRestoreToSameWorkflow). A workflow created from a version
+// gets fresh trigger ids, so its inbound webhook gets a NEW URL.
+export function triggerFromVersion(src, { workflowId, status = 'draft', locationId, companyId, companyAge, sameWorkflow = true }) {
   const copy = JSON.parse(JSON.stringify(src ?? {}));
-  if (copy.type === 'inbound_webhook' && !copy.predeterminedId) copy.predeterminedId = copy.id ?? copy._id;
+  if (sameWorkflow && copy.type === 'inbound_webhook' && !copy.predeterminedId) copy.predeterminedId = copy.id ?? copy._id;
+  if (!sameWorkflow) delete copy.predeterminedId;
   const { id: _id1, _id: _id2, workflow_id: _snake, ...rest } = copy;
   const body = { ...rest, workflowId, status, active: false };
   if (Array.isArray(body.actions)) body.actions = body.actions.map((a) => ({ ...a, workflow_id: workflowId }));

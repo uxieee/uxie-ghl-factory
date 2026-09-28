@@ -25553,7 +25553,8 @@
       "reach": "source-only",
       "coveredBy": [
         "build_workflow",
-        "duplicate_workflow"
+        "duplicate_workflow",
+        "restore_workflow_version"
       ],
       "rawCallable": true,
       "transport": "json",
@@ -26639,6 +26640,7 @@
         "edit_workflow",
         "publish_workflow",
         "repair_workflow",
+        "restore_workflow_version",
         "validate_workflow"
       ],
       "rawCallable": true,

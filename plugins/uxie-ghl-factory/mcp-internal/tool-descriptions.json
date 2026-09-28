@@ -519,7 +519,7 @@
     ]
   },
   "describe_step_type": {
-    "description": "Describe one workflow step or trigger type — proof: source-derived (284 corpus cards); risk: read",
+    "description": "Describe one workflow step or trigger type — proof: source-derived (524 corpus cards); risk: read",
     "risk": "read",
     "proof": "source-derived (corpus 30-types, 2026-08-25)",
     "proofFloor": "documented",
@@ -1763,7 +1763,7 @@
     ]
   },
   "search_step_types": {
-    "description": "Search workflow step and trigger types — proof: source-derived (284 corpus cards); risk: read",
+    "description": "Search workflow step and trigger types — proof: source-derived (524 corpus cards); risk: read",
     "risk": "read",
     "proof": "source-derived (corpus 30-types, 2026-08-25)",
     "proofFloor": "documented",

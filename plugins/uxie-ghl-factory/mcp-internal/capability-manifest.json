@@ -412,6 +412,21 @@
   {
     "tool": "restore_workflow_version",
     "method": "GET",
+    "path": "/workflow/{loc}/list"
+  },
+  {
+    "tool": "restore_workflow_version",
+    "method": "POST",
+    "path": "/workflow/{loc}"
+  },
+  {
+    "tool": "restore_workflow_version",
+    "method": "POST",
+    "path": "/workflow/{loc}/{wid}/validate-workflows"
+  },
+  {
+    "tool": "restore_workflow_version",
+    "method": "GET",
     "path": "/workflow/{loc}/trigger"
   },
   {
