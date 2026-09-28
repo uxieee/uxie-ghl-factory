@@ -4344,7 +4344,7 @@
    "family": "steps",
    "title": "chatgpt",
    "status": "source-derived",
-   "lastVerified": "2026-09-26",
+   "lastVerified": "2026-09-28",
    "summary": "Call OpenAI's GPT model with a prompt and instructions, returning a `response` for downstream consumption.",
    "meta": {
     "Section": "`external_ai_models`",
@@ -4374,7 +4374,7 @@
      "type": "string",
      "required": true,
      "default": "—",
-     "notes": "The prompt. Handlebars supported; the validator runs `isValidHandleBar` on it. 100%."
+     "notes": "The prompt, and **the only prompt the runtime reads**: in every `actionType` the drawer composes `promptText` from `actionParams` on the client, and a run whose `actionParams.message` said one thing and whose `promptText` asked for another answered the `promptText` [proven-live 2026-09-28 — sniffs/workflows-wave1-2026-09-25/live-3P-chatgpt.json, step 6]. Handlebars supported; the validator runs `isValidHandleBar` on it. 100%."
     },
     {
      "name": "temperature",
@@ -4399,17 +4399,17 @@
     },
     {
      "name": "actionType",
-     "type": "\"custom\" | ...",
+     "type": "\"analyze_text_sentiment\" | \"classify_text\" | \"summarize_text\" | \"translate_content\" | \"custom\"",
      "required": false,
      "default": "\"custom\"",
-     "notes": "UI scaffold mode. 100%."
+     "notes": "Drawer mode: picks the `actionParams` inputs and the template that builds `promptText` (see Notes). All five ran on `gpt-5-nano` [proven-live 2026-09-28 — sniffs/workflows-wave1-2026-09-25/live-3P-chatgpt.json]. 100%."
     },
     {
      "name": "actionParams",
      "type": "object",
      "required": true,
      "default": "—",
-     "notes": "Mode-specific params. `{ message, categories, length, from, to, memoryKeyToggle, memoryKeyType, memoryKeyCustom }`. 100%."
+     "notes": "Mode-specific params. `{ message, categories, length, from, to, memoryKeyToggle, memoryKeyType, memoryKeyCustom }`. **Editor state only**: the runtime answers `promptText`, not these [proven-live 2026-09-28 — sniffs/workflows-wave1-2026-09-25/live-3P-chatgpt.json, step 6]. 100%."
     },
     {
      "name": "actionParams.message",
@@ -4429,15 +4429,15 @@
      "name": "memoryKey",
      "type": "string",
      "required": false,
-     "default": "\"action\"",
-     "notes": "Key for chat-history persistence between calls. 100%."
+     "default": "\"\"",
+     "notes": "Key for chat-history persistence between calls. A new step is seeded `\"\"` with `memoryKeyToggle: false`; on save the drawer writes `\"\"` when the toggle is off, else `location` / `workflow` / `workflow_status` / `action`, or `memoryKeyCustom` for `custom` [source-derived 2026-09-28 — models/actions/premium-actions/ChatGPT.ts:216-241,272,486-510]. 100%."
     },
     {
      "name": "`memoryKey` resolution",
      "type": "string",
      "required": false,
      "default": "—",
-     "notes": "`actionParams.memoryKeyType: \"action\" | \"custom\"`; when `\"custom\"`, `memoryKeyCustom` is used."
+     "notes": "`actionParams.memoryKeyType: \"location\" | \"workflow\" | \"workflow_status\" | \"action\" | \"custom\"`; when `\"custom\"`, `memoryKeyCustom` is used."
     },
     {
      "name": "excludeFromHistory",
@@ -4461,8 +4461,8 @@
      "notes": "Seeded empty. The drawer has no API-key input (\"Hide Model and APIKey as we'll use our default values\"), so the UI never sets it [source-derived 2026-09-26 — models/actions/premium-actions/ChatGPT.ts:61-63,256,278]. 100%."
     }
    ],
-   "validator": "`chatGPTValidator` (length 1456, result level `warning`). Per `sniffs/bundle/validators.json::chatGPTValidator`:\n\n1. `promptText` non-empty, AND passes `isValidHandleBar` (Handlebars syntax valid).\n2. `temperature` non-empty, parses to a number in `[0, 1]`.\n3. `event` set.\n4. Conditional checks on `actionParams.message`, `actionParams.length`, `actionParams.from`, `actionParams.to` depending on the `actionType` / `event` combo — branches haven't been exhaustively enumerated here; open the validator source for the per-event matrix.\n\n`fields_referenced` (7): `actionParams.from`, `actionParams.length`, `actionParams.message`, `actionParams.to`, `event`, `promptText`, `temperature`.",
-   "notes": "- **`temperature` is stored as a string**, not a number. `\"0.2\"` works; `0.2` (number) may also work but corpus shows the string form exclusively.\n- **`model` defaults to `\"gpt-6-luna\"`** for a new step, and an empty `model` on an existing step is filled with it (it was `gpt-5-mini` in the 2026-09-18 builder). The corpus examples carry `\"gpt-5\"`, which is still a selectable id [source-derived 2026-09-26 — models/actions/premium-actions/ChatGPT.ts:258,280].\n- **`event: \"simple-prompt\"` is the only value.** It is the single entry in the drawer's event options, and the event selector is not shown [source-derived 2026-09-26 — models/actions/premium-actions/ChatGPT.ts:59,66-71].\n- **`promptText` Handlebars validation is strict.** Invalid Handlebars (e.g. unclosed `{{`) trips the validator. Empty prompt does too.\n- **Downstream access** is via `{{chatgpt.<order>.response}}` for the model's output. Compound paths like `{{chatgpt.4.response.<key>}}` exist when the response is structured (e.g. JSON mode).\n- **`memoryKey`** scopes the chat history. With `memoryKeyType: \"action\"` it's per-action-per-contact; `\"custom\"` lets you scope by an arbitrary key (e.g. group multiple steps into one conversation).\n- **`apiKey`**: leave it `\"\"`. The builder has no UI for it; whether the runtime honours a non-empty value is untested [source-derived 2026-09-26 — models/actions/premium-actions/ChatGPT.ts:61-63].\n- **Premium gate**.",
+   "validator": "`chatGPTValidator` (length 1456, result level `warning`). Per `sniffs/bundle/validators.json::chatGPTValidator`:\n\n1. `promptText` non-empty, AND passes `isValidHandleBar` (Handlebars syntax valid).\n2. `temperature` non-empty, parses to a number in `[0, 1]`.\n3. `event` set.\n4. Conditional checks on `actionParams` by `actionType` (the drawer's `isValidActionParams`): `translate_content` needs `message`, `from` and `to`; `summarize_text` needs `message` and `length`; `analyze_text_sentiment` needs `message`; `classify_text` and `custom` need none [source-derived 2026-09-28 — models/actions/premium-actions/ChatGPT.ts:352-368].\n\n`fields_referenced` (7): `actionParams.from`, `actionParams.length`, `actionParams.message`, `actionParams.to`, `event`, `promptText`, `temperature`.",
+   "notes": "- **`temperature` is stored as a string**, not a number. `\"0.2\"` works; `0.2` (number) may also work but corpus shows the string form exclusively.\n- **`model` defaults to `\"gpt-6-luna\"`** for a new step, and an empty `model` on an existing step is filled with it (it was `gpt-5-mini` in the 2026-09-18 builder). The corpus examples carry `\"gpt-5\"`, which is still a selectable id [source-derived 2026-09-26 — models/actions/premium-actions/ChatGPT.ts:258,280].\n- **`event: \"simple-prompt\"` is the only value.** It is the single entry in the drawer's event options, and the event selector is not shown [source-derived 2026-09-26 — models/actions/premium-actions/ChatGPT.ts:59,66-71].\n- **`promptText` Handlebars validation is strict.** Invalid Handlebars (e.g. unclosed `{{`) trips the validator. Empty prompt does too.\n- **Downstream access** is via `{{chatgpt.<N>.response}}`, where N is the step's per-type `stepIndex` (1 for the first chatgpt step, 2 for the second…). Six chatgpt steps in one workflow rendered as `{{chatgpt.1.response}}`…`{{chatgpt.6.response}}` in a later field write [proven-live 2026-09-28 — sniffs/workflows-wave1-2026-09-25/live-3P-chatgpt.json]. The response is the raw model text, extra lines included (a translation came back with an added usage note). Compound paths like `{{chatgpt.4.response.<key>}}` exist when the response is structured (e.g. JSON mode).\n- **`memoryKey`** scopes the chat history. With `memoryKeyType: \"action\"` it's per-action-per-contact; `\"custom\"` lets you scope by an arbitrary key (e.g. group multiple steps into one conversation). Measured: two steps sharing `memoryKey: \"workflow_status\"` in one run — the first planted a code word, the second recalled it; a third step with `memoryKey: \"\"` asked the same question and answered NONE; two steps sharing a custom key recalled theirs too [proven-live 2026-09-28 — sniffs/workflows-wave1-2026-09-25/live-3P4-chatgpt-memory.json]; two steps sharing `memoryKey: \"workflow\"` recalled theirs [proven-live 2026-09-28 — live-3P5-chatgpt-memory2.json]. `location` and `action` are the same key mechanism and were not run (`location` would write memory other workflows' steps may read; `action` needs a second execution) [inferred from the drawer writing them as plain `memoryKey` strings, ChatGPT.ts:486-510].\n- **`excludeFromHistory: true` keeps that turn out of memory.** A step that planted a code word with it on, followed by a step on the same custom key, answered NONE [proven-live 2026-09-28 — sniffs/workflows-wave1-2026-09-25/live-3P5-chatgpt-memory2.json]. `excludeInstructionsFromHistory` was not run.\n- **`instructions` is sent as the system prompt.** A step whose `instructions` said \"reply with exactly QUINCE\" answered QUINCE to the `promptText` \"Say hello.\" [proven-live 2026-09-28 — sniffs/workflows-wave1-2026-09-25/live-3P4-chatgpt-memory.json].\n- **`apiKey`**: leave it `\"\"` or omit it. Both runs used GHL's own key and succeeded [proven-live 2026-09-28 — sniffs/workflows-wave1-2026-09-25/live-3P-chatgpt.json (omitted), live-3P2-chatgpt-apikey.json (`\"\"`)]. The builder has no UI for it; whether the runtime honours a non-empty value is untested [source-derived 2026-09-26 — models/actions/premium-actions/ChatGPT.ts:61-63].\n- **The drawer builds `promptText` from a template per mode**, and an API author must do the same, because the runtime reads only `promptText` [source-derived 2026-09-28 — models/actions/premium-actions/ChatGPT.ts:185-208,410-452; runtime proven-live as above]:\n  - `analyze_text_sentiment`: `Just reply only with POSITIVE, if the below message has positive intent and NEGATIVE if the message has negative intent \\n\\n<message>` → ran `POSITIVE`.\n  - `classify_text`: `Categorize the given text into one of the following categories: <categories joined by \", \"> \\n\\n\\n      Text: <message>` → ran `billing`.\n  - `summarize_text`: `Summarize the following text in <length>. Capture the key points and essential information while remaining concise and faithful to the original.\\n\\n Text: \\n\\n<message>` → ran a one-sentence summary.\n  - `translate_content`: `Translate the below Text from <from> to <to> Text: \\n\\n<message>` → ran Spanish.\n  - `custom`: the author's own `promptText` (the drawer clears it on switching to custom).\n- **Premium gate**.",
    "hasCanonicalExample": true
   },
   {

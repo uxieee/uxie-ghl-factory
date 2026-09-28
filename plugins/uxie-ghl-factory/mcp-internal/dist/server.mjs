@@ -178,7 +178,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
     define_ENDPOINT_CATALOG_default = {
       generated: "2026-09-28",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 1254,
+      count: 1256,
       endpoints: [
         {
           id: "facebook-service--get-ad-account-by-id",
@@ -1671,14 +1671,14 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
-          id: "typed--create_funnel--blogs-site",
+          id: "funnels--blogs-site",
           method: "POST",
           url: "https://backend.leadconnectorhq.com/blogs/site",
           path: "/blogs/site",
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          reach: "proven",
+          reach: "source-only",
           coveredBy: [
             "create_funnel"
           ],
@@ -1687,20 +1687,21 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: "create_funnel",
-          tree: "typed-tool",
+          service: "funnels",
+          tree: "documented",
           pathParams: [],
           query: [],
           body: null,
           returns: null,
           confidence: {
-            path: "proven",
+            path: "documented",
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
           },
           sources: [
-            "capability-manifest.json (create_funnel)"
+            "funnels/20-api/funnels-api.md:68",
+            "funnels/20-api/funnels-api.md:71"
           ]
         },
         {
@@ -2374,7 +2375,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "services/api/chat-widget-service.ts:35",
             "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:127",
             "funnels/10-anatomy/websites-and-global-sections.md:278",
-            "funnels/20-api/funnels-api.md:305",
+            "funnels/20-api/funnels-api.md:354",
             "workflows/70-research/ENDPOINTS.md:137"
           ]
         },
@@ -7253,7 +7254,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/40-rules/silent-failures.md:569",
-            "funnels/20-api/funnels-api.md:194",
+            "funnels/20-api/funnels-api.md:243",
             "funnels/20-api/publish-routing-and-site-settings.md:43",
             "funnels/40-rules/autosave-writes-only-the-data-file.md:11",
             "funnels/40-rules/autosave-writes-only-the-data-file.md:31",
@@ -7289,7 +7290,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/funnels-api.md:252"
+            "funnels/20-api/funnels-api.md:301"
           ]
         },
         {
@@ -7333,7 +7334,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/10-anatomy/routing-and-publishing.md:71",
-            "funnels/20-api/funnels-api.md:237",
+            "funnels/20-api/funnels-api.md:286",
             "funnels/40-rules/autosave-writes-only-the-data-file.md:32",
             "funnels/40-rules/silent-failures.md:791",
             "funnels/40-rules/silent-failures.md:1062",
@@ -7415,8 +7416,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "funnels/10-anatomy/page-content.md:13",
             "funnels/10-anatomy/routing-and-publishing.md:31",
-            "funnels/20-api/funnels-api.md:110",
-            "funnels/20-api/funnels-api.md:183",
+            "funnels/20-api/funnels-api.md:141",
+            "funnels/20-api/funnels-api.md:232",
             "funnels/60-recipes/author-native-elements.md:44",
             "funnels/60-recipes/edit-a-page-in-place.md:21"
           ]
@@ -7459,7 +7460,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/10-anatomy/websites-and-global-sections.md:330"
+            "funnels/10-anatomy/websites-and-global-sections.md:331"
           ]
         },
         {
@@ -7491,7 +7492,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/10-anatomy/websites-and-global-sections.md:338"
+            "funnels/10-anatomy/websites-and-global-sections.md:339"
           ]
         },
         {
@@ -7551,7 +7552,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/10-anatomy/websites-and-global-sections.md:331"
+            "funnels/10-anatomy/websites-and-global-sections.md:332"
           ]
         },
         {
@@ -7586,8 +7587,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/10-anatomy/websites-and-global-sections.md:332",
-            "funnels/10-anatomy/websites-and-global-sections.md:357"
+            "funnels/10-anatomy/websites-and-global-sections.md:333",
+            "funnels/10-anatomy/websites-and-global-sections.md:358"
           ]
         },
         {
@@ -7622,7 +7623,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/10-anatomy/websites-and-global-sections.md:340"
+            "funnels/10-anatomy/websites-and-global-sections.md:341"
           ]
         },
         {
@@ -7657,7 +7658,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/10-anatomy/websites-and-global-sections.md:336"
+            "funnels/10-anatomy/websites-and-global-sections.md:337"
           ]
         },
         {
@@ -7692,7 +7693,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/10-anatomy/websites-and-global-sections.md:339"
+            "funnels/10-anatomy/websites-and-global-sections.md:340"
           ]
         },
         {
@@ -7734,7 +7735,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/10-anatomy/websites-and-global-sections.md:337"
+            "funnels/10-anatomy/websites-and-global-sections.md:338"
           ]
         },
         {
@@ -7765,7 +7766,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/10-anatomy/websites-and-global-sections.md:335"
+            "funnels/10-anatomy/websites-and-global-sections.md:336"
           ]
         },
         {
@@ -7796,8 +7797,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/10-anatomy/websites-and-global-sections.md:334",
-            "funnels/10-anatomy/websites-and-global-sections.md:411"
+            "funnels/10-anatomy/websites-and-global-sections.md:335",
+            "funnels/10-anatomy/websites-and-global-sections.md:412"
           ]
         },
         {
@@ -7832,7 +7833,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/10-anatomy/routing-and-publishing.md:72",
-            "funnels/20-api/funnels-api.md:238",
+            "funnels/20-api/funnels-api.md:287",
             "funnels/60-recipes/add-a-page-to-a-funnel.md:40",
             "funnels/60-recipes/build-a-multi-step-funnel.md:78"
           ]
@@ -7865,7 +7866,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/funnels-api.md:251",
+            "funnels/20-api/funnels-api.md:300",
             "funnels/20-api/publish-routing-and-site-settings.md:56"
           ]
         },
@@ -7954,7 +7955,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/10-anatomy/domains-and-public-urls.md:21",
-            "funnels/20-api/funnels-api.md:171"
+            "funnels/20-api/funnels-api.md:220"
           ]
         },
         {
@@ -8193,7 +8194,47 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/funnels-api.md:78"
+            "funnels/20-api/funnels-api.md:109"
+          ]
+        },
+        {
+          id: "funnels--blog-list",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/funnels/funnel/blog/list/",
+          path: "/funnels/funnel/blog/list/",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [
+            "create_funnel"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "searchTerm",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/20-api/funnels-api.md:68"
           ]
         },
         {
@@ -8259,7 +8300,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/10-anatomy/domains-and-public-urls.md:107",
-            "funnels/20-api/funnels-api.md:114",
+            "funnels/20-api/funnels-api.md:145",
             "funnels/40-rules/silent-failures.md:120",
             "funnels/40-rules/silent-failures.md:237"
           ]
@@ -8428,7 +8469,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/10-anatomy/page-content.md:22",
-            "funnels/20-api/funnels-api.md:86",
+            "funnels/20-api/funnels-api.md:117",
             "funnels/40-rules/silent-failures.md:515",
             "funnels/60-recipes/add-a-page-to-a-funnel.md:29",
             "funnels/60-recipes/author-native-elements.md:56",
@@ -8465,7 +8506,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/funnels-api.md:70",
+            "funnels/20-api/funnels-api.md:91",
             "funnels/40-rules/silent-failures.md:555"
           ]
         },
@@ -8555,8 +8596,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "services/marketplaceServices/FunnelsService.ts:21",
             "funnels/20-api/funnels-api.md:17",
-            "funnels/20-api/funnels-api.md:62",
-            "funnels/20-api/funnels-api.md:180",
+            "funnels/20-api/funnels-api.md:98",
+            "funnels/20-api/funnels-api.md:83",
+            "funnels/20-api/funnels-api.md:229",
             "funnels/40-rules/silent-failures.md:1033",
             "funnels/60-recipes/build-a-multi-step-funnel.md:50"
           ]
@@ -8597,8 +8639,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "funnels/00-overview/index.md:29",
             "funnels/10-anatomy/websites-and-global-sections.md:300",
-            "funnels/20-api/funnels-api.md:259",
-            "funnels/20-api/funnels-api.md:328",
+            "funnels/20-api/funnels-api.md:308",
+            "funnels/20-api/funnels-api.md:375",
             "funnels/40-rules/autosave-writes-only-the-data-file.md:58",
             "funnels/40-rules/autosave-writes-only-the-data-file.md:63"
           ]
@@ -8638,7 +8680,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/funnels-api.md:268"
+            "funnels/20-api/funnels-api.md:317"
           ]
         },
         {
@@ -8819,7 +8861,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "ai-studio/10-anatomy/project.md:17",
             "funnels/10-anatomy/websites-and-global-sections.md:34",
             "funnels/20-api/funnels-api.md:17",
-            "funnels/20-api/funnels-api.md:179",
+            "funnels/20-api/funnels-api.md:228",
             "funnels/40-rules/silent-failures.md:646"
           ]
         },
@@ -8859,21 +8901,21 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "funnels/10-anatomy/domains-and-public-urls.md:109",
             "funnels/10-anatomy/domains-and-public-urls.md:163",
-            "funnels/20-api/funnels-api.md:131",
+            "funnels/20-api/funnels-api.md:162",
             "funnels/40-rules/silent-failures.md:123",
             "funnels/40-rules/silent-failures.md:245",
             "funnels/40-rules/silent-failures.md:522"
           ]
         },
         {
-          id: "typed--edit_funnel--funnel-update-funnel-and-page",
+          id: "funnels--funnel-update-funnel-and-page",
           method: "POST",
           url: "https://backend.leadconnectorhq.com/funnels/funnel/update-funnel-and-page",
           path: "/funnels/funnel/update-funnel-and-page",
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          reach: "proven",
+          reach: "source-only",
           coveredBy: [
             "edit_funnel"
           ],
@@ -8882,20 +8924,20 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: "edit_funnel",
-          tree: "typed-tool",
+          service: "funnels",
+          tree: "documented",
           pathParams: [],
           query: [],
           body: null,
           returns: null,
           confidence: {
-            path: "proven",
+            path: "documented",
             query: "none-observed",
             body: "unresolved",
             returns: "unresolved"
           },
           sources: [
-            "capability-manifest.json (edit_funnel)"
+            "funnels/20-api/funnels-api.md:199"
           ]
         },
         {
@@ -8931,8 +8973,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "funnels/00-overview/index.md:71",
             "funnels/10-anatomy/domains-and-public-urls.md:33",
             "funnels/10-anatomy/websites-and-global-sections.md:264",
-            "funnels/10-anatomy/websites-and-global-sections.md:489",
-            "funnels/20-api/funnels-api.md:277",
+            "funnels/10-anatomy/websites-and-global-sections.md:490",
+            "funnels/20-api/funnels-api.md:326",
             "funnels/40-rules/silent-failures.md:977"
           ]
         },
@@ -9068,7 +9110,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/10-anatomy/domains-and-public-urls.md:93",
-            "funnels/20-api/funnels-api.md:258",
+            "funnels/20-api/funnels-api.md:307",
             "funnels/40-rules/silent-failures.md:270",
             "funnels/40-rules/silent-failures.md:926",
             "funnels/40-rules/silent-failures.md:956",
@@ -9141,6 +9183,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
+            "funnels/20-api/funnels-api.md:99",
             "funnels/20-api/url-redirects.md:65"
           ]
         },
@@ -9518,7 +9561,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/10-anatomy/routing-and-publishing.md:41",
-            "funnels/20-api/funnels-api.md:257",
+            "funnels/20-api/funnels-api.md:306",
             "funnels/10-anatomy/routing-and-publishing.md:61",
             "funnels/60-recipes/add-a-page-to-a-funnel.md:45"
           ]
@@ -9589,7 +9632,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "services/marketplaceServices/FunnelsService.ts:25",
             "funnels/40-rules/silent-failures.md:590",
-            "funnels/40-rules/silent-failures.md:1099"
+            "funnels/40-rules/silent-failures.md:1101"
           ]
         },
         {
@@ -9636,10 +9679,10 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "services/marketplaceServices/FunnelsService.ts:35",
             "funnels/00-overview/index.md:31",
             "funnels/10-anatomy/websites-and-global-sections.md:306",
-            "funnels/10-anatomy/websites-and-global-sections.md:539",
+            "funnels/10-anatomy/websites-and-global-sections.md:540",
             "funnels/20-api/funnel-ai.md:75",
-            "funnels/20-api/funnels-api.md:181",
-            "funnels/20-api/funnels-api.md:335"
+            "funnels/20-api/funnels-api.md:230",
+            "funnels/20-api/funnels-api.md:373"
           ]
         },
         {
@@ -9672,7 +9715,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/10-anatomy/page-content.md:22",
-            "funnels/20-api/funnels-api.md:103",
+            "funnels/20-api/funnels-api.md:134",
             "funnels/40-rules/silent-failures.md:120"
           ]
         },
@@ -9717,7 +9760,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/funnels-api.md:182"
+            "funnels/20-api/funnels-api.md:231"
           ]
         },
         {
@@ -15181,7 +15224,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/funnels-api.md:350"
+            "funnels/20-api/funnels-api.md:384"
           ]
         },
         {
@@ -16610,7 +16653,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:407"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:414"
           ]
         },
         {
@@ -42291,7 +42334,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           ]
         },
         {
-          id: "funnels--blog-list",
+          id: "funnels--blog-list-get",
           method: "GET",
           url: "https://services.leadconnectorhq.com/funnels/funnel/blog/list/",
           path: "/funnels/funnel/blog/list/",
@@ -54800,10 +54843,11 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "services/TemplateLibraryService.ts:43",
+            "funnels/20-api/funnels-api.md:66",
+            "funnels/20-api/funnels-api.md:67",
             "funnels/20-api/template-library.md:77",
             "funnels/20-api/template-library.md:153",
-            "funnels/30-types/synthesis-contract.md:158",
-            "funnels/60-recipes/author-native-elements.md:45"
+            "funnels/30-types/synthesis-contract.md:158"
           ]
         },
         {
@@ -54913,6 +54957,44 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:163",
             "ai-agents/20-api/12-ai-agents-api.md:193"
+          ]
+        },
+        {
+          id: "ai-agents--actions-agent",
+          method: "DELETE",
+          url: "https://services.leadconnectorhq.com/voice-ai/actions/{actionId}/agent/{agentId}",
+          path: "/voice-ai/actions/{actionId}/agent/{agentId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "actionId"
+            },
+            {
+              name: "agentId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/30-types/voice-ai-actions.md:127"
           ]
         },
         {
@@ -55338,7 +55420,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:161",
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:378"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:385"
           ]
         },
         {
@@ -55438,7 +55520,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/10-anatomy/voice-ai-agent-shape.md:204",
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:250"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:257"
           ]
         },
         {
@@ -55493,7 +55575,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/10-anatomy/voice-ai-agent-shape.md:212",
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:219",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:226",
             "ai-agents/20-api/12-ai-agents-api.md:160",
             "ai-agents/20-api/12-ai-agents-api.md:170",
             "ai-agents/20-api/12-ai-agents-api.md:373"
@@ -55612,7 +55694,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/20-api/voice-ai-boundary.md:63",
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:275",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:282",
             "ai-agents/20-api/12-ai-agents-api.md:166"
           ]
         },
@@ -55721,7 +55803,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:366"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:373"
           ]
         },
         {
@@ -55763,7 +55845,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:325"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:332"
           ]
         },
         {
@@ -55798,7 +55880,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:321"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:328"
           ]
         },
         {
@@ -55896,7 +55978,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:380"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:387"
           ]
         },
         {
@@ -55991,7 +56073,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:317"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:324"
           ]
         },
         {
@@ -56039,7 +56121,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:388"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:395"
           ]
         },
         {
@@ -56122,7 +56204,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:403",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:410",
             "ai-agents/20-api/logs-deployment-email.md:27"
           ]
         },
@@ -56158,7 +56240,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:384"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:391"
           ]
         },
         {
@@ -56196,7 +56278,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:387"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:394"
           ]
         },
         {
@@ -56252,7 +56334,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:390",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:397",
             "ai-agents/20-api/logs-deployment-email.md:24",
             "ai-agents/20-api/voice-ai-boundary.md:71",
             "ai-agents/30-types/voice-ai-actions.md:109"
@@ -56299,7 +56381,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:391",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:398",
             "ai-agents/20-api/logs-deployment-email.md:25",
             "ai-agents/20-api/voice-ai-boundary.md:72"
           ]
@@ -56682,7 +56764,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:256",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:263",
             "ai-agents/20-api/logs-deployment-email.md:93"
           ]
         },
@@ -56809,7 +56891,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:333",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:340",
             "ai-agents/20-api/logs-deployment-email.md:19",
             "ai-agents/20-api/voice-ai-boundary.md:70"
           ]
@@ -56908,7 +56990,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:374",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:381",
             "ai-agents/20-api/voice-ai-boundary.md:64"
           ]
         },
@@ -56940,7 +57022,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:373"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:380"
           ]
         },
         {
@@ -56975,7 +57057,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:377"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:384"
           ]
         },
         {
@@ -57010,7 +57092,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:376"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:383"
           ]
         },
         {
@@ -57045,7 +57127,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:375"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:382"
           ]
         },
         {
@@ -57080,7 +57162,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:340"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:347"
           ]
         },
         {
@@ -57204,7 +57286,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:313"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:320"
           ]
         },
         {
@@ -57246,7 +57328,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:359"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:366"
           ]
         },
         {
@@ -57376,7 +57458,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:356"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:363"
           ]
         },
         {
@@ -57420,7 +57502,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:352",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:359",
             "ai-agents/20-api/voice-ai-boundary.md:66"
           ]
         },
@@ -57456,7 +57538,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:360"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:367"
           ]
         },
         {
@@ -57506,7 +57588,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:354"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:361"
           ]
         },
         {
@@ -95728,6 +95810,7 @@ var scrub = (s) => {
 function containsSecrets(value, key = "", depth = 0) {
   if (value === REDACTED) return false;
   if (isNoAuthObject(key, value)) return false;
+  if (value === "" && isSecretKey(key)) return false;
   if (isSecretKey(key)) return true;
   if (value == null) return false;
   if (typeof value === "string") return hasSecretText(value);
@@ -95753,7 +95836,13 @@ function scrubSecrets(value) {
       // "sk_live_…"}}`), so recursing would leak it. Callers wanting to expose metadata
       // ABOUT a credential must name the field something that is not itself a credential
       // name — see authStatus's `jwtClaims` / `tokenIdClaims`.
-      isSecretKey(key) ? "<redacted>" : scrubSecrets(item)
+      //
+      // Two values under a secret-named key carry no credential and are passed through as they are:
+      // an EMPTY string and the exact no-auth object. Redacting them manufactured one: a chatgpt
+      // step's apiKey:"" read back as "<redacted>", and writing that export back would store the
+      // literal as the key (live 2026-09-28, knowledge sniffs/workflows-wave1-2026-09-25/
+      // live-3P2-chatgpt-apikey.json).
+      isSecretKey(key) ? item === "" || isNoAuthObject(key, item) ? item : "<redacted>" : scrubSecrets(item)
     ]));
   }
   return value;
