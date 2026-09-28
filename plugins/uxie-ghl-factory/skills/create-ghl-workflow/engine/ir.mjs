@@ -73,6 +73,8 @@ const KIND_BY_TYPE = { if_else: 'if_else', workflow_split: 'split', ai_decision:
 // and copies what it shows lands on the one value that disabled every guard downstream. Two keys
 // named `kind`, two disjoint vocabularies, and the catalogue is the one agents read first.
 export const NODE_KINDS = new Set(['action', 'wait', 'if_else', 'split', 'ai_decision', 'goto', 'raw']);
+// if_else branch keys the compiler reads; `op` is the conditions' AND/OR (the builder's segment operator).
+const IF_ELSE_BRANCH_KEYS = new Set(['ref', 'name', 'conditions', 'then', 'else', 'op', 'assocGuaranteed']);
 
 // GHL's `requiresStepIndex`, from utils/step_index.ts:6-30 via
 // corpus/workflows/70-research/ACTION-DRAWERS.md:66-70. A step that requires a stepIndex gets a
@@ -382,6 +384,11 @@ export function parseIR(ir, { externalRefs } = {}) {
       const elses = n.branches.filter((b) => b.else === true);
       if (elses.length > 1) throw new IRError('IFELSE_ELSE', `if_else '${n.ref}' has >1 else branch`);
       for (const b of n.branches) {
+        // Only these keys are read (compiler if_else block). Anything else was silently ignored — an
+        // `operator: 'or'` built an AND branch — so it is refused, same class as TRIGGER_KEY / NODE_KEY.
+        const badKeys = Object.keys(b ?? {}).filter((k) => !IF_ELSE_BRANCH_KEYS.has(k));
+        if (badKeys.length) throw new IRError('BRANCH_KEY', `branch '${b.ref ?? b.name ?? '?'}' has unknown key(s) [${badKeys.join(', ')}] — known: ${[...IF_ELSE_BRANCH_KEYS].join(', ')} (the AND/OR operator is \`op\`)`);
+        if (b.op !== undefined && b.op !== 'and' && b.op !== 'or') throw new IRError('BRANCH_OP', `branch '${b.ref ?? b.name ?? '?'}' op must be 'and' or 'or', got ${JSON.stringify(b.op)}`);
         const hasCond = Array.isArray(b.conditions) && b.conditions.length > 0;
         if (b.else === true && hasCond) throw new IRError('BRANCH_SHAPE', `branch '${b.ref}' has both else and conditions`);
         if (b.else !== true && !hasCond) throw new IRError('BRANCH_SHAPE', `branch '${b.ref}' has neither else nor conditions`);

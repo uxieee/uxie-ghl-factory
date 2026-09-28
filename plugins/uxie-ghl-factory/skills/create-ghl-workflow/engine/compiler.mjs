@@ -14,6 +14,7 @@ import { checkContactFieldShape } from './contact-field-shapes.mjs';
 import { numberFormatterFieldTypes, isZeroSkip } from './lints/formatter-skips.mjs';
 import { lintContactLessSteps } from './lints/contact-less-steps.mjs';
 import { lintSmsTemplateBody } from './lints/sms-template-body.mjs';
+import { lintEventStartRecurring } from './lints/event-start-recurring.mjs';
 import { enforceRequiredFields, INNER_ATTRIBUTE_TYPE } from './required-fields.mjs';
 import { coerceDefault } from './action-schema.mjs';
 import { enforceTemplates } from './enforce.mjs';
@@ -1119,6 +1120,11 @@ function emailAttributes(node, ctx) {
     syncEnabled: a.syncEnabled ?? false,
     attachments: a.attachments ?? [],
     fieldDefaults: a.fieldDefaults ?? { subject: {} },
+    // Real builder keys the ATTR_KEY guard already accepts. This base is a fixed list, so a key left
+    // out of it was dropped silently: cc/bcc went out empty (live 2026-09-28, live-3AV).
+    ...(a.cc != null ? { cc: a.cc } : {}),
+    ...(a.bcc != null ? { bcc: a.bcc } : {}),
+    ...(a.customSubtypeId != null ? { customSubtypeId: a.customSubtypeId } : {}),
   };
   // "none" is the BUILDER's inline switch (Email.ts::selectTemplate clears template_id and
   // templatesource), and it is TRUTHY — so this branch used to emit template_id:"none" and GHL's
@@ -1423,7 +1429,7 @@ export function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
           branches: conditioned.map((b, bi) => ({
             id: conditionedIds[bi], name: b.name,
             segments: (b.conditions && b.conditions.length)
-              ? [{ __segmentId: ctx.idGen(), operator: 'and', conditions: b.conditions.map((c) => expandCondition(c, ctx)) }]
+              ? [{ __segmentId: ctx.idGen(), operator: b.op ?? 'and', conditions: b.conditions.map((c) => expandCondition(c, ctx)) }]
               : [],
             operator: 'and',
             showErrors: false, branchNameError: 'Branch name cannot be empty!',
@@ -2760,6 +2766,7 @@ export function compile(ir, ctx) {
   }
   for (const f of lintContactLessSteps(templates, norm.triggers)) ctx?.warn?.(`${f.code}: ${f.msg}`);
   for (const f of lintSmsTemplateBody(templates)) ctx?.warn?.(`${f.code}: ${f.msg}`);
+  for (const f of lintEventStartRecurring(templates)) ctx?.warn?.(`${f.code}: ${f.msg}`);
   // Authored ref names in wait jump/reply fields → the minted step ids (graph-refs.mjs).
   resolveAuthoredStepRefs(templates, refMap);
   enforceTemplates(templates, ctx?.catalog, ctx);

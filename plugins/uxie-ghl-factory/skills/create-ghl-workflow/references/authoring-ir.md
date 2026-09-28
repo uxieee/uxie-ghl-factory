@@ -168,19 +168,21 @@ trigger, or find the card, before an opp-stage branch.
   + an optional `default: [...]` "No condition met" tail. The other 7 `conversationai_*`
   nodes are linear `action`s. Bind the flow to its agent by putting `convTriggerBotId: <agentId>`
   on the `conv_ai_trigger`, and set top-level `workflowType: "agent"` on the IR.
-- **Names the resolver understands** (CLOSED list — everything else must already be a
-  real ID): `attributes.pipeline`/`stage` (opportunity steps), `attributes.user`
-  (assign_user), `attributes.calendar` (appointment_booking ONLY), `attributes.assignedTo`
-  (task), `attributes.agent`/`employee` (voice/ConvAI agent), and trigger filter values
-  referencing pipeline/form/calendar/survey names.
-- **⚠️ NOT resolved and NOT flagged — you must pre-resolve these to real IDs yourself
-  (via the `ghl` MCP) before authoring, or the workflow builds clean and silently no-ops
-  at runtime:** custom values (`{{custom_values.x}}` in bodies), payment products/prices,
-  `add_to_workflow`/`remove_from_workflow` `workflow_id` (a SIBLING workflow — pass its id,
-  NOT its name; the validator does not check it exists), `conversationai_book_appointment.calendarId`,
-  `conversationai_transfer_bot.assignedEmployeeId`, `conversationai_objective.contactField`,
-  and custom-field ids used in trigger filter conditions. The abort gate only covers the
-  closed list above — these pass through untouched.
+- **Names the resolver understands** (CLOSED list, `engine/resolve.mjs` — everything else must already
+  be a real ID). Step intent keys: `pipeline`/`stage` (opportunity steps, and `stage` on an If/Else
+  opportunities condition), `user` (assign_user), `assignedTo` (task-notification), `calendar`
+  (appointment_booking ONLY), `workflow` (add_to_workflow / remove_from_workflow → `workflow_id`),
+  `customValue` (update_custom_value → `custom_value_id`), `offer` (membership grant/revoke), `template`
+  (email, the sms family, proposals_estimates_send_document), a human custom-field NAME in
+  update_contact_field / create_update_contact `fields`, `agent` (voice_ai_outbound_call), `employee`
+  (conversationai_* / update_conversation_ai_status), and `object` on a custom-object workflow. Trigger
+  filter values naming a pipeline, stage, calendar, form, survey, user, trigger link, membership product,
+  offer, workflow, product, funnel, Facebook page or document template are resolved too.
+- **⚠️ NOT resolved and NOT checked — pass real IDs:** `conversationai_book_appointment.calendarId`,
+  `conversationai_objective.contactField`, and custom-field ids inside trigger filter conditions. A
+  `workflow_id` given as an id is not checked to exist (GHL's validator does not either).
+  `{{custom_values.x}}` in text is not resolved but IS checked: the merge-tag lint refuses a key that is
+  not one of this location's custom values (MERGE_TAG_UNKNOWN) when that list was fetched.
 - **Inline emails:** put `attributes._template: { title, html, previewText }` on an
   `email` node — the orchestrator creates the template first and links it.
 - **Trigger-less workflows:** `triggers: []` is legal — for workflows enrolled via
@@ -284,6 +286,7 @@ wrong stage. Every guard below exists because that happened on a live account (2
 | Code | Fires when | The silent failure it replaces |
 |---|---|---|
 | `NODE_KEY` | An unknown node-level key, or a scope (`onFound`/`onEvent`/…) on a type with no container handler for it | The whole subtree was discarded; the build reported a clean round-trip for a fraction of the IR |
+| `BRANCH_KEY` / `BRANCH_OP` | An if_else branch key other than `ref, name, conditions, then, else, op, assocGuaranteed`; or `op` not `and`/`or` | An unknown branch key was ignored: `operator: 'or'` built an AND branch. A branch's conditions are AND-ed unless it sets `op: 'or'` (the builder's segment AND/OR toggle) |
 | `NODE_DROPPED` | An authored node never reached the built payload (engine backstop) | As above — the authored-vs-compiled proof that round-trip verification never gave |
 | `EMPTY_STEP` | A `wait` with no/partial duration, or an `update_opportunity` with nothing to update | `startAfter: {}` (the wait **did not pause** — 4 messages in 6 seconds) and `__customInputFields__: []` (a stage move that never moved) |
 | `COND_SHAPE` | A dead opportunity-stage condition spelling | A branch that publishes clean and never evaluates |
