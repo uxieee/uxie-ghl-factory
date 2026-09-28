@@ -116,6 +116,7 @@ import { compileVoiceAiAgent, compileVoiceAiUpdate } from '../../engines/ai/voic
 import { compileSuperAgentCreate, compileSuperAgentUpdate } from '../../engines/ai/studio-compiler.mjs';
 import { executeAgentPlan, executeAgentUpdate, serverMessage } from '../../engines/ai/driver.mjs';
 import { compileVoiceAiPartialUpdate, executeVoiceAiUpdate } from '../../engines/ai/voiceai-update.mjs';
+import { compileDeploymentIntent, executeDeployment, DEPLOY_PATH, CHANNELS } from '../../engines/ai/deployment.mjs';
 import { compileConvaiUpdateFromRecord } from '../../engines/ai/convai-compiler.mjs';
 import { StudioApi, queryProjectHistory, filterRoutes, classifySite, nameWarning,
          sessionFor, awaitTurn, isTerminal, MESSAGES, DIFFS, answerBodyFor } from './ai-studio.mjs';
@@ -2319,6 +2320,66 @@ export const TOOLS = [
             : report.code === 'PROVIDER_REFUSED_BUT_STORED'
             ? 'Read data.warning and data.values; fix the value from the provider message and retry.'
             : 'Inspect data.verification and data.collateral; the record is live, so re-read before retrying.'), data);
+    }, args),
+  },
+  {
+    name: 'set_agent_deployment',
+    description: describe('set_agent_deployment',
+      'Put ONE agent on ONE channel in the Agent Deployment routing table (the Deploy page\'s channel rows), or change '
+      + 'that row. Writes only the named agent\'s row: creates it when the agent has none on that channel + provider, '
+      + 'otherwise PATCHes the full row. Reads the WHOLE table before and after and fails unless every other row is '
+      + 'byte-identical and the target row equals what you asked. The routing table is account-wide: a row decides which '
+      + 'bot answers a channel\'s conversations, so check data.preview.collisions (enabled rows of other agents on the same '
+      + 'channel whose tag audience overlaps; GHL answers 409 naming the row) before confirming. Two bots share a channel '
+      + 'only with disjoint tag scopes: one includes a tag, the other includes a different tag or EXCLUDES it (use OR for '
+      + 'several excludes). channel: ' + CHANNELS.join(' | ') + ' (WebChat = the Chat widget card). Email and WebChat, and any '
+      + 'marketplace providerId (SMS or Email providers only), are always "all" identifiers. The whole intent is sent every '
+      + 'time: enabled is required; omitted tag lists mean none. Refuses an ambiguous target (two rows for the agent), a tag '
+      + 'in both lists, and identifiers a channel cannot hold. There is no delete: a row is turned off with enabled:false. '
+      + 'Does not create the channel\'s connection (numbers, pages, widgets) and does not prove a bot answers. '
+      + 'Previews by default (one read, no write); confirm:true writes.'),
+    inputSchema: schema({
+      locationId: z.string(),
+      agentId: z.string(),
+      channel: z.string().describe(CHANNELS.join(' | ')),
+      enabled: z.boolean(),
+      providerId: z.string().optional().describe('an installed marketplace provider _id (SMS / Email only); omit for the native channel'),
+      agentProductType: z.string().optional().describe('default conversation_ai'),
+      allIdentifiers: z.boolean().optional(),
+      specificIdentifiers: z.array(z.string()).optional().describe('phone numbers (SMS, WhatsApp) or page / account / widget ids'),
+      includeTags: z.array(z.string()).optional(),
+      includeTagsOperator: z.string().optional().describe('AND | OR (default AND)'),
+      excludeTags: z.array(z.string()).optional(),
+      excludeTagsOperator: z.string().optional().describe('AND | OR (default AND)'),
+      confirm: z.boolean().default(false),
+    }),
+    capabilities: [
+      { method: 'GET', path: DEPLOY_PATH },
+      { method: 'POST', path: DEPLOY_PATH },
+      { method: 'PATCH', path: `${DEPLOY_PATH}/{rowId}` },
+    ],
+    handler: async (args, deps) => guard(async () => {
+      let intent;
+      try { intent = compileDeploymentIntent(args); } catch (error) {
+        return fail(CODES.VALIDATION_FAILED, error.message, 'Fix the arguments; nothing was sent.');
+      }
+      const gw = deps.makeGw({ loc: args.locationId, rail: 'ai', state: deps.state });
+      const report = await executeDeployment({ gw, locationId: args.locationId, intent, confirm: args.confirm === true });
+      if (report.http) {
+        return withFailureData(fromHttp(report.http.status ?? 502, report.http.json), { preview: report.preview, verification: report.verification });
+      }
+      if (!report.ok) {
+        return withFailureData(fail(CODES[report.code] ?? CODES.ENGINE_ABORT, report.detail ?? 'The routing row did not verify.',
+          report.code === 'VERIFY_FAILED'
+            ? 'URGENT: read data.verification — changedOthers lists rows that moved, mismatches the target keys that differ. Re-read the table before anything else.'
+            : 'Nothing was written.'), { preview: report.preview, verification: report.verification });
+      }
+      if (!report.written) {
+        if (report.preview.action === 'noop') return ok({ preview: report.preview, note: 'The row already matches; nothing was written.' });
+        return withFailureData(fail(CODES.CONFIRM_REQUIRED, 'Deployment preview is ready; one read, no write.',
+          'Review data.preview (action, body, collisions), then repeat with confirm:true.'), { preview: report.preview });
+      }
+      return ok({ written: report.written, verification: report.verification, preview: report.preview });
     }, args),
   },
   {

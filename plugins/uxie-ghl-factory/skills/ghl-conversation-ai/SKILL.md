@@ -32,8 +32,10 @@ the internal rail only for:
   No public equivalent. This silences one bot for one contact; DND is worse on every count.
 - **prompt version history** (`oldPromptIds`), if a rollback is actually needed.
 - **the Agent Deployment routing table** — `GET /agent-deployment/routing-config/configs?locationId=&agentId=`,
-  one row per channel deciding which widgets/numbers actually reach the agent. Internal-only:
-  no public equivalent, no typed tool — `raw_request` with `host:"ai"`. See the next section.
+  one row per channel deciding which widgets/numbers actually reach the agent. Internal-only, no public
+  equivalent. **Write a row with `set_agent_deployment`**: it touches only the named agent's row and fails unless every
+  other row reads back byte-identical. Read the table with `raw_request` (`host:"ai"`, omit `agentId` for every row).
+  See the next section.
 
 `references/conversation-ai.md` documents the internal endpoints — read it when you need the
 per-contact switch, prompt history or the routing table, not as the default path. Those, and every other
@@ -46,8 +48,9 @@ as a reason to leave the public rail for reads and config it already covers.
 Deployment is a routing table (one row per channel), not a toggle on the agent record. The mute
 symptom: contacts get created, no reply, no enrolment, no error anywhere. Diagnose in this order:
 
-1. Read the routing rows (`raw_request`, `host:"ai"`; no typed tool or agent read shows them) and
-   fix any row pointing at nothing — a full-row PATCH to "All widgets".
+1. Read the routing rows (`raw_request`, `host:"ai"`; no agent read shows them) and fix any row pointing at
+   nothing — `set_agent_deployment` with `allIdentifiers: true` ("All widgets"). The table is account-wide: check the
+   preview's `collisions` before confirming.
 2. Only after every row checks out: the per-contact switch, `mode`, `channels[]`, then the prompt.
 
 Clone rule: Live chat stays on *All widgets*, never a specific widget id — ids change on a clone

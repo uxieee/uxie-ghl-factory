@@ -40,7 +40,7 @@ into three parts, not a tool-calling system prompt.
 | Default KB (idempotent get-or-create) | `POST` | `/knowledge-base/default` (`{locationId, migrateDocs:true}`) |
 | Default prompt template | `GET` | `/conversations-ai/prompt/default?locationId=…&intentType=…` |
 | Deployment routing rows (one per channel) | `GET` | `/agent-deployment/routing-config/configs?locationId=…&agentId=…` |
-| Update a routing row (the PATCH merges: send only the keys you change) | `PATCH` | `/agent-deployment/routing-config/configs/:rowId` |
+| Update a routing row (the PATCH merges; `set_agent_deployment` sends the full row and verifies the whole table) | `PATCH` | `/agent-deployment/routing-config/configs/:rowId` |
 | Live-chat widget picker (`offset`+`limit` required) | `GET` | `/chat-widget/list?locationId=…&chatType=liveChat&offset=0&limit=20` |
 | Update / delete an action | `PUT` · `DELETE` | `/ai-employees/actions/:actionId` (DELETE body `{employeeId}`) |
 | Follow-up schedule for the Auto Followup actions | `PATCH` | `/ai-employees/actions/followup/settings` |
@@ -211,18 +211,22 @@ previously mute widget ~38 s later. Corpus:
 
 | Operation | Method | Path |
 |---|---|---|
-| Read the rows | `GET` | `/agent-deployment/routing-config/configs?locationId=…&agentId=…` |
-| Update a row | `PATCH` | `/agent-deployment/routing-config/configs/:rowId` |
+| Read the rows | `GET` | `/agent-deployment/routing-config/configs?locationId=…&agentId=…` (omit `agentId`: every row on the location) |
+| Create a row | `POST` | `/agent-deployment/routing-config/configs` — use `set_agent_deployment` |
+| Update a row | `PATCH` | `/agent-deployment/routing-config/configs/:rowId` — use `set_agent_deployment` |
 | Widget picker | `GET` | `/chat-widget/list?locationId=…&chatType=liveChat&offset=0&limit=20` |
 
 **Where a user sees it.** With `conversationsAI.channelManagement` ON, the agent builder shows a **Deploy** tab
 listing SMS · WhatsApp · Instagram · Facebook · TikTok · Live chat · Chat widget · Email, each with Configure, plus
-"Add channels from marketplace" (rendered 2026-09-28). The tag filters below are not editable in that builder (its
-bundle has no `includeTags`): set them through the row PATCH.
+"Add channels from marketplace" (rendered 2026-09-28). Each Configure modal offers the identifiers (or a fixed "All
+widgets" / "All emails"), **Has tags** and **Doesn't have tags** with AND/OR, Cancel · Update (UI walk 2026-09-29). There
+is no AI simulation tab, no Phone or Voice-widget card and no per-row hours in this build.
 
-The two routing calls are AI-rail (`raw_request`, `host:"ai"`); `/chat-widget/list` answers
-identically on backend and services. No typed tool covers them, so any "is this agent actually
-live?" audit must read the rows directly.
+The routing calls are AI-rail. `set_agent_deployment` writes one agent's row (create, or a full-row PATCH) and proves
+the rest of the table unchanged. Reads are `raw_request` with `host:"ai"`: any "is this agent actually live?" audit
+reads the rows directly. `/chat-widget/list` answers identically on backend and services, but needs a real `chatType`
+(an empty one is 422). 🔴 A create **drops empty lists**: POST `excludeTags: []` stores no `excludeTags` key, while
+PATCH `[]` stores `[]`. Read an absent list as `[]` (live-proven 2026-09-29).
 
 Each row: `{channel, providerId, enabled, allIdentifiers, specificIdentifiers[], includeTags,
 includeTagsOperator, excludeTags, excludeTagsOperator}`. `allIdentifiers:true` routes every
