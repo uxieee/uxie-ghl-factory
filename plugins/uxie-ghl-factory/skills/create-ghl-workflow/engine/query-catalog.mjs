@@ -25,7 +25,7 @@ export function loadData() {
 // IR authoring sugar for container types (SKILL.md "Node kinds"). Everything else
 // is `kind: action`.
 const IR_KIND = {
-  if_else: 'if_else', workflow_split: 'split', workflow_ai_decision_maker: 'ai_decision',
+  if_else: 'if_else', workflow_split: 'split', workflow_ai_decision_maker: 'ai_decision', workflow_ai_intent_detection: 'ai_intent',
   goto: 'goto', wait: 'wait',
   find_contact: 'find_contact (onFound/onNotFound)',
   find_opportunity: 'find_opportunity (onFound/onNotFound)',
@@ -199,6 +199,7 @@ export function renderMarkdown(d) {
   out.push('| `if_else` | `if_else` | N≥2 branches, one optional `else: true` |');
   out.push('| `split` | `workflow_split` | weighted/random branches |');
   out.push('| `ai_decision` | `workflow_ai_decision_maker` | Default + N LLM branches |');
+  out.push('| `ai_intent` | `workflow_ai_intent_detection` | fixed Positive / Negative / None (`branches[].name`), `inputText` |');
   out.push('| `wait` | `wait` | plain wait, or multipath on outcomes |');
   out.push('| `goto` | `goto` | must be last node in its branch |');
   out.push('| `onFound`/`onNotFound` | `find_contact`, `find_opportunity`, `lc_merge_contact` | pre-set 2-branch finders |');

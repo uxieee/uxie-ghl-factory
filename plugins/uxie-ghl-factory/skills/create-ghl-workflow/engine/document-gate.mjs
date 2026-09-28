@@ -60,6 +60,8 @@ export const MULTIPATH_TYPES = new Map([
   ['lc_merge_contact', { convertFlag: true }], ['workflow_ai_decision_maker', { convertFlag: true }],
   ['conversationai_ai_splitter', { convertFlag: true }], ['conversationai_book_appointment', { convertFlag: true }],
   ['conversationai_services_booking', { convertFlag: true }], ['workflow_split', { convertFlag: false }],
+  // No harvested sample (0 stored); the builder's own shape was captured 2026-09-28 (live-3CB-intent-builder-specimen.json).
+  ['workflow_ai_intent_detection', { convertFlag: true }],
 ]);
 
 /** What is wrong with a multipath container's wiring, or [] when nothing is. */

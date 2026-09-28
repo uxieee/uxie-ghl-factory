@@ -146,12 +146,15 @@ trigger, or find the card, before an opp-stage branch.
 
 - **Node kinds** — a CLOSED set: `action` (any linear type), `wait`, `if_else` (N≥2 branches,
   one optional `else: true`), `split` (`workflow_split`, weighted/random), `ai_decision`
-  (`workflow_ai_decision_maker`, Default + N branches), `goto` (must be last in its
+  (`workflow_ai_decision_maker`, Default + N branches), `ai_intent`
+  (`workflow_ai_intent_detection`: `inputText` plus up to three FIXED branches named `positive`,
+  `negative` and `none`, each `{name, then}`; an omitted one is an empty lane), `goto` (must be last in its
   branch), `raw` (you own the template end to end). Pre-set 2-branch finders
   (`find_contact`/`find_opportunity`/`lc_merge_contact`) use `onFound`/`onNotFound`.
 
   **Omitting `kind` is usually right** — the engine infers it from `type` (`if_else`,
-  `workflow_split`, `ai_decision`, `goto`) and everything else defaults to `action`.
+  `workflow_split`, `ai_decision`, `workflow_ai_intent_detection` → `ai_intent`, `goto`) and everything else
+  defaults to `action`.
 
   🔴 **Never write `kind: "step"`.** It is not a node kind, and it is the one wrong value you
   are most likely to reach for, because the CATALOGUE uses the same word differently: every
