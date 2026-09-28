@@ -55,6 +55,21 @@
     "path": "/voice-ai/agents/{agentId}"
   },
   {
+    "tool": "set_agent_deployment",
+    "method": "GET",
+    "path": "/agent-deployment/routing-config/configs"
+  },
+  {
+    "tool": "set_agent_deployment",
+    "method": "POST",
+    "path": "/agent-deployment/routing-config/configs"
+  },
+  {
+    "tool": "set_agent_deployment",
+    "method": "PATCH",
+    "path": "/agent-deployment/routing-config/configs/{rowId}"
+  },
+  {
     "tool": "create_studio_agent",
     "method": "SSE",
     "path": "/agent-studio/super-agents/build"
