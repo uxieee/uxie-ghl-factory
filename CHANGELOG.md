@@ -11,6 +11,17 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.12.1] — 2026-09-29
+
+**Fix: a webinar created by `create_funnel` could start at the wrong time. Executed live on the test account.**
+
+- **`create_funnel` kind:webinar:** `webinar.date` was passed through as the end date with whatever offset the caller
+  gave. So a caller outside the webinar's timezone (its own refusal text even suggested "+08:00") created a
+  "10:00 New York" webinar at 02:00 UTC. That is GHL's own browser-offset trap, reproduced inside the tool.
+  `webinar.date` is now the calendar day ("YYYY-MM-DD"). The start time is converted from `webinar.timezone` to UTC,
+  DST included. An ISO instant is still accepted when its offset agrees with the timezone; a disagreeing offset, a
+  time that falls in a DST gap, or a non-IANA timezone is refused. The created session is read back and must match.
+
 ## [1.12.0] — 2026-09-29
 
 **Two new tools: roll a workflow back to an earlier version, and switch a Conversation AI agent on or off per channel
