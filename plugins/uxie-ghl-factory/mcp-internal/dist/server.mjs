@@ -177865,7 +177865,7 @@ var PROVIDER_BOUNDS = {
 var isObj = (v) => v !== null && typeof v === "object" && !Array.isArray(v);
 function readFlat(record2, key) {
   const s = record2?.agentSettings ?? {};
-  if (key === "voiceId") return s.voice?.voiceId ?? record2?.voiceId;
+  if (key === "voiceId") return (record2?.provider === "lc" ? s.s2sBehaviour?.voiceId : void 0) ?? s.voice?.voiceId ?? record2?.voiceId;
   if (key === "language") return isObj(s.language) ? s.language.code : s.language ?? record2?.language;
   if (key === "ringDurationSeconds") return typeof s.ringDurationMs === "number" ? s.ringDurationMs / 1e3 : record2?.ringDurationSeconds;
   if (key === "welcomeMessage") return record2?.welcomeMessage ?? record2?.agentWelcomeMessage;
@@ -178039,6 +178039,10 @@ async function executeVoiceAiUpdate({ plan, before, gw, serverMessage: serverMes
   const kbIds = new Set([...kbActions(before), ...kbActions(after)].map((x) => x._id));
   for (const k of /* @__PURE__ */ new Set([...Object.keys(b), ...Object.keys(a)])) {
     if (setNames.has(k)) continue;
+    if (k === "agentSettings.s2sBehaviour" && plan.setKeys.includes("voiceId")) {
+      const omitVoice = (o) => isObj(o) ? Object.fromEntries(Object.entries(o).filter(([x]) => x !== "voiceId")) : o;
+      if (same(omitVoice(b[k]), omitVoice(a[k]))) continue;
+    }
     if (kbChange && k === "actions" && nonKb(b[k]) === nonKb(a[k])) continue;
     if (kbChange && k === "actionIds" && same((b[k] ?? []).filter((x) => !kbIds.has(x)), (a[k] ?? []).filter((x) => !kbIds.has(x)))) continue;
     if (same(b[k], a[k])) continue;
