@@ -8097,7 +8097,7 @@
    "family": "triggers",
    "title": "customer_reply",
    "status": "source-derived",
-   "lastVerified": "2026-09-26",
+   "lastVerified": "2026-09-28",
    "summary": "Fires on an inbound message from the contact, on a chosen channel or any. With no filter it fires on **every** inbound message, not only on replies to a workflow's own message: a first live-chat message from a brand-new contact was evaluated against it `[proven-live 2026-09-25]`.",
    "meta": {
     "Trigger value": "`customer_reply`",
@@ -8183,7 +8183,7 @@
      "fieldType": "Reply channel",
      "required": false,
      "title": "`==`",
-     "options": "Call `1`, SMS `2`, Email `3`, Chat widget `5`, Facebook Messenger `11`, GMB `15`, Instagram DM `18`, WhatsApp `19`, Live chat `29`, All-in-one chat `1000`; TikTok `41` only with the `integrations.tiktokBusiness` lab"
+     "options": "Call `1`, SMS `2`, Email `3`, Chat widget `5`, Facebook Messenger `11`, GMB `15`, Instagram DM `18`, WhatsApp `19`, Live chat `29`, All-in-one chat `1000`; TikTok `41` only with the `integrations.tiktokBusiness` lab — the value is the **number**: all 12 `message.type` filters in harvested workflows are numeric (`2`×9, `3`, `19`, `29`), so a filter stored as the string `\"email\"` names no option and should be assumed never to match [source-derived + corpus 2026-09-28 — models/Triggers/Filters/ContactReplyFilter.ts:40-57, types/message-type.ts]"
     },
     {
      "field": "message.body (id message-body)",
@@ -8299,7 +8299,7 @@
    "family": "steps",
    "title": "datetime_formatter",
    "status": "source-derived",
-   "lastVerified": "2026-09-25",
+   "lastVerified": "2026-09-28",
    "summary": "\"Date/Time Formatter\": reformat a date, reformat a date-and-time, or count the days between two dates, and hand the result to later steps as a merge tag.",
    "meta": {
     "Section": "`internal`",
@@ -8340,7 +8340,7 @@
     }
    ],
    "validator": "`dateTimeFormatterValidator` — all findings are warnings, so an incomplete step still saves:\n`action` required; `format_*` needs `format.type/fromField/fromFormat/toFormat` (`fromFieldDatePicker`\nwhen `fromField` is `\"_datepicker_\"`); `compare_dates` needs `compare.type/startDate/startDateFormat/endDate/endDateFormat`.",
-   "notes": "- **The output is NOT `.result`.** `{{datetime_formatter.N.result}}` renders as an empty string.\n  The key is `.date`, `.datetime` or `.days` by action (`datetime_formatter_helpers.ts:11-27`)\n  `[proven-live 2026-09-25]`. The trap: the execution log's `meta.data` DOES carry a `result` key\n  (`{\"result\": \"09/25/2026\", \"msg\": \"Formatted date from 2026-09-25 to 09/25/2026\"}`), so reading\n  the log suggests `.result` — the merge tag does not.\n- `.days` is numeric (`end - start`: 2026-09-01 → 2026-09-25 = `24`) `[proven-live 2026-09-25]`.\n- If/Else date conditions on a formatter output use `N.<key>_system_format`\n  (`datetime_formatter_helpers.ts:50,74`) `[source-derived]`.\n- Formats are Moment.js tokens, not ISO-8601 directives.\n- The validator (`dateTimeFormatterValidator`) is warning-level: a missing format saves.",
+   "notes": "- **The output is NOT `.result`.** `{{datetime_formatter.N.result}}` renders as an empty string.\n  The key is `.date`, `.datetime` or `.days` by action (`datetime_formatter_helpers.ts:11-27`)\n  `[proven-live 2026-09-25]`. The trap: the execution log's `meta.data` DOES carry a `result` key\n  (`{\"result\": \"09/25/2026\", \"msg\": \"Formatted date from 2026-09-25 to 09/25/2026\"}`), so reading\n  the log suggests `.result` — the merge tag does not.\n- `.days` is numeric (`end - start`: 2026-09-01 → 2026-09-25 = `24`) `[proven-live 2026-09-25]`.\n- If/Else date conditions on a formatter output use `N.<key>_system_format`\n  (`datetime_formatter_helpers.ts:50,74`) `[source-derived]`.\n- Formats are Moment.js tokens, not ISO-8601 directives.\n- The validator (`dateTimeFormatterValidator`) is warning-level: a missing format saves.\n\n- 🔴 **`compare_dates` on a contact DATE field miscounts.** A contact date field renders in a merge tag as `September 28, 2026`. With `startDate: \"{{contact.<date field>}}\"`, `startDateFormat: \"MMMM D, YYYY\"`, `endDate: \"2026-09-28\"`, `endDateFormat: \"YYYY-MM-DD\"`, the step logged `\"Calculated duration between 2026-09-28 and 2026-09-28: 262 days\"` and `days: 262`. Both dates parsed to the same day for the message, yet the count was 262 (a start of 2026-01-09 would give that). A 2020-01-01 start in the same step gave the correct 2462. Seen in two separate runs [proven-live 2026-09-28 — sniffs/workflows-wave1-2026-09-25/live-3W-ifelse-output-groups.json, live-3W3-ifelse-rerun-webhook-dtf.json; the render: live-3W-ifelse-output-groups-run1-date-render.json]. Do not trust `.days` from a long-form rendered date; feed `YYYY-MM-DD` literals, which count correctly (24 for 2026-09-01 → 2026-09-25).",
    "hasCanonicalExample": false
   },
   {

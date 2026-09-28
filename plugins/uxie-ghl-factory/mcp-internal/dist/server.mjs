@@ -167895,7 +167895,17 @@ function evaluateMergeTags(templates, mergeTags, opts = {}) {
     const where = `'${t.name ?? t.id}' (${t.type})`;
     walk3(t.attributes, (s) => {
       const opens = (s.match(/\{\{/g) ?? []).length, closes = (s.match(/\}\}/g) ?? []).length;
-      if (opens !== closes) out.push({
+      const rest = s.replace(/\{\{[^{}]*\}\}/g, "");
+      const unclosed = /\{\{/.test(rest);
+      const strayClose = /\}\}/.test(rest) && !(() => {
+        try {
+          JSON.parse(s);
+          return true;
+        } catch {
+          return false;
+        }
+      })();
+      if (unclosed || strayClose) out.push({
         where,
         kind: "unbalanced",
         severity: "warning",
@@ -168520,7 +168530,7 @@ function marketplaceEntry(node, ctx, kind) {
 function marketplaceAttributes(node, ctx) {
   const entry = marketplaceEntry(node, ctx, "action");
   const out = { ...node.attributes ?? {} };
-  out.type = node.type;
+  out.type = INNER_ATTRIBUTE_TYPE[node.type] ?? node.type;
   if (out.__customInputs__ === void 0) out.__customInputs__ = {};
   const blank = (v) => v === void 0 || v === null || typeof v === "string" && v.trim() === "" || Array.isArray(v) && v.length === 0;
   for (const f of entry.inputs) {
@@ -169200,6 +169210,7 @@ function conditionExtras(c) {
   for (const k of Object.keys(c)) if (!CONDITION_INTENT_KEYS.has(k)) out[k] = c[k];
   return out;
 }
+var SELF_NAMED_SUBTYPE = /* @__PURE__ */ new Set(["workflow_contact", "workflow_object", "ai_bot_booked_appointment"]);
 function normalizeCondition(rawC, ctx) {
   const c = canonicalizeOppStageCondition(rawC);
   const extras = conditionExtras(c);
@@ -169244,11 +169255,16 @@ function normalizeCondition(rawC, ctx) {
     return {
       ...extras,
       conditionType: "trigger",
-      conditionSubType: c.conditionSubType,
-      conditionOperator: "==",
+      // The builder sets this itself when the group is picked (models/conditions/Condition.ts:857-858), so an
+      // author never names it — and without it GHL refuses the step: "Condition 1 … is missing its field"
+      // (live 2026-09-28, knowledge sniffs/workflows-wave1-2026-09-25/live-3V-ifelse-contact-groups-run1-trigger-subtype-refused.json).
+      conditionSubType: c.conditionSubType ?? "trigger",
+      conditionOperator: c.conditionOperator ?? "==",
       conditionValue: value
     };
   }
+  if (SELF_NAMED_SUBTYPE.has(type) && c.conditionSubType === void 0)
+    return { ...extras, conditionType: type, conditionSubType: type, conditionOperator: c.conditionOperator ?? "==", conditionValue: c.conditionValue };
   if (type === "contact_detail") {
     const op = c.conditionOperator ?? "contain";
     let val2 = c.conditionValue;
