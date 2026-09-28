@@ -506,11 +506,11 @@ test('internal_notification sms/user: selectedUser coerced to array + full field
 test('internal_notification email: full editable shape (from/userType/subject/html/attachments)', () => {
   const a = inA({ name: 'W', triggers: [{ ref: 't', type: 'contact_tag', name: 'T', filters: [] }],
     graph: [{ kind: 'action', type: 'internal_notification', name: 'N',
-      attributes: { email: { subject: 'Hi', html: '<p>x</p>' } } }] });
+      attributes: { email: { userType: 'all', subject: 'Hi', html: '<p>x</p>' } } }] });
   assert.equal(a.type, 'email');
   assert.deepEqual(Object.keys(a.email).sort(),
     ['attachments', 'from_email', 'from_name', 'html', 'subject', 'userType']);
-  assert.equal(a.email.userType, 'all'); // default when no recipient specified
+  assert.equal(a.email.userType, 'all'); // 'all' only when authored — there is no implicit broadcast (bl-260)
   assert.equal(a.email.subject, 'Hi');
 });
 

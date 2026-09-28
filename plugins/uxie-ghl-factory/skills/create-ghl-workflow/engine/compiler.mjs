@@ -61,7 +61,10 @@ function attributesFor(node, ctx) {
   //   - attributes.type  (mirrors the step type — present on ~all linear action types)
   //   - __customInputs__  (the internal-action field envelope — present on INTERNAL types)
   // Both are catalog-gated so we never inject a field the verified-live example lacks.
-  const out = normalizeAttrs(node, node.attributes ?? {}, ctx);
+  // create_update_contact rows are titled (and the documented object-map form converted) BEFORE
+  // normalizeAttrs: its required-field checks iterate fields[] and threw a TypeError on the map form.
+  const attrsIn = node.type === 'create_update_contact' ? withContactRowTitles(node.attributes ?? {}) : (node.attributes ?? {});
+  const out = normalizeAttrs(node, attrsIn, ctx);
   // Advisory only — see contact-field-shapes.mjs for why this warns rather than throws.
   // Runs on the compiled attrs (post-normalize) so it sees exactly what will be sent.
   if (node.type === 'update_contact_field')
@@ -99,6 +102,23 @@ function withoutZeroTrimSkip(attrs, node, ctx) {
   ctx?.warn?.(`FORMATTER_SKIP_ZERO: text_formatter '${node.ref ?? node.name}' trim skip ${JSON.stringify(skip)} removed — `
     + `GHL skips the step at run time when skip is 0; without it the trim starts at the first character.`);
   return { ...attrs, extras };
+}
+
+// create_update_contact rows: GHL's builder decides "Email or Phone is mapped" by the row TITLE
+// (CreateUpdateContact.ts:229-231 — `field.title === 'Email' || field.title === 'Phone'`), not by the
+// field key, so a row authored as {field:'email'} with no title is refused (live 2026-09-28, knowledge
+// sniffs/workflows-wave1-2026-09-25/live-3G-contacts-run1-title-rule.json). Fill the drawer's title for
+// the standard keys, and accept the object-map form the IR docs show ({ email: '...', firstName: '...' }).
+const CONTACT_ROW_TITLES = { email: 'Email', phone: 'Phone', firstName: 'First Name', lastName: 'Last Name',
+  name: 'Full Name', companyName: 'Company Name', address1: 'Street Address', city: 'City', state: 'State',
+  postalCode: 'Postal Code', country: 'Country', website: 'Website', source: 'Source', dateOfBirth: 'Date Of Birth', timezone: 'Timezone' };
+function withContactRowTitles(attrs) {
+  let fields = attrs?.fields;
+  if (fields && !Array.isArray(fields) && typeof fields === 'object')
+    fields = Object.entries(fields).map(([field, value]) => ({ field, title: '', type: 'string', date: '', value }));
+  if (!Array.isArray(fields)) return attrs;
+  return { ...attrs, fields: fields.map((f) => (f && typeof f === 'object' && !f.title && CONTACT_ROW_TITLES[f.field]
+    ? { ...f, title: CONTACT_ROW_TITLES[f.field] } : f)) };
 }
 
 // Every workflow_goal condition carries an `id`. Without one GHL refuses the whole save with
@@ -774,7 +794,15 @@ function internalNotificationAttributes(a, ctx) {
       + `Accepted author keys: ${NOTIFICATION_EMITTED_KEYS[channel].join(', ')}. If one of these IS real, `
       + 'harvest a live example and extend the handler rather than assuming it shipped.');
   }
-  const userType = b.userType ?? (b.selectedUser != null && b.selectedUser !== '' ? 'user' : 'all');
+  // No implicit 'all': it notifies EVERY user on the account (real staff). An author who names no
+  // recipient gets a refusal, not a broadcast (bl-260). userType:'all' written out is still allowed.
+  // A `to` names a custom recipient: that is the drawer's custom_email / custom_sms mode.
+  const impliedCustom = b.to != null && b.to !== '' ? (channel === 'sms' ? 'custom_sms' : channel === 'email' ? 'custom_email' : null) : null;
+  if (b.userType == null && impliedCustom == null && (b.selectedUser == null || b.selectedUser === ''))
+    throw new IRError('MISSING_FIELD',
+      `internal_notification (${channel}) names no recipient — set userType ('user' + selectedUser, 'assign', `
+      + `'custom_email'/'custom_sms' + to, or 'all' explicitly). The old default was 'all', which notifies every user on the account.`);
+  const userType = b.userType ?? impliedCustom ?? 'user';
   const wantsUsers = userType === 'user';
   if (channel === 'email') {
     // `to` carries the recipient for the custom_email userType — LIVE-CAUGHT 2026-07-21
