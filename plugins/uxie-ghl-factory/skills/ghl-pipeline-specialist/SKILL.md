@@ -32,7 +32,8 @@ Tell the user GHL does these, and where. Do not say they are impossible.
 | Capability | Where in GHL | Why no tool |
 |---|---|---|
 | Export opportunities to CSV | Opportunities › ⋮ › Export | the browser builds the file; for data, page the public search instead |
-| Import opportunities from CSV | Opportunities › Import | UI upload flow |
+| Import opportunities from CSV | Opportunities › Import | UI upload flow, run as a background job. A file of opportunities alone must carry Contact IDs; tick Contacts too to create the contacts (a contact needs one of name, phone or email) |
+| Choose which fields the opportunity search matches | Settings › Custom Fields › ⋮ › Edit searchable fields (per object) | account-wide: it changes every user's search bar and global search at once; set it in the UI |
 | Bulk edit / bulk delete / restore a bulk delete | list view › select › Edit / Delete; Opportunities › Bulk Actions tab (a delete run has Restore) | not yet decided; edit_pipeline moves up to 100 cards itself |
 | Saved views (smart lists) and smart tags on the board | Opportunities › "+ List"; Pipelines › Edit › Smart tags | rare configuration; raw calls with the catalogue's trap notes |
 | Sharing & permissions per pipeline, Duplicate, Copy to sub-accounts | Pipelines › row ⋮ | rare; copy writes into other accounts |
