@@ -2051,5 +2051,36 @@
     "rows": [
       "snapshot-contents-read"
     ]
+  },
+  "edit_pipeline": {
+    "description": "Edit a pipeline and its stages safely — proof: live-runtime (2026-09-28); risk: write",
+    "risk": "write",
+    "proof": "live-runtime (2026-09-28)",
+    "proofFloor": "external-receipt-required",
+    "proofRows": [
+      "pipelines-opportunities--opportunities-pipelines",
+      "pipelines-opportunities--opportunities-search",
+      "pipelines-opportunities--opportunities-put",
+      "pipelines-opportunities--opportunities-get",
+      "pipelines-opportunities--opportunities-pipelines-put-put"
+    ],
+    "proofFloorRows": [
+      "pipelines-opportunities--opportunities-pipelines",
+      "pipelines-opportunities--opportunities-search",
+      "pipelines-opportunities--opportunities-put",
+      "pipelines-opportunities--opportunities-get",
+      "pipelines-opportunities--opportunities-pipelines-put-put"
+    ],
+    "riskRows": [
+      "pipelines-opportunities--opportunities-pipelines-put-put",
+      "pipelines-opportunities--opportunities-put"
+    ],
+    "rows": [
+      "pipelines-opportunities--opportunities-pipelines",
+      "pipelines-opportunities--opportunities-search",
+      "pipelines-opportunities--opportunities-put",
+      "pipelines-opportunities--opportunities-get",
+      "pipelines-opportunities--opportunities-pipelines-put-put"
+    ]
   }
 }

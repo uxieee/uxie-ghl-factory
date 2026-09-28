@@ -1,0 +1,30 @@
+{
+  "tool": "edit_pipeline",
+  "surfaces": [
+    "unassigned"
+  ],
+  "runs": [
+    {
+      "at": "2026-09-28",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:84a02452",
+        "row:pipelines-opportunities--opportunities-pipelines-put-put"
+      ],
+      "location": "…zn6B"
+    }
+  ],
+  "depends": {
+    "hashedAt": "2026-09-28",
+    "endpoints": {},
+    "builds": {},
+    "code": {
+      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#edit_pipeline": "5a4d820491c6a3e5bd8127915c47a572775335087a1341ed720322211a6d235a",
+      "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "e65c2384aefb498ce49453dd2d6d8d1a1d8351fd6d337aef5256eb982e1db02f",
+      "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
+      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "a223838eb7dbacd4b07e852c05c2728539093efea90eda104565aba5386074e4",
+      "plugins/uxie-ghl-factory/mcp-internal/core/pipelines.mjs": "92d962a585cec4d665cdf3f7450e76aababe10578b745f869cdcf79fa359ea5c"
+    }
+  }
+}
