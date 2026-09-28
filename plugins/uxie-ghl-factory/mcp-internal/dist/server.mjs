@@ -178,7 +178,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
     define_ENDPOINT_CATALOG_default = {
       generated: "2026-09-28",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 1256,
+      count: 1260,
       endpoints: [
         {
           id: "facebook-service--get-ad-account-by-id",
@@ -2335,13 +2335,13 @@ var init_define_ENDPOINT_CATALOG = __esm({
           pathParams: [],
           query: [
             {
-              name: "chatType",
+              name: "locationId",
               type: "string",
               required: false,
               source: "documented"
             },
             {
-              name: "locationId",
+              name: "offset",
               type: "string",
               required: false,
               source: "documented"
@@ -2353,7 +2353,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
               source: "documented"
             },
             {
-              name: "offset",
+              name: "chatType",
               type: "string",
               required: false,
               source: "documented"
@@ -2373,6 +2373,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/api/chat-widget-service.ts:35",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:452",
             "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:127",
             "funnels/10-anatomy/websites-and-global-sections.md:278",
             "funnels/20-api/funnels-api.md:354",
@@ -7253,12 +7254,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/40-rules/silent-failures.md:569",
+            "funnels/40-rules/silent-failures.md:578",
             "funnels/20-api/funnels-api.md:243",
             "funnels/20-api/publish-routing-and-site-settings.md:43",
             "funnels/40-rules/autosave-writes-only-the-data-file.md:11",
             "funnels/40-rules/autosave-writes-only-the-data-file.md:31",
-            "funnels/40-rules/silent-failures.md:1061",
+            "funnels/40-rules/silent-failures.md:1070",
             "funnels/60-recipes/add-a-page-to-a-funnel.md:33"
           ]
         },
@@ -7336,8 +7337,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "funnels/10-anatomy/routing-and-publishing.md:71",
             "funnels/20-api/funnels-api.md:286",
             "funnels/40-rules/autosave-writes-only-the-data-file.md:32",
-            "funnels/40-rules/silent-failures.md:791",
-            "funnels/40-rules/silent-failures.md:1062",
+            "funnels/40-rules/silent-failures.md:800",
+            "funnels/40-rules/silent-failures.md:1071",
             "funnels/60-recipes/add-a-page-to-a-funnel.md:37"
           ]
         },
@@ -8470,7 +8471,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "funnels/10-anatomy/page-content.md:22",
             "funnels/20-api/funnels-api.md:117",
-            "funnels/40-rules/silent-failures.md:515",
+            "funnels/40-rules/silent-failures.md:524",
             "funnels/60-recipes/add-a-page-to-a-funnel.md:29",
             "funnels/60-recipes/author-native-elements.md:56",
             "funnels/60-recipes/build-a-multi-step-funnel.md:30"
@@ -8507,7 +8508,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/20-api/funnels-api.md:91",
-            "funnels/40-rules/silent-failures.md:555"
+            "funnels/40-rules/silent-failures.md:564"
           ]
         },
         {
@@ -8599,7 +8600,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "funnels/20-api/funnels-api.md:98",
             "funnels/20-api/funnels-api.md:83",
             "funnels/20-api/funnels-api.md:229",
-            "funnels/40-rules/silent-failures.md:1033",
+            "funnels/40-rules/silent-failures.md:1042",
             "funnels/60-recipes/build-a-multi-step-funnel.md:50"
           ]
         },
@@ -8862,7 +8863,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "funnels/10-anatomy/websites-and-global-sections.md:34",
             "funnels/20-api/funnels-api.md:17",
             "funnels/20-api/funnels-api.md:228",
-            "funnels/40-rules/silent-failures.md:646"
+            "funnels/40-rules/silent-failures.md:655"
           ]
         },
         {
@@ -8904,7 +8905,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "funnels/20-api/funnels-api.md:162",
             "funnels/40-rules/silent-failures.md:123",
             "funnels/40-rules/silent-failures.md:245",
-            "funnels/40-rules/silent-failures.md:522"
+            "funnels/40-rules/silent-failures.md:531"
           ]
         },
         {
@@ -8975,7 +8976,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "funnels/10-anatomy/websites-and-global-sections.md:264",
             "funnels/10-anatomy/websites-and-global-sections.md:490",
             "funnels/20-api/funnels-api.md:326",
-            "funnels/40-rules/silent-failures.md:977"
+            "funnels/40-rules/silent-failures.md:986"
           ]
         },
         {
@@ -9112,9 +9113,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "funnels/10-anatomy/domains-and-public-urls.md:93",
             "funnels/20-api/funnels-api.md:307",
             "funnels/40-rules/silent-failures.md:270",
-            "funnels/40-rules/silent-failures.md:926",
-            "funnels/40-rules/silent-failures.md:956",
-            "funnels/40-rules/silent-failures.md:960"
+            "funnels/40-rules/silent-failures.md:935",
+            "funnels/40-rules/silent-failures.md:965",
+            "funnels/40-rules/silent-failures.md:969"
           ]
         },
         {
@@ -9233,9 +9234,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/10-anatomy/domains-and-public-urls.md:165",
-            "funnels/40-rules/silent-failures.md:609",
-            "funnels/40-rules/silent-failures.md:641",
-            "funnels/40-rules/silent-failures.md:929"
+            "funnels/40-rules/silent-failures.md:618",
+            "funnels/40-rules/silent-failures.md:650",
+            "funnels/40-rules/silent-failures.md:938"
           ]
         },
         {
@@ -9631,8 +9632,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/marketplaceServices/FunnelsService.ts:25",
-            "funnels/40-rules/silent-failures.md:590",
-            "funnels/40-rules/silent-failures.md:1101"
+            "funnels/40-rules/silent-failures.md:599",
+            "funnels/40-rules/silent-failures.md:1110"
           ]
         },
         {
@@ -10495,7 +10496,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/WorkflowMarketplaceService.ts:414"
+            "services/marketplaceServices/WorkflowMarketplaceService.ts:414",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:439"
           ]
         },
         {
@@ -12628,7 +12630,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "fetchLiveVersionId",
-          service: "platform",
+          service: "ai-agents",
           tree: "workflow-builder",
           pathParams: [
             {
@@ -12671,7 +12673,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "fetchIntegrationDetails",
-          service: "platform",
+          service: "ai-agents",
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -12701,6 +12703,81 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "ai-agents--ai-search",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/marketplace/apps/templates/ai/search",
+          path: "/marketplace/apps/templates/ai/search",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "type",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:431"
+          ]
+        },
+        {
+          id: "ai-agents--trial-status",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/marketplace/billing/trial/status",
+          path: "/marketplace/billing/trial/status",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:443"
+          ]
+        },
+        {
           id: "workflow-marketplace-service--fetch-billing-usage",
           method: "POST",
           url: "https://backend.leadconnectorhq.com/marketplace/billing/usage/meters/public",
@@ -12716,7 +12793,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "fetchBillingUsage",
-          service: "platform",
+          service: "ai-agents",
           tree: "workflow-builder",
           pathParams: [],
           query: [],
@@ -12747,7 +12824,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "getAllCategoriesMarketplaceApps",
-          service: "platform",
+          service: "ai-agents",
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -12791,7 +12868,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "listMarketplaceOauthApps",
-          service: "platform",
+          service: "ai-agents",
           tree: "workflow-builder",
           pathParams: [],
           query: [],
@@ -12827,7 +12904,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: "getMarketplaceApps",
-          service: "platform",
+          service: "ai-agents",
           tree: "workflow-builder",
           pathParams: [],
           query: [
@@ -14907,6 +14984,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "services/api/slack-marketplace-install-service.ts:129",
             "services/marketplaceServices/WorkflowMarketplaceService.ts:492",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:444",
             "workflows/70-research/ENDPOINTS.md:243"
           ]
         },
@@ -17342,7 +17420,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/40-rules/silent-failures.md:313"
+            "funnels/40-rules/silent-failures.md:322"
           ]
         },
         {
@@ -17691,7 +17769,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/ReputationService.ts:22"
+            "services/ReputationService.ts:22",
+            "workflows/30-types/steps/review_request.md:31"
           ]
         },
         {
@@ -33088,7 +33167,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "marketplace-apps/10-anatomy/marketplace-rail.md:45",
             "marketplace-apps/10-anatomy/marketplace-rail.md:236",
             "workflows/10-anatomy/07-id-resolution.md:206",
-            "workflows/40-rules/08-validators.md:179"
+            "workflows/30-types/steps/edit_conversation.md:18"
           ]
         },
         {
@@ -55758,17 +55837,70 @@ Flagged to the operator as a security observation about the vendor, not a capabi
               name: "widgetId"
             }
           ],
-          query: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
             path: "documented",
-            query: "none-observed",
+            query: "documented",
             body: "unresolved",
             returns: "unresolved"
           },
           sources: [
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:454",
             "ai-agents/20-api/logs-deployment-email.md:99"
+          ]
+        },
+        {
+          id: "ai-agents--agents-widgets-post",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/voice-ai/agents/{agentId}/widgets/{widgetId}",
+          path: "/voice-ai/agents/{agentId}/widgets/{widgetId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "agentId"
+            },
+            {
+              name: "widgetId"
+            }
+          ],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:453"
           ]
         },
         {
@@ -57128,6 +57260,50 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/10-anatomy/voice-ai-agent-shape.md:382"
+          ]
+        },
+        {
+          id: "ai-agents--mcp-servers",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/voice-ai/mcp/servers",
+          path: "/voice-ai/mcp/servers",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "agentId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:460"
           ]
         },
         {
@@ -102769,6 +102945,8 @@ var STEP_OUTPUTS = Object.freeze({
   text_formatter: { ns: "text_formatter", fields: ["result"], kind: "fixed" },
   math_operation: { ns: "math_operation", fields: ["result"], kind: "fixed" },
   array_functions: { ns: "array_functions", fields: ["result"], kind: "per-instance", from: "per action; object paths come from the snapshotted referenceObject; primitives \u2192 [N]" },
+  // live 2026-09-28: all three rendered in a later field write (knowledge live-3Q-generate-image.json)
+  workflow_ai_generate_image: { ns: "workflow_ai_generate_image", fields: ["image_url", "image_file.path", "image_file.name"], kind: "fixed" },
   "task-notification": { ns: "[task-notification]", fields: ["id", "title", "body", "bodyRawText", "dueDate", "assignedTo"], kind: "fixed", note: "bracketed namespace" }
 });
 var NS_TO_TYPE = Object.freeze(Object.fromEntries(Object.entries(STEP_OUTPUTS).map(([ty, v]) => [v.ns.replace(/^\[|\]$/g, ""), ty])));
@@ -166328,7 +166506,8 @@ var NAMESPACE_POLICY = Object.freeze({
     "contactMethod",
     "cancellation_link",
     "reschedule_link",
-    "task-notification"
+    "task-notification",
+    "workflow_ai_generate_image"
   ]),
   ignore: /* @__PURE__ */ new Set(["else", "this", "if", "unless", "each", "with"]),
   // Corpus-attested tags the picker does not list. Add nothing here without live proof.
@@ -166998,6 +167177,17 @@ function withGoalConditionIds(attrs, ctx) {
     })
   };
 }
+var ASSET_SAVE_TRANSFORMS = Object.freeze({
+  edit_conversation(attrs) {
+    for (const k of ["read", "archive"]) {
+      const v = attrs[k];
+      if (v === true || v === false) continue;
+      if (v === "true" || v === "false") attrs[k] = v === "true";
+      else delete attrs[k];
+    }
+    delete attrs.__none_values__;
+  }
+});
 var MARKETPLACE_ENVELOPE_KEYS = /* @__PURE__ */ new Set([
   "__customInputs__",
   "__dynamicAttachments__",
@@ -167047,6 +167237,8 @@ function marketplaceAttributes(node, ctx) {
     out[f.field] = coerced;
     ctx?.warn?.(`MARKETPLACE_DEFAULT_FILLED: step '${node.ref}' (${node.type}) left '${f.field}' blank; filled it with the value "${entry.appName}" declares in its own schema (${typeof coerced === "object" ? JSON.stringify(coerced) : coerced}). Confirm this is what you intend.`);
   }
+  const saveTransform = ASSET_SAVE_TRANSFORMS[node.type];
+  if (saveTransform) saveTransform(out);
   const missing = entry.inputs.filter((f) => f?.required === true && f.field && f.field !== "DYNAMIC" && blank(out[f.field])).map((f) => f.field);
   if (missing.length)
     throw new IRError(
@@ -172541,7 +172733,7 @@ var OBSERVED_INNER_TYPES = Object.freeze({
 
 // ../skills/create-ghl-workflow/engine/document-gate.mjs
 var STEP_TOP_LEVEL_KEYS = new Set(OBSERVED_TOP_LEVEL_KEYS);
-var CONDITIONAL_ATTR_KEYS = { conversationai_objective: ["closingMessage", "tags"] };
+var CONDITIONAL_ATTR_KEYS = { conversationai_objective: ["closingMessage", "tags"], workflow_ai_generate_image: ["__dynamicAttachments__"] };
 var SERVER_WRITTEN_ATTR_KEYS = { drip: ["configuredAt"] };
 var MULTIPATH_TYPES = /* @__PURE__ */ new Map([
   ["find_opportunity", { convertFlag: true }],
@@ -172579,6 +172771,7 @@ function multipathDefects(t, byId) {
   if (unwired.length) bad.push(`attributes.transitions has ${unwired.length} branch(es) next[] does not wire (${unwired.map((x) => `'${x?.name}'`).join(", ")})`);
   return bad;
 }
+var CORE_ASSET_ACTIONS = /* @__PURE__ */ new Set(["task-notification", "edit_conversation"]);
 function knownAttributeKeys(type, card2) {
   const model = (card2?.modelFields?.fields ?? []).map((f) => f?.name).filter(Boolean);
   return /* @__PURE__ */ new Set([
@@ -172640,8 +172833,9 @@ function gateDocument(templates = [], { catalog = loadCatalog(), marketplaceType
       t,
       `attributes.type is ${JSON.stringify(attrs.type)}; '${t.type}' stores ${[...innerAllowed].map((v) => `'${v}'`).join(" or ")}. It saves, publishes and round-trips clean, and the builder's drawer then cannot bind it. GHL does not catch this.`
     ));
+    const assetLabelled = typeof t.workflowsActionType === "string" && (Boolean(marketplaceTypes?.has(t.type)) || CORE_ASSET_ACTIONS.has(t.type));
     const known = knownAttributeKeys(t.type, card2);
-    const bad = Object.keys(attrs).filter((k) => !known.has(k));
+    const bad = assetLabelled ? [] : Object.keys(attrs).filter((k) => !known.has(k));
     if (bad.length) out.push(finding(
       "ATTRIBUTE_KEY",
       card2.confidence === "verified-live" ? "error" : "warning",

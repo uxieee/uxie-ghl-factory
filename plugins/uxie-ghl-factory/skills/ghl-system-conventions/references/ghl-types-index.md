@@ -144,7 +144,7 @@ uxie-ghl-factory plugin is installed — same data.
 | `remove_from_workflow` | source-derived | Drop the running contact from one or more other workflows (or all of them). |
 | `remove_opportunity` | source-derived | Delete opportunities tied to the contact within a specified pipeline (all, or just the previously-referenced one). |
 | `respond_on_comment` | source-derived | Respond to a social-media comment that triggered the workflow (e.g. a comment-trigger flow on Facebook/Instagram). |
-| `review_request` | source-derived | Send a review-request prompt (Google or Facebook) to the contact via SMS or email. |
+| `review_request` | source-derived | Send a review-request prompt (Google or Facebook) to the contact via SMS, email or WhatsApp. The step itself only schedules the request with the Reputation service; the message, and whether one goes out, is governed by the sub-account's Reputation settings and review links. |
 | `router` | source-derived | Multi-branch step that sends the contact down **every** branch whose conditions match, one branch after another, left to right. Unlike `if_else` it does not stop at the first match. Beta: hidden from the action picker unless the session is on staging / internal GHL or an allowlisted agency or locati |
 | `send_to_eliza` | source-derived | Send the contact to the **Eliza Agent Platform** — a separately purchased product the sub-account must be added to — optionally targeting a specific Eliza user `[source-derived 2026-09-26 — components/actions/crm/SendToEliza.vue:85-90; i18n 3237-3239]`. |
 | `slack_message` | source-derived | Send a message via a connected Slack integration to a public channel, private channel, or as a direct message. |

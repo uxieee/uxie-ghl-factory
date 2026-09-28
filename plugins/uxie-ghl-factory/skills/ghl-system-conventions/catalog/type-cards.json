@@ -17193,8 +17193,8 @@
    "family": "steps",
    "title": "review_request",
    "status": "source-derived",
-   "lastVerified": "2026-08-22",
-   "summary": "Send a review-request prompt (Google or Facebook) to the contact via SMS or email.",
+   "lastVerified": "2026-09-28",
+   "summary": "Send a review-request prompt (Google or Facebook) to the contact via SMS, email or WhatsApp. The step itself only schedules the request with the Reputation service; the message, and whether one goes out, is governed by the sub-account's Reputation settings and review links.",
    "meta": {
     "Section": "`communication` (per `sniffs/bundle/registry-parsed.json::entries[25]`)",
     "Validator": "`reviewRequestValidator` (per `sniffs/bundle/validators-summary.json`)",
@@ -17213,21 +17213,21 @@
     },
     {
      "name": "review_type",
-     "type": "ReviewType",
+     "type": "\"sms\" | \"email\" | \"whatsapp\"",
      "required": true,
      "default": "—",
-     "notes": "Channel selector. Corpus shows `\"sms\"` (and likely `\"email\"`)."
+     "notes": "Channel selector; the drawer offers exactly these three [source-derived 2026-09-28 — models/actions/ReviewRequest.ts:3,27-43]. All three were built, stored as authored and run [proven-live 2026-09-28 — sniffs/workflows-wave1-2026-09-25/live-3R-review-request.json]. The run log echoes it as `reviewType` (camelCase)."
     },
     {
      "name": "overrideReviewLink",
-     "type": "string | null",
+     "type": "string",
      "required": false,
-     "default": "—",
-     "notes": "Custom URL to override the default review-collection URL."
+     "default": "\"default\"",
+     "notes": "`\"default\"` is the drawer's \"No override\", and a new step is seeded with it. The other options are the `reviewLink` values of the sub-account's review links, read from `GET /reputation/integrations/review-link-list?locationId=` [source-derived 2026-09-28 — models/actions/ReviewRequest.ts:21-24; components/actions/crm/SendReviewRequest.vue:85-104; services/ReputationService.ts:20-29]. On the test sub-account that list is empty, so only `\"default\"` can be picked [proven-live 2026-09-28 — live-3R-review-request.json header]."
     }
    ],
    "validator": "`reviewRequestValidator` (per `sniffs/bundle/validators.json`):\n\n- `review_type` must be set, else `review_type_required` warning.\n\nPer `validators-summary.json`: 1 field referenced; result level `warning`.",
-   "notes": "- The actual review-collection URL is configured at the location-level (Reputation settings), not in this step. `overrideReviewLink` is the per-step escape hatch.\n- The message body and timing are also driven by location-level templates — this step is essentially a trigger that says \"send the configured review request via SMS/email.\"\n- `ReviewType` enum values not fully traced from the bundle. Corpus only shows `\"sms\"`.",
+   "notes": "- The actual review-collection URL is configured at the location-level (Reputation settings), not in this step. `overrideReviewLink` is the per-step escape hatch.\n- The message body and timing are also driven by location-level templates — this step is essentially a trigger that says \"send the configured review request via SMS/email.\"\n- **What a run does** [proven-live 2026-09-28 — sniffs/workflows-wave1-2026-09-25/live-3R-review-request.json, live-3R2-review-readback.json, live-3R3-review-readback-20min.json]:\n  - `email`, contact with an email: the step logs **success** with `\"Review Request Schedule Published, <id>\"`. It returns an id for a review-request schedule, not a message id. On a sub-account with no review links, no email reached the contact's conversations within 20 minutes; whether one is ever sent depends on the Reputation settings, which this corpus has no read for.\n  - `sms` / `whatsapp`, contact with no phone: **skipped** with `missing-data` — \"Contact has no phone number to receive the SMS Review Request\" / \"…the WhatsApp Review Request\".\n- Delivery and the override-link picker are unproven because both need a review link, i.e. a connected Google Business Profile or Facebook page (a third-party integration).",
    "hasCanonicalExample": true
   },
   {
@@ -20006,7 +20006,7 @@
    "family": "steps",
    "title": "workflow_ai_generate_image",
    "status": "source-derived",
-   "lastVerified": "2026-09-26",
+   "lastVerified": "2026-09-28",
    "summary": "\"AI image generation\": generates one image from a text prompt (optionally with reference images) using an OpenAI or Google (Vertex) image model, and exposes the image URL and file to later steps.",
    "meta": {
     "Section": "`external_ai_models` (\"AI Actions\") [source-derived 2026-09-26 — utils/workflows.ts:852-900]",
@@ -20100,7 +20100,7 @@
      "type": "array of `{content, filename, attachmentMode:\"url\"}`",
      "required": false,
      "default": "—",
-     "notes": "Reference images resolved at run time from a URL or custom-value expression. Static + dynamic together: at most 5."
+     "notes": "Reference images resolved at run time from a URL or custom-value expression. Static + dynamic together: at most 5. A dynamic reference whose `content` was the previous image step's `{{workflow_ai_generate_image.1.image_url}}` was used: the next step redrew that image in the new colour [proven-live 2026-09-28 — sniffs/workflows-wave1-2026-09-25/live-3Q-generate-image.json]. A static `referenceImages` entry `{name, url}` was used the same way [proven-live 2026-09-28 — live-3Q3-generate-image-models.json]."
     }
    ],
    "customVariables": [
@@ -20118,7 +20118,7 @@
     }
    ],
    "validator": "`generateImageAIValidator` [source-derived 2026-09-26 — utils/validators/additional-action-validators.ts:819-874]:\n\n- `prompt` empty → warning `promptRequired`; longer than 15000 characters → `promptTooLong`; bad Handlebars → `issueInCustomVariables`.\n- `model` missing → warning `model_is_required`.\n- `additionalSettings.brandBoardId` / `brandVoiceId`, when set, are emitted as `brand_board` / `brand_voice` resource references at level **error**: a stale id blocks publish.\n\nThe drawer's Save additionally refuses more than 5 reference images, a stored reference without a name or an http(s) URL, one over 7 MB, and a dynamic reference without `filename`, `content` or `attachmentMode: \"url\"` [source-derived 2026-09-26 — models/actions/premium-actions/GenerateImageAI.ts:363-400]. The publish validator does not check reference images.",
-   "notes": "- The model list replaced the older `gpt-image-1.5` / `gpt-image-1-mini` ids that dated research records; those ids are not in the 09-25 model type [source-derived 2026-09-26 — models/actions/premium-actions/GenerateImageAI.ts:45-51,108-146].\n- A Vertex (Gemini) model drops `background` and turns `webp` into `png` at save, so a body written by API with those values for a Gemini model is not what the drawer would store.\n- A brand board or brand voice id is a publish-blocking dependency; copy it across accounts only with the asset.\n- The action is flagged billable (`additionalConfig.isBillable: true`); what a run costs is not in the source.",
+   "notes": "- The model list replaced the older `gpt-image-1.5` / `gpt-image-1-mini` ids that dated research records; those ids are not in the 09-25 model type [source-derived 2026-09-26 — models/actions/premium-actions/GenerateImageAI.ts:45-51,108-146].\n- A Vertex (Gemini) model drops `background` and turns `webp` into `png` at save, so a body written by API with those values for a Gemini model is not what the drawer would store.\n- A brand board or brand voice id is a publish-blocking dependency; copy it across accounts only with the asset.\n- The action is flagged billable (`additionalConfig.isBillable: true`); what a run costs is not in the source, and the premium-usage meters read 0 before and after six live runs.\n- **What came back, per setting** [proven-live 2026-09-28 — sniffs/workflows-wave1-2026-09-25/live-3Q-generate-image.json, live-3Q3-generate-image-models.json]:\n\n  | Model | Settings sent | Returned |\n  |---|---|---|\n  | `gpt-image-2` | 1:1, low, jpeg | JPEG 1024×1024 |\n  | `gpt-image-2.5-flare` | 2:3, medium, transparent, png | PNG 1024×1536 **with alpha** |\n  | `gpt-image-2.5-sunburst` | 1:1, low, opaque, webp | WebP 1024×1024 |\n  | `gemini-2.5-flash-image` | 3:2, auto, webp, dynamic reference | **PNG** 1248×832 — the runtime also turns Vertex webp into png |\n  | `gemini-3-pro-image` | 1:1, low, jpeg, static reference | JPEG 1024×1024 |\n  | `gemini-3.1-flash-image` | 2:3, auto, png | PNG 848×1264 |\n\n  Not run: quality `high` (cost) and `brandBoardId` / `brandVoiceId` (they need a brand board / voice object).",
    "hasCanonicalExample": true
   },
   {

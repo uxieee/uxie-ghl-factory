@@ -1,7 +1,7 @@
 {
   "generated": "2026-09-28",
   "note": "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path — not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-  "count": 1256,
+  "count": 1260,
   "endpoints": [
     {
       "id": "facebook-service--get-ad-account-by-id",
@@ -2158,13 +2158,13 @@
       "pathParams": [],
       "query": [
         {
-          "name": "chatType",
+          "name": "locationId",
           "type": "string",
           "required": false,
           "source": "documented"
         },
         {
-          "name": "locationId",
+          "name": "offset",
           "type": "string",
           "required": false,
           "source": "documented"
@@ -2176,7 +2176,7 @@
           "source": "documented"
         },
         {
-          "name": "offset",
+          "name": "chatType",
           "type": "string",
           "required": false,
           "source": "documented"
@@ -2196,6 +2196,7 @@
       },
       "sources": [
         "services/api/chat-widget-service.ts:35",
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:452",
         "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:127",
         "funnels/10-anatomy/websites-and-global-sections.md:278",
         "funnels/20-api/funnels-api.md:354",
@@ -7076,12 +7077,12 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/40-rules/silent-failures.md:569",
+        "funnels/40-rules/silent-failures.md:578",
         "funnels/20-api/funnels-api.md:243",
         "funnels/20-api/publish-routing-and-site-settings.md:43",
         "funnels/40-rules/autosave-writes-only-the-data-file.md:11",
         "funnels/40-rules/autosave-writes-only-the-data-file.md:31",
-        "funnels/40-rules/silent-failures.md:1061",
+        "funnels/40-rules/silent-failures.md:1070",
         "funnels/60-recipes/add-a-page-to-a-funnel.md:33"
       ]
     },
@@ -7159,8 +7160,8 @@
         "funnels/10-anatomy/routing-and-publishing.md:71",
         "funnels/20-api/funnels-api.md:286",
         "funnels/40-rules/autosave-writes-only-the-data-file.md:32",
-        "funnels/40-rules/silent-failures.md:791",
-        "funnels/40-rules/silent-failures.md:1062",
+        "funnels/40-rules/silent-failures.md:800",
+        "funnels/40-rules/silent-failures.md:1071",
         "funnels/60-recipes/add-a-page-to-a-funnel.md:37"
       ]
     },
@@ -8293,7 +8294,7 @@
       "sources": [
         "funnels/10-anatomy/page-content.md:22",
         "funnels/20-api/funnels-api.md:117",
-        "funnels/40-rules/silent-failures.md:515",
+        "funnels/40-rules/silent-failures.md:524",
         "funnels/60-recipes/add-a-page-to-a-funnel.md:29",
         "funnels/60-recipes/author-native-elements.md:56",
         "funnels/60-recipes/build-a-multi-step-funnel.md:30"
@@ -8330,7 +8331,7 @@
       },
       "sources": [
         "funnels/20-api/funnels-api.md:91",
-        "funnels/40-rules/silent-failures.md:555"
+        "funnels/40-rules/silent-failures.md:564"
       ]
     },
     {
@@ -8422,7 +8423,7 @@
         "funnels/20-api/funnels-api.md:98",
         "funnels/20-api/funnels-api.md:83",
         "funnels/20-api/funnels-api.md:229",
-        "funnels/40-rules/silent-failures.md:1033",
+        "funnels/40-rules/silent-failures.md:1042",
         "funnels/60-recipes/build-a-multi-step-funnel.md:50"
       ]
     },
@@ -8685,7 +8686,7 @@
         "funnels/10-anatomy/websites-and-global-sections.md:34",
         "funnels/20-api/funnels-api.md:17",
         "funnels/20-api/funnels-api.md:228",
-        "funnels/40-rules/silent-failures.md:646"
+        "funnels/40-rules/silent-failures.md:655"
       ]
     },
     {
@@ -8727,7 +8728,7 @@
         "funnels/20-api/funnels-api.md:162",
         "funnels/40-rules/silent-failures.md:123",
         "funnels/40-rules/silent-failures.md:245",
-        "funnels/40-rules/silent-failures.md:522"
+        "funnels/40-rules/silent-failures.md:531"
       ]
     },
     {
@@ -8798,7 +8799,7 @@
         "funnels/10-anatomy/websites-and-global-sections.md:264",
         "funnels/10-anatomy/websites-and-global-sections.md:490",
         "funnels/20-api/funnels-api.md:326",
-        "funnels/40-rules/silent-failures.md:977"
+        "funnels/40-rules/silent-failures.md:986"
       ]
     },
     {
@@ -8935,9 +8936,9 @@
         "funnels/10-anatomy/domains-and-public-urls.md:93",
         "funnels/20-api/funnels-api.md:307",
         "funnels/40-rules/silent-failures.md:270",
-        "funnels/40-rules/silent-failures.md:926",
-        "funnels/40-rules/silent-failures.md:956",
-        "funnels/40-rules/silent-failures.md:960"
+        "funnels/40-rules/silent-failures.md:935",
+        "funnels/40-rules/silent-failures.md:965",
+        "funnels/40-rules/silent-failures.md:969"
       ]
     },
     {
@@ -9056,9 +9057,9 @@
       },
       "sources": [
         "funnels/10-anatomy/domains-and-public-urls.md:165",
-        "funnels/40-rules/silent-failures.md:609",
-        "funnels/40-rules/silent-failures.md:641",
-        "funnels/40-rules/silent-failures.md:929"
+        "funnels/40-rules/silent-failures.md:618",
+        "funnels/40-rules/silent-failures.md:650",
+        "funnels/40-rules/silent-failures.md:938"
       ]
     },
     {
@@ -9454,8 +9455,8 @@
       },
       "sources": [
         "services/marketplaceServices/FunnelsService.ts:25",
-        "funnels/40-rules/silent-failures.md:590",
-        "funnels/40-rules/silent-failures.md:1101"
+        "funnels/40-rules/silent-failures.md:599",
+        "funnels/40-rules/silent-failures.md:1110"
       ]
     },
     {
@@ -10318,7 +10319,8 @@
         "returns": "none-observed"
       },
       "sources": [
-        "services/marketplaceServices/WorkflowMarketplaceService.ts:414"
+        "services/marketplaceServices/WorkflowMarketplaceService.ts:414",
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:439"
       ]
     },
     {
@@ -12451,7 +12453,7 @@
       "responseMode": "json",
       "extraHeaders": [],
       "operation": "fetchLiveVersionId",
-      "service": "platform",
+      "service": "ai-agents",
       "tree": "workflow-builder",
       "pathParams": [
         {
@@ -12494,7 +12496,7 @@
       "responseMode": "json",
       "extraHeaders": [],
       "operation": "fetchIntegrationDetails",
-      "service": "platform",
+      "service": "ai-agents",
       "tree": "workflow-builder",
       "pathParams": [],
       "query": [
@@ -12524,6 +12526,81 @@
       ]
     },
     {
+      "id": "ai-agents--ai-search",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/marketplace/apps/templates/ai/search",
+      "path": "/marketplace/apps/templates/ai/search",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "ai-agents",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:431"
+      ]
+    },
+    {
+      "id": "ai-agents--trial-status",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/marketplace/billing/trial/status",
+      "path": "/marketplace/billing/trial/status",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "ai-agents",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:443"
+      ]
+    },
+    {
       "id": "workflow-marketplace-service--fetch-billing-usage",
       "method": "POST",
       "url": "https://backend.leadconnectorhq.com/marketplace/billing/usage/meters/public",
@@ -12539,7 +12616,7 @@
       "responseMode": "json",
       "extraHeaders": [],
       "operation": "fetchBillingUsage",
-      "service": "platform",
+      "service": "ai-agents",
       "tree": "workflow-builder",
       "pathParams": [],
       "query": [],
@@ -12570,7 +12647,7 @@
       "responseMode": "json",
       "extraHeaders": [],
       "operation": "getAllCategoriesMarketplaceApps",
-      "service": "platform",
+      "service": "ai-agents",
       "tree": "workflow-builder",
       "pathParams": [],
       "query": [
@@ -12614,7 +12691,7 @@
       "responseMode": "json",
       "extraHeaders": [],
       "operation": "listMarketplaceOauthApps",
-      "service": "platform",
+      "service": "ai-agents",
       "tree": "workflow-builder",
       "pathParams": [],
       "query": [],
@@ -12650,7 +12727,7 @@
       "responseMode": "json",
       "extraHeaders": [],
       "operation": "getMarketplaceApps",
-      "service": "platform",
+      "service": "ai-agents",
       "tree": "workflow-builder",
       "pathParams": [],
       "query": [
@@ -14730,6 +14807,7 @@
       "sources": [
         "services/api/slack-marketplace-install-service.ts:129",
         "services/marketplaceServices/WorkflowMarketplaceService.ts:492",
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:444",
         "workflows/70-research/ENDPOINTS.md:243"
       ]
     },
@@ -17165,7 +17243,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/40-rules/silent-failures.md:313"
+        "funnels/40-rules/silent-failures.md:322"
       ]
     },
     {
@@ -17514,7 +17592,8 @@
         "returns": "none-observed"
       },
       "sources": [
-        "services/ReputationService.ts:22"
+        "services/ReputationService.ts:22",
+        "workflows/30-types/steps/review_request.md:31"
       ]
     },
     {
@@ -32901,7 +32980,7 @@
         "marketplace-apps/10-anatomy/marketplace-rail.md:45",
         "marketplace-apps/10-anatomy/marketplace-rail.md:236",
         "workflows/10-anatomy/07-id-resolution.md:206",
-        "workflows/40-rules/08-validators.md:179"
+        "workflows/30-types/steps/edit_conversation.md:18"
       ]
     },
     {
@@ -55569,17 +55648,70 @@
           "name": "widgetId"
         }
       ],
-      "query": [],
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
       "body": null,
       "returns": null,
       "confidence": {
         "path": "documented",
-        "query": "none-observed",
+        "query": "documented",
         "body": "unresolved",
         "returns": "unresolved"
       },
       "sources": [
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:454",
         "ai-agents/20-api/logs-deployment-email.md:99"
+      ]
+    },
+    {
+      "id": "ai-agents--agents-widgets-post",
+      "method": "POST",
+      "url": "https://services.leadconnectorhq.com/voice-ai/agents/{agentId}/widgets/{widgetId}",
+      "path": "/voice-ai/agents/{agentId}/widgets/{widgetId}",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "ai-agents",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "agentId"
+        },
+        {
+          "name": "widgetId"
+        }
+      ],
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:453"
       ]
     },
     {
@@ -56939,6 +57071,50 @@
       },
       "sources": [
         "ai-agents/10-anatomy/voice-ai-agent-shape.md:382"
+      ]
+    },
+    {
+      "id": "ai-agents--mcp-servers",
+      "method": "GET",
+      "url": "https://services.leadconnectorhq.com/voice-ai/mcp/servers",
+      "path": "/voice-ai/mcp/servers",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "ai-agents",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "agentId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:460"
       ]
     },
     {
