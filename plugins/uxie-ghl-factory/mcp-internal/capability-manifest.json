@@ -385,6 +385,41 @@
     "path": "/workflow/{loc}/{wid}/history/{versionId}"
   },
   {
+    "tool": "restore_workflow_version",
+    "method": "GET",
+    "path": "/workflow/{loc}/{wid}"
+  },
+  {
+    "tool": "restore_workflow_version",
+    "method": "GET",
+    "path": "/workflow/{loc}/{wid}/history-by-number/{n}"
+  },
+  {
+    "tool": "restore_workflow_version",
+    "method": "GET",
+    "path": "/workflow/{loc}/trigger"
+  },
+  {
+    "tool": "restore_workflow_version",
+    "method": "GET",
+    "path": "/workflows/status/search/count-per-step"
+  },
+  {
+    "tool": "restore_workflow_version",
+    "method": "DELETE",
+    "path": "/workflow/{loc}/trigger/{tid}"
+  },
+  {
+    "tool": "restore_workflow_version",
+    "method": "POST",
+    "path": "/workflow/{loc}/trigger"
+  },
+  {
+    "tool": "restore_workflow_version",
+    "method": "PUT",
+    "path": "/workflow/{loc}/{wid}"
+  },
+  {
     "tool": "get_trigger_logs",
     "method": "GET",
     "path": "/workflow/{loc}/trigger"

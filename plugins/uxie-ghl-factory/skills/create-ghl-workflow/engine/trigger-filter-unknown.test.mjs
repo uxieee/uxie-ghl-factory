@@ -64,3 +64,20 @@ test('no filter a UI-built trigger stored raises the warning when re-authored le
   }
   assert.ok(checked >= 30, `expected the stored corpus, checked ${checked}`);
 });
+
+// The opportunity drawers add "Pipeline stage" only after an "In pipeline" row, always '=='
+// (PipelineFilter.ts:220-233). Authored bare it went out with operator 'none' and GHL refused it (live 3BP, 2026-09-28).
+test('pipeline_stage_updated: the dependent Pipeline stage row is filled with ==, title and type — not warned unknown', () => {
+  const w = [];
+  const body = buildTrigger({ ref: 't', type: 'pipeline_stage_updated', name: 'T', filters: [{ field: 'opportunity.pipelineId', value: 'P' }, { field: 'opportunity.pipelineStageId', value: 'S' }] }, mk(w), 'WID', new Map());
+  assert.equal(red(w).length, 0);
+  assert.deepEqual(body.conditions.find((c) => c.field === 'opportunity.pipelineStageId'),
+    { field: 'opportunity.pipelineStageId', value: 'S', operator: '==', title: 'Pipeline stage', type: 'select' });
+});
+
+test('the Pipeline stage row is refused without its In pipeline parent, and with any operator but ==', () => {
+  assert.throws(() => buildTrigger({ ref: 't', type: 'opportunity_changed', name: 'T', filters: [{ field: 'opportunity.pipelineStageId', value: 'S' }] }, mk([]), 'WID', new Map()),
+    (e) => e.code === 'TRIGGER_FILTER_PARENT');
+  assert.throws(() => buildTrigger({ ref: 't', type: 'opportunity_status_changed', name: 'T', filters: [{ field: 'opportunity.pipelineId', value: 'P' }, { field: 'opportunity.status', value: 'won' }, { field: 'opportunity.pipelineStageId', operator: '!=', value: 'S' }] }, mk([]), 'WID', new Map()),
+    (e) => e.code === 'FILTER_OPERATOR');
+});

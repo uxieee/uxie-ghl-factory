@@ -31,6 +31,7 @@ import { fontRegistry, typographyValue, typographyFamily, setRootVars, typograph
 import { checkRecord, metaPost, recordDrift } from './page-seo.mjs';
 import { planCreate, planUpdate, planDelete, resolveTarget, listRedirects, statsBody, rowId, RESERVED_PREFIXES } from './redirects.mjs';
 import { collectWorkflowRuntimeWindow, validateRuntimeWindowInput } from './workflow-runtime-window.mjs';
+import { triggerFromVersion, restoreBody, diffVersion } from './version-restore.mjs';
 import {
   getAiConfigurationBundle,
   listWorkflowsComplete,
@@ -3962,6 +3963,94 @@ export const TOOLS = [
         settings: { allowMultiple: v.allowMultiple ?? null, allowMultipleOpportunity: v.allowMultipleOpportunity ?? null, stopOnResponse: v.stopOnResponse ?? null, autoMarkAsRead: v.autoMarkAsRead ?? null, timezone: v.timezone ?? null, window: v.window ?? null, senderAddress: v.senderAddress ?? null, eventStartDate: v.eventStartDate ?? null },
         stepCount: templates.length, templates, meta: v.meta ?? null,
       });
+    }, args),
+  },
+  {
+    name: 'restore_workflow_version',
+    description: `${describe('restore_workflow_version', 'Restore a workflow to an earlier version — risk: write')}. `
+      + 'Roll a workflow back to one of its version-history snapshots, exactly as the builder\'s version drawer does: '
+      + 'delete the current triggers, recreate the version\'s triggers (inactive), then save the version\'s steps, settings '
+      + 'and name with isRestoreRequest:true. It ALWAYS lands as a DRAFT and records meta.versionRestore. '
+      + 'Target proof: pass the workflow id AND its current name; a mismatch is refused. Refused like the builder '
+      + 'refuses it: a PUBLISHED workflow (unpublish_workflows first), a workflow with contacts active in any step, '
+      + 'and the version it is already on. Preview by default (version number, step diff added/removed/changed, trigger '
+      + 'and settings changes); confirm:true writes and reads the workflow and its triggers back. Trigger ids change '
+      + '(an inbound webhook keeps its URL). Read versions with list_workflow_versions / get_workflow_version.',
+    inputSchema: schema({
+      locationId: z.string(),
+      workflowId: z.string(),
+      workflowName: z.string().describe('the workflow\'s CURRENT name — the target proof'),
+      version: z.number().int().positive().describe('the version number to restore (list_workflow_versions)'),
+      confirm: z.boolean().default(false),
+    }),
+    capabilities: [
+      { method: 'GET', path: '/workflow/{loc}/{wid}' },
+      { method: 'GET', path: '/workflow/{loc}/{wid}/history-by-number/{n}' },
+      { method: 'GET', path: '/workflow/{loc}/trigger' },
+      { method: 'GET', path: '/workflows/status/search/count-per-step' },
+      { method: 'DELETE', path: '/workflow/{loc}/trigger/{tid}' },
+      { method: 'POST', path: '/workflow/{loc}/trigger' },
+      { method: 'PUT', path: '/workflow/{loc}/{wid}' },
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+      const loc = encodeURIComponent(args.locationId), wid = encodeURIComponent(args.workflowId);
+      const cur = await getWorkflow(gw, args.locationId, args.workflowId);
+      if (!cur.ok) return fromHttp(cur.status, cur.json);
+      const wf = cur.json ?? {};
+      if ((wf.name ?? '') !== args.workflowName)
+        return fail(CODES.VALIDATION_FAILED, `target proof failed: workflow ${args.workflowId} is named "${wf.name ?? ''}", not "${args.workflowName}". Nothing was written.`, 'Pass the workflow\'s current name exactly (get_workflow).');
+      if (wf.status === 'published')
+        return fail(CODES.VALIDATION_FAILED, 'the workflow is PUBLISHED. The builder refuses this too ("Can\'t restore published workflows"). Nothing was written.', 'unpublish_workflows first, then restore. The restore lands as a draft either way.');
+      if (Number(wf.version) === Number(args.version))
+        return fail(CODES.VALIDATION_FAILED, `version ${args.version} is the version the workflow is already on. Nothing was written.`, 'list_workflow_versions shows the earlier versions.');
+      const vr = await gw.call('GET', `/workflow/${loc}/${wid}/history-by-number/${encodeURIComponent(String(args.version))}`);
+      if (!vr.ok) return fromHttp(vr.status, vr.json);
+      const version = vr.json ?? null;
+      if (!version?.workflowData)
+        return fail(CODES.VALIDATION_FAILED, `version ${args.version} came back without workflowData. Nothing was written.`, 'Check the number with list_workflow_versions (GHL keeps 30 days or the last 10).');
+      // isAnyContactActiveInWorkflow (states/workflow.ts:1138-1140): any step with a contact in it.
+      const cps = await gw.call('GET', `/workflows/status/search/count-per-step?${new URLSearchParams({ workflowId: args.workflowId, locationId: args.locationId })}`);
+      if (!cps.ok) return fromHttp(cps.status, cps.json);
+      const active = recordsFrom(cps.json, 'data', 'rows').filter((x) => Number(x.total ?? 0) > 0);
+      if (active.length)
+        return withFailureData(fail(CODES.VALIDATION_FAILED, 'contacts are active in this workflow. The builder refuses this too ("There are active contacts in the workflow"). Nothing was written.', 'Let them finish or remove them first.'),
+          { activeSteps: active.map((x) => ({ stepId: x.currentStepId ?? x.stepId ?? null, total: x.total })) });
+      const before = await listWorkflowTriggers(gw, args.locationId, args.workflowId);
+      if (!before.response.ok) return fromHttp(before.response.status, before.response.json);
+      const diff = diffVersion(wf, version, before.triggers);
+      const preview = { workflowId: args.workflowId, name: wf.name, restoreVersion: version.version ?? args.version, versionStatus: version.status ?? null, currentVersion: wf.version ?? null, landsAs: 'draft', diff };
+      if (args.confirm !== true)
+        return withFailureData(fail(CODES.CONFIRM_REQUIRED, 'Restore preview is ready; no write was sent.', 'Review data.preview (steps added/removed/changed, triggers, settings), then repeat with confirm:true.'), { preview });
+
+      const userId = wf.updatedBy ?? null;
+      const progress = { triggersDeleted: [], triggersCreated: [], documentSaved: false };
+      for (const t of before.triggers) {
+        const tid = t.id ?? t._id;
+        const d = await gw.call('DELETE', `/workflow/${loc}/trigger/${encodeURIComponent(tid)}${userId ? `?userId=${encodeURIComponent(userId)}` : ''}`);
+        if (!d.ok) return withFailureData(fromHttp(d.status, d.json), { partialProgress: progress, triggersBefore: before.triggers });
+        progress.triggersDeleted.push(tid);
+      }
+      for (const src of version.triggersData ?? []) {
+        const body = triggerFromVersion(src, { workflowId: args.workflowId, status: 'draft', locationId: args.locationId, companyId: wf.companyId, companyAge: wf.companyAge });
+        const c = await gw.call('POST', `/workflow/${loc}/trigger`, body);
+        if (!c.ok) return withFailureData(fromHttp(c.status, c.json), { partialProgress: progress, triggersBefore: before.triggers });
+        progress.triggersCreated.push(c.json?.id ?? c.json?._id ?? c.json ?? null);
+      }
+      const mid = await listWorkflowTriggers(gw, args.locationId, args.workflowId);
+      const put = await gw.call('PUT', `/workflow/${loc}/${wid}`, restoreBody(version, { name: version.name ?? wf.name, targetVersion: wf.version, userId, oldTriggers: before.triggers, newTriggers: mid.triggers }));
+      if (!put.ok) return withFailureData(fromHttp(put.status, put.json), { partialProgress: progress, triggersBefore: before.triggers });
+      progress.documentSaved = true;
+      const back = await getWorkflow(gw, args.locationId, args.workflowId);
+      const after = back.ok ? back.json : null;
+      const trg = await listWorkflowTriggers(gw, args.locationId, args.workflowId);
+      const wantIds = (version.workflowData.templates ?? []).map((t) => t.id).sort();
+      const gotIds = (after?.workflowData?.templates ?? []).map((t) => t.id).sort();
+      const verified = Boolean(after) && after.status === 'draft' && JSON.stringify(wantIds) === JSON.stringify(gotIds)
+        && Boolean(after.meta?.versionRestore) && trg.triggers.length === (version.triggersData ?? []).length;
+      const data = { restored: true, verified, from: { version: wf.version, name: wf.name }, to: { version: after?.version ?? null, name: after?.name ?? null, status: after?.status ?? null, steps: gotIds.length, triggers: trg.triggers.map((t) => ({ id: t.id ?? t._id, type: t.type, name: t.name ?? null, status: t.status ?? null })), versionRestore: after?.meta?.versionRestore ?? null }, progress };
+      if (!verified) return withFailureData(fail(CODES.VERIFY_FAILED, 'GHL accepted the restore but the read-back does not match the version (steps, draft status, versionRestore or trigger count).', 'Inspect data.to against get_workflow_version.'), data);
+      return ok(data);
     }, args),
   },
   {
