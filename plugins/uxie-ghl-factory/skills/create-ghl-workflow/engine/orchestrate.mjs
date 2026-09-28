@@ -334,7 +334,11 @@ export async function orchestrate(ir, gw, opts = {}) {
       skipEnforcement: opts.skipEnforcement,
       // the caller's deliberate force-build: the opportunity name guard warns instead of throwing
       ignoreUnresolved: opts.ignoreUnresolved === true,
-      allowUnknownStepTypes: opts.allowUnknownStepTypes });
+      allowUnknownStepTypes: opts.allowUnknownStepTypes,
+      // merge-tags.mjs hatches. MERGE_TAG_UNKNOWN names strictMergeTags:false as the remedy, and
+      // until wave10 neither reached this ctx, so the advice could not be followed.
+      strictMergeTags: opts.strictMergeTags,
+      skipMergeTagCheck: opts.skipMergeTagCheck });
   } catch (e) {
     if (e?.name === 'IRError') {
       report.failurePhase = 'compile';

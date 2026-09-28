@@ -4861,6 +4861,10 @@ export const TOOLS = [
       // and save the REAL output; strict → a failing run aborts the build instead of warning.
       strictCustomCode: z.boolean().default(false),
       skipCustomCodeTest: z.boolean().default(false),
+      // merge-tags.mjs hatches: strictMergeTags:false demotes MERGE_TAG_UNKNOWN to warnings;
+      // skipMergeTagCheck:true skips the merge-tag check entirely.
+      strictMergeTags: z.boolean().optional(),
+      skipMergeTagCheck: z.boolean().optional(),
       // With spec.sampleWebhookPayload: POST the sample to each inbound_webhook trigger's receiving
       // URL and pin it as the reference so {{inboundWebhookRequest.*}} tags are real.
       // optional, NOT default(false): a default made this always false, so orchestrate's
@@ -4920,6 +4924,8 @@ export const TOOLS = [
         skipCustomCodeTest: args.skipCustomCodeTest === true,
         pinWebhookSample: typeof args.pinWebhookSample === 'boolean' ? args.pinWebhookSample : undefined,
         allowValidationFailure: args.allowValidationFailure === true,
+        strictMergeTags: args.strictMergeTags === false ? false : undefined,
+        skipMergeTagCheck: args.skipMergeTagCheck === true,
       });
       const data = buildWorkflowData(report, args.locationId);
       if (!report.aborted) return ok(data);
@@ -5008,6 +5014,10 @@ export const TOOLS = [
       // build_workflow: strict → a failing sandbox run refuses the edit instead of warning.
       strictCustomCode: z.boolean().default(false),
       skipCustomCodeTest: z.boolean().default(false),
+      // merge-tags.mjs hatches: strictMergeTags:false demotes MERGE_TAG_UNKNOWN to warnings;
+      // skipMergeTagCheck:true skips the merge-tag check entirely.
+      strictMergeTags: z.boolean().optional(),
+      skipMergeTagCheck: z.boolean().optional(),
       // Optimistic concurrency. The stale-read window is silent: the PUT carries the whole
       // templates array, so an edit authored against an old graph simply erases the newer one.
       expectedVersion: z.number().int().positive().optional(),
@@ -5216,6 +5226,8 @@ export const TOOLS = [
         marketplace,
         ...(customFields !== undefined ? { customFields } : {}),
         ...(customValues !== undefined ? { customValues } : {}),
+        ...(args.strictMergeTags === false ? { strictMergeTags: false } : {}),
+        ...(args.skipMergeTagCheck === true ? { skipMergeTagCheck: true } : {}),
         warn: (message) => warnings.push(message),
       };
       // THE ACCOUNT RESOLVER, gated. resolveIR ran on the build path only, so an edit op naming a
