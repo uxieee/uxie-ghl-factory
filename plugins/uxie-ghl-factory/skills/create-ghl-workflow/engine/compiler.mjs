@@ -22,6 +22,7 @@ import { applyUiDefaults } from './ui-defaults.mjs';
 import { checkIfElseVocab } from './ifelse-vocab.mjs';
 import { checkMergeTags } from './merge-tags.mjs';
 import { gotoLoops } from './goto-loops.mjs';
+import { applyHtmlDefaults } from './email-defaults.mjs';
 import OBSERVED_TRIGGER_FILTERS from '../catalog/observed-trigger-filters.json' with { type: 'json' };
 
 // NINE step types take a DEDICATED attribute builder instead of the generic normalizeAttrs path,
@@ -1130,8 +1131,11 @@ function emailAttributes(node, ctx) {
     base.templatesource = a.templatesource ?? 'email-builder';
   } else {
     // inline path: NO template_id key (a literal "none" is faulted on the wire); html on the step
-    base.html = a.html ?? '';
-    base.htmlDefaults = a.htmlDefaults ?? {};
+    // Body fallbacks: the send reads the inline data-cv-defaults attribute, not the map (email-defaults.mjs).
+    const body = applyHtmlDefaults(a.html ?? '', a.htmlDefaults);
+    if (body.dropped.length) ctx?.warn?.(`email "${node.name ?? node.ref}": htmlDefaults ${body.dropped.join(', ')} match no merge tag in the html (keys are "<tag>:<occurrence>", counted per tag) — dropped, as the builder does`);
+    base.html = body.html;
+    base.htmlDefaults = body.htmlDefaults;
   }
   return base;
 }
