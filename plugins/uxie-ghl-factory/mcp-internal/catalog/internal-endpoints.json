@@ -1,7 +1,7 @@
 {
   "generated": "2026-09-28",
   "note": "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path — not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-  "count": 1243,
+  "count": 1244,
   "endpoints": [
     {
       "id": "facebook-service--get-ad-account-by-id",
@@ -4494,7 +4494,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/url-redirects.md:125"
+        "funnels/20-api/url-redirects.md:131"
       ]
     },
     {
@@ -4544,7 +4544,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/url-redirects.md:130"
+        "funnels/20-api/url-redirects.md:136"
       ]
     },
     {
@@ -7670,7 +7670,8 @@
       "reach": "source-only",
       "coveredBy": [
         "audit_site",
-        "edit_funnel"
+        "edit_funnel",
+        "find_ghl_site"
       ],
       "rawCallable": true,
       "transport": "json",
@@ -7697,7 +7698,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/url-redirects.md:122"
+        "funnels/20-api/url-redirects.md:128"
       ]
     },
     {
@@ -7714,7 +7715,8 @@
       ],
       "coveredBy": [
         "audit_site",
-        "edit_funnel"
+        "edit_funnel",
+        "find_ghl_site"
       ],
       "rawCallable": true,
       "transport": "json",
@@ -7784,7 +7786,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/url-redirects.md:123"
+        "funnels/20-api/url-redirects.md:129"
       ]
     },
     {
@@ -7882,7 +7884,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/url-redirects.md:133"
+        "funnels/20-api/url-redirects.md:139"
       ]
     },
     {
@@ -8862,7 +8864,9 @@
       "rail": "workflow",
       "kind": "write",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "edit_redirects"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -9008,7 +9012,9 @@
       "rail": "workflow",
       "kind": "write",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "edit_redirects"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -9028,7 +9034,7 @@
       },
       "sources": [
         "funnels/20-api/url-redirects.md:77",
-        "funnels/20-api/url-redirects.md:113"
+        "funnels/20-api/url-redirects.md:119"
       ]
     },
     {
@@ -9040,7 +9046,9 @@
       "rail": "workflow",
       "kind": "destructive",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "edit_redirects"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -9082,7 +9090,9 @@
       "rail": "workflow",
       "kind": "write",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "edit_redirects"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -9120,7 +9130,10 @@
       "provenFor": [
         "agency-admin-bearer"
       ],
-      "coveredBy": [],
+      "coveredBy": [
+        "edit_redirects",
+        "find_ghl_site"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -9319,7 +9332,8 @@
       },
       "sources": [
         "services/marketplaceServices/FunnelsService.ts:25",
-        "funnels/40-rules/silent-failures.md:590"
+        "funnels/40-rules/silent-failures.md:590",
+        "funnels/40-rules/silent-failures.md:1099"
       ]
     },
     {
@@ -9334,7 +9348,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
-      "coveredBy": [],
+      "coveredBy": [
+        "build_funnel_page"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -16337,7 +16353,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:331"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:344"
       ]
     },
     {
@@ -19210,7 +19226,9 @@
       "rail": "workflow",
       "kind": "write",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "find_ghl_site"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -19229,7 +19247,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/20-api/url-redirects.md:98"
+        "funnels/20-api/url-redirects.md:104"
       ]
     },
     {
@@ -55046,7 +55064,7 @@
       },
       "sources": [
         "ai-agents/20-api/12-ai-agents-api.md:161",
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:306"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:315"
       ]
     },
     {
@@ -55420,7 +55438,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:294"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:303"
       ]
     },
     {
@@ -55455,7 +55473,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/12-ai-agents-api.md:167"
+        "ai-agents/20-api/12-ai-agents-api.md:167",
+        "ai-agents/30-types/voice-ai-actions.md:53"
       ]
     },
     {
@@ -55517,7 +55536,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:308"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:317"
       ]
     },
     {
@@ -55585,6 +55604,37 @@
       ]
     },
     {
+      "id": "ai-agents--prompt-suggestion-stream",
+      "method": "POST",
+      "url": "https://services.leadconnectorhq.com/voice-ai/ai-generation/prompt-suggestion/stream",
+      "path": "/voice-ai/ai-generation/prompt-suggestion/stream",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "ai-agents",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:292"
+      ]
+    },
+    {
       "id": "ai-agents--voice-ai-call",
       "method": "GET",
       "url": "https://services.leadconnectorhq.com/voice-ai/call/{callId}",
@@ -55629,7 +55679,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:316"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:325"
       ]
     },
     {
@@ -55689,16 +55739,30 @@
           "name": "callId"
         }
       ],
-      "query": [],
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "agentId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
       "body": null,
       "returns": null,
       "confidence": {
         "path": "documented",
-        "query": "none-observed",
+        "query": "documented",
         "body": "unresolved",
         "returns": "unresolved"
       },
       "sources": [
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:340",
         "ai-agents/20-api/logs-deployment-email.md:27"
       ]
     },
@@ -55734,7 +55798,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:312"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:321"
       ]
     },
     {
@@ -55772,7 +55836,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:315"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:324"
       ]
     },
     {
@@ -55828,10 +55892,10 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:318",
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:327",
         "ai-agents/20-api/logs-deployment-email.md:24",
         "ai-agents/20-api/voice-ai-boundary.md:71",
-        "ai-agents/30-types/voice-ai-actions.md:90"
+        "ai-agents/30-types/voice-ai-actions.md:109"
       ]
     },
     {
@@ -55875,7 +55939,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:319",
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:328",
         "ai-agents/20-api/logs-deployment-email.md:25",
         "ai-agents/20-api/voice-ai-boundary.md:72"
       ]
@@ -56227,7 +56291,7 @@
         "ai-agents/20-api/12-ai-agents-api.md:168",
         "ai-agents/20-api/logs-deployment-email.md:83",
         "ai-agents/20-api/voice-ai-boundary.md:73",
-        "ai-agents/30-types/voice-ai-actions.md:60"
+        "ai-agents/30-types/voice-ai-actions.md:79"
       ]
     },
     {
@@ -56385,7 +56449,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:290",
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:299",
         "ai-agents/20-api/logs-deployment-email.md:19",
         "ai-agents/20-api/voice-ai-boundary.md:70"
       ]
@@ -56484,7 +56548,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:302",
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:311",
         "ai-agents/20-api/voice-ai-boundary.md:64"
       ]
     },
@@ -56516,7 +56580,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:301"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:310"
       ]
     },
     {
@@ -56551,7 +56615,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:305"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:314"
       ]
     },
     {
@@ -56586,7 +56650,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:304"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:313"
       ]
     },
     {
@@ -56621,7 +56685,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:303"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:312"
       ]
     },
     {

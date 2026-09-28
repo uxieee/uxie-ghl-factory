@@ -178,7 +178,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
     define_ENDPOINT_CATALOG_default = {
       generated: "2026-09-28",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 1243,
+      count: 1244,
       endpoints: [
         {
           id: "facebook-service--get-ad-account-by-id",
@@ -4671,7 +4671,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/url-redirects.md:125"
+            "funnels/20-api/url-redirects.md:131"
           ]
         },
         {
@@ -4721,7 +4721,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/url-redirects.md:130"
+            "funnels/20-api/url-redirects.md:136"
           ]
         },
         {
@@ -7847,7 +7847,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           reach: "source-only",
           coveredBy: [
             "audit_site",
-            "edit_funnel"
+            "edit_funnel",
+            "find_ghl_site"
           ],
           rawCallable: true,
           transport: "json",
@@ -7874,7 +7875,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/url-redirects.md:122"
+            "funnels/20-api/url-redirects.md:128"
           ]
         },
         {
@@ -7891,7 +7892,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           coveredBy: [
             "audit_site",
-            "edit_funnel"
+            "edit_funnel",
+            "find_ghl_site"
           ],
           rawCallable: true,
           transport: "json",
@@ -7961,7 +7963,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/url-redirects.md:123"
+            "funnels/20-api/url-redirects.md:129"
           ]
         },
         {
@@ -8059,7 +8061,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/url-redirects.md:133"
+            "funnels/20-api/url-redirects.md:139"
           ]
         },
         {
@@ -9039,7 +9041,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "write",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "edit_redirects"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -9185,7 +9189,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "write",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "edit_redirects"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -9205,7 +9211,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "funnels/20-api/url-redirects.md:77",
-            "funnels/20-api/url-redirects.md:113"
+            "funnels/20-api/url-redirects.md:119"
           ]
         },
         {
@@ -9217,7 +9223,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "destructive",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "edit_redirects"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -9259,7 +9267,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "write",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "edit_redirects"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -9297,7 +9307,10 @@ var init_define_ENDPOINT_CATALOG = __esm({
           provenFor: [
             "agency-admin-bearer"
           ],
-          coveredBy: [],
+          coveredBy: [
+            "edit_redirects",
+            "find_ghl_site"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -9496,7 +9509,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/marketplaceServices/FunnelsService.ts:25",
-            "funnels/40-rules/silent-failures.md:590"
+            "funnels/40-rules/silent-failures.md:590",
+            "funnels/40-rules/silent-failures.md:1099"
           ]
         },
         {
@@ -9511,7 +9525,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
-          coveredBy: [],
+          coveredBy: [
+            "build_funnel_page"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -16514,7 +16530,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:331"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:344"
           ]
         },
         {
@@ -19387,7 +19403,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "write",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "find_ghl_site"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -19406,7 +19424,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "funnels/20-api/url-redirects.md:98"
+            "funnels/20-api/url-redirects.md:104"
           ]
         },
         {
@@ -55235,7 +55253,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:161",
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:306"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:315"
           ]
         },
         {
@@ -55609,7 +55627,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:294"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:303"
           ]
         },
         {
@@ -55644,7 +55662,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:167"
+            "ai-agents/20-api/12-ai-agents-api.md:167",
+            "ai-agents/30-types/voice-ai-actions.md:53"
           ]
         },
         {
@@ -55706,7 +55725,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:308"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:317"
           ]
         },
         {
@@ -55774,6 +55793,37 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           ]
         },
         {
+          id: "ai-agents--prompt-suggestion-stream",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/voice-ai/ai-generation/prompt-suggestion/stream",
+          path: "/voice-ai/ai-generation/prompt-suggestion/stream",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:292"
+          ]
+        },
+        {
           id: "ai-agents--voice-ai-call",
           method: "GET",
           url: "https://services.leadconnectorhq.com/voice-ai/call/{callId}",
@@ -55818,7 +55868,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:316"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:325"
           ]
         },
         {
@@ -55878,16 +55928,30 @@ Flagged to the operator as a security observation about the vendor, not a capabi
               name: "callId"
             }
           ],
-          query: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "agentId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
             path: "documented",
-            query: "none-observed",
+            query: "documented",
             body: "unresolved",
             returns: "unresolved"
           },
           sources: [
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:340",
             "ai-agents/20-api/logs-deployment-email.md:27"
           ]
         },
@@ -55923,7 +55987,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:312"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:321"
           ]
         },
         {
@@ -55961,7 +56025,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:315"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:324"
           ]
         },
         {
@@ -56017,10 +56081,10 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:318",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:327",
             "ai-agents/20-api/logs-deployment-email.md:24",
             "ai-agents/20-api/voice-ai-boundary.md:71",
-            "ai-agents/30-types/voice-ai-actions.md:90"
+            "ai-agents/30-types/voice-ai-actions.md:109"
           ]
         },
         {
@@ -56064,7 +56128,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:319",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:328",
             "ai-agents/20-api/logs-deployment-email.md:25",
             "ai-agents/20-api/voice-ai-boundary.md:72"
           ]
@@ -56416,7 +56480,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "ai-agents/20-api/12-ai-agents-api.md:168",
             "ai-agents/20-api/logs-deployment-email.md:83",
             "ai-agents/20-api/voice-ai-boundary.md:73",
-            "ai-agents/30-types/voice-ai-actions.md:60"
+            "ai-agents/30-types/voice-ai-actions.md:79"
           ]
         },
         {
@@ -56574,7 +56638,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:290",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:299",
             "ai-agents/20-api/logs-deployment-email.md:19",
             "ai-agents/20-api/voice-ai-boundary.md:70"
           ]
@@ -56673,7 +56737,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:302",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:311",
             "ai-agents/20-api/voice-ai-boundary.md:64"
           ]
         },
@@ -56705,7 +56769,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:301"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:310"
           ]
         },
         {
@@ -56740,7 +56804,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:305"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:314"
           ]
         },
         {
@@ -56775,7 +56839,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:304"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:313"
           ]
         },
         {
@@ -56810,7 +56874,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:303"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:312"
           ]
         },
         {
@@ -61105,9 +61169,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       find_ghl_site: {
-        description: "Find ghl site \u2014 proof: live-runtime (2026-09-25); risk: read",
+        description: "Find ghl site \u2014 proof: live-runtime (2026-09-28); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-25)",
+        proof: "live-runtime (2026-09-28)",
         proofFloor: "live-runtime (2026-09-04)",
         proofRows: [
           "ai-studio--get-projects",
@@ -62672,6 +62736,28 @@ var init_define_TOOL_CATALOG = __esm({
           "funnels--funnel-create-step",
           "funnels--funnel-step",
           "funnels--lookup-list"
+        ]
+      },
+      edit_redirects: {
+        description: "Create, retarget or delete a URL redirect (Settings \u2192 Domains & URL Redirects) \u2014 proof: live-runtime (2026-09-28); risk: write",
+        risk: "write",
+        proof: "live-runtime (2026-09-28)",
+        proofFloor: "external-receipt-required",
+        proofRows: [
+          "funnels--redirect-list",
+          "funnels--lookup-exists"
+        ],
+        proofFloorRows: [
+          "funnels--redirect-list",
+          "funnels--lookup-exists"
+        ],
+        riskRows: [
+          "funnels--redirect-list",
+          "funnels--lookup-exists"
+        ],
+        rows: [
+          "funnels--redirect-list",
+          "funnels--lookup-exists"
         ]
       }
     };
@@ -98772,8 +98858,40 @@ function applyPageEdits(pageData, ops, { compileStyles = () => "" } = {}) {
         hit.section.elements = hit.section.elements.filter((e) => !drop.has(e.id)).map((e) => ({ ...e, child: (e.child ?? []).filter((c) => !drop.has(c)) }));
         report.push({ i, op: "remove-node", nodeId: o.nodeId, removed: [...drop] });
       }
+    } else if (o.op === "page") {
+      const changed = [];
+      if (o.trackingCode) {
+        next.trackingCode = { headerCode: "", footerCode: "", ...next.trackingCode ?? {}, ...o.trackingCode };
+        changed.push(...Object.keys(o.trackingCode).map((k) => `trackingCode.${k}`));
+      }
+      if (typeof o.customCss === "string") {
+        const gen = next.general?.general ?? {};
+        const old = gen.pageStyles ?? "";
+        let compiled = next.pageStyles ?? "";
+        if (old && compiled.endsWith(old)) compiled = compiled.slice(0, compiled.length - old.length).replace(/\s*$/, "");
+        next.general = { ...next.general ?? {}, general: { ...gen, pageStyles: o.customCss } };
+        next.pageStyles = o.customCss ? `${compiled} 
+ ${o.customCss}` : compiled;
+        changed.push("general.general.pageStyles", "pageStyles");
+      }
+      if (o.background) {
+        const bg = next.settings?.settings?.background ?? {};
+        const img = bg.bgImage?.value ?? { url: "", options: "bgCover", svgCode: "", svgEncode: "" };
+        const nextBg = {
+          ...bg,
+          bgImage: { value: { ...img, ...o.background.imageUrl !== void 0 ? { url: o.background.imageUrl } : {}, ...o.background.imageOptions ? { options: o.background.imageOptions } : {} } },
+          ...o.background.color !== void 0 ? { backgroundColor: { value: o.background.color } } : {}
+        };
+        next.settings = { ...next.settings ?? {}, settings: { ...next.settings?.settings ?? {}, background: nextBg } };
+        changed.push("settings.settings.background");
+      }
+      if (!changed.length) {
+        report.push({ i, op: "page", error: "page op needs trackingCode, customCss or background (SEO goes in `seo`)" });
+        continue;
+      }
+      report.push({ i, op: "page", changed, expectPage: { trackingCode: o.trackingCode, customCss: o.customCss, background: o.background } });
     } else {
-      report.push({ i, op: o.op, error: `unknown op ${o.op} (set | append-section | remove-node)` });
+      report.push({ i, op: o.op, error: `unknown op ${o.op} (set | append-section | remove-node | page)` });
     }
   }
   return { pageData: next, report, errors: report.filter((r) => r.error) };
@@ -98795,6 +98913,18 @@ function verifyEdits(stored, report) {
       out.push({ sectionId: r.sectionId, present: (stored.sections ?? []).some((s) => s.id === r.sectionId) });
     } else if (r.op === "remove-node") {
       out.push({ nodeId: r.nodeId, absent: !findNode(stored, r.nodeId) });
+    } else if (r.op === "page") {
+      const e = r.expectPage ?? {};
+      const wrong = [];
+      for (const [k, v] of Object.entries(e.trackingCode ?? {})) if (stored.trackingCode?.[k] !== v) wrong.push(`trackingCode.${k}`);
+      if (typeof e.customCss === "string") {
+        if ((stored.general?.general?.pageStyles ?? "") !== e.customCss) wrong.push("general.general.pageStyles");
+        if (e.customCss && !(stored.pageStyles ?? "").endsWith(e.customCss)) wrong.push("pageStyles");
+      }
+      const bg = stored.settings?.settings?.background;
+      if (e.background?.imageUrl !== void 0 && bg?.bgImage?.value?.url !== e.background.imageUrl) wrong.push("background.imageUrl");
+      if (e.background?.color !== void 0 && bg?.backgroundColor?.value !== e.background.color) wrong.push("background.color");
+      out.push({ page: true, applied: wrong.length === 0, ...wrong.length ? { notApplied: wrong } : {} });
     }
   }
   return out;
@@ -98814,6 +98944,432 @@ var pageDataForWrite = (read, pageId) => {
   const { traceId, ...rest } = read ?? {};
   return { ...rest, id: rest.id ?? pageId, pageId: rest.pageId ?? pageId };
 };
+var SEO_KEYS = Object.freeze(["title", "description", "keywords", "author", "imageUrl", "customMeta", "canonicalMeta", "language"]);
+function seoMeta(current, patch) {
+  const base = { title: "", description: "", keywords: "", author: "", imageUrl: "", customMeta: [], canonicalMeta: [], language: "en" };
+  const out = { ...base };
+  for (const k of SEO_KEYS) if (current?.[k] !== void 0) out[k] = current[k];
+  for (const k of SEO_KEYS) if (patch?.[k] !== void 0) out[k] = patch[k];
+  return out;
+}
+function seoDiff(stored, want) {
+  return SEO_KEYS.filter((k) => want[k] !== void 0 && JSON.stringify(stored?.[k]) !== JSON.stringify(want[k]));
+}
+
+// core/page-seo.mjs
+init_define_BUILDER_VALIDATORS();
+init_define_CONTACT_FILTER_FIELDS();
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
+init_define_TOOL_CATALOG();
+
+// core/ai-studio.mjs
+init_define_BUILDER_VALIDATORS();
+init_define_CONTACT_FILTER_FIELDS();
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
+init_define_TOOL_CATALOG();
+var FIRESTORE_PROJECT = "highlevel-backend";
+var FIRESTORE_DB = "vibe-platform";
+var MESSAGES = "vibe-messages";
+var DIFFS = "vibe-message-diffs";
+var FIREBASE_KEY = "AIzaSyB_w3vXmsI7WeQtrIOkjR6xTRVN5uOieiE";
+function plain(v) {
+  if (v === null || v === void 0) return v;
+  const k = Object.keys(v)[0];
+  switch (k) {
+    case "stringValue":
+    case "booleanValue":
+    case "timestampValue":
+      return v[k];
+    case "integerValue":
+    case "doubleValue":
+      return Number(v[k]);
+    case "nullValue":
+      return null;
+    case "arrayValue":
+      return (v.arrayValue.values ?? []).map(plain);
+    case "mapValue":
+      return Object.fromEntries(
+        Object.entries(v.mapValue.fields ?? {}).map(([a, b]) => [a, plain(b)])
+      );
+    default:
+      return v;
+  }
+}
+async function getIdToken({ gwJwt, locationId, cache, fetchImpl = fetch, nowMs = Date.now }) {
+  const hit = cache.get(locationId);
+  if (hit && hit.expiresAt > nowMs() + 6e4) return hit.idToken;
+  const r = await gwJwt.call("POST", `/oauth/2/login/signin/refresh?version=2&location_id=${locationId}`, {});
+  const custom2 = r?.json?.token;
+  if (!custom2) {
+    const e = new Error(`could not mint a Firebase custom token for this location (status ${r?.status})`);
+    e.code = "FIREBASE_SIGNIN_FAILED";
+    e.remediation = "Check the Bearer credential reaches this location; /vibe-ai is Bearer-only.";
+    throw e;
+  }
+  const res = await fetchImpl(
+    `https://identitytoolkit.googleapis.com/v1/accounts:signInWithCustomToken?key=${FIREBASE_KEY}`,
+    {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ token: custom2, returnSecureToken: true })
+    }
+  );
+  const body2 = await res.json();
+  if (!res.ok || !body2?.idToken) {
+    const e = new Error(`Firebase token exchange failed: ${body2?.error?.message ?? res.status}`);
+    e.code = "FIREBASE_SIGNIN_FAILED";
+    throw e;
+  }
+  const ttlMs = (Number(body2.expiresIn) || 3600) * 1e3;
+  cache.set(locationId, { idToken: body2.idToken, expiresAt: nowMs() + ttlMs });
+  return body2.idToken;
+}
+async function runQuery({ gwFirebase, idToken, collection, projectId, orderBy = null, limit = 300 }) {
+  const structuredQuery = {
+    from: [{ collectionId: collection }],
+    where: { fieldFilter: { field: { fieldPath: "projectId" }, op: "EQUAL", value: { stringValue: projectId } } },
+    limit
+  };
+  if (orderBy) structuredQuery.orderBy = [{ field: { fieldPath: orderBy }, direction: "ASCENDING" }];
+  const path = `/v1/projects/${FIRESTORE_PROJECT}/databases/${FIRESTORE_DB}/documents:runQuery`;
+  const res = await gwFirebase.call(
+    "POST",
+    path,
+    { structuredQuery },
+    { headers: { authorization: `Bearer ${idToken}` } }
+  );
+  if (!res.ok) {
+    const authRejected = res.status === 401 || res.status === 403;
+    const e = new Error(`Firestore runQuery failed (status ${res.status})`);
+    e.code = authRejected ? "FIRESTORE_AUTH_REJECTED" : "FIRESTORE_QUERY_FAILED";
+    e.status = res.status;
+    e.remediation = authRejected ? "The Firestore idToken was rejected. Mint a fresh one and retry." : "Firestore returned a non-ok status. Do not treat this as an empty collection \u2014 inspect it.";
+    throw e;
+  }
+  const rows = Array.isArray(res.json) ? res.json : [];
+  return rows.filter((x) => x.document).map((x) => Object.fromEntries(Object.entries(x.document.fields ?? {}).map(([k, v]) => [k, plain(v)])));
+}
+async function queryProjectHistory({
+  gwJwt,
+  gwFirebase,
+  locationId,
+  cache,
+  collection,
+  projectId,
+  orderBy = null,
+  limit = 300,
+  fetchImpl = fetch,
+  nowMs = Date.now
+}) {
+  const idToken = await getIdToken({ gwJwt, locationId, cache, fetchImpl, nowMs });
+  try {
+    return await runQuery({ gwFirebase, idToken, collection, projectId, orderBy, limit });
+  } catch (e) {
+    if (e?.code !== "FIRESTORE_AUTH_REJECTED") throw e;
+    cache.delete(locationId);
+    const freshToken = await getIdToken({ gwJwt, locationId, cache, fetchImpl, nowMs });
+    try {
+      return await runQuery({ gwFirebase, idToken: freshToken, collection, projectId, orderBy, limit });
+    } catch (e2) {
+      if (e2?.code !== "FIRESTORE_AUTH_REJECTED") throw e2;
+      const dead = new Error("Firestore rejected a freshly-minted idToken \u2014 the credential itself is dead, not just cached.");
+      dead.code = CODES.AUTH_REJECTED;
+      dead.remediation = "Re-capture the credential: invoke the uxie-ghl-factory:internal-connect skill, then retry.";
+      throw dead;
+    }
+  }
+}
+var filterRoutes = (rows) => (rows ?? []).filter((r) => r?.deleted !== true);
+var nameWarning = (requested, stored) => requested === stored ? null : `GHL rewrote the project name on create: you sent ${JSON.stringify(requested)}, it stored ${JSON.stringify(stored)}, and the slug derives from the STORED name. To get an exact name, follow this create with a rename (which stores the literal but does not update the slug).`;
+function studioError(status, body2) {
+  const msg = String(body2?.error ?? body2?.message ?? "");
+  if (status === 401 && /authorization token required/i.test(msg)) {
+    return "/vibe-ai is Bearer-only \u2014 a token-id alone is refused. This is a rail mistake, not an expired credential.";
+  }
+  if (status === 403 && /unsupported alt_type/i.test(msg)) {
+    return 'alt_type accepts only "location". AI Studio has no agency-level scope.';
+  }
+  if (status === 403 && /No Location Found/i.test(msg)) {
+    return "This alt_id is not a location this token can reach \u2014 check the registration binding (GHL_INTERNAL_LOCATIONS).";
+  }
+  if (status === 409) {
+    return "This question was already answered, or the answer conflicts with the stored one. Re-read the question block before retrying.";
+  }
+  if (status === 410) {
+    return "The continuation expired. Start a new turn rather than answering this one.";
+  }
+  return null;
+}
+var q = (loc) => `alt_id=${encodeURIComponent(loc)}&alt_type=location`;
+function sessionFor(state2, projectId) {
+  state2.studioSessions ??= /* @__PURE__ */ new Map();
+  if (!state2.studioSessions.has(projectId)) state2.studioSessions.set(projectId, crypto.randomUUID());
+  return state2.studioSessions.get(projectId);
+}
+var TERMINAL_BUILD = /* @__PURE__ */ new Set(["ready", "failed"]);
+var isTerminal2 = (row) => Boolean(row && TERMINAL_BUILD.has(String(row.buildStatus)));
+var awaitingAnswer = (row) => Boolean(row?.question) && row.question.status !== "answered" && !TERMINAL_BUILD.has(String(row.buildStatus));
+async function awaitTurn({
+  firestore,
+  projectId,
+  messageId,
+  waitMs = 12e4,
+  pollMs = 6e3,
+  nowMs = Date.now,
+  sleep = (ms) => new Promise((r) => setTimeout(r, ms))
+}) {
+  const deadline = nowMs() + waitMs;
+  let lastRow = null;
+  while (nowMs() < deadline) {
+    const rows = await firestore.messages(projectId);
+    const row = rows.find((r) => r.role === "assistant" && r.id === messageId) ?? null;
+    if (row) lastRow = row;
+    if (isTerminal2(row) || awaitingAnswer(row)) return { pending: false, assistant: row };
+    await sleep(pollMs);
+  }
+  return {
+    pending: true,
+    messageId: messageId ?? null,
+    buildStatus: lastRow?.buildStatus ?? null,
+    resumeWith: "get_studio_generation_status",
+    note: "The build is still running. Resume with the message id; nothing was lost."
+  };
+}
+var bare = (h) => String(h ?? "").trim().toLowerCase().replace(/^https?:\/\//, "").replace(/^www\./, "").replace(/\/$/, "");
+function classifySite(needle, studioProjects = [], funnels = []) {
+  const n = bare(needle);
+  for (const p2 of studioProjects) {
+    const domains = [].concat(p2.custom_domains ?? [], p2.primary_custom_domain ?? []).filter(Boolean).map(bare);
+    if (domains.includes(n)) return { surface: "ai-studio", id: p2.id, name: p2.name, matchedOn: "custom_domain" };
+  }
+  for (const p2 of studioProjects) {
+    if (bare(p2.slug) === n) return { surface: "ai-studio", id: p2.id, name: p2.name, matchedOn: "slug" };
+    if (bare(p2.name) === n) return { surface: "ai-studio", id: p2.id, name: p2.name, matchedOn: "name" };
+  }
+  for (const f of funnels) {
+    if (bare(f.name) === n || bare(f.url) === n) return { surface: "funnel", id: f._id ?? f.id, name: f.name, matchedOn: "name" };
+  }
+  return { surface: "not-found", id: null, name: null, matchedOn: null };
+}
+function answerBodyFor({ question, answer, sessionId, questionMessageId, loc }) {
+  const base = {
+    session_id: sessionId,
+    thread_id: "main",
+    is_answer: true,
+    question_message_id: questionMessageId,
+    alt_id: loc,
+    alt_type: "location"
+  };
+  if (question?.kind === "integration_input") {
+    const body2 = {
+      ...base,
+      answer_type: "integration_input",
+      integration_action: answer === "dismiss" ? "dismiss" : "connect"
+    };
+    if (body2.integration_action === "connect") body2.integration_item_id = answer;
+    return body2;
+  }
+  if (question?.kind === "secret_input") {
+    return { ...base, answer_type: "secret_input" };
+  }
+  return { ...base, message: answer };
+}
+var StudioApi = class {
+  // `gw` is a jwt-rail gateway already bound to one location. `loc` is that location.
+  constructor({ gw, loc }) {
+    this.gw = gw;
+    this.loc = loc;
+  }
+  async #vibe(method, path, body2) {
+    const res = await this.gw.call(method, `/vibe-ai${path}`, body2);
+    if (!res.ok) {
+      const hint = studioError(res.status, res.json);
+      if (hint) {
+        const e = new Error(hint);
+        e.code = "STUDIO_REQUEST_FAILED";
+        e.remediation = hint;
+        throw e;
+      }
+    }
+    return res;
+  }
+  listProjects() {
+    return this.#vibe("GET", `/projects?${q(this.loc)}`);
+  }
+  getProject(id) {
+    return this.#vibe("GET", `/projects/${id}?${q(this.loc)}`);
+  }
+  getFiles(id) {
+    return this.#vibe("GET", `/projects/${id}/files?${q(this.loc)}`);
+  }
+  getRoutes(id) {
+    return this.#vibe("GET", `/projects/${id}/routes?${q(this.loc)}`);
+  }
+  getSettings(id) {
+    return this.#vibe("GET", `/projects/${id}/settings?${q(this.loc)}`);
+  }
+  getSecrets(id) {
+    return this.#vibe("GET", `/projects/${id}/secrets?${q(this.loc)}`);
+  }
+  getSandbox(id) {
+    return this.#vibe("GET", `/projects/${id}/sandbox?${q(this.loc)}`);
+  }
+  getFolders() {
+    return this.#vibe("GET", `/folders?${q(this.loc)}`);
+  }
+  usagePolicy(id) {
+    return this.#vibe("GET", `/projects/${id}/usage/policy?${q(this.loc)}`);
+  }
+  ensureSandbox(id) {
+    return this.#vibe("POST", `/projects/${id}/sandbox`, { alt_id: this.loc, alt_type: "location" });
+  }
+  createProject(b) {
+    return this.#vibe("POST", "/projects", { ...b, alt_id: this.loc, alt_type: "location" });
+  }
+  renameProject(id, name) {
+    return this.#vibe("PATCH", `/projects/${id}/name`, { name, alt_id: this.loc, alt_type: "location" });
+  }
+  setSlug(id, slug) {
+    return this.#vibe("PATCH", `/projects/${id}/slug`, { slug });
+  }
+  // PUT MERGES despite the verb; an unmentioned key survives. Values are write-only — the GET
+  // returns an array of {name, created_at, updated_at} with no value.
+  putSecrets(id, secrets) {
+    return this.#vibe("PUT", `/projects/${id}/secrets`, { secrets, alt_id: this.loc, alt_type: "location" });
+  }
+  chat(id, body2) {
+    return this.#vibe("POST", `/projects/${id}/chat`, body2);
+  }
+  cancelChat(id, messageId) {
+    return this.#vibe("POST", `/projects/${id}/chat/cancel`, { message_id: messageId, alt_id: this.loc, alt_type: "location" });
+  }
+  // publish/unpublish take NO alt_id/alt_type. unpublish takes no body at all.
+  publish(id, versionId) {
+    return this.#vibe("POST", `/projects/${id}/publish`, { version_id: versionId });
+  }
+  unpublish(id) {
+    return this.#vibe("POST", `/projects/${id}/unpublish`, void 0);
+  }
+  // /ai-wrapper takes locationId (camelCase), NOT alt_id/alt_type, and lives on a different base.
+  async usageSnapshotUsd() {
+    const r = await this.gw.call("GET", `/ai-wrapper/usage/v2/snapshots?locationId=${encodeURIComponent(this.loc)}`);
+    const snap = (r?.json?.snapshots ?? []).find((s) => s.product === "AI_STUDIO");
+    return typeof snap?.used === "number" ? snap.used : null;
+  }
+};
+
+// core/page-seo.mjs
+var DOC = (pageId) => `/v1/projects/highlevel-backend/databases/(default)/documents/funnel_pages/${encodeURIComponent(pageId)}`;
+var toValue = (v) => {
+  if (Array.isArray(v)) return { arrayValue: { values: v.map(toValue) } };
+  if (v && typeof v === "object") return { mapValue: { fields: Object.fromEntries(Object.entries(v).map(([k, x]) => [k, toValue(x)])) } };
+  if (typeof v === "boolean") return { booleanValue: v };
+  if (typeof v === "number") return Number.isInteger(v) ? { integerValue: String(v) } : { doubleValue: v };
+  return { stringValue: v == null ? "" : String(v) };
+};
+function metaPatch(pageId, meta3) {
+  const fields2 = Object.fromEntries(SEO_KEYS.map((k) => [k, toValue(meta3[k])]));
+  return {
+    path: `${DOC(pageId)}?updateMask.fieldPaths=meta&currentDocument.exists=true`,
+    body: { fields: { meta: { mapValue: { fields: fields2 } } } }
+  };
+}
+function checkRecord(record2, { pageId, locationId, funnelId }) {
+  if (!record2 || (record2._id ?? record2.id) !== pageId) return { ok: false, reason: `GET /funnels/page/${pageId} did not return that page` };
+  if (record2.locationId !== locationId) return { ok: false, reason: `page ${pageId} belongs to another location` };
+  if (record2.funnelId !== funnelId) return { ok: false, reason: `page ${pageId} belongs to funnel ${record2.funnelId}, not ${funnelId}` };
+  if (record2.deleted === true) return { ok: false, reason: `page ${pageId} is deleted` };
+  return { ok: true };
+}
+async function writeMeta({ gwJwt, gwFirebase, locationId, cache, pageId, meta: meta3 }) {
+  const { path, body: body2 } = metaPatch(pageId, meta3);
+  for (let attempt = 1; attempt <= 2; attempt++) {
+    const idToken = await getIdToken({ gwJwt, locationId, cache });
+    const res = await gwFirebase.call("PATCH", path, body2, { headers: { authorization: `Bearer ${idToken}` } });
+    if (res.ok) return { status: res.status, attempts: attempt };
+    if ((res.status === 401 || res.status === 403) && attempt === 1) {
+      cache.delete(locationId);
+      continue;
+    }
+    const e = new Error(`Firestore page-meta write failed (status ${res.status}${res.json?.error?.status ? `, ${res.json.error.status}` : ""})`);
+    e.code = res.status === 401 || res.status === 403 ? "FIRESTORE_AUTH_REJECTED" : res.status === 404 || res.json?.error?.status === "NOT_FOUND" || res.json?.error?.status === "FAILED_PRECONDITION" ? "FIRESTORE_DOC_MISSING" : "FIRESTORE_WRITE_FAILED";
+    e.status = res.status;
+    e.remediation = e.code === "FIRESTORE_AUTH_REJECTED" ? "Firestore rejected the location idToken twice. Re-capture the credential; the SEO was NOT written." : e.code === "FIRESTORE_DOC_MISSING" ? "No funnel_pages document for this pageId (the write never creates one). Check the pageId; the SEO was NOT written." : "The SEO was NOT written. Inspect the status before retrying.";
+    throw e;
+  }
+  return null;
+}
+
+// core/redirects.mjs
+init_define_BUILDER_VALIDATORS();
+init_define_CONTACT_FILTER_FIELDS();
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
+init_define_TOOL_CATALOG();
+var RESERVED_PREFIXES = Object.freeze(["/b/", "/c/", "/product/", "/collections/", "/post/", "/category/", "/author/", "/tag/"]);
+var normPath2 = (p2) => `/${String(p2 ?? "").trim().replace(/^\/+/, "")}`;
+var reservedPrefix = (path) => RESERVED_PREFIXES.find((r) => normPath2(path).toLowerCase().startsWith(r)) ?? null;
+var rowId = (r) => r?._id ?? r?.id ?? null;
+function validateTarget(target) {
+  try {
+    const u = new URL(target);
+    return u.protocol === "https:" || u.protocol === "http:" ? null : "target must be an http(s) URL";
+  } catch {
+    return "target must be an absolute http(s) URL";
+  }
+}
+function planCreate({ domain: domain2, path, target, locationId }) {
+  if (!domain2 || !path || !target) return { error: "create needs domain, path and target" };
+  const p2 = normPath2(path);
+  if (p2 === "/") return { error: `path "/" would redirect the domain root; the screen's "Entire Domain (/*)" form is a separate, unmapped surface` };
+  const reserved = reservedPrefix(p2);
+  if (reserved) return { error: `path ${p2} is under the reserved prefix ${reserved}: GHL stores it but its exact path answers 404 in public (the storefront/blog router takes it first)` };
+  const bad = validateTarget(target);
+  if (bad) return { error: bad };
+  return {
+    exists: { method: "POST", path: "/funnels/lookup/exists", body: { domain: domain2, path: p2, locationId } },
+    request: { method: "POST", path: "/funnels/lookup/redirect", body: { domain: domain2, path: p2, action: "url", locationId, type: "redirect", target } },
+    normalizedPath: p2
+  };
+}
+function resolveTarget(rows, { redirectId, path }) {
+  const p2 = normPath2(path);
+  const byId = rows.filter((r) => rowId(r) === redirectId);
+  if (byId.length !== 1) return { error: `no single redirect with id ${redirectId} on this location (${byId.length} found)` };
+  if (byId[0].path !== p2 && byId[0].path_lowercase !== p2.toLowerCase()) return { error: `redirect ${redirectId} is ${byId[0].path}, not ${p2} \u2014 refusing` };
+  return { row: byId[0] };
+}
+function planUpdate({ redirectId, target, locationId }) {
+  const bad = validateTarget(target);
+  if (bad) return { error: bad };
+  return { request: { method: "PATCH", path: `/funnels/lookup/redirect/${encodeURIComponent(redirectId)}`, body: { action: "url", target, locationId } } };
+}
+function planDelete({ redirectId, locationId }) {
+  return { request: { method: "DELETE", path: `/funnels/lookup/redirect/${encodeURIComponent(redirectId)}?locationId=${encodeURIComponent(locationId)}` } };
+}
+async function listRedirects(gw, locationId, search = "") {
+  const rows = [];
+  for (let offset = 0, guard2 = 0; guard2 < 100; guard2++) {
+    const r = await gw.call("GET", `/funnels/lookup/redirect/list?locationId=${encodeURIComponent(locationId)}&limit=10&offset=${offset}&search=${encodeURIComponent(search)}`);
+    if (!r.ok) return { res: r, rows: null };
+    const page = Array.isArray(r.json?.data) ? r.json.data : [];
+    rows.push(...page);
+    offset += page.length;
+    if (!page.length || offset >= (r.json?.count ?? 0)) return { res: r, rows, count: r.json?.count ?? rows.length };
+  }
+  return { res: null, rows, count: rows.length, truncated: true };
+}
+var statsBody = (locationId, rows, fromDate, toDate) => ({
+  locationId,
+  fromDate,
+  toDate,
+  rows: rows.map((r) => ({ key: { domainName: r.domain, pageUrl: r.path, fullUrl: r.target } }))
+});
 
 // core/workflow-runtime-window.mjs
 init_define_BUILDER_VALIDATORS();
@@ -168366,31 +168922,31 @@ init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var arrayFrom = (...values) => values.find(Array.isArray) ?? [];
 var recordsFrom = (...values) => arrayFrom(...values).filter((v) => v && typeof v === "object" && !Array.isArray(v));
-var q = (loc, extra = {}) => new URLSearchParams({ locationId: String(loc), ...extra });
+var q2 = (loc, extra = {}) => new URLSearchParams({ locationId: String(loc), ...extra });
 var p = (loc) => encodeURIComponent(String(loc));
 var norm = (s) => String(s ?? "").trim().toLowerCase();
 var ENTITY_REGISTRY = [
   {
     key: "pipelines",
-    path: (loc) => `/opportunities/pipelines?${q(loc)}`,
+    path: (loc) => `/opportunities/pipelines?${q2(loc)}`,
     pick: (j) => recordsFrom(j?.pipelines, j),
     project: (x) => ({ id: x.id || x._id, name: x.name, stages: recordsFrom(x.stages).map((s) => ({ id: s.id, name: s.name })) })
   },
   {
     key: "calendars",
-    path: (loc) => `/calendars/?${q(loc)}`,
+    path: (loc) => `/calendars/?${q2(loc)}`,
     pick: (j) => recordsFrom(j?.calendars, j),
     project: (x) => ({ id: x.id || x._id, name: x.name })
   },
   {
     key: "users",
-    path: (loc) => `/users/?${q(loc)}`,
+    path: (loc) => `/users/?${q2(loc)}`,
     pick: (j) => recordsFrom(j?.users, j),
     project: (x) => ({ id: x.id || x._id, firstName: x.firstName, lastName: x.lastName, email: x.email, name: x.name })
   },
   {
     key: "forms",
-    path: (loc) => `/forms/?${q(loc, { limit: "100" })}`,
+    path: (loc) => `/forms/?${q2(loc, { limit: "100" })}`,
     pick: (j) => recordsFrom(j?.forms, j),
     project: (x) => ({ id: x.id || x._id, name: x.name })
   },
@@ -168437,7 +168993,7 @@ var ENTITY_REGISTRY = [
   },
   {
     key: "triggerLinks",
-    path: (loc) => `/links/?${q(loc)}`,
+    path: (loc) => `/links/?${q2(loc)}`,
     pick: (j) => recordsFrom(j?.links, j),
     project: (x) => ({ id: x.id || x._id, name: x.name, redirectTo: x.redirectTo })
   },
@@ -168461,13 +169017,13 @@ var ENTITY_REGISTRY = [
   },
   {
     key: "emailTemplates",
-    path: (loc) => `/emails/builder?${q(loc, { limit: "100", offset: "0" })}`,
+    path: (loc) => `/emails/builder?${q2(loc, { limit: "100", offset: "0" })}`,
     pick: (j) => recordsFrom(j?.builders, j),
     project: (x) => ({ id: x.id || x._id, name: x.name })
   },
   {
     key: "products",
-    path: (loc) => `/products/?${q(loc, { limit: "100" })}`,
+    path: (loc) => `/products/?${q2(loc, { limit: "100" })}`,
     pick: (j) => recordsFrom(j?.products, j),
     project: (x) => ({ id: x._id || x.id, name: x.name })
   },
@@ -168479,13 +169035,13 @@ var ENTITY_REGISTRY = [
   },
   {
     key: "phoneNumbers",
-    path: (loc) => `/phone-system/numbers?${q(loc)}`,
+    path: (loc) => `/phone-system/numbers?${q2(loc)}`,
     pick: (j) => recordsFrom(j?.phoneNumbers, j),
     project: (x) => ({ number: x.value ?? x.phoneNumber, title: x.title ?? x.name })
   },
   {
     key: "funnels",
-    path: (loc) => `/funnels/funnel/list?${q(loc, { type: "funnel", offset: "0", limit: "200" })}`,
+    path: (loc) => `/funnels/funnel/list?${q2(loc, { type: "funnel", offset: "0", limit: "200" })}`,
     pick: (j) => recordsFrom(j?.funnels, j),
     project: (x) => ({ id: x._id || x.id, name: x.name })
   },
@@ -168502,14 +169058,14 @@ var ENTITY_REGISTRY = [
   // that adds no new id, so an ignored `skip` returns the first page once, never a loop.
   {
     key: "documentTemplates",
-    path: (loc, { offset = 0, limit = 21 } = {}) => `/proposals/templates?${q(loc, { limit: String(limit), skip: String(offset) })}`,
+    path: (loc, { offset = 0, limit = 21 } = {}) => `/proposals/templates?${q2(loc, { limit: String(limit), skip: String(offset) })}`,
     page: { limit: 21, total: (j) => j?.total },
     pick: (j) => recordsFrom(j?.data, j),
     project: (x) => ({ id: x._id || x.id, name: x.name })
   },
   {
     key: "objects",
-    path: (loc) => `/objects/?${q(loc)}`,
+    path: (loc) => `/objects/?${q2(loc)}`,
     pick: (j) => recordsFrom(j?.objects, j),
     project: (x) => ({
       key: x.key,
@@ -168527,13 +169083,13 @@ var ENTITY_REGISTRY = [
   // not be verified, and a projection nobody has seen run is a guess with a schema.
   {
     key: "events",
-    path: (loc) => `/events-management/events/options?${q(loc)}`,
+    path: (loc) => `/events-management/events/options?${q2(loc)}`,
     pick: (j) => recordsFrom(j?.events),
     project: (x) => ({ id: x.value, name: x.label })
   },
   {
     key: "eventTickets",
-    path: (loc) => `/events-management/events/options?${q(loc)}`,
+    path: (loc) => `/events-management/events/options?${q2(loc)}`,
     pick: (j) => recordsFrom(j?.eventTickets),
     project: (x) => ({ id: x.value, name: x.label })
   },
@@ -168545,7 +169101,7 @@ var ENTITY_REGISTRY = [
   // that saves and records no reason.
   {
     key: "lostReasons",
-    path: (loc) => `/opportunities/lost-reason?${q(loc)}`,
+    path: (loc) => `/opportunities/lost-reason?${q2(loc)}`,
     pick: (j) => recordsFrom(j?.data, j?.lostReasons, j),
     project: (x) => ({ id: x.id || x._id, name: x.name ?? x.reason }),
     resolver: { name: "lostReasonId", match: (r) => [r.name], value: (r) => r.id }
@@ -168554,7 +169110,7 @@ var ENTITY_REGISTRY = [
   // Settings means the trigger can never fire — the resolver returns the canonical NAME, not an id.
   {
     key: "callDispositions",
-    path: (loc) => `/phone-system/call-dispositions?${q(loc)}`,
+    path: (loc) => `/phone-system/call-dispositions?${q2(loc)}`,
     pick: (j) => recordsFrom(j?.data, j?.dispositions, j),
     project: (x) => ({ id: x.id || x._id, name: x.name ?? x.title }),
     resolver: { name: "callDisposition", match: (r) => [r.name], value: (r) => r.name }
@@ -178145,304 +178701,6 @@ async function executeVoiceAiUpdate({ plan, before, gw, serverMessage: serverMes
   return { ok: true, verification, collateral };
 }
 
-// core/ai-studio.mjs
-init_define_BUILDER_VALIDATORS();
-init_define_CONTACT_FILTER_FIELDS();
-init_define_ENDPOINT_CATALOG();
-init_define_ENDPOINT_OVERLAY();
-init_define_FUNNEL_ELEMENTS();
-init_define_TOOL_CATALOG();
-var FIRESTORE_PROJECT = "highlevel-backend";
-var FIRESTORE_DB = "vibe-platform";
-var MESSAGES = "vibe-messages";
-var DIFFS = "vibe-message-diffs";
-var FIREBASE_KEY = "AIzaSyB_w3vXmsI7WeQtrIOkjR6xTRVN5uOieiE";
-function plain(v) {
-  if (v === null || v === void 0) return v;
-  const k = Object.keys(v)[0];
-  switch (k) {
-    case "stringValue":
-    case "booleanValue":
-    case "timestampValue":
-      return v[k];
-    case "integerValue":
-    case "doubleValue":
-      return Number(v[k]);
-    case "nullValue":
-      return null;
-    case "arrayValue":
-      return (v.arrayValue.values ?? []).map(plain);
-    case "mapValue":
-      return Object.fromEntries(
-        Object.entries(v.mapValue.fields ?? {}).map(([a, b]) => [a, plain(b)])
-      );
-    default:
-      return v;
-  }
-}
-async function getIdToken({ gwJwt, locationId, cache, fetchImpl = fetch, nowMs = Date.now }) {
-  const hit = cache.get(locationId);
-  if (hit && hit.expiresAt > nowMs() + 6e4) return hit.idToken;
-  const r = await gwJwt.call("POST", `/oauth/2/login/signin/refresh?version=2&location_id=${locationId}`, {});
-  const custom2 = r?.json?.token;
-  if (!custom2) {
-    const e = new Error(`could not mint a Firebase custom token for this location (status ${r?.status})`);
-    e.code = "FIREBASE_SIGNIN_FAILED";
-    e.remediation = "Check the Bearer credential reaches this location; /vibe-ai is Bearer-only.";
-    throw e;
-  }
-  const res = await fetchImpl(
-    `https://identitytoolkit.googleapis.com/v1/accounts:signInWithCustomToken?key=${FIREBASE_KEY}`,
-    {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ token: custom2, returnSecureToken: true })
-    }
-  );
-  const body2 = await res.json();
-  if (!res.ok || !body2?.idToken) {
-    const e = new Error(`Firebase token exchange failed: ${body2?.error?.message ?? res.status}`);
-    e.code = "FIREBASE_SIGNIN_FAILED";
-    throw e;
-  }
-  const ttlMs = (Number(body2.expiresIn) || 3600) * 1e3;
-  cache.set(locationId, { idToken: body2.idToken, expiresAt: nowMs() + ttlMs });
-  return body2.idToken;
-}
-async function runQuery({ gwFirebase, idToken, collection, projectId, orderBy = null, limit = 300 }) {
-  const structuredQuery = {
-    from: [{ collectionId: collection }],
-    where: { fieldFilter: { field: { fieldPath: "projectId" }, op: "EQUAL", value: { stringValue: projectId } } },
-    limit
-  };
-  if (orderBy) structuredQuery.orderBy = [{ field: { fieldPath: orderBy }, direction: "ASCENDING" }];
-  const path = `/v1/projects/${FIRESTORE_PROJECT}/databases/${FIRESTORE_DB}/documents:runQuery`;
-  const res = await gwFirebase.call(
-    "POST",
-    path,
-    { structuredQuery },
-    { headers: { authorization: `Bearer ${idToken}` } }
-  );
-  if (!res.ok) {
-    const authRejected = res.status === 401 || res.status === 403;
-    const e = new Error(`Firestore runQuery failed (status ${res.status})`);
-    e.code = authRejected ? "FIRESTORE_AUTH_REJECTED" : "FIRESTORE_QUERY_FAILED";
-    e.status = res.status;
-    e.remediation = authRejected ? "The Firestore idToken was rejected. Mint a fresh one and retry." : "Firestore returned a non-ok status. Do not treat this as an empty collection \u2014 inspect it.";
-    throw e;
-  }
-  const rows = Array.isArray(res.json) ? res.json : [];
-  return rows.filter((x) => x.document).map((x) => Object.fromEntries(Object.entries(x.document.fields ?? {}).map(([k, v]) => [k, plain(v)])));
-}
-async function queryProjectHistory({
-  gwJwt,
-  gwFirebase,
-  locationId,
-  cache,
-  collection,
-  projectId,
-  orderBy = null,
-  limit = 300,
-  fetchImpl = fetch,
-  nowMs = Date.now
-}) {
-  const idToken = await getIdToken({ gwJwt, locationId, cache, fetchImpl, nowMs });
-  try {
-    return await runQuery({ gwFirebase, idToken, collection, projectId, orderBy, limit });
-  } catch (e) {
-    if (e?.code !== "FIRESTORE_AUTH_REJECTED") throw e;
-    cache.delete(locationId);
-    const freshToken = await getIdToken({ gwJwt, locationId, cache, fetchImpl, nowMs });
-    try {
-      return await runQuery({ gwFirebase, idToken: freshToken, collection, projectId, orderBy, limit });
-    } catch (e2) {
-      if (e2?.code !== "FIRESTORE_AUTH_REJECTED") throw e2;
-      const dead = new Error("Firestore rejected a freshly-minted idToken \u2014 the credential itself is dead, not just cached.");
-      dead.code = CODES.AUTH_REJECTED;
-      dead.remediation = "Re-capture the credential: invoke the uxie-ghl-factory:internal-connect skill, then retry.";
-      throw dead;
-    }
-  }
-}
-var filterRoutes = (rows) => (rows ?? []).filter((r) => r?.deleted !== true);
-var nameWarning = (requested, stored) => requested === stored ? null : `GHL rewrote the project name on create: you sent ${JSON.stringify(requested)}, it stored ${JSON.stringify(stored)}, and the slug derives from the STORED name. To get an exact name, follow this create with a rename (which stores the literal but does not update the slug).`;
-function studioError(status, body2) {
-  const msg = String(body2?.error ?? body2?.message ?? "");
-  if (status === 401 && /authorization token required/i.test(msg)) {
-    return "/vibe-ai is Bearer-only \u2014 a token-id alone is refused. This is a rail mistake, not an expired credential.";
-  }
-  if (status === 403 && /unsupported alt_type/i.test(msg)) {
-    return 'alt_type accepts only "location". AI Studio has no agency-level scope.';
-  }
-  if (status === 403 && /No Location Found/i.test(msg)) {
-    return "This alt_id is not a location this token can reach \u2014 check the registration binding (GHL_INTERNAL_LOCATIONS).";
-  }
-  if (status === 409) {
-    return "This question was already answered, or the answer conflicts with the stored one. Re-read the question block before retrying.";
-  }
-  if (status === 410) {
-    return "The continuation expired. Start a new turn rather than answering this one.";
-  }
-  return null;
-}
-var q2 = (loc) => `alt_id=${encodeURIComponent(loc)}&alt_type=location`;
-function sessionFor(state2, projectId) {
-  state2.studioSessions ??= /* @__PURE__ */ new Map();
-  if (!state2.studioSessions.has(projectId)) state2.studioSessions.set(projectId, crypto.randomUUID());
-  return state2.studioSessions.get(projectId);
-}
-var TERMINAL_BUILD = /* @__PURE__ */ new Set(["ready", "failed"]);
-var isTerminal2 = (row) => Boolean(row && TERMINAL_BUILD.has(String(row.buildStatus)));
-var awaitingAnswer = (row) => Boolean(row?.question) && row.question.status !== "answered" && !TERMINAL_BUILD.has(String(row.buildStatus));
-async function awaitTurn({
-  firestore,
-  projectId,
-  messageId,
-  waitMs = 12e4,
-  pollMs = 6e3,
-  nowMs = Date.now,
-  sleep = (ms) => new Promise((r) => setTimeout(r, ms))
-}) {
-  const deadline = nowMs() + waitMs;
-  let lastRow = null;
-  while (nowMs() < deadline) {
-    const rows = await firestore.messages(projectId);
-    const row = rows.find((r) => r.role === "assistant" && r.id === messageId) ?? null;
-    if (row) lastRow = row;
-    if (isTerminal2(row) || awaitingAnswer(row)) return { pending: false, assistant: row };
-    await sleep(pollMs);
-  }
-  return {
-    pending: true,
-    messageId: messageId ?? null,
-    buildStatus: lastRow?.buildStatus ?? null,
-    resumeWith: "get_studio_generation_status",
-    note: "The build is still running. Resume with the message id; nothing was lost."
-  };
-}
-var bare = (h) => String(h ?? "").trim().toLowerCase().replace(/^https?:\/\//, "").replace(/^www\./, "").replace(/\/$/, "");
-function classifySite(needle, studioProjects = [], funnels = []) {
-  const n = bare(needle);
-  for (const p2 of studioProjects) {
-    const domains = [].concat(p2.custom_domains ?? [], p2.primary_custom_domain ?? []).filter(Boolean).map(bare);
-    if (domains.includes(n)) return { surface: "ai-studio", id: p2.id, name: p2.name, matchedOn: "custom_domain" };
-  }
-  for (const p2 of studioProjects) {
-    if (bare(p2.slug) === n) return { surface: "ai-studio", id: p2.id, name: p2.name, matchedOn: "slug" };
-    if (bare(p2.name) === n) return { surface: "ai-studio", id: p2.id, name: p2.name, matchedOn: "name" };
-  }
-  for (const f of funnels) {
-    if (bare(f.name) === n || bare(f.url) === n) return { surface: "funnel", id: f._id ?? f.id, name: f.name, matchedOn: "name" };
-  }
-  return { surface: "not-found", id: null, name: null, matchedOn: null };
-}
-function answerBodyFor({ question, answer, sessionId, questionMessageId, loc }) {
-  const base = {
-    session_id: sessionId,
-    thread_id: "main",
-    is_answer: true,
-    question_message_id: questionMessageId,
-    alt_id: loc,
-    alt_type: "location"
-  };
-  if (question?.kind === "integration_input") {
-    const body2 = {
-      ...base,
-      answer_type: "integration_input",
-      integration_action: answer === "dismiss" ? "dismiss" : "connect"
-    };
-    if (body2.integration_action === "connect") body2.integration_item_id = answer;
-    return body2;
-  }
-  if (question?.kind === "secret_input") {
-    return { ...base, answer_type: "secret_input" };
-  }
-  return { ...base, message: answer };
-}
-var StudioApi = class {
-  // `gw` is a jwt-rail gateway already bound to one location. `loc` is that location.
-  constructor({ gw, loc }) {
-    this.gw = gw;
-    this.loc = loc;
-  }
-  async #vibe(method, path, body2) {
-    const res = await this.gw.call(method, `/vibe-ai${path}`, body2);
-    if (!res.ok) {
-      const hint = studioError(res.status, res.json);
-      if (hint) {
-        const e = new Error(hint);
-        e.code = "STUDIO_REQUEST_FAILED";
-        e.remediation = hint;
-        throw e;
-      }
-    }
-    return res;
-  }
-  listProjects() {
-    return this.#vibe("GET", `/projects?${q2(this.loc)}`);
-  }
-  getProject(id) {
-    return this.#vibe("GET", `/projects/${id}?${q2(this.loc)}`);
-  }
-  getFiles(id) {
-    return this.#vibe("GET", `/projects/${id}/files?${q2(this.loc)}`);
-  }
-  getRoutes(id) {
-    return this.#vibe("GET", `/projects/${id}/routes?${q2(this.loc)}`);
-  }
-  getSettings(id) {
-    return this.#vibe("GET", `/projects/${id}/settings?${q2(this.loc)}`);
-  }
-  getSecrets(id) {
-    return this.#vibe("GET", `/projects/${id}/secrets?${q2(this.loc)}`);
-  }
-  getSandbox(id) {
-    return this.#vibe("GET", `/projects/${id}/sandbox?${q2(this.loc)}`);
-  }
-  getFolders() {
-    return this.#vibe("GET", `/folders?${q2(this.loc)}`);
-  }
-  usagePolicy(id) {
-    return this.#vibe("GET", `/projects/${id}/usage/policy?${q2(this.loc)}`);
-  }
-  ensureSandbox(id) {
-    return this.#vibe("POST", `/projects/${id}/sandbox`, { alt_id: this.loc, alt_type: "location" });
-  }
-  createProject(b) {
-    return this.#vibe("POST", "/projects", { ...b, alt_id: this.loc, alt_type: "location" });
-  }
-  renameProject(id, name) {
-    return this.#vibe("PATCH", `/projects/${id}/name`, { name, alt_id: this.loc, alt_type: "location" });
-  }
-  setSlug(id, slug) {
-    return this.#vibe("PATCH", `/projects/${id}/slug`, { slug });
-  }
-  // PUT MERGES despite the verb; an unmentioned key survives. Values are write-only — the GET
-  // returns an array of {name, created_at, updated_at} with no value.
-  putSecrets(id, secrets) {
-    return this.#vibe("PUT", `/projects/${id}/secrets`, { secrets, alt_id: this.loc, alt_type: "location" });
-  }
-  chat(id, body2) {
-    return this.#vibe("POST", `/projects/${id}/chat`, body2);
-  }
-  cancelChat(id, messageId) {
-    return this.#vibe("POST", `/projects/${id}/chat/cancel`, { message_id: messageId, alt_id: this.loc, alt_type: "location" });
-  }
-  // publish/unpublish take NO alt_id/alt_type. unpublish takes no body at all.
-  publish(id, versionId) {
-    return this.#vibe("POST", `/projects/${id}/publish`, { version_id: versionId });
-  }
-  unpublish(id) {
-    return this.#vibe("POST", `/projects/${id}/unpublish`, void 0);
-  }
-  // /ai-wrapper takes locationId (camelCase), NOT alt_id/alt_type, and lives on a different base.
-  async usageSnapshotUsd() {
-    const r = await this.gw.call("GET", `/ai-wrapper/usage/v2/snapshots?locationId=${encodeURIComponent(this.loc)}`);
-    const snap = (r?.json?.snapshots ?? []).find((s) => s.product === "AI_STUDIO");
-    return typeof snap?.used === "number" ? snap.used : null;
-  }
-};
-
 // core/tools.mjs
 var HERE2 = dirname3(fileURLToPath2(import.meta.url));
 var CATALOG2 = true ? define_TOOL_CATALOG_default : (() => {
@@ -179664,6 +179922,7 @@ function trackWrites(gw) {
   return { gw: wrapped, sent: () => state2.sent };
 }
 var STUDIO_IDTOKENS = /* @__PURE__ */ new Map();
+var PAGE_SEO_IDTOKENS = /* @__PURE__ */ new Map();
 var studioDeps = (args, deps) => {
   const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
   const api = new StudioApi({ gw, loc: args.locationId });
@@ -179729,11 +179988,12 @@ async function editPage(args, deps, composeSection) {
   const salt = `E${Date.now().toString(36).toUpperCase()}`;
   let ops;
   try {
-    ops = args.edits.map((e, i) => {
+    ops = (args.edits ?? []).map((e, i) => {
       if (e.op === "append-section") {
         if (!e.section) throw new Error(`edits[${i}]: append-section needs \`section\` (the same shape as sections[i])`);
         return { op: "append-section", section: composeSection(e.section, i, salt) };
       }
+      if (e.op === "page") return e;
       if (!e.nodeId) throw new Error(`edits[${i}]: ${e.op} needs nodeId`);
       return e;
     });
@@ -179743,26 +180003,69 @@ async function editPage(args, deps, composeSection) {
   const { pageData: edited, report, errors } = applyPageEdits(current, ops, { compileStyles: (id, _meta, styles) => leafStyleCss(id, styles) });
   if (errors.length) return withFailureData(fail(CODES.VALIDATION_FAILED, `${errors.length} edit(s) could not be applied; nothing was written`, "data.report names each refused op."), { report });
   const pageData = { ...edited, sections: edited.sections.map((sec, i) => report.some((r) => r.op === "append-section" && r.sectionId === sec.id) ? buildPageData({ pageId: args.pageId, stepId: args.stepId, funnelId: args.funnelId, locationId: args.locationId, sections: [sec] }).sections[0] : sec).map((sec, i) => ({ ...sec, sequence: i })) };
+  const rec = await gw.call("GET", `/funnels/page/${encodeURIComponent(args.pageId)}`);
+  if (!rec.ok) return fromHttp(rec.status, rec.json);
+  const keepMeta = seoMeta(rec.json?.meta ?? {}, {});
+  let seo = null;
+  if (args.seo) {
+    const recCheck = checkRecord(rec.json, { pageId: args.pageId, locationId: args.locationId, funnelId: args.funnelId });
+    if (!recCheck.ok) return fail(CODES.VALIDATION_FAILED, `SEO target check refused: ${recCheck.reason}`, "Nothing was written. Pass a page of this location and funnel.");
+    const cur = rec.json?.meta ?? {};
+    seo = { before: cur, write: seoMeta(cur, args.seo) };
+  }
   const problems = auditPageData(pageData);
   const preview = {
     mode: "edit",
     target: target.step,
     pageId: args.pageId,
-    ops: report.map(({ expect, ...r }) => r),
+    ops: report.map(({ expect, expectPage, ...r }) => r),
+    ...seo ? { seo: { from: seo.before, to: seo.write } } : {},
     sectionsBefore: current.sections.length,
     sectionsAfter: pageData.sections.length,
     ...problems.length ? { preexistingProblems: problems } : {},
-    note: "Writes a DRAFT through autosave. Nothing outside the named ops changes. A PINNED (published) page does not show this until it is published again."
+    willPublish: args.publish === true,
+    note: args.publish === true ? "Writes a draft through autosave AND PUBLISHES it: the public page changes. Nothing outside the named ops changes." : "Writes a DRAFT through autosave. Nothing outside the named ops changes. A published page shows neither content nor SEO changes until it is published again (publish:true)."
   };
   if (args.confirm !== true) {
     return withFailureData(fail(CODES.CONFIRM_REQUIRED, "Funnel page edit preview is ready; no write was sent.", "Repeat with confirm:true to autosave the edited draft."), { preview });
   }
+  let seoCheck = null;
+  let fsWrite = null;
+  if (seo) {
+    try {
+      fsWrite = await writeMeta({
+        gwJwt: gw,
+        gwFirebase: deps.makeGw({ loc: args.locationId, state: deps.state, rail: "firebase" }),
+        locationId: args.locationId,
+        cache: PAGE_SEO_IDTOKENS,
+        pageId: args.pageId,
+        meta: seo.write
+      });
+    } catch (e) {
+      return withFailureData(
+        fail(CODES.ENGINE_ABORT, `nothing was written: the SEO write failed (${e.message})`, e.remediation ?? "Retry the seo write."),
+        { firestoreError: e.code ?? null, status: e.status ?? null }
+      );
+    }
+  }
   const saved = await gw.call(
     "POST",
     `/funnels/builder/autosave/${encodeURIComponent(args.pageId)}`,
-    autosaveEnvelope({ funnelId: args.funnelId, pageData, pageVersion: args.pageVersion })
+    { ...autosaveEnvelope({ funnelId: args.funnelId, pageData, pageVersion: args.pageVersion }), meta: seo ? seo.write : keepMeta }
   );
   if (!saved.ok) return fromHttp(saved.status, saved.json);
+  if (seo) {
+    const seoRead = await reread(
+      async () => {
+        const r = await gw.call("GET", `/funnels/page/${encodeURIComponent(args.pageId)}`);
+        return r.json?.meta ?? r.json?.data?.meta ?? {};
+      },
+      (m) => seoDiff(m, args.seo).length === 0,
+      deps.rereadOptions ?? {}
+    );
+    const wrong = seoDiff(seoRead.value ?? {}, args.seo);
+    seoCheck = { applied: wrong.length === 0, ...wrong.length ? { notApplied: wrong } : {}, attempts: seoRead.attempts, firestore: fsWrite };
+  }
   const settled = await reread(
     async () => {
       const r = await gw.call("GET", pageUrl);
@@ -179772,10 +180075,45 @@ async function editPage(args, deps, composeSection) {
     deps.rereadOptions ?? {}
   );
   const checks = verifyEdits(settled.value ?? {}, report);
-  const allApplied = checks.every((v) => v.applied ?? v.present ?? v.absent);
-  const out = { ...preview, autosave: saved.status, readBack: { checks, attempts: settled.attempts }, stored: allApplied };
+  const allApplied = checks.every((v) => v.applied ?? v.present ?? v.absent) && (seoCheck?.applied ?? true);
+  const out = { ...preview, autosave: saved.status, readBack: { checks, ...seoCheck ? { seo: seoCheck } : {}, attempts: settled.attempts }, stored: allApplied };
   if (!allApplied) return withFailureData(fail(CODES.VERIFY_FAILED, "the autosave was accepted but at least one edit did not read back with its value", "data.readBack.checks names each op; the page-data read can lag, so re-read before re-writing."), out);
+  if (args.publish === true) {
+    if (typeof gw.uid !== "string" || gw.uid.trim() === "") return withFailureData(fail(CODES.VALIDATION_FAILED, "the edit is saved, but this credential carries no user id and publish-version requires one", "Publish from the builder."), out);
+    const vres = await gw.call("GET", `/funnels/builder/get-versions?pageId=${encodeURIComponent(args.pageId)}`);
+    const rows = Array.isArray(vres.json) ? vres.json : [];
+    const newest = rows.filter((v) => v.pageType === "draft").sort((a, b) => (b.updated_at?._seconds ?? 0) - (a.updated_at?._seconds ?? 0))[0] ?? null;
+    if (!newest?.version_id) return withFailureData(fail(CODES.ENGINE_ABORT, "the edit is saved but no draft version was found to publish", "Publish from the builder."), out);
+    const pub = await gw.call("POST", "/funnels/builder/publish-version", { pageId: args.pageId, versionId: newest.version_id, userId: gw.uid });
+    if (!pub.ok) return fromHttp(pub.status, pub.json);
+    const after = await gw.call("GET", `/funnels/builder/get-versions?pageId=${encodeURIComponent(args.pageId)}`);
+    const row = (Array.isArray(after.json) ? after.json : []).find((v) => v.version_id === newest.version_id) ?? null;
+    out.published = { versionId: newest.version_id, pageType: row?.pageType ?? null, verified: row?.pageType === "live" };
+    if (!out.published.verified) return withFailureData(fail(CODES.VERIFY_FAILED, "publish-version was accepted but that version did not read back as live", "The edit is saved; re-read get-versions."), out);
+  }
   return ok(out);
+}
+async function siteRedirects(deps, locationId) {
+  const gw = deps.makeGw({ loc: locationId, state: deps.state });
+  const dom = await gw.call("GET", `/funnels/domain?locationId=${encodeURIComponent(locationId)}`);
+  const list = await listRedirects(gw, locationId, "");
+  if (!list.rows) return { checked: false, status: list.res?.status ?? null, warning: 'The redirect list could not be read; this is NOT "no redirects".' };
+  const today = /* @__PURE__ */ new Date();
+  const from = new Date(today.getTime() - 30 * 864e5);
+  const d = (x) => x.toISOString().slice(0, 10);
+  let clicks = null;
+  if (list.rows.length) {
+    const st = await gw.call("POST", "/stats/url-redirect", statsBody(locationId, list.rows, d(from), d(today)));
+    if (st.ok) clicks = { total: st.json?.cards?.clicks?.curr ?? null, byRow: (st.json?.rows ?? []).map((r, i) => ({ path: list.rows[i]?.path, clicks: r?.clicks?.curr ?? null })) };
+  }
+  return {
+    checked: true,
+    domains: (dom.json?.domains ?? []).map((x) => ({ id: x.id ?? x._id, url: x.url, defaultDomain: x.defaultDomain ?? false })),
+    count: list.count,
+    redirects: list.rows.map((r) => ({ id: rowId(r), domain: r.domain, path: r.path, target: r.target, action: r.action })),
+    clicks30d: clicks,
+    note: "Clicks are counted per path as typed; a case-varied hit counts in the total but not in the stored path's row."
+  };
 }
 var DIGEST_INCLUDE_VALUES = Object.freeze(["raw"]);
 var TOOLS2 = [
@@ -185569,12 +185907,15 @@ var TOOLS2 = [
     name: "find_ghl_site",
     description: describe3(
       "find_ghl_site",
-      'Resolve a domain, slug or name to the GHL surface that owns it \u2014 AI Studio project or funnel. Call this FIRST for any "work on <site>" request: AI Studio projects and funnels are disjoint collections, so querying the wrong one returns an empty list that reads as "does not exist" Disjointness measured 2026-09-04 (knowledge/sniffs/ai-studio-2026-09-04/sweep-19.mjs); the funnels leg runs on the token-id rail \u2014 the same sweep called it live and it succeeded, and knowledge/corpus/funnels/20-api/funnels-api.md documents the rail as proven-live 2026-08-25.'
+      `Resolve a domain, slug or name to the GHL surface that owns it \u2014 AI Studio project or funnel. includeRedirects:true also returns the location's domains and every URL redirect (path \u2192 target, with 30-day clicks); change redirects with edit_redirects. Call this FIRST for any "work on <site>" request: AI Studio projects and funnels are disjoint collections, so querying the wrong one returns an empty list that reads as "does not exist" Disjointness measured 2026-09-04 (knowledge/sniffs/ai-studio-2026-09-04/sweep-19.mjs); the funnels leg runs on the token-id rail \u2014 the same sweep called it live and it succeeded, and knowledge/corpus/funnels/20-api/funnels-api.md documents the rail as proven-live 2026-08-25.`
     ),
-    inputSchema: schema({ locationId: external_exports.string(), site: external_exports.string() }),
+    inputSchema: schema({ locationId: external_exports.string(), site: external_exports.string(), includeRedirects: external_exports.boolean().default(false) }),
     capabilities: [
       { method: "GET", path: "/vibe-ai/projects" },
-      { method: "GET", path: "/funnels/funnel/list" }
+      { method: "GET", path: "/funnels/funnel/list" },
+      { method: "GET", path: "/funnels/domain" },
+      { method: "GET", path: "/funnels/lookup/redirect/list" },
+      { method: "POST", path: "/stats/url-redirect" }
     ],
     handler: async (args, deps) => guard(async () => {
       const { api } = studioDeps(args, deps);
@@ -185609,13 +185950,73 @@ var TOOLS2 = [
         });
       }
       const hit = classifySite(args.site, Array.isArray(studio) ? studio : [], funnels);
+      const redirects = args.includeRedirects === true ? await siteRedirects(deps, args.locationId) : void 0;
       return ok({
         ...hit,
+        ...redirects ? { redirects } : {},
         locationId: args.locationId,
         funnelsChecked: true,
         funnelsRail,
         note: hit.surface === "not-found" ? "Not on this location. AI Studio has no agency-level list \u2014 sweep each bound location before concluding it does not exist." : void 0
       });
+    }, args)
+  },
+  {
+    name: "edit_redirects",
+    description: `${describe3("edit_redirects", "Create, retarget or delete a URL redirect (Settings \u2192 Domains & URL Redirects)")}. Redirects are DOMAIN-scoped 301s from a path to a URL. Preview by default; confirm:true writes and reads back on a separate request. create {domain, path, target}: pre-checks that the path is free (a funnel step or another redirect already holding it is refused), and REFUSES the storefront/blog prefixes ${RESERVED_PREFIXES.join(" ")} \u2014 GHL stores those and serves 404 on the exact path. update {redirectId, path, target}: the source is locked, so only the target changes. delete {redirectId, path}. update and delete resolve exactly one row whose id AND path match, or refuse. Matching is case-insensitive in public and redirects are not edge-cached (a change is visible on the next request). Custom-URL targets only; the screen's Funnel/Website targets and "Entire Domain (/*)" are not covered. Sibling: find_ghl_site includeRedirects:true reads them.`,
+    inputSchema: schema({
+      locationId: external_exports.string(),
+      op: external_exports.enum(["create", "update", "delete"]),
+      domain: external_exports.string().optional(),
+      path: external_exports.string().optional(),
+      target: external_exports.string().optional(),
+      redirectId: external_exports.string().optional(),
+      confirm: external_exports.boolean().default(false)
+    }),
+    capabilities: [
+      { method: "GET", path: "/funnels/lookup/redirect/list" },
+      { method: "POST", path: "/funnels/lookup/exists" },
+      { method: "POST", path: "/funnels/lookup/redirect" },
+      { method: "PATCH", path: "/funnels/lookup/redirect/{id}" },
+      { method: "DELETE", path: "/funnels/lookup/redirect/{id}" }
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+      const L = args.locationId;
+      const readRow = async (id) => {
+        const l = await listRedirects(gw, L, "");
+        return l.rows ? { rows: l.rows, row: l.rows.find((r) => rowId(r) === id) ?? null } : { rows: null, status: l.res?.status };
+      };
+      if (args.op === "create") {
+        const plan2 = planCreate({ domain: args.domain, path: args.path, target: args.target, locationId: L });
+        if (plan2.error) return fail(CODES.VALIDATION_FAILED, plan2.error, "Nothing was sent.");
+        const ex = await gw.call("POST", plan2.exists.path, plan2.exists.body);
+        if (!ex.ok) return fromHttp(ex.status, ex.json);
+        if (ex.json?.exists === true) return fail(CODES.VALIDATION_FAILED, `${args.domain}${plan2.normalizedPath} is already taken (a funnel step or another redirect holds it)`, "Pick a free path, or retarget the existing redirect with op update.");
+        if (args.confirm !== true) return withFailureData(fail(CODES.CONFIRM_REQUIRED, "Redirect create preview is ready; no write was sent.", "Repeat with confirm:true."), { preview: { request: plan2.request, pathFree: true } });
+        const w2 = await gw.call(plan2.request.method, plan2.request.path, plan2.request.body);
+        if (!w2.ok) return fromHttp(w2.status, w2.json);
+        const id = w2.json?.data?.id ?? w2.json?.data?._id ?? null;
+        const back2 = await reread(() => readRow(id), (x) => x.row?.target === args.target, deps.rereadOptions ?? {});
+        const row = back2.value?.row ?? null;
+        if (!row) return withFailureData(fail(CODES.VERIFY_FAILED, "the create was accepted but the redirect is not in the list", "Re-read with find_ghl_site includeRedirects:true before retrying \u2014 do not create twice."), { id, status: w2.status });
+        return ok({ op: "create", id, domain: row.domain, path: row.path, target: row.target, readBack: { listed: true, attempts: back2.attempts } });
+      }
+      if (!args.redirectId || !args.path) return fail(CODES.VALIDATION_FAILED, `${args.op} needs redirectId AND path (the target check matches both)`, "Read them with find_ghl_site includeRedirects:true.");
+      const cur = await listRedirects(gw, L, "");
+      if (!cur.rows) return fromHttp(cur.res?.status ?? 500, cur.res?.json);
+      const t = resolveTarget(cur.rows, { redirectId: args.redirectId, path: args.path });
+      if (t.error) return fail(CODES.VALIDATION_FAILED, t.error, "Nothing was sent.");
+      const plan = args.op === "update" ? planUpdate({ redirectId: args.redirectId, target: args.target, locationId: L }) : planDelete({ redirectId: args.redirectId, locationId: L });
+      if (plan.error) return fail(CODES.VALIDATION_FAILED, plan.error, "Nothing was sent.");
+      const before = { id: rowId(t.row), domain: t.row.domain, path: t.row.path, target: t.row.target };
+      if (args.confirm !== true) return withFailureData(fail(CODES.CONFIRM_REQUIRED, `Redirect ${args.op} preview is ready; no write was sent.`, "Repeat with confirm:true."), { preview: { affects: before, request: plan.request } });
+      const w = await gw.call(plan.request.method, plan.request.path, plan.request.body);
+      if (!w.ok) return fromHttp(w.status, w.json);
+      const want = args.op === "update" ? (x) => x.row?.target === args.target : (x) => x.rows && !x.row;
+      const back = await reread(() => readRow(args.redirectId), want, deps.rereadOptions ?? {});
+      if (!want(back.value ?? {})) return withFailureData(fail(CODES.VERIFY_FAILED, `the ${args.op} was accepted but the list does not show it`, "Re-read before retrying."), { before, status: w.status });
+      return ok({ op: args.op, before, ...args.op === "update" ? { after: { target: back.value.row.target } } : { deleted: true }, readBack: { attempts: back.attempts } });
     }, args)
   },
   {
@@ -187458,7 +187859,7 @@ var TOOLS2 = [
   },
   {
     name: "build_funnel_page",
-    description: `${describe3("build_funnel_page", "Compose a funnel page from native elements and write it")}. Preview by default; confirm:true autosaves the DRAFT. Emits the nodes AND the compiled stylesheet together, because the builder canvas styles a page from each node's \`styles\` while the PUBLIC renderer uses the compiled \`sectionStyles\` string keyed by node id \u2014 write only one and the page looks right in the builder and naked in public. Enforces the contract autosave will not: \`meta\` against the closed set of 60 kinds, every declared \`extra\` property present (the renderer reads extra.<prop>.value UNGUARDED, so a missing one 500s the whole page while autosave still answers 201), \`col.extra.bgImage\`, \`general.general.fontsToLoad\` and \`colors\`, and child[] holding node IDS that resolve. Verifies by reading the page back on a separate request; pass verifyUrl to also poll the public render for your own copy \u2014 one request there is not a measurement, since the first can serve the previous compile. EDIT MODE (pass \`edits\` + \`stepName\` instead of \`sections\`): changes an EXISTING page in place \u2014 ops set (merge extra/styles into one node by id; styles are compiled into the public stylesheet too), append-section (a section spec in the same shape as \`sections[i]\`), remove-node (a node and its descendants, or a whole section). The target is checked first (pageId must be a page of stepId, and stepName must match that step exactly; refused otherwise), everything the ops do not name is written back as read, and each op is verified by VALUE on a separate read. Get node ids from the page data (GET /funnels/builder/page/data?pageId=).`,
+    description: `${describe3("build_funnel_page", "Compose a funnel page from native elements and write it")}. Preview by default; confirm:true autosaves the DRAFT. Emits the nodes AND the compiled stylesheet together, because the builder canvas styles a page from each node's \`styles\` while the PUBLIC renderer uses the compiled \`sectionStyles\` string keyed by node id \u2014 write only one and the page looks right in the builder and naked in public. Enforces the contract autosave will not: \`meta\` against the closed set of 60 kinds, every declared \`extra\` property present (the renderer reads extra.<prop>.value UNGUARDED, so a missing one 500s the whole page while autosave still answers 201), \`col.extra.bgImage\`, \`general.general.fontsToLoad\` and \`colors\`, and child[] holding node IDS that resolve. Verifies by reading the page back on a separate request; pass verifyUrl to also poll the public render for your own copy \u2014 one request there is not a measurement, since the first can serve the previous compile. EDIT MODE (pass \`edits\` + \`stepName\` instead of \`sections\`): changes an EXISTING page in place \u2014 ops set (merge extra/styles into one node by id; styles are compiled into the public stylesheet too), append-section (a section spec in the same shape as \`sections[i]\`), remove-node (a node and its descendants, or a whole section), page (trackingCode {headerCode, footerCode}; customCss \u2014 kept in general.general.pageStyles AND appended to the compiled pageStyles the public page serves; background {imageUrl, color}); and \`seo\` {title, description, keywords, author, imageUrl, language, customMeta, canonicalMeta} \u2014 only the keys you pass change. SEO is written twice, as the builder does: to the page RECORD (GET /funnels/page/{pageId}) Firestore-direct \u2014 the builder's path; no REST route exists \u2014 and as \`meta\` on the autosave's version. The public page renders the SERVED VERSION's meta, so pass publish:true (or publish from the builder) for any edit \u2014 content or SEO \u2014 to reach visitors. The target is checked first (pageId must be a page of stepId, and stepName must match that step exactly; refused otherwise), everything the ops do not name is written back as read, and each op is verified by VALUE on a separate read. Get node ids from the page data (GET /funnels/builder/page/data?pageId=).`,
     inputSchema: schema({
       locationId: external_exports.string(),
       funnelId: external_exports.string(),
@@ -187466,12 +187867,25 @@ var TOOLS2 = [
       stepId: external_exports.string(),
       sections: external_exports.array(external_exports.record(external_exports.any())).min(1).optional(),
       edits: external_exports.array(external_exports.object({
-        op: external_exports.enum(["set", "append-section", "remove-node"]),
+        op: external_exports.enum(["set", "append-section", "remove-node", "page"]),
         nodeId: external_exports.string().optional(),
         extra: external_exports.record(external_exports.any()).optional(),
         styles: external_exports.record(external_exports.any()).optional(),
-        section: external_exports.record(external_exports.any()).optional()
+        section: external_exports.record(external_exports.any()).optional(),
+        trackingCode: external_exports.object({ headerCode: external_exports.string().optional(), footerCode: external_exports.string().optional() }).optional(),
+        customCss: external_exports.string().optional(),
+        background: external_exports.object({ imageUrl: external_exports.string().optional(), imageOptions: external_exports.string().optional(), color: external_exports.string().optional() }).optional()
       })).min(1).optional(),
+      seo: external_exports.object({
+        title: external_exports.string().optional(),
+        description: external_exports.string().optional(),
+        keywords: external_exports.string().optional(),
+        author: external_exports.string().optional(),
+        imageUrl: external_exports.string().optional(),
+        language: external_exports.string().optional(),
+        customMeta: external_exports.array(external_exports.any()).optional(),
+        canonicalMeta: external_exports.array(external_exports.any()).optional()
+      }).optional(),
       stepName: external_exports.string().optional(),
       pageStyles: external_exports.string().optional(),
       fonts: external_exports.array(external_exports.string()).optional(),
@@ -187484,6 +187898,7 @@ var TOOLS2 = [
     capabilities: [
       { method: "POST", path: "/funnels/builder/autosave/{pageId}" },
       { method: "GET", path: "/funnels/builder/page/data" },
+      { method: "GET", path: "/funnels/page/{pageId}" },
       { method: "GET", path: "/funnels/builder/get-versions" },
       { method: "POST", path: "/funnels/builder/publish-version" }
     ],
@@ -187524,7 +187939,7 @@ var TOOLS2 = [
           salt: `${saltBase}${si}`
         });
       };
-      if (args.edits) return editPage(args, deps, composeSection);
+      if (args.edits || args.seo) return editPage(args, deps, composeSection);
       if (!args.sections) return fail(CODES.VALIDATION_FAILED, "pass `sections` (compose a whole page) or `edits` + `stepName` (change an existing page in place)", "See the tool description for both shapes.");
       let pageData;
       try {
@@ -187579,10 +187994,23 @@ var TOOLS2 = [
         );
       }
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+      let recMeta = null;
+      try {
+        recMeta = await gw.call("GET", `/funnels/page/${encodeURIComponent(args.pageId)}`);
+      } catch {
+        recMeta = null;
+      }
+      if (!recMeta?.ok && args.publish === true) {
+        return fail(
+          CODES.ENGINE_ABORT,
+          "the page record (its SEO meta) could not be read, so nothing was written: publishing a version without meta strips the page's <title> and description",
+          "Retry; or write without publish:true and publish from the builder, which sends its own meta."
+        );
+      }
       const saved = await gw.call(
         "POST",
         `/funnels/builder/autosave/${encodeURIComponent(args.pageId)}`,
-        autosaveEnvelope({ funnelId: args.funnelId, pageData, pageVersion: args.pageVersion })
+        { ...autosaveEnvelope({ funnelId: args.funnelId, pageData, pageVersion: args.pageVersion }), ...recMeta?.ok ? { meta: seoMeta(recMeta.json?.meta ?? {}, {}) } : {} }
       );
       if (!saved.ok) return fromHttp(saved.status, saved.json);
       const wantIds = pageData.sections.map((s) => s.id);
@@ -187781,7 +188209,7 @@ var TOOLS2 = [
   },
   {
     name: "edit_funnel",
-    description: `${describe3("edit_funnel", "Edit a GHL funnel or website document: settings, steps, publish state, headers")}. One op per call; preview by default, confirm:true writes and reads back on a separate request. Ops: settings (always sends the UI's FULL update-settings body from a fresh read, so only the fields you name change; diffs the read-back), create-step (refused when the funnel has no domain \u2014 such a step gets no lookup row and 404s), update-step (rename and/or move-path: one PUT moves the live route; Cloudflare may serve the old path for minutes, so it never retries), reorder-steps (full permutation only \u2014 the route replaces the steps array), clone-step, delete-step (target check: stepId AND its current name), publish-page / unpublish-page (the builder's own route: PUT /funnels/lookup/multiple on the step+page rows; unpublish answers 404 or 301 to a URL; no version is created \u2014 to publish CONTENT use build_funnel_page publish:true), add-header (custom response header; applies to the EXACT-CASE path only). Siblings: get_funnel reads, build_funnel_page writes page content, audit_site audits.`,
+    description: `${describe3("edit_funnel", "Edit a GHL funnel or website document: settings, steps, publish state, headers")}. One op per call; preview by default, confirm:true writes and reads back on a separate request. Ops: settings (always sends the UI's FULL update-settings body from a fresh read, so only the fields you name change; diffs the read-back), create-step (refused when the funnel has no domain \u2014 such a step gets no lookup row and 404s), update-step (rename and/or move-path: one PUT moves the live route; Cloudflare may serve the old path for minutes, so it never retries), reorder-steps (full permutation only \u2014 the route replaces the steps array), clone-step, delete-step (target check: stepId AND its current name), publish-page / unpublish-page (the builder's own route: PUT /funnels/lookup/multiple on the step+page rows; unpublish answers 404 or 301 to a URL; no version is created \u2014 to publish CONTENT use build_funnel_page publish:true), add-header (custom response header; applies to the EXACT-CASE path only). Page SEO (title, description, keywords, author, social image), tracking code, custom CSS and page background are PAGE writes, not funnel writes: use build_funnel_page edit mode (\`seo\`, op \`page\`). Siblings: get_funnel reads, build_funnel_page writes page content, audit_site audits.`,
     inputSchema: schema({
       locationId: external_exports.string(),
       funnelId: external_exports.string(),

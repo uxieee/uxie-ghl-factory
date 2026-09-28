@@ -1520,6 +1520,46 @@
     "path": "/funnels/funnel/list"
   },
   {
+    "tool": "find_ghl_site",
+    "method": "GET",
+    "path": "/funnels/domain"
+  },
+  {
+    "tool": "find_ghl_site",
+    "method": "GET",
+    "path": "/funnels/lookup/redirect/list"
+  },
+  {
+    "tool": "find_ghl_site",
+    "method": "POST",
+    "path": "/stats/url-redirect"
+  },
+  {
+    "tool": "edit_redirects",
+    "method": "GET",
+    "path": "/funnels/lookup/redirect/list"
+  },
+  {
+    "tool": "edit_redirects",
+    "method": "POST",
+    "path": "/funnels/lookup/exists"
+  },
+  {
+    "tool": "edit_redirects",
+    "method": "POST",
+    "path": "/funnels/lookup/redirect"
+  },
+  {
+    "tool": "edit_redirects",
+    "method": "PATCH",
+    "path": "/funnels/lookup/redirect/{id}"
+  },
+  {
+    "tool": "edit_redirects",
+    "method": "DELETE",
+    "path": "/funnels/lookup/redirect/{id}"
+  },
+  {
     "tool": "list_studio_sites",
     "method": "GET",
     "path": "/vibe-ai/projects"
@@ -1923,6 +1963,11 @@
     "tool": "build_funnel_page",
     "method": "GET",
     "path": "/funnels/builder/page/data"
+  },
+  {
+    "tool": "build_funnel_page",
+    "method": "GET",
+    "path": "/funnels/page/{pageId}"
   },
   {
     "tool": "build_funnel_page",
