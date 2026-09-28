@@ -11,6 +11,18 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.9.2] — 2026-09-29
+
+**Fix: an order form composed by `build_funnel_page` could not be submitted by any buyer.**
+
+- **`build_funnel_page` one-step order form:** it was written with an empty field configuration, so the public form
+  rendered only name and email. GHL's own validator then demanded a phone number the form never showed ("Make sure that
+  you filled all the details!"), and no request was sent. The order form now gets the builder's own field configuration,
+  so it renders every field the validator checks (company, name, email, phone, address, city, country, zip, coupon and
+  the payment options). Found by a live submission attempt that created nothing. Note GHL's full-name check wants two
+  words of letters.
+- Order forms composed with an earlier version need re-composing.
+
 ## [1.9.1] — 2026-09-29
 
 **Fix: pages composed by `build_funnel_page`, including `add-store`'s store pages, could not be saved in GHL's page
