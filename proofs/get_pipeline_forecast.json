@@ -1,7 +1,7 @@
 {
   "tool": "get_pipeline_forecast",
   "surfaces": [
-    "unassigned"
+    "pipelines-opportunities"
   ],
   "runs": [
     {
@@ -33,12 +33,31 @@
         "row:pipelines-opportunities--forecast-summary"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-28",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:f1b4ff72",
+        "row:pipelines-opportunities--forecast-summary"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
     "hashedAt": "2026-09-28",
-    "endpoints": {},
-    "builds": {},
+    "endpoints": {
+      "GET https://backend.leadconnectorhq.com /opportunities/pipelines": "698f44e2a959e288cc81fdba3df9a1363a7cba3265be3ea16bc51ff59e9c33dd",
+      "GET https://services.leadconnectorhq.com /opportunities/pipelines": "b7bfbb9c12e38a2093b5311d1dfb07794ac4018d05e21285bb05ec9359027159",
+      "POST https://services.leadconnectorhq.com /opportunities/forecast/column": "8cc36f6003e8a071bce0f0fcea11bf7bf0a344e982af43a9c41b5839cc3ed520",
+      "POST https://services.leadconnectorhq.com /opportunities/forecast/drilldown": "4364b5ed3edf2815c4116fb689e22b6b571a6c0e3a3dedbab20b07a5204fd38b",
+      "POST https://services.leadconnectorhq.com /opportunities/forecast/slippage": "4f192200915d37e13005657a154d279b6ad6560a32407f113d4dd0dfe0eb699c",
+      "POST https://services.leadconnectorhq.com /opportunities/forecast/summary": "f9fec1fae333a5f3f747302d19ec31971f4b3b254caf4996530a940264fa706d"
+    },
+    "builds": {
+      "opportunitiesApp": 2451
+    },
     "code": {
       "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#get_pipeline_forecast": "906fb1d8f8124b71c80f2aca97e5ab606f50227f52dda1b467860a479829dd22",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "e65c2384aefb498ce49453dd2d6d8d1a1d8351fd6d337aef5256eb982e1db02f",
