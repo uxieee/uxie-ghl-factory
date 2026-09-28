@@ -68,8 +68,42 @@ export function applyPageEdits(pageData, ops, { compileStyles = () => '' } = {})
         hit.section.elements = hit.section.elements.filter((e) => !drop.has(e.id)).map((e) => ({ ...e, child: (e.child ?? []).filter((c) => !drop.has(c)) }));
         report.push({ i, op: 'remove-node', nodeId: o.nodeId, removed: [...drop] });
       }
+    } else if (o.op === 'page') {
+      // Page-level settings, each where the builder keeps it (measured from the builder's own saves,
+      // knowledge sniffs/funnels-wave4-page-2026-09-26). SEO is not here: it rides the autosave
+      // envelope's `meta`, not the page data (see seoMeta below).
+      const changed = [];
+      if (o.trackingCode) {
+        next.trackingCode = { headerCode: '', footerCode: '', ...(next.trackingCode ?? {}), ...o.trackingCode };
+        changed.push(...Object.keys(o.trackingCode).map((k) => `trackingCode.${k}`));
+      }
+      if (typeof o.customCss === 'string') {
+        // The raw custom CSS lives in general.general.pageStyles; the top-level pageStyles is the
+        // builder's compiled sheet (theme vars, popup rules) with the custom CSS APPENDED — the copy
+        // the public page serves. Replace the old suffix, never the builder's part.
+        const gen = next.general?.general ?? {};
+        const old = gen.pageStyles ?? '';
+        let compiled = next.pageStyles ?? '';
+        if (old && compiled.endsWith(old)) compiled = compiled.slice(0, compiled.length - old.length).replace(/\s*$/, '');
+        next.general = { ...(next.general ?? {}), general: { ...gen, pageStyles: o.customCss } };
+        next.pageStyles = o.customCss ? `${compiled} \n ${o.customCss}` : compiled;
+        changed.push('general.general.pageStyles', 'pageStyles');
+      }
+      if (o.background) {
+        const bg = next.settings?.settings?.background ?? {};
+        const img = bg.bgImage?.value ?? { url: '', options: 'bgCover', svgCode: '', svgEncode: '' };
+        const nextBg = {
+          ...bg,
+          bgImage: { value: { ...img, ...(o.background.imageUrl !== undefined ? { url: o.background.imageUrl } : {}), ...(o.background.imageOptions ? { options: o.background.imageOptions } : {}) } },
+          ...(o.background.color !== undefined ? { backgroundColor: { value: o.background.color } } : {}),
+        };
+        next.settings = { ...(next.settings ?? {}), settings: { ...(next.settings?.settings ?? {}), background: nextBg } };
+        changed.push('settings.settings.background');
+      }
+      if (!changed.length) { report.push({ i, op: 'page', error: 'page op needs trackingCode, customCss or background (SEO goes in `seo`)' }); continue; }
+      report.push({ i, op: 'page', changed, expectPage: { trackingCode: o.trackingCode, customCss: o.customCss, background: o.background } });
     } else {
-      report.push({ i, op: o.op, error: `unknown op ${o.op} (set | append-section | remove-node)` });
+      report.push({ i, op: o.op, error: `unknown op ${o.op} (set | append-section | remove-node | page)` });
     }
   }
   return { pageData: next, report, errors: report.filter((r) => r.error) };
@@ -94,6 +128,18 @@ export function verifyEdits(stored, report) {
       out.push({ sectionId: r.sectionId, present: (stored.sections ?? []).some((s) => s.id === r.sectionId) });
     } else if (r.op === 'remove-node') {
       out.push({ nodeId: r.nodeId, absent: !findNode(stored, r.nodeId) });
+    } else if (r.op === 'page') {
+      const e = r.expectPage ?? {};
+      const wrong = [];
+      for (const [k, v] of Object.entries(e.trackingCode ?? {})) if (stored.trackingCode?.[k] !== v) wrong.push(`trackingCode.${k}`);
+      if (typeof e.customCss === 'string') {
+        if ((stored.general?.general?.pageStyles ?? '') !== e.customCss) wrong.push('general.general.pageStyles');
+        if (e.customCss && !(stored.pageStyles ?? '').endsWith(e.customCss)) wrong.push('pageStyles');
+      }
+      const bg = stored.settings?.settings?.background;
+      if (e.background?.imageUrl !== undefined && bg?.bgImage?.value?.url !== e.background.imageUrl) wrong.push('background.imageUrl');
+      if (e.background?.color !== undefined && bg?.backgroundColor?.value !== e.background.color) wrong.push('background.color');
+      out.push({ page: true, applied: wrong.length === 0, ...(wrong.length ? { notApplied: wrong } : {}) });
     }
   }
   return out;
@@ -120,3 +166,19 @@ export const pageDataForWrite = (read, pageId) => {
   const { traceId, ...rest } = read ?? {};
   return { ...rest, id: rest.id ?? pageId, pageId: rest.pageId ?? pageId };
 };
+
+// SEO rides the autosave ENVELOPE as a top-level `meta`, and GHL shows it on the page RECORD
+// (GET /funnels/page/{pageId}.meta) — measured from the builder's own save, knowledge
+// sniffs/funnels-wave8-actions-2026-09-28/ui-autosave-seo.req.network-request. The builder always sends
+// all eight keys, so the current record is merged with the caller's fields.
+export const SEO_KEYS = Object.freeze(['title', 'description', 'keywords', 'author', 'imageUrl', 'customMeta', 'canonicalMeta', 'language']);
+export function seoMeta(current, patch) {
+  const base = { title: '', description: '', keywords: '', author: '', imageUrl: '', customMeta: [], canonicalMeta: [], language: 'en' };
+  const out = { ...base };
+  for (const k of SEO_KEYS) if (current?.[k] !== undefined) out[k] = current[k];
+  for (const k of SEO_KEYS) if (patch?.[k] !== undefined) out[k] = patch[k];
+  return out;
+}
+export function seoDiff(stored, want) {
+  return SEO_KEYS.filter((k) => want[k] !== undefined && JSON.stringify(stored?.[k]) !== JSON.stringify(want[k]));
+}

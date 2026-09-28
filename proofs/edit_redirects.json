@@ -1,0 +1,30 @@
+{
+  "tool": "edit_redirects",
+  "surfaces": [
+    "unassigned"
+  ],
+  "runs": [
+    {
+      "at": "2026-09-28",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:6848ee55"
+      ],
+      "location": "…zn6B"
+    }
+  ],
+  "depends": {
+    "hashedAt": "2026-09-28",
+    "endpoints": {},
+    "builds": {},
+    "code": {
+      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#edit_redirects": "3620f5595740e8623a9d9122a6cae61a710887c5d6df7aea90ef0e12fd041796",
+      "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "e65c2384aefb498ce49453dd2d6d8d1a1d8351fd6d337aef5256eb982e1db02f",
+      "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
+      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "a223838eb7dbacd4b07e852c05c2728539093efea90eda104565aba5386074e4",
+      "plugins/uxie-ghl-factory/mcp-internal/core/funnel-ops.mjs": "7f70a973f3b3b9f8ebaeb69a98a5e5495cd8fd7004ea425b55bbe3ba98ba5f5e",
+      "plugins/uxie-ghl-factory/mcp-internal/core/redirects.mjs": "ce92df0b6b163024455c4b4e6f65bec980d55c7d852decce30f5577163f68d61"
+    }
+  }
+}

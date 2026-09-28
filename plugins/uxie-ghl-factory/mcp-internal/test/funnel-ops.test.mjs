@@ -213,6 +213,7 @@ test('build_funnel_page: a page-data read that lags is re-read, not reported as 
       return { ok: true, status: 200, json: { sections: reads === 1 ? [] : sent.map((s) => ({ id: s.id })) } };
     }
     if (path.startsWith('/funnels/builder/get-versions')) return { ok: true, status: 200, json: [] };
+    if (path.startsWith('/funnels/page/')) return { ok: true, status: 200, json: { meta: { title: 'T' } } };
     throw new Error(path);
   } }) };
   const res = await tool('build_funnel_page').handler({ locationId: 'LOC', funnelId: 'F1', pageId: 'P1', stepId: 'S1', confirm: true,

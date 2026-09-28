@@ -28,6 +28,7 @@ const deps = ({ versions = [], uid = 'USER1', calls = [], publishStatus = 201, s
     call: async (method, path, body) => {
       calls.push({ method, path, body });
       if (path.startsWith('/funnels/builder/autosave/')) return { ok: true, status: 201, json: { ok: true } };
+      if (path.startsWith('/funnels/page/')) return { ok: true, status: 200, json: { _id: 'P1', locationId: 'LOC', funnelId: 'F1', meta: { title: 'Kept title', description: 'Kept description', language: 'en' } } };
       if (path.startsWith('/funnels/builder/page/data')) {
         return { ok: true, status: 200, json: { sections: sections ?? lastSent(calls) } };
       }
@@ -156,4 +157,52 @@ test('the preview says whether the call will publish, before any write', async (
   const pub = await tool.handler({ ...base, confirm: false, publish: true }, quiet);
   assert.match(pub.data.preview.note, /PUBLISHES/);
   assert.equal(pub.data.preview.willPublish, true);
+});
+
+// Rule 31: a version minted without `meta` strips the page's <title> the moment it is published. Every
+// compose autosave must carry the record's current meta (measured: the released tool emptied a live title).
+test('compose mode carries the page record\'s meta into every autosave, so publish:true keeps the title', async () => {
+  const calls = [];
+  const versions = (cs) => (cs.some((c) => c.path === '/funnels/builder/publish-version') ? [v('a', 'live', 100)] : [v('a', 'draft', 100)]);
+  const res = await tool.handler({ ...base, publish: true }, deps({ versions, calls }));
+  assert.equal(res.ok, true);
+  const save = calls.find((c) => c.path.startsWith('/funnels/builder/autosave/'));
+  assert.equal(save.body.meta?.title, 'Kept title');
+  assert.equal(save.body.meta?.description, 'Kept description');
+  assert.deepEqual(Object.keys(save.body.meta).sort(), ['canonicalMeta', 'customMeta', 'description', 'imageUrl', 'keywords', 'language', 'author', 'title'].sort());
+});
+
+test('edit mode also carries the record\'s meta into its autosave when no seo is passed', async () => {
+  const calls = [];
+  const node = { id: 'heading-X', type: 'element', meta: 'heading', extra: { text: { value: 'a' } }, styles: {}, child: [] };
+  const stored = { sections: [{ id: 'section-X', elements: [node], general: { sectionStyles: '' } }], settings: {}, general: {} };
+  const d = {
+    state: {},
+    makeGw: () => ({ uid: 'USER1', call: async (method, path, body) => {
+      calls.push({ method, path, body });
+      if (path.startsWith('/funnels/funnel/fetch/')) return { ok: true, status: 200, json: { steps: [{ id: 'S1', name: 'Step one', pages: ['P1'] }] } };
+      if (path.startsWith('/funnels/page/')) return { ok: true, status: 200, json: { _id: 'P1', locationId: 'LOC', funnelId: 'F1', meta: { title: 'Kept title', language: 'en' } } };
+      if (path.startsWith('/funnels/builder/page/data')) {
+        const save = [...calls].reverse().find((c) => c.path.startsWith('/funnels/builder/autosave/'));
+        return { ok: true, status: 200, json: save ? save.body.pageData : stored };
+      }
+      if (path.startsWith('/funnels/builder/autosave/')) return { ok: true, status: 201, json: {} };
+      throw new Error(`unexpected call ${method} ${path}`);
+    } }),
+  };
+  const res = await tool.handler({ locationId: 'LOC', funnelId: 'F1', pageId: 'P1', stepId: 'S1', stepName: 'Step one', confirm: true,
+    edits: [{ op: 'set', nodeId: 'heading-X', extra: { text: { value: 'b' } } }] }, d);
+  assert.equal(res.ok, true, JSON.stringify(res));
+  const save = calls.find((c) => c.path.startsWith('/funnels/builder/autosave/'));
+  assert.equal(save.body.meta?.title, 'Kept title');
+  assert.ok(!calls.some((c) => c.path.includes('firestore')), 'no seo → no Firestore write');
+});
+
+test('compose publish:true refuses to write at all when the page record cannot be read (it would strip SEO)', async () => {
+  const calls = [];
+  const d = { state: {}, makeGw: () => ({ uid: 'U', call: async (method, path, body) => { calls.push({ path }); if (path.startsWith('/funnels/page/')) return { ok: false, status: 500, json: {} }; throw new Error(`unexpected ${path}`); } }) };
+  const res = await tool.handler({ ...base, publish: true }, d);
+  assert.equal(res.ok, false);
+  assert.match(res.detail, /strips the page/);
+  assert.ok(!calls.some((c) => c.path.startsWith('/funnels/builder/autosave/')), 'nothing written');
 });

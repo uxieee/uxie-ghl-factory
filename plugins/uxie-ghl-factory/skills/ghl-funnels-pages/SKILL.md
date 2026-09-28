@@ -72,6 +72,19 @@ with a 201. Everything the ops do not name is written back as read, and each op 
 on a separate read. Node ids come from `GET /funnels/builder/page/data?pageId=`. Prefer this over
 recomposing a page: `sections` REPLACES the whole page.
 
+Page-level settings ride the same mode: op `page` sets tracking code (header/footer), custom CSS and the
+page background; `seo` sets title, description, keywords, author, social image and language. SEO is
+written twice, as the builder does: Firestore-direct to the page record (the builder's own path — no REST
+route exists) and as `meta` on the autosave's version. 🔴 The public page renders the SERVED VERSION's
+meta, so SEO — like content — changes in public only when the page is published again: pass
+`publish:true`. A correct record is not a changed `<title>`.
+
+**`edit_redirects`** — URL redirects (domain-scoped 301s, Settings → Domains & URL Redirects): create /
+update (target only; the source is locked) / delete, preview first, id AND path target check. It refuses
+the storefront/blog prefixes (`/b/ /c/ /product/ /collections/ /post/ /category/ /author/ /tag/`): GHL
+stores those and serves 404 on the exact path. A redirect forwards the request's query string to the
+target. Read them with **`find_ghl_site`** `includeRedirects:true` (domains, every redirect, 30-day clicks).
+
 What the builder does that a 2xx will not tell you (all measured live):
 
 - 🔴 **The builder's Publish never calls `publish-version`.** It autosaves with `pageType:"live"` and

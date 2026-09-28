@@ -21,7 +21,9 @@ import {
   planCreateStep, planUpdateStep, planReorder, planCloneStep, planDeleteStep, planPublishState, planAddHeader,
   reread, SETTINGS_KEYS, CACHE_NOTE, EXACT_CASE_NOTE,
 } from './funnel-ops.mjs';
-import { applyPageEdits, verifyEdits, checkPageTarget, pageDataForWrite } from './page-edit.mjs';
+import { applyPageEdits, verifyEdits, checkPageTarget, pageDataForWrite, seoMeta, seoDiff } from './page-edit.mjs';
+import { checkRecord, writeMeta } from './page-seo.mjs';
+import { planCreate, planUpdate, planDelete, resolveTarget, listRedirects, statsBody, rowId, RESERVED_PREFIXES } from './redirects.mjs';
 import { collectWorkflowRuntimeWindow, validateRuntimeWindowInput } from './workflow-runtime-window.mjs';
 import {
   getAiConfigurationBundle,
@@ -1741,6 +1743,7 @@ export function trackWrites(gw) {
 }
 
 const STUDIO_IDTOKENS = new Map();   // locationId -> { idToken, expiresAt }
+const PAGE_SEO_IDTOKENS = new Map(); // same shape; the page-SEO write mints its own (different Firestore database)
 
 // Wiring shared by the AI Studio read/resolve tools so each one does not repeat it. `gw` carries
 // the Bearer (jwt) rail /vibe-ai lives on; `fb` carries the firebase rail for Firestore history
@@ -1825,11 +1828,12 @@ async function editPage(args, deps, composeSection) {
   const salt = `E${Date.now().toString(36).toUpperCase()}`;
   let ops;
   try {
-    ops = args.edits.map((e, i) => {
+    ops = (args.edits ?? []).map((e, i) => {
       if (e.op === 'append-section') {
         if (!e.section) throw new Error(`edits[${i}]: append-section needs \`section\` (the same shape as sections[i])`);
         return { op: 'append-section', section: composeSection(e.section, i, salt) };
       }
+      if (e.op === 'page') return e;
       if (!e.nodeId) throw new Error(`edits[${i}]: ${e.op} needs nodeId`);
       return e;
     });
@@ -1843,27 +1847,108 @@ async function editPage(args, deps, composeSection) {
   const pageData = { ...edited, sections: edited.sections.map((sec, i) => (report.some((r) => r.op === 'append-section' && r.sectionId === sec.id)
     ? buildPageData({ pageId: args.pageId, stepId: args.stepId, funnelId: args.funnelId, locationId: args.locationId, sections: [sec] }).sections[0]
     : sec)).map((sec, i) => ({ ...sec, sequence: i })) };
+  // EVERY autosave carries the page's meta, as the builder's always does: a version minted without one
+  // has no `meta`, and publishing it strips the page's <title> and description (rule 31 — measured again
+  // 2026-09-28 when an edit + publish:true without `seo` emptied a live title). So the record's current
+  // meta is read on every edit, and `seo` only overrides the keys it names.
+  const rec = await gw.call('GET', `/funnels/page/${encodeURIComponent(args.pageId)}`);
+  if (!rec.ok) return fromHttp(rec.status, rec.json);
+  const keepMeta = seoMeta(rec.json?.meta ?? {}, {});
+  let seo = null;
+  if (args.seo) {
+    // The SEO write is Firestore-direct and NOT scoped by the backend, so the page RECORD must resolve
+    // to this location and funnel before anything is written (the step/page check above is not enough).
+    const recCheck = checkRecord(rec.json, { pageId: args.pageId, locationId: args.locationId, funnelId: args.funnelId });
+    if (!recCheck.ok) return fail(CODES.VALIDATION_FAILED, `SEO target check refused: ${recCheck.reason}`, 'Nothing was written. Pass a page of this location and funnel.');
+    const cur = rec.json?.meta ?? {};
+    seo = { before: cur, write: seoMeta(cur, args.seo) };
+  }
   const problems = auditPageData(pageData);
-  const preview = { mode: 'edit', target: target.step, pageId: args.pageId, ops: report.map(({ expect, ...r }) => r), sectionsBefore: current.sections.length, sectionsAfter: pageData.sections.length,
+  const preview = { mode: 'edit', target: target.step, pageId: args.pageId, ops: report.map(({ expect, expectPage, ...r }) => r), ...(seo ? { seo: { from: seo.before, to: seo.write } } : {}), sectionsBefore: current.sections.length, sectionsAfter: pageData.sections.length,
     ...(problems.length ? { preexistingProblems: problems } : {}),
-    note: 'Writes a DRAFT through autosave. Nothing outside the named ops changes. A PINNED (published) page does not show this until it is published again.' };
+    willPublish: args.publish === true,
+    note: args.publish === true
+      ? 'Writes a draft through autosave AND PUBLISHES it: the public page changes. Nothing outside the named ops changes.'
+      : 'Writes a DRAFT through autosave. Nothing outside the named ops changes. A published page shows neither content nor SEO changes until it is published again (publish:true).' };
   if (args.confirm !== true) {
     return withFailureData(fail(CODES.CONFIRM_REQUIRED, 'Funnel page edit preview is ready; no write was sent.', 'Repeat with confirm:true to autosave the edited draft.'), { preview });
   }
 
+  let seoCheck = null;
+  let fsWrite = null;
+  if (seo) {
+    // The builder's order: the page RECORD's meta first (Firestore-direct — what GET /funnels/page/{id}
+    // returns and the public page renders), THEN the autosave, whose own `meta` lands on the draft version.
+    try {
+      fsWrite = await writeMeta({ gwJwt: gw, gwFirebase: deps.makeGw({ loc: args.locationId, state: deps.state, rail: 'firebase' }),
+        locationId: args.locationId, cache: PAGE_SEO_IDTOKENS, pageId: args.pageId, meta: seo.write });
+    } catch (e) {
+      return withFailureData(fail(CODES.ENGINE_ABORT, `nothing was written: the SEO write failed (${e.message})`, e.remediation ?? 'Retry the seo write.'),
+        { firestoreError: e.code ?? null, status: e.status ?? null });
+    }
+  }
   const saved = await gw.call('POST', `/funnels/builder/autosave/${encodeURIComponent(args.pageId)}`,
-    autosaveEnvelope({ funnelId: args.funnelId, pageData, pageVersion: args.pageVersion }));
+    { ...autosaveEnvelope({ funnelId: args.funnelId, pageData, pageVersion: args.pageVersion }), meta: seo ? seo.write : keepMeta });
   if (!saved.ok) return fromHttp(saved.status, saved.json);
+  if (seo) {
+    const seoRead = await reread(
+      async () => { const r = await gw.call('GET', `/funnels/page/${encodeURIComponent(args.pageId)}`); return r.json?.meta ?? r.json?.data?.meta ?? {}; },
+      (m) => seoDiff(m, args.seo).length === 0,
+      deps.rereadOptions ?? {},
+    );
+    const wrong = seoDiff(seoRead.value ?? {}, args.seo);
+    seoCheck = { applied: wrong.length === 0, ...(wrong.length ? { notApplied: wrong } : {}), attempts: seoRead.attempts, firestore: fsWrite };
+  }
   const settled = await reread(
     async () => { const r = await gw.call('GET', pageUrl); return r.json ?? {}; },
     (stored) => verifyEdits(stored, report).every((v) => v.applied ?? v.present ?? v.absent),
     deps.rereadOptions ?? {},
   );
   const checks = verifyEdits(settled.value ?? {}, report);
-  const allApplied = checks.every((v) => v.applied ?? v.present ?? v.absent);
-  const out = { ...preview, autosave: saved.status, readBack: { checks, attempts: settled.attempts }, stored: allApplied };
+  const allApplied = checks.every((v) => v.applied ?? v.present ?? v.absent) && (seoCheck?.applied ?? true);
+  const out = { ...preview, autosave: saved.status, readBack: { checks, ...(seoCheck ? { seo: seoCheck } : {}), attempts: settled.attempts }, stored: allApplied };
   if (!allApplied) return withFailureData(fail(CODES.VERIFY_FAILED, 'the autosave was accepted but at least one edit did not read back with its value', 'data.readBack.checks names each op; the page-data read can lag, so re-read before re-writing.'), out);
+  if (args.publish === true) {
+    // The public page serves the published VERSION — content and SEO alike (corpus funnels/40-rules
+    // silent-failures rule 31) — so an edit reaches visitors only when the version this autosave minted
+    // is published. Pick it by TIMESTAMP, never by array position (a live row is appended at the end).
+    if (typeof gw.uid !== 'string' || gw.uid.trim() === '') return withFailureData(fail(CODES.VALIDATION_FAILED, 'the edit is saved, but this credential carries no user id and publish-version requires one', 'Publish from the builder.'), out);
+    const vres = await gw.call('GET', `/funnels/builder/get-versions?pageId=${encodeURIComponent(args.pageId)}`);
+    const rows = Array.isArray(vres.json) ? vres.json : [];
+    const newest = rows.filter((v) => v.pageType === 'draft').sort((a, b) => (b.updated_at?._seconds ?? 0) - (a.updated_at?._seconds ?? 0))[0] ?? null;
+    if (!newest?.version_id) return withFailureData(fail(CODES.ENGINE_ABORT, 'the edit is saved but no draft version was found to publish', 'Publish from the builder.'), out);
+    const pub = await gw.call('POST', '/funnels/builder/publish-version', { pageId: args.pageId, versionId: newest.version_id, userId: gw.uid });
+    if (!pub.ok) return fromHttp(pub.status, pub.json);
+    const after = await gw.call('GET', `/funnels/builder/get-versions?pageId=${encodeURIComponent(args.pageId)}`);
+    const row = (Array.isArray(after.json) ? after.json : []).find((v) => v.version_id === newest.version_id) ?? null;
+    out.published = { versionId: newest.version_id, pageType: row?.pageType ?? null, verified: row?.pageType === 'live' };
+    if (!out.published.verified) return withFailureData(fail(CODES.VERIFY_FAILED, 'publish-version was accepted but that version did not read back as live', 'The edit is saved; re-read get-versions.'), out);
+  }
   return ok(out);
+}
+
+// find_ghl_site includeRedirects: the read half of the URL-redirect screen (domains, every redirect across
+// pages, and the screen's own 30-day click stats). Reads only — the stats call is a POST that writes nothing.
+async function siteRedirects(deps, locationId) {
+  const gw = deps.makeGw({ loc: locationId, state: deps.state });
+  const dom = await gw.call('GET', `/funnels/domain?locationId=${encodeURIComponent(locationId)}`);
+  const list = await listRedirects(gw, locationId, '');
+  if (!list.rows) return { checked: false, status: list.res?.status ?? null, warning: 'The redirect list could not be read; this is NOT "no redirects".' };
+  const today = new Date(); const from = new Date(today.getTime() - 30 * 86400000);
+  const d = (x) => x.toISOString().slice(0, 10);
+  let clicks = null;
+  if (list.rows.length) {
+    const st = await gw.call('POST', '/stats/url-redirect', statsBody(locationId, list.rows, d(from), d(today)));
+    if (st.ok) clicks = { total: st.json?.cards?.clicks?.curr ?? null, byRow: (st.json?.rows ?? []).map((r, i) => ({ path: list.rows[i]?.path, clicks: r?.clicks?.curr ?? null })) };
+  }
+  return {
+    checked: true,
+    domains: (dom.json?.domains ?? []).map((x) => ({ id: x.id ?? x._id, url: x.url, defaultDomain: x.defaultDomain ?? false })),
+    count: list.count,
+    redirects: list.rows.map((r) => ({ id: rowId(r), domain: r.domain, path: r.path, target: r.target, action: r.action })),
+    clicks30d: clicks,
+    note: 'Clicks are counted per path as typed; a case-varied hit counts in the total but not in the stored path\'s row.',
+  };
 }
 
 // `get_workflow_digest`'s `include` vocabulary. ONE value, and it ADDS the untrimmed document
@@ -8342,16 +8427,21 @@ export const TOOLS = [
     name: 'find_ghl_site',
     description: describe('find_ghl_site',
       'Resolve a domain, slug or name to the GHL surface that owns it — AI Studio project or funnel. '
+      + 'includeRedirects:true also returns the location\'s domains and every URL redirect (path → target, '
+      + 'with 30-day clicks); change redirects with edit_redirects. '
       + 'Call this FIRST for any "work on <site>" request: AI Studio projects and funnels are disjoint '
       + 'collections, so querying the wrong one returns an empty list that reads as "does not exist" '
       + 'Disjointness measured 2026-09-04 '
       + '(knowledge/sniffs/ai-studio-2026-09-04/sweep-19.mjs); the funnels leg runs on the token-id '
       + 'rail — the same sweep called it live and it succeeded, and '
       + 'knowledge/corpus/funnels/20-api/funnels-api.md documents the rail as proven-live 2026-08-25.'),
-    inputSchema: schema({ locationId: z.string(), site: z.string() }),
+    inputSchema: schema({ locationId: z.string(), site: z.string(), includeRedirects: z.boolean().default(false) }),
     capabilities: [
       { method: 'GET', path: '/vibe-ai/projects' },
       { method: 'GET', path: '/funnels/funnel/list' },
+      { method: 'GET', path: '/funnels/domain' },
+      { method: 'GET', path: '/funnels/lookup/redirect/list' },
+      { method: 'POST', path: '/stats/url-redirect' },
     ],
     handler: async (args, deps) => guard(async () => {
       const { api } = studioDeps(args, deps);
@@ -8406,10 +8496,75 @@ export const TOOLS = [
       }
 
       const hit = classifySite(args.site, Array.isArray(studio) ? studio : [], funnels);
-      return ok({ ...hit, locationId: args.locationId, funnelsChecked: true, funnelsRail,
+      const redirects = args.includeRedirects === true ? await siteRedirects(deps, args.locationId) : undefined;
+      return ok({ ...hit, ...(redirects ? { redirects } : {}), locationId: args.locationId, funnelsChecked: true, funnelsRail,
         note: hit.surface === 'not-found'
           ? 'Not on this location. AI Studio has no agency-level list — sweep each bound location before concluding it does not exist.'
           : undefined });
+    }, args),
+  },
+  {
+    name: 'edit_redirects',
+    description: `${describe('edit_redirects', 'Create, retarget or delete a URL redirect (Settings → Domains & URL Redirects)')}. `
+      + 'Redirects are DOMAIN-scoped 301s from a path to a URL. Preview by default; confirm:true writes and reads '
+      + 'back on a separate request. create {domain, path, target}: pre-checks that the path is free (a funnel '
+      + 'step or another redirect already holding it is refused), and REFUSES the storefront/blog prefixes '
+      + `${RESERVED_PREFIXES.join(' ')} — GHL stores those and serves 404 on the exact path. update {redirectId, `
+      + 'path, target}: the source is locked, so only the target changes. delete {redirectId, path}. update and '
+      + 'delete resolve exactly one row whose id AND path match, or refuse. Matching is case-insensitive in public '
+      + 'and redirects are not edge-cached (a change is visible on the next request). Custom-URL targets only; the '
+      + 'screen\'s Funnel/Website targets and "Entire Domain (/*)" are not covered. Sibling: find_ghl_site '
+      + 'includeRedirects:true reads them.',
+    inputSchema: schema({
+      locationId: z.string(),
+      op: z.enum(['create', 'update', 'delete']),
+      domain: z.string().optional(),
+      path: z.string().optional(),
+      target: z.string().optional(),
+      redirectId: z.string().optional(),
+      confirm: z.boolean().default(false),
+    }),
+    capabilities: [
+      { method: 'GET', path: '/funnels/lookup/redirect/list' },
+      { method: 'POST', path: '/funnels/lookup/exists' },
+      { method: 'POST', path: '/funnels/lookup/redirect' },
+      { method: 'PATCH', path: '/funnels/lookup/redirect/{id}' },
+      { method: 'DELETE', path: '/funnels/lookup/redirect/{id}' },
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+      const L = args.locationId;
+      const readRow = async (id) => { const l = await listRedirects(gw, L, ''); return l.rows ? { rows: l.rows, row: l.rows.find((r) => rowId(r) === id) ?? null } : { rows: null, status: l.res?.status }; };
+      if (args.op === 'create') {
+        const plan = planCreate({ domain: args.domain, path: args.path, target: args.target, locationId: L });
+        if (plan.error) return fail(CODES.VALIDATION_FAILED, plan.error, 'Nothing was sent.');
+        const ex = await gw.call('POST', plan.exists.path, plan.exists.body);
+        if (!ex.ok) return fromHttp(ex.status, ex.json);
+        if (ex.json?.exists === true) return fail(CODES.VALIDATION_FAILED, `${args.domain}${plan.normalizedPath} is already taken (a funnel step or another redirect holds it)`, 'Pick a free path, or retarget the existing redirect with op update.');
+        if (args.confirm !== true) return withFailureData(fail(CODES.CONFIRM_REQUIRED, 'Redirect create preview is ready; no write was sent.', 'Repeat with confirm:true.'), { preview: { request: plan.request, pathFree: true } });
+        const w = await gw.call(plan.request.method, plan.request.path, plan.request.body);
+        if (!w.ok) return fromHttp(w.status, w.json);
+        const id = w.json?.data?.id ?? w.json?.data?._id ?? null;
+        const back = await reread(() => readRow(id), (x) => x.row?.target === args.target, deps.rereadOptions ?? {});
+        const row = back.value?.row ?? null;
+        if (!row) return withFailureData(fail(CODES.VERIFY_FAILED, 'the create was accepted but the redirect is not in the list', 'Re-read with find_ghl_site includeRedirects:true before retrying — do not create twice.'), { id, status: w.status });
+        return ok({ op: 'create', id, domain: row.domain, path: row.path, target: row.target, readBack: { listed: true, attempts: back.attempts } });
+      }
+      if (!args.redirectId || !args.path) return fail(CODES.VALIDATION_FAILED, `${args.op} needs redirectId AND path (the target check matches both)`, 'Read them with find_ghl_site includeRedirects:true.');
+      const cur = await listRedirects(gw, L, '');
+      if (!cur.rows) return fromHttp(cur.res?.status ?? 500, cur.res?.json);
+      const t = resolveTarget(cur.rows, { redirectId: args.redirectId, path: args.path });
+      if (t.error) return fail(CODES.VALIDATION_FAILED, t.error, 'Nothing was sent.');
+      const plan = args.op === 'update' ? planUpdate({ redirectId: args.redirectId, target: args.target, locationId: L }) : planDelete({ redirectId: args.redirectId, locationId: L });
+      if (plan.error) return fail(CODES.VALIDATION_FAILED, plan.error, 'Nothing was sent.');
+      const before = { id: rowId(t.row), domain: t.row.domain, path: t.row.path, target: t.row.target };
+      if (args.confirm !== true) return withFailureData(fail(CODES.CONFIRM_REQUIRED, `Redirect ${args.op} preview is ready; no write was sent.`, 'Repeat with confirm:true.'), { preview: { affects: before, request: plan.request } });
+      const w = await gw.call(plan.request.method, plan.request.path, plan.request.body);
+      if (!w.ok) return fromHttp(w.status, w.json);
+      const want = args.op === 'update' ? (x) => x.row?.target === args.target : (x) => x.rows && !x.row;
+      const back = await reread(() => readRow(args.redirectId), want, deps.rereadOptions ?? {});
+      if (!want(back.value ?? {})) return withFailureData(fail(CODES.VERIFY_FAILED, `the ${args.op} was accepted but the list does not show it`, 'Re-read before retrying.'), { before, status: w.status });
+      return ok({ op: args.op, before, ...(args.op === 'update' ? { after: { target: back.value.row.target } } : { deleted: true }), readBack: { attempts: back.attempts } });
     }, args),
   },
   {
@@ -10335,7 +10490,14 @@ export const TOOLS = [
       + 'EDIT MODE (pass `edits` + `stepName` instead of `sections`): changes an EXISTING page in place — '
       + 'ops set (merge extra/styles into one node by id; styles are compiled into the public stylesheet '
       + 'too), append-section (a section spec in the same shape as `sections[i]`), remove-node (a node and '
-      + 'its descendants, or a whole section). The target is checked first (pageId must be a page of stepId, '
+      + 'its descendants, or a whole section), page (trackingCode {headerCode, footerCode}; customCss — '
+      + 'kept in general.general.pageStyles AND appended to the compiled pageStyles the public page serves; '
+      + 'background {imageUrl, color}); and `seo` {title, description, keywords, author, imageUrl, language, '
+      + 'customMeta, canonicalMeta} — only the keys you pass change. SEO is written twice, as the builder does: '
+      + 'to the page RECORD (GET /funnels/page/{pageId}) Firestore-direct — the builder\'s path; no REST route '
+      + 'exists — and as `meta` on the autosave\'s version. The public page renders the SERVED VERSION\'s meta, '
+      + 'so pass publish:true (or publish from the builder) for any edit — content or SEO — to reach visitors. '
+      + 'The target is checked first (pageId must be a page of stepId, '
       + 'and stepName must match that step exactly; refused otherwise), everything the ops do not name is '
       + 'written back as read, and each op is verified by VALUE on a separate read. Get node ids from the '
       + 'page data (GET /funnels/builder/page/data?pageId=).',
@@ -10346,12 +10508,20 @@ export const TOOLS = [
       stepId: z.string(),
       sections: z.array(z.record(z.any())).min(1).optional(),
       edits: z.array(z.object({
-        op: z.enum(['set', 'append-section', 'remove-node']),
+        op: z.enum(['set', 'append-section', 'remove-node', 'page']),
         nodeId: z.string().optional(),
         extra: z.record(z.any()).optional(),
         styles: z.record(z.any()).optional(),
         section: z.record(z.any()).optional(),
+        trackingCode: z.object({ headerCode: z.string().optional(), footerCode: z.string().optional() }).optional(),
+        customCss: z.string().optional(),
+        background: z.object({ imageUrl: z.string().optional(), imageOptions: z.string().optional(), color: z.string().optional() }).optional(),
       })).min(1).optional(),
+      seo: z.object({
+        title: z.string().optional(), description: z.string().optional(), keywords: z.string().optional(),
+        author: z.string().optional(), imageUrl: z.string().optional(), language: z.string().optional(),
+        customMeta: z.array(z.any()).optional(), canonicalMeta: z.array(z.any()).optional(),
+      }).optional(),
       stepName: z.string().optional(),
       pageStyles: z.string().optional(),
       fonts: z.array(z.string()).optional(),
@@ -10364,6 +10534,7 @@ export const TOOLS = [
     capabilities: [
       { method: 'POST', path: '/funnels/builder/autosave/{pageId}' },
       { method: 'GET', path: '/funnels/builder/page/data' },
+      { method: 'GET', path: '/funnels/page/{pageId}' },
       { method: 'GET', path: '/funnels/builder/get-versions' },
       { method: 'POST', path: '/funnels/builder/publish-version' },
     ],
@@ -10400,7 +10571,7 @@ export const TOOLS = [
           pageId: args.pageId, funnelId: args.funnelId, locationId: args.locationId, salt: `${saltBase}${si}`,
         });
       };
-      if (args.edits) return editPage(args, deps, composeSection);
+      if (args.edits || args.seo) return editPage(args, deps, composeSection);
       if (!args.sections) return fail(CODES.VALIDATION_FAILED, 'pass `sections` (compose a whole page) or `edits` + `stepName` (change an existing page in place)', 'See the tool description for both shapes.');
       let pageData;
       try {
@@ -10447,8 +10618,17 @@ export const TOOLS = [
       }
 
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+      // Carry the page's current meta into the version this autosave mints — a meta-less version strips
+      // the page's <title>/description the moment it is published (rule 31). A page with no record yet
+      // (read fails) is written without it, as before.
+      let recMeta = null;
+      try { recMeta = await gw.call('GET', `/funnels/page/${encodeURIComponent(args.pageId)}`); } catch { recMeta = null; }
+      if (!recMeta?.ok && args.publish === true) {
+        return fail(CODES.ENGINE_ABORT, 'the page record (its SEO meta) could not be read, so nothing was written: publishing a version without meta strips the page\'s <title> and description',
+          'Retry; or write without publish:true and publish from the builder, which sends its own meta.');
+      }
       const saved = await gw.call('POST', `/funnels/builder/autosave/${encodeURIComponent(args.pageId)}`,
-        autosaveEnvelope({ funnelId: args.funnelId, pageData, pageVersion: args.pageVersion }));
+        { ...autosaveEnvelope({ funnelId: args.funnelId, pageData, pageVersion: args.pageVersion }), ...(recMeta?.ok ? { meta: seoMeta(recMeta.json?.meta ?? {}, {}) } : {}) });
       if (!saved.ok) return fromHttp(saved.status, saved.json);
 
       // Read back on a SEPARATE request. A 201 from autosave proves the request parsed, nothing more.
@@ -10684,7 +10864,9 @@ export const TOOLS = [
       + 'current name), publish-page / unpublish-page (the builder\'s own route: PUT /funnels/lookup/multiple on '
       + 'the step+page rows; unpublish answers 404 or 301 to a URL; no version is created — to publish CONTENT '
       + 'use build_funnel_page publish:true), add-header (custom response header; applies to the EXACT-CASE '
-      + 'path only). Siblings: get_funnel reads, build_funnel_page writes page content, audit_site audits.',
+      + 'path only). Page SEO (title, description, keywords, author, social image), tracking code, custom CSS '
+      + 'and page background are PAGE writes, not funnel writes: use build_funnel_page edit mode (`seo`, op '
+      + '`page`). Siblings: get_funnel reads, build_funnel_page writes page content, audit_site audits.',
     inputSchema: schema({
       locationId: z.string(),
       funnelId: z.string(),
