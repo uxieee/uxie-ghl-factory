@@ -1,7 +1,7 @@
 {
   "tool": "edit_funnel",
   "surfaces": [
-    "unassigned"
+    "funnels"
   ],
   "runs": [
     {
@@ -21,18 +21,44 @@
         "commit:1c37b2d7"
       ],
       "location": "…zn6B"
+    },
+    {
+      "at": "2026-09-28",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:3a134219"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
     "hashedAt": "2026-09-28",
-    "endpoints": {},
-    "builds": {},
+    "endpoints": {
+      "GET https://backend.leadconnectorhq.com /funnels/domain": "c5b3c268c5e5f235ed1b1a8c81b05a9fcbcff4f25c53173a9643b08828993523",
+      "GET https://backend.leadconnectorhq.com /funnels/funnel/fetch/{}": "f8882ab1b0d06b2d4806af0b9032cc3373aaed5c54184a9f5fea3a984fb1bd9a",
+      "GET https://backend.leadconnectorhq.com /funnels/lookup/list": "962f65054f5b6f0e185aacea82a8b71253217cad24eb73aabe3d7cc469e7f5c5",
+      "PATCH https://backend.leadconnectorhq.com /funnels/funnel/update/{}": "4a1aa4c23083223f7775fff0ffa3a6148434f7f00fa56f5556abab8c9da2e710",
+      "POST https://backend.leadconnectorhq.com /funnels/funnel/clone-funnel-step": "2625afaef8d395f484583a653d8f063f323ad26609404ba47bac5dd4625f1bd4",
+      "POST https://backend.leadconnectorhq.com /funnels/funnel/create-step": "14bcb50dd0ec4702536cc9cc89def97c4ccbc06f6b0c4936db4bc54236d9ffe6",
+      "POST https://backend.leadconnectorhq.com /funnels/funnel/delete-step": "38ad4ca5e07c2267e3b2c766fc494445d2142eadaa9091512e6fe3b958810ad7",
+      "POST https://backend.leadconnectorhq.com /funnels/funnel/headers": "c111de9f910e2c1ff366f9d04d7a9589616ea3da3d1bed7ddb5170c864245cba",
+      "POST https://backend.leadconnectorhq.com /funnels/funnel/update-settings": "04aa42c84de003e0c38a88f58eb6eb8bcd11d46cf741c7dfc1a72dd881ab54f3",
+      "PUT https://backend.leadconnectorhq.com /funnels/funnel/step/{}": "2d7cb629f1115364da1d16ef733fbbeb0446fb8ab94e0c91533fcdd663f2ebf7",
+      "PUT https://backend.leadconnectorhq.com /funnels/lookup/multiple": "b8e3ddf74f11d5431331cda00208e70086c16f9eef3c4115a575eedfb3277f3a"
+    },
+    "builds": {
+      "domainConnectApp": 228,
+      "funnelWebsiteApp": 230,
+      "funnelWebsiteDomainApp": 222,
+      "redirectApp": 222
+    },
     "code": {
-      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#edit_funnel": "55580a1fcc95e429fe8900528145d3246a528a9dab203c7a785a102d977e48f7",
+      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#edit_funnel": "3eca06ca9bda05a9d1a9d10e2ad1cc4fb5acf5798275988645bfa768c827822b",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "e65c2384aefb498ce49453dd2d6d8d1a1d8351fd6d337aef5256eb982e1db02f",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
-      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "a223838eb7dbacd4b07e852c05c2728539093efea90eda104565aba5386074e4",
-      "plugins/uxie-ghl-factory/mcp-internal/core/funnel-ops.mjs": "7f70a973f3b3b9f8ebaeb69a98a5e5495cd8fd7004ea425b55bbe3ba98ba5f5e"
+      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "7341e8291a1fda0437a7b465f0ecfb98121a7d9f46ee10a7cfc3f942979d5aab",
+      "plugins/uxie-ghl-factory/mcp-internal/core/funnel-ops.mjs": "e66442bf07c1b9ad0f5e72225173f9a79eddc2be691c3a5a9ed94b323a437e2d"
     }
   }
 }

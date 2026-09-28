@@ -19,8 +19,9 @@ import {
 import {
   readFunnel, readLookups, stepView, lookupView, settingsFrom, settingsBody, settingsDiff, normPath,
   planCreateStep, planUpdateStep, planReorder, planCloneStep, planDeleteStep, planPublishState, planAddHeader,
-  reread, SETTINGS_KEYS, CACHE_NOTE, EXACT_CASE_NOTE,
+  planDeleteFunnel, planSplit, SERVING, reread, SETTINGS_KEYS, CACHE_NOTE, EXACT_CASE_NOTE,
 } from './funnel-ops.mjs';
+import { planCreateFunnel, createdId, EXPECT_TYPE, KINDS as FUNNEL_KINDS, STORE_DANGLING_FORM_NOTE, listAllDocuments } from './funnel-create.mjs';
 import { applyPageEdits, verifyEdits, checkPageTarget, pageDataForWrite, seoMeta, seoDiff } from './page-edit.mjs';
 import { checkRecord, writeMeta } from './page-seo.mjs';
 import { planCreate, planUpdate, planDelete, resolveTarget, listRedirects, statsBody, rowId, RESERVED_PREFIXES } from './redirects.mjs';
@@ -1929,6 +1930,37 @@ async function editPage(args, deps, composeSection) {
 
 // find_ghl_site includeRedirects: the read half of the URL-redirect screen (domains, every redirect across
 // pages, and the screen's own 30-day click stats). Reads only — the stats call is a POST that writes nothing.
+// The funnels list on whichever rail answers (see find_ghl_site), walked to its `count`.
+async function walkFunnelList(deps, locationId) {
+  let first = null;
+  for (const rail of ['token-id', 'jwt']) {
+    try {
+      const got = await listAllDocuments(deps.makeGw({ loc: locationId, state: deps.state, rail }), locationId);
+      if (got.rows) return { ...got, rail };
+      first ??= got.res;                       // keep the first failure to report its status
+    } catch {
+      // A missing credential for one rail is not fatal — that is what the other is for.
+    }
+  }
+  return { res: first, rows: null, rail: null };
+}
+
+const siteRow = (f) => ({ id: f._id ?? f.id, name: f.name, type: f.type, ...(f.isStoreActive ? { store: true } : {}), url: f.url ?? null,
+  domainId: f.domainId || null, folderId: f.parentId ?? null, steps: (f.steps ?? []).length, updatedAt: f.updatedAt ?? f.dateUpdated ?? null });
+
+async function listSites(args, deps) {
+  const walked = await walkFunnelList(deps, args.locationId);
+  if (!walked.rows) return { locationId: args.locationId, funnelsChecked: false, warning: `The funnels list failed on BOTH rails (last status ${walked.res?.status ?? 'unknown'}). Nothing is known about this location's documents.` };
+  const q = String(args.search ?? '').toLowerCase();
+  const rows = walked.rows
+    .filter((f) => !args.type || (args.type === 'store' ? f.type === 'website' && f.isStoreActive === true : f.type === args.type))
+    .filter((f) => !q || String(f.name ?? '').toLowerCase().includes(q))
+    .map(siteRow)
+    .sort((a, b) => String(a.name).localeCompare(String(b.name)));
+  return { locationId: args.locationId, funnelsChecked: true, funnelsRail: walked.rail, total: walked.count, returned: rows.length, ...(walked.truncated ? { truncated: true } : {}), documents: rows,
+    note: 'Funnel folders are organisational only (create/rename/move them on the Sites screen); folderId is the folder a document is filed in.' };
+}
+
 async function siteRedirects(deps, locationId) {
   const gw = deps.makeGw({ loc: locationId, state: deps.state });
   const dom = await gw.call('GET', `/funnels/domain?locationId=${encodeURIComponent(locationId)}`);
@@ -8431,14 +8463,17 @@ export const TOOLS = [
     description: describe('find_ghl_site',
       'Resolve a domain, slug or name to the GHL surface that owns it — AI Studio project or funnel. '
       + 'includeRedirects:true also returns the location\'s domains and every URL redirect (path → target, '
-      + 'with 30-day clicks); change redirects with edit_redirects. '
+      + 'with 30-day clicks); change redirects with edit_redirects. list:true (site optional) instead returns EVERY '
+      + 'funnel, website, store, webinar and blog document on the location (walked to the list\'s count), '
+      + 'filtered by type (store = a website with isStoreActive) and a case-insensitive name search. '
       + 'Call this FIRST for any "work on <site>" request: AI Studio projects and funnels are disjoint '
       + 'collections, so querying the wrong one returns an empty list that reads as "does not exist" '
       + 'Disjointness measured 2026-09-04 '
       + '(knowledge/sniffs/ai-studio-2026-09-04/sweep-19.mjs); the funnels leg runs on the token-id '
       + 'rail — the same sweep called it live and it succeeded, and '
       + 'knowledge/corpus/funnels/20-api/funnels-api.md documents the rail as proven-live 2026-08-25.'),
-    inputSchema: schema({ locationId: z.string(), site: z.string(), includeRedirects: z.boolean().default(false) }),
+    inputSchema: schema({ locationId: z.string(), site: z.string().optional(), includeRedirects: z.boolean().default(false),
+      list: z.boolean().default(false), type: z.enum(['funnel', 'website', 'store', 'webinar', 'blog']).optional(), search: z.string().optional() }),
     capabilities: [
       { method: 'GET', path: '/vibe-ai/projects' },
       { method: 'GET', path: '/funnels/funnel/list' },
@@ -8447,6 +8482,8 @@ export const TOOLS = [
       { method: 'POST', path: '/stats/url-redirect' },
     ],
     handler: async (args, deps) => guard(async () => {
+      if (args.list !== true && !args.site) return fail(CODES.VALIDATION_FAILED, 'site is required unless list:true', 'Pass site (a domain, slug or name) to resolve one, or list:true to list every document.');
+      if (args.list === true) return ok(await listSites(args, deps));
       const { api } = studioDeps(args, deps);
       const studio = (await api.listProjects()).json;
 
@@ -8469,20 +8506,15 @@ export const TOOLS = [
       // GHL website is `type=website`, not `type=funnel` — so filtering here would silently exclude
       // exactly the record class someone is most likely to ask this resolver about, reintroducing
       // the false "does not exist" this tool exists to prevent, through a different door.
-      const funnelsPath = `/funnels/funnel/list?locationId=${encodeURIComponent(args.locationId)}&limit=100`;
-      let funnelRes = null;
-      let funnelsRail = null;
-      for (const rail of ['token-id', 'jwt']) {
-        try {
-          const res = await deps.makeGw({ loc: args.locationId, state: deps.state, rail }).call('GET', funnelsPath);
-          if (res?.ok) { funnelRes = res; funnelsRail = rail; break; }
-          funnelRes ??= res;                       // keep the first failure to report its status
-        } catch {
-          // A missing credential for one rail is not fatal — that is what the other is for.
-        }
-      }
-      const funnelsChecked = Boolean(funnelRes?.ok);
-      const funnels = funnelsChecked ? (funnelRes?.json?.funnels ?? funnelRes?.json?.data ?? []) : [];
+      //
+      // The list is WALKED to its `count`: `limit` is honoured exactly (measured, sniffs/funnels-wave10-
+      // e-plan-2026-09-28/live-route.funnel-list-limits.json), so one call of 100 silently dropped every
+      // document past the 100th and answered not-found for a site that exists.
+      const walked = await walkFunnelList(deps, args.locationId);
+      const funnelRes = walked.res;
+      const funnelsRail = walked.rail;
+      const funnelsChecked = Boolean(walked.rows);
+      const funnels = walked.rows ?? [];
 
       // A failed funnels call must NEVER be read as "the site does not exist" — an empty list
       // from the wrong rail (or a dead one) is indistinguishable from a genuinely empty
@@ -10503,7 +10535,9 @@ export const TOOLS = [
       + 'The target is checked first (pageId must be a page of stepId, '
       + 'and stepName must match that step exactly; refused otherwise), everything the ops do not name is '
       + 'written back as read, and each op is verified by VALUE on a separate read. Get node ids from the '
-      + 'page data (GET /funnels/builder/page/data?pageId=).',
+      + 'page data (GET /funnels/builder/page/data?pageId=). Not here, done in the builder: schema markup (SEO '
+      + 'panel → Schema markup; its own object), the autosave on/off switch (browser-local; every write here is '
+      + 'one autosave). Visitor geo-location is a runtime lookup with nothing to set.',
     inputSchema: schema({
       locationId: z.string(),
       funnelId: z.string(),
@@ -10787,6 +10821,98 @@ export const TOOLS = [
     }, args),
   },
   {
+    name: 'create_funnel',
+    description: `${describe('create_funnel', 'Create a funnel, website, store, webinar or blog document on a location')}. `
+      + 'The CONTAINER that build_funnel_page and edit_funnel then write into. Preview by default; confirm:true '
+      + 'creates it and reads it back on a separate request (funnel/fetch; a blog also through the Blogs '
+      + 'screen\'s own list). Refuses a name already used by any document on the location. Each kind sends '
+      + 'exactly what GHL\'s own "New …" screen sends: funnel and website are created empty (no steps, no '
+      + 'domain); a store and a webinar are GHL\'s BLANK TEMPLATE installs — that is the UI\'s own blank path '
+      + '(store: 7 steps, cart/checkout/product pages, no products; webinar: registration, confirmation, '
+      + 'broadcast and expired pages, bound to the registration form you name, which must be one of this '
+      + 'location\'s forms); a blog gets a Blog Home and a Blog Post step. The blank store\'s Contact Us page '
+      + 'embeds a form from GHL\'s template account that does not exist here — rebind it. Other templates '
+      + 'are not offered: an install can bring side assets. The funnels list\'s "Build with AI" (the AI '
+      + 'builder; it creates a funnel on click) is left to the UI — this tool plus build_funnel_page is the '
+      + 'deterministic path. Next steps: edit_funnel settings (domain) → create-step → build_funnel_page.',
+    inputSchema: schema({
+      locationId: z.string(),
+      kind: z.enum(FUNNEL_KINDS),
+      name: z.string(),
+      description: z.string().optional(),
+      webinar: z.object({
+        timezone: z.string(), date: z.string(), startTime: z.string(), endTime: z.string(),
+        formId: z.string(), videoUrl: z.string().optional(),
+      }).optional(),
+      confirm: z.boolean().default(false),
+    }),
+    capabilities: [
+      { method: 'GET', path: '/funnels/funnel/list' },
+      { method: 'GET', path: '/funnels/funnel/fetch/{funnelId}' },
+      { method: 'GET', path: '/funnels/funnel/blog/list/' },
+      { method: 'GET', path: '/forms/{id}' },
+      { method: 'GET', path: '/locations/{locationId}' },
+      { method: 'POST', path: '/funnels/funnel/create' },
+      { method: 'POST', path: '/templates/template/load' },
+      { method: 'POST', path: '/blogs/site' },
+    ],
+    handler: async (args, deps) => {
+      let tracked = null;
+      return guard(async () => {
+        tracked = trackWrites(deps.makeGw({ loc: args.locationId, state: deps.state }));
+        const gw = tracked.gw;
+        const name = String(args.name ?? '').trim();
+        const all = await listAllDocuments(gw, args.locationId);
+        if (!all.rows) return fromHttp(all.res?.status, all.res?.json);
+        const clash = all.rows.filter((f) => String(f.name ?? '').trim().toLowerCase() === name.toLowerCase());
+        if (clash.length) {
+          return withFailureData(fail(CODES.VALIDATION_FAILED, `a document named ${JSON.stringify(clash[0].name)} already exists on this location`, 'Pick another name; nothing was sent.'),
+            { existing: clash.map((f) => ({ id: f._id ?? f.id, name: f.name, type: f.type })) });
+        }
+        let formName, companyId;
+        if (args.kind === 'webinar') {
+          if (args.webinar?.formId) {
+            const fr = await gw.call('GET', `/forms/${encodeURIComponent(args.webinar.formId)}`);
+            if (!fr.ok) return fail(CODES.VALIDATION_FAILED, `webinar.formId ${args.webinar.formId} does not read on this location (${fr.status})`, 'Name one of this location\'s forms (list_forms). Nothing was sent.');
+            formName = fr.json?.form?.name ?? fr.json?.name ?? '';
+          }
+          companyId = await resolveCompanyId(gw, args.locationId);
+        }
+        const plan = planCreateFunnel({ kind: args.kind, name, locationId: args.locationId, companyId, description: args.description, webinar: args.webinar, formName });
+        if (plan.refuse) return fail(CODES.VALIDATION_FAILED, plan.refuse, 'Nothing was sent.');
+        const preview = { kind: args.kind, request: { method: plan.method, path: plan.path, body: plan.body } };
+        if (args.confirm !== true) return withFailureData(fail(CODES.CONFIRM_REQUIRED, `create_funnel ${args.kind} preview is ready; no write was sent.`, 'Repeat with confirm:true to send exactly this request.'), { preview });
+
+        const w = await gw.call(plan.method, plan.path, plan.body);
+        if (!w.ok) return fromHttp(w.status, w.json);
+
+        // ── read back on SEPARATE requests ──
+        let id = createdId(args.kind, w.json);
+        let blogRow = null;
+        if (args.kind === 'blog') {
+          const got = await reread(async () => (await gw.call('GET', `/funnels/funnel/blog/list/?locationId=${encodeURIComponent(args.locationId)}&limit=15&skip=0&searchTerm=${encodeURIComponent(name)}`)).json?.data ?? [],
+            (rows) => rows.some((r) => r.name === name), deps.rereadOptions ?? {});
+          blogRow = got.value.find((r) => r.name === name) ?? null;
+          id ??= blogRow?._id ?? null;
+        }
+        const read = id ? await reread(async () => (await readFunnel(gw, args.locationId, id)).funnel, (f) => Boolean(f?.name), deps.rereadOptions ?? {}) : { value: null };
+        const f = read.value;
+        const out = {
+          kind: args.kind, funnelId: id, status: w.status,
+          readBack: f ? { name: f.name, type: f.type, ...(f.isStoreActive ? { store: true } : {}), url: f.url ?? null, domainId: f.domainId || null,
+            steps: (f.steps ?? []).map((s) => ({ id: s.id, name: s.name, type: s.type, url: s.url, pages: s.pages ?? [] })) } : null,
+          ...(args.kind === 'blog' ? { blogList: blogRow ? { id: blogRow._id, name: blogRow.name } : null } : {}),
+          ...(args.kind === 'store' ? { note: STORE_DANGLING_FORM_NOTE } : {}),
+        };
+        const typeOk = f && f.type === EXPECT_TYPE[args.kind] && (args.kind !== 'store' || f.isStoreActive === true);
+        if (!f || f.name !== name || !typeOk || (args.kind === 'blog' && !blogRow)) {
+          return withFailureData(fail(CODES.VERIFY_FAILED, `create answered ${w.status} but the ${args.kind} did not read back as created`, 'Do not create again: find_ghl_site list:true first.'), out);
+        }
+        return ok(out);
+      }, args, { sentWrite: () => tracked?.sent() ?? false });
+    },
+  },
+  {
     name: 'get_funnel',
     description: `${describe('get_funnel', 'Read one GHL funnel or website document through a single flat view')}. `
       + 'Views: summary (steps with their pages, split state and paths), lookups (every public path row '
@@ -10867,13 +10993,24 @@ export const TOOLS = [
       + 'current name), publish-page / unpublish-page (the builder\'s own route: PUT /funnels/lookup/multiple on '
       + 'the step+page rows; unpublish answers 404 or 301 to a URL; no version is created — to publish CONTENT '
       + 'use build_funnel_page publish:true), add-header (custom response header; applies to the EXACT-CASE '
-      + 'path only). Page SEO (title, description, keywords, author, social image), tracking code, custom CSS '
-      + 'and page background are PAGE writes, not funnel writes: use build_funnel_page edit mode (`seo`, op '
-      + '`page`). Siblings: get_funnel reads, build_funnel_page writes page content, audit_site audits.',
+      + 'path only), split-test (action add-variation {variationPath}: a draft copy of the control on its own '
+      + 'pre-checked path; start {controlTraffic}: changes live traffic; declare-winner {winnerPageId}: the '
+      + 'other page is archived and the split ends — EXACT-CASE path only), delete-funnel '
+      + '(target check: funnelId AND expectName; refused while any page still serves — unpublish '
+      + 'first; the edge can serve the deleted page ~70 s). update-step also renames the step\'s page '
+      + 'record, as the UI does. Page SEO, tracking code, custom CSS and background are PAGE writes: use '
+      + 'build_funnel_page edit mode (`seo`, op `page`). A bare extra page (create-page) is not offered: it makes an ORPHAN page on no step — create-step '
+      + 'makes a step with its page, split-test add-variation adds a second. Funnel FOLDERS (create, rename, move) '
+      + 'are organisational only and are left to the Sites screen. Siblings: create_funnel makes the document, '
+      + 'get_funnel reads, build_funnel_page writes page content, audit_site audits.',
     inputSchema: schema({
       locationId: z.string(),
       funnelId: z.string(),
-      op: z.enum(['settings', 'create-step', 'update-step', 'reorder-steps', 'clone-step', 'delete-step', 'publish-page', 'unpublish-page', 'add-header']),
+      op: z.enum(['settings', 'create-step', 'update-step', 'reorder-steps', 'clone-step', 'delete-step', 'publish-page', 'unpublish-page', 'add-header', 'split-test', 'delete-funnel']),
+      action: z.enum(['add-variation', 'start', 'declare-winner']).optional(),
+      controlTraffic: z.number().int().min(0).max(100).optional(),
+      winnerPageId: z.string().optional(),
+      variationPath: z.string().optional(),
       settings: z.record(z.any()).optional(),
       step: z.object({ id: z.string().optional(), name: z.string(), url: z.string(), type: z.string().optional() }).optional(),
       stepId: z.string().optional(),
@@ -10899,6 +11036,12 @@ export const TOOLS = [
       { method: 'POST', path: '/funnels/funnel/delete-step' },
       { method: 'PUT', path: '/funnels/lookup/multiple' },
       { method: 'POST', path: '/funnels/funnel/headers' },
+      { method: 'POST', path: '/funnels/funnel/funnel-page/{pageId}' },
+      { method: 'POST', path: '/funnels/funnel/delete' },
+      { method: 'POST', path: '/funnels/funnel/clone-control-page/' },
+      { method: 'POST', path: '/funnels/lookup/create' },
+      { method: 'POST', path: '/funnels/lookup/exists' },
+      { method: 'POST', path: '/funnels/funnel/update-funnel-and-page' },
     ],
     handler: async (args, deps) => {
       let tracked = null;
@@ -10951,18 +11094,67 @@ export const TOOLS = [
             break;
           }
           case 'add-header': plan = need('header') ? { refuse: need('header') } : planAddHeader({ funnel, locationId: args.locationId, key: args.header.key, value: args.header.value }); break;
+          case 'delete-funnel': {
+            const { res: lr, rows } = await readLookups(gw, args.locationId, args.funnelId);
+            if (!lr.ok) return fromHttp(lr.status, lr.json);
+            plan = planDeleteFunnel({ funnel, lookups: rows, expectName: args.expectName, locationId: args.locationId, userId: gw.uid });
+            break;
+          }
+          case 'split-test': {
+            if (need('stepId') || need('action')) { plan = { refuse: need('stepId') ?? need('action') }; break; }
+            let domainName;
+            if (args.action === 'add-variation' && funnel.domainId) {
+              const d = await gw.call('GET', `/funnels/domain/?locationId=${encodeURIComponent(args.locationId)}`);
+              const list = d.json?.domains ?? d.json?.data ?? [];
+              domainName = (Array.isArray(list) ? list : []).find((x) => (x.id ?? x._id) === funnel.domainId)?.url;
+            }
+            plan = planSplit({ funnel, stepId: args.stepId, action: args.action, controlTraffic: args.controlTraffic, winnerPageId: args.winnerPageId, variationPath: args.variationPath, domainName, locationId: args.locationId });
+            if (!plan.refuse && plan.exists) {
+              const ex = await gw.call('POST', '/funnels/lookup/exists', plan.exists);
+              if (!ex.ok) return fromHttp(ex.status, ex.json);
+              if (ex.json?.exists !== false) plan = { refuse: `${plan.exists.path} is already taken on ${plan.exists.domain} (a step, page or redirect holds it). Pick another variationPath.` };
+            }
+            break;
+          }
           default: plan = { refuse: `unknown op ${args.op}` };
         }
         if (plan.refuse) return fail(CODES.VALIDATION_FAILED, plan.refuse, 'Nothing was sent. Read the funnel with get_funnel and adjust the arguments.');
 
-        const preview = { op: args.op, request: { method: plan.method, path: plan.path, body: plan.body },
+        const preview = { op: args.op, ...(plan.steps ? { requests: plan.steps } : { request: { method: plan.method, path: plan.path, body: plan.body } }),
           ...(plan.target ? { target: plan.target } : {}), ...(plan.rows ? { lookupRows: plan.rows } : {}) };
         if (args.confirm !== true) {
           return withFailureData(fail(CODES.CONFIRM_REQUIRED, `edit_funnel ${args.op} preview is ready; no write was sent.`, args.op === 'create-step' && !args.step?.id ? 'Repeat with confirm:true (pass step.id from this preview to send the identical id).' : 'Repeat with confirm:true to send exactly this request.'), { preview });
         }
 
-        const w = await gw.call(plan.method, plan.path, plan.body);
-        if (!w.ok) return fromHttp(w.status, w.json);
+        // update-step renames the step's PAGE record too, as the UI does (POST funnel-page/{pageId} {name}),
+        // so the builder title and page list never drift from the step. Only for a single-page step: which
+        // page the UI renames on a split step is unmeasured.
+        let pageRename = null;
+        if (args.op === 'split-test' && args.action === 'add-variation') {
+          const [clone, putPages, mkLookup] = plan.steps;
+          const c = await gw.call(clone.method, clone.path, clone.body);
+          if (!c.ok) return fromHttp(c.status, c.json);
+          const vid = c.json?.pageId;
+          if (!vid) return fail(CODES.VERIFY_FAILED, 'clone-control-page answered 2xx without a pageId', 'Nothing else was sent. Read the step with get_funnel: an unattached clone may exist.');
+          const p2 = await gw.call(putPages.method, putPages.path, { ...putPages.body, pages: [putPages.body.pages[0], vid] });
+          if (!p2.ok) return withFailureData(fromHttp(p2.status, p2.json), { variationPageId: vid, note: 'the clone exists but is NOT on the step' });
+          const l3 = await gw.call(mkLookup.method, mkLookup.path, { ...mkLookup.body, typeId: vid });
+          if (!l3.ok) return withFailureData(fromHttp(l3.status, l3.json), { variationPageId: vid, note: 'the variation is on the step but has no public path' });
+          plan.variationPageId = vid;
+        } else {
+          const w = await gw.call(plan.method, plan.path, plan.body);
+          if (!w.ok) return fromHttp(w.status, w.json);
+          plan.status = w.status;
+          plan.response = w.json;
+          if (args.op === 'update-step' && args.name !== undefined) {
+            const s0 = (funnel.steps ?? []).find((x) => x.id === args.stepId);
+            if ((s0?.pages ?? []).length === 1) {
+              const r = await gw.call('POST', `/funnels/funnel/funnel-page/${encodeURIComponent(s0.pages[0])}`, { name: args.name });
+              pageRename = { pageId: s0.pages[0], status: r.status, ok: r.ok };
+            } else pageRename = { skipped: `the step has ${(s0?.pages ?? []).length} pages; the page record name was left as is` };
+          }
+        }
+        const w = { status: plan.status };
 
         // ── read back on SEPARATE requests, per op ──
         const fresh = async () => (await readFunnel(gw, args.locationId, args.funnelId)).funnel;
@@ -10995,7 +11187,13 @@ export const TOOLS = [
             const rows = (await readLookups(gw, args.locationId, fid)).rows.filter((r) => r.typeId === args.stepId).map(lookupView);
             const nameOk = args.name === undefined || s?.name === args.name;
             const urlOk = args.url === undefined || (normPath(s?.url) === normPath(args.url) && rows.some((r) => r.path === normPath(args.url)));
-            const out = { op: 'update-step', step: s ? stepView(s, 0) : null, lookups: rows, ...(args.url !== undefined ? { note: CACHE_NOTE } : {}) };
+            let pageRecord = null;
+            if (pageRename?.pageId) {
+              const pr = await gw.call('GET', `/funnels/page/${encodeURIComponent(pageRename.pageId)}?locationId=${encodeURIComponent(args.locationId)}`);
+              pageRecord = { pageId: pageRename.pageId, name: pr.json?.name ?? null, matches: pr.json?.name === args.name };
+            }
+            const out = { op: 'update-step', step: s ? stepView(s, 0) : null, lookups: rows, ...(pageRename ? { pageRecord: pageRecord ?? pageRename } : {}), ...(args.url !== undefined ? { note: CACHE_NOTE } : {}) };
+            if (pageRecord && !pageRecord.matches) return withFailureData(fail(CODES.VERIFY_FAILED, 'the step was renamed but its page record did not read back with the new name', 'Compare data.pageRecord; the builder title will show the old name.'), out);
             if (!nameOk || !urlOk) return withFailureData(fail(CODES.VERIFY_FAILED, 'the step did not read back as requested', 'Compare data.step / data.lookups. Do not retry blindly: the path move may be cached, not failed.'), out);
             return ok(out);
           }
@@ -11037,6 +11235,44 @@ export const TOOLS = [
             const headers = r.json?.securityHeaders ?? [];
             const out = { op: 'add-header', headers, note: `${EXACT_CASE_NOTE} The builder does not invalidate the cache on this save; the header can take minutes to appear on the exact path.` };
             if (!headers.some((h) => h.key === args.header.key && h.value === args.header.value)) return withFailureData(fail(CODES.VERIFY_FAILED, 'the header did not read back', 'Re-read with get_funnel view security.'), out);
+            return ok(out);
+          }
+          case 'delete-funnel': {
+            const f = await gw.call('GET', `/funnels/funnel/fetch/${encodeURIComponent(fid)}?locationId=${encodeURIComponent(args.locationId)}`);
+            const gone = !f.ok && /does not exist or is deleted/i.test(String(f.json?.message ?? ''));
+            const out = { op: 'delete-funnel', deleted: plan.target, freed: { domains: plan.response?.domains ?? [], paths: plan.response?.paths ?? [] }, readBack: { fetchStatus: f.status, message: f.json?.message ?? null },
+              note: 'The edge can serve a deleted page for about a minute after this (measured ~70 s).' };
+            if (!gone) return withFailureData(fail(CODES.VERIFY_FAILED, 'delete answered 2xx but the funnel still reads back', 'Re-read with get_funnel.'), out);
+            return ok(out);
+          }
+          case 'split-test': {
+            // The lookup rows lag the step write by a moment (measured: the archived page's row was still
+            // listed on the first read after declare-winner, gone on the next), so re-read, bounded.
+            const settled = (x) => {
+              const st = (x.f?.steps ?? []).find((y) => y.id === args.stepId);
+              if (args.action === 'add-variation') return (st?.pages ?? []).includes(plan.variationPageId) && x.l.some((r) => r.typeId === plan.variationPageId);
+              if (args.action === 'start') return st?.split === true;
+              return st?.split === false && !x.l.some((r) => r.typeId === plan.target.archived);
+            };
+            const got = await reread(async () => ({ f: await fresh(), l: (await readLookups(gw, args.locationId, fid)).rows }), settled, deps.rereadOptions ?? {});
+            const s = (got.value.f?.steps ?? []).find((x) => x.id === args.stepId);
+            const rows = got.value.l;
+            if (args.action === 'add-variation') {
+              const row = rows.find((r) => r.typeId === plan.variationPageId);
+              const out = { op: 'split-test', action: 'add-variation', variationPageId: plan.variationPageId, step: s ? stepView(s, 0) : null, variationLookup: row ? lookupView(row) : null,
+                note: 'The variation is a DRAFT copy of the control. Edit it with build_funnel_page and publish it, then start the split.' };
+              if (!(s?.pages ?? []).includes(plan.variationPageId) || !row) return withFailureData(fail(CODES.VERIFY_FAILED, 'the variation did not read back on the step with its path', 'Compare data.step / data.variationLookup.'), out);
+              return ok(out);
+            }
+            if (args.action === 'start') {
+              const out = { op: 'split-test', action: 'start', step: s ? stepView(s, 0) : null, note: `${EXACT_CASE_NOTE} ${CACHE_NOTE}` };
+              if (s?.split !== true || (s.controlTraffic ?? s.control_traffic) !== (args.controlTraffic ?? 50)) return withFailureData(fail(CODES.VERIFY_FAILED, 'the split did not read back as started with the requested traffic', 'Compare data.step.'), out);
+              return ok(out);
+            }
+            const loserRow = rows.find((r) => r.typeId === plan.target.archived);
+            const out = { op: 'split-test', action: 'declare-winner', ...plan.target, step: s ? stepView(s, 0) : null, archivedPageLookupLeft: Boolean(loserRow),
+              note: 'The losing page is archived (the step overview lists it under "Archived pages").' };
+            if (s?.split !== false || JSON.stringify(s?.pages) !== JSON.stringify([plan.target.winner]) || loserRow) return withFailureData(fail(CODES.VERIFY_FAILED, 'the step did not read back with the winner as its only page', 'Compare data.step.'), out);
             return ok(out);
           }
           default: return ok({ op: args.op, status: w.status });
