@@ -2246,5 +2246,35 @@
       "template-library-service--load-workflow-via-template-id",
       "funnels--blog-list"
     ]
+  },
+  "set_agent_deployment": {
+    "description": "Put one agent on one channel in the Agent Deployment routing table (only its row; whole table proven unchanged otherwise) — proof: live-runtime (2026-09-28); risk: write",
+    "risk": "write",
+    "proof": "live-runtime (2026-09-28)",
+    "proofFloor": "external-receipt-required",
+    "proofRows": [
+      "ai-agents--routing-config-configs",
+      "ai-agents--routing-config-configs-post",
+      "ai-agents--routing-config-configs-patch",
+      "ai-agents--routing-config-configs-get"
+    ],
+    "proofFloorRows": [
+      "ai-agents--routing-config-configs",
+      "ai-agents--routing-config-configs-post",
+      "ai-agents--routing-config-configs-patch",
+      "ai-agents--routing-config-configs-get"
+    ],
+    "riskRows": [
+      "ai-agents--routing-config-configs",
+      "ai-agents--routing-config-configs-post",
+      "ai-agents--routing-config-configs-patch",
+      "ai-agents--routing-config-configs-get"
+    ],
+    "rows": [
+      "ai-agents--routing-config-configs",
+      "ai-agents--routing-config-configs-post",
+      "ai-agents--routing-config-configs-patch",
+      "ai-agents--routing-config-configs-get"
+    ]
   }
 }
