@@ -29,6 +29,8 @@ export const STEP_OUTPUTS = Object.freeze({
   text_formatter:     { ns: 'text_formatter',     fields: ['result'], kind: 'fixed' },
   math_operation:     { ns: 'math_operation',     fields: ['result'], kind: 'fixed' },
   array_functions:    { ns: 'array_functions',    fields: ['result'], kind: 'per-instance', from: 'per action; object paths come from the snapshotted referenceObject; primitives → [N]' },
+  // live 2026-09-28: all three rendered in a later field write (knowledge live-3Q-generate-image.json)
+  workflow_ai_generate_image: { ns: 'workflow_ai_generate_image', fields: ['image_url', 'image_file.path', 'image_file.name'], kind: 'fixed' },
   'task-notification':{ ns: '[task-notification]',fields: ['id', 'title', 'body', 'bodyRawText', 'dueDate', 'assignedTo'], kind: 'fixed', note: 'bracketed namespace' },
 });
 

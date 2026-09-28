@@ -34,7 +34,11 @@ export const STEP_TOP_LEVEL_KEYS = new Set(OBSERVED_TOP_LEVEL_KEYS);
 // Keys a type carries only in one state, so a census can miss them. Each is grounded in the file
 // that already handles it: conversationai_objective gains closingMessage (required) and tags the
 // moment proceedIfNotMet is true (required-fields.mjs, the asset's conditional fields).
-const CONDITIONAL_ATTR_KEYS = { conversationai_objective: ['closingMessage', 'tags'] };
+// workflow_ai_generate_image: the drawer's run-time reference images live in `__dynamicAttachments__`
+// ({referenceImages:[{content, filename, attachmentMode:'url'}]}), outside the IGenerateImageAI model. Live
+// 2026-09-28 a step whose only reference was `{{workflow_ai_generate_image.1.image_url}}` redrew that image
+// (knowledge sniffs/workflows-wave1-2026-09-25/live-3Q-generate-image.json), so the key moves the output.
+const CONDITIONAL_ATTR_KEYS = { conversationai_objective: ['closingMessage', 'tags'], workflow_ai_generate_image: ['__dynamicAttachments__'] };
 
 // Keys GHL's SERVER writes onto a step when the document is saved. The author never sends them and
 // the builder's front-end source does not contain them, so no model, card or asset lists them — and
