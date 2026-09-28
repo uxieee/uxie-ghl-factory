@@ -66333,9 +66333,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       create_form: {
-        description: "Create a form and save its document \u2014 proof: live-runtime (2026-09-25); risk: write",
+        description: "Create a form and save its document \u2014 proof: live-runtime (2026-09-28); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-25)",
+        proof: "live-runtime (2026-09-28)",
         proofFloor: "live-runtime (2026-09-06)",
         proofRows: [
           "forms-create",
@@ -67904,9 +67904,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       update_form_data: {
-        description: "Edit a form's stored document safely \u2014 proof: live-runtime (2026-09-25); risk: write",
+        description: "Edit a form's stored document safely \u2014 proof: live-runtime (2026-09-28); risk: write",
         risk: "write",
-        proof: "live-runtime (2026-09-25)",
+        proof: "live-runtime (2026-09-28)",
         proofFloor: "live-runtime (2026-09-06)",
         proofRows: [
           "forms-detail",
