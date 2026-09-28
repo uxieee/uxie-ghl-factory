@@ -49,7 +49,7 @@ test('only the spec keys are sent; nested objects are merged over the stored one
 });
 
 test('action arrays, numbers, session variables and unknown keys are refused before anything is sent', () => {
-  for (const spec of [{ smsActions: [] }, { inboundNumber: 'NUMBER-PLACEHOLDER' }, { sessionVariables: [] }, { agentSettings: {} }, { zzz: 1 }]) {
+  for (const spec of [{ smsActions: [] }, { inboundNumber: 'NUMBER-PLACEHOLDER' }, { agentSettings: {} }, { zzz: 1 }]) {
     assert.throws(() => compileVoiceAiPartialUpdate(RECORD(), spec, { agentId: 'A', locationId: 'L' }), (e) => e.code === 'SPEC_KEY_UNAPPLIED');
   }
 });
@@ -206,4 +206,35 @@ test('aiDisclaimerConfiguration: the read-only isGreetingMessageDynamic the read
 test('aiDisclaimerConfiguration: a spec that sends isGreetingMessageDynamic is refused before sending', () => {
   assert.throws(() => compileVoiceAiPartialUpdate(RECORD(), { aiDisclaimerConfiguration: { isGreetingMessageDynamic: true } }, { agentId: 'A', locationId: 'L' }),
     (e) => e.code === 'SPEC_KEY_UNAPPLIED' && /read-only/.test(e.message));
+});
+
+test('sessionVariables: merged into the stored list by name — nothing stored is dropped unless removed by name', () => {
+  const rec = RECORD();
+  rec.sessionVariables = [{ name: 'session.a', label: 'A', dataType: 'string', defaultValue: '' }, { name: 'session.b', label: 'B', dataType: 'number', defaultValue: '0' }];
+  const add = compileVoiceAiPartialUpdate(rec, { sessionVariables: [{ name: 'session.c', label: 'C' }] }, { agentId: 'A', locationId: 'L' });
+  assert.deepEqual(add.body.sessionVariables.map((v) => v.name), ['session.a', 'session.b', 'session.c']);
+  assert.deepEqual(add.body.sessionVariables[2], { name: 'session.c', label: 'C', dataType: 'string', defaultValue: '' });
+  const upd = compileVoiceAiPartialUpdate(rec, { sessionVariables: [{ name: 'session.b', defaultValue: '5' }] }, { agentId: 'A', locationId: 'L' });
+  assert.deepEqual(upd.body.sessionVariables[1], { name: 'session.b', label: 'B', dataType: 'number', defaultValue: '5' });
+  assert.equal(upd.body.sessionVariables.length, 2);
+  const rm = compileVoiceAiPartialUpdate(rec, { sessionVariables: [{ name: 'session.a', remove: true }] }, { agentId: 'A', locationId: 'L' });
+  assert.deepEqual(rm.body.sessionVariables.map((v) => v.name), ['session.b']);
+});
+
+test('sessionVariables: the server rules are refused before sending', () => {
+  const rec = RECORD(); rec.sessionVariables = [{ name: 'session.a', label: 'A', dataType: 'string', defaultValue: '' }];
+  const bad = [[{ name: 'ticket_id' }], [{ name: 'session.' + 'x'.repeat(60) }], [{ name: 'session.c', dataType: 'date' }],
+    [{ name: 'session.c' }, { name: 'session.c' }], [{ name: 'session.zz', remove: true }], []];
+  for (const sessionVariables of bad) {
+    assert.throws(() => compileVoiceAiPartialUpdate(rec, { sessionVariables }, { agentId: 'A', locationId: 'L' }), (e) => e.code === 'SCHEMA', JSON.stringify(sessionVariables));
+  }
+});
+
+test('sessionVariables: a merged write verifies by value', async () => {
+  const before = RECORD(); before.sessionVariables = [{ name: 'session.a', label: 'A', dataType: 'string', defaultValue: '' }];
+  const gw = fakeGw({ record: before });
+  const plan = compileVoiceAiPartialUpdate(before, { sessionVariables: [{ name: 'session.b', label: 'B' }] }, { agentId: 'A', locationId: 'L' });
+  const r = await executeVoiceAiUpdate({ plan, before, gw, serverMessage });
+  assert.equal(r.ok, true, JSON.stringify(r));
+  assert.deepEqual(r.verification.confirmed, ['sessionVariables']);
 });

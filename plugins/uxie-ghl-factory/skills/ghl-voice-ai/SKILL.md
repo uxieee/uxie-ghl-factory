@@ -87,6 +87,17 @@ fill them.
 `ringDurationMs` and `inboundPhoneNumber` → `inboundNumber`. The driver normalises this — do
 not "fix" a reported mismatch by flattening the read.
 
+**7. 🔴 A Test Audio call writes to the SIGNED-IN USER's own contact.** The builder's web call
+(`POST /voice-ai/call/create-trial-web-call/{agentId}`) mints no contact: it binds the call to the operator's existing
+contact (measured 2026-09-28). On an agent that updates contact fields, saves summary notes or runs post-call
+workflows, a test call writes to that real person's record and fires whatever catches it. Before a test call, switch
+those off or make them unreachable, and read the operator's contact afterwards. Opening a call's details also tries
+`POST /performance-ai/ai-supervisor/agents` (registers the agent with the AI supervisor), which is a write on view.
+
+**8. Duplicate is lossy.** `POST /voice-ai/agents/{id}/duplicate` names the copy `"<name> - Copy"` and copies the actions,
+but it **drops** the hangup prompt (`endCallConfig.instruction`), resets hold phrases (`noResponseConfig`) to off, loses
+`voiceModel`, and switches `voice.provider` to `ELEVEN_LABS`. Re-apply those with `update_voiceai_agent`.
+
 ## Deployment is a phone number, not a publish
 
 An agent goes live by being attached to a number:
@@ -97,7 +108,8 @@ configured at all.
 ## Limits worth knowing before you author
 
 Agent name ≤40 chars · greeting ≤190 · execution message ≤500 · folder name ≤100 ·
-custom API actions need `apiUrl` and, when auth is on, an API key.
+custom API actions need `apiUrl` and, when auth is on, an API key · hold phrases ≤20 · session variable names
+`session.[A-Za-z0-9_-]+`, ≤64, unique.
 Full set: `ai-agents/40-rules/constraints.md`.
 
 ## Proven status (state this honestly to the user)
@@ -106,7 +118,9 @@ Full set: `ai-agents/40-rules/constraints.md`.
 |---|---|
 | create → full-replace update → verify | **live-proven end-to-end.** `POST /voice-ai/agents` takes only `{locationId}` and returns an id; the follow-up `PUT …?publishAgent=true&mode=update` applies the config and the re-read confirms it |
 | `CALL_TRANSFER`, `DATA_EXTRACTION` | **live-fired** |
-| the other 5 action types | **capture-verified, not live-fired** — validated against `voiceai-actions-all.json`, never individually round-tripped |
+| `WORKFLOW_TRIGGER` | **ran on a live call** (2026-09-28 web call: the tool fired mid-call and spoke its static `triggerMessage`) |
+| `SMS` | **created live** with the builder's body `{triggerPrompt, triggerMessage, triggerMessageType, messageBody}`; the two-key body 422s. Not run on a call |
+| the other 3 action types | **capture-verified, not live-fired** — validated against `voiceai-actions-all.json`, never individually round-tripped |
 | `IN_CALL_DATA_EXTRACTION`, `MCP` | **untested.** Do not assume `IN_CALL_DATA_EXTRACTION` mirrors `DATA_EXTRACTION` |
 
 The seven types verified live are `CALL_TRANSFER`, `WORKFLOW_TRIGGER`, `SMS`, `DATA_EXTRACTION`,
@@ -130,7 +144,7 @@ If the user wants one of these, **GHL can do it** — say so and point to the UI
 | Capability | Where in GHL | Why not here |
 |---|---|---|
 | Flow-builder voice agents (node graph, `CUSTOM_LLM` over agent-execution) | Voice AI → Create Agent → Flow Builder | legacy flow-builder generation, not engine-authored |
-| Custom Action 2.0 variants beyond the verified CAP (Send Email / SMS / WhatsApp), MCP servers, session variables | Voice agent → Actions → New Action | source-derived only so far |
+| Custom Action 2.0 variants beyond the verified CAP (Send Email / SMS / WhatsApp), MCP servers | Voice agent → Actions → New Action | source-derived only so far |
 | Prompt Optimizer / Prompt Evaluator | Voice agent → Prompt Optimizer (Labs) | billed, Labs-gated |
 | Voice cloning / importing a community voice | Voice picker → My voices | not engine-authored |
 | Buying numbers, number pools, KYC | Voice agent → Deploy → Buy new number | purchases and compliance |
