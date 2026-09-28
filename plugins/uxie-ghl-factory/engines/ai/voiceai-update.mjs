@@ -224,6 +224,12 @@ function fields(record) {
   const out = {};
   for (const [k, v] of Object.entries(record ?? {})) if (!IGNORE.has(k) && k !== 'agentSettings') out[k] = v;
   for (const [k, v] of Object.entries(record?.agentSettings ?? {})) out[`agentSettings.${k}`] = v;
+  // s2sBehaviour.totalTokens is DERIVED: GHL recounts the prompt's tokens on every write (measured 2026-09-28: an
+  // agentPrompt / welcomeMessage change moved it 1187 → 1180 and nothing else). It is not collateral.
+  if (isObj(out['agentSettings.s2sBehaviour'])) {
+    const { totalTokens, ...rest } = out['agentSettings.s2sBehaviour'];
+    out['agentSettings.s2sBehaviour'] = rest;
+  }
   return out;
 }
 
