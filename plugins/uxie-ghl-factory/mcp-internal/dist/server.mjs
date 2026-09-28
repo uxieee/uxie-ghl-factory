@@ -66105,7 +66105,7 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       describe_step_type: {
-        description: "Describe one workflow step or trigger type \u2014 proof: source-derived (524 corpus cards); risk: read",
+        description: "Describe one workflow step or trigger type \u2014 proof: source-derived (284 corpus cards); risk: read",
         risk: "read",
         proof: "source-derived (corpus 30-types, 2026-08-25)",
         proofFloor: "documented",
@@ -67349,7 +67349,7 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       search_step_types: {
-        description: "Search workflow step and trigger types \u2014 proof: source-derived (524 corpus cards); risk: read",
+        description: "Search workflow step and trigger types \u2014 proof: source-derived (284 corpus cards); risk: read",
         risk: "read",
         proof: "source-derived (corpus 30-types, 2026-08-25)",
         proofFloor: "documented",
