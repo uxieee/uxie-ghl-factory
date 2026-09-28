@@ -177962,6 +177962,10 @@ function fields(record2) {
   const out = {};
   for (const [k, v] of Object.entries(record2 ?? {})) if (!IGNORE.has(k) && k !== "agentSettings") out[k] = v;
   for (const [k, v] of Object.entries(record2?.agentSettings ?? {})) out[`agentSettings.${k}`] = v;
+  if (isObj(out["agentSettings.s2sBehaviour"])) {
+    const { totalTokens, ...rest } = out["agentSettings.s2sBehaviour"];
+    out["agentSettings.s2sBehaviour"] = rest;
+  }
   return out;
 }
 function readNames(key) {
