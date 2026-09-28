@@ -238,3 +238,51 @@ test('sessionVariables: a merged write verifies by value', async () => {
   assert.equal(r.ok, true, JSON.stringify(r));
   assert.deepEqual(r.verification.confirmed, ['sessionVariables']);
 });
+
+const S2S = () => { const r = RECORD(); r.provider = 'lc'; r.agentSettings.s2sBehaviour = { totalTokens: 1187, voiceId: 'marin', llmModel: 'gpt-realtime-2.1', responseDepth: 'high', vadEagerness: 'low', languages: ['es'] }; return r; };
+// the measured server: s2sBehaviour merges into agentSettings.s2sBehaviour, languages replace + normalise, totalTokens recomputed
+function s2sGw(record) {
+  const gw = fakeGw({ record });
+  const inner = gw.call;
+  gw.call = async (m, p, b) => {
+    if (m === 'PUT' && b?.s2sBehaviour) {
+      const { s2sBehaviour, ...rest } = b;
+      const r = await inner(m, p, rest);
+      const cur = r.json.agentSettings.s2sBehaviour;
+      const inc = { ...s2sBehaviour, ...(s2sBehaviour.languages ? { languages: s2sBehaviour.languages.map((x) => x.split('-')[0]) } : {}) };
+      r.json.agentSettings.s2sBehaviour = { ...cur, ...inc, totalTokens: cur.totalTokens + 1 };
+      await inner('PUT', p, { agentSettings: r.json.agentSettings });
+      return r;
+    }
+    return inner(m, p, b);
+  };
+  return gw;
+}
+
+test('s2sBehaviour: a non-s2s agent is refused before anything is sent (the stored provider decides)', () => {
+  assert.throws(() => compileVoiceAiPartialUpdate(RECORD(), { s2sBehaviour: { vadEagerness: 'high' } }, { agentId: 'A', locationId: 'L' }),
+    (e) => e.code === 'SPEC_KEY_UNAPPLIED' && /llmModel/.test(e.message));
+  // a spec that also switches the model is still judged by the STORED provider
+  assert.throws(() => compileVoiceAiPartialUpdate(RECORD(), { llmModel: 'gpt-realtime-2.1', s2sBehaviour: { vadEagerness: 'high' } }, { agentId: 'A', locationId: 'L' }),
+    (e) => e.code === 'SPEC_KEY_UNAPPLIED');
+});
+
+test('s2sBehaviour: enums are this tool\'s rule and the error lists the allowed values; unknown inner keys refused', () => {
+  assert.throws(() => compileVoiceAiPartialUpdate(S2S(), { s2sBehaviour: { responseDepth: 'extreme' } }, { agentId: 'A', locationId: 'L' }),
+    (e) => /minimal, low, medium, high, xhigh/.test(e.message) && /GHL stores any string/.test(e.message));
+  assert.throws(() => compileVoiceAiPartialUpdate(S2S(), { s2sBehaviour: { vadEagerness: 'sometimes' } }, { agentId: 'A', locationId: 'L' }), /auto, low, medium, high/);
+  assert.throws(() => compileVoiceAiPartialUpdate(S2S(), { s2sBehaviour: { voiceId: 'cedar' } }, { agentId: 'A', locationId: 'L' }), (e) => e.code === 'SPEC_KEY_UNAPPLIED');
+});
+
+test('s2sBehaviour: only the sent keys go out; languages are sent as base codes (what the server stores)', () => {
+  const plan = compileVoiceAiPartialUpdate(S2S(), { s2sBehaviour: { vadEagerness: 'medium', languages: ['en-US', 'fr', 'en-GB'] } }, { agentId: 'A', locationId: 'L' });
+  assert.deepEqual(plan.body.s2sBehaviour, { vadEagerness: 'medium', languages: ['en', 'fr'] });
+});
+
+test('s2sBehaviour: a merged write verifies the sent keys and the others are untouched (totalTokens ignored)', async () => {
+  const before = S2S(); const gw = s2sGw(before);
+  const plan = compileVoiceAiPartialUpdate(before, { s2sBehaviour: { vadEagerness: 'medium' } }, { agentId: 'A', locationId: 'L' });
+  const r = await executeVoiceAiUpdate({ plan, before, gw, serverMessage });
+  assert.equal(r.ok, true, JSON.stringify(r));
+  assert.deepEqual(r.verification.confirmed, ['s2sBehaviour']);
+});

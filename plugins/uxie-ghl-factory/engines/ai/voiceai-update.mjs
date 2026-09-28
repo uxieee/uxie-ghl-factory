@@ -27,8 +27,47 @@ export const NESTED_WHOLE = ['aiDisclaimerConfiguration', 'sendPostCallNotificat
 // `isGreetingMessageDynamic: null`, and echoing it answers 422 "property isGreetingMessageDynamic should not exist"
 // (nothing written). The other five nested objects round-trip whole.
 const READ_ONLY_INNER = { aiDisclaimerConfiguration: ['isGreetingMessageDynamic'] };
-const writable = (key, v) => (isObj(v) && READ_ONLY_INNER[key]
-  ? Object.fromEntries(Object.entries(v).filter(([k]) => !READ_ONLY_INNER[key].includes(k))) : v);
+const writable = (key, v) => {
+  if (key === 's2sBehaviour' && isObj(v)) return Object.fromEntries(Object.entries(v).filter(([k]) => S2S_KEYS.includes(k)));
+  return isObj(v) && READ_ONLY_INNER[key]
+    ? Object.fromEntries(Object.entries(v).filter(([k]) => !READ_ONLY_INNER[key].includes(k))) : v;
+};
+
+// s2sBehaviour (speech-to-speech agents only). Measured 2026-09-28: `PUT {s2sBehaviour:{…}}` MERGES into
+// agentSettings.s2sBehaviour (keys not sent survive, voiceId/llmModel kept, totalTokens recomputed); `languages`
+// REPLACES the stored list, and the server normalises each code to its base language (en-US → en, es-ES → es).
+// GHL stores ANY string for responseDepth / vadEagerness ("extreme" was accepted); the enums below are the builder's,
+// and refusing other values is this tool's rule so the builder can render what is written.
+const S2S_KEYS = ['responseDepth', 'vadEagerness', 'languages'];
+const S2S_ENUMS = { responseDepth: ['minimal', 'low', 'medium', 'high', 'xhigh'], vadEagerness: ['auto', 'low', 'medium', 'high'] };
+export function compileS2sBehaviour(current, v) {
+  const provider = current?.provider;
+  if (provider !== 'lc') {
+    throw new IRError('SPEC_KEY_UNAPPLIED', `s2sBehaviour applies only to a speech-to-speech agent; the stored agent's provider is `
+      + `${JSON.stringify(provider)}. Switch it with llmModel (an s2s model such as gpt-realtime-2.1) in its own call first, `
+      + 'or tune a text agent with responsiveness / interruptionSensitivity / modelTemperature and voiceModel. Nothing was sent.');
+  }
+  if (!isObj(v) || !Object.keys(v).length) throw new IRError('SCHEMA', `s2sBehaviour must be an object with any of ${S2S_KEYS.join(', ')}`);
+  const other = Object.keys(v).filter((k) => !S2S_KEYS.includes(k));
+  if (other.length) throw new IRError('SPEC_KEY_UNAPPLIED', `s2sBehaviour.${other.join(', ')} is not written by this tool (writable: ${S2S_KEYS.join(', ')}; the s2s voice and model follow llmModel). Nothing was sent.`);
+  const out = {};
+  for (const [k, allowed] of Object.entries(S2S_ENUMS)) {
+    if (!(k in v)) continue;
+    if (!allowed.includes(v[k])) {
+      throw new IRError('SCHEMA', `s2sBehaviour.${k} must be one of ${allowed.join(', ')} — this tool's rule (GHL stores any string, `
+        + 'but the builder cannot render one outside this list). Nothing was sent.');
+    }
+    out[k] = v[k];
+  }
+  if ('languages' in v) {
+    if (!Array.isArray(v.languages) || !v.languages.length || v.languages.some((x) => typeof x !== 'string' || !x.trim())) {
+      throw new IRError('SCHEMA', 's2sBehaviour.languages must be a non-empty array of language codes; it REPLACES the stored list');
+    }
+    // the server keeps only the base language: send what it will store, so the read-back verifies exactly
+    out.languages = [...new Set(v.languages.map((x) => x.trim().split(/[-_]/)[0].toLowerCase()))];
+  }
+  return out;
+}
 
 // Top-level keys the update may send, beyond the nested ones: the flat builder-save field list (the create tool's
 // follow-up PUT) plus the partial-save keys. Everything else is refused rather than silently sent.
@@ -41,7 +80,7 @@ export const WRITABLE = new Set([
   'pronunciationDictionary', 'reminderAfterIdleTimeSeconds', 'reminderFrequency', 'responsiveness', 'ringDurationSeconds',
   'saveCallSummaryAsNote', 'sendUserIdleReminders', 'sttMode', 'timezone', 'vocabSpecialization', 'voiceId', 'voiceModel',
   'voiceSpeed', 'voiceTemperature', 'voiceVolume', 'voicemailOption', 'welcomeMessage', 'welcomeMessageMode',
-  ...NESTED_WHOLE, 'sessionVariables',
+  ...NESTED_WHOLE, 'sessionVariables', 's2sBehaviour',
 ]);
 
 // Separate resources, or keys whose write lives elsewhere.
@@ -153,6 +192,8 @@ export function compileVoiceAiPartialUpdate(current, spec, { agentId, locationId
       }
       const stored = readFlat(current, k);
       body[k] = writable(k, { ...(isObj(stored) ? stored : {}), ...v });
+    } else if (k === 's2sBehaviour') {
+      body[k] = compileS2sBehaviour(current, v);
     } else if (k === 'sessionVariables') {
       body[k] = mergeSessionVariables(current.sessionVariables, v);
     } else {
@@ -236,7 +277,10 @@ export async function executeVoiceAiUpdate({ plan, before, gw, serverMessage }) 
   }
 
   const confirmed = []; const mismatches = [];
-  for (const k of plan.setKeys) (same(readSet(after, k), plan.expected[k]) ? confirmed : mismatches).push(k);
+  // s2sBehaviour is a merge: verify the keys sent, and treat any other s2sBehaviour key moving as collateral below
+  const pick = (o, keys) => Object.fromEntries(keys.filter((x) => isObj(o) && x in o).map((x) => [x, o[x]]));
+  const got = (k) => (k === 's2sBehaviour' ? pick(readFlat(after, k), Object.keys(plan.expected[k])) : readSet(after, k));
+  for (const k of plan.setKeys) (same(got(k), plan.expected[k]) ? confirmed : mismatches).push(k);
   const setNames = new Set(plan.setKeys.flatMap(readNames));
   const b = fields(before); const a = fields(after);
   const changed = []; const cascade = [];
@@ -253,6 +297,14 @@ export async function executeVoiceAiUpdate({ plan, before, gw, serverMessage }) 
     if (b[k] === undefined && isObj(a[k]) && !Object.keys(a[k]).length) continue; // e.g. prompts: undefined -> {}
     if (modelChange && MODEL_CASCADE.has(k)) { cascade.push({ key: k, before: b[k], after: a[k] }); continue; }
     changed.push({ key: k, before: b[k], after: a[k] });
+  }
+  if (plan.setKeys.includes('s2sBehaviour')) {
+    const sb = readFlat(before, 's2sBehaviour') ?? {}; const sa = readFlat(after, 's2sBehaviour') ?? {};
+    const sent = Object.keys(plan.expected.s2sBehaviour);
+    for (const k of new Set([...Object.keys(sb), ...Object.keys(sa)])) {
+      if (sent.includes(k) || k === 'totalTokens') continue; // totalTokens is recomputed by the server on every write
+      if (!same(sb[k], sa[k])) changed.push({ key: `agentSettings.s2sBehaviour.${k}`, before: sb[k], after: sa[k] });
+    }
   }
   const verification = { verified: mismatches.length === 0 && confirmed.length > 0, confirmed, mismatches };
   const collateral = { unchanged: changed.length === 0, changed, ...(cascade.length ? { cascade } : {}) };
