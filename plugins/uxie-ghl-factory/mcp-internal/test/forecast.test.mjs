@@ -39,3 +39,8 @@ test('opportunity rows are concise, with pipeline, stage and owner names beside 
   const out = shapeForecast('drilldown', { total: 1, opportunities: [{ id: 'o1', name: 'Deal', pipelineId: 'P', pipelineStageId: 's2', ownerId: 'u1', status: 'open', monetaryValue: 2000, effectiveProbability: 35, forecastExpectedCloseDate: '2026-11-20', contribution: 700 }] }, maps);
   assert.deepEqual(out.opportunities[0], { id: 'o1', name: 'Deal', status: 'open', value: 2000, pipeline: 'Sales', stage: 'Won-ish', owner: 'Ann Owner', closeDate: '2026-11-20', probability: 35, contribution: 700 });
 });
+
+test('slippage rows use their own keys (stage, probability, newCloseDate) and still get names', () => {
+  const out = shapeForecast('slippage', { summary: { groups: [] }, opportunities: [{ id: 'o1', name: 'Deal', pipelineId: 'P', amount: 2000, probability: 10, stage: 's1', owner: 'u1', ownerId: 'u1', origCloseDate: '2026-10-15', newCloseDate: '2026-11-20', daysSlipped: 36, slippageCount: 1, lastSlippedAt: 'T', risk: 'high' }] }, maps);
+  assert.deepEqual(out.opportunities[0], { id: 'o1', name: 'Deal', status: undefined, value: 2000, pipeline: 'Sales', stage: 'New', owner: 'Ann Owner', closeDate: '2026-11-20', probability: 10, slipped: { times: 1, days: 36, from: '2026-10-15', lastAt: 'T' }, risk: 'high' });
+});

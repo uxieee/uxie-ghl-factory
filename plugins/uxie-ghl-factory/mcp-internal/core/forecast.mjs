@@ -61,18 +61,26 @@ export function nameMaps(pipelines = [], users = []) {
   return { stages, pipes, people };
 }
 
-const card = (o, m) => ({
-  id: o.id, name: o.name, status: o.status,
-  value: o.monetaryValue ?? o.amount ?? null,
-  pipeline: m.pipes.get(o.pipelineId) ?? o.pipelineId ?? null,
-  stage: m.stages.get(o.pipelineStageId) ?? o.pipelineStageId ?? null,
-  owner: m.people.get(o.ownerId ?? o.assignedTo) ?? (o.ownerId ?? o.assignedTo ?? null),
-  closeDate: o.forecastExpectedCloseDate ?? null,
-  probability: o.effectiveProbability ?? o.forecastProbability ?? null,
-  ...(o.contribution !== undefined ? { contribution: o.contribution } : {}),
-  ...(o.slippageCount !== undefined || o.forecastSlippageCount !== undefined ? { slipped: { times: o.slippageCount ?? o.forecastSlippageCount, days: o.daysSlipped ?? o.forecastDaysSlipped } } : {}),
-  ...(o.risk !== undefined ? { risk: o.risk } : {}),
-});
+// Row keys differ per report: timeline/drilldown rows carry pipelineStageId and
+// forecastExpectedCloseDate; slippage rows carry stage, probability, origCloseDate and newCloseDate.
+const card = (o, m) => {
+  const stageId = o.pipelineStageId ?? o.stage;
+  const ownerId = o.ownerId ?? o.assignedTo ?? o.owner;
+  const out = {
+    id: o.id, name: o.name, status: o.status,
+    value: o.monetaryValue ?? o.amount ?? null,
+    pipeline: m.pipes.get(o.pipelineId) ?? o.pipelineId ?? null,
+    stage: m.stages.get(stageId) ?? stageId ?? null,
+    owner: m.people.get(ownerId) ?? ownerId ?? null,
+    closeDate: o.forecastExpectedCloseDate ?? o.newCloseDate ?? null,
+    probability: o.effectiveProbability ?? o.forecastProbability ?? o.probability ?? null,
+  };
+  if (o.contribution !== undefined) out.contribution = o.contribution;
+  const times = o.slippageCount ?? o.forecastSlippageCount;
+  if (times !== undefined) out.slipped = { times, days: o.daysSlipped ?? o.forecastDaysSlipped, from: o.origCloseDate ?? o.forecastOriginalCloseDate, lastAt: o.lastSlippedAt ?? o.forecastLastSlippedAt };
+  if (o.risk !== undefined) out.risk = o.risk;
+  return out;
+};
 
 /** Concise response with names beside ids. `raw` keeps the service's answer untouched. */
 export function shapeForecast(view, json, m) {
