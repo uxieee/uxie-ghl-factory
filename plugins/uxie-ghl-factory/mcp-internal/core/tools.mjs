@@ -4566,7 +4566,7 @@ export const TOOLS = [
         },
         enrollment,
         triggerCounts,
-        note: 'Needs Review = workflows with a recent failing step (the list page\'s tab badge). errorEmailSettings.users are who GHL emails on failures; null = never configured. Clearing a flag is a DELETE on error-notification/{workflowId} — deliberately not exposed here. triggerCounts (opt-in) is the last 30 days; neverMatches = the triggers fired and not once matched their filters — a ghost workflowId reads 0/0, never an error, so it cannot be told from a quiet workflow here.',
+        note: 'Needs Review = workflows with a recent failing step (the list page\'s tab badge). errorEmailSettings.users are EXTRA recipients: GHL emails every agency and location admin on failures by default (UI copy), so users:[] means admins only; null = never configured. Clearing a flag is a DELETE on error-notification/{workflowId} — deliberately not exposed here. triggerCounts (opt-in) is the last 30 days; neverMatches = the triggers fired and not once matched their filters — a ghost workflowId reads 0/0, never an error, so it cannot be told from a quiet workflow here.',
       });
     }, args),
   },
@@ -7157,7 +7157,10 @@ export const TOOLS = [
     description: `${describe('set_workflow_error_alerts', 'Set who GHL emails when a workflow step fails — risk: write')}. `
       + 'Location-wide: the recipients (user ids) and the on/off switch behind the Workflows list\'s error-notification '
       + 'settings. get_account_workflow_overview reports the current state as needsReview.errorEmailSettings — '
-      + '`null` or an empty `users` means NOBODY is told when a workflow breaks. '
+      + '🔴 `users` ADDS recipients: GHL emails every agency and location admin by default, and an empty `users` means '
+      + '"admins only", not nobody (GHL copy, i18n workflow.notifications.sub_account_admin_email; the picker excludes '
+      + 'sub-account admins, ErrorNotificationSettings.vue:28-30,147 — UI copy, delivery not observed). `null` = never '
+      + 'configured. So any failing step can mail every admin; narrowing `users` cannot prevent it. '
       + '🔴 GHL\'s own route REPLACES the recipient list, so this tool READS the current list, MERGES addUsers / '
       + 'removeUsers into it, and writes the result — an existing recipient is never dropped by an add. Every id in '
       + 'addUsers must be a user of this location (checked before any write). Preview by default; confirm:true writes, '
@@ -7185,8 +7188,8 @@ export const TOOLS = [
       if (both.length) return fail(CODES.VALIDATION_FAILED, `the same user id is in addUsers AND removeUsers: ${both.join(', ')}`, 'Pass each id in one list only.');
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
       const loc = encodeURIComponent(args.locationId);
-      // A never-configured location answers 200 with a bare null. That is "inactive, nobody", and it
-      // is a state this tool can write from.
+      // A never-configured location answers 200 with a bare null: unconfigured, and per GHL's copy the admins
+      // still get the mail by default (users only ADDS recipients). It is a state this tool can write from.
       const read = async () => {
         const r = await gw.call('GET', `/workflow/${loc}/error-notification/settings`);
         if (!r.ok) return { failure: fromHttp(r.status, r.json) };
