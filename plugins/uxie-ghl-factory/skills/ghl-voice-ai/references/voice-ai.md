@@ -406,7 +406,10 @@ other unlisted `actionType`.
   - `POST /voice-ai/folders/agents/move/{folderId} {locationId, agentIds}` moves agents in.
   - `PUT /voice-ai/folders/{id} {name, agentIds}` renames the folder and sets its members.
   - `DELETE /voice-ai/folders/{id}` keeps the agents (they become unfoldered).
-- **Delete:** `DELETE /voice-ai/agents/{id}?locationId=` → 204. A later read answers **403** "You are not authorised to
+- **Delete:** `DELETE /voice-ai/agents/{id}?locationId=` → 204. 🔴 It **detaches a voice chat widget** connected to the
+  agent (the widget's `advanceSettings.voiceAiAgent` reads `null` after; live 2026-09-29) but leaves the widget, which keeps
+  loading with no agent behind it — delete or re-point the widget too. On a flow agent's voice agent it leaves the flow
+  agent itself (`DELETE /agent-studio/agents/{id}?locationId=`). A later read answers **403** "You are not authorised to
   access this agent!", not 404.
 - **Test Audio web call:**
   - `POST /voice-ai/call/create-trial-web-call/{agentId} {testScenario, useGatewayTransport: true}`, then LiveKit.

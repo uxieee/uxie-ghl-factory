@@ -41,6 +41,7 @@ into three parts, not a tool-calling system prompt.
 | Default prompt template | `GET` | `/conversations-ai/prompt/default?locationId=…&intentType=…` |
 | Deployment routing rows (one per channel) | `GET` | `/agent-deployment/routing-config/configs?locationId=…&agentId=…` |
 | Update a routing row (the PATCH merges; `set_agent_deployment` sends the full row and verifies the whole table) | `PATCH` | `/agent-deployment/routing-config/configs/:rowId` |
+| Remove a routing row: there is no row delete — **deleting the agent removes its rows** (live 2026-09-29: the other rows byte-identical after) | `DELETE` | `/ai-employees/employees/:agentId` |
 | Live-chat widget picker (`offset`+`limit` required) | `GET` | `/chat-widget/list?locationId=…&chatType=liveChat&offset=0&limit=20` |
 | Update / delete an action | `PUT` · `DELETE` | `/ai-employees/actions/:actionId` (DELETE body `{employeeId}`) |
 | Follow-up schedule for the Auto Followup actions | `PATCH` | `/ai-employees/actions/followup/settings` |
