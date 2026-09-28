@@ -178,7 +178,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
     define_ENDPOINT_CATALOG_default = {
       generated: "2026-09-28",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 1291,
+      count: 1297,
       endpoints: [
         {
           id: "facebook-service--get-ad-account-by-id",
@@ -611,6 +611,37 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/marketplaceServices/AffiliateService.ts:32"
+          ]
+        },
+        {
+          id: "ai-agents--agent-execution-actions",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/agent-execution/actions",
+          path: "/agent-execution/actions",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/10-anatomy/flow-agent-shape.md:112"
           ]
         },
         {
@@ -10056,6 +10087,190 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "funnels--order-form-order",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/funnels/order-form/order",
+          path: "/funnels/order-form/order",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/20-api/step-products-and-orders.md:70",
+            "funnels/40-rules/silent-failures.md:1322"
+          ]
+        },
+        {
+          id: "funnels--order-form-products",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/funnels/order-form/products",
+          path: "/funnels/order-form/products",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/20-api/step-products-and-orders.md:24",
+            "funnels/30-types/button.md:68"
+          ]
+        },
+        {
+          id: "funnels--order-form-products-get",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/funnels/order-form/products/",
+          path: "/funnels/order-form/products/",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "funnel",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "step",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/20-api/step-products-and-orders.md:44"
+          ]
+        },
+        {
+          id: "funnels--order-form-products-delete",
+          method: "DELETE",
+          url: "https://backend.leadconnectorhq.com/funnels/order-form/products/{id}",
+          path: "/funnels/order-form/products/{id}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/20-api/step-products-and-orders.md:53"
+          ]
+        },
+        {
+          id: "funnels--order-form-products-get-get",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/funnels/order-form/products/{id}",
+          path: "/funnels/order-form/products/{id}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "funnels",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "funnels/20-api/step-products-and-orders.md:49"
+          ]
+        },
+        {
           id: "funnels-service--get-pages-by-funnel-id",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/funnels/page",
@@ -18068,7 +18283,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
-          id: "platform--products-amount-summary",
+          id: "funnels--products-amount-summary",
           method: "POST",
           url: "https://backend.leadconnectorhq.com/products/amount-summary",
           path: "/products/amount-summary",
@@ -18082,7 +18297,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: "platform",
+          service: "funnels",
           tree: "documented",
           pathParams: [],
           query: [],
@@ -18095,6 +18310,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
+            "funnels/20-api/step-products-and-orders.md:67",
             "platform/20-api/payment-links.md:100"
           ]
         },
@@ -44047,7 +44263,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/flow-agent-shape.md:96",
+            "ai-agents/10-anatomy/flow-agent-shape.md:103",
             "ai-agents/20-api/12-ai-agents-api.md:314",
             "ai-agents/20-api/knowledge-base.md:55",
             "ai-agents/20-api/knowledge-base.md:102",

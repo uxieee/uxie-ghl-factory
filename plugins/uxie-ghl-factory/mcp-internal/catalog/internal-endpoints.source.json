@@ -20,16 +20,16 @@
     {
       "tree": "documented",
       "dir": "corpus",
-      "capturedAt": "2026-09-28T17:48:38.691Z",
+      "capturedAt": "2026-09-28T17:59:47.018Z",
       "hash": "corpus",
-      "fileCount": 1002,
-      "endpoints": 1002
+      "fileCount": 1008,
+      "endpoints": 1008
     }
   ],
   "note": "SOURCE-DERIVED ONLY, merged from every mined front-end. `tree` on each row says which app calls it. The plugin owns kind/note/summary/reach/coveredBy and merges them at read time. A row proves a GHL front-end calls that path — not that your token reaches it, and not that calling it is safe.",
-  "discoveredCallSites": 1477,
+  "discoveredCallSites": 1483,
   "skippedCallSites": 704,
-  "count": 1283,
+  "count": 1289,
   "endpoints": [
     {
       "id": "facebook-service--get-ad-account-by-id",
@@ -401,6 +401,32 @@
       ],
       "serviceClass": "AffiliateService",
       "serviceBasis": "unattributed"
+    },
+    {
+      "id": "ai-agents--agent-execution-actions",
+      "method": "POST",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/agent-execution/actions",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/10-anatomy/flow-agent-shape.md:112"
+      ],
+      "serviceBasis": "declared"
     },
     {
       "id": "workflows--prompt-enhance",
@@ -7784,6 +7810,157 @@
       ]
     },
     {
+      "id": "funnels--order-form-order",
+      "method": "POST",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/funnels/order-form/order",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "funnels",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/20-api/step-products-and-orders.md:70",
+        "funnels/40-rules/silent-failures.md:1322"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "funnels--order-form-products",
+      "method": "POST",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/funnels/order-form/products",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "funnels",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/20-api/step-products-and-orders.md:24",
+        "funnels/30-types/button.md:68"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "funnels--order-form-products-get",
+      "method": "GET",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/funnels/order-form/products/",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "funnels",
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "funnel",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "step",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/20-api/step-products-and-orders.md:44"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "funnels--order-form-products-delete",
+      "method": "DELETE",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/funnels/order-form/products/{id}",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "funnels",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/20-api/step-products-and-orders.md:53"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "funnels--order-form-products-get-get",
+      "method": "GET",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/funnels/order-form/products/{id}",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "funnels",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/20-api/step-products-and-orders.md:49"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
       "id": "funnels-service--get-pages-by-funnel-id",
       "method": "GET",
       "origin": "https://backend.leadconnectorhq.com",
@@ -14084,7 +14261,7 @@
       "serviceReason": "MOVED to its owning surface: product pricing"
     },
     {
-      "id": "platform--products-amount-summary",
+      "id": "funnels--products-amount-summary",
       "method": "POST",
       "origin": "https://backend.leadconnectorhq.com",
       "path": "/products/amount-summary",
@@ -14094,7 +14271,7 @@
       "extraHeaders": [],
       "tree": "documented",
       "operation": null,
-      "service": "platform",
+      "service": "funnels",
       "query": [],
       "body": null,
       "returns": null,
@@ -14105,6 +14282,7 @@
         "returns": "unresolved"
       },
       "sources": [
+        "funnels/20-api/step-products-and-orders.md:67",
         "platform/20-api/payment-links.md:100"
       ],
       "serviceBasis": "declared"
@@ -34785,7 +34963,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/flow-agent-shape.md:96",
+        "ai-agents/10-anatomy/flow-agent-shape.md:103",
         "ai-agents/20-api/12-ai-agents-api.md:314",
         "ai-agents/20-api/knowledge-base.md:55",
         "ai-agents/20-api/knowledge-base.md:102",
