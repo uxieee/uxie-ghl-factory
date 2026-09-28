@@ -11,6 +11,43 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.4.0] — 2026-09-28
+
+**New `create_funnel`, so a funnel or website can be built without first clicking in GHL. Funnel split tests and
+funnel deletion. `find_ghl_site` no longer misses sites past the first 100. Voice AI system-prompt sections. Each
+change was executed live on the test account.**
+
+Funnels & websites:
+- **New `create_funnel`:** create an empty funnel, website, store, webinar or blog. Store and webinar use GHL's own
+  blank templates, the same path as the UI's blank option. It refuses a name already on the location, previews by
+  default and reads back after creating. Note: every blank store's Contact Us page embeds a form from GHL's template
+  account, which your location can't read; replace it.
+- **Fixed — `find_ghl_site` false "not found":** it read only the first 100 funnels and websites, so on a larger
+  account it could miss a site that exists. It now walks the whole list. New `list:true` (filters `type`, `search`)
+  lists every funnel and website.
+- **`edit_funnel` split-test:** add a variation (the path is checked free first), start with a control-traffic split,
+  declare a winner. The losing page is archived, as in the UI. Only the exact-case path splits.
+- **`edit_funnel` delete-funnel:** targets id AND expected name. It refuses while any step is still serving, naming
+  the paths to unpublish first, and reads back after. GHL itself deletes a live funnel silently, and the edge keeps
+  serving the dead page for about a minute.
+- **`edit_funnel` update-step** also renames the step's page record, as the UI does, so the builder's page title no
+  longer drifts from the step.
+- Items no tool offers now point to where they live in GHL: folders, the bare create-page route, the autosave
+  toggle, schema markup, geo-location and Build with AI.
+
+AI agents (Voice AI):
+- **`update_voiceai_agent` prompts:** edit the system-prompt sections (personality, appointment booking, date/time,
+  numbers/email, email confirmation). Each section is merged in, `null` resets it to Default, and every section is
+  verified. GHL stores exactly these five. A write to endCall / greetingRule answers 200 and is dropped, so the tool
+  refuses them and names where those settings really live. `disabledPrompts`: a non-empty array replaces the list.
+- **`create_voiceai_agent`:** the action report now names each Voice action's type (it showed `type: null`).
+- Voice skill: the engine is live-proven through the tools (current truth replaces a stale "not exercised" section);
+  a table of raw routes and their traps; the s2s price estimate route; what the builder's Save writes; post-call
+  workflows ≤10.
+
+Catalogue: +8 documented routes (Voice AI voice library, translate, prompt-validate, performance-report settings,
+s2s tokenizer).
+
 ## [1.3.0] — 2026-09-28
 
 **Fix: publishing a funnel page through `build_funnel_page` no longer strips its SEO title and description. New:
