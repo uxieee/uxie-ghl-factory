@@ -11,6 +11,43 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.7.0] — 2026-09-29
+
+**Funnel object operations (clone, archive/restore page, import page, add a working store), share and archived-page
+views, and three fixes in the funnel tools. Workflow engine fixes for if/else trigger conditions and Add Task. Each
+change was executed live on the test account.**
+
+Funnels & websites:
+- **`edit_funnel` clone-funnel:** clones within this location. It refuses a copy name already taken, then finds the copy
+  by that name, since GHL returns no id. The copy has no domain. Attaching the source's domain silently renames each
+  colliding path with a numeric suffix, which the result says.
+- **`edit_funnel` archive-page / restore-page:** GHL's "delete page" only archives. Archive targets id AND expected name,
+  and refuses the only page of a step or a running split. Restore reports the page's NEW path.
+- **`edit_funnel` import-page:** imports a step or page and reports its public path. Products are not imported.
+- **`edit_funnel` add-store:** pre-checks the 10 store paths, creates the store steps AND fills each page with its store
+  element. GHL's own create leaves 5 blank pages. The preview discloses that a billing-address checkout makes the builder
+  create a "Billing Info" contact-field folder and 7 fields location-wide.
+- **`get_funnel` views:** `share` (read-only share status) and `archived-pages`. Creating share links is not offered:
+  a share is public, and lower plans cannot remove it.
+- **Fixed — `build_funnel_page` compose refused store cart, checkout and thank-you elements everywhere,** even on a store
+  step. It now reads the step's real type.
+- **Fixed — publish-page / unpublish-page reported VERIFY_FAILED on a write that had landed** when a lookup row lagged. It
+  now re-reads, bounded.
+- `build_funnel_page` previews disclose the billing-fields side effect whenever a checkout enables billing address.
+
+Workflows:
+- **Fixed — an If/Else on a trigger condition was refused by GHL** ("Condition 1 … is missing its field"). The compiler
+  now writes the condition sub-type the builder writes.
+- **Fixed — an Add Task step authored from the marketplace asset was refused** by the engine's own inner-type gate.
+- A JSON webhook body ending in `}}` no longer warns as an unclosed merge tag.
+- Webhook-response branching documented correctly: branch on custom_webhook, with `saveResponse: true`.
+
+AI agents docs:
+- The knowledge-base skill is brought up to the live proofs: record lifecycle, per-source live table and traps; KB-trigger
+  text is optional.
+
+Catalogue: +16 documented routes.
+
 ## [1.6.0] — 2026-09-28
 
 **Fix: fonts set through `build_funnel_page` stopped loading the first time anyone saved the page in the builder.
