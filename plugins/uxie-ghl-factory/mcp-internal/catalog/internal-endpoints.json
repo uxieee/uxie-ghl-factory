@@ -46207,7 +46207,7 @@
         "ai-agents/20-api/knowledge-base.md:136",
         "ai-agents/20-api/knowledge-base.md:145",
         "ai-agents/20-api/knowledge-base.md:146",
-        "ai-agents/20-api/knowledge-base.md:288"
+        "ai-agents/20-api/knowledge-base.md:295"
       ]
     },
     {
@@ -46434,9 +46434,9 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/knowledge-base.md:319",
-        "ai-agents/20-api/knowledge-base.md:344",
-        "ai-agents/20-api/knowledge-base.md:365"
+        "ai-agents/20-api/knowledge-base.md:326",
+        "ai-agents/20-api/knowledge-base.md:351",
+        "ai-agents/20-api/knowledge-base.md:372"
       ]
     },
     {
@@ -46467,7 +46467,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/knowledge-base.md:324"
+        "ai-agents/20-api/knowledge-base.md:331"
       ]
     },
     {
@@ -46511,7 +46511,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/knowledge-base.md:324"
+        "ai-agents/20-api/knowledge-base.md:331"
       ]
     },
     {
@@ -46542,7 +46542,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/knowledge-base.md:324"
+        "ai-agents/20-api/knowledge-base.md:331"
       ]
     },
     {
@@ -46586,7 +46586,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/knowledge-base.md:339"
+        "ai-agents/20-api/knowledge-base.md:346"
       ]
     },
     {
@@ -46617,7 +46617,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/knowledge-base.md:341"
+        "ai-agents/20-api/knowledge-base.md:348"
       ]
     },
     {
@@ -46742,8 +46742,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/knowledge-base.md:324",
-        "ai-agents/20-api/knowledge-base.md:367"
+        "ai-agents/20-api/knowledge-base.md:331",
+        "ai-agents/20-api/knowledge-base.md:374"
       ]
     },
     {
@@ -46793,7 +46793,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/knowledge-base.md:355"
+        "ai-agents/20-api/knowledge-base.md:362"
       ]
     },
     {
@@ -46837,8 +46837,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/knowledge-base.md:324",
-        "ai-agents/20-api/knowledge-base.md:334"
+        "ai-agents/20-api/knowledge-base.md:331",
+        "ai-agents/20-api/knowledge-base.md:341"
       ]
     },
     {
@@ -46873,7 +46873,7 @@
         "ai-agents/20-api/conversation-ai-boundary.md:79",
         "ai-agents/20-api/knowledge-base.md:63",
         "ai-agents/20-api/knowledge-base.md:81",
-        "ai-agents/20-api/knowledge-base.md:383"
+        "ai-agents/20-api/knowledge-base.md:390"
       ]
     },
     {
@@ -46918,7 +46918,7 @@
       },
       "sources": [
         "ai-agents/20-api/knowledge-base.md:67",
-        "ai-agents/20-api/knowledge-base.md:323"
+        "ai-agents/20-api/knowledge-base.md:330"
       ]
     },
     {
@@ -46950,7 +46950,7 @@
       },
       "sources": [
         "ai-agents/20-api/knowledge-base.md:68",
-        "ai-agents/20-api/knowledge-base.md:323"
+        "ai-agents/20-api/knowledge-base.md:330"
       ]
     },
     {
@@ -47082,7 +47082,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/knowledge-base.md:325"
+        "ai-agents/20-api/knowledge-base.md:332"
       ]
     },
     {
@@ -47117,7 +47117,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/knowledge-base.md:325"
+        "ai-agents/20-api/knowledge-base.md:332"
       ]
     },
     {
@@ -47152,7 +47152,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/knowledge-base.md:325"
+        "ai-agents/20-api/knowledge-base.md:332"
       ]
     },
     {
@@ -47187,7 +47187,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/knowledge-base.md:325"
+        "ai-agents/20-api/knowledge-base.md:332"
       ]
     },
     {
@@ -47291,7 +47291,7 @@
       "sources": [
         "ai-agents/00-overview/index.md:89",
         "ai-agents/20-api/knowledge-base.md:203",
-        "ai-agents/20-api/knowledge-base.md:258"
+        "ai-agents/20-api/knowledge-base.md:265"
       ]
     },
     {
@@ -47327,7 +47327,7 @@
       },
       "sources": [
         "ai-agents/20-api/knowledge-base.md:204",
-        "ai-agents/20-api/knowledge-base.md:236"
+        "ai-agents/20-api/knowledge-base.md:243"
       ]
     },
     {
@@ -47409,7 +47409,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/knowledge-base.md:373"
+        "ai-agents/20-api/knowledge-base.md:380"
       ]
     },
     {
@@ -47453,7 +47453,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/knowledge-base.md:354"
+        "ai-agents/20-api/knowledge-base.md:361"
       ]
     },
     {
@@ -47495,7 +47495,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/knowledge-base.md:349"
+        "ai-agents/20-api/knowledge-base.md:356"
       ]
     },
     {
@@ -47526,7 +47526,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/knowledge-base.md:347"
+        "ai-agents/20-api/knowledge-base.md:354"
       ]
     },
     {
@@ -47559,7 +47559,7 @@
       "sources": [
         "ai-agents/20-api/12-ai-agents-api.md:310",
         "ai-agents/20-api/12-ai-agents-api.md:379",
-        "ai-agents/20-api/knowledge-base.md:289"
+        "ai-agents/20-api/knowledge-base.md:296"
       ]
     },
     {
@@ -47595,7 +47595,7 @@
       },
       "sources": [
         "ai-agents/20-api/12-ai-agents-api.md:312",
-        "ai-agents/20-api/knowledge-base.md:293"
+        "ai-agents/20-api/knowledge-base.md:300"
       ]
     },
     {
@@ -47630,7 +47630,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/knowledge-base.md:290"
+        "ai-agents/20-api/knowledge-base.md:297"
       ]
     },
     {
@@ -47666,7 +47666,7 @@
       },
       "sources": [
         "ai-agents/20-api/12-ai-agents-api.md:311",
-        "ai-agents/20-api/knowledge-base.md:291"
+        "ai-agents/20-api/knowledge-base.md:298"
       ]
     },
     {
@@ -47701,7 +47701,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/knowledge-base.md:292"
+        "ai-agents/20-api/knowledge-base.md:299"
       ]
     },
     {
@@ -47739,7 +47739,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/knowledge-base.md:326"
+        "ai-agents/20-api/knowledge-base.md:333"
       ]
     },
     {
