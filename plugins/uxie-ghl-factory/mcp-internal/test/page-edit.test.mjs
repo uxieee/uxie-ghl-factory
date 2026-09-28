@@ -76,3 +76,33 @@ test('checkPageTarget refuses a wrong step name, a foreign page and an ambiguous
   const twice = { steps: [{ id: 's1', name: 'A', pages: ['p1'] }, { id: 's2', name: 'B', pages: ['p1'] }] };
   assert.match(checkPageTarget(twice, { stepId: 's1', pageId: 'p1', stepName: 'A' }).reason, /ambiguous/);
 });
+
+test('page op: tracking code merges, custom CSS replaces only its own suffix of the compiled sheet, background lands in settings', async () => {
+  const { data } = fixture();
+  const d = structuredClone(data);
+  d.pageStyles = ':root{--x:1}#hl_main_popup{width:720px} \n /* old */.a{color:red}';
+  d.general.general.pageStyles = '/* old */.a{color:red}';
+  const { pageData, report, errors } = applyPageEdits(d, [{ op: 'page', trackingCode: { headerCode: '<!--H-->' }, customCss: '/* new */.b{color:blue}', background: { imageUrl: 'https://example.com/bg.png', color: '#fff' } }]);
+  assert.deepEqual(errors, []);
+  assert.equal(pageData.trackingCode.headerCode, '<!--H-->');
+  assert.equal(pageData.trackingCode.footerCode, '');
+  assert.equal(pageData.general.general.pageStyles, '/* new */.b{color:blue}');
+  assert.ok(pageData.pageStyles.startsWith(':root{--x:1}#hl_main_popup{width:720px}'), 'the builder part is kept');
+  assert.ok(pageData.pageStyles.endsWith('/* new */.b{color:blue}'));
+  assert.ok(!pageData.pageStyles.includes('/* old */'), 'the old custom CSS is gone');
+  assert.equal(pageData.settings.settings.background.bgImage.value.url, 'https://example.com/bg.png');
+  assert.equal(pageData.settings.settings.background.backgroundColor.value, '#fff');
+  assert.deepEqual(verifyEdits(pageData, report), [{ page: true, applied: true }]);
+  assert.deepEqual(verifyEdits(d, report)[0].applied, false);
+});
+
+test('an empty page op is refused, and seoMeta keeps every builder key while the caller overrides', async () => {
+  const { seoMeta, seoDiff, SEO_KEYS } = await import('../core/page-edit.mjs');
+  const { data } = fixture();
+  assert.equal(applyPageEdits(data, [{ op: 'page' }]).errors.length, 1);
+  const m = seoMeta({ title: 'Old', author: 'A', language: 'en' }, { title: 'New', description: 'D' });
+  assert.deepEqual(Object.keys(m).sort(), [...SEO_KEYS].sort());
+  assert.equal(m.title, 'New'); assert.equal(m.author, 'A'); assert.equal(m.description, 'D');
+  assert.deepEqual(seoDiff({ title: 'New', description: 'D' }, { title: 'New', description: 'D' }), []);
+  assert.deepEqual(seoDiff({ title: 'Old' }, { title: 'New' }), ['title']);
+});
