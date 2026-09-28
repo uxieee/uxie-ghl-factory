@@ -11,6 +11,33 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.11.0] — 2026-09-29
+
+**Funnel stats in `get_funnel`; fix: a composed video rendered an empty box; workflow settings semantics and agent
+actions/plugins docs. Each change was executed live on the test account.**
+
+Funnels & websites:
+- **Fixed — a video composed by `build_funnel_page` rendered an empty box.** It was written with a generic empty media
+  shape. It now gets the builder's own video shape. A `url` alone is enough, and the player type is read from it
+  (YouTube, Vimeo, Wistia, .mp4, or a hosted file). A video with no source is refused. Proven live: a YouTube embed and
+  a hosted video that played to the end.
+- **New `get_funnel` view `stats`:** per-step page views, opt-ins and sales with step names, plus funnel totals, for a
+  date range (the last 30 days by default). Only HOSTED videos report play analytics; YouTube/Vimeo/Wistia report
+  nothing. Resetting stats is not offered (irreversible, UI only).
+- Skill: video sources, countdown timers that render blank in public once past (a new countdown defaults to today
+  00:00 New York; the day timer never rolls over), upsell product snapshots, analytics reads.
+
+Workflows docs:
+- Settings semantics, measured: the time window holds SENDS, not every step. allowMultiple governs re-entry after the
+  contact has left; a re-enrolment while still enrolled is always skipped. The timezone decides which zone a
+  specific-date wait reads.
+
+AI agents docs:
+- Agent actions and plugins: the Default plugin is 540 skills in 31 groups; the actions spec/safe-template reads; an
+  exclusion row for agent apps beyond Default.
+
+Catalogue: +20 documented routes (industry agents); 3 malformed rows removed.
+
 ## [1.10.1] — 2026-09-29
 
 **Correction: `set_workflow_error_alerts` said an empty recipient list alerts nobody. GHL emails every agency and location
