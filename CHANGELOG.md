@@ -11,6 +11,36 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.2.0] — 2026-09-28
+
+**Funnel pages can be edited in place, and speech-to-speech Voice AI agents can be tuned — plus three false failures in
+`update_voiceai_agent` removed. Each change was executed live on the test account.**
+
+Funnels & websites:
+- **`build_funnel_page` edit mode:** `set`, `append-section` and `remove-node` change an existing page instead of
+  rebuilding it. The page is targeted by id AND step name, and every change is read back by value.
+- **`build_funnel_page`:** it no longer overwrites an element's visibility or custom class. Blog, gallery and upsell
+  elements get the builder's defaults. Buttons accept all 19 actions the builder offers (8 before).
+
+AI agents (Voice AI):
+- **`update_voiceai_agent` s2sBehaviour:** set Thinking Mode (`responseDepth`), Eagerness (`vadEagerness`) and
+  `languages` on a speech-to-speech agent. It is refused on any other agent before anything is sent. `languages`
+  replaces the stored list, written as base codes (en-US → en), which is how GHL stores them.
+- **`update_voiceai_agent` sessionVariables:** these are now merged by name into the stored list; `{name, remove:true}`
+  removes one.
+- **Fixed false failures on speech-to-speech agents.** A prompt or welcome change came back as "collateral changed"
+  (GHL recounts a token total on every save). A voice change came back unverified: GHL stores that voice in
+  `s2sBehaviour.voiceId`, and the tool read the text-to-speech voice. Both writes had applied.
+- Voice skill: test calls write to the signed-in user's own contact, duplicating an agent loses settings, and the
+  language-code and settings bounds as measured.
+
+Pipelines & opportunities:
+- The searchable-fields exclusion is now stated in three places (the skill table, a `get_pipeline_forecast` pointer
+  and the overlay). The skill also gains traps for import, card configuration, lost reasons and searchable fields.
+
+Catalogue: +26 documented internal routes (voice-ai calls, folders, duplicate, bulk delete; funnels domains, redirects
+and stats; bulk import; user preferences; ai-supervisor).
+
 ## [1.1.2] — 2026-09-28
 
 **`update_voiceai_agent` could not change an AI disclosure at all; fixed, with three more workflow-engine and Voice
