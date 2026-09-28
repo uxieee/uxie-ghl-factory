@@ -16514,7 +16514,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:301"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:331"
           ]
         },
         {
@@ -28208,7 +28208,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "services/api/workflow-asset-validation.ts:33",
-            "workflows/30-types/steps/email.md:146",
+            "workflows/30-types/steps/email.md:147",
             "workflows/30-types/steps/if_else.md:31",
             "workflows/40-rules/server-side-validation.md:246"
           ]
@@ -55235,7 +55235,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:161",
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:276"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:306"
           ]
         },
         {
@@ -55609,7 +55609,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:264"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:294"
           ]
         },
         {
@@ -55706,7 +55706,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:278"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:308"
           ]
         },
         {
@@ -55818,7 +55818,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:286"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:316"
           ]
         },
         {
@@ -55923,7 +55923,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:282"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:312"
           ]
         },
         {
@@ -55961,7 +55961,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:285"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:315"
           ]
         },
         {
@@ -56017,7 +56017,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:288",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:318",
             "ai-agents/20-api/logs-deployment-email.md:24",
             "ai-agents/20-api/voice-ai-boundary.md:71",
             "ai-agents/30-types/voice-ai-actions.md:90"
@@ -56064,7 +56064,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:289",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:319",
             "ai-agents/20-api/logs-deployment-email.md:25",
             "ai-agents/20-api/voice-ai-boundary.md:72"
           ]
@@ -56574,6 +56574,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:290",
             "ai-agents/20-api/logs-deployment-email.md:19",
             "ai-agents/20-api/voice-ai-boundary.md:70"
           ]
@@ -56672,7 +56673,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:272",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:302",
             "ai-agents/20-api/voice-ai-boundary.md:64"
           ]
         },
@@ -56704,7 +56705,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:271"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:301"
           ]
         },
         {
@@ -56739,7 +56740,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:275"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:305"
           ]
         },
         {
@@ -56774,7 +56775,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:274"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:304"
           ]
         },
         {
@@ -56809,7 +56810,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:273"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:303"
           ]
         },
         {
@@ -177758,7 +177759,36 @@ var NESTED_WHOLE = [
   "userFirstFallback"
 ];
 var READ_ONLY_INNER = { aiDisclaimerConfiguration: ["isGreetingMessageDynamic"] };
-var writable = (key, v) => isObj(v) && READ_ONLY_INNER[key] ? Object.fromEntries(Object.entries(v).filter(([k]) => !READ_ONLY_INNER[key].includes(k))) : v;
+var writable = (key, v) => {
+  if (key === "s2sBehaviour" && isObj(v)) return Object.fromEntries(Object.entries(v).filter(([k]) => S2S_KEYS.includes(k)));
+  return isObj(v) && READ_ONLY_INNER[key] ? Object.fromEntries(Object.entries(v).filter(([k]) => !READ_ONLY_INNER[key].includes(k))) : v;
+};
+var S2S_KEYS = ["responseDepth", "vadEagerness", "languages"];
+var S2S_ENUMS = { responseDepth: ["minimal", "low", "medium", "high", "xhigh"], vadEagerness: ["auto", "low", "medium", "high"] };
+function compileS2sBehaviour(current, v) {
+  const provider = current?.provider;
+  if (provider !== "lc") {
+    throw new IRError2("SPEC_KEY_UNAPPLIED", `s2sBehaviour applies only to a speech-to-speech agent; the stored agent's provider is ${JSON.stringify(provider)}. Switch it with llmModel (an s2s model such as gpt-realtime-2.1) in its own call first, or tune a text agent with responsiveness / interruptionSensitivity / modelTemperature and voiceModel. Nothing was sent.`);
+  }
+  if (!isObj(v) || !Object.keys(v).length) throw new IRError2("SCHEMA", `s2sBehaviour must be an object with any of ${S2S_KEYS.join(", ")}`);
+  const other = Object.keys(v).filter((k) => !S2S_KEYS.includes(k));
+  if (other.length) throw new IRError2("SPEC_KEY_UNAPPLIED", `s2sBehaviour.${other.join(", ")} is not written by this tool (writable: ${S2S_KEYS.join(", ")}; the s2s voice and model follow llmModel). Nothing was sent.`);
+  const out = {};
+  for (const [k, allowed] of Object.entries(S2S_ENUMS)) {
+    if (!(k in v)) continue;
+    if (!allowed.includes(v[k])) {
+      throw new IRError2("SCHEMA", `s2sBehaviour.${k} must be one of ${allowed.join(", ")} \u2014 this tool's rule (GHL stores any string, but the builder cannot render one outside this list). Nothing was sent.`);
+    }
+    out[k] = v[k];
+  }
+  if ("languages" in v) {
+    if (!Array.isArray(v.languages) || !v.languages.length || v.languages.some((x) => typeof x !== "string" || !x.trim())) {
+      throw new IRError2("SCHEMA", "s2sBehaviour.languages must be a non-empty array of language codes; it REPLACES the stored list");
+    }
+    out.languages = [...new Set(v.languages.map((x) => x.trim().split(/[-_]/)[0].toLowerCase()))];
+  }
+  return out;
+}
 var WRITABLE = /* @__PURE__ */ new Set([
   "advancedSettingsEnabled",
   "agentName",
@@ -177807,7 +177837,8 @@ var WRITABLE = /* @__PURE__ */ new Set([
   "welcomeMessage",
   "welcomeMessageMode",
   ...NESTED_WHOLE,
-  "sessionVariables"
+  "sessionVariables",
+  "s2sBehaviour"
 ]);
 var ELSEWHERE = {
   actions: "actions are their own resource (POST/PUT/DELETE /voice-ai/actions)",
@@ -177904,6 +177935,8 @@ function compileVoiceAiPartialUpdate(current, spec, { agentId, locationId } = {}
       }
       const stored = readFlat(current, k);
       body2[k] = writable(k, { ...isObj(stored) ? stored : {}, ...v });
+    } else if (k === "s2sBehaviour") {
+      body2[k] = compileS2sBehaviour(current, v);
     } else if (k === "sessionVariables") {
       body2[k] = mergeSessionVariables(current.sessionVariables, v);
     } else {
@@ -177988,7 +178021,9 @@ async function executeVoiceAiUpdate({ plan, before, gw, serverMessage: serverMes
   }
   const confirmed = [];
   const mismatches = [];
-  for (const k of plan.setKeys) (same(readSet(after, k), plan.expected[k]) ? confirmed : mismatches).push(k);
+  const pick2 = (o, keys) => Object.fromEntries(keys.filter((x) => isObj(o) && x in o).map((x) => [x, o[x]]));
+  const got = (k) => k === "s2sBehaviour" ? pick2(readFlat(after, k), Object.keys(plan.expected[k])) : readSet(after, k);
+  for (const k of plan.setKeys) (same(got(k), plan.expected[k]) ? confirmed : mismatches).push(k);
   const setNames = new Set(plan.setKeys.flatMap(readNames));
   const b = fields(before);
   const a = fields(after);
@@ -178009,6 +178044,15 @@ async function executeVoiceAiUpdate({ plan, before, gw, serverMessage: serverMes
       continue;
     }
     changed.push({ key: k, before: b[k], after: a[k] });
+  }
+  if (plan.setKeys.includes("s2sBehaviour")) {
+    const sb = readFlat(before, "s2sBehaviour") ?? {};
+    const sa = readFlat(after, "s2sBehaviour") ?? {};
+    const sent = Object.keys(plan.expected.s2sBehaviour);
+    for (const k of /* @__PURE__ */ new Set([...Object.keys(sb), ...Object.keys(sa)])) {
+      if (sent.includes(k) || k === "totalTokens") continue;
+      if (!same(sb[k], sa[k])) changed.push({ key: `agentSettings.s2sBehaviour.${k}`, before: sb[k], after: sa[k] });
+    }
   }
   const verification = { verified: mismatches.length === 0 && confirmed.length > 0, confirmed, mismatches };
   const collateral = { unchanged: changed.length === 0, changed, ...cascade.length ? { cascade } : {} };
@@ -179831,7 +179875,7 @@ var TOOLS2 = [
     name: "update_voiceai_agent",
     description: describe3(
       "update_voiceai_agent",
-      "Change an EXISTING Voice AI agent: reads it, sends only the keys in spec (flat write names, e.g. agentPrompt, llmModel, voiceId, maxCallDuration, responsiveness, translation), merges any nested object over the stored one, re-reads and diffs every other field. If a refusal still stored the value (the voice provider refuses after GHL saves), it writes the previous values back and says so. sessionVariables are MERGED by name into the stored list ({name, remove:true} removes one; nothing else is dropped). Refuses action arrays, numbers and unknown keys. \u{1F534} A Test Audio call binds to the SIGNED-IN USER's own contact: on an agent that updates contact fields, saves summary notes or runs post-call workflows, a test call writes to that real contact. To create an agent use create_voiceai_agent. Previews by default; confirm:true writes."
+      "Change an EXISTING Voice AI agent: reads it, sends only the keys in spec (flat write names, e.g. agentPrompt, llmModel, voiceId, maxCallDuration, responsiveness, translation), merges any nested object over the stored one, re-reads and diffs every other field. If a refusal still stored the value (the voice provider refuses after GHL saves), it writes the previous values back and says so. sessionVariables are MERGED by name into the stored list ({name, remove:true} removes one; nothing else is dropped). s2sBehaviour {responseDepth, vadEagerness, languages} only on a speech-to-speech agent (stored provider lc): it MERGES, languages REPLACE the list as base codes (en-US \u2192 en); GHL stores any string for the two enums, so refusing values outside the builder's lists is this tool's rule. Refuses action arrays, numbers and unknown keys. \u{1F534} A Test Audio call binds to the SIGNED-IN USER's own contact: on an agent that updates contact fields, saves summary notes or runs post-call workflows, a test call writes to that real contact. To create an agent use create_voiceai_agent. Previews by default; confirm:true writes."
     ),
     inputSchema: schema({ locationId: external_exports.string(), agentId: external_exports.string(), spec: external_exports.object({}).passthrough(), confirm: external_exports.boolean().default(false) }),
     capabilities: [
