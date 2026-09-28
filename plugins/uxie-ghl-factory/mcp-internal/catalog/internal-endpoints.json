@@ -1,7 +1,7 @@
 {
   "generated": "2026-09-28",
   "note": "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path — not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-  "count": 1286,
+  "count": 1288,
   "endpoints": [
     {
       "id": "facebook-service--get-ad-account-by-id",
@@ -7137,7 +7137,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/10-anatomy/styling-and-saved-assets.md:107"
+        "funnels/10-anatomy/styling-and-saved-assets.md:116"
       ]
     },
     {
@@ -7182,7 +7182,7 @@
         "funnels/20-api/publish-routing-and-site-settings.md:43",
         "funnels/40-rules/autosave-writes-only-the-data-file.md:11",
         "funnels/40-rules/autosave-writes-only-the-data-file.md:31",
-        "funnels/40-rules/silent-failures.md:1070",
+        "funnels/40-rules/silent-failures.md:1072",
         "funnels/60-recipes/add-a-page-to-a-funnel.md:33"
       ]
     },
@@ -7252,7 +7252,7 @@
       },
       "sources": [
         "funnels/20-api/funnel-object-operations.md:53",
-        "funnels/40-rules/silent-failures.md:1219"
+        "funnels/40-rules/silent-failures.md:1221"
       ]
     },
     {
@@ -7364,8 +7364,8 @@
         "funnels/10-anatomy/routing-and-publishing.md:71",
         "funnels/20-api/funnels-api.md:286",
         "funnels/40-rules/autosave-writes-only-the-data-file.md:32",
-        "funnels/40-rules/silent-failures.md:800",
-        "funnels/40-rules/silent-failures.md:1071",
+        "funnels/40-rules/silent-failures.md:802",
+        "funnels/40-rules/silent-failures.md:1073",
         "funnels/60-recipes/add-a-page-to-a-funnel.md:37"
       ]
     },
@@ -7401,7 +7401,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/10-anatomy/styling-and-saved-assets.md:103",
+        "funnels/10-anatomy/styling-and-saved-assets.md:112",
         "funnels/10-anatomy/websites-and-global-sections.md:96"
       ]
     },
@@ -7445,7 +7445,7 @@
       "sources": [
         "funnels/10-anatomy/page-content.md:13",
         "funnels/10-anatomy/routing-and-publishing.md:31",
-        "funnels/10-anatomy/styling-and-saved-assets.md:122",
+        "funnels/10-anatomy/styling-and-saved-assets.md:131",
         "funnels/20-api/funnels-api.md:141",
         "funnels/20-api/funnels-api.md:232",
         "funnels/30-types/section.md:78"
@@ -7556,7 +7556,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/10-anatomy/styling-and-saved-assets.md:105"
+        "funnels/10-anatomy/styling-and-saved-assets.md:114"
       ]
     },
     {
@@ -7962,7 +7962,84 @@
         "returns": "unresolved"
       },
       "sources": [
-        "funnels/10-anatomy/styling-and-saved-assets.md:100"
+        "funnels/10-anatomy/styling-and-saved-assets.md:109"
+      ]
+    },
+    {
+      "id": "funnels--funnels-custom-fonts",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/funnels/custom-fonts",
+      "path": "/funnels/custom-fonts",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [
+        "build_funnel_page"
+      ],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/10-anatomy/styling-and-saved-assets.md:98"
+      ]
+    },
+    {
+      "id": "funnels--funnels-custom-fonts-post",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/funnels/custom-fonts",
+      "path": "/funnels/custom-fonts",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "funnels",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "mode",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "funnels/10-anatomy/styling-and-saved-assets.md:98"
       ]
     },
     {
@@ -8801,7 +8878,7 @@
         "funnels/20-api/funnels-api.md:98",
         "funnels/20-api/funnels-api.md:83",
         "funnels/20-api/funnels-api.md:229",
-        "funnels/40-rules/silent-failures.md:1042",
+        "funnels/40-rules/silent-failures.md:1044",
         "funnels/60-recipes/build-a-multi-step-funnel.md:50"
       ]
     },
@@ -9179,7 +9256,7 @@
         "funnels/10-anatomy/websites-and-global-sections.md:264",
         "funnels/10-anatomy/websites-and-global-sections.md:490",
         "funnels/20-api/funnels-api.md:326",
-        "funnels/40-rules/silent-failures.md:986"
+        "funnels/40-rules/silent-failures.md:988"
       ]
     },
     {
@@ -9347,9 +9424,9 @@
         "funnels/10-anatomy/domains-and-public-urls.md:93",
         "funnels/20-api/funnels-api.md:307",
         "funnels/40-rules/silent-failures.md:270",
-        "funnels/40-rules/silent-failures.md:935",
-        "funnels/40-rules/silent-failures.md:965",
-        "funnels/40-rules/silent-failures.md:969"
+        "funnels/40-rules/silent-failures.md:937",
+        "funnels/40-rules/silent-failures.md:967",
+        "funnels/40-rules/silent-failures.md:971"
       ]
     },
     {
@@ -9470,7 +9547,7 @@
         "funnels/10-anatomy/domains-and-public-urls.md:165",
         "funnels/40-rules/silent-failures.md:618",
         "funnels/40-rules/silent-failures.md:650",
-        "funnels/40-rules/silent-failures.md:938"
+        "funnels/40-rules/silent-failures.md:940"
       ]
     },
     {
@@ -9867,7 +9944,7 @@
       "sources": [
         "services/marketplaceServices/FunnelsService.ts:25",
         "funnels/40-rules/silent-failures.md:599",
-        "funnels/40-rules/silent-failures.md:1110"
+        "funnels/40-rules/silent-failures.md:1112"
       ]
     },
     {
@@ -10175,7 +10252,7 @@
       },
       "sources": [
         "funnels/20-api/funnel-object-operations.md:120",
-        "funnels/40-rules/silent-failures.md:1235"
+        "funnels/40-rules/silent-failures.md:1237"
       ]
     },
     {
