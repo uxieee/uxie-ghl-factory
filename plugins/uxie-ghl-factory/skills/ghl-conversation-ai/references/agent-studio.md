@@ -116,6 +116,13 @@ Auth: **`token-id`** header — same as Conversation AI and Voice AI, NOT the wo
 
 ## Traps (proven live 2026-09-28)
 
+- 🔴 **Give an agent only the CRM skills it needs — never `allSkills: true` by habit.** The Default plugin's 540 skills
+  include sending SMS/email and writing contacts and opportunities. Restrict it to named sub-skills (ids
+  `<group>--<name>`, each with its own method; read them from `GET /agent-studio/plugins/default`):
+  `plugins: [{"slug": "default", "name": "Default", "skills": ["opportunities--get-pipelines"], "allSkills": false, "skillCount": 1}]`.
+  This is exactly what the editor's skill picker saves. `create_studio_agent` passes it through and it reads back
+  unchanged (proven live 2026-09-29). In a run, the listed skill executed and an unlisted one could not even be
+  discovered. Not tested: whether the server refuses an `execute` that names an unlisted skill id directly.
 - 🔴 **"Edit this agent with chat" can widen the agent.** One turn asked only to "make the tone friendlier. Change
   nothing else." changed the prompt and **re-added the Default plugin with ALL CRM skills** to a `plugins: []` agent
   (and reset `starterPrompts` to `null`). It saves the agent itself. Re-read `plugins` after every builder-chat edit.
