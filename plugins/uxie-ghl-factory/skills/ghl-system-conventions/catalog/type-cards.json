@@ -10603,7 +10603,7 @@
    "family": "steps",
    "title": "if_else",
    "status": "proven-live",
-   "lastVerified": "2026-09-26",
+   "lastVerified": "2026-09-28",
    "summary": "Multi-path container that routes execution by evaluating segment-and-condition groups against contact/runtime state.",
    "meta": {
     "Section": "`internal`",
