@@ -163,6 +163,10 @@ const SECRET_KEYS = new Set([
   'sessioncredential', 'sessioncredentials',
 ]);
 const isSecretKey = (key) => SECRET_KEYS.has(String(key).replace(/[-_\s]/g, '').toLowerCase());
+const isNoAuthObject = (key, value) => String(key).toLowerCase() === 'authorization'
+  && value && typeof value === 'object' && !Array.isArray(value)
+  && Object.keys(value).every((k) => k === 'type' || k === 'data')
+  && value.type === 'NONE' && (value.data === null || value.data === undefined);
 
 // A GHL workflow document legitimately carries SIGNED STORAGE URLS: `fileUrl` at the top
 // level and `attributes.previewUrl` on email steps. Both end in `?…&token=<uuid>`, which
@@ -236,6 +240,12 @@ export function containsSecrets(value, key = '', depth = 0) {
   // secret-named key is still refused, and a string that merely CONTAINS the placeholder still
   // goes through the full text scan below.
   if (value === REDACTED) return false;
+  // A custom_webhook's "no auth" is stored as authorization: {type:"NONE", data:null} — a
+  // structured object carrying no credential. The key-name rule refused it, so the drawer's own
+  // default shape could not be authored (live 2026-09-28, knowledge sniffs/workflows-wave1-2026-09-25/
+  // live-3J-webhook-chain-run2-authorization-refused.json). Exactly that shape only: any other type,
+  // or any data at all, still falls through to the key-name refusal below.
+  if (isNoAuthObject(key, value)) return false;
   if (isSecretKey(key)) return true;
   if (value == null) return false;
   if (typeof value === 'string') return hasSecretText(value);

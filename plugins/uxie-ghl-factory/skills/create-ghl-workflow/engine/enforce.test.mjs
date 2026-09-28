@@ -22,7 +22,7 @@ const compiles = (graph, c) => compile(wf(graph), c ?? ctx());
 // ── the cases that used to compile SILENTLY (findings F34) ────────────────────────────────
 test('a bodyless email internal_notification is REFUSED, not defaulted to empty strings', () => {
   throws([{ ref: 'n', kind: 'action', type: 'internal_notification', name: 'N',
-    attributes: { type: 'email' } }], /ENFORCEMENT.*email/s);
+    attributes: { type: 'email', email: { userType: 'all' } } }], /ENFORCEMENT.*(email|subject|html)/s);
 });
 
 test('a user_replied wait without channel/repliedBy is REFUSED (GHL error-level)', () => {
@@ -48,7 +48,7 @@ test('template-mode email notification (template_id, no inline html) is legal', 
   // 3 real published client-account notifications; GHL's own validator misses this exemption and
   // wrongly warns on them — the outer chain (!email.template_id) carries it for us.
   compiles([{ ref: 'n', kind: 'action', type: 'internal_notification', name: 'N',
-    attributes: { type: 'email', email: { subject: 's', template_id: '5f0e1d2c3b4a59687766aa01', templatesource: 'email-builder' } } }]);
+    attributes: { type: 'email', email: { userType: 'all', subject: 's', template_id: '5f0e1d2c3b4a59687766aa01', templatesource: 'email-builder' } } }]);
 });
 
 test('remove_contact_tag with removeAll and no tags is legal (the early-return exemption)', () => {
@@ -75,7 +75,7 @@ test('custom_webhook: no url is REFUSED; url alone is completed by the engine\'s
 
 // ── the hatch: explicit, loud, and precise ────────────────────────────────────────────────
 test('skipEnforcement: true bypasses; a targeted rule key bypasses only that rule', () => {
-  const bad = [{ ref: 'n', kind: 'action', type: 'internal_notification', name: 'N', attributes: { type: 'email' } }];
+  const bad = [{ ref: 'n', kind: 'action', type: 'internal_notification', name: 'N', attributes: { type: 'email', email: { userType: 'all' } } }];
   compile(wf(bad), ctx({ skipEnforcement: true }));                                        // full bypass
   compile(wf(bad), ctx({ skipEnforcement: [
     'internal_notification.email@email', 'internal_notification.email.subject@email', 'internal_notification.email.html@email'] }));

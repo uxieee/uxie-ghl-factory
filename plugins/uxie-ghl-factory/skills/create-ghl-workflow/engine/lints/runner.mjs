@@ -20,6 +20,7 @@ import { lintEntryStep } from './entry-step.mjs';
 import { lintPublishRules } from './publish-rules.mjs';
 import { lintNameLength } from './name-length.mjs';
 import { lintFormatterSkips } from './formatter-skips.mjs';
+import { lintContactLessSteps } from './contact-less-steps.mjs';
 import { HYGIENE_RULES } from './hygiene.mjs';
 import { runDoctrine } from './doctrine.mjs';
 
@@ -89,6 +90,8 @@ export function runLints(doc, {
       for (const f of lintOpportunityWrites(T)) F('platform', f.code, f.severity, f.msg, { stepId: f.stepId });
       // Formatter shapes GHL saves and then SKIPS on every run (T10).
       for (const f of lintFormatterSkips(T)) F('platform', f.code, f.severity, f.msg, { stepId: f.stepId });
+      // Contact-less steps placed where runs carry a contact: skipped, and a find takes FOUND (bl-255).
+      for (const f of lintContactLessSteps(T, triggers)) F('platform', f.code, f.severity, f.msg, { stepId: f.stepId });
       for (const f of lintTriggerRows(triggers, catalog)) F('platform', f.code, f.severity, f.msg, { triggerId: f.triggerId });
       // A name the API accepts and the builder's drawer refuses (R-58) — reported for steps and
       // triggers alike, so an id-keyed reader gets whichever key applies.
