@@ -1119,6 +1119,11 @@ function emailAttributes(node, ctx) {
     syncEnabled: a.syncEnabled ?? false,
     attachments: a.attachments ?? [],
     fieldDefaults: a.fieldDefaults ?? { subject: {} },
+    // Real builder keys the ATTR_KEY guard already accepts. This base is a fixed list, so a key left
+    // out of it was dropped silently: cc/bcc went out empty (live 2026-09-28, live-3AV).
+    ...(a.cc != null ? { cc: a.cc } : {}),
+    ...(a.bcc != null ? { bcc: a.bcc } : {}),
+    ...(a.customSubtypeId != null ? { customSubtypeId: a.customSubtypeId } : {}),
   };
   // "none" is the BUILDER's inline switch (Email.ts::selectTemplate clears template_id and
   // templatesource), and it is TRUTHY — so this branch used to emit template_id:"none" and GHL's
