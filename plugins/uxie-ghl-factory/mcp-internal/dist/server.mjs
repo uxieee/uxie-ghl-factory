@@ -32270,6 +32270,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
         },
         {
           id: "workflows-marketplace-platform-service--get-action-dynamic-fields",
+          aka: [
+            "/workflows-marketplace/actions/published/{key}/dynamic-fields"
+          ],
           method: "POST",
           url: "https://backend.leadconnectorhq.com/workflows-marketplace/actions/published/{actionType}/dynamic-fields",
           path: "/workflows-marketplace/actions/published/{actionType}/dynamic-fields",
@@ -32323,7 +32326,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:165",
-            "workflows/70-research/ENDPOINTS.md:234"
+            "workflows/70-research/ENDPOINTS.md:234",
+            "workflows/30-types/steps-marketplace/agent-studio.md:33"
           ]
         },
         {
