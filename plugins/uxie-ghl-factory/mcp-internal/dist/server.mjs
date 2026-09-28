@@ -96842,6 +96842,40 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var KIND_DEFAULT_EXTRA = Object.freeze({
+  // bl-245 (2026-09-26): blog needs the NEW `blogAuthor` array and a RAW (unwrapped) `blogFilter`;
+  // photo-video-gallery reads its layout/heading/info/settings/watermark objects unguarded. Values are
+  // the builder's own defaults, proven to render on a sandbox page
+  // (knowledge sniffs/funnels-wave3-elements-2026-09-26/fix2.json).
+  "blog": {
+    "blogAuthor": { "value": [] },
+    "blogFilter": { "filter": "by-category" }
+  },
+  "photo-video-gallery": {
+    "sliderList": { "value": [] },
+    "galleryHeading": { "value": { "headingText": "", "activeColor": "#000", "fontSize": 40 } },
+    "galleryInfo": { "value": { "overlayColor": "#ffffff00", "textColor": "#000000", "toggleTitle": true, "toggleDescription": true, "titleFontsize": 20, "descriptionFontsize": 14 } },
+    "galleryLayout": { "value": { "layout": "grid", "columns": 3, "spacing": 8 } },
+    "gallerySettings": { "value": { "clickAction": "openImageInPopup", "showTitle": true, "showDescription": true } },
+    "galleryWatermark": { "value": { "type": "logo", "text": "", "position": "Top Left", "fontSize": 10 } }
+  },
+  // upsell: the renderer reads every one of these; productDetails is left EMPTY (bind a real product
+  // with extra.productDetails / the funnel step's products) — no account's product is baked in here.
+  "upsell": {
+    "manageProducts": { "value": "" },
+    "typography": { "value": "var(--contentfont)" },
+    "featureHeadlineDesktopFontSize": { "value": 16, "unit": "px" },
+    "featureHeadlineMobileFontSize": { "value": 14, "unit": "px" },
+    "desktopFontSize": { "value": 18, "unit": "px" },
+    "mobileFontSize": { "value": 16, "unit": "px" },
+    "priceDiscountDesktopFontSize": { "value": 16, "unit": "px" },
+    "priceDiscountMobileFontSize": { "value": 14, "unit": "px" },
+    "enableShipping": { "value": true },
+    "productDetails": {},
+    "saleAction": { "value": "go-to-next-funnel-step" },
+    "customText": { "value": { "priceColumnHeading": "Price", "quantityColumnHeading": "Quantity", "shippingHeading": "Shipping", "totalColumnHeading": "Total", "subtotalColumnHeading": "Subtotal", "buyNowButtonText": "Buy Now" } },
+    "stepPath": { "value": "" },
+    "visitWebsite": { "value": { "url": "", "newTab": false } }
+  },
   "store-cart": {
     "typography": {
       "value": "var(--contentfont)"
@@ -97119,13 +97153,24 @@ var BOX = () => ({ borders: val("noBorder"), borderRadius: val("radius0"), radiu
 var PREFIX = ".hl_page-preview--content";
 var ACTION_VALUES = Object.freeze([
   "go-to-next-funnel-step",
+  "go-to-product-collection",
   "go-to-funnel-step",
   "step-path",
   "url",
+  "download-file",
   "openPopup",
-  "go-to-product-collection",
+  "show-hide-element",
+  "scroll-to-element",
+  "sell-product",
+  "add-to-cart",
+  "buy-now",
+  "click-to-call",
+  "click-to-sms",
+  "click-to-mail",
+  "none",
   "go-to-cac",
-  "logout"
+  "logout",
+  "go-to-membership"
 ]);
 var SHAPE_BY_KIND = Object.freeze({
   "nav-menu": "arrays",
@@ -97191,6 +97236,7 @@ var completeExtra = (meta3, given = {}) => {
   const known = KIND_DEFAULT_EXTRA[meta3] ?? {};
   const out = {};
   for (const prop of declared) {
+    if ((prop === "visibility" || prop === "customClass") && !Object.prototype.hasOwnProperty.call(given, prop)) continue;
     out[prop] = Object.prototype.hasOwnProperty.call(given, prop) ? given[prop] : Object.prototype.hasOwnProperty.call(known, prop) ? known[prop] : emptyFor(prop, meta3);
   }
   for (const [prop, v] of Object.entries(known)) if (!(prop in out)) out[prop] = v;
@@ -97671,6 +97717,125 @@ async function reread(readFn, okFn, { tries = 5, delays = [0, 500, 1e3, 2e3, 3e3
   }
   return { value: last, attempts: tries, settled: false };
 }
+
+// core/page-edit.mjs
+init_define_BUILDER_VALIDATORS();
+init_define_CONTACT_FILTER_FIELDS();
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
+init_define_TOOL_CATALOG();
+function findNode(pageData, nodeId) {
+  for (const [si, s] of (pageData.sections ?? []).entries()) {
+    if (s.id === nodeId) return { section: s, sectionIndex: si, node: s.metaData ?? s, isSection: true };
+    const n = (s.elements ?? []).find((e) => e.id === nodeId);
+    if (n) return { section: s, sectionIndex: si, node: n, isSection: false };
+  }
+  return null;
+}
+var mergeInto = (node, key, patch) => {
+  node[key] = { ...node[key] ?? {}, ...patch };
+  if (node.element && typeof node.element === "object") node.element[key] = { ...node.element[key] ?? {}, ...patch };
+};
+function applyPageEdits(pageData, ops, { compileStyles = () => "" } = {}) {
+  const next = structuredClone(pageData);
+  const report = [];
+  for (const [i, o] of ops.entries()) {
+    if (o.op === "set") {
+      const hit = findNode(next, o.nodeId);
+      if (!hit) {
+        report.push({ i, op: "set", nodeId: o.nodeId, error: "no node with this id on the page" });
+        continue;
+      }
+      if (hit.isSection) {
+        report.push({ i, op: "set", nodeId: o.nodeId, error: "set targets leaves, rows and columns; edit a section by replacing it" });
+        continue;
+      }
+      const changed = [];
+      if (o.extra && Object.keys(o.extra).length) {
+        mergeInto(hit.node, "extra", o.extra);
+        changed.push(...Object.keys(o.extra).map((k) => `extra.${k}`));
+      }
+      if (o.styles && Object.keys(o.styles).length) {
+        mergeInto(hit.node, "styles", o.styles);
+        changed.push(...Object.keys(o.styles).map((k) => `styles.${k}`));
+        const rule = compileStyles(hit.node.id, hit.node.meta, hit.node.styles);
+        if (rule) {
+          hit.section.general = { ...hit.section.general ?? {}, sectionStyles: `${hit.section.general?.sectionStyles ?? ""}${rule}` };
+          changed.push("section.general.sectionStyles");
+        }
+      }
+      hit.node.updated = true;
+      report.push({ i, op: "set", nodeId: o.nodeId, meta: hit.node.meta, changed, expect: { extra: o.extra ?? {}, styles: o.styles ?? {} } });
+    } else if (o.op === "append-section") {
+      next.sections = [...next.sections ?? [], { ...o.section, sequence: (next.sections ?? []).length }];
+      report.push({ i, op: "append-section", sectionId: o.section.id, nodes: (o.section.elements ?? []).length });
+    } else if (o.op === "remove-node") {
+      const hit = findNode(next, o.nodeId);
+      if (!hit) {
+        report.push({ i, op: "remove-node", nodeId: o.nodeId, error: "no node with this id on the page" });
+        continue;
+      }
+      if (hit.isSection) {
+        next.sections = next.sections.filter((s) => s.id !== o.nodeId).map((s, k) => ({ ...s, sequence: k }));
+        report.push({ i, op: "remove-node", nodeId: o.nodeId, removed: "section" });
+      } else {
+        const drop = /* @__PURE__ */ new Set([o.nodeId]);
+        let grew = true;
+        while (grew) {
+          grew = false;
+          for (const e of hit.section.elements) if (drop.has(e.id)) {
+            for (const c of e.child ?? []) if (!drop.has(c)) {
+              drop.add(c);
+              grew = true;
+            }
+          }
+        }
+        hit.section.elements = hit.section.elements.filter((e) => !drop.has(e.id)).map((e) => ({ ...e, child: (e.child ?? []).filter((c) => !drop.has(c)) }));
+        report.push({ i, op: "remove-node", nodeId: o.nodeId, removed: [...drop] });
+      }
+    } else {
+      report.push({ i, op: o.op, error: `unknown op ${o.op} (set | append-section | remove-node)` });
+    }
+  }
+  return { pageData: next, report, errors: report.filter((r) => r.error) };
+}
+function verifyEdits(stored, report) {
+  const out = [];
+  for (const r of report) {
+    if (r.error) continue;
+    if (r.op === "set") {
+      const hit = findNode(stored, r.nodeId);
+      const wrong = [];
+      for (const key of ["extra", "styles"]) {
+        for (const [k, v] of Object.entries(r.expect?.[key] ?? {})) {
+          if (JSON.stringify(hit?.node?.[key]?.[k]) !== JSON.stringify(v)) wrong.push(`${key}.${k}`);
+        }
+      }
+      out.push({ nodeId: r.nodeId, present: !!hit, applied: !!hit && wrong.length === 0, ...wrong.length ? { notApplied: wrong } : {} });
+    } else if (r.op === "append-section") {
+      out.push({ sectionId: r.sectionId, present: (stored.sections ?? []).some((s) => s.id === r.sectionId) });
+    } else if (r.op === "remove-node") {
+      out.push({ nodeId: r.nodeId, absent: !findNode(stored, r.nodeId) });
+    }
+  }
+  return out;
+}
+function checkPageTarget(funnel, { stepId, pageId, stepName }) {
+  const steps = funnel?.steps ?? [];
+  const step = steps.find((s) => s.id === stepId);
+  if (!step) return { ok: false, reason: `no step ${stepId} in this funnel` };
+  if (step.name !== stepName) return { ok: false, reason: `step ${stepId} is named "${step.name}", not "${stepName}"` };
+  const pages = (step.pages ?? []).map((pg) => typeof pg === "string" ? pg : pg?.id ?? pg?._id);
+  if (!pages.includes(pageId)) return { ok: false, reason: `page ${pageId} is not a page of step "${step.name}" (its pages: ${pages.join(", ") || "none"})` };
+  const owners = steps.filter((s) => (s.pages ?? []).some((pg) => (typeof pg === "string" ? pg : pg?.id ?? pg?._id) === pageId));
+  if (owners.length !== 1) return { ok: false, reason: `page ${pageId} is claimed by ${owners.length} steps \u2014 ambiguous, refusing` };
+  return { ok: true, step: { id: step.id, name: step.name, url: step.url, type: step.type } };
+}
+var pageDataForWrite = (read, pageId) => {
+  const { traceId, ...rest } = read ?? {};
+  return { ...rest, id: rest.id ?? pageId, pageId: rest.pageId ?? pageId };
+};
 
 // core/workflow-runtime-window.mjs
 init_define_BUILDER_VALIDATORS();
@@ -178426,6 +178591,75 @@ var assertProjectLocation = async (api, projectId, locationId) => {
   }
   return { project, error: null };
 };
+async function editPage(args, deps, composeSection) {
+  if (!args.stepName) return fail(CODES.VALIDATION_FAILED, "edit mode needs stepName", "Pass the exact name of the step that owns pageId \u2014 it is the target check that stops a wrong pageId overwriting another page.");
+  const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+  const { res, funnel } = await readFunnel(gw, args.locationId, args.funnelId);
+  if (!res.ok) return fromHttp(res.status, res.json);
+  const target = checkPageTarget(funnel, { stepId: args.stepId, pageId: args.pageId, stepName: args.stepName });
+  if (!target.ok) return fail(CODES.VALIDATION_FAILED, `target check refused: ${target.reason}`, "Read the funnel with get_funnel (view summary) and pass the stepId, its exact name and one of its pages.");
+  const pageUrl = `/funnels/builder/page/data?pageId=${encodeURIComponent(args.pageId)}`;
+  const read = await gw.call("GET", pageUrl);
+  if (!read.ok) return fromHttp(read.status, read.json);
+  const current = pageDataForWrite(read.json, args.pageId);
+  if (!Array.isArray(current.sections) || current.sections.length === 0) {
+    return fail(
+      CODES.VALIDATION_FAILED,
+      "the page read back with no sections, so there is nothing to edit in place",
+      "The page-data read can lag a fresh write; re-run in a few seconds, or compose the page with `sections`."
+    );
+  }
+  const salt = `E${Date.now().toString(36).toUpperCase()}`;
+  let ops;
+  try {
+    ops = args.edits.map((e, i) => {
+      if (e.op === "append-section") {
+        if (!e.section) throw new Error(`edits[${i}]: append-section needs \`section\` (the same shape as sections[i])`);
+        return { op: "append-section", section: composeSection(e.section, i, salt) };
+      }
+      if (!e.nodeId) throw new Error(`edits[${i}]: ${e.op} needs nodeId`);
+      return e;
+    });
+  } catch (e) {
+    return fail(CODES.VALIDATION_FAILED, e.message, e.remediation ?? "Fix the op named in the message.");
+  }
+  const { pageData: edited, report, errors } = applyPageEdits(current, ops, { compileStyles: (id, _meta, styles) => leafStyleCss(id, styles) });
+  if (errors.length) return withFailureData(fail(CODES.VALIDATION_FAILED, `${errors.length} edit(s) could not be applied; nothing was written`, "data.report names each refused op."), { report });
+  const pageData = { ...edited, sections: edited.sections.map((sec, i) => report.some((r) => r.op === "append-section" && r.sectionId === sec.id) ? buildPageData({ pageId: args.pageId, stepId: args.stepId, funnelId: args.funnelId, locationId: args.locationId, sections: [sec] }).sections[0] : sec).map((sec, i) => ({ ...sec, sequence: i })) };
+  const problems = auditPageData(pageData);
+  const preview = {
+    mode: "edit",
+    target: target.step,
+    pageId: args.pageId,
+    ops: report.map(({ expect, ...r }) => r),
+    sectionsBefore: current.sections.length,
+    sectionsAfter: pageData.sections.length,
+    ...problems.length ? { preexistingProblems: problems } : {},
+    note: "Writes a DRAFT through autosave. Nothing outside the named ops changes. A PINNED (published) page does not show this until it is published again."
+  };
+  if (args.confirm !== true) {
+    return withFailureData(fail(CODES.CONFIRM_REQUIRED, "Funnel page edit preview is ready; no write was sent.", "Repeat with confirm:true to autosave the edited draft."), { preview });
+  }
+  const saved = await gw.call(
+    "POST",
+    `/funnels/builder/autosave/${encodeURIComponent(args.pageId)}`,
+    autosaveEnvelope({ funnelId: args.funnelId, pageData, pageVersion: args.pageVersion })
+  );
+  if (!saved.ok) return fromHttp(saved.status, saved.json);
+  const settled = await reread(
+    async () => {
+      const r = await gw.call("GET", pageUrl);
+      return r.json ?? {};
+    },
+    (stored) => verifyEdits(stored, report).every((v) => v.applied ?? v.present ?? v.absent),
+    deps.rereadOptions ?? {}
+  );
+  const checks = verifyEdits(settled.value ?? {}, report);
+  const allApplied = checks.every((v) => v.applied ?? v.present ?? v.absent);
+  const out = { ...preview, autosave: saved.status, readBack: { checks, attempts: settled.attempts }, stored: allApplied };
+  if (!allApplied) return withFailureData(fail(CODES.VERIFY_FAILED, "the autosave was accepted but at least one edit did not read back with its value", "data.readBack.checks names each op; the page-data read can lag, so re-read before re-writing."), out);
+  return ok(out);
+}
 var DIGEST_INCLUDE_VALUES = Object.freeze(["raw"]);
 var TOOLS2 = [
   {
@@ -186104,13 +186338,21 @@ var TOOLS2 = [
   },
   {
     name: "build_funnel_page",
-    description: `${describe3("build_funnel_page", "Compose a funnel page from native elements and write it")}. Preview by default; confirm:true autosaves the DRAFT. Emits the nodes AND the compiled stylesheet together, because the builder canvas styles a page from each node's \`styles\` while the PUBLIC renderer uses the compiled \`sectionStyles\` string keyed by node id \u2014 write only one and the page looks right in the builder and naked in public. Enforces the contract autosave will not: \`meta\` against the closed set of 60 kinds, every declared \`extra\` property present (the renderer reads extra.<prop>.value UNGUARDED, so a missing one 500s the whole page while autosave still answers 201), \`col.extra.bgImage\`, \`general.general.fontsToLoad\` and \`colors\`, and child[] holding node IDS that resolve. Verifies by reading the page back on a separate request; pass verifyUrl to also poll the public render for your own copy \u2014 one request there is not a measurement, since the first can serve the previous compile.`,
+    description: `${describe3("build_funnel_page", "Compose a funnel page from native elements and write it")}. Preview by default; confirm:true autosaves the DRAFT. Emits the nodes AND the compiled stylesheet together, because the builder canvas styles a page from each node's \`styles\` while the PUBLIC renderer uses the compiled \`sectionStyles\` string keyed by node id \u2014 write only one and the page looks right in the builder and naked in public. Enforces the contract autosave will not: \`meta\` against the closed set of 60 kinds, every declared \`extra\` property present (the renderer reads extra.<prop>.value UNGUARDED, so a missing one 500s the whole page while autosave still answers 201), \`col.extra.bgImage\`, \`general.general.fontsToLoad\` and \`colors\`, and child[] holding node IDS that resolve. Verifies by reading the page back on a separate request; pass verifyUrl to also poll the public render for your own copy \u2014 one request there is not a measurement, since the first can serve the previous compile. EDIT MODE (pass \`edits\` + \`stepName\` instead of \`sections\`): changes an EXISTING page in place \u2014 ops set (merge extra/styles into one node by id; styles are compiled into the public stylesheet too), append-section (a section spec in the same shape as \`sections[i]\`), remove-node (a node and its descendants, or a whole section). The target is checked first (pageId must be a page of stepId, and stepName must match that step exactly; refused otherwise), everything the ops do not name is written back as read, and each op is verified by VALUE on a separate read. Get node ids from the page data (GET /funnels/builder/page/data?pageId=).`,
     inputSchema: schema({
       locationId: external_exports.string(),
       funnelId: external_exports.string(),
       pageId: external_exports.string(),
       stepId: external_exports.string(),
-      sections: external_exports.array(external_exports.record(external_exports.any())).min(1),
+      sections: external_exports.array(external_exports.record(external_exports.any())).min(1).optional(),
+      edits: external_exports.array(external_exports.object({
+        op: external_exports.enum(["set", "append-section", "remove-node"]),
+        nodeId: external_exports.string().optional(),
+        extra: external_exports.record(external_exports.any()).optional(),
+        styles: external_exports.record(external_exports.any()).optional(),
+        section: external_exports.record(external_exports.any()).optional()
+      })).min(1).optional(),
+      stepName: external_exports.string().optional(),
       pageStyles: external_exports.string().optional(),
       fonts: external_exports.array(external_exports.string()).optional(),
       colors: external_exports.array(external_exports.record(external_exports.any())).optional(),
@@ -186127,43 +186369,46 @@ var TOOLS2 = [
     ],
     handler: async (args, deps) => guard(async () => {
       resetIds();
+      const composeSection = (spec, si, saltBase = "S") => {
+        const css = [];
+        const columns = (spec.columns ?? []).map((c, ci) => {
+          const leaves2 = (c.elements ?? []).map((e) => {
+            const leaf = makeLeaf({
+              meta: e.meta,
+              extra: { ...e.html !== void 0 ? { text: val(e.html) } : {}, ...e.extra ?? {} },
+              // A `css` block also yields the node styles it implies, so the builder canvas and the
+              // public render agree (bl-120); an authored `styles` key always wins.
+              styles: { ...e.css ? nodeStylesFromCss(e.meta, e.css) : {}, ...e.styles ?? {} },
+              tag: e.tag ?? "",
+              salt: `${saltBase}${si}C${ci}`
+            });
+            if (e.css) css.push(e.meta === "button" ? buttonCss(leaf.id, e.css) : textCss(leaf.id, e.css));
+            else {
+              const auto = leafStyleCss(leaf.id, e.styles);
+              if (auto) css.push(auto);
+            }
+            return leaf;
+          });
+          const widthPct = c.widthPct ?? Math.round(1e4 / (spec.columns.length || 1)) / 100;
+          return { col: makeColumn({ children: leaves2, widthPct, padX: c.padX ?? 20, salt: `${saltBase}${si}C${ci}` }), leaves: leaves2, widthPct };
+        });
+        return makeSection({
+          columns,
+          background: spec.background ?? "transparent",
+          padY: spec.padY ?? 60,
+          maxWidth: spec.maxWidth ?? 1100,
+          elementCss: css.join(""),
+          pageId: args.pageId,
+          funnelId: args.funnelId,
+          locationId: args.locationId,
+          salt: `${saltBase}${si}`
+        });
+      };
+      if (args.edits) return editPage(args, deps, composeSection);
+      if (!args.sections) return fail(CODES.VALIDATION_FAILED, "pass `sections` (compose a whole page) or `edits` + `stepName` (change an existing page in place)", "See the tool description for both shapes.");
       let pageData;
       try {
-        const sections = args.sections.map((spec, si) => {
-          const css = [];
-          const columns = (spec.columns ?? []).map((c, ci) => {
-            const leaves2 = (c.elements ?? []).map((e) => {
-              const leaf = makeLeaf({
-                meta: e.meta,
-                extra: { ...e.html !== void 0 ? { text: val(e.html) } : {}, ...e.extra ?? {} },
-                // A `css` block also yields the node styles it implies, so the builder canvas and the
-                // public render agree (bl-120); an authored `styles` key always wins.
-                styles: { ...e.css ? nodeStylesFromCss(e.meta, e.css) : {}, ...e.styles ?? {} },
-                tag: e.tag ?? "",
-                salt: `S${si}C${ci}`
-              });
-              if (e.css) css.push(e.meta === "button" ? buttonCss(leaf.id, e.css) : textCss(leaf.id, e.css));
-              else {
-                const auto = leafStyleCss(leaf.id, e.styles);
-                if (auto) css.push(auto);
-              }
-              return leaf;
-            });
-            const widthPct = c.widthPct ?? Math.round(1e4 / (spec.columns.length || 1)) / 100;
-            return { col: makeColumn({ children: leaves2, widthPct, padX: c.padX ?? 20, salt: `S${si}C${ci}` }), leaves: leaves2, widthPct };
-          });
-          return makeSection({
-            columns,
-            background: spec.background ?? "transparent",
-            padY: spec.padY ?? 60,
-            maxWidth: spec.maxWidth ?? 1100,
-            elementCss: css.join(""),
-            pageId: args.pageId,
-            funnelId: args.funnelId,
-            locationId: args.locationId,
-            salt: `S${si}`
-          });
-        });
+        const sections = args.sections.map((spec, si) => composeSection(spec, si));
         pageData = buildPageData({
           pageId: args.pageId,
           stepId: args.stepId,
