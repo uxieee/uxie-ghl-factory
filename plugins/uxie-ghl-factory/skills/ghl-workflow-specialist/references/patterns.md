@@ -179,11 +179,12 @@ Source: `recipes/cross-workflow-handoff.md`.
   is the equivalent trap on the comms side (see catalog §2).
   Sources: `create-ghl-workflow/references/step-shapes.md`,
   `recipes/failed-payment-retry.md`, `docs/09-gotchas.md #10`.
-- For branching on a webhook's response, piping the response into a contact field via
-  `update_contact_field` first and branching on *that* field is more robust than
-  branching directly on `webhook_response` conditionType — the corpus doesn't have a
-  fully traced `conditionSubType` for arbitrary JSON-path access on a webhook response.
-  Source: `recipes/failed-payment-retry.md`.
+- To branch on a webhook's response, use an `if_else` condition with
+  `conditionType: "custom_webhook"` (there is no `webhook_response` type) and
+  `conditionSubType: "<webhook stepIndex>.status"` / `".response.<key>"` / `".headers.<h>"`.
+  **The webhook step needs `saveResponse: true`**: with it off, `1.status == "200"` went to
+  Else although the call returned 200; with it on, the same condition matched (proven live
+  2026-09-28). Sources: `30-types/steps/if_else.md` (Condition groups), `recipes/failed-payment-retry.md`.
 
 ## 7. Enrolling contacts from outside GHL — two real routes, pick deliberately
 

@@ -144,7 +144,14 @@ export function evaluateMergeTags(templates, mergeTags, opts = {}) {
     const where = `'${t.name ?? t.id}' (${t.type})`;
     walk(t.attributes, (s) => {
       const opens = (s.match(/\{\{/g) ?? []).length, closes = (s.match(/\}\}/g) ?? []).length;
-      if (opens !== closes) out.push({ where, kind: 'unbalanced', severity: 'warning', ns: null, tag: null, suggestions: [],
+      // Count what is LEFT once complete tags are removed. A JSON body ends its objects in '}}' — a custom_webhook
+      // rawData like {"a":{"b":"{{contact.email}}"}} is balanced and was flagged (live 2026-09-28, knowledge
+      // sniffs/workflows-wave1-2026-09-25/live-3W3-ifelse-rerun-webhook-dtf.json). A leftover '{{' is always an unclosed
+      // tag; a leftover '}}' is one only when the string is not JSON (whose braces are structure).
+      const rest = s.replace(/\{\{[^{}]*\}\}/g, '');
+      const unclosed = /\{\{/.test(rest);
+      const strayClose = /\}\}/.test(rest) && !(() => { try { JSON.parse(s); return true; } catch { return false; } })();
+      if (unclosed || strayClose) out.push({ where, kind: 'unbalanced', severity: 'warning', ns: null, tag: null, suggestions: [],
         msg: `unbalanced merge-tag braces (${opens} '{{' vs ${closes} '}}') in "${s.slice(0, 60)}${s.length > 60 ? '…' : ''}"` });
       for (const m of s.matchAll(TOKEN)) {
         const ns = m[1], full = `{{${ns}${compact(m[2])}}}`;
