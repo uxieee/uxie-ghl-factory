@@ -14,6 +14,9 @@
 //   - `knowledgeBaseIds` is stored on the agent AND makes the server mint (or remove) a KNOWLEDGE_BASE action. The
 //     `knowledgeBasePrompt` is stored as that action's actionParameters.triggerPrompt — never on the agent — and is
 //     IGNORED (200, nothing changes) unless `knowledgeBaseIds` rides in the same PUT (measured 2026-09-28).
+//   - `llmModel` decides the provider: a speech-to-speech model flips provider RETELL → "lc", providerAgentId →
+//     "lc_{agentId}", adds both entries to providerAgents and writes agentSettings.s2sBehaviour; a text model flips it
+//     back (providerAgents and the old s2sBehaviour stay). Reported as the cascade, not as collateral.
 import { IRError } from './convai-ir.mjs';
 
 // Nested objects the PUT validates whole. Each is merged over the stored object before sending.
@@ -111,6 +114,7 @@ export function compileVoiceAiPartialUpdate(current, spec, { agentId, locationId
 
 const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 const KB_KEYS = ['knowledgeBaseIds', 'knowledgeBasePrompt'];
+const MODEL_CASCADE = new Set(['provider', 'providerAgentId', 'providerAgents', 'agentSettings.s2sBehaviour']);
 const kbActions = (record) => (record?.actions ?? []).filter((a) => a?.actionType === 'KNOWLEDGE_BASE');
 
 /** The value the READ shows for a set key; knowledgeBasePrompt lives on the KNOWLEDGE_BASE action(s). */
@@ -184,7 +188,8 @@ export async function executeVoiceAiUpdate({ plan, before, gw, serverMessage }) 
   for (const k of plan.setKeys) (same(readSet(after, k), plan.expected[k]) ? confirmed : mismatches).push(k);
   const setNames = new Set(plan.setKeys.flatMap(readNames));
   const b = fields(before); const a = fields(after);
-  const changed = [];
+  const changed = []; const cascade = [];
+  const modelChange = plan.setKeys.includes('llmModel');
   const kbChange = plan.setKeys.some((k) => KB_KEYS.includes(k));
   const nonKb = (list) => JSON.stringify((list ?? []).filter((x) => x?.actionType !== 'KNOWLEDGE_BASE'));
   const kbIds = new Set([...kbActions(before), ...kbActions(after)].map((x) => x._id));
@@ -195,10 +200,11 @@ export async function executeVoiceAiUpdate({ plan, before, gw, serverMessage }) 
     if (kbChange && k === 'actionIds' && same((b[k] ?? []).filter((x) => !kbIds.has(x)), (a[k] ?? []).filter((x) => !kbIds.has(x)))) continue;
     if (same(b[k], a[k])) continue;
     if (b[k] === undefined && isObj(a[k]) && !Object.keys(a[k]).length) continue; // e.g. prompts: undefined -> {}
+    if (modelChange && MODEL_CASCADE.has(k)) { cascade.push({ key: k, before: b[k], after: a[k] }); continue; }
     changed.push({ key: k, before: b[k], after: a[k] });
   }
   const verification = { verified: mismatches.length === 0 && confirmed.length > 0, confirmed, mismatches };
-  const collateral = { unchanged: changed.length === 0, changed };
+  const collateral = { unchanged: changed.length === 0, changed, ...(cascade.length ? { cascade } : {}) };
   if (changed.length) {
     return { ok: false, code: 'AGENT_COLLATERAL_CHANGED', verification, collateral,
       detail: `the update moved ${changed.length} field(s) it was not asked to touch: ${changed.map((c) => c.key).join(', ')}` };
