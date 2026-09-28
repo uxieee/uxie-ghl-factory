@@ -11,6 +11,27 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.17.0] — 2026-09-29
+
+**Safety: `raw_request` refuses an empty write body. Fix: `publish_workflow` tells the truth when GHL's reply was
+an error but the publish landed. Executed live on the test account.**
+
+- **Safety — `raw_request` refuses an empty write body (EMPTY_WRITE_BODY).**
+  - A POST, PUT or PATCH whose body is `{}`, `[]`, empty or missing is refused before the confirm gate, and nothing is
+    sent. An empty body is never a safe way to probe a write route: an empty start-workflow body once enrolled a
+    phantom contact.
+  - Pass `allowEmptyBody: true` for a route that genuinely takes no body. DELETE is unaffected. The route-specific
+    refusals (start-workflow PHANTOM, pipeline position) keep their own wording, and the flag does not open them.
+  - ⚠️ Callers that deliberately sent a bodiless POST/PUT/PATCH through `raw_request` now need `allowEmptyBody: true`.
+- **Fixed — `publish_workflow` reported a failed publish that had landed.**
+  - When GHL answered the publish with an error, such as a 503 "upstream connect error", the tool reported failure,
+    yet the workflow could be live.
+  - It now reads the workflow once. If the workflow is published, the tool carries on through trigger verification and
+    returns ok with `publishedDespiteTransportError`. If it isn't, the failure names the status it read.
+  - The publish is never re-sent.
+
+Catalogue: +2 workflow permission routes.
+
 ## [1.16.0] — 2026-09-29
 
 **New: `build_workflow` routes a contact on the intent of a reply. Executed live on the test account.**
