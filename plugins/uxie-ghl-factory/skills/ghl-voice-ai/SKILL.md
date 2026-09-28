@@ -46,9 +46,17 @@ Corpus (deeper, account-agnostic): `ai-agents/10-anatomy/voice-ai-agent-shape.md
 
 ## The traps that cost the most
 
-**1. The update is FULL REPLACE.** `PUT /voice-ai/agents/{id}?publishAgent=true&mode=update`
-replaces the whole document. Any field omitted takes the compiler's default and silently
-clobbers a differing live value. Read the agent first and reconcile; never send a partial.
+**1. Edit an existing agent with `update_voiceai_agent`, never with the create compiler.** Measured 2026-09-28 by
+diffing every field: `PUT /voice-ai/agents/{id}` with a **partial** body MERGES at the top level (only the keys
+sent change, on either the mode-less or the `?publishAgent=true&mode=update` rail), but a **nested object** is
+validated whole: a partial one 422s and writes nothing. The tool merges nested objects over the stored ones.
+What clobbers live values is the create compiler (`compileVoiceAiUpdate`), which fills every omitted field with its
+own default. It is right for a new agent and wrong for an existing one.
+
+**1b. A 400 can still have written.** Some refusals come from the voice provider after GHL has stored the value:
+`llmModel: "bogus-llm"` and `beginMessageDelayMs: 11000` answered 400 in the provider's words, and GHL kept the value.
+`update_voiceai_agent` detects that (`PROVIDER_REFUSED_BUT_STORED`) and writes the previous values back. On a raw
+call, re-read after every 400.
 
 **2. Empty strings are rejected, absent keys are fine.** `businessName`, `welcomeMessage` and
 `timezone` return **422** when sent as `''`. The compiler omits them instead — do not

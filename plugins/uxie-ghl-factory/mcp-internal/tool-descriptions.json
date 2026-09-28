@@ -2120,5 +2120,27 @@
       "pipelines-opportunities--opportunities-pipelines",
       "typed--list_account_entities--users"
     ]
+  },
+  "update_voiceai_agent": {
+    "description": "Update an existing Voice AI agent (partial merge, nested whole, provider-refusal restore) — proof: live-runtime (2026-09-28); risk: write",
+    "risk": "write",
+    "proof": "live-runtime (2026-09-28)",
+    "proofFloor": "external-receipt-required",
+    "proofRows": [
+      "ai-agents--voice-ai-agents-get",
+      "ai-agents--voice-ai-agents-put"
+    ],
+    "proofFloorRows": [
+      "ai-agents--voice-ai-agents-get",
+      "ai-agents--voice-ai-agents-put"
+    ],
+    "riskRows": [
+      "ai-agents--voice-ai-agents-get",
+      "ai-agents--voice-ai-agents-put"
+    ],
+    "rows": [
+      "ai-agents--voice-ai-agents-get",
+      "ai-agents--voice-ai-agents-put"
+    ]
   }
 }
