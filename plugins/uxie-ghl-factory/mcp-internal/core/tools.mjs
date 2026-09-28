@@ -20,7 +20,7 @@ import {
   readFunnel, readLookups, stepView, lookupView, settingsFrom, settingsBody, settingsDiff, normPath,
   planCreateStep, planUpdateStep, planReorder, planCloneStep, planDeleteStep, planPublishState, planAddHeader,
   planDeleteFunnel, planSplit, SERVING, reread, SETTINGS_KEYS, CACHE_NOTE, EXACT_CASE_NOTE,
-  readFunnelPages, planCloneFunnel, planArchivePage, planRestorePage, planImportPage, planAddStore, STORE_PATHS,
+  readFunnelPages, planCloneFunnel, planArchivePage, planRestorePage, planImportPage, planAddStore, STORE_PATHS, planAddStepProduct, STEP_PRODUCT_NOTE, readStepProducts, stepProductView,
   CLONE_FUNNEL_NOTE, IMPORT_PAGE_NOTE, BILLING_FIELDS_NOTE, BILLING_ON_SAVE_NOTE, billingCheckouts,
 } from './funnel-ops.mjs';
 import { planCreateFunnel, createdId, EXPECT_TYPE, KINDS as FUNNEL_KINDS, STORE_DANGLING_FORM_NOTE, listAllDocuments } from './funnel-create.mjs';
@@ -11189,15 +11189,18 @@ export const TOOLS = [
       + 'events (Meta pixel / CAPI events, first 20), cookie-consent (funnel-level banner config), share (the '
       + 'funnel\'s share link, if one exists: who it is shared with and the import URL — read-only; creating a share is '
       + 'left to the UI because it cannot be removed below the $497 plan), archived-pages (pages archived by a page '
-      + '"delete" or a split-test winner, restorable with edit_funnel restore-page). '
+      + '"delete" or a split-test winner, restorable with edit_funnel restore-page), step-products {stepId} (the '
+      + 'products a step\'s order form lists and its sell buttons sell, with product and price names — add one with '
+      + 'edit_funnel add-step-product). '
       + 'Siblings: find_ghl_site resolves a domain/name to the document id first; audit_site sweeps a whole '
       + 'site for dangling references and publish drift — this tool does not repeat that audit. '
       + 'Read-only.',
     inputSchema: schema({
       locationId: z.string(),
       funnelId: z.string(),
-      view: z.enum(['summary', 'lookups', 'settings', 'versions', 'security', 'events', 'cookie-consent', 'share', 'archived-pages']).default('summary'),
+      view: z.enum(['summary', 'lookups', 'settings', 'versions', 'security', 'events', 'cookie-consent', 'share', 'archived-pages', 'step-products']).default('summary'),
       pageId: z.string().optional(),
+      stepId: z.string().optional(),
     }),
     capabilities: [
       { method: 'GET', path: '/funnels/funnel/fetch/{funnelId}' },
@@ -11208,6 +11211,7 @@ export const TOOLS = [
       { method: 'GET', path: '/funnels/funnel/cookie-consent' },
       { method: 'GET', path: '/funnels/builder/funnel-share-details/{funnelId}' },
       { method: 'GET', path: '/funnels/page/list' },
+      { method: 'GET', path: '/funnels/order-form/products/' },
     ],
     handler: async (args, deps) => guard(async () => {
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
@@ -11227,6 +11231,12 @@ export const TOOLS = [
         if (!r.ok) return fromHttp(r.status, r.json);
         return ok({ funnelId: args.funnelId, archived: pages.filter((p) => p.deleted === true).map((p) => ({ pageId: p._id, name: p.name, stepId: p.stepId, updatedAt: p.updatedAt })),
           note: 'Restore with edit_funnel restore-page: the page returns on a NEW path minted from its name. The UI refuses a restore while the step runs a split or already has a second page.' });
+      }
+      if (view === 'step-products') {
+        if (!args.stepId) return fail(CODES.VALIDATION_FAILED, 'view "step-products" needs stepId', 'Pass the stepId (view "summary" lists the steps).');
+        const { res: r, rows } = await readStepProducts(gw, args.locationId, args.funnelId, args.stepId);
+        if (!r.ok) return fromHttp(r.status, r.json);
+        return ok({ funnelId: args.funnelId, stepId: args.stepId, stepProducts: rows.map(stepProductView), note: STEP_PRODUCT_NOTE });
       }
       if (view === 'versions') {
         if (!args.pageId) return fail(CODES.VALIDATION_FAILED, 'view "versions" needs pageId', 'Pass the pageId (view "summary" lists each step\'s pages).');
@@ -11292,7 +11302,11 @@ export const TOOLS = [
       + 'name — the old path stays 404), import-page {stepId, sourceFunnelId, sourceStepId, sourcePageIndex} (a copy '
       + 'of another step\'s page as the target step\'s second page; products are NOT imported), add-store (5 store '
       + 'steps on fixed domain-level paths, pre-checked; GHL creates the pages EMPTY, so each is then filled with its store element; LOCATION-WIDE side effect: saving the checkout in the builder '
-      + 'creates a "Billing Info" contact-field folder + 7 billing fields). Sharing a funnel is NOT offered: opening '
+      + 'creates a "Billing Info" contact-field folder + 7 billing fields), add-step-product {stepId, expectName, productId, priceId, '
+      + 'displayText?, quantity? {max, allowMultiple}, bump?} (the step\'s Products tab: what its order form lists and what a '
+      + 'one-click up/down-sell button sells; target check on the step id AND name; the price must be one of that product\'s '
+      + 'prices; an identical product+price already on the step is refused; returns stepProductId — the id a sell-product '
+      + 'button stores as productId {id}; remove/update are not offered). Sharing a funnel is NOT offered: opening '
       + 'the Share modal creates a link anyone can import, and below the $497 plan it cannot be narrowed or removed — '
       + 'read a share with get_funnel view share; create one in Sites → ⋮ → Share only on purpose. update-step also renames the step\'s page '
       + 'record, as the UI does. Page SEO, tracking code, custom CSS and background are PAGE writes: use '
@@ -11304,7 +11318,7 @@ export const TOOLS = [
       locationId: z.string(),
       funnelId: z.string(),
       op: z.enum(['settings', 'create-step', 'update-step', 'reorder-steps', 'clone-step', 'delete-step', 'publish-page', 'unpublish-page', 'add-header', 'split-test', 'delete-funnel',
-        'clone-funnel', 'archive-page', 'restore-page', 'import-page', 'add-store']),
+        'clone-funnel', 'archive-page', 'restore-page', 'import-page', 'add-store', 'add-step-product']),
       action: z.enum(['add-variation', 'start', 'declare-winner']).optional(),
       sourceFunnelId: z.string().optional(),
       sourceStepId: z.string().optional(),
@@ -11322,6 +11336,11 @@ export const TOOLS = [
       pageId: z.string().optional(),
       redirect: z.object({ type: z.enum(['404', 'url']), url: z.string().optional() }).optional(),
       header: z.object({ key: z.string(), value: z.string() }).optional(),
+      productId: z.string().optional(),
+      priceId: z.string().optional(),
+      displayText: z.string().optional(),
+      quantity: z.object({ max: z.number().int().min(1).optional(), allowMultiple: z.boolean().optional() }).optional(),
+      bump: z.boolean().optional(),
       confirm: z.boolean().default(false),
     }),
     capabilities: [
@@ -11348,6 +11367,10 @@ export const TOOLS = [
       { method: 'GET', path: '/funnels/page/{pageId}' },
       { method: 'POST', path: '/funnels/funnel/clone-funnel-to-locations' },
       { method: 'POST', path: '/funnels/store/create-in-funnel' },
+      { method: 'GET', path: '/products/{productId}' },
+      { method: 'GET', path: '/products/{productId}/price' },
+      { method: 'GET', path: '/funnels/order-form/products/' },
+      { method: 'POST', path: '/funnels/order-form/products' },
     ],
     handler: async (args, deps) => {
       let tracked = null;
@@ -11467,6 +11490,21 @@ export const TOOLS = [
             }
             plan = planAddStore({ funnel, domainName, taken });
             if (!plan.refuse) plan.notes = [BILLING_FIELDS_NOTE];
+            break;
+          }
+          case 'add-step-product': {
+            const miss = need('stepId') ?? need('expectName') ?? need('productId') ?? need('priceId');
+            if (miss) { plan = { refuse: miss }; break; }
+            const L = encodeURIComponent(args.locationId), P = encodeURIComponent(args.productId);
+            const pr = await gw.call('GET', `/products/${P}?locationId=${L}`);
+            if (!pr.ok) return fromHttp(pr.status, pr.json);
+            const pp = await gw.call('GET', `/products/${P}/price?locationId=${L}`);
+            if (!pp.ok) return fromHttp(pp.status, pp.json);
+            const sp = await readStepProducts(gw, args.locationId, args.funnelId, args.stepId);
+            if (!sp.res.ok) return fromHttp(sp.res.status, sp.res.json);
+            plan = planAddStepProduct({ funnel, stepId: args.stepId, expectName: args.expectName, product: pr.json, prices: pp.json?.prices ?? [], existing: sp.rows,
+              priceId: args.priceId, displayText: args.displayText, quantity: args.quantity, bump: args.bump, locationId: args.locationId });
+            if (!plan.refuse) plan.notes = [STEP_PRODUCT_NOTE];
             break;
           }
           default: plan = { refuse: `unknown op ${args.op}` };
@@ -11711,6 +11749,18 @@ export const TOOLS = [
             if (!got.settled) return withFailureData(fail(CODES.VERIFY_FAILED, 'the store did not read back (isStoreActive, 5 store steps, each with a public path)', 'Compare data.steps / data.lookups; do not add the store again.'), out);
             const empty = filled.filter((f) => !f.ok);
             if (empty.length) return withFailureData(fail(CODES.VERIFY_FAILED, `the store was created but ${empty.length} of its pages could not be filled: ${empty.map((f) => f.key).join(', ')} — they serve a BLANK page`, 'Fill each named page with build_funnel_page (one element of that store kind); do not add the store again.'), out);
+            return ok(out);
+          }
+          case 'add-step-product': {
+            const id = plan.response?._id ?? plan.response?.product?._id ?? null;
+            const got = await reread(async () => (await readStepProducts(gw, args.locationId, fid, args.stepId)).rows,
+              (rows) => rows.some((r) => r._id === id), deps.rereadOptions ?? {});
+            const row = got.value.find((r) => r._id === id);
+            const out = { op: 'add-step-product', stepProductId: id, step: plan.target.step, product: plan.target.product, price: plan.target.price,
+              readBack: row ? stepProductView(row) : null, stepProducts: got.value.map(stepProductView), note: STEP_PRODUCT_NOTE };
+            if (!id) return withFailureData(fail(CODES.VERIFY_FAILED, `the write answered ${w.status} without a step-product id`, 'Read the step with get_funnel view step-products before adding again.'), out);
+            const same = row && String(row.product?._id ?? row.product) === plan.body.product && String(row.price?._id ?? row.price) === plan.body.price;
+            if (!same) return withFailureData(fail(CODES.VERIFY_FAILED, 'the step product did not read back on the step with the requested product and price', 'Compare data.stepProducts; do not add again blindly.'), out);
             return ok(out);
           }
           default: return ok({ op: args.op, status: w.status });

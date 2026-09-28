@@ -117,10 +117,18 @@ up/down-sell) takes `productId: {value: {id: <STEP product id>}}` — an object,
 catalogue id. Its sale needs a card already on file from an earlier purchase in the funnel.
 After a sale, a `sell-product` button or an order form (`one-step-order`, `two-setp-order`) goes where
 `saleAction` says: `go-to-next-funnel-step` (default), `url` + `visitWebsite`, or `step-path` + `stepPath: <step id>`.
-**Step products** — what an order form lists and a sell button sells — are the step's Products tab:
-`POST /funnels/order-form/products` `{locationId, funnel, step, name, displayText, product, price, bumpProduct,
-quantity: {max, allowMultiple}, authorizeAmount}` (read back with `GET /funnels/order-form/products/?locationId&funnel&step`),
-through `raw_request` today.
+**Step products** — what an order form lists and a sell button sells — are the step's Products tab. Add one with
+`edit_funnel` op `add-step-product` `{stepId, expectName, productId, priceId, displayText?, quantity?, bump?}`: it
+checks the step by id AND name and that the price is one of the product's, refuses a product+price the step already
+lists, reads it back and returns `stepProductId` (the id a sell button stores). `get_funnel` view `step-products`
+lists them with product and price names. Removing or editing one is not offered.
+
+**Forms, surveys, calendars** (`form`, `survey`, `calendar` leaves) bind by reference: `extra.formId` /
+`surveyId` = `{value: <id>, text: <name>}`, `calendarId` = `{value, text, isTeamSelected: false}`, each with its
+own redirect `action` (`none` = use the asset's own action, `url` + `visitWebsite`, `go-to-next-funnel-step`). All
+three render inline in the public page. 🔴 A survey with **no question** takes the WHOLE public page down with a
+500 (the renderer reads the survey live; adding one question fixes it with no republish), so check a page's public
+status after binding a survey.
 
 **Fonts** — page typography `{headlineFont, contentFont}` (compose: top-level `typography`; edit: op `page`
 `typography`) writes the builder's setting, loads the faces and declares `--headlinefont` / `--contentfont`;
@@ -182,8 +190,8 @@ What the builder does that a 2xx will not tell you (all measured live):
   builder's `step1` defaults). The validator also refuses a phone libphonenumber calls impossible, a one-word
   full name, an empty mandatory company name and, with shipping on, an empty address field (a US address needs a
   state). The submission carries a Cloudflare Turnstile token: from an automated browser the order `POST`
-  answered `429` and a "Verify you are human" box appeared. Nothing was created. A test order needs a person in
-  a real browser.
+  answered `429` and a "Verify you are human" box appeared. Nothing was created. An embedded form's
+  `POST /forms/submit` is gated the same way. A test order or form submission needs a person in a real browser.
 
 - 🔴 **The builder's first save of an API-composed page adds an EMPTY popup**, and merely opening the
   General tab of a button whose action is empty rewrites it to `openPopup` pointing at that popup — a

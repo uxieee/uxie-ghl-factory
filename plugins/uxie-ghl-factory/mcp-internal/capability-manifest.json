@@ -2065,6 +2065,11 @@
     "path": "/funnels/page/list"
   },
   {
+    "tool": "get_funnel",
+    "method": "GET",
+    "path": "/funnels/order-form/products/"
+  },
+  {
     "tool": "edit_funnel",
     "method": "GET",
     "path": "/funnels/funnel/fetch/{funnelId}"
@@ -2178,6 +2183,26 @@
     "tool": "edit_funnel",
     "method": "POST",
     "path": "/funnels/store/create-in-funnel"
+  },
+  {
+    "tool": "edit_funnel",
+    "method": "GET",
+    "path": "/products/{productId}"
+  },
+  {
+    "tool": "edit_funnel",
+    "method": "GET",
+    "path": "/products/{productId}/price"
+  },
+  {
+    "tool": "edit_funnel",
+    "method": "GET",
+    "path": "/funnels/order-form/products/"
+  },
+  {
+    "tool": "edit_funnel",
+    "method": "POST",
+    "path": "/funnels/order-form/products"
   },
   {
     "tool": "audit_site",
