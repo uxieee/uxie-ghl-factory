@@ -57,6 +57,19 @@ A wrong value shape can answer **201 with zero rows**. Always run a baseline and
   The name does not mean sent: it read back as a draft, not sent. It needs the contact's email and
   an E.164 phone. Without them it answers 422 while the UI shows nothing.
 
+## Account settings
+
+- **Owners are synced both ways by default.** Changing an opportunity's owner also changes its
+  contact's owner, and the reverse. Only "Allow different owners of Contacts and their
+  Opportunities" (decoupling) stops it.
+- Follower sync (a new owner becomes a follower of the linked contact or opportunity) can only be
+  switched on while decoupling is on.
+- "Allow more than one opportunity per contact in the same pipeline" is on a different screen
+  (Settings › Objects › Opportunities) and a different key (`allowDuplicateOpportunity`, top level
+  of the location write).
+- Once the settings screen has been saved, the UI cannot return the settings to "never set". It
+  writes explicit `false` instead, which behaves the same.
+
 ## Forecast
 
 - The four report endpoints are POSTs that answer 201 and store nothing.
