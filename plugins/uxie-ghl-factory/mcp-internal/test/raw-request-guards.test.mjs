@@ -141,7 +141,7 @@ test('the CONFIRM preview carries the catalogue trap note for a route that has o
   assert.equal(withNote.code, 'CONFIRM_REQUIRED');
   assert.match(withNote.data.preview.trap.note, /WIPES A SPLIT STEP'S EXECUTION HISTORY/);
   assert.equal(withNote.data.preview.trap.kind, 'destructive');
-  const without = await raw().handler({ locationId: L, method: 'POST', path: '/no/such/route/anywhere' }, f.deps);
+  const without = await raw().handler({ locationId: L, method: 'POST', path: '/no/such/route/anywhere', body: { name: 'x' } }, f.deps);
   assert.equal(without.code, 'CONFIRM_REQUIRED');
   assert.equal(Object.hasOwn(without.data.preview, 'trap'), false);
   assert.equal(f.calls.length, 0);

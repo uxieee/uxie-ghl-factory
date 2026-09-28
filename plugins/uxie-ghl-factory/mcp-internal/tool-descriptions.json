@@ -1595,9 +1595,9 @@
     ]
   },
   "publish_workflow": {
-    "description": "Publish workflow — proof: live-runtime (2026-09-25), floor: documented; risk: destructive",
+    "description": "Publish workflow — proof: live-runtime (2026-09-28), floor: documented; risk: destructive",
     "risk": "destructive",
-    "proof": "live-runtime (2026-09-25)",
+    "proof": "live-runtime (2026-09-28)",
     "proofFloor": "documented",
     "proofRows": [
       "workflow-publish"

@@ -171,7 +171,7 @@ test('raw_request fails closed for secret-keyed nested objects and arrays across
     response: { status: 200, ok: true, json: { sessionToken: [{ successMarker }], safe: true } },
   });
   const success = await rawRequestTool().handler({
-    locationId: 'LOC', method: 'POST', path: '/widgets', confirm: true,
+    locationId: 'LOC', method: 'POST', path: '/widgets', confirm: true, allowEmptyBody: true,
   }, successFixture.deps);
   assert.equal(success.ok, true);
   assert.equal(success.data.json.sessionToken, '<redacted>');
@@ -181,7 +181,7 @@ test('raw_request fails closed for secret-keyed nested objects and arrays across
     response: { status: 500, ok: false, json: { credentials: { nested: [httpMarker] } } },
   });
   const http = await rawRequestTool().handler({
-    locationId: 'LOC', method: 'POST', path: '/widgets', confirm: true,
+    locationId: 'LOC', method: 'POST', path: '/widgets', confirm: true, allowEmptyBody: true,
   }, httpFixture.deps);
   assert.equal(http.code, 'HTTP_500');
   assert.doesNotMatch(JSON.stringify(http), new RegExp(httpMarker));
@@ -190,7 +190,7 @@ test('raw_request fails closed for secret-keyed nested objects and arrays across
     throwError: new Error(JSON.stringify({ refresh_token: [{ transportMarker }] })),
   });
   const transport = await rawRequestTool().handler({
-    locationId: 'LOC', method: 'POST', path: '/widgets', confirm: true,
+    locationId: 'LOC', method: 'POST', path: '/widgets', confirm: true, allowEmptyBody: true,
   }, transportFixture.deps);
   assert.equal(transport.code, 'ENGINE_ABORT');
   assert.doesNotMatch(JSON.stringify(transport), new RegExp(transportMarker));
@@ -202,7 +202,7 @@ test('confirmed raw HTTP and transport failures scrub opaque credentials from up
     response: { status: 500, ok: false, json: { refresh_token: httpSecret } },
   });
   const httpResult = await rawRequestTool().handler({
-    locationId: 'LOC', method: 'POST', path: '/widgets', confirm: true,
+    locationId: 'LOC', method: 'POST', path: '/widgets', confirm: true, allowEmptyBody: true,
   }, httpFixture.deps);
   assert.equal(httpResult.code, 'HTTP_500');
   assert.doesNotMatch(JSON.stringify(httpResult), new RegExp(httpSecret));
@@ -214,7 +214,7 @@ test('confirmed raw HTTP and transport failures scrub opaque credentials from up
     throwError: new Error(`socket lost; session_token=${transportSecret}`),
   });
   const transportResult = await rawRequestTool().handler({
-    locationId: 'LOC', method: 'POST', path: '/widgets', confirm: true,
+    locationId: 'LOC', method: 'POST', path: '/widgets', confirm: true, allowEmptyBody: true,
   }, transportFixture.deps);
   assert.equal(transportResult.code, 'ENGINE_ABORT');
   assert.doesNotMatch(JSON.stringify(transportResult), new RegExp(transportSecret));
@@ -223,7 +223,7 @@ test('confirmed raw HTTP and transport failures scrub opaque credentials from up
 test('raw write remediations stay endpoint-specific even for workflow-shaped HTTP codes', async () => {
   const fx = fixture({ response: { status: 409, ok: false, json: { message: 'conflict' } } });
   const result = await rawRequestTool().handler({
-    locationId: 'LOC', method: 'POST', path: '/arbitrary-resource', confirm: true,
+    locationId: 'LOC', method: 'POST', path: '/arbitrary-resource', confirm: true, allowEmptyBody: true,
   }, fx.deps);
 
   assert.equal(result.code, 'VERSION_CONFLICT');

@@ -8,7 +8,7 @@ import { z } from 'zod';
 import { ok, fail, fromHttp, CODES, containsSecrets, scrubSecrets } from './errors.mjs';
 import { authStatus, DEFAULT_TOKEN_FILE, readCredentials } from './auth.mjs';
 import { checkLocationBinding } from './location-binding.mjs';
-import { refuseRawRequest, matchCatalogRow, refuseRedactedWrite, restoreRedactedForValidation } from './raw-request-guards.mjs';
+import { refuseRawRequest, refuseEmptyWriteBody, matchCatalogRow, refuseRedactedWrite, restoreRedactedForValidation } from './raw-request-guards.mjs';
 import { scanPage, judge, judgeVersions, judgeRouting, judgePathCollisions, judgePageRecord, judgeRendered, judgeStyles, normaliseTag } from './site-audit.mjs';
 import { makeAuditCircuit, makeAuditGateway, makeAuditLimiter } from './audit-gateway.mjs';
 import { makeGateway } from './gateway.mjs';
@@ -6770,14 +6770,31 @@ export const TOOLS = [
           body,
         ),
       );
+      // A FAILED PUBLISH REPLY IS NOT AN UNPUBLISHED WORKFLOW (workflows wave21). Measured 2026-09-28
+      // on the sandbox: a publish answered "upstream connect error or disconnect/reset before headers.
+      // reset reason: connection termination" and the workflow read back PUBLISHED — the caller took
+      // the error at its word and left it live. So one fresh read decides: published → carry on
+      // through the normal verification below (triggers, repair, round trip) and say so on the
+      // result; anything else → the failure, now carrying the status that was actually read.
+      let transportError = null;
       if (publishedCall.threw || !publishedCall.value.ok) {
-        return publishPartialFailure(
-          publishedCall.threw
-            ? publishedCall.failure
-            : fromHttp(publishedCall.value.status, publishedCall.value.json),
-          'publish_put',
-          'The publish PUT was attempted but not acknowledged; its outcome may be ambiguous.',
-        );
+        const failure = publishedCall.threw
+          ? publishedCall.failure
+          : fromHttp(publishedCall.value.status, publishedCall.value.json);
+        const reread = await safeGatewayCall(() => getWorkflow(gw, args.locationId, args.workflowId));
+        const statusAfter = !reread.threw && reread.value?.ok ? (reread.value.json?.status ?? null) : null;
+        partialProgress.putOutcome.statusAfterFailure = statusAfter;
+        if (statusAfter !== 'published') {
+          return publishPartialFailure(
+            failure,
+            'publish_put',
+            statusAfter
+              ? `The publish PUT was not acknowledged, and a fresh read shows the workflow ${statusAfter} — it was not published.`
+              : 'The publish PUT was attempted but not acknowledged, and a fresh read failed too; its outcome is ambiguous.',
+          );
+        }
+        partialProgress.putOutcome.recoveredByReadBack = true;
+        transportError = { code: failure.code, detail: failure.detail ?? null };
       }
       partialProgress.putApplied = true;
 
@@ -6884,6 +6901,10 @@ export const TOOLS = [
         partialProgress,
         builderUrl: `https://app.gohighlevel.com/v2/location/${encodeURIComponent(args.locationId)}/automation/workflow/${encodeURIComponent(args.workflowId)}`,
         runtimeProofNote: 'active: true and a clean round trip are not proof that a trigger fires; only added_to_workflow in runtime logs proves firing.',
+        ...(transportError ? {
+          publishedDespiteTransportError: transportError,
+          transportNote: 'The publish PUT answered with an error, but the workflow read back published: it IS live. A publish error never means unpublished — the read decides.',
+        } : {}),
       };
       if (!verify.roundTrip) {
         partialProgress.failurePhase = 'publish_verify_state';
@@ -8590,7 +8611,9 @@ export const TOOLS = [
   },
   {
     name: 'raw_request',
-    description: 'Escape hatch for internal endpoints the typed tools do not cover. GET remains read-only; non-GET requests require confirm:true and report ambiguous transport outcomes. host:"ai" targets services.leadconnectorhq.com on the dual-credential AI rail (Bearer + token-id); default "workflow" hits backend.leadconnectorhq.com on the Bearer rail.',
+    description: 'Escape hatch for internal endpoints the typed tools do not cover. GET remains read-only; non-GET requests require confirm:true and report ambiguous transport outcomes. '
+      + 'A POST/PUT/PATCH with an EMPTY body ({}, [] or none) is refused before sending (EMPTY_WRITE_BODY): an empty start-workflow body enrolled a phantom execution, and an empty write elicits nothing safe — never probe a write route for its schema. Take the body from describe_endpoint, a builder capture or the source. Pass allowEmptyBody:true only for a route that really takes no body (a bodiless enrol or publish). DELETE is not affected. '
+      + 'host:"ai" targets services.leadconnectorhq.com on the dual-credential AI rail (Bearer + token-id); default "workflow" hits backend.leadconnectorhq.com on the Bearer rail.',
     inputSchema: schema({
       locationId: z.string(),
       method: z.string().trim().regex(HTTP_METHOD_TOKEN).transform((method) => method.toUpperCase()),
@@ -8605,6 +8628,9 @@ export const TOOLS = [
       // validate the allowed set inside the handler, downstream of the secret scrub (SC2).
       host: z.string().default('workflow'),
       confirm: z.boolean().default(false),
+      // POST/PUT/PATCH with {} / [] / no body is refused (EMPTY_WRITE_BODY) unless this is true —
+      // for a route that really takes no body. core/raw-request-guards.mjs refuseEmptyWriteBody.
+      allowEmptyBody: z.boolean().default(false),
     }),
     capabilities: [],
     handler: async (args, deps) => guard(async () => {
@@ -8679,6 +8705,12 @@ export const TOOLS = [
         const redactedRefusal = refuseRedactedWrite(body);
         if (redactedRefusal) return fail(CODES.VALIDATION_FAILED, redactedRefusal.message, redactedRefusal.hint);
       }
+
+      // Any POST/PUT/PATCH with nothing to send, on any route (wave21). After the path-scoped rules
+      // (their messages are more specific, and allowEmptyBody does not open them) and BEFORE the
+      // confirm gate, so neither a preview nor a send is offered for it. DELETE is untouched.
+      const emptyRefusal = refuseEmptyWriteBody({ method, body, allowEmptyBody: args.allowEmptyBody === true });
+      if (emptyRefusal) return fail(CODES.EMPTY_WRITE_BODY, emptyRefusal.message, emptyRefusal.hint);
 
       if (method !== 'GET' && args.confirm !== true) {
         // The route's measured trap, at the one moment it matters. The catalogue already knows that

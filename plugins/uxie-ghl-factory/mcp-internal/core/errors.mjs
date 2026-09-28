@@ -23,6 +23,10 @@ export const CODES = Object.freeze({
   // re-authentication cycle on something re-authenticating cannot fix.
   ACCESS_DENIED: 'ACCESS_DENIED',
   VALIDATION_FAILED: 'VALIDATION_FAILED',
+  // raw_request POST/PUT/PATCH with nothing to send ({}, [], or no body). Refused before the confirm
+  // gate: an empty start-workflow body enrolled a phantom (measured), and an empty write elicits
+  // nothing safe. allowEmptyBody:true is the way through for a route that really takes no body.
+  EMPTY_WRITE_BODY: 'EMPTY_WRITE_BODY',
   // The registration declares no permitted locations, and this call would write. Reads are
   // unaffected: refusing everything would break every registration on upgrade, and refusing
   // nothing would ship the guard to nobody.
