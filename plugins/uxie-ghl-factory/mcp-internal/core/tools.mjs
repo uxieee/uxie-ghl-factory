@@ -26,6 +26,7 @@ import {
 import { planCreateFunnel, createdId, EXPECT_TYPE, KINDS as FUNNEL_KINDS, STORE_DANGLING_FORM_NOTE, listAllDocuments } from './funnel-create.mjs';
 import { applyPageEdits, verifyEdits, checkPageTarget, pageDataForWrite, seoMeta, seoDiff, findNode } from './page-edit.mjs';
 import { entranceClass, hoverClass, entranceCss, hoverCss, ENTRANCE_METAS, HOVER_METAS, ENTRANCE_ANIMATIONS, HOVER_ANIMATIONS } from './page-animation.mjs';
+import { elementSpecProblem } from './element-spec.mjs';
 import { makePopup, popupRefProblems } from './page-popup.mjs';
 import { fontRegistry, typographyValue, typographyFamily, setRootVars, typographyRule, TYPOGRAPHY_SLOTS, typographySlot, isCustomFont, upsertCustomFont, resolveCustomFont } from './page-fonts.mjs';
 import { checkRecord, metaPost, recordDrift } from './page-seo.mjs';
@@ -10819,7 +10820,9 @@ export const TOOLS = [
       + 'autosave will not: `meta` against the closed set of 60 kinds, every declared `extra` property '
       + 'present (the renderer reads extra.<prop>.value UNGUARDED, so a missing one 500s the whole '
       + 'page while autosave still answers 201), `col.extra.bgImage`, `general.general.fontsToLoad` '
-      + 'and `colors`, and child[] holding node IDS that resolve. Verifies by reading the page back on '
+      + 'and `colors`, child[] holding node IDS that resolve, and each element spec\'s KEYS: meta, html (text), '
+      + 'extra, styles, css, font, tag, entranceAnimation, hoverAnimation, openPopup — per kind; any other key is '
+      + 'refused by name (a button given `text` instead of `html` was stored empty). Verifies by reading the page back on '
       + 'a separate request; pass verifyUrl to also poll the public render for your own copy — one '
       + 'request there is not a measurement, since the first can serve the previous compile. '
       + 'EDIT MODE (pass `edits` + `stepName` instead of `sections`): changes an EXISTING page in place — '
@@ -10943,6 +10946,8 @@ export const TOOLS = [
       };
       // One leaf composer for sections and popups alike: node + the compiled rules the public page serves.
       const composeLeaf = (e0, salt) => {
+        const keyProblem = elementSpecProblem(e0);
+        if (keyProblem) throw Object.assign(new Error(keyProblem), { remediation: 'Text goes in `html`; any other stored prop goes in `extra` as {<prop>: {value}}. Nothing was written.' });
         const e = { ...e0, ...(e0.css?.font ? { css: { ...e0.css, font: fonts.reg.ref(e0.css.font) } } : {}), ...(e0.styles ? { styles: viaVar(e0.styles) } : {}) };
         if (e.font !== undefined && !TYPOGRAPHY_SLOTS[e.font]) throw new Error(`font must be 'headline' or 'content' (the page's typography fonts), not "${e.font}"`);
         if (e.font && !fonts.typography[e.font]) throw Object.assign(new Error(`font: '${e.font}' names the page's ${e.font} font, but this page has none set, so the element would reference an unset variable`), { remediation: `Set typography.${TYPOGRAPHY_SLOTS[e.font][0]} (compose) or a \`page\` op with typography (edit) in the same call.` });
