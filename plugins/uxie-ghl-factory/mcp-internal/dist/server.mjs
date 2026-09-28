@@ -35599,7 +35599,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "write",
-          reach: "source-only",
+          note: 'REQUIRES non-empty correlationId AND correlationType (live 2026-09-28: 422 "should not be empty" when sent with the FeedbackModalRemote defaults, which are ""; nothing stored). The host app that mounts the modal supplies them and none is mined, so do not guess them. trainBot is an OBJECT {question, answer, knowledgeBaseId} or omitted \u2014 there is no false. Offered in the UI on Conversation AI turns, not on Voice AI log turns.',
+          reach: "reached",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -35630,7 +35631,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "source-only",
+          note: "productType is its OWN enum: ask_ai, voice_ai, conversations, super_agents, content_ai_text, content_ai_image \u2014 not the Agent Logs product names (conversation_ai / agent_studio \u2192 422). Returns the server-delivered feedback modal: {title, enabledSentiments [up, down], headings, questions (positives multi \u{1F44D}, note text \u{1F44D}, reasons multi \u{1F44E}, comment text \u{1F44E}), trainBot, chunkReview, actionReview, disclaimer, version}. Live 2026-09-28.",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -36223,8 +36225,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           rail: "ai",
           kind: "write",
           summary: "Create a Metrics dashboard layout.",
-          note: 'The UI calls this automatically when metrics-layouts is empty, seeding {name:"Default", isDefault:true, version:2}. Never called during mapping. Executed on the sandbox 2026-09-10, read back on a separate request (0 -> 1 layout, found by name). Body is exactly {locationId, name, widgets} with `widgets` at the TOP LEVEL \u2014 nesting it under a `layout` key answers 422 ["widgets must be an array"]. host:"ai" (services.leadconnectorhq.com); the read returns {status, layouts[], traceId} so a caller reading `.data` gets nothing.',
-          reach: "proven",
+          note: 'The "+ Add Layout" body: {locationId, name, widgets[{widgetId, x, y, w, h}], version: 2} \u2192 201 {id, companyId, locationId, name, isDefault:false, widgets, createdAt, updatedAt, version}. Live 2026-09-28 on the sandbox (ai-agents wave 6): an own TEST-CONF-AI layout was created, rendered in the Metrics tab, renamed and deleted by id; the other layout was untouched and nothing was re-seeded. \u{1F534} The UI also calls this BY ITSELF when the list is empty, seeding {name:"Default", isDefault:true, version:2} \u2014 so opening the Metrics tab on an account with no layouts writes a row, and deleting the LAST layout re-seeds one.',
+          reach: "proven-live",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -36260,8 +36262,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           rail: "ai",
           kind: "write",
           summary: "Delete a Metrics dashboard layout.",
-          note: 'Never called during mapping; read-only sweep. \u{1F534} CATALOGUE MISLABEL: DELETE row whose `kind` says "write". Filter on METHOD as well as kind. Not probed.',
-          reach: "source-only",
+          note: '?locationId= in the QUERY \u2192 200 {status:"success"}. Deleting the last layout makes the UI re-seed "Default" on its next open. Target-check the id and name first \u2014 a layout may belong to another user of the location. Live 2026-09-28 on the sandbox (ai-agents wave 6): an own TEST-CONF-AI layout was created, rendered in the Metrics tab, renamed and deleted by id; the other layout was untouched and nothing was re-seeded. \u{1F534} CATALOGUE MISLABEL: DELETE row whose `kind` says "write". Filter on METHOD as well as kind.',
+          reach: "proven-live",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -36308,8 +36310,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           rail: "ai",
           kind: "write",
           summary: "Update a Metrics dashboard layout.",
-          note: "Never called during mapping; read-only sweep.",
-          reach: "source-only",
+          note: "?locationId= in the QUERY. Partial: {name} renames and keeps the widgets; {widgets} saves an edit; {isDefault:true} sets the default (the UI then treats the newest updatedAt among defaults as the default). The client also sends {version:2} (or {widgets, version:2}) to migrate a layout without a version when the tab opens \u2014 it did NOT fire for a version:null layout on 2026-09-28. Live 2026-09-28 on the sandbox (ai-agents wave 6): an own TEST-CONF-AI layout was created, rendered in the Metrics tab, renamed and deleted by id; the other layout was untouched and nothing was re-seeded.",
+          reach: "proven-live",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -57944,9 +57946,9 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         },
         "DELETE /agent-logs/metrics-layouts/{layoutId}": {
           kind: "write",
-          reach: "source-only",
+          reach: "proven-live",
           summary: "Delete a Metrics dashboard layout.",
-          note: 'Never called during mapping; read-only sweep. \u{1F534} CATALOGUE MISLABEL: DELETE row whose `kind` says "write". Filter on METHOD as well as kind. Not probed.'
+          note: '?locationId= in the QUERY \u2192 200 {status:"success"}. Deleting the last layout makes the UI re-seed "Default" on its next open. Target-check the id and name first \u2014 a layout may belong to another user of the location. Live 2026-09-28 on the sandbox (ai-agents wave 6): an own TEST-CONF-AI layout was created, rendered in the Metrics tab, renamed and deleted by id; the other layout was untouched and nothing was re-seeded. \u{1F534} CATALOGUE MISLABEL: DELETE row whose `kind` says "write". Filter on METHOD as well as kind.'
         },
         "DELETE /emails/trigger/{locationId}/{triggerId}": {
           reach: "source-only",
@@ -59180,9 +59182,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
         },
         "POST /agent-logs/metrics-layouts": {
           kind: "write",
-          reach: "proven",
+          reach: "proven-live",
           summary: "Create a Metrics dashboard layout.",
-          note: 'The UI calls this automatically when metrics-layouts is empty, seeding {name:"Default", isDefault:true, version:2}. Never called during mapping. Executed on the sandbox 2026-09-10, read back on a separate request (0 -> 1 layout, found by name). Body is exactly {locationId, name, widgets} with `widgets` at the TOP LEVEL \u2014 nesting it under a `layout` key answers 422 ["widgets must be an array"]. host:"ai" (services.leadconnectorhq.com); the read returns {status, layouts[], traceId} so a caller reading `.data` gets nothing.'
+          note: 'The "+ Add Layout" body: {locationId, name, widgets[{widgetId, x, y, w, h}], version: 2} \u2192 201 {id, companyId, locationId, name, isDefault:false, widgets, createdAt, updatedAt, version}. Live 2026-09-28 on the sandbox (ai-agents wave 6): an own TEST-CONF-AI layout was created, rendered in the Metrics tab, renamed and deleted by id; the other layout was untouched and nothing was re-seeded. \u{1F534} The UI also calls this BY ITSELF when the list is empty, seeding {name:"Default", isDefault:true, version:2} \u2014 so opening the Metrics tab on an account with no layouts writes a row, and deleting the LAST layout re-seeds one.'
         },
         "POST /agent-studio/super-agent/agents/{agentId}/publish": {
           summary: "Publish a Managed (super) agent's draft: returns the agent with status 'published', a new versionId and a triggerId on every trigger. Body {locationId}.",
@@ -59704,9 +59706,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
         },
         "PUT /agent-logs/metrics-layouts/{layoutId}": {
           kind: "write",
-          reach: "source-only",
+          reach: "proven-live",
           summary: "Update a Metrics dashboard layout.",
-          note: "Never called during mapping; read-only sweep."
+          note: "?locationId= in the QUERY. Partial: {name} renames and keeps the widgets; {widgets} saves an edit; {isDefault:true} sets the default (the UI then treats the newest updatedAt among defaults as the default). The client also sends {version:2} (or {widgets, version:2}) to migrate a layout without a version when the tab opens \u2014 it did NOT fire for a version:null layout on 2026-09-28. Live 2026-09-28 on the sandbox (ai-agents wave 6): an own TEST-CONF-AI layout was created, rendered in the Metrics tab, renamed and deleted by id; the other layout was untouched and nothing was re-seeded."
         },
         "PUT /calendars/schedules/{id}": {
           summary: "THE way to set a calendar's days and hours. Availability lives here, not in the calendar's openHours.",
@@ -60133,6 +60135,16 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           kind: "read",
           summary: "The Voice/Conversation AI template grid (Create Agent \u2192 Browse Marketplace): marketplace apps with their bots.",
           note: 'NO TASK NEEDS THIS \u2014 coordinator decision 2026-09-28: the plugin does not install agent templates. Every row is a MARKETPLACE APP (appId, isPaidApp, companyName, installs); installing one is Install \u2192 "Install confirmation" \u2192 Allow & install = POST /oauth/authorize, an OAuth grant of the app to the location (even LeadConnector apps with allowedScopes []). Pages with &skip= (page=/offset= ignored); query= filters. IF THE USER WANTS IT: GHL can do it. Tell them to install it in the UI: AI Agents \u2192 Voice AI \u2192 Create Agent \u2192 Browse Marketplace \u2192 the template \u2192 Install. Then build or edit the agent with create_voiceai_agent / update_voiceai_agent.'
+        },
+        "GET /agent-logs/feedback/config": {
+          kind: "read",
+          reach: "proven",
+          note: "productType is its OWN enum: ask_ai, voice_ai, conversations, super_agents, content_ai_text, content_ai_image \u2014 not the Agent Logs product names (conversation_ai / agent_studio \u2192 422). Returns the server-delivered feedback modal: {title, enabledSentiments [up, down], headings, questions (positives multi \u{1F44D}, note text \u{1F44D}, reasons multi \u{1F44E}, comment text \u{1F44E}), trainBot, chunkReview, actionReview, disclaimer, version}. Live 2026-09-28."
+        },
+        "POST /agent-logs/feedback": {
+          kind: "write",
+          reach: "reached",
+          note: 'REQUIRES non-empty correlationId AND correlationType (live 2026-09-28: 422 "should not be empty" when sent with the FeedbackModalRemote defaults, which are ""; nothing stored). The host app that mounts the modal supplies them and none is mined, so do not guess them. trainBot is an OBJECT {question, answer, knowledgeBaseId} or omitted \u2014 there is no false. Offered in the UI on Conversation AI turns, not on Voice AI log turns.'
         }
       }
     };
@@ -62647,9 +62659,9 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       list_agent_sessions: {
-        description: "Agent Logs sessions \u2014 the AI Agents log table, filterable and cursor-paged \u2014 proof: live-runtime (2026-09-25); risk: read",
+        description: "Agent Logs sessions \u2014 the AI Agents log table, filterable and cursor-paged \u2014 proof: live-runtime (2026-09-28); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-09-25)",
+        proof: "live-runtime (2026-09-28)",
         proofFloor: "live-runtime (2026-09-03)",
         proofRows: [
           "ai-agents--agent-logs-logs"
@@ -175629,6 +175641,10 @@ init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
 var SORT_FIELDS = ["timestamp", "agentName", "aiProduct", "contactName", "channel", "durationMs", "totalTokens"];
+var UNRELIABLE_SORTS = {
+  durationMs: "GHL does not really sort by durationMs: the page comes back in a partly unsorted order (live 2026-09-28: 8 of 19 pairs out of order). Re-sort the rows yourself, or sort by timestamp or totalTokens, which GHL sorts correctly."
+};
+var sortNote = (sortBy) => UNRELIABLE_SORTS[sortBy] ?? null;
 var TIME_RANGES = ["1_day", "7_days", "14_days", "30_days", "90_days", "custom"];
 var PRODUCTS = ["agent_studio", "voice_ai", "conversation_ai", "superagents", "ask_ai", "agent_logs_assistant"];
 var MAX_OFFSET = 500;
@@ -183051,7 +183067,7 @@ var TOOLS2 = [
     name: "list_agent_sessions",
     description: describe3(
       "list_agent_sessions",
-      "The AI Agents \u2192 Agent Logs Sessions table: one row per agent session with product, channel, agent, contact, tokens, latency and duration. Read-only despite being a POST \u2014 this endpoint reads, so it does not take the raw-write confirmation gate."
+      `The AI Agents \u2192 Agent Logs Sessions table: one row per agent session with product, channel, agent, contact, tokens, latency and duration. Read-only despite being a POST \u2014 this endpoint reads, so it does not take the raw-write confirmation gate. Traps (live 2026-09-28): sortBy:"durationMs" is NOT a true sort on GHL's side (the result carries a note; re-sort yourself); agentName is a substring match; Conversation AI Test-panel chats are never logged (a trial chat has no session row), while a Voice AI Test Audio web call is.`
     ),
     inputSchema: schema({
       locationId: external_exports.string(),
@@ -183132,6 +183148,8 @@ var TOOLS2 = [
       const meta3 = r.json?.meta ?? {};
       const rows = recordsFrom2(r.json, "data").map(sessionRow);
       if (r.json?.tokenDataVisible === false) notes.push("tokenDataVisible:false \u2014 this account hides token counts.");
+      const sortWarn = sortNote(sortBy);
+      if (sortWarn) notes.push(sortWarn);
       const total = Number(meta3.totalRecords ?? rows.length);
       if (total > MAX_OFFSET + limit) notes.push(`${total} rows match; paging stops at offset ${MAX_OFFSET}. Use all:true or a larger limit.`);
       return ok({
