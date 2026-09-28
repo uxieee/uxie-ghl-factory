@@ -53,6 +53,8 @@ A verifier that compares on what it sent reports a mismatch on a perfectly good 
 | **`type=form` is the row-kind switch** | Any other value, including omitting it, returns forms **and folders** in one array. `type` selects the row kind, not the `productType`. |
 | **`count` counts folders too** | Three forms plus one folder answers 4. It will not agree with the number of rows you listed. |
 | **Nothing inside `formData` is validated** | An invented key is stored and read back. The only guard is the widget: what it cannot render, it ignores. Validate on your side. |
+| **A field with no `type` is saved and never shown** | The widget renders each element by `type`. `{tag, label}` reads back fine and renders no label and no input; a form left with only its typed button shows the button alone. `create_form` and `update_form_data` complete a built-in tag sent without `type` the builder's way (listed under `completed`) and refuse any other untyped or unknown-type field by name. |
+| **A blank submit is accepted** | With no required input, pressing submit stores an empty submission and creates a contact with no name, email or phone, and form-submission workflows fire on it. The tools warn under `blankSubmit`; make `email` required. |
 | **Query shapes are strict** | `forms-list` wants `formIds=a,b,c` as one comma-joined string (repeated params 422). `submissions` pages with `page`, not `skip`. `submissions-count` takes a date range and refuses `formId`. |
 | **An unknown `productType` becomes `form`** | `"banana"` is accepted and stored as `form`. Only `form` and `quiz` live on this collection. |
 | **Both hosts serve it** | `services` and `backend` answer every path, with `token-id` alone, Bearer alone, or both. The builder sends services; the typed tools use the backend Bearer rail. Recorded in the host-parity ledger, not a contradiction. |
@@ -70,7 +72,9 @@ A verifier that compares on what it sent reports a mismatch on a perfectly good 
 4. **`formAction.actionType: "2"`** with an empty `redirect_url` shows `thankyouText`; put a URL in
    `redirect_url` to redirect instead.
 5. **Verify by rendering**, not only by reading: `GET https://api.leadconnectorhq.com/widget/form/{id}`
-   with no auth returns HTML containing your labels. That is the same URL the Integrate panel embeds.
+   with no auth returns the rendered form; look for `<input name="<tag>">` per field. The label text alone
+   is not proof: the page's data payload carries every stored field, rendered or not. That is the same URL
+   the Integrate panel embeds.
 
 ## Editing one
 
