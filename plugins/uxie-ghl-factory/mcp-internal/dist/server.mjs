@@ -178,7 +178,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
     define_ENDPOINT_CATALOG_default = {
       generated: "2026-09-28",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 1252,
+      count: 1254,
       endpoints: [
         {
           id: "facebook-service--get-ad-account-by-id",
@@ -1668,6 +1668,39 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "workflows/70-research/ENDPOINTS.md:211"
+          ]
+        },
+        {
+          id: "typed--create_funnel--blogs-site",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/blogs/site",
+          path: "/blogs/site",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "proven",
+          coveredBy: [
+            "create_funnel"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "create_funnel",
+          tree: "typed-tool",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "proven",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "capability-manifest.json (create_funnel)"
           ]
         },
         {
@@ -8204,7 +8237,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "write",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "edit_funnel"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -8335,7 +8370,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "write",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "create_funnel"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -8407,7 +8444,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "write",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "edit_funnel"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -8477,6 +8516,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           reach: "proven",
           coveredBy: [
             "audit_site",
+            "create_funnel",
             "edit_funnel",
             "get_funnel"
           ],
@@ -8530,7 +8570,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "write",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "edit_funnel"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -8710,6 +8752,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           coveredBy: [
             "audit_site",
+            "create_funnel",
             "find_ghl_site",
             "list_account_entities"
           ],
@@ -8820,6 +8863,39 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "funnels/40-rules/silent-failures.md:123",
             "funnels/40-rules/silent-failures.md:245",
             "funnels/40-rules/silent-failures.md:522"
+          ]
+        },
+        {
+          id: "typed--edit_funnel--funnel-update-funnel-and-page",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/funnels/funnel/update-funnel-and-page",
+          path: "/funnels/funnel/update-funnel-and-page",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "proven",
+          coveredBy: [
+            "edit_funnel"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "edit_funnel",
+          tree: "typed-tool",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "proven",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "capability-manifest.json (edit_funnel)"
           ]
         },
         {
@@ -9008,7 +9084,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "write",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "edit_funnel"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -9042,6 +9120,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "write",
           reach: "source-only",
           coveredBy: [
+            "edit_funnel",
             "edit_redirects"
           ],
           rawCallable: true,
@@ -11314,6 +11393,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           coveredBy: [
             "check_snapshot_conflicts",
             "copy_workflow_to_location",
+            "create_funnel",
             "create_snapshot",
             "get_snapshot_contents",
             "get_snapshot_manifest",
@@ -16530,7 +16610,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:406"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:407"
           ]
         },
         {
@@ -41284,6 +41364,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           reach: "proven",
           coveredBy: [
             "create_form",
+            "create_funnel",
             "get_form",
             "update_form_data"
           ],
@@ -42221,7 +42302,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           provenFor: [
             "agency-admin-bearer"
           ],
-          coveredBy: [],
+          coveredBy: [
+            "create_funnel"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -54695,7 +54778,9 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           rail: "ai",
           kind: "read",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "create_funnel"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -55253,7 +55338,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:161",
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:377"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:378"
           ]
         },
         {
@@ -55636,7 +55721,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:365"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:366"
           ]
         },
         {
@@ -55678,7 +55763,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:324"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:325"
           ]
         },
         {
@@ -55713,7 +55798,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:320"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:321"
           ]
         },
         {
@@ -55811,7 +55896,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:379"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:380"
           ]
         },
         {
@@ -55954,7 +56039,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:387"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:388"
           ]
         },
         {
@@ -56037,7 +56122,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:402",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:403",
             "ai-agents/20-api/logs-deployment-email.md:27"
           ]
         },
@@ -56073,7 +56158,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:383"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:384"
           ]
         },
         {
@@ -56111,7 +56196,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:386"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:387"
           ]
         },
         {
@@ -56167,7 +56252,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:389",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:390",
             "ai-agents/20-api/logs-deployment-email.md:24",
             "ai-agents/20-api/voice-ai-boundary.md:71",
             "ai-agents/30-types/voice-ai-actions.md:109"
@@ -56214,7 +56299,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:390",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:391",
             "ai-agents/20-api/logs-deployment-email.md:25",
             "ai-agents/20-api/voice-ai-boundary.md:72"
           ]
@@ -56724,7 +56809,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:332",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:333",
             "ai-agents/20-api/logs-deployment-email.md:19",
             "ai-agents/20-api/voice-ai-boundary.md:70"
           ]
@@ -56823,7 +56908,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:373",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:374",
             "ai-agents/20-api/voice-ai-boundary.md:64"
           ]
         },
@@ -56855,7 +56940,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:372"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:373"
           ]
         },
         {
@@ -56890,7 +56975,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:376"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:377"
           ]
         },
         {
@@ -56925,7 +57010,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:375"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:376"
           ]
         },
         {
@@ -56960,7 +57045,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:374"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:375"
           ]
         },
         {
@@ -56995,7 +57080,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:339"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:340"
           ]
         },
         {
@@ -57161,7 +57246,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:358"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:359"
           ]
         },
         {
@@ -57291,7 +57376,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:355"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:356"
           ]
         },
         {
@@ -57335,7 +57420,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:351",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:352",
             "ai-agents/20-api/voice-ai-boundary.md:66"
           ]
         },
@@ -57371,7 +57456,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:359"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:360"
           ]
         },
         {
@@ -57421,7 +57506,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:353"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:354"
           ]
         },
         {
@@ -63099,6 +63184,32 @@ var init_define_TOOL_CATALOG = __esm({
         rows: [
           "funnels--redirect-list",
           "funnels--lookup-exists"
+        ]
+      },
+      create_funnel: {
+        description: "Create a funnel, website, store, webinar or blog document on a location \u2014 proof: live-runtime (2026-09-28); risk: write",
+        risk: "write",
+        proof: "live-runtime (2026-09-28)",
+        proofFloor: "external-receipt-required",
+        proofRows: [
+          "funnels--funnel-create",
+          "template-library-service--load-workflow-via-template-id",
+          "funnels--blog-list"
+        ],
+        proofFloorRows: [
+          "funnels--funnel-create",
+          "template-library-service--load-workflow-via-template-id",
+          "funnels--blog-list"
+        ],
+        riskRows: [
+          "funnels--funnel-create",
+          "template-library-service--load-workflow-via-template-id",
+          "funnels--blog-list"
+        ],
+        rows: [
+          "funnels--funnel-create",
+          "template-library-service--load-workflow-via-template-id",
+          "funnels--blog-list"
         ]
       }
     };
@@ -99113,6 +99224,82 @@ function planAddHeader({ funnel, locationId, key, value }) {
   if (existing) return { refuse: `header ${existing.key} already exists on this funnel; editing/removing is not proven here` };
   return { method: "POST", path: "/funnels/funnel/headers", body: { locationId, funnelId: funnel._id ?? funnel.id, key, value: String(value ?? "") } };
 }
+var SERVING = (r) => (r.type === "step" || r.type === "page") && r.publishStatus !== "unpublished";
+function planDeleteFunnel({ funnel, lookups, expectName, locationId, userId }) {
+  const fid = funnel._id ?? funnel.id;
+  if (typeof expectName !== "string" || funnel.name !== expectName) {
+    return { refuse: `target check failed: funnel ${fid} is named ${JSON.stringify(funnel.name)}, not ${JSON.stringify(expectName)}. Nothing was deleted.` };
+  }
+  if (!userId) return { refuse: "this credential carries no user id, and the delete route requires one" };
+  const live = lookups.filter(SERVING);
+  if (live.length) {
+    return { refuse: `${live.length} public path(s) still serve on this document: ${live.map((r) => `${r.domain ?? ""}${r.path}`).join(", ")}. Unpublish each page first (edit_funnel unpublish-page), then delete. Nothing was deleted.` };
+  }
+  return {
+    method: "POST",
+    path: "/funnels/funnel/delete",
+    body: { funnelId: fid, locationId, userId },
+    target: { id: fid, name: funnel.name, type: funnel.type, steps: (funnel.steps ?? []).length, lookupRows: lookups.length }
+  };
+}
+var splitStamp = (d = /* @__PURE__ */ new Date()) => {
+  const off = -d.getTimezoneOffset();
+  const sign = off >= 0 ? "+" : "-";
+  const a = Math.abs(off);
+  const hh = d.getHours() % 12 || 12;
+  const mm = String(d.getMinutes()).padStart(2, "0");
+  const ss = String(d.getSeconds()).padStart(2, "0");
+  const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  return `${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()} at ${hh}:${mm}:${ss} ${d.getHours() < 12 ? "AM" : "PM"} UTC${sign}${String(Math.floor(a / 60)).padStart(2, "0")}:${String(a % 60).padStart(2, "0")}`;
+};
+function planSplit({ funnel, stepId, action, controlTraffic, winnerPageId, variationPath, domainName, locationId, now }) {
+  const fid = funnel._id ?? funnel.id;
+  const step = (funnel.steps ?? []).find((s) => s.id === stepId);
+  if (!step) return { refuse: `step ${stepId} is not on this funnel` };
+  const pages = step.pages ?? [];
+  const put = (body2) => ({ method: "PUT", path: `/funnels/funnel/step/${enc(fid)}`, body: { stepId, ...body2 } });
+  switch (action) {
+    case "add-variation": {
+      if (pages.length !== 1) return { refuse: `step has ${pages.length} pages; a variation can only be added to a step with exactly one (the control)` };
+      if (!domainName) return { refuse: "the funnel has no domain, so the variation would get no public path. Attach a domain first." };
+      if (typeof variationPath !== "string" || !variationPath.trim()) return { refuse: "add-variation needs variationPath: the public path for the variation page (the UI would mint one from the step name, which can collide)" };
+      return {
+        steps: [
+          { method: "POST", path: "/funnels/funnel/clone-control-page/", body: { locationId, stepName: step.name, pageId: pages[0], domainName } },
+          put({ pages: [pages[0], "<variation pageId from clone-control-page>"] }),
+          { method: "POST", path: "/funnels/lookup/create", body: { type: "page", typeId: "<variation pageId>", path: normPath(variationPath.trim()), funnelId: fid, locationId, domain: domainName } }
+        ],
+        exists: { domain: domainName, path: normPath(variationPath.trim()), locationId },
+        step: stepView(step, 0)
+      };
+    }
+    case "start": {
+      if (pages.length !== 2) return { refuse: `step has ${pages.length} page(s); start needs a control and one variation (add-variation first)` };
+      const ct = controlTraffic ?? 50;
+      if (!Number.isInteger(ct) || ct < 0 || ct > 100) return { refuse: "controlTraffic is an integer 0..100 (the share the control gets)" };
+      return { ...put({ split: true, control_traffic: ct, split_started_at: splitStamp(now), split_ended_at: null, route_all_requests: true, additional_routes: [] }), step: stepView(step, 0) };
+    }
+    case "declare-winner": {
+      if (pages.length !== 2) return { refuse: `step has ${pages.length} page(s); there is no variation to decide` };
+      if (!pages.includes(winnerPageId)) return { refuse: `winnerPageId must be one of this step's pages: ${pages.join(", ")}` };
+      const loser = pages.find((p2) => p2 !== winnerPageId);
+      return {
+        method: "POST",
+        path: "/funnels/funnel/update-funnel-and-page",
+        body: {
+          funnelId: fid,
+          locationId,
+          archivePageId: loser,
+          stepId,
+          funnelStepDetails: { stepId, pages: [winnerPageId], split: false, control_traffic: 100, additional_routes: [], route_all_requests: false, split_ended_at: splitStamp(now) }
+        },
+        target: { winner: winnerPageId, archived: loser, step: stepView(step, 0) }
+      };
+    }
+    default:
+      return { refuse: "split-test action is add-variation | start | declare-winner" };
+  }
+}
 async function reread(readFn, okFn, { tries = 5, delays = [0, 500, 1e3, 2e3, 3e3], sleep = (ms) => new Promise((r) => setTimeout(r, ms)) } = {}) {
   let last;
   for (let i = 0; i < tries; i++) {
@@ -99121,6 +99308,90 @@ async function reread(readFn, okFn, { tries = 5, delays = [0, 500, 1e3, 2e3, 3e3
     if (okFn(last)) return { value: last, attempts: i + 1, settled: true };
   }
   return { value: last, attempts: tries, settled: false };
+}
+
+// core/funnel-create.mjs
+init_define_BUILDER_VALIDATORS();
+init_define_CONTACT_FILTER_FIELDS();
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_OVERLAY();
+init_define_FUNNEL_ELEMENTS();
+init_define_TOOL_CATALOG();
+var KINDS = Object.freeze(["funnel", "website", "store", "webinar", "blog"]);
+var BLANK_TEMPLATES = Object.freeze({ store: "6841a9953740196dc6e4031a", webinar: "684001d9bd9f6a3e0b118e89" });
+var STORE_DANGLING_FORM_NOTE = `The blank store's "Contact Us" page embeds a form that lives in GHL's template account, not on this location: it renders no working form until you bind one of yours (build_funnel_page edit mode, set the form element's formId). audit_site reports it as a dangling reference.`;
+var HHMM = /^([01]\d|2[0-3]):[0-5]\d$/;
+function planCreateFunnel({ kind, name, locationId, companyId, description, webinar, formName }) {
+  if (!KINDS.includes(kind)) return { refuse: `kind must be one of ${KINDS.join(", ")}` };
+  if (typeof name !== "string" || !name.trim()) return { refuse: "name is required" };
+  const n = name.trim();
+  switch (kind) {
+    case "funnel":
+    case "website":
+      return { method: "POST", path: "/funnels/funnel/create", body: { locationId, name: n, type: kind } };
+    case "blog":
+      return { method: "POST", path: "/blogs/site", body: { locationId, title: n, description: description ?? "" } };
+    case "store":
+      return { method: "POST", path: "/templates/template/load", body: { templateId: BLANK_TEMPLATES.store, locationId, product: "stores", extras: { name: n } } };
+    case "webinar": {
+      const w = webinar ?? {};
+      const missing = ["timezone", "date", "startTime", "endTime", "formId"].filter((k) => !w[k]);
+      if (missing.length) return { refuse: `a webinar needs webinar.{${missing.join(", ")}} \u2014 the New webinar wizard requires them (the registration form must be one of this location's forms)` };
+      if (!HHMM.test(w.startTime) || !HHMM.test(w.endTime)) return { refuse: 'webinar.startTime and webinar.endTime are "HH:mm" (24h)' };
+      if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2})?([+-]\d{2}:\d{2}|Z)$/.test(w.date)) return { refuse: "webinar.date is an ISO date-time with an offset, e.g. 2026-10-01T10:00:00+08:00 (the session start)" };
+      if (!companyId) return { refuse: "this credential carries no company id, and the webinar template load sends one" };
+      return {
+        method: "POST",
+        path: "/templates/template/load",
+        body: {
+          companyId,
+          templateId: BLANK_TEMPLATES.webinar,
+          locationId,
+          product: "webinars",
+          subProduct: "live",
+          parentId: "",
+          extras: { name: n, webinarProperties: {
+            timezone: w.timezone,
+            endDate: w.date,
+            endTime: w.startTime,
+            webinarEndTime: w.endTime,
+            recurring: false,
+            recurringSettings: {},
+            webinarType: "live",
+            formId: w.formId,
+            formName: formName ?? "",
+            videoUrl: w.videoUrl ?? "",
+            videoName: "",
+            videoId: "",
+            templateName: 1
+          } }
+        }
+      };
+    }
+    default:
+      return { refuse: `unknown kind ${kind}` };
+  }
+}
+function createdId(kind, json2) {
+  if (kind === "funnel" || kind === "website") return json2?.id ?? null;
+  if (kind === "store" || kind === "webinar") return json2?.data?.target?.assetId ?? null;
+  return json2?.id ?? json2?._id ?? json2?.data?._id ?? json2?.data?.id ?? null;
+}
+var EXPECT_TYPE = Object.freeze({ funnel: "funnel", website: "website", store: "website", webinar: "webinar", blog: "blog" });
+async function listAllDocuments(gw, locationId, { pageSize = 100, maxPages = 50 } = {}) {
+  const byId = /* @__PURE__ */ new Map();
+  let count = null;
+  for (let offset = 0, i = 0; i < maxPages; i++) {
+    const r = await gw.call("GET", `/funnels/funnel/list?locationId=${encodeURIComponent(locationId)}&limit=${pageSize}&offset=${offset}`);
+    if (!r.ok) return { res: r, rows: null };
+    const page = r.json?.funnels ?? r.json?.data ?? [];
+    count = r.json?.count ?? count;
+    const before = byId.size;
+    for (const f of page) byId.set(f._id ?? f.id, f);
+    offset += page.length;
+    if (!page.length || page.length < pageSize || count != null && byId.size >= count || byId.size === before) return { res: r, rows: [...byId.values()], count: count ?? byId.size, pages: i + 1 };
+  }
+  return { res: null, rows: [...byId.values()], count: count ?? byId.size, truncated: true };
 }
 
 // core/page-edit.mjs
@@ -102808,7 +103079,7 @@ var SETTINGS_SPEC = Object.freeze({
   statsView: { ui: "Stats view toggle (meta.statsView)", def: false, type: "boolean" }
 });
 var KNOWN_SETTINGS_KEYS = new Set(Object.keys(SETTINGS_SPEC));
-var HHMM = /^([01]\d|2[0-3]):[0-5]\d$/;
+var HHMM2 = /^([01]\d|2[0-3]):[0-5]\d$/;
 var EMAIL = /^[^\s@{}]+@[^\s@{}]+\.[^\s@{}]+$/;
 var E164ISH = /^\+?[1-9]\d{6,14}$/;
 var isMergeTag = (v) => typeof v === "string" && /\{\{[^}]+\}\}/.test(v);
@@ -102853,13 +103124,13 @@ function normalizeSettings(settings, ctx = {}) {
       if (!WINDOW_CONDITIONS.includes(condition)) refuse("SETTINGS_VALUE", `settings.window.condition must be 'when' (the only value the Settings tab stores; corpus 15/15) \u2014 got ${JSON.stringify(condition)}`);
       const start = w.start ?? "08:00", end = w.end ?? "17:00";
       for (const [k, v] of [["start", start], ["end", end]]) {
-        if (typeof v !== "string" || !HHMM.test(v)) {
+        if (typeof v !== "string" || !HHMM2.test(v)) {
           refuse("SETTINGS_VALUE", `settings.window.${k} must be 24h 'HH:mm' (UI stores e.g. '08:00', '17:00') \u2014 got ${JSON.stringify(v)}`);
           continue;
         }
         if (Number(v.slice(3)) % 15 !== 0) refuse("SETTINGS_VALUE", `settings.window.${k} '${v}' is not on the UI's 15-minute grid (the picker offers only :00/:15/:30/:45)`);
       }
-      if (HHMM.test(start) && HHMM.test(end) && end <= start) warn(`settings.window: end '${end}' is not after start '${start}' \u2014 the UI does not validate this, but no window would ever be open`);
+      if (HHMM2.test(start) && HHMM2.test(end) && end <= start) warn(`settings.window: end '${end}' is not after start '${start}' \u2014 the UI does not validate this, but no window would ever be open`);
       let days = w.days ?? [1, 2, 3, 4, 5];
       if (!Array.isArray(days) || !days.length || days.some((d) => !Number.isInteger(d) || d < 0 || d > 6)) refuse("SETTINGS_VALUE", `settings.window.days must be a non-empty array of weekday numbers 0 (Sunday) \u2026 6 (Saturday) \u2014 got ${JSON.stringify(w.days)}`);
       else days = [...new Set(days)].sort((a, b) => a - b);
@@ -175652,7 +175923,7 @@ init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_FUNNEL_ELEMENTS();
 init_define_TOOL_CATALOG();
-var HHMM2 = /^([01]\d|2[0-3]):[0-5]\d$/;
+var HHMM3 = /^([01]\d|2[0-3]):[0-5]\d$/;
 function loadDoctrinePack(json2) {
   const errors = [];
   let raw = json2;
@@ -175668,7 +175939,7 @@ function loadDoctrinePack(json2) {
   if (raw.sendWindow !== void 0) {
     const w = raw.sendWindow;
     if (!w || typeof w !== "object") errors.push("sendWindow must be an object");
-    else if (!HHMM2.test(w.start ?? "") || !HHMM2.test(w.end ?? "")) errors.push("sendWindow.start/end must be HH:MM");
+    else if (!HHMM3.test(w.start ?? "") || !HHMM3.test(w.end ?? "")) errors.push("sendWindow.start/end must be HH:MM");
     else rules.sendWindow = { start: w.start, end: w.end, days: Array.isArray(w.days) ? w.days : null };
   }
   if (raw.requireRedirectPage !== void 0) {
@@ -180480,6 +180751,45 @@ async function editPage(args, deps, composeSection) {
     if (!out.published.verified) return withFailureData(fail(CODES.VERIFY_FAILED, "publish-version was accepted but that version did not read back as live", "The edit is saved; re-read get-versions."), out);
   }
   return ok(out);
+}
+async function walkFunnelList(deps, locationId) {
+  let first = null;
+  for (const rail of ["token-id", "jwt"]) {
+    try {
+      const got = await listAllDocuments(deps.makeGw({ loc: locationId, state: deps.state, rail }), locationId);
+      if (got.rows) return { ...got, rail };
+      first ??= got.res;
+    } catch {
+    }
+  }
+  return { res: first, rows: null, rail: null };
+}
+var siteRow = (f) => ({
+  id: f._id ?? f.id,
+  name: f.name,
+  type: f.type,
+  ...f.isStoreActive ? { store: true } : {},
+  url: f.url ?? null,
+  domainId: f.domainId || null,
+  folderId: f.parentId ?? null,
+  steps: (f.steps ?? []).length,
+  updatedAt: f.updatedAt ?? f.dateUpdated ?? null
+});
+async function listSites(args, deps) {
+  const walked = await walkFunnelList(deps, args.locationId);
+  if (!walked.rows) return { locationId: args.locationId, funnelsChecked: false, warning: `The funnels list failed on BOTH rails (last status ${walked.res?.status ?? "unknown"}). Nothing is known about this location's documents.` };
+  const q3 = String(args.search ?? "").toLowerCase();
+  const rows = walked.rows.filter((f) => !args.type || (args.type === "store" ? f.type === "website" && f.isStoreActive === true : f.type === args.type)).filter((f) => !q3 || String(f.name ?? "").toLowerCase().includes(q3)).map(siteRow).sort((a, b) => String(a.name).localeCompare(String(b.name)));
+  return {
+    locationId: args.locationId,
+    funnelsChecked: true,
+    funnelsRail: walked.rail,
+    total: walked.count,
+    returned: rows.length,
+    ...walked.truncated ? { truncated: true } : {},
+    documents: rows,
+    note: "Funnel folders are organisational only (create/rename/move them on the Sites screen); folderId is the folder a document is filed in."
+  };
 }
 async function siteRedirects(deps, locationId) {
   const gw = deps.makeGw({ loc: locationId, state: deps.state });
@@ -186295,9 +186605,16 @@ var TOOLS2 = [
     name: "find_ghl_site",
     description: describe3(
       "find_ghl_site",
-      `Resolve a domain, slug or name to the GHL surface that owns it \u2014 AI Studio project or funnel. includeRedirects:true also returns the location's domains and every URL redirect (path \u2192 target, with 30-day clicks); change redirects with edit_redirects. Call this FIRST for any "work on <site>" request: AI Studio projects and funnels are disjoint collections, so querying the wrong one returns an empty list that reads as "does not exist" Disjointness measured 2026-09-04 (knowledge/sniffs/ai-studio-2026-09-04/sweep-19.mjs); the funnels leg runs on the token-id rail \u2014 the same sweep called it live and it succeeded, and knowledge/corpus/funnels/20-api/funnels-api.md documents the rail as proven-live 2026-08-25.`
+      `Resolve a domain, slug or name to the GHL surface that owns it \u2014 AI Studio project or funnel. includeRedirects:true also returns the location's domains and every URL redirect (path \u2192 target, with 30-day clicks); change redirects with edit_redirects. list:true (site optional) instead returns EVERY funnel, website, store, webinar and blog document on the location (walked to the list's count), filtered by type (store = a website with isStoreActive) and a case-insensitive name search. Call this FIRST for any "work on <site>" request: AI Studio projects and funnels are disjoint collections, so querying the wrong one returns an empty list that reads as "does not exist" Disjointness measured 2026-09-04 (knowledge/sniffs/ai-studio-2026-09-04/sweep-19.mjs); the funnels leg runs on the token-id rail \u2014 the same sweep called it live and it succeeded, and knowledge/corpus/funnels/20-api/funnels-api.md documents the rail as proven-live 2026-08-25.`
     ),
-    inputSchema: schema({ locationId: external_exports.string(), site: external_exports.string(), includeRedirects: external_exports.boolean().default(false) }),
+    inputSchema: schema({
+      locationId: external_exports.string(),
+      site: external_exports.string().optional(),
+      includeRedirects: external_exports.boolean().default(false),
+      list: external_exports.boolean().default(false),
+      type: external_exports.enum(["funnel", "website", "store", "webinar", "blog"]).optional(),
+      search: external_exports.string().optional()
+    }),
     capabilities: [
       { method: "GET", path: "/vibe-ai/projects" },
       { method: "GET", path: "/funnels/funnel/list" },
@@ -186306,25 +186623,15 @@ var TOOLS2 = [
       { method: "POST", path: "/stats/url-redirect" }
     ],
     handler: async (args, deps) => guard(async () => {
+      if (args.list !== true && !args.site) return fail(CODES.VALIDATION_FAILED, "site is required unless list:true", "Pass site (a domain, slug or name) to resolve one, or list:true to list every document.");
+      if (args.list === true) return ok(await listSites(args, deps));
       const { api } = studioDeps(args, deps);
       const studio = (await api.listProjects()).json;
-      const funnelsPath = `/funnels/funnel/list?locationId=${encodeURIComponent(args.locationId)}&limit=100`;
-      let funnelRes = null;
-      let funnelsRail = null;
-      for (const rail of ["token-id", "jwt"]) {
-        try {
-          const res = await deps.makeGw({ loc: args.locationId, state: deps.state, rail }).call("GET", funnelsPath);
-          if (res?.ok) {
-            funnelRes = res;
-            funnelsRail = rail;
-            break;
-          }
-          funnelRes ??= res;
-        } catch {
-        }
-      }
-      const funnelsChecked = Boolean(funnelRes?.ok);
-      const funnels = funnelsChecked ? funnelRes?.json?.funnels ?? funnelRes?.json?.data ?? [] : [];
+      const walked = await walkFunnelList(deps, args.locationId);
+      const funnelRes = walked.res;
+      const funnelsRail = walked.rail;
+      const funnelsChecked = Boolean(walked.rows);
+      const funnels = walked.rows ?? [];
       if (!funnelsChecked) {
         const studioHit = classifySite(args.site, Array.isArray(studio) ? studio : [], []);
         const surface = studioHit.surface === "not-found" ? "unknown" : studioHit.surface;
@@ -188247,7 +188554,7 @@ var TOOLS2 = [
   },
   {
     name: "build_funnel_page",
-    description: `${describe3("build_funnel_page", "Compose a funnel page from native elements and write it")}. Preview by default; confirm:true autosaves the DRAFT. Emits the nodes AND the compiled stylesheet together, because the builder canvas styles a page from each node's \`styles\` while the PUBLIC renderer uses the compiled \`sectionStyles\` string keyed by node id \u2014 write only one and the page looks right in the builder and naked in public. Enforces the contract autosave will not: \`meta\` against the closed set of 60 kinds, every declared \`extra\` property present (the renderer reads extra.<prop>.value UNGUARDED, so a missing one 500s the whole page while autosave still answers 201), \`col.extra.bgImage\`, \`general.general.fontsToLoad\` and \`colors\`, and child[] holding node IDS that resolve. Verifies by reading the page back on a separate request; pass verifyUrl to also poll the public render for your own copy \u2014 one request there is not a measurement, since the first can serve the previous compile. EDIT MODE (pass \`edits\` + \`stepName\` instead of \`sections\`): changes an EXISTING page in place \u2014 ops set (merge extra/styles into one node by id; styles are compiled into the public stylesheet too), append-section (a section spec in the same shape as \`sections[i]\`), remove-node (a node and its descendants, or a whole section), page (trackingCode {headerCode, footerCode}; customCss \u2014 kept in general.general.pageStyles AND appended to the compiled pageStyles the public page serves; background {imageUrl, color}); and \`seo\` {title, description, keywords, author, imageUrl, language, customMeta, canonicalMeta} \u2014 only the keys you pass change. SEO is written twice, as the builder does: to the page RECORD (GET /funnels/page/{pageId}) Firestore-direct \u2014 the builder's path; no REST route exists \u2014 and as \`meta\` on the autosave's version. The public page renders the SERVED VERSION's meta, so pass publish:true (or publish from the builder) for any edit \u2014 content or SEO \u2014 to reach visitors. The target is checked first (pageId must be a page of stepId, and stepName must match that step exactly; refused otherwise), everything the ops do not name is written back as read, and each op is verified by VALUE on a separate read. Get node ids from the page data (GET /funnels/builder/page/data?pageId=).`,
+    description: `${describe3("build_funnel_page", "Compose a funnel page from native elements and write it")}. Preview by default; confirm:true autosaves the DRAFT. Emits the nodes AND the compiled stylesheet together, because the builder canvas styles a page from each node's \`styles\` while the PUBLIC renderer uses the compiled \`sectionStyles\` string keyed by node id \u2014 write only one and the page looks right in the builder and naked in public. Enforces the contract autosave will not: \`meta\` against the closed set of 60 kinds, every declared \`extra\` property present (the renderer reads extra.<prop>.value UNGUARDED, so a missing one 500s the whole page while autosave still answers 201), \`col.extra.bgImage\`, \`general.general.fontsToLoad\` and \`colors\`, and child[] holding node IDS that resolve. Verifies by reading the page back on a separate request; pass verifyUrl to also poll the public render for your own copy \u2014 one request there is not a measurement, since the first can serve the previous compile. EDIT MODE (pass \`edits\` + \`stepName\` instead of \`sections\`): changes an EXISTING page in place \u2014 ops set (merge extra/styles into one node by id; styles are compiled into the public stylesheet too), append-section (a section spec in the same shape as \`sections[i]\`), remove-node (a node and its descendants, or a whole section), page (trackingCode {headerCode, footerCode}; customCss \u2014 kept in general.general.pageStyles AND appended to the compiled pageStyles the public page serves; background {imageUrl, color}); and \`seo\` {title, description, keywords, author, imageUrl, language, customMeta, canonicalMeta} \u2014 only the keys you pass change. SEO is written twice, as the builder does: to the page RECORD (GET /funnels/page/{pageId}) Firestore-direct \u2014 the builder's path; no REST route exists \u2014 and as \`meta\` on the autosave's version. The public page renders the SERVED VERSION's meta, so pass publish:true (or publish from the builder) for any edit \u2014 content or SEO \u2014 to reach visitors. The target is checked first (pageId must be a page of stepId, and stepName must match that step exactly; refused otherwise), everything the ops do not name is written back as read, and each op is verified by VALUE on a separate read. Get node ids from the page data (GET /funnels/builder/page/data?pageId=). Not here, done in the builder: schema markup (SEO panel \u2192 Schema markup; its own object), the autosave on/off switch (browser-local; every write here is one autosave). Visitor geo-location is a runtime lookup with nothing to set.`,
     inputSchema: schema({
       locationId: external_exports.string(),
       funnelId: external_exports.string(),
@@ -188528,6 +188835,100 @@ var TOOLS2 = [
     }, args)
   },
   {
+    name: "create_funnel",
+    description: `${describe3("create_funnel", "Create a funnel, website, store, webinar or blog document on a location")}. The CONTAINER that build_funnel_page and edit_funnel then write into. Preview by default; confirm:true creates it and reads it back on a separate request (funnel/fetch; a blog also through the Blogs screen's own list). Refuses a name already used by any document on the location. Each kind sends exactly what GHL's own "New \u2026" screen sends: funnel and website are created empty (no steps, no domain); a store and a webinar are GHL's BLANK TEMPLATE installs \u2014 that is the UI's own blank path (store: 7 steps, cart/checkout/product pages, no products; webinar: registration, confirmation, broadcast and expired pages, bound to the registration form you name, which must be one of this location's forms); a blog gets a Blog Home and a Blog Post step. The blank store's Contact Us page embeds a form from GHL's template account that does not exist here \u2014 rebind it. Other templates are not offered: an install can bring side assets. The funnels list's "Build with AI" (the AI builder; it creates a funnel on click) is left to the UI \u2014 this tool plus build_funnel_page is the deterministic path. Next steps: edit_funnel settings (domain) \u2192 create-step \u2192 build_funnel_page.`,
+    inputSchema: schema({
+      locationId: external_exports.string(),
+      kind: external_exports.enum(KINDS),
+      name: external_exports.string(),
+      description: external_exports.string().optional(),
+      webinar: external_exports.object({
+        timezone: external_exports.string(),
+        date: external_exports.string(),
+        startTime: external_exports.string(),
+        endTime: external_exports.string(),
+        formId: external_exports.string(),
+        videoUrl: external_exports.string().optional()
+      }).optional(),
+      confirm: external_exports.boolean().default(false)
+    }),
+    capabilities: [
+      { method: "GET", path: "/funnels/funnel/list" },
+      { method: "GET", path: "/funnels/funnel/fetch/{funnelId}" },
+      { method: "GET", path: "/funnels/funnel/blog/list/" },
+      { method: "GET", path: "/forms/{id}" },
+      { method: "GET", path: "/locations/{locationId}" },
+      { method: "POST", path: "/funnels/funnel/create" },
+      { method: "POST", path: "/templates/template/load" },
+      { method: "POST", path: "/blogs/site" }
+    ],
+    handler: async (args, deps) => {
+      let tracked = null;
+      return guard(async () => {
+        tracked = trackWrites(deps.makeGw({ loc: args.locationId, state: deps.state }));
+        const gw = tracked.gw;
+        const name = String(args.name ?? "").trim();
+        const all = await listAllDocuments(gw, args.locationId);
+        if (!all.rows) return fromHttp(all.res?.status, all.res?.json);
+        const clash = all.rows.filter((f2) => String(f2.name ?? "").trim().toLowerCase() === name.toLowerCase());
+        if (clash.length) {
+          return withFailureData(
+            fail(CODES.VALIDATION_FAILED, `a document named ${JSON.stringify(clash[0].name)} already exists on this location`, "Pick another name; nothing was sent."),
+            { existing: clash.map((f2) => ({ id: f2._id ?? f2.id, name: f2.name, type: f2.type })) }
+          );
+        }
+        let formName, companyId;
+        if (args.kind === "webinar") {
+          if (args.webinar?.formId) {
+            const fr = await gw.call("GET", `/forms/${encodeURIComponent(args.webinar.formId)}`);
+            if (!fr.ok) return fail(CODES.VALIDATION_FAILED, `webinar.formId ${args.webinar.formId} does not read on this location (${fr.status})`, "Name one of this location's forms (list_forms). Nothing was sent.");
+            formName = fr.json?.form?.name ?? fr.json?.name ?? "";
+          }
+          companyId = await resolveCompanyId(gw, args.locationId);
+        }
+        const plan = planCreateFunnel({ kind: args.kind, name, locationId: args.locationId, companyId, description: args.description, webinar: args.webinar, formName });
+        if (plan.refuse) return fail(CODES.VALIDATION_FAILED, plan.refuse, "Nothing was sent.");
+        const preview = { kind: args.kind, request: { method: plan.method, path: plan.path, body: plan.body } };
+        if (args.confirm !== true) return withFailureData(fail(CODES.CONFIRM_REQUIRED, `create_funnel ${args.kind} preview is ready; no write was sent.`, "Repeat with confirm:true to send exactly this request."), { preview });
+        const w = await gw.call(plan.method, plan.path, plan.body);
+        if (!w.ok) return fromHttp(w.status, w.json);
+        let id = createdId(args.kind, w.json);
+        let blogRow = null;
+        if (args.kind === "blog") {
+          const got = await reread(
+            async () => (await gw.call("GET", `/funnels/funnel/blog/list/?locationId=${encodeURIComponent(args.locationId)}&limit=15&skip=0&searchTerm=${encodeURIComponent(name)}`)).json?.data ?? [],
+            (rows) => rows.some((r) => r.name === name),
+            deps.rereadOptions ?? {}
+          );
+          blogRow = got.value.find((r) => r.name === name) ?? null;
+          id ??= blogRow?._id ?? null;
+        }
+        const read = id ? await reread(async () => (await readFunnel(gw, args.locationId, id)).funnel, (f2) => Boolean(f2?.name), deps.rereadOptions ?? {}) : { value: null };
+        const f = read.value;
+        const out = {
+          kind: args.kind,
+          funnelId: id,
+          status: w.status,
+          readBack: f ? {
+            name: f.name,
+            type: f.type,
+            ...f.isStoreActive ? { store: true } : {},
+            url: f.url ?? null,
+            domainId: f.domainId || null,
+            steps: (f.steps ?? []).map((s) => ({ id: s.id, name: s.name, type: s.type, url: s.url, pages: s.pages ?? [] }))
+          } : null,
+          ...args.kind === "blog" ? { blogList: blogRow ? { id: blogRow._id, name: blogRow.name } : null } : {},
+          ...args.kind === "store" ? { note: STORE_DANGLING_FORM_NOTE } : {}
+        };
+        const typeOk = f && f.type === EXPECT_TYPE[args.kind] && (args.kind !== "store" || f.isStoreActive === true);
+        if (!f || f.name !== name || !typeOk || args.kind === "blog" && !blogRow) {
+          return withFailureData(fail(CODES.VERIFY_FAILED, `create answered ${w.status} but the ${args.kind} did not read back as created`, "Do not create again: find_ghl_site list:true first."), out);
+        }
+        return ok(out);
+      }, args, { sentWrite: () => tracked?.sent() ?? false });
+    }
+  },
+  {
     name: "get_funnel",
     description: `${describe3("get_funnel", "Read one GHL funnel or website document through a single flat view")}. Views: summary (steps with their pages, split state and paths), lookups (every public path row with its publishStatus / redirect action \u2014 the ROUTING truth; a step with no row 404s in public), settings (the funnel-settings fields as update-settings names them), versions (one page: live vs drafts, sorted by timestamp, not by array position), security (custom response headers), events (Meta pixel / CAPI events, first 20), cookie-consent (funnel-level banner config). Siblings: find_ghl_site resolves a domain/name to the document id first; audit_site sweeps a whole site for dangling references and publish drift \u2014 this tool does not repeat that audit. Read-only.`,
     inputSchema: schema({
@@ -188597,11 +188998,15 @@ var TOOLS2 = [
   },
   {
     name: "edit_funnel",
-    description: `${describe3("edit_funnel", "Edit a GHL funnel or website document: settings, steps, publish state, headers")}. One op per call; preview by default, confirm:true writes and reads back on a separate request. Ops: settings (always sends the UI's FULL update-settings body from a fresh read, so only the fields you name change; diffs the read-back), create-step (refused when the funnel has no domain \u2014 such a step gets no lookup row and 404s), update-step (rename and/or move-path: one PUT moves the live route; Cloudflare may serve the old path for minutes, so it never retries), reorder-steps (full permutation only \u2014 the route replaces the steps array), clone-step, delete-step (target check: stepId AND its current name), publish-page / unpublish-page (the builder's own route: PUT /funnels/lookup/multiple on the step+page rows; unpublish answers 404 or 301 to a URL; no version is created \u2014 to publish CONTENT use build_funnel_page publish:true), add-header (custom response header; applies to the EXACT-CASE path only). Page SEO (title, description, keywords, author, social image), tracking code, custom CSS and page background are PAGE writes, not funnel writes: use build_funnel_page edit mode (\`seo\`, op \`page\`). Siblings: get_funnel reads, build_funnel_page writes page content, audit_site audits.`,
+    description: `${describe3("edit_funnel", "Edit a GHL funnel or website document: settings, steps, publish state, headers")}. One op per call; preview by default, confirm:true writes and reads back on a separate request. Ops: settings (always sends the UI's FULL update-settings body from a fresh read, so only the fields you name change; diffs the read-back), create-step (refused when the funnel has no domain \u2014 such a step gets no lookup row and 404s), update-step (rename and/or move-path: one PUT moves the live route; Cloudflare may serve the old path for minutes, so it never retries), reorder-steps (full permutation only \u2014 the route replaces the steps array), clone-step, delete-step (target check: stepId AND its current name), publish-page / unpublish-page (the builder's own route: PUT /funnels/lookup/multiple on the step+page rows; unpublish answers 404 or 301 to a URL; no version is created \u2014 to publish CONTENT use build_funnel_page publish:true), add-header (custom response header; applies to the EXACT-CASE path only), split-test (action add-variation {variationPath}: a draft copy of the control on its own pre-checked path; start {controlTraffic}: changes live traffic; declare-winner {winnerPageId}: the other page is archived and the split ends \u2014 EXACT-CASE path only), delete-funnel (target check: funnelId AND expectName; refused while any page still serves \u2014 unpublish first; the edge can serve the deleted page ~70 s). update-step also renames the step's page record, as the UI does. Page SEO, tracking code, custom CSS and background are PAGE writes: use build_funnel_page edit mode (\`seo\`, op \`page\`). A bare extra page (create-page) is not offered: it makes an ORPHAN page on no step \u2014 create-step makes a step with its page, split-test add-variation adds a second. Funnel FOLDERS (create, rename, move) are organisational only and are left to the Sites screen. Siblings: create_funnel makes the document, get_funnel reads, build_funnel_page writes page content, audit_site audits.`,
     inputSchema: schema({
       locationId: external_exports.string(),
       funnelId: external_exports.string(),
-      op: external_exports.enum(["settings", "create-step", "update-step", "reorder-steps", "clone-step", "delete-step", "publish-page", "unpublish-page", "add-header"]),
+      op: external_exports.enum(["settings", "create-step", "update-step", "reorder-steps", "clone-step", "delete-step", "publish-page", "unpublish-page", "add-header", "split-test", "delete-funnel"]),
+      action: external_exports.enum(["add-variation", "start", "declare-winner"]).optional(),
+      controlTraffic: external_exports.number().int().min(0).max(100).optional(),
+      winnerPageId: external_exports.string().optional(),
+      variationPath: external_exports.string().optional(),
       settings: external_exports.record(external_exports.any()).optional(),
       step: external_exports.object({ id: external_exports.string().optional(), name: external_exports.string(), url: external_exports.string(), type: external_exports.string().optional() }).optional(),
       stepId: external_exports.string().optional(),
@@ -188626,7 +189031,13 @@ var TOOLS2 = [
       { method: "POST", path: "/funnels/funnel/clone-funnel-step/" },
       { method: "POST", path: "/funnels/funnel/delete-step" },
       { method: "PUT", path: "/funnels/lookup/multiple" },
-      { method: "POST", path: "/funnels/funnel/headers" }
+      { method: "POST", path: "/funnels/funnel/headers" },
+      { method: "POST", path: "/funnels/funnel/funnel-page/{pageId}" },
+      { method: "POST", path: "/funnels/funnel/delete" },
+      { method: "POST", path: "/funnels/funnel/clone-control-page/" },
+      { method: "POST", path: "/funnels/lookup/create" },
+      { method: "POST", path: "/funnels/lookup/exists" },
+      { method: "POST", path: "/funnels/funnel/update-funnel-and-page" }
     ],
     handler: async (args, deps) => {
       let tracked = null;
@@ -188698,21 +189109,70 @@ var TOOLS2 = [
           case "add-header":
             plan = need("header") ? { refuse: need("header") } : planAddHeader({ funnel, locationId: args.locationId, key: args.header.key, value: args.header.value });
             break;
+          case "delete-funnel": {
+            const { res: lr, rows } = await readLookups(gw, args.locationId, args.funnelId);
+            if (!lr.ok) return fromHttp(lr.status, lr.json);
+            plan = planDeleteFunnel({ funnel, lookups: rows, expectName: args.expectName, locationId: args.locationId, userId: gw.uid });
+            break;
+          }
+          case "split-test": {
+            if (need("stepId") || need("action")) {
+              plan = { refuse: need("stepId") ?? need("action") };
+              break;
+            }
+            let domainName;
+            if (args.action === "add-variation" && funnel.domainId) {
+              const d = await gw.call("GET", `/funnels/domain/?locationId=${encodeURIComponent(args.locationId)}`);
+              const list = d.json?.domains ?? d.json?.data ?? [];
+              domainName = (Array.isArray(list) ? list : []).find((x) => (x.id ?? x._id) === funnel.domainId)?.url;
+            }
+            plan = planSplit({ funnel, stepId: args.stepId, action: args.action, controlTraffic: args.controlTraffic, winnerPageId: args.winnerPageId, variationPath: args.variationPath, domainName, locationId: args.locationId });
+            if (!plan.refuse && plan.exists) {
+              const ex = await gw.call("POST", "/funnels/lookup/exists", plan.exists);
+              if (!ex.ok) return fromHttp(ex.status, ex.json);
+              if (ex.json?.exists !== false) plan = { refuse: `${plan.exists.path} is already taken on ${plan.exists.domain} (a step, page or redirect holds it). Pick another variationPath.` };
+            }
+            break;
+          }
           default:
             plan = { refuse: `unknown op ${args.op}` };
         }
         if (plan.refuse) return fail(CODES.VALIDATION_FAILED, plan.refuse, "Nothing was sent. Read the funnel with get_funnel and adjust the arguments.");
         const preview = {
           op: args.op,
-          request: { method: plan.method, path: plan.path, body: plan.body },
+          ...plan.steps ? { requests: plan.steps } : { request: { method: plan.method, path: plan.path, body: plan.body } },
           ...plan.target ? { target: plan.target } : {},
           ...plan.rows ? { lookupRows: plan.rows } : {}
         };
         if (args.confirm !== true) {
           return withFailureData(fail(CODES.CONFIRM_REQUIRED, `edit_funnel ${args.op} preview is ready; no write was sent.`, args.op === "create-step" && !args.step?.id ? "Repeat with confirm:true (pass step.id from this preview to send the identical id)." : "Repeat with confirm:true to send exactly this request."), { preview });
         }
-        const w = await gw.call(plan.method, plan.path, plan.body);
-        if (!w.ok) return fromHttp(w.status, w.json);
+        let pageRename = null;
+        if (args.op === "split-test" && args.action === "add-variation") {
+          const [clone3, putPages, mkLookup] = plan.steps;
+          const c = await gw.call(clone3.method, clone3.path, clone3.body);
+          if (!c.ok) return fromHttp(c.status, c.json);
+          const vid = c.json?.pageId;
+          if (!vid) return fail(CODES.VERIFY_FAILED, "clone-control-page answered 2xx without a pageId", "Nothing else was sent. Read the step with get_funnel: an unattached clone may exist.");
+          const p2 = await gw.call(putPages.method, putPages.path, { ...putPages.body, pages: [putPages.body.pages[0], vid] });
+          if (!p2.ok) return withFailureData(fromHttp(p2.status, p2.json), { variationPageId: vid, note: "the clone exists but is NOT on the step" });
+          const l3 = await gw.call(mkLookup.method, mkLookup.path, { ...mkLookup.body, typeId: vid });
+          if (!l3.ok) return withFailureData(fromHttp(l3.status, l3.json), { variationPageId: vid, note: "the variation is on the step but has no public path" });
+          plan.variationPageId = vid;
+        } else {
+          const w2 = await gw.call(plan.method, plan.path, plan.body);
+          if (!w2.ok) return fromHttp(w2.status, w2.json);
+          plan.status = w2.status;
+          plan.response = w2.json;
+          if (args.op === "update-step" && args.name !== void 0) {
+            const s0 = (funnel.steps ?? []).find((x) => x.id === args.stepId);
+            if ((s0?.pages ?? []).length === 1) {
+              const r = await gw.call("POST", `/funnels/funnel/funnel-page/${encodeURIComponent(s0.pages[0])}`, { name: args.name });
+              pageRename = { pageId: s0.pages[0], status: r.status, ok: r.ok };
+            } else pageRename = { skipped: `the step has ${(s0?.pages ?? []).length} pages; the page record name was left as is` };
+          }
+        }
+        const w = { status: plan.status };
         const fresh = async () => (await readFunnel(gw, args.locationId, args.funnelId)).funnel;
         const fid = args.funnelId;
         switch (args.op) {
@@ -188746,7 +189206,13 @@ var TOOLS2 = [
             const rows = (await readLookups(gw, args.locationId, fid)).rows.filter((r) => r.typeId === args.stepId).map(lookupView);
             const nameOk = args.name === void 0 || s?.name === args.name;
             const urlOk = args.url === void 0 || normPath(s?.url) === normPath(args.url) && rows.some((r) => r.path === normPath(args.url));
-            const out = { op: "update-step", step: s ? stepView(s, 0) : null, lookups: rows, ...args.url !== void 0 ? { note: CACHE_NOTE } : {} };
+            let pageRecord = null;
+            if (pageRename?.pageId) {
+              const pr = await gw.call("GET", `/funnels/page/${encodeURIComponent(pageRename.pageId)}?locationId=${encodeURIComponent(args.locationId)}`);
+              pageRecord = { pageId: pageRename.pageId, name: pr.json?.name ?? null, matches: pr.json?.name === args.name };
+            }
+            const out = { op: "update-step", step: s ? stepView(s, 0) : null, lookups: rows, ...pageRename ? { pageRecord: pageRecord ?? pageRename } : {}, ...args.url !== void 0 ? { note: CACHE_NOTE } : {} };
+            if (pageRecord && !pageRecord.matches) return withFailureData(fail(CODES.VERIFY_FAILED, "the step was renamed but its page record did not read back with the new name", "Compare data.pageRecord; the builder title will show the old name."), out);
             if (!nameOk || !urlOk) return withFailureData(fail(CODES.VERIFY_FAILED, "the step did not read back as requested", "Compare data.step / data.lookups. Do not retry blindly: the path move may be cached, not failed."), out);
             return ok(out);
           }
@@ -188788,6 +189254,59 @@ var TOOLS2 = [
             const headers = r.json?.securityHeaders ?? [];
             const out = { op: "add-header", headers, note: `${EXACT_CASE_NOTE} The builder does not invalidate the cache on this save; the header can take minutes to appear on the exact path.` };
             if (!headers.some((h) => h.key === args.header.key && h.value === args.header.value)) return withFailureData(fail(CODES.VERIFY_FAILED, "the header did not read back", "Re-read with get_funnel view security."), out);
+            return ok(out);
+          }
+          case "delete-funnel": {
+            const f = await gw.call("GET", `/funnels/funnel/fetch/${encodeURIComponent(fid)}?locationId=${encodeURIComponent(args.locationId)}`);
+            const gone = !f.ok && /does not exist or is deleted/i.test(String(f.json?.message ?? ""));
+            const out = {
+              op: "delete-funnel",
+              deleted: plan.target,
+              freed: { domains: plan.response?.domains ?? [], paths: plan.response?.paths ?? [] },
+              readBack: { fetchStatus: f.status, message: f.json?.message ?? null },
+              note: "The edge can serve a deleted page for about a minute after this (measured ~70 s)."
+            };
+            if (!gone) return withFailureData(fail(CODES.VERIFY_FAILED, "delete answered 2xx but the funnel still reads back", "Re-read with get_funnel."), out);
+            return ok(out);
+          }
+          case "split-test": {
+            const settled = (x) => {
+              const st = (x.f?.steps ?? []).find((y) => y.id === args.stepId);
+              if (args.action === "add-variation") return (st?.pages ?? []).includes(plan.variationPageId) && x.l.some((r) => r.typeId === plan.variationPageId);
+              if (args.action === "start") return st?.split === true;
+              return st?.split === false && !x.l.some((r) => r.typeId === plan.target.archived);
+            };
+            const got = await reread(async () => ({ f: await fresh(), l: (await readLookups(gw, args.locationId, fid)).rows }), settled, deps.rereadOptions ?? {});
+            const s = (got.value.f?.steps ?? []).find((x) => x.id === args.stepId);
+            const rows = got.value.l;
+            if (args.action === "add-variation") {
+              const row = rows.find((r) => r.typeId === plan.variationPageId);
+              const out2 = {
+                op: "split-test",
+                action: "add-variation",
+                variationPageId: plan.variationPageId,
+                step: s ? stepView(s, 0) : null,
+                variationLookup: row ? lookupView(row) : null,
+                note: "The variation is a DRAFT copy of the control. Edit it with build_funnel_page and publish it, then start the split."
+              };
+              if (!(s?.pages ?? []).includes(plan.variationPageId) || !row) return withFailureData(fail(CODES.VERIFY_FAILED, "the variation did not read back on the step with its path", "Compare data.step / data.variationLookup."), out2);
+              return ok(out2);
+            }
+            if (args.action === "start") {
+              const out2 = { op: "split-test", action: "start", step: s ? stepView(s, 0) : null, note: `${EXACT_CASE_NOTE} ${CACHE_NOTE}` };
+              if (s?.split !== true || (s.controlTraffic ?? s.control_traffic) !== (args.controlTraffic ?? 50)) return withFailureData(fail(CODES.VERIFY_FAILED, "the split did not read back as started with the requested traffic", "Compare data.step."), out2);
+              return ok(out2);
+            }
+            const loserRow = rows.find((r) => r.typeId === plan.target.archived);
+            const out = {
+              op: "split-test",
+              action: "declare-winner",
+              ...plan.target,
+              step: s ? stepView(s, 0) : null,
+              archivedPageLookupLeft: Boolean(loserRow),
+              note: 'The losing page is archived (the step overview lists it under "Archived pages").'
+            };
+            if (s?.split !== false || JSON.stringify(s?.pages) !== JSON.stringify([plan.target.winner]) || loserRow) return withFailureData(fail(CODES.VERIFY_FAILED, "the step did not read back with the winner as its only page", "Compare data.step."), out);
             return ok(out);
           }
           default:

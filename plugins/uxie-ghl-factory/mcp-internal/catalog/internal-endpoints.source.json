@@ -20,7 +20,7 @@
     {
       "tree": "documented",
       "dir": "corpus",
-      "capturedAt": "2026-09-28T13:19:52.783Z",
+      "capturedAt": "2026-09-28T13:26:09.974Z",
       "hash": "corpus",
       "fileCount": 956,
       "endpoints": 956
@@ -12864,7 +12864,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:406"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:407"
       ],
       "serviceBasis": "declared"
     },
@@ -43486,7 +43486,7 @@
       },
       "sources": [
         "ai-agents/20-api/12-ai-agents-api.md:161",
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:377"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:378"
       ],
       "serviceBasis": "declared",
       "aka": [
@@ -43781,7 +43781,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:365"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:366"
       ],
       "serviceBasis": "declared"
     },
@@ -43814,7 +43814,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:324"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:325"
       ],
       "serviceBasis": "declared"
     },
@@ -43840,7 +43840,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:320"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:321"
       ],
       "serviceBasis": "declared"
     },
@@ -43919,7 +43919,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:379"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:380"
       ],
       "serviceBasis": "declared"
     },
@@ -44036,7 +44036,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:387"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:388"
       ],
       "serviceBasis": "declared"
     },
@@ -44101,7 +44101,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:402",
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:403",
         "ai-agents/20-api/logs-deployment-email.md:27"
       ],
       "serviceBasis": "declared"
@@ -44128,7 +44128,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:383"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:384"
       ],
       "serviceBasis": "declared"
     },
@@ -44154,7 +44154,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:386"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:387"
       ],
       "serviceBasis": "declared"
     },
@@ -44205,7 +44205,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:389",
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:390",
         "ai-agents/20-api/logs-deployment-email.md:24",
         "ai-agents/20-api/voice-ai-boundary.md:71",
         "ai-agents/30-types/voice-ai-actions.md:109"
@@ -44247,7 +44247,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:390",
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:391",
         "ai-agents/20-api/logs-deployment-email.md:25",
         "ai-agents/20-api/voice-ai-boundary.md:72"
       ],
@@ -44645,7 +44645,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:332",
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:333",
         "ai-agents/20-api/logs-deployment-email.md:19",
         "ai-agents/20-api/voice-ai-boundary.md:70"
       ],
@@ -44730,7 +44730,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:373",
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:374",
         "ai-agents/20-api/voice-ai-boundary.md:64"
       ],
       "serviceBasis": "declared"
@@ -44757,7 +44757,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:372"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:373"
       ],
       "serviceBasis": "declared"
     },
@@ -44783,7 +44783,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:376"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:377"
       ],
       "serviceBasis": "declared"
     },
@@ -44809,7 +44809,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:375"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:376"
       ],
       "serviceBasis": "declared"
     },
@@ -44835,7 +44835,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:374"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:375"
       ],
       "serviceBasis": "declared"
     },
@@ -44861,7 +44861,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:339"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:340"
       ],
       "serviceBasis": "declared"
     },
@@ -44998,7 +44998,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:358"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:359"
       ],
       "serviceBasis": "declared"
     },
@@ -45106,7 +45106,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:355"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:356"
       ],
       "serviceBasis": "declared"
     },
@@ -45145,7 +45145,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:351",
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:352",
         "ai-agents/20-api/voice-ai-boundary.md:66"
       ],
       "serviceBasis": "declared"
@@ -45172,7 +45172,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:359"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:360"
       ],
       "serviceBasis": "declared"
     },
@@ -45217,7 +45217,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:353"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:354"
       ],
       "serviceBasis": "declared"
     },

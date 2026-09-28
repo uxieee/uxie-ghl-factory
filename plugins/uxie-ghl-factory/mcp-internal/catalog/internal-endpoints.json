@@ -1,7 +1,7 @@
 {
   "generated": "2026-09-28",
   "note": "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path — not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-  "count": 1252,
+  "count": 1254,
   "endpoints": [
     {
       "id": "facebook-service--get-ad-account-by-id",
@@ -1491,6 +1491,39 @@
       },
       "sources": [
         "workflows/70-research/ENDPOINTS.md:211"
+      ]
+    },
+    {
+      "id": "typed--create_funnel--blogs-site",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/blogs/site",
+      "path": "/blogs/site",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "proven",
+      "coveredBy": [
+        "create_funnel"
+      ],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "create_funnel",
+      "tree": "typed-tool",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "proven",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "capability-manifest.json (create_funnel)"
       ]
     },
     {
@@ -8027,7 +8060,9 @@
       "rail": "workflow",
       "kind": "write",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "edit_funnel"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -8158,7 +8193,9 @@
       "rail": "workflow",
       "kind": "write",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "create_funnel"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -8230,7 +8267,9 @@
       "rail": "workflow",
       "kind": "write",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "edit_funnel"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -8300,6 +8339,7 @@
       "reach": "proven",
       "coveredBy": [
         "audit_site",
+        "create_funnel",
         "edit_funnel",
         "get_funnel"
       ],
@@ -8353,7 +8393,9 @@
       "rail": "workflow",
       "kind": "write",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "edit_funnel"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -8533,6 +8575,7 @@
       ],
       "coveredBy": [
         "audit_site",
+        "create_funnel",
         "find_ghl_site",
         "list_account_entities"
       ],
@@ -8643,6 +8686,39 @@
         "funnels/40-rules/silent-failures.md:123",
         "funnels/40-rules/silent-failures.md:245",
         "funnels/40-rules/silent-failures.md:522"
+      ]
+    },
+    {
+      "id": "typed--edit_funnel--funnel-update-funnel-and-page",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/funnels/funnel/update-funnel-and-page",
+      "path": "/funnels/funnel/update-funnel-and-page",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "proven",
+      "coveredBy": [
+        "edit_funnel"
+      ],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "edit_funnel",
+      "tree": "typed-tool",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "proven",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "capability-manifest.json (edit_funnel)"
       ]
     },
     {
@@ -8831,7 +8907,9 @@
       "rail": "workflow",
       "kind": "write",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "edit_funnel"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -8865,6 +8943,7 @@
       "kind": "write",
       "reach": "source-only",
       "coveredBy": [
+        "edit_funnel",
         "edit_redirects"
       ],
       "rawCallable": true,
@@ -11137,6 +11216,7 @@
       "coveredBy": [
         "check_snapshot_conflicts",
         "copy_workflow_to_location",
+        "create_funnel",
         "create_snapshot",
         "get_snapshot_contents",
         "get_snapshot_manifest",
@@ -16353,7 +16433,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:406"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:407"
       ]
     },
     {
@@ -41095,6 +41175,7 @@
       "reach": "proven",
       "coveredBy": [
         "create_form",
+        "create_funnel",
         "get_form",
         "update_form_data"
       ],
@@ -42032,7 +42113,9 @@
       "provenFor": [
         "agency-admin-bearer"
       ],
-      "coveredBy": [],
+      "coveredBy": [
+        "create_funnel"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -54506,7 +54589,9 @@
       "rail": "ai",
       "kind": "read",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "create_funnel"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -55064,7 +55149,7 @@
       },
       "sources": [
         "ai-agents/20-api/12-ai-agents-api.md:161",
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:377"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:378"
       ]
     },
     {
@@ -55447,7 +55532,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:365"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:366"
       ]
     },
     {
@@ -55489,7 +55574,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:324"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:325"
       ]
     },
     {
@@ -55524,7 +55609,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:320"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:321"
       ]
     },
     {
@@ -55622,7 +55707,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:379"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:380"
       ]
     },
     {
@@ -55765,7 +55850,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:387"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:388"
       ]
     },
     {
@@ -55848,7 +55933,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:402",
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:403",
         "ai-agents/20-api/logs-deployment-email.md:27"
       ]
     },
@@ -55884,7 +55969,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:383"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:384"
       ]
     },
     {
@@ -55922,7 +56007,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:386"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:387"
       ]
     },
     {
@@ -55978,7 +56063,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:389",
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:390",
         "ai-agents/20-api/logs-deployment-email.md:24",
         "ai-agents/20-api/voice-ai-boundary.md:71",
         "ai-agents/30-types/voice-ai-actions.md:109"
@@ -56025,7 +56110,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:390",
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:391",
         "ai-agents/20-api/logs-deployment-email.md:25",
         "ai-agents/20-api/voice-ai-boundary.md:72"
       ]
@@ -56535,7 +56620,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:332",
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:333",
         "ai-agents/20-api/logs-deployment-email.md:19",
         "ai-agents/20-api/voice-ai-boundary.md:70"
       ]
@@ -56634,7 +56719,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:373",
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:374",
         "ai-agents/20-api/voice-ai-boundary.md:64"
       ]
     },
@@ -56666,7 +56751,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:372"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:373"
       ]
     },
     {
@@ -56701,7 +56786,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:376"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:377"
       ]
     },
     {
@@ -56736,7 +56821,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:375"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:376"
       ]
     },
     {
@@ -56771,7 +56856,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:374"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:375"
       ]
     },
     {
@@ -56806,7 +56891,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:339"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:340"
       ]
     },
     {
@@ -56972,7 +57057,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:358"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:359"
       ]
     },
     {
@@ -57102,7 +57187,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:355"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:356"
       ]
     },
     {
@@ -57146,7 +57231,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:351",
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:352",
         "ai-agents/20-api/voice-ai-boundary.md:66"
       ]
     },
@@ -57182,7 +57267,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:359"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:360"
       ]
     },
     {
@@ -57232,7 +57317,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:353"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:354"
       ]
     },
     {

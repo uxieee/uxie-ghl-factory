@@ -1980,6 +1980,46 @@
     "path": "/funnels/builder/publish-version"
   },
   {
+    "tool": "create_funnel",
+    "method": "GET",
+    "path": "/funnels/funnel/list"
+  },
+  {
+    "tool": "create_funnel",
+    "method": "GET",
+    "path": "/funnels/funnel/fetch/{funnelId}"
+  },
+  {
+    "tool": "create_funnel",
+    "method": "GET",
+    "path": "/funnels/funnel/blog/list/"
+  },
+  {
+    "tool": "create_funnel",
+    "method": "GET",
+    "path": "/forms/{id}"
+  },
+  {
+    "tool": "create_funnel",
+    "method": "GET",
+    "path": "/locations/{locationId}"
+  },
+  {
+    "tool": "create_funnel",
+    "method": "POST",
+    "path": "/funnels/funnel/create"
+  },
+  {
+    "tool": "create_funnel",
+    "method": "POST",
+    "path": "/templates/template/load"
+  },
+  {
+    "tool": "create_funnel",
+    "method": "POST",
+    "path": "/blogs/site"
+  },
+  {
     "tool": "get_funnel",
     "method": "GET",
     "path": "/funnels/funnel/fetch/{funnelId}"
@@ -2068,6 +2108,36 @@
     "tool": "edit_funnel",
     "method": "POST",
     "path": "/funnels/funnel/headers"
+  },
+  {
+    "tool": "edit_funnel",
+    "method": "POST",
+    "path": "/funnels/funnel/funnel-page/{pageId}"
+  },
+  {
+    "tool": "edit_funnel",
+    "method": "POST",
+    "path": "/funnels/funnel/delete"
+  },
+  {
+    "tool": "edit_funnel",
+    "method": "POST",
+    "path": "/funnels/funnel/clone-control-page/"
+  },
+  {
+    "tool": "edit_funnel",
+    "method": "POST",
+    "path": "/funnels/lookup/create"
+  },
+  {
+    "tool": "edit_funnel",
+    "method": "POST",
+    "path": "/funnels/lookup/exists"
+  },
+  {
+    "tool": "edit_funnel",
+    "method": "POST",
+    "path": "/funnels/funnel/update-funnel-and-page"
   },
   {
     "tool": "audit_site",
