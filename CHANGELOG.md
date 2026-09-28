@@ -11,6 +11,26 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.17.1] — 2026-09-29
+
+**Fix: `create_form` saved form fields that the public form never shows. Executed live on the test account.**
+
+- **Fixed — invisible form fields.** GHL stores fields exactly as sent and renders each one by its `type`.
+  - A field sent as `{tag, label}` read back fine and appeared nowhere. A webinar registration page showed only its
+    Register button.
+  - A visitor could still press it. GHL accepted the blank submit and created a contact with no name, email or phone.
+- **The fix, in `create_form` and `update_form_data`:**
+  - A built-in field sent without `type` is completed the way the builder saves it: type, standard,
+    hiddenFieldQueryKey, and required on email and phone. What was added is listed under `completed`.
+  - Any other field the form would not render is refused by name, before anything is sent: a custom-field question
+    without `type`, an unknown `type`, or `select` on a field other than country.
+  - A form with no required input carries a `blankSubmit` warning.
+  - ⚠️ Untyped custom-field elements, and `type: "select"` on a field other than country, are now refused. Those fields
+    never rendered.
+- Forms skill: the traps, and a render check that looks for the `<input>`, not the label text.
+
+Catalogue: +1 route.
+
 ## [1.17.0] — 2026-09-29
 
 **Safety: `raw_request` refuses an empty write body. Fix: `publish_workflow` tells the truth when GHL's reply was
