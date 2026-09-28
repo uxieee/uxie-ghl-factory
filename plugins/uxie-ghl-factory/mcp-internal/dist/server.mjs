@@ -178,7 +178,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
     define_ENDPOINT_CATALOG_default = {
       generated: "2026-09-28",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 1186,
+      count: 1203,
       endpoints: [
         {
           id: "facebook-service--get-ad-account-by-id",
@@ -41604,7 +41604,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "ai-agents/20-api/knowledge-base.md:132",
             "ai-agents/20-api/knowledge-base.md:141",
             "ai-agents/20-api/knowledge-base.md:142",
-            "ai-agents/20-api/knowledge-base.md:281"
+            "ai-agents/20-api/knowledge-base.md:284"
           ]
         },
         {
@@ -41804,6 +41804,219 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           ]
         },
         {
+          id: "ai-agents--knowledge-base-chunks",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/knowledge-base/chunks",
+          path: "/knowledge-base/chunks",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/knowledge-base.md:313",
+            "ai-agents/20-api/knowledge-base.md:330"
+          ]
+        },
+        {
+          id: "ai-agents--knowledge-base-crawler",
+          method: "DELETE",
+          url: "https://services.leadconnectorhq.com/knowledge-base/crawler",
+          path: "/knowledge-base/crawler",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/knowledge-base.md:318"
+          ]
+        },
+        {
+          id: "ai-agents--knowledge-base-crawler-get",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/knowledge-base/crawler",
+          path: "/knowledge-base/crawler",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "knowledgeBaseId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/knowledge-base.md:318"
+          ]
+        },
+        {
+          id: "ai-agents--knowledge-base-crawler-post",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/knowledge-base/crawler",
+          path: "/knowledge-base/crawler",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/knowledge-base.md:318"
+          ]
+        },
+        {
+          id: "ai-agents--knowledge-base-crawler-put",
+          method: "PUT",
+          url: "https://services.leadconnectorhq.com/knowledge-base/crawler",
+          path: "/knowledge-base/crawler",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "knowledgeBaseId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/knowledge-base.md:325"
+          ]
+        },
+        {
+          id: "ai-agents--crawler-automation",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/knowledge-base/crawler/automation",
+          path: "/knowledge-base/crawler/automation",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/knowledge-base.md:327"
+          ]
+        },
+        {
           id: "ai-agents--chunk-content",
           method: "PUT",
           url: "https://services.leadconnectorhq.com/knowledge-base/crawler/chunk/content",
@@ -41879,6 +42092,100 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           ]
         },
         {
+          id: "ai-agents--pages-content",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/knowledge-base/crawler/pages/content",
+          path: "/knowledge-base/crawler/pages/content",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "urlId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "knowledgeBaseId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/knowledge-base.md:318"
+          ]
+        },
+        {
+          id: "ai-agents--crawler-status",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/knowledge-base/crawler/status",
+          path: "/knowledge-base/crawler/status",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "knowledgeBaseId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/knowledge-base.md:318"
+          ]
+        },
+        {
           id: "ai-agents--knowledge-base-default",
           method: "POST",
           url: "https://services.leadconnectorhq.com/knowledge-base/default",
@@ -41910,7 +42217,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             "ai-agents/20-api/conversation-ai-boundary.md:79",
             "ai-agents/20-api/knowledge-base.md:59",
             "ai-agents/20-api/knowledge-base.md:77",
-            "ai-agents/20-api/knowledge-base.md:313"
+            "ai-agents/20-api/knowledge-base.md:348"
           ]
         },
         {
@@ -41931,7 +42238,20 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           service: "ai-agents",
           tree: "documented",
           pathParams: [],
-          query: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "knowledgeBaseId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
@@ -41941,7 +42261,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/knowledge-base.md:63"
+            "ai-agents/20-api/knowledge-base.md:63",
+            "ai-agents/20-api/knowledge-base.md:317"
           ]
         },
         {
@@ -41972,7 +42293,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/knowledge-base.md:64"
+            "ai-agents/20-api/knowledge-base.md:64",
+            "ai-agents/20-api/knowledge-base.md:317"
           ]
         },
         {
@@ -42074,6 +42396,142 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/20-api/knowledge-base.md:67"
+          ]
+        },
+        {
+          id: "ai-agents--knowledge-base-files",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/knowledge-base/files",
+          path: "/knowledge-base/files",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/knowledge-base.md:319"
+          ]
+        },
+        {
+          id: "ai-agents--knowledge-base-files-delete",
+          method: "DELETE",
+          url: "https://services.leadconnectorhq.com/knowledge-base/files/{id}",
+          path: "/knowledge-base/files/{id}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/knowledge-base.md:319"
+          ]
+        },
+        {
+          id: "ai-agents--knowledge-base-files-get",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/knowledge-base/files/{id}",
+          path: "/knowledge-base/files/{id}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/knowledge-base.md:319"
+          ]
+        },
+        {
+          id: "ai-agents--files-status",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/knowledge-base/files/{id}/status",
+          path: "/knowledge-base/files/{id}/status",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/knowledge-base.md:319"
           ]
         },
         {
@@ -42267,6 +42725,110 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           ]
         },
         {
+          id: "ai-agents--internal-data-sources",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/knowledge-base/internal-data/sources",
+          path: "/knowledge-base/internal-data/sources",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/knowledge-base.md:338"
+          ]
+        },
+        {
+          id: "ai-agents--retrieval-test-conversations",
+          method: "DELETE",
+          url: "https://services.leadconnectorhq.com/knowledge-base/retrieval-test/conversations/{id}",
+          path: "/knowledge-base/retrieval-test/conversations/{id}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/knowledge-base.md:335"
+          ]
+        },
+        {
+          id: "ai-agents--conversations-entries",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/knowledge-base/retrieval-test/conversations/entries",
+          path: "/knowledge-base/retrieval-test/conversations/entries",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/knowledge-base.md:333"
+          ]
+        },
+        {
           id: "ai-agents--knowledge-base-rich-text",
           method: "POST",
           url: "https://services.leadconnectorhq.com/knowledge-base/rich-text/",
@@ -42296,7 +42858,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:310",
             "ai-agents/20-api/12-ai-agents-api.md:379",
-            "ai-agents/20-api/knowledge-base.md:282"
+            "ai-agents/20-api/knowledge-base.md:285"
           ]
         },
         {
@@ -42332,7 +42894,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:312",
-            "ai-agents/20-api/knowledge-base.md:286"
+            "ai-agents/20-api/knowledge-base.md:289"
           ]
         },
         {
@@ -42367,7 +42929,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/knowledge-base.md:283"
+            "ai-agents/20-api/knowledge-base.md:286"
           ]
         },
         {
@@ -42403,7 +42965,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:311",
-            "ai-agents/20-api/knowledge-base.md:284"
+            "ai-agents/20-api/knowledge-base.md:287"
           ]
         },
         {
@@ -42438,7 +43000,45 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/knowledge-base.md:285"
+            "ai-agents/20-api/knowledge-base.md:288"
+          ]
+        },
+        {
+          id: "ai-agents--kb-upload",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/knowledge-base/table/location/{locationId}/kb/{kb}/upload",
+          path: "/knowledge-base/table/location/{locationId}/kb/{kb}/upload",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "kb"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/knowledge-base.md:320"
           ]
         },
         {
@@ -49448,7 +50048,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "pipelines-opportunities/20-api/opportunities.md:209",
-            "pipelines-opportunities/20-api/pipelines.md:250"
+            "pipelines-opportunities/20-api/pipelines.md:263"
           ]
         },
         {
@@ -49908,7 +50508,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "pipelines-opportunities/20-api/pipelines.md:43",
-            "pipelines-opportunities/20-api/pipelines.md:167"
+            "pipelines-opportunities/20-api/pipelines.md:169"
           ]
         },
         {
@@ -50002,7 +50602,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "forms/20-api/neighbour-services.md:29",
-            "pipelines-opportunities/20-api/pipelines.md:191",
+            "pipelines-opportunities/20-api/pipelines.md:204",
             "pipelines-opportunities/20-api/smart-filters.md:86"
           ]
         },
@@ -50079,7 +50679,49 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "pipelines-opportunities/20-api/pipelines.md:38",
-            "pipelines-opportunities/20-api/pipelines.md:246"
+            "pipelines-opportunities/20-api/pipelines.md:259"
+          ]
+        },
+        {
+          id: "pipelines-opportunities--opportunities-pipelines-get",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/opportunities/pipelines/{pipelineId}",
+          path: "/opportunities/pipelines/{pipelineId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "pipelines-opportunities",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "pipelineId"
+            }
+          ],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "pipelines-opportunities/20-api/pipelines.md:194"
           ]
         },
         {
@@ -50128,7 +50770,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/pipelines.md:202"
+            "pipelines-opportunities/20-api/pipelines.md:215"
           ]
         },
         {
@@ -50277,8 +50919,8 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "pipelines-opportunities/20-api/pipelines.md:40",
-            "pipelines-opportunities/20-api/pipelines.md:156",
-            "pipelines-opportunities/20-api/pipelines.md:174"
+            "pipelines-opportunities/20-api/pipelines.md:158",
+            "pipelines-opportunities/20-api/pipelines.md:176"
           ]
         },
         {
@@ -50320,7 +50962,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "pipelines-opportunities/20-api/pipelines.md:158",
+            "pipelines-opportunities/20-api/pipelines.md:160",
             "pipelines-opportunities/20-api/pipelines.md:41"
           ]
         },

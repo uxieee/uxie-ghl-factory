@@ -20,16 +20,16 @@
     {
       "tree": "documented",
       "dir": "corpus",
-      "capturedAt": "2026-09-28T10:36:36.114Z",
+      "capturedAt": "2026-09-28T10:43:00.828Z",
       "hash": "corpus",
-      "fileCount": 889,
-      "endpoints": 889
+      "fileCount": 906,
+      "endpoints": 906
     }
   ],
   "note": "SOURCE-DERIVED ONLY, merged from every mined front-end. `tree` on each row says which app calls it. The plugin owns kind/note/summary/reach/coveredBy and merges them at read time. A row proves a GHL front-end calls that path — not that your token reaches it, and not that calling it is safe.",
-  "discoveredCallSites": 1364,
+  "discoveredCallSites": 1381,
   "skippedCallSites": 702,
-  "count": 1179,
+  "count": 1196,
   "endpoints": [
     {
       "id": "facebook-service--get-ad-account-by-id",
@@ -32887,7 +32887,7 @@
         "ai-agents/20-api/knowledge-base.md:132",
         "ai-agents/20-api/knowledge-base.md:141",
         "ai-agents/20-api/knowledge-base.md:142",
-        "ai-agents/20-api/knowledge-base.md:281"
+        "ai-agents/20-api/knowledge-base.md:284"
       ],
       "serviceBasis": "declared"
     },
@@ -33048,6 +33048,189 @@
       "serviceBasis": "declared"
     },
     {
+      "id": "ai-agents--knowledge-base-chunks",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/knowledge-base/chunks",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/knowledge-base.md:313",
+        "ai-agents/20-api/knowledge-base.md:330"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "ai-agents--knowledge-base-crawler",
+      "method": "DELETE",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/knowledge-base/crawler",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/knowledge-base.md:318"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "ai-agents--knowledge-base-crawler-get",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/knowledge-base/crawler",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "knowledgeBaseId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/knowledge-base.md:318"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "ai-agents--knowledge-base-crawler-post",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/knowledge-base/crawler",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/knowledge-base.md:318"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "ai-agents--knowledge-base-crawler-put",
+      "method": "PUT",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/knowledge-base/crawler",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "knowledgeBaseId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/knowledge-base.md:325"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "ai-agents--crawler-automation",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/knowledge-base/crawler/automation",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/knowledge-base.md:327"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
       "id": "ai-agents--chunk-content",
       "method": "PUT",
       "origin": "https://services.leadconnectorhq.com",
@@ -33113,6 +33296,90 @@
       "serviceBasis": "declared"
     },
     {
+      "id": "ai-agents--pages-content",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/knowledge-base/crawler/pages/content",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "urlId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "knowledgeBaseId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/knowledge-base.md:318"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "ai-agents--crawler-status",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/knowledge-base/crawler/status",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "knowledgeBaseId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/knowledge-base.md:318"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
       "id": "ai-agents--knowledge-base-default",
       "method": "POST",
       "origin": "https://services.leadconnectorhq.com",
@@ -33138,7 +33405,7 @@
         "ai-agents/20-api/conversation-ai-boundary.md:79",
         "ai-agents/20-api/knowledge-base.md:59",
         "ai-agents/20-api/knowledge-base.md:77",
-        "ai-agents/20-api/knowledge-base.md:313"
+        "ai-agents/20-api/knowledge-base.md:348"
       ],
       "serviceBasis": "declared"
     },
@@ -33154,7 +33421,20 @@
       "tree": "documented",
       "operation": null,
       "service": "ai-agents",
-      "query": [],
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "knowledgeBaseId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
       "body": null,
       "returns": null,
       "confidence": {
@@ -33164,7 +33444,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/knowledge-base.md:63"
+        "ai-agents/20-api/knowledge-base.md:63",
+        "ai-agents/20-api/knowledge-base.md:317"
       ],
       "serviceBasis": "declared"
     },
@@ -33190,7 +33471,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/knowledge-base.md:64"
+        "ai-agents/20-api/knowledge-base.md:64",
+        "ai-agents/20-api/knowledge-base.md:317"
       ],
       "serviceBasis": "declared"
     },
@@ -33269,6 +33551,110 @@
       },
       "sources": [
         "ai-agents/20-api/knowledge-base.md:67"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "ai-agents--knowledge-base-files",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/knowledge-base/files",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/knowledge-base.md:319"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "ai-agents--knowledge-base-files-delete",
+      "method": "DELETE",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/knowledge-base/files/{id}",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/knowledge-base.md:319"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "ai-agents--knowledge-base-files-get",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/knowledge-base/files/{id}",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/knowledge-base.md:319"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "ai-agents--files-status",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/knowledge-base/files/{id}/status",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/knowledge-base.md:319"
       ],
       "serviceBasis": "declared"
     },
@@ -33429,6 +33815,91 @@
       "serviceBasis": "declared"
     },
     {
+      "id": "ai-agents--internal-data-sources",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/knowledge-base/internal-data/sources",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/knowledge-base.md:338"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "ai-agents--retrieval-test-conversations",
+      "method": "DELETE",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/knowledge-base/retrieval-test/conversations/{id}",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/knowledge-base.md:335"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "ai-agents--conversations-entries",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/knowledge-base/retrieval-test/conversations/entries",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/knowledge-base.md:333"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
       "id": "ai-agents--knowledge-base-rich-text",
       "method": "POST",
       "origin": "https://services.leadconnectorhq.com",
@@ -33452,7 +33923,7 @@
       "sources": [
         "ai-agents/20-api/12-ai-agents-api.md:310",
         "ai-agents/20-api/12-ai-agents-api.md:379",
-        "ai-agents/20-api/knowledge-base.md:282"
+        "ai-agents/20-api/knowledge-base.md:285"
       ],
       "serviceBasis": "declared"
     },
@@ -33479,7 +33950,7 @@
       },
       "sources": [
         "ai-agents/20-api/12-ai-agents-api.md:312",
-        "ai-agents/20-api/knowledge-base.md:286"
+        "ai-agents/20-api/knowledge-base.md:289"
       ],
       "serviceBasis": "declared"
     },
@@ -33505,7 +33976,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/knowledge-base.md:283"
+        "ai-agents/20-api/knowledge-base.md:286"
       ],
       "serviceBasis": "declared"
     },
@@ -33532,7 +34003,7 @@
       },
       "sources": [
         "ai-agents/20-api/12-ai-agents-api.md:311",
-        "ai-agents/20-api/knowledge-base.md:284"
+        "ai-agents/20-api/knowledge-base.md:287"
       ],
       "serviceBasis": "declared"
     },
@@ -33558,7 +34029,33 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/knowledge-base.md:285"
+        "ai-agents/20-api/knowledge-base.md:288"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "ai-agents--kb-upload",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/knowledge-base/table/location/{locationId}/kb/{kb}/upload",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "ai-agents",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/knowledge-base.md:320"
       ],
       "serviceBasis": "declared"
     },
@@ -38982,7 +39479,7 @@
       },
       "sources": [
         "pipelines-opportunities/20-api/opportunities.md:209",
-        "pipelines-opportunities/20-api/pipelines.md:250"
+        "pipelines-opportunities/20-api/pipelines.md:263"
       ],
       "serviceBasis": "declared"
     },
@@ -39324,7 +39821,7 @@
       },
       "sources": [
         "pipelines-opportunities/20-api/pipelines.md:43",
-        "pipelines-opportunities/20-api/pipelines.md:167"
+        "pipelines-opportunities/20-api/pipelines.md:169"
       ],
       "serviceBasis": "declared"
     },
@@ -39391,7 +39888,7 @@
       },
       "sources": [
         "forms/20-api/neighbour-services.md:29",
-        "pipelines-opportunities/20-api/pipelines.md:191",
+        "pipelines-opportunities/20-api/pipelines.md:204",
         "pipelines-opportunities/20-api/smart-filters.md:86"
       ],
       "serviceBasis": "declared"
@@ -39446,7 +39943,40 @@
       },
       "sources": [
         "pipelines-opportunities/20-api/pipelines.md:38",
-        "pipelines-opportunities/20-api/pipelines.md:246"
+        "pipelines-opportunities/20-api/pipelines.md:259"
+      ],
+      "serviceBasis": "declared"
+    },
+    {
+      "id": "pipelines-opportunities--opportunities-pipelines-get",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/opportunities/pipelines/{pipelineId}",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "pipelines-opportunities",
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "pipelines-opportunities/20-api/pipelines.md:194"
       ],
       "serviceBasis": "declared"
     },
@@ -39479,7 +40009,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/pipelines.md:202"
+        "pipelines-opportunities/20-api/pipelines.md:215"
       ],
       "serviceBasis": "declared"
     },
@@ -39584,8 +40114,8 @@
       },
       "sources": [
         "pipelines-opportunities/20-api/pipelines.md:40",
-        "pipelines-opportunities/20-api/pipelines.md:156",
-        "pipelines-opportunities/20-api/pipelines.md:174"
+        "pipelines-opportunities/20-api/pipelines.md:158",
+        "pipelines-opportunities/20-api/pipelines.md:176"
       ],
       "serviceBasis": "declared"
     },
@@ -39611,7 +40141,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "pipelines-opportunities/20-api/pipelines.md:158",
+        "pipelines-opportunities/20-api/pipelines.md:160",
         "pipelines-opportunities/20-api/pipelines.md:41"
       ],
       "serviceBasis": "declared",
