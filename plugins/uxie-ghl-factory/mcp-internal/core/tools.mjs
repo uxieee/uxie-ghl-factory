@@ -4657,7 +4657,10 @@ export const TOOLS = [
       skipCustomCodeTest: z.boolean().default(false),
       // With spec.sampleWebhookPayload: POST the sample to each inbound_webhook trigger's receiving
       // URL and pin it as the reference so {{inboundWebhookRequest.*}} tags are real.
-      pinWebhookSample: z.boolean().default(false),
+      // optional, NOT default(false): a default made this always false, so orchestrate's
+      // `opts.pinWebhookSample ?? ir.pinWebhookSample` never read the documented IR-level flag
+      // (live 2026-09-28, knowledge sniffs/workflows-wave1-2026-09-25/live-3J-webhook-chain-run1-pin-ignored.json).
+      pinWebhookSample: z.boolean().optional(),
       allowValidationFailure: z.boolean().optional().describe('Write even though the validation gate refused. The gate runs every layer over the document: GHL\'s own WorkflowValidator rules (including the publish-only ones when this write publishes), the advanced canvas\'s stored error flag, the engine oracle (defects GHL answers valid:true on) and GHL\'s live validator. Findings are still reported in full.'),
     }),
     capabilities: [
@@ -4709,7 +4712,7 @@ export const TOOLS = [
         skipWorkflowRules: args.skipWorkflowRules,
         strictCustomCode: args.strictCustomCode === true,
         skipCustomCodeTest: args.skipCustomCodeTest === true,
-        pinWebhookSample: args.pinWebhookSample === true,
+        pinWebhookSample: typeof args.pinWebhookSample === 'boolean' ? args.pinWebhookSample : undefined,
         allowValidationFailure: args.allowValidationFailure === true,
       });
       const data = buildWorkflowData(report, args.locationId);
