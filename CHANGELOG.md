@@ -11,6 +11,18 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.7.1] — 2026-09-29
+
+**Fix: merge-tag fallbacks in an email BODY did nothing. They are now written as the builder writes them, and a send
+renders them. Executed live on the test account.**
+
+- **Workflow email steps:** a fallback set for a body merge tag (`htmlDefaults`) was passed through as a bare map, which
+  GHL ignores at send, so an empty field rendered blank. The compiler now writes the builder's own shape: the cleaned
+  map, plus an inline `data-cv-defaults` attribute on the first tag, keyed per occurrence of each variable. The body
+  text is otherwise unchanged; tags inside helpers, `{{default …}}` and `#each` blocks are never touched. An attribute
+  already in the html is kept. Proven by two sends: before the fix the fallback rendered empty; after it, each
+  occurrence rendered its own fallback. Subject fallbacks already worked.
+
 ## [1.7.0] — 2026-09-29
 
 **Funnel object operations (clone, archive/restore page, import page, add a working store), share and archived-page
