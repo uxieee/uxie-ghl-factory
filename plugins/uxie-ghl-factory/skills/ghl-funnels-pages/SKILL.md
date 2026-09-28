@@ -80,6 +80,17 @@ with a 201. Everything the ops do not name is written back as read, and each op 
 on a separate read. Node ids come from `GET /funnels/builder/page/data?pageId=`. Prefer this over
 recomposing a page: `sections` REPLACES the whole page.
 
+**Structure and motion** (`build_funnel_page`, both modes; shapes measured from the builder's own saves):
+a section takes `sticky` (`none|top|bottom`), `width` (`full|wide|midWide|small`) and `fullWidthRows`
+(rows span the section; not with `maxWidth`) — in edit mode as `set` on the section's id. A leaf takes
+`entranceAnimation` `{name, duration?, delay?, scale?, easing?}` (heading, sub-heading, paragraph,
+rich-text, bulletList, button, image) and a button `hoverAnimation` `{name, duration?, delay?, easing?,
++ its effect's knob: scale | angle | distance | borderThickness | blur, spread}`; the tool writes the
+class knobs AND the builder's compiled rules, byte-equal to what the builder saves. `popups`
+`[{name, width: full|medium|small, showOn: 'exit'|'none'|{delay}, closeOnOutsideClick, position,
+background, columns}]` (edit mode: `append-popup`) and a button's `openPopup: "<popup name>"` open one.
+An empty popup is refused — GHL never renders it — and so is an openPopup naming a popup the page lacks.
+
 Page-level settings ride the same mode: op `page` sets tracking code (header/footer), custom CSS and the
 page background; `seo` sets title, description, keywords, author, social image and language. SEO is
 written twice, as the builder does: to the page record (`POST /funnels/funnel/funnel-page/{pageId}`
@@ -104,10 +115,22 @@ target. Read them with **`find_ghl_site`** `includeRedirects:true` (domains, eve
 | the builder's autosave on/off switch | page builder toolbar | a browser-local preference (`localStorage`); every tool write is already one explicit autosave |
 | Build with AI (funnels list) | Sites → Funnels → Build with AI | the AI builder; 🔴 it creates a funnel and a step the moment it is clicked. Use `create_funnel` + `build_funnel_page` |
 | schema markup (JSON-LD) | page builder → SEO panel → Schema markup → Add schema (form view, or AI) | its own object (`/schema-markup/schemas/save`, `ownerType:"funnel_page"`), rendered in `<head>` |
+| button themes gallery (Quick Add → Buttons, 18 presets) | page builder → Quick Add → Buttons | presets of ordinary styles; 🔴 a theme's own radius class loses to the compiled rule (the "radius15" theme renders 5px) — set `styles` directly |
+| brand-board palette colours (`var(--red)`) | page builder colour picker → Brand / Global colours | an API-composed page has no builder `:root` palette, so a palette var resolves to nothing there; the tool writes literal colours |
+| column layout knobs (content direction, spacing, alignment, "same layout on mobile") | page builder → column → General | the builder writes them per column; widths are set with `widthPct` |
+| saved assets: section / element templates, universal sections and elements, global sections | page builder → Save Section / Save Element; Quick Add → Saved Assets | builder-owned synced assets; inserting one is a drag in the builder |
 | visitor geo-location | nothing to set | a runtime lookup (`GET /funnels/funnel/geo-location/` → the visitor's country) the builder uses to format prices |
 
 What the builder does that a 2xx will not tell you (all measured live):
 
+- 🔴 **The builder's first save of an API-composed page adds an EMPTY popup**, and merely opening the
+  General tab of a button whose action is empty rewrites it to `openPopup` pointing at that popup — a
+  behaviour change nobody clicked (an empty popup never shows, so the button then does nothing). After a
+  builder session, re-read the page and check every button's `extra.action`.
+- 🔴 **The builder recompiles the whole section stylesheet on every save.** A composed `maxWidth` becomes
+  the builder's `1170px` (or `100%` with `fullWidthRows`) the first time anyone saves the page there.
+- 🔴 **A themed button renders its compiled rule, not its theme class**: the gallery's `radius15` theme
+  shows 5px corners, and its rule is keyed to the gallery template's class, not the button's own id.
 - 🔴 **The builder's Publish never calls `publish-version`.** It autosaves with `pageType:"live"` and
   then `PUT /funnels/lookup/multiple` (`publishStatus:"live"`). Every publish mints a NEW live version
   and demotes the previous one to draft. Restoring a version creates a new DRAFT; the public URL

@@ -18,6 +18,9 @@ export function findNode(pageData, nodeId) {
   return null;
 }
 
+import { sectionKnobs, sectionInnerRule, BUILDER_INNER_MAX_WIDTH } from './funnel-pages.mjs';
+import { entranceClass, hoverClass, entranceCss, hoverCss, stripAnimationCss, parentAnimationOffset, ENTRANCE_METAS, HOVER_METAS } from './page-animation.mjs';
+
 const mergeInto = (node, key, patch) => {
   node[key] = { ...(node[key] ?? {}), ...patch };
   // The builder also reads a canonical copy from node.element (see withElement); keep them equal.
@@ -26,7 +29,11 @@ const mergeInto = (node, key, patch) => {
 
 /**
  * ops:
- *  { op: 'set', nodeId, extra?: {...}, styles?: {...} }   merge into an existing node
+ *  { op: 'set', nodeId, extra?: {...}, styles?: {...},     merge into an existing leaf, row or column;
+ *    entranceAnimation?: {name, duration?, delay?, scale?, easing?}, hoverAnimation?: {name, …knobs} }
+ *                                                          the animations go into `class` AND the compiled sheet
+ *  { op: 'set', nodeId: <section id>, sticky?, width?, fullWidthRows? }   a section's General-tab knobs
+ *  { op: 'append-popup', popup }                           popup: a built entry from makePopup() (+ its css)
  *  { op: 'append-section', section }                       section: a node tree from makeSection()
  *  { op: 'remove-node', nodeId }                           a leaf (and its id in its parent's child[]) or a whole section
  * `compileStyles(nodeId, meta, styles)` returns a CSS rule string for the public stylesheet (or '').
@@ -38,8 +45,52 @@ export function applyPageEdits(pageData, ops, { compileStyles = () => '' } = {})
     if (o.op === 'set') {
       const hit = findNode(next, o.nodeId);
       if (!hit) { report.push({ i, op: 'set', nodeId: o.nodeId, error: 'no node with this id on the page' }); continue; }
-      if (hit.isSection) { report.push({ i, op: 'set', nodeId: o.nodeId, error: 'set targets leaves, rows and columns; edit a section by replacing it' }); continue; }
+      if (hit.isSection) {
+        // A section takes its three General-tab knobs; its content is edited node by node, its styling by replacing it.
+        if (o.extra || o.styles || o.entranceAnimation || o.hoverAnimation) { report.push({ i, op: 'set', nodeId: o.nodeId, error: 'a section takes sticky, width and fullWidthRows here; set its rows, columns and leaves by their own ids, or replace the section' }); continue; }
+        if (o.sticky === undefined && o.width === undefined && o.fullWidthRows === undefined) { report.push({ i, op: 'set', nodeId: o.nodeId, error: 'set on a section needs sticky, width or fullWidthRows' }); continue; }
+        let knobs;
+        try { knobs = sectionKnobs(o); } catch (e) { report.push({ i, op: 'set', nodeId: o.nodeId, error: e.message }); continue; }
+        const meta = hit.node; const changed = [];
+        if (Object.keys(knobs.extra).length) { mergeInto(meta, 'extra', knobs.extra); changed.push(...Object.keys(knobs.extra).map((k) => `extra.${k}`)); }
+        if (Object.keys(knobs.cls).length) {
+          mergeInto(meta, 'class', knobs.cls); changed.push('class.width');
+          // classStr is the builder's flattened class list; keep the width class in it when the node has one.
+          if (typeof meta.classStr === 'string') meta.classStr = [...meta.classStr.split(/\s+/).filter((c) => c && !/Section$/.test(c)), knobs.cls.width.value].join(' ');
+        }
+        if (o.fullWidthRows !== undefined) {
+          // The compiled inner rule the builder writes for this knob (its sectionStyle(): 100% or 1170px).
+          const sid = hit.section.id;
+          const css = (hit.section.general?.sectionStyles ?? '').replace(new RegExp(`#${sid.replace(/[-]/g, '\\-')}>\\.inner\\{max-width:[^}]*\\}`, 'g'), '');
+          hit.section.general = { ...(hit.section.general ?? {}), sectionStyles: css + sectionInnerRule(sid, { fullWidthRows: o.fullWidthRows === true, maxWidth: BUILDER_INNER_MAX_WIDTH }) };
+          changed.push('section.general.sectionStyles');
+        }
+        meta.updated = true;
+        report.push({ i, op: 'set', nodeId: o.nodeId, meta: 'section', changed, expect: { extra: knobs.extra, class: knobs.cls } });
+        continue;
+      }
       const changed = [];
+      let clsPatch = {};
+      try {
+        if (o.entranceAnimation) {
+          if (!ENTRANCE_METAS.includes(hit.node.meta)) throw new Error(`the builder offers an entrance animation on ${ENTRANCE_METAS.join(', ')} — not on ${hit.node.meta}`);
+          clsPatch = { ...clsPatch, ...entranceClass(o.entranceAnimation) };
+        }
+        if (o.hoverAnimation) {
+          if (!HOVER_METAS.includes(hit.node.meta)) throw new Error(`the builder offers a hover animation on buttons only — not on ${hit.node.meta}`);
+          clsPatch = { ...clsPatch, ...hoverClass(o.hoverAnimation) };
+        }
+      } catch (e) { report.push({ i, op: 'set', nodeId: o.nodeId, error: e.message }); continue; }
+      if (Object.keys(clsPatch).length) {
+        // A new entrance replaces every timing knob of the old one; a new hover replaces the old knobs.
+        if (o.entranceAnimation) for (const k of ['animationScale', 'animationDuration', 'animationDelay', 'animationEasing']) { delete hit.node.class?.[k]; if (hit.node.element?.class) delete hit.node.element.class[k]; }
+        if (o.hoverAnimation) for (const k of ['hoverDuration', 'hoverDelay', 'hoverEasing', 'hoverScale', 'hoverAngle', 'hoverDistance', 'hoverBorderThickness', 'hoverBlur', 'hoverSpread']) { delete hit.node.class?.[k]; if (hit.node.element?.class) delete hit.node.element.class[k]; }
+        mergeInto(hit.node, 'class', clsPatch); changed.push(...Object.keys(clsPatch).map((k) => `class.${k}`));
+        const id = hit.node.id;
+        const rules = entranceCss(id, hit.node.class, parentAnimationOffset(id, hit.section)) + hoverCss(id, hit.node.class);
+        hit.section.general = { ...(hit.section.general ?? {}), sectionStyles: stripAnimationCss(hit.section.general?.sectionStyles ?? '', id) + rules };
+        changed.push('section.general.sectionStyles');
+      }
       if (o.extra && Object.keys(o.extra).length) { mergeInto(hit.node, 'extra', o.extra); changed.push(...Object.keys(o.extra).map((k) => `extra.${k}`)); }
       if (o.styles && Object.keys(o.styles).length) {
         mergeInto(hit.node, 'styles', o.styles); changed.push(...Object.keys(o.styles).map((k) => `styles.${k}`));
@@ -50,10 +101,15 @@ export function applyPageEdits(pageData, ops, { compileStyles = () => '' } = {})
         }
       }
       hit.node.updated = true;
-      report.push({ i, op: 'set', nodeId: o.nodeId, meta: hit.node.meta, changed, expect: { extra: o.extra ?? {}, styles: o.styles ?? {} } });
+      report.push({ i, op: 'set', nodeId: o.nodeId, meta: hit.node.meta, changed, expect: { extra: o.extra ?? {}, styles: o.styles ?? {}, class: clsPatch } });
     } else if (o.op === 'append-section') {
       next.sections = [...(next.sections ?? []), { ...o.section, sequence: (next.sections ?? []).length }];
       report.push({ i, op: 'append-section', sectionId: o.section.id, nodes: (o.section.elements ?? []).length });
+    } else if (o.op === 'append-popup') {
+      next.popupsList = [...(next.popupsList ?? []), o.popup.entry];
+      // The popup's box and its content's rules are PAGE-level CSS, where the builder keeps them.
+      next.pageStyles = `${next.pageStyles ?? ''}${o.popup.css}`;
+      report.push({ i, op: 'append-popup', popupId: o.popup.entry.id, name: o.popup.name, nodes: o.popup.entry.elements.length, changed: ['popupsList', 'pageStyles'] });
     } else if (o.op === 'remove-node') {
       const hit = findNode(next, o.nodeId);
       if (!hit) { report.push({ i, op: 'remove-node', nodeId: o.nodeId, error: 'no node with this id on the page' }); continue; }
@@ -103,7 +159,7 @@ export function applyPageEdits(pageData, ops, { compileStyles = () => '' } = {})
       if (!changed.length) { report.push({ i, op: 'page', error: 'page op needs trackingCode, customCss or background (SEO goes in `seo`)' }); continue; }
       report.push({ i, op: 'page', changed, expectPage: { trackingCode: o.trackingCode, customCss: o.customCss, background: o.background } });
     } else {
-      report.push({ i, op: o.op, error: `unknown op ${o.op} (set | append-section | remove-node | page)` });
+      report.push({ i, op: o.op, error: `unknown op ${o.op} (set | append-section | append-popup | remove-node | page)` });
     }
   }
   return { pageData: next, report, errors: report.filter((r) => r.error) };
@@ -118,7 +174,7 @@ export function verifyEdits(stored, report) {
       // Compare VALUES, not presence: a set that landed as the old value is the failure to catch.
       const hit = findNode(stored, r.nodeId);
       const wrong = [];
-      for (const key of ['extra', 'styles']) {
+      for (const key of ['extra', 'styles', 'class']) {
         for (const [k, v] of Object.entries(r.expect?.[key] ?? {})) {
           if (JSON.stringify(hit?.node?.[key]?.[k]) !== JSON.stringify(v)) wrong.push(`${key}.${k}`);
         }
@@ -126,6 +182,9 @@ export function verifyEdits(stored, report) {
       out.push({ nodeId: r.nodeId, present: !!hit, applied: !!hit && wrong.length === 0, ...(wrong.length ? { notApplied: wrong } : {}) });
     } else if (r.op === 'append-section') {
       out.push({ sectionId: r.sectionId, present: (stored.sections ?? []).some((s) => s.id === r.sectionId) });
+    } else if (r.op === 'append-popup') {
+      const p = (stored.popupsList ?? []).find((x) => x.id === r.popupId);
+      out.push({ popupId: r.popupId, present: !!p, nodes: p?.elements?.length ?? 0, applied: !!p && p.elements.length === r.nodes });
     } else if (r.op === 'remove-node') {
       out.push({ nodeId: r.nodeId, absent: !findNode(stored, r.nodeId) });
     } else if (r.op === 'page') {
