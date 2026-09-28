@@ -71,6 +71,7 @@ import {
   isGroup,
   leaves as filterLeaves,
 } from './smart-lists.mjs';
+import { planPipelineEdit, verifyPipeline, COLOR_RENDER_MODES } from './pipelines.mjs';
 import { CONFLICT_KEYS, PUSH_CATEGORIES, buildPushBody, checkSelection, diffStored, manifestIndex, nonEmptyCategories, resolveCompanyId } from './snapshots.mjs';
 import {
   digestSpans as digestAgentSpans,
@@ -9566,6 +9567,152 @@ export const TOOLS = [
         resentCategories: Object.keys(args.selectedAssets),
         note: 'Dehydration is asynchronous. The snapshot will read `processing` for a while; verify its contents once it settles rather than assuming.',
       });
+    }, args),
+  },
+  // PIPELINE EDIT (coordinator decision P1, 2026-09-25). PUT /opportunities/pipelines/{id} is a FULL
+  // REPLACE of stages: an omitted stage is deleted and its cards drop silently into the first stage,
+  // and one stage without stageWinProbability rewrites every probability to an even ramp. This tool
+  // reads the row, merges the edit, refuses both traps, moves the cards of a removed stage FIRST (the
+  // app does the same with a bulk job), writes, and reads the pipeline back. Planning is pure, in
+  // pipelines.mjs.
+  {
+    name: 'edit_pipeline',
+    description: `${describe('edit_pipeline', 'Edit a pipeline and its stages safely — risk: write')}. `
+      + 'Rename a pipeline, set its colour mode or probability switch, and add, rename, reorder, recolour, '
+      + 're-weight or remove stages. It reads the pipeline, merges your change onto the whole row and sends the '
+      + 'full body, because the stages array REPLACES: a stage left out is deleted and its cards silently land in '
+      + 'the first stage. Removing a stage that holds cards is refused unless you name moveCardsTo; the cards are '
+      + 'then moved there first, one by one (each move fires opportunity stage-change workflow triggers), and the '
+      + 'stage is removed only once none are left. Every stage must end with a stageWinProbability, since one '
+      + 'missing value makes GHL rewrite them all. expectedName must match the pipeline\'s current name. Previews by '
+      + 'default; confirm:true writes, then reads the pipeline back and fails on any difference. Does not create or '
+      + 'delete pipelines, change sharing permissions, or edit opportunities (except the moves above). '
+      + 'Read pipelines with list_account_entities.',
+    inputSchema: schema({
+      locationId: z.string(),
+      pipelineId: z.string(),
+      expectedName: z.string(),
+      name: z.string().optional(),
+      colorRenderMode: z.enum(COLOR_RENDER_MODES).optional(),
+      useOpportunityProbability: z.boolean().optional(),
+      showInFunnel: z.boolean().optional(),
+      showInPieChart: z.boolean().optional(),
+      updateStages: z.array(z.object({
+        id: z.string(), name: z.string().optional(), stageWinProbability: z.number().optional(),
+        color: z.string().optional(), showInFunnel: z.boolean().optional(), showInPieChart: z.boolean().optional(),
+      })).optional(),
+      addStages: z.array(z.object({
+        name: z.string(), stageWinProbability: z.number(), color: z.string().optional(),
+        showInFunnel: z.boolean().optional(), showInPieChart: z.boolean().optional(), afterStageId: z.string().optional(),
+      })).optional(),
+      removeStages: z.array(z.object({ id: z.string(), moveCardsTo: z.string().optional() })).optional(),
+      stageOrder: z.array(z.string()).optional(),
+      confirm: z.boolean().default(false),
+    }),
+    capabilities: [
+      { method: 'GET', path: '/opportunities/pipelines' },
+      { method: 'POST', path: '/opportunities/search' },
+      { method: 'PUT', path: '/opportunities/{opportunityId}' },
+      { method: 'GET', path: '/opportunities/{opportunityId}' },
+      { method: 'PUT', path: '/opportunities/pipelines/{pipelineId}' },
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const gw = deps.makeGw({ loc: args.locationId, rail: 'ai', state: deps.state });
+      const loc = args.locationId;
+      const readRow = async () => {
+        const r = await gw.call('GET', `/opportunities/pipelines?${new URLSearchParams({ locationId: loc })}`);
+        if (!r.ok) return { failure: fromHttp(r.status, r.json) };
+        return { row: (r.json?.pipelines ?? []).find((p) => p.id === args.pipelineId) ?? null };
+      };
+      const first = await readRow();
+      if (first.failure) return first.failure;
+      const row = first.row;
+      if (!row) return fail(CODES.VALIDATION_FAILED, `no pipeline ${args.pipelineId} in this location`, 'Check the id with list_account_entities. Nothing was written.');
+      if (String(row.name).trim() !== String(args.expectedName).trim()) {
+        return fail(CODES.VALIDATION_FAILED, `target check failed: pipeline ${args.pipelineId} is named "${row.name}", not "${args.expectedName}"`,
+          'Re-read the pipeline and pass its current name as expectedName. Nothing was written.');
+      }
+
+      const plan = planPipelineEdit(row, args);
+      if (plan.errors) return withFailureData(fail(CODES.VALIDATION_FAILED, plan.errors.join('; '), 'Fix the edit. Nothing was written.'), { errors: plan.errors });
+
+      // Cards per stage, from the search index (it can lag a write by a few seconds).
+      const search = (filters, limit = 100, page = 1) => gw.call('POST', '/opportunities/search', { locationId: loc, limit, page, filters });
+      const pipeFilter = { field: 'pipeline_id', operator: 'eq', value: [args.pipelineId] };
+      const stageFilter = (id) => ({ field: 'pipeline_stage_id', operator: 'eq', value: [id] });
+      const counts = {};
+      for (const r of plan.removed) {
+        const res = await search([pipeFilter, stageFilter(r.id)], 1);
+        if (!res.ok) return fromHttp(res.status, res.json);
+        counts[r.id] = res.json?.total ?? (res.json?.opportunities ?? []).length;
+      }
+      const stageName = (id) => row.stages.find((s) => s.id === id)?.name;
+      const affected = plan.removed.map((r) => ({ ...r, cards: counts[r.id], moveCardsToName: r.moveCardsTo ? stageName(r.moveCardsTo) : undefined }));
+      const unhandled = affected.filter((a) => a.cards > 0 && !a.moveCardsTo);
+      if (unhandled.length) {
+        return withFailureData(fail(CODES.VALIDATION_FAILED,
+          `removing ${unhandled.map((a) => `"${a.name}" (${a.cards} card${a.cards === 1 ? '' : 's'})`).join(', ')} would drop those cards silently into the first stage`,
+          'Pass removeStages[].moveCardsTo with the stage they should go to. Nothing was written.'), { affected });
+      }
+      const MAX_MOVES = 100;
+      const toMove = affected.reduce((n, a) => n + (a.moveCardsTo ? a.cards : 0), 0);
+      if (toMove > MAX_MOVES) {
+        return withFailureData(fail(CODES.VALIDATION_FAILED, `${toMove} cards would have to move; this tool moves at most ${MAX_MOVES}`,
+          'Move them first with the board\'s bulk edit (Stage), then remove the empty stage here. Nothing was written.'), { affected });
+      }
+
+      const preview = { pipeline: { id: row.id, name: row.name }, changes: plan.diff, cardsToMove: affected.filter((a) => a.cards > 0),
+        stagesAfter: plan.body.stages.map((s) => ({ id: s.id ?? '(new)', name: s.name, stageWinProbability: s.stageWinProbability })) };
+      if (args.confirm !== true) {
+        return withFailureData(fail(CODES.CONFIRM_REQUIRED, 'Pipeline edit preview is ready; nothing was written.',
+          'Review data.preview (changes, cards that will move), then repeat with confirm:true.'), { preview });
+      }
+
+      // 1. Move the cards of each removed stage, reading every move back.
+      const moved = [];
+      for (const a of affected) {
+        if (!a.moveCardsTo || !a.cards) continue;
+        const res = await search([pipeFilter, stageFilter(a.id)], MAX_MOVES);
+        if (!res.ok) return fromHttp(res.status, res.json);
+        for (const card of res.json?.opportunities ?? []) {
+          const put = await gw.call('PUT', `/opportunities/${encodeURIComponent(card.id)}`, { pipelineId: args.pipelineId, pipelineStageId: a.moveCardsTo });
+          const back = put.ok ? await gw.call('GET', `/opportunities/${encodeURIComponent(card.id)}?${new URLSearchParams({ locationId: loc })}`) : null;
+          const stage = back?.ok ? (back.json?.opportunity?.pipelineStageId ?? null) : null;
+          moved.push({ id: card.id, name: card.name, from: a.name, to: a.moveCardsToName, httpStatus: put.status, movedTo: stage, ok: stage === a.moveCardsTo });
+        }
+      }
+      const moveFailed = moved.filter((m) => !m.ok);
+      if (moveFailed.length) {
+        return withFailureData(fail(CODES.VERIFY_FAILED, `${moveFailed.length} card move(s) did not read back in the target stage; the pipeline was NOT changed`,
+          'Inspect data.moved. The cards that did move stay moved.'), { moved });
+      }
+      // 2. The removed stages must now be empty — polled, because the index lags the moves.
+      for (const a of affected) {
+        let left = null;
+        for (let i = 0; i < 8; i++) {
+          const res = await search([pipeFilter, stageFilter(a.id)], 1);
+          left = res.ok ? (res.json?.total ?? 0) : null;
+          if (left === 0) break;
+          await new Promise((r) => setTimeout(r, 1500));
+        }
+        if (left !== 0) {
+          return withFailureData(fail(CODES.VERIFY_FAILED, `stage "${a.name}" still shows ${left ?? 'an unknown number of'} card(s); the pipeline was NOT changed`,
+            'A card may have arrived after the count. Re-run the edit to move it.'), { moved });
+        }
+      }
+      // 3. Write the whole pipeline, then read it back.
+      const write = await gw.call('PUT', `/opportunities/pipelines/${encodeURIComponent(args.pipelineId)}?${new URLSearchParams({ locationId: loc })}`, plan.body);
+      if (!write.ok) return withFailureData(fromHttp(write.status, write.json), { moved });
+      const after = await readRow();
+      if (after.failure) return after.failure;
+      const mismatches = verifyPipeline(plan.body, after.row);
+      const result = { pipeline: { id: args.pipelineId, name: after.row?.name }, changes: plan.diff, moved,
+        stages: (after.row?.stages ?? []).map((s) => ({ id: s.id, name: s.name, position: s.position, stageWinProbability: s.stageWinProbability })) };
+      if (mismatches.length) {
+        return withFailureData(fail(CODES.VERIFY_FAILED, `the pipeline read back differently: ${mismatches.join('; ')}`,
+          'The write was sent; inspect data.stages for what GHL stored.'), result);
+      }
+      return ok(result);
     }, args),
   },
   {
