@@ -73,6 +73,18 @@ attaches both). See the parent SKILL.md's Execute section for the capture proced
   "Chat widget". The create default is `SMS, IG, FB, WebChat, Live_Chat, WhatsApp`. Both tools accept all nine. Non-empty required unless the location has `conversationsAI.channelManagement` on, in which
   case where the bot answers is decided by the deployment rows and `channels` is the legacy "Workflow & Transfer
   bot channels" list.
+- **The prompt: `fullPrompt` or the three fields** (live 2026-09-29, own test agent, 3 trial messages). The current
+  builder edits ONE prompt box and saves it as `fullPrompt`, a markdown document (`## Personality\n\n… ## Goal\n\n…
+  ## Instructions\n\n…`), sending `personality`, `goal` and `instructions` as `""`. The server stores `fullPrompt` and
+  keeps the three fields at their old values. From then on:
+  - the bot answers from `fullPrompt` (a trial reply carried the `fullPrompt` marker while `instructions` held another);
+  - a PUT that changes `personality` / `goal` / `instructions` is accepted and ignored — the read-back is unchanged;
+  - an agent made over the API with no `fullPrompt` still answers from the three fields.
+  `update_convai_agent` takes `spec.fullPrompt` (the whole text, verified on read-back; it switches the agent to
+  `fullPrompt` for good) and refuses the three fields on a `fullPrompt` agent, or together with `fullPrompt`, with
+  `FULLPROMPT_OWNS_PROMPT` before any write, returning `currentFullPrompt`. What `fullPrompt: ""` does is not measured,
+  so the tool never writes an empty one. The header's token estimate and the `n/2000 words left` counter are computed
+  in the browser from `fullPrompt` (no request fires while typing), and the counter shows words USED.
 - `botType` — enum **`PROMPT_BASED_BOT` | `FLOW_BUILDER_BOT` | `FORM_BASED_BOT`** (three, per the bundle's own enum; `convai-ir.mjs` `BOT_TYPES`). The prompt bot is the
   three-part-prompt agent above; the flow bot's logic is a **workflow** (see "Flow-Based
   Builder" below). Both are buildable via the engine (`convai-ir.mjs` `BOT_TYPES`).

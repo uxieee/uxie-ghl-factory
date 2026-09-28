@@ -22,8 +22,18 @@ public is the richer of the two:
 | public `/conversation-ai/agents` | 36 |
 | internal `/ai-employees/employees` | 39 |
 
-Public carries `fullPrompt`, `instructions` and `personality`, which internal does not. Internal
-carries `botType`, `oldPromptIds` (prompt version history) and three flags, which public does not.
+Public search carries `fullPrompt`, `instructions` and `personality`, which the internal SEARCH does not. The
+internal single-agent `GET /ai-employees/employees/{id}` returns the three prompt fields, and `fullPrompt` once the
+builder has saved the agent (2026-09-29). Internal carries `botType`, `oldPromptIds` (prompt version history) and three
+flags, which public does not.
+
+🔴 **Where the prompt lives decides what you may write.** The current builder saves the prompt as ONE `fullPrompt`
+document (`## Personality … ## Goal … ## Instructions …`). Once an agent has one, the bot answers from it and GHL
+ignores writes to `personality` / `goal` / `instructions`: they stay frozen at their old values (live 2026-09-29, a
+trial reply followed `fullPrompt` while `instructions` said otherwise). So on any agent a human has saved in the
+builder, change the prompt with `update_convai_agent` `spec.fullPrompt` (the whole text). The three fields on such an
+agent refuse with `FULLPROMPT_OWNS_PROMPT` before any write and hand back `currentFullPrompt`; the result's
+`promptOwner` says which field the bot now answers from.
 
 **So: use the `ghl` MCP (public) for reading and configuring Conversation AI agents.** Reach for
 the internal rail only for:

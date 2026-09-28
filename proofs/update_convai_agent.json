@@ -35,6 +35,17 @@
         "row:aiemployee-service--update-employee"
       ],
       "location": "…Zn6B"
+    },
+    {
+      "at": "2026-09-28",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:6eaeeb00",
+        "row:aiemployee-service--get-employee-by-id",
+        "row:aiemployee-service--update-employee"
+      ],
+      "location": "…zn6B"
     }
   ],
   "depends": {
@@ -47,20 +58,20 @@
     },
     "builds": {
       "agentLogsApp": 693,
-      "agentStudioApp": 701,
-      "aiEmployeesApp": 2603,
-      "aiGrowthApp": 705,
+      "agentStudioApp": 710,
+      "aiEmployeesApp": 2631,
+      "aiGrowthApp": 708,
       "superagentsApp": 703,
       "voiceAiApp": 707
     },
     "code": {
-      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#update_convai_agent": "c27cf7a8155dcf19e7f76a9cabc3e5f0dc3b73984dc35ffdafd758a624187fd2",
-      "plugins/uxie-ghl-factory/engines/ai/convai-compiler.mjs": "b854d5a6185129df8a6db29c7cea33b30194f23d9784fb5145d3a0a6c3fe64f2",
+      "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#update_convai_agent": "144d11b2cfdf03740d8107dad6126b238ac33f155a1e766b94a6a18c9bd80b8e",
+      "plugins/uxie-ghl-factory/engines/ai/convai-compiler.mjs": "676f44031ea4f38fd699bbdc0b3b121029ebe91a1cd81cf8f5d9b3e97c41255d",
       "plugins/uxie-ghl-factory/engines/ai/convai-ir.mjs": "227bfcdb562d64ca5f6a7b2400981bcab314579af1367c5d46e95e3b2ddc9a15",
-      "plugins/uxie-ghl-factory/engines/ai/driver.mjs": "63e7bb2d435c7c1e86ccaf629d10c289314bccb5de9917f48c2b0a1c5212927b",
+      "plugins/uxie-ghl-factory/engines/ai/driver.mjs": "46178cf34108dd1b532f459b358361f51396376930509e296f60e869ce5542e7",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "e65c2384aefb498ce49453dd2d6d8d1a1d8351fd6d337aef5256eb982e1db02f",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
-      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "a223838eb7dbacd4b07e852c05c2728539093efea90eda104565aba5386074e4"
+      "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "a979be67ccb31b7cff865f678e7261b5e1638965085b4a963ddf08e9e472af01"
     }
   }
 }
