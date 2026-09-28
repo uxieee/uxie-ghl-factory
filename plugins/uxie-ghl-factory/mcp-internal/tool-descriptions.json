@@ -150,9 +150,9 @@
     ]
   },
   "build_funnel_page": {
-    "description": "Compose, validate and write a funnel page from native elements; optionally publish it — proof: live-runtime (2026-09-28); risk: write",
+    "description": "Compose, validate and write a funnel page from native elements; optionally publish it — proof: live-runtime (2026-09-29); risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-09-28)",
+    "proof": "live-runtime (2026-09-29)",
     "proofFloor": "live-runtime (2026-09-09)",
     "proofRows": [
       "funnels--builder-autosave",
@@ -2144,9 +2144,9 @@
     ]
   },
   "get_funnel": {
-    "description": "Read one GHL funnel/website through a flat view (summary, lookups, settings, versions, security, events, cookie-consent) — proof: live-runtime (2026-09-28); risk: read",
+    "description": "Read one GHL funnel/website through a flat view (summary, lookups, settings, versions, security, events, cookie-consent) — proof: live-runtime (2026-09-29); risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-09-28)",
+    "proof": "live-runtime (2026-09-29)",
     "proofFloor": "external-receipt-required",
     "proofRows": [
       "funnels-service--get-funnel-by-id",
@@ -2170,9 +2170,9 @@
     ]
   },
   "edit_funnel": {
-    "description": "Edit a GHL funnel/website: settings, steps, publish state, headers — preview, confirm, read back — proof: live-runtime (2026-09-28); risk: write",
+    "description": "Edit a GHL funnel/website: settings, steps, publish state, headers — preview, confirm, read back — proof: live-runtime (2026-09-29); risk: write",
     "risk": "write",
-    "proof": "live-runtime (2026-09-28)",
+    "proof": "live-runtime (2026-09-29)",
     "proofFloor": "external-receipt-required",
     "proofRows": [
       "funnels--funnel-update-settings",
