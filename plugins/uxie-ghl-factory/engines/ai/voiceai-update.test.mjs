@@ -297,3 +297,17 @@ test('an s2s agent: a prompt change that makes GHL recount s2sBehaviour.totalTok
   const r2 = await executeVoiceAiUpdate({ plan: compileVoiceAiPartialUpdate(S2S(), { agentPrompt: 'x' }, { agentId: 'A', locationId: 'L' }), before: S2S(), gw: gw2, serverMessage });
   assert.equal(r2.code, 'AGENT_COLLATERAL_CHANGED');
 });
+
+test('an s2s agent: voiceId is read from s2sBehaviour.voiceId, verifies, and is not collateral', async () => {
+  const before = S2S();
+  const gw = fakeGw({ record: before });
+  gw.call = ((inner) => async (m, p, b) => {
+    if (m === 'PUT' && b?.voiceId) { const r = await inner('GET', p); const rec = r.json; rec.agentSettings.s2sBehaviour = { ...rec.agentSettings.s2sBehaviour, voiceId: b.voiceId, totalTokens: 1190 }; await inner('PUT', p, { agentSettings: rec.agentSettings }); return { ok: true, status: 200, json: rec }; }
+    return inner(m, p, b);
+  })(gw.call);
+  const plan = compileVoiceAiPartialUpdate(before, { voiceId: 'cedar' }, { agentId: 'A', locationId: 'L' });
+  const r = await executeVoiceAiUpdate({ plan, before, gw, serverMessage });
+  assert.equal(r.ok, true, JSON.stringify(r));
+  assert.deepEqual(r.verification.confirmed, ['voiceId']);
+  assert.equal(readFlat(RECORD(), 'voiceId'), 'v1'); // a text agent still reads the TTS voice
+});
