@@ -44,13 +44,47 @@ funnel ──has many──▶ step ──has many──▶ page (control + spli
 |---|---|---|
 | 1 | create the funnel | **no tool** — `POST /funnels/funnel/create` via `raw_request` (recipe 1) |
 | 2 | attach the domain **before creating steps** | **no tool** — recipe 11. Rows are stamped from the funnel path as it stands when minted, so steps created first get flat paths. 🔴 Run **`audit_site`** first: a path is held per DOMAIN across every document on the location, the attach renames a collision silently and arbitrarily, and routing never follows a later step rename |
-| 3 | create each step (mints its page) | **no tool** — recipe 2. 🔴 Pass your own `step.id` |
+| 3 | create each step (mints its page) | **`edit_funnel` op `create-step`** — refuses on a funnel with no domain (such a step gets no lookup row and 404s); preview returns the `step.id`, pass it back on confirm |
 | 4 | author + publish the page | **`build_funnel_page`** — composes, validates, writes, reads back, and publishes when you pass `publish:true` |
-| 5 | fix the public path | **no tool** — recipe 10, and it is **three calls** |
+| 5 | fix the public path | **`edit_funnel` op `update-step`** with `url` — one PUT moves the step's live row in place; recipe 10 for anything else |
 | 6 | verify | fetch the URL a visitor would, and read the publish state |
 | 7 | audit before handing over | **`audit_site`** — read-only |
 
-Only steps 4 and 7 have typed tools. Everything else is `raw_request` against a recipe.
+Steps 1 and 2 are still `raw_request` against a recipe; the rest have typed tools.
+
+## Reading and editing a funnel after it exists
+
+**`get_funnel`** (read-only) — one flat `view`: `summary` (steps, pages, split state), `lookups` (the
+routing rows: a step with no row 404s; `publishStatus` null = never touched = live), `settings`,
+`versions` (one page, sorted by timestamp), `security`, `events`, `cookie-consent`.
+
+**`edit_funnel`** — one `op` per call, preview first, `confirm:true` writes and reads back:
+`settings` · `create-step` · `update-step` (rename / move path) · `reorder-steps` · `clone-step` ·
+`delete-step` (target check: id **and** current name) · `publish-page` / `unpublish-page` ·
+`add-header`.
+
+What the builder does that a 2xx will not tell you (all measured live):
+
+- 🔴 **The builder's Publish never calls `publish-version`.** It autosaves with `pageType:"live"` and
+  then `PUT /funnels/lookup/multiple` (`publishStatus:"live"`). Every publish mints a NEW live version
+  and demotes the previous one to draft. Restoring a version creates a new DRAFT; the public URL
+  does not change until the next publish. `/preview/{pageId}` serves the draft,
+  `/preview/{pageId}?version={id}` one exact version.
+- 🔴 **Unpublish is the same lookup route**, on the step AND page rows: `not_found_page` → public 404,
+  `redirect` + `action:"url"` → public 301 to the target. `unpublish-page` does that and nothing else;
+  to publish CONTENT use `build_funnel_page` `publish:true`.
+- 🔴 **Settings are a full write.** `edit_funnel` always sends the UI's whole body from a fresh read,
+  so only the fields you name change. Changing `funnelPath` moves the funnel ROOT lookup row in place
+  and the old path 404s.
+- 🔴 **Custom headers and split routing apply to the EXACT-CASE path only.** A case-varied URL serves
+  the same page without the headers (a CSP or X-Frame-Options can be bypassed that way) and skips the
+  split test. Splitting is a 302 to the variation's own path.
+- Cookie consent is FUNNEL-level (`POST /funnels/funnel/cookie-consent`), SEO title/description/author
+  live on the page RECORD's `meta` (not the page data), schema markup is its own object
+  (`/schema-markup/schemas/save`, `ownerType:"funnel_page"`).
+- The domain's robots.txt / llms.txt save is a FULL `PUT /funnels/domain/{id}`, and the builder's own
+  follow-up `POST /funnels/funnel/cache/clear` answers 422 (a GHL bug; the `invalidate-cache` after it
+  works).
 
 ## The four that cannot be deferred
 
@@ -99,10 +133,13 @@ Load only what the job needs.
 Name the URL you fetched and say which of draft/live you verified. **28 documented ways this surface
 returns success and does nothing** — that is the house it lives in.
 
-🔴 Measuring a public page measures **Cloudflare** unless you defeat it: `max-age=60`, and the query
-string is **not** in the cache key, so `?cb=` busts nothing and request-side `no-cache` is ignored.
-Read `cf-cache-status` on every sample; get a fresh key by varying the path's CASING (matching is
-case-insensitive, so `/Alpha` is a distinct key onto the same row).
+🔴 Measuring a public page measures **Cloudflare** unless you defeat it: `max-age=60` plus
+`stale-while-revalidate=30`, and the query string is **not** in the cache key, so `?cb=` busts nothing
+and request-side `no-cache` is ignored. After a path move or unpublish the exact path was measured
+serving the old state for 90 s to ~3 min. Read `cf-cache-status` on every sample. Varying the path's
+CASING gets a fresh key onto the same row — but it is **not the same request**: a case-varied path
+skips split-test routing and custom security headers. Use it to read page CONTENT only; measure
+routing and headers on the exact path, after the cache window.
 
 ## Scope
 
