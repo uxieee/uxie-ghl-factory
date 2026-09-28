@@ -22,9 +22,10 @@ import {
   planDeleteFunnel, planSplit, SERVING, reread, SETTINGS_KEYS, CACHE_NOTE, EXACT_CASE_NOTE,
 } from './funnel-ops.mjs';
 import { planCreateFunnel, createdId, EXPECT_TYPE, KINDS as FUNNEL_KINDS, STORE_DANGLING_FORM_NOTE, listAllDocuments } from './funnel-create.mjs';
-import { applyPageEdits, verifyEdits, checkPageTarget, pageDataForWrite, seoMeta, seoDiff } from './page-edit.mjs';
+import { applyPageEdits, verifyEdits, checkPageTarget, pageDataForWrite, seoMeta, seoDiff, findNode } from './page-edit.mjs';
 import { entranceClass, hoverClass, entranceCss, hoverCss, ENTRANCE_METAS, HOVER_METAS, ENTRANCE_ANIMATIONS, HOVER_ANIMATIONS } from './page-animation.mjs';
 import { makePopup, popupRefProblems } from './page-popup.mjs';
+import { fontRegistry, typographyValue, typographyFamily, setRootVars, typographyRule, TYPOGRAPHY_SLOTS } from './page-fonts.mjs';
 import { checkRecord, metaPost, recordDrift } from './page-seo.mjs';
 import { planCreate, planUpdate, planDelete, resolveTarget, listRedirects, statsBody, rowId, RESERVED_PREFIXES } from './redirects.mjs';
 import { collectWorkflowRuntimeWindow, validateRuntimeWindowInput } from './workflow-runtime-window.mjs';
@@ -1810,10 +1811,30 @@ const assertProjectLocation = async (api, projectId, locationId) => {
 // build_funnel_page EDIT MODE. Reads the page as stored, applies only the named ops (core/page-edit.mjs),
 // writes it back through the same autosave, and verifies each op by VALUE on a separate read. The target
 // check comes first: an in-place write to the wrong pageId answers 201 and silently replaces a page.
+// Write the page's fonts where the builder keeps them: settings.typography for the headline/content slots,
+// fontsToLoad (+ the preview copies) for every family, and the `:root` variables in pageStyles.
+function applyTypography(pageData, typo, reg) {
+  const t = pageData.settings?.settings?.typography;
+  const vars = { ...reg.vars() };
+  for (const [which, family] of Object.entries(typo ?? {})) {
+    const [key, varName, label] = TYPOGRAPHY_SLOTS[which];
+    if (t?.fonts) t.fonts[key] = { id: varName, text: t.fonts[key]?.text ?? label, value: typographyValue(family), isCustom: false };
+    vars[`--${varName}`] = `'${family}'`;
+  }
+  const g = pageData.general?.general;
+  if (g) {
+    const merged = [...new Set([...(g.fontsToLoad ?? []), ...reg.families()])];
+    g.fontsToLoad = merged; g.fontsToLoadForPreview = merged;
+  }
+  pageData.fontsForPreview = [...new Set([...(pageData.fontsForPreview ?? []), ...reg.families()])];
+  pageData.pageStyles = setRootVars(pageData.pageStyles, vars);
+  return vars;
+}
+
 // The builder's autosave says whether the page carries popups (integrations.popup); ours says the same.
 const withPopupFlag = (env) => ({ ...env, integrations: { ...env.integrations, popup: (env.pageData?.popupsList ?? []).length > 0 } });
 
-async function editPage(args, deps, composeSection, { composeLeaf, popupIds } = {}) {
+async function editPage(args, deps, composeSection, { composeLeaf, popupIds, fonts } = {}) {
   if (!args.stepName) return fail(CODES.VALIDATION_FAILED, 'edit mode needs stepName', 'Pass the exact name of the step that owns pageId — it is the target check that stops a wrong pageId overwriting another page.');
   const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
   const { res, funnel } = await readFunnel(gw, args.locationId, args.funnelId);
@@ -1832,6 +1853,17 @@ async function editPage(args, deps, composeSection, { composeLeaf, popupIds } = 
 
   // Appended sections get a salt no earlier build used, so their ids cannot collide with the page's.
   const salt = `E${Date.now().toString(36).toUpperCase()}`;
+  // Fonts: the page's own families first (a clash already on the page never blocks an unrelated edit), then its
+  // typography slots, overridden by a `page` typography op in this call — so `font:` can name either.
+  if (fonts) {
+    fonts.reg = fontRegistry([]);
+    for (const f of current.general?.general?.fontsToLoad ?? []) { try { fonts.reg.add(f); } catch { /* pre-existing clash */ } }
+    fonts.typography = { headline: typographyFamily(current, 'headline'), content: typographyFamily(current, 'content') };
+    for (const e of args.edits ?? []) if (e.op === 'page' && e.typography) {
+      if (e.typography.headlineFont) fonts.typography.headline = e.typography.headlineFont;
+      if (e.typography.contentFont) fonts.typography.content = e.typography.contentFont;
+    }
+  }
   let ops;
   try {
     // The page's own popups, by name and id, then any this call appends — before the ops that may name them.
@@ -1847,6 +1879,17 @@ async function editPage(args, deps, composeSection, { composeLeaf, popupIds } = 
     });
     ops = (args.edits ?? []).map((e, i) => {
       if (e.op === 'append-popup') return { op: 'append-popup', popup: builtPopups.get(i) };
+      if (e.op === 'set' && (e.font !== undefined || e.styles?.fontFamily)) {
+        const hit = findNode(current, e.nodeId);
+        if (e.font !== undefined) {
+          if (!TYPOGRAPHY_SLOTS[e.font]) throw new Error(`edits[${i}]: font must be 'headline' or 'content', not "${e.font}"`);
+          if (!fonts.typography[e.font]) throw new Error(`edits[${i}]: font: '${e.font}' names the page's ${e.font} font, but the page has none set — add a \`page\` op with typography in the same call`);
+        }
+        const { font, ...rest } = e;
+        const styles = e.styles?.fontFamily ? { ...e.styles, fontFamily: typeof e.styles.fontFamily === 'object' ? { ...e.styles.fontFamily, value: fonts.reg.ref(e.styles.fontFamily.value) } : fonts.reg.ref(e.styles.fontFamily) } : e.styles;
+        e = { ...rest, ...(styles ? { styles } : {}),
+          ...(font ? { extra: { ...(e.extra ?? {}), typography: { value: `var(--${TYPOGRAPHY_SLOTS[font][1]})` } }, appendCss: hit ? typographyRule(hit.node.id, font) : '' } : {}) };
+      }
       if (e.op === 'set' && e.openPopup !== undefined) {
         const pid = popupIds.get(e.openPopup);
         if (!pid) throw new Error(`edits[${i}]: openPopup "${e.openPopup}" names no popup on this page (${[...popupIds.keys()].filter((k) => !k.startsWith('hl_main_popup-')).join(', ') || 'it has none'})`);
@@ -1865,6 +1908,8 @@ async function editPage(args, deps, composeSection, { composeLeaf, popupIds } = 
     return fail(CODES.VALIDATION_FAILED, e.message, e.remediation ?? 'Fix the op named in the message.');
   }
   const { pageData: edited, report, errors } = applyPageEdits(current, ops, { compileStyles: (id, _meta, styles) => leafStyleCss(id, styles) });
+  // Every family this call wrote through a variable is loaded and declared, as the builder would.
+  if (fonts && !errors.length) applyTypography(edited, {}, fonts.reg);
   if (errors.length) return withFailureData(fail(CODES.VALIDATION_FAILED, `${errors.length} edit(s) could not be applied; nothing was written`, 'data.report names each refused op.'), { report });
   // An openPopup this call wrote must name a popup the page has (a dangling one does nothing on click).
   const touched = new Set([...report.filter((r) => r.op === 'set').map((r) => r.nodeId),
@@ -10586,7 +10631,12 @@ export const TOOLS = [
       + 'empty popup, and opening an empty-action button\'s General tab rewrites it to openPopup on that popup — '
       + 're-read buttons after a builder session. Not here, done in the builder: button theme presets (set styles '
       + 'directly; a theme\'s radius class loses to the compiled rule), brand-palette colours (write literals), column '
-      + 'layout knobs, saved section/element templates and global/universal sections (drag-inserted).',
+      + 'layout knobs, saved section/element templates and global/universal sections (drag-inserted). '
+      + 'FONTS: typography {headlineFont, contentFont} (compose top-level; edit: op page) sets the page fonts the builder\'s '
+      + 'way (setting + faces loaded + :root --headlinefont/--contentfont); an element\'s font: \'headline\'|\'content\' uses '
+      + 'them (refused while the page has none). Every css.font / styles.fontFamily is written as var(--<name>) with its '
+      + ':root variable and fontsToLoad entry, because the builder recomputes fontsToLoad from var references on every '
+      + 'save and a literal family would stop loading after anyone saves the page there.',
     inputSchema: schema({
       locationId: z.string(),
       funnelId: z.string(),
@@ -10594,6 +10644,7 @@ export const TOOLS = [
       stepId: z.string(),
       sections: z.array(z.record(z.any())).min(1).optional(),
       popups: z.array(z.record(z.any())).optional(),
+      typography: z.object({ headlineFont: z.string().min(1).optional(), contentFont: z.string().min(1).optional() }).optional(),
       edits: z.array(z.object({
         op: z.enum(['set', 'append-section', 'append-popup', 'remove-node', 'page']),
         nodeId: z.string().optional(),
@@ -10602,6 +10653,8 @@ export const TOOLS = [
         entranceAnimation: z.object({ name: z.enum(ENTRANCE_ANIMATIONS), duration: z.number().positive().optional(), delay: z.number().min(0).optional(), scale: z.number().positive().optional(), easing: z.enum(['linear', 'ease-in', 'ease-out', 'ease-in-out']).optional() }).optional(),
         hoverAnimation: z.object({ name: z.enum(HOVER_ANIMATIONS) }).passthrough().optional(),
         openPopup: z.string().optional(),
+        font: z.enum(['headline', 'content']).optional(),
+        typography: z.object({ headlineFont: z.string().min(1).optional(), contentFont: z.string().min(1).optional() }).optional(),
         sticky: z.enum(['none', 'top', 'bottom']).optional(),
         width: z.enum(['full', 'wide', 'midWide', 'small']).optional(),
         fullWidthRows: z.boolean().optional(),
@@ -10637,8 +10690,21 @@ export const TOOLS = [
       // Popup names → ids, filled as popups are built (compose: args.popups; edit: the page's own and any
       // append-popup), so a button's `openPopup: "<name>"` resolves to the popup it names.
       const popupIds = new Map();
+      // Every font family the page writes goes through a page variable, named as the builder names it, so it
+      // still loads after anyone saves the page in the builder (bl-267; core/page-fonts.mjs). `fonts.reg`
+      // collects them; `fonts.typography` is the page's headline/content setting a `font:` element needs.
+      const DEFAULT_FONTS = ['Arial', 'Georgia', 'Roboto'];
+      const fonts = { reg: fontRegistry(args.fonts ?? DEFAULT_FONTS), typography: { headline: args.typography?.headlineFont ?? null, content: args.typography?.contentFont ?? null } };
+      const viaVar = (st) => {
+        if (!st?.fontFamily) return st;
+        const ff = st.fontFamily;
+        return { ...st, fontFamily: typeof ff === 'object' && ff !== null ? { ...ff, value: fonts.reg.ref(ff.value) } : fonts.reg.ref(ff) };
+      };
       // One leaf composer for sections and popups alike: node + the compiled rules the public page serves.
-      const composeLeaf = (e, salt) => {
+      const composeLeaf = (e0, salt) => {
+        const e = { ...e0, ...(e0.css?.font ? { css: { ...e0.css, font: fonts.reg.ref(e0.css.font) } } : {}), ...(e0.styles ? { styles: viaVar(e0.styles) } : {}) };
+        if (e.font !== undefined && !TYPOGRAPHY_SLOTS[e.font]) throw new Error(`font must be 'headline' or 'content' (the page's typography fonts), not "${e.font}"`);
+        if (e.font && !fonts.typography[e.font]) throw Object.assign(new Error(`font: '${e.font}' names the page's ${e.font} font, but this page has none set, so the element would reference an unset variable`), { remediation: `Set typography.${TYPOGRAPHY_SLOTS[e.font][0]} (compose) or a \`page\` op with typography (edit) in the same call.` });
         let cls = {};
         if (e.entranceAnimation) {
           if (!ENTRANCE_METAS.includes(e.meta)) throw new Error(`entranceAnimation: the builder offers it on ${ENTRANCE_METAS.join(', ')} — not on ${e.meta}`);
@@ -10648,7 +10714,7 @@ export const TOOLS = [
           if (!HOVER_METAS.includes(e.meta)) throw new Error(`hoverAnimation: the builder offers it on buttons only — not on ${e.meta}`);
           cls = { ...cls, ...hoverClass(e.hoverAnimation) };
         }
-        let extra = { ...(e.html !== undefined ? { text: val(e.html) } : {}), ...(e.extra ?? {}) };
+        let extra = { ...(e.html !== undefined ? { text: val(e.html) } : {}), ...(e.extra ?? {}), ...(e.font ? { typography: val(`var(--${TYPOGRAPHY_SLOTS[e.font][1]})`) } : {}) };
         if (e.openPopup !== undefined) {
           const pid = popupIds.get(e.openPopup) ?? ([...popupIds.values()].includes(e.openPopup) ? e.openPopup : null);
           if (!pid) throw Object.assign(new Error(`openPopup "${e.openPopup}" names no popup on this page (${[...popupIds.keys()].join(', ') || 'it has none'})`), { remediation: 'Name a popup from `popups` (or an append-popup in the same call) by its name.' });
@@ -10671,6 +10737,8 @@ export const TOOLS = [
         let css = e.css ? (e.meta === 'button' ? buttonCss(leaf.id, e.css) : textCss(leaf.id, e.css)) : leafStyleCss(leaf.id, e.styles);
         // Animations: the builder's own compiled rules, byte for byte (core/page-animation.mjs).
         css += entranceCss(leaf.id, leaf.class) + hoverCss(leaf.id, leaf.class);
+        // The rule the builder compiles from extra.typography; without it the page font never applies.
+        if (e.font) css += typographyRule(leaf.id, e.font);
         return { leaf, css };
       };
       // One composer for both modes: a section spec → a section node tree with its compiled stylesheet.
@@ -10693,7 +10761,7 @@ export const TOOLS = [
           pageId: args.pageId, funnelId: args.funnelId, locationId: args.locationId, salt: `${saltBase}${si}`,
         });
       };
-      if (args.edits || args.seo) return editPage(args, deps, composeSection, { composeLeaf, popupIds });
+      if (args.edits || args.seo) return editPage(args, deps, composeSection, { composeLeaf, popupIds, fonts });
       if (!args.sections) return fail(CODES.VALIDATION_FAILED, 'pass `sections` (compose a whole page) or `edits` + `stepName` (change an existing page in place)', 'See the tool description for both shapes.');
       let pageData;
       try {
@@ -10705,11 +10773,19 @@ export const TOOLS = [
           return built;
         });
         const sections = args.sections.map((spec, si) => composeSection(spec, si));
+        // Page typography: the builder's setting shape + its :root variables; the families load like any other.
+        const typo = {};
+        for (const [which, family] of Object.entries(fonts.typography)) {
+          if (!family) continue;
+          fonts.reg.add(family);
+          typo[which] = family;
+        }
         pageData = buildPageData({
           pageId: args.pageId, stepId: args.stepId, funnelId: args.funnelId, locationId: args.locationId,
-          sections, pageStyles: `${args.pageStyles ?? ''}${popups.map((p) => p.css).join('')}`, fonts: args.fonts, colors: args.colors,
+          sections, pageStyles: `${args.pageStyles ?? ''}${popups.map((p) => p.css).join('')}`, fonts: fonts.reg.families(), colors: args.colors,
         });
         pageData.popupsList = popups.map((p) => p.entry);
+        applyTypography(pageData, typo, fonts.reg);
         const refs = popupRefProblems(pageData);
         if (refs.length) throw Object.assign(new Error(refs.join('; ')), { remediation: 'A button whose action is openPopup must name a popup on this page — use `openPopup: "<popup name>"` on the element.' });
       } catch (e) {
