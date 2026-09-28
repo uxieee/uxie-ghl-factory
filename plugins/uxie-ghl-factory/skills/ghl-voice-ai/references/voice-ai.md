@@ -79,7 +79,8 @@ workflow-builder's `Authorization: Bearer`. See the parent SKILL.md's Execute se
 
 The builder's main save sends `/voice-ai/agents/:id?publishAgent=true&mode=update` with the **complete agent
 object**. The flow builder sends partial PUTs without `mode` (`{locationId, agentName}`, `{locationId, llmModel}`,
-`{locationId, voiceId}`), and `PATCH /voice-ai/agents/{agentId}?locationId=` carries `sessionVariables`.
+`{locationId, voiceId}`), and `PATCH /voice-ai/agents/{agentId}?locationId=` carries `sessionVariables` (the partial PUT
+writes them too, as a whole-array replace; `update_voiceai_agent` merges them by name).
 
 **Measured 2026-09-28** (every field diffed before and after, on a test agent):
 - A partial PUT **merges at the top level** on both rails: only the keys sent change.
@@ -104,6 +105,13 @@ object**. The flow builder sends partial PUTs without `mode` (`{locationId, agen
   (0–5 s at the provider, 0–10 s in the editor) and `backchannelFrequency` (0–1) answered 400 and GHL kept the value.
   `update_voiceai_agent` refuses the two bounds before sending.
 - `backchannelWords` is stored only while `enableBackchannel` is on (off: 200 and `[]`).
+- More server rules (nothing written on refusal): hold phrases `noResponseConfig.keywords` ≤ 20; `agentWorkingHours`
+  day 1–7 (a reversed interval IS stored); `voicemailOption.type` `hangup · static_text · prompt`; `ivrOption.type`
+  `hangup` only; post-call `allUsers: true` needs `contactAssignedUser: false` and `specificUsers: []`; session variable
+  name `session.[A-Za-z0-9_-]+`, ≤ 64 characters, unique (400 on a duplicate), `dataType` `string · number · boolean ·
+  object · array`.
+- 🔴 **Three sliders are scaled in the editor** — write the STORED value: UI speed = `1.5 × voiceSpeed + 0.5`, UI
+  volume = `0.2 + (voiceVolume − 0.1) × 2`, Voice Stability % = `(1 − voiceTemperature) × 100`.
 
 `update_voiceai_agent` is the tool for all of this. The create path below still builds a whole document.
 
@@ -136,29 +144,35 @@ compiler's.
   captured, passed through as-is).
 - **Voice:** `voiceId` (default `g6xIsTj2HwM6VR4iXFCw`) — ⚠️ see "Picking a voice" below,
   `voiceModel` (`auto`), `voiceTemperature`,
-  `voiceSpeed`, `voiceVolume`, `denoisingMode` (only observed value: `noise-cancellation`),
+  `voiceSpeed`, `voiceVolume` (both stored 0–1, shown scaled), `denoisingMode` (`no-denoise | noise-cancellation |
+  noise-and-background-speech-cancellation`),
   `backgroundSound`, `normalizeForSpeech`, `ambientSoundVolume`, `enableDynamicVoiceSpeed`.
 - **Behavior:** `responsiveness`, `interruptionSensitivity`, `modelTemperature`,
-  `enableBackchannel`, `backchannelFrequency` (UI has no slider — the frontend fixes this to
-  `0.8` the instant `enableBackchannel` flips true; the compiler replicates that), `backchannelWords`,
+  `enableBackchannel`, `backchannelFrequency` (0–1; builder 707 has a slider, and resets it to `0.8` when backchannel
+  is switched off; the create compiler writes `0.8`), `backchannelWords`,
   `enableDynamicResponsiveness`.
 - **Transcription:** `sttMode` (enum `accurate` | `fast` | `custom`), `customSttConfig`,
-  `vocabSpecialization` (`general`), `boostedKeywords[]`, `pronunciationDictionary[]`.
+  `vocabSpecialization` (`general | medical`), `boostedKeywords[]`, `pronunciationDictionary[{word, pronunciation,
+  format: ipa | cmu}]`.
 - **Call settings:** `maxCallDuration` (seconds, default 900), `sendUserIdleReminders`,
   `reminderAfterIdleTimeSeconds`, `reminderFrequency`, `endCallAfterSilenceMs`,
-  `ringDurationSeconds`, `language`.
+  `ringDurationSeconds` (stored; builder 707 shows no control for it), `language`.
 - **Post-call:** `sendPostCallNotificationTo{admins, allUsers, contactAssignedUser,
   specificUsers[], customEmails[]}`, `callEndWorkflowIds[]`.
 - **Outbound / consent:** `aiDisclaimerConfiguration{disclaimerEnabled, outboundDisclaimerType
-  (concise), outboundDisclaimerMessage, outboundIntentMessage, playDisclaimerOnEveryCall}` (the UI writes the last three only
-  when the disclaimer is on; `isGreetingMessageDynamic`, seen in one capture, is in no bundle), `voicemailOption`, `ivrOption`, `numberPoolId`,
+  (concise | standard | conversational | custom), outboundDisclaimerMessage, outboundIntentMessage (the Welcome Message's
+  Outbound tab), playDisclaimerOnEveryCall}` — the read also carries `isGreetingMessageDynamic: null`, which the write
+  refuses; `voicemailOption` (`null | {type: hangup} | {type: static_text | prompt, text}`), `ivrOption` (`null | {type:
+  hangup}`), `numberPoolId`,
   `inboundNumbers[]`, `inboundPhoneNumber`. Number-pool/KYC provisioning itself is OUT of
   scope — see parent SKILL.md.
 - **Knowledge base:** `knowledgeBaseIds`, `knowledgeBasePrompt` (has a sensible default string
   telling the agent when to consult the KB).
 - **Translation:** `translation{enabled, language}`.
-- **Misc:** `userFirstFallback{enabled}`, `noResponseConfig{enabled, keywords[]}`,
-  `agentWorkingHours[]`, `extractDataFields[]`, `isAgentAsBackupDisabled`,
+- **Misc:** `userFirstFallback{enabled}`, `noResponseConfig{enabled, keywords[]}` (hold phrases: the agent stays silent
+  after one — proven on a call), `agentWorkingHours[{dayOfTheWeek 1–7, intervals[{startHour, startMinute, endHour,
+  endMinute}]}]` (`[]` = 24×7), `sessionVariables[{name, label, dataType, defaultValue, description?}]`,
+  `extractDataFields[]`, `isAgentAsBackupDisabled` (`true` = "Answer calls directly", `false` = "Use as backup"),
   `meta{createdByChannel, isTestDriveAgent, copilotCreationInProgress}`.
 - **Server-assigned (read-only, appear after first save):** `retellLlmId`, `providerAgentId`,
   `providerAgents[]`.
@@ -335,6 +349,25 @@ API-built `DATA_EXTRACTION` actions render fine in the builder.
 remains unverified — it needs a third-party OAuth-connect flow, explicitly out of scope per
 the capture's `_skipped` note — and passes through as accepted-but-unverified, same as any
 other unlisted `actionType`.
+
+## Duplicate, folders, delete, test calls (live-proven 2026-09-28)
+
+- **Duplicate:** `POST /voice-ai/agents/{id}/duplicate {locationId}` → `"<name> - Copy"`, with `originId` /
+  `rootParentAgentId` set to the source and the actions copied under new ids. It **drops** `endCallConfig.instruction`,
+  resets `noResponseConfig`, loses `voiceModel`, and sets `voice.provider` to `ELEVEN_LABS`.
+- **Folders:**
+  - `POST /voice-ai/folders {locationId, name, agentIds}` creates one; the list is `GET /voice-ai/folders?locationId=&page=
+    &pageSize=&sortBy=lastUpdated&includeEmpty=` and carries `agentCount`.
+  - `POST /voice-ai/folders/agents/move/{folderId} {locationId, agentIds}` moves agents in.
+  - `PUT /voice-ai/folders/{id} {name, agentIds}` renames the folder and sets its members.
+  - `DELETE /voice-ai/folders/{id}` keeps the agents (they become unfoldered).
+- **Delete:** `DELETE /voice-ai/agents/{id}?locationId=` → 204. A later read answers **403** "You are not authorised to
+  access this agent!", not 404.
+- **Test Audio web call:**
+  - `POST /voice-ai/call/create-trial-web-call/{agentId} {testScenario, useGatewayTransport: true}`, then LiveKit.
+  - The record is `GET /voice-ai/call/{callId}?locationId=&agentId=` (`transcriptWithToolCalls` shows every
+    `action_executed`). Free seconds come from `GET /voice-ai/call/trial-usage` (1200 a day; `payPerUse` is what bills).
+  - 🔴 The call binds to the **signed-in user's own contact** (see SKILL.md trap 7).
 
 ## Driving `voiceai-compiler.mjs`
 

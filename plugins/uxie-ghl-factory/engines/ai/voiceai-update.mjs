@@ -41,7 +41,7 @@ export const WRITABLE = new Set([
   'pronunciationDictionary', 'reminderAfterIdleTimeSeconds', 'reminderFrequency', 'responsiveness', 'ringDurationSeconds',
   'saveCallSummaryAsNote', 'sendUserIdleReminders', 'sttMode', 'timezone', 'vocabSpecialization', 'voiceId', 'voiceModel',
   'voiceSpeed', 'voiceTemperature', 'voiceVolume', 'voicemailOption', 'welcomeMessage', 'welcomeMessageMode',
-  ...NESTED_WHOLE,
+  ...NESTED_WHOLE, 'sessionVariables',
 ]);
 
 // Separate resources, or keys whose write lives elsewhere.
@@ -52,7 +52,6 @@ const ELSEWHERE = {
   customActions: 'actions are their own resource', agentTransferActions: 'actions are their own resource',
   capActions: 'actions are their own resource', appointmentBookingAction: 'actions are their own resource',
   mcpServers: 'MCP servers are their own resource (/voice-ai/mcp/*)',
-  sessionVariables: 'session variables are written by PATCH /voice-ai/agents/{id} (the builder\'s own path), not this PUT',
   inboundNumber: 'numbers are assigned on the deploy screen (location-wide)', inboundNumbers: 'numbers are assigned on the deploy screen (location-wide)',
   inboundPhoneNumber: 'numbers are assigned on the deploy screen (location-wide)', numberPoolId: 'numbers are assigned on the deploy screen (location-wide)',
   provider: 'the provider changes only through the upgrade (switch-provider) path',
@@ -77,6 +76,40 @@ export function readFlat(record, key) {
   if (key === 'welcomeMessage') return record?.welcomeMessage ?? record?.agentWelcomeMessage;
   if (key in (record ?? {})) return record[key];
   return s[key];
+}
+
+// sessionVariables: the PUT replaces the whole array (measured 2026-09-28; the builder uses PATCH, the PUT writes them
+// too). So the update sends stored ∪ spec by name: an entry updates the stored variable of that name or is appended,
+// `{ name, remove: true }` removes one, and nothing else stored is ever dropped. Server rules, pre-checked (each
+// measured as a 422/400 that writes nothing): name `session.` + [A-Za-z0-9_-], ≤ 64 characters, unique; dataType one
+// of string · number · boolean · object · array.
+const SESSION_VAR_NAME = /^session\.[A-Za-z0-9_-]+$/;
+const SESSION_VAR_TYPES = ['string', 'number', 'boolean', 'object', 'array'];
+export function mergeSessionVariables(stored, entries) {
+  if (!Array.isArray(entries) || !entries.length) {
+    throw new IRError('SCHEMA', 'sessionVariables must be a non-empty array of { name, label?, dataType?, defaultValue?, description? } '
+      + '(or { name, remove: true }). It is merged into the stored list by name; nothing stored is dropped unless removed by name.');
+  }
+  const out = (Array.isArray(stored) ? stored : []).map((v) => ({ ...v }));
+  const seen = new Set();
+  for (const e of entries) {
+    if (!isObj(e) || typeof e.name !== 'string') throw new IRError('SCHEMA', 'each sessionVariables entry needs a string name');
+    if (seen.has(e.name)) throw new IRError('SCHEMA', `sessionVariables names ${e.name} twice (the server refuses duplicates: 400 "Duplicate session variable name")`);
+    seen.add(e.name);
+    const i = out.findIndex((v) => v.name === e.name);
+    if (e.remove === true) {
+      if (i < 0) throw new IRError('SCHEMA', `cannot remove session variable ${e.name}: the agent has none of that name. Nothing was sent.`);
+      out.splice(i, 1);
+      continue;
+    }
+    if (!SESSION_VAR_NAME.test(e.name)) throw new IRError('SCHEMA', `session variable name ${JSON.stringify(e.name)} must be "session." followed by letters, numbers, underscores or dashes (server rule)`);
+    if (e.name.length > 64) throw new IRError('SCHEMA', `session variable name ${e.name} exceeds 64 characters (server rule)`);
+    const { remove, ...fields } = e;
+    const next = i < 0 ? { label: e.name.slice('session.'.length), dataType: 'string', defaultValue: '', ...fields } : { ...out[i], ...fields };
+    if (!SESSION_VAR_TYPES.includes(next.dataType)) throw new IRError('SCHEMA', `session variable ${e.name} dataType must be one of ${SESSION_VAR_TYPES.join(', ')} (server rule)`);
+    if (i < 0) out.push(next); else out[i] = next;
+  }
+  return out;
 }
 
 export function compileVoiceAiPartialUpdate(current, spec, { agentId, locationId } = {}) {
@@ -120,6 +153,8 @@ export function compileVoiceAiPartialUpdate(current, spec, { agentId, locationId
       }
       const stored = readFlat(current, k);
       body[k] = writable(k, { ...(isObj(stored) ? stored : {}), ...v });
+    } else if (k === 'sessionVariables') {
+      body[k] = mergeSessionVariables(current.sessionVariables, v);
     } else {
       body[k] = v;
     }

@@ -2034,8 +2034,11 @@ export const TOOLS = [
       'Change an EXISTING Voice AI agent: reads it, sends only the keys in spec (flat write names, e.g. agentPrompt, '
       + 'llmModel, voiceId, maxCallDuration, responsiveness, translation), merges any nested object over the stored one, '
       + 're-reads and diffs every other field. If a refusal still stored the value (the voice provider refuses after GHL '
-      + 'saves), it writes the previous values back and says so. Refuses action arrays, numbers, session variables and '
-      + 'unknown keys. To create an agent use create_voiceai_agent. Previews by default; confirm:true writes.'),
+      + 'saves), it writes the previous values back and says so. sessionVariables are MERGED by name into the stored list '
+      + '({name, remove:true} removes one; nothing else is dropped). Refuses action arrays, numbers and unknown keys. '
+      + '🔴 A Test Audio call binds to the SIGNED-IN USER\'s own contact: on an agent that updates contact fields, saves '
+      + 'summary notes or runs post-call workflows, a test call writes to that real contact. '
+      + 'To create an agent use create_voiceai_agent. Previews by default; confirm:true writes.'),
     inputSchema: schema({ locationId: z.string(), agentId: z.string(), spec: z.object({}).passthrough(), confirm: z.boolean().default(false) }),
     capabilities: [
       { method: 'GET', path: '/voice-ai/agents/{agentId}' },

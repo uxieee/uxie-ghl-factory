@@ -58,6 +58,17 @@
         "row:ai-agents--voice-ai-agents-put"
       ],
       "location": "…Zn6B"
+    },
+    {
+      "at": "2026-09-28",
+      "result": "pass",
+      "how": "manual",
+      "evidence": [
+        "commit:130ec5cf",
+        "row:ai-agents--voice-ai-agents-get",
+        "row:ai-agents--voice-ai-agents-put"
+      ],
+      "location": "…Zn6B"
     }
   ],
   "depends": {
@@ -78,7 +89,7 @@
       "plugins/uxie-ghl-factory/mcp-internal/core/tools.mjs#update_voiceai_agent": "b6e298cc9736ab0825f6a81f64ca84a4ad969c54f624c9d4b489e9395b8c9970",
       "plugins/uxie-ghl-factory/engines/ai/convai-ir.mjs": "227bfcdb562d64ca5f6a7b2400981bcab314579af1367c5d46e95e3b2ddc9a15",
       "plugins/uxie-ghl-factory/engines/ai/driver.mjs": "63e7bb2d435c7c1e86ccaf629d10c289314bccb5de9917f48c2b0a1c5212927b",
-      "plugins/uxie-ghl-factory/engines/ai/voiceai-update.mjs": "59d652e043f52caf476ad4c87f10a249bf97633a4b40318dd1f78e8eb594f9ab",
+      "plugins/uxie-ghl-factory/engines/ai/voiceai-update.mjs": "af82ad0c85cf33221afb1a76353695ce911aa8b9d384c47b7f51bba6593d96e6",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-capabilities.mjs": "e65c2384aefb498ce49453dd2d6d8d1a1d8351fd6d337aef5256eb982e1db02f",
       "plugins/uxie-ghl-factory/mcp-internal/core/audit-gateway.mjs": "4b46d1f5e3d3a6b00fd89af7368a9160ad693fb8f1f73a408407c29600ba1f69",
       "plugins/uxie-ghl-factory/mcp-internal/core/errors.mjs": "a223838eb7dbacd4b07e852c05c2728539093efea90eda104565aba5386074e4"
