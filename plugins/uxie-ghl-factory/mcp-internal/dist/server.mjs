@@ -178,7 +178,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
     define_ENDPOINT_CATALOG_default = {
       generated: "2026-09-28",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 1244,
+      count: 1248,
       endpoints: [
         {
           id: "facebook-service--get-ad-account-by-id",
@@ -16530,7 +16530,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:344"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:367"
           ]
         },
         {
@@ -55253,7 +55253,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:161",
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:315"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:338"
           ]
         },
         {
@@ -55508,7 +55508,14 @@ Flagged to the operator as a security observation about the vendor, not a capabi
               name: "agentId"
             }
           ],
-          query: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
@@ -55519,6 +55526,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           },
           sources: [
             "ai-agents/20-api/voice-ai-boundary.md:63",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:264",
             "ai-agents/20-api/12-ai-agents-api.md:166"
           ]
         },
@@ -55627,7 +55635,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:303"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:326"
           ]
         },
         {
@@ -55725,7 +55733,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:317"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:340"
           ]
         },
         {
@@ -55820,7 +55828,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:292"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:301"
           ]
         },
         {
@@ -55868,7 +55876,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:325"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:348"
           ]
         },
         {
@@ -55951,7 +55959,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:340",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:363",
             "ai-agents/20-api/logs-deployment-email.md:27"
           ]
         },
@@ -55987,7 +55995,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:321"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:344"
           ]
         },
         {
@@ -56025,7 +56033,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:324"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:347"
           ]
         },
         {
@@ -56081,7 +56089,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:327",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:350",
             "ai-agents/20-api/logs-deployment-email.md:24",
             "ai-agents/20-api/voice-ai-boundary.md:71",
             "ai-agents/30-types/voice-ai-actions.md:109"
@@ -56128,7 +56136,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:328",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:351",
             "ai-agents/20-api/logs-deployment-email.md:25",
             "ai-agents/20-api/voice-ai-boundary.md:72"
           ]
@@ -56638,7 +56646,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:299",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:308",
             "ai-agents/20-api/logs-deployment-email.md:19",
             "ai-agents/20-api/voice-ai-boundary.md:70"
           ]
@@ -56737,7 +56745,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:311",
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:334",
             "ai-agents/20-api/voice-ai-boundary.md:64"
           ]
         },
@@ -56769,7 +56777,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:310"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:333"
           ]
         },
         {
@@ -56804,7 +56812,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:314"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:337"
           ]
         },
         {
@@ -56839,7 +56847,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:313"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:336"
           ]
         },
         {
@@ -56874,7 +56882,7 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/10-anatomy/voice-ai-agent-shape.md:312"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:335"
           ]
         },
         {
@@ -56971,6 +56979,48 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           ]
         },
         {
+          id: "ai-agents--voices-agents",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/voice-ai/voices/{recordId}/agents",
+          path: "/voice-ai/voices/{recordId}/agents",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "recordId"
+            }
+          ],
+          query: [
+            {
+              name: "companyId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:319"
+          ]
+        },
+        {
           id: "ai-agents--voices-all",
           method: "GET",
           url: "https://services.leadconnectorhq.com/voice-ai/voices/all",
@@ -57053,6 +57103,54 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           ]
         },
         {
+          id: "ai-agents--voices-import",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/voice-ai/voices/import/{providerVoiceId}",
+          path: "/voice-ai/voices/import/{providerVoiceId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "providerVoiceId"
+            }
+          ],
+          query: [
+            {
+              name: "companyId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "provider",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:316"
+          ]
+        },
+        {
           id: "ai-agents--voices-my-voices",
           method: "GET",
           url: "https://services.leadconnectorhq.com/voice-ai/voices/my-voices",
@@ -57070,6 +57168,55 @@ Flagged to the operator as a security observation about the vendor, not a capabi
           service: "ai-agents",
           tree: "documented",
           pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "companyId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:312",
+            "ai-agents/20-api/voice-ai-boundary.md:66"
+          ]
+        },
+        {
+          id: "ai-agents--voices-my-voices-delete",
+          method: "DELETE",
+          url: "https://services.leadconnectorhq.com/voice-ai/voices/my-voices/{providerVoiceId}",
+          path: "/voice-ai/voices/my-voices/{providerVoiceId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "providerVoiceId"
+            }
+          ],
           query: [],
           body: null,
           returns: null,
@@ -57080,7 +57227,57 @@ Flagged to the operator as a security observation about the vendor, not a capabi
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/voice-ai-boundary.md:66"
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:320"
+          ]
+        },
+        {
+          id: "ai-agents--voices-search",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/voice-ai/voices/search",
+          path: "/voice-ai/voices/search",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "provider",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "query",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/10-anatomy/voice-ai-agent-shape.md:314"
           ]
         },
         {
@@ -178243,7 +178440,7 @@ async function executeAgentPlan({ plan, gw, verifyExpected } = {}) {
   const refused = [];
   for (let index = 0; index < (plan.actions ?? []).length; index++) {
     const action = threadAgentId(plan.actions[index], report.agentId);
-    const label2 = { index, type: action.body?.type ?? null, name: action.body?.name ?? null };
+    const label2 = { index, type: action.body?.type ?? action.body?.actionType ?? null, name: action.body?.name ?? null };
     try {
       const result = await gw.call(action.method, action.path, action.body, { base: AI_BASE2 });
       const observed = { ...label2, path: action.path, status: result.status, id: actionId(result.json) };

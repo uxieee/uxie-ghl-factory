@@ -1,7 +1,7 @@
 {
   "generated": "2026-09-28",
   "note": "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path — not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-  "count": 1244,
+  "count": 1248,
   "endpoints": [
     {
       "id": "facebook-service--get-ad-account-by-id",
@@ -16353,7 +16353,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:344"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:367"
       ]
     },
     {
@@ -55064,7 +55064,7 @@
       },
       "sources": [
         "ai-agents/20-api/12-ai-agents-api.md:161",
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:315"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:338"
       ]
     },
     {
@@ -55319,7 +55319,14 @@
           "name": "agentId"
         }
       ],
-      "query": [],
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
       "body": null,
       "returns": null,
       "confidence": {
@@ -55330,6 +55337,7 @@
       },
       "sources": [
         "ai-agents/20-api/voice-ai-boundary.md:63",
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:264",
         "ai-agents/20-api/12-ai-agents-api.md:166"
       ]
     },
@@ -55438,7 +55446,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:303"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:326"
       ]
     },
     {
@@ -55536,7 +55544,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:317"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:340"
       ]
     },
     {
@@ -55631,7 +55639,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:292"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:301"
       ]
     },
     {
@@ -55679,7 +55687,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:325"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:348"
       ]
     },
     {
@@ -55762,7 +55770,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:340",
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:363",
         "ai-agents/20-api/logs-deployment-email.md:27"
       ]
     },
@@ -55798,7 +55806,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:321"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:344"
       ]
     },
     {
@@ -55836,7 +55844,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:324"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:347"
       ]
     },
     {
@@ -55892,7 +55900,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:327",
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:350",
         "ai-agents/20-api/logs-deployment-email.md:24",
         "ai-agents/20-api/voice-ai-boundary.md:71",
         "ai-agents/30-types/voice-ai-actions.md:109"
@@ -55939,7 +55947,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:328",
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:351",
         "ai-agents/20-api/logs-deployment-email.md:25",
         "ai-agents/20-api/voice-ai-boundary.md:72"
       ]
@@ -56449,7 +56457,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:299",
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:308",
         "ai-agents/20-api/logs-deployment-email.md:19",
         "ai-agents/20-api/voice-ai-boundary.md:70"
       ]
@@ -56548,7 +56556,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:311",
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:334",
         "ai-agents/20-api/voice-ai-boundary.md:64"
       ]
     },
@@ -56580,7 +56588,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:310"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:333"
       ]
     },
     {
@@ -56615,7 +56623,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:314"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:337"
       ]
     },
     {
@@ -56650,7 +56658,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:313"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:336"
       ]
     },
     {
@@ -56685,7 +56693,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/10-anatomy/voice-ai-agent-shape.md:312"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:335"
       ]
     },
     {
@@ -56782,6 +56790,48 @@
       ]
     },
     {
+      "id": "ai-agents--voices-agents",
+      "method": "GET",
+      "url": "https://services.leadconnectorhq.com/voice-ai/voices/{recordId}/agents",
+      "path": "/voice-ai/voices/{recordId}/agents",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "ai-agents",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "recordId"
+        }
+      ],
+      "query": [
+        {
+          "name": "companyId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:319"
+      ]
+    },
+    {
       "id": "ai-agents--voices-all",
       "method": "GET",
       "url": "https://services.leadconnectorhq.com/voice-ai/voices/all",
@@ -56864,6 +56914,54 @@
       ]
     },
     {
+      "id": "ai-agents--voices-import",
+      "method": "POST",
+      "url": "https://services.leadconnectorhq.com/voice-ai/voices/import/{providerVoiceId}",
+      "path": "/voice-ai/voices/import/{providerVoiceId}",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "ai-agents",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "providerVoiceId"
+        }
+      ],
+      "query": [
+        {
+          "name": "companyId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "provider",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:316"
+      ]
+    },
+    {
       "id": "ai-agents--voices-my-voices",
       "method": "GET",
       "url": "https://services.leadconnectorhq.com/voice-ai/voices/my-voices",
@@ -56881,6 +56979,55 @@
       "service": "ai-agents",
       "tree": "documented",
       "pathParams": [],
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "companyId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:312",
+        "ai-agents/20-api/voice-ai-boundary.md:66"
+      ]
+    },
+    {
+      "id": "ai-agents--voices-my-voices-delete",
+      "method": "DELETE",
+      "url": "https://services.leadconnectorhq.com/voice-ai/voices/my-voices/{providerVoiceId}",
+      "path": "/voice-ai/voices/my-voices/{providerVoiceId}",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "destructive",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "ai-agents",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "providerVoiceId"
+        }
+      ],
       "query": [],
       "body": null,
       "returns": null,
@@ -56891,7 +57038,57 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/voice-ai-boundary.md:66"
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:320"
+      ]
+    },
+    {
+      "id": "ai-agents--voices-search",
+      "method": "GET",
+      "url": "https://services.leadconnectorhq.com/voice-ai/voices/search",
+      "path": "/voice-ai/voices/search",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "ai-agents",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [
+        {
+          "name": "provider",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/10-anatomy/voice-ai-agent-shape.md:314"
       ]
     },
     {
