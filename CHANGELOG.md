@@ -11,6 +11,44 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [1.1.0] — 2026-09-28
+
+**Five new tools for pipelines, funnels and Voice AI, and fixes to the workflow engine and the Conversation AI
+tools — every change executed live on the test sub-account before release.**
+
+New tools:
+- **`edit_pipeline`** — rename a pipeline, add, rename or reorder stages, set colours and win probabilities, without
+  the stage list being replaced by accident. It checks the pipeline by id AND name, previews by default, and
+  refuses to remove a stage that still holds cards unless you say where the cards go (it then moves them, waits
+  until the stage is empty, and reads the result back).
+- **`get_pipeline_forecast`** — the Forecast screen as data: summary, timeline, drill-down and slipped deals, with
+  pipeline, stage and owner NAMES beside GHL's ids.
+- **`update_voiceai_agent`** — change a Voice AI agent's prompt, voice, model and call settings. GHL merges partial
+  updates. When the voice provider refuses a value GHL has already stored, the tool writes the previous values back
+  and reports both (`PROVIDER_REFUSED_BUT_STORED`).
+- **`get_funnel`** — one funnel's summary, public paths, settings, versions, security headers, events and cookie
+  consent.
+- **`edit_funnel`** — funnel settings, create / clone / move / reorder / delete steps, publish and unpublish a page
+  (404 or redirect), and security headers. A step created without a domain is refused (it would 404 in public).
+
+Changed:
+- **Company and custom-object workflows are validated against their own step list.** GHL serves a different
+  marketplace catalogue per workflow type; `build_workflow`, `edit_workflow`, `repair_workflow` and
+  `check_workflow` read the right one (a company step used to be refused as unknown).
+- **Behaviour change — a native "Create opportunity" no longer counts as binding the card.** An "Update
+  opportunity" after it was silently skipped by GHL at run time; such a spec is now refused with
+  `OPP_UNASSOCIATED` and pointed at the create step that does bind.
+- `workflow_goal` conditions get the id GHL requires; an opportunity-status trigger without a status row is refused
+  before publish; `check_workflow` flags two formatter settings GHL saves and then skips at run time.
+- **Conversation AI:** TikTok and Email channels accepted; model, response length and business name settable;
+  the summary is sent whole; GHL's full error text is returned; a create where some actions fail reports the
+  partial build (`AGENT_PARTIAL_BUILD`) instead of looking like success; Stop Bot needs at least two examples.
+- `build_funnel_page` re-reads before reporting sections missing (GHL's read-back lags a landed write).
+- `raw_request` refuses a pipeline reorder with no target position (GHL moves the pipeline anyway).
+- Skills corrected against live runs: Conversation AI, Voice AI, knowledge base, pipelines (with a traps
+  reference) and funnels. Each lists what GHL can do that the plugin deliberately does not author.
+- The endpoint catalogue gains about 110 live-documented routes.
+
 ## [1.0.8] — 2026-09-25
 
 **Three silent failures fixed, all found by re-running 41 tools live.**
