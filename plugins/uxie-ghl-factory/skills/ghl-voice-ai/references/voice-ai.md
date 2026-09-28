@@ -131,6 +131,8 @@ compiler's.
 - **Identity:** `agentName`, `businessName`, `locationId`, `timezone`, `agentPrompt`,
   `llmModel` (default `gpt-4.1`), `provider` (`RETELL` or `lc`, set from the model), `agentStatus`
   (`PENDING`→`ACTIVE` after first save), `advancedSettingsEnabled`.
+  Renaming (`agentName`) makes GHL rewrite every occurrence of the old name inside `agentPrompt`;
+  `update_voiceai_agent` reports that as `collateral.retemplated`, and any other prompt change as collateral.
 - **Welcome:** `welcomeMessage`, `welcomeMessageMode` (`ai_custom` | `user_first`),
   `beginMessageDelayMs`, `prompts{}` (System-Prompt section overrides — Personality, Date &
   Time Awareness, Numbers & Symbols Speech Rules, Email Confirmation Process; not fully

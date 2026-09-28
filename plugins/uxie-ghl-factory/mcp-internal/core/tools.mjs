@@ -2272,6 +2272,7 @@ export const TOOLS = [
       + 'appointmentBooking, dateAndTimeAwareness, numericAndEmailHandling, emailConfirmationProcess (the hangup/spam '
       + 'prompts are endCallConfig). disabledPrompts replaces the list; an empty list is refused (clearing is unmeasured). '
       + 'Refuses action arrays, numbers and unknown keys. '
+      + 'A rename makes GHL rewrite the old name inside agentPrompt: reported as collateral.retemplated, not a failure. '
       + '🔴 A Test Audio call binds to the SIGNED-IN USER\'s own contact: on an agent that updates contact fields, saves '
       + 'summary notes or runs post-call workflows, a test call writes to that real contact. '
       + 'To create an agent use create_voiceai_agent. Previews by default; confirm:true writes.'),
